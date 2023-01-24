@@ -1,0 +1,7 @@
+{
+  "name": "@turnkey/oss",
+  "private": true,
+  "description": "Public monorepo for Turnkey SDK",
+  "scripts": {},
+  "license": "Apache-2.0"
+}
