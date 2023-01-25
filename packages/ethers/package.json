@@ -33,7 +33,7 @@
     "ethers": "^5.0.0"
   },
   "dependencies": {
-    "@turnkey/http": "workspace:*"
+    "@turnkey/http": "workspace:^"
   },
   "devDependencies": {
     "@turnkey/jest-config": "workspace:*",

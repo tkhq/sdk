@@ -36,7 +36,7 @@ importers:
 
   packages/ethers:
     specifiers:
-      '@turnkey/http': workspace:*
+      '@turnkey/http': workspace:^
       '@turnkey/jest-config': workspace:*
       ethers: ^5.0.0
     dependencies:
