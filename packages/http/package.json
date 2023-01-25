@@ -21,6 +21,10 @@
     "url": "https://github.com/tkhq/sdk.git",
     "directory": "packages/http"
   },
+  "files": [
+    "dist/",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "prepare": "pnpm run clean && pnpm run build",
     "build": "tsc",
