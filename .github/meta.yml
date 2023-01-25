@@ -1,0 +1,35 @@
+name: meta
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch: # Allows manual invocation
+
+jobs:
+  meta:
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
+
+      - name: Ensure third-party actions are pinned to commit SHAs
+        run: |
+          result=$( \
+            find .github -name '*.yml' | \
+            xargs grep -Ei 'uses:\s*[a-z0-9_.-]+\/[a-z0-9_.-]+@' | \
+            grep -Eiv '@[a-z0-9]{40}' | \
+            cat \
+          )
+
+          if [[ -z "$result" ]]
+          then
+            echo "Validated all third-party actions"
+          else
+            echo "Error: third-party GitHub actions MUST be pinned to a commit SHA."
+            echo "$result"
+            exit 1
+          fi

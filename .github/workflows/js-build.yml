@@ -1,0 +1,42 @@
+name: js-build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch: # Allows manual invocation
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
+
+      # Install and cache JS toolchain and dependencies (node_modules)
+      - name: Setup JS
+        uses: ./.github/actions/js-setup
+
+      - name: Test
+        run: pnpm run test-all
+
+      - name: Typecheck
+        run: pnpm run typecheck-all
+
+      - name: Build
+        run: pnpm run build-all
+
+      - name: Ensure git is clean
+        run: |
+          if [ -z "$( git status --porcelain )" ]; then
+            echo "Git is clean!"
+            exit 0
+          else
+            echo "Git is dirty!"
+            git add -A
+            git --no-pager diff HEAD
+            exit 1
+          fi

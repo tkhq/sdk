@@ -1,0 +1,46 @@
+name: "Setup JS"
+description: "Install JS toolchain and dependencies (node_modules)"
+
+runs:
+  using: "composite"
+
+  steps:
+    # https://github.com/actions/setup-node
+    - name: Install Node.js
+      uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516 # v3.5.1
+      with:
+        node-version-file: ".nvmrc"
+
+    - name: Use corepack to activate pnpm
+      run: corepack enable
+      shell: bash
+
+    - name: Audit dependencies (before installing anything)
+      # Ignore "low" and "moderate" advisories for now.
+      run: pnpm audit --audit-level high
+      shell: bash
+
+    - name: Get pnpm store directory (for caching)
+      id: pnpm-cache-dir
+      run: |
+        echo "::set-output name=dir::$(pnpm store path)"
+      shell: bash
+
+    # https://github.com/actions/cache
+    - name: Setup pnpm store cache
+      uses: actions/cache@9b0c1fce7a93df8e3bb8926b0d6e9d89e92f20a7 # v3.0.11
+      with:
+        path: ${{ steps.pnpm-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+      env:
+        SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
+
+    - name: Audit the lockfiles to catch peer dependency issues
+      run: pnpm install -r --lockfile-only
+      shell: bash
+
+    - name: Install dependencies
+      run: pnpm install -r --frozen-lockfile
+      shell: bash
