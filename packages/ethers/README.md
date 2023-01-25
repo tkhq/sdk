@@ -11,9 +11,3 @@ API Docs: https://turnkey.readme.io/
 ```bash
 $ npm install @turnkey/ethers
 ```
-
-The runtime expects the following environment variables to be set:
-
-- `process.env.BASE_URL`
-- `process.env.API_PUBLIC_KEY`
-- `process.env.API_PRIVATE_KEY`

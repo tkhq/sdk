@@ -1,4 +1,4 @@
-type Nullable<T> = { [K in keyof T]: T[K] | null };
+type TNullable<T> = { [K in keyof T]: T[K] | null };
 
 type TConfig = {
   apiPublicKey: string;
@@ -6,7 +6,7 @@ type TConfig = {
   baseUrl: string;
 };
 
-const config: Nullable<TConfig> = {
+const config: TNullable<TConfig> = {
   apiPublicKey: null,
   apiPrivateKey: null,
   baseUrl: null,

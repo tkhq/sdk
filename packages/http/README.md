@@ -23,7 +23,7 @@ init({
   baseUrl: "...",
 });
 
-// Now you can make requests!
+// Now you can make authenticated requests!
 const data = await PublicApiService.postGetWhoami({
   body: {
     organizationId: "...",
