@@ -1,26 +1,10 @@
-import * as fs from "fs";
-import * as path from "path";
 import * as crypto from "crypto";
 import { test, expect } from "@jest/globals";
 import { stamp } from "../stamp";
-
-const FIXTURES_DIR = path.resolve(__dirname, "..", "__fixtures__");
+import { readFixture } from "../__fixtures__/shared";
 
 test("sign", async () => {
-  const privateKey = await fs.promises.readFile(
-    path.resolve(FIXTURES_DIR, "api-key.private"),
-    "utf-8"
-  );
-
-  // These two formats represent the same public key
-  const publicKey = await fs.promises.readFile(
-    path.resolve(FIXTURES_DIR, "api-key.public"),
-    "utf-8"
-  );
-  const pemPublicKey = await fs.promises.readFile(
-    path.resolve(FIXTURES_DIR, "api-key.public.pem"),
-    "utf-8"
-  );
+  const { privateKey, publicKey, pemPublicKey } = await readFixture();
 
   const actualStamp = stamp({
     content: "hello",

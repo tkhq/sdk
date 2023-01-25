@@ -12,8 +12,21 @@ API Docs: https://turnkey.readme.io/
 $ npm install @turnkey/http
 ```
 
-The runtime expects the following environment variables to be set:
+Before making http calls, initialize the package with your credentials:
 
-- `process.env.BASE_URL`
-- `process.env.API_PUBLIC_KEY`
-- `process.env.API_PRIVATE_KEY`
+```typescript
+import { PublicApiService, init } from "@turnkey/http";
+
+init({
+  apiPublicKey: "...",
+  apiPrivateKey: "...",
+  baseUrl: "...",
+});
+
+// Now you can make requests!
+const data = await PublicApiService.postGetWhoami({
+  body: {
+    organizationId: "...",
+  },
+});
+```
