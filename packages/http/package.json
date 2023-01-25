@@ -12,6 +12,15 @@
     "name": "Turnkey",
     "url": "https://turnkey.io/"
   },
+  "homepage": "https://github.com/tkhq/sdk",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tkhq/sdk.git",
+    "directory": "packages/http"
+  },
   "scripts": {
     "build": "tsc",
     "clean": "rimraf ./dist",
