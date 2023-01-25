@@ -8,6 +8,7 @@ importers:
       '@jest/globals': ^29.3.1
       '@jest/types': ^29.3.1
       '@tsconfig/node16-strictest': ^1.0.4
+      '@turnkey/jest-config': workspace:*
       '@types/node': ^16.0.0
       jest: ^29.3.1
       rimraf: ^3.0.2
@@ -17,6 +18,7 @@ importers:
       '@jest/globals': 29.4.0
       '@jest/types': 29.4.0
       '@tsconfig/node16-strictest': 1.0.4
+      '@turnkey/jest-config': link:internal/jest-config
       '@types/node': 16.18.11
       jest: 29.4.0_@types+node@16.18.11
       rimraf: 3.0.2
@@ -39,21 +41,17 @@ importers:
   packages/ethers:
     specifiers:
       '@turnkey/http': workspace:*
-      '@turnkey/jest-config': workspace:*
       ethers: ^5.0.0
     dependencies:
       '@turnkey/http': link:../http
     devDependencies:
-      '@turnkey/jest-config': link:../../internal/jest-config
       ethers: 5.7.2
 
   packages/http:
     specifiers:
-      '@turnkey/jest-config': workspace:*
       '@types/node-fetch': ^2.6.2
       node-fetch: ^2.6.8
     dependencies:
-      '@turnkey/jest-config': link:../../internal/jest-config
       '@types/node-fetch': 2.6.2
       node-fetch: 2.6.8
 

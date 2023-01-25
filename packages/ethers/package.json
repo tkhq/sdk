@@ -44,7 +44,6 @@
     "@turnkey/http": "workspace:*"
   },
   "devDependencies": {
-    "@turnkey/jest-config": "workspace:*",
     "ethers": "^5.0.0"
   }
 }

@@ -20,6 +20,7 @@
     "@jest/globals": "^29.3.1",
     "@jest/types": "^29.3.1",
     "@tsconfig/node16-strictest": "^1.0.4",
+    "@turnkey/jest-config": "workspace:*",
     "@types/node": "^16.0.0",
     "jest": "^29.3.1",
     "rimraf": "^3.0.2",
