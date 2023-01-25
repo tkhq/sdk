@@ -17,6 +17,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "rimraf ./dist",
+    "test": "jest",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
@@ -26,6 +27,7 @@
     "@turnkey/http": "workspace:*"
   },
   "devDependencies": {
+    "@turnkey/jest-config": "workspace:*",
     "ethers": "^5.0.0"
   }
 }

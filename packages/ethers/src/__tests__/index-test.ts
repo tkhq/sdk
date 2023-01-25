@@ -3,6 +3,11 @@ import { test, expect } from "@jest/globals";
 import { TurnkeySigner, TurnkeyActivityError } from "../";
 
 test("TurnkeySigner", async () => {
+  if (!process.env.ORGANIZATION_ID) {
+    // For now, this test requires certain environment variables to be injected (from Turnkey's internal environment)
+    return;
+  }
+
   const organizationId = assertNonEmptyString(
     process.env.ORGANIZATION_ID,
     `process.env.ORGANIZATION_ID`

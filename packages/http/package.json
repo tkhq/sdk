@@ -4,7 +4,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "Apache-2.0",
-  "description": "Typed HTTP client for interacting with Turnkey's public API",
+  "description": "Typed HTTP client for interacting with Turnkey API",
   "keywords": [
     "Turnkey"
   ],
@@ -15,9 +15,11 @@
   "scripts": {
     "build": "tsc",
     "clean": "rimraf ./dist",
+    "test": "jest",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "node-fetch": "^3.3.0"
+    "@turnkey/jest-config": "workspace:*",
+    "node-fetch": "^2.6.8"
   }
 }
