@@ -80,7 +80,7 @@ export async function request<
     // https://node.green/#ES2022-features-Error-cause-property
     let internalErrorMessage: string | null = null;
     try {
-      const { code, message } = await response.json();
+      const { code, message } = (await response.json()) as any;
       internalErrorMessage = `Internal error ${code}: ${message}`;
     } catch (_) {}
 
@@ -118,7 +118,7 @@ function constructUrl(input: {
         url.searchParams.append(key, item);
       }
     } else {
-      url.searchParams.append(key, value);
+      url.searchParams.append(key, value ?? "");
     }
   }
 
