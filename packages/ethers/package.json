@@ -27,6 +27,9 @@
     "dist/",
     "CHANGELOG.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "prepare": "pnpm run clean && pnpm run build",
     "build": "tsc",
