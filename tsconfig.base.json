@@ -1,0 +1,9 @@
+{
+  "extends": "@tsconfig/node16-strictest/tsconfig.json",
+  "compilerOptions": {
+    "noPropertyAccessFromIndexSignature": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  }
+}

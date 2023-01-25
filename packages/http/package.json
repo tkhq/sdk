@@ -1,0 +1,35 @@
+{
+  "name": "@turnkey/http",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "license": "Apache-2.0",
+  "description": "Typed HTTP client for interacting with Turnkey API",
+  "keywords": [
+    "Turnkey"
+  ],
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.io/"
+  },
+  "homepage": "https://github.com/tkhq/sdk",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tkhq/sdk.git",
+    "directory": "packages/http"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf ./dist",
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@types/node-fetch": "^2.6.2",
+    "@turnkey/jest-config": "workspace:*",
+    "node-fetch": "^2.6.8"
+  }
+}
