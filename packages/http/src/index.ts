@@ -1,3 +1,1 @@
-export function foo(): number {
-  return 1;
-}
+export * from "./__generated__/barrel";
