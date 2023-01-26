@@ -1,0 +1,14 @@
+{
+  "name": "@turnkey/example-with-ethers",
+  "version": "0.1.3",
+  "private": true,
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/ethers": "workspace:*",
+    "dotenv": "^16.0.3",
+    "ethers": "^5.0.0"
+  }
+}
