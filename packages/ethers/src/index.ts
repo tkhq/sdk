@@ -1,15 +1,10 @@
 import { ethers, type UnsignedTransaction } from "ethers";
-import { PublicApiService } from "@turnkey/http";
+import { PublicApiService, init as httpInit } from "@turnkey/http";
 
 type TActivity = PublicApiService.TPostGetActivityResponse["activity"];
 type TActivityId = TActivity["id"];
 type TActivityStatus = TActivity["status"];
 type TActivityType = TActivity["type"];
-
-type TConfig = {
-  organizationId: string;
-  keyId: string;
-};
 
 export class TurnkeyActivityError extends Error {
   activityId: TActivityId | null;
@@ -35,14 +30,37 @@ export class TurnkeyActivityError extends Error {
   }
 }
 
+type TConfig = {
+  apiPublicKey: string;
+  apiPrivateKey: string;
+  baseUrl: string;
+  organizationId: string;
+  keyId: string;
+};
+
 export class TurnkeySigner extends ethers.Signer {
   private readonly config: TConfig;
+
+  public readonly organizationId: string;
+  public readonly keyId: string;
 
   constructor(config: TConfig, provider?: ethers.providers.Provider) {
     super();
 
     ethers.utils.defineReadOnly(this, "provider", provider);
     this.config = config;
+
+    const { apiPublicKey, apiPrivateKey, baseUrl, organizationId, keyId } =
+      config;
+
+    this.organizationId = organizationId;
+    this.keyId = keyId;
+
+    httpInit({
+      apiPublicKey,
+      apiPrivateKey,
+      baseUrl,
+    });
   }
 
   connect(provider: ethers.providers.Provider): TurnkeySigner {

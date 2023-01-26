@@ -8,10 +8,6 @@ export type paths = {
     /** Get details about an Activity */
     post: operations["PublicApiService_GetActivity"];
   };
-  "/public/v1/query/get_key": {
-    /** Get details about a Private Key */
-    post: operations["PublicApiService_GetKey"];
-  };
   "/public/v1/query/get_organization": {
     /** Get details about an Organization */
     post: operations["PublicApiService_GetOrganization"];
@@ -75,6 +71,10 @@ export type paths = {
   "/public/v1/submit/sign_transaction": {
     /** Sign a transaction with a Private Key */
     post: operations["PublicApiService_SignTransaction"];
+  };
+  "/tkhq/public/v1/query/get_key": {
+    /** Get details about a Private Key */
+    post: operations["PublicApiService_GetKey"];
   };
 };
 
@@ -869,32 +869,6 @@ export type operations = {
       };
     };
   };
-  /** Get details about a Private Key */
-  PublicApiService_GetKey: {
-    parameters: {
-      body: {
-        body: definitions["v1GetKeyRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetKeyResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
   /** Get details about an Organization */
   PublicApiService_GetOrganization: {
     parameters: {
@@ -1296,6 +1270,32 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get details about a Private Key */
+  PublicApiService_GetKey: {
+    parameters: {
+      body: {
+        body: definitions["v1GetKeyRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetKeyResponse"];
       };
       /** Returned when the user does not have permission to access the resource. */
       403: {

@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import { stamp } from "./stamp";
+import { getConfig } from "./config";
 import type { RequestInit } from "node-fetch";
 
 type TBasicType = string;
@@ -38,28 +39,21 @@ export async function request<
     body: inputBody = {},
   } = input;
 
+  const { apiPublicKey, apiPrivateKey } = getConfig();
+
   const url = constructUrl({
     uri: inputUri,
     query: inputQuery,
     substitution: inputSubstitution,
   });
 
-  const API_PUBLIC_KEY = assertNonEmptyString(
-    process.env.API_PUBLIC_KEY,
-    `process.env.API_PUBLIC_KEY`
-  );
-  const API_PRIVATE_KEY = assertNonEmptyString(
-    process.env.API_PRIVATE_KEY,
-    `process.env.API_PRIVATE_KEY`
-  );
-
   const sealedBody = stableStringify(inputBody);
   const jsonStamp = Buffer.from(
     stableStringify(
       stamp({
         content: sealedBody,
-        privateKey: API_PRIVATE_KEY,
-        publicKey: API_PUBLIC_KEY,
+        privateKey: apiPrivateKey,
+        publicKey: apiPublicKey,
       })
     )
   );
@@ -103,10 +97,7 @@ function constructUrl(input: {
 }): URL {
   const { uri, query, substitution } = input;
 
-  const baseUrl = assertNonEmptyString(
-    process.env.BASE_URL,
-    `process.env.BASE_URL`
-  );
+  const { baseUrl } = getConfig();
 
   const url = new URL(substitutePath(uri, substitution), baseUrl);
 
@@ -161,12 +152,4 @@ function invariant(condition: any, message: string) {
 
 export function stableStringify(input: Record<string, any>): string {
   return JSON.stringify(input);
-}
-
-function assertNonEmptyString(input: unknown, name: string): string {
-  if (typeof input !== "string" || !input) {
-    throw new Error(`Expected non empty string for "${name}", got ${input}`);
-  }
-
-  return input;
 }

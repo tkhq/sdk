@@ -3,11 +3,23 @@ import { test, expect } from "@jest/globals";
 import { TurnkeySigner, TurnkeyActivityError } from "../";
 
 test("TurnkeySigner", async () => {
-  if (!process.env.ORGANIZATION_ID) {
+  if (!process.env.BANNED_TO_ADDRESS) {
     // For now, this test requires certain environment variables to be injected (from Turnkey's internal environment)
     return;
   }
 
+  const apiPublicKey = assertNonEmptyString(
+    process.env.API_PUBLIC_KEY,
+    `process.env.API_PUBLIC_KEY`
+  );
+  const apiPrivateKey = assertNonEmptyString(
+    process.env.API_PRIVATE_KEY,
+    `process.env.API_PRIVATE_KEY`
+  );
+  const baseUrl = assertNonEmptyString(
+    process.env.BASE_URL,
+    `process.env.BASE_URL`
+  );
   const organizationId = assertNonEmptyString(
     process.env.ORGANIZATION_ID,
     `process.env.ORGANIZATION_ID`
@@ -25,6 +37,9 @@ test("TurnkeySigner", async () => {
   const provider = new ethers.providers.InfuraProvider("goerli");
 
   const signer = new TurnkeySigner({
+    apiPublicKey,
+    apiPrivateKey,
+    baseUrl,
     organizationId,
     keyId,
   }).connect(provider);
