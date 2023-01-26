@@ -61,49 +61,6 @@
         "tags": ["Activities"]
       }
     },
-    "/public/v1/query/get_key": {
-      "post": {
-        "summary": "Get Private Key",
-        "description": "Get details about a Private Key",
-        "operationId": "PublicApiService_GetKey",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetKeyResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetKeyRequest"
-            }
-          }
-        ],
-        "tags": ["Private Keys"]
-      }
-    },
     "/public/v1/query/get_organization": {
       "post": {
         "summary": "Get Organization",
@@ -786,6 +743,49 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/publicv1SignTransactionRequest"
+            }
+          }
+        ],
+        "tags": ["Private Keys"]
+      }
+    },
+    "/tkhq/public/v1/query/get_key": {
+      "post": {
+        "summary": "Get Private Key",
+        "description": "Get details about a Private Key",
+        "operationId": "PublicApiService_GetKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetKeyResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetKeyRequest"
             }
           }
         ],
