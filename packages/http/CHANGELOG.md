@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.1.3
+
+### Patch Changes
+
+- Support runtime config for credentials
+
 ## 0.1.2
 
 ### Patch Changes
