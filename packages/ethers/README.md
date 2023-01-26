@@ -20,41 +20,51 @@ async function main() {
   const network = "goerli";
   const provider = new ethers.providers.InfuraProvider(network);
 
-  const signer = new TurnkeySigner({
-    apiPrivateKey: "...",
+  // Initialize a Turnkey Signer
+  const turnkeySigner = new TurnkeySigner({
     apiPublicKey: "...",
+    apiPrivateKey: "...",
     baseUrl: "https://coordinator-beta.turnkey.io",
-    keyId: "...",
     organizationId: "...",
-  }).connect(provider);
+    keyId: "...",
+  });
 
-  const chainId = await signer.getChainId();
-  const address = await signer.getAddress();
-  const balance = await signer.getBalance();
+  // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
+  const connectedSigner = turnkeySigner.connect(provider);
 
-  console.log(`Network\n\t${network} (chainId ${chainId})`);
+  const chainId = await connectedSigner.getChainId();
+  const address = await connectedSigner.getAddress();
+  const balance = await connectedSigner.getBalance();
+  const transactionCount = await connectedSigner.getTransactionCount();
+
+  console.log(`Network\n\t${network} (chain ID ${chainId})`);
   console.log(`Address\n\t${address}`);
   console.log(`Balance\n\t${String(balance)}`);
+  console.log(`Transaction count\n\t${transactionCount}`);
 
   const transactionRequest = {
     to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
-    value: ethers.utils.parseEther("0.001"),
-    chainId,
-    nonce: 1,
-    gasLimit: 21000,
+    value: ethers.utils.parseEther("0.0001"),
     type: 2,
   };
 
-  const signedTx = await signer.signTransaction(transactionRequest);
+  const signedTx = await connectedSigner.signTransaction(transactionRequest);
+
   console.log(`Signed transaction\n\t${signedTx}`);
 
   if (balance.isZero()) {
-    console.warn(
-      "\nWarning: attempting to send a transaction while account balance is zero\n"
-    );
+    let warningMessage =
+      "\nWarning: the transaction won't be broadcasted because your account balance is zero.\n";
+    if (network === "goerli") {
+      warningMessage +=
+        "Use https://goerlifaucet.com/ to request funds on Goerli, then run the script again.\n";
+    }
+
+    console.warn(warningMessage);
+    return;
   }
 
-  const sentTx = await signer.sendTransaction(transactionRequest);
+  const sentTx = await connectedSigner.sendTransaction(transactionRequest);
 
   console.log(
     `Transaction sent!\n\thttps://${network}.etherscan.io/tx/${sentTx.hash}`
