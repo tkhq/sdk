@@ -2,11 +2,18 @@ import * as path from "path";
 import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
 import * as dotenv from "dotenv";
+import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 async function main() {
+  if (!process.env.KEY_ID) {
+    // If you don't specify a `KEY_ID`, we'll create one for you via calling the Turnkey API.
+    await createNewEthereumPrivateKey();
+    return;
+  }
+
   const network = "goerli";
   const provider = new ethers.providers.InfuraProvider(network);
 
@@ -34,7 +41,7 @@ async function main() {
 
   const transactionRequest = {
     to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
-    value: ethers.utils.parseEther("0.001"),
+    value: ethers.utils.parseEther("0.0001"),
     type: 2,
   };
 

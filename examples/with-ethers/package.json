@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@turnkey/ethers": "workspace:*",
+    "@turnkey/http": "workspace:*",
     "dotenv": "^16.0.3",
     "ethers": "^5.0.0"
   }

@@ -37,7 +37,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `BASE_URL`
 - `ORGANIZATION_ID`
-- `KEY_ID`
+- `KEY_ID` -- if you leave it blank, we'll create one for you via calling the Turnkey API
 
 ### 3/ Running the script
 

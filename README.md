@@ -1,5 +1,7 @@
 # Turnkey SDK
 
+[![js-build](https://github.com/tkhq/sdk/actions/workflows/js-build.yml/badge.svg)](https://github.com/tkhq/sdk/actions/workflows/js-build.yml)
+
 API Docs: https://turnkey.readme.io/
 
 ## Packages
