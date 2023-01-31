@@ -14,9 +14,6 @@ async function main() {
     return;
   }
 
-  const network = "goerli";
-  const provider = new ethers.providers.InfuraProvider(network);
-
   // Initialize a Turnkey Signer
   const turnkeySigner = new TurnkeySigner({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -27,6 +24,8 @@ async function main() {
   });
 
   // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
+  const network = "goerli";
+  const provider = new ethers.providers.InfuraProvider(network);
   const connectedSigner = turnkeySigner.connect(provider);
 
   const chainId = await connectedSigner.getChainId();
