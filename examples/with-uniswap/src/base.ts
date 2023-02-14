@@ -6,7 +6,6 @@ import {
   TradeType,
 } from "@uniswap/sdk-core";
 import {
-  FeeAmount,
   Pool,
   Route,
   SwapOptions,
@@ -17,36 +16,40 @@ import {
 import { ethers } from "ethers";
 import JSBI from "jsbi";
 
-// import { CurrentConfig } from "../config";
+import { getV3PoolInfo } from "./pool";
+import { fromReadableAmount, TransactionState } from "./abi/utils";
 import {
+  getProvider,
+  getTurnkeySigner,
+  getTurnkeyWalletAddress,
+} from "./provider";
+import {
+  DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
+  DEFAULT_MAX_FEE_PER_GAS,
+  DEFAULT_TOKEN_APPROVAL_AMOUNT,
   ERC20_ABI,
   QUOTER_CONTRACT_ADDRESS,
   SWAP_ROUTER_ADDRESS,
-  TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER,
 } from "./constants";
-import { MAX_FEE_PER_GAS, MAX_PRIORITY_FEE_PER_GAS } from "./constants";
-import { getPoolInfo } from "./pool";
-import {
-  getProvider,
-  getWalletAddress,
-  sendTransaction,
-  TransactionState,
-} from "./providers";
-import { fromReadableAmount } from "./utils";
-
-import { GOERLI_USDC_TOKEN, GOERLI_WETH_TOKEN } from "../constants";
+import { UniV3SwapConfig } from "./config";
 
 export type TokenTrade = Trade<Token, Token, TradeType>;
 
+export type UniV3TradeParams = {
+  tokenIn: Token;
+  tokenOut: Token;
+  fee: Number;
+};
+
 // Trading Functions
 
-export async function createTrade(): Promise<TokenTrade> {
-  const poolInfo = await getPoolInfo();
+export async function createV3Trade(): Promise<TokenTrade> {
+  const poolInfo = await getV3PoolInfo();
 
   const pool = new Pool(
-    GOERLI_USDC_TOKEN, // token in
-    GOERLI_WETH_TOKEN, // token out
-    FeeAmount.MEDIUM,
+    UniV3SwapConfig.tokens.in,
+    UniV3SwapConfig.tokens.out,
+    UniV3SwapConfig.tokens.poolFee,
     poolInfo.sqrtPriceX96.toString(),
     poolInfo.liquidity.toString(),
     poolInfo.tick
@@ -54,8 +57,8 @@ export async function createTrade(): Promise<TokenTrade> {
 
   const swapRoute = new Route(
     [pool],
-    GOERLI_USDC_TOKEN,
-    GOERLI_WETH_TOKEN
+    UniV3SwapConfig.tokens.in,
+    UniV3SwapConfig.tokens.out
   );
 
   const amountOut = await getOutputQuote(swapRoute);
@@ -63,14 +66,14 @@ export async function createTrade(): Promise<TokenTrade> {
   const uncheckedTrade = Trade.createUncheckedTrade({
     route: swapRoute,
     inputAmount: CurrencyAmount.fromRawAmount(
-      GOERLI_USDC_TOKEN,
+      UniV3SwapConfig.tokens.in,
       fromReadableAmount(
-        CurrentConfig.tokens.amountIn,
-        GOERLI_USDC_TOKEN.decimals
+        UniV3SwapConfig.tokens.amountIn,
+        UniV3SwapConfig.tokens.in.decimals
       ).toString()
     ),
     outputAmount: CurrencyAmount.fromRawAmount(
-      GOERLI_WETH_TOKEN,
+      UniV3SwapConfig.tokens.out,
       JSBI.BigInt(amountOut)
     ),
     tradeType: TradeType.EXACT_INPUT,
@@ -81,42 +84,48 @@ export async function createTrade(): Promise<TokenTrade> {
 
 export async function executeTrade(
   trade: TokenTrade
-): Promise<TransactionState> {
-  const walletAddress = getWalletAddress();
+): Promise<ethers.providers.TransactionResponse> {
+  const walletAddress = getTurnkeyWalletAddress();
   const provider = getProvider();
+  const connectedSigner = getTurnkeySigner();
 
   if (!walletAddress || !provider) {
     throw new Error("Cannot execute a trade without a connected wallet");
   }
 
   // Give approval to the router to spend the token
-  const tokenApproval = await getTokenTransferApproval(GOERLI_USDC_TOKEN);
+  // TODO: Realistically, we should only do this if necessary (to prevent unnecessary contract calls)
+  const tokenApproval = await getTokenTransferApproval(
+    UniV3SwapConfig.tokens.in
+  );
 
   // Fail if transfer approvals do not go through
   if (tokenApproval !== TransactionState.Sent) {
-    return TransactionState.Failed;
+    throw new Error("Unable to approve transfer");
   }
+
+  console.log(`Token approval: ${JSON.stringify(tokenApproval)}`);
 
   const options: SwapOptions = {
     slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
     deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
-    recipient: walletAddress,
+    recipient: walletAddress, // NOTE: interesting that one might be able to configure this
   };
 
   const methodParameters = SwapRouter.swapCallParameters([trade], options);
+
+  console.log(`Swap method parameters: ${JSON.stringify(methodParameters)}`);
 
   const tx = {
     data: methodParameters.calldata,
     to: SWAP_ROUTER_ADDRESS,
     value: methodParameters.value,
     from: walletAddress,
-    maxFeePerGas: MAX_FEE_PER_GAS,
-    maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS,
+    maxFeePerGas: DEFAULT_MAX_FEE_PER_GAS,
+    maxPriorityFeePerGas: DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
   };
 
-  const res = await sendTransaction(tx);
-
-  return res;
+  return await connectedSigner.sendTransaction(tx);
 }
 
 // Helper Quoting and Pool Functions
@@ -131,10 +140,10 @@ async function getOutputQuote(route: Route<Currency, Currency>) {
   const { calldata } = await SwapQuoter.quoteCallParameters(
     route,
     CurrencyAmount.fromRawAmount(
-      GOERLI_USDC_TOKEN,
+      UniV3SwapConfig.tokens.in,
       fromReadableAmount(
-        CurrentConfig.tokens.amountIn,
-        GOERLI_USDC_TOKEN.decimals
+        UniV3SwapConfig.tokens.amountIn,
+        UniV3SwapConfig.tokens.in.decimals
       ).toString()
     ),
     TradeType.EXACT_INPUT,
@@ -154,10 +163,10 @@ async function getOutputQuote(route: Route<Currency, Currency>) {
 export async function getTokenTransferApproval(
   token: Token
 ): Promise<TransactionState> {
-  const provider = getProvider();
-  const address = getWalletAddress();
-  if (!provider || !address) {
-    console.log("No Provider Found");
+  const connectedSigner = getTurnkeySigner();
+  const address = getTurnkeyWalletAddress();
+  if (!connectedSigner || !address) {
+    console.log("No Connected Signer Found");
     return TransactionState.Failed;
   }
 
@@ -165,21 +174,32 @@ export async function getTokenTransferApproval(
     const tokenContract = new ethers.Contract(
       token.address,
       ERC20_ABI,
-      provider
+      connectedSigner
     );
 
+    // Verify that `approve` is an available method on the contract
+    if (!tokenContract.populateTransaction.approve)
+      return TransactionState.Failed;
+
     const transaction = await tokenContract.populateTransaction.approve(
+      // const transaction = await tokenContract.approve(
       SWAP_ROUTER_ADDRESS,
       fromReadableAmount(
-        TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER,
+        DEFAULT_TOKEN_APPROVAL_AMOUNT, // ideally, use a static amount like `UniV3SwapConfig.tokens.amountIn`
         token.decimals
       ).toString()
     );
 
-    return sendTransaction({
+    let response = await connectedSigner.sendTransaction({
       ...transaction,
       from: address,
     });
+
+    if (response) {
+      return TransactionState.Sent;
+    } else {
+      return TransactionState.Failed;
+    }
   } catch (e) {
     console.error(e);
     return TransactionState.Failed;
