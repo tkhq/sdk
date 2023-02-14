@@ -50,16 +50,27 @@ The script constructs a transaction via Turnkey and broadcasts via Infura. If th
 Visit the Etherscan link to view your transaction; you have successfully sent your first transaction with Turnkey!
 
 ```
-Network
+Network:
 	goerli (chain ID 5)
-Address
-	0xD05925Ee065179963842cC5DAD63C545177dA5A9
-Balance
-	161369999979147000
-Transaction count
-	20
-Signed transaction
-	0x02f8678080808080942ad9ea1e677949a536a270cec812d6e868c8810887038d7ea4c6800080c001a0d11db1eada99e65e1d823e32368a8fa6d2b4ecc9106927c624096b35d83a0b93a0751e5d34ef8462da687cdc5500fb585e828079032c919f200501b0e8a1c383db
-Transaction sent!
-	https://goerli.etherscan.io/tx/0x9e28260b134e46551f324ce91094ae181e8850a65508a85d1704f2993e7e5574
+
+Address:
+	0xA16d17B5bd27b657dB0E973983B8C1848aeC257e
+
+Balance:
+	0.023383035198168014 Ether
+
+Transaction count:
+	14
+
+Turnkey-signed transaction:
+	0x02f8668080808080942ad9ea1e677949a536a270cec812d6e868c881088609184e72a00080c001a0cae70a2ffd4b851ea22349c8f198a3aa8e47932064eecdc1691fa8ed65d09281a015434a47976515b60783cdc1c3f52fa29ff0e36575c31cf59f41b9802d95a8f5
+
+Sent 0.00001 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://goerli.etherscan.io/tx/0x9ced217b3eb54d2d0dd49e62602af1584039091571c95489a63f0cd76601f81c
+
+WETH Balance:
+	0.00023 WETH
+
+Wrapped 0.00001 ETH:
+	https://goerli.etherscan.io/tx/0xec76157de7c02ddf5a188273f238f1d194040ad1034e9037d9f30b10f0b92923
 ```
