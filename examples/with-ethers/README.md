@@ -71,6 +71,6 @@ Sent 0.00001 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
 WETH Balance:
 	0.00023 WETH
 
-Deposited 0.00001 WETH:
+Wrapped 0.00001 ETH:
 	https://goerli.etherscan.io/tx/0xec76157de7c02ddf5a188273f238f1d194040ad1034e9037d9f30b10f0b92923
 ```

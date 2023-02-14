@@ -85,7 +85,7 @@ async function main() {
     });
 
     print(
-      `Deposited ${ethers.utils.formatEther(sentTx.value)} WETH:`,
+      `Wrapped ${ethers.utils.formatEther(depositTx.value)} ETH:`,
       `https://${network}.etherscan.io/tx/${depositTx.hash}`
     );
   }
