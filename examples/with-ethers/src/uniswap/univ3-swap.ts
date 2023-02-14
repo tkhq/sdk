@@ -2,15 +2,15 @@ import * as path from "path";
 import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
 import * as dotenv from "dotenv";
-import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
-import ABI from "./weth-contract-abi.json";
+import { createNewEthereumPrivateKey } from "../createNewEthereumPrivateKey";
+import ABI from "./uniswap-universal-router-contract-abi.json";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 async function main() {
-  if (!process.env.PRIVATE_KEY_ID) {
-    // If you don't specify a `PRIVATE_KEY_ID`, we'll create one for you via calling the Turnkey API.
+  if (!process.env.KEY_ID) {
+    // If you don't specify a `KEY_ID`, we'll create one for you via calling the Turnkey API.
     await createNewEthereumPrivateKey();
     return;
   }
@@ -21,7 +21,7 @@ async function main() {
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     baseUrl: process.env.BASE_URL!,
     organizationId: process.env.ORGANIZATION_ID!,
-    privateKeyId: process.env.PRIVATE_KEY_ID!,
+    keyId: process.env.KEY_ID!,
   });
 
   // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
@@ -69,18 +69,18 @@ async function main() {
   );
 
   if (network === "goerli") {
-    // https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6
-    const wethContract = new ethers.Contract(
-      "0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6",
+    // https://goerli.etherscan.io/address/0x4648a43b2c14da09fdf82b161150d3f634f40491
+    const uniswapUniversalRouter = new ethers.Contract(
+      "0x4648a43b2c14da09fdf82b161150d3f634f40491",
       ABI,
       connectedSigner
     );
 
-    const wethBalance = await wethContract.balanceOf(address);
+    const wethBalance = await uniswapUniversalRouter.execute(address);
 
     print("WETH Balance:", `${ethers.utils.formatEther(wethBalance)} WETH`);
 
-    const depositTx = await wethContract.deposit({
+    const depositTx = await uniswapUniversalRouter.deposit({
       value: ethers.utils.parseEther("0.00001"),
     });
 
