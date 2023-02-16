@@ -22,7 +22,7 @@ async function main() {
   const transactionAmount = "0.00001";
   const destinationAddress = "0x2Ad9eA1E677949a536A270CEC812D6e868C88108";
 
-  print("Network:", `${network} (chain ID ${chainId})`);
+  print("Network:", `${network.name} (chain ID ${chainId})`);
   print("Address:", address);
   print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
   print("Transaction count:", `${transactionCount}`);

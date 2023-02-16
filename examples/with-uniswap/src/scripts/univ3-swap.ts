@@ -22,7 +22,7 @@ async function main() {
   const transactionCount = await connectedSigner.getTransactionCount();
 
   // Print relevant config + address info
-  print("Network:", `${network} (chain ID ${chainId})`);
+  print("Network:", `${network.name} (chain ID ${chainId})`);
   print("Address:", address);
   print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
   print("Transaction count:", `${transactionCount}`);
@@ -34,14 +34,12 @@ async function main() {
     // See `config.ts` to configure the trade
     let trade = await createV3Trade();
 
-    print("Successfully created trade:", `${JSON.stringify(trade)}`);
+    print("Successfully prepared trade:", `${JSON.stringify(trade)}`);
 
     let result = await executeTrade(trade);
 
-    print("Successfully executed trade:", `${JSON.stringify(result)}`);
-
     print(
-      `Successfully traded via Uniswap v3:`,
+      `Successfully executed trade via Uniswap v3:`,
       `https://${network.name}.etherscan.io/tx/${result.hash}`
     );
   }

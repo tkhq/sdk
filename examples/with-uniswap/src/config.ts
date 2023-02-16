@@ -27,9 +27,9 @@ export interface BaseConfig {
 export const UniV3SwapConfig: BaseConfig = {
   env: Environment.GOERLI,
   tokens: {
-    in: UNI_TOKEN_GOERLI,
-    amountIn: 0.04,
-    out: WETH_TOKEN_GOERLI,
+    in: WETH_TOKEN_GOERLI,
+    amountIn: 0.01,
+    out: UNI_TOKEN_GOERLI,
     poolFee: FeeAmount.MEDIUM,
   },
   wallet: {

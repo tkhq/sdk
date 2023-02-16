@@ -1,6 +1,6 @@
 # Example: `with-ethers`
 
-This example shows how to construct and broadcast a transaction using [`Ethers`](https://docs.ethers.org/v5/api/signer/) with Turnkey.
+This example shows how to construct and broadcast Uniswap-related transactions, built on top of [`Ethers`](https://docs.ethers.org/v5/api/signer/) with Turnkey.
 
 ## Getting started
 
@@ -14,7 +14,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-ethers/
+$ cd examples/with-uniswap/
 ```
 
 ### 2/ Setting up Turnkey
@@ -38,16 +38,22 @@ Now open `.env.local` and add the missing environment variables:
 - `BASE_URL`
 - `ORGANIZATION_ID`
 - `KEY_ID` -- if you leave it blank, we'll create one for you via calling the Turnkey API
+- `KEY_ADDRESS` -- address associated with the key ID
+- `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
 ### 3/ Running the script
+There is currently one script you can run (more to be added), located in `package.json`: 
+1. `univ3-swap.ts`: a simple Uniswap trade, routed via the v3 engine. Heavily based on [Uniswap's v3 trading examples](https://github.com/Uniswap/examples/tree/main/v3-sdk/trading/).
+
+Configure your trade via `config.ts`, namely `UniV3SwapConfig`. Ensure you have sufficient funds to make the trade. If you have insufficient funds, your transaction will fail either at broadcast time, or onchain. Furthermore, note that this utilizes `TradeType.EXACT_INPUT` -- if you would like to be lenient with inputs and more strict with outputs (the funds you will *receive* as a result of the trade), consider using `TradeType.EXACT_OUTPUT`.
 
 ```bash
-$ pnpm start
+$ pnpm start-univ3-swap
 ```
 
 The script constructs a transaction via Turnkey and broadcasts via Infura. If the script exits because your account isn't funded, you can request funds on https://goerlifaucet.com/.
 
-Visit the Etherscan link to view your transaction; you have successfully sent your first transaction with Turnkey!
+Visit the Etherscan link to view your transaction; you have successfully made your first transaction with Turnkey!
 
 ```
 Network:
@@ -62,15 +68,9 @@ Balance:
 Transaction count:
 	14
 
-Turnkey-signed transaction:
-	0x02f8668080808080942ad9ea1e677949a536a270cec812d6e868c881088609184e72a00080c001a0cae70a2ffd4b851ea22349c8f198a3aa8e47932064eecdc1691fa8ed65d09281a015434a47976515b60783cdc1c3f52fa29ff0e36575c31cf59f41b9802d95a8f5
+Successfully prepared trade:
+	<JSON blob>
 
-Sent 0.00001 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
-	https://goerli.etherscan.io/tx/0x9ced217b3eb54d2d0dd49e62602af1584039091571c95489a63f0cd76601f81c
-
-WETH Balance:
-	0.00023 WETH
-
-Wrapped 0.00001 ETH:
-	https://goerli.etherscan.io/tx/0xec76157de7c02ddf5a188273f238f1d194040ad1034e9037d9f30b10f0b92923
+Successfully executed trade via Uniswap v3:
+	https://goerli.etherscan.io/tx/0x254a6561c0607dd0af530c5ba031c408a32c4554b73a87cac8490b12e42b5b92
 ```

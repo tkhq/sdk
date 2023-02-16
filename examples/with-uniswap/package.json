@@ -3,8 +3,7 @@
   "version": "0.1.3",
   "private": true,
   "scripts": {
-    "start-uniswap-v2": "ts-node src/scripts/univ2-swap.ts",
-    "start-uniswap-v3": "ts-node src/scripts/univ3-swap.ts",
+    "start-univ3-swap": "ts-node src/scripts/univ3-swap.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
