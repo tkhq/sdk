@@ -9,8 +9,8 @@ import ABI from "./weth-contract-abi.json";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 async function main() {
-  if (!process.env.KEY_ID) {
-    // If you don't specify a `KEY_ID`, we'll create one for you via calling the Turnkey API.
+  if (!process.env.PRIVATE_KEY_ID) {
+    // If you don't specify a `PRIVATE_KEY_ID`, we'll create one for you via calling the Turnkey API.
     await createNewEthereumPrivateKey();
     return;
   }
@@ -21,7 +21,7 @@ async function main() {
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     baseUrl: process.env.BASE_URL!,
     organizationId: process.env.ORGANIZATION_ID!,
-    keyId: process.env.KEY_ID!,
+    privateKeyId: process.env.PRIVATE_KEY_ID!,
   });
 
   // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)

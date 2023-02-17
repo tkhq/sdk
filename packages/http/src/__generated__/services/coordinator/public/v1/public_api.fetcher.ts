@@ -47,6 +47,25 @@ export const postGetOrganization = (input: TPostGetOrganizationInput) =>
     body: input.body,
   });
 
+/** `POST /public/v1/query/get_policy` */
+type TPostGetPolicyBody =
+  operations["PublicApiService_GetPolicy"]["parameters"]["body"]["body"];
+
+/** `POST /public/v1/query/get_policy` */
+export type TPostGetPolicyResponse =
+  operations["PublicApiService_GetPolicy"]["responses"]["200"]["schema"];
+
+/** `POST /public/v1/query/get_policy` */
+export type TPostGetPolicyInput = { body: TPostGetPolicyBody };
+
+/** `POST /public/v1/query/get_policy` */
+export const postGetPolicy = (input: TPostGetPolicyInput) =>
+  request<TPostGetPolicyResponse, TPostGetPolicyBody, never, never, never>({
+    uri: "/public/v1/query/get_policy",
+    method: "POST",
+    body: input.body,
+  });
+
 /** `POST /public/v1/query/get_user` */
 type TPostGetUserBody =
   operations["PublicApiService_GetUser"]["parameters"]["body"]["body"];
@@ -66,21 +85,71 @@ export const postGetUser = (input: TPostGetUserInput) =>
     body: input.body,
   });
 
-/** `POST /public/v1/query/list_keys` */
-type TPostGetKeysBody =
-  operations["PublicApiService_GetKeys"]["parameters"]["body"]["body"];
+/** `POST /public/v1/query/list_activities` */
+type TPostGetActivitiesBody =
+  operations["PublicApiService_GetActivities"]["parameters"]["body"]["body"];
 
-/** `POST /public/v1/query/list_keys` */
-export type TPostGetKeysResponse =
-  operations["PublicApiService_GetKeys"]["responses"]["200"]["schema"];
+/** `POST /public/v1/query/list_activities` */
+export type TPostGetActivitiesResponse =
+  operations["PublicApiService_GetActivities"]["responses"]["200"]["schema"];
 
-/** `POST /public/v1/query/list_keys` */
-export type TPostGetKeysInput = { body: TPostGetKeysBody };
+/** `POST /public/v1/query/list_activities` */
+export type TPostGetActivitiesInput = { body: TPostGetActivitiesBody };
 
-/** `POST /public/v1/query/list_keys` */
-export const postGetKeys = (input: TPostGetKeysInput) =>
-  request<TPostGetKeysResponse, TPostGetKeysBody, never, never, never>({
-    uri: "/public/v1/query/list_keys",
+/** `POST /public/v1/query/list_activities` */
+export const postGetActivities = (input: TPostGetActivitiesInput) =>
+  request<
+    TPostGetActivitiesResponse,
+    TPostGetActivitiesBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_activities",
+    method: "POST",
+    body: input.body,
+  });
+
+/** `POST /public/v1/query/list_policies` */
+type TPostGetPoliciesBody =
+  operations["PublicApiService_GetPolicies"]["parameters"]["body"]["body"];
+
+/** `POST /public/v1/query/list_policies` */
+export type TPostGetPoliciesResponse =
+  operations["PublicApiService_GetPolicies"]["responses"]["200"]["schema"];
+
+/** `POST /public/v1/query/list_policies` */
+export type TPostGetPoliciesInput = { body: TPostGetPoliciesBody };
+
+/** `POST /public/v1/query/list_policies` */
+export const postGetPolicies = (input: TPostGetPoliciesInput) =>
+  request<TPostGetPoliciesResponse, TPostGetPoliciesBody, never, never, never>({
+    uri: "/public/v1/query/list_policies",
+    method: "POST",
+    body: input.body,
+  });
+
+/** `POST /public/v1/query/list_private_keys` */
+type TPostGetPrivateKeysBody =
+  operations["PublicApiService_GetPrivateKeys"]["parameters"]["body"]["body"];
+
+/** `POST /public/v1/query/list_private_keys` */
+export type TPostGetPrivateKeysResponse =
+  operations["PublicApiService_GetPrivateKeys"]["responses"]["200"]["schema"];
+
+/** `POST /public/v1/query/list_private_keys` */
+export type TPostGetPrivateKeysInput = { body: TPostGetPrivateKeysBody };
+
+/** `POST /public/v1/query/list_private_keys` */
+export const postGetPrivateKeys = (input: TPostGetPrivateKeysInput) =>
+  request<
+    TPostGetPrivateKeysResponse,
+    TPostGetPrivateKeysBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_private_keys",
     method: "POST",
     body: input.body,
   });
@@ -173,25 +242,6 @@ export const postCreateInvitations = (input: TPostCreateInvitationsInput) =>
     body: input.body,
   });
 
-/** `POST /public/v1/submit/create_keys` */
-type TPostCreateKeysBody =
-  operations["PublicApiService_CreateKeys"]["parameters"]["body"]["body"];
-
-/** `POST /public/v1/submit/create_keys` */
-export type TPostCreateKeysResponse =
-  operations["PublicApiService_CreateKeys"]["responses"]["200"]["schema"];
-
-/** `POST /public/v1/submit/create_keys` */
-export type TPostCreateKeysInput = { body: TPostCreateKeysBody };
-
-/** `POST /public/v1/submit/create_keys` */
-export const postCreateKeys = (input: TPostCreateKeysInput) =>
-  request<TPostCreateKeysResponse, TPostCreateKeysBody, never, never, never>({
-    uri: "/public/v1/submit/create_keys",
-    method: "POST",
-    body: input.body,
-  });
-
 /** `POST /public/v1/submit/create_policy` */
 type TPostCreatePolicyBody =
   operations["PublicApiService_CreatePolicy"]["parameters"]["body"]["body"];
@@ -217,21 +267,27 @@ export const postCreatePolicy = (input: TPostCreatePolicyInput) =>
     body: input.body,
   });
 
-/** `POST /public/v1/submit/create_users` */
-type TPostCreateUsersBody =
-  operations["PublicApiService_CreateUsers"]["parameters"]["body"]["body"];
+/** `POST /public/v1/submit/create_private_keys` */
+type TPostCreatePrivateKeysBody =
+  operations["PublicApiService_CreatePrivateKeys"]["parameters"]["body"]["body"];
 
-/** `POST /public/v1/submit/create_users` */
-export type TPostCreateUsersResponse =
-  operations["PublicApiService_CreateUsers"]["responses"]["200"]["schema"];
+/** `POST /public/v1/submit/create_private_keys` */
+export type TPostCreatePrivateKeysResponse =
+  operations["PublicApiService_CreatePrivateKeys"]["responses"]["200"]["schema"];
 
-/** `POST /public/v1/submit/create_users` */
-export type TPostCreateUsersInput = { body: TPostCreateUsersBody };
+/** `POST /public/v1/submit/create_private_keys` */
+export type TPostCreatePrivateKeysInput = { body: TPostCreatePrivateKeysBody };
 
-/** `POST /public/v1/submit/create_users` */
-export const postCreateUsers = (input: TPostCreateUsersInput) =>
-  request<TPostCreateUsersResponse, TPostCreateUsersBody, never, never, never>({
-    uri: "/public/v1/submit/create_users",
+/** `POST /public/v1/submit/create_private_keys` */
+export const postCreatePrivateKeys = (input: TPostCreatePrivateKeysInput) =>
+  request<
+    TPostCreatePrivateKeysResponse,
+    TPostCreatePrivateKeysBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_private_keys",
     method: "POST",
     body: input.body,
   });
@@ -311,40 +367,27 @@ export const postDeletePolicy = (input: TPostDeletePolicyInput) =>
     body: input.body,
   });
 
-/** `POST /public/v1/submit/delete_users` */
-type TPostDeleteUsersBody =
-  operations["PublicApiService_DeleteUsers"]["parameters"]["body"]["body"];
+/** `POST /public/v1/submit/sign_raw_payload` */
+type TPostSignRawPayloadBody =
+  operations["PublicApiService_SignRawPayload"]["parameters"]["body"]["body"];
 
-/** `POST /public/v1/submit/delete_users` */
-export type TPostDeleteUsersResponse =
-  operations["PublicApiService_DeleteUsers"]["responses"]["200"]["schema"];
+/** `POST /public/v1/submit/sign_raw_payload` */
+export type TPostSignRawPayloadResponse =
+  operations["PublicApiService_SignRawPayload"]["responses"]["200"]["schema"];
 
-/** `POST /public/v1/submit/delete_users` */
-export type TPostDeleteUsersInput = { body: TPostDeleteUsersBody };
+/** `POST /public/v1/submit/sign_raw_payload` */
+export type TPostSignRawPayloadInput = { body: TPostSignRawPayloadBody };
 
-/** `POST /public/v1/submit/delete_users` */
-export const postDeleteUsers = (input: TPostDeleteUsersInput) =>
-  request<TPostDeleteUsersResponse, TPostDeleteUsersBody, never, never, never>({
-    uri: "/public/v1/submit/delete_users",
-    method: "POST",
-    body: input.body,
-  });
-
-/** `POST /public/v1/submit/sign` */
-type TPostSignMessageBody =
-  operations["PublicApiService_SignMessage"]["parameters"]["body"]["body"];
-
-/** `POST /public/v1/submit/sign` */
-export type TPostSignMessageResponse =
-  operations["PublicApiService_SignMessage"]["responses"]["200"]["schema"];
-
-/** `POST /public/v1/submit/sign` */
-export type TPostSignMessageInput = { body: TPostSignMessageBody };
-
-/** `POST /public/v1/submit/sign` */
-export const postSignMessage = (input: TPostSignMessageInput) =>
-  request<TPostSignMessageResponse, TPostSignMessageBody, never, never, never>({
-    uri: "/public/v1/submit/sign",
+/** `POST /public/v1/submit/sign_raw_payload` */
+export const postSignRawPayload = (input: TPostSignRawPayloadInput) =>
+  request<
+    TPostSignRawPayloadResponse,
+    TPostSignRawPayloadBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/sign_raw_payload",
     method: "POST",
     body: input.body,
   });
@@ -374,21 +417,27 @@ export const postSignTransaction = (input: TPostSignTransactionInput) =>
     body: input.body,
   });
 
-/** `POST /tkhq/public/v1/query/get_key` */
-type TPostGetKeyBody =
-  operations["PublicApiService_GetKey"]["parameters"]["body"]["body"];
+/** `POST /tkhq/public/v1/query/get_private_key` */
+type TPostGetPrivateKeyBody =
+  operations["PublicApiService_GetPrivateKey"]["parameters"]["body"]["body"];
 
-/** `POST /tkhq/public/v1/query/get_key` */
-export type TPostGetKeyResponse =
-  operations["PublicApiService_GetKey"]["responses"]["200"]["schema"];
+/** `POST /tkhq/public/v1/query/get_private_key` */
+export type TPostGetPrivateKeyResponse =
+  operations["PublicApiService_GetPrivateKey"]["responses"]["200"]["schema"];
 
-/** `POST /tkhq/public/v1/query/get_key` */
-export type TPostGetKeyInput = { body: TPostGetKeyBody };
+/** `POST /tkhq/public/v1/query/get_private_key` */
+export type TPostGetPrivateKeyInput = { body: TPostGetPrivateKeyBody };
 
-/** `POST /tkhq/public/v1/query/get_key` */
-export const postGetKey = (input: TPostGetKeyInput) =>
-  request<TPostGetKeyResponse, TPostGetKeyBody, never, never, never>({
-    uri: "/tkhq/public/v1/query/get_key",
+/** `POST /tkhq/public/v1/query/get_private_key` */
+export const postGetPrivateKey = (input: TPostGetPrivateKeyInput) =>
+  request<
+    TPostGetPrivateKeyResponse,
+    TPostGetPrivateKeyBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/tkhq/public/v1/query/get_private_key",
     method: "POST",
     body: input.body,
   });
