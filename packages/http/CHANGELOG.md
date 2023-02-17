@@ -4,8 +4,8 @@
 
 ### Minor Changes
 
-- - Change parameter from `keyId` to `privateKeyId`
-  - Bump API version to latest Beta
+- Change parameter from `keyId` to `privateKeyId`
+- Bump API version to latest Beta
 
 ## 0.1.3
 
