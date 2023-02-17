@@ -35,14 +35,14 @@ type TConfig = {
   apiPrivateKey: string;
   baseUrl: string;
   organizationId: string;
-  keyId: string;
+  privateKeyId: string;
 };
 
 export class TurnkeySigner extends ethers.Signer {
   private readonly config: TConfig;
 
   public readonly organizationId: string;
-  public readonly keyId: string;
+  public readonly privateKeyId: string;
 
   constructor(config: TConfig, provider?: ethers.providers.Provider) {
     super();
@@ -50,11 +50,16 @@ export class TurnkeySigner extends ethers.Signer {
     ethers.utils.defineReadOnly(this, "provider", provider);
     this.config = config;
 
-    const { apiPublicKey, apiPrivateKey, baseUrl, organizationId, keyId } =
-      config;
+    const {
+      apiPublicKey,
+      apiPrivateKey,
+      baseUrl,
+      organizationId,
+      privateKeyId,
+    } = config;
 
     this.organizationId = organizationId;
-    this.keyId = keyId;
+    this.privateKeyId = privateKeyId;
 
     httpInit({
       apiPublicKey,
@@ -70,7 +75,7 @@ export class TurnkeySigner extends ethers.Signer {
   async getAddress(): Promise<string> {
     const data = await PublicApiService.postGetPrivateKey({
       body: {
-        privateKeyId: this.config.keyId,
+        privateKeyId: this.config.privateKeyId,
         organizationId: this.config.organizationId,
       },
     });
@@ -81,7 +86,7 @@ export class TurnkeySigner extends ethers.Signer {
 
     if (typeof maybeAddress !== "string" || !maybeAddress) {
       throw new TurnkeyActivityError({
-        message: `Unable to find Ethereum address for key ${this.config.keyId} under organization ${this.config.organizationId}`,
+        message: `Unable to find Ethereum address for key ${this.config.privateKeyId} under organization ${this.config.organizationId}`,
       });
     }
 
@@ -94,7 +99,7 @@ export class TurnkeySigner extends ethers.Signer {
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
         organizationId: this.config.organizationId,
         parameters: {
-          keyId: this.config.keyId,
+          keyId: this.config.privateKeyId,
           type: "TRANSACTION_TYPE_ETHEREUM",
           unsignedTransaction: message,
         },

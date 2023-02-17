@@ -26,7 +26,7 @@ async function main() {
     apiPrivateKey: "...",
     baseUrl: "https://coordinator-beta.turnkey.io",
     organizationId: "...",
-    keyId: "...",
+    privateKeyId: "...",
   });
 
   // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)

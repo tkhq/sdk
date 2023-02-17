@@ -11,24 +11,24 @@ export async function createNewEthereumPrivateKey() {
   });
 
   console.log(
-    "`process.env.KEY_ID` not found; creating a new Ethereum private key on Turnkey...\n"
+    "`process.env.PRIVATE_KEY_ID` not found; creating a new Ethereum private key on Turnkey...\n"
   );
 
-  const randomLabel = `ETH Key ${String(
+  const privateKeyName = `ETH Key ${String(
     Math.floor(Math.random() * 10000)
   ).padStart(4, "0")}`;
 
   try {
-    const keyId = await withPolling(randomLabel);
+    const privateKeyId = await withPolling(privateKeyName);
 
     // Success!
     console.log(
       [
         `New Ethereum private key created!`,
-        `- Label: ${randomLabel}`,
-        `- Key ID: ${keyId}`,
+        `- Name: ${privateKeyName}`,
+        `- Private key ID: ${privateKeyId}`,
         ``,
-        "Now you can take the key ID, put it in `.env.local`, then re-run the script.",
+        "Now you can take the private key ID, put it in `.env.local`, then re-run the script.",
       ].join("\n")
     );
   } catch (error) {

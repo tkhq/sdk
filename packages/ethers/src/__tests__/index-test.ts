@@ -24,7 +24,10 @@ test("TurnkeySigner", async () => {
     process.env.ORGANIZATION_ID,
     `process.env.ORGANIZATION_ID`
   );
-  const keyId = assertNonEmptyString(process.env.KEY_ID, `process.env.KEY_ID`);
+  const privateKeyId = assertNonEmptyString(
+    process.env.PRIVATE_KEY_ID,
+    `process.env.PRIVATE_KEY_ID`
+  );
   const expectedEthAddress = assertNonEmptyString(
     process.env.EXPECTED_ETH_ADDRESS,
     `process.env.EXPECTED_ETH_ADDRESS`
@@ -41,7 +44,7 @@ test("TurnkeySigner", async () => {
     apiPrivateKey,
     baseUrl,
     organizationId,
-    keyId,
+    privateKeyId,
   }).connect(provider);
 
   expect(ethers.Signer.isSigner(signer)).toBe(true);
