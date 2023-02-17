@@ -1,0 +1,2924 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Turnkey Public API",
+    "version": "1.0",
+    "contact": {
+      "name": "Turnkey Engineering",
+      "url": "https://turnkey.io/contact",
+      "email": "eng@turnkey.io"
+    }
+  },
+  "tags": [
+    {
+      "name": "PublicApiService"
+    }
+  ],
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/public/v1/query/get_activity": {
+      "post": {
+        "summary": "Get Activity",
+        "description": "Get details about an Activity",
+        "operationId": "PublicApiService_GetActivity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetActivityRequest"
+            }
+          }
+        ],
+        "tags": ["Activities"]
+      }
+    },
+    "/public/v1/query/get_organization": {
+      "post": {
+        "summary": "Get Organization",
+        "description": "Get details about an Organization",
+        "operationId": "PublicApiService_GetOrganization",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetOrganizationResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetOrganizationRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"]
+      }
+    },
+    "/public/v1/query/get_policy": {
+      "post": {
+        "summary": "Get Policy",
+        "description": "Get details about a Policy",
+        "operationId": "PublicApiService_GetPolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetPolicyResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetPolicyRequest"
+            }
+          }
+        ],
+        "tags": ["Policies"]
+      }
+    },
+    "/public/v1/query/get_user": {
+      "post": {
+        "summary": "Get User",
+        "description": "Get details about a User",
+        "operationId": "PublicApiService_GetUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetUserResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetUserRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
+    "/public/v1/query/list_activities": {
+      "post": {
+        "summary": "List Activities",
+        "description": "List all Activities within an Organization",
+        "operationId": "PublicApiService_GetActivities",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetActivitiesResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetActivitiesRequest"
+            }
+          }
+        ],
+        "tags": ["Activities"]
+      }
+    },
+    "/public/v1/query/list_policies": {
+      "post": {
+        "summary": "List Policies",
+        "description": "List all Policies within an Organization",
+        "operationId": "PublicApiService_GetPolicies",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetPoliciesResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetPoliciesRequest"
+            }
+          }
+        ],
+        "tags": ["Policies"]
+      }
+    },
+    "/public/v1/query/list_private_keys": {
+      "post": {
+        "summary": "List Private Keys",
+        "description": "List all Private Keys within an Organization",
+        "operationId": "PublicApiService_GetPrivateKeys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetPrivateKeysResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetPrivateKeysRequest"
+            }
+          }
+        ],
+        "tags": ["Private Keys"]
+      }
+    },
+    "/public/v1/query/list_users": {
+      "post": {
+        "summary": "List Users",
+        "description": "List all Users within an Organization",
+        "operationId": "PublicApiService_GetUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetUsersResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetUsersRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
+    "/public/v1/query/whoami": {
+      "post": {
+        "summary": "Who am I?",
+        "description": "Get basic information about your current API user and your organization",
+        "operationId": "PublicApiService_GetWhoami",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetWhoamiResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetWhoamiRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
+    "/public/v1/submit/create_api_keys": {
+      "post": {
+        "summary": "Create API Keys",
+        "description": "Add api keys to an existing User",
+        "operationId": "PublicApiService_CreateApiKeys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateApiKeysRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
+    "/public/v1/submit/create_invitations": {
+      "post": {
+        "summary": "Create Invitations",
+        "description": "Create Invitations to join an existing Organization",
+        "operationId": "PublicApiService_CreateInvitations",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateInvitationsRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"]
+      }
+    },
+    "/public/v1/submit/create_policy": {
+      "post": {
+        "summary": "Create Policy",
+        "description": "Create a new Policy",
+        "operationId": "PublicApiService_CreatePolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreatePolicyRequest"
+            }
+          }
+        ],
+        "tags": ["Policies"]
+      }
+    },
+    "/public/v1/submit/create_private_keys": {
+      "post": {
+        "summary": "Create Private Keys",
+        "description": "Create new Private Keys",
+        "operationId": "PublicApiService_CreatePrivateKeys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreatePrivateKeysRequest"
+            }
+          }
+        ],
+        "tags": ["Private Keys"]
+      }
+    },
+    "/public/v1/submit/delete_api_keys": {
+      "post": {
+        "summary": "Delete API Keys",
+        "description": "Remove api keys from a User",
+        "operationId": "PublicApiService_DeleteApiKeys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteApiKeysRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
+    "/public/v1/submit/delete_invitations": {
+      "post": {
+        "summary": "Delete Invitation",
+        "description": "Delete an existing Invitation",
+        "operationId": "PublicApiService_DeleteInvitation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteInvitationRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"]
+      }
+    },
+    "/public/v1/submit/delete_policy": {
+      "post": {
+        "summary": "Delete Policy",
+        "description": "Delete an existing Policy",
+        "operationId": "PublicApiService_DeletePolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeletePolicyRequest"
+            }
+          }
+        ],
+        "tags": ["Policies"]
+      }
+    },
+    "/public/v1/submit/sign_raw_payload": {
+      "post": {
+        "summary": "Sign Raw Payload",
+        "description": "Sign a raw payload with a Private Key",
+        "operationId": "PublicApiService_SignRawPayload",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SignRawPayloadRequest"
+            }
+          }
+        ],
+        "tags": ["Private Keys"]
+      }
+    },
+    "/public/v1/submit/sign_transaction": {
+      "post": {
+        "summary": "Sign Transaction",
+        "description": "Sign a transaction with a Private Key",
+        "operationId": "PublicApiService_SignTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SignTransactionRequest"
+            }
+          }
+        ],
+        "tags": ["Private Keys"]
+      }
+    },
+    "/tkhq/public/v1/query/get_private_key": {
+      "post": {
+        "summary": "Get Private Key",
+        "description": "Get details about a Private Key",
+        "operationId": "PublicApiService_GetPrivateKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetPrivateKeyResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetPrivateKeyRequest"
+            }
+          }
+        ],
+        "tags": ["Private Keys"]
+      }
+    }
+  },
+  "definitions": {
+    "datav1Tag": {
+      "type": "object",
+      "properties": {
+        "tagId": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "tagType": {
+          "$ref": "#/definitions/v1TagType"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        }
+      },
+      "required": ["tagId", "label", "tagType", "createdAt", "updatedAt"]
+    },
+    "externaldatav1AccessType": {
+      "type": "string",
+      "enum": ["ACCESS_TYPE_WEB", "ACCESS_TYPE_API", "ACCESS_TYPE_ALL"]
+    },
+    "externaldatav1Address": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "$ref": "#/definitions/externaldatav1AddressFormat"
+        },
+        "address": {
+          "type": "string"
+        }
+      }
+    },
+    "externaldatav1AddressFormat": {
+      "type": "string",
+      "enum": [
+        "ADDRESS_FORMAT_UNCOMPRESSED",
+        "ADDRESS_FORMAT_COMPRESSED",
+        "ADDRESS_FORMAT_ETHEREUM",
+        "ADDRESS_FORMAT_BITCOIN_P2PKH",
+        "ADDRESS_FORMAT_BITCOIN_P2PKH_TESTNET"
+      ],
+      "title": "- ADDRESS_FORMAT_UNCOMPRESSED: 04\u003cX_COORDINATE\u003e\u003cY_COORDINATE\u003e\n - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate\n - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing.\n - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes"
+    },
+    "externaldatav1AuthenticatorTransport": {
+      "type": "string",
+      "enum": [
+        "AUTHENTICATOR_TRANSPORT_BLE",
+        "AUTHENTICATOR_TRANSPORT_INTERNAL",
+        "AUTHENTICATOR_TRANSPORT_NFC",
+        "AUTHENTICATOR_TRANSPORT_USB",
+        "AUTHENTICATOR_TRANSPORT_HYBRID"
+      ]
+    },
+    "externaldatav1Curve": {
+      "type": "string",
+      "enum": ["CURVE_SECP256K1"],
+      "title": "- CURVE_SECP256K1: The only curve we're planning to support short-term"
+    },
+    "externaldatav1Effect": {
+      "type": "string",
+      "enum": ["EFFECT_ALLOW", "EFFECT_DENY"]
+    },
+    "externaldatav1Operator": {
+      "type": "string",
+      "enum": [
+        "OPERATOR_EQUAL",
+        "OPERATOR_MORE_THAN",
+        "OPERATOR_MORE_THAN_OR_EQUAL",
+        "OPERATOR_LESS_THAN",
+        "OPERATOR_LESS_THAN_OR_EQUAL",
+        "OPERATOR_CONTAINS",
+        "OPERATOR_NOT_EQUAL"
+      ]
+    },
+    "externaldatav1Selector": {
+      "type": "object",
+      "properties": {
+        "subject": {
+          "type": "string"
+        },
+        "operator": {
+          "$ref": "#/definitions/externaldatav1Operator"
+        },
+        "target": {
+          "type": "string"
+        }
+      },
+      "required": ["subject", "operator", "target"]
+    },
+    "immutableactivityv1AccessType": {
+      "type": "string",
+      "enum": ["ACCESS_TYPE_WEB", "ACCESS_TYPE_API", "ACCESS_TYPE_ALL"]
+    },
+    "immutableactivityv1AddressFormat": {
+      "type": "string",
+      "enum": [
+        "ADDRESS_FORMAT_UNCOMPRESSED",
+        "ADDRESS_FORMAT_COMPRESSED",
+        "ADDRESS_FORMAT_ETHEREUM",
+        "ADDRESS_FORMAT_BITCOIN_P2PKH",
+        "ADDRESS_FORMAT_BITCOIN_P2PKH_TESTNET"
+      ],
+      "title": "- ADDRESS_FORMAT_UNCOMPRESSED: 04\u003cX_COORDINATE\u003e\u003cY_COORDINATE\u003e\n - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate\n - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing.\n - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes"
+    },
+    "immutableactivityv1Curve": {
+      "type": "string",
+      "enum": ["CURVE_SECP256K1"],
+      "title": "- CURVE_SECP256K1: The only curve we're planning to support short-term"
+    },
+    "immutableactivityv1Effect": {
+      "type": "string",
+      "enum": ["EFFECT_ALLOW", "EFFECT_DENY"]
+    },
+    "immutableactivityv1Operator": {
+      "type": "string",
+      "enum": [
+        "OPERATOR_EQUAL",
+        "OPERATOR_MORE_THAN",
+        "OPERATOR_MORE_THAN_OR_EQUAL",
+        "OPERATOR_LESS_THAN",
+        "OPERATOR_LESS_THAN_OR_EQUAL",
+        "OPERATOR_CONTAINS",
+        "OPERATOR_NOT_EQUAL"
+      ]
+    },
+    "immutableactivityv1Selector": {
+      "type": "object",
+      "properties": {
+        "subject": {
+          "type": "string"
+        },
+        "operator": {
+          "$ref": "#/definitions/immutableactivityv1Operator"
+        },
+        "target": {
+          "type": "string"
+        }
+      }
+    },
+    "immutableactivityv1TransactionType": {
+      "type": "string",
+      "enum": ["TRANSACTION_TYPE_ETHEREUM"],
+      "title": "- TRANSACTION_TYPE_ETHEREUM: Unsigned Ethereum transaction, RLP-encoded and hex-encoded"
+    },
+    "immutablewebauthnv1AuthenticatorTransport": {
+      "type": "string",
+      "enum": [
+        "AUTHENTICATOR_TRANSPORT_BLE",
+        "AUTHENTICATOR_TRANSPORT_INTERNAL",
+        "AUTHENTICATOR_TRANSPORT_NFC",
+        "AUTHENTICATOR_TRANSPORT_USB",
+        "AUTHENTICATOR_TRANSPORT_HYBRID"
+      ]
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1AcceptInvitationIntent": {
+      "type": "object",
+      "properties": {
+        "invitationId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        },
+        "userId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        },
+        "authenticator": {
+          "$ref": "#/definitions/v1AuthenticatorParams"
+        }
+      },
+      "required": ["invitationId", "userId", "authenticator"]
+    },
+    "v1AcceptInvitationResult": {
+      "type": "object",
+      "properties": {
+        "invitationId": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": ["invitationId", "userId"]
+    },
+    "v1Activity": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/v1ActivityStatus"
+        },
+        "type": {
+          "$ref": "#/definitions/v1ActivityType"
+        },
+        "intent": {
+          "$ref": "#/definitions/v1Intent"
+        },
+        "result": {
+          "$ref": "#/definitions/v1Result"
+        },
+        "votes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Vote"
+          }
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "canApprove": {
+          "type": "boolean"
+        },
+        "canReject": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "organizationId",
+        "status",
+        "type",
+        "intent",
+        "result",
+        "votes",
+        "fingerprint",
+        "canApprove",
+        "canReject",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "v1ActivityResponse": {
+      "type": "object",
+      "properties": {
+        "activity": {
+          "$ref": "#/definitions/v1Activity"
+        }
+      },
+      "required": ["activity"]
+    },
+    "v1ActivityStatus": {
+      "type": "string",
+      "enum": [
+        "ACTIVITY_STATUS_CREATED",
+        "ACTIVITY_STATUS_PENDING",
+        "ACTIVITY_STATUS_COMPLETED",
+        "ACTIVITY_STATUS_FAILED",
+        "ACTIVITY_STATUS_CONSENSUS_NEEDED",
+        "ACTIVITY_STATUS_REJECTED"
+      ]
+    },
+    "v1ActivityType": {
+      "type": "string",
+      "enum": [
+        "ACTIVITY_TYPE_CREATE_API_KEYS",
+        "ACTIVITY_TYPE_CREATE_USERS",
+        "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
+        "ACTIVITY_TYPE_CREATE_INVITATIONS",
+        "ACTIVITY_TYPE_ACCEPT_INVITATION",
+        "ACTIVITY_TYPE_CREATE_POLICY",
+        "ACTIVITY_TYPE_DISABLE_PRIVATE_KEY",
+        "ACTIVITY_TYPE_DELETE_USERS",
+        "ACTIVITY_TYPE_DELETE_API_KEYS",
+        "ACTIVITY_TYPE_DELETE_INVITATION",
+        "ACTIVITY_TYPE_DELETE_ORGANIZATION",
+        "ACTIVITY_TYPE_DELETE_POLICY",
+        "ACTIVITY_TYPE_CREATE_USER_TAG",
+        "ACTIVITY_TYPE_DELETE_USER_TAGS",
+        "ACTIVITY_TYPE_CREATE_ORGANIZATION",
+        "ACTIVITY_TYPE_SIGN_TRANSACTION",
+        "ACTIVITY_TYPE_APPROVE_ACTIVITY",
+        "ACTIVITY_TYPE_REJECT_ACTIVITY",
+        "ACTIVITY_TYPE_DELETE_AUTHENTICATORS",
+        "ACTIVITY_TYPE_CREATE_AUTHENTICATORS",
+        "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
+        "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"
+      ],
+      "title": "These are all of the types of user-facing activities on Turnkey\nWe use this to guide the polymorphic parsing of activity requests/approvals/rejections\nOne activity type maps to one internal Intent, but not all internal intents have a user-facing activity (e.g. Hearbeats)"
+    },
+    "v1ApiKey": {
+      "type": "object",
+      "properties": {
+        "credential": {
+          "$ref": "#/definitions/v1Credential"
+        },
+        "apiKeyId": {
+          "type": "string"
+        },
+        "apiKeyName": {
+          "type": "string"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        }
+      },
+      "required": [
+        "credential",
+        "apiKeyId",
+        "apiKeyName",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "v1ApiKeyParams": {
+      "type": "object",
+      "properties": {
+        "apiKeyName": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,max=40\""
+        },
+        "publicKey": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"hexadecimal,len=66\""
+        }
+      },
+      "required": ["apiKeyName", "publicKey"]
+    },
+    "v1ApproveActivityIntent": {
+      "type": "object",
+      "properties": {
+        "fingerprint": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required\""
+        }
+      },
+      "required": ["fingerprint"]
+    },
+    "v1Authenticator": {
+      "type": "object",
+      "properties": {
+        "transports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/externaldatav1AuthenticatorTransport"
+          }
+        },
+        "attestationType": {
+          "type": "string"
+        },
+        "aaguid": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "credentialId": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "credential": {
+          "$ref": "#/definitions/v1Credential"
+        },
+        "authenticatorId": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        }
+      },
+      "required": [
+        "transports",
+        "attestationType",
+        "aaguid",
+        "userId",
+        "credentialId",
+        "model",
+        "credential",
+        "authenticatorId",
+        "label",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "v1AuthenticatorAttestationResponse": {
+      "type": "object",
+      "properties": {
+        "clientDataJson": {
+          "type": "string",
+          "title": "ENCODING: base64url"
+        },
+        "attestationObject": {
+          "type": "string",
+          "title": "ENCODING: base64url"
+        },
+        "transports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/immutablewebauthnv1AuthenticatorTransport"
+          }
+        },
+        "authenticatorAttachment": {
+          "type": "string",
+          "enum": ["cross-platform", "platform"],
+          "x-nullable": true
+        }
+      },
+      "required": ["clientDataJson", "attestationObject"]
+    },
+    "v1AuthenticatorParams": {
+      "type": "object",
+      "properties": {
+        "authenticatorName": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,max=40\""
+        },
+        "userId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        },
+        "attestation": {
+          "$ref": "#/definitions/v1PublicKeyCredentialWithAttestation"
+        },
+        "challenge": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,max=256\""
+        }
+      },
+      "required": ["authenticatorName", "userId", "attestation", "challenge"]
+    },
+    "v1CreateApiKeysIntent": {
+      "type": "object",
+      "properties": {
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1ApiKeyParams"
+          },
+          "title": "@inject_tag: validate:\"dive,required\""
+        },
+        "userId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        }
+      },
+      "required": ["apiKeys", "userId"]
+    },
+    "v1CreateApiKeysRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_API_KEYS"]
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateApiKeysIntent"
+        }
+      },
+      "required": ["type", "organizationId", "parameters"]
+    },
+    "v1CreateApiKeysResult": {
+      "type": "object",
+      "properties": {
+        "apiKeyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["apiKeyIds"]
+    },
+    "v1CreateAuthenticatorsIntent": {
+      "type": "object",
+      "properties": {
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1AuthenticatorParams"
+          },
+          "title": "@inject_tag: validate:\"dive,required\""
+        },
+        "userId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        }
+      },
+      "required": ["authenticators", "userId"]
+    },
+    "v1CreateAuthenticatorsResult": {
+      "type": "object",
+      "properties": {
+        "authenticatorIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["authenticatorIds"]
+    },
+    "v1CreateInvitationsIntent": {
+      "type": "object",
+      "properties": {
+        "invitations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1InvitationParams"
+          },
+          "title": "@inject_tag: validate:\"required,dive,required\""
+        }
+      },
+      "required": ["invitations"]
+    },
+    "v1CreateInvitationsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_INVITATIONS"]
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateInvitationsIntent"
+        }
+      },
+      "required": ["type", "timestamp", "organizationId", "parameters"]
+    },
+    "v1CreateInvitationsResult": {
+      "type": "object",
+      "properties": {
+        "invitationIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["invitationIds"]
+    },
+    "v1CreateOrganizationIntent": {
+      "type": "object",
+      "properties": {
+        "organizationName": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,max=40\""
+        },
+        "rootEmail": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,email\""
+        },
+        "rootAuthenticator": {
+          "$ref": "#/definitions/v1AuthenticatorParams"
+        },
+        "rootUserId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"uuid\""
+        }
+      },
+      "required": ["organizationName", "rootEmail", "rootAuthenticator"]
+    },
+    "v1CreateOrganizationResult": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1CreatePolicyIntent": {
+      "type": "object",
+      "properties": {
+        "policyName": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,max=40\""
+        },
+        "selectors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/immutableactivityv1Selector"
+          },
+          "title": "@inject_tag: validate:\"required,dive,required\""
+        },
+        "effect": {
+          "$ref": "#/definitions/immutableactivityv1Effect"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": ["policyName", "selectors", "effect"]
+    },
+    "v1CreatePolicyRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_POLICY"]
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreatePolicyIntent"
+        }
+      },
+      "required": ["type", "timestamp", "organizationId", "parameters"]
+    },
+    "v1CreatePolicyResult": {
+      "type": "object",
+      "properties": {
+        "policyId": {
+          "type": "string"
+        }
+      },
+      "required": ["policyId"]
+    },
+    "v1CreatePrivateKeyTagIntent": {
+      "type": "object",
+      "properties": {
+        "privateKeyTagName": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,max=20\""
+        },
+        "privateKeyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        }
+      },
+      "required": ["privateKeyTagName", "privateKeyIds"]
+    },
+    "v1CreatePrivateKeyTagResult": {
+      "type": "object",
+      "properties": {
+        "privateKeyTagId": {
+          "type": "string"
+        },
+        "privateKeyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["privateKeyTagId", "privateKeyIds"]
+    },
+    "v1CreatePrivateKeysIntent": {
+      "type": "object",
+      "properties": {
+        "privateKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1PrivateKeyParams"
+          },
+          "title": "@inject_tag: validate:\"dive,required\""
+        }
+      },
+      "required": ["privateKeys"]
+    },
+    "v1CreatePrivateKeysRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"]
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreatePrivateKeysIntent"
+        }
+      },
+      "required": ["type", "timestamp", "organizationId", "parameters"]
+    },
+    "v1CreatePrivateKeysResult": {
+      "type": "object",
+      "properties": {
+        "privateKeyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["privateKeyIds"]
+    },
+    "v1CreateUserTagIntent": {
+      "type": "object",
+      "properties": {
+        "userTagName": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,max=20\""
+        },
+        "userIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        }
+      },
+      "required": ["userTagName", "userIds"]
+    },
+    "v1CreateUserTagResult": {
+      "type": "object",
+      "properties": {
+        "userTagId": {
+          "type": "string"
+        },
+        "userIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["userTagId", "userIds"]
+    },
+    "v1CreateUsersIntent": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1UserParams"
+          },
+          "title": "@inject_tag: validate:\"required,dive,required\""
+        }
+      },
+      "required": ["users"]
+    },
+    "v1CreateUsersResult": {
+      "type": "object",
+      "properties": {
+        "userIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["userIds"]
+    },
+    "v1CredPropsAuthenticationExtensionsClientOutputs": {
+      "type": "object",
+      "properties": {
+        "rk": {
+          "type": "boolean"
+        }
+      },
+      "required": ["rk"]
+    },
+    "v1Credential": {
+      "type": "object",
+      "properties": {
+        "publicKey": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/v1CredentialType"
+        }
+      },
+      "required": ["publicKey", "type"]
+    },
+    "v1CredentialType": {
+      "type": "string",
+      "enum": [
+        "CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR",
+        "CREDENTIAL_TYPE_API_KEY_P256"
+      ]
+    },
+    "v1DeleteApiKeysIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        },
+        "apiKeyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@inject_tag: validate:\"required,dive,required,uuid\""
+        }
+      },
+      "required": ["userId", "apiKeyIds"]
+    },
+    "v1DeleteApiKeysRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_API_KEYS"]
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteApiKeysIntent"
+        }
+      },
+      "required": ["type", "timestamp", "organizationId", "parameters"]
+    },
+    "v1DeleteApiKeysResult": {
+      "type": "object",
+      "properties": {
+        "apiKeyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["apiKeyIds"]
+    },
+    "v1DeleteAuthenticatorsIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        },
+        "authenticatorIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@inject_tag: validate:\"required,div,required,uuid\""
+        }
+      },
+      "required": ["userId", "authenticatorIds"]
+    },
+    "v1DeleteAuthenticatorsResult": {
+      "type": "object",
+      "properties": {
+        "authenticatorIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["authenticatorIds"]
+    },
+    "v1DeleteInvitationIntent": {
+      "type": "object",
+      "properties": {
+        "invitationId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        }
+      },
+      "required": ["invitationId"]
+    },
+    "v1DeleteInvitationRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_INVITATION"]
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteInvitationIntent"
+        }
+      },
+      "required": ["type", "timestamp", "organizationId", "parameters"]
+    },
+    "v1DeleteInvitationResult": {
+      "type": "object",
+      "properties": {
+        "invitationId": {
+          "type": "string"
+        }
+      },
+      "required": ["invitationId"]
+    },
+    "v1DeleteOrganizationIntent": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1DeleteOrganizationResult": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1DeletePolicyIntent": {
+      "type": "object",
+      "properties": {
+        "policyId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        }
+      },
+      "required": ["policyId"]
+    },
+    "v1DeletePolicyRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_POLICY"]
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeletePolicyIntent"
+        }
+      },
+      "required": ["type", "timestamp", "organizationId", "parameters"]
+    },
+    "v1DeletePolicyResult": {
+      "type": "object",
+      "properties": {
+        "policyId": {
+          "type": "string"
+        }
+      },
+      "required": ["policyId"]
+    },
+    "v1DeletePrivateKeyTagsIntent": {
+      "type": "object",
+      "properties": {
+        "privateKeyTagIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@inject_tag: validate:\"required,dive,required,uuid\""
+        }
+      },
+      "required": ["privateKeyTagIds"]
+    },
+    "v1DeletePrivateKeyTagsResult": {
+      "type": "object",
+      "properties": {
+        "privateKeyTagIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "privateKeyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["privateKeyTagIds", "privateKeyIds"]
+    },
+    "v1DeleteUserTagsIntent": {
+      "type": "object",
+      "properties": {
+        "userTagIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@inject_tag: validate:\"required,dive,required,uuid\""
+        }
+      },
+      "required": ["userTagIds"]
+    },
+    "v1DeleteUserTagsResult": {
+      "type": "object",
+      "properties": {
+        "userTagIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "userIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["userTagIds", "userIds"]
+    },
+    "v1DeleteUsersIntent": {
+      "type": "object",
+      "properties": {
+        "userIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@inject_tag: validate:\"required,dive,required,uuid\""
+        }
+      },
+      "required": ["userIds"]
+    },
+    "v1DeleteUsersResult": {
+      "type": "object",
+      "properties": {
+        "userIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["userIds"]
+    },
+    "v1DisablePrivateKeyIntent": {
+      "type": "object",
+      "properties": {
+        "privateKeyId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        }
+      },
+      "required": ["privateKeyId"]
+    },
+    "v1DisablePrivateKeyResult": {
+      "type": "object",
+      "properties": {
+        "privateKeyId": {
+          "type": "string"
+        }
+      },
+      "required": ["privateKeyId"]
+    },
+    "v1GetActivitiesRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "filterByStatus": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1ActivityStatus"
+          }
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetActivitiesResponse": {
+      "type": "object",
+      "properties": {
+        "activities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Activity"
+          }
+        }
+      },
+      "required": ["activities"]
+    },
+    "v1GetActivityRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "activityId": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId", "activityId"]
+    },
+    "v1GetOrganizationRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetOrganizationResponse": {
+      "type": "object",
+      "properties": {
+        "organizationData": {
+          "$ref": "#/definitions/v1OrganizationData"
+        }
+      },
+      "required": ["organizationData"]
+    },
+    "v1GetPoliciesRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetPoliciesResponse": {
+      "type": "object",
+      "properties": {
+        "policies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Policy"
+          }
+        }
+      },
+      "required": ["policies"]
+    },
+    "v1GetPolicyRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "policyId": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId", "policyId"]
+    },
+    "v1GetPolicyResponse": {
+      "type": "object",
+      "properties": {
+        "policy": {
+          "$ref": "#/definitions/v1Policy"
+        }
+      },
+      "required": ["policy"]
+    },
+    "v1GetPrivateKeyRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "privateKeyId": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId", "privateKeyId"]
+    },
+    "v1GetPrivateKeyResponse": {
+      "type": "object",
+      "properties": {
+        "privateKey": {
+          "$ref": "#/definitions/v1PrivateKey"
+        }
+      },
+      "required": ["privateKey"]
+    },
+    "v1GetPrivateKeysRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetPrivateKeysResponse": {
+      "type": "object",
+      "properties": {
+        "privateKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1PrivateKey"
+          }
+        }
+      },
+      "required": ["privateKeys"]
+    },
+    "v1GetUserRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId", "userId"]
+    },
+    "v1GetUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/v1User"
+        }
+      },
+      "required": ["user"]
+    },
+    "v1GetUsersRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetUsersResponse": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1User"
+          }
+        }
+      },
+      "required": ["users"]
+    },
+    "v1GetWhoamiRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetWhoamiResponse": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "organizationName": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId", "organizationName", "userId", "username"]
+    },
+    "v1HashFunction": {
+      "type": "string",
+      "enum": [
+        "HASH_FUNCTION_NO_OP",
+        "HASH_FUNCTION_SHA256",
+        "HASH_FUNCTION_KECCAK256"
+      ],
+      "description": " - HASH_FUNCTION_UNSPECIFIED: Default value if hash function is not set explicitly\n - HASH_FUNCTION_NO_OP: No-op function. Useful if you want to pass raw bytes to sign\n - HASH_FUNCTION_SHA256: Standard SHA-256\n - HASH_FUNCTION_KECCAK256: Keccak-256 (not the same as NIST SHA-3!).\nThis is the hash function used in the Ethereum ecosystem."
+    },
+    "v1Intent": {
+      "type": "object",
+      "properties": {
+        "createOrganizationIntent": {
+          "$ref": "#/definitions/v1CreateOrganizationIntent"
+        },
+        "createAuthenticatorsIntent": {
+          "$ref": "#/definitions/v1CreateAuthenticatorsIntent"
+        },
+        "createUsersIntent": {
+          "$ref": "#/definitions/v1CreateUsersIntent"
+        },
+        "createPrivateKeysIntent": {
+          "$ref": "#/definitions/v1CreatePrivateKeysIntent"
+        },
+        "signRawPayloadIntent": {
+          "$ref": "#/definitions/v1SignRawPayloadIntent"
+        },
+        "createInvitationsIntent": {
+          "$ref": "#/definitions/v1CreateInvitationsIntent"
+        },
+        "acceptInvitationIntent": {
+          "$ref": "#/definitions/v1AcceptInvitationIntent"
+        },
+        "createPolicyIntent": {
+          "$ref": "#/definitions/v1CreatePolicyIntent"
+        },
+        "disablePrivateKeyIntent": {
+          "$ref": "#/definitions/v1DisablePrivateKeyIntent"
+        },
+        "deleteUsersIntent": {
+          "$ref": "#/definitions/v1DeleteUsersIntent"
+        },
+        "deleteAuthenticatorsIntent": {
+          "$ref": "#/definitions/v1DeleteAuthenticatorsIntent"
+        },
+        "deleteInvitationIntent": {
+          "$ref": "#/definitions/v1DeleteInvitationIntent"
+        },
+        "deleteOrganizationIntent": {
+          "$ref": "#/definitions/v1DeleteOrganizationIntent"
+        },
+        "deletePolicyIntent": {
+          "$ref": "#/definitions/v1DeletePolicyIntent"
+        },
+        "createUserTagIntent": {
+          "$ref": "#/definitions/v1CreateUserTagIntent"
+        },
+        "deleteUserTagsIntent": {
+          "$ref": "#/definitions/v1DeleteUserTagsIntent"
+        },
+        "signTransactionIntent": {
+          "$ref": "#/definitions/v1SignTransactionIntent"
+        },
+        "createApiKeysIntent": {
+          "$ref": "#/definitions/v1CreateApiKeysIntent"
+        },
+        "deleteApiKeysIntent": {
+          "$ref": "#/definitions/v1DeleteApiKeysIntent"
+        },
+        "approveActivityIntent": {
+          "$ref": "#/definitions/v1ApproveActivityIntent"
+        },
+        "rejectActivityIntent": {
+          "$ref": "#/definitions/v1RejectActivityIntent"
+        },
+        "createPrivateKeyTagIntent": {
+          "$ref": "#/definitions/v1CreatePrivateKeyTagIntent"
+        },
+        "deletePrivateKeyTagsIntent": {
+          "$ref": "#/definitions/v1DeletePrivateKeyTagsIntent"
+        }
+      },
+      "required": ["createOrganizationIntent"]
+    },
+    "v1Invitation": {
+      "type": "object",
+      "properties": {
+        "invitationId": {
+          "type": "string"
+        },
+        "receiverAlias": {
+          "type": "string"
+        },
+        "receiverEmail": {
+          "type": "string"
+        },
+        "receiverTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "accessType": {
+          "$ref": "#/definitions/externaldatav1AccessType"
+        },
+        "status": {
+          "$ref": "#/definitions/v1InvitationStatus"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        },
+        "senderUserId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "invitationId",
+        "receiverAlias",
+        "receiverEmail",
+        "receiverTags",
+        "accessType",
+        "status",
+        "createdAt",
+        "updatedAt",
+        "senderUserId"
+      ]
+    },
+    "v1InvitationParams": {
+      "type": "object",
+      "properties": {
+        "receiverUserName": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,max=40\""
+        },
+        "receiverUserEmail": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,email\""
+        },
+        "receiverUserTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        },
+        "accessType": {
+          "$ref": "#/definitions/immutableactivityv1AccessType"
+        },
+        "senderUserId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        }
+      },
+      "required": [
+        "receiverUserName",
+        "receiverUserEmail",
+        "receiverUserTags",
+        "accessType",
+        "senderUserId"
+      ]
+    },
+    "v1InvitationStatus": {
+      "type": "string",
+      "enum": [
+        "INVITATION_STATUS_CREATED",
+        "INVITATION_STATUS_ACCEPTED",
+        "INVITATION_STATUS_REVOKED"
+      ]
+    },
+    "v1OrganizationData": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1User"
+          }
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Policy"
+          }
+        },
+        "privateKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1PrivateKey"
+          }
+        },
+        "invitations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Invitation"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/datav1Tag"
+          }
+        },
+        "deletedUsers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1User"
+          }
+        },
+        "deletedPolicies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Policy"
+          }
+        },
+        "disabledPrivateKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1PrivateKey"
+          }
+        },
+        "deletedInvitations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Invitation"
+          }
+        },
+        "deletedApiKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1ApiKey"
+          }
+        },
+        "deletedAuthenticators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Authenticator"
+          }
+        },
+        "deletedTags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/datav1Tag"
+          }
+        }
+      },
+      "description": "This proto definition is used in our external-facing APIs.\nIt's important to leverage annotations because they're used in our external interfaces."
+    },
+    "v1PayloadEncoding": {
+      "type": "string",
+      "enum": ["PAYLOAD_ENCODING_HEXADECIMAL", "PAYLOAD_ENCODING_TEXT_UTF8"],
+      "title": "- PAYLOAD_ENCODING_UNSPECIFIED: Default value if payload encoding is not set explicitly\n - PAYLOAD_ENCODING_HEXADECIMAL: Payload is encoded in hexadecimal\nWe accept 0x-prefixed or non-0x prefixed payloads.\nWe accept any casing (uppercase, lowercase, or mixed)\n - PAYLOAD_ENCODING_TEXT_UTF8: Payload is encoded as utf-8 text\nWill be converted to bytes for signature with Rust's standard String.as_bytes()"
+    },
+    "v1Policy": {
+      "type": "object",
+      "properties": {
+        "policyId": {
+          "type": "string"
+        },
+        "policyName": {
+          "type": "string"
+        },
+        "effect": {
+          "$ref": "#/definitions/externaldatav1Effect"
+        },
+        "selectors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/externaldatav1Selector"
+          }
+        },
+        "createdAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "policyId",
+        "policyName",
+        "effect",
+        "selectors",
+        "createdAt",
+        "updatedAt",
+        "notes"
+      ]
+    },
+    "v1PrivateKey": {
+      "type": "object",
+      "properties": {
+        "privateKeyId": {
+          "type": "string"
+        },
+        "publicKey": {
+          "type": "string"
+        },
+        "privateKeyName": {
+          "type": "string"
+        },
+        "curve": {
+          "$ref": "#/definitions/externaldatav1Curve"
+        },
+        "addresses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/externaldatav1Address"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "privateKeyId",
+        "publicKey",
+        "privateKeyName",
+        "curve",
+        "addresses",
+        "tags"
+      ]
+    },
+    "v1PrivateKeyParams": {
+      "type": "object",
+      "properties": {
+        "privateKeyName": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,max=40\""
+        },
+        "curve": {
+          "$ref": "#/definitions/immutableactivityv1Curve"
+        },
+        "privateKeyTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        },
+        "addressFormats": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/immutableactivityv1AddressFormat"
+          },
+          "title": "@inject_tag: validate:\"required\""
+        }
+      },
+      "required": [
+        "privateKeyName",
+        "curve",
+        "privateKeyTags",
+        "addressFormats"
+      ]
+    },
+    "v1PublicKeyCredentialWithAttestation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["public-key"],
+          "title": "Must be literal string \"public-key\""
+        },
+        "rawId": {
+          "type": "string",
+          "title": "ENCODING: base64url"
+        },
+        "authenticatorAttachment": {
+          "type": "string",
+          "enum": ["cross-platform", "platform"],
+          "x-nullable": true
+        },
+        "response": {
+          "$ref": "#/definitions/v1AuthenticatorAttestationResponse"
+        },
+        "clientExtensionResults": {
+          "$ref": "#/definitions/v1SimpleClientExtensionResults"
+        }
+      },
+      "required": ["id", "type", "rawId", "response", "clientExtensionResults"]
+    },
+    "v1RejectActivityIntent": {
+      "type": "object",
+      "properties": {
+        "fingerprint": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required\""
+        }
+      },
+      "required": ["fingerprint"]
+    },
+    "v1Result": {
+      "type": "object",
+      "properties": {
+        "createOrganizationResult": {
+          "$ref": "#/definitions/v1CreateOrganizationResult"
+        },
+        "createAuthenticatorsResult": {
+          "$ref": "#/definitions/v1CreateAuthenticatorsResult"
+        },
+        "createUsersResult": {
+          "$ref": "#/definitions/v1CreateUsersResult"
+        },
+        "createPrivateKeysResult": {
+          "$ref": "#/definitions/v1CreatePrivateKeysResult"
+        },
+        "createInvitationsResult": {
+          "$ref": "#/definitions/v1CreateInvitationsResult"
+        },
+        "acceptInvitationResult": {
+          "$ref": "#/definitions/v1AcceptInvitationResult"
+        },
+        "signRawPayloadResult": {
+          "$ref": "#/definitions/v1SignRawPayloadResult"
+        },
+        "createPolicyResult": {
+          "$ref": "#/definitions/v1CreatePolicyResult"
+        },
+        "disablePrivateKeyResult": {
+          "$ref": "#/definitions/v1DisablePrivateKeyResult"
+        },
+        "deleteUsersResult": {
+          "$ref": "#/definitions/v1DeleteUsersResult"
+        },
+        "deleteAuthenticatorsResult": {
+          "$ref": "#/definitions/v1DeleteAuthenticatorsResult"
+        },
+        "deleteInvitationResult": {
+          "$ref": "#/definitions/v1DeleteInvitationResult"
+        },
+        "deleteOrganizationResult": {
+          "$ref": "#/definitions/v1DeleteOrganizationResult"
+        },
+        "deletePolicyResult": {
+          "$ref": "#/definitions/v1DeletePolicyResult"
+        },
+        "createUserTagResult": {
+          "$ref": "#/definitions/v1CreateUserTagResult"
+        },
+        "deleteUserTagsResult": {
+          "$ref": "#/definitions/v1DeleteUserTagsResult"
+        },
+        "signTransactionResult": {
+          "$ref": "#/definitions/v1SignTransactionResult"
+        },
+        "deleteApiKeysResult": {
+          "$ref": "#/definitions/v1DeleteApiKeysResult"
+        },
+        "createApiKeysResult": {
+          "$ref": "#/definitions/v1CreateApiKeysResult"
+        },
+        "createPrivateKeyTagResult": {
+          "$ref": "#/definitions/v1CreatePrivateKeyTagResult"
+        },
+        "deletePrivateKeyTagsResult": {
+          "$ref": "#/definitions/v1DeletePrivateKeyTagsResult"
+        }
+      }
+    },
+    "v1SignRawPayloadIntent": {
+      "type": "object",
+      "properties": {
+        "keyId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        },
+        "payload": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required\""
+        },
+        "encoding": {
+          "$ref": "#/definitions/v1PayloadEncoding"
+        },
+        "hashFunction": {
+          "$ref": "#/definitions/v1HashFunction"
+        }
+      },
+      "required": ["keyId", "payload", "encoding", "hashFunction"]
+    },
+    "v1SignRawPayloadRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"]
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1SignRawPayloadIntent"
+        }
+      },
+      "required": ["type", "timestamp", "organizationId", "parameters"]
+    },
+    "v1SignRawPayloadResult": {
+      "type": "object",
+      "properties": {
+        "r": {
+          "type": "string"
+        },
+        "s": {
+          "type": "string"
+        },
+        "v": {
+          "type": "string"
+        }
+      },
+      "required": ["r", "s", "v"]
+    },
+    "v1SignTransactionIntent": {
+      "type": "object",
+      "properties": {
+        "keyId": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        },
+        "unsignedTransaction": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required\""
+        },
+        "type": {
+          "$ref": "#/definitions/immutableactivityv1TransactionType"
+        }
+      },
+      "required": ["keyId", "unsignedTransaction", "type"]
+    },
+    "v1SignTransactionRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_SIGN_TRANSACTION"]
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "organizationId": {
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1SignTransactionIntent"
+        }
+      },
+      "required": ["type", "timestamp", "organizationId", "parameters"]
+    },
+    "v1SignTransactionResult": {
+      "type": "object",
+      "properties": {
+        "signedTransaction": {
+          "type": "string"
+        }
+      },
+      "required": ["signedTransaction"]
+    },
+    "v1SimpleClientExtensionResults": {
+      "type": "object",
+      "properties": {
+        "appid": {
+          "type": "boolean"
+        },
+        "appidExclude": {
+          "type": "boolean"
+        },
+        "credProps": {
+          "$ref": "#/definitions/v1CredPropsAuthenticationExtensionsClientOutputs"
+        }
+      }
+    },
+    "v1TagType": {
+      "type": "string",
+      "enum": ["TAG_TYPE_USER", "TAG_TYPE_PRIVATE_KEY"]
+    },
+    "v1Timestamp": {
+      "type": "object",
+      "properties": {
+        "seconds": {
+          "type": "string"
+        },
+        "nanos": {
+          "type": "string"
+        }
+      },
+      "required": ["seconds", "nanos"]
+    },
+    "v1User": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "alias": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "title": "some users do not have emails (programmatic users)"
+        },
+        "accessType": {
+          "$ref": "#/definitions/externaldatav1AccessType"
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Authenticator"
+          }
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1ApiKey"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        }
+      },
+      "required": [
+        "userId",
+        "alias",
+        "accessType",
+        "authenticators",
+        "apiKeys",
+        "tags",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "v1UserParams": {
+      "type": "object",
+      "properties": {
+        "userName": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,max=40\""
+        },
+        "userEmail": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"email\""
+        },
+        "accessType": {
+          "$ref": "#/definitions/immutableactivityv1AccessType"
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1ApiKeyParams"
+          },
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1AuthenticatorParams"
+          },
+          "title": "@inject_tag: validate:\"dive\""
+        },
+        "userTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        }
+      },
+      "required": [
+        "userName",
+        "accessType",
+        "apiKeys",
+        "authenticators",
+        "userTags"
+      ]
+    },
+    "v1Vote": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/v1User"
+        },
+        "activityId": {
+          "type": "string"
+        },
+        "selection": {
+          "type": "string",
+          "enum": ["VOTE_SELECTION_APPROVED", "VOTE_SELECTION_REJECTED"]
+        },
+        "message": {
+          "type": "string"
+        },
+        "publicKey": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string"
+        },
+        "scheme": {
+          "type": "string"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/v1Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "user",
+        "activityId",
+        "selection",
+        "message",
+        "publicKey",
+        "signature",
+        "scheme",
+        "createdAt"
+      ]
+    }
+  },
+  "securityDefinitions": {
+    "ApiKeyAuth": {
+      "type": "apiKey",
+      "name": "X-Stamp",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}

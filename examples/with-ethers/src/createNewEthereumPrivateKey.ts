@@ -45,27 +45,25 @@ export async function createNewEthereumPrivateKey() {
 
 // Turnkey activities are async by nature (because we fully support consensus),
 // so here's a little helper for polling the status
-async function withPolling(label: string): Promise<string> {
+async function withPolling(privateKeyName: string): Promise<string> {
   const organizationId = process.env.ORGANIZATION_ID!;
 
-  let { activity } = await PublicApiService.postCreateKeys({
+  let { activity } = await PublicApiService.postCreatePrivateKeys({
     body: {
-      request: {
-        intent: {
-          keys: [
-            {
-              label,
-              curve: "CURVE_SECP256K1",
-              // @ts-expect-error -- temporary mismatch on API versioning
-              addresses: [{ format: "ADDRESS_FORMAT_ETHEREUM" }],
-              tags: [],
-            },
-          ],
-        },
-        organizationId,
-        requestId: process.hrtime().join(""), // nanosecond timestamp
-        type: "ACTIVITY_TYPE_ADD_KEYS",
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+      organizationId,
+      parameters: {
+        privateKeys: [
+          {
+            privateKeyName,
+            curve: "CURVE_SECP256K1",
+
+            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
+            privateKeyTags: [],
+          },
+        ],
       },
+      timestamp: process.hrtime().join(""), // nanosecond timestamp
     },
   });
 
@@ -73,9 +71,9 @@ async function withPolling(label: string): Promise<string> {
     switch (activity.status) {
       case "ACTIVITY_STATUS_COMPLETED": {
         // Success!
-
-        // @ts-expect-error -- temporary mismatch on API versioning
-        return activity.result.addKeysResult?.keyIds?.[0];
+        return refineNonNull(
+          activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
+        );
       }
       case "ACTIVITY_STATUS_CREATED": {
         // Async pending state -- keep polling
@@ -142,6 +140,17 @@ function sleep(ms: number): Promise<void> {
   });
 }
 
-function assertNever(input: never, errorMessage?: string) {
+function assertNever(input: never, errorMessage?: string): never {
   throw new Error(errorMessage ?? `Unexpected input: ${JSON.stringify(input)}`);
+}
+
+export function refineNonNull<T>(
+  input: T | null | undefined,
+  errorMessage?: string
+): T {
+  if (input == null) {
+    throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
+  }
+
+  return input;
 }

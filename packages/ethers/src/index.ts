@@ -68,14 +68,14 @@ export class TurnkeySigner extends ethers.Signer {
   }
 
   async getAddress(): Promise<string> {
-    const data = await PublicApiService.postGetKey({
+    const data = await PublicApiService.postGetPrivateKey({
       body: {
-        keyId: this.config.keyId,
+        privateKeyId: this.config.keyId,
         organizationId: this.config.organizationId,
       },
     });
 
-    const maybeAddress = data.key.addresses.find(
+    const maybeAddress = data.privateKey.addresses.find(
       (item) => item.format === "ADDRESS_FORMAT_ETHEREUM"
     )?.address;
 
@@ -91,17 +91,14 @@ export class TurnkeySigner extends ethers.Signer {
   private async _signTransactionImpl(message: string): Promise<string> {
     const { activity } = await PublicApiService.postSignTransaction({
       body: {
-        request: {
-          requestId: process.hrtime().join(""), // nanosecond timestamp
-          organizationId: this.config.organizationId,
-          type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
-          intent: {
-            keyId: this.config.keyId,
-            organizationId: this.config.organizationId,
-            type: "TRANSACTION_TYPE_ETHEREUM",
-            unsignedTransaction: message,
-          },
+        type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
+        organizationId: this.config.organizationId,
+        parameters: {
+          keyId: this.config.keyId,
+          type: "TRANSACTION_TYPE_ETHEREUM",
+          unsignedTransaction: message,
         },
+        timestamp: process.hrtime().join(""), // nanosecond timestamp
       },
     });
 
