@@ -1,5 +1,17 @@
 # @turnkey/ethers
 
+## 0.2.0
+
+### Minor Changes
+
+- - Change parameter from `keyId` to `privateKeyId`
+  - Bump API version to latest Beta
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@0.2.0
+
 ## 0.1.3
 
 ### Patch Changes
