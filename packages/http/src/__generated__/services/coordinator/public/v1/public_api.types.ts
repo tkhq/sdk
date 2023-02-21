@@ -755,7 +755,7 @@ export type definitions = {
   };
   v1SignRawPayloadIntent: {
     /** @inject_tag: validate:"required,uuid" */
-    keyId: string;
+    privateKeyId: string;
     /** @inject_tag: validate:"required" */
     payload: string;
     encoding: definitions["v1PayloadEncoding"];
@@ -775,7 +775,7 @@ export type definitions = {
   };
   v1SignTransactionIntent: {
     /** @inject_tag: validate:"required,uuid" */
-    keyId: string;
+    privateKeyId: string;
     /** @inject_tag: validate:"required" */
     unsignedTransaction: string;
     type: definitions["immutableactivityv1TransactionType"];

@@ -2638,7 +2638,7 @@
     "v1SignRawPayloadIntent": {
       "type": "object",
       "properties": {
-        "keyId": {
+        "privateKeyId": {
           "type": "string",
           "title": "@inject_tag: validate:\"required,uuid\""
         },
@@ -2653,7 +2653,7 @@
           "$ref": "#/definitions/v1HashFunction"
         }
       },
-      "required": ["keyId", "payload", "encoding", "hashFunction"]
+      "required": ["privateKeyId", "payload", "encoding", "hashFunction"]
     },
     "v1SignRawPayloadRequest": {
       "type": "object",
@@ -2692,7 +2692,7 @@
     "v1SignTransactionIntent": {
       "type": "object",
       "properties": {
-        "keyId": {
+        "privateKeyId": {
           "type": "string",
           "title": "@inject_tag: validate:\"required,uuid\""
         },
@@ -2704,7 +2704,7 @@
           "$ref": "#/definitions/immutableactivityv1TransactionType"
         }
       },
-      "required": ["keyId", "unsignedTransaction", "type"]
+      "required": ["privateKeyId", "unsignedTransaction", "type"]
     },
     "v1SignTransactionRequest": {
       "type": "object",
