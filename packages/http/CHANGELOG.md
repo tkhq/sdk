@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.3.0
+
+### Minor Changes
+
+- `keyId` -> `privateKeyId` everywhere
+
 ## 0.2.0
 
 ### Minor Changes

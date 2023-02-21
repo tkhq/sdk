@@ -1,5 +1,16 @@
 # @turnkey/ethers
 
+## 0.3.0
+
+### Minor Changes
+
+- `keyId` -> `privateKeyId` everywhere
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes
