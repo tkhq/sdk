@@ -1,17 +1,21 @@
+import * as dotenv from "dotenv";
+import * as path from "path";
+
+// Load environment variables from `.env.local`
+dotenv.config({ path: path.resolve(process.cwd(), "../.env.local") });
+
 import { ethers } from "ethers";
-import { createNewEthereumPrivateKey } from "../createNewEthereumPrivateKey";
 import { createV3Trade, executeTrade } from "../base";
 import { getProvider, getTurnkeySigner } from "../provider";
 
 async function main() {
-  if (!process.env.KEY_ID) {
-    // If you don't specify a `KEY_ID`, we'll create one for you via calling the Turnkey API.
-    await createNewEthereumPrivateKey();
+  if (!process.env.PRIVATE_KEY_ID) {
+    console.log("Missing PRIVATE_KEY_ID");
     return;
   }
 
   const provider = getProvider();
-  const connectedSigner = getTurnkeySigner();
+  const connectedSigner = getTurnkeySigner(provider);
 
   print("Connected Turnkey signer to provider:", `${JSON.stringify(connectedSigner)}`);
 

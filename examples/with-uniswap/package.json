@@ -1,9 +1,9 @@
 {
-  "name": "@turnkey/example-with-ethers",
+  "name": "@turnkey/example-with-uniswap",
   "version": "0.1.3",
   "private": true,
   "scripts": {
-    "start-univ3-swap": "ts-node src/scripts/univ3-swap.ts",
+    "start": "ts-node src/scripts/main.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

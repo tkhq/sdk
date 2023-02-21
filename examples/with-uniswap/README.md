@@ -1,4 +1,4 @@
-# Example: `with-ethers`
+# Example: `with-uniswap`
 
 This example shows how to construct and broadcast Uniswap-related transactions, built on top of [`Ethers`](https://docs.ethers.org/v5/api/signer/) with Turnkey.
 
@@ -37,8 +37,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `BASE_URL`
 - `ORGANIZATION_ID`
-- `KEY_ID` -- if you leave it blank, we'll create one for you via calling the Turnkey API
-- `KEY_ADDRESS` -- address associated with the key ID
+- `PRIVATE_KEY_ID`
 - `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
 ### 3/ Running the script
@@ -48,7 +47,7 @@ There is currently one script you can run (more to be added), located in `packag
 Configure your trade via `config.ts`, namely `UniV3SwapConfig`. Ensure you have sufficient funds to make the trade. If you have insufficient funds, your transaction will fail either at broadcast time, or onchain. Furthermore, note that this utilizes `TradeType.EXACT_INPUT` -- if you would like to be lenient with inputs and more strict with outputs (the funds you will *receive* as a result of the trade), consider using `TradeType.EXACT_OUTPUT`.
 
 ```bash
-$ pnpm start-univ3-swap
+$ pnpm start
 ```
 
 The script constructs a transaction via Turnkey and broadcasts via Infura. If the script exits because your account isn't funded, you can request funds on https://goerlifaucet.com/.

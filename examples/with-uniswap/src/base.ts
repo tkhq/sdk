@@ -17,16 +17,14 @@ import { ethers } from "ethers";
 import JSBI from "jsbi";
 
 import { getV3PoolInfo } from "./pool";
-import { fromReadableAmount, TransactionState } from "./abi/utils";
+import { fromReadableAmount, TransactionState } from "./utils";
 import {
   getProvider,
   getTurnkeySigner,
-  getTurnkeyWalletAddress,
 } from "./provider";
 import {
   DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
   DEFAULT_MAX_FEE_PER_GAS,
-  DEFAULT_TOKEN_APPROVAL_AMOUNT,
   ERC20_ABI,
   QUOTER_CONTRACT_ADDRESS,
   SWAP_ROUTER_ADDRESS,
@@ -44,10 +42,31 @@ export type UniV3TradeParams = {
 // Trading Functions
 
 export async function createV3Trade(): Promise<TokenTrade> {
+  const provider = getProvider();
+  const connectedSigner = getTurnkeySigner(provider);
+  const address = await connectedSigner.getAddress();
+
+  const inputToken = UniV3SwapConfig.tokens.in;
+  const inputAmount = fromReadableAmount(
+    UniV3SwapConfig.tokens.amountIn,
+    inputToken.decimals
+  );
+
+  const tokenContract = new ethers.Contract(
+    inputToken.address,
+    ERC20_ABI,
+    connectedSigner
+  );
+
+  const tokenBalance = await tokenContract.balanceOf(address);
+  if (tokenBalance < inputAmount) {
+    throw new Error (`Insufficient funds to perform this trade. Have: ${tokenBalance} ${inputToken.symbol}; Need: ${inputAmount} ${inputToken.symbol}.`)
+  }
+
   const poolInfo = await getV3PoolInfo();
 
   const pool = new Pool(
-    UniV3SwapConfig.tokens.in,
+    inputToken,
     UniV3SwapConfig.tokens.out,
     UniV3SwapConfig.tokens.poolFee,
     poolInfo.sqrtPriceX96.toString(),
@@ -57,7 +76,7 @@ export async function createV3Trade(): Promise<TokenTrade> {
 
   const swapRoute = new Route(
     [pool],
-    UniV3SwapConfig.tokens.in,
+    inputToken,
     UniV3SwapConfig.tokens.out
   );
 
@@ -66,11 +85,8 @@ export async function createV3Trade(): Promise<TokenTrade> {
   const uncheckedTrade = Trade.createUncheckedTrade({
     route: swapRoute,
     inputAmount: CurrencyAmount.fromRawAmount(
-      UniV3SwapConfig.tokens.in,
-      fromReadableAmount(
-        UniV3SwapConfig.tokens.amountIn,
-        UniV3SwapConfig.tokens.in.decimals
-      ).toString()
+      inputToken,
+      inputAmount.toString()
     ),
     outputAmount: CurrencyAmount.fromRawAmount(
       UniV3SwapConfig.tokens.out,
@@ -85,11 +101,11 @@ export async function createV3Trade(): Promise<TokenTrade> {
 export async function executeTrade(
   trade: TokenTrade
 ): Promise<ethers.providers.TransactionResponse> {
-  const walletAddress = getTurnkeyWalletAddress();
   const provider = getProvider();
-  const connectedSigner = getTurnkeySigner();
+  const connectedSigner = getTurnkeySigner(provider);
+  const address = await connectedSigner.getAddress();
 
-  if (!walletAddress || !provider) {
+  if (!address || !provider) {
     throw new Error("Cannot execute a trade without a connected wallet");
   }
 
@@ -109,7 +125,7 @@ export async function executeTrade(
   const options: SwapOptions = {
     slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
     deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
-    recipient: walletAddress, // NOTE: interesting that one might be able to configure this
+    recipient: address, // specifying a recipient is neat
   };
 
   const methodParameters = SwapRouter.swapCallParameters([trade], options);
@@ -120,7 +136,7 @@ export async function executeTrade(
     data: methodParameters.calldata,
     to: SWAP_ROUTER_ADDRESS,
     value: methodParameters.value,
-    from: walletAddress,
+    from: address,
     maxFeePerGas: DEFAULT_MAX_FEE_PER_GAS,
     maxPriorityFeePerGas: DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
   };
@@ -163,8 +179,9 @@ async function getOutputQuote(route: Route<Currency, Currency>) {
 export async function getTokenTransferApproval(
   token: Token
 ): Promise<TransactionState> {
-  const connectedSigner = getTurnkeySigner();
-  const address = getTurnkeyWalletAddress();
+  const provider = getProvider();
+  const connectedSigner = getTurnkeySigner(provider);
+  const address = await connectedSigner.getAddress();
   if (!connectedSigner || !address) {
     console.log("No Connected Signer Found");
     return TransactionState.Failed;
@@ -182,10 +199,9 @@ export async function getTokenTransferApproval(
       return TransactionState.Failed;
 
     const transaction = await tokenContract.populateTransaction.approve(
-      // const transaction = await tokenContract.approve(
       SWAP_ROUTER_ADDRESS,
       fromReadableAmount(
-        DEFAULT_TOKEN_APPROVAL_AMOUNT, // ideally, use a static amount like `UniV3SwapConfig.tokens.amountIn`
+        UniV3SwapConfig.tokens.amountIn,
         token.decimals
       ).toString()
     );

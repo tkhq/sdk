@@ -1,11 +1,6 @@
-import * as path from "path";
-import * as dotenv from "dotenv";
 import { ethers } from "ethers";
 import { TurnkeySigner } from "@turnkey/ethers";
 import { Environment } from "./constants";
-
-// Load environment variables from `.env.local`
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 const DEFAULT_INFURA_COMMUNITY_KEY = "84842078b09946638c03157f83405213";
 const DEFAULT_ENV = Environment.GOERLI;
@@ -26,14 +21,11 @@ const turnkeySigner = new TurnkeySigner({
   apiPrivateKey: process.env.API_PRIVATE_KEY!,
   baseUrl: process.env.BASE_URL!,
   organizationId: process.env.ORGANIZATION_ID!,
-  keyId: process.env.KEY_ID!,
+  privateKeyId: process.env.PRIVATE_KEY_ID!,
 });
 
-// getTurnkeySigner returns a TurnkeySigner connected to a Provider
-export function getTurnkeySigner() : TurnkeySigner {
+// getTurnkeySigner returns a TurnkeySigner connected to the passed-in Provider
+// (https://docs.ethers.org/v5/api/providers/)
+export function getTurnkeySigner(provider: ethers.providers.Provider) : TurnkeySigner {
   return turnkeySigner.connect(provider);
-}
-
-export function getTurnkeyWalletAddress() : string {
-  return process.env.KEY_ADDRESS!;
 }

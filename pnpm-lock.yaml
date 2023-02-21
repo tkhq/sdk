@@ -30,13 +30,11 @@ importers:
     specifiers:
       '@turnkey/ethers': workspace:*
       '@turnkey/http': workspace:*
-      '@uniswap/sdk-core': ^3.1.1
       dotenv: ^16.0.3
       ethers: ^5.7.2
     dependencies:
       '@turnkey/ethers': link:../../packages/ethers
       '@turnkey/http': link:../../packages/http
-      '@uniswap/sdk-core': 3.1.1
       dotenv: 16.0.3
       ethers: 5.7.2
 

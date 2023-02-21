@@ -38,19 +38,20 @@ Now open `.env.local` and add the missing environment variables:
 - `BASE_URL`
 - `ORGANIZATION_ID`
 - `PRIVATE_KEY_ID` -- if you leave it blank, we'll create one for you via calling the Turnkey API
-- `PRIVATE_KEY_ADDRESS` -- address associated with the key ID
 - `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
 ### 3/ Running the scripts
-There are currently four separate scripts you can run, located in `package.json`: 
-1. `eth-send.ts`: a simple ETH send
-2. `weth-deposit.ts`: depositing ETH into the WETH contract (aka wrapping)
-3. `weth-withdraw.ts`: withdrawing WETH from the WETH contract (aka unwrapping)
-4. `weth-transfer.ts`: transferring WETH
-
 ```bash
-$ pnpm start-eth-send
+$ pnpm start
 ```
+
+This script will do the following:
+1. send ETH
+2. deposit ETH into the WETH contract (aka wrapping)
+3. withdraw WETH from the WETH contract (aka unwrapping)
+4. transfer WETH
+
+Note that these transactions will all be broadcasted sequentially.
 
 The script constructs a transaction via Turnkey and broadcasts via Infura. If the script exits because your account isn't funded, you can request funds on https://goerlifaucet.com/.
 
