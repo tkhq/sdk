@@ -99,7 +99,7 @@ export class TurnkeySigner extends ethers.Signer {
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
         organizationId: this.config.organizationId,
         parameters: {
-          keyId: this.config.privateKeyId,
+          privateKeyId: this.config.privateKeyId,
           type: "TRANSACTION_TYPE_ETHEREUM",
           unsignedTransaction: message,
         },
