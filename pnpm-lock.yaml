@@ -28,6 +28,22 @@ importers:
       ts-node: 10.9.1_rcvzjt2q3f6gordb34f5djrkie
       typescript: 4.9.5
 
+  examples/sweeper:
+    specifiers:
+      '@turnkey/ethers': workspace:*
+      '@turnkey/http': workspace:*
+      '@uniswap/sdk-core': ^3.1.1
+      dotenv: ^16.0.3
+      ethers: ^5.7.2
+      hardhat: ^2.12.7
+    dependencies:
+      '@turnkey/ethers': link:../../packages/ethers
+      '@turnkey/http': link:../../packages/http
+      '@uniswap/sdk-core': 3.1.1
+      dotenv: 16.0.3
+      ethers: 5.7.2
+      hardhat: 2.12.7
+
   examples/with-ethers:
     specifiers:
       '@turnkey/ethers': workspace:*
