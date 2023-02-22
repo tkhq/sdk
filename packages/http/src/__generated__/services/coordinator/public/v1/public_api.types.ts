@@ -323,7 +323,7 @@ export type definitions = {
   v1CreateApiKeysRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_CREATE_API_KEYS";
-    timestamp?: string;
+    timestampMs: string;
     organizationId: string;
     parameters: definitions["v1CreateApiKeysIntent"];
   };
@@ -346,7 +346,7 @@ export type definitions = {
   v1CreateInvitationsRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_CREATE_INVITATIONS";
-    timestamp: string;
+    timestampMs: string;
     organizationId: string;
     parameters: definitions["v1CreateInvitationsIntent"];
   };
@@ -376,7 +376,7 @@ export type definitions = {
   v1CreatePolicyRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_CREATE_POLICY";
-    timestamp: string;
+    timestampMs: string;
     organizationId: string;
     parameters: definitions["v1CreatePolicyIntent"];
   };
@@ -400,7 +400,7 @@ export type definitions = {
   v1CreatePrivateKeysRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS";
-    timestamp: string;
+    timestampMs: string;
     organizationId: string;
     parameters: definitions["v1CreatePrivateKeysIntent"];
   };
@@ -444,7 +444,7 @@ export type definitions = {
   v1DeleteApiKeysRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_DELETE_API_KEYS";
-    timestamp: string;
+    timestampMs: string;
     organizationId: string;
     parameters: definitions["v1DeleteApiKeysIntent"];
   };
@@ -467,7 +467,7 @@ export type definitions = {
   v1DeleteInvitationRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_DELETE_INVITATION";
-    timestamp: string;
+    timestampMs: string;
     organizationId: string;
     parameters: definitions["v1DeleteInvitationIntent"];
   };
@@ -488,7 +488,7 @@ export type definitions = {
   v1DeletePolicyRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_DELETE_POLICY";
-    timestamp: string;
+    timestampMs: string;
     organizationId: string;
     parameters: definitions["v1DeletePolicyIntent"];
   };
@@ -764,7 +764,7 @@ export type definitions = {
   v1SignRawPayloadRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD";
-    timestamp: string;
+    timestampMs: string;
     organizationId: string;
     parameters: definitions["v1SignRawPayloadIntent"];
   };
@@ -783,7 +783,7 @@ export type definitions = {
   v1SignTransactionRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_SIGN_TRANSACTION";
-    timestamp: string;
+    timestampMs: string;
     organizationId: string;
     parameters: definitions["v1SignTransactionIntent"];
   };
