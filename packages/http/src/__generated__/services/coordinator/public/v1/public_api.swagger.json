@@ -1333,7 +1333,7 @@
           "type": "string",
           "enum": ["ACTIVITY_TYPE_CREATE_API_KEYS"]
         },
-        "timestamp": {
+        "timestampMs": {
           "type": "string"
         },
         "organizationId": {
@@ -1343,7 +1343,7 @@
           "$ref": "#/definitions/v1CreateApiKeysIntent"
         }
       },
-      "required": ["type", "organizationId", "parameters"]
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateApiKeysResult": {
       "type": "object",
@@ -1406,7 +1406,7 @@
           "type": "string",
           "enum": ["ACTIVITY_TYPE_CREATE_INVITATIONS"]
         },
-        "timestamp": {
+        "timestampMs": {
           "type": "string"
         },
         "organizationId": {
@@ -1416,7 +1416,7 @@
           "$ref": "#/definitions/v1CreateInvitationsIntent"
         }
       },
-      "required": ["type", "timestamp", "organizationId", "parameters"]
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateInvitationsResult": {
       "type": "object",
@@ -1490,7 +1490,7 @@
           "type": "string",
           "enum": ["ACTIVITY_TYPE_CREATE_POLICY"]
         },
-        "timestamp": {
+        "timestampMs": {
           "type": "string"
         },
         "organizationId": {
@@ -1500,7 +1500,7 @@
           "$ref": "#/definitions/v1CreatePolicyIntent"
         }
       },
-      "required": ["type", "timestamp", "organizationId", "parameters"]
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreatePolicyResult": {
       "type": "object",
@@ -1563,7 +1563,7 @@
           "type": "string",
           "enum": ["ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"]
         },
-        "timestamp": {
+        "timestampMs": {
           "type": "string"
         },
         "organizationId": {
@@ -1573,7 +1573,7 @@
           "$ref": "#/definitions/v1CreatePrivateKeysIntent"
         }
       },
-      "required": ["type", "timestamp", "organizationId", "parameters"]
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreatePrivateKeysResult": {
       "type": "object",
@@ -1696,7 +1696,7 @@
           "type": "string",
           "enum": ["ACTIVITY_TYPE_DELETE_API_KEYS"]
         },
-        "timestamp": {
+        "timestampMs": {
           "type": "string"
         },
         "organizationId": {
@@ -1706,7 +1706,7 @@
           "$ref": "#/definitions/v1DeleteApiKeysIntent"
         }
       },
-      "required": ["type", "timestamp", "organizationId", "parameters"]
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1DeleteApiKeysResult": {
       "type": "object",
@@ -1766,7 +1766,7 @@
           "type": "string",
           "enum": ["ACTIVITY_TYPE_DELETE_INVITATION"]
         },
-        "timestamp": {
+        "timestampMs": {
           "type": "string"
         },
         "organizationId": {
@@ -1776,7 +1776,7 @@
           "$ref": "#/definitions/v1DeleteInvitationIntent"
         }
       },
-      "required": ["type", "timestamp", "organizationId", "parameters"]
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1DeleteInvitationResult": {
       "type": "object",
@@ -1823,7 +1823,7 @@
           "type": "string",
           "enum": ["ACTIVITY_TYPE_DELETE_POLICY"]
         },
-        "timestamp": {
+        "timestampMs": {
           "type": "string"
         },
         "organizationId": {
@@ -1833,7 +1833,7 @@
           "$ref": "#/definitions/v1DeletePolicyIntent"
         }
       },
-      "required": ["type", "timestamp", "organizationId", "parameters"]
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1DeletePolicyResult": {
       "type": "object",
@@ -2662,7 +2662,7 @@
           "type": "string",
           "enum": ["ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"]
         },
-        "timestamp": {
+        "timestampMs": {
           "type": "string"
         },
         "organizationId": {
@@ -2672,7 +2672,7 @@
           "$ref": "#/definitions/v1SignRawPayloadIntent"
         }
       },
-      "required": ["type", "timestamp", "organizationId", "parameters"]
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1SignRawPayloadResult": {
       "type": "object",
@@ -2713,7 +2713,7 @@
           "type": "string",
           "enum": ["ACTIVITY_TYPE_SIGN_TRANSACTION"]
         },
-        "timestamp": {
+        "timestampMs": {
           "type": "string"
         },
         "organizationId": {
@@ -2723,7 +2723,7 @@
           "$ref": "#/definitions/v1SignTransactionIntent"
         }
       },
-      "required": ["type", "timestamp", "organizationId", "parameters"]
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1SignTransactionResult": {
       "type": "object",
