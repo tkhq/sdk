@@ -103,7 +103,7 @@ export class TurnkeySigner extends ethers.Signer {
           type: "TRANSACTION_TYPE_ETHEREUM",
           unsignedTransaction: message,
         },
-        timestamp: process.hrtime().join(""), // nanosecond timestamp
+        timestampMs: `${Date.now()}`
       },
     });
 

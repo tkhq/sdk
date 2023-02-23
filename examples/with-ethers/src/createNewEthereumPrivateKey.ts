@@ -63,7 +63,7 @@ async function withPolling(privateKeyName: string): Promise<string> {
           },
         ],
       },
-      timestamp: process.hrtime().join(""), // nanosecond timestamp
+      timestampMs: `${Date.now()}`
     },
   });
 
