@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.4.0
+
+### Minor Changes
+
+- `timestamp` -> `timestampMs`
+
 ## 0.3.1
 
 ### Patch Changes

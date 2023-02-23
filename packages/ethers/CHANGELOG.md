@@ -1,5 +1,16 @@
 # @turnkey/ethers
 
+## 0.4.0
+
+### Minor Changes
+
+- `timestamp` -> `timestampMs`
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@0.4.0
+
 ## 0.3.1
 
 ### Patch Changes
