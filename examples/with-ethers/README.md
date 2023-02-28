@@ -38,12 +38,20 @@ Now open `.env.local` and add the missing environment variables:
 - `BASE_URL`
 - `ORGANIZATION_ID`
 - `PRIVATE_KEY_ID` -- if you leave it blank, we'll create one for you via calling the Turnkey API
+- `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
-### 3/ Running the script
-
+### 3/ Running the scripts
 ```bash
 $ pnpm start
 ```
+
+This script will do the following:
+1. send ETH
+2. deposit ETH into the WETH contract (aka wrapping)
+3. withdraw WETH from the WETH contract (aka unwrapping)
+4. transfer WETH
+
+Note that these transactions will all be broadcasted sequentially.
 
 The script constructs a transaction via Turnkey and broadcasts via Infura. If the script exits because your account isn't funded, you can request funds on https://goerlifaucet.com/.
 
@@ -65,12 +73,23 @@ Transaction count:
 Turnkey-signed transaction:
 	0x02f8668080808080942ad9ea1e677949a536a270cec812d6e868c881088609184e72a00080c001a0cae70a2ffd4b851ea22349c8f198a3aa8e47932064eecdc1691fa8ed65d09281a015434a47976515b60783cdc1c3f52fa29ff0e36575c31cf59f41b9802d95a8f5
 
+// `eth-send.ts`
 Sent 0.00001 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
 	https://goerli.etherscan.io/tx/0x9ced217b3eb54d2d0dd49e62602af1584039091571c95489a63f0cd76601f81c
 
+// WETH-related transactions show your WETH balance in advance
 WETH Balance:
 	0.00023 WETH
 
+// `weth-deposit.ts`
 Wrapped 0.00001 ETH:
+	https://goerli.etherscan.io/tx/0xec76157de7c02ddf5a188273f238f1d194040ad1034e9037d9f30b10f0b92923
+
+// `weth-withdraw.ts`
+Unwrapped 0.00001 WETH:
+	https://goerli.etherscan.io/tx/0xec76157de7c02ddf5a188273f238f1d194040ad1034e9037d9f30b10f0b92923
+
+// `weth-transfer.ts`
+Sent 0.00001 WETH to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
 	https://goerli.etherscan.io/tx/0xec76157de7c02ddf5a188273f238f1d194040ad1034e9037d9f30b10f0b92923
 ```

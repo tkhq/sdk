@@ -12,7 +12,7 @@ API Docs: https://turnkey.readme.io/
 | [`@turnkey/http`](./packages/http)     | [![npm](https://img.shields.io/npm/v/@turnkey/http?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/http)     | Typed HTTP client for interacting with Turnkey API | [CHANGELOG](./packages/http/CHANGELOG.md)   |
 
 ## Examples
-
-| Example                                  | Description                                                                                              |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| [`with-ethers`](./examples/with-ethers/) | Create a new Ethereum address, then sign and broadcast a transaction using the Ethers signer with Infura |
+| Example                                    | Description                                                                                              |
+|--------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| [`with-ethers`](./examples/with-ethers/)   | Create a new Ethereum address, then sign and broadcast a transaction using the Ethers signer with Infura |
+| [`with-uniswap`](./examples/with-uniswap/) | Sign and broadcast a Uniswap v3 trade using the Ethers signer with Infura                                |
