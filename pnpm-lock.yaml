@@ -28,6 +28,27 @@ importers:
       ts-node: 10.9.1_rcvzjt2q3f6gordb34f5djrkie
       typescript: 4.9.5
 
+  examples/sweeper:
+    specifiers:
+      '@turnkey/ethers': workspace:*
+      '@turnkey/http': workspace:*
+      '@types/prompts': ^2.4.2
+      '@uniswap/sdk-core': ^3.1.1
+      dotenv: ^16.0.3
+      ethers: ^5.7.2
+      hardhat: ^2.12.7
+      prompts: ^2.4.2
+    dependencies:
+      '@turnkey/ethers': link:../../packages/ethers
+      '@turnkey/http': link:../../packages/http
+      '@uniswap/sdk-core': 3.1.1
+      dotenv: 16.0.3
+      ethers: 5.7.2
+      hardhat: 2.12.7
+      prompts: 2.4.2
+    devDependencies:
+      '@types/prompts': 2.4.2
+
   examples/with-ethers:
     specifiers:
       '@turnkey/ethers': workspace:*
@@ -2620,6 +2641,13 @@ packages:
     resolution: {integrity: sha512-KufADq8uQqo1pYKVIYzfKbJfBAc0sOeXqGbFaSpv8MRmC/zXgowNZmFcbngndGk922QDmOASEXUZCaY48gs4cg==}
     dev: true
 
+  /@types/prompts/2.4.2:
+    resolution: {integrity: sha512-TwNx7qsjvRIUv/BCx583tqF5IINEVjCNqg9ofKHRlSoUHE62WBHrem4B1HGXcIrG511v29d1kJ9a/t2Esz7MIg==}
+    dependencies:
+      '@types/node': 18.13.0
+      kleur: 3.0.3
+    dev: true
+
   /@types/secp256k1/4.0.3:
     resolution: {integrity: sha512-Da66lEIFeIz9ltsdMZcpQvmrmmoqrfju8pm1BH8WbYjZSwUgCwXLb9C+9XYogwBITnbsSaMdVPb2ekf7TV+03w==}
     dependencies:
@@ -5038,7 +5066,6 @@ packages:
   /kleur/3.0.3:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
     engines: {node: '>=6'}
-    dev: true
 
   /kleur/4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
@@ -5603,7 +5630,6 @@ packages:
     dependencies:
       kleur: 3.0.3
       sisteransi: 1.0.5
-    dev: true
 
   /pseudomap/1.0.2:
     resolution: {integrity: sha512-b/YwNhb8lk1Zz2+bXXpS/LK9OisiZZ1SNsSLxN1x2OXVEhW2Ckr/7mWE5vrC1ZTiJlD9g19jWszTmJsB+oEpFQ==}
@@ -5943,7 +5969,6 @@ packages:
 
   /sisteransi/1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
-    dev: true
 
   /slash/3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
