@@ -99,7 +99,7 @@ async function main() {
 
     // 3. Unwrap WETH --> ETH
     const withdrawTx = await wethContract.withdraw(
-      ethers.utils.parseEther(transactionAmount),
+      ethers.utils.parseEther(transactionAmount)
     );
 
     print(
@@ -110,7 +110,7 @@ async function main() {
     // 4. Transfer WETH
     const transferTx = await wethContract.transfer(
       destinationAddress,
-      ethers.utils.parseEther(transactionAmount),
+      ethers.utils.parseEther(transactionAmount)
     );
 
     print(

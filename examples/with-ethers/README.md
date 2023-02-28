@@ -41,11 +41,13 @@ Now open `.env.local` and add the missing environment variables:
 - `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
 ### 3/ Running the scripts
+
 ```bash
 $ pnpm start
 ```
 
 This script will do the following:
+
 1. send ETH
 2. deposit ETH into the WETH contract (aka wrapping)
 3. withdraw WETH from the WETH contract (aka unwrapping)

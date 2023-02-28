@@ -5,11 +5,19 @@ import { Environment } from "./constants";
 const DEFAULT_INFURA_COMMUNITY_KEY = "84842078b09946638c03157f83405213";
 const DEFAULT_ENV = Environment.GOERLI;
 
-let provider = new ethers.providers.InfuraProvider(DEFAULT_ENV, process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY);
+let provider = new ethers.providers.InfuraProvider(
+  DEFAULT_ENV,
+  process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY
+);
 
-export function getProvider(env = Environment.GOERLI) : ethers.providers.Provider {
+export function getProvider(
+  env = Environment.GOERLI
+): ethers.providers.Provider {
   if (env !== Environment.GOERLI) {
-    provider = new ethers.providers.InfuraProvider(env, process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY);
+    provider = new ethers.providers.InfuraProvider(
+      env,
+      process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY
+    );
   }
 
   return provider;
@@ -26,6 +34,8 @@ const turnkeySigner = new TurnkeySigner({
 
 // getTurnkeySigner returns a TurnkeySigner connected to the passed-in Provider
 // (https://docs.ethers.org/v5/api/providers/)
-export function getTurnkeySigner(provider: ethers.providers.Provider) : TurnkeySigner {
+export function getTurnkeySigner(
+  provider: ethers.providers.Provider
+): TurnkeySigner {
   return turnkeySigner.connect(provider);
 }

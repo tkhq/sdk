@@ -41,10 +41,12 @@ Now open `.env.local` and add the missing environment variables:
 - `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
 ### 3/ Running the script
-There is currently one script you can run (more to be added), located in `package.json`: 
+
+There is currently one script you can run (more to be added), located in `package.json`:
+
 1. `univ3-swap.ts`: a simple Uniswap trade, routed via the v3 engine. Heavily based on [Uniswap's v3 trading examples](https://github.com/Uniswap/examples/tree/main/v3-sdk/trading/).
 
-Configure your trade via `config.ts`, namely `UniV3SwapConfig`. Ensure you have sufficient funds to make the trade. If you have insufficient funds, your transaction will fail either at broadcast time, or onchain. Furthermore, note that this utilizes `TradeType.EXACT_INPUT` -- if you would like to be lenient with inputs and more strict with outputs (the funds you will *receive* as a result of the trade), consider using `TradeType.EXACT_OUTPUT`.
+Configure your trade via `config.ts`, namely `UniV3SwapConfig`. Ensure you have sufficient funds to make the trade. If you have insufficient funds, your transaction will fail either at broadcast time, or onchain. Furthermore, note that this utilizes `TradeType.EXACT_INPUT` -- if you would like to be lenient with inputs and more strict with outputs (the funds you will _receive_ as a result of the trade), consider using `TradeType.EXACT_OUTPUT`.
 
 ```bash
 $ pnpm start
