@@ -12,6 +12,10 @@
     "@uniswap/sdk-core": "^3.1.1",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2",
-    "hardhat": "^2.12.7"
+    "hardhat": "^2.12.7",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.2"
   }
 }

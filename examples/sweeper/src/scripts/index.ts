@@ -15,7 +15,7 @@ import {
   WETH_TOKEN_GOERLI,
 } from "../utils";
 
-const prompts = require("prompts");
+import prompts from "prompts";
 
 async function main() {
   if (!process.env.PRIVATE_KEY_ID) {
