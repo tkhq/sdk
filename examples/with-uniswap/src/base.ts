@@ -18,10 +18,7 @@ import JSBI from "jsbi";
 
 import { getV3PoolInfo } from "./pool";
 import { fromReadableAmount, TransactionState } from "./utils";
-import {
-  getProvider,
-  getTurnkeySigner,
-} from "./provider";
+import { getProvider, getTurnkeySigner } from "./provider";
 import {
   DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
   DEFAULT_MAX_FEE_PER_GAS,
@@ -60,7 +57,9 @@ export async function createV3Trade(): Promise<TokenTrade> {
 
   const tokenBalance = await tokenContract.balanceOf(address);
   if (tokenBalance < inputAmount) {
-    throw new Error (`Insufficient funds to perform this trade. Have: ${tokenBalance} ${inputToken.symbol}; Need: ${inputAmount} ${inputToken.symbol}.`)
+    throw new Error(
+      `Insufficient funds to perform this trade. Have: ${tokenBalance} ${inputToken.symbol}; Need: ${inputAmount} ${inputToken.symbol}.`
+    );
   }
 
   const poolInfo = await getV3PoolInfo();
@@ -74,11 +73,7 @@ export async function createV3Trade(): Promise<TokenTrade> {
     poolInfo.tick
   );
 
-  const swapRoute = new Route(
-    [pool],
-    inputToken,
-    UniV3SwapConfig.tokens.out
-  );
+  const swapRoute = new Route([pool], inputToken, UniV3SwapConfig.tokens.out);
 
   const amountOut = await getOutputQuote(swapRoute);
 

@@ -17,7 +17,10 @@ async function main() {
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(provider);
 
-  print("Connected Turnkey signer to provider:", `${JSON.stringify(connectedSigner)}`);
+  print(
+    "Connected Turnkey signer to provider:",
+    `${JSON.stringify(connectedSigner)}`
+  );
 
   const network = await provider.getNetwork();
   const chainId = await connectedSigner.getChainId();

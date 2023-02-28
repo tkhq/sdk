@@ -29,6 +29,9 @@ jobs:
       - name: Test
         run: pnpm run test-all
 
+      - name: Prettier
+        run: pnpm run prettier-all:check
+
       - name: Ensure git is clean
         run: |
           if [ -z "$( git status --porcelain )" ]; then
