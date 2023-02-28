@@ -81,10 +81,14 @@ export function fromReadableAmount(
   amount: number,
   decimals: number
 ): BigNumber {
-  return ethers.utils.parseUnits(amount.toString(), decimals)
+  return ethers.utils.parseUnits(amount.toString(), decimals);
 }
 
 // toReadableAmount converts atomic amounts to whole amounts
-export function toReadableAmount(rawAmount: number | string, decimals: number, maxDecimals = MAX_DECIMALS): string {
-  return ethers.utils.formatUnits(rawAmount, decimals).slice(0, maxDecimals)
+export function toReadableAmount(
+  rawAmount: number | string,
+  decimals: number,
+  maxDecimals = MAX_DECIMALS
+): string {
+  return ethers.utils.formatUnits(rawAmount, decimals).slice(0, maxDecimals);
 }

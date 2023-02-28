@@ -56,12 +56,24 @@ async function main() {
       WETH_TOKEN_GOERLI,
     ];
 
-    await sweepTokens(connectedSigner, network.name, tokens, address, destinationAddress);
-    await sweepEth(connectedSigner, network.name, destinationAddress);    
+    await sweepTokens(
+      connectedSigner,
+      network.name,
+      tokens,
+      address,
+      destinationAddress
+    );
+    await sweepEth(connectedSigner, network.name, destinationAddress);
   }
 }
 
-async function sweepTokens(connectedSigner: ethers.Signer, network: string, tokens: Token[], address: string, destinationAddress: string) {
+async function sweepTokens(
+  connectedSigner: ethers.Signer,
+  network: string,
+  tokens: Token[],
+  address: string,
+  destinationAddress: string
+) {
   for (let t of tokens) {
     let contract = new ethers.Contract(t.address, ERC20_ABI, connectedSigner);
     let balance = await contract.balanceOf(address);
@@ -69,37 +81,46 @@ async function sweepTokens(connectedSigner: ethers.Signer, network: string, toke
     if (balance == 0) {
       console.warn(`No balance for ${t.symbol}. Skipping...`);
       continue;
-    };
+    }
 
     let { confirmed } = await prompts([
       {
         type: "confirm",
         name: "confirmed",
-        message: `Please confirm: transfer ${toReadableAmount(balance, t.decimals, 12)} ${t.symbol || '<missing symbol>'} (token address ${t.address}) to ${destinationAddress}?`,
+        message: `Please confirm: transfer ${toReadableAmount(
+          balance,
+          t.decimals,
+          12
+        )} ${t.symbol || "<missing symbol>"} (token address ${
+          t.address
+        }) to ${destinationAddress}?`,
       },
     ]);
 
     if (confirmed) {
-      let transferTx = await contract.transfer(
-        destinationAddress,
-        balance
-      );
+      let transferTx = await contract.transfer(destinationAddress, balance);
 
-      console.log('Awaiting confirmation...');
+      console.log("Awaiting confirmation...");
 
       await connectedSigner.provider?.waitForTransaction(transferTx.hash, 1);
 
       print(
-        `Sent ${toReadableAmount(balance, t.decimals)} ${t.symbol || '<missing symbol>'} (token address ${t.address}) to ${destinationAddress}:`,
+        `Sent ${toReadableAmount(balance, t.decimals)} ${
+          t.symbol || "<missing symbol>"
+        } (token address ${t.address}) to ${destinationAddress}:`,
         `https://${network}.etherscan.io/tx/${transferTx.hash}`
       );
     } else {
-      print(`Skipping transfer...`, ``)
+      print(`Skipping transfer...`, ``);
     }
   }
 }
 
-async function sweepEth(connectedSigner: ethers.Signer, network: string, destinationAddress: string) {
+async function sweepEth(
+  connectedSigner: ethers.Signer,
+  network: string,
+  destinationAddress: string
+) {
   const balance = await connectedSigner.getBalance();
   const feeData = await connectedSigner.getFeeData();
   const gasRequired = feeData.maxFeePerGas!.mul(21000);
@@ -122,23 +143,39 @@ async function sweepEth(connectedSigner: ethers.Signer, network: string, destina
     {
       type: "confirm",
       name: "confirmed",
-      message: `Please confirm: transfer ${toReadableAmount(value.toString(), 18, 12)} ETH (balance of ${toReadableAmount(balance.toString(), 18, 12)} - ${toReadableAmount(gasRequired.toString(), 18, 12)} for gas) to ${destinationAddress}?`,
+      message: `Please confirm: transfer ${toReadableAmount(
+        value.toString(),
+        18,
+        12
+      )} ETH (balance of ${toReadableAmount(
+        balance.toString(),
+        18,
+        12
+      )} - ${toReadableAmount(
+        gasRequired.toString(),
+        18,
+        12
+      )} for gas) to ${destinationAddress}?`,
     },
   ]);
 
   if (confirmed) {
     const sentTx = await connectedSigner.sendTransaction(transactionRequest);
 
-    console.log('Awaiting confirmation...');
+    console.log("Awaiting confirmation...");
 
-      await connectedSigner.provider?.waitForTransaction(sentTx.hash, 1);
+    await connectedSigner.provider?.waitForTransaction(sentTx.hash, 1);
 
     print(
-      `Sent ${toReadableAmount(value.toString(), 18, 12)} ETH to ${destinationAddress}:`,
+      `Sent ${toReadableAmount(
+        value.toString(),
+        18,
+        12
+      )} ETH to ${destinationAddress}:`,
       `https://${network}.etherscan.io/tx/${sentTx.hash}`
     );
   } else {
-    print(`Skipping transfer...`, ``)
+    print(`Skipping transfer...`, ``);
   }
 }
 

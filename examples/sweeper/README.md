@@ -41,6 +41,7 @@ Now open `.env.local` and add the missing environment variables:
 - `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
 ### 3/ Running the script
+
 ```bash
 $ pnpm start
 ```
