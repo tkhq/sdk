@@ -120,10 +120,47 @@ async function main() {
   }
 }
 
+async function sign() {
+  // Initialize a Turnkey Signer
+  const turnkeySigner = new TurnkeySigner({
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    baseUrl: process.env.BASE_URL!,
+    organizationId: process.env.ORGANIZATION_ID!,
+    privateKeyId: process.env.PRIVATE_KEY_ID!,
+  });
+
+  // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
+  const network = "goerli";
+  const provider = new ethers.providers.InfuraProvider(network);
+  const connectedSigner = turnkeySigner.connect(provider);
+  const address = await connectedSigner.getAddress();
+
+  print("Address", address);
+
+  const message = "Hello Turnkey";
+  const msgHash = ethers.utils.hashMessage(message);
+  const signature = await connectedSigner.signMessage(msgHash);
+  const msgHashBytes = ethers.utils.arrayify(msgHash);
+  const recoveredPubKey = ethers.utils.recoverPublicKey(msgHashBytes, signature);
+  const recoveredAddress = ethers.utils.recoverAddress(msgHashBytes, signature);
+
+  print("Turnkey-powered signature:", `${signature}`);
+  print("Recovered address:", `${recoveredAddress}`);
+  print("Recovered pubkey:", `${recoveredPubKey}`);
+}
+
 main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
+
+sign().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
+
+sign();
 
 function print(header: string, body: string): void {
   console.log(`${header}\n\t${body}\n`);
