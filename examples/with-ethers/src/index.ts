@@ -142,7 +142,10 @@ async function sign() {
   const msgHash = ethers.utils.hashMessage(message);
   const signature = await connectedSigner.signMessage(msgHash);
   const msgHashBytes = ethers.utils.arrayify(msgHash);
-  const recoveredPubKey = ethers.utils.recoverPublicKey(msgHashBytes, signature);
+  const recoveredPubKey = ethers.utils.recoverPublicKey(
+    msgHashBytes,
+    signature
+  );
   const recoveredAddress = ethers.utils.recoverAddress(msgHashBytes, signature);
 
   print("Turnkey-powered signature:", `${signature}`);
@@ -159,8 +162,6 @@ sign().catch((error) => {
   console.error(error);
   process.exit(1);
 });
-
-sign();
 
 function print(header: string, body: string): void {
   console.log(`${header}\n\t${body}\n`);
