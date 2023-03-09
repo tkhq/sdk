@@ -53,6 +53,7 @@ test("TurnkeySigner", async () => {
 
   const chainId = (await provider.getNetwork()).chainId;
 
+  // Test transaction signing
   const tx = await signer.signTransaction({
     to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
     value: ethers.utils.parseEther("1.0"),
@@ -96,6 +97,38 @@ test("TurnkeySigner", async () => {
         "activityStatus": null,
         "activityType": null,
         "cause": [Error: 500: Internal Server Error | Internal error 2: unable to execute ruling: ump denied request explicitly],
+        "message": "Failed to sign",
+      }
+    `);
+  }
+
+  // Test message (raw payload) signing
+  const message = "Hello Turnkey";
+  const msgHash = ethers.utils.hashMessage(message);
+  const signedMessage = await signer.signMessage(msgHash);
+
+  expect(signedMessage).toMatch(/^0x/);
+
+  try {
+    await signer.signMessage(message);
+  } catch (error) {
+    expect(error).toBeInstanceOf(TurnkeyActivityError);
+
+    const { message, cause, activityId, activityStatus, activityType } =
+      error as TurnkeyActivityError;
+
+    expect({
+      message,
+      cause,
+      activityId,
+      activityStatus,
+      activityType,
+    }).toMatchInlineSnapshot(`
+      {
+        "activityId": null,
+        "activityStatus": null,
+        "activityType": null,
+        "cause": [Error: 400: Bad Request | Internal error 3: invalid hex payload: Hello Turnkey, signer/app/src/crypto.rs:161],
         "message": "Failed to sign",
       }
     `);

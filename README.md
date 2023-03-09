@@ -17,3 +17,4 @@ API Docs: https://turnkey.readme.io/
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
 | [`with-ethers`](./examples/with-ethers/)   | Create a new Ethereum address, then sign and broadcast a transaction using the Ethers signer with Infura |
 | [`with-uniswap`](./examples/with-uniswap/) | Sign and broadcast a Uniswap v3 trade using the Ethers signer with Infura                                |
+| [`sweeper`](./examples/sweeper/)           | Sweep funds from one address to a different address                                                      |

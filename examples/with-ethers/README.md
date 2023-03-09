@@ -55,9 +55,11 @@ This script will do the following:
 
 Note that these transactions will all be broadcasted sequentially.
 
-The script constructs a transaction via Turnkey and broadcasts via Infura. If the script exits because your account isn't funded, you can request funds on https://goerlifaucet.com/.
+The script constructs a transaction via Turnkey and broadcasts via Infura. If the script exits because your account isn't funded, you can request funds on https://goerlifaucet.com/ or https://faucet.paradigm.xyz/.
 
 Visit the Etherscan link to view your transaction; you have successfully sent your first transaction with Turnkey!
+
+See the following for a sample output:
 
 ```
 Network:
@@ -71,6 +73,15 @@ Balance:
 
 Transaction count:
 	14
+
+Turnkey-powered signature:
+        0xc6118087e6e0eab0e01adb2239578f8a1a6524f2cac964a5e849f43e2fad5c6a2bb708e7255b216270603351bcb27ed28868f9da51d12105e91edd3c4b9a2e301b
+
+Recovered address:
+        0xA16d17B5bd27b657dB0E973983B8C1848aeC257e
+
+Recovered pubkey:
+        0x04044e84cb739cb3b9188cebb5917e2880f14c5b7a5a3e6f92b60acb5dc459bf4a5c35e1505fcc4ef30bab813d828b558ecd38e9e6ab7503ffada61d109a503d69
 
 Turnkey-signed transaction:
 	0x02f8668080808080942ad9ea1e677949a536a270cec812d6e868c881088609184e72a00080c001a0cae70a2ffd4b851ea22349c8f198a3aa8e47932064eecdc1691fa8ed65d09281a015434a47976515b60783cdc1c3f52fa29ff0e36575c31cf59f41b9802d95a8f5

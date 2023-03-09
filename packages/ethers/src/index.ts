@@ -143,10 +143,6 @@ export class TurnkeySigner extends ethers.Signer {
     return signedTx;
   }
 
-  async signMessage(_message: string | ethers.utils.Bytes): Promise<string> {
-    throw new Error("Not implemented yet");
-  }
-
   async signTransaction(
     transaction: ethers.utils.Deferrable<ethers.providers.TransactionRequest>
   ): Promise<string> {
@@ -159,6 +155,70 @@ export class TurnkeySigner extends ethers.Signer {
       nonHexPrefixedSerializedTx
     );
     return `0x${signedTx}`;
+  }
+
+  async signMessage(message: string): Promise<string> {
+    const nonHexPrefixedSerializedMessage = message.replace(/^0x/, "");
+    const signedMessage = await this._signMessageWithErrorWrapping(
+      nonHexPrefixedSerializedMessage
+    );
+    return `${signedMessage}`;
+  }
+
+  async _signMessageWithErrorWrapping(message: string): Promise<string> {
+    let signedMessage: string;
+    try {
+      signedMessage = await this._signMessageImpl(message);
+    } catch (error) {
+      if (error instanceof TurnkeyActivityError) {
+        throw error;
+      }
+
+      throw new TurnkeyActivityError({
+        message: `Failed to sign`,
+        cause: error as Error,
+      });
+    }
+
+    return signedMessage;
+  }
+
+  async _signMessageImpl(message: string): Promise<string> {
+    const { activity } = await PublicApiService.postSignRawPayload({
+      body: {
+        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
+        organizationId: this.config.organizationId,
+        parameters: {
+          privateKeyId: this.config.privateKeyId,
+          payload: message,
+          encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+          hashFunction: "HASH_FUNCTION_KECCAK256",
+        },
+        timestampMs: String(Date.now()), // millisecond timestamp
+      },
+    });
+
+    const { id, status, type } = activity;
+
+    if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
+      let result = assertNonNull(activity?.result?.signRawPayloadResult);
+
+      let assembled = ethers.utils.joinSignature({
+        r: `0x${result.r}`,
+        s: `0x${result.s}`,
+        v: parseInt(result.v) + 27,
+      });
+
+      // assemble the hex
+      return assertNonNull(assembled);
+    }
+
+    throw new TurnkeyActivityError({
+      message: `Invalid activity status: ${activity.status}`,
+      activityId: id,
+      activityStatus: status,
+      activityType: type,
+    });
   }
 }
 

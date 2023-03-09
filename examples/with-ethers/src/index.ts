@@ -36,15 +36,30 @@ async function main() {
   const address = await connectedSigner.getAddress();
   const balance = await connectedSigner.getBalance();
   const transactionCount = await connectedSigner.getTransactionCount();
-  const transactionAmount = "0.00001";
-  const destinationAddress = "0x2Ad9eA1E677949a536A270CEC812D6e868C88108";
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);
   print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
   print("Transaction count:", `${transactionCount}`);
 
+  // 1. Sign a raw payload
+  const message = "Hello Turnkey";
+  const msgHash = ethers.utils.hashMessage(message);
+  const signature = await connectedSigner.signMessage(msgHash);
+  const msgHashBytes = ethers.utils.arrayify(msgHash);
+  const recoveredPubKey = ethers.utils.recoverPublicKey(
+    msgHashBytes,
+    signature
+  );
+  const recoveredAddress = ethers.utils.recoverAddress(msgHashBytes, signature);
+
+  print("Turnkey-powered signature:", `${signature}`);
+  print("Recovered address:", `${recoveredAddress}`);
+  print("Recovered pubkey:", `${recoveredPubKey}`);
+
   // Create a simple send transaction
+  const transactionAmount = "0.00001";
+  const destinationAddress = "0x2Ad9eA1E677949a536A270CEC812D6e868C88108";
   const transactionRequest = {
     to: destinationAddress,
     value: ethers.utils.parseEther(transactionAmount),
@@ -67,7 +82,7 @@ async function main() {
     return;
   }
 
-  // 1. Simple send tx
+  // 2. Simple send tx
   const sentTx = await connectedSigner.sendTransaction(transactionRequest);
 
   print(
@@ -87,7 +102,7 @@ async function main() {
 
     print("WETH Balance:", `${ethers.utils.formatEther(wethBalance)} WETH`);
 
-    // 2. Wrap ETH --> WETH
+    // 3. Wrap ETH --> WETH
     const depositTx = await wethContract.deposit({
       value: ethers.utils.parseEther(transactionAmount),
     });
@@ -97,7 +112,7 @@ async function main() {
       `https://${network}.etherscan.io/tx/${depositTx.hash}`
     );
 
-    // 3. Unwrap WETH --> ETH
+    // 4. Unwrap WETH --> ETH
     const withdrawTx = await wethContract.withdraw(
       ethers.utils.parseEther(transactionAmount)
     );
@@ -107,7 +122,7 @@ async function main() {
       `https://${network}.etherscan.io/tx/${withdrawTx.hash}`
     );
 
-    // 4. Transfer WETH
+    // 5. Transfer WETH
     const transferTx = await wethContract.transfer(
       destinationAddress,
       ethers.utils.parseEther(transactionAmount)
