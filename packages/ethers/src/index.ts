@@ -191,8 +191,8 @@ export class TurnkeySigner extends ethers.Signer {
         parameters: {
           privateKeyId: this.config.privateKeyId,
           payload: message,
-          encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-          hashFunction: "HASH_FUNCTION_NO_OP",
+          encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+          hashFunction: "HASH_FUNCTION_KECCAK256",
         },
         timestampMs: String(Date.now()), // millisecond timestamp
       },
@@ -201,7 +201,7 @@ export class TurnkeySigner extends ethers.Signer {
     const { id, status, type } = activity;
 
     if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
-      let result = activity?.result?.signRawPayloadResult!;
+      let result = assertNonNull(activity?.result?.signRawPayloadResult);
 
       let assembled = ethers.utils.joinSignature({
         r: `0x${result.r}`,

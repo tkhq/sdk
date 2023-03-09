@@ -103,7 +103,7 @@ test("TurnkeySigner", async () => {
   }
 
   // Test message (raw payload) signing
-  const message = "Hello world";
+  const message = "Hello Turnkey";
   const msgHash = ethers.utils.hashMessage(message);
   const signedMessage = await signer.signMessage(msgHash);
 
@@ -128,7 +128,7 @@ test("TurnkeySigner", async () => {
         "activityId": null,
         "activityStatus": null,
         "activityType": null,
-        "cause": [Error: 400: Bad Request | Internal error 3: invalid hex payload: Hello Turnkey],
+        "cause": [Error: 400: Bad Request | Internal error 3: invalid hex payload: Hello Turnkey, signer/app/src/crypto.rs:161],
         "message": "Failed to sign",
       }
     `);
