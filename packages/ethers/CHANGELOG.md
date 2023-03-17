@@ -1,5 +1,16 @@
 # @turnkey/ethers
 
+## 0.5.0
+
+### Minor Changes
+
+- Arbitrary message signing
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@0.5.0
+
 ## 0.4.0
 
 ### Minor Changes
