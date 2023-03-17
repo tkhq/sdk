@@ -843,7 +843,7 @@
         "tagId": {
           "type": "string"
         },
-        "label": {
+        "tagName": {
           "type": "string"
         },
         "tagType": {
@@ -856,7 +856,7 @@
           "$ref": "#/definitions/v1Timestamp"
         }
       },
-      "required": ["tagId", "label", "tagType", "createdAt", "updatedAt"]
+      "required": ["tagId", "tagName", "tagType", "createdAt", "updatedAt"]
     },
     "externaldatav1AccessType": {
       "type": "string",
@@ -912,7 +912,11 @@
         "OPERATOR_LESS_THAN",
         "OPERATOR_LESS_THAN_OR_EQUAL",
         "OPERATOR_CONTAINS",
-        "OPERATOR_NOT_EQUAL"
+        "OPERATOR_NOT_EQUAL",
+        "OPERATOR_IN",
+        "OPERATOR_NOT_IN",
+        "OPERATOR_CONTAINS_ONE",
+        "OPERATOR_CONTAINS_ALL"
       ]
     },
     "externaldatav1Selector": {
@@ -924,11 +928,14 @@
         "operator": {
           "$ref": "#/definitions/externaldatav1Operator"
         },
-        "target": {
-          "type": "string"
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
-      "required": ["subject", "operator", "target"]
+      "required": ["subject", "operator", "targets"]
     },
     "immutableactivityv1AccessType": {
       "type": "string",
@@ -963,7 +970,11 @@
         "OPERATOR_LESS_THAN",
         "OPERATOR_LESS_THAN_OR_EQUAL",
         "OPERATOR_CONTAINS",
-        "OPERATOR_NOT_EQUAL"
+        "OPERATOR_NOT_EQUAL",
+        "OPERATOR_IN",
+        "OPERATOR_NOT_IN",
+        "OPERATOR_CONTAINS_ONE",
+        "OPERATOR_CONTAINS_ALL"
       ]
     },
     "immutableactivityv1Selector": {
@@ -1239,7 +1250,7 @@
         "authenticatorId": {
           "type": "string"
         },
-        "label": {
+        "authenticatorName": {
           "type": "string"
         },
         "createdAt": {
@@ -1258,7 +1269,7 @@
         "model",
         "credential",
         "authenticatorId",
-        "label",
+        "authenticatorName",
         "createdAt",
         "updatedAt"
       ]
@@ -1483,6 +1494,29 @@
       },
       "required": ["policyName", "selectors", "effect"]
     },
+    "v1CreatePolicyIntentV2": {
+      "type": "object",
+      "properties": {
+        "policyName": {
+          "type": "string",
+          "title": "@inject_tag: validate:\"required,max=40\""
+        },
+        "selectors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1SelectorV2"
+          },
+          "title": "@inject_tag: validate:\"required,dive,required\""
+        },
+        "effect": {
+          "$ref": "#/definitions/immutableactivityv1Effect"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": ["policyName", "selectors", "effect"]
+    },
     "v1CreatePolicyRequest": {
       "type": "object",
       "properties": {
@@ -1497,7 +1531,7 @@
           "type": "string"
         },
         "parameters": {
-          "$ref": "#/definitions/v1CreatePolicyIntent"
+          "$ref": "#/definitions/v1CreatePolicyIntentV2"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -2240,6 +2274,9 @@
         },
         "deletePrivateKeyTagsIntent": {
           "$ref": "#/definitions/v1DeletePrivateKeyTagsIntent"
+        },
+        "createPolicyIntentV2": {
+          "$ref": "#/definitions/v1CreatePolicyIntentV2"
         }
       },
       "required": ["createOrganizationIntent"]
@@ -2250,13 +2287,13 @@
         "invitationId": {
           "type": "string"
         },
-        "receiverAlias": {
+        "receiverUserName": {
           "type": "string"
         },
         "receiverEmail": {
           "type": "string"
         },
-        "receiverTags": {
+        "receiverUserTags": {
           "type": "array",
           "items": {
             "type": "string"
@@ -2280,9 +2317,9 @@
       },
       "required": [
         "invitationId",
-        "receiverAlias",
+        "receiverUserName",
         "receiverEmail",
-        "receiverTags",
+        "receiverUserTags",
         "accessType",
         "status",
         "createdAt",
@@ -2480,11 +2517,14 @@
             "$ref": "#/definitions/externaldatav1Address"
           }
         },
-        "tags": {
+        "privateKeyTags": {
           "type": "array",
           "items": {
             "type": "string"
           }
+        },
+        "createdAt": {
+          "$ref": "#/definitions/v1Timestamp"
         }
       },
       "required": [
@@ -2493,7 +2533,8 @@
         "privateKeyName",
         "curve",
         "addresses",
-        "tags"
+        "privateKeyTags",
+        "createdAt"
       ]
     },
     "v1PrivateKeyParams": {
@@ -2635,6 +2676,23 @@
         }
       }
     },
+    "v1SelectorV2": {
+      "type": "object",
+      "properties": {
+        "subject": {
+          "type": "string"
+        },
+        "operator": {
+          "$ref": "#/definitions/immutableactivityv1Operator"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "v1SignRawPayloadIntent": {
       "type": "object",
       "properties": {
@@ -2770,10 +2828,10 @@
         "userId": {
           "type": "string"
         },
-        "alias": {
+        "userName": {
           "type": "string"
         },
-        "email": {
+        "userEmail": {
           "type": "string",
           "title": "some users do not have emails (programmatic users)"
         },
@@ -2792,7 +2850,7 @@
             "$ref": "#/definitions/v1ApiKey"
           }
         },
-        "tags": {
+        "userTags": {
           "type": "array",
           "items": {
             "type": "string"
@@ -2807,11 +2865,11 @@
       },
       "required": [
         "userId",
-        "alias",
+        "userName",
         "accessType",
         "authenticators",
         "apiKeys",
-        "tags",
+        "userTags",
         "createdAt",
         "updatedAt"
       ]
@@ -2824,8 +2882,7 @@
           "title": "@inject_tag: validate:\"required,max=40\""
         },
         "userEmail": {
-          "type": "string",
-          "title": "@inject_tag: validate:\"email\""
+          "type": "string"
         },
         "accessType": {
           "$ref": "#/definitions/immutableactivityv1AccessType"
