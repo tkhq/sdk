@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.5.0
+
+### Minor Changes
+
+- Arbitrary message signing
+
 ## 0.4.0
 
 ### Minor Changes
