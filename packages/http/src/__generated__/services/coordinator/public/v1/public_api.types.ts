@@ -85,7 +85,7 @@ export type paths = {
 export type definitions = {
   datav1Tag: {
     tagId: string;
-    label: string;
+    tagName: string;
     tagType: definitions["v1TagType"];
     createdAt: definitions["v1Timestamp"];
     updatedAt: definitions["v1Timestamp"];
@@ -134,11 +134,15 @@ export type definitions = {
     | "OPERATOR_LESS_THAN"
     | "OPERATOR_LESS_THAN_OR_EQUAL"
     | "OPERATOR_CONTAINS"
-    | "OPERATOR_NOT_EQUAL";
+    | "OPERATOR_NOT_EQUAL"
+    | "OPERATOR_IN"
+    | "OPERATOR_NOT_IN"
+    | "OPERATOR_CONTAINS_ONE"
+    | "OPERATOR_CONTAINS_ALL";
   externaldatav1Selector: {
     subject: string;
     operator: definitions["externaldatav1Operator"];
-    target: string;
+    targets: string[];
   };
   /** @enum {string} */
   immutableactivityv1AccessType:
@@ -173,7 +177,11 @@ export type definitions = {
     | "OPERATOR_LESS_THAN"
     | "OPERATOR_LESS_THAN_OR_EQUAL"
     | "OPERATOR_CONTAINS"
-    | "OPERATOR_NOT_EQUAL";
+    | "OPERATOR_NOT_EQUAL"
+    | "OPERATOR_IN"
+    | "OPERATOR_NOT_IN"
+    | "OPERATOR_CONTAINS_ONE"
+    | "OPERATOR_CONTAINS_ALL";
   immutableactivityv1Selector: {
     subject?: string;
     operator?: definitions["immutableactivityv1Operator"];
@@ -292,7 +300,7 @@ export type definitions = {
     model: string;
     credential: definitions["v1Credential"];
     authenticatorId: string;
-    label: string;
+    authenticatorName: string;
     createdAt: definitions["v1Timestamp"];
     updatedAt: definitions["v1Timestamp"];
   };
@@ -373,12 +381,20 @@ export type definitions = {
     effect: definitions["immutableactivityv1Effect"];
     notes?: string;
   };
+  v1CreatePolicyIntentV2: {
+    /** @inject_tag: validate:"required,max=40" */
+    policyName: string;
+    /** @inject_tag: validate:"required,dive,required" */
+    selectors: definitions["v1SelectorV2"][];
+    effect: definitions["immutableactivityv1Effect"];
+    notes?: string;
+  };
   v1CreatePolicyRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_CREATE_POLICY";
     timestampMs: string;
     organizationId: string;
-    parameters: definitions["v1CreatePolicyIntent"];
+    parameters: definitions["v1CreatePolicyIntentV2"];
   };
   v1CreatePolicyResult: {
     policyId: string;
@@ -626,12 +642,13 @@ export type definitions = {
     rejectActivityIntent?: definitions["v1RejectActivityIntent"];
     createPrivateKeyTagIntent?: definitions["v1CreatePrivateKeyTagIntent"];
     deletePrivateKeyTagsIntent?: definitions["v1DeletePrivateKeyTagsIntent"];
+    createPolicyIntentV2?: definitions["v1CreatePolicyIntentV2"];
   };
   v1Invitation: {
     invitationId: string;
-    receiverAlias: string;
+    receiverUserName: string;
     receiverEmail: string;
-    receiverTags: string[];
+    receiverUserTags: string[];
     accessType: definitions["externaldatav1AccessType"];
     status: definitions["v1InvitationStatus"];
     createdAt: definitions["v1Timestamp"];
@@ -701,7 +718,8 @@ export type definitions = {
     privateKeyName: string;
     curve: definitions["externaldatav1Curve"];
     addresses: definitions["externaldatav1Address"][];
-    tags: string[];
+    privateKeyTags: string[];
+    createdAt: definitions["v1Timestamp"];
   };
   v1PrivateKeyParams: {
     /** @inject_tag: validate:"required,max=40" */
@@ -753,6 +771,11 @@ export type definitions = {
     createPrivateKeyTagResult?: definitions["v1CreatePrivateKeyTagResult"];
     deletePrivateKeyTagsResult?: definitions["v1DeletePrivateKeyTagsResult"];
   };
+  v1SelectorV2: {
+    subject?: string;
+    operator?: definitions["immutableactivityv1Operator"];
+    targets?: string[];
+  };
   v1SignRawPayloadIntent: {
     /** @inject_tag: validate:"required,uuid" */
     privateKeyId: string;
@@ -803,20 +826,19 @@ export type definitions = {
   };
   v1User: {
     userId: string;
-    alias: string;
+    userName: string;
     /** some users do not have emails (programmatic users) */
-    email?: string;
+    userEmail?: string;
     accessType: definitions["externaldatav1AccessType"];
     authenticators: definitions["v1Authenticator"][];
     apiKeys: definitions["v1ApiKey"][];
-    tags: string[];
+    userTags: string[];
     createdAt: definitions["v1Timestamp"];
     updatedAt: definitions["v1Timestamp"];
   };
   v1UserParams: {
     /** @inject_tag: validate:"required,max=40" */
     userName: string;
-    /** @inject_tag: validate:"email" */
     userEmail?: string;
     accessType: definitions["immutableactivityv1AccessType"];
     /** @inject_tag: validate:"dive,uuid" */
