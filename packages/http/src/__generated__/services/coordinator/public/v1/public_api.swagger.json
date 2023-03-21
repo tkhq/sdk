@@ -841,10 +841,12 @@
       "type": "object",
       "properties": {
         "tagId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Tag."
         },
         "tagName": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable name for a Tag."
         },
         "tagType": {
           "$ref": "#/definitions/v1TagType"
@@ -882,7 +884,7 @@
         "ADDRESS_FORMAT_BITCOIN_P2PKH",
         "ADDRESS_FORMAT_BITCOIN_P2PKH_TESTNET"
       ],
-      "title": "- ADDRESS_FORMAT_UNCOMPRESSED: 04\u003cX_COORDINATE\u003e\u003cY_COORDINATE\u003e\n - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate\n - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing.\n - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes"
+      "title": "- ADDRESS_FORMAT_UNCOMPRESSED: 04\u003cX_COORDINATE\u003e\u003cY_COORDINATE\u003e\n - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate\n - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing.\n - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitcoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes"
     },
     "externaldatav1AuthenticatorTransport": {
       "type": "string",
@@ -897,7 +899,7 @@
     "externaldatav1Curve": {
       "type": "string",
       "enum": ["CURVE_SECP256K1"],
-      "title": "- CURVE_SECP256K1: The only curve we're planning to support short-term"
+      "description": "Cryptographic Curve used to generate a given Private Key."
     },
     "externaldatav1Effect": {
       "type": "string",
@@ -917,13 +919,15 @@
         "OPERATOR_NOT_IN",
         "OPERATOR_CONTAINS_ONE",
         "OPERATOR_CONTAINS_ALL"
-      ]
+      ],
+      "description": "Logical operators."
     },
     "externaldatav1Selector": {
       "type": "object",
       "properties": {
         "subject": {
-          "type": "string"
+          "type": "string",
+          "description": "The resource being referenced within a policy (e.g., user.tags or activities.type)."
         },
         "operator": {
           "$ref": "#/definitions/externaldatav1Operator"
@@ -931,8 +935,10 @@
         "targets": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["targets"]
+          },
+          "description": "The specific parameter from the subject being referenced, like a specific user ID."
         }
       },
       "required": ["subject", "operator", "targets"]
@@ -950,12 +956,12 @@
         "ADDRESS_FORMAT_BITCOIN_P2PKH",
         "ADDRESS_FORMAT_BITCOIN_P2PKH_TESTNET"
       ],
-      "title": "- ADDRESS_FORMAT_UNCOMPRESSED: 04\u003cX_COORDINATE\u003e\u003cY_COORDINATE\u003e\n - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate\n - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing.\n - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes"
+      "title": "- ADDRESS_FORMAT_UNCOMPRESSED: 04\u003cX_COORDINATE\u003e\u003cY_COORDINATE\u003e\n - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate\n - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing.\n - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitcoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes"
     },
     "immutableactivityv1Curve": {
       "type": "string",
       "enum": ["CURVE_SECP256K1"],
-      "title": "- CURVE_SECP256K1: The only curve we're planning to support short-term"
+      "description": "Cryptographic Curve used to generate a given Private Key."
     },
     "immutableactivityv1Effect": {
       "type": "string",
@@ -1038,10 +1044,12 @@
       "properties": {
         "invitationId": {
           "type": "string",
+          "description": "Unique identifier for a given Invitation object.",
           "title": "@inject_tag: validate:\"required,uuid\""
         },
         "userId": {
           "type": "string",
+          "description": "Unique identifier for a given User.",
           "title": "@inject_tag: validate:\"required,uuid\""
         },
         "authenticator": {
@@ -1054,10 +1062,12 @@
       "type": "object",
       "properties": {
         "invitationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Invitation."
         },
         "userId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given User."
         }
       },
       "required": ["invitationId", "userId"]
@@ -1066,10 +1076,12 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Activity object."
         },
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "status": {
           "$ref": "#/definitions/v1ActivityStatus"
@@ -1086,11 +1098,14 @@
         "votes": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1Vote"
-          }
+            "$ref": "#/definitions/v1Vote",
+            "required": ["votes"]
+          },
+          "description": "A list of objects representing a particular User's approval or rejection of a Consensus request, including all relevant metadata."
         },
         "fingerprint": {
-          "type": "string"
+          "type": "string",
+          "description": "An artifact verifying a User's action."
         },
         "canApprove": {
           "type": "boolean"
@@ -1105,6 +1120,7 @@
           "$ref": "#/definitions/v1Timestamp"
         }
       },
+      "description": "An action that can that can be taken within the Turnkey infrastructure.",
       "required": [
         "id",
         "organizationId",
@@ -1138,7 +1154,8 @@
         "ACTIVITY_STATUS_FAILED",
         "ACTIVITY_STATUS_CONSENSUS_NEEDED",
         "ACTIVITY_STATUS_REJECTED"
-      ]
+      ],
+      "description": "The current processing status of an Activity."
     },
     "v1ActivityType": {
       "type": "string",
@@ -1167,7 +1184,7 @@
         "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
         "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"
       ],
-      "title": "These are all of the types of user-facing activities on Turnkey\nWe use this to guide the polymorphic parsing of activity requests/approvals/rejections\nOne activity type maps to one internal Intent, but not all internal intents have a user-facing activity (e.g. Hearbeats)"
+      "description": "Type of Activity, such as Add User, or Sign Transaction."
     },
     "v1ApiKey": {
       "type": "object",
@@ -1176,10 +1193,12 @@
           "$ref": "#/definitions/v1Credential"
         },
         "apiKeyId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given API Key."
         },
         "apiKeyName": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable name for an API Key."
         },
         "createdAt": {
           "$ref": "#/definitions/v1Timestamp"
@@ -1201,10 +1220,12 @@
       "properties": {
         "apiKeyName": {
           "type": "string",
+          "description": "Human-readable name for an API Key.",
           "title": "@inject_tag: validate:\"required,max=40\""
         },
         "publicKey": {
           "type": "string",
+          "description": "The public component of a cryptographic key pair used to sign messages and transactions.",
           "title": "@inject_tag: validate:\"hexadecimal,len=66\""
         }
       },
@@ -1215,6 +1236,7 @@
       "properties": {
         "fingerprint": {
           "type": "string",
+          "description": "An artifact verifying a User's action.",
           "title": "@inject_tag: validate:\"required\""
         }
       },
@@ -1226,32 +1248,40 @@
         "transports": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/externaldatav1AuthenticatorTransport"
-          }
+            "$ref": "#/definitions/externaldatav1AuthenticatorTransport",
+            "required": ["transports"]
+          },
+          "description": "Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE)."
         },
         "attestationType": {
           "type": "string"
         },
         "aaguid": {
-          "type": "string"
+          "type": "string",
+          "description": "Identifier indicating the type of the Security Key."
         },
         "userId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given User."
         },
         "credentialId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a WebAuthn credential."
         },
         "model": {
-          "type": "string"
+          "type": "string",
+          "description": "The type of Authenticator device."
         },
         "credential": {
           "$ref": "#/definitions/v1Credential"
         },
         "authenticatorId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Authenticator."
         },
         "authenticatorName": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable name for an Authenticator."
         },
         "createdAt": {
           "$ref": "#/definitions/v1Timestamp"
@@ -1304,10 +1334,12 @@
       "properties": {
         "authenticatorName": {
           "type": "string",
+          "description": "Human-readable name for an Authenticator.",
           "title": "@inject_tag: validate:\"required,max=40\""
         },
         "userId": {
           "type": "string",
+          "description": "Unique identifier for a given User.",
           "title": "@inject_tag: validate:\"required,uuid\""
         },
         "attestation": {
@@ -1315,6 +1347,7 @@
         },
         "challenge": {
           "type": "string",
+          "description": "Challenge presented for authentication purposes.",
           "title": "@inject_tag: validate:\"required,max=256\""
         }
       },
@@ -1326,12 +1359,15 @@
         "apiKeys": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1ApiKeyParams"
+            "$ref": "#/definitions/v1ApiKeyParams",
+            "required": ["apiKeys"]
           },
+          "description": "A list of API Keys.",
           "title": "@inject_tag: validate:\"dive,required\""
         },
         "userId": {
           "type": "string",
+          "description": "Unique identifier for a given User.",
           "title": "@inject_tag: validate:\"required,uuid\""
         }
       },
@@ -1345,10 +1381,12 @@
           "enum": ["ACTIVITY_TYPE_CREATE_API_KEYS"]
         },
         "timestampMs": {
-          "type": "string"
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
         },
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateApiKeysIntent"
@@ -1362,8 +1400,10 @@
         "apiKeyIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["apiKeyIds"]
+          },
+          "description": "A list of API Key IDs."
         }
       },
       "required": ["apiKeyIds"]
@@ -1374,16 +1414,19 @@
         "authenticators": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1AuthenticatorParams"
+            "$ref": "#/definitions/v1AuthenticatorParams",
+            "required": ["authenticators"]
           },
+          "description": "A list of Authenticators.",
           "title": "@inject_tag: validate:\"dive,required\""
         },
         "userId": {
           "type": "string",
+          "description": "Unique identifier for a given User.",
           "title": "@inject_tag: validate:\"required,uuid\""
         }
       },
-      "required": ["authenticators", "userId"]
+      "required": ["userId"]
     },
     "v1CreateAuthenticatorsResult": {
       "type": "object",
@@ -1391,8 +1434,10 @@
         "authenticatorIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["authenticatorIds"]
+          },
+          "description": "A list of Authenticator IDs."
         }
       },
       "required": ["authenticatorIds"]
@@ -1403,8 +1448,10 @@
         "invitations": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1InvitationParams"
+            "$ref": "#/definitions/v1InvitationParams",
+            "required": ["invitations"]
           },
+          "description": "A list of Invitations.",
           "title": "@inject_tag: validate:\"required,dive,required\""
         }
       },
@@ -1418,10 +1465,12 @@
           "enum": ["ACTIVITY_TYPE_CREATE_INVITATIONS"]
         },
         "timestampMs": {
-          "type": "string"
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
         },
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "parameters": {
           "$ref": "#/definitions/v1CreateInvitationsIntent"
@@ -1435,8 +1484,10 @@
         "invitationIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["invitationIds"]
+          },
+          "description": "A list of Invitation IDs"
         }
       },
       "required": ["invitationIds"]
@@ -1446,10 +1497,12 @@
       "properties": {
         "organizationName": {
           "type": "string",
+          "description": "Human-readable name for an Organization.",
           "title": "@inject_tag: validate:\"required,max=40\""
         },
         "rootEmail": {
           "type": "string",
+          "description": "The root user's email address.",
           "title": "@inject_tag: validate:\"required,email\""
         },
         "rootAuthenticator": {
@@ -1457,16 +1510,23 @@
         },
         "rootUserId": {
           "type": "string",
+          "description": "Unique identifier for the root user object.",
           "title": "@inject_tag: validate:\"uuid\""
         }
       },
-      "required": ["organizationName", "rootEmail", "rootAuthenticator"]
+      "required": [
+        "organizationName",
+        "rootEmail",
+        "rootAuthenticator",
+        "rootUserId"
+      ]
     },
     "v1CreateOrganizationResult": {
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -1476,13 +1536,16 @@
       "properties": {
         "policyName": {
           "type": "string",
+          "description": "Human-readable name for a Policy.",
           "title": "@inject_tag: validate:\"required,max=40\""
         },
         "selectors": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/immutableactivityv1Selector"
+            "$ref": "#/definitions/immutableactivityv1Selector",
+            "required": ["selectors"]
           },
+          "description": "A list of simple functions each including a subject, target and boolean. See Policy Engine Language section for additional details.",
           "title": "@inject_tag: validate:\"required,dive,required\""
         },
         "effect": {
@@ -1499,13 +1562,16 @@
       "properties": {
         "policyName": {
           "type": "string",
+          "description": "Human-readable name for a Policy.",
           "title": "@inject_tag: validate:\"required,max=40\""
         },
         "selectors": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1SelectorV2"
+            "$ref": "#/definitions/v1SelectorV2",
+            "required": ["selectors"]
           },
+          "description": "A list of simple functions each including a subject, target and boolean. See Policy Engine Language section for additional details.",
           "title": "@inject_tag: validate:\"required,dive,required\""
         },
         "effect": {
@@ -1525,10 +1591,12 @@
           "enum": ["ACTIVITY_TYPE_CREATE_POLICY"]
         },
         "timestampMs": {
-          "type": "string"
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
         },
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "parameters": {
           "$ref": "#/definitions/v1CreatePolicyIntentV2"
@@ -1540,7 +1608,8 @@
       "type": "object",
       "properties": {
         "policyId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Policy."
         }
       },
       "required": ["policyId"]
@@ -1550,13 +1619,16 @@
       "properties": {
         "privateKeyTagName": {
           "type": "string",
+          "description": "Human-readable name for a Private Key Tag.",
           "title": "@inject_tag: validate:\"required,max=20\""
         },
         "privateKeyIds": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "required": ["privateKeyIds"]
           },
+          "description": "A list of Private Key IDs.",
           "title": "@inject_tag: validate:\"dive,uuid\""
         }
       },
@@ -1566,13 +1638,16 @@
       "type": "object",
       "properties": {
         "privateKeyTagId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Private Key Tag."
         },
         "privateKeyIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["privateKeyIds"]
+          },
+          "description": "A list of Private Key IDs."
         }
       },
       "required": ["privateKeyTagId", "privateKeyIds"]
@@ -1583,8 +1658,10 @@
         "privateKeys": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1PrivateKeyParams"
+            "$ref": "#/definitions/v1PrivateKeyParams",
+            "required": ["privateKeys"]
           },
+          "description": "A list of Private Keys.",
           "title": "@inject_tag: validate:\"dive,required\""
         }
       },
@@ -1598,10 +1675,12 @@
           "enum": ["ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"]
         },
         "timestampMs": {
-          "type": "string"
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
         },
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "parameters": {
           "$ref": "#/definitions/v1CreatePrivateKeysIntent"
@@ -1615,8 +1694,10 @@
         "privateKeyIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["privateKeyIds"]
+          },
+          "description": "A list of Private Key IDs."
         }
       },
       "required": ["privateKeyIds"]
@@ -1626,13 +1707,16 @@
       "properties": {
         "userTagName": {
           "type": "string",
+          "description": "Human-readable name for a User Tag.",
           "title": "@inject_tag: validate:\"required,max=20\""
         },
         "userIds": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "required": ["userIds"]
           },
+          "description": "A list of User IDs.",
           "title": "@inject_tag: validate:\"dive,uuid\""
         }
       },
@@ -1642,13 +1726,16 @@
       "type": "object",
       "properties": {
         "userTagId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given User Tag."
         },
         "userIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["userIds"]
+          },
+          "description": "A list of User IDs."
         }
       },
       "required": ["userTagId", "userIds"]
@@ -1659,8 +1746,10 @@
         "users": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1UserParams"
+            "$ref": "#/definitions/v1UserParams",
+            "required": ["users"]
           },
+          "description": "A list of Users.",
           "title": "@inject_tag: validate:\"required,dive,required\""
         }
       },
@@ -1672,8 +1761,10 @@
         "userIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["userIds"]
+          },
+          "description": "A list of User IDs."
         }
       },
       "required": ["userIds"]
@@ -1691,7 +1782,8 @@
       "type": "object",
       "properties": {
         "publicKey": {
-          "type": "string"
+          "type": "string",
+          "description": "The public component of a cryptographic key pair used to sign messages and transactions."
         },
         "type": {
           "$ref": "#/definitions/v1CredentialType"
@@ -1711,13 +1803,16 @@
       "properties": {
         "userId": {
           "type": "string",
+          "description": "Unique identifier for a given User.",
           "title": "@inject_tag: validate:\"required,uuid\""
         },
         "apiKeyIds": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "required": ["apiKeyIds"]
           },
+          "description": "A list of API Key IDs.",
           "title": "@inject_tag: validate:\"required,dive,required,uuid\""
         }
       },
@@ -1731,10 +1826,12 @@
           "enum": ["ACTIVITY_TYPE_DELETE_API_KEYS"]
         },
         "timestampMs": {
-          "type": "string"
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
         },
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteApiKeysIntent"
@@ -1748,8 +1845,10 @@
         "apiKeyIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["apiKeyIds"]
+          },
+          "description": "A list of API Key IDs."
         }
       },
       "required": ["apiKeyIds"]
@@ -1759,13 +1858,16 @@
       "properties": {
         "userId": {
           "type": "string",
+          "description": "Unique identifier for a given User.",
           "title": "@inject_tag: validate:\"required,uuid\""
         },
         "authenticatorIds": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "required": ["authenticatorIds"]
           },
+          "description": "A list of Authenticator IDs.",
           "title": "@inject_tag: validate:\"required,div,required,uuid\""
         }
       },
@@ -1777,8 +1879,10 @@
         "authenticatorIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["authenticatorId"]
+          },
+          "description": "Unique identifier for a given Authenticator."
         }
       },
       "required": ["authenticatorIds"]
@@ -1788,6 +1892,7 @@
       "properties": {
         "invitationId": {
           "type": "string",
+          "description": "Unique identifier for a given Invitation object.",
           "title": "@inject_tag: validate:\"required,uuid\""
         }
       },
@@ -1801,10 +1906,12 @@
           "enum": ["ACTIVITY_TYPE_DELETE_INVITATION"]
         },
         "timestampMs": {
-          "type": "string"
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
         },
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "parameters": {
           "$ref": "#/definitions/v1DeleteInvitationIntent"
@@ -1816,7 +1923,8 @@
       "type": "object",
       "properties": {
         "invitationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Invitation."
         }
       },
       "required": ["invitationId"]
@@ -1826,6 +1934,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
+          "description": "Unique identifier for a given Organization.",
           "title": "@inject_tag: validate:\"required,uuid\""
         }
       },
@@ -1835,7 +1944,8 @@
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -1845,6 +1955,7 @@
       "properties": {
         "policyId": {
           "type": "string",
+          "description": "Unique identifier for a given Policy.",
           "title": "@inject_tag: validate:\"required,uuid\""
         }
       },
@@ -1858,10 +1969,12 @@
           "enum": ["ACTIVITY_TYPE_DELETE_POLICY"]
         },
         "timestampMs": {
-          "type": "string"
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
         },
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "parameters": {
           "$ref": "#/definitions/v1DeletePolicyIntent"
@@ -1873,7 +1986,8 @@
       "type": "object",
       "properties": {
         "policyId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Policy."
         }
       },
       "required": ["policyId"]
@@ -1884,8 +1998,10 @@
         "privateKeyTagIds": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "required": ["privateKeyTagIds"]
           },
+          "description": "A list of Private Key Tag IDs.",
           "title": "@inject_tag: validate:\"required,dive,required,uuid\""
         }
       },
@@ -1897,14 +2013,18 @@
         "privateKeyTagIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["privateKeyTagIds"]
+          },
+          "description": "A list of Private Key Tag IDs."
         },
         "privateKeyIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["privateKeyIds"]
+          },
+          "description": "A list of Private Key IDs."
         }
       },
       "required": ["privateKeyTagIds", "privateKeyIds"]
@@ -1915,8 +2035,10 @@
         "userTagIds": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "required": ["userTagIds"]
           },
+          "description": "A list of User Tag IDs.",
           "title": "@inject_tag: validate:\"required,dive,required,uuid\""
         }
       },
@@ -1928,14 +2050,18 @@
         "userTagIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["userTagIds"]
+          },
+          "description": "A list of User Tag IDs."
         },
         "userIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["userIds"]
+          },
+          "description": "A list of User IDs."
         }
       },
       "required": ["userTagIds", "userIds"]
@@ -1946,12 +2072,13 @@
         "userIds": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "required": ["userIds"]
           },
+          "description": "A list of User IDs.",
           "title": "@inject_tag: validate:\"required,dive,required,uuid\""
         }
-      },
-      "required": ["userIds"]
+      }
     },
     "v1DeleteUsersResult": {
       "type": "object",
@@ -1959,8 +2086,10 @@
         "userIds": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["userIds"]
+          },
+          "description": "A list of User IDs."
         }
       },
       "required": ["userIds"]
@@ -1970,6 +2099,7 @@
       "properties": {
         "privateKeyId": {
           "type": "string",
+          "description": "Unique identifier for a given Private Key.",
           "title": "@inject_tag: validate:\"required,uuid\""
         }
       },
@@ -1979,7 +2109,8 @@
       "type": "object",
       "properties": {
         "privateKeyId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Private Key."
         }
       },
       "required": ["privateKeyId"]
@@ -1988,13 +2119,15 @@
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "filterByStatus": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/v1ActivityStatus"
-          }
+          },
+          "description": "Array of Activity Statuses filtering which Activities will be listed in the response."
         }
       },
       "required": ["organizationId"]
@@ -2005,20 +2138,23 @@
         "activities": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1Activity"
-          }
+            "$ref": "#/definitions/v1Activity",
+            "required": ["activities"]
+          },
+          "description": "A list of Activities."
         }
-      },
-      "required": ["activities"]
+      }
     },
     "v1GetActivityRequest": {
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "activityId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Activity object."
         }
       },
       "required": ["organizationId", "activityId"]
@@ -2027,7 +2163,8 @@
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -2045,7 +2182,8 @@
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -2056,20 +2194,23 @@
         "policies": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1Policy"
-          }
+            "$ref": "#/definitions/v1Policy",
+            "required": ["policies"]
+          },
+          "description": "A list of Policies."
         }
-      },
-      "required": ["policies"]
+      }
     },
     "v1GetPolicyRequest": {
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "policyId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Policy."
         }
       },
       "required": ["organizationId", "policyId"]
@@ -2087,10 +2228,12 @@
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "privateKeyId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Private Key."
         }
       },
       "required": ["organizationId", "privateKeyId"]
@@ -2108,7 +2251,8 @@
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -2119,20 +2263,23 @@
         "privateKeys": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1PrivateKey"
-          }
+            "$ref": "#/definitions/v1PrivateKey",
+            "required": ["privateKeys"]
+          },
+          "description": "A list of Private Keys."
         }
-      },
-      "required": ["privateKeys"]
+      }
     },
     "v1GetUserRequest": {
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "userId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given User."
         }
       },
       "required": ["organizationId", "userId"]
@@ -2150,7 +2297,8 @@
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -2161,8 +2309,10 @@
         "users": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1User"
-          }
+            "$ref": "#/definitions/v1User",
+            "required": ["users"]
+          },
+          "description": "A list of Users."
         }
       },
       "required": ["users"]
@@ -2171,7 +2321,8 @@
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         }
       },
       "required": ["organizationId"]
@@ -2180,16 +2331,20 @@
       "type": "object",
       "properties": {
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "organizationName": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable name for an Organization."
         },
         "userId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given User."
         },
         "username": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable name for a User."
         }
       },
       "required": ["organizationId", "organizationName", "userId", "username"]
@@ -2279,25 +2434,31 @@
           "$ref": "#/definitions/v1CreatePolicyIntentV2"
         }
       },
+      "description": "Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action.",
       "required": ["createOrganizationIntent"]
     },
     "v1Invitation": {
       "type": "object",
       "properties": {
         "invitationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Invitation object."
         },
         "receiverUserName": {
-          "type": "string"
+          "type": "string",
+          "description": "The name of the intended Invitation recipient."
         },
         "receiverEmail": {
-          "type": "string"
+          "type": "string",
+          "description": "The email address of the intended Invitation recipient."
         },
         "receiverUserTags": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["receiverUserTags"]
+          },
+          "description": "A list of tags assigned to the Invitation recipient."
         },
         "accessType": {
           "$ref": "#/definitions/externaldatav1AccessType"
@@ -2312,7 +2473,8 @@
           "$ref": "#/definitions/v1Timestamp"
         },
         "senderUserId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for the Sender of an Invitation."
         }
       },
       "required": [
@@ -2332,17 +2494,21 @@
       "properties": {
         "receiverUserName": {
           "type": "string",
+          "description": "The name of the intended Invitation recipient.",
           "title": "@inject_tag: validate:\"required,max=40\""
         },
         "receiverUserEmail": {
           "type": "string",
+          "description": "The email address of the intended Invitation recipient.",
           "title": "@inject_tag: validate:\"required,email\""
         },
         "receiverUserTags": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "required": ["receiverUserTags"]
           },
+          "description": "A list of tags assigned to the Invitation recipient.",
           "title": "@inject_tag: validate:\"dive,uuid\""
         },
         "accessType": {
@@ -2350,6 +2516,7 @@
         },
         "senderUserId": {
           "type": "string",
+          "description": "Unique identifier for the Sender of an Invitation.",
           "title": "@inject_tag: validate:\"required,uuid\""
         }
       },
@@ -2462,10 +2629,12 @@
       "type": "object",
       "properties": {
         "policyId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Policy."
         },
         "policyName": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable name for a Policy."
         },
         "effect": {
           "$ref": "#/definitions/externaldatav1Effect"
@@ -2473,8 +2642,10 @@
         "selectors": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/externaldatav1Selector"
-          }
+            "$ref": "#/definitions/externaldatav1Selector",
+            "required": ["selectors"]
+          },
+          "description": "A list of simple functions each including a subject, target and boolean. See Policy Engine Language section for additional details."
         },
         "createdAt": {
           "$ref": "#/definitions/v1Timestamp"
@@ -2483,7 +2654,8 @@
           "$ref": "#/definitions/v1Timestamp"
         },
         "notes": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable notes added by a User to describe a particular policy."
         }
       },
       "required": [
@@ -2500,13 +2672,16 @@
       "type": "object",
       "properties": {
         "privateKeyId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Private Key."
         },
         "publicKey": {
-          "type": "string"
+          "type": "string",
+          "description": "The public component of a cryptographic key pair used to sign messages and transactions."
         },
         "privateKeyName": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable name for a Private Key."
         },
         "curve": {
           "$ref": "#/definitions/externaldatav1Curve"
@@ -2514,14 +2689,18 @@
         "addresses": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/externaldatav1Address"
-          }
+            "$ref": "#/definitions/externaldatav1Address",
+            "required": ["addresses"]
+          },
+          "description": "Derived cryptocurrency addresses for a given Private Key."
         },
         "privateKeyTags": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["privateKeyTags"]
+          },
+          "description": "A list of Private Key Tag IDs."
         },
         "createdAt": {
           "$ref": "#/definitions/v1Timestamp"
@@ -2542,6 +2721,7 @@
       "properties": {
         "privateKeyName": {
           "type": "string",
+          "description": "Human-readable name for a Private Key.",
           "title": "@inject_tag: validate:\"required,max=40\""
         },
         "curve": {
@@ -2550,15 +2730,19 @@
         "privateKeyTags": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "required": ["privateKeyTags"]
           },
+          "description": "A list of Private Key Tag IDs.",
           "title": "@inject_tag: validate:\"dive,uuid\""
         },
         "addressFormats": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/immutableactivityv1AddressFormat"
+            "$ref": "#/definitions/immutableactivityv1AddressFormat",
+            "required": ["addressFormats"]
           },
+          "description": "Cryptocurrency-specific formats for a derived address (e.g., Ethereum).",
           "title": "@inject_tag: validate:\"required\""
         }
       },
@@ -2603,6 +2787,7 @@
       "properties": {
         "fingerprint": {
           "type": "string",
+          "description": "An artifact verifying a User's action.",
           "title": "@inject_tag: validate:\"required\""
         }
       },
@@ -2674,7 +2859,8 @@
         "deletePrivateKeyTagsResult": {
           "$ref": "#/definitions/v1DeletePrivateKeyTagsResult"
         }
-      }
+      },
+      "description": "Result of the intended action."
     },
     "v1SelectorV2": {
       "type": "object",
@@ -2698,10 +2884,12 @@
       "properties": {
         "privateKeyId": {
           "type": "string",
+          "description": "Unique identifier for a given Private Key.",
           "title": "@inject_tag: validate:\"required,uuid\""
         },
         "payload": {
           "type": "string",
+          "description": "Raw unsigned payload to be signed.",
           "title": "@inject_tag: validate:\"required\""
         },
         "encoding": {
@@ -2721,10 +2909,12 @@
           "enum": ["ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"]
         },
         "timestampMs": {
-          "type": "string"
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
         },
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "parameters": {
           "$ref": "#/definitions/v1SignRawPayloadIntent"
@@ -2736,13 +2926,16 @@
       "type": "object",
       "properties": {
         "r": {
-          "type": "string"
+          "type": "string",
+          "description": "Component of an ECSDA signature."
         },
         "s": {
-          "type": "string"
+          "type": "string",
+          "description": "Component of an ECSDA signature."
         },
         "v": {
-          "type": "string"
+          "type": "string",
+          "description": "Component of an ECSDA signature."
         }
       },
       "required": ["r", "s", "v"]
@@ -2752,10 +2945,12 @@
       "properties": {
         "privateKeyId": {
           "type": "string",
+          "description": "Unique identifier for a given Private Key.",
           "title": "@inject_tag: validate:\"required,uuid\""
         },
         "unsignedTransaction": {
           "type": "string",
+          "description": "Raw unsigned transaction to be signed by a particular Private Key.",
           "title": "@inject_tag: validate:\"required\""
         },
         "type": {
@@ -2772,10 +2967,12 @@
           "enum": ["ACTIVITY_TYPE_SIGN_TRANSACTION"]
         },
         "timestampMs": {
-          "type": "string"
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
         },
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
         },
         "parameters": {
           "$ref": "#/definitions/v1SignTransactionIntent"
@@ -2826,13 +3023,16 @@
       "type": "object",
       "properties": {
         "userId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given User."
         },
         "userName": {
-          "type": "string"
+          "type": "string",
+          "description": "Human-readable name for a User."
         },
         "userEmail": {
           "type": "string",
+          "description": "The user's email address.",
           "title": "some users do not have emails (programmatic users)"
         },
         "accessType": {
@@ -2841,20 +3041,26 @@
         "authenticators": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1Authenticator"
-          }
+            "$ref": "#/definitions/v1Authenticator",
+            "required": ["authenticators"]
+          },
+          "description": "A list of Authenticator parameters."
         },
         "apiKeys": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1ApiKey"
-          }
+            "$ref": "#/definitions/v1ApiKey",
+            "required": ["apiKeys"]
+          },
+          "description": "A list of API Key parameters."
         },
         "userTags": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "type": "string",
+            "required": ["userTags"]
+          },
+          "description": "A list of User Tag IDs."
         },
         "createdAt": {
           "$ref": "#/definitions/v1Timestamp"
@@ -2879,10 +3085,12 @@
       "properties": {
         "userName": {
           "type": "string",
+          "description": "Human-readable name for a User.",
           "title": "@inject_tag: validate:\"required,max=40\""
         },
         "userEmail": {
-          "type": "string"
+          "type": "string",
+          "description": "The user's email address."
         },
         "accessType": {
           "$ref": "#/definitions/immutableactivityv1AccessType"
@@ -2890,22 +3098,28 @@
         "apiKeys": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1ApiKeyParams"
+            "$ref": "#/definitions/v1ApiKeyParams",
+            "required": ["apiKeys"]
           },
+          "description": "A list of API Key parameters.",
           "title": "@inject_tag: validate:\"dive,uuid\""
         },
         "authenticators": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1AuthenticatorParams"
+            "$ref": "#/definitions/v1AuthenticatorParams",
+            "required": ["authenticators"]
           },
+          "description": "A list of Authenticator parameters.",
           "title": "@inject_tag: validate:\"dive\""
         },
         "userTags": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "required": ["userTags"]
           },
+          "description": "A list of User Tag IDs.",
           "title": "@inject_tag: validate:\"dive,uuid\""
         }
       },
@@ -2921,37 +3135,45 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Vote object."
         },
         "userId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given User."
         },
         "user": {
           "$ref": "#/definitions/v1User"
         },
         "activityId": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for a given Activity object."
         },
         "selection": {
           "type": "string",
           "enum": ["VOTE_SELECTION_APPROVED", "VOTE_SELECTION_REJECTED"]
         },
         "message": {
-          "type": "string"
+          "type": "string",
+          "description": "The raw message being signed within a Vote."
         },
         "publicKey": {
-          "type": "string"
+          "type": "string",
+          "description": "The public component of a cryptographic key pair used to sign messages and transactions."
         },
         "signature": {
-          "type": "string"
+          "type": "string",
+          "description": "The signature applied to a particular vote."
         },
         "scheme": {
-          "type": "string"
+          "type": "string",
+          "description": "Method used to produce a signature."
         },
         "createdAt": {
           "$ref": "#/definitions/v1Timestamp"
         }
       },
+      "description": "Object representing a particular User's approval or rejection of a Consensus request, including all relevant metadata.",
       "required": [
         "id",
         "userId",

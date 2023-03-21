@@ -84,7 +84,9 @@ export type paths = {
 
 export type definitions = {
   datav1Tag: {
+    /** @description Unique identifier for a given Tag. */
     tagId: string;
+    /** @description Human-readable name for a Tag. */
     tagName: string;
     tagType: definitions["v1TagType"];
     createdAt: definitions["v1Timestamp"];
@@ -103,7 +105,7 @@ export type definitions = {
    * - ADDRESS_FORMAT_UNCOMPRESSED: 04<X_COORDINATE><Y_COORDINATE>
    *  - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate
    *  - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing.
-   *  - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes
+   *  - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitcoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes
    * @enum {string}
    */
   externaldatav1AddressFormat:
@@ -120,13 +122,16 @@ export type definitions = {
     | "AUTHENTICATOR_TRANSPORT_USB"
     | "AUTHENTICATOR_TRANSPORT_HYBRID";
   /**
-   * - CURVE_SECP256K1: The only curve we're planning to support short-term
+   * @description Cryptographic Curve used to generate a given Private Key.
    * @enum {string}
    */
   externaldatav1Curve: "CURVE_SECP256K1";
   /** @enum {string} */
   externaldatav1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
-  /** @enum {string} */
+  /**
+   * @description Logical operators.
+   * @enum {string}
+   */
   externaldatav1Operator:
     | "OPERATOR_EQUAL"
     | "OPERATOR_MORE_THAN"
@@ -140,8 +145,10 @@ export type definitions = {
     | "OPERATOR_CONTAINS_ONE"
     | "OPERATOR_CONTAINS_ALL";
   externaldatav1Selector: {
+    /** @description The resource being referenced within a policy (e.g., user.tags or activities.type). */
     subject: string;
     operator: definitions["externaldatav1Operator"];
+    /** @description The specific parameter from the subject being referenced, like a specific user ID. */
     targets: string[];
   };
   /** @enum {string} */
@@ -153,7 +160,7 @@ export type definitions = {
    * - ADDRESS_FORMAT_UNCOMPRESSED: 04<X_COORDINATE><Y_COORDINATE>
    *  - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate
    *  - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing.
-   *  - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes
+   *  - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitcoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes
    * @enum {string}
    */
   immutableactivityv1AddressFormat:
@@ -163,7 +170,7 @@ export type definitions = {
     | "ADDRESS_FORMAT_BITCOIN_P2PKH"
     | "ADDRESS_FORMAT_BITCOIN_P2PKH_TESTNET";
   /**
-   * - CURVE_SECP256K1: The only curve we're planning to support short-term
+   * @description Cryptographic Curve used to generate a given Private Key.
    * @enum {string}
    */
   immutableactivityv1Curve: "CURVE_SECP256K1";
@@ -209,24 +216,37 @@ export type definitions = {
     details?: definitions["protobufAny"][];
   };
   v1AcceptInvitationIntent: {
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given Invitation object.
+     */
     invitationId: string;
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given User.
+     */
     userId: string;
     authenticator: definitions["v1AuthenticatorParams"];
   };
   v1AcceptInvitationResult: {
+    /** @description Unique identifier for a given Invitation. */
     invitationId: string;
+    /** @description Unique identifier for a given User. */
     userId: string;
   };
+  /** @description An action that can that can be taken within the Turnkey infrastructure. */
   v1Activity: {
+    /** @description Unique identifier for a given Activity object. */
     id: string;
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
     status: definitions["v1ActivityStatus"];
     type: definitions["v1ActivityType"];
     intent: definitions["v1Intent"];
     result: definitions["v1Result"];
+    /** @description A list of objects representing a particular User's approval or rejection of a Consensus request, including all relevant metadata. */
     votes: definitions["v1Vote"][];
+    /** @description An artifact verifying a User's action. */
     fingerprint: string;
     canApprove: boolean;
     canReject: boolean;
@@ -236,7 +256,10 @@ export type definitions = {
   v1ActivityResponse: {
     activity: definitions["v1Activity"];
   };
-  /** @enum {string} */
+  /**
+   * @description The current processing status of an Activity.
+   * @enum {string}
+   */
   v1ActivityStatus:
     | "ACTIVITY_STATUS_CREATED"
     | "ACTIVITY_STATUS_PENDING"
@@ -245,9 +268,7 @@ export type definitions = {
     | "ACTIVITY_STATUS_CONSENSUS_NEEDED"
     | "ACTIVITY_STATUS_REJECTED";
   /**
-   * These are all of the types of user-facing activities on Turnkey
-   * We use this to guide the polymorphic parsing of activity requests/approvals/rejections
-   * One activity type maps to one internal Intent, but not all internal intents have a user-facing activity (e.g. Hearbeats)
+   * @description Type of Activity, such as Add User, or Sign Transaction.
    * @enum {string}
    */
   v1ActivityType:
@@ -276,30 +297,48 @@ export type definitions = {
     | "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS";
   v1ApiKey: {
     credential: definitions["v1Credential"];
+    /** @description Unique identifier for a given API Key. */
     apiKeyId: string;
+    /** @description Human-readable name for an API Key. */
     apiKeyName: string;
     createdAt: definitions["v1Timestamp"];
     updatedAt: definitions["v1Timestamp"];
   };
   v1ApiKeyParams: {
-    /** @inject_tag: validate:"required,max=40" */
+    /**
+     * @inject_tag: validate:"required,max=40"
+     * @description Human-readable name for an API Key.
+     */
     apiKeyName: string;
-    /** @inject_tag: validate:"hexadecimal,len=66" */
+    /**
+     * @inject_tag: validate:"hexadecimal,len=66"
+     * @description The public component of a cryptographic key pair used to sign messages and transactions.
+     */
     publicKey: string;
   };
   v1ApproveActivityIntent: {
-    /** @inject_tag: validate:"required" */
+    /**
+     * @inject_tag: validate:"required"
+     * @description An artifact verifying a User's action.
+     */
     fingerprint: string;
   };
   v1Authenticator: {
+    /** @description Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
     transports: definitions["externaldatav1AuthenticatorTransport"][];
     attestationType: string;
+    /** @description Identifier indicating the type of the Security Key. */
     aaguid: string;
+    /** @description Unique identifier for a given User. */
     userId: string;
+    /** @description Unique identifier for a WebAuthn credential. */
     credentialId: string;
+    /** @description The type of Authenticator device. */
     model: string;
     credential: definitions["v1Credential"];
+    /** @description Unique identifier for a given Authenticator. */
     authenticatorId: string;
+    /** @description Human-readable name for an Authenticator. */
     authenticatorName: string;
     createdAt: definitions["v1Timestamp"];
     updatedAt: definitions["v1Timestamp"];
@@ -314,77 +353,130 @@ export type definitions = {
     authenticatorAttachment?: "cross-platform" | "platform" | null;
   };
   v1AuthenticatorParams: {
-    /** @inject_tag: validate:"required,max=40" */
+    /**
+     * @inject_tag: validate:"required,max=40"
+     * @description Human-readable name for an Authenticator.
+     */
     authenticatorName: string;
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given User.
+     */
     userId: string;
     attestation: definitions["v1PublicKeyCredentialWithAttestation"];
-    /** @inject_tag: validate:"required,max=256" */
+    /**
+     * @inject_tag: validate:"required,max=256"
+     * @description Challenge presented for authentication purposes.
+     */
     challenge: string;
   };
   v1CreateApiKeysIntent: {
-    /** @inject_tag: validate:"dive,required" */
+    /**
+     * @inject_tag: validate:"dive,required"
+     * @description A list of API Keys.
+     */
     apiKeys: definitions["v1ApiKeyParams"][];
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given User.
+     */
     userId: string;
   };
   v1CreateApiKeysRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_CREATE_API_KEYS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateApiKeysIntent"];
   };
   v1CreateApiKeysResult: {
+    /** @description A list of API Key IDs. */
     apiKeyIds: string[];
   };
   v1CreateAuthenticatorsIntent: {
-    /** @inject_tag: validate:"dive,required" */
-    authenticators: definitions["v1AuthenticatorParams"][];
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"dive,required"
+     * @description A list of Authenticators.
+     */
+    authenticators?: definitions["v1AuthenticatorParams"][];
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given User.
+     */
     userId: string;
   };
   v1CreateAuthenticatorsResult: {
+    /** @description A list of Authenticator IDs. */
     authenticatorIds: string[];
   };
   v1CreateInvitationsIntent: {
-    /** @inject_tag: validate:"required,dive,required" */
+    /**
+     * @inject_tag: validate:"required,dive,required"
+     * @description A list of Invitations.
+     */
     invitations: definitions["v1InvitationParams"][];
   };
   v1CreateInvitationsRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_CREATE_INVITATIONS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateInvitationsIntent"];
   };
   v1CreateInvitationsResult: {
+    /** @description A list of Invitation IDs */
     invitationIds: string[];
   };
   v1CreateOrganizationIntent: {
-    /** @inject_tag: validate:"required,max=40" */
+    /**
+     * @inject_tag: validate:"required,max=40"
+     * @description Human-readable name for an Organization.
+     */
     organizationName: string;
-    /** @inject_tag: validate:"required,email" */
+    /**
+     * @inject_tag: validate:"required,email"
+     * @description The root user's email address.
+     */
     rootEmail: string;
     rootAuthenticator: definitions["v1AuthenticatorParams"];
-    /** @inject_tag: validate:"uuid" */
-    rootUserId?: string;
+    /**
+     * @inject_tag: validate:"uuid"
+     * @description Unique identifier for the root user object.
+     */
+    rootUserId: string;
   };
   v1CreateOrganizationResult: {
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
   };
   v1CreatePolicyIntent: {
-    /** @inject_tag: validate:"required,max=40" */
+    /**
+     * @inject_tag: validate:"required,max=40"
+     * @description Human-readable name for a Policy.
+     */
     policyName: string;
-    /** @inject_tag: validate:"required,dive,required" */
+    /**
+     * @inject_tag: validate:"required,dive,required"
+     * @description A list of simple functions each including a subject, target and boolean. See Policy Engine Language section for additional details.
+     */
     selectors: definitions["immutableactivityv1Selector"][];
     effect: definitions["immutableactivityv1Effect"];
     notes?: string;
   };
   v1CreatePolicyIntentV2: {
-    /** @inject_tag: validate:"required,max=40" */
+    /**
+     * @inject_tag: validate:"required,max=40"
+     * @description Human-readable name for a Policy.
+     */
     policyName: string;
-    /** @inject_tag: validate:"required,dive,required" */
+    /**
+     * @inject_tag: validate:"required,dive,required"
+     * @description A list of simple functions each including a subject, target and boolean. See Policy Engine Language section for additional details.
+     */
     selectors: definitions["v1SelectorV2"][];
     effect: definitions["immutableactivityv1Effect"];
     notes?: string;
@@ -392,58 +484,88 @@ export type definitions = {
   v1CreatePolicyRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_CREATE_POLICY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreatePolicyIntentV2"];
   };
   v1CreatePolicyResult: {
+    /** @description Unique identifier for a given Policy. */
     policyId: string;
   };
   v1CreatePrivateKeyTagIntent: {
-    /** @inject_tag: validate:"required,max=20" */
+    /**
+     * @inject_tag: validate:"required,max=20"
+     * @description Human-readable name for a Private Key Tag.
+     */
     privateKeyTagName: string;
-    /** @inject_tag: validate:"dive,uuid" */
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of Private Key IDs.
+     */
     privateKeyIds: string[];
   };
   v1CreatePrivateKeyTagResult: {
+    /** @description Unique identifier for a given Private Key Tag. */
     privateKeyTagId: string;
+    /** @description A list of Private Key IDs. */
     privateKeyIds: string[];
   };
   v1CreatePrivateKeysIntent: {
-    /** @inject_tag: validate:"dive,required" */
+    /**
+     * @inject_tag: validate:"dive,required"
+     * @description A list of Private Keys.
+     */
     privateKeys: definitions["v1PrivateKeyParams"][];
   };
   v1CreatePrivateKeysRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreatePrivateKeysIntent"];
   };
   v1CreatePrivateKeysResult: {
+    /** @description A list of Private Key IDs. */
     privateKeyIds: string[];
   };
   v1CreateUserTagIntent: {
-    /** @inject_tag: validate:"required,max=20" */
+    /**
+     * @inject_tag: validate:"required,max=20"
+     * @description Human-readable name for a User Tag.
+     */
     userTagName: string;
-    /** @inject_tag: validate:"dive,uuid" */
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of User IDs.
+     */
     userIds: string[];
   };
   v1CreateUserTagResult: {
+    /** @description Unique identifier for a given User Tag. */
     userTagId: string;
+    /** @description A list of User IDs. */
     userIds: string[];
   };
   v1CreateUsersIntent: {
-    /** @inject_tag: validate:"required,dive,required" */
+    /**
+     * @inject_tag: validate:"required,dive,required"
+     * @description A list of Users.
+     */
     users: definitions["v1UserParams"][];
   };
   v1CreateUsersResult: {
+    /** @description A list of User IDs. */
     userIds: string[];
   };
   v1CredPropsAuthenticationExtensionsClientOutputs: {
     rk: boolean;
   };
   v1Credential: {
+    /** @description The public component of a cryptographic key pair used to sign messages and transactions. */
     publicKey: string;
     type: definitions["v1CredentialType"];
   };
@@ -452,158 +574,231 @@ export type definitions = {
     | "CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"
     | "CREDENTIAL_TYPE_API_KEY_P256";
   v1DeleteApiKeysIntent: {
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given User.
+     */
     userId: string;
-    /** @inject_tag: validate:"required,dive,required,uuid" */
+    /**
+     * @inject_tag: validate:"required,dive,required,uuid"
+     * @description A list of API Key IDs.
+     */
     apiKeyIds: string[];
   };
   v1DeleteApiKeysRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_DELETE_API_KEYS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteApiKeysIntent"];
   };
   v1DeleteApiKeysResult: {
+    /** @description A list of API Key IDs. */
     apiKeyIds: string[];
   };
   v1DeleteAuthenticatorsIntent: {
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given User.
+     */
     userId: string;
-    /** @inject_tag: validate:"required,div,required,uuid" */
+    /**
+     * @inject_tag: validate:"required,div,required,uuid"
+     * @description A list of Authenticator IDs.
+     */
     authenticatorIds: string[];
   };
   v1DeleteAuthenticatorsResult: {
+    /** @description Unique identifier for a given Authenticator. */
     authenticatorIds: string[];
   };
   v1DeleteInvitationIntent: {
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given Invitation object.
+     */
     invitationId: string;
   };
   v1DeleteInvitationRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_DELETE_INVITATION";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteInvitationIntent"];
   };
   v1DeleteInvitationResult: {
+    /** @description Unique identifier for a given Invitation. */
     invitationId: string;
   };
   v1DeleteOrganizationIntent: {
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given Organization.
+     */
     organizationId: string;
   };
   v1DeleteOrganizationResult: {
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
   };
   v1DeletePolicyIntent: {
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given Policy.
+     */
     policyId: string;
   };
   v1DeletePolicyRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_DELETE_POLICY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeletePolicyIntent"];
   };
   v1DeletePolicyResult: {
+    /** @description Unique identifier for a given Policy. */
     policyId: string;
   };
   v1DeletePrivateKeyTagsIntent: {
-    /** @inject_tag: validate:"required,dive,required,uuid" */
+    /**
+     * @inject_tag: validate:"required,dive,required,uuid"
+     * @description A list of Private Key Tag IDs.
+     */
     privateKeyTagIds: string[];
   };
   v1DeletePrivateKeyTagsResult: {
+    /** @description A list of Private Key Tag IDs. */
     privateKeyTagIds: string[];
+    /** @description A list of Private Key IDs. */
     privateKeyIds: string[];
   };
   v1DeleteUserTagsIntent: {
-    /** @inject_tag: validate:"required,dive,required,uuid" */
+    /**
+     * @inject_tag: validate:"required,dive,required,uuid"
+     * @description A list of User Tag IDs.
+     */
     userTagIds: string[];
   };
   v1DeleteUserTagsResult: {
+    /** @description A list of User Tag IDs. */
     userTagIds: string[];
+    /** @description A list of User IDs. */
     userIds: string[];
   };
   v1DeleteUsersIntent: {
-    /** @inject_tag: validate:"required,dive,required,uuid" */
-    userIds: string[];
+    /**
+     * @inject_tag: validate:"required,dive,required,uuid"
+     * @description A list of User IDs.
+     */
+    userIds?: string[];
   };
   v1DeleteUsersResult: {
+    /** @description A list of User IDs. */
     userIds: string[];
   };
   v1DisablePrivateKeyIntent: {
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given Private Key.
+     */
     privateKeyId: string;
   };
   v1DisablePrivateKeyResult: {
+    /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
   };
   v1GetActivitiesRequest: {
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
+    /** @description Array of Activity Statuses filtering which Activities will be listed in the response. */
     filterByStatus?: definitions["v1ActivityStatus"][];
   };
   v1GetActivitiesResponse: {
-    activities: definitions["v1Activity"][];
+    /** @description A list of Activities. */
+    activities?: definitions["v1Activity"][];
   };
   v1GetActivityRequest: {
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
+    /** @description Unique identifier for a given Activity object. */
     activityId: string;
   };
   v1GetOrganizationRequest: {
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
   };
   v1GetOrganizationResponse: {
     organizationData: definitions["v1OrganizationData"];
   };
   v1GetPoliciesRequest: {
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
   };
   v1GetPoliciesResponse: {
-    policies: definitions["v1Policy"][];
+    /** @description A list of Policies. */
+    policies?: definitions["v1Policy"][];
   };
   v1GetPolicyRequest: {
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
+    /** @description Unique identifier for a given Policy. */
     policyId: string;
   };
   v1GetPolicyResponse: {
     policy: definitions["v1Policy"];
   };
   v1GetPrivateKeyRequest: {
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
+    /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
   };
   v1GetPrivateKeyResponse: {
     privateKey: definitions["v1PrivateKey"];
   };
   v1GetPrivateKeysRequest: {
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
   };
   v1GetPrivateKeysResponse: {
-    privateKeys: definitions["v1PrivateKey"][];
+    /** @description A list of Private Keys. */
+    privateKeys?: definitions["v1PrivateKey"][];
   };
   v1GetUserRequest: {
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
+    /** @description Unique identifier for a given User. */
     userId: string;
   };
   v1GetUserResponse: {
     user: definitions["v1User"];
   };
   v1GetUsersRequest: {
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
   };
   v1GetUsersResponse: {
+    /** @description A list of Users. */
     users: definitions["v1User"][];
   };
   v1GetWhoamiRequest: {
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
   };
   v1GetWhoamiResponse: {
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
+    /** @description Human-readable name for an Organization. */
     organizationName: string;
+    /** @description Unique identifier for a given User. */
     userId: string;
+    /** @description Human-readable name for a User. */
     username: string;
   };
   /**
@@ -618,6 +813,7 @@ export type definitions = {
     | "HASH_FUNCTION_NO_OP"
     | "HASH_FUNCTION_SHA256"
     | "HASH_FUNCTION_KECCAK256";
+  /** @description Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action. */
   v1Intent: {
     createOrganizationIntent: definitions["v1CreateOrganizationIntent"];
     createAuthenticatorsIntent?: definitions["v1CreateAuthenticatorsIntent"];
@@ -645,25 +841,42 @@ export type definitions = {
     createPolicyIntentV2?: definitions["v1CreatePolicyIntentV2"];
   };
   v1Invitation: {
+    /** @description Unique identifier for a given Invitation object. */
     invitationId: string;
+    /** @description The name of the intended Invitation recipient. */
     receiverUserName: string;
+    /** @description The email address of the intended Invitation recipient. */
     receiverEmail: string;
+    /** @description A list of tags assigned to the Invitation recipient. */
     receiverUserTags: string[];
     accessType: definitions["externaldatav1AccessType"];
     status: definitions["v1InvitationStatus"];
     createdAt: definitions["v1Timestamp"];
     updatedAt: definitions["v1Timestamp"];
+    /** @description Unique identifier for the Sender of an Invitation. */
     senderUserId: string;
   };
   v1InvitationParams: {
-    /** @inject_tag: validate:"required,max=40" */
+    /**
+     * @inject_tag: validate:"required,max=40"
+     * @description The name of the intended Invitation recipient.
+     */
     receiverUserName: string;
-    /** @inject_tag: validate:"required,email" */
+    /**
+     * @inject_tag: validate:"required,email"
+     * @description The email address of the intended Invitation recipient.
+     */
     receiverUserEmail: string;
-    /** @inject_tag: validate:"dive,uuid" */
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of tags assigned to the Invitation recipient.
+     */
     receiverUserTags: string[];
     accessType: definitions["immutableactivityv1AccessType"];
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for the Sender of an Invitation.
+     */
     senderUserId: string;
   };
   /** @enum {string} */
@@ -704,30 +917,48 @@ export type definitions = {
     | "PAYLOAD_ENCODING_HEXADECIMAL"
     | "PAYLOAD_ENCODING_TEXT_UTF8";
   v1Policy: {
+    /** @description Unique identifier for a given Policy. */
     policyId: string;
+    /** @description Human-readable name for a Policy. */
     policyName: string;
     effect: definitions["externaldatav1Effect"];
+    /** @description A list of simple functions each including a subject, target and boolean. See Policy Engine Language section for additional details. */
     selectors: definitions["externaldatav1Selector"][];
     createdAt: definitions["v1Timestamp"];
     updatedAt: definitions["v1Timestamp"];
+    /** @description Human-readable notes added by a User to describe a particular policy. */
     notes: string;
   };
   v1PrivateKey: {
+    /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
+    /** @description The public component of a cryptographic key pair used to sign messages and transactions. */
     publicKey: string;
+    /** @description Human-readable name for a Private Key. */
     privateKeyName: string;
     curve: definitions["externaldatav1Curve"];
+    /** @description Derived cryptocurrency addresses for a given Private Key. */
     addresses: definitions["externaldatav1Address"][];
+    /** @description A list of Private Key Tag IDs. */
     privateKeyTags: string[];
     createdAt: definitions["v1Timestamp"];
   };
   v1PrivateKeyParams: {
-    /** @inject_tag: validate:"required,max=40" */
+    /**
+     * @inject_tag: validate:"required,max=40"
+     * @description Human-readable name for a Private Key.
+     */
     privateKeyName: string;
     curve: definitions["immutableactivityv1Curve"];
-    /** @inject_tag: validate:"dive,uuid" */
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of Private Key Tag IDs.
+     */
     privateKeyTags: string[];
-    /** @inject_tag: validate:"required" */
+    /**
+     * @inject_tag: validate:"required"
+     * @description Cryptocurrency-specific formats for a derived address (e.g., Ethereum).
+     */
     addressFormats: definitions["immutableactivityv1AddressFormat"][];
   };
   v1PublicKeyCredentialWithAttestation: {
@@ -745,9 +976,13 @@ export type definitions = {
     clientExtensionResults: definitions["v1SimpleClientExtensionResults"];
   };
   v1RejectActivityIntent: {
-    /** @inject_tag: validate:"required" */
+    /**
+     * @inject_tag: validate:"required"
+     * @description An artifact verifying a User's action.
+     */
     fingerprint: string;
   };
+  /** @description Result of the intended action. */
   v1Result: {
     createOrganizationResult?: definitions["v1CreateOrganizationResult"];
     createAuthenticatorsResult?: definitions["v1CreateAuthenticatorsResult"];
@@ -777,9 +1012,15 @@ export type definitions = {
     targets?: string[];
   };
   v1SignRawPayloadIntent: {
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given Private Key.
+     */
     privateKeyId: string;
-    /** @inject_tag: validate:"required" */
+    /**
+     * @inject_tag: validate:"required"
+     * @description Raw unsigned payload to be signed.
+     */
     payload: string;
     encoding: definitions["v1PayloadEncoding"];
     hashFunction: definitions["v1HashFunction"];
@@ -787,26 +1028,39 @@ export type definitions = {
   v1SignRawPayloadRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1SignRawPayloadIntent"];
   };
   v1SignRawPayloadResult: {
+    /** @description Component of an ECSDA signature. */
     r: string;
+    /** @description Component of an ECSDA signature. */
     s: string;
+    /** @description Component of an ECSDA signature. */
     v: string;
   };
   v1SignTransactionIntent: {
-    /** @inject_tag: validate:"required,uuid" */
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given Private Key.
+     */
     privateKeyId: string;
-    /** @inject_tag: validate:"required" */
+    /**
+     * @inject_tag: validate:"required"
+     * @description Raw unsigned transaction to be signed by a particular Private Key.
+     */
     unsignedTransaction: string;
     type: definitions["immutableactivityv1TransactionType"];
   };
   v1SignTransactionRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_SIGN_TRANSACTION";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1SignTransactionIntent"];
   };
@@ -825,39 +1079,68 @@ export type definitions = {
     nanos: string;
   };
   v1User: {
+    /** @description Unique identifier for a given User. */
     userId: string;
+    /** @description Human-readable name for a User. */
     userName: string;
-    /** some users do not have emails (programmatic users) */
+    /**
+     * some users do not have emails (programmatic users)
+     * @description The user's email address.
+     */
     userEmail?: string;
     accessType: definitions["externaldatav1AccessType"];
+    /** @description A list of Authenticator parameters. */
     authenticators: definitions["v1Authenticator"][];
+    /** @description A list of API Key parameters. */
     apiKeys: definitions["v1ApiKey"][];
+    /** @description A list of User Tag IDs. */
     userTags: string[];
     createdAt: definitions["v1Timestamp"];
     updatedAt: definitions["v1Timestamp"];
   };
   v1UserParams: {
-    /** @inject_tag: validate:"required,max=40" */
+    /**
+     * @inject_tag: validate:"required,max=40"
+     * @description Human-readable name for a User.
+     */
     userName: string;
+    /** @description The user's email address. */
     userEmail?: string;
     accessType: definitions["immutableactivityv1AccessType"];
-    /** @inject_tag: validate:"dive,uuid" */
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of API Key parameters.
+     */
     apiKeys: definitions["v1ApiKeyParams"][];
-    /** @inject_tag: validate:"dive" */
+    /**
+     * @inject_tag: validate:"dive"
+     * @description A list of Authenticator parameters.
+     */
     authenticators: definitions["v1AuthenticatorParams"][];
-    /** @inject_tag: validate:"dive,uuid" */
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of User Tag IDs.
+     */
     userTags: string[];
   };
+  /** @description Object representing a particular User's approval or rejection of a Consensus request, including all relevant metadata. */
   v1Vote: {
+    /** @description Unique identifier for a given Vote object. */
     id: string;
+    /** @description Unique identifier for a given User. */
     userId: string;
     user: definitions["v1User"];
+    /** @description Unique identifier for a given Activity object. */
     activityId: string;
     /** @enum {string} */
     selection: "VOTE_SELECTION_APPROVED" | "VOTE_SELECTION_REJECTED";
+    /** @description The raw message being signed within a Vote. */
     message: string;
+    /** @description The public component of a cryptographic key pair used to sign messages and transactions. */
     publicKey: string;
+    /** @description The signature applied to a particular vote. */
     signature: string;
+    /** @description Method used to produce a signature. */
     scheme: string;
     createdAt: definitions["v1Timestamp"];
   };
