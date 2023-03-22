@@ -27,7 +27,7 @@ async function main() {
     privateKeyId: process.env.PRIVATE_KEY_ID!,
   });
 
-  // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
+  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
   const network = "goerli";
   const provider = new ethers.providers.InfuraProvider(network);
   const connectedSigner = turnkeySigner.connect(provider);
@@ -98,11 +98,12 @@ async function main() {
       connectedSigner
     );
 
+    // Read from contract
     const wethBalance = await wethContract.balanceOf(address);
 
     print("WETH Balance:", `${ethers.utils.formatEther(wethBalance)} WETH`);
 
-    // 3. Wrap ETH --> WETH
+    // 3. Wrap ETH -> WETH
     const depositTx = await wethContract.deposit({
       value: ethers.utils.parseEther(transactionAmount),
     });
@@ -110,27 +111,6 @@ async function main() {
     print(
       `Wrapped ${ethers.utils.formatEther(depositTx.value)} ETH:`,
       `https://${network}.etherscan.io/tx/${depositTx.hash}`
-    );
-
-    // 4. Unwrap WETH --> ETH
-    const withdrawTx = await wethContract.withdraw(
-      ethers.utils.parseEther(transactionAmount)
-    );
-
-    print(
-      `Unwrapped ${transactionAmount} WETH:`,
-      `https://${network}.etherscan.io/tx/${withdrawTx.hash}`
-    );
-
-    // 5. Transfer WETH
-    const transferTx = await wethContract.transfer(
-      destinationAddress,
-      ethers.utils.parseEther(transactionAmount)
-    );
-
-    print(
-      `Sent ${transactionAmount} WETH to ${destinationAddress}:`,
-      `https://${network}.etherscan.io/tx/${transferTx.hash}`
     );
   }
 }
