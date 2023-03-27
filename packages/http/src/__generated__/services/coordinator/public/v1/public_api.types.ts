@@ -400,7 +400,7 @@ export type definitions = {
      * @inject_tag: validate:"dive,required"
      * @description A list of Authenticators.
      */
-    authenticators?: definitions["v1AuthenticatorParams"][];
+    authenticators: definitions["v1AuthenticatorParams"][];
     /**
      * @inject_tag: validate:"required,uuid"
      * @description Unique identifier for a given User.
@@ -447,7 +447,7 @@ export type definitions = {
      * @inject_tag: validate:"uuid"
      * @description Unique identifier for the root user object.
      */
-    rootUserId: string;
+    rootUserId?: string;
   };
   v1CreateOrganizationResult: {
     /** @description Unique identifier for a given Organization. */
@@ -696,7 +696,7 @@ export type definitions = {
      * @inject_tag: validate:"required,dive,required,uuid"
      * @description A list of User IDs.
      */
-    userIds?: string[];
+    userIds: string[];
   };
   v1DeleteUsersResult: {
     /** @description A list of User IDs. */
@@ -721,7 +721,7 @@ export type definitions = {
   };
   v1GetActivitiesResponse: {
     /** @description A list of Activities. */
-    activities?: definitions["v1Activity"][];
+    activities: definitions["v1Activity"][];
   };
   v1GetActivityRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -742,7 +742,7 @@ export type definitions = {
   };
   v1GetPoliciesResponse: {
     /** @description A list of Policies. */
-    policies?: definitions["v1Policy"][];
+    policies: definitions["v1Policy"][];
   };
   v1GetPolicyRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -768,7 +768,7 @@ export type definitions = {
   };
   v1GetPrivateKeysResponse: {
     /** @description A list of Private Keys. */
-    privateKeys?: definitions["v1PrivateKey"][];
+    privateKeys: definitions["v1PrivateKey"][];
   };
   v1GetUserRequest: {
     /** @description Unique identifier for a given Organization. */

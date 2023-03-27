@@ -14,6 +14,7 @@
       "name": "PublicApiService"
     }
   ],
+  "host": "coordinator-beta.turnkey.io",
   "schemes": ["https"],
   "consumes": ["application/json"],
   "produces": ["application/json"],
@@ -58,7 +59,17 @@
             }
           }
         ],
-        "tags": ["Activities"]
+        "tags": ["Activities"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_activity --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"activityId\": \"\"\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/query/get_organization": {
@@ -101,7 +112,17 @@
             }
           }
         ],
-        "tags": ["Organizations"]
+        "tags": ["Organizations"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_organization --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\"\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/query/get_policy": {
@@ -144,7 +165,17 @@
             }
           }
         ],
-        "tags": ["Policies"]
+        "tags": ["Policies"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_policy --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"policyId\": \"\"\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/query/get_user": {
@@ -187,7 +218,17 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["Users"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_user --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"userId\": \"\"\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/query/list_activities": {
@@ -230,7 +271,17 @@
             }
           }
         ],
-        "tags": ["Activities"]
+        "tags": ["Activities"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_activities --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\"\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/query/list_policies": {
@@ -273,7 +324,17 @@
             }
           }
         ],
-        "tags": ["Policies"]
+        "tags": ["Policies"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_policies --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\"\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/query/list_private_keys": {
@@ -316,7 +377,17 @@
             }
           }
         ],
-        "tags": ["Private Keys"]
+        "tags": ["Private Keys"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_private_keys --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\"\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/query/list_users": {
@@ -359,7 +430,17 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["Users"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_users --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\"\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/query/whoami": {
@@ -402,7 +483,17 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["Users"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/whoami --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\"\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/submit/create_api_keys": {
@@ -445,7 +536,17 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["Users"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_api_keys --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_API_KEYS\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"apiKeys\": [{\n\t\t\t\"apiKeyName\": \"\",\n\t\t\t\"publicKey\": \"\"\n\t\t}],\n\t\t\"userId\": \"\"\n\t}\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/submit/create_invitations": {
@@ -488,7 +589,17 @@
             }
           }
         ],
-        "tags": ["Organizations"]
+        "tags": ["Organizations"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_invitations --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_INVITATIONS\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"invitations\": [{\n\t\t\t\"userName\": \"\",\n\t\t\t\"userEmail\": \"\",\n\t\t\t\"receiverUserTags\": \"\",\n\t\t\t\"accessType\": \"\",\n\t\t\t\"senderUserId\": \"\"\n\t\t}]\n\t}\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/submit/create_policy": {
@@ -531,7 +642,17 @@
             }
           }
         ],
-        "tags": ["Policies"]
+        "tags": ["Policies"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_policy --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_POLICY\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"policyName\": \"\",\n\t\t\"selectors\": [],\n\t\t\"effect\": \"\",\n\t\t\"notes\": \"\"\n\t}\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/submit/create_private_keys": {
@@ -574,7 +695,17 @@
             }
           }
         ],
-        "tags": ["Private Keys"]
+        "tags": ["Private Keys"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_private_keys --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"privateKeys\": [{\n\t\t\t\"privateKeyName\": \"\",\n\t\t\t\"curve\": \"\",\n\t\t\t\"privateKeyTags\": \"\",\n\t\t\t\"addressFormats\": \"\"\n\t\t}]\n\t}\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/submit/delete_api_keys": {
@@ -617,7 +748,17 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["Users"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/delete_api_keys --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_DELETE_API_KEYS\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"apiKeyIds\": [],\n\t\t\"userId\": \"\"\n\t}\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/submit/delete_invitations": {
@@ -660,7 +801,17 @@
             }
           }
         ],
-        "tags": ["Organizations"]
+        "tags": ["Organizations"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/delete_invitation --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_DELETE_INVITATION\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"invitationId\": \"\"\n\t}\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/submit/delete_policy": {
@@ -703,7 +854,17 @@
             }
           }
         ],
-        "tags": ["Policies"]
+        "tags": ["Policies"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/delete_policy --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_DELETE_POLICY\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"policyId\": \"\"\n\t}\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/submit/sign_raw_payload": {
@@ -746,7 +907,17 @@
             }
           }
         ],
-        "tags": ["Private Keys"]
+        "tags": ["Private Keys"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/sign_raw_payload --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_SIGN_RAW_PAYLOAD\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"privateKeyId\": \"$PRIVATE_KEY_ID\",\n\t\t\"encoding\": \"PAYLOAD_ENCODING_TEXT_UTF8\",\n\t\t\"payload\": \"\",\n\t\t\"hashFunction\": \"HASH_FUNCTION_KECCAK256\"\n\t}\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/public/v1/submit/sign_transaction": {
@@ -789,7 +960,17 @@
             }
           }
         ],
-        "tags": ["Private Keys"]
+        "tags": ["Private Keys"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/sign_transaction --body '{\n\"timestampMs\": \"[TimestampInMilliseconds]\",\n\"type\": \"ACTIVITY_TYPE_SIGN_TRANSACTION\",\n\"organizationId\": \"$ORGANIZATION_ID\",\n\"parameters\": {\n\t\t\"privateKeyId\": \"$PRIVATE_KEY_ID\",\n\t\t\"unsignedTransaction\": \"\",\n\t\t\"type\": \"\"\n\t}\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     },
     "/tkhq/public/v1/query/get_private_key": {
@@ -832,7 +1013,17 @@
             }
           }
         ],
-        "tags": ["Private Keys"]
+        "tags": ["Private Keys"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_private_key --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"privateKeyId\": \"$PRIVATE_KEY_ID\"\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
       }
     }
   },
@@ -935,8 +1126,7 @@
         "targets": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["targets"]
+            "type": "string"
           },
           "description": "The specific parameter from the subject being referenced, like a specific user ID."
         }
@@ -1098,8 +1288,7 @@
         "votes": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1Vote",
-            "required": ["votes"]
+            "$ref": "#/definitions/v1Vote"
           },
           "description": "A list of objects representing a particular User's approval or rejection of a Consensus request, including all relevant metadata."
         },
@@ -1248,8 +1437,7 @@
         "transports": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/externaldatav1AuthenticatorTransport",
-            "required": ["transports"]
+            "$ref": "#/definitions/externaldatav1AuthenticatorTransport"
           },
           "description": "Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE)."
         },
@@ -1359,8 +1547,7 @@
         "apiKeys": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1ApiKeyParams",
-            "required": ["apiKeys"]
+            "$ref": "#/definitions/v1ApiKeyParams"
           },
           "description": "A list of API Keys.",
           "title": "@inject_tag: validate:\"dive,required\""
@@ -1400,8 +1587,7 @@
         "apiKeyIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["apiKeyIds"]
+            "type": "string"
           },
           "description": "A list of API Key IDs."
         }
@@ -1414,8 +1600,7 @@
         "authenticators": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1AuthenticatorParams",
-            "required": ["authenticators"]
+            "$ref": "#/definitions/v1AuthenticatorParams"
           },
           "description": "A list of Authenticators.",
           "title": "@inject_tag: validate:\"dive,required\""
@@ -1426,7 +1611,7 @@
           "title": "@inject_tag: validate:\"required,uuid\""
         }
       },
-      "required": ["userId"]
+      "required": ["authenticators", "userId"]
     },
     "v1CreateAuthenticatorsResult": {
       "type": "object",
@@ -1434,8 +1619,7 @@
         "authenticatorIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["authenticatorIds"]
+            "type": "string"
           },
           "description": "A list of Authenticator IDs."
         }
@@ -1448,8 +1632,7 @@
         "invitations": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1InvitationParams",
-            "required": ["invitations"]
+            "$ref": "#/definitions/v1InvitationParams"
           },
           "description": "A list of Invitations.",
           "title": "@inject_tag: validate:\"required,dive,required\""
@@ -1484,8 +1667,7 @@
         "invitationIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["invitationIds"]
+            "type": "string"
           },
           "description": "A list of Invitation IDs"
         }
@@ -1514,12 +1696,7 @@
           "title": "@inject_tag: validate:\"uuid\""
         }
       },
-      "required": [
-        "organizationName",
-        "rootEmail",
-        "rootAuthenticator",
-        "rootUserId"
-      ]
+      "required": ["organizationName", "rootEmail", "rootAuthenticator"]
     },
     "v1CreateOrganizationResult": {
       "type": "object",
@@ -1542,8 +1719,7 @@
         "selectors": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/immutableactivityv1Selector",
-            "required": ["selectors"]
+            "$ref": "#/definitions/immutableactivityv1Selector"
           },
           "description": "A list of simple functions each including a subject, target and boolean. See Policy Engine Language section for additional details.",
           "title": "@inject_tag: validate:\"required,dive,required\""
@@ -1568,8 +1744,7 @@
         "selectors": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1SelectorV2",
-            "required": ["selectors"]
+            "$ref": "#/definitions/v1SelectorV2"
           },
           "description": "A list of simple functions each including a subject, target and boolean. See Policy Engine Language section for additional details.",
           "title": "@inject_tag: validate:\"required,dive,required\""
@@ -1625,8 +1800,7 @@
         "privateKeyIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["privateKeyIds"]
+            "type": "string"
           },
           "description": "A list of Private Key IDs.",
           "title": "@inject_tag: validate:\"dive,uuid\""
@@ -1644,8 +1818,7 @@
         "privateKeyIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["privateKeyIds"]
+            "type": "string"
           },
           "description": "A list of Private Key IDs."
         }
@@ -1658,8 +1831,7 @@
         "privateKeys": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1PrivateKeyParams",
-            "required": ["privateKeys"]
+            "$ref": "#/definitions/v1PrivateKeyParams"
           },
           "description": "A list of Private Keys.",
           "title": "@inject_tag: validate:\"dive,required\""
@@ -1694,8 +1866,7 @@
         "privateKeyIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["privateKeyIds"]
+            "type": "string"
           },
           "description": "A list of Private Key IDs."
         }
@@ -1713,8 +1884,7 @@
         "userIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["userIds"]
+            "type": "string"
           },
           "description": "A list of User IDs.",
           "title": "@inject_tag: validate:\"dive,uuid\""
@@ -1732,8 +1902,7 @@
         "userIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["userIds"]
+            "type": "string"
           },
           "description": "A list of User IDs."
         }
@@ -1746,8 +1915,7 @@
         "users": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1UserParams",
-            "required": ["users"]
+            "$ref": "#/definitions/v1UserParams"
           },
           "description": "A list of Users.",
           "title": "@inject_tag: validate:\"required,dive,required\""
@@ -1761,8 +1929,7 @@
         "userIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["userIds"]
+            "type": "string"
           },
           "description": "A list of User IDs."
         }
@@ -1809,8 +1976,7 @@
         "apiKeyIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["apiKeyIds"]
+            "type": "string"
           },
           "description": "A list of API Key IDs.",
           "title": "@inject_tag: validate:\"required,dive,required,uuid\""
@@ -1845,8 +2011,7 @@
         "apiKeyIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["apiKeyIds"]
+            "type": "string"
           },
           "description": "A list of API Key IDs."
         }
@@ -1864,8 +2029,7 @@
         "authenticatorIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["authenticatorIds"]
+            "type": "string"
           },
           "description": "A list of Authenticator IDs.",
           "title": "@inject_tag: validate:\"required,div,required,uuid\""
@@ -1879,8 +2043,7 @@
         "authenticatorIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["authenticatorId"]
+            "type": "string"
           },
           "description": "Unique identifier for a given Authenticator."
         }
@@ -1998,8 +2161,7 @@
         "privateKeyTagIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["privateKeyTagIds"]
+            "type": "string"
           },
           "description": "A list of Private Key Tag IDs.",
           "title": "@inject_tag: validate:\"required,dive,required,uuid\""
@@ -2013,16 +2175,14 @@
         "privateKeyTagIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["privateKeyTagIds"]
+            "type": "string"
           },
           "description": "A list of Private Key Tag IDs."
         },
         "privateKeyIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["privateKeyIds"]
+            "type": "string"
           },
           "description": "A list of Private Key IDs."
         }
@@ -2035,8 +2195,7 @@
         "userTagIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["userTagIds"]
+            "type": "string"
           },
           "description": "A list of User Tag IDs.",
           "title": "@inject_tag: validate:\"required,dive,required,uuid\""
@@ -2050,16 +2209,14 @@
         "userTagIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["userTagIds"]
+            "type": "string"
           },
           "description": "A list of User Tag IDs."
         },
         "userIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["userIds"]
+            "type": "string"
           },
           "description": "A list of User IDs."
         }
@@ -2072,13 +2229,13 @@
         "userIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["userIds"]
+            "type": "string"
           },
           "description": "A list of User IDs.",
           "title": "@inject_tag: validate:\"required,dive,required,uuid\""
         }
-      }
+      },
+      "required": ["userIds"]
     },
     "v1DeleteUsersResult": {
       "type": "object",
@@ -2086,8 +2243,7 @@
         "userIds": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["userIds"]
+            "type": "string"
           },
           "description": "A list of User IDs."
         }
@@ -2138,12 +2294,12 @@
         "activities": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1Activity",
-            "required": ["activities"]
+            "$ref": "#/definitions/v1Activity"
           },
           "description": "A list of Activities."
         }
-      }
+      },
+      "required": ["activities"]
     },
     "v1GetActivityRequest": {
       "type": "object",
@@ -2194,12 +2350,12 @@
         "policies": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1Policy",
-            "required": ["policies"]
+            "$ref": "#/definitions/v1Policy"
           },
           "description": "A list of Policies."
         }
-      }
+      },
+      "required": ["policies"]
     },
     "v1GetPolicyRequest": {
       "type": "object",
@@ -2263,12 +2419,12 @@
         "privateKeys": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1PrivateKey",
-            "required": ["privateKeys"]
+            "$ref": "#/definitions/v1PrivateKey"
           },
           "description": "A list of Private Keys."
         }
-      }
+      },
+      "required": ["privateKeys"]
     },
     "v1GetUserRequest": {
       "type": "object",
@@ -2309,8 +2465,7 @@
         "users": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1User",
-            "required": ["users"]
+            "$ref": "#/definitions/v1User"
           },
           "description": "A list of Users."
         }
@@ -2455,8 +2610,7 @@
         "receiverUserTags": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["receiverUserTags"]
+            "type": "string"
           },
           "description": "A list of tags assigned to the Invitation recipient."
         },
@@ -2505,8 +2659,7 @@
         "receiverUserTags": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["receiverUserTags"]
+            "type": "string"
           },
           "description": "A list of tags assigned to the Invitation recipient.",
           "title": "@inject_tag: validate:\"dive,uuid\""
@@ -2642,8 +2795,7 @@
         "selectors": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/externaldatav1Selector",
-            "required": ["selectors"]
+            "$ref": "#/definitions/externaldatav1Selector"
           },
           "description": "A list of simple functions each including a subject, target and boolean. See Policy Engine Language section for additional details."
         },
@@ -2689,16 +2841,14 @@
         "addresses": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/externaldatav1Address",
-            "required": ["addresses"]
+            "$ref": "#/definitions/externaldatav1Address"
           },
           "description": "Derived cryptocurrency addresses for a given Private Key."
         },
         "privateKeyTags": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["privateKeyTags"]
+            "type": "string"
           },
           "description": "A list of Private Key Tag IDs."
         },
@@ -2730,8 +2880,7 @@
         "privateKeyTags": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["privateKeyTags"]
+            "type": "string"
           },
           "description": "A list of Private Key Tag IDs.",
           "title": "@inject_tag: validate:\"dive,uuid\""
@@ -2739,8 +2888,7 @@
         "addressFormats": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/immutableactivityv1AddressFormat",
-            "required": ["addressFormats"]
+            "$ref": "#/definitions/immutableactivityv1AddressFormat"
           },
           "description": "Cryptocurrency-specific formats for a derived address (e.g., Ethereum).",
           "title": "@inject_tag: validate:\"required\""
@@ -3041,24 +3189,21 @@
         "authenticators": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1Authenticator",
-            "required": ["authenticators"]
+            "$ref": "#/definitions/v1Authenticator"
           },
           "description": "A list of Authenticator parameters."
         },
         "apiKeys": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1ApiKey",
-            "required": ["apiKeys"]
+            "$ref": "#/definitions/v1ApiKey"
           },
           "description": "A list of API Key parameters."
         },
         "userTags": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["userTags"]
+            "type": "string"
           },
           "description": "A list of User Tag IDs."
         },
@@ -3098,8 +3243,7 @@
         "apiKeys": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1ApiKeyParams",
-            "required": ["apiKeys"]
+            "$ref": "#/definitions/v1ApiKeyParams"
           },
           "description": "A list of API Key parameters.",
           "title": "@inject_tag: validate:\"dive,uuid\""
@@ -3107,8 +3251,7 @@
         "authenticators": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1AuthenticatorParams",
-            "required": ["authenticators"]
+            "$ref": "#/definitions/v1AuthenticatorParams"
           },
           "description": "A list of Authenticator parameters.",
           "title": "@inject_tag: validate:\"dive\""
@@ -3116,8 +3259,7 @@
         "userTags": {
           "type": "array",
           "items": {
-            "type": "string",
-            "required": ["userTags"]
+            "type": "string"
           },
           "description": "A list of User Tag IDs.",
           "title": "@inject_tag: validate:\"dive,uuid\""
@@ -3199,5 +3341,10 @@
     {
       "ApiKeyAuth": []
     }
-  ]
+  ],
+  "x-readme": {
+    "explorer-enabled": true,
+    "proxy-enabled": true,
+    "samples-languages": ["curl", "javascript"]
+  }
 }
