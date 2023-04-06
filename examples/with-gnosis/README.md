@@ -14,7 +14,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-ethers/
+$ cd examples/with-gnosis/
 ```
 
 ### 2/ Setting up Turnkey
@@ -37,7 +37,8 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `BASE_URL`
 - `ORGANIZATION_ID`
-- `PRIVATE_KEY_ID` -- if you leave it blank, we'll create one for you via calling the Turnkey API
+- `PRIVATE_KEY_ID_1` -- if you leave it blank, we'll create one for you via calling the Turnkey API
+- ... any additional private keys you may need for your Safe
 - `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
 ### 3/ Running the scripts
@@ -46,12 +47,12 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm start
 ```
 
-This script will do the following:
+By default, this script will do the following:
 
-1. send ETH
-2. deposit ETH into the WETH contract (aka wrapping)
-3. withdraw WETH from the WETH contract (aka unwrapping)
-4. transfer WETH
+1. create a new Gnosis Safe (e.g. 3/3 multisig)
+2. initiate a Safe transaction
+3. approve transaction onchain using each signer
+4. execute transaction once all approvals have been obtained
 
 Note that these transactions will all be broadcasted sequentially.
 
@@ -62,36 +63,48 @@ Visit the Etherscan link to view your transaction; you have successfully sent yo
 See the following for a sample output:
 
 ```
-Network:
-	goerli (chain ID 5)
+Address 1:
+        0x1Bce4a8De35Cf22aCaA4D167C722dD80C14Eb0Ee
 
-Address:
-	0x064c0CfDD7C485Eba21988Ded4dbCD9358556842
+Balance 1:
+        0.030020215203400146 Ether
 
-Balance:
-	0.094163288735774138 Ether
+Transaction count 1:
+        10
 
-Transaction count:
-	2
+Address 2:
+        0xf285510B55f62d6787399409418590c9B6d246Fe
 
-Turnkey-powered signature:
-	0xf3db9720b4b2ef8eba3119b04cc9332e4d363a9e3ee8b269375dc2b6b005a97a1503d172e67f4f647ee7a87967fbcff7d46bec0925638b78f6d943dfe5bc26161c
+Balance 2:
+        0.017074551136338144 Ether
 
-Recovered address:
-	0xF8781b03365C82A0BA33f0BC8a0eAc97611e0046
+Transaction count 2:
+        2
 
-Recovered pubkey:
-	0x048d99ba65e978bc39ecc55e42afa590cf2893d67aca407b8d66822aa5493d094abdc4710cbee863812631af249a11fefe260895a5d072c8bc0cce53210e8b1a3d
+Address 3:
+        0xE69b8ede844DB94fe726Cf2537992e61A6a6Ea2e
 
-Turnkey-signed transaction:
-	0x02f8668080808080942ad9ea1e677949a536a270cec812d6e868c881088609184e72a00080c001a09881f59e48500ef8960ae1cb94e0c862e7d613f961c250b6f07b546a1b058b1da06ba1871d7aed5eb8ea8cb211a0e3e22a1c6b54b34b4376d0ef5b1daef4100c8f
+Balance 3:
+        0.066817774846202992 Ether
 
-Sent 0.00001 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
-	https://goerli.etherscan.io/tx/0x6b33eaf0b1c01beeb2122baf15c1375807a38610d3983025e8c7c900e9624bf3
+Transaction count 3:
+        2
 
-WETH Balance:
-	0.00001 WETH
+Gnosis Safe Address:
+		https://goerli.etherscan.io/address/0xd49b176D26529AC14046C14A023eEDfDa0a4d878
 
-Wrapped 0.00001 ETH:
-	https://goerli.etherscan.io/tx/0x1579554f6803838d7b2a3aa7e66308bbf4059a8442fe3e6fd27d7e98061c6c5b
+Sent 0.00001 Ether to 0xd49b176D26529AC14046C14A023eEDfDa0a4d878:
+        https://goerli.etherscan.io/tx/0x47b4ec32b8aa5b9f12594f74f49652bf0f6e4e19d7f0d14e3bde1ea0a2aa0d8e
+
+Approved transaction using signer 1
+		https://goerli.etherscan.io/tx/0x80552f02c54eabd15e02504fefd017b315e2fba4b7d754f144e5464b48285f3e
+
+Approved transaction using signer 2
+		https://goerli.etherscan.io/tx/0x3647430001093726876c5ac6d2fe567c01640175f9d7723395c2fc83793104f6
+
+Approved transaction using signer 3
+		https://goerli.etherscan.io/tx/0xe6cd8f037bc42d5ad9f3ce27f546a4b0022940bea9ef70990aad7c3c8afa7b89
+
+Executed transaction using signer 3
+		https://goerli.etherscan.io/tx/0xbbe05de0734aa602e7d972865fdc14bbcf59fc5c7b05354fd8f0c69a24b77cfb
 ```
