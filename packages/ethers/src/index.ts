@@ -1,4 +1,4 @@
-import { ethers, type UnsignedTransaction } from "ethers";
+import { ethers, type UnsignedTransaction, type Bytes } from "ethers";
 import { PublicApiService, init as httpInit } from "@turnkey/http";
 
 type TActivity = PublicApiService.TPostGetActivityResponse["activity"];
@@ -157,10 +157,14 @@ export class TurnkeySigner extends ethers.Signer {
     return `0x${signedTx}`;
   }
 
-  async signMessage(message: string): Promise<string> {
-    const nonHexPrefixedSerializedMessage = message.replace(/^0x/, "");
+  // Returns the signed prefixed-message. Per Ethers spec, this method treats:
+  // - Bytes as a binary message
+  // - string as a UTF8-message
+  // i.e. "0x1234" is a SIX (6) byte string, NOT 2 bytes of data
+  async signMessage(message: string | Bytes): Promise<string> {
+    const hashedMessage = ethers.utils.hashMessage(message);
     const signedMessage = await this._signMessageWithErrorWrapping(
-      nonHexPrefixedSerializedMessage
+      hashedMessage
     );
     return `${signedMessage}`;
   }
@@ -191,8 +195,8 @@ export class TurnkeySigner extends ethers.Signer {
         parameters: {
           privateKeyId: this.config.privateKeyId,
           payload: message,
-          encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
-          hashFunction: "HASH_FUNCTION_KECCAK256",
+          encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+          hashFunction: "HASH_FUNCTION_NO_OP",
         },
         timestampMs: String(Date.now()), // millisecond timestamp
       },

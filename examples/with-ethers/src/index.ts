@@ -42,20 +42,14 @@ async function main() {
   print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
   print("Transaction count:", `${transactionCount}`);
 
-  // 1. Sign a raw payload
+  // 1. Sign a raw payload (`eth_sign` style)
   const message = "Hello Turnkey";
-  const msgHash = ethers.utils.hashMessage(message);
-  const signature = await connectedSigner.signMessage(msgHash);
-  const msgHashBytes = ethers.utils.arrayify(msgHash);
-  const recoveredPubKey = ethers.utils.recoverPublicKey(
-    msgHashBytes,
-    signature
-  );
-  const recoveredAddress = ethers.utils.recoverAddress(msgHashBytes, signature);
+  const signature = await connectedSigner.signMessage(message);
+  const recoveredAddress = ethers.utils.verifyMessage(message, signature);
 
   print("Turnkey-powered signature:", `${signature}`);
   print("Recovered address:", `${recoveredAddress}`);
-  print("Recovered pubkey:", `${recoveredPubKey}`);
+  assertEqual(recoveredAddress, address);
 
   // Create a simple send transaction
   const transactionAmount = "0.00001";
@@ -122,4 +116,10 @@ main().catch((error) => {
 
 function print(header: string, body: string): void {
   console.log(`${header}\n\t${body}\n`);
+}
+
+function assertEqual<T>(left: T, right: T) {
+  if (left !== right) {
+    throw new Error(`${JSON.stringify(left)} !== ${JSON.stringify(right)}`);
+  }
 }

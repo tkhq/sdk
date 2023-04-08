@@ -102,37 +102,12 @@ test("TurnkeySigner", async () => {
     `);
   }
 
-  // Test message (raw payload) signing
+  // Test message (raw payload) signing, `eth_sign` style
   const message = "Hello Turnkey";
-  const msgHash = ethers.utils.hashMessage(message);
-  const signedMessage = await signer.signMessage(msgHash);
+  const sig = await signer.signMessage(message);
 
-  expect(signedMessage).toMatch(/^0x/);
-
-  try {
-    await signer.signMessage(message);
-  } catch (error) {
-    expect(error).toBeInstanceOf(TurnkeyActivityError);
-
-    const { message, cause, activityId, activityStatus, activityType } =
-      error as TurnkeyActivityError;
-
-    expect({
-      message,
-      cause,
-      activityId,
-      activityStatus,
-      activityType,
-    }).toMatchInlineSnapshot(`
-      {
-        "activityId": null,
-        "activityStatus": null,
-        "activityType": null,
-        "cause": [Error: 400: Bad Request | Internal error 3: invalid hex payload: Hello Turnkey, signer/app/src/crypto.rs:161],
-        "message": "Failed to sign",
-      }
-    `);
-  }
+  expect(sig).toMatch(/^0x/);
+  expect(ethers.utils.verifyMessage(message, sig)).toEqual(expectedEthAddress);
 });
 
 function assertNonEmptyString(input: unknown, name: string): string {
