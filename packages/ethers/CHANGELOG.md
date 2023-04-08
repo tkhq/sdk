@@ -1,5 +1,16 @@
 # @turnkey/ethers
 
+## 0.6.0
+
+### Minor Changes
+
+- `#signMessage(...)`: move encoding and hashing logic to client side, `eth_sign` style
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@0.6.0
+
 ## 0.5.0
 
 ### Minor Changes

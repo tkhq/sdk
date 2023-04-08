@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.6.0
+
+### Minor Changes
+
+- Improved OpenAPI documentation
+
 ## 0.5.0
 
 ### Minor Changes
