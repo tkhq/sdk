@@ -178,6 +178,8 @@ async function main() {
   );
 
   // obtain onchain signature from signer 3
+  // this is technically redundant given this signer will go on to execute the transaction,
+  // but is left in for demonstration purposes.
   txHash = await safeSdk3.getTransactionHash(safeTransaction);
   approveTxResponse = await safeSdk3.approveTransactionHash(txHash);
   await approveTxResponse.transactionResponse?.wait();
