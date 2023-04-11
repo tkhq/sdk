@@ -157,15 +157,15 @@ function createMockResponse(result: { activity: Partial<TActivity> }) {
 
 function chainMockResponseSequence(
   mockedFetch: jest.MockedFunction<typeof fetch>,
-  responseList: Array<{ activity: Partial<TActivity> }>
+  responseSequence: Array<{ activity: Partial<TActivity> }>
 ): { expectedCallCount: number } {
   let cursor = mockedFetch;
 
-  for (const item of responseList) {
+  for (const item of responseSequence) {
     cursor = cursor.mockReturnValueOnce(createMockResponse(item));
   }
 
   return {
-    expectedCallCount: responseList.length,
+    expectedCallCount: responseSequence.length,
   };
 }

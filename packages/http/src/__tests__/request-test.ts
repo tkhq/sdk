@@ -31,6 +31,6 @@ test("requests are stamped after initialization", async () => {
 
   expect(fetch).toHaveBeenCalledTimes(1);
 
-  const stamp = mockedFetch.mock.lastCall![1]?.headers?.["X-Stamp"];
+  const stamp = (mockedFetch.mock.lastCall![1]?.headers as any)?.["X-Stamp"];
   expect(stamp).toBeTruthy();
 });
