@@ -1,9 +1,13 @@
-import { PublicApiService, init as httpInit } from "@turnkey/http";
+import {
+  PublicApiService,
+  init as httpInit,
+  withAsyncPolling,
+} from "@turnkey/http";
 import { TurnkeyActivityError } from "@turnkey/ethers";
-
-const POLLING_INTERVAL_MS = 250;
+import * as crypto from "crypto";
 
 export async function createNewEthereumPrivateKey() {
+  // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
@@ -14,12 +18,36 @@ export async function createNewEthereumPrivateKey() {
     "`process.env.PRIVATE_KEY_ID` not found; creating a new Ethereum private key on Turnkey...\n"
   );
 
-  const privateKeyName = `ETH Key ${String(
-    Math.floor(Math.random() * 10000)
-  ).padStart(4, "0")}`;
+  // Use `withAsyncPolling` to handle async activity polling.
+  // In this example, it polls every 250ms until the activity reaches a terminal state.
+  const mutation = withAsyncPolling({
+    request: PublicApiService.postCreatePrivateKeys,
+  });
+
+  const privateKeyName = `ETH Key ${crypto.randomBytes(2).toString("hex")}`;
 
   try {
-    const privateKeyId = await withPolling(privateKeyName);
+    const activity = await mutation({
+      body: {
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        organizationId: process.env.ORGANIZATION_ID!,
+        parameters: {
+          privateKeys: [
+            {
+              privateKeyName,
+              curve: "CURVE_SECP256K1",
+              addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
+              privateKeyTags: [],
+            },
+          ],
+        },
+        timestampMs: String(Date.now()), // millisecond timestamp
+      },
+    });
+
+    const privateKeyId = refineNonNull(
+      activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
+    );
 
     // Success!
     console.log(
@@ -32,6 +60,7 @@ export async function createNewEthereumPrivateKey() {
       ].join("\n")
     );
   } catch (error) {
+    // If needed, you can read from `TurnkeyActivityError` to find out why the activity didn't succeed
     if (error instanceof TurnkeyActivityError) {
       throw error;
     }
@@ -41,107 +70,6 @@ export async function createNewEthereumPrivateKey() {
       cause: error as Error,
     });
   }
-}
-
-// Turnkey activities are async by nature (because we fully support consensus),
-// so here's a little helper for polling the status
-async function withPolling(privateKeyName: string): Promise<string> {
-  const organizationId = process.env.ORGANIZATION_ID!;
-
-  let { activity } = await PublicApiService.postCreatePrivateKeys({
-    body: {
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
-      organizationId,
-      parameters: {
-        privateKeys: [
-          {
-            privateKeyName,
-            curve: "CURVE_SECP256K1",
-
-            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-            privateKeyTags: [],
-          },
-        ],
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
-    },
-  });
-
-  while (true) {
-    switch (activity.status) {
-      case "ACTIVITY_STATUS_COMPLETED": {
-        // Success!
-        return refineNonNull(
-          activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
-        );
-      }
-      case "ACTIVITY_STATUS_CREATED": {
-        // Async pending state -- keep polling
-        break;
-      }
-      case "ACTIVITY_STATUS_PENDING": {
-        // Async pending state -- keep polling
-        break;
-      }
-      case "ACTIVITY_STATUS_CONSENSUS_NEEDED": {
-        // If the activity requires consensus, we shouldn't be pooling forever.
-        // You can store the activity ID and ask for activity status later,
-        // But that's out of scope for this simple example for now.
-        throw new TurnkeyActivityError({
-          message: `Consensus needed for activity ${activity.id}`,
-          activityId: activity.id,
-          activityStatus: activity.status,
-          activityType: activity.type,
-        });
-      }
-      case "ACTIVITY_STATUS_FAILED": {
-        // Activity failed
-        throw new TurnkeyActivityError({
-          message: `Activity ${activity.id} failed`,
-          activityId: activity.id,
-          activityStatus: activity.status,
-          activityType: activity.type,
-        });
-      }
-      case "ACTIVITY_STATUS_REJECTED": {
-        // Activity was rejected
-        throw new TurnkeyActivityError({
-          message: `Activity ${activity.id} was rejected`,
-          activityId: activity.id,
-          activityStatus: activity.status,
-          activityType: activity.type,
-        });
-      }
-      default: {
-        // Make sure the switch block is exhaustive
-        assertNever(activity.status);
-      }
-    }
-
-    await sleep(POLLING_INTERVAL_MS);
-
-    // Now fetch the latest activity status
-    const response = await PublicApiService.postGetActivity({
-      body: {
-        activityId: activity.id,
-        organizationId,
-      },
-    });
-
-    activity = response.activity;
-  }
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, ms);
-  });
-}
-
-function assertNever(input: never, errorMessage?: string): never {
-  throw new Error(errorMessage ?? `Unexpected input: ${JSON.stringify(input)}`);
 }
 
 export function refineNonNull<T>(
