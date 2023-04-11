@@ -1,5 +1,13 @@
 # @turnkey/http
 
+## 0.7.0
+
+### Minor Changes
+
+- Improved documentation
+- Added `withAsyncPolling(...)` helper to provide built-in async polling support. Read more:
+  - https://github.com/tkhq/sdk/tree/main/packages/http#withasyncpolling-helper
+
 ## 0.6.0
 
 ### Minor Changes
