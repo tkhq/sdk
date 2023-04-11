@@ -1,34 +1,9 @@
 import { ethers, type UnsignedTransaction, type Bytes } from "ethers";
-import { PublicApiService, init as httpInit } from "@turnkey/http";
-
-type TActivity = PublicApiService.TPostGetActivityResponse["activity"];
-type TActivityId = TActivity["id"];
-type TActivityStatus = TActivity["status"];
-type TActivityType = TActivity["type"];
-
-export class TurnkeyActivityError extends Error {
-  activityId: TActivityId | null;
-  activityStatus: TActivityStatus | null;
-  activityType: TActivityType | null;
-  cause: Error | null;
-
-  constructor(input: {
-    message: string;
-    cause?: Error | null;
-    activityId?: TActivityId | null;
-    activityStatus?: TActivityStatus | null;
-    activityType?: TActivityType | null;
-  }) {
-    const { message, cause, activityId, activityStatus, activityType } = input;
-    super(message);
-
-    this.name = "TurnkeyActivityError";
-    this.activityId = activityId ?? null;
-    this.activityStatus = activityStatus ?? null;
-    this.activityType = activityType ?? null;
-    this.cause = cause ?? null;
-  }
-}
+import {
+  PublicApiService,
+  TurnkeyActivityError,
+  init as httpInit,
+} from "@turnkey/http";
 
 type TConfig = {
   apiPublicKey: string;
@@ -225,6 +200,8 @@ export class TurnkeySigner extends ethers.Signer {
     });
   }
 }
+
+export { TurnkeyActivityError };
 
 function assertNonNull<T>(input: T | null | undefined): T {
   if (input == null) {

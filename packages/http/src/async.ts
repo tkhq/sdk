@@ -1,12 +1,7 @@
 import { PublicApiService } from "./__generated__/barrel";
-import type { definitions } from "./__generated__/services/coordinator/public/v1/public_api.types";
+import type { TActivity, TActivityResponse } from "./shared";
 
 const DEFAULT_REFRESH_INTERVAL_MS = 500;
-
-type TActivity = definitions["v1Activity"];
-type TActivityResponse = definitions["v1ActivityResponse"];
-// type TActivityType = definitions["v1ActivityType"];
-// type TActivityId = TActivity["id"];
 
 /**
  * TODO: document this helper
