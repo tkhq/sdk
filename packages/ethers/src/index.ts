@@ -226,16 +226,10 @@ export class TurnkeySigner extends ethers.Signer {
   }
 }
 
-export function assertNonNull<T>(input: T | null | undefined): T {
+function assertNonNull<T>(input: T | null | undefined): T {
   if (input == null) {
     throw new Error(`Got unexpected ${JSON.stringify(input)}`);
   }
 
   return input;
-}
-
-export function assertNever(input: never, message?: string): never {
-  throw new Error(
-    message != null ? message : `Unexpected case: ${JSON.stringify(input)}`
-  );
 }
