@@ -1,6 +1,11 @@
 import fetch, { Response } from "node-fetch";
 import { test, expect, jest, beforeEach } from "@jest/globals";
-import { PublicApiService, init, withAsyncPolling } from "../index";
+import {
+  PublicApiService,
+  init,
+  withAsyncPolling,
+  TurnkeyActivityError,
+} from "../index";
 import { readFixture } from "../__fixtures__/shared";
 import type { definitions } from "../__generated__/services/coordinator/public/v1/public_api.types";
 
@@ -19,35 +24,8 @@ beforeEach(async () => {
   });
 });
 
-test("`withAsyncPolling` should poll until reaching a terminal state", async () => {
-  const mutation = withAsyncPolling({
-    request: PublicApiService.postCreatePrivateKeys,
-  });
-
-  const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
-
-  const { expectedCallCount } = chainMockResponseSequence(mockedFetch, [
-    {
-      activity: {
-        status: "ACTIVITY_STATUS_CREATED",
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
-      },
-    },
-    {
-      activity: {
-        status: "ACTIVITY_STATUS_CREATED",
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
-      },
-    },
-    {
-      activity: {
-        status: "ACTIVITY_STATUS_COMPLETED",
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
-      },
-    },
-  ]);
-
-  const result = await mutation({
+const sampleCreatePrivateKeysInput: PublicApiService.TPostCreatePrivateKeysInput =
+  {
     body: {
       type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
       parameters: {
@@ -63,7 +41,37 @@ test("`withAsyncPolling` should poll until reaching a terminal state", async () 
       organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
       timestampMs: String(Date.now()),
     },
+  };
+
+test("`withAsyncPolling` should return data after activity competition", async () => {
+  const mutation = withAsyncPolling({
+    request: PublicApiService.postCreatePrivateKeys,
   });
+
+  const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
+
+  const { expectedCallCount } = chainMockResponseSequence(mockedFetch, [
+    {
+      activity: {
+        status: "ACTIVITY_STATUS_CREATED",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+      },
+    },
+    {
+      activity: {
+        status: "ACTIVITY_STATUS_PENDING",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+      },
+    },
+    {
+      activity: {
+        status: "ACTIVITY_STATUS_COMPLETED",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+      },
+    },
+  ]);
+
+  const result = await mutation(sampleCreatePrivateKeysInput);
 
   expect(fetch).toHaveBeenCalledTimes(expectedCallCount);
   expect(result).toMatchInlineSnapshot(`
@@ -72,6 +80,159 @@ test("`withAsyncPolling` should poll until reaching a terminal state", async () 
       "type": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
     }
   `);
+});
+
+test("`withAsyncPolling` should throw a rich error when activity requires consensus", async () => {
+  const mutation = withAsyncPolling({
+    request: PublicApiService.postCreatePrivateKeys,
+  });
+
+  const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
+
+  const { expectedCallCount } = chainMockResponseSequence(mockedFetch, [
+    {
+      activity: {
+        status: "ACTIVITY_STATUS_PENDING",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+      },
+    },
+    {
+      activity: {
+        status: "ACTIVITY_STATUS_CONSENSUS_NEEDED",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+      },
+    },
+  ]);
+
+  try {
+    await mutation(sampleCreatePrivateKeysInput);
+
+    expect("the mutation above must throw").toEqual("an error");
+  } catch (error) {
+    expect(error).toBeInstanceOf(TurnkeyActivityError);
+    const richError = error as TurnkeyActivityError;
+    const { message, activityId, activityStatus, activityType } = richError;
+
+    expect({
+      message,
+      activityId,
+      activityStatus,
+      activityType,
+    }).toMatchInlineSnapshot(`
+      {
+        "activityId": "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+        "activityStatus": "ACTIVITY_STATUS_CONSENSUS_NEEDED",
+        "activityType": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        "message": "Consensus needed for activity ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+      }
+    `);
+  }
+
+  expect(fetch).toHaveBeenCalledTimes(expectedCallCount);
+});
+
+test("`withAsyncPolling` should throw a rich error when activity is rejected", async () => {
+  const mutation = withAsyncPolling({
+    request: PublicApiService.postCreatePrivateKeys,
+  });
+
+  const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
+
+  const { expectedCallCount } = chainMockResponseSequence(mockedFetch, [
+    {
+      activity: {
+        status: "ACTIVITY_STATUS_PENDING",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+      },
+    },
+    {
+      activity: {
+        status: "ACTIVITY_STATUS_PENDING",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+      },
+    },
+    {
+      activity: {
+        status: "ACTIVITY_STATUS_REJECTED",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+      },
+    },
+  ]);
+
+  try {
+    await mutation(sampleCreatePrivateKeysInput);
+
+    expect("the mutation above must throw").toEqual("an error");
+  } catch (error) {
+    expect(error).toBeInstanceOf(TurnkeyActivityError);
+    const richError = error as TurnkeyActivityError;
+    const { message, activityId, activityStatus, activityType } = richError;
+
+    expect({
+      message,
+      activityId,
+      activityStatus,
+      activityType,
+    }).toMatchInlineSnapshot(`
+      {
+        "activityId": "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+        "activityStatus": "ACTIVITY_STATUS_REJECTED",
+        "activityType": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        "message": "Activity ee916c38-8151-460d-91c0-8bdbf5a9b20e was rejected",
+      }
+    `);
+  }
+
+  expect(fetch).toHaveBeenCalledTimes(expectedCallCount);
+});
+
+test("`withAsyncPolling` should throw a rich error when activity fails", async () => {
+  const mutation = withAsyncPolling({
+    request: PublicApiService.postCreatePrivateKeys,
+  });
+
+  const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
+
+  const { expectedCallCount } = chainMockResponseSequence(mockedFetch, [
+    {
+      activity: {
+        status: "ACTIVITY_STATUS_FAILED",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+      },
+    },
+  ]);
+
+  try {
+    await mutation(sampleCreatePrivateKeysInput);
+
+    expect("the mutation above must throw").toEqual("an error");
+  } catch (error) {
+    expect(error).toBeInstanceOf(TurnkeyActivityError);
+    const richError = error as TurnkeyActivityError;
+    const { message, activityId, activityStatus, activityType } = richError;
+
+    expect({
+      message,
+      activityId,
+      activityStatus,
+      activityType,
+    }).toMatchInlineSnapshot(`
+      {
+        "activityId": "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
+        "activityStatus": "ACTIVITY_STATUS_FAILED",
+        "activityType": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        "message": "Activity ee916c38-8151-460d-91c0-8bdbf5a9b20e failed",
+      }
+    `);
+  }
+
+  expect(fetch).toHaveBeenCalledTimes(expectedCallCount);
 });
 
 test("`withAsyncPolling` should also work with synchronous activity endpoints", async () => {

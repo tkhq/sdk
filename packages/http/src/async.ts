@@ -1,5 +1,5 @@
 import { PublicApiService } from "./__generated__/barrel";
-import type { TActivity, TActivityResponse } from "./shared";
+import { TActivity, TActivityResponse, TurnkeyActivityError } from "./shared";
 
 const DEFAULT_REFRESH_INTERVAL_MS = 500;
 
@@ -35,16 +35,33 @@ export function withAsyncPolling<
         }
         case "ACTIVITY_STATUS_CONSENSUS_NEEDED": {
           // If the activity requires consensus, we shouldn't be polling forever.
-          // You can catch the error and use the error's TODO,
-          throw new Error("TODO");
+          // You can read the `TurnkeyActivityError` thrown to get the `activityId`,
+          // store it somewhere, then re-fetch the activity via `.postGetActivity(...)`
+          // when the required approvals/rejections are in place.
+          throw new TurnkeyActivityError({
+            message: `Consensus needed for activity ${activity.id}`,
+            activityId: activity.id,
+            activityStatus: activity.status,
+            activityType: activity.type,
+          });
         }
         case "ACTIVITY_STATUS_FAILED": {
           // Activity failed
-          throw new Error("TODO");
+          throw new TurnkeyActivityError({
+            message: `Activity ${activity.id} failed`,
+            activityId: activity.id,
+            activityStatus: activity.status,
+            activityType: activity.type,
+          });
         }
         case "ACTIVITY_STATUS_REJECTED": {
           // Activity was rejected
-          throw new Error("TODO");
+          throw new TurnkeyActivityError({
+            message: `Activity ${activity.id} was rejected`,
+            activityId: activity.id,
+            activityStatus: activity.status,
+            activityType: activity.type,
+          });
         }
         default: {
           // Make sure the switch block is exhaustive
