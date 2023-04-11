@@ -39,7 +39,7 @@ The OpenAPI spec that generates all fetchers is also [included](./src/__generate
 
 ## `withAsyncPolling(...)` helper
 
-All Turnkey mutation endpoints are asynchronous (with the exception of signing endpoints) because we support consensus via policy on all write actions. To help you simplify async mutations, `@turnkey/http` provides a `withAsyncPolling(...)` wrapper. Here's a quick example:
+All Turnkey mutation endpoints are asynchronous (with the exception of signing endpoints). To help you simplify async mutations, `@turnkey/http` provides a `withAsyncPolling(...)` wrapper. Here's a quick example:
 
 ```typescript
 import {
