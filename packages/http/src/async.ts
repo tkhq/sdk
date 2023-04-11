@@ -4,7 +4,9 @@ import { TActivity, TActivityResponse, TurnkeyActivityError } from "./shared";
 const DEFAULT_REFRESH_INTERVAL_MS = 500;
 
 /**
- * TODO: document this helper
+ * Wraps a request to create a fetcher with built-in async polling support.
+ *
+ * {@link https://github.com/tkhq/sdk/blob/main/packages/http/README.md#withasyncpolling-helper}
  */
 export function withAsyncPolling<
   O extends TActivityResponse,
@@ -22,7 +24,6 @@ export function withAsyncPolling<
     while (true) {
       switch (activity.status) {
         case "ACTIVITY_STATUS_COMPLETED": {
-          // TODO refine the output here
           return activity;
         }
         case "ACTIVITY_STATUS_CREATED": {

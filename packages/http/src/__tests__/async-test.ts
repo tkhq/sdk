@@ -7,9 +7,7 @@ import {
   TurnkeyActivityError,
 } from "../index";
 import { readFixture } from "../__fixtures__/shared";
-import type { definitions } from "../__generated__/services/coordinator/public/v1/public_api.types";
-
-type TActivity = definitions["v1Activity"];
+import type { TActivity } from "../shared";
 
 jest.mock("node-fetch");
 
