@@ -22,7 +22,7 @@ export async function createNewEthereumPrivateKey() {
   // In this example, it polls every 250ms until the activity reaches a terminal state.
   const mutation = withAsyncPolling({
     request: PublicApiService.postCreatePrivateKeys,
-    refreshIntervalMs: 250,
+    refreshIntervalMs: 250, // defaults to 500ms
   });
 
   const privateKeyName = `ETH Key ${crypto.randomBytes(2).toString("hex")}`;

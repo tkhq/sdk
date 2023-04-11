@@ -41,7 +41,7 @@ const sampleCreatePrivateKeysInput: PublicApiService.TPostCreatePrivateKeysInput
     },
   };
 
-test("`withAsyncPolling` should return data after activity competition", async () => {
+test("`withAsyncPolling` should return data after activity completion", async () => {
   const mutation = withAsyncPolling({
     request: PublicApiService.postCreatePrivateKeys,
   });

@@ -51,7 +51,6 @@ import {
 // Use `withAsyncPolling(...)` to wrap & create a fetcher with built-in async polling support
 const fetcher = withAsyncPolling({
   request: PublicApiService.postCreatePrivateKeys,
-  refreshIntervalMs: 500,
 });
 
 // The fetcher remains fully typed. After submitting the request,
