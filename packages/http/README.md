@@ -78,6 +78,10 @@ try {
 }
 ```
 
-## More Examples
+## More examples
 
 See [`createNewEthereumPrivateKey.ts`](/examples/with-ethers/src/createNewEthereumPrivateKey.ts) in the [`with-ethers`](/examples/with-ethers/) example.
+
+## See also
+
+- [`@turnkey/ethers`](/packages/ethers/): higher-level Turnkey Signer for [`Ethers`](https://docs.ethers.org/v5/api/signer/)

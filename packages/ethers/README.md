@@ -77,7 +77,7 @@ main().catch((error) => {
 });
 ```
 
-## More Examples
+## More examples
 
 | Example                                   | Description                                                                                              |
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------- |
@@ -86,3 +86,7 @@ main().catch((error) => {
 | [`with-uniswap`](/examples/with-uniswap/) | Sign and broadcast a Uniswap v3 trade using the Ethers signer with Infura                                |
 | [`sweeper`](/examples/sweeper/)           | Sweep funds from one address to a different address                                                      |
 | [`deployer`](/examples/deployer/)         | Compile and deploy a smart contract                                                                      |
+
+## See also
+
+- [`@turnkey/http`](/packages/http/): lower-level fully typed HTTP client for interacting with Turnkey API
