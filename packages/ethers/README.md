@@ -4,6 +4,8 @@
 
 [Turnkey](https://turnkey.io) Signer for [`Ethers`](https://docs.ethers.org/v5/api/signer/).
 
+If you need a lower-level, fully typed HTTP client for interacting with Turnkey API, check out [`@turnkey/http`](/packages/http/).
+
 API Docs: https://turnkey.readme.io/
 
 ## Getting started
