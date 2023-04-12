@@ -33,9 +33,9 @@ const data = await PublicApiService.postGetWhoami({
 
 ## HTTP fetchers
 
-`@turnkey/http` provides fully typed http fetchers for interacting with the Turnkey API. You can find all available methods [here](./src/__generated__/services/coordinator/public/v1/public_api.fetcher.ts). The types of input parameters and output responses are also exported for convenience.
+`@turnkey/http` provides fully typed http fetchers for interacting with the Turnkey API. You can find all available methods [here](/packages/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher.ts). The types of input parameters and output responses are also exported for convenience.
 
-The OpenAPI spec that generates all fetchers is also [included](./src/__generated__/services/coordinator/public/v1/public_api.swagger.json) in the package.
+The OpenAPI spec that generates all fetchers is also [included](/packages/http/src/__generated__/services/coordinator/public/v1/public_api.swagger.json) in the package.
 
 ## `withAsyncPolling(...)` helper
 
@@ -78,6 +78,10 @@ try {
 }
 ```
 
-## More Examples
+## More examples
 
-See [`createNewEthereumPrivateKey.ts`](../../examples/with-ethers/src/createNewEthereumPrivateKey.ts) in the [`with-ethers`](../../examples/with-ethers/) example.
+See [`createNewEthereumPrivateKey.ts`](/examples/with-ethers/src/createNewEthereumPrivateKey.ts) in the [`with-ethers`](/examples/with-ethers/) example.
+
+## See also
+
+- [`@turnkey/ethers`](/packages/ethers/): higher-level Turnkey Signer for [`Ethers`](https://docs.ethers.org/v5/api/signer/)
