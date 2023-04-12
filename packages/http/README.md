@@ -2,7 +2,9 @@
 
 [![npm](https://img.shields.io/npm/v/@turnkey/http?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/http)
 
-Typed HTTP client for interacting with [Turnkey](https://turnkey.io) API.
+A lower-level, fully typed HTTP client for interacting with [Turnkey](https://turnkey.io) API.
+
+For signing transactions and messages, check out the higher-level [`@turnkey/ethers`](/packages/ethers/) Signer.
 
 API Docs: https://turnkey.readme.io/
 
