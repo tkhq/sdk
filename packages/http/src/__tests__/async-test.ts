@@ -1,4 +1,4 @@
-import fetch, { Response } from "node-fetch";
+import fetch from "isomorphic-unfetch";
 import { test, expect, jest, beforeEach } from "@jest/globals";
 import {
   PublicApiService,
@@ -9,7 +9,7 @@ import {
 import { readFixture } from "../__fixtures__/shared";
 import type { TActivity } from "../shared";
 
-jest.mock("node-fetch");
+jest.mock("isomorphic-unfetch");
 
 beforeEach(async () => {
   jest.resetAllMocks();
@@ -307,7 +307,7 @@ test("typecheck only: `withAsyncPolling` only works with mutations that return a
 });
 
 function createMockResponse(result: { activity: Partial<TActivity> }) {
-  const response = new Response();
+  const response: any = {};
   response.status = 200;
   response.ok = true;
   response.json = async () => result;

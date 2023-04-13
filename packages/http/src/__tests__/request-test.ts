@@ -1,9 +1,9 @@
-import fetch, { Response } from "node-fetch";
+import fetch from "isomorphic-unfetch";
 import { test, expect, jest } from "@jest/globals";
 import { PublicApiService, init } from "../index";
 import { readFixture } from "../__fixtures__/shared";
 
-jest.mock("node-fetch");
+jest.mock("isomorphic-unfetch");
 
 test("requests are stamped after initialization", async () => {
   const { privateKey, publicKey } = await readFixture();
@@ -16,7 +16,7 @@ test("requests are stamped after initialization", async () => {
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
 
-  const response = new Response();
+  const response: any = {};
   response.status = 200;
   response.ok = true;
   response.json = async () => ({});
