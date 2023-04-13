@@ -1,7 +1,6 @@
-import fetch from "node-fetch";
+import fetch from "isomorphic-unfetch";
 import { stamp } from "./stamp";
 import { getConfig } from "./config";
-import type { RequestInit } from "node-fetch";
 
 type TBasicType = string;
 
@@ -12,7 +11,7 @@ type TSubstitutionShape = Record<string, any>;
 
 const sharedHeaders: THeadersShape = {};
 
-const sharedRequestOptions: Partial<RequestInit> = {
+const sharedRequestOptions: Partial<fetch.IsomorphicRequestInit> = {
   redirect: "follow",
 };
 
