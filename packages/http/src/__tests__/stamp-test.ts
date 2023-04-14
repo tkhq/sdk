@@ -8,7 +8,7 @@ test("sign", async () => {
 
   const content = crypto.randomBytes(16).toString("hex");
 
-  const actualStamp = stamp({
+  const actualStamp = await stamp({
     content,
     privateKey,
     publicKey,

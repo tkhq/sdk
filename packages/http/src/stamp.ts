@@ -6,33 +6,54 @@ const PRIVATE_KEY_PREFIX = Buffer.from(
   "hex"
 );
 
-export function stamp(input: {
+export async function stamp(input: {
   content: string;
   publicKey: string;
   privateKey: string;
 }) {
   const { content, publicKey, privateKey } = input;
 
-  const privateKeyBuffer = Buffer.from(privateKey, "hex");
-  const privateKeyPkcs8Der = Buffer.concat([
-    PRIVATE_KEY_PREFIX,
-    privateKeyBuffer,
-  ]);
-
-  const privateKeyObject = crypto.createPrivateKey({
-    type: "pkcs8",
-    format: "der",
-    key: privateKeyPkcs8Der,
-  });
-
-  const sign = crypto.createSign("SHA256");
-  sign.write(Buffer.from(content));
-  sign.end();
-  const signature = sign.sign(privateKeyObject, "hex");
+  const key = await importPrivateKey(privateKey);
+  const signature = await signMessage(key, content);
 
   return {
     publicKey: publicKey,
     scheme: "SIGNATURE_SCHEME_TK_API_P256",
     signature: signature,
   };
+}
+
+async function importPrivateKey(
+  privateKeyHex: string
+): Promise<crypto.webcrypto.CryptoKey> {
+  const privateKeyBuffer = Buffer.from(privateKeyHex, "hex");
+  const privateKeyPkcs8Der = Buffer.concat([
+    PRIVATE_KEY_PREFIX,
+    privateKeyBuffer,
+  ]);
+
+  return await crypto.webcrypto.subtle.importKey(
+    "pkcs8",
+    privateKeyPkcs8Der,
+    {
+      name: "ECDSA",
+      namedCurve: "P-256",
+    },
+    false, // not extractable
+    ["sign"] // allow signing
+  );
+}
+
+async function signMessage(
+  privateKey: crypto.webcrypto.CryptoKey,
+  content: string
+): Promise<string> {
+  const sign = crypto.createSign("SHA256");
+
+  sign.write(Buffer.from(content));
+  sign.end();
+
+  const signature = sign.sign(privateKey as any, "hex");
+
+  return signature;
 }
