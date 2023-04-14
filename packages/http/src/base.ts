@@ -49,7 +49,7 @@ export async function request<
   const sealedBody = stableStringify(inputBody);
   const jsonStamp = Buffer.from(
     stableStringify(
-      stamp({
+      await stamp({
         content: sealedBody,
         privateKey: apiPrivateKey,
         publicKey: apiPublicKey,
