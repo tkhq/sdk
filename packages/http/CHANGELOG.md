@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.8.0
+
+### Minor Changes
+
+- Add `/submit/create_users` endpoint
+
 ## 0.7.0
 
 ### Minor Changes
