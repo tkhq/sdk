@@ -292,6 +292,25 @@ export const postCreatePrivateKeys = (input: TPostCreatePrivateKeysInput) =>
     body: input.body,
   });
 
+/** `POST /public/v1/submit/create_users` */
+type TPostCreateUsersBody =
+  operations["PublicApiService_CreateUsers"]["parameters"]["body"]["body"];
+
+/** `POST /public/v1/submit/create_users` */
+export type TPostCreateUsersResponse =
+  operations["PublicApiService_CreateUsers"]["responses"]["200"]["schema"];
+
+/** `POST /public/v1/submit/create_users` */
+export type TPostCreateUsersInput = { body: TPostCreateUsersBody };
+
+/** `POST /public/v1/submit/create_users` */
+export const postCreateUsers = (input: TPostCreateUsersInput) =>
+  request<TPostCreateUsersResponse, TPostCreateUsersBody, never, never, never>({
+    uri: "/public/v1/submit/create_users",
+    method: "POST",
+    body: input.body,
+  });
+
 /** `POST /public/v1/submit/delete_api_keys` */
 type TPostDeleteApiKeysBody =
   operations["PublicApiService_DeleteApiKeys"]["parameters"]["body"]["body"];

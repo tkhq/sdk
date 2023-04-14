@@ -708,6 +708,59 @@
         }
       }
     },
+    "/public/v1/submit/create_users": {
+      "post": {
+        "summary": "Create Users",
+        "description": "Create Users in an existing Organization",
+        "operationId": "PublicApiService_CreateUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateUsersRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_users --body '{\n\t\"timestampMs\": \"$TIMESTAMP_IN_MILLISECONDS\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_USERS\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"users\": [{\n\t\t\t\"userName\": \"\",\n\t\t\t\"userEmail\": \"\",\n\t\t\t\"accessType\": \"ACCESS_TYPE_API\",\n\t\t\t\"userTags\": \"[]\", \n\t\t\t\"apiKeys\": [\n\t\t\t\t{\"publicKey\": \"public-key\",\"apiKeyName\": \"test\"}\n\t\t\t]}]}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
     "/public/v1/submit/delete_api_keys": {
       "post": {
         "summary": "Delete API Keys",
@@ -1371,7 +1424,8 @@
         "ACTIVITY_TYPE_DELETE_AUTHENTICATORS",
         "ACTIVITY_TYPE_CREATE_AUTHENTICATORS",
         "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
-        "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"
+        "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS",
+        "ACTIVITY_TYPE_CREATE_PAYMENT_METHOD"
       ],
       "description": "Type of Activity, such as Add User, or Sign Transaction."
     },
@@ -1708,6 +1762,67 @@
       },
       "required": ["organizationId"]
     },
+    "v1CreatePaymentMethodIntent": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "string",
+          "description": "The account number of the customer's credit card.",
+          "title": "@inject_tag: validate:\"required,max=16,numeric\""
+        },
+        "cvv": {
+          "type": "string",
+          "description": "The verification digits of the customer's credit card.",
+          "title": "@inject_tag: validate:\"required,max=4,numeric\""
+        },
+        "expiryMonth": {
+          "type": "string",
+          "description": "The month that the credit card expires.",
+          "title": "@inject_tag: validate:\"required,numeric,len=2\""
+        },
+        "expiryYear": {
+          "type": "string",
+          "description": "The year that the credit card expires.",
+          "title": "@inject_tag: validate:\"required,numeric,len=4\""
+        },
+        "cardHolderEmail": {
+          "type": "string",
+          "description": "The email that will receive invoices for the credit card.",
+          "title": "@inject_tag: validate:\"required,email\""
+        },
+        "cardHolderName": {
+          "type": "string",
+          "description": "The name associated with the credit card.",
+          "title": "@inject_tag: validate:\"required,max=40\""
+        }
+      },
+      "required": [
+        "number",
+        "cvv",
+        "expiryMonth",
+        "expiryYear",
+        "cardHolderEmail",
+        "cardHolderName"
+      ]
+    },
+    "v1CreatePaymentMethodResult": {
+      "type": "object",
+      "properties": {
+        "lastFour": {
+          "type": "string",
+          "description": "The last four digits of the credit card added."
+        },
+        "cardHolderName": {
+          "type": "string",
+          "description": "The name associated with the payment method."
+        },
+        "cardHolderEmail": {
+          "type": "string",
+          "description": "The email address associated with the payment method."
+        }
+      },
+      "required": ["lastFour", "cardHolderName", "cardHolderEmail"]
+    },
     "v1CreatePolicyIntent": {
       "type": "object",
       "properties": {
@@ -1922,6 +2037,27 @@
         }
       },
       "required": ["users"]
+    },
+    "v1CreateUsersRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_USERS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateUsersIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateUsersResult": {
       "type": "object",
@@ -2587,6 +2723,9 @@
         },
         "createPolicyIntentV2": {
           "$ref": "#/definitions/v1CreatePolicyIntentV2"
+        },
+        "createPaymentMethodIntent": {
+          "$ref": "#/definitions/v1CreatePaymentMethodIntent"
         }
       },
       "description": "Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action.",
@@ -3006,6 +3145,9 @@
         },
         "deletePrivateKeyTagsResult": {
           "$ref": "#/definitions/v1DeletePrivateKeyTagsResult"
+        },
+        "createPaymentMethodResult": {
+          "$ref": "#/definitions/v1CreatePaymentMethodResult"
         }
       },
       "description": "Result of the intended action."

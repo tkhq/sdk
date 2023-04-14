@@ -56,6 +56,10 @@ export type paths = {
     /** Create new Private Keys */
     post: operations["PublicApiService_CreatePrivateKeys"];
   };
+  "/public/v1/submit/create_users": {
+    /** Create Users in an existing Organization */
+    post: operations["PublicApiService_CreateUsers"];
+  };
   "/public/v1/submit/delete_api_keys": {
     /** Remove api keys from a User */
     post: operations["PublicApiService_DeleteApiKeys"];
@@ -294,7 +298,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_DELETE_AUTHENTICATORS"
     | "ACTIVITY_TYPE_CREATE_AUTHENTICATORS"
     | "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"
-    | "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS";
+    | "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"
+    | "ACTIVITY_TYPE_CREATE_PAYMENT_METHOD";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -453,6 +458,46 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
   };
+  v1CreatePaymentMethodIntent: {
+    /**
+     * @inject_tag: validate:"required,max=16,numeric"
+     * @description The account number of the customer's credit card.
+     */
+    number: string;
+    /**
+     * @inject_tag: validate:"required,max=4,numeric"
+     * @description The verification digits of the customer's credit card.
+     */
+    cvv: string;
+    /**
+     * @inject_tag: validate:"required,numeric,len=2"
+     * @description The month that the credit card expires.
+     */
+    expiryMonth: string;
+    /**
+     * @inject_tag: validate:"required,numeric,len=4"
+     * @description The year that the credit card expires.
+     */
+    expiryYear: string;
+    /**
+     * @inject_tag: validate:"required,email"
+     * @description The email that will receive invoices for the credit card.
+     */
+    cardHolderEmail: string;
+    /**
+     * @inject_tag: validate:"required,max=40"
+     * @description The name associated with the credit card.
+     */
+    cardHolderName: string;
+  };
+  v1CreatePaymentMethodResult: {
+    /** @description The last four digits of the credit card added. */
+    lastFour: string;
+    /** @description The name associated with the payment method. */
+    cardHolderName: string;
+    /** @description The email address associated with the payment method. */
+    cardHolderEmail: string;
+  };
   v1CreatePolicyIntent: {
     /**
      * @inject_tag: validate:"required,max=40"
@@ -556,6 +601,15 @@ export type definitions = {
      * @description A list of Users.
      */
     users: definitions["v1UserParams"][];
+  };
+  v1CreateUsersRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_USERS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateUsersIntent"];
   };
   v1CreateUsersResult: {
     /** @description A list of User IDs. */
@@ -839,6 +893,7 @@ export type definitions = {
     createPrivateKeyTagIntent?: definitions["v1CreatePrivateKeyTagIntent"];
     deletePrivateKeyTagsIntent?: definitions["v1DeletePrivateKeyTagsIntent"];
     createPolicyIntentV2?: definitions["v1CreatePolicyIntentV2"];
+    createPaymentMethodIntent?: definitions["v1CreatePaymentMethodIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1005,6 +1060,7 @@ export type definitions = {
     createApiKeysResult?: definitions["v1CreateApiKeysResult"];
     createPrivateKeyTagResult?: definitions["v1CreatePrivateKeyTagResult"];
     deletePrivateKeyTagsResult?: definitions["v1DeletePrivateKeyTagsResult"];
+    createPaymentMethodResult?: definitions["v1CreatePaymentMethodResult"];
   };
   v1SelectorV2: {
     subject?: string;
@@ -1464,6 +1520,32 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreatePrivateKeysRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create Users in an existing Organization */
+  PublicApiService_CreateUsers: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateUsersRequest"];
       };
     };
     responses: {
