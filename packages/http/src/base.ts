@@ -1,6 +1,7 @@
 import fetch from "isomorphic-unfetch";
 import { stamp } from "./stamp";
 import { getConfig } from "./config";
+import { stringToBase64urlString } from "./encoding";
 
 type TBasicType = string;
 
@@ -47,15 +48,15 @@ export async function request<
   });
 
   const sealedBody = stableStringify(inputBody);
-  const jsonStamp = Buffer.from(
-    stableStringify(
-      await stamp({
-        content: sealedBody,
-        privateKey: apiPrivateKey,
-        publicKey: apiPublicKey,
-      })
-    )
+  const sealedStamp = stableStringify(
+    await stamp({
+      content: sealedBody,
+      privateKey: apiPrivateKey,
+      publicKey: apiPublicKey,
+    })
   );
+
+  const xStamp = stringToBase64urlString(sealedStamp);
 
   const response = await fetch(url.toString(), {
     ...sharedRequestOptions,
@@ -63,7 +64,7 @@ export async function request<
     headers: {
       ...sharedHeaders,
       ...inputHeaders,
-      "X-Stamp": jsonStamp.toString("base64url"),
+      "X-Stamp": xStamp,
     },
     body: sealedBody,
   });
