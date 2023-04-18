@@ -1,4 +1,4 @@
-import { webcrypto } from "crypto";
+import { subtle } from "./ponyfill";
 import { TextEncoder } from "util";
 import { uint8ArrayToHexString, hexStringToUint8Array } from "./encoding";
 
@@ -23,14 +23,12 @@ export async function stamp(input: {
   };
 }
 
-async function importPrivateKey(
-  privateKeyHex: string
-): Promise<webcrypto.CryptoKey> {
+async function importPrivateKey(privateKeyHex: string): Promise<CryptoKey> {
   const privateKeyPkcs8Der = hexStringToUint8Array(
     PRIVATE_KEY_PREFIX + privateKeyHex
   );
 
-  return await webcrypto.subtle.importKey(
+  return await subtle.importKey(
     "pkcs8",
     privateKeyPkcs8Der,
     {
@@ -43,10 +41,10 @@ async function importPrivateKey(
 }
 
 async function signMessage(
-  privateKey: webcrypto.CryptoKey,
+  privateKey: CryptoKey,
   content: string
 ): Promise<string> {
-  const signatureIeee1363 = await webcrypto.subtle.sign(
+  const signatureIeee1363 = await subtle.sign(
     {
       name: "ECDSA",
       hash: "SHA-256",

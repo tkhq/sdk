@@ -1,4 +1,4 @@
-import fetch from "isomorphic-unfetch";
+import fetch from "cross-fetch";
 import { test, expect, jest, beforeEach } from "@jest/globals";
 import {
   PublicApiService,
@@ -9,7 +9,7 @@ import {
 import { readFixture } from "../__fixtures__/shared";
 import type { TActivity } from "../shared";
 
-jest.mock("isomorphic-unfetch");
+jest.mock("cross-fetch");
 
 beforeEach(async () => {
   jest.resetAllMocks();
