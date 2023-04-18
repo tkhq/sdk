@@ -1,7 +1,7 @@
 import fetch from "isomorphic-unfetch";
 import { stamp } from "./stamp";
 import { getConfig } from "./config";
-import { encodeToBase64url } from "./encoding";
+import { stringToBase64urlString } from "./encoding";
 
 type TBasicType = string;
 
@@ -56,7 +56,7 @@ export async function request<
     })
   );
 
-  const xStamp = encodeToBase64url(sealedStamp);
+  const xStamp = stringToBase64urlString(sealedStamp);
 
   const response = await fetch(url.toString(), {
     ...sharedRequestOptions,

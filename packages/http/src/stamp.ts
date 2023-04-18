@@ -1,12 +1,10 @@
 import { webcrypto } from "crypto";
 import { TextEncoder } from "util";
-import { toHexString } from "./encoding";
+import { uint8ArrayToHexString, hexStringToUint8Array } from "./encoding";
 
-// Specific byte-sequence for curve prime256v1 (DER encoding)
-const PRIVATE_KEY_PREFIX = Buffer.from(
-  "308141020100301306072a8648ce3d020106082a8648ce3d030107042730250201010420",
-  "hex"
-);
+// Specific byte-sequence for ECDSA P-256 (DER encoding)
+const PRIVATE_KEY_PREFIX =
+  "308141020100301306072a8648ce3d020106082a8648ce3d030107042730250201010420";
 
 export async function stamp(input: {
   content: string;
@@ -28,11 +26,9 @@ export async function stamp(input: {
 async function importPrivateKey(
   privateKeyHex: string
 ): Promise<webcrypto.CryptoKey> {
-  const privateKeyBuffer = Buffer.from(privateKeyHex, "hex");
-  const privateKeyPkcs8Der = Buffer.concat([
-    PRIVATE_KEY_PREFIX,
-    privateKeyBuffer,
-  ]);
+  const privateKeyPkcs8Der = hexStringToUint8Array(
+    PRIVATE_KEY_PREFIX + privateKeyHex
+  );
 
   return await webcrypto.subtle.importKey(
     "pkcs8",
@@ -63,7 +59,7 @@ async function signMessage(
     new Uint8Array(signatureIeee1363)
   );
 
-  return toHexString(signatureDer);
+  return uint8ArrayToHexString(signatureDer);
 }
 
 /**
