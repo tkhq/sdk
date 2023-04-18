@@ -14,3 +14,10 @@ export function encodeToBase64url(input: string): string {
 
   return base64urlString;
 }
+
+export function toHexString(input: Uint8Array): string {
+  return input.reduce(
+    (result, x) => result + x.toString(16).padStart(2, "0"),
+    ""
+  );
+}

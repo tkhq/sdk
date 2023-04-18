@@ -1,4 +1,6 @@
 import { webcrypto } from "crypto";
+import { TextEncoder } from "util";
+import { toHexString } from "./encoding";
 
 // Specific byte-sequence for curve prime256v1 (DER encoding)
 const PRIVATE_KEY_PREFIX = Buffer.from(
@@ -54,14 +56,14 @@ async function signMessage(
       hash: "SHA-256",
     },
     privateKey,
-    Buffer.from(content)
+    new TextEncoder().encode(content)
   );
 
   const signatureDer = convertEcdsaIeee1363ToDer(
     new Uint8Array(signatureIeee1363)
   );
 
-  return Buffer.from(signatureDer).toString("hex");
+  return toHexString(signatureDer);
 }
 
 /**
