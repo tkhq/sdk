@@ -1,9 +1,9 @@
-import fetch from "isomorphic-unfetch";
+import { fetch } from "undici";
 import { test, expect, jest } from "@jest/globals";
 import { PublicApiService, init } from "../index";
 import { readFixture } from "../__fixtures__/shared";
 
-jest.mock("isomorphic-unfetch");
+jest.mock("undici");
 
 test("requests are stamped after initialization", async () => {
   const { privateKey, publicKey } = await readFixture();

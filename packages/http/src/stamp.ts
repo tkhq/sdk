@@ -1,10 +1,10 @@
-import { webcrypto } from "crypto";
-import { TextEncoder } from "util";
-import { uint8ArrayToHexString, hexStringToUint8Array } from "./encoding";
-
-// Specific byte-sequence for ECDSA P-256 (DER encoding)
-const PRIVATE_KEY_PREFIX =
-  "308141020100301306072a8648ce3d020106082a8648ce3d030107042730250201010420";
+import { subtle, TextEncoder } from "./universal";
+import {
+  uint8ArrayToHexString,
+  hexStringToUint8Array,
+  hexStringToBase64urlString,
+} from "./encoding";
+import { pointDecode } from "./tink/elliptic_curves";
 
 export async function stamp(input: {
   content: string;
@@ -13,8 +13,11 @@ export async function stamp(input: {
 }) {
   const { content, publicKey, privateKey } = input;
 
-  const key = await importPrivateKey(privateKey);
-  const signature = await signMessage(key, content);
+  const key = await importTurnkeyApiKey({
+    uncompressedPrivateKeyHex: privateKey,
+    compressedPublicKeyHex: publicKey,
+  });
+  const signature = await signMessage({ key, content });
 
   return {
     publicKey: publicKey,
@@ -23,16 +26,20 @@ export async function stamp(input: {
   };
 }
 
-async function importPrivateKey(
-  privateKeyHex: string
-): Promise<webcrypto.CryptoKey> {
-  const privateKeyPkcs8Der = hexStringToUint8Array(
-    PRIVATE_KEY_PREFIX + privateKeyHex
-  );
+async function importTurnkeyApiKey(input: {
+  uncompressedPrivateKeyHex: string;
+  compressedPublicKeyHex: string;
+}): Promise<CryptoKey> {
+  const { uncompressedPrivateKeyHex, compressedPublicKeyHex } = input;
 
-  return await webcrypto.subtle.importKey(
-    "pkcs8",
-    privateKeyPkcs8Der,
+  const jwk = convertTurnkeyApiKeyToJwk({
+    uncompressedPrivateKeyHex,
+    compressedPublicKeyHex,
+  });
+
+  return await subtle.importKey(
+    "jwk",
+    jwk,
     {
       name: "ECDSA",
       namedCurve: "P-256",
@@ -42,16 +49,18 @@ async function importPrivateKey(
   );
 }
 
-async function signMessage(
-  privateKey: webcrypto.CryptoKey,
-  content: string
-): Promise<string> {
-  const signatureIeee1363 = await webcrypto.subtle.sign(
+async function signMessage(input: {
+  key: CryptoKey;
+  content: string;
+}): Promise<string> {
+  const { key, content } = input;
+
+  const signatureIeee1363 = await subtle.sign(
     {
       name: "ECDSA",
       hash: "SHA-256",
     },
-    privateKey,
+    key,
     new TextEncoder().encode(content)
   );
 
@@ -60,6 +69,19 @@ async function signMessage(
   );
 
   return uint8ArrayToHexString(signatureDer);
+}
+
+function convertTurnkeyApiKeyToJwk(input: {
+  uncompressedPrivateKeyHex: string;
+  compressedPublicKeyHex: string;
+}): JsonWebKey {
+  const { uncompressedPrivateKeyHex, compressedPublicKeyHex } = input;
+
+  const jwk = pointDecode(hexStringToUint8Array(compressedPublicKeyHex));
+
+  jwk.d = hexStringToBase64urlString(uncompressedPrivateKeyHex);
+
+  return jwk;
 }
 
 /**

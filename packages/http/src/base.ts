@@ -1,4 +1,4 @@
-import fetch from "isomorphic-unfetch";
+import { fetch } from "./universal";
 import { stamp } from "./stamp";
 import { getConfig } from "./config";
 import { stringToBase64urlString } from "./encoding";
@@ -12,7 +12,7 @@ type TSubstitutionShape = Record<string, any>;
 
 const sharedHeaders: THeadersShape = {};
 
-const sharedRequestOptions: Partial<fetch.IsomorphicRequestInit> = {
+const sharedRequestOptions: Partial<RequestInit> = {
   redirect: "follow",
 };
 

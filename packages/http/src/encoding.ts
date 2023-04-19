@@ -39,3 +39,11 @@ export function hexStringToUint8Array(input: string): Uint8Array {
       .map((byte) => parseInt(byte, 16))
   );
 }
+
+export function hexStringToBase64urlString(input: string): string {
+  const buffer = hexStringToUint8Array(input);
+
+  return stringToBase64urlString(
+    buffer.reduce((result, x) => result + String.fromCharCode(x), "")
+  );
+}
