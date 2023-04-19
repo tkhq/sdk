@@ -1,4 +1,4 @@
-import { subtle, TextEncoder } from "./isomorphic";
+import { subtle, TextEncoder } from "./universal";
 import {
   uint8ArrayToHexString,
   hexStringToUint8Array,
