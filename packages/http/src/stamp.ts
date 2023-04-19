@@ -1,10 +1,11 @@
 import { subtle } from "./ponyfill";
 import { TextEncoder } from "util";
-import { uint8ArrayToHexString, hexStringToUint8Array } from "./encoding";
-
-// Specific byte-sequence for ECDSA P-256 (DER encoding)
-const PRIVATE_KEY_PREFIX =
-  "308141020100301306072a8648ce3d020106082a8648ce3d030107042730250201010420";
+import {
+  uint8ArrayToHexString,
+  hexStringToUint8Array,
+  hexStringToBase64urlString,
+} from "./encoding";
+import { pointDecode, PointFormatType } from "./tink/elliptic_curves";
 
 export async function stamp(input: {
   content: string;
@@ -13,7 +14,10 @@ export async function stamp(input: {
 }) {
   const { content, publicKey, privateKey } = input;
 
-  const key = await importPrivateKey(privateKey);
+  const key = await importPrivateKey({
+    uncompressedPrivateKeyHex: privateKey,
+    compressedPublicKeyHex: publicKey,
+  });
   const signature = await signMessage(key, content);
 
   return {
@@ -23,14 +27,20 @@ export async function stamp(input: {
   };
 }
 
-async function importPrivateKey(privateKeyHex: string): Promise<CryptoKey> {
-  const privateKeyPkcs8Der = hexStringToUint8Array(
-    PRIVATE_KEY_PREFIX + privateKeyHex
-  );
+async function importPrivateKey(input: {
+  uncompressedPrivateKeyHex: string;
+  compressedPublicKeyHex: string;
+}): Promise<CryptoKey> {
+  const { uncompressedPrivateKeyHex, compressedPublicKeyHex } = input;
+
+  const jwk = convertTurnkeyPrivateKeyToJwk({
+    uncompressedPrivateKeyHex,
+    compressedPublicKeyHex,
+  });
 
   return await subtle.importKey(
-    "pkcs8",
-    privateKeyPkcs8Der,
+    "jwk",
+    jwk,
     {
       name: "ECDSA",
       namedCurve: "P-256",
@@ -58,6 +68,23 @@ async function signMessage(
   );
 
   return uint8ArrayToHexString(signatureDer);
+}
+
+function convertTurnkeyPrivateKeyToJwk(input: {
+  uncompressedPrivateKeyHex: string;
+  compressedPublicKeyHex: string;
+}): JsonWebKey {
+  const { uncompressedPrivateKeyHex, compressedPublicKeyHex } = input;
+
+  const jwk = pointDecode(
+    "P-256",
+    PointFormatType.COMPRESSED,
+    hexStringToUint8Array(compressedPublicKeyHex)
+  );
+
+  jwk.d = hexStringToBase64urlString(uncompressedPrivateKeyHex);
+
+  return jwk;
 }
 
 /**
