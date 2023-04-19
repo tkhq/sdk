@@ -1,5 +1,4 @@
-import { subtle } from "./ponyfill";
-import { TextEncoder } from "util";
+import { subtle, TextEncoder } from "./isomorphic";
 import {
   uint8ArrayToHexString,
   hexStringToUint8Array,
