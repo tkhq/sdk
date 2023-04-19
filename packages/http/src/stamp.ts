@@ -13,11 +13,11 @@ export async function stamp(input: {
 }) {
   const { content, publicKey, privateKey } = input;
 
-  const key = await importPrivateKey({
+  const key = await importTurnkeyApiKey({
     uncompressedPrivateKeyHex: privateKey,
     compressedPublicKeyHex: publicKey,
   });
-  const signature = await signMessage(key, content);
+  const signature = await signMessage({ key, content });
 
   return {
     publicKey: publicKey,
@@ -26,13 +26,13 @@ export async function stamp(input: {
   };
 }
 
-async function importPrivateKey(input: {
+async function importTurnkeyApiKey(input: {
   uncompressedPrivateKeyHex: string;
   compressedPublicKeyHex: string;
 }): Promise<CryptoKey> {
   const { uncompressedPrivateKeyHex, compressedPublicKeyHex } = input;
 
-  const jwk = convertTurnkeyPrivateKeyToJwk({
+  const jwk = convertTurnkeyApiKeyToJwk({
     uncompressedPrivateKeyHex,
     compressedPublicKeyHex,
   });
@@ -49,16 +49,18 @@ async function importPrivateKey(input: {
   );
 }
 
-async function signMessage(
-  privateKey: CryptoKey,
-  content: string
-): Promise<string> {
+async function signMessage(input: {
+  key: CryptoKey;
+  content: string;
+}): Promise<string> {
+  const { key, content } = input;
+
   const signatureIeee1363 = await subtle.sign(
     {
       name: "ECDSA",
       hash: "SHA-256",
     },
-    privateKey,
+    key,
     new TextEncoder().encode(content)
   );
 
@@ -69,7 +71,7 @@ async function signMessage(
   return uint8ArrayToHexString(signatureDer);
 }
 
-function convertTurnkeyPrivateKeyToJwk(input: {
+function convertTurnkeyApiKeyToJwk(input: {
   uncompressedPrivateKeyHex: string;
   compressedPublicKeyHex: string;
 }): JsonWebKey {
