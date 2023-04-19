@@ -1,4 +1,4 @@
-import fetch from "cross-fetch";
+import { fetch } from "undici";
 import { test, expect, jest, beforeEach } from "@jest/globals";
 import {
   PublicApiService,
@@ -9,7 +9,7 @@ import {
 import { readFixture } from "../__fixtures__/shared";
 import type { TActivity } from "../shared";
 
-jest.mock("cross-fetch");
+jest.mock("undici");
 
 beforeEach(async () => {
   jest.resetAllMocks();

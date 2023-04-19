@@ -1,4 +1,4 @@
-import fetch from "cross-fetch";
+import { fetch } from "./isomorphic";
 import { stamp } from "./stamp";
 import { getConfig } from "./config";
 import { stringToBase64urlString } from "./encoding";
