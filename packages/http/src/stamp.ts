@@ -4,7 +4,7 @@ import {
   hexStringToUint8Array,
   hexStringToBase64urlString,
 } from "./encoding";
-import { pointDecode, PointFormatType } from "./tink/elliptic_curves";
+import { pointDecode } from "./tink/elliptic_curves";
 
 export async function stamp(input: {
   content: string;
@@ -77,11 +77,7 @@ function convertTurnkeyApiKeyToJwk(input: {
 }): JsonWebKey {
   const { uncompressedPrivateKeyHex, compressedPublicKeyHex } = input;
 
-  const jwk = pointDecode(
-    "P-256",
-    PointFormatType.COMPRESSED,
-    hexStringToUint8Array(compressedPublicKeyHex)
-  );
+  const jwk = pointDecode(hexStringToUint8Array(compressedPublicKeyHex));
 
   jwk.d = hexStringToBase64urlString(uncompressedPrivateKeyHex);
 
