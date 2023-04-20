@@ -1,7 +1,7 @@
 import { fetch } from "undici";
 import { test, expect, jest, beforeEach } from "@jest/globals";
 import {
-  PublicApiService,
+  TurnkeyApi,
   init,
   withAsyncPolling,
   TurnkeyActivityError,
@@ -22,28 +22,27 @@ beforeEach(async () => {
   });
 });
 
-const sampleCreatePrivateKeysInput: PublicApiService.TPostCreatePrivateKeysInput =
-  {
-    body: {
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
-      parameters: {
-        privateKeys: [
-          {
-            privateKeyName: "hello",
-            curve: "CURVE_SECP256K1",
-            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-            privateKeyTags: [],
-          },
-        ],
-      },
-      organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
-      timestampMs: String(Date.now()),
+const sampleCreatePrivateKeysInput: TurnkeyApi.TPostCreatePrivateKeysInput = {
+  body: {
+    type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+    parameters: {
+      privateKeys: [
+        {
+          privateKeyName: "hello",
+          curve: "CURVE_SECP256K1",
+          addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
+          privateKeyTags: [],
+        },
+      ],
     },
-  };
+    organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
+    timestampMs: String(Date.now()),
+  },
+};
 
 test("`withAsyncPolling` should return data after activity completion", async () => {
   const mutation = withAsyncPolling({
-    request: PublicApiService.postCreatePrivateKeys,
+    request: TurnkeyApi.postCreatePrivateKeys,
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
@@ -82,7 +81,7 @@ test("`withAsyncPolling` should return data after activity completion", async ()
 
 test("`withAsyncPolling` should throw a rich error when activity requires consensus", async () => {
   const mutation = withAsyncPolling({
-    request: PublicApiService.postCreatePrivateKeys,
+    request: TurnkeyApi.postCreatePrivateKeys,
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
@@ -133,7 +132,7 @@ test("`withAsyncPolling` should throw a rich error when activity requires consen
 
 test("`withAsyncPolling` should throw a rich error when activity is rejected", async () => {
   const mutation = withAsyncPolling({
-    request: PublicApiService.postCreatePrivateKeys,
+    request: TurnkeyApi.postCreatePrivateKeys,
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
@@ -191,7 +190,7 @@ test("`withAsyncPolling` should throw a rich error when activity is rejected", a
 
 test("`withAsyncPolling` should throw a rich error when activity fails", async () => {
   const mutation = withAsyncPolling({
-    request: PublicApiService.postCreatePrivateKeys,
+    request: TurnkeyApi.postCreatePrivateKeys,
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
@@ -235,7 +234,7 @@ test("`withAsyncPolling` should throw a rich error when activity fails", async (
 
 test("`withAsyncPolling` should also work with synchronous activity endpoints", async () => {
   const mutation = withAsyncPolling({
-    request: PublicApiService.postSignTransaction,
+    request: TurnkeyApi.postSignTransaction,
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
@@ -274,36 +273,36 @@ test("`withAsyncPolling` should also work with synchronous activity endpoints", 
 
 test("typecheck only: `withAsyncPolling` only works with mutations that return an activity", () => {
   // Legit ones
-  withAsyncPolling({ request: PublicApiService.postCreateApiKeys });
-  withAsyncPolling({ request: PublicApiService.postCreateInvitations });
-  withAsyncPolling({ request: PublicApiService.postCreatePolicy });
-  withAsyncPolling({ request: PublicApiService.postCreatePrivateKeys });
-  withAsyncPolling({ request: PublicApiService.postDeleteApiKeys });
-  withAsyncPolling({ request: PublicApiService.postDeleteInvitation });
-  withAsyncPolling({ request: PublicApiService.postDeletePolicy });
-  withAsyncPolling({ request: PublicApiService.postSignRawPayload });
-  withAsyncPolling({ request: PublicApiService.postSignTransaction });
-  withAsyncPolling({ request: PublicApiService.postGetActivity });
+  withAsyncPolling({ request: TurnkeyApi.postCreateApiKeys });
+  withAsyncPolling({ request: TurnkeyApi.postCreateInvitations });
+  withAsyncPolling({ request: TurnkeyApi.postCreatePolicy });
+  withAsyncPolling({ request: TurnkeyApi.postCreatePrivateKeys });
+  withAsyncPolling({ request: TurnkeyApi.postDeleteApiKeys });
+  withAsyncPolling({ request: TurnkeyApi.postDeleteInvitation });
+  withAsyncPolling({ request: TurnkeyApi.postDeletePolicy });
+  withAsyncPolling({ request: TurnkeyApi.postSignRawPayload });
+  withAsyncPolling({ request: TurnkeyApi.postSignTransaction });
+  withAsyncPolling({ request: TurnkeyApi.postGetActivity });
 
   // Invalid ones
   // @ts-expect-error
-  withAsyncPolling({ request: PublicApiService.postGetOrganization });
+  withAsyncPolling({ request: TurnkeyApi.postGetOrganization });
   // @ts-expect-error
-  withAsyncPolling({ request: PublicApiService.postGetPolicy });
+  withAsyncPolling({ request: TurnkeyApi.postGetPolicy });
   // @ts-expect-error
-  withAsyncPolling({ request: PublicApiService.postGetUser });
+  withAsyncPolling({ request: TurnkeyApi.postGetUser });
   // @ts-expect-error
-  withAsyncPolling({ request: PublicApiService.postGetActivities });
+  withAsyncPolling({ request: TurnkeyApi.postGetActivities });
   // @ts-expect-error
-  withAsyncPolling({ request: PublicApiService.postGetPolicies });
+  withAsyncPolling({ request: TurnkeyApi.postGetPolicies });
   // @ts-expect-error
-  withAsyncPolling({ request: PublicApiService.postGetPrivateKeys });
+  withAsyncPolling({ request: TurnkeyApi.postGetPrivateKeys });
   // @ts-expect-error
-  withAsyncPolling({ request: PublicApiService.postGetUsers });
+  withAsyncPolling({ request: TurnkeyApi.postGetUsers });
   // @ts-expect-error
-  withAsyncPolling({ request: PublicApiService.postGetWhoami });
+  withAsyncPolling({ request: TurnkeyApi.postGetWhoami });
   // @ts-expect-error
-  withAsyncPolling({ request: PublicApiService.postGetPrivateKey });
+  withAsyncPolling({ request: TurnkeyApi.postGetPrivateKey });
 });
 
 function createMockResponse(result: { activity: Partial<TActivity> }) {

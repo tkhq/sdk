@@ -1,6 +1,6 @@
 import { ethers, type UnsignedTransaction, type Bytes } from "ethers";
 import {
-  PublicApiService,
+  TurnkeyApi,
   TurnkeyActivityError,
   init as httpInit,
 } from "@turnkey/http";
@@ -48,7 +48,7 @@ export class TurnkeySigner extends ethers.Signer {
   }
 
   async getAddress(): Promise<string> {
-    const data = await PublicApiService.postGetPrivateKey({
+    const data = await TurnkeyApi.postGetPrivateKey({
       body: {
         privateKeyId: this.config.privateKeyId,
         organizationId: this.config.organizationId,
@@ -69,7 +69,7 @@ export class TurnkeySigner extends ethers.Signer {
   }
 
   private async _signTransactionImpl(message: string): Promise<string> {
-    const { activity } = await PublicApiService.postSignTransaction({
+    const { activity } = await TurnkeyApi.postSignTransaction({
       body: {
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
         organizationId: this.config.organizationId,
@@ -163,7 +163,7 @@ export class TurnkeySigner extends ethers.Signer {
   }
 
   async _signMessageImpl(message: string): Promise<string> {
-    const { activity } = await PublicApiService.postSignRawPayload({
+    const { activity } = await TurnkeyApi.postSignRawPayload({
       body: {
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
         organizationId: this.config.organizationId,

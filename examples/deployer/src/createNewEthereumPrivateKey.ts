@@ -1,8 +1,4 @@
-import {
-  PublicApiService,
-  init as httpInit,
-  withAsyncPolling,
-} from "@turnkey/http";
+import { TurnkeyApi, init as httpInit, withAsyncPolling } from "@turnkey/http";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";
 
@@ -21,7 +17,7 @@ export async function createNewEthereumPrivateKey() {
   // Use `withAsyncPolling` to handle async activity polling.
   // In this example, it polls every 250ms until the activity reaches a terminal state.
   const mutation = withAsyncPolling({
-    request: PublicApiService.postCreatePrivateKeys,
+    request: TurnkeyApi.postCreatePrivateKeys,
   });
 
   const privateKeyName = `ETH Key ${crypto.randomBytes(2).toString("hex")}`;

@@ -1,4 +1,4 @@
-import { PublicApiService } from "./__generated__/barrel";
+import { PublicApiService as TurnkeyApi } from "./__generated__/barrel";
 import { TActivity, TActivityResponse, TurnkeyActivityError } from "./shared";
 
 const DEFAULT_REFRESH_INTERVAL_MS = 500;
@@ -73,7 +73,7 @@ export function withAsyncPolling<
       await sleep(refreshIntervalMs);
 
       const pollingResponse: TActivityResponse =
-        await PublicApiService.postGetActivity({
+        await TurnkeyApi.postGetActivity({
           body: {
             activityId: activity.id,
             organizationId: activity.organizationId,
