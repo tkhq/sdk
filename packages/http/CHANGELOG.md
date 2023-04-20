@@ -1,5 +1,13 @@
 # @turnkey/http
 
+## 0.8.0
+
+### Minor Changes
+
+- Added browser runtime support — `@turnkey/http` is now a universal (isomorphic) package
+- The API fetchers are now exported as namespace `TurnkeyApi`. `PublicApiService` has been marked as deprecated, but will remain functional until we hit v1.0.
+- Dropped support for Node.js v14; we recommend using Node v18+
+
 ## 0.7.0
 
 ### Minor Changes
