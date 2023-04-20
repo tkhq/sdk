@@ -17,7 +17,7 @@ $ npm install @turnkey/http
 Before making http calls, initialize the package with your credentials:
 
 ```typescript
-import { PublicApiService, init } from "@turnkey/http";
+import { TurnkeyApi, init } from "@turnkey/http";
 
 init({
   apiPublicKey: "...",
@@ -26,7 +26,7 @@ init({
 });
 
 // Now you can make authenticated requests!
-const data = await PublicApiService.postGetWhoami({
+const data = await TurnkeyApi.postGetWhoami({
   body: {
     organizationId: "...",
   },
@@ -45,14 +45,14 @@ All Turnkey mutation endpoints are asynchronous (with the exception of signing e
 
 ```typescript
 import {
-  PublicApiService,
+  TurnkeyApi,
   withAsyncPolling,
   TurnkeyActivityError,
 } from "@turnkey/http";
 
 // Use `withAsyncPolling(...)` to wrap & create a fetcher with built-in async polling support
 const fetcher = withAsyncPolling({
-  request: PublicApiService.postCreatePrivateKeys,
+  request: TurnkeyApi.postCreatePrivateKeys,
 });
 
 // The fetcher remains fully typed. After submitting the request,

@@ -1,6 +1,6 @@
 import { fetch } from "undici";
 import { test, expect, jest } from "@jest/globals";
-import { PublicApiService, init } from "../index";
+import { TurnkeyApi, init } from "../index";
 import { readFixture } from "../__fixtures__/shared";
 
 jest.mock("undici");
@@ -23,7 +23,7 @@ test("requests are stamped after initialization", async () => {
 
   mockedFetch.mockReturnValue(Promise.resolve(response));
 
-  await PublicApiService.postGetWhoami({
+  await TurnkeyApi.postGetWhoami({
     body: {
       organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
     },
