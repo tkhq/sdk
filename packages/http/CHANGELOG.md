@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.8.1
+
+### Patch Changes
+
+- Switched from `undici` to `cross-fetch` to improve bundler compatibility
+
 ## 0.8.0
 
 ### Minor Changes
