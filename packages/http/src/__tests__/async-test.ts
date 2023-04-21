@@ -1,4 +1,4 @@
-import { fetch } from "undici";
+import { fetch } from "../universal";
 import { test, expect, jest, beforeEach } from "@jest/globals";
 import {
   TurnkeyApi,
@@ -9,7 +9,7 @@ import {
 import { readFixture } from "../__fixtures__/shared";
 import type { TActivity } from "../shared";
 
-jest.mock("undici");
+jest.mock("cross-fetch");
 
 beforeEach(async () => {
   jest.resetAllMocks();

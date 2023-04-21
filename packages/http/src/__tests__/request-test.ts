@@ -1,9 +1,9 @@
-import { fetch } from "undici";
+import { fetch } from "../universal";
 import { test, expect, jest } from "@jest/globals";
 import { TurnkeyApi, init } from "../index";
 import { readFixture } from "../__fixtures__/shared";
 
-jest.mock("undici");
+jest.mock("cross-fetch");
 
 test("requests are stamped after initialization", async () => {
   const { privateKey, publicKey } = await readFixture();
