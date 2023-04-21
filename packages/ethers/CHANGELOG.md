@@ -1,5 +1,17 @@
 # @turnkey/ethers
 
+## 0.8.0
+
+### Minor Changes
+
+- Added browser runtime support — `@turnkey/ethers` is now a universal (isomorphic) package
+- Dropped support for Node.js v14; we recommend using Node v18+
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@0.8.0
+
 ## 0.7.0
 
 ### Minor Changes
