@@ -49,16 +49,18 @@ $ pnpm start
 
 By default, this script will do the following:
 
-1. create a new Gnosis Safe (e.g. 3/3 multisig)
-2. initiate a Safe transaction
-3. approve transaction onchain using each signer
-4. execute transaction once all approvals have been obtained
+1. Create a new Gnosis Safe (e.g. 3/3 multisig)
+2. Initiate a Safe transaction
+3. Approve transaction using offchain EIP-712 signature
+4. Approve transaction using offchain raw signed message signature
+5. Approve transaction onchain
+6. Execute transaction once all approvals have been obtained
 
-Note that these transactions will all be broadcasted sequentially.
+NOTES:
 
-The script constructs a transaction via Turnkey and broadcasts via Infura. If the script exits because your account isn't funded, you can request funds on https://goerlifaucet.com/ or https://faucet.paradigm.xyz/.
-
-Visit the Etherscan link to view your transaction; you have successfully sent your first transaction with Turnkey!
+- If the script exits because your account isn't funded, you can request funds via https://goerlifaucet.com/, https://faucet.paradigm.xyz/, or Coinbase Wallet (developer settings).
+- Transactions will all be broadcasted sequentially.
+- Sepolia users: the Alchemy provider in Ethers v5 does not support Sepolia. Either use an alternative provider, or switch networks.
 
 See the following for a sample output:
 
@@ -67,44 +69,44 @@ Address 1:
         0x1Bce4a8De35Cf22aCaA4D167C722dD80C14Eb0Ee
 
 Balance 1:
-        0.030020215203400146 Ether
+        0.034412557714194554 Ether
 
 Transaction count 1:
-        10
+        20
 
 Address 2:
         0xf285510B55f62d6787399409418590c9B6d246Fe
 
 Balance 2:
-        0.017074551136338144 Ether
+        0.0135694405114308 Ether
 
 Transaction count 2:
-        2
+        4
 
 Address 3:
         0xE69b8ede844DB94fe726Cf2537992e61A6a6Ea2e
 
 Balance 3:
-        0.066817774846202992 Ether
+        0.06095101662527444 Ether
 
 Transaction count 3:
-        2
+        5
 
-Gnosis Safe Address:
-		https://goerli.etherscan.io/address/0xd49b176D26529AC14046C14A023eEDfDa0a4d878
+New Gnosis Safe Address:
+        0x804ceF3146150033515EE212f13cd4fbEAE52f2a
 
-Sent 0.00001 Ether to 0xd49b176D26529AC14046C14A023eEDfDa0a4d878:
-        https://goerli.etherscan.io/tx/0x47b4ec32b8aa5b9f12594f74f49652bf0f6e4e19d7f0d14e3bde1ea0a2aa0d8e
+Sent 0.00001 Ether to 0x804ceF3146150033515EE212f13cd4fbEAE52f2a:
+        https://goerli.etherscan.io/tx/0x7d40034d769257cae94b990bfb979c7dc1328910765e55c38b698477e53d2fb2
 
-Approved transaction using signer 1
-		https://goerli.etherscan.io/tx/0x80552f02c54eabd15e02504fefd017b315e2fba4b7d754f144e5464b48285f3e
+Signed transaction offchain using signer 1. Signature:
+        0x1b0c320ee49ceda13712cfef4ac57b8c7a03fe7033f0e5f45ca2f9015455a65158e344753afe4253dbbe7dfc8b9b67c9076ffedde485585562b291f6489126c61b
 
-Approved transaction using signer 2
-		https://goerli.etherscan.io/tx/0x3647430001093726876c5ac6d2fe567c01640175f9d7723395c2fc83793104f6
+Signed transaction hash offchain using signer 2. Signature:
+        0x7059168da2f2c10776b9aa7797aa9dc2d18e78c20b3b481f1428a8c099592b6f6599080ddacc8fe49bded3e133ba0d6d7be3de7ce633e7bfa225aba894b580481f
 
-Approved transaction using signer 3
-		https://goerli.etherscan.io/tx/0xe6cd8f037bc42d5ad9f3ce27f546a4b0022940bea9ef70990aad7c3c8afa7b89
+Approved transaction onchain using signer 3. Etherscan link:
+        https://goerli.etherscan.io/tx/0xdd9a42defdc7533856c33cb2bf69f05049667896c860ed1b17b3b2af5d0e0523
 
-Executed transaction using signer 3
-		https://goerli.etherscan.io/tx/0xbbe05de0734aa602e7d972865fdc14bbcf59fc5c7b05354fd8f0c69a24b77cfb
+Executed transaction using signer 3. Etherscan link:
+        https://goerli.etherscan.io/tx/0xf67d40a06e068409fd2a4698f54a1cdf0311f6be33aae08c9f4740a944d92001
 ```
