@@ -161,9 +161,13 @@ async function main() {
 
   // Obtain *offchain* signature from signer 1 using EIP-712
   let txHash = await safeSdk1.getTransactionHash(safeTransaction);
-  safeTransaction = await safeSdk1.signTransaction(safeTransaction, "eth_signTypedData");
+  safeTransaction = await safeSdk1.signTransaction(
+    safeTransaction,
+    "eth_signTypedData"
+  );
   print(
-    `Signed transaction offchain using signer 1. Signature:`, safeTransaction.signatures.get(address1.toLowerCase())?.data ?? ""
+    `Signed transaction offchain using signer 1. Signature:`,
+    safeTransaction.signatures.get(address1.toLowerCase())?.data ?? ""
   );
 
   // Obtain *offchain* signature from signer 2 using standard raw message signing, and attach it to the safeTransaction
@@ -173,7 +177,7 @@ async function main() {
   print(
     `Signed transaction hash offchain using signer 2. Signature:`,
     signTransactionHashResponse.data
-    );
+  );
   safeTransaction.addSignature(signTransactionHashResponse);
 
   // Obtain onchain signature from signer 3.

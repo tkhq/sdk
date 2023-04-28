@@ -206,18 +206,33 @@ export class TurnkeySigner extends ethers.Signer {
     });
   }
 
-  async signTypedData(domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, value: Record<string, any>): Promise<string> {
+  async signTypedData(
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, any>
+  ): Promise<string> {
     // Populate any ENS names
-    const populated = await ethers.utils._TypedDataEncoder.resolveNames(domain, types, value, async (name: string) => {
-      assertNonNull(this.provider);
+    const populated = await ethers.utils._TypedDataEncoder.resolveNames(
+      domain,
+      types,
+      value,
+      async (name: string) => {
+        assertNonNull(this.provider);
 
-      const address = await this.provider?.resolveName(name);
-      assertNonNull(address);
+        const address = await this.provider?.resolveName(name);
+        assertNonNull(address);
 
-      return address ?? "";
-    });
+        return address ?? "";
+      }
+    );
 
-     return this._signMessageWithErrorWrapping(ethers.utils._TypedDataEncoder.hash(populated.domain, types, populated.value));
+    return this._signMessageWithErrorWrapping(
+      ethers.utils._TypedDataEncoder.hash(
+        populated.domain,
+        types,
+        populated.value
+      )
+    );
   }
 
   _signTypedData = this.signTypedData.bind(this);
