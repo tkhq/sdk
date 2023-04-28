@@ -1,5 +1,17 @@
 # @turnkey/ethers
 
+## 0.10.0
+
+### Minor Changes
+
+- Added EIP-712 support for signing typed data to Ethers.
+- Update Gnosis example to make use of new signing functionality.
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@0.10.0
+
 ## 0.9.0
 
 ### Minor Changes
