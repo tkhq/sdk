@@ -104,10 +104,35 @@ test("TurnkeySigner", async () => {
 
   // Test message (raw payload) signing, `eth_sign` style
   const message = "Hello Turnkey";
-  const sig = await signer.signMessage(message);
+  const signMessageSignature = await signer.signMessage(message);
 
-  expect(sig).toMatch(/^0x/);
-  expect(ethers.utils.verifyMessage(message, sig)).toEqual(expectedEthAddress);
+  expect(signMessageSignature).toMatch(/^0x/);
+  expect(ethers.utils.verifyMessage(message, signMessageSignature)).toEqual(expectedEthAddress);
+
+  // Test typed data signing (EIP-712)
+  const typedData = {
+    types: {
+      // Note that we do not need to include `EIP712Domain` as a type here, as Ethers will automatically inject it for us
+      Person: [
+        { name: 'name', type: 'string' },
+        { name: 'wallet', type: 'address' },
+      ],
+    },
+    domain: {
+      name: 'EIP712 Test',
+      version: '1',
+    },
+    primaryType: 'Person',
+    message: {
+      name: 'Alice',
+      wallet: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+    },
+  };
+
+  const signTypedDataSignature = await signer.signTypedData(typedData.domain, typedData.types, typedData.message);
+
+  expect(signTypedDataSignature).toMatch(/^0x/);
+  expect(ethers.utils.verifyTypedData(typedData.domain, typedData.types, typedData.message, signTypedDataSignature)).toEqual(expectedEthAddress);
 });
 
 function assertNonEmptyString(input: unknown, name: string): string {
