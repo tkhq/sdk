@@ -125,14 +125,14 @@ async function main() {
   const safeAccountConfig: SafeAccountConfig = {
     owners,
     threshold,
-    // ...
+    // ... other options
   };
 
   const safeSdk1: Safe = await safeFactory.deploySafe({ safeAccountConfig });
   const safeAddress = safeSdk1.getAddress();
   print("New Gnosis Safe Address:", safeAddress);
 
-  // have other signers connect to deployed Safe
+  // Have other signers connect to deployed Safe
   const safeSdk2 = await safeSdk1.connect({
     ethAdapter: ethAdapter2,
     safeAddress,
@@ -142,7 +142,7 @@ async function main() {
     safeAddress,
   });
 
-  // fund the safe using signer 1
+  // Fund the safe using signer 1
   const fundingRequest = {
     to: safeAddress,
     value: ethers.utils.parseEther(transactionAmount),
@@ -154,45 +154,48 @@ async function main() {
     `https://${network}.etherscan.io/tx/${sentTx.hash}`
   );
 
-  // create Safe transaction using signer 1
-  const safeTransaction = await safeSdk1.createTransaction({
+  // Create Safe transaction using signer 1
+  let safeTransaction = await safeSdk1.createTransaction({
     safeTransactionData,
   });
 
-  // obtain onchain signature from signer 1
+  // Obtain *offchain* signature from signer 1 using EIP-712
   let txHash = await safeSdk1.getTransactionHash(safeTransaction);
-  let approveTxResponse = await safeSdk1.approveTransactionHash(txHash);
-  await approveTxResponse.transactionResponse?.wait();
+  safeTransaction = await safeSdk1.signTransaction(
+    safeTransaction,
+    "eth_signTypedData"
+  );
   print(
-    `Approved transaction using signer 1:`,
-    `https://${network}.etherscan.io/tx/${approveTxResponse.hash}`
+    `Signed transaction offchain using signer 1. Signature:`,
+    safeTransaction.signatures.get(address1.toLowerCase())?.data ?? ""
   );
 
-  // obtain onchain signature from signer 2
+  // Obtain *offchain* signature from signer 2 using standard raw message signing, and attach it to the safeTransaction
+  // let's try an offchain signature next time
   txHash = await safeSdk2.getTransactionHash(safeTransaction);
-  approveTxResponse = await safeSdk2.approveTransactionHash(txHash);
-  await approveTxResponse.transactionResponse?.wait();
+  let signTransactionHashResponse = await safeSdk2.signTransactionHash(txHash);
   print(
-    `Approved transaction using signer 2:`,
-    `https://${network}.etherscan.io/tx/${approveTxResponse.hash}`
+    `Signed transaction hash offchain using signer 2. Signature:`,
+    signTransactionHashResponse.data
   );
+  safeTransaction.addSignature(signTransactionHashResponse);
 
-  // obtain onchain signature from signer 3
-  // this is technically redundant given this signer will go on to execute the transaction,
+  // Obtain onchain signature from signer 3.
+  // This is technically redundant given this signer will go on to execute the transaction,
   // but is left in for demonstration purposes.
   txHash = await safeSdk3.getTransactionHash(safeTransaction);
-  approveTxResponse = await safeSdk3.approveTransactionHash(txHash);
+  let approveTxResponse = await safeSdk3.approveTransactionHash(txHash);
   await approveTxResponse.transactionResponse?.wait();
   print(
-    `Approved transaction using signer 3:`,
+    `Approved transaction onchain using signer 3. Etherscan link:`,
     `https://${network}.etherscan.io/tx/${approveTxResponse.hash}`
   );
 
-  // execute using last signer
+  // Execute transaction using last signer
   const executeTxResponse = await safeSdk3.executeTransaction(safeTransaction);
   await executeTxResponse.transactionResponse?.wait();
   print(
-    `Executed transaction using signer 3:`,
+    `Executed transaction using signer 3. Etherscan link:`,
     `https://${network}.etherscan.io/tx/${executeTxResponse.hash}`
   );
 }

@@ -1,4 +1,10 @@
-import { ethers, type UnsignedTransaction, type Bytes } from "ethers";
+import {
+  ethers,
+  type UnsignedTransaction,
+  type Bytes,
+  type TypedDataDomain,
+  type TypedDataField,
+} from "ethers";
 import {
   TurnkeyApi,
   TurnkeyActivityError,
@@ -188,7 +194,7 @@ export class TurnkeySigner extends ethers.Signer {
         v: parseInt(result.v) + 27,
       });
 
-      // assemble the hex
+      // Assemble the hex
       return assertNonNull(assembled);
     }
 
@@ -199,6 +205,37 @@ export class TurnkeySigner extends ethers.Signer {
       activityType: type,
     });
   }
+
+  async signTypedData(
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, any>
+  ): Promise<string> {
+    // Populate any ENS names
+    const populated = await ethers.utils._TypedDataEncoder.resolveNames(
+      domain,
+      types,
+      value,
+      async (name: string) => {
+        assertNonNull(this.provider);
+
+        const address = await this.provider?.resolveName(name);
+        assertNonNull(address);
+
+        return address ?? "";
+      }
+    );
+
+    return this._signMessageWithErrorWrapping(
+      ethers.utils._TypedDataEncoder.hash(
+        populated.domain,
+        types,
+        populated.value
+      )
+    );
+  }
+
+  _signTypedData = this.signTypedData.bind(this);
 }
 
 export { TurnkeyActivityError };
