@@ -1,6 +1,6 @@
 import * as crypto from "crypto";
 import { test, expect } from "@jest/globals";
-import { stamp } from "../stamp";
+import { stamp } from "../universal";
 import { readFixture } from "../__fixtures__/shared";
 import { generateKeyPairWithOpenSsl } from "./shared";
 

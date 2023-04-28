@@ -1,5 +1,4 @@
-import { fetch } from "./universal";
-import { stamp } from "./stamp";
+import { fetch, stamp } from "./universal";
 import { getConfig } from "./config";
 import { stringToBase64urlString } from "./encoding";
 

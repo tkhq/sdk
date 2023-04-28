@@ -1,16 +1,18 @@
-import { subtle, TextEncoder } from "./universal";
+/// <reference lib="dom" />
+
 import {
   uint8ArrayToHexString,
   hexStringToUint8Array,
   hexStringToBase64urlString,
 } from "./encoding";
 import { pointDecode } from "./tink/elliptic_curves";
+import type { TStamper } from "./shared";
 
-export async function stamp(input: {
+export const stamp: TStamper = async (input: {
   content: string;
   publicKey: string;
   privateKey: string;
-}) {
+}) => {
   const { content, publicKey, privateKey } = input;
 
   const key = await importTurnkeyApiKey({
@@ -24,7 +26,7 @@ export async function stamp(input: {
     scheme: "SIGNATURE_SCHEME_TK_API_P256",
     signature: signature,
   };
-}
+};
 
 async function importTurnkeyApiKey(input: {
   uncompressedPrivateKeyHex: string;
@@ -37,7 +39,7 @@ async function importTurnkeyApiKey(input: {
     compressedPublicKeyHex,
   });
 
-  return await subtle.importKey(
+  return await crypto.subtle.importKey(
     "jwk",
     jwk,
     {
@@ -55,7 +57,7 @@ async function signMessage(input: {
 }): Promise<string> {
   const { key, content } = input;
 
-  const signatureIeee1363 = await subtle.sign(
+  const signatureIeee1363 = await crypto.subtle.sign(
     {
       name: "ECDSA",
       hash: "SHA-256",
