@@ -1,10 +1,22 @@
 import * as crypto from "crypto";
-import { test, expect } from "@jest/globals";
-import { stamp } from "../universal";
+import { test, expect, beforeAll } from "@jest/globals";
+import { stamp as stampUniversal } from "../universal";
+import { stamp as stampNode } from "../stamp.node";
+import { stamp as stampWebCrypto } from "../stamp.webcrypto";
+
 import { readFixture } from "../__fixtures__/shared";
 import { generateKeyPairWithOpenSsl } from "./shared";
 
-test("sign with Turnkey fixture", async () => {
+beforeAll(() => {
+  // @ts-expect-error -- polyfilling the runtime for "webcrypto" and "universal"
+  globalThis.crypto = crypto.webcrypto;
+});
+
+test.each([
+  { impl: stampNode, name: "stamp (node)" },
+  { impl: stampWebCrypto, name: "stamp (WebCrypto)" },
+  { impl: stampUniversal, name: "stamp (universal)" },
+])("sign with Turnkey fixture: $name", async ({ impl: stamp }) => {
   const { privateKey, publicKey, pemPublicKey } = await readFixture();
 
   const content = crypto.randomBytes(16).toString("hex");
@@ -21,7 +33,7 @@ test("sign with Turnkey fixture", async () => {
   expect(
     assertValidSignature({
       content,
-      pubKey: pemPublicKey,
+      pemPublicKey,
       signature: actualStamp.signature,
     })
   ).toBe(true);
@@ -30,13 +42,17 @@ test("sign with Turnkey fixture", async () => {
   expect(() => {
     assertValidSignature({
       content: "something else that wasn't stamped",
-      pubKey: pemPublicKey,
+      pemPublicKey,
       signature: actualStamp.signature,
     });
   }).toThrow();
 });
 
-test("sign with openssl generated key pairs", async () => {
+test.each([
+  { impl: stampNode, name: "stamp (node)" },
+  { impl: stampWebCrypto, name: "stamp (WebCrypto)" },
+  { impl: stampUniversal, name: "stamp (universal)" },
+])("sign with openssl generated key pairs: $name", async ({ impl: stamp }) => {
   // Run 20 times, where each run spawns 10 keys in parallel -> 200 tests in total
   for (let i = 0; i < 20; i++) {
     await Promise.all(
@@ -61,7 +77,7 @@ test("sign with openssl generated key pairs", async () => {
         expect(
           assertValidSignature({
             content,
-            pubKey: pemPublicKey,
+            pemPublicKey,
             signature: actualStamp.signature,
           })
         ).toBe(true);
@@ -70,7 +86,7 @@ test("sign with openssl generated key pairs", async () => {
         expect(() => {
           assertValidSignature({
             content: "something else that wasn't stamped",
-            pubKey: pemPublicKey,
+            pemPublicKey,
             signature: actualStamp.signature,
           });
         }).toThrow();
@@ -81,18 +97,18 @@ test("sign with openssl generated key pairs", async () => {
 
 function assertValidSignature({
   content,
-  pubKey,
+  pemPublicKey,
   signature,
 }: {
   content: string;
-  pubKey: string;
+  pemPublicKey: string;
   signature: string;
 }): true {
   const verifier = crypto.createVerify("SHA256");
   verifier.update(content);
   verifier.end();
 
-  if (verifier.verify(pubKey, signature, "hex")) {
+  if (verifier.verify(pemPublicKey, signature, "hex")) {
     return true;
   }
 
@@ -100,7 +116,7 @@ function assertValidSignature({
     [
       `Invalid signature.`,
       `content: ${JSON.stringify(content)}`,
-      `pubKey: ${JSON.stringify(pubKey)}`,
+      `pemPublicKey: ${JSON.stringify(pemPublicKey)}`,
       `signature: ${JSON.stringify(signature)}`,
     ].join("\n")
   );

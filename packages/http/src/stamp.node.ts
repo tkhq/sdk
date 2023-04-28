@@ -1,11 +1,6 @@
 import * as crypto from "crypto";
+import { convertTurnkeyApiKeyToJwk } from "./encoding";
 import type { TStamper } from "./shared";
-
-// Specific byte-sequence for P-256 (DER encoding)
-const PRIVATE_KEY_PREFIX = Buffer.from(
-  "308141020100301306072a8648ce3d020106082a8648ce3d030107042730250201010420",
-  "hex"
-);
 
 export const stamp: TStamper = async (input: {
   content: string;
@@ -14,16 +9,14 @@ export const stamp: TStamper = async (input: {
 }) => {
   const { content, publicKey, privateKey } = input;
 
-  const privateKeyBuffer = Buffer.from(privateKey, "hex");
-  const privateKeyPkcs8Der = Buffer.concat([
-    PRIVATE_KEY_PREFIX,
-    privateKeyBuffer,
-  ]);
-
   const privateKeyObject = crypto.createPrivateKey({
-    type: "pkcs8",
-    format: "der",
-    key: privateKeyPkcs8Der,
+    // @ts-expect-error -- the key can be a JWK object since Node v15.12.0
+    // https://nodejs.org/api/crypto.html#cryptocreateprivatekeykey
+    key: convertTurnkeyApiKeyToJwk({
+      uncompressedPrivateKeyHex: privateKey,
+      compressedPublicKeyHex: publicKey,
+    }),
+    format: "jwk",
   });
 
   const sign = crypto.createSign("SHA256");

@@ -1,11 +1,6 @@
 /// <reference lib="dom" />
 
-import {
-  uint8ArrayToHexString,
-  hexStringToUint8Array,
-  hexStringToBase64urlString,
-} from "./encoding";
-import { pointDecode } from "./tink/elliptic_curves";
+import { uint8ArrayToHexString, convertTurnkeyApiKeyToJwk } from "./encoding";
 import type { TStamper } from "./shared";
 
 export const stamp: TStamper = async (input: {
@@ -71,19 +66,6 @@ async function signMessage(input: {
   );
 
   return uint8ArrayToHexString(signatureDer);
-}
-
-function convertTurnkeyApiKeyToJwk(input: {
-  uncompressedPrivateKeyHex: string;
-  compressedPublicKeyHex: string;
-}): JsonWebKey {
-  const { uncompressedPrivateKeyHex, compressedPublicKeyHex } = input;
-
-  const jwk = pointDecode(hexStringToUint8Array(compressedPublicKeyHex));
-
-  jwk.d = hexStringToBase64urlString(uncompressedPrivateKeyHex);
-
-  return jwk;
 }
 
 /**

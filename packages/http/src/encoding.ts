@@ -1,3 +1,5 @@
+import { pointDecode } from "./tink/elliptic_curves";
+
 /**
  * Code modified from https://github.com/github/webauthn-json/blob/e932b3585fa70b0bd5b5a4012ba7dbad7b0a0d0f/src/webauthn-json/base64url.ts#L23
  */
@@ -22,7 +24,20 @@ export function uint8ArrayToHexString(input: Uint8Array): string {
   );
 }
 
-export function hexStringToUint8Array(input: string): Uint8Array {
+export function convertTurnkeyApiKeyToJwk(input: {
+  uncompressedPrivateKeyHex: string;
+  compressedPublicKeyHex: string;
+}): JsonWebKey {
+  const { uncompressedPrivateKeyHex, compressedPublicKeyHex } = input;
+
+  const jwk = pointDecode(hexStringToUint8Array(compressedPublicKeyHex));
+
+  jwk.d = hexStringToBase64urlString(uncompressedPrivateKeyHex);
+
+  return jwk;
+}
+
+function hexStringToUint8Array(input: string): Uint8Array {
   if (
     input.length === 0 ||
     input.length % 2 !== 0 ||
@@ -40,7 +55,7 @@ export function hexStringToUint8Array(input: string): Uint8Array {
   );
 }
 
-export function hexStringToBase64urlString(input: string): string {
+function hexStringToBase64urlString(input: string): string {
   const buffer = hexStringToUint8Array(input);
 
   return stringToBase64urlString(
