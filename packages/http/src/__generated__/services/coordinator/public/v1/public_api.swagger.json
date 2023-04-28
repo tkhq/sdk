@@ -63,7 +63,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_activity --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"activityId\": \"\"\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_activity --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"activityId\": \"\"\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -116,7 +116,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_organization --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\"\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_organization --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\"\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -169,7 +169,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_policy --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"policyId\": \"\"\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_policy --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"policyId\": \"\"\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -222,7 +222,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_user --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"userId\": \"\"\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_user --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"userId\": \"\"\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -275,7 +275,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_activities --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\"\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_activities --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\"\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -328,7 +328,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_policies --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\"\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_policies --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\"\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -381,7 +381,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_private_keys --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\"\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_private_keys --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\"\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -434,7 +434,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_users --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\"\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_users --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\"\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -487,7 +487,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/whoami --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\"\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/whoami --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\"\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -540,7 +540,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_api_keys --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_API_KEYS\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"apiKeys\": [{\n\t\t\t\"apiKeyName\": \"\",\n\t\t\t\"publicKey\": \"\"\n\t\t}],\n\t\t\"userId\": \"\"\n\t}\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_api_keys --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_API_KEYS\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"apiKeys\": [{\n\t\t\t\"apiKeyName\": \"\",\n\t\t\t\"publicKey\": \"\"\n\t\t}],\n\t\t\"userId\": \"\"\n\t}\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -593,7 +593,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_invitations --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_INVITATIONS\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"invitations\": [{\n\t\t\t\"userName\": \"\",\n\t\t\t\"userEmail\": \"\",\n\t\t\t\"receiverUserTags\": \"\",\n\t\t\t\"accessType\": \"\",\n\t\t\t\"senderUserId\": \"\"\n\t\t}]\n\t}\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_invitations --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_INVITATIONS\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"invitations\": [{\n\t\t\t\"userName\": \"\",\n\t\t\t\"userEmail\": \"\",\n\t\t\t\"receiverUserTags\": \"\",\n\t\t\t\"accessType\": \"\",\n\t\t\t\"senderUserId\": \"\"\n\t\t}]\n\t}\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -646,7 +646,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_policy --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_POLICY\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"policyName\": \"\",\n\t\t\"selectors\": [],\n\t\t\"effect\": \"\",\n\t\t\"notes\": \"\"\n\t}\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_policy --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_POLICY\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"policyName\": \"\",\n\t\t\"selectors\": [],\n\t\t\"effect\": \"\",\n\t\t\"notes\": \"\"\n\t}\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -699,7 +699,60 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_private_keys --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"privateKeys\": [{\n\t\t\t\"privateKeyName\": \"\",\n\t\t\t\"curve\": \"\",\n\t\t\t\"privateKeyTags\": \"\",\n\t\t\t\"addressFormats\": \"\"\n\t\t}]\n\t}\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_private_keys --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"privateKeys\": [{\n\t\t\t\"privateKeyName\": \"\",\n\t\t\t\"curve\": \"\",\n\t\t\t\"privateKeyTags\": \"\",\n\t\t\t\"addressFormats\": \"\"\n\t\t}]\n\t}\n}' --key=[APIkeyname]",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
+    "/public/v1/submit/create_users": {
+      "post": {
+        "summary": "Create Users",
+        "description": "Create Users in an existing Organization",
+        "operationId": "PublicApiService_CreateUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateUsersRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_users --body '{\n\t\"timestampMs\": \"$TIMESTAMP_IN_MILLISECONDS\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_USERS\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"users\": [{\n\t\t\t\"userName\": \"\",\n\t\t\t\"userEmail\": \"\",\n\t\t\t\"accessType\": \"ACCESS_TYPE_API\",\n\t\t\t\"userTags\": \"[]\", \n\t\t\t\"apiKeys\": [\n\t\t\t\t{\"publicKey\": \"public-key\",\"apiKeyName\": \"test\"}\n\t\t\t]}]}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -752,7 +805,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/delete_api_keys --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_DELETE_API_KEYS\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"apiKeyIds\": [],\n\t\t\"userId\": \"\"\n\t}\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/delete_api_keys --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_DELETE_API_KEYS\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"apiKeyIds\": [],\n\t\t\"userId\": \"\"\n\t}\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -805,7 +858,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/delete_invitation --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_DELETE_INVITATION\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"invitationId\": \"\"\n\t}\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/delete_invitation --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_DELETE_INVITATION\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"invitationId\": \"\"\n\t}\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -858,7 +911,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/delete_policy --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_DELETE_POLICY\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"policyId\": \"\"\n\t}\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/delete_policy --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_DELETE_POLICY\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"policyId\": \"\"\n\t}\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -911,7 +964,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/sign_raw_payload --body '{\n\t\"timestampMs\": \"[TimestampInMilliseconds]\",\n\t\"type\": \"ACTIVITY_TYPE_SIGN_RAW_PAYLOAD\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"privateKeyId\": \"$PRIVATE_KEY_ID\",\n\t\t\"encoding\": \"PAYLOAD_ENCODING_TEXT_UTF8\",\n\t\t\"payload\": \"\",\n\t\t\"hashFunction\": \"HASH_FUNCTION_KECCAK256\"\n\t}\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/sign_raw_payload --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_SIGN_RAW_PAYLOAD\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"privateKeyId\": \"'\"$PRIVATE_KEY_ID\"'\",\n\t\t\"encoding\": \"PAYLOAD_ENCODING_TEXT_UTF8\",\n\t\t\"payload\": \"\",\n\t\t\"hashFunction\": \"HASH_FUNCTION_KECCAK256\"\n\t}\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -964,7 +1017,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/sign_transaction --body '{\n\"timestampMs\": \"[TimestampInMilliseconds]\",\n\"type\": \"ACTIVITY_TYPE_SIGN_TRANSACTION\",\n\"organizationId\": \"$ORGANIZATION_ID\",\n\"parameters\": {\n\t\t\"privateKeyId\": \"$PRIVATE_KEY_ID\",\n\t\t\"unsignedTransaction\": \"\",\n\t\t\"type\": \"\"\n\t}\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/sign_transaction --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_SIGN_TRANSACTION\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"privateKeyId\": \"'\"$PRIVATE_KEY_ID\"'\",\n\t\t\"unsignedTransaction\": \"\",\n\t\t\"type\": \"\"\n\t}\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -1017,7 +1070,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_private_key --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"privateKeyId\": \"$PRIVATE_KEY_ID\"\n}' --key=[APIkeyname]",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_private_key --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"privateKeyId\": \"'\"$PRIVATE_KEY_ID\"'\"\n}' --key=[APIkeyname]",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -1262,6 +1315,27 @@
       },
       "required": ["invitationId", "userId"]
     },
+    "v1ActivateBillingTierIntent": {
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string",
+          "description": "The product that the customer wants to subscribe to.",
+          "title": "@inject_tag: validate:\"required\""
+        }
+      },
+      "required": ["productId"]
+    },
+    "v1ActivateBillingTierResult": {
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string",
+          "description": "The id of the product being subscribed to."
+        }
+      },
+      "required": ["productId"]
+    },
     "v1Activity": {
       "type": "object",
       "properties": {
@@ -1371,7 +1445,10 @@
         "ACTIVITY_TYPE_DELETE_AUTHENTICATORS",
         "ACTIVITY_TYPE_CREATE_AUTHENTICATORS",
         "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
-        "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"
+        "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS",
+        "ACTIVITY_TYPE_SET_PAYMENT_METHOD",
+        "ACTIVITY_TYPE_ACTIVATE_BILLING_TIER",
+        "ACTIVITY_TYPE_DELETE_PAYMENT_METHOD"
       ],
       "description": "Type of Activity, such as Add User, or Sign Transaction."
     },
@@ -1758,6 +1835,33 @@
       },
       "required": ["policyName", "selectors", "effect"]
     },
+    "v1CreatePolicyIntentV3": {
+      "type": "object",
+      "properties": {
+        "policyName": {
+          "type": "string",
+          "description": "Human-readable name for a Policy.",
+          "title": "@inject_tag: validate:\"required,max=40\""
+        },
+        "effect": {
+          "$ref": "#/definitions/immutableactivityv1Effect"
+        },
+        "condition": {
+          "type": "string",
+          "description": "The condition expression that triggers the Effect",
+          "title": "@inject_tag: validate:\"required\""
+        },
+        "consensus": {
+          "type": "string",
+          "description": "The consensus expression that triggers the Effect",
+          "title": "@inject_tag: validate:\"required\""
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": ["policyName", "effect", "condition", "consensus"]
+    },
     "v1CreatePolicyRequest": {
       "type": "object",
       "properties": {
@@ -1922,6 +2026,27 @@
         }
       },
       "required": ["users"]
+    },
+    "v1CreateUsersRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_USERS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateUsersIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateUsersResult": {
       "type": "object",
@@ -2112,6 +2237,26 @@
         }
       },
       "required": ["organizationId"]
+    },
+    "v1DeletePaymentMethodIntent": {
+      "type": "object",
+      "properties": {
+        "paymentMethodId": {
+          "type": "string",
+          "description": "The payment method that the customer wants to remove."
+        }
+      },
+      "required": ["paymentMethodId"]
+    },
+    "v1DeletePaymentMethodResult": {
+      "type": "object",
+      "properties": {
+        "paymentMethodId": {
+          "type": "string",
+          "description": "The payment method that was removed."
+        }
+      },
+      "required": ["paymentMethodId"]
     },
     "v1DeletePolicyIntent": {
       "type": "object",
@@ -2587,6 +2732,18 @@
         },
         "createPolicyIntentV2": {
           "$ref": "#/definitions/v1CreatePolicyIntentV2"
+        },
+        "setPaymentMethodIntent": {
+          "$ref": "#/definitions/v1SetPaymentMethodIntent"
+        },
+        "activateBillingTierIntent": {
+          "$ref": "#/definitions/v1ActivateBillingTierIntent"
+        },
+        "deletePaymentMethodIntent": {
+          "$ref": "#/definitions/v1DeletePaymentMethodIntent"
+        },
+        "createPolicyIntentV3": {
+          "$ref": "#/definitions/v1CreatePolicyIntentV3"
         }
       },
       "description": "Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action.",
@@ -3006,6 +3163,15 @@
         },
         "deletePrivateKeyTagsResult": {
           "$ref": "#/definitions/v1DeletePrivateKeyTagsResult"
+        },
+        "setPaymentMethodResult": {
+          "$ref": "#/definitions/v1SetPaymentMethodResult"
+        },
+        "activateBillingTierResult": {
+          "$ref": "#/definitions/v1ActivateBillingTierResult"
+        },
+        "deletePaymentMethodResult": {
+          "$ref": "#/definitions/v1DeletePaymentMethodResult"
         }
       },
       "description": "Result of the intended action."
@@ -3026,6 +3192,67 @@
           }
         }
       }
+    },
+    "v1SetPaymentMethodIntent": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "string",
+          "description": "The account number of the customer's credit card.",
+          "title": "@inject_tag: validate:\"required,max=16,numeric\""
+        },
+        "cvv": {
+          "type": "string",
+          "description": "The verification digits of the customer's credit card.",
+          "title": "@inject_tag: validate:\"required,max=4,numeric\""
+        },
+        "expiryMonth": {
+          "type": "string",
+          "description": "The month that the credit card expires.",
+          "title": "@inject_tag: validate:\"required,numeric,len=2\""
+        },
+        "expiryYear": {
+          "type": "string",
+          "description": "The year that the credit card expires.",
+          "title": "@inject_tag: validate:\"required,numeric,len=4\""
+        },
+        "cardHolderEmail": {
+          "type": "string",
+          "description": "The email that will receive invoices for the credit card.",
+          "title": "@inject_tag: validate:\"required,email\""
+        },
+        "cardHolderName": {
+          "type": "string",
+          "description": "The name associated with the credit card.",
+          "title": "@inject_tag: validate:\"required,max=40\""
+        }
+      },
+      "required": [
+        "number",
+        "cvv",
+        "expiryMonth",
+        "expiryYear",
+        "cardHolderEmail",
+        "cardHolderName"
+      ]
+    },
+    "v1SetPaymentMethodResult": {
+      "type": "object",
+      "properties": {
+        "lastFour": {
+          "type": "string",
+          "description": "The last four digits of the credit card added."
+        },
+        "cardHolderName": {
+          "type": "string",
+          "description": "The name associated with the payment method."
+        },
+        "cardHolderEmail": {
+          "type": "string",
+          "description": "The email address associated with the payment method."
+        }
+      },
+      "required": ["lastFour", "cardHolderName", "cardHolderEmail"]
     },
     "v1SignRawPayloadIntent": {
       "type": "object",
