@@ -53,7 +53,7 @@ async function main() {
   });
 
   // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
-  const network = "goerli";
+  const network = "sepolia";
   const provider = new ethers.providers.InfuraProvider(network);
 
   const connectedSigner1 = turnkeySigner1.connect(provider);
@@ -86,9 +86,9 @@ async function main() {
   if (balance1.isZero() || balance2.isZero() || balance3.isZero()) {
     let warningMessage =
       "The transaction won't be broadcasted because your account balance is zero.\n";
-    if (network === "goerli") {
+    if (network === "sepolia") {
       warningMessage +=
-        "Use https://goerlifaucet.com/ to request funds on Goerli, then run the script again.\n";
+        "Use https://sepoliafaucet.com/ to request funds on Sepolia, then run the script again.\n";
     }
 
     console.warn(warningMessage);
@@ -125,14 +125,14 @@ async function main() {
   const safeAccountConfig: SafeAccountConfig = {
     owners,
     threshold,
-    // ...
+    // ... other options
   };
 
   const safeSdk1: Safe = await safeFactory.deploySafe({ safeAccountConfig });
   const safeAddress = safeSdk1.getAddress();
   print("New Gnosis Safe Address:", safeAddress);
 
-  // have other signers connect to deployed Safe
+  // Have other signers connect to deployed Safe
   const safeSdk2 = await safeSdk1.connect({
     ethAdapter: ethAdapter2,
     safeAddress,
@@ -142,7 +142,7 @@ async function main() {
     safeAddress,
   });
 
-  // fund the safe using signer 1
+  // Fund the safe using signer 1
   const fundingRequest = {
     to: safeAddress,
     value: ethers.utils.parseEther(transactionAmount),
@@ -154,31 +154,30 @@ async function main() {
     `https://${network}.etherscan.io/tx/${sentTx.hash}`
   );
 
-  // create Safe transaction using signer 1
+  // Create Safe transaction using signer 1
   const safeTransaction = await safeSdk1.createTransaction({
     safeTransactionData,
   });
 
-  // obtain onchain signature from signer 1
+  // Obtain *offchain* signature from signer 1 and attach it to the safeTransaction
   let txHash = await safeSdk1.getTransactionHash(safeTransaction);
-  let approveTxResponse = await safeSdk1.approveTransactionHash(txHash);
-  await approveTxResponse.transactionResponse?.wait();
+  let signature = await safeSdk1.signTransactionHash(txHash);
   print(
-    `Approved transaction using signer 1:`,
-    `https://${network}.etherscan.io/tx/${approveTxResponse.hash}`
+    `Signed transaction offchain using signer 1:`, signature.data
   );
+  safeTransaction.addSignature(signature);
 
-  // obtain onchain signature from signer 2
+  // Obtain onchain signature from signer 2
   txHash = await safeSdk2.getTransactionHash(safeTransaction);
-  approveTxResponse = await safeSdk2.approveTransactionHash(txHash);
+  let approveTxResponse = await safeSdk2.approveTransactionHash(txHash);
   await approveTxResponse.transactionResponse?.wait();
   print(
     `Approved transaction using signer 2:`,
     `https://${network}.etherscan.io/tx/${approveTxResponse.hash}`
   );
 
-  // obtain onchain signature from signer 3
-  // this is technically redundant given this signer will go on to execute the transaction,
+  // Obtain onchain signature from signer 3.
+  // This is technically redundant given this signer will go on to execute the transaction,
   // but is left in for demonstration purposes.
   txHash = await safeSdk3.getTransactionHash(safeTransaction);
   approveTxResponse = await safeSdk3.approveTransactionHash(txHash);
@@ -188,7 +187,7 @@ async function main() {
     `https://${network}.etherscan.io/tx/${approveTxResponse.hash}`
   );
 
-  // execute using last signer
+  // Execute transaction using last signer
   const executeTxResponse = await safeSdk3.executeTransaction(safeTransaction);
   await executeTxResponse.transactionResponse?.wait();
   print(
