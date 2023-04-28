@@ -1,16 +1,13 @@
-import { subtle, TextEncoder } from "./universal";
-import {
-  uint8ArrayToHexString,
-  hexStringToUint8Array,
-  hexStringToBase64urlString,
-} from "./encoding";
-import { pointDecode } from "./tink/elliptic_curves";
+/// <reference lib="dom" />
 
-export async function stamp(input: {
+import { uint8ArrayToHexString, convertTurnkeyApiKeyToJwk } from "./encoding";
+import type { TStamper } from "./shared";
+
+export const stamp: TStamper = async (input: {
   content: string;
   publicKey: string;
   privateKey: string;
-}) {
+}) => {
   const { content, publicKey, privateKey } = input;
 
   const key = await importTurnkeyApiKey({
@@ -24,7 +21,7 @@ export async function stamp(input: {
     scheme: "SIGNATURE_SCHEME_TK_API_P256",
     signature: signature,
   };
-}
+};
 
 async function importTurnkeyApiKey(input: {
   uncompressedPrivateKeyHex: string;
@@ -37,7 +34,7 @@ async function importTurnkeyApiKey(input: {
     compressedPublicKeyHex,
   });
 
-  return await subtle.importKey(
+  return await crypto.subtle.importKey(
     "jwk",
     jwk,
     {
@@ -55,7 +52,7 @@ async function signMessage(input: {
 }): Promise<string> {
   const { key, content } = input;
 
-  const signatureIeee1363 = await subtle.sign(
+  const signatureIeee1363 = await crypto.subtle.sign(
     {
       name: "ECDSA",
       hash: "SHA-256",
@@ -69,19 +66,6 @@ async function signMessage(input: {
   );
 
   return uint8ArrayToHexString(signatureDer);
-}
-
-function convertTurnkeyApiKeyToJwk(input: {
-  uncompressedPrivateKeyHex: string;
-  compressedPublicKeyHex: string;
-}): JsonWebKey {
-  const { uncompressedPrivateKeyHex, compressedPublicKeyHex } = input;
-
-  const jwk = pointDecode(hexStringToUint8Array(compressedPublicKeyHex));
-
-  jwk.d = hexStringToBase64urlString(uncompressedPrivateKeyHex);
-
-  return jwk;
 }
 
 /**

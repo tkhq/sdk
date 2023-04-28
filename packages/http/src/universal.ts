@@ -1,9 +1,20 @@
 /// <reference lib="dom" />
+import type { TStamper } from "./shared";
 
-export const subtle =
-  globalThis?.crypto?.subtle ?? require("crypto").webcrypto.subtle;
+let fetch: typeof globalThis.fetch;
 
-export const TextEncoder =
-  globalThis?.TextEncoder ?? require("util").TextEncoder;
+if (typeof globalThis?.fetch !== "undefined") {
+  fetch = globalThis.fetch;
+} else {
+  fetch = require("cross-fetch");
+}
 
-export const fetch = globalThis?.fetch ?? require("cross-fetch");
+let stamp: TStamper;
+
+if (typeof globalThis?.crypto?.subtle !== "undefined") {
+  stamp = require("./stamp.webcrypto").stamp;
+} else {
+  stamp = require("./stamp.node").stamp;
+}
+
+export { fetch, stamp };

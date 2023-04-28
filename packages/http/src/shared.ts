@@ -29,3 +29,13 @@ export class TurnkeyActivityError extends Error {
     this.cause = cause ?? null;
   }
 }
+
+export type TStamper = (input: {
+  content: string;
+  publicKey: string;
+  privateKey: string;
+}) => Promise<{
+  publicKey: string;
+  scheme: string;
+  signature: string;
+}>;
