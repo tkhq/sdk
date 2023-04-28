@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.10.0
+
+### Minor Changes
+
+- No public-facing changes
+
 ## 0.9.0
 
 ### Minor Changes
