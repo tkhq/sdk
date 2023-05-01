@@ -56,6 +56,10 @@ export type paths = {
     /** Create new Private Keys */
     post: operations["PublicApiService_CreatePrivateKeys"];
   };
+  "/public/v1/submit/create_users": {
+    /** Create Users in an existing Organization */
+    post: operations["PublicApiService_CreateUsers"];
+  };
   "/public/v1/submit/delete_api_keys": {
     /** Remove api keys from a User */
     post: operations["PublicApiService_DeleteApiKeys"];
@@ -234,6 +238,17 @@ export type definitions = {
     /** @description Unique identifier for a given User. */
     userId: string;
   };
+  v1ActivateBillingTierIntent: {
+    /**
+     * @inject_tag: validate:"required"
+     * @description The product that the customer wants to subscribe to.
+     */
+    productId: string;
+  };
+  v1ActivateBillingTierResult: {
+    /** @description The id of the product being subscribed to. */
+    productId: string;
+  };
   /** @description An action that can that can be taken within the Turnkey infrastructure. */
   v1Activity: {
     /** @description Unique identifier for a given Activity object. */
@@ -294,7 +309,10 @@ export type definitions = {
     | "ACTIVITY_TYPE_DELETE_AUTHENTICATORS"
     | "ACTIVITY_TYPE_CREATE_AUTHENTICATORS"
     | "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"
-    | "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS";
+    | "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"
+    | "ACTIVITY_TYPE_SET_PAYMENT_METHOD"
+    | "ACTIVITY_TYPE_ACTIVATE_BILLING_TIER"
+    | "ACTIVITY_TYPE_DELETE_PAYMENT_METHOD";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -481,6 +499,25 @@ export type definitions = {
     effect: definitions["immutableactivityv1Effect"];
     notes?: string;
   };
+  v1CreatePolicyIntentV3: {
+    /**
+     * @inject_tag: validate:"required,max=40"
+     * @description Human-readable name for a Policy.
+     */
+    policyName: string;
+    effect: definitions["immutableactivityv1Effect"];
+    /**
+     * @inject_tag: validate:"required"
+     * @description The condition expression that triggers the Effect
+     */
+    condition: string;
+    /**
+     * @inject_tag: validate:"required"
+     * @description The consensus expression that triggers the Effect
+     */
+    consensus: string;
+    notes?: string;
+  };
   v1CreatePolicyRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_CREATE_POLICY";
@@ -556,6 +593,15 @@ export type definitions = {
      * @description A list of Users.
      */
     users: definitions["v1UserParams"][];
+  };
+  v1CreateUsersRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_USERS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateUsersIntent"];
   };
   v1CreateUsersResult: {
     /** @description A list of User IDs. */
@@ -644,6 +690,14 @@ export type definitions = {
   v1DeleteOrganizationResult: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
+  };
+  v1DeletePaymentMethodIntent: {
+    /** @description The payment method that the customer wants to remove. */
+    paymentMethodId: string;
+  };
+  v1DeletePaymentMethodResult: {
+    /** @description The payment method that was removed. */
+    paymentMethodId: string;
   };
   v1DeletePolicyIntent: {
     /**
@@ -839,6 +893,10 @@ export type definitions = {
     createPrivateKeyTagIntent?: definitions["v1CreatePrivateKeyTagIntent"];
     deletePrivateKeyTagsIntent?: definitions["v1DeletePrivateKeyTagsIntent"];
     createPolicyIntentV2?: definitions["v1CreatePolicyIntentV2"];
+    setPaymentMethodIntent?: definitions["v1SetPaymentMethodIntent"];
+    activateBillingTierIntent?: definitions["v1ActivateBillingTierIntent"];
+    deletePaymentMethodIntent?: definitions["v1DeletePaymentMethodIntent"];
+    createPolicyIntentV3?: definitions["v1CreatePolicyIntentV3"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1005,11 +1063,54 @@ export type definitions = {
     createApiKeysResult?: definitions["v1CreateApiKeysResult"];
     createPrivateKeyTagResult?: definitions["v1CreatePrivateKeyTagResult"];
     deletePrivateKeyTagsResult?: definitions["v1DeletePrivateKeyTagsResult"];
+    setPaymentMethodResult?: definitions["v1SetPaymentMethodResult"];
+    activateBillingTierResult?: definitions["v1ActivateBillingTierResult"];
+    deletePaymentMethodResult?: definitions["v1DeletePaymentMethodResult"];
   };
   v1SelectorV2: {
     subject?: string;
     operator?: definitions["immutableactivityv1Operator"];
     targets?: string[];
+  };
+  v1SetPaymentMethodIntent: {
+    /**
+     * @inject_tag: validate:"required,max=16,numeric"
+     * @description The account number of the customer's credit card.
+     */
+    number: string;
+    /**
+     * @inject_tag: validate:"required,max=4,numeric"
+     * @description The verification digits of the customer's credit card.
+     */
+    cvv: string;
+    /**
+     * @inject_tag: validate:"required,numeric,len=2"
+     * @description The month that the credit card expires.
+     */
+    expiryMonth: string;
+    /**
+     * @inject_tag: validate:"required,numeric,len=4"
+     * @description The year that the credit card expires.
+     */
+    expiryYear: string;
+    /**
+     * @inject_tag: validate:"required,email"
+     * @description The email that will receive invoices for the credit card.
+     */
+    cardHolderEmail: string;
+    /**
+     * @inject_tag: validate:"required,max=40"
+     * @description The name associated with the credit card.
+     */
+    cardHolderName: string;
+  };
+  v1SetPaymentMethodResult: {
+    /** @description The last four digits of the credit card added. */
+    lastFour: string;
+    /** @description The name associated with the payment method. */
+    cardHolderName: string;
+    /** @description The email address associated with the payment method. */
+    cardHolderEmail: string;
   };
   v1SignRawPayloadIntent: {
     /**
@@ -1464,6 +1565,32 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreatePrivateKeysRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create Users in an existing Organization */
+  PublicApiService_CreateUsers: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateUsersRequest"];
       };
     };
     responses: {
