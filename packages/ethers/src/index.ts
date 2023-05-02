@@ -1,15 +1,16 @@
-import {
-  ethers,
-  type UnsignedTransaction,
-  type Bytes,
-  type TypedDataDomain,
-  type TypedDataField,
-} from "ethers";
+import { ethers } from "ethers";
 import {
   TurnkeyApi,
   TurnkeyActivityError,
   init as httpInit,
 } from "@turnkey/http";
+import type { TypedDataSigner } from "@ethersproject/abstract-signer";
+import type {
+  UnsignedTransaction,
+  Bytes,
+  TypedDataDomain,
+  TypedDataField,
+} from "ethers";
 
 type TConfig = {
   apiPublicKey: string;
@@ -19,7 +20,7 @@ type TConfig = {
   privateKeyId: string;
 };
 
-export class TurnkeySigner extends ethers.Signer {
+export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
   private readonly config: TConfig;
 
   public readonly organizationId: string;

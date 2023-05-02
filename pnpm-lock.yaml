@@ -131,9 +131,11 @@ importers:
 
   packages/ethers:
     specifiers:
+      '@ethersproject/abstract-signer': ^5.7.0
       '@turnkey/http': workspace:*
       ethers: ^5.0.0
     dependencies:
+      '@ethersproject/abstract-signer': 5.7.0
       '@turnkey/http': link:../http
     devDependencies:
       ethers: 5.7.2
@@ -4108,7 +4110,7 @@ packages:
     hasBin: true
     dev: false
 
-  /follow-redirects/1.15.2:
+  /follow-redirects/1.15.2_debug@4.3.4:
     resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
     engines: {node: '>=4.0'}
     peerDependencies:
@@ -4116,6 +4118,8 @@ packages:
     peerDependenciesMeta:
       debug:
         optional: true
+    dependencies:
+      debug: 4.3.4
     dev: false
 
   /for-each/0.3.3:
@@ -6194,7 +6198,7 @@ packages:
     dependencies:
       command-exists: 1.2.9
       commander: 3.0.2
-      follow-redirects: 1.15.2
+      follow-redirects: 1.15.2_debug@4.3.4
       fs-extra: 0.30.0
       js-sha3: 0.8.0
       memorystream: 0.3.1
@@ -6212,7 +6216,7 @@ packages:
     dependencies:
       command-exists: 1.2.9
       commander: 8.3.0
-      follow-redirects: 1.15.2
+      follow-redirects: 1.15.2_debug@4.3.4
       js-sha3: 0.8.0
       memorystream: 0.3.1
       semver: 5.7.1
