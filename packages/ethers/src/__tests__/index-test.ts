@@ -1,4 +1,6 @@
+import { setBalance } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "ethers";
+import hre from "hardhat";
 import { test, expect, beforeEach, describe } from "@jest/globals";
 import { TurnkeySigner, TurnkeyActivityError } from "../";
 
@@ -55,7 +57,7 @@ describe("TurnkeySigner", () => {
       `process.env.BANNED_TO_ADDRESS`
     );
 
-    const provider = new ethers.providers.InfuraProvider("goerli");
+    const provider = hre.ethers.provider;
 
     connectedSigner = new TurnkeySigner({
       apiPublicKey,
@@ -66,12 +68,16 @@ describe("TurnkeySigner", () => {
     }).connect(provider);
 
     chainId = (await connectedSigner.provider!.getNetwork()).chainId;
+
+    setBalance(expectedEthAddress, ethers.utils.parseEther("999999"));
+  });
+
+  testCase("basics", async () => {
+    expect(ethers.Signer.isSigner(connectedSigner)).toBe(true);
+    expect(await connectedSigner.getAddress()).toBe(expectedEthAddress);
   });
 
   testCase("it signs transactions", async () => {
-    expect(ethers.Signer.isSigner(connectedSigner)).toBe(true);
-    expect(await connectedSigner.getAddress()).toBe(expectedEthAddress);
-
     const tx = await connectedSigner.signTransaction({
       to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
       value: ethers.utils.parseEther("1.0"),
@@ -84,6 +90,20 @@ describe("TurnkeySigner", () => {
     });
 
     expect(tx).toMatch(/^0x/);
+  });
+
+  testCase("it sends transactions", async () => {
+    const tx = await connectedSigner.sendTransaction({
+      to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
+      value: ethers.utils.parseEther("2"),
+      type: 2,
+    });
+    const receipt = await tx.wait();
+
+    expect(receipt.status).toBe(1);
+    expect(receipt.type).toBe(2);
+    expect(receipt.from).toBe(expectedEthAddress);
+    expect(receipt.transactionHash).toMatch(/^0x/);
   });
 
   testCase(
