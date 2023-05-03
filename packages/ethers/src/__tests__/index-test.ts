@@ -1,3 +1,4 @@
+import { Eip1193Bridge } from "@ethersproject/experimental";
 import { setBalance } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "ethers";
 import hre from "hardhat";
@@ -19,6 +20,7 @@ describe("TurnkeySigner", () => {
   let chainId: number;
   let expectedEthAddress: string;
   let bannedToAddress: string;
+  let eip1193: Eip1193Bridge;
 
   beforeEach(async () => {
     if (!process.env.BANNED_TO_ADDRESS) {
@@ -57,6 +59,7 @@ describe("TurnkeySigner", () => {
       `process.env.BANNED_TO_ADDRESS`
     );
 
+    // @ts-expect-error
     const provider = hre.ethers.provider;
 
     connectedSigner = new TurnkeySigner({
@@ -68,6 +71,8 @@ describe("TurnkeySigner", () => {
     }).connect(provider);
 
     chainId = (await connectedSigner.provider!.getNetwork()).chainId;
+
+    eip1193 = new Eip1193Bridge(connectedSigner, provider);
 
     setBalance(expectedEthAddress, ethers.utils.parseEther("999999"));
   });
@@ -193,6 +198,36 @@ describe("TurnkeySigner", () => {
         signTypedDataSignature
       )
     ).toEqual(expectedEthAddress);
+  });
+
+  describe("it signs walletconnect v1 payloads, bridged via EIP-1193", () => {
+    // https://docs.walletconnect.com/1.0/json-rpc-api-methods/ethereum
+
+    testCase("Uniswap payload", async () => {
+      const payload: any = {
+        id: 1683062025301507,
+        jsonrpc: "2.0",
+        method: "eth_sendTransaction",
+        params: [
+          {
+            gas: "0x2fe08", // See comment below
+            value: "0xf4240",
+            from: "0x064c0cfdd7c485eba21988ded4dbcd9358556842", // See comment below
+            to: "0x4648a43b2c14da09fdf82b161150d3f634f40491",
+            data: "0x3593564c000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000006451840800000000000000000000000000000000000000000000000000000000000000020b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000f42400000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000f4240000000000000000000000000000000000000000000000000000000000677493600000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002bb4fbf271143f4fbf7b91a5ded31805e42b2208d6000bb81f9840a85d5af5bf1d1762f925bdaddc4201f984000000000000000000000000000000000000000000",
+          },
+        ],
+      };
+
+      // NOTE: you can't pass `gas` and `from` as-is to `Eip1193Bridge`
+      // See https://github.com/ethers-io/ethers.js/issues/1683
+      delete payload.params[0].gas;
+      // In a real-world scenario you should also verify that `from` matches the wallet's address
+      delete payload.params[0].from;
+
+      const tx = await eip1193.request(payload);
+      expect(tx).toMatch(/^0x/);
+    });
   });
 });
 

@@ -45,6 +45,7 @@
     "@turnkey/http": "workspace:*"
   },
   "devDependencies": {
+    "@ethersproject/experimental": "^5.7.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "ethers": "^5.0.0",
