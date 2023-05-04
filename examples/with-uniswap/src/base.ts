@@ -127,13 +127,17 @@ export async function executeTrade(
 
   console.log(`Swap method parameters: ${JSON.stringify(methodParameters)}`);
 
+  const feeData = await provider.getFeeData();
+
   const tx = {
     data: methodParameters.calldata,
     to: SWAP_ROUTER_ADDRESS,
     value: methodParameters.value,
     from: address,
-    maxFeePerGas: DEFAULT_MAX_FEE_PER_GAS,
-    maxPriorityFeePerGas: DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
+    // the following gas-related fields can be omitted, in which case Ethers will automatically populate them
+    maxFeePerGas: feeData.maxFeePerGas || DEFAULT_MAX_FEE_PER_GAS,
+    maxPriorityFeePerGas:
+      feeData.maxPriorityFeePerGas || DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
   };
 
   return await connectedSigner.sendTransaction(tx);
