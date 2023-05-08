@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.11.0
+
+### Minor Changes
+
+- New `/submit/create_users` endpoint: `TurnkeyApi.postCreateUsers(...)`
+
 ## 0.10.0
 
 ### Minor Changes
