@@ -1,5 +1,16 @@
 # @turnkey/ethers
 
+## 0.11.0
+
+### Minor Changes
+
+- `TurnkeySigner` now conforms to ethers' `TypedDataSigner` interface
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@0.11.0
+
 ## 0.10.0
 
 ### Minor Changes

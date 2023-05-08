@@ -1448,7 +1448,9 @@
         "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS",
         "ACTIVITY_TYPE_SET_PAYMENT_METHOD",
         "ACTIVITY_TYPE_ACTIVATE_BILLING_TIER",
-        "ACTIVITY_TYPE_DELETE_PAYMENT_METHOD"
+        "ACTIVITY_TYPE_DELETE_PAYMENT_METHOD",
+        "ACTIVITY_TYPE_CREATE_POLICY_V2",
+        "ACTIVITY_TYPE_CREATE_POLICY_V3"
       ],
       "description": "Type of Activity, such as Add User, or Sign Transaction."
     },
@@ -1848,26 +1850,24 @@
         },
         "condition": {
           "type": "string",
-          "description": "The condition expression that triggers the Effect",
-          "title": "@inject_tag: validate:\"required\""
+          "description": "The condition expression that triggers the Effect"
         },
         "consensus": {
           "type": "string",
-          "description": "The consensus expression that triggers the Effect",
-          "title": "@inject_tag: validate:\"required\""
+          "description": "The consensus expression that triggers the Effect"
         },
         "notes": {
           "type": "string"
         }
       },
-      "required": ["policyName", "effect", "condition", "consensus"]
+      "required": ["policyName", "effect"]
     },
     "v1CreatePolicyRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_POLICY"]
+          "enum": ["ACTIVITY_TYPE_CREATE_POLICY_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -2965,6 +2965,14 @@
         "notes": {
           "type": "string",
           "description": "Human-readable notes added by a User to describe a particular policy."
+        },
+        "consensus": {
+          "type": "string",
+          "description": "A consensus expression that evalutes to true or false."
+        },
+        "condition": {
+          "type": "string",
+          "description": "A condition expression that evalutes to true or false."
         }
       },
       "required": [
@@ -2974,7 +2982,9 @@
         "selectors",
         "createdAt",
         "updatedAt",
-        "notes"
+        "notes",
+        "consensus",
+        "condition"
       ]
     },
     "v1PrivateKey": {

@@ -312,7 +312,9 @@ export type definitions = {
     | "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"
     | "ACTIVITY_TYPE_SET_PAYMENT_METHOD"
     | "ACTIVITY_TYPE_ACTIVATE_BILLING_TIER"
-    | "ACTIVITY_TYPE_DELETE_PAYMENT_METHOD";
+    | "ACTIVITY_TYPE_DELETE_PAYMENT_METHOD"
+    | "ACTIVITY_TYPE_CREATE_POLICY_V2"
+    | "ACTIVITY_TYPE_CREATE_POLICY_V3";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -506,21 +508,15 @@ export type definitions = {
      */
     policyName: string;
     effect: definitions["immutableactivityv1Effect"];
-    /**
-     * @inject_tag: validate:"required"
-     * @description The condition expression that triggers the Effect
-     */
-    condition: string;
-    /**
-     * @inject_tag: validate:"required"
-     * @description The consensus expression that triggers the Effect
-     */
-    consensus: string;
+    /** @description The condition expression that triggers the Effect */
+    condition?: string;
+    /** @description The consensus expression that triggers the Effect */
+    consensus?: string;
     notes?: string;
   };
   v1CreatePolicyRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_POLICY";
+    type: "ACTIVITY_TYPE_CREATE_POLICY_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
@@ -986,6 +982,10 @@ export type definitions = {
     updatedAt: definitions["v1Timestamp"];
     /** @description Human-readable notes added by a User to describe a particular policy. */
     notes: string;
+    /** @description A consensus expression that evalutes to true or false. */
+    consensus: string;
+    /** @description A condition expression that evalutes to true or false. */
+    condition: string;
   };
   v1PrivateKey: {
     /** @description Unique identifier for a given Private Key. */
