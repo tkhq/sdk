@@ -139,14 +139,14 @@ describe("TurnkeySigner", () => {
           activityStatus,
           activityType,
         }).toMatchInlineSnapshot(`
-        {
-          "activityId": null,
-          "activityStatus": null,
-          "activityType": null,
-          "cause": [Error: 500: Internal Server Error | Internal error 2: unable to execute ruling: ump denied request explicitly],
-          "message": "Failed to sign",
-        }
-      `);
+          {
+            "activityId": null,
+            "activityStatus": null,
+            "activityType": null,
+            "cause": [Error: Turnkey error 2: unable to execute ruling: ump denied request explicitly],
+            "message": "Failed to sign: Turnkey error 2: unable to execute ruling: ump denied request explicitly",
+          }
+        `);
       }
     }
   );

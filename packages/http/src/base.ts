@@ -71,16 +71,14 @@ export async function request<
   if (!response.ok) {
     // Can't use native `cause` here because it's not well supported on Node v16
     // https://node.green/#ES2022-features-Error-cause-property
-    let internalErrorMessage: string | null = null;
+    let turnkeyErrorMessage: string | null = null;
     try {
       const { code, message } = (await response.json()) as any;
-      internalErrorMessage = `Internal error ${code}: ${message}`;
+      turnkeyErrorMessage = `Turnkey error ${code}: ${message}`;
     } catch (_) {}
 
     throw new Error(
-      `${response.status}: ${response.statusText}${
-        internalErrorMessage ? " | " + internalErrorMessage : ""
-      }`
+      turnkeyErrorMessage ?? `${response.status} ${response.statusText}`
     );
   }
 

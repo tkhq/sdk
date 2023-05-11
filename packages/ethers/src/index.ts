@@ -117,7 +117,7 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
       }
 
       throw new TurnkeyActivityError({
-        message: `Failed to sign`,
+        message: `Failed to sign: ${(error as Error).message}`,
         cause: error as Error,
       });
     }
@@ -161,7 +161,7 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
       }
 
       throw new TurnkeyActivityError({
-        message: `Failed to sign`,
+        message: `Failed to sign: ${(error as Error).message}`,
         cause: error as Error,
       });
     }
