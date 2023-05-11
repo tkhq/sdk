@@ -1,5 +1,16 @@
 # @turnkey/ethers
 
+## 0.12.0
+
+### Minor Changes
+
+- Error messages now contain Turnkey-specific error code and message
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@0.12.0
+
 ## 0.11.0
 
 ### Minor Changes

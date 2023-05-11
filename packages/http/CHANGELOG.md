@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.12.0
+
+### Minor Changes
+
+- Error messages now contain Turnkey-specific error code and message
+
 ## 0.11.0
 
 ### Minor Changes
