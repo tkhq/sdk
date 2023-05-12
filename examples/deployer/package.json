@@ -3,8 +3,8 @@
   "version": "0.1.3",
   "private": true,
   "scripts": {
-    "start": "ts-node src/index.ts",
-    "compile": "ts-node src/compile.ts",
+    "start": "tsx src/index.ts",
+    "compile": "tsx src/compile.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
