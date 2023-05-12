@@ -5,6 +5,7 @@
   "scripts": {
     "start": "tsx src/index.ts",
     "compile": "tsx src/compile.ts",
+    "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

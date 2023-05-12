@@ -4,12 +4,12 @@
   "description": "Public monorepo for Turnkey SDK & API",
   "scripts": {
     "changeset": "changeset",
-    "build-all": "pnpm run clean-all && pnpm run -r --no-bail build",
-    "clean-all": "pnpm run -r --no-bail clean",
+    "build-all": "pnpm run clean-all && tsc --build tsconfig.mono.json",
+    "clean-all": "pnpm run -r clean",
     "prettier-all:check": "prettier --check \"**/*.{css,html,js,json,md,ts,tsx,yaml,yml}\" --ignore-path ./.prettierignore",
     "prettier-all:write": "prettier --write \"**/*.{css,html,js,json,md,ts,tsx,yaml,yml}\" --ignore-path ./.prettierignore",
     "test-all": "pnpm run -r --no-bail test",
-    "typecheck-all": "pnpm run -r --no-bail typecheck"
+    "typecheck-all": "pnpm run -r typecheck"
   },
   "license": "Apache-2.0",
   "engines": {

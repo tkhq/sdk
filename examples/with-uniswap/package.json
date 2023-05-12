@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "tsx src/scripts/main.ts",
+    "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
