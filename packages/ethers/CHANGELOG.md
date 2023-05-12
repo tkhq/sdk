@@ -1,5 +1,16 @@
 # @turnkey/ethers
 
+## 0.13.0
+
+### Minor Changes
+
+- No public facing changes
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@0.13.0
+
 ## 0.12.0
 
 ### Minor Changes
