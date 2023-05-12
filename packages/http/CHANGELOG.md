@@ -1,5 +1,13 @@
 # @turnkey/http
 
+## 0.13.0
+
+### Minor Changes
+
+- New `/submit/create_api_only_users` endpoint: `TurnkeyApi.postCreateApiOnlyUsers(...)`
+- Marked `TurnkeyApi.postCreateUsers(...)` as deprecated
+- Improved documentation on methods (via TSDoc)
+
 ## 0.12.0
 
 ### Minor Changes
