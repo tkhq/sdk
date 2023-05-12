@@ -44,6 +44,10 @@ export type paths = {
     /** Add api keys to an existing User */
     post: operations["PublicApiService_CreateApiKeys"];
   };
+  "/public/v1/submit/create_api_only_users": {
+    /** Create API-only Users in an existing Organization */
+    post: operations["PublicApiService_CreateApiOnlyUsers"];
+  };
   "/public/v1/submit/create_invitations": {
     /** Create Invitations to join an existing Organization */
     post: operations["PublicApiService_CreateInvitations"];
@@ -314,7 +318,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_ACTIVATE_BILLING_TIER"
     | "ACTIVITY_TYPE_DELETE_PAYMENT_METHOD"
     | "ACTIVITY_TYPE_CREATE_POLICY_V2"
-    | "ACTIVITY_TYPE_CREATE_POLICY_V3";
+    | "ACTIVITY_TYPE_CREATE_POLICY_V3"
+    | "ACTIVITY_TYPE_CREATE_API_ONLY_USERS";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -326,7 +331,7 @@ export type definitions = {
   };
   v1ApiKeyParams: {
     /**
-     * @inject_tag: validate:"required,max=40"
+     * @inject_tag: validate:"required,tk_label_length,tk_label"
      * @description Human-readable name for an API Key.
      */
     apiKeyName: string;
@@ -335,6 +340,28 @@ export type definitions = {
      * @description The public component of a cryptographic key pair used to sign messages and transactions.
      */
     publicKey: string;
+  };
+  v1ApiOnlyUserParams: {
+    /**
+     * @inject_tag: validate:"required,tk_label_length,tk_label"
+     * @description The name of the new API-only User.
+     */
+    userName: string;
+    /**
+     * @inject_tag: validate:"omitempty,email,tk_email"
+     * @description The email address for this API-only User (optional).
+     */
+    userEmail?: string;
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of tags assigned to the new API-only User.
+     */
+    userTags: string[];
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of API Key parameters.
+     */
+    apiKeys: definitions["v1ApiKeyParams"][];
   };
   v1ApproveActivityIntent: {
     /**
@@ -374,7 +401,7 @@ export type definitions = {
   };
   v1AuthenticatorParams: {
     /**
-     * @inject_tag: validate:"required,max=40"
+     * @inject_tag: validate:"required,tk_label_length,tk_label"
      * @description Human-readable name for an Authenticator.
      */
     authenticatorName: string;
@@ -415,6 +442,26 @@ export type definitions = {
     /** @description A list of API Key IDs. */
     apiKeyIds: string[];
   };
+  v1CreateApiOnlyUsersIntent: {
+    /**
+     * @inject_tag: validate:"required,dive,required"
+     * @description A list of API-only Users to create.
+     */
+    apiOnlyUsers: definitions["v1ApiOnlyUserParams"][];
+  };
+  v1CreateApiOnlyUsersRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateApiOnlyUsersIntent"];
+  };
+  v1CreateApiOnlyUsersResult: {
+    /** @description A list of API-only User IDs. */
+    userIds: string[];
+  };
   v1CreateAuthenticatorsIntent: {
     /**
      * @inject_tag: validate:"dive,required"
@@ -453,12 +500,12 @@ export type definitions = {
   };
   v1CreateOrganizationIntent: {
     /**
-     * @inject_tag: validate:"required,max=40"
+     * @inject_tag: validate:"required,tk_label_length"
      * @description Human-readable name for an Organization.
      */
     organizationName: string;
     /**
-     * @inject_tag: validate:"required,email"
+     * @inject_tag: validate:"required,email,tk_email"
      * @description The root user's email address.
      */
     rootEmail: string;
@@ -475,7 +522,7 @@ export type definitions = {
   };
   v1CreatePolicyIntent: {
     /**
-     * @inject_tag: validate:"required,max=40"
+     * @inject_tag: validate:"required,tk_label_length"
      * @description Human-readable name for a Policy.
      */
     policyName: string;
@@ -489,7 +536,7 @@ export type definitions = {
   };
   v1CreatePolicyIntentV2: {
     /**
-     * @inject_tag: validate:"required,max=40"
+     * @inject_tag: validate:"required,tk_label_length"
      * @description Human-readable name for a Policy.
      */
     policyName: string;
@@ -503,7 +550,7 @@ export type definitions = {
   };
   v1CreatePolicyIntentV3: {
     /**
-     * @inject_tag: validate:"required,max=40"
+     * @inject_tag: validate:"required,tk_label,tk_label_length"
      * @description Human-readable name for a Policy.
      */
     policyName: string;
@@ -516,12 +563,12 @@ export type definitions = {
   };
   v1CreatePolicyRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_POLICY_V2";
+    type: "ACTIVITY_TYPE_CREATE_POLICY_V3";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1CreatePolicyIntentV2"];
+    parameters: definitions["v1CreatePolicyIntentV3"];
   };
   v1CreatePolicyResult: {
     /** @description Unique identifier for a given Policy. */
@@ -529,7 +576,7 @@ export type definitions = {
   };
   v1CreatePrivateKeyTagIntent: {
     /**
-     * @inject_tag: validate:"required,max=20"
+     * @inject_tag: validate:"required,tk_label,tk_label_length"
      * @description Human-readable name for a Private Key Tag.
      */
     privateKeyTagName: string;
@@ -567,7 +614,7 @@ export type definitions = {
   };
   v1CreateUserTagIntent: {
     /**
-     * @inject_tag: validate:"required,max=20"
+     * @inject_tag: validate:"required,tk_label,tk_label_length"
      * @description Human-readable name for a User Tag.
      */
     userTagName: string;
@@ -768,6 +815,7 @@ export type definitions = {
     organizationId: string;
     /** @description Array of Activity Statuses filtering which Activities will be listed in the response. */
     filterByStatus?: definitions["v1ActivityStatus"][];
+    paginationOptions?: definitions["v1PaginationOptions"];
   };
   v1GetActivitiesResponse: {
     /** @description A list of Activities. */
@@ -893,6 +941,7 @@ export type definitions = {
     activateBillingTierIntent?: definitions["v1ActivateBillingTierIntent"];
     deletePaymentMethodIntent?: definitions["v1DeletePaymentMethodIntent"];
     createPolicyIntentV3?: definitions["v1CreatePolicyIntentV3"];
+    createApiOnlyUsersIntent?: definitions["v1CreateApiOnlyUsersIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -912,12 +961,12 @@ export type definitions = {
   };
   v1InvitationParams: {
     /**
-     * @inject_tag: validate:"required,max=40"
+     * @inject_tag: validate:"required,tk_label_length,tk_label"
      * @description The name of the intended Invitation recipient.
      */
     receiverUserName: string;
     /**
-     * @inject_tag: validate:"required,email"
+     * @inject_tag: validate:"required,email,tk_email"
      * @description The email address of the intended Invitation recipient.
      */
     receiverUserEmail: string;
@@ -957,6 +1006,17 @@ export type definitions = {
     deletedApiKeys?: definitions["v1ApiKey"][];
     deletedAuthenticators?: definitions["v1Authenticator"][];
     deletedTags?: definitions["datav1Tag"][];
+  };
+  v1PaginationOptions: {
+    /**
+     * Format: int32
+     * @description A limit of the number of object to be returned, between 1 and 100. Defaults to 10 if omitted or set to 0.
+     */
+    limit?: number;
+    /** @description A pagination cursor. This is an object ID that enables you to fetch all objects before this ID. */
+    before?: string;
+    /** @description A pagination cursor. This is an object ID that enables you to fetch all objects after this ID. */
+    after?: string;
   };
   /**
    * - PAYLOAD_ENCODING_UNSPECIFIED: Default value if payload encoding is not set explicitly
@@ -1003,7 +1063,7 @@ export type definitions = {
   };
   v1PrivateKeyParams: {
     /**
-     * @inject_tag: validate:"required,max=40"
+     * @inject_tag: validate:"required,tk_label_length,tk_label"
      * @description Human-readable name for a Private Key.
      */
     privateKeyName: string;
@@ -1066,6 +1126,7 @@ export type definitions = {
     setPaymentMethodResult?: definitions["v1SetPaymentMethodResult"];
     activateBillingTierResult?: definitions["v1ActivateBillingTierResult"];
     deletePaymentMethodResult?: definitions["v1DeletePaymentMethodResult"];
+    createApiOnlyUsersResult?: definitions["v1CreateApiOnlyUsersResult"];
   };
   v1SelectorV2: {
     subject?: string;
@@ -1094,12 +1155,12 @@ export type definitions = {
      */
     expiryYear: string;
     /**
-     * @inject_tag: validate:"required,email"
+     * @inject_tag: validate:"required,email,tk_email"
      * @description The email that will receive invoices for the credit card.
      */
     cardHolderEmail: string;
     /**
-     * @inject_tag: validate:"required,max=40"
+     * @inject_tag: validate:"required,tk_label_length"
      * @description The name associated with the credit card.
      */
     cardHolderName: string;
@@ -1201,11 +1262,14 @@ export type definitions = {
   };
   v1UserParams: {
     /**
-     * @inject_tag: validate:"required,max=40"
+     * @inject_tag: validate:"required,tk_label_length,tk_label"
      * @description Human-readable name for a User.
      */
     userName: string;
-    /** @description The user's email address. */
+    /**
+     * @inject_tag: validate:"omitempty,email,tk_email"
+     * @description The user's email address.
+     */
     userEmail?: string;
     accessType: definitions["immutableactivityv1AccessType"];
     /**
@@ -1487,6 +1551,32 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreateApiKeysRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create API-only Users in an existing Organization */
+  PublicApiService_CreateApiOnlyUsers: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateApiOnlyUsersRequest"];
       };
     };
     responses: {
