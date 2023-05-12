@@ -58,9 +58,9 @@ By default, this script will do the following:
 
 NOTES:
 
-- If the script exits because your account isn't funded, you can request funds via https://goerlifaucet.com/, https://faucet.paradigm.xyz/, or Coinbase Wallet (developer settings).
+- If the script exits because your account isn't funded, you can request funds via https://sepoliafaucet.com/ or Coinbase Wallet (developer settings).
 - Transactions will all be broadcasted sequentially.
-- Sepolia users: the Alchemy provider in Ethers v5 does not support Sepolia. Either use an alternative provider, or switch networks.
+- This example requires the usage of Sepolia + Infura specifically, as the Alchemy provider in Ethers v5 does not support Sepolia, and only Sepolia supports the Gnosis safe contract specified in the Safe SDK.
 
 See the following for a sample output:
 
@@ -69,44 +69,44 @@ Address 1:
         0x1Bce4a8De35Cf22aCaA4D167C722dD80C14Eb0Ee
 
 Balance 1:
-        0.034412557714194554 Ether
+        0.018938199472224931 Ether
 
 Transaction count 1:
-        20
+        23
 
 Address 2:
         0xf285510B55f62d6787399409418590c9B6d246Fe
 
 Balance 2:
-        0.0135694405114308 Ether
+        0.02460411999815256 Ether
 
 Transaction count 2:
-        4
+        5
 
 Address 3:
         0xE69b8ede844DB94fe726Cf2537992e61A6a6Ea2e
 
 Balance 3:
-        0.06095101662527444 Ether
+        0.023741618494127553 Ether
 
 Transaction count 3:
-        5
+        12
 
 New Gnosis Safe Address:
-        0x804ceF3146150033515EE212f13cd4fbEAE52f2a
+        0x10737C16995cBA89B7E2F880e21B18A0baccB9D4
 
-Sent 0.00001 Ether to 0x804ceF3146150033515EE212f13cd4fbEAE52f2a:
-        https://goerli.etherscan.io/tx/0x7d40034d769257cae94b990bfb979c7dc1328910765e55c38b698477e53d2fb2
+Sent 0.00001 Ether to 0x10737C16995cBA89B7E2F880e21B18A0baccB9D4:
+        https://sepolia.etherscan.io/tx/0xa631252ddd12186289328bfb2d1df1dad6c1682643a2aacc1e2596cec301b492
 
 Signed transaction offchain using signer 1. Signature:
-        0x1b0c320ee49ceda13712cfef4ac57b8c7a03fe7033f0e5f45ca2f9015455a65158e344753afe4253dbbe7dfc8b9b67c9076ffedde485585562b291f6489126c61b
+        0x124781badec42f95994c7b1896a7d61c6f3efeaae181d80ab2681911c2b0490f5b89d18e8604c79a1103869586f277fae49be8414e653503b5eaed6a4957c88e1b
 
 Signed transaction hash offchain using signer 2. Signature:
-        0x7059168da2f2c10776b9aa7797aa9dc2d18e78c20b3b481f1428a8c099592b6f6599080ddacc8fe49bded3e133ba0d6d7be3de7ce633e7bfa225aba894b580481f
+        0x5d532ad0bfd638e785786d936f6dd41ad87e04245215b5278cff1d17cb1f81773bcc3c1926b6b0619b191c0e7f0a510cee03185f059d72a81d831b6ac849e2d21f
 
-Approved transaction onchain using signer 3. Etherscan link:
-        https://goerli.etherscan.io/tx/0xdd9a42defdc7533856c33cb2bf69f05049667896c860ed1b17b3b2af5d0e0523
+^[Approved transaction onchain using signer 3. Etherscan link:
+        https://sepolia.etherscan.io/tx/0x72871b1e3cc1862ea12adb793d061a0c45ac6324e0d95bffae88f0ebeead0c30
 
 Executed transaction using signer 3. Etherscan link:
-        https://goerli.etherscan.io/tx/0xf67d40a06e068409fd2a4698f54a1cdf0311f6be33aae08c9f4740a944d92001
+        https://sepolia.etherscan.io/tx/0xcc6dafb34b950fd3a38d741c8a93c1612b1026a1dff39632aa2665195a5afda8
 ```
