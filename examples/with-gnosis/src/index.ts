@@ -52,8 +52,8 @@ async function main() {
     privateKeyId: process.env.PRIVATE_KEY_ID_3!,
   });
 
-  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
-  const network = "goerli";
+  // Bring your own provider (for the sake of this demo, we recommend using Sepolia + Infura)
+  const network = "sepolia";
   const provider = new ethers.providers.InfuraProvider(network);
 
   const connectedSigner1 = turnkeySigner1.connect(provider);
@@ -86,9 +86,9 @@ async function main() {
   if (balance1.isZero() || balance2.isZero() || balance3.isZero()) {
     let warningMessage =
       "The transaction won't be broadcasted because your account balance is zero.\n";
-    if (network === "goerli") {
+    if (network === "sepolia") {
       warningMessage +=
-        "Use https://goerlifaucet.com/ to request funds on Goerli, then run the script again.\n";
+        "Use https://sepoliafaucet.com/ to request funds on Sepolia, then run the script again.\n";
     }
 
     console.warn(warningMessage);
