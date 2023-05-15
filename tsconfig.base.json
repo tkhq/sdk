@@ -1,17 +1,13 @@
 {
   "extends": "@tsconfig/node16-strictest/tsconfig.json",
   "compilerOptions": {
+    "composite": true,
     "declaration": true,
     "declarationMap": true,
+    "incremental": true,
+    "isolatedModules": true,
     "noPropertyAccessFromIndexSignature": false,
     "resolveJsonModule": true,
     "sourceMap": true
-  },
-  "ts-node": {
-    "compilerOptions": {
-      "module": "CommonJS"
-    },
-    "files": true,
-    "transpileOnly": true
   }
 }

@@ -3,7 +3,8 @@
   "version": "0.1.3",
   "private": true,
   "scripts": {
-    "start": "ts-node src/scripts/index.ts",
+    "start": "tsx src/scripts/index.ts",
+    "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
