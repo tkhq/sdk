@@ -74,9 +74,11 @@ export async function request<
     let turnkeyErrorMessage: string | null = null;
     try {
       const { code, message, details } = (await response.json()) as any;
-      turnkeyErrorMessage = `Turnkey error ${code}: ${message} ${
-        details && `(Details: ${JSON.stringify(details)}`
-      } )`;
+      turnkeyErrorMessage = `Turnkey error ${code}: ${message}`;
+
+      if (details != null) {
+        turnkeyErrorMessage += ` (Details: ${JSON.stringify(details)})`;
+      }
     } catch (_) {}
 
     throw new Error(

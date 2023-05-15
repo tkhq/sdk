@@ -73,9 +73,9 @@ test("requests return grpc status details as part of their errors", async () => 
         organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
       },
     });
-  } catch (e) {
+  } catch (e: any) {
     expect(e.message).toEqual(
-      `Turnkey error 1: invalid request (Details: [{\"@type\":\"type.googleapis.com/google.rpc.BadRequest\",\"fieldViolations\":[{\"field\":\"privateKeys.0.privateKeyName\",\"description\":\"This field must be unique.\"}]}] )`
+      `Turnkey error 1: invalid request (Details: [{\"@type\":\"type.googleapis.com/google.rpc.BadRequest\",\"fieldViolations\":[{\"field\":\"privateKeys.0.privateKeyName\",\"description\":\"This field must be unique.\"}]}])`
     );
   }
 });
