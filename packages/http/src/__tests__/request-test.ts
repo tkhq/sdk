@@ -77,5 +77,10 @@ test("requests return grpc status details as part of their errors", async () => 
     expect(e.message).toEqual(
       `Turnkey error 1: invalid request (Details: [{\"@type\":\"type.googleapis.com/google.rpc.BadRequest\",\"fieldViolations\":[{\"field\":\"privateKeys.0.privateKeyName\",\"description\":\"This field must be unique.\"}]}])`
     );
+
+    expect(e.details.length).toEqual(1);
+    expect(e.details[0].fieldViolations.length).toEqual(1);
+    expect(e.details[0].fieldViolations[0].field).toEqual("privateKeys.0.privateKeyName");
+    expect(e.details[0].fieldViolations[0].description).toEqual("This field must be unique.")
   }
 });

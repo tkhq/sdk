@@ -1,6 +1,7 @@
 import { fetch, stamp } from "./universal";
 import { getConfig } from "./config";
 import { stringToBase64urlString } from "./encoding";
+import { TurnkeyRequestError, GrpcStatus } from "./shared";
 
 type TBasicType = string;
 
@@ -71,19 +72,15 @@ export async function request<
   if (!response.ok) {
     // Can't use native `cause` here because it's not well supported on Node v16
     // https://node.green/#ES2022-features-Error-cause-property
-    let turnkeyErrorMessage: string | null = null;
+    
+    let res: GrpcStatus
     try {
-      const { code, message, details } = (await response.json()) as any;
-      turnkeyErrorMessage = `Turnkey error ${code}: ${message}`;
+      res = await response.json();
+    } catch (_) {
+      throw new Error(`${response.status} ${response.statusText}`)
+    }
 
-      if (details != null) {
-        turnkeyErrorMessage += ` (Details: ${JSON.stringify(details)})`;
-      }
-    } catch (_) {}
-
-    throw new Error(
-      turnkeyErrorMessage ?? `${response.status} ${response.statusText}`
-    );
+    throw new TurnkeyRequestError(res);
   }
 
   const data = await response.json();
