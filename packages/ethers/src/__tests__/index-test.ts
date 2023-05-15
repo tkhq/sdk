@@ -143,8 +143,8 @@ describe("TurnkeySigner", () => {
             "activityId": null,
             "activityStatus": null,
             "activityType": null,
-            "cause": [Error: Turnkey error 2: unable to execute ruling: ump denied request explicitly],
-            "message": "Failed to sign: Turnkey error 2: unable to execute ruling: ump denied request explicitly",
+            "cause": [Error: Turnkey error 2: unable to execute ruling: ump denied request explicitly (Details: [])],
+            "message": "Failed to sign: Turnkey error 2: unable to execute ruling: ump denied request explicitly (Details: [])",
           }
         `);
       }
