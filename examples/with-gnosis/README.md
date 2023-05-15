@@ -60,7 +60,7 @@ NOTES:
 
 - If the script exits because your account isn't funded, you can request funds via https://sepoliafaucet.com/ or Coinbase Wallet (developer settings).
 - Transactions will all be broadcasted sequentially.
-- This example requires the usage of Sepolia + Infura specifically, as the Alchemy provider in Ethers v5 does not support Sepolia, and only Sepolia supports the Gnosis safe contract specified in the Safe SDK.
+- For this example, we recommend the usage of Sepolia + Infura specifically: we've experienced more consistent performance for this example on Sepolia, which is not supported by the Alchemy provider in Ethers v5.
 
 See the following for a sample output:
 
@@ -104,7 +104,7 @@ Signed transaction offchain using signer 1. Signature:
 Signed transaction hash offchain using signer 2. Signature:
         0x5d532ad0bfd638e785786d936f6dd41ad87e04245215b5278cff1d17cb1f81773bcc3c1926b6b0619b191c0e7f0a510cee03185f059d72a81d831b6ac849e2d21f
 
-^[Approved transaction onchain using signer 3. Etherscan link:
+Approved transaction onchain using signer 3. Etherscan link:
         https://sepolia.etherscan.io/tx/0x72871b1e3cc1862ea12adb793d061a0c45ac6324e0d95bffae88f0ebeead0c30
 
 Executed transaction using signer 3. Etherscan link:

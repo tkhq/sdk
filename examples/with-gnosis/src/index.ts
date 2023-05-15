@@ -129,7 +129,6 @@ async function main() {
   };
 
   const safeSdk1: Safe = await safeFactory.deploySafe({ safeAccountConfig });
-  console.log('safe sdk 1', safeSdk1);
   const safeAddress = safeSdk1.getAddress();
   print("New Gnosis Safe Address:", safeAddress);
 
