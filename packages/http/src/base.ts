@@ -72,12 +72,12 @@ export async function request<
   if (!response.ok) {
     // Can't use native `cause` here because it's not well supported on Node v16
     // https://node.green/#ES2022-features-Error-cause-property
-    
-    let res: GrpcStatus
+
+    let res: GrpcStatus;
     try {
       res = await response.json();
     } catch (_) {
-      throw new Error(`${response.status} ${response.statusText}`)
+      throw new Error(`${response.status} ${response.statusText}`);
     }
 
     throw new TurnkeyRequestError(res);
