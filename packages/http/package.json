@@ -29,7 +29,7 @@
     "access": "public"
   },
   "scripts": {
-    "prepublishOnly": "pnpm run clean && pnpm run build",
+    "prepublishOnly": "pnpm -w run clean-all && pnpm -w run build-all",
     "build": "tsc",
     "clean": "rimraf ./dist ./.cache",
     "test": "jest",
