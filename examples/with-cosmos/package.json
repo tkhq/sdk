@@ -8,9 +8,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@turnkey/ethers": "workspace:*",
+    "@cosmjs/crypto": "^0.30.1",
+    "@cosmjs/encoding": "^0.30.1",
     "@turnkey/http": "workspace:*",
-    "dotenv": "^16.0.3",
-    "ethers": "^5.7.2"
+    "dotenv": "^16.0.3"
   }
 }

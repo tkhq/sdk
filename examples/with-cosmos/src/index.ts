@@ -6,6 +6,8 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import * as crypto from "crypto";
 import { TurnkeyApi, init as httpInit, withAsyncPolling } from "@turnkey/http";
+import { fromHex, toHex } from "@cosmjs/encoding";
+import { Secp256k1 } from "@cosmjs/crypto";
 
 async function main() {
   httpInit({
@@ -14,13 +16,27 @@ async function main() {
     baseUrl: process.env.BASE_URL!,
   });
 
+  const privateKeyName = `Cosmos Key ${crypto.randomBytes(2).toString("hex")}`;
+
+  const { privateKeyId, compressedPublicKey } = await createCosmosPrivateKey({
+    privateKeyName,
+  });
+
+  print("Private key ID:", privateKeyId);
+  print("Compressed public key:", compressedPublicKey);
+}
+
+async function createCosmosPrivateKey(input: {
+  privateKeyName: string;
+}): Promise<{ privateKeyId: string; compressedPublicKey: string }> {
+  const { privateKeyName } = input;
+
   const createKeyMutation = withAsyncPolling({
     request: TurnkeyApi.postCreatePrivateKeys,
     refreshIntervalMs: 250, // defaults to 500ms
   });
 
-  const privateKeyName = `Cosmos Key ${crypto.randomBytes(2).toString("hex")}`;
-
+  // TODO: fix/simplify the address derivation after `ADDRESS_FORMAT_COMPRESSED` is done
   const activity = await createKeyMutation({
     body: {
       type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
@@ -30,7 +46,7 @@ async function main() {
           {
             privateKeyName,
             curve: "CURVE_SECP256K1",
-            addressFormats: ["ADDRESS_FORMAT_COMPRESSED"],
+            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
             privateKeyTags: [],
           },
         ],
@@ -43,8 +59,6 @@ async function main() {
     activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
   );
 
-  print(`Created ${privateKeyName}:`, privateKeyId);
-
   const keyInfo = await TurnkeyApi.postGetPrivateKey({
     body: {
       organizationId: process.env.ORGANIZATION_ID!,
@@ -52,7 +66,12 @@ async function main() {
     },
   });
 
-  console.log(keyInfo);
+  const uncompressedPublicKey = keyInfo.privateKey.publicKey;
+  const compressedPublicKey = toHex(
+    Secp256k1.compressPubkey(fromHex(uncompressedPublicKey))
+  );
+
+  return { privateKeyId, compressedPublicKey };
 }
 
 main().catch((error) => {
