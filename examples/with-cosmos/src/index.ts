@@ -5,9 +5,11 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import * as crypto from "crypto";
-import { TurnkeyApi, init as httpInit, withAsyncPolling } from "@turnkey/http";
+import { init as httpInit } from "@turnkey/http";
 import { TurnkeyDirectWallet } from "./TurnkeyDirectWallet";
 import { toHex } from "@cosmjs/encoding";
+import { createCosmosPrivateKey } from "./createCosmosPrivateKey";
+import { print, refineNonNull } from "./shared";
 
 async function main() {
   httpInit({
@@ -35,58 +37,7 @@ async function main() {
   print("Compressed public key:", toHex(account.pubkey));
 }
 
-async function createCosmosPrivateKey(input: {
-  privateKeyName: string;
-}): Promise<{ privateKeyId: string }> {
-  const { privateKeyName } = input;
-
-  const createKeyMutation = withAsyncPolling({
-    request: TurnkeyApi.postCreatePrivateKeys,
-    refreshIntervalMs: 250, // defaults to 500ms
-  });
-
-  // TODO: fix/simplify the address derivation after `ADDRESS_FORMAT_COMPRESSED` is done
-  const activity = await createKeyMutation({
-    body: {
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
-      organizationId: process.env.ORGANIZATION_ID!,
-      parameters: {
-        privateKeys: [
-          {
-            privateKeyName,
-            curve: "CURVE_SECP256K1",
-            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-            privateKeyTags: [],
-          },
-        ],
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
-    },
-  });
-
-  const privateKeyId = refineNonNull(
-    activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
-  );
-
-  return { privateKeyId };
-}
-
 main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
-
-function print(header: string, body: string): void {
-  console.log(`${header}\n\t${body}\n`);
-}
-
-export function refineNonNull<T>(
-  input: T | null | undefined,
-  errorMessage?: string
-): T {
-  if (input == null) {
-    throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
-  }
-
-  return input;
-}
