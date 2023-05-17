@@ -6,8 +6,8 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import * as crypto from "crypto";
 import { TurnkeyApi, init as httpInit, withAsyncPolling } from "@turnkey/http";
-import { fromHex, toHex } from "@cosmjs/encoding";
-import { Secp256k1 } from "@cosmjs/crypto";
+import { TurnkeyDirectWallet } from "./TurnkeyDirectWallet";
+import { toHex } from "@cosmjs/encoding";
 
 async function main() {
   httpInit({
@@ -18,17 +18,26 @@ async function main() {
 
   const privateKeyName = `Cosmos Key ${crypto.randomBytes(2).toString("hex")}`;
 
-  const { privateKeyId, compressedPublicKey } = await createCosmosPrivateKey({
+  const { privateKeyId } = await createCosmosPrivateKey({
     privateKeyName,
   });
 
   print("Private key ID:", privateKeyId);
-  print("Compressed public key:", compressedPublicKey);
+
+  const wallet = await TurnkeyDirectWallet.fromTurnkeyPrivateKey({
+    privateKeyId,
+    prefix: "cosmos",
+  });
+
+  const account = refineNonNull((await wallet.getAccounts())[0]);
+
+  print("Wallet address:", account.address);
+  print("Compressed public key:", toHex(account.pubkey));
 }
 
 async function createCosmosPrivateKey(input: {
   privateKeyName: string;
-}): Promise<{ privateKeyId: string; compressedPublicKey: string }> {
+}): Promise<{ privateKeyId: string }> {
   const { privateKeyName } = input;
 
   const createKeyMutation = withAsyncPolling({
@@ -59,19 +68,7 @@ async function createCosmosPrivateKey(input: {
     activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
   );
 
-  const keyInfo = await TurnkeyApi.postGetPrivateKey({
-    body: {
-      organizationId: process.env.ORGANIZATION_ID!,
-      privateKeyId,
-    },
-  });
-
-  const uncompressedPublicKey = keyInfo.privateKey.publicKey;
-  const compressedPublicKey = toHex(
-    Secp256k1.compressPubkey(fromHex(uncompressedPublicKey))
-  );
-
-  return { privateKeyId, compressedPublicKey };
+  return { privateKeyId };
 }
 
 main().catch((error) => {
