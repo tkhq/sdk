@@ -84,6 +84,21 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
 
+  examples/with-cosmos:
+    dependencies:
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../packages/ethers
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../packages/http
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2
+
   examples/with-ethers:
     dependencies:
       '@turnkey/ethers':

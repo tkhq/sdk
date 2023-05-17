@@ -1,0 +1,16 @@
+{
+  "name": "@turnkey/example-with-cosmos",
+  "version": "0.1.3",
+  "private": true,
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/ethers": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "dotenv": "^16.0.3",
+    "ethers": "^5.7.2"
+  }
+}
