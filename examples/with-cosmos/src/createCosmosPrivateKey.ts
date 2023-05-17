@@ -11,7 +11,7 @@ export async function createCosmosPrivateKey(input: {
     refreshIntervalMs: 250, // defaults to 500ms
   });
 
-  // TODO: fix/simplify the address derivation after `ADDRESS_FORMAT_COMPRESSED` is done
+  // TODO: fix/simplify the address derivation after `ADDRESS_FORMAT_COMPRESSED` is fully supported
   const activity = await createKeyMutation({
     body: {
       type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
@@ -26,7 +26,7 @@ export async function createCosmosPrivateKey(input: {
           },
         ],
       },
-      timestampMs: String(Date.now()), // millisecond timestamp
+      timestampMs: String(Date.now()),
     },
   });
 

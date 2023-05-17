@@ -1,5 +1,10 @@
 export function print(header: string, body: string): void {
-  console.log(`${header}\n\t${body}\n`);
+  const indentedBody = body
+    .split("\n")
+    .map((line) => `\t${line}`)
+    .join("\n");
+
+  console.log(`${header}\n${indentedBody}\n`);
 }
 
 export function refineNonNull<T>(
