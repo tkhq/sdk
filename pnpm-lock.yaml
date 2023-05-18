@@ -86,16 +86,7 @@ importers:
 
   examples/with-cosmos:
     dependencies:
-      '@cosmjs/amino':
-        specifier: ^0.30.1
-        version: 0.30.1
-      '@cosmjs/crypto':
-        specifier: ^0.30.1
-        version: 0.30.1
       '@cosmjs/encoding':
-        specifier: ^0.30.1
-        version: 0.30.1
-      '@cosmjs/proto-signing':
         specifier: ^0.30.1
         version: 0.30.1
       '@cosmjs/stargate':
@@ -107,9 +98,6 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
-      cosmjs-types:
-        specifier: ^0.7.2
-        version: 0.7.2
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3

@@ -1,8 +1,14 @@
-import { init as httpInit, TurnkeyApi, withAsyncPolling } from "@turnkey/http";
+import {
+  init as httpInit,
+  TurnkeyApi,
+  withAsyncPolling,
+  TurnkeyActivityError,
+} from "@turnkey/http";
 import * as crypto from "crypto";
 import { refineNonNull } from "./shared";
 
 export async function createNewCosmosPrivateKey() {
+  // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
@@ -13,43 +19,63 @@ export async function createNewCosmosPrivateKey() {
     "`process.env.PRIVATE_KEY_ID` not found; creating a new Cosmos private key on Turnkey...\n"
   );
 
-  const privateKeyName = `Cosmos Key ${crypto.randomBytes(2).toString("hex")}`;
-
+  // Use `withAsyncPolling` to handle async activity polling.
+  // In this example, it polls every 250ms until the activity reaches a terminal state.
   const createKeyMutation = withAsyncPolling({
     request: TurnkeyApi.postCreatePrivateKeys,
     refreshIntervalMs: 250, // defaults to 500ms
   });
 
-  // TODO: fix/simplify the address derivation after `ADDRESS_FORMAT_COMPRESSED` is fully supported
-  const activity = await createKeyMutation({
-    body: {
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
-      organizationId: process.env.ORGANIZATION_ID!,
-      parameters: {
-        privateKeys: [
-          {
-            privateKeyName,
-            curve: "CURVE_SECP256K1",
-            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-            privateKeyTags: [],
-          },
-        ],
+  const privateKeyName = `Cosmos Key ${crypto.randomBytes(2).toString("hex")}`;
+
+  try {
+    // TODO: fix/simplify the address derivation logic after `ADDRESS_FORMAT_COMPRESSED` is fully supported.
+    // For context, this mutation's parameter will soon be updated to either:
+    // - `addressFormats: []` -- an empty array signaling you don't want any address derivation
+    // - or `addressFormats: ["ADDRESS_FORMAT_COMPRESSED"]` -- Turnkey will return a compressed public key by default for this key
+    const activity = await createKeyMutation({
+      body: {
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        organizationId: process.env.ORGANIZATION_ID!,
+        parameters: {
+          privateKeys: [
+            {
+              privateKeyName,
+              curve: "CURVE_SECP256K1",
+              addressFormats: ["ADDRESS_FORMAT_ETHEREUM"], // See comment above
+              privateKeyTags: [],
+            },
+          ],
+        },
+        timestampMs: String(Date.now()), // millisecond timestamp
       },
-      timestampMs: String(Date.now()),
-    },
-  });
+    });
 
-  const privateKeyId = refineNonNull(
-    activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
-  );
+    const privateKeyId = refineNonNull(
+      activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
+    );
 
-  console.log(
-    [
-      `New Cosmos private key created!`,
-      `- Name: ${privateKeyName}`,
-      `- Private key ID: ${privateKeyId}`,
-      ``,
-      "Now you can take the private key ID, put it in `.env.local`, then re-run the script.",
-    ].join("\n")
-  );
+    // Success!
+    console.log(
+      [
+        `New Cosmos private key created!`,
+        `- Name: ${privateKeyName}`,
+        `- Private key ID: ${privateKeyId}`,
+        ``,
+        "Now you can take the private key ID, put it in `.env.local`, then re-run the script.",
+      ].join("\n")
+    );
+  } catch (error) {
+    // If needed, you can read from `TurnkeyActivityError` to find out why the activity didn't succeed
+    if (error instanceof TurnkeyActivityError) {
+      throw error;
+    }
+
+    throw new TurnkeyActivityError({
+      message: `Failed to create a new Cosmos private key: ${
+        (error as Error).message
+      }`,
+      cause: error as Error,
+    });
+  }
 }
