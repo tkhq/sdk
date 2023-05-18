@@ -34,11 +34,11 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
     });
   }
 
-  readonly privateKeyId: string;
-  readonly compressedPublicKey: Uint8Array;
-  readonly prefix: string;
+  private readonly privateKeyId: string;
+  private readonly compressedPublicKey: Uint8Array;
+  private readonly prefix: string;
 
-  constructor(input: {
+  private constructor(input: {
     privateKeyId: string;
     compressedPublicKey: Uint8Array;
     prefix: string;
@@ -48,6 +48,13 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
     this.privateKeyId = privateKeyId;
     this.compressedPublicKey = compressedPublicKey;
     this.prefix = prefix;
+  }
+
+  private get address(): string {
+    return toBech32(
+      this.prefix,
+      rawSecp256k1PubkeyToRawAddress(this.compressedPublicKey)
+    );
   }
 
   public async getAccounts(): Promise<readonly AccountData[]> {
@@ -85,13 +92,6 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
       signed: signDoc,
       signature: stdSignature,
     };
-  }
-
-  private get address(): string {
-    return toBech32(
-      this.prefix,
-      rawSecp256k1PubkeyToRawAddress(this.compressedPublicKey)
-    );
   }
 
   // Largely based off `Secp256k1.createSignature(...)`
@@ -133,17 +133,17 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
 
     const result = refineNonNull(activity?.result?.signRawPayloadResult);
 
-    const { r, s } = result;
+    const { r, s, v } = result;
 
     return new ExtendedSecp256k1Signature(
       fromHex(r),
       fromHex(s),
-      0 // TODO: do we need to include `v` here? If so, we need to convert it from string to number
+      parseInt(v, 16)
     );
   }
 }
 
-export async function fetchCompressedPublicKey(input: {
+async function fetchCompressedPublicKey(input: {
   privateKeyId: string;
 }): Promise<{ compressedPublicKey: Uint8Array }> {
   const { privateKeyId } = input;
