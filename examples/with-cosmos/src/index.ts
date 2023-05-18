@@ -1,30 +1,23 @@
-import * as path from "path";
 import * as dotenv from "dotenv";
+import * as path from "path";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import * as crypto from "crypto";
-import { init as httpInit } from "@turnkey/http";
-import { TurnkeyDirectWallet } from "./TurnkeyDirectWallet";
-import { toHex, fromHex, fromBase64 } from "@cosmjs/encoding";
-import { createCosmosPrivateKey } from "./createCosmosPrivateKey";
-import { print, refineNonNull } from "./shared";
 import { coins } from "@cosmjs/amino";
+import { Secp256k1, Secp256k1Signature, sha256 } from "@cosmjs/crypto";
+import { fromBase64, fromHex, toHex } from "@cosmjs/encoding";
 import {
   makeAuthInfoBytes,
   makeSignBytes,
   makeSignDoc,
 } from "@cosmjs/proto-signing";
-import { Secp256k1, Secp256k1Signature, sha256 } from "@cosmjs/crypto";
+import * as crypto from "crypto";
+import { createCosmosPrivateKey } from "./createCosmosPrivateKey";
+import { print, refineNonNull } from "./shared";
+import { TurnkeyDirectWallet } from "./TurnkeyDirectWallet";
 
 async function main() {
-  httpInit({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: process.env.BASE_URL!,
-  });
-
   const privateKeyName = `Cosmos Key ${crypto.randomBytes(2).toString("hex")}`;
 
   const { privateKeyId } = await createCosmosPrivateKey({
@@ -33,8 +26,14 @@ async function main() {
 
   print("Private key ID:", privateKeyId);
 
-  const wallet = await TurnkeyDirectWallet.fromTurnkeyPrivateKey({
-    privateKeyId,
+  const wallet = await TurnkeyDirectWallet.init({
+    config: {
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      baseUrl: process.env.BASE_URL!,
+      organizationId: process.env.ORGANIZATION_ID!,
+      privateKeyId,
+    },
     prefix: "cosmos",
   });
 

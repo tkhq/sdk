@@ -1,53 +1,100 @@
-import { TurnkeyActivityError, TurnkeyApi } from "@turnkey/http";
 import {
   encodeSecp256k1Signature,
   rawSecp256k1PubkeyToRawAddress,
 } from "@cosmjs/amino";
-import { fromHex, toHex, toBech32 } from "@cosmjs/encoding";
-import { Secp256k1, sha256, ExtendedSecp256k1Signature } from "@cosmjs/crypto";
+import { ExtendedSecp256k1Signature, Secp256k1, sha256 } from "@cosmjs/crypto";
+import { fromHex, toBech32, toHex } from "@cosmjs/encoding";
 import {
-  type OfflineDirectSigner,
+  makeSignBytes,
   type AccountData,
   type DirectSignResponse,
-  makeSignBytes,
+  type OfflineDirectSigner,
 } from "@cosmjs/proto-signing";
+import {
+  init as httpInit,
+  TurnkeyActivityError,
+  TurnkeyApi,
+} from "@turnkey/http";
 import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { refineNonNull } from "./shared";
+
+type TConfig = {
+  /**
+   * Turnkey API public key
+   */
+  apiPublicKey: string;
+  /**
+   * Turnkey API private key
+   */
+  apiPrivateKey: string;
+  /**
+   * Turnkey API base URL
+   */
+  baseUrl: string;
+  /**
+   * Turnkey organization ID
+   */
+  organizationId: string;
+  /**
+   * Turnkey private key ID
+   */
+  privateKeyId: string;
+};
+
+const DEFAULT_PREFIX = "cosmos";
 
 // Largely based off `DirectSecp256k1Wallet`:
 // https://github.com/cosmos/cosmjs/blob/e8e65aa0c145616ccb58625c32bffe08b46ff574/packages/proto-signing/src/directsecp256k1wallet.ts#LL14C14-L14C35
 export class TurnkeyDirectWallet implements OfflineDirectSigner {
-  public static async fromTurnkeyPrivateKey(input: {
-    privateKeyId: string;
-    prefix?: string;
+  public static async init(input: {
+    config: TConfig;
+    prefix?: string | undefined;
   }): Promise<TurnkeyDirectWallet> {
-    const { privateKeyId, prefix = "cosmos" } = input;
+    const { config, prefix } = input;
+    const { privateKeyId } = config;
 
     const { compressedPublicKey } = await fetchCompressedPublicKey({
       privateKeyId,
+      organizationId: config.organizationId,
     });
 
     return new TurnkeyDirectWallet({
-      privateKeyId,
+      config,
       compressedPublicKey,
       prefix,
     });
   }
 
-  private readonly privateKeyId: string;
+  public readonly prefix: string;
+  public readonly organizationId: string;
+  public readonly privateKeyId: string;
+
   private readonly compressedPublicKey: Uint8Array;
-  private readonly prefix: string;
 
   private constructor(input: {
-    privateKeyId: string;
+    config: TConfig;
+    prefix?: string | undefined;
     compressedPublicKey: Uint8Array;
-    prefix: string;
   }) {
-    const { privateKeyId, compressedPublicKey, prefix } = input;
+    const { compressedPublicKey, prefix, config } = input;
+    const {
+      apiPublicKey,
+      apiPrivateKey,
+      baseUrl,
+      organizationId,
+      privateKeyId,
+    } = config;
 
-    this.privateKeyId = privateKeyId;
+    this.prefix = prefix ?? DEFAULT_PREFIX;
     this.compressedPublicKey = compressedPublicKey;
-    this.prefix = prefix;
+    this.organizationId = organizationId;
+    this.privateKeyId = privateKeyId;
+
+    httpInit({
+      apiPublicKey: apiPublicKey,
+      apiPrivateKey: apiPrivateKey,
+      baseUrl: baseUrl,
+    });
   }
 
   private get address(): string {
@@ -145,12 +192,13 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
 
 async function fetchCompressedPublicKey(input: {
   privateKeyId: string;
+  organizationId: string;
 }): Promise<{ compressedPublicKey: Uint8Array }> {
-  const { privateKeyId } = input;
+  const { privateKeyId, organizationId } = input;
 
   const keyInfo = await TurnkeyApi.postGetPrivateKey({
     body: {
-      organizationId: process.env.ORGANIZATION_ID!,
+      organizationId,
       privateKeyId,
     },
   });

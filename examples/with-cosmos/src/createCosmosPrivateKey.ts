@@ -1,9 +1,15 @@
-import { TurnkeyApi, withAsyncPolling } from "@turnkey/http";
+import { init as httpInit, TurnkeyApi, withAsyncPolling } from "@turnkey/http";
 import { refineNonNull } from "./shared";
 
 export async function createCosmosPrivateKey(input: {
   privateKeyName: string;
 }): Promise<{ privateKeyId: string }> {
+  httpInit({
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    baseUrl: process.env.BASE_URL!,
+  });
+
   const { privateKeyName } = input;
 
   const createKeyMutation = withAsyncPolling({
