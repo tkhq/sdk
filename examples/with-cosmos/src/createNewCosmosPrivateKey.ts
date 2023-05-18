@@ -1,16 +1,19 @@
 import { init as httpInit, TurnkeyApi, withAsyncPolling } from "@turnkey/http";
+import * as crypto from "crypto";
 import { refineNonNull } from "./shared";
 
-export async function createCosmosPrivateKey(input: {
-  privateKeyName: string;
-}): Promise<{ privateKeyId: string }> {
+export async function createNewCosmosPrivateKey() {
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     baseUrl: process.env.BASE_URL!,
   });
 
-  const { privateKeyName } = input;
+  console.log(
+    "`process.env.PRIVATE_KEY_ID` not found; creating a new Cosmos private key on Turnkey...\n"
+  );
+
+  const privateKeyName = `Cosmos Key ${crypto.randomBytes(2).toString("hex")}`;
 
   const createKeyMutation = withAsyncPolling({
     request: TurnkeyApi.postCreatePrivateKeys,
@@ -40,5 +43,13 @@ export async function createCosmosPrivateKey(input: {
     activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
   );
 
-  return { privateKeyId };
+  console.log(
+    [
+      `New Cosmos private key created!`,
+      `- Name: ${privateKeyName}`,
+      `- Private key ID: ${privateKeyId}`,
+      ``,
+      "Now you can take the private key ID, put it in `.env.local`, then re-run the script.",
+    ].join("\n")
+  );
 }

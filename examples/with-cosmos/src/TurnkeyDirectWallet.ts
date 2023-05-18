@@ -51,7 +51,13 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
     prefix?: string | undefined;
   }): Promise<TurnkeyDirectWallet> {
     const { config, prefix } = input;
-    const { privateKeyId } = config;
+    const { privateKeyId, apiPublicKey, apiPrivateKey, baseUrl } = config;
+
+    httpInit({
+      apiPublicKey: apiPublicKey,
+      apiPrivateKey: apiPrivateKey,
+      baseUrl: baseUrl,
+    });
 
     const { compressedPublicKey } = await fetchCompressedPublicKey({
       privateKeyId,
@@ -77,24 +83,12 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
     compressedPublicKey: Uint8Array;
   }) {
     const { compressedPublicKey, prefix, config } = input;
-    const {
-      apiPublicKey,
-      apiPrivateKey,
-      baseUrl,
-      organizationId,
-      privateKeyId,
-    } = config;
+    const { organizationId, privateKeyId } = config;
 
     this.prefix = prefix ?? DEFAULT_PREFIX;
     this.compressedPublicKey = compressedPublicKey;
     this.organizationId = organizationId;
     this.privateKeyId = privateKeyId;
-
-    httpInit({
-      apiPublicKey: apiPublicKey,
-      apiPrivateKey: apiPrivateKey,
-      baseUrl: baseUrl,
-    });
   }
 
   private get address(): string {

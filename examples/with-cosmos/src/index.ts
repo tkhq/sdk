@@ -12,19 +12,16 @@ import {
   makeSignBytes,
   makeSignDoc,
 } from "@cosmjs/proto-signing";
-import * as crypto from "crypto";
-import { createCosmosPrivateKey } from "./createCosmosPrivateKey";
+import { createNewCosmosPrivateKey } from "./createNewCosmosPrivateKey";
 import { print, refineNonNull } from "./shared";
 import { TurnkeyDirectWallet } from "./TurnkeyDirectWallet";
 
 async function main() {
-  const privateKeyName = `Cosmos Key ${crypto.randomBytes(2).toString("hex")}`;
-
-  const { privateKeyId } = await createCosmosPrivateKey({
-    privateKeyName,
-  });
-
-  print("Private key ID:", privateKeyId);
+  if (!process.env.PRIVATE_KEY_ID) {
+    // If you don't specify a `PRIVATE_KEY_ID`, we'll create one for you via calling the Turnkey API.
+    await createNewCosmosPrivateKey();
+    return;
+  }
 
   const wallet = await TurnkeyDirectWallet.init({
     config: {
@@ -32,7 +29,7 @@ async function main() {
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       baseUrl: process.env.BASE_URL!,
       organizationId: process.env.ORGANIZATION_ID!,
-      privateKeyId,
+      privateKeyId: process.env.PRIVATE_KEY_ID!,
     },
     prefix: "cosmos",
   });
