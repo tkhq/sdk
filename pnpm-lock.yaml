@@ -84,7 +84,7 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
 
-  examples/with-cosmos:
+  examples/with-cosmjs:
     dependencies:
       '@cosmjs/encoding':
         specifier: ^0.30.1
