@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/example-with-cosmos",
+  "name": "@turnkey/example-with-cosmjs",
   "version": "0.1.3",
   "private": true,
   "scripts": {

@@ -50,7 +50,7 @@ async function main() {
 
   const allBalances = await signingClient.getAllBalances(selfAddress);
 
-  print("Account balance", JSON.stringify(allBalances));
+  print("Account balance:", JSON.stringify(allBalances));
 
   if (allBalances.length === 0) {
     console.warn(
