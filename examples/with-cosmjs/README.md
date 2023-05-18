@@ -1,6 +1,6 @@
 # Example: `with-cosmjs`
 
-This example shows how to construct and broadcast a Cosmos transaction using [`CosmJS`](https://github.com/cosmos/cosmjs) with Turnkey.
+This example shows how to sign and broadcast a Cosmos transaction using [`CosmJS`](https://github.com/cosmos/cosmjs) with Turnkey.
 
 ## Getting started
 

@@ -4,7 +4,7 @@
 
 Experimental [Turnkey](https://turnkey.io) Cosmos Signer for [`CosmJS`](https://github.com/cosmos/cosmjs):
 
-- `TurnkeyDirectWallet` is a drop-in replacement for [`DirectSecp256k1Wallet`](https://github.com/cosmos/cosmjs/blob/e8e65aa0c145616ccb58625c32bffe08b46ff574/packages/proto-signing/src/directsecp256k1wallet.ts#LL14C14-L14C35).
+- `TurnkeyDirectWallet` is a drop-in replacement for [`DirectSecp256k1Wallet`](https://github.com/cosmos/cosmjs/blob/e8e65aa0c145616ccb58625c32bffe08b46ff574/packages/proto-signing/src/directsecp256k1wallet.ts#LL14C14-L14C35) that conforms to the `OfflineDirectSigner` interface.
 
 If you need a lower-level, fully typed HTTP client for interacting with Turnkey API, check out [`@turnkey/http`](/packages/http/).
 
@@ -16,7 +16,11 @@ API Docs: https://turnkey.readme.io/
 $ npm install @turnkey/cosmjs
 ```
 
-TODO: add an example here
+## Examples
+
+| Example                                 | Description                                                                   |
+| --------------------------------------- | ----------------------------------------------------------------------------- |
+| [`with-cosmjs`](/examples/with-cosmjs/) | Create a new Cosmos address, then sign and broadcast a transaction via CosmJS |
 
 ## See also
 
