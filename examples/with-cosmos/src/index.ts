@@ -12,9 +12,9 @@ import {
   makeSignBytes,
   makeSignDoc,
 } from "@cosmjs/proto-signing";
+import { TurnkeyDirectWallet } from "@turnkey/cosmjs";
 import { createNewCosmosPrivateKey } from "./createNewCosmosPrivateKey";
 import { print, refineNonNull } from "./shared";
-import { TurnkeyDirectWallet } from "./TurnkeyDirectWallet";
 
 async function main() {
   if (!process.env.PRIVATE_KEY_ID) {

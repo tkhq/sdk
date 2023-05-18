@@ -16,7 +16,6 @@ import {
   TurnkeyApi,
 } from "@turnkey/http";
 import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import { refineNonNull } from "./shared";
 
 type TConfig = {
   /**
@@ -150,7 +149,7 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
     const { activity } = await TurnkeyApi.postSignRawPayload({
       body: {
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
-        organizationId: process.env.ORGANIZATION_ID!,
+        organizationId: this.organizationId,
         timestampMs: String(Date.now()),
         parameters: {
           privateKeyId: this.privateKeyId,
@@ -203,4 +202,15 @@ async function fetchCompressedPublicKey(input: {
   );
 
   return { compressedPublicKey };
+}
+
+function refineNonNull<T>(
+  input: T | null | undefined,
+  errorMessage?: string
+): T {
+  if (input == null) {
+    throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
+  }
+
+  return input;
 }
