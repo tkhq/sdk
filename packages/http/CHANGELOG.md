@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.13.2
+
+### Patch Changes
+
+- New `TurnkeyRequestError` error class that contains rich error details
+
 ## 0.13.1
 
 ### Patch Changes
