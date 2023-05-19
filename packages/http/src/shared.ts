@@ -47,7 +47,7 @@ export type GrpcStatus = {
 };
 
 export class TurnkeyRequestError extends Error {
-  details: any[] | null | undefined;
+  details: any[] | null;
   code: number;
 
   constructor(input: GrpcStatus) {
@@ -60,7 +60,7 @@ export class TurnkeyRequestError extends Error {
     super(turnkeyErrorMessage);
 
     this.name = "TurnkeyRequestError";
-    this.details = input.details;
+    this.details = input.details ?? null;
     this.code = input.code;
   }
 }
