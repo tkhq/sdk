@@ -9,6 +9,7 @@ API Docs: https://turnkey.readme.io/
 | Package                               | NPM                                                                                                                   | Description                                                           | Changelog                                  |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------ |
 | [`@turnkey/ethers`](/packages/ethers) | [![npm](https://img.shields.io/npm/v/@turnkey/ethers?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/ethers) | Turnkey Signer for Ethers                                             | [CHANGELOG](/packages/ethers/CHANGELOG.md) |
+| [`@turnkey/cosmjs`](/packages/cosmjs) | [![npm](https://img.shields.io/npm/v/@turnkey/cosmjs?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/cosmjs) | (Experimental) Turnkey Cosmos Signer for CosmJS                       | [CHANGELOG](/packages/cosmjs/CHANGELOG.md) |
 | [`@turnkey/http`](/packages/http)     | [![npm](https://img.shields.io/npm/v/@turnkey/http?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/http)     | Lower-level, fully typed HTTP client for interacting with Turnkey API | [CHANGELOG](/packages/http/CHANGELOG.md)   |
 
 ## Examples
@@ -20,3 +21,4 @@ API Docs: https://turnkey.readme.io/
 | [`with-uniswap`](/examples/with-uniswap/) | Sign and broadcast a Uniswap v3 trade using the Ethers signer with Infura                                |
 | [`sweeper`](/examples/sweeper/)           | Sweep funds from one address to a different address                                                      |
 | [`deployer`](/examples/deployer/)         | Compile and deploy a smart contract                                                                      |
+| [`with-cosmjs`](/examples/with-cosmjs/)   | Create a new Cosmos address, then sign and broadcast a transaction using the CosmJS signer               |

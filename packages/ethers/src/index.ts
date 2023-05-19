@@ -13,10 +13,25 @@ import type {
 } from "ethers";
 
 type TConfig = {
+  /**
+   * Turnkey API public key
+   */
   apiPublicKey: string;
+  /**
+   * Turnkey API private key
+   */
   apiPrivateKey: string;
+  /**
+   * Turnkey API base URL
+   */
   baseUrl: string;
+  /**
+   * Turnkey organization ID
+   */
   organizationId: string;
+  /**
+   * Turnkey private key ID
+   */
   privateKeyId: string;
 };
 
