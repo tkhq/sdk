@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import {
   TurnkeyApi,
   TurnkeyActivityError,
+  TurnkeyRequestError,
   init as httpInit,
 } from "@turnkey/http";
 import type { TypedDataSigner } from "@ethersproject/abstract-signer";
@@ -254,7 +255,7 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
   _signTypedData = this.signTypedData.bind(this);
 }
 
-export { TurnkeyActivityError };
+export { TurnkeyActivityError, TurnkeyRequestError };
 
 function assertNonNull<T>(input: T | null | undefined): T {
   if (input == null) {

@@ -2,7 +2,7 @@ import { PublicApiService as TurnkeyApi } from "./__generated__/barrel";
 
 export { init } from "./config";
 
-export { TurnkeyActivityError } from "./shared";
+export { TurnkeyActivityError, TurnkeyRequestError } from "./shared";
 
 export { withAsyncPolling } from "./async";
 
