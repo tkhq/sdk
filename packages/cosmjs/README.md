@@ -18,9 +18,9 @@ $ npm install @turnkey/cosmjs
 
 ## Examples
 
-| Example                                 | Description                                                                   |
-| --------------------------------------- | ----------------------------------------------------------------------------- |
-| [`with-cosmjs`](/examples/with-cosmjs/) | Create a new Cosmos address, then sign and broadcast a transaction via CosmJS |
+| Example                                 | Description                                                                                       |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| [`with-cosmjs`](/examples/with-cosmjs/) | Create a new Cosmos address, then sign and broadcast a transaction on Celestia testnet via CosmJS |
 
 ## See also
 
