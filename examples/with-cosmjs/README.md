@@ -1,6 +1,6 @@
 # Example: `with-cosmjs`
 
-This example shows how to sign and broadcast a Cosmos transaction using [`CosmJS`](https://github.com/cosmos/cosmjs) with Turnkey.
+This example shows how to sign and broadcast a Cosmos transaction (on Celestia testnet) using [`CosmJS`](https://github.com/cosmos/cosmjs) with Turnkey.
 
 ## Getting started
 
@@ -44,7 +44,7 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm start
 ```
 
-The script signs your transaction via Turnkey and broadcasts on testnet. If the script exits because your account isn't funded, you can request funds via the [Cosmos Hub Discord](https://discord.com/invite/cosmosnetwork).
+The script signs your transaction via Turnkey and broadcasts on Celestia testnet. If the script exits because your account isn't funded, you can request funds via the [Celestia Discord](https://discord.gg/celestiacommunity).
 
 Visit the explorer links to view your transaction; you have successfully sent your first transaction with Turnkey!
 
@@ -53,14 +53,14 @@ Compressed public key:
 	03be8c88bc5e77aaa9a65ba29f38e892e68d736778fce1bf462d27bfaa3beefc93
 
 Wallet address:
-	cosmos1kaefh2tuh7syp8x0zy9a3wspnhyn50rulsq5fy
+	celestia1kaefh2tuh7syp8x0zy9a3wspnhyn50ruw63ynf
 
 Wallet on explorer:
-	https://explorer.theta-testnet.polypore.xyz/accounts/cosmos1kaefh2tuh7syp8x0zy9a3wspnhyn50rulsq5fy
+	https://testnet.mintscan.io/celestia-incentivized-testnet/account/celestia1kaefh2tuh7syp8x0zy9a3wspnhyn50ruw63ynf
 
 Account balance:
-	[{"denom":"uatom","amount":"2488900"}]
+	[{"denom":"utia","amount":"99997600"}]
 
-Sent 0.0001 ATOM to cosmos1s2qeaefnchywaayfuxkdw7g8stcy47jkjayqxd:
-	https://explorer.theta-testnet.polypore.xyz/transactions/B175383C3CB129D2A19D00FA3B3C7D0E130D62F788E2A9A89B147C777F6B0ACC
+Sent 0.0001 TIA to celestia1vsvx8n7f8dh5udesqqhgrjutyun7zqrgehdq2l:
+	https://testnet.mintscan.io/celestia-incentivized-testnet/txs/A89766D155C51E9F7C1B13DEDCB3E1E00D57F2950490184BC8477F0F081E9E92
 ```

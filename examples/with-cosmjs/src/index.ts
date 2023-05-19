@@ -10,7 +10,8 @@ import { TurnkeyDirectWallet } from "@turnkey/cosmjs";
 import { createNewCosmosPrivateKey } from "./createNewCosmosPrivateKey";
 import { print, refineNonNull } from "./shared";
 
-const THETA_ENDPOINT = "rpc.sentry-01.theta-testnet.polypore.xyz:26657";
+// https://docs.celestia.org/nodes/blockspace-race/#rpc-endpoints
+const ENDPOINT = "https://rpc-celestia-testnet-blockspacerace.keplr.app";
 
 async function main() {
   if (!process.env.PRIVATE_KEY_ID) {
@@ -28,7 +29,7 @@ async function main() {
       organizationId: process.env.ORGANIZATION_ID!,
       privateKeyId: process.env.PRIVATE_KEY_ID!,
     },
-    prefix: "cosmos",
+    prefix: "celestia",
   });
 
   const account = refineNonNull((await turnkeySigner.getAccounts())[0]);
@@ -39,12 +40,12 @@ async function main() {
   print("Wallet address:", selfAddress);
   print(
     "Wallet on explorer:",
-    `https://explorer.theta-testnet.polypore.xyz/accounts/${selfAddress}`
+    `https://testnet.mintscan.io/celestia-incentivized-testnet/account/${selfAddress}`
   );
 
   // Connect it to testnet
   const signingClient = await SigningStargateClient.connectWithSigner(
-    THETA_ENDPOINT,
+    ENDPOINT,
     turnkeySigner
   );
 
@@ -60,16 +61,16 @@ async function main() {
     process.exit(0);
   }
 
-  const destinationAddress = "cosmos1s2qeaefnchywaayfuxkdw7g8stcy47jkjayqxd";
+  const destinationAddress = "celestia1vsvx8n7f8dh5udesqqhgrjutyun7zqrgehdq2l";
   const transactionAmount = "100";
 
   // Send a transaction
   const result = await signingClient.sendTokens(
     selfAddress,
     destinationAddress,
-    [{ denom: "uatom", amount: transactionAmount }],
+    [{ denom: "utia", amount: transactionAmount }],
     {
-      amount: [{ denom: "uatom", amount: "500" }],
+      amount: [{ denom: "utia", amount: "500" }],
       gas: "200000",
     },
     "Hello from Turnkey!"
@@ -78,8 +79,8 @@ async function main() {
   print(
     `Sent ${
       Number(transactionAmount) / 1_000_000
-    } ATOM to ${destinationAddress}:`,
-    `https://explorer.theta-testnet.polypore.xyz/transactions/${result.transactionHash}`
+    } TIA to ${destinationAddress}:`,
+    `https://testnet.mintscan.io/celestia-incentivized-testnet/txs/${result.transactionHash}`
   );
 
   signingClient.disconnect();
