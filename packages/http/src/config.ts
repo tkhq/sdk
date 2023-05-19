@@ -1,8 +1,17 @@
 type TNullable<T> = { [K in keyof T]: T[K] | null };
 
 type TConfig = {
+  /**
+   * Turnkey API public key
+   */
   apiPublicKey: string;
+  /**
+   * Turnkey API private key
+   */
   apiPrivateKey: string;
+  /**
+   * Turnkey API base URL
+   */
   baseUrl: string;
 };
 
