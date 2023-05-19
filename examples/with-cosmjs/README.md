@@ -59,8 +59,8 @@ Wallet on explorer:
 	https://explorer.theta-testnet.polypore.xyz/accounts/cosmos1kaefh2tuh7syp8x0zy9a3wspnhyn50rulsq5fy
 
 Account balance:
-	[{"denom":"uatom","amount":"2794000"}]
+	[{"denom":"uatom","amount":"2488900"}]
 
-Sent ATOM to cosmos1s2qeaefnchywaayfuxkdw7g8stcy47jkjayqxd:
-	https://explorer.theta-testnet.polypore.xyz/transactions/F9283C363DD716C11B87EBACA2451682E78BAD8B018D02C0F47380C60B332EA6
+Sent 0.0001 ATOM to cosmos1s2qeaefnchywaayfuxkdw7g8stcy47jkjayqxd:
+	https://explorer.theta-testnet.polypore.xyz/transactions/B175383C3CB129D2A19D00FA3B3C7D0E130D62F788E2A9A89B147C777F6B0ACC
 ```

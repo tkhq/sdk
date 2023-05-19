@@ -61,20 +61,24 @@ async function main() {
   }
 
   const destinationAddress = "cosmos1s2qeaefnchywaayfuxkdw7g8stcy47jkjayqxd";
+  const transactionAmount = "100";
 
   // Send a transaction
   const result = await signingClient.sendTokens(
     selfAddress,
     destinationAddress,
-    [{ denom: "uatom", amount: "100000" }],
+    [{ denom: "uatom", amount: transactionAmount }],
     {
       amount: [{ denom: "uatom", amount: "500" }],
       gas: "200000",
-    }
+    },
+    "Hello from Turnkey!"
   );
 
   print(
-    `Sent ATOM to ${destinationAddress}:`,
+    `Sent ${
+      Number(transactionAmount) / 1_000_000
+    } ATOM to ${destinationAddress}:`,
     `https://explorer.theta-testnet.polypore.xyz/transactions/${result.transactionHash}`
   );
 
