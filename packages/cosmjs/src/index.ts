@@ -13,6 +13,7 @@ import {
 import {
   init as httpInit,
   TurnkeyActivityError,
+  TurnkeyRequestError,
   TurnkeyApi,
 } from "@turnkey/http";
 import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
@@ -203,6 +204,8 @@ async function fetchCompressedPublicKey(input: {
 
   return { compressedPublicKey };
 }
+
+export { TurnkeyActivityError, TurnkeyRequestError };
 
 function refineNonNull<T>(
   input: T | null | undefined,
