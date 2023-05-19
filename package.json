@@ -5,6 +5,7 @@
   "scripts": {
     "changeset": "changeset",
     "build-all": "tsc --build tsconfig.mono.json",
+    "build:watch": "tsc --build tsconfig.mono.json --watch",
     "clean-all": "pnpm run -r clean",
     "prettier-all:check": "prettier --check \"**/*.{css,html,js,json,md,ts,tsx,yaml,yml}\" --ignore-path ./.prettierignore",
     "prettier-all:write": "prettier --write \"**/*.{css,html,js,json,md,ts,tsx,yaml,yml}\" --ignore-path ./.prettierignore",
