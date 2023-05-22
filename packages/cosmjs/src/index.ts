@@ -2,7 +2,7 @@ import {
   encodeSecp256k1Signature,
   rawSecp256k1PubkeyToRawAddress,
 } from "@cosmjs/amino";
-import { ExtendedSecp256k1Signature, Secp256k1, sha256 } from "@cosmjs/crypto";
+import { ExtendedSecp256k1Signature, Secp256k1 } from "@cosmjs/crypto";
 import { fromHex, toBech32, toHex } from "@cosmjs/encoding";
 import {
   makeSignBytes,
@@ -117,8 +117,7 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
       throw new Error(`Address ${address} not found in wallet`);
     }
 
-    const hashedMessage = sha256(signBytes);
-    const signature = await this._signImpl(hashedMessage);
+    const signature = await this._signImpl(signBytes);
 
     const signatureBytes = new Uint8Array([
       ...signature.r(32),
@@ -138,15 +137,8 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
   // Largely based off `Secp256k1.createSignature(...)`
   // https://github.com/cosmos/cosmjs/blob/e8e65aa0c145616ccb58625c32bffe08b46ff574/packages/crypto/src/secp256k1.ts#L67
   private async _signImpl(
-    messageHash: Uint8Array
+    message: Uint8Array
   ): Promise<ExtendedSecp256k1Signature> {
-    if (messageHash.length === 0) {
-      throw new Error("Message hash must not be empty");
-    }
-    if (messageHash.length > 32) {
-      throw new Error("Message hash length must not exceed 32 bytes");
-    }
-
     const { activity } = await TurnkeyApi.postSignRawPayload({
       body: {
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
@@ -154,9 +146,9 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
         timestampMs: String(Date.now()),
         parameters: {
           privateKeyId: this.privateKeyId,
-          payload: toHex(messageHash),
+          payload: toHex(message),
           encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-          hashFunction: "HASH_FUNCTION_NO_OP",
+          hashFunction: "HASH_FUNCTION_SHA256",
         },
       },
     });
