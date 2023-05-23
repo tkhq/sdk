@@ -551,7 +551,7 @@
     },
     "/public/v1/submit/create_api_only_users": {
       "post": {
-        "summary": "Create Invitations",
+        "summary": "Create API-only Users",
         "description": "Create API-only Users in an existing Organization",
         "operationId": "PublicApiService_CreateApiOnlyUsers",
         "responses": {
@@ -589,7 +589,7 @@
             }
           }
         ],
-        "tags": ["Organizations"],
+        "tags": ["Users"],
         "x-readme": {
           "code-samples": [
             {
@@ -801,7 +801,7 @@
             }
           }
         ],
-        "tags": ["Organizations"],
+        "tags": ["Users"],
         "deprecated": true,
         "x-readme": {
           "code-samples": [
@@ -1178,11 +1178,9 @@
       "enum": [
         "ADDRESS_FORMAT_UNCOMPRESSED",
         "ADDRESS_FORMAT_COMPRESSED",
-        "ADDRESS_FORMAT_ETHEREUM",
-        "ADDRESS_FORMAT_BITCOIN_P2PKH",
-        "ADDRESS_FORMAT_BITCOIN_P2PKH_TESTNET"
+        "ADDRESS_FORMAT_ETHEREUM"
       ],
-      "title": "- ADDRESS_FORMAT_UNCOMPRESSED: 04\u003cX_COORDINATE\u003e\u003cY_COORDINATE\u003e\n - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate\n - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing.\n - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitcoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes"
+      "description": " - ADDRESS_FORMAT_UNCOMPRESSED: 04\u003cX_COORDINATE\u003e\u003cY_COORDINATE\u003e\n - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate\n - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing."
     },
     "externaldatav1AuthenticatorTransport": {
       "type": "string",
@@ -1249,11 +1247,9 @@
       "enum": [
         "ADDRESS_FORMAT_UNCOMPRESSED",
         "ADDRESS_FORMAT_COMPRESSED",
-        "ADDRESS_FORMAT_ETHEREUM",
-        "ADDRESS_FORMAT_BITCOIN_P2PKH",
-        "ADDRESS_FORMAT_BITCOIN_P2PKH_TESTNET"
+        "ADDRESS_FORMAT_ETHEREUM"
       ],
-      "title": "- ADDRESS_FORMAT_UNCOMPRESSED: 04\u003cX_COORDINATE\u003e\u003cY_COORDINATE\u003e\n - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate\n - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing.\n - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitcoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes"
+      "description": " - ADDRESS_FORMAT_UNCOMPRESSED: 04\u003cX_COORDINATE\u003e\u003cY_COORDINATE\u003e\n - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate\n - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing."
     },
     "immutableactivityv1Curve": {
       "type": "string",
@@ -1505,7 +1501,8 @@
         "ACTIVITY_TYPE_DELETE_PAYMENT_METHOD",
         "ACTIVITY_TYPE_CREATE_POLICY_V2",
         "ACTIVITY_TYPE_CREATE_POLICY_V3",
-        "ACTIVITY_TYPE_CREATE_API_ONLY_USERS"
+        "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
+        "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
       ],
       "description": "Type of Activity, such as Add User, or Sign Transaction."
     },
@@ -2885,6 +2882,9 @@
         },
         "createApiOnlyUsersIntent": {
           "$ref": "#/definitions/v1CreateApiOnlyUsersIntent"
+        },
+        "updateRootQuorumIntent": {
+          "$ref": "#/definitions/v1UpdateRootQuorumIntent"
         }
       },
       "description": "Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action.",
@@ -3217,7 +3217,7 @@
             "$ref": "#/definitions/immutableactivityv1AddressFormat"
           },
           "description": "Cryptocurrency-specific formats for a derived address (e.g., Ethereum).",
-          "title": "@inject_tag: validate:\"required\""
+          "title": "@inject_tag: validate:\"dive\""
         }
       },
       "required": [
@@ -3344,6 +3344,9 @@
         },
         "createApiOnlyUsersResult": {
           "$ref": "#/definitions/v1CreateApiOnlyUsersResult"
+        },
+        "updateRootQuorumResult": {
+          "$ref": "#/definitions/v1UpdateRootQuorumResult"
         }
       },
       "description": "Result of the intended action."
@@ -3565,6 +3568,29 @@
         }
       },
       "required": ["seconds", "nanos"]
+    },
+    "v1UpdateRootQuorumIntent": {
+      "type": "object",
+      "properties": {
+        "threshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The threshold of unique approvals to reach quorum.",
+          "title": "@inject_tag: validate:\"required\""
+        },
+        "userIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The unique identifiers of users who comprise the quorum set.",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        }
+      },
+      "required": ["threshold", "userIds"]
+    },
+    "v1UpdateRootQuorumResult": {
+      "type": "object"
     },
     "v1User": {
       "type": "object",

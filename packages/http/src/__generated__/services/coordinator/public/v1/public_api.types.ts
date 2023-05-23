@@ -110,18 +110,15 @@ export type definitions = {
     address?: string;
   };
   /**
-   * - ADDRESS_FORMAT_UNCOMPRESSED: 04<X_COORDINATE><Y_COORDINATE>
+   * @description  - ADDRESS_FORMAT_UNCOMPRESSED: 04<X_COORDINATE><Y_COORDINATE>
    *  - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate
    *  - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing.
-   *  - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitcoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes
    * @enum {string}
    */
   externaldatav1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
     | "ADDRESS_FORMAT_COMPRESSED"
-    | "ADDRESS_FORMAT_ETHEREUM"
-    | "ADDRESS_FORMAT_BITCOIN_P2PKH"
-    | "ADDRESS_FORMAT_BITCOIN_P2PKH_TESTNET";
+    | "ADDRESS_FORMAT_ETHEREUM";
   /** @enum {string} */
   externaldatav1AuthenticatorTransport:
     | "AUTHENTICATOR_TRANSPORT_BLE"
@@ -165,18 +162,15 @@ export type definitions = {
     | "ACCESS_TYPE_API"
     | "ACCESS_TYPE_ALL";
   /**
-   * - ADDRESS_FORMAT_UNCOMPRESSED: 04<X_COORDINATE><Y_COORDINATE>
+   * @description  - ADDRESS_FORMAT_UNCOMPRESSED: 04<X_COORDINATE><Y_COORDINATE>
    *  - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate
    *  - ADDRESS_FORMAT_ETHEREUM: Your standard Ethereum address (0x...). We apply EIP55 casing.
-   *  - ADDRESS_FORMAT_BITCOIN_P2PKH: Bitcoin formats. See https://en.bitcoin.it/wiki/List_of_address_prefixes
    * @enum {string}
    */
   immutableactivityv1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
     | "ADDRESS_FORMAT_COMPRESSED"
-    | "ADDRESS_FORMAT_ETHEREUM"
-    | "ADDRESS_FORMAT_BITCOIN_P2PKH"
-    | "ADDRESS_FORMAT_BITCOIN_P2PKH_TESTNET";
+    | "ADDRESS_FORMAT_ETHEREUM";
   /**
    * @description Cryptographic Curve used to generate a given Private Key.
    * @enum {string}
@@ -319,7 +313,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_DELETE_PAYMENT_METHOD"
     | "ACTIVITY_TYPE_CREATE_POLICY_V2"
     | "ACTIVITY_TYPE_CREATE_POLICY_V3"
-    | "ACTIVITY_TYPE_CREATE_API_ONLY_USERS";
+    | "ACTIVITY_TYPE_CREATE_API_ONLY_USERS"
+    | "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -942,6 +937,7 @@ export type definitions = {
     deletePaymentMethodIntent?: definitions["v1DeletePaymentMethodIntent"];
     createPolicyIntentV3?: definitions["v1CreatePolicyIntentV3"];
     createApiOnlyUsersIntent?: definitions["v1CreateApiOnlyUsersIntent"];
+    updateRootQuorumIntent?: definitions["v1UpdateRootQuorumIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1074,7 +1070,7 @@ export type definitions = {
      */
     privateKeyTags: string[];
     /**
-     * @inject_tag: validate:"required"
+     * @inject_tag: validate:"dive"
      * @description Cryptocurrency-specific formats for a derived address (e.g., Ethereum).
      */
     addressFormats: definitions["immutableactivityv1AddressFormat"][];
@@ -1127,6 +1123,7 @@ export type definitions = {
     activateBillingTierResult?: definitions["v1ActivateBillingTierResult"];
     deletePaymentMethodResult?: definitions["v1DeletePaymentMethodResult"];
     createApiOnlyUsersResult?: definitions["v1CreateApiOnlyUsersResult"];
+    updateRootQuorumResult?: definitions["v1UpdateRootQuorumResult"];
   };
   v1SelectorV2: {
     subject?: string;
@@ -1240,6 +1237,20 @@ export type definitions = {
     seconds: string;
     nanos: string;
   };
+  v1UpdateRootQuorumIntent: {
+    /**
+     * @inject_tag: validate:"required"
+     * Format: int32
+     * @description The threshold of unique approvals to reach quorum.
+     */
+    threshold: number;
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description The unique identifiers of users who comprise the quorum set.
+     */
+    userIds: string[];
+  };
+  v1UpdateRootQuorumResult: { [key: string]: unknown };
   v1User: {
     /** @description Unique identifier for a given User. */
     userId: string;

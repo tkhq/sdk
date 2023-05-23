@@ -357,7 +357,7 @@ export type TPostCreateApiOnlyUsersInput = {
 };
 
 /**
- * Create Invitations
+ * Create API-only Users
  *
  * Create API-only Users in an existing Organization
  *
