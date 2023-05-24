@@ -4,6 +4,7 @@ import { ethers } from "ethers";
 import hre from "hardhat";
 import { test, expect, beforeEach, describe } from "@jest/globals";
 import { TurnkeySigner, TurnkeyActivityError } from "../";
+import Test721 from "./contracts/artifacts/src/__tests__/contracts/source/Test721.sol/Test721.json";
 
 // @ts-expect-error
 const testCase: typeof test = (...argList) => {
@@ -59,7 +60,7 @@ describe("TurnkeySigner", () => {
       `process.env.BANNED_TO_ADDRESS`
     );
 
-    // @ts-expect-error
+    // @ts-ignore
     const provider = hre.ethers.provider;
 
     connectedSigner = new TurnkeySigner({
@@ -95,6 +96,44 @@ describe("TurnkeySigner", () => {
     });
 
     expect(tx).toMatch(/^0x/);
+  });
+
+  testCase("it allows (and drops) `tx.from`", async () => {
+    const goodTx = await connectedSigner.signTransaction({
+      from: expectedEthAddress,
+      to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
+      value: ethers.utils.parseEther("1.0"),
+      chainId,
+      nonce: 0,
+      gasLimit: 21000,
+      maxFeePerGas: 2e9,
+      maxPriorityFeePerGas: 200e9,
+      type: 2,
+    });
+
+    expect(goodTx).toMatch(/^0x/);
+
+    const badFromAddress = "0x0654B42A1b126377b6eaBb524e9348d495cAC1ba";
+
+    try {
+      await connectedSigner.signTransaction({
+        from: badFromAddress,
+        to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
+        value: ethers.utils.parseEther("1.0"),
+        chainId,
+        nonce: 0,
+        gasLimit: 21000,
+        maxFeePerGas: 2e9,
+        maxPriorityFeePerGas: 200e9,
+        type: 2,
+      });
+
+      expect("this-should-never-be").toBe("reached");
+    } catch (error) {
+      expect((error as any as Error).message).toBe(
+        `Transaction \`tx.from\` address mismatch. Self address: ${expectedEthAddress}; \`tx.from\` address: ${badFromAddress}`
+      );
+    }
   });
 
   testCase("it sends transactions", async () => {
@@ -228,6 +267,40 @@ describe("TurnkeySigner", () => {
       const tx = await eip1193.request(payload);
       expect(tx).toMatch(/^0x/);
     });
+  });
+
+  // Use `pnpm run compile:contracts` to update the ABI if needed
+  testCase("ERC-721", async () => {
+    const { abi, bytecode } = Test721;
+    const factory = new ethers.ContractFactory(abi, bytecode).connect(
+      connectedSigner
+    );
+
+    // Deploy
+    const contract = await factory.deploy();
+    await contract.deployed();
+
+    expect(contract.address).toMatch(/^0x/);
+    expect(contract.deployTransaction.from).toEqual(expectedEthAddress);
+
+    // Mint
+    const mintTx = await contract.safeMint(expectedEthAddress);
+    await mintTx.wait();
+
+    expect(mintTx.hash).toMatch(/^0x/);
+    expect(mintTx.from).toEqual(expectedEthAddress);
+    expect(mintTx.to).toEqual(contract.address);
+
+    // Approve
+    const approveTx = await contract.approve(
+      "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
+      0 // `tokenId` is `0` because we've only minted once
+    );
+    await approveTx.wait();
+
+    expect(approveTx.hash).toMatch(/^0x/);
+    expect(approveTx.from).toEqual(expectedEthAddress);
+    expect(approveTx.to).toEqual(contract.address);
   });
 });
 
