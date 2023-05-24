@@ -98,6 +98,44 @@ describe("TurnkeySigner", () => {
     expect(tx).toMatch(/^0x/);
   });
 
+  testCase("it allows (and drops) `tx.from`", async () => {
+    const goodTx = await connectedSigner.signTransaction({
+      from: expectedEthAddress,
+      to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
+      value: ethers.utils.parseEther("1.0"),
+      chainId,
+      nonce: 0,
+      gasLimit: 21000,
+      maxFeePerGas: 2e9,
+      maxPriorityFeePerGas: 200e9,
+      type: 2,
+    });
+
+    expect(goodTx).toMatch(/^0x/);
+
+    const badFromAddress = "0x0654B42A1b126377b6eaBb524e9348d495cAC1ba";
+
+    try {
+      await connectedSigner.signTransaction({
+        from: badFromAddress,
+        to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
+        value: ethers.utils.parseEther("1.0"),
+        chainId,
+        nonce: 0,
+        gasLimit: 21000,
+        maxFeePerGas: 2e9,
+        maxPriorityFeePerGas: 200e9,
+        type: 2,
+      });
+
+      expect("this-should-never-be").toBe("reached");
+    } catch (error) {
+      expect((error as any as Error).message).toBe(
+        `Transaction \`tx.from\` address mismatch. Self address: ${expectedEthAddress}; \`tx.from\` address: ${badFromAddress}`
+      );
+    }
+  });
+
   testCase("it sends transactions", async () => {
     const tx = await connectedSigner.sendTransaction({
       to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
