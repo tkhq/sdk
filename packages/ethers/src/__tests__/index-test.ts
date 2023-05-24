@@ -246,14 +246,23 @@ describe("TurnkeySigner", () => {
     expect(contract.deployTransaction.from).toEqual(expectedEthAddress);
 
     // Mint
-    const mintTx = await contract.safeMint(
-      "0x2Ad9eA1E677949a536A270CEC812D6e868C88108"
-    );
+    const mintTx = await contract.safeMint(expectedEthAddress);
     await mintTx.wait();
 
     expect(mintTx.hash).toMatch(/^0x/);
     expect(mintTx.from).toEqual(expectedEthAddress);
     expect(mintTx.to).toEqual(contract.address);
+
+    // Approve
+    const approveTx = await contract.approve(
+      "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
+      0 // `tokenId` is `0` because we've only minted once
+    );
+    await approveTx.wait();
+
+    expect(approveTx.hash).toMatch(/^0x/);
+    expect(approveTx.from).toEqual(expectedEthAddress);
+    expect(approveTx.to).toEqual(contract.address);
   });
 });
 
