@@ -29,10 +29,6 @@ export async function createNewCosmosPrivateKey() {
   const privateKeyName = `Cosmos Key ${crypto.randomBytes(2).toString("hex")}`;
 
   try {
-    // TODO: fix/simplify the address derivation logic after `ADDRESS_FORMAT_COMPRESSED` is fully supported.
-    // For context, this mutation's parameter will soon be updated to either:
-    // - `addressFormats: []` -- an empty array signaling you don't want any address derivation
-    // - or `addressFormats: ["ADDRESS_FORMAT_COMPRESSED"]` -- Turnkey will return a compressed public key by default for this key
     const activity = await createKeyMutation({
       body: {
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
@@ -42,7 +38,7 @@ export async function createNewCosmosPrivateKey() {
             {
               privateKeyName,
               curve: "CURVE_SECP256K1",
-              addressFormats: ["ADDRESS_FORMAT_ETHEREUM"], // See comment above
+              addressFormats: [],
               privateKeyTags: [],
             },
           ],
