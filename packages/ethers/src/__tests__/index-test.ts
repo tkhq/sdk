@@ -4,6 +4,7 @@ import { ethers } from "ethers";
 import hre from "hardhat";
 import { test, expect, beforeEach, describe } from "@jest/globals";
 import { TurnkeySigner, TurnkeyActivityError } from "../";
+import Test721 from "./contracts/artifacts/src/__tests__/contracts/source/Test721.sol/Test721.json";
 
 // @ts-expect-error
 const testCase: typeof test = (...argList) => {
@@ -228,6 +229,18 @@ describe("TurnkeySigner", () => {
       const tx = await eip1193.request(payload);
       expect(tx).toMatch(/^0x/);
     });
+  });
+
+  // Use `pnpm run compile:contracts` to update the API if needed
+  testCase("ERC-721", async () => {
+    const { abi, bytecode } = Test721;
+    const factory = new ethers.ContractFactory(abi, bytecode, connectedSigner);
+
+    // Deploy
+    const contract = await factory.deploy();
+    await contract.deployTransaction.wait();
+
+    expect(contract.deployTransaction.hash).toMatch(/^0x/);
   });
 });
 
