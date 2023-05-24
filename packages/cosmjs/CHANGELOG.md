@@ -1,5 +1,16 @@
 # @turnkey/cosmjs
 
+## 0.2.0
+
+### Minor Changes
+
+- Moved `sha256` hashing from local to remote
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@0.14.0
+
 ## 0.1.1
 
 ### Patch Changes

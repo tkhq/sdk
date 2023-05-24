@@ -1,5 +1,17 @@
 # @turnkey/ethers
 
+## 0.14.0
+
+### Minor Changes
+
+- `signTransaction(...)` now verifies and drops `tx.from` if present
+  - This mimics the behavior of ethers' Wallet [implementation](https://github.com/ethers-io/ethers.js/blob/f97b92bbb1bde22fcc44100af78d7f31602863ab/packages/wallet/src.ts/index.ts#L117-L121)
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@0.14.0
+
 ## 0.13.2
 
 ### Patch Changes

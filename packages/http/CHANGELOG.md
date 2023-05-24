@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.14.0
+
+### Minor Changes
+
+- Updated the `addressFormats` enum field in `/submit/create_private_keys`
+
 ## 0.13.2
 
 ### Patch Changes
