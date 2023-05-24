@@ -60,7 +60,7 @@ describe("TurnkeySigner", () => {
       `process.env.BANNED_TO_ADDRESS`
     );
 
-    // @ts-expect-error
+    // @ts-ignore
     const provider = hre.ethers.provider;
 
     connectedSigner = new TurnkeySigner({
@@ -231,16 +231,29 @@ describe("TurnkeySigner", () => {
     });
   });
 
-  // Use `pnpm run compile:contracts` to update the API if needed
+  // Use `pnpm run compile:contracts` to update the ABI if needed
   testCase("ERC-721", async () => {
     const { abi, bytecode } = Test721;
-    const factory = new ethers.ContractFactory(abi, bytecode, connectedSigner);
+    const factory = new ethers.ContractFactory(abi, bytecode).connect(
+      connectedSigner
+    );
 
     // Deploy
     const contract = await factory.deploy();
-    await contract.deployTransaction.wait();
+    await contract.deployed();
 
-    expect(contract.deployTransaction.hash).toMatch(/^0x/);
+    expect(contract.address).toMatch(/^0x/);
+    expect(contract.deployTransaction.from).toEqual(expectedEthAddress);
+
+    // Mint
+    const mintTx = await contract.safeMint(
+      "0x2Ad9eA1E677949a536A270CEC812D6e868C88108"
+    );
+    await mintTx.wait();
+
+    expect(mintTx.hash).toMatch(/^0x/);
+    expect(mintTx.from).toEqual(expectedEthAddress);
+    expect(mintTx.to).toEqual(contract.address);
   });
 });
 
