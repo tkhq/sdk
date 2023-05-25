@@ -1,5 +1,4 @@
 import { Eip1193Bridge } from "@ethersproject/experimental";
-import { setBalance } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "ethers";
 import hre from "hardhat";
 import { test, expect, beforeEach, describe } from "@jest/globals";
@@ -60,8 +59,10 @@ describe("TurnkeySigner", () => {
       `process.env.BANNED_TO_ADDRESS`
     );
 
-    // @ts-ignore
-    const provider = hre.ethers.provider;
+    const provider = new ethers.providers.JsonRpcProvider(
+      hre.config.networks.localhost.url,
+      hre.config.networks.localhost.chainId
+    );
 
     connectedSigner = new TurnkeySigner({
       apiPublicKey,
@@ -75,7 +76,10 @@ describe("TurnkeySigner", () => {
 
     eip1193 = new Eip1193Bridge(connectedSigner, provider);
 
-    setBalance(expectedEthAddress, ethers.utils.parseEther("999999"));
+    await provider.send("hardhat_setBalance", [
+      expectedEthAddress,
+      "0xffffffffffffffffffffffff",
+    ]);
   });
 
   testCase("basics", async () => {

@@ -29,7 +29,10 @@ async function main() {
 
   // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
   const network = "goerli";
-  const provider = new ethers.providers.InfuraProvider(network);
+  const provider = new ethers.providers.JsonRpcProvider(
+    "https://goerli.infura.io/v3/84842078b09946638c03157f83405213", // using the default community project
+    network
+  );
   const connectedSigner = turnkeySigner.connect(provider);
 
   const chainId = await connectedSigner.getChainId();
