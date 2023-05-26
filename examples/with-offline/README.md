@@ -55,6 +55,7 @@ By default, this script will do the following:
 3. Output the signed request components (path, stamp, body), and also produces a ready-to-use `curl` command for quick testing
 
 Here's a sample output:
+
 ```
 pnpm start
 
