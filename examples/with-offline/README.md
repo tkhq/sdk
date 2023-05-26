@@ -4,9 +4,9 @@ This example shows how to sign a Turnkey request in offline contexts. Note that 
 
 - produce a signature on an actually offline laptop, then export that signed request to an online machine which has internet connectivity
 - produce a signed Turnkey requests in a sandboxed browser environment (service worker, Chrome extension) which has access to API keys but isn't able to make direct network requests to Turnkey's API for security reasons. Instead, signed requests are forwarded to a backend component before hitting the Turnkey API. This emulates the setup from the previous bullet point
-- produce signed Turnkey requests in browser contexts that can be forwarded to a backend application connected to Turnkey's API. This setup is a good workaround for CORS (Turnkey;s API doesn't allow arbitrary 3rd party origins to POST requests directly; this prevents phishing and distributed denial-of-service attacks)
+- produce signed Turnkey requests in browser contexts that can be forwarded to a backend application connected to Turnkey's API. This setup is a good workaround for CORS (Turnkey's API doesn't allow arbitrary 3rd party origins to POST requests directly; this prevents phishing and distributed denial-of-service attacks)
 
-This example is similar, in spirit, to running `turnkey request` with the `--no-post` option set. When called with `--no-post`, Turnkey's CLI produces a stamp display the cURL command to use. We show the same thing here, but do it with JavaScript code and rely on our SDK typed helpers to generate the POST bodies.
+This example is similar, in spirit, to running `turnkey request` with the `--no-post` option set. When called with `--no-post`, [Turnkey's CLI](https://github.com/tkhq/tkcli) produces a stamp and displays the cURL command to use. We show the same thing here, but do it with TypeScript and rely on the Turnkey SDK typed helpers to generate the POST bodies.
 
 ## Getting started
 
