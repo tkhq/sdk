@@ -103,6 +103,43 @@ export const postGetPolicy = (input: TPostGetPolicyInput) =>
   });
 
 /**
+ * `POST /public/v1/query/get_private_key`
+ */
+type TPostGetPrivateKeyBody =
+  operations["PublicApiService_GetPrivateKey"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/query/get_private_key`
+ */
+export type TPostGetPrivateKeyResponse =
+  operations["PublicApiService_GetPrivateKey"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_private_key`
+ */
+export type TPostGetPrivateKeyInput = { body: TPostGetPrivateKeyBody };
+
+/**
+ * Get Private Key
+ *
+ * Get details about a Private Key
+ *
+ * `POST /public/v1/query/get_private_key`
+ */
+export const postGetPrivateKey = (input: TPostGetPrivateKeyInput) =>
+  request<
+    TPostGetPrivateKeyResponse,
+    TPostGetPrivateKeyBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_private_key",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
  * `POST /public/v1/query/get_user`
  */
 type TPostGetUserBody =
@@ -707,43 +744,6 @@ export const postSignTransaction = (input: TPostSignTransactionInput) =>
     never
   >({
     uri: "/public/v1/submit/sign_transaction",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * `POST /tkhq/public/v1/query/get_private_key`
- */
-type TPostGetPrivateKeyBody =
-  operations["PublicApiService_GetPrivateKey"]["parameters"]["body"]["body"];
-
-/**
- * `POST /tkhq/public/v1/query/get_private_key`
- */
-export type TPostGetPrivateKeyResponse =
-  operations["PublicApiService_GetPrivateKey"]["responses"]["200"]["schema"];
-
-/**
- * `POST /tkhq/public/v1/query/get_private_key`
- */
-export type TPostGetPrivateKeyInput = { body: TPostGetPrivateKeyBody };
-
-/**
- * Get Private Key
- *
- * Get details about a Private Key
- *
- * `POST /tkhq/public/v1/query/get_private_key`
- */
-export const postGetPrivateKey = (input: TPostGetPrivateKeyInput) =>
-  request<
-    TPostGetPrivateKeyResponse,
-    TPostGetPrivateKeyBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/tkhq/public/v1/query/get_private_key",
     method: "POST",
     body: input.body,
   });

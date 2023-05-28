@@ -16,6 +16,10 @@ export type paths = {
     /** Get details about a Policy */
     post: operations["PublicApiService_GetPolicy"];
   };
+  "/public/v1/query/get_private_key": {
+    /** Get details about a Private Key */
+    post: operations["PublicApiService_GetPrivateKey"];
+  };
   "/public/v1/query/get_user": {
     /** Get details about a User */
     post: operations["PublicApiService_GetUser"];
@@ -83,10 +87,6 @@ export type paths = {
   "/public/v1/submit/sign_transaction": {
     /** Sign a transaction with a Private Key */
     post: operations["PublicApiService_SignTransaction"];
-  };
-  "/tkhq/public/v1/query/get_private_key": {
-    /** Get details about a Private Key */
-    post: operations["PublicApiService_GetPrivateKey"];
   };
 };
 
@@ -1401,6 +1401,32 @@ export type operations = {
       };
     };
   };
+  /** Get details about a Private Key */
+  PublicApiService_GetPrivateKey: {
+    parameters: {
+      body: {
+        body: definitions["v1GetPrivateKeyRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetPrivateKeyResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Get details about a User */
   PublicApiService_GetUser: {
     parameters: {
@@ -1828,32 +1854,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get details about a Private Key */
-  PublicApiService_GetPrivateKey: {
-    parameters: {
-      body: {
-        body: definitions["v1GetPrivateKeyRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetPrivateKeyResponse"];
       };
       /** Returned when the user does not have permission to access the resource. */
       403: {
