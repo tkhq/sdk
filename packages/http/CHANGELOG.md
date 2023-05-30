@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.15.0
+
+### Minor Changes
+
+- Export a new helper for offline request signing: `sealAndStampRequestBody(...)`.
+
 ## 0.14.0
 
 ### Minor Changes
