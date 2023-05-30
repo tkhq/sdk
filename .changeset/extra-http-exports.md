@@ -2,4 +2,4 @@
 "@turnkey/http": minor
 ---
 
-Export 3 new helpers useful for offline request signing: `stableStringify`, `stamp`, and `stringToBase64urlString`.
+Export a new helper for offline request signing: `sealAndStampRequestBody(...)`.

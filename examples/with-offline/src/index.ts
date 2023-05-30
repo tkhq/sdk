@@ -3,9 +3,8 @@ import * as dotenv from "dotenv";
 
 import {
   TurnkeyApi,
-  stamp,
-  stableStringify,
-  stringToBase64urlString,
+  init as httpInit,
+  sealAndStampRequestBody,
 } from "@turnkey/http";
 import { input } from "@inquirer/prompts";
 
@@ -63,8 +62,14 @@ async function main() {
     return;
   }
   console.log("Configuration loaded!");
-  const apiPublicKey = process.env.API_PUBLIC_KEY;
-  const apiPrivateKey = process.env.API_PRIVATE_KEY;
+
+  // Initialize `@turnkey/http` with your credentials
+  httpInit({
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    baseUrl: "https://coordinator-beta.turnkey.io",
+  });
+
   const organizationId = process.env.ORGANIZATION_ID;
 
   console.log(
@@ -74,17 +79,9 @@ async function main() {
   const privateKeyName = await input({ message: "New Private Key Name" });
 
   const request = createPrivateKeyRequest(organizationId, privateKeyName);
-  const postBody = stableStringify(request.body);
-
-  const requestStamp = stringToBase64urlString(
-    stableStringify(
-      await stamp({
-        content: postBody,
-        privateKey: apiPrivateKey,
-        publicKey: apiPublicKey,
-      })
-    )
-  );
+  const { xStamp, sealedBody } = await sealAndStampRequestBody({
+    body: request.body,
+  });
 
   console.log("Your request details:");
   console.log("✅ Route:");
@@ -92,15 +89,15 @@ async function main() {
     `\thttps://coordinator-beta.turnkey.io/public/v1/submit/create_private_keys`
   );
   console.log("✅ Stamp (goes in X-Stamp HTTP header)");
-  console.log(`\t${requestStamp}`);
+  console.log(`\t${xStamp}`);
   console.log("✅ POST body:");
-  console.log(`\t${postBody}`);
+  console.log(`\t${sealedBody}`);
 
   console.log(
     "\nFor example, you can send this request to Turnkey by running the following cURL command:"
   );
   console.log(
-    `\tcurl -X POST -d'${postBody}' -H'X-Stamp:${requestStamp}' -v 'https://coordinator-beta.turnkey.io/public/v1/submit/create_private_keys'`
+    `\tcurl -X POST -d'${sealedBody}' -H'X-Stamp:${xStamp}' -v 'https://coordinator-beta.turnkey.io/public/v1/submit/create_private_keys'`
   );
 
   console.log(
