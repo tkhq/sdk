@@ -747,3 +747,89 @@ export const postSignTransaction = (input: TPostSignTransactionInput) =>
     method: "POST",
     body: input.body,
   });
+
+/**
+ * `POST /public/v1/user_tags/update`
+ */
+type TPostUpdateUserTagBody =
+  operations["PublicApiService_UpdateUserTag"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/user_tags/update`
+ */
+export type TPostUpdateUserTagResponse =
+  operations["PublicApiService_UpdateUserTag"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/user_tags/update`
+ */
+export type TPostUpdateUserTagInput = { body: TPostUpdateUserTagBody };
+
+/**
+ * Update User Tag
+ *
+ * Update user tag attributes such as its name or associated users.
+ *
+ * `POST /public/v1/user_tags/update`
+ */
+export const postUpdateUserTag = (input: TPostUpdateUserTagInput) =>
+  request<
+    TPostUpdateUserTagResponse,
+    TPostUpdateUserTagBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/user_tags/update",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * `POST /tkhq/public/v1/query/get_private_key`
+ *
+ * @deprecated
+ */
+type TPostGetPrivateKeyBackwardsCompatBody =
+  operations["PublicApiService_GetPrivateKeyBackwardsCompat"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /tkhq/public/v1/query/get_private_key`
+ *
+ * @deprecated
+ */
+export type TPostGetPrivateKeyBackwardsCompatResponse =
+  operations["PublicApiService_GetPrivateKeyBackwardsCompat"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /tkhq/public/v1/query/get_private_key`
+ *
+ * @deprecated
+ */
+export type TPostGetPrivateKeyBackwardsCompatInput = {
+  body: TPostGetPrivateKeyBackwardsCompatBody;
+};
+
+/**
+ * Get Private Key
+ *
+ * Get details about a Private Key
+ *
+ * `POST /tkhq/public/v1/query/get_private_key`
+ *
+ * @deprecated
+ */
+export const postGetPrivateKeyBackwardsCompat = (
+  input: TPostGetPrivateKeyBackwardsCompatInput
+) =>
+  request<
+    TPostGetPrivateKeyBackwardsCompatResponse,
+    TPostGetPrivateKeyBackwardsCompatBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/tkhq/public/v1/query/get_private_key",
+    method: "POST",
+    body: input.body,
+  });

@@ -88,6 +88,14 @@ export type paths = {
     /** Sign a transaction with a Private Key */
     post: operations["PublicApiService_SignTransaction"];
   };
+  "/public/v1/user_tags/update": {
+    /** Update user tag attributes such as its name or associated users. */
+    post: operations["PublicApiService_UpdateUserTag"];
+  };
+  "/tkhq/public/v1/query/get_private_key": {
+    /** Get details about a Private Key */
+    post: operations["PublicApiService_GetPrivateKeyBackwardsCompat"];
+  };
 };
 
 export type definitions = {
@@ -314,7 +322,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_POLICY_V2"
     | "ACTIVITY_TYPE_CREATE_POLICY_V3"
     | "ACTIVITY_TYPE_CREATE_API_ONLY_USERS"
-    | "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM";
+    | "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
+    | "ACTIVITY_TYPE_UPDATE_USER_TAG";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -938,6 +947,7 @@ export type definitions = {
     createPolicyIntentV3?: definitions["v1CreatePolicyIntentV3"];
     createApiOnlyUsersIntent?: definitions["v1CreateApiOnlyUsersIntent"];
     updateRootQuorumIntent?: definitions["v1UpdateRootQuorumIntent"];
+    updateUserTagIntent?: definitions["v1UpdateUserTagIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1124,6 +1134,7 @@ export type definitions = {
     deletePaymentMethodResult?: definitions["v1DeletePaymentMethodResult"];
     createApiOnlyUsersResult?: definitions["v1CreateApiOnlyUsersResult"];
     updateRootQuorumResult?: definitions["v1UpdateRootQuorumResult"];
+    updateUserTagResult?: definitions["v1UpdateUserTagResult"];
   };
   v1SelectorV2: {
     subject?: string;
@@ -1251,6 +1262,41 @@ export type definitions = {
     userIds: string[];
   };
   v1UpdateRootQuorumResult: { [key: string]: unknown };
+  v1UpdateUserTagIntent: {
+    /**
+     * @inject_tag: validate:"uuid"
+     * @description Unique identifier for a given User Tag.
+     */
+    userTagId: string;
+    /**
+     * @inject_tag: validate:"required,tk_label,tk_label_length"
+     * @description The new, human-readable name for the tag with the given ID.
+     */
+    userTagName: string;
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of User IDs to add.
+     */
+    addUserIds: string[];
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of User IDs to remove.
+     */
+    removeUserIds: string[];
+  };
+  v1UpdateUserTagRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_USER_TAG";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateUserTagIntent"];
+  };
+  v1UpdateUserTagResult: {
+    /** @description Unique identifier for a given User Tag. */
+    userTagId: string;
+  };
   v1User: {
     /** @description Unique identifier for a given User. */
     userId: string;
@@ -1854,6 +1900,58 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Update user tag attributes such as its name or associated users. */
+  PublicApiService_UpdateUserTag: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateUserTagRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get details about a Private Key */
+  PublicApiService_GetPrivateKeyBackwardsCompat: {
+    parameters: {
+      body: {
+        body: definitions["v1GetPrivateKeyRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetPrivateKeyResponse"];
       };
       /** Returned when the user does not have permission to access the resource. */
       403: {

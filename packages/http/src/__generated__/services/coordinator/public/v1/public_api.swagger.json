@@ -1132,6 +1132,113 @@
           ]
         }
       }
+    },
+    "/public/v1/user_tags/update": {
+      "post": {
+        "summary": "Update User Tag",
+        "description": "Update user tag attributes such as its name or associated users.",
+        "operationId": "PublicApiService_UpdateUserTag",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateUserTagRequest"
+            }
+          }
+        ],
+        "tags": ["User Tags"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/user_tags/update --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_UPDATE_USER_TAG\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userTagId\": \"'\"$USER_TAG_ID\"'\",\n\t\t\"userTagName\": \"\",\n\t\t\"addUserIds\": \"\",\n\t\t\"removeUserIds\": \"\"\n\t}\n}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
+    "/tkhq/public/v1/query/get_private_key": {
+      "post": {
+        "summary": "Get Private Key",
+        "description": "Get details about a Private Key",
+        "operationId": "PublicApiService_GetPrivateKeyBackwardsCompat",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetPrivateKeyResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetPrivateKeyRequest"
+            }
+          }
+        ],
+        "tags": ["Private Keys"],
+        "deprecated": true,
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_private_key --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"privateKeyId\": \"'\"$PRIVATE_KEY_ID\"'\"\n}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
     }
   },
   "definitions": {
@@ -1502,7 +1609,8 @@
         "ACTIVITY_TYPE_CREATE_POLICY_V2",
         "ACTIVITY_TYPE_CREATE_POLICY_V3",
         "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
-        "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
+        "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM",
+        "ACTIVITY_TYPE_UPDATE_USER_TAG"
       ],
       "description": "Type of Activity, such as Add User, or Sign Transaction."
     },
@@ -2885,6 +2993,9 @@
         },
         "updateRootQuorumIntent": {
           "$ref": "#/definitions/v1UpdateRootQuorumIntent"
+        },
+        "updateUserTagIntent": {
+          "$ref": "#/definitions/v1UpdateUserTagIntent"
         }
       },
       "description": "Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action.",
@@ -3347,6 +3458,9 @@
         },
         "updateRootQuorumResult": {
           "$ref": "#/definitions/v1UpdateRootQuorumResult"
+        },
+        "updateUserTagResult": {
+          "$ref": "#/definitions/v1UpdateUserTagResult"
         }
       },
       "description": "Result of the intended action."
@@ -3591,6 +3705,69 @@
     },
     "v1UpdateRootQuorumResult": {
       "type": "object"
+    },
+    "v1UpdateUserTagIntent": {
+      "type": "object",
+      "properties": {
+        "userTagId": {
+          "type": "string",
+          "description": "Unique identifier for a given User Tag.",
+          "title": "@inject_tag: validate:\"uuid\""
+        },
+        "userTagName": {
+          "type": "string",
+          "description": "The new, human-readable name for the tag with the given ID.",
+          "title": "@inject_tag: validate:\"required,tk_label,tk_label_length\""
+        },
+        "addUserIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of User IDs to add.",
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        },
+        "removeUserIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of User IDs to remove.",
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        }
+      },
+      "required": ["userTagId", "userTagName", "addUserIds", "removeUserIds"]
+    },
+    "v1UpdateUserTagRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_USER_TAG"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateUserTagIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateUserTagResult": {
+      "type": "object",
+      "properties": {
+        "userTagId": {
+          "type": "string",
+          "description": "Unique identifier for a given User Tag."
+        }
+      },
+      "required": ["userTagId"]
     },
     "v1User": {
       "type": "object",
