@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.16.0
+
+### Minor Changes
+
+- Fix `.postGetPrivateKey(...)`'s underlying path, while adding `@deprecated` `.postGetPrivateKeyBackwardsCompat(...)` for backward compatibility
+
 ## 0.15.0
 
 ### Minor Changes

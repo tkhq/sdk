@@ -1,5 +1,17 @@
 # @turnkey/ethers
 
+## 0.15.0
+
+### Minor Changes
+
+- No public facing changes
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@0.16.0
+    - Fix `.postGetPrivateKey(...)`'s underlying path, while adding `@deprecated` `.postGetPrivateKeyBackwardsCompat(...)` for backward compatibility
+
 ## 0.14.1
 
 ### Patch Changes
