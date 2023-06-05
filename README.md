@@ -14,11 +14,13 @@ API Docs: https://turnkey.readme.io/
 
 ## Examples
 
-| Example                                   | Description                                                                                                    |
-| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| [`with-ethers`](/examples/with-ethers/)   | Create a new Ethereum address, then sign and broadcast a transaction using the Ethers signer with Infura       |
-| [`with-gnosis`](/examples/with-gnosis/)   | Create new Ethereum addresses, configure a 3/3 Gnosis safe, and create + execute a transaction from it         |
-| [`with-uniswap`](/examples/with-uniswap/) | Sign and broadcast a Uniswap v3 trade using the Ethers signer with Infura                                      |
-| [`sweeper`](/examples/sweeper/)           | Sweep funds from one address to a different address                                                            |
-| [`deployer`](/examples/deployer/)         | Compile and deploy a smart contract                                                                            |
-| [`with-cosmjs`](/examples/with-cosmjs/)   | Create a new Cosmos address, then sign and broadcast a transaction on Celestia testnet using the CosmJS signer |
+| Example                                                                | Description                                                                                                    |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| [`with-ethers`](/examples/with-ethers/)                                | Create a new Ethereum address, then sign and broadcast a transaction using the Ethers signer with Infura       |
+| [`with-cosmjs`](/examples/with-cosmjs/)                                | Create a new Cosmos address, then sign and broadcast a transaction on Celestia testnet using the CosmJS signer |
+| [`with-gnosis`](/examples/with-gnosis/)                                | Create new Ethereum addresses, configure a 3/3 Gnosis safe, and create + execute a transaction from it         |
+| [`with-uniswap`](/examples/with-uniswap/)                              | Sign and broadcast a Uniswap v3 trade using the Ethers signer with Infura                                      |
+| [`sweeper`](/examples/sweeper/)                                        | Sweep funds from one address to a different address                                                            |
+| [`deployer`](/examples/deployer/)                                      | Compile and deploy a smart contract                                                                            |
+| [`with-offline`](/examples/with-offline/)                              | Sign a Turnkey request in offline context                                                                      |
+| [`demo-consumer-wallet`](https://github.com/tkhq/demo-consumer-wallet) | A minimal consumer wallet app powered by Turnkey and WalletConnect                                             |
