@@ -45,12 +45,21 @@ export async function createNewEthereumPrivateKey() {
       activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
     );
 
+    // Fetch private key details
+    const privateKey = await TurnkeyApi.postGetPrivateKey({
+      body: {
+        organizationId: process.env.ORGANIZATION_ID!,
+        privateKeyId: privateKeyId,
+      },
+    });
+
     // Success!
     console.log(
       [
         `New Ethereum private key created!`,
         `- Name: ${privateKeyName}`,
         `- Private key ID: ${privateKeyId}`,
+        `- Address: ${privateKey.privateKey.addresses[0]}`,
         ``,
         "Now you can take the private key ID, put it in `.env.local`, then re-run the script.",
       ].join("\n")
