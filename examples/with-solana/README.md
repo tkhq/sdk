@@ -1,6 +1,7 @@
 # Example: `with-solana`
 
 This example walks through the following:
+
 - Creation of a new Turnkey private key
 - Derivation of a new Solana address
 - Monitoring of devnet tokens landing on that address
@@ -42,6 +43,7 @@ Now open `.env.local` and add the missing environment variables:
 - `ORGANIZATION_ID`
 
 You can also add a Turnkey Private Key ID if you have one already:
+
 ```
 PRIVATE_KEY_ID=<your Turnkey Private Key ID>
 ```
@@ -55,6 +57,7 @@ $ pnpm start
 ```
 
 You should see output similar to the following:
+
 ```
 creating a new Solana private key on your Turnkey organization...
 
@@ -78,7 +81,7 @@ To check your balance: https://explorer.solana.com/address/6ziT1tk8YhQx8nEiJHAEM
 New signature: dac3995b81a464fdcd5f914f0264695380562f432387e8240422f6e591b4cf5465c12390042889f8d4890242d289b98fd9a29f808cdee11a745c27c497b2fe0d
 (base58: 5NgSjswvnt44URmD5wPqw7yejueo94Ji7DTdPys5BvBwPxftWZGypYtqVbYjT9PtL3gg8ay3WARNwq87kTWzvupY)
 
-Transaction broadcast and confirmed! 🎉 
+Transaction broadcast and confirmed! 🎉
 https://explorer.solana.com/tx/5NgSjswvnt44URmD5wPqw7yejueo94Ji7DTdPys5BvBwPxftWZGypYtqVbYjT9PtL3gg8ay3WARNwq87kTWzvupY?cluster=devnet
 ```
 

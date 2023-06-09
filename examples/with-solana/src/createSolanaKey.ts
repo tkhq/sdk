@@ -24,7 +24,7 @@ export async function createNewSolanaPrivateKey(turnkeyOrganizationId: string) {
         organizationId: turnkeyOrganizationId,
         parameters: {
           privateKeys: [
-            { 
+            {
               privateKeyName,
               curve: "CURVE_ED25519",
               addressFormats: [],
@@ -36,9 +36,13 @@ export async function createNewSolanaPrivateKey(turnkeyOrganizationId: string) {
       },
     });
 
-    const privateKeyId = activity.result.createPrivateKeysResult?.privateKeyIds?.[0];
+    const privateKeyId =
+      activity.result.createPrivateKeysResult?.privateKeyIds?.[0];
     if (!privateKeyId) {
-      console.error("activity doesn't contain a valid private key ID", privateKeyId);
+      console.error(
+        "activity doesn't contain a valid private key ID",
+        privateKeyId
+      );
       process.exit(1);
     }
 
@@ -49,7 +53,7 @@ export async function createNewSolanaPrivateKey(turnkeyOrganizationId: string) {
         `- Private key ID: ${privateKeyId}`,
       ].join("\n")
     );
-    return privateKeyId
+    return privateKeyId;
   } catch (error) {
     // If needed, you can read from `TurnkeyActivityError` to find out why the activity didn't succeed
     if (error instanceof TurnkeyActivityError) {
