@@ -12,8 +12,7 @@
     "@turnkey/http": "workspace:*",
     "dotenv": "^16.0.3",
     "bs58": "^5.0.0",
-    "@solana/web3.js": "^1.77.0",
-    "@inquirer/prompts": "^2.1.0",
-    "@inquirer/confirm": "^2.0.0"
+    "@solana/web3.js": "^1.77.3",
+    "@inquirer/prompts": "^2.1.0"
   }
 }

@@ -155,15 +155,12 @@ importers:
 
   examples/with-solana:
     dependencies:
-      '@inquirer/confirm':
-        specifier: ^2.0.0
-        version: 2.0.2
       '@inquirer/prompts':
         specifier: ^2.1.0
         version: 2.1.0
       '@solana/web3.js':
-        specifier: ^1.77.0
-        version: 1.77.0
+        specifier: ^1.77.3
+        version: 1.77.3
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
@@ -3354,9 +3351,8 @@ packages:
       buffer: 6.0.3
     dev: false
 
-  /@solana/web3.js@1.77.0:
-    resolution: {integrity: sha512-APV5ru9vsWSvIPEmL6YmF20cJexcoZXRQOkKSXoKFK2yoyxMiTfAUDSxuwou3WInLzjsuh9hveWE4q2iexgpOg==}
-    deprecated: This build contains a bad TypeScript definition for getProgramAccounts
+  /@solana/web3.js@1.77.3:
+    resolution: {integrity: sha512-PHaO0BdoiQRPpieC1p31wJsBaxwIOWLh8j2ocXNKX8boCQVldt26Jqm2tZE4KlrvnCIV78owPLv1pEUgqhxZ3w==}
     dependencies:
       '@babel/runtime': 7.20.13
       '@noble/curves': 1.1.0
@@ -3369,7 +3365,7 @@ packages:
       bs58: 4.0.1
       buffer: 6.0.3
       fast-stable-stringify: 1.0.0
-      jayson: 3.7.0
+      jayson: 4.1.0
       node-fetch: 2.6.7
       rpc-websockets: 7.5.1
       superstruct: 0.14.2
@@ -5588,8 +5584,8 @@ packages:
       istanbul-lib-report: 3.0.0
     dev: true
 
-  /jayson@3.7.0:
-    resolution: {integrity: sha512-tfy39KJMrrXJ+mFcMpxwBvFDetS8LAID93+rycFglIQM4kl3uNR3W4lBLE/FFhsoUCEox5Dt2adVpDm/XtebbQ==}
+  /jayson@4.1.0:
+    resolution: {integrity: sha512-R6JlbyLN53Mjku329XoRT2zJAE6ZgOQ8f91ucYdMCD4nkGCF9kZSrcGXpHIU4jeKj58zUZke2p+cdQchU7Ly7A==}
     engines: {node: '>=8'}
     hasBin: true
     dependencies:
@@ -5603,7 +5599,6 @@ packages:
       eyes: 0.1.8
       isomorphic-ws: 4.0.1(ws@7.5.9)
       json-stringify-safe: 5.0.1
-      lodash: 4.17.21
       uuid: 8.3.2
       ws: 7.5.9
     transitivePeerDependencies:
