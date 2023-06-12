@@ -45,7 +45,7 @@ export async function createAndSignTransfer(
         privateKeyId: turnkeyPrivateKeyId,
         payload: messageToSign.toString("hex"),
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-        hashFunction: "HASH_FUNCTION_UNSPECIFIED",
+        hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       },
     },
   });
