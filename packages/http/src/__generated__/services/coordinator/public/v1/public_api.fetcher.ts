@@ -338,6 +338,43 @@ export const postGetWhoami = (input: TPostGetWhoamiInput) =>
   });
 
 /**
+ * `POST /public/v1/submit/approve_activity`
+ */
+type TPostApproveActivityBody =
+  operations["PublicApiService_ApproveActivity"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/approve_activity`
+ */
+export type TPostApproveActivityResponse =
+  operations["PublicApiService_ApproveActivity"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/approve_activity`
+ */
+export type TPostApproveActivityInput = { body: TPostApproveActivityBody };
+
+/**
+ * Approve Activity
+ *
+ * Approve an Activity
+ *
+ * `POST /public/v1/submit/approve_activity`
+ */
+export const postApproveActivity = (input: TPostApproveActivityInput) =>
+  request<
+    TPostApproveActivityResponse,
+    TPostApproveActivityBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/approve_activity",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
  * `POST /public/v1/submit/create_api_keys`
  */
 type TPostCreateApiKeysBody =
@@ -409,6 +446,47 @@ export const postCreateApiOnlyUsers = (input: TPostCreateApiOnlyUsersInput) =>
     never
   >({
     uri: "/public/v1/submit/create_api_only_users",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * `POST /public/v1/submit/create_authenticators`
+ */
+type TPostCreateAuthenticatorsBody =
+  operations["PublicApiService_CreateAuthenticators"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/create_authenticators`
+ */
+export type TPostCreateAuthenticatorsResponse =
+  operations["PublicApiService_CreateAuthenticators"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_authenticators`
+ */
+export type TPostCreateAuthenticatorsInput = {
+  body: TPostCreateAuthenticatorsBody;
+};
+
+/**
+ * Create Authenticators
+ *
+ * Create Authenticators to authenticate requests to Turnkey
+ *
+ * `POST /public/v1/submit/create_authenticators`
+ */
+export const postCreateAuthenticators = (
+  input: TPostCreateAuthenticatorsInput
+) =>
+  request<
+    TPostCreateAuthenticatorsResponse,
+    TPostCreateAuthenticatorsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_authenticators",
     method: "POST",
     body: input.body,
   });
@@ -675,6 +753,43 @@ export const postDeletePolicy = (input: TPostDeletePolicyInput) =>
   });
 
 /**
+ * `POST /public/v1/submit/reject_activity`
+ */
+type TPostRejectActivityBody =
+  operations["PublicApiService_RejectActivity"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/reject_activity`
+ */
+export type TPostRejectActivityResponse =
+  operations["PublicApiService_RejectActivity"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/reject_activity`
+ */
+export type TPostRejectActivityInput = { body: TPostRejectActivityBody };
+
+/**
+ * Reject Activity
+ *
+ * Reject an Activity
+ *
+ * `POST /public/v1/submit/reject_activity`
+ */
+export const postRejectActivity = (input: TPostRejectActivityInput) =>
+  request<
+    TPostRejectActivityResponse,
+    TPostRejectActivityBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/reject_activity",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
  * `POST /public/v1/submit/sign_raw_payload`
  */
 type TPostSignRawPayloadBody =
@@ -744,6 +859,82 @@ export const postSignTransaction = (input: TPostSignTransactionInput) =>
     never
   >({
     uri: "/public/v1/submit/sign_transaction",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * `POST /public/v1/submit/update_private_key_tag`
+ */
+type TPostUpdatePrivateKeyTagBody =
+  operations["PublicApiService_UpdatePrivateKeyTag"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/update_private_key_tag`
+ */
+export type TPostUpdatePrivateKeyTagResponse =
+  operations["PublicApiService_UpdatePrivateKeyTag"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_private_key_tag`
+ */
+export type TPostUpdatePrivateKeyTagInput = {
+  body: TPostUpdatePrivateKeyTagBody;
+};
+
+/**
+ * Update Private Key Tag
+ *
+ * Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.
+ *
+ * `POST /public/v1/submit/update_private_key_tag`
+ */
+export const postUpdatePrivateKeyTag = (input: TPostUpdatePrivateKeyTagInput) =>
+  request<
+    TPostUpdatePrivateKeyTagResponse,
+    TPostUpdatePrivateKeyTagBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/update_private_key_tag",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * `POST /public/v1/submit/update_user_tag`
+ */
+type TPostUpdateUserTagBody =
+  operations["PublicApiService_UpdateUserTag"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/update_user_tag`
+ */
+export type TPostUpdateUserTagResponse =
+  operations["PublicApiService_UpdateUserTag"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_user_tag`
+ */
+export type TPostUpdateUserTagInput = { body: TPostUpdateUserTagBody };
+
+/**
+ * Update User Tag
+ *
+ * Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.
+ *
+ * `POST /public/v1/submit/update_user_tag`
+ */
+export const postUpdateUserTag = (input: TPostUpdateUserTagInput) =>
+  request<
+    TPostUpdateUserTagResponse,
+    TPostUpdateUserTagBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/update_user_tag",
     method: "POST",
     body: input.body,
   });
