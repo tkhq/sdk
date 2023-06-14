@@ -6,6 +6,8 @@
     "changeset": "changeset",
     "build-all": "tsc --build tsconfig.mono.json",
     "build:watch": "tsc --build tsconfig.mono.json --watch",
+    "csb:install": "corepack enable && pnpm install -r",
+    "csb:build": "pnpm run build-all",
     "clean-all": "pnpm run -r clean",
     "prettier-all:check": "prettier --check \"**/*.{css,html,js,json,md,ts,tsx,yaml,yml}\" --ignore-path ./.prettierignore",
     "prettier-all:write": "prettier --write \"**/*.{css,html,js,json,md,ts,tsx,yaml,yml}\" --ignore-path ./.prettierignore",
@@ -14,7 +16,7 @@
   },
   "license": "Apache-2.0",
   "engines": {
-    "node": "^16.0.0",
+    "node": ">=16.0.0",
     "npm": "^8.0.0",
     "pnpm": "^8.0.0"
   },
