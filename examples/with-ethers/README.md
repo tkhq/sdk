@@ -48,10 +48,9 @@ $ pnpm start
 
 This script will do the following:
 
-1. send ETH
-2. deposit ETH into the WETH contract (aka wrapping)
-3. withdraw WETH from the WETH contract (aka unwrapping)
-4. transfer WETH
+1. sign a raw payload
+2. send ETH (via type 2 EIP-1559 transaction)
+3. deposit ETH into the WETH contract (aka wrapping)
 
 Note that these transactions will all be broadcasted sequentially.
 
@@ -91,4 +90,47 @@ WETH Balance:
 
 Wrapped 0.00001 ETH:
 	https://goerli.etherscan.io/tx/0x7f98c1b2c7ff7f8ab876b27fdcd794653d8b7f728dbeec3b1d403789c38bcb71
+```
+
+```bash
+$ pnpm start-legacy-sepolia
+```
+
+This script will do the following:
+
+1. send ETH (via type 0, EIP-155-compliant legacy transaction)
+2. deposit ETH into the WETH contract (aka wrapping)
+
+Note that these transactions will all be broadcasted sequentially. Additionally, Ethers v5 is only compatible with the Sepolia network if paired with Infura (Ethers v5 does not supported Alchemy with Sepolia at this time).
+
+The script constructs a transaction via Turnkey and broadcasts via Infura. If the script exits because your account isn't funded, you can request funds on https://sepoliafaucet.com/ or via Coinbase Wallet.
+
+Visit the Etherscan link to view your transaction; you have successfully sent your first transaction with Turnkey!
+
+See the following for a sample output:
+
+```
+Network:
+	sepolia (chain ID 11155111)
+
+Address:
+	0xc4f1EF91ea582E3020E9ac155c3b5B27ce1185Dd
+
+Balance:
+	0.049896964862611 Ether
+
+Transaction count:
+	4
+
+Turnkey-signed transaction:
+	0xf86c048308b821825208942ad9ea1e677949a536a270cec812d6e868c881088609184e72a000808401546d72a0883137063bfa04e1c6be6f79789f53e4226455ae1cbc4d610d164334a6e12c83a06dae6bd75b6cb28a7ed2548f207f860dd56a49c4bd63a642d7728d592225e408
+
+Sent 0.00001 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://sepolia.etherscan.io/tx/0xf4c3e6bd5c6a635088dc7fc7c0d7a715beb340a7fbff67daf0adc666709e23f1
+
+WETH Balance:
+	0.0 WETH
+
+Wrapped 0.00001 ETH:
+	https://sepolia.etherscan.io/tx/0x428a6f3c24f6f0c2de34f41776566c875bd56bfe4d5d8db4a7ef57c2c4e69dec
 ```
