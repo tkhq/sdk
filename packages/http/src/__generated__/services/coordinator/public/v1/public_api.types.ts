@@ -44,6 +44,10 @@ export type paths = {
     /** Get basic information about your current API user and your organization */
     post: operations["PublicApiService_GetWhoami"];
   };
+  "/public/v1/submit/approve_activity": {
+    /** Approve an Activity */
+    post: operations["PublicApiService_ApproveActivity"];
+  };
   "/public/v1/submit/create_api_keys": {
     /** Add api keys to an existing User */
     post: operations["PublicApiService_CreateApiKeys"];
@@ -80,6 +84,10 @@ export type paths = {
     /** Delete an existing Policy */
     post: operations["PublicApiService_DeletePolicy"];
   };
+  "/public/v1/submit/reject_activity": {
+    /** Reject an Activity */
+    post: operations["PublicApiService_RejectActivity"];
+  };
   "/public/v1/submit/sign_raw_payload": {
     /** Sign a raw payload with a Private Key */
     post: operations["PublicApiService_SignRawPayload"];
@@ -87,6 +95,14 @@ export type paths = {
   "/public/v1/submit/sign_transaction": {
     /** Sign a transaction with a Private Key */
     post: operations["PublicApiService_SignTransaction"];
+  };
+  "/public/v1/submit/update_private_key_tag": {
+    /** Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
+    post: operations["PublicApiService_UpdatePrivateKeyTag"];
+  };
+  "/public/v1/submit/update_user_tag": {
+    /** Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
+    post: operations["PublicApiService_UpdateUserTag"];
   };
   "/tkhq/public/v1/query/get_private_key": {
     /** Get details about a Private Key */
@@ -134,7 +150,7 @@ export type definitions = {
    * @description Cryptographic Curve used to generate a given Private Key.
    * @enum {string}
    */
-  externaldatav1Curve: "CURVE_SECP256K1";
+  externaldatav1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
   /** @enum {string} */
   externaldatav1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
   /**
@@ -179,7 +195,7 @@ export type definitions = {
    * @description Cryptographic Curve used to generate a given Private Key.
    * @enum {string}
    */
-  immutableactivityv1Curve: "CURVE_SECP256K1";
+  immutableactivityv1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
   /** @enum {string} */
   immutableactivityv1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
   /** @enum {string} */
@@ -318,7 +334,9 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_POLICY_V2"
     | "ACTIVITY_TYPE_CREATE_POLICY_V3"
     | "ACTIVITY_TYPE_CREATE_API_ONLY_USERS"
-    | "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM";
+    | "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
+    | "ACTIVITY_TYPE_UPDATE_USER_TAG"
+    | "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -368,6 +386,15 @@ export type definitions = {
      * @description An artifact verifying a User's action.
      */
     fingerprint: string;
+  };
+  v1ApproveActivityRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_APPROVE_ACTIVITY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1ApproveActivityIntent"];
   };
   v1Authenticator: {
     /** @description Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
@@ -693,7 +720,7 @@ export type definitions = {
      */
     userId: string;
     /**
-     * @inject_tag: validate:"required,div,required,uuid"
+     * @inject_tag: validate:"required,dive,required,uuid"
      * @description A list of Authenticator IDs.
      */
     authenticatorIds: string[];
@@ -814,7 +841,7 @@ export type definitions = {
     organizationId: string;
     /** @description Array of Activity Statuses filtering which Activities will be listed in the response. */
     filterByStatus?: definitions["v1ActivityStatus"][];
-    paginationOptions?: definitions["v1PaginationOptions"];
+    paginationOptions?: definitions["v1Pagination"];
   };
   v1GetActivitiesResponse: {
     /** @description A list of Activities. */
@@ -899,17 +926,20 @@ export type definitions = {
     username: string;
   };
   /**
-   * @description  - HASH_FUNCTION_UNSPECIFIED: Default value if hash function is not set explicitly
-   *  - HASH_FUNCTION_NO_OP: No-op function. Useful if you want to pass raw bytes to sign
-   *  - HASH_FUNCTION_SHA256: Standard SHA-256
+   * @description  - HASH_FUNCTION_UNSPECIFIED: Default value if a hash function is not set explicitly.
+   *  - HASH_FUNCTION_NO_OP: No-op function. Useful if you want to pass raw digests to sign (ECDSA-only)
+   *  - HASH_FUNCTION_SHA256: Standard SHA-256. Used in the Bitcoin ecosystem.
    *  - HASH_FUNCTION_KECCAK256: Keccak-256 (not the same as NIST SHA-3!).
    * This is the hash function used in the Ethereum ecosystem.
+   *  - HASH_FUNCTION_NOT_APPLICABLE: Callers must use this enum value when signing with ed25519 keys.
+   * This is because, unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
    * @enum {string}
    */
   v1HashFunction:
     | "HASH_FUNCTION_NO_OP"
     | "HASH_FUNCTION_SHA256"
-    | "HASH_FUNCTION_KECCAK256";
+    | "HASH_FUNCTION_KECCAK256"
+    | "HASH_FUNCTION_NOT_APPLICABLE";
   /** @description Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action. */
   v1Intent: {
     createOrganizationIntent: definitions["v1CreateOrganizationIntent"];
@@ -942,6 +972,8 @@ export type definitions = {
     createPolicyIntentV3?: definitions["v1CreatePolicyIntentV3"];
     createApiOnlyUsersIntent?: definitions["v1CreateApiOnlyUsersIntent"];
     updateRootQuorumIntent?: definitions["v1UpdateRootQuorumIntent"];
+    updateUserTagIntent?: definitions["v1UpdateUserTagIntent"];
+    updatePrivateKeyTagIntent?: definitions["v1UpdatePrivateKeyTagIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1007,7 +1039,7 @@ export type definitions = {
     deletedAuthenticators?: definitions["v1Authenticator"][];
     deletedTags?: definitions["datav1Tag"][];
   };
-  v1PaginationOptions: {
+  v1Pagination: {
     /**
      * Format: int32
      * @description A limit of the number of object to be returned, between 1 and 100. Defaults to 10 if omitted or set to 0.
@@ -1100,6 +1132,15 @@ export type definitions = {
      */
     fingerprint: string;
   };
+  v1RejectActivityRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_REJECT_ACTIVITY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1RejectActivityIntent"];
+  };
   /** @description Result of the intended action. */
   v1Result: {
     createOrganizationResult?: definitions["v1CreateOrganizationResult"];
@@ -1128,6 +1169,8 @@ export type definitions = {
     deletePaymentMethodResult?: definitions["v1DeletePaymentMethodResult"];
     createApiOnlyUsersResult?: definitions["v1CreateApiOnlyUsersResult"];
     updateRootQuorumResult?: definitions["v1UpdateRootQuorumResult"];
+    updateUserTagResult?: definitions["v1UpdateUserTagResult"];
+    updatePrivateKeyTagResult?: definitions["v1UpdatePrivateKeyTagResult"];
   };
   v1SelectorV2: {
     subject?: string;
@@ -1241,6 +1284,41 @@ export type definitions = {
     seconds: string;
     nanos: string;
   };
+  v1UpdatePrivateKeyTagIntent: {
+    /**
+     * @inject_tag: validate:"uuid"
+     * @description Unique identifier for a given Private Key Tag.
+     */
+    privateKeyTagId: string;
+    /**
+     * @inject_tag: validate:"omitempty,tk_label,tk_label_length"
+     * @description The new, human-readable name for the tag with the given ID.
+     */
+    newPrivateKeyTagName?: string;
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of Private Keys IDs to add this tag to.
+     */
+    addPrivateKeyIds: string[];
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of Private Key IDs to remove this tag from.
+     */
+    removePrivateKeyIds: string[];
+  };
+  v1UpdatePrivateKeyTagRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdatePrivateKeyTagIntent"];
+  };
+  v1UpdatePrivateKeyTagResult: {
+    /** @description Unique identifier for a given Private Key Tag. */
+    privateKeyTagId: string;
+  };
   v1UpdateRootQuorumIntent: {
     /**
      * @inject_tag: validate:"required"
@@ -1255,6 +1333,41 @@ export type definitions = {
     userIds: string[];
   };
   v1UpdateRootQuorumResult: { [key: string]: unknown };
+  v1UpdateUserTagIntent: {
+    /**
+     * @inject_tag: validate:"uuid"
+     * @description Unique identifier for a given User Tag.
+     */
+    userTagId: string;
+    /**
+     * @inject_tag: validate:"omitempty,tk_label,tk_label_length"
+     * @description The new, human-readable name for the tag with the given ID.
+     */
+    newUserTagName?: string;
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of User IDs to add this tag to.
+     */
+    addUserIds: string[];
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of User IDs to remove this tag from.
+     */
+    removeUserIds: string[];
+  };
+  v1UpdateUserTagRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_USER_TAG";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateUserTagIntent"];
+  };
+  v1UpdateUserTagResult: {
+    /** @description Unique identifier for a given User Tag. */
+    userTagId: string;
+  };
   v1User: {
     /** @description Unique identifier for a given User. */
     userId: string;
@@ -1587,6 +1700,32 @@ export type operations = {
       };
     };
   };
+  /** Approve an Activity */
+  PublicApiService_ApproveActivity: {
+    parameters: {
+      body: {
+        body: definitions["v1ApproveActivityRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Add api keys to an existing User */
   PublicApiService_CreateApiKeys: {
     parameters: {
@@ -1821,6 +1960,32 @@ export type operations = {
       };
     };
   };
+  /** Reject an Activity */
+  PublicApiService_RejectActivity: {
+    parameters: {
+      body: {
+        body: definitions["v1RejectActivityRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Sign a raw payload with a Private Key */
   PublicApiService_SignRawPayload: {
     parameters: {
@@ -1852,6 +2017,58 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1SignTransactionRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
+  PublicApiService_UpdatePrivateKeyTag: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdatePrivateKeyTagRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
+  PublicApiService_UpdateUserTag: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateUserTagRequest"];
       };
     };
     responses: {
