@@ -1,0 +1,7 @@
+{
+  "installCommand": "csb:install",
+  "buildCommand": "csb:build",
+  "packages": ["packages/cosmjs", "packages/ethers", "packages/http"],
+  "sandboxes": ["turnkey-speedrun-d0ko4q"],
+  "node": "18"
+}
