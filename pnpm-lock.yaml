@@ -162,8 +162,8 @@ importers:
         specifier: ^1.77.3
         version: 1.77.3
       '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../packages/http
+        specifier: https://pkg.csb.dev/tkhq/sdk/commit/9317f515/@turnkey/http
+        version: '@pkg.csb.dev/tkhq/sdk/commit/9317f515/@turnkey/http'
       bs58:
         specifier: ^5.0.0
         version: 5.0.0
@@ -7874,3 +7874,14 @@ packages:
   /yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  '@pkg.csb.dev/tkhq/sdk/commit/9317f515/@turnkey/http':
+    resolution: {tarball: https://pkg.csb.dev/tkhq/sdk/commit/9317f515/@turnkey/http}
+    name: '@turnkey/http'
+    version: 0.16.0
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      cross-fetch: 3.1.5
+    transitivePeerDependencies:
+      - encoding
+    dev: false
