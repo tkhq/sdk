@@ -150,7 +150,7 @@ export type definitions = {
    * @description Cryptographic Curve used to generate a given Private Key.
    * @enum {string}
    */
-  externaldatav1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
+  externaldatav1Curve: "CURVE_SECP256K1";
   /** @enum {string} */
   externaldatav1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
   /**
@@ -195,7 +195,7 @@ export type definitions = {
    * @description Cryptographic Curve used to generate a given Private Key.
    * @enum {string}
    */
-  immutableactivityv1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
+  immutableactivityv1Curve: "CURVE_SECP256K1";
   /** @enum {string} */
   immutableactivityv1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
   /** @enum {string} */
@@ -938,8 +938,7 @@ export type definitions = {
   v1HashFunction:
     | "HASH_FUNCTION_NO_OP"
     | "HASH_FUNCTION_SHA256"
-    | "HASH_FUNCTION_KECCAK256"
-    | "HASH_FUNCTION_NOT_APPLICABLE";
+    | "HASH_FUNCTION_KECCAK256";
   /** @description Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action. */
   v1Intent: {
     createOrganizationIntent: definitions["v1CreateOrganizationIntent"];
