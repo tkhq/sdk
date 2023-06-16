@@ -23,7 +23,7 @@ The first step is to set up your Turnkey organization and account. By following 
 
 - A public/private API key pair for Turnkey
 - An organization ID
-- Three (crypto) key IDs
+- A (crypto) private key ID
 
 Once you've gathered these values, add them to a new `.env.local` file. Notice that your private key should be securely managed and **_never_** be committed to git.
 
