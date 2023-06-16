@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/http",
-  "version": "0.13.0",
+  "version": "0.16.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "Apache-2.0",
@@ -29,7 +29,7 @@
     "access": "public"
   },
   "scripts": {
-    "prepublishOnly": "pnpm run clean && pnpm run build",
+    "prepublishOnly": "pnpm -w run clean-all && pnpm -w run build-all",
     "build": "tsc",
     "clean": "rimraf ./dist ./.cache",
     "test": "jest",

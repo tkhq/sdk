@@ -103,6 +103,43 @@ export const postGetPolicy = (input: TPostGetPolicyInput) =>
   });
 
 /**
+ * `POST /public/v1/query/get_private_key`
+ */
+type TPostGetPrivateKeyBody =
+  operations["PublicApiService_GetPrivateKey"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/query/get_private_key`
+ */
+export type TPostGetPrivateKeyResponse =
+  operations["PublicApiService_GetPrivateKey"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_private_key`
+ */
+export type TPostGetPrivateKeyInput = { body: TPostGetPrivateKeyBody };
+
+/**
+ * Get Private Key
+ *
+ * Get details about a Private Key
+ *
+ * `POST /public/v1/query/get_private_key`
+ */
+export const postGetPrivateKey = (input: TPostGetPrivateKeyInput) =>
+  request<
+    TPostGetPrivateKeyResponse,
+    TPostGetPrivateKeyBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_private_key",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
  * `POST /public/v1/query/get_user`
  */
 type TPostGetUserBody =
@@ -357,7 +394,7 @@ export type TPostCreateApiOnlyUsersInput = {
 };
 
 /**
- * Create Invitations
+ * Create API-only Users
  *
  * Create API-only Users in an existing Organization
  *
@@ -713,20 +750,28 @@ export const postSignTransaction = (input: TPostSignTransactionInput) =>
 
 /**
  * `POST /tkhq/public/v1/query/get_private_key`
+ *
+ * @deprecated
  */
-type TPostGetPrivateKeyBody =
-  operations["PublicApiService_GetPrivateKey"]["parameters"]["body"]["body"];
+type TPostGetPrivateKeyBackwardsCompatBody =
+  operations["PublicApiService_GetPrivateKeyBackwardsCompat"]["parameters"]["body"]["body"];
 
 /**
  * `POST /tkhq/public/v1/query/get_private_key`
+ *
+ * @deprecated
  */
-export type TPostGetPrivateKeyResponse =
-  operations["PublicApiService_GetPrivateKey"]["responses"]["200"]["schema"];
+export type TPostGetPrivateKeyBackwardsCompatResponse =
+  operations["PublicApiService_GetPrivateKeyBackwardsCompat"]["responses"]["200"]["schema"];
 
 /**
  * `POST /tkhq/public/v1/query/get_private_key`
+ *
+ * @deprecated
  */
-export type TPostGetPrivateKeyInput = { body: TPostGetPrivateKeyBody };
+export type TPostGetPrivateKeyBackwardsCompatInput = {
+  body: TPostGetPrivateKeyBackwardsCompatBody;
+};
 
 /**
  * Get Private Key
@@ -734,11 +779,15 @@ export type TPostGetPrivateKeyInput = { body: TPostGetPrivateKeyBody };
  * Get details about a Private Key
  *
  * `POST /tkhq/public/v1/query/get_private_key`
+ *
+ * @deprecated
  */
-export const postGetPrivateKey = (input: TPostGetPrivateKeyInput) =>
+export const postGetPrivateKeyBackwardsCompat = (
+  input: TPostGetPrivateKeyBackwardsCompatInput
+) =>
   request<
-    TPostGetPrivateKeyResponse,
-    TPostGetPrivateKeyBody,
+    TPostGetPrivateKeyBackwardsCompatResponse,
+    TPostGetPrivateKeyBackwardsCompatBody,
     never,
     never,
     never

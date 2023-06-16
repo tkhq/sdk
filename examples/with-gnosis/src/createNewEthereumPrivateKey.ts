@@ -18,6 +18,7 @@ export async function createNewEthereumPrivateKey() {
   // In this example, it polls every 250ms until the activity reaches a terminal state.
   const mutation = withAsyncPolling({
     request: TurnkeyApi.postCreatePrivateKeys,
+    refreshIntervalMs: 250, // defaults to 500ms
   });
 
   const privateKeyName = `ETH Key ${crypto.randomBytes(2).toString("hex")}`;
@@ -45,12 +46,22 @@ export async function createNewEthereumPrivateKey() {
       activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
     );
 
+    const keyInfo = await TurnkeyApi.postGetPrivateKey({
+      body: {
+        organizationId: process.env.ORGANIZATION_ID!,
+        privateKeyId,
+      },
+    });
+
+    const address = refineNonNull(keyInfo.privateKey.addresses[0]?.address);
+
     // Success!
     console.log(
       [
         `New Ethereum private key created!`,
         `- Name: ${privateKeyName}`,
         `- Private key ID: ${privateKeyId}`,
+        `- Address: ${address}`,
         ``,
         "Now you can take the private key ID, put it in `.env.local`, then re-run the script.",
       ].join("\n")

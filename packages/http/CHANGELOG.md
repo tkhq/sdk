@@ -1,5 +1,35 @@
 # @turnkey/http
 
+## 0.16.0
+
+### Minor Changes
+
+- Fix `.postGetPrivateKey(...)`'s underlying path, while adding `@deprecated` `.postGetPrivateKeyBackwardsCompat(...)` for backward compatibility
+
+## 0.15.0
+
+### Minor Changes
+
+- Export a new helper for offline request signing: `sealAndStampRequestBody(...)`.
+
+## 0.14.0
+
+### Minor Changes
+
+- Updated the `addressFormats` enum field in `/submit/create_private_keys`
+
+## 0.13.2
+
+### Patch Changes
+
+- New `TurnkeyRequestError` error class that contains rich error details
+
+## 0.13.1
+
+### Patch Changes
+
+- Error messages now contain Turnkey-specific error details
+
 ## 0.13.0
 
 ### Minor Changes

@@ -1,6 +1,7 @@
 import { fetch, stamp } from "./universal";
 import { getConfig } from "./config";
 import { stringToBase64urlString } from "./encoding";
+import { TurnkeyRequestError, GrpcStatus } from "./shared";
 
 type TBasicType = string;
 
@@ -38,24 +39,15 @@ export async function request<
     body: inputBody = {},
   } = input;
 
-  const { apiPublicKey, apiPrivateKey } = getConfig();
-
   const url = constructUrl({
     uri: inputUri,
     query: inputQuery,
     substitution: inputSubstitution,
   });
 
-  const sealedBody = stableStringify(inputBody);
-  const sealedStamp = stableStringify(
-    await stamp({
-      content: sealedBody,
-      privateKey: apiPrivateKey,
-      publicKey: apiPublicKey,
-    })
-  );
-
-  const xStamp = stringToBase64urlString(sealedStamp);
+  const { sealedBody, xStamp } = await sealAndStampRequestBody({
+    body: inputBody,
+  });
 
   const response = await fetch(url.toString(), {
     ...sharedRequestOptions,
@@ -71,15 +63,15 @@ export async function request<
   if (!response.ok) {
     // Can't use native `cause` here because it's not well supported on Node v16
     // https://node.green/#ES2022-features-Error-cause-property
-    let turnkeyErrorMessage: string | null = null;
-    try {
-      const { code, message } = (await response.json()) as any;
-      turnkeyErrorMessage = `Turnkey error ${code}: ${message}`;
-    } catch (_) {}
 
-    throw new Error(
-      turnkeyErrorMessage ?? `${response.status} ${response.statusText}`
-    );
+    let res: GrpcStatus;
+    try {
+      res = await response.json();
+    } catch (_) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+
+    throw new TurnkeyRequestError(res);
   }
 
   const data = await response.json();
@@ -147,6 +139,51 @@ function invariant(condition: any, message: string) {
   }
 }
 
-export function stableStringify(input: Record<string, any>): string {
+function stableStringify(input: Record<string, any>): string {
   return JSON.stringify(input);
+}
+
+/**
+ * Seals and stamps the request body with your Turnkey API credentials.
+ *
+ * You can either:
+ * - Before calling `sealAndStampRequestBody(...)`, initialize with your Turnkey API credentials via `init(...)`
+ * - Or, provide `apiPublicKey` and `apiPrivateKey` here as arguments
+ */
+export async function sealAndStampRequestBody(input: {
+  body: Record<string, any>;
+  apiPublicKey?: string;
+  apiPrivateKey?: string;
+}): Promise<{
+  sealedBody: string;
+  xStamp: string;
+}> {
+  const { body } = input;
+  let { apiPublicKey, apiPrivateKey } = input;
+
+  if (!apiPublicKey) {
+    const config = getConfig();
+    apiPublicKey = config.apiPublicKey;
+  }
+
+  if (!apiPrivateKey) {
+    const config = getConfig();
+    apiPrivateKey = config.apiPrivateKey;
+  }
+
+  const sealedBody = stableStringify(body);
+  const sealedStamp = stableStringify(
+    await stamp({
+      content: sealedBody,
+      privateKey: apiPrivateKey,
+      publicKey: apiPublicKey,
+    })
+  );
+
+  const xStamp = stringToBase64urlString(sealedStamp);
+
+  return {
+    sealedBody,
+    xStamp,
+  };
 }

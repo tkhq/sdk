@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import {
   TurnkeyApi,
   TurnkeyActivityError,
+  TurnkeyRequestError,
   init as httpInit,
 } from "@turnkey/http";
 import type { TypedDataSigner } from "@ethersproject/abstract-signer";
@@ -13,10 +14,25 @@ import type {
 } from "ethers";
 
 type TConfig = {
+  /**
+   * Turnkey API public key
+   */
   apiPublicKey: string;
+  /**
+   * Turnkey API private key
+   */
   apiPrivateKey: string;
+  /**
+   * Turnkey API base URL
+   */
   baseUrl: string;
+  /**
+   * Turnkey organization ID
+   */
   organizationId: string;
+  /**
+   * Turnkey private key ID
+   */
   privateKeyId: string;
 };
 
@@ -129,6 +145,23 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
     transaction: ethers.utils.Deferrable<ethers.providers.TransactionRequest>
   ): Promise<string> {
     const unsignedTx = await ethers.utils.resolveProperties(transaction);
+
+    // Mimic the behavior of ethers' `Wallet`:
+    // - You don't need to pass in `tx.from`
+    // - However if you do provide `tx.from`, verify and drop it before serialization
+    //
+    // https://github.com/ethers-io/ethers.js/blob/f97b92bbb1bde22fcc44100af78d7f31602863ab/packages/wallet/src.ts/index.ts#L117-L121
+    if (unsignedTx.from != null) {
+      const selfAddress = await this.getAddress();
+      if (ethers.utils.getAddress(unsignedTx.from) !== selfAddress) {
+        throw new Error(
+          `Transaction \`tx.from\` address mismatch. Self address: ${selfAddress}; \`tx.from\` address: ${unsignedTx.from}`
+        );
+      }
+
+      delete unsignedTx.from;
+    }
+
     const serializedTx = ethers.utils.serializeTransaction(
       unsignedTx as UnsignedTransaction
     );
@@ -239,7 +272,7 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
   _signTypedData = this.signTypedData.bind(this);
 }
 
-export { TurnkeyActivityError };
+export { TurnkeyActivityError, TurnkeyRequestError };
 
 function assertNonNull<T>(input: T | null | undefined): T {
   if (input == null) {

@@ -3,7 +3,7 @@
   "version": "0.1.3",
   "private": true,
   "scripts": {
-    "start": "tsx src/scripts/main.ts",
+    "start": "pnpm -w run build-all && tsx src/scripts/main.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
