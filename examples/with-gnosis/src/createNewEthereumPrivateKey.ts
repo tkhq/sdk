@@ -10,9 +10,7 @@ export async function createNewEthereumPrivateKey() {
     baseUrl: process.env.BASE_URL!,
   });
 
-  console.log(
-    "Creating a new Ethereum private key on Turnkey...\n"
-  );
+  console.log("Creating a new Ethereum private key on Turnkey...\n");
 
   // Use `withAsyncPolling` to handle async activity polling.
   // In this example, it polls every 250ms until the activity reaches a terminal state.

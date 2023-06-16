@@ -23,7 +23,7 @@ async function main() {
     )
   ) {
     // You're missing a private key ID. We'll create one for you via calling the Turnkey API.
-    console.log('One or more local private keys not found.')
+    console.log("One or more local private keys not found.");
     await createNewEthereumPrivateKey();
     return;
   }

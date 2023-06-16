@@ -4,8 +4,6 @@ import * as path from "path";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-console.log('after', process.env)
-
 import { ethers } from "ethers";
 import { TurnkeySigner } from "@turnkey/ethers";
 import { Environment } from "./constants";
