@@ -45,6 +45,8 @@ export async function createAndSignTransfer(
         privateKeyId: turnkeyPrivateKeyId,
         payload: messageToSign.toString("hex"),
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+        // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
+        // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       },
     },
