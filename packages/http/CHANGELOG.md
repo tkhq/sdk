@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 0.17.1
+
+### Patch Changes
+
+- Re-sync protos from mono. No public-facing changes.
+
 ## 0.17.0
 
 ### Minor Changes
