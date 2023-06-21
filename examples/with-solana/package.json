@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@turnkey/http": "https://pkg.csb.dev/tkhq/sdk/commit/9317f515/@turnkey/http",
+    "@turnkey/http": "^0.17.0",
     "dotenv": "^16.0.3",
     "bs58": "^5.0.0",
     "@solana/web3.js": "^1.77.3",
