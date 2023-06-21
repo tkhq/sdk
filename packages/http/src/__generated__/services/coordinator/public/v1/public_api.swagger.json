@@ -549,6 +549,59 @@
         }
       }
     },
+    "/public/v1/submit/approve_activity": {
+      "post": {
+        "summary": "Approve Activity",
+        "description": "Approve an Activity",
+        "operationId": "PublicApiService_ApproveActivity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ApproveActivityRequest"
+            }
+          }
+        ],
+        "tags": ["Activities"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/approve_activity --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_APPROVE_ACTIVITY\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"fingerprint\": \"\"\n\t}\n}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
     "/public/v1/submit/create_api_keys": {
       "post": {
         "summary": "Create API Keys",
@@ -752,7 +805,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_policy --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_POLICY\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"policyName\": \"\",\n\t\t\"selectors\": [],\n\t\t\"effect\": \"\",\n\t\t\"notes\": \"\"\n\t}\n}'",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_policy --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_POLICY\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"policyName\": \"\",\n\t\t\"effect\": \"\",\n\t\t\"notes\": \"\"\n\t}\n}'",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -1027,6 +1080,59 @@
         }
       }
     },
+    "/public/v1/submit/reject_activity": {
+      "post": {
+        "summary": "Reject Activity",
+        "description": "Reject an Activity",
+        "operationId": "PublicApiService_RejectActivity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RejectActivityRequest"
+            }
+          }
+        ],
+        "tags": ["Activities"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/reject_activity --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_REJECT_ACTIVITY\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"fingerprint\": \"\"\n\t}\n}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
     "/public/v1/submit/sign_raw_payload": {
       "post": {
         "summary": "Sign Raw Payload",
@@ -1125,6 +1231,112 @@
           "code-samples": [
             {
               "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/sign_transaction --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_SIGN_TRANSACTION\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"privateKeyId\": \"'\"$PRIVATE_KEY_ID\"'\",\n\t\t\"unsignedTransaction\": \"\",\n\t\t\"type\": \"\"\n\t}\n}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
+    "/public/v1/submit/update_private_key_tag": {
+      "post": {
+        "summary": "Update Private Key Tag",
+        "description": "Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.",
+        "operationId": "PublicApiService_UpdatePrivateKeyTag",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdatePrivateKeyTagRequest"
+            }
+          }
+        ],
+        "tags": ["Private Key Tags"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/private_key_tags/update --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"privateKeyTagId\": \"'\"$PRIVATE_KEY_TAG_ID\"'\",\n\t\t\"privateKeyTagName\": \"\",\n\t\t\"addPrivateKeyTagIds\": \"\",\n\t\t\"removePrivateKeyTagIds\": \"\"\n\t}\n}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
+    "/public/v1/submit/update_user_tag": {
+      "post": {
+        "summary": "Update User Tag",
+        "description": "Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.",
+        "operationId": "PublicApiService_UpdateUserTag",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateUserTagRequest"
+            }
+          }
+        ],
+        "tags": ["User Tags"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/user_tags/update --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_UPDATE_USER_TAG\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userTagId\": \"'\"$USER_TAG_ID\"'\",\n\t\t\"userTagName\": \"\",\n\t\t\"addUserIds\": \"\",\n\t\t\"removeUserIds\": \"\"\n\t}\n}'",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -1248,7 +1460,7 @@
     },
     "externaldatav1Curve": {
       "type": "string",
-      "enum": ["CURVE_SECP256K1"],
+      "enum": ["CURVE_SECP256K1", "CURVE_ED25519"],
       "description": "Cryptographic Curve used to generate a given Private Key."
     },
     "externaldatav1Effect": {
@@ -1307,7 +1519,7 @@
     },
     "immutableactivityv1Curve": {
       "type": "string",
-      "enum": ["CURVE_SECP256K1"],
+      "enum": ["CURVE_SECP256K1", "CURVE_ED25519"],
       "description": "Cryptographic Curve used to generate a given Private Key."
     },
     "immutableactivityv1Effect": {
@@ -1556,7 +1768,9 @@
         "ACTIVITY_TYPE_CREATE_POLICY_V2",
         "ACTIVITY_TYPE_CREATE_POLICY_V3",
         "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
-        "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
+        "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM",
+        "ACTIVITY_TYPE_UPDATE_USER_TAG",
+        "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"
       ],
       "description": "Type of Activity, such as Add User, or Sign Transaction."
     },
@@ -1647,6 +1861,27 @@
         }
       },
       "required": ["fingerprint"]
+    },
+    "v1ApproveActivityRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_APPROVE_ACTIVITY"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1ApproveActivityIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1Authenticator": {
       "type": "object",
@@ -2343,7 +2578,7 @@
             "type": "string"
           },
           "description": "A list of Authenticator IDs.",
-          "title": "@inject_tag: validate:\"required,div,required,uuid\""
+          "title": "@inject_tag: validate:\"required,dive,required,uuid\""
         }
       },
       "required": ["userId", "authenticatorIds"]
@@ -2617,7 +2852,7 @@
           "description": "Array of Activity Statuses filtering which Activities will be listed in the response."
         },
         "paginationOptions": {
-          "$ref": "#/definitions/v1PaginationOptions"
+          "$ref": "#/definitions/v1Pagination"
         }
       },
       "required": ["organizationId"]
@@ -2843,9 +3078,10 @@
       "enum": [
         "HASH_FUNCTION_NO_OP",
         "HASH_FUNCTION_SHA256",
-        "HASH_FUNCTION_KECCAK256"
+        "HASH_FUNCTION_KECCAK256",
+        "HASH_FUNCTION_NOT_APPLICABLE"
       ],
-      "description": " - HASH_FUNCTION_UNSPECIFIED: Default value if hash function is not set explicitly\n - HASH_FUNCTION_NO_OP: No-op function. Useful if you want to pass raw bytes to sign\n - HASH_FUNCTION_SHA256: Standard SHA-256\n - HASH_FUNCTION_KECCAK256: Keccak-256 (not the same as NIST SHA-3!).\nThis is the hash function used in the Ethereum ecosystem."
+      "description": " - HASH_FUNCTION_UNSPECIFIED: Default value if a hash function is not set explicitly.\n - HASH_FUNCTION_NO_OP: No-op function. Useful if you want to pass raw digests to sign (ECDSA-only)\n - HASH_FUNCTION_SHA256: Standard SHA-256. Used in the Bitcoin ecosystem.\n - HASH_FUNCTION_KECCAK256: Keccak-256 (not the same as NIST SHA-3!).\nThis is the hash function used in the Ethereum ecosystem.\n - HASH_FUNCTION_NOT_APPLICABLE: Callers must use this enum value when signing with ed25519 keys.\nThis is because, unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032)."
     },
     "v1Intent": {
       "type": "object",
@@ -2939,6 +3175,12 @@
         },
         "updateRootQuorumIntent": {
           "$ref": "#/definitions/v1UpdateRootQuorumIntent"
+        },
+        "updateUserTagIntent": {
+          "$ref": "#/definitions/v1UpdateUserTagIntent"
+        },
+        "updatePrivateKeyTagIntent": {
+          "$ref": "#/definitions/v1UpdatePrivateKeyTagIntent"
         }
       },
       "description": "Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action.",
@@ -3125,7 +3367,7 @@
       },
       "description": "This proto definition is used in our external-facing APIs.\nIt's important to leverage annotations because they're used in our external interfaces."
     },
-    "v1PaginationOptions": {
+    "v1Pagination": {
       "type": "object",
       "properties": {
         "limit": {
@@ -3321,6 +3563,27 @@
       },
       "required": ["fingerprint"]
     },
+    "v1RejectActivityRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_REJECT_ACTIVITY"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1RejectActivityIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
     "v1Result": {
       "type": "object",
       "properties": {
@@ -3401,6 +3664,12 @@
         },
         "updateRootQuorumResult": {
           "$ref": "#/definitions/v1UpdateRootQuorumResult"
+        },
+        "updateUserTagResult": {
+          "$ref": "#/definitions/v1UpdateUserTagResult"
+        },
+        "updatePrivateKeyTagResult": {
+          "$ref": "#/definitions/v1UpdatePrivateKeyTagResult"
         }
       },
       "description": "Result of the intended action."
@@ -3623,6 +3892,69 @@
       },
       "required": ["seconds", "nanos"]
     },
+    "v1UpdatePrivateKeyTagIntent": {
+      "type": "object",
+      "properties": {
+        "privateKeyTagId": {
+          "type": "string",
+          "description": "Unique identifier for a given Private Key Tag.",
+          "title": "@inject_tag: validate:\"uuid\""
+        },
+        "newPrivateKeyTagName": {
+          "type": "string",
+          "description": "The new, human-readable name for the tag with the given ID.",
+          "title": "@inject_tag: validate:\"omitempty,tk_label,tk_label_length\""
+        },
+        "addPrivateKeyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of Private Keys IDs to add this tag to.",
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        },
+        "removePrivateKeyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of Private Key IDs to remove this tag from.",
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        }
+      },
+      "required": ["privateKeyTagId", "addPrivateKeyIds", "removePrivateKeyIds"]
+    },
+    "v1UpdatePrivateKeyTagRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdatePrivateKeyTagIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdatePrivateKeyTagResult": {
+      "type": "object",
+      "properties": {
+        "privateKeyTagId": {
+          "type": "string",
+          "description": "Unique identifier for a given Private Key Tag."
+        }
+      },
+      "required": ["privateKeyTagId"]
+    },
     "v1UpdateRootQuorumIntent": {
       "type": "object",
       "properties": {
@@ -3645,6 +3977,69 @@
     },
     "v1UpdateRootQuorumResult": {
       "type": "object"
+    },
+    "v1UpdateUserTagIntent": {
+      "type": "object",
+      "properties": {
+        "userTagId": {
+          "type": "string",
+          "description": "Unique identifier for a given User Tag.",
+          "title": "@inject_tag: validate:\"uuid\""
+        },
+        "newUserTagName": {
+          "type": "string",
+          "description": "The new, human-readable name for the tag with the given ID.",
+          "title": "@inject_tag: validate:\"omitempty,tk_label,tk_label_length\""
+        },
+        "addUserIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of User IDs to add this tag to.",
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        },
+        "removeUserIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of User IDs to remove this tag from.",
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        }
+      },
+      "required": ["userTagId", "addUserIds", "removeUserIds"]
+    },
+    "v1UpdateUserTagRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_USER_TAG"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateUserTagIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateUserTagResult": {
+      "type": "object",
+      "properties": {
+        "userTagId": {
+          "type": "string",
+          "description": "Unique identifier for a given User Tag."
+        }
+      },
+      "required": ["userTagId"]
     },
     "v1User": {
       "type": "object",
