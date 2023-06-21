@@ -162,8 +162,8 @@ importers:
         specifier: ^1.77.3
         version: 1.77.3
       '@turnkey/http':
-        specifier: ^0.17.1
-        version: 0.17.1
+        specifier: workspace:*
+        version: link:../../packages/http
       bs58:
         specifier: ^5.0.0
         version: 5.0.0
@@ -3379,15 +3379,6 @@ packages:
   /@tsconfig/node16-strictest@1.0.4:
     resolution: {integrity: sha512-kp6/DuAoKzHVv5U+p0uOesYbjrEvrYVNdQMl163a+yXXUv9twabvkCGEn3pmVxKXB45JU5MPGolDDWnONZL5ZQ==}
     dev: true
-
-  /@turnkey/http@0.17.1:
-    resolution: {integrity: sha512-0lc9pnBqPcR361z3NQzT9B+1iEqveR3IH1Oh84FkapmRKAv+nU8KvdSUZZ5NbSkGIfJoKG6ZxvfiMUa++BZGrQ==}
-    engines: {node: '>=16.0.0'}
-    dependencies:
-      cross-fetch: 3.1.5
-    transitivePeerDependencies:
-      - encoding
-    dev: false
 
   /@types/async-eventemitter@0.2.1:
     resolution: {integrity: sha512-M2P4Ng26QbAeITiH7w1d7OxtldgfAe0wobpyJzVK/XOb0cUGKU2R4pfAhqcJBXAe2ife5ZOhSv4wk7p+ffURtg==}
