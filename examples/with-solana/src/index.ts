@@ -81,13 +81,13 @@ async function main() {
   });
 
   // Create a transfer transaction
-  const signedTransaction = await createAndSignTransfer(
-    solAddress,
-    destination,
-    Number(amount),
-    organizationId,
-    privateKeyId
-  );
+  const signedTransaction = await createAndSignTransfer({
+    fromAddress: solAddress,
+    toAddress: destination,
+    amount: Number(amount),
+    turnkeyOrganizationId: organizationId,
+    turnkeyPrivateKeyId: privateKeyId
+});
 
   // Broadcast the signed payload on devnet
   await solanaNetwork.broadcast(connection, signedTransaction);
