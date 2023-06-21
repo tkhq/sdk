@@ -86,8 +86,8 @@ async function main() {
     toAddress: destination,
     amount: Number(amount),
     turnkeyOrganizationId: organizationId,
-    turnkeyPrivateKeyId: privateKeyId
-});
+    turnkeyPrivateKeyId: privateKeyId,
+  });
 
   // Broadcast the signed payload on devnet
   await solanaNetwork.broadcast(connection, signedTransaction);

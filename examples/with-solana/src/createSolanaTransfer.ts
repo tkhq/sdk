@@ -11,12 +11,18 @@ import base58 from "bs58";
  * @param TurnkeyOrganizationId
  * @param TurnkeyPrivateKeyId
  */
-export async function createAndSignTransfer({fromAddress, toAddress, amount, turnkeyOrganizationId, turnkeyPrivateKeyId}:{
-  fromAddress: string,
-  toAddress: string,
-  amount: number,
-  turnkeyOrganizationId: string,
-  turnkeyPrivateKeyId: string
+export async function createAndSignTransfer({
+  fromAddress,
+  toAddress,
+  amount,
+  turnkeyOrganizationId,
+  turnkeyPrivateKeyId,
+}: {
+  fromAddress: string;
+  toAddress: string;
+  amount: number;
+  turnkeyOrganizationId: string;
+  turnkeyPrivateKeyId: string;
 }): Promise<Buffer> {
   const fromKey = new PublicKey(fromAddress);
   const toKey = new PublicKey(toAddress);
