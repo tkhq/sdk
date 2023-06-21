@@ -182,8 +182,8 @@ describe("TurnkeySigner", () => {
             "activityId": null,
             "activityStatus": null,
             "activityType": null,
-            "cause": [TurnkeyRequestError: Turnkey error 2: unable to execute ruling: ump denied request explicitly (Details: [])],
-            "message": "Failed to sign: Turnkey error 2: unable to execute ruling: ump denied request explicitly (Details: [])",
+            "cause": [TurnkeyRequestError: Turnkey error 7: policy engine denied request explicitly (Details: [])],
+            "message": "Failed to sign: Turnkey error 7: policy engine denied request explicitly (Details: [])",
           }
         `);
       }
