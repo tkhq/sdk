@@ -1,5 +1,16 @@
 # @turnkey/cosmjs
 
+## 0.4.0
+
+### Minor Changes
+
+- No public facing changes
+
+### Patch Changes
+
+- Updated dependencies [9317f51]
+  - @turnkey/http@0.17.0
+
 ## 0.3.0
 
 ### Minor Changes

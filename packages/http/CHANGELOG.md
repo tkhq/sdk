@@ -1,5 +1,16 @@
 # @turnkey/http
 
+## 0.17.0
+
+### Minor Changes
+
+- Added support for ed25519
+- New endpoint to programmatically approve or reject activities (`/submit/approve_activity`, `/submit/reject_activity`)
+- New endpoint to programmatically create authenticators (`/submit/create_authenticators`)
+- New endpoints to update Private Key tags (`/submit/update_private_key_tag`)
+- New endpoints to update User tags (`/submit/update_user_tag`)
+- Simplified shape for `AuthenticatorParams` with a new `AuthenticatorParamsV2`. To take advantage of this new shape, use `ACTIVITY_TYPE_CREATE_USERS_V2` and the new `ACTIVITY_TYPE_CREATE_AUTHENTICATORS`.
+
 ## 0.16.0
 
 ### Minor Changes
