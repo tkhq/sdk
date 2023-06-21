@@ -56,6 +56,10 @@ export type paths = {
     /** Create API-only Users in an existing Organization */
     post: operations["PublicApiService_CreateApiOnlyUsers"];
   };
+  "/public/v1/submit/create_authenticators": {
+    /** Create Authenticators to authenticate requests to Turnkey */
+    post: operations["PublicApiService_CreateAuthenticators"];
+  };
   "/public/v1/submit/create_invitations": {
     /** Create Invitations to join an existing Organization */
     post: operations["PublicApiService_CreateInvitations"];
@@ -250,6 +254,19 @@ export type definitions = {
     userId: string;
     authenticator: definitions["v1AuthenticatorParams"];
   };
+  v1AcceptInvitationIntentV2: {
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given Invitation object.
+     */
+    invitationId: string;
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given User.
+     */
+    userId: string;
+    authenticator: definitions["v1AuthenticatorParamsV2"];
+  };
   v1AcceptInvitationResult: {
     /** @description Unique identifier for a given Invitation. */
     invitationId: string;
@@ -336,7 +353,11 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_API_ONLY_USERS"
     | "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
     | "ACTIVITY_TYPE_UPDATE_USER_TAG"
-    | "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG";
+    | "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"
+    | "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"
+    | "ACTIVITY_TYPE_CREATE_ORGANIZATION_V2"
+    | "ACTIVITY_TYPE_CREATE_USERS_V2"
+    | "ACTIVITY_TYPE_ACCEPT_INVITATION_V2";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -396,6 +417,25 @@ export type definitions = {
     organizationId: string;
     parameters: definitions["v1ApproveActivityIntent"];
   };
+  v1Attestation: {
+    /**
+     * @inject_tag: validate:"required,max=256"
+     * @description The cbor encoded then base64 url encoded id of the credential.
+     */
+    credentialId: string;
+    /**
+     * @inject_tag: validate:"required"
+     * @description A base64 url encoded payload containing metadata about the signing context and the challenge.
+     */
+    clientDataJson: string;
+    /**
+     * @inject_tag: validate:"required"
+     * @description A base64 url encoded payload containing authenticator data and any attestation the webauthn provider chooses.
+     */
+    attestationObject: string;
+    /** @description The type of authenticator transports. */
+    transports: definitions["immutablewebauthnv1AuthenticatorTransport"][];
+  };
   v1Authenticator: {
     /** @description Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
     transports: definitions["externaldatav1AuthenticatorTransport"][];
@@ -442,6 +482,19 @@ export type definitions = {
      * @description Challenge presented for authentication purposes.
      */
     challenge: string;
+  };
+  v1AuthenticatorParamsV2: {
+    /**
+     * @inject_tag: validate:"required,tk_label_length,tk_label"
+     * @description Human-readable name for an Authenticator.
+     */
+    authenticatorName: string;
+    /**
+     * @inject_tag: validate:"required,max=256"
+     * @description Challenge presented for authentication purposes.
+     */
+    challenge: string;
+    attestation: definitions["v1Attestation"];
   };
   v1CreateApiKeysIntent: {
     /**
@@ -500,6 +553,27 @@ export type definitions = {
      */
     userId: string;
   };
+  v1CreateAuthenticatorsIntentV2: {
+    /**
+     * @inject_tag: validate:"dive,required"
+     * @description A list of Authenticators.
+     */
+    authenticators: definitions["v1AuthenticatorParamsV2"][];
+    /**
+     * @inject_tag: validate:"required,uuid"
+     * @description Unique identifier for a given User.
+     */
+    userId: string;
+  };
+  v1CreateAuthenticatorsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateAuthenticatorsIntentV2"];
+  };
   v1CreateAuthenticatorsResult: {
     /** @description A list of Authenticator IDs. */
     authenticatorIds: string[];
@@ -536,6 +610,24 @@ export type definitions = {
      */
     rootEmail: string;
     rootAuthenticator: definitions["v1AuthenticatorParams"];
+    /**
+     * @inject_tag: validate:"uuid"
+     * @description Unique identifier for the root user object.
+     */
+    rootUserId?: string;
+  };
+  v1CreateOrganizationIntentV2: {
+    /**
+     * @inject_tag: validate:"required,tk_label_length"
+     * @description Human-readable name for an Organization.
+     */
+    organizationName: string;
+    /**
+     * @inject_tag: validate:"required,email,tk_email"
+     * @description The root user's email address.
+     */
+    rootEmail: string;
+    rootAuthenticator: definitions["v1AuthenticatorParamsV2"];
     /**
      * @inject_tag: validate:"uuid"
      * @description Unique identifier for the root user object.
@@ -663,14 +755,21 @@ export type definitions = {
      */
     users: definitions["v1UserParams"][];
   };
+  v1CreateUsersIntentV2: {
+    /**
+     * @inject_tag: validate:"required,dive,required"
+     * @description A list of Users.
+     */
+    users: definitions["v1UserParamsV2"][];
+  };
   v1CreateUsersRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_USERS";
+    type: "ACTIVITY_TYPE_CREATE_USERS_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1CreateUsersIntent"];
+    parameters: definitions["v1CreateUsersIntentV2"];
   };
   v1CreateUsersResult: {
     /** @description A list of User IDs. */
@@ -974,6 +1073,10 @@ export type definitions = {
     updateRootQuorumIntent?: definitions["v1UpdateRootQuorumIntent"];
     updateUserTagIntent?: definitions["v1UpdateUserTagIntent"];
     updatePrivateKeyTagIntent?: definitions["v1UpdatePrivateKeyTagIntent"];
+    createAuthenticatorsIntentV2?: definitions["v1CreateAuthenticatorsIntentV2"];
+    acceptInvitationIntentV2?: definitions["v1AcceptInvitationIntentV2"];
+    createOrganizationIntentV2?: definitions["v1CreateOrganizationIntentV2"];
+    createUsersIntentV2?: definitions["v1CreateUsersIntentV2"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1416,6 +1519,34 @@ export type definitions = {
      */
     userTags: string[];
   };
+  v1UserParamsV2: {
+    /**
+     * @inject_tag: validate:"required,tk_label_length,tk_label"
+     * @description Human-readable name for a User.
+     */
+    userName: string;
+    /**
+     * @inject_tag: validate:"omitempty,email,tk_email"
+     * @description The user's email address.
+     */
+    userEmail?: string;
+    accessType: definitions["immutableactivityv1AccessType"];
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of API Key parameters.
+     */
+    apiKeys: definitions["v1ApiKeyParams"][];
+    /**
+     * @inject_tag: validate:"dive"
+     * @description A list of Authenticator parameters.
+     */
+    authenticators: definitions["v1AuthenticatorParamsV2"][];
+    /**
+     * @inject_tag: validate:"dive,uuid"
+     * @description A list of User Tag IDs.
+     */
+    userTags: string[];
+  };
   /** @description Object representing a particular User's approval or rejection of a Consensus request, including all relevant metadata. */
   v1Vote: {
     /** @description Unique identifier for a given Vote object. */
@@ -1757,6 +1888,32 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreateApiOnlyUsersRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create Authenticators to authenticate requests to Turnkey */
+  PublicApiService_CreateAuthenticators: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateAuthenticatorsRequest"];
       };
     };
     responses: {

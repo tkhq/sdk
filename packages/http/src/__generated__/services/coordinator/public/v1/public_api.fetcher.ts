@@ -451,6 +451,47 @@ export const postCreateApiOnlyUsers = (input: TPostCreateApiOnlyUsersInput) =>
   });
 
 /**
+ * `POST /public/v1/submit/create_authenticators`
+ */
+type TPostCreateAuthenticatorsBody =
+  operations["PublicApiService_CreateAuthenticators"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/create_authenticators`
+ */
+export type TPostCreateAuthenticatorsResponse =
+  operations["PublicApiService_CreateAuthenticators"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_authenticators`
+ */
+export type TPostCreateAuthenticatorsInput = {
+  body: TPostCreateAuthenticatorsBody;
+};
+
+/**
+ * Create Authenticators
+ *
+ * Create Authenticators to authenticate requests to Turnkey
+ *
+ * `POST /public/v1/submit/create_authenticators`
+ */
+export const postCreateAuthenticators = (
+  input: TPostCreateAuthenticatorsInput
+) =>
+  request<
+    TPostCreateAuthenticatorsResponse,
+    TPostCreateAuthenticatorsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_authenticators",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
  * `POST /public/v1/submit/create_invitations`
  */
 type TPostCreateInvitationsBody =

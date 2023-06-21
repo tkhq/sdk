@@ -708,6 +708,59 @@
         }
       }
     },
+    "/public/v1/submit/create_authenticators": {
+      "post": {
+        "summary": "Create Authenticators",
+        "description": "Create Authenticators to authenticate requests to Turnkey",
+        "operationId": "PublicApiService_CreateAuthenticators",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateAuthenticatorsRequest"
+            }
+          }
+        ],
+        "tags": ["Authenticators"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_authenticators --body '{\n\t\"type\": \"ACTIVITY_TYPE_CREATE_AUTHENTICATORS\",\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userId\": \"\",\n\t\t\"authenticators\": [\n\t\t\t{\n\t\t\t\t\"authenticatorName\": \"\",\n\t\t\t\t\"userId\": \"\",\n\t\t\t\t\"challenge\": \"\",\n\t\t\t\t\"attestation\": {\n\t\t\t\t\t\"id\": \"\",\n\t\t\t\t\t\"type\": \"\",\n\t\t\t\t\t\"rawId\": \"\",\n\t\t\t\t\t\"authenticatorAttachment\": \"cross-\"\n\t\t\t\t}\n\t\t\t}\n\t\t]\n\t}\n}\n'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
     "/public/v1/submit/create_invitations": {
       "post": {
         "summary": "Create Invitations",
@@ -1617,6 +1670,25 @@
       },
       "required": ["invitationId", "userId", "authenticator"]
     },
+    "v1AcceptInvitationIntentV2": {
+      "type": "object",
+      "properties": {
+        "invitationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Invitation object.",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User.",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        },
+        "authenticator": {
+          "$ref": "#/definitions/v1AuthenticatorParamsV2"
+        }
+      },
+      "required": ["invitationId", "userId", "authenticator"]
+    },
     "v1AcceptInvitationResult": {
       "type": "object",
       "properties": {
@@ -1770,7 +1842,11 @@
         "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
         "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM",
         "ACTIVITY_TYPE_UPDATE_USER_TAG",
-        "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"
+        "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG",
+        "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
+        "ACTIVITY_TYPE_CREATE_ORGANIZATION_V2",
+        "ACTIVITY_TYPE_CREATE_USERS_V2",
+        "ACTIVITY_TYPE_ACCEPT_INVITATION_V2"
       ],
       "description": "Type of Activity, such as Add User, or Sign Transaction."
     },
@@ -1883,6 +1959,39 @@
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
+    "v1Attestation": {
+      "type": "object",
+      "properties": {
+        "credentialId": {
+          "type": "string",
+          "description": "The cbor encoded then base64 url encoded id of the credential.",
+          "title": "@inject_tag: validate:\"required,max=256\""
+        },
+        "clientDataJson": {
+          "type": "string",
+          "description": "A base64 url encoded payload containing metadata about the signing context and the challenge.",
+          "title": "@inject_tag: validate:\"required\""
+        },
+        "attestationObject": {
+          "type": "string",
+          "description": "A base64 url encoded payload containing authenticator data and any attestation the webauthn provider chooses.",
+          "title": "@inject_tag: validate:\"required\""
+        },
+        "transports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/immutablewebauthnv1AuthenticatorTransport"
+          },
+          "description": "The type of authenticator transports."
+        }
+      },
+      "required": [
+        "credentialId",
+        "clientDataJson",
+        "attestationObject",
+        "transports"
+      ]
+    },
     "v1Authenticator": {
       "type": "object",
       "properties": {
@@ -1992,6 +2101,25 @@
         }
       },
       "required": ["authenticatorName", "userId", "attestation", "challenge"]
+    },
+    "v1AuthenticatorParamsV2": {
+      "type": "object",
+      "properties": {
+        "authenticatorName": {
+          "type": "string",
+          "description": "Human-readable name for an Authenticator.",
+          "title": "@inject_tag: validate:\"required,tk_label_length,tk_label\""
+        },
+        "challenge": {
+          "type": "string",
+          "description": "Challenge presented for authentication purposes.",
+          "title": "@inject_tag: validate:\"required,max=256\""
+        },
+        "attestation": {
+          "$ref": "#/definitions/v1Attestation"
+        }
+      },
+      "required": ["authenticatorName", "challenge", "attestation"]
     },
     "v1CreateApiKeysIntent": {
       "type": "object",
@@ -2113,6 +2241,46 @@
       },
       "required": ["authenticators", "userId"]
     },
+    "v1CreateAuthenticatorsIntentV2": {
+      "type": "object",
+      "properties": {
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
+          },
+          "description": "A list of Authenticators.",
+          "title": "@inject_tag: validate:\"dive,required\""
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User.",
+          "title": "@inject_tag: validate:\"required,uuid\""
+        }
+      },
+      "required": ["authenticators", "userId"]
+    },
+    "v1CreateAuthenticatorsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateAuthenticatorsIntentV2"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
     "v1CreateAuthenticatorsResult": {
       "type": "object",
       "properties": {
@@ -2189,6 +2357,30 @@
         },
         "rootAuthenticator": {
           "$ref": "#/definitions/v1AuthenticatorParams"
+        },
+        "rootUserId": {
+          "type": "string",
+          "description": "Unique identifier for the root user object.",
+          "title": "@inject_tag: validate:\"uuid\""
+        }
+      },
+      "required": ["organizationName", "rootEmail", "rootAuthenticator"]
+    },
+    "v1CreateOrganizationIntentV2": {
+      "type": "object",
+      "properties": {
+        "organizationName": {
+          "type": "string",
+          "description": "Human-readable name for an Organization.",
+          "title": "@inject_tag: validate:\"required,tk_label_length\""
+        },
+        "rootEmail": {
+          "type": "string",
+          "description": "The root user's email address.",
+          "title": "@inject_tag: validate:\"required,email,tk_email\""
+        },
+        "rootAuthenticator": {
+          "$ref": "#/definitions/v1AuthenticatorParamsV2"
         },
         "rootUserId": {
           "type": "string",
@@ -2448,12 +2640,26 @@
       },
       "required": ["users"]
     },
+    "v1CreateUsersIntentV2": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1UserParamsV2"
+          },
+          "description": "A list of Users.",
+          "title": "@inject_tag: validate:\"required,dive,required\""
+        }
+      },
+      "required": ["users"]
+    },
     "v1CreateUsersRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_USERS"]
+          "enum": ["ACTIVITY_TYPE_CREATE_USERS_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -2464,7 +2670,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1CreateUsersIntent"
+          "$ref": "#/definitions/v1CreateUsersIntentV2"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -3181,6 +3387,18 @@
         },
         "updatePrivateKeyTagIntent": {
           "$ref": "#/definitions/v1UpdatePrivateKeyTagIntent"
+        },
+        "createAuthenticatorsIntentV2": {
+          "$ref": "#/definitions/v1CreateAuthenticatorsIntentV2"
+        },
+        "acceptInvitationIntentV2": {
+          "$ref": "#/definitions/v1AcceptInvitationIntentV2"
+        },
+        "createOrganizationIntentV2": {
+          "$ref": "#/definitions/v1CreateOrganizationIntentV2"
+        },
+        "createUsersIntentV2": {
+          "$ref": "#/definitions/v1CreateUsersIntentV2"
         }
       },
       "description": "Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action.",
@@ -4127,6 +4345,55 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/v1AuthenticatorParams"
+          },
+          "description": "A list of Authenticator parameters.",
+          "title": "@inject_tag: validate:\"dive\""
+        },
+        "userTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of User Tag IDs.",
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        }
+      },
+      "required": [
+        "userName",
+        "accessType",
+        "apiKeys",
+        "authenticators",
+        "userTags"
+      ]
+    },
+    "v1UserParamsV2": {
+      "type": "object",
+      "properties": {
+        "userName": {
+          "type": "string",
+          "description": "Human-readable name for a User.",
+          "title": "@inject_tag: validate:\"required,tk_label_length,tk_label\""
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "The user's email address.",
+          "title": "@inject_tag: validate:\"omitempty,email,tk_email\""
+        },
+        "accessType": {
+          "$ref": "#/definitions/immutableactivityv1AccessType"
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1ApiKeyParams"
+          },
+          "description": "A list of API Key parameters.",
+          "title": "@inject_tag: validate:\"dive,uuid\""
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
           },
           "description": "A list of Authenticator parameters.",
           "title": "@inject_tag: validate:\"dive\""
