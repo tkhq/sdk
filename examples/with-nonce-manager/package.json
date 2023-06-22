@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "start-simple-sequential": "pnpm -w run build-all && tsx src/simpleSequential.ts",
-    "start-managed-sequential": "pnpm -w run build-all && tsx src/managedSequential.ts",
     "start-managed-optimistic": "pnpm -w run build-all && tsx src/managedOptimistic.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
