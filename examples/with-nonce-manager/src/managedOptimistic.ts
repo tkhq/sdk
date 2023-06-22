@@ -8,10 +8,11 @@ import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
 import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
 import { print, sleep, getUpdatedTransaction } from "./util";
-
-const DEFAULT_REFRESH_TIME_MS = 5000;
-const DEFAULT_TX_WAIT_TIME_MS = 15000;
-const DEFAULT_TOTAL_WAIT_TIME_MS = 60000;
+import {
+  DEFAULT_REFRESH_TIME_MS,
+  DEFAULT_TX_WAIT_TIME_MS,
+  DEFAULT_TOTAL_WAIT_TIME_MS,
+} from "./constants";
 
 async function main() {
   if (!process.env.PRIVATE_KEY_ID) {

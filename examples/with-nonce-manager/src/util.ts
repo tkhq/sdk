@@ -1,10 +1,9 @@
 import { ethers } from "ethers";
-
-// These defaults should be suitable for most testnets.
-// For Polygon Mainnet, consider using at least 40 gwei for both parameters for consistent performance.
-const DEFAULT_MAX_FEE_PER_GAS = 1000000000; // 1 gwei
-const DEFAULT_MAX_PRIORITY_FEE_PER_GAS = 1000000000; // 1 gwei
-const DEFAULT_GAS_MULTIPLIER = 1.5;
+import {
+  DEFAULT_MAX_FEE_PER_GAS,
+  DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
+  DEFAULT_GAS_MULTIPLIER,
+} from "./constants";
 
 export function sleep(milliseconds: number) {
   const date = Date.now();

@@ -1,6 +1,6 @@
 {
-  "name": "@turnkey/example-with-ethers",
-  "version": "0.1.3",
+  "name": "@turnkey/example-with-nonce-manager",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "start-simple-sequential": "pnpm -w run build-all && tsx src/simpleSequential.ts",

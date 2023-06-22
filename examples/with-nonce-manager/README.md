@@ -81,13 +81,15 @@ Sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
 	https://goerli.etherscan.io/tx/0x2925ade587ade1b391880556c797b542137ad2a269ae3eccf0391054e7b866b1
 ```
 
+Next, we have:
+
 ```bash
 $ pnpm start-managed-optimistic
 ```
 
-This script will immediately broadcast 3 simple send transactions. If any transaction exceeds the specified `DEFAULT_TX_WAIT_TIME_MS` threshold, it will be retried with increased gas fee parameters. If the `DEFAULT_TOTAL_WAIT_TIME_MS` threshold is breached, the script will terminate.
+This script will immediately broadcast 3 simple send transactions and repeatedly poll their status. If a transaction exceeds the specified `DEFAULT_TX_WAIT_TIME_MS` threshold, it will be retried with multiplied gas fee parameters. If the `DEFAULT_TOTAL_WAIT_TIME_MS` threshold is breached, the script will terminate. See definitions for these values in `src/constants.ts`.
 
-See the following for a sample output when transactions succeed on the first attempt:
+The following is a sample output when all 3 transactions succeed on the first attempt:
 
 ```
 Network:
