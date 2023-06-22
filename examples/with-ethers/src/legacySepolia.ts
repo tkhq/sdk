@@ -81,7 +81,7 @@ async function main() {
   );
 
   if (network === "sepolia") {
-    // https://sepolia.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6
+    // https://sepolia.etherscan.io/address/0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9
     const wethContract = new ethers.Contract(
       WETH_TOKEN_ADDRESS_SEPOLIA,
       WETH_TOKEN_ABI,
