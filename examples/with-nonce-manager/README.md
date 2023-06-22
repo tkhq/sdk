@@ -1,4 +1,4 @@
-# Example: `with-ethers`
+# Example: `with-nonce-manager`
 
 This example shows how to construct and broadcast a transaction using [`Ethers`](https://docs.ethers.org/v5/api/signer/) with Turnkey.
 
@@ -14,7 +14,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-ethers/
+$ cd examples/with-nonce-manager/
 ```
 
 ### 2/ Setting up Turnkey
@@ -42,22 +42,13 @@ Now open `.env.local` and add the missing environment variables:
 
 ### 3/ Running the scripts
 
+The following scripts will construct transactions via Turnkey and broadcast via Infura. If a script exits because your account isn't funded, you can request funds on https://goerlifaucet.com/, https://faucet.paradigm.xyz/, or Coinbase Wallet.
+
 ```bash
-$ pnpm start
+$ pnpm start-simple-sequential
 ```
 
-This script will do the following:
-
-1. send ETH
-2. deposit ETH into the WETH contract (aka wrapping)
-3. withdraw WETH from the WETH contract (aka unwrapping)
-4. transfer WETH
-
-Note that these transactions will all be broadcasted sequentially.
-
-The script constructs a transaction via Turnkey and broadcasts via Infura. If the script exits because your account isn't funded, you can request funds on https://goerlifaucet.com/ or https://faucet.paradigm.xyz/.
-
-Visit the Etherscan link to view your transaction; you have successfully sent your first transaction with Turnkey!
+This script will create and broadcast 5 simple send transactions, where the next transaction will only be broadcast if the current gets confirmed onchain.
 
 See the following for a sample output:
 
@@ -66,29 +57,119 @@ Network:
 	goerli (chain ID 5)
 
 Address:
-	0x064c0CfDD7C485Eba21988Ded4dbCD9358556842
+	0x1024a8cc2156D8B8169255D250ddB16d59A22657
 
 Balance:
-	0.07750465249126655 Ether
+	0.185931598081269653 Ether
 
 Transaction count:
-	14
+	92
 
-Turnkey-powered signature:
-	0x97da598ac1ad566e77be7c7d9cc77339730e48c557c5d6f32f93d9fdeeed13472b1faf20f1e457a897a409f31b9e680ad6b02086ac4fb9aa693ce10374976b201c
+Sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://goerli.etherscan.io/tx/0xdb370edbb8b8364fa65e2b0ce3aea069bce652740817b606745b47452761e20d
 
-Recovered address:
-	0x064c0CfDD7C485Eba21988Ded4dbCD9358556842
+Sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://goerli.etherscan.io/tx/0x1d999726c0f5f30717889098195eaa1372cbf515951084e6922d5c2a78121c03
 
-Turnkey-signed transaction:
-	0x02f8668080808080942ad9ea1e677949a536a270cec812d6e868c881088609184e72a00080c001a09881f59e48500ef8960ae1cb94e0c862e7d613f961c250b6f07b546a1b058b1da06ba1871d7aed5eb8ea8cb211a0e3e22a1c6b54b34b4376d0ef5b1daef4100c8f
+Sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://goerli.etherscan.io/tx/0x3cc77cdf0c76a46263cee6887db0570b842b1f0e1aa600537d82eee858c531e5
 
-Sent 0.00001 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
-	https://goerli.etherscan.io/tx/0xe034bdc597766719aef04b1d08998e606e85da1dd73e52fad8586a7d79d659e0
+Sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://goerli.etherscan.io/tx/0xb381dd8e3f43e3e7e08595bfe64b582179e93243f2b129f3502d782bee5fe7dd
 
-WETH Balance:
-	0.00007 WETH
+Sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://goerli.etherscan.io/tx/0x2925ade587ade1b391880556c797b542137ad2a269ae3eccf0391054e7b866b1
+```
 
-Wrapped 0.00001 ETH:
-	https://goerli.etherscan.io/tx/0x7f98c1b2c7ff7f8ab876b27fdcd794653d8b7f728dbeec3b1d403789c38bcb71
+```bash
+$ pnpm start-managed-optimistic
+```
+
+This script will immediately broadcast 3 simple send transactions. If any transaction exceeds the specified `DEFAULT_TX_WAIT_TIME_MS` threshold, it will be retried with increased gas fee parameters. If the `DEFAULT_TOTAL_WAIT_TIME_MS` threshold is breached, the script will terminate.
+
+See the following for a sample output when transactions succeed on the first attempt:
+
+```
+Network:
+	goerli (chain ID 5)
+
+Address:
+	0x1024a8cc2156D8B8169255D250ddB16d59A22657
+
+Balance:
+	0.184600722711123653 Ether
+
+Transaction count:
+	119
+
+Sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108 with nonce 119:
+	https://goerli.etherscan.io/tx/0xfda498a5f17147d08d2b0da80419e86e68f0abd5ba8274941ed2312c869549b6
+
+Sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108 with nonce 120:
+	https://goerli.etherscan.io/tx/0x9b34169917b8b3e708dcf2ebe21c172600697561acc90d9d6be066e3216a0f05
+
+Sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108 with nonce 121:
+	https://goerli.etherscan.io/tx/0xa69ce9dd7a8f71430cb7b7526d569ac0f5347f81203da568e260eccfb8dd725e
+
+All transactions processed!
+```
+
+And here's a sample output when transactions do _not_ succeed on the first attempt and require updates. Notice that errors due to race conditions are handled, and transaction processing continues until the queue is fully consumed.
+
+```
+Network:
+	goerli (chain ID 5)
+
+Address:
+	0x1024a8cc2156D8B8169255D250ddB16d59A22657
+
+Balance:
+	0.184825160211858653 Ether
+
+Transaction count:
+	116
+
+Sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108 with nonce 116:
+	https://goerli.etherscan.io/tx/0x0aaf5e0db37ee3d3ba5a74ea812335fd7c5eb7a84fa1d51ea618c8d46cca8cbe
+
+Sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108 with nonce 117:
+	https://goerli.etherscan.io/tx/0x70050c06e8bb48d6323bb1d3c30a87ae8df6071101d3bab64bb53a640b5ed56e
+
+Sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108 with nonce 118:
+	https://goerli.etherscan.io/tx/0xd8d88d145dab8f63e8327256b9abc5e2d7334f260c868ad03ead1a28ac5e7fd1
+
+Updated transaction with nonce 116 sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://goerli.etherscan.io/tx/0x6f0e60f17990804534cc9cfee70ec3ab2b0d3cadc2b7325c2147f6be3a19e819
+
+Updated transaction with nonce 116 sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://goerli.etherscan.io/tx/0x2aee4780b4437b122da25d03a40b0dfd1038cf69bd2005328a9cce15ea233bc8
+
+Encountered error: /Users/andrew/tkhq/code/sdk/node_modules/.pnpm/@ethersproject+logger@5.7.0/node_modules/@ethersproject/logger/lib/index.js:238
+	var error = new Error(message);
+                    ^
+
+Error: nonce has already been used (...ethers error details...)
+
+Updated transaction with nonce 117 sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://goerli.etherscan.io/tx/0x596fa7a5d84fab4ae3591ab93f4ed8bc754b7c1fb95174a7dc2d6cae7cceaa25
+
+Encountered error: /Users/andrew/tkhq/code/sdk/node_modules/.pnpm/@ethersproject+logger@5.7.0/node_modules/@ethersproject/logger/lib/index.js:238
+	var error = new Error(message);
+                    ^
+
+Error: nonce has already been used (...ethers error details...)
+
+Updated transaction with nonce 118 sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://goerli.etherscan.io/tx/0x0c250ec67c0764672da63763e39fddf08147250826491294402ad1f4e118b465
+
+Updated transaction with nonce 118 sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://goerli.etherscan.io/tx/0xb4088189a3b7aad86d5dc78165308918bfcd485efe38f5944fe6d8c9c386b636
+
+Updated transaction with nonce 118 sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://goerli.etherscan.io/tx/0x56b7892e01db2de7b0dbcf30e0eb36aae0ca59db0c24571ac64ce3322eec26a1
+
+Updated transaction with nonce 118 sent 0.0 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
+	https://goerli.etherscan.io/tx/0x8c763b6396d2b9b31b2fcc5e2940d7e05ce4d32d897cf7df3f0889fb4eb07f53
+
+All transactions processed!
 ```

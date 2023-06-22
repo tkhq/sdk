@@ -7,6 +7,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
 import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
+import { print } from "./util";
 
 async function main() {
   if (!process.env.PRIVATE_KEY_ID) {
@@ -78,7 +79,3 @@ main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
-
-function print(header: string, body: string): void {
-  console.log(`${header}\n\t${body}\n`);
-}

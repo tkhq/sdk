@@ -7,13 +7,10 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
 import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
+import { print, sleep, getUpdatedTransaction } from "./util";
 
-// These defaults should be suitable for most testnets.
-// For Polygon Mainnet, consider using at least 40 gwei for both parameters for consistent performance.
-const DEFAULT_MAX_FEE_PER_GAS = 1000000000; // 1 gwei
-const DEFAULT_MAX_PRIORITY_FEE_PER_GAS = 1000000000; // 1 gwei
-const DEFAULT_GAS_MULTIPLIER = 1.5;
 const DEFAULT_TX_WAIT_TIME_MS = 5000;
+const DEFAULT_TOTAL_WAIT_TIME_MS = 60000;
 
 async function main() {
   if (!process.env.PRIVATE_KEY_ID) {
@@ -59,7 +56,7 @@ async function main() {
   }
 
   // Create a queue of simple send transactions
-  let txQueue = [];
+  const txQueue = [];
 
   for (let i = 0; i < 3; i++) {
     const transactionAmount = "0";
@@ -74,106 +71,66 @@ async function main() {
     txQueue.push(transactionRequest);
   }
 
+  const startTime = Date.now();
   let needsRetry = false;
   let index = 0;
 
   // Process the queue of transactions. If the transaction is not mined in a block within the allotted time,
   // reattempt it with increased gas fee parameters.
   while (index < txQueue.length - 1) {
-    let currentTransaction: ethers.providers.TransactionRequest =
-      txQueue[index]!;
-
-    if (needsRetry) {
-      currentTransaction = await getUpdatedTransaction(
-        provider,
-        currentTransaction
+    if (Date.now() - startTime > DEFAULT_TOTAL_WAIT_TIME_MS) {
+      console.log(
+        "Exceeded total time allotted for transaction processing. Exiting..."
       );
+
+      process.exit(1);
     }
 
-    const sendTx = await connectedSigner.sendTransaction(currentTransaction!);
+    let currentTransaction: ethers.providers.TransactionRequest;
 
-    print(
-      `Sent ${ethers.utils.formatEther(sendTx.value)} Ether to ${sendTx.to}:`,
-      `https://${network}.etherscan.io/tx/${sendTx.hash}`
-    );
+    try {
+      currentTransaction = txQueue[index]!;
 
-    // Wait for tx to be confirmed. If working with lower latencies/faster chains,
-    // consider tweaking this value and/or using exponential backoff.
-    await sleep(DEFAULT_TX_WAIT_TIME_MS);
+      if (needsRetry) {
+        currentTransaction = await getUpdatedTransaction(
+          provider,
+          currentTransaction
+        );
 
-    const tx = await provider.getTransaction(sendTx.hash);
+        console.log(
+          `Updated gas fee params for transaction with nonce: ${currentTransaction.nonce}\n`
+        );
+      }
 
-    if (tx?.blockNumber) {
-      index++;
-      needsRetry = false;
-      continue;
+      const sendTx = await connectedSigner.sendTransaction(currentTransaction!);
+
+      print(
+        `Sent ${ethers.utils.formatEther(sendTx.value)} Ether to ${
+          sendTx.to
+        } with nonce ${currentTransaction.nonce}:`,
+        `https://${network}.etherscan.io/tx/${sendTx.hash}`
+      );
+
+      // Wait for tx to be confirmed. If working with lower latencies/faster chains,
+      // consider tweaking this value and/or using exponential backoff.
+      await sleep(DEFAULT_TX_WAIT_TIME_MS);
+
+      const tx = await provider.getTransaction(sendTx.hash);
+
+      if (tx?.blockNumber) {
+        index++;
+        needsRetry = false;
+        continue;
+      }
+    } catch (err) {
+      // Catch errors related to potential race conditions, e.g. if we attempt to retry a transaction right as it landed onchain.
+      // Continue processing otherwise, at least until the `DEFAULT_TOTAL_WAIT_TIME_MS` threshold is breached.
+      console.log("Encountered error:", err);
     }
 
     txQueue[index] = currentTransaction!;
     needsRetry = true;
   }
-}
-
-function sleep(milliseconds: number) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
-}
-
-// Helper to re-estimate gas fees with a multiplier applied
-async function getUpdatedTransaction(
-  provider: ethers.providers.Provider,
-  transaction: ethers.providers.TransactionRequest
-) {
-  const feeData = await provider.getFeeData();
-
-  const maxFee = maxBigNumber([
-    feeData.maxFeePerGas!,
-    transaction.maxFeePerGas,
-    DEFAULT_MAX_FEE_PER_GAS,
-  ]);
-  const maxPriorityFee = maxBigNumber([
-    feeData.maxPriorityFeePerGas!,
-    transaction.maxPriorityFeePerGas,
-    DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
-  ]);
-
-  const mulMaxFee = (
-    parseFloat(maxFee.toString()) *
-    parseFloat(DEFAULT_GAS_MULTIPLIER.toString())
-  ).toFixed(0);
-  const mulMaxPriorityFee = (
-    parseFloat(maxPriorityFee.toString()) *
-    parseFloat(DEFAULT_GAS_MULTIPLIER.toString())
-  ).toFixed(0);
-
-  return {
-    ...transaction,
-    maxFeePerGas: mulMaxFee,
-    maxPriorityFeePerGas: mulMaxPriorityFee,
-  };
-}
-
-// Helper to get the maximum BigNumber in a given array
-function maxBigNumber(
-  arr: (ethers.BigNumberish | undefined)[]
-): ethers.BigNumber {
-  let max = ethers.BigNumber.from(0);
-
-  for (let i = 0; i < arr.length; i++) {
-    const value = ethers.BigNumber.from(arr[i] || 0);
-    if (value.gt(max)) {
-      max = value;
-    }
-  }
-
-  return max;
-}
-
-function print(header: string, body: string): void {
-  console.log(`${header}\n\t${body}\n`);
 }
 
 main().catch((error) => {
