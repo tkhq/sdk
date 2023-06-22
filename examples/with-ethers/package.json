@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "pnpm -w run build-all && tsx src/index.ts",
+    "start-legacy-sepolia": "pnpm -w run build-all && tsx src/legacySepolia.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
