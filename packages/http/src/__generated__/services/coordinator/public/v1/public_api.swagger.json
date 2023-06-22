@@ -549,6 +549,59 @@
         }
       }
     },
+    "/public/v1/root_quorum/update": {
+      "post": {
+        "summary": "Set the root quorum",
+        "description": "Set the threshold and members of the root quorum. This must be approved by the current root quorum.",
+        "operationId": "PublicApiService_UpdateRootQuorum",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateRootQuorumRequest"
+            }
+          }
+        ],
+        "tags": ["Root Quorum"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/root_quorum/update --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"UPDATE_ROOT_QUORUM\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userIds\": \"'\"$USER_IDS\"'\",\n\t\t\"threshold\": $THRESHOLD,\n\t\t\"type\": \"\"\n\t}\n}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
     "/public/v1/submit/approve_activity": {
       "post": {
         "summary": "Approve Activity",
@@ -752,7 +805,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_authenticators --body '{\n\t\"type\": \"ACTIVITY_TYPE_CREATE_AUTHENTICATORS\",\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userId\": \"\",\n\t\t\"authenticators\": [\n\t\t\t{\n\t\t\t\t\"authenticatorName\": \"\",\n\t\t\t\t\"userId\": \"\",\n\t\t\t\t\"challenge\": \"\",\n\t\t\t\t\"attestation\": {\n\t\t\t\t\t\"id\": \"\",\n\t\t\t\t\t\"type\": \"\",\n\t\t\t\t\t\"rawId\": \"\",\n\t\t\t\t\t\"authenticatorAttachment\": \"cross-\"\n\t\t\t\t}\n\t\t\t}\n\t\t]\n\t}\n}\n'",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_authenticators --body '{\n\t\"type\": \"ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2\",\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userId\": \"\",\n\t\t\"authenticators\": [\n\t\t\t{\n\t\t\t\t\"authenticatorName\": \"\",\n\t\t\t\t\"challenge\": \"\",\n\t\t\t\t\"attestation\": {\n\t\t\t\t\t\"credentialId\": \"\",\n\t\t\t\t\t\"clientDataJson\": \"\",\n\t\t\t\t\t\"attestationObject\": \"\",\n\t\t\t\t\t\"transports\": []\n\t\t\t\t}\n\t\t\t}\n\t\t]\n\t}\n}\n'",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -1396,6 +1449,38 @@
             }
           ]
         }
+      }
+    },
+    "/tkhq/api/v1/noop-codegen-anchor": {
+      "post": {
+        "summary": "This route does nothing and does not need an implementation, but please don't remove it.\nIt's used at compile time for generating extra OpenAPI/TypeScript types\nthat are not directly referenced in requests.",
+        "operationId": "PublicApiService_NOOPCodegenAnchor",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1NOOPCodegenAnchorResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": ["PublicApiService"]
       }
     },
     "/tkhq/public/v1/query/get_private_key": {
@@ -3501,6 +3586,15 @@
         "INVITATION_STATUS_REVOKED"
       ]
     },
+    "v1NOOPCodegenAnchorResponse": {
+      "type": "object",
+      "properties": {
+        "stamp": {
+          "$ref": "#/definitions/v1WebAuthnStamp"
+        }
+      },
+      "required": ["stamp"]
+    },
     "v1OrganizationData": {
       "type": "object",
       "properties": {
@@ -3581,6 +3675,9 @@
           "items": {
             "$ref": "#/definitions/datav1Tag"
           }
+        },
+        "rootQuorum": {
+          "$ref": "#/definitions/v1Quorum"
         }
       },
       "description": "This proto definition is used in our external-facing APIs.\nIt's important to leverage annotations because they're used in our external interfaces."
@@ -3769,6 +3866,24 @@
         }
       },
       "required": ["id", "type", "rawId", "response", "clientExtensionResults"]
+    },
+    "v1Quorum": {
+      "type": "object",
+      "properties": {
+        "threshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Count of unique approvals required to meet quorum."
+        },
+        "userIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Unique identifiers of quorum set members."
+        }
+      },
+      "required": ["threshold", "userIds"]
     },
     "v1RejectActivityIntent": {
       "type": "object",
@@ -4188,10 +4303,31 @@
             "type": "string"
           },
           "description": "The unique identifiers of users who comprise the quorum set.",
-          "title": "@inject_tag: validate:\"required,uuid\""
+          "title": "@inject_tag: validate:\"dive,uuid\""
         }
       },
       "required": ["threshold", "userIds"]
+    },
+    "v1UpdateRootQuorumRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateRootQuorumIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1UpdateRootQuorumResult": {
       "type": "object"
@@ -4469,6 +4605,34 @@
         "signature",
         "scheme",
         "createdAt"
+      ]
+    },
+    "v1WebAuthnStamp": {
+      "type": "object",
+      "properties": {
+        "credentialId": {
+          "type": "string",
+          "description": "A base64 url encoded Unique identifier for a given credential."
+        },
+        "clientDataJson": {
+          "type": "string",
+          "description": "A base64 encoded payload containing metadata about the signing context and the challenge."
+        },
+        "authenticatorData": {
+          "type": "string",
+          "description": "A base64 encoded payload containing metadata about the authenticator."
+        },
+        "signature": {
+          "type": "string",
+          "description": "The base64 url encoded signature bytes contained within the WebAuthn assertion response."
+        }
+      },
+      "title": "We expect this to be passed in as a JSON-encoded, then base64-encoded string within a X-Stamp-Webauthn header",
+      "required": [
+        "credentialId",
+        "clientDataJson",
+        "authenticatorData",
+        "signature"
       ]
     }
   },

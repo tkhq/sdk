@@ -1,7 +1,8 @@
 import { fetch, stamp } from "./universal";
 import { getConfig } from "./config";
 import { stringToBase64urlString } from "./encoding";
-import { TurnkeyRequestError, GrpcStatus } from "./shared";
+import { TurnkeyRequestError, GrpcStatus, FederatedRequest } from "./shared";
+import { getWebAuthnAssertion } from "./webauthn";
 
 type TBasicType = string;
 
@@ -15,6 +16,39 @@ const sharedHeaders: THeadersShape = {};
 const sharedRequestOptions: Partial<RequestInit> = {
   redirect: "follow",
 };
+
+export async function federatedRequest<
+  B extends TBodyShape = never,
+  Q extends TQueryShape = never,
+  S extends TSubstitutionShape = never
+>(input: {
+  uri: string;
+  query?: Q;
+  body?: B;
+  substitution?: S;
+}): Promise<FederatedRequest> {
+  const {
+    uri: inputUri,
+    query: inputQuery = {},
+    substitution: inputSubstitution = {},
+    body: inputBody = {},
+  } = input;
+
+  const url = constructUrl({
+    uri: inputUri,
+    query: inputQuery,
+    substitution: inputSubstitution,
+  });
+
+  const body = JSON.stringify(inputBody);
+  const stamp = await getWebAuthnAssertion(body);
+
+  return {
+    url: url.toString(),
+    body,
+    stamp,
+  };
+}
 
 export async function request<
   ResponseData = never,

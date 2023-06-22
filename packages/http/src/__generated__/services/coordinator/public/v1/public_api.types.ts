@@ -44,6 +44,10 @@ export type paths = {
     /** Get basic information about your current API user and your organization */
     post: operations["PublicApiService_GetWhoami"];
   };
+  "/public/v1/root_quorum/update": {
+    /** Set the threshold and members of the root quorum. This must be approved by the current root quorum. */
+    post: operations["PublicApiService_UpdateRootQuorum"];
+  };
   "/public/v1/submit/approve_activity": {
     /** Approve an Activity */
     post: operations["PublicApiService_ApproveActivity"];
@@ -107,6 +111,9 @@ export type paths = {
   "/public/v1/submit/update_user_tag": {
     /** Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
     post: operations["PublicApiService_UpdateUserTag"];
+  };
+  "/tkhq/api/v1/noop-codegen-anchor": {
+    post: operations["PublicApiService_NOOPCodegenAnchor"];
   };
   "/tkhq/public/v1/query/get_private_key": {
     /** Get details about a Private Key */
@@ -1122,6 +1129,9 @@ export type definitions = {
     | "INVITATION_STATUS_CREATED"
     | "INVITATION_STATUS_ACCEPTED"
     | "INVITATION_STATUS_REVOKED";
+  v1NOOPCodegenAnchorResponse: {
+    stamp: definitions["v1WebAuthnStamp"];
+  };
   /**
    * @description This proto definition is used in our external-facing APIs.
    * It's important to leverage annotations because they're used in our external interfaces.
@@ -1141,6 +1151,7 @@ export type definitions = {
     deletedApiKeys?: definitions["v1ApiKey"][];
     deletedAuthenticators?: definitions["v1Authenticator"][];
     deletedTags?: definitions["datav1Tag"][];
+    rootQuorum?: definitions["v1Quorum"];
   };
   v1Pagination: {
     /**
@@ -1227,6 +1238,15 @@ export type definitions = {
     authenticatorAttachment?: "cross-platform" | "platform" | null;
     response: definitions["v1AuthenticatorAttestationResponse"];
     clientExtensionResults: definitions["v1SimpleClientExtensionResults"];
+  };
+  v1Quorum: {
+    /**
+     * Format: int32
+     * @description Count of unique approvals required to meet quorum.
+     */
+    threshold: number;
+    /** @description Unique identifiers of quorum set members. */
+    userIds: string[];
   };
   v1RejectActivityIntent: {
     /**
@@ -1430,10 +1450,19 @@ export type definitions = {
      */
     threshold: number;
     /**
-     * @inject_tag: validate:"required,uuid"
+     * @inject_tag: validate:"dive,uuid"
      * @description The unique identifiers of users who comprise the quorum set.
      */
     userIds: string[];
+  };
+  v1UpdateRootQuorumRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateRootQuorumIntent"];
   };
   v1UpdateRootQuorumResult: { [key: string]: unknown };
   v1UpdateUserTagIntent: {
@@ -1567,6 +1596,17 @@ export type definitions = {
     /** @description Method used to produce a signature. */
     scheme: string;
     createdAt: definitions["v1Timestamp"];
+  };
+  /** We expect this to be passed in as a JSON-encoded, then base64-encoded string within a X-Stamp-Webauthn header */
+  v1WebAuthnStamp: {
+    /** @description A base64 url encoded Unique identifier for a given credential. */
+    credentialId: string;
+    /** @description A base64 encoded payload containing metadata about the signing context and the challenge. */
+    clientDataJson: string;
+    /** @description A base64 encoded payload containing metadata about the authenticator. */
+    authenticatorData: string;
+    /** @description The base64 url encoded signature bytes contained within the WebAuthn assertion response. */
+    signature: string;
   };
 };
 
@@ -1816,6 +1856,32 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetWhoamiResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Set the threshold and members of the root quorum. This must be approved by the current root quorum. */
+  PublicApiService_UpdateRootQuorum: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateRootQuorumRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
       };
       /** Returned when the user does not have permission to access the resource. */
       403: {
@@ -2232,6 +2298,26 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  PublicApiService_NOOPCodegenAnchor: {
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1NOOPCodegenAnchorResponse"];
       };
       /** Returned when the user does not have permission to access the resource. */
       403: {

@@ -64,3 +64,9 @@ export class TurnkeyRequestError extends Error {
     this.code = input.code;
   }
 }
+
+export type FederatedRequest = {
+  body: string;
+  stamp: string;
+  url: string;
+};
