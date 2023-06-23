@@ -42,7 +42,7 @@ async function main() {
 
   if (balance.isZero()) {
     let warningMessage =
-      "The transaction won't be broadcasted because your account balance is zero.\n";
+      "The transactions won't be broadcasted because your account balance is zero.\n";
     if (network === "goerli") {
       warningMessage +=
         "Use https://goerlifaucet.com/ to request funds on Goerli, then run the script again.\n";
