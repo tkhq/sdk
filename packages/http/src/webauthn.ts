@@ -1,5 +1,4 @@
 import type { definitions } from "./__generated__/services/coordinator/public/v1/public_api.types";
-import { get } from "@github/webauthn-json/browser-ponyfill";
 import { base64StringToBase64UrlEncodedString } from "./encoding";
 
 type TWebAuthnStamp = definitions["v1WebAuthnStamp"];
@@ -28,6 +27,8 @@ async function getChallengeFromPayload(payload: string): Promise<string> {
 }
 
 export async function getWebAuthnAssertion(payload: string): Promise<string> {
+  const { get } = await import("@github/webauthn-json/browser-ponyfill");
+
   const signingOptions = await getCredentialRequestOptions(payload);
   const clientGetResult = await get(signingOptions);
   const assertion = clientGetResult.toJSON();
