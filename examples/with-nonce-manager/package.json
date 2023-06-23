@@ -1,0 +1,17 @@
+{
+  "name": "@turnkey/example-with-nonce-manager",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start-simple-sequential": "pnpm -w run build-all && tsx src/simpleSequential.ts",
+    "start-managed-optimistic": "pnpm -w run build-all && tsx src/managedOptimistic.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/ethers": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "dotenv": "^16.0.3",
+    "ethers": "^5.7.2"
+  }
+}
