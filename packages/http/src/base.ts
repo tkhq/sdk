@@ -2,7 +2,12 @@ import { fetch, stamp } from "./universal";
 import { getConfig } from "./config";
 import { stringToBase64urlString } from "./encoding";
 import { TurnkeyRequestError, GrpcStatus, FederatedRequest } from "./shared";
-import { getWebAuthnAssertion } from "./webauthn";
+import {
+  getWebAuthnAssertion,
+  TurnkeyCredentialRequestOptions,
+} from "./webauthn";
+
+export type { TurnkeyCredentialRequestOptions };
 
 type TBasicType = string;
 
@@ -26,6 +31,7 @@ export async function federatedRequest<
   query?: Q;
   body?: B;
   substitution?: S;
+  options?: TurnkeyCredentialRequestOptions | undefined;
 }): Promise<FederatedRequest> {
   const {
     uri: inputUri,
@@ -41,7 +47,7 @@ export async function federatedRequest<
   });
 
   const body = JSON.stringify(inputBody);
-  const stamp = await getWebAuthnAssertion(body);
+  const stamp = await getWebAuthnAssertion(body, input.options);
 
   return {
     url: url.toString(),
