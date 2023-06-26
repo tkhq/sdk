@@ -134,9 +134,8 @@ export async function getWebAuthnAttestation(
   options: TurnkeyCredentialCreationOptions
 ): Promise<TAttestation> {
   // webauthn-json is an ES module. Nasty!
-  const { create: webauthnCredentialCreate } = await import(
-    "@github/webauthn-json/browser-ponyfill"
-  );
+  const { create: webauthnCredentialCreate } =
+    await require("@github/webauthn-json/browser-ponyfill");
 
   const res = await webauthnCredentialCreate(options);
 
