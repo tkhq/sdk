@@ -1,7 +1,14 @@
 import type { definitions } from "./__generated__/services/coordinator/public/v1/public_api.types";
 import { base64StringToBase64UrlEncodedString } from "./encoding";
+import type { PublicKeyCredentialWithAttestationJSON } from "@github/webauthn-json";
 
 type TWebAuthnStamp = definitions["v1WebAuthnStamp"];
+type TAttestation = definitions["v1Attestation"];
+/* hybrid added to spec, but not in polyfill enum for some reason: https://github.com/github/webauthn-json/issues/67 */
+// eslint-disable-next-line no-undef -- false negative
+type ExternalAuthenticatorTransports = AuthenticatorTransport | "hybrid";
+type InternalAuthenticatorTransports =
+  definitions["externaldatav1AuthenticatorTransport"];
 
 const defaultTimeout = 5 * 60 * 1000; // five minutes
 const defaultUserVerification = "preferred";
@@ -23,6 +30,10 @@ export type TurnkeyCredentialRequestOptions = {
   password?: boolean;
   unmediated?: boolean;
 };
+
+type TurnkeyCredentialCreationOptions = CredentialCreationOptions;
+
+export type { TurnkeyCredentialCreationOptions };
 
 const defaultSigningOptions: TurnkeyCredentialRequestOptions = {
   publicKey: {
@@ -57,6 +68,45 @@ async function getChallengeFromPayload(payload: string): Promise<string> {
   return base64StringToBase64UrlEncodedString(base64String);
 }
 
+/* Pulled from https://www.w3.org/TR/webauthn-2/#enum-transport */
+export function protocolTransportEnumToInternalEnum(
+  protocolEnum: ExternalAuthenticatorTransports
+): InternalAuthenticatorTransports {
+  switch (protocolEnum) {
+    case "internal": {
+      return "AUTHENTICATOR_TRANSPORT_INTERNAL";
+    }
+    case "usb": {
+      return "AUTHENTICATOR_TRANSPORT_USB";
+    }
+    case "nfc": {
+      return "AUTHENTICATOR_TRANSPORT_NFC";
+    }
+    case "ble": {
+      return "AUTHENTICATOR_TRANSPORT_BLE";
+    }
+    case "hybrid": {
+      return "AUTHENTICATOR_TRANSPORT_HYBRID";
+    }
+    default: {
+      throw new Error("unsupported transport format");
+    }
+  }
+}
+
+function toInternalAttestation(
+  attestation: PublicKeyCredentialWithAttestationJSON
+): TAttestation {
+  return {
+    credentialId: attestation.rawId,
+    attestationObject: attestation.response.attestationObject,
+    clientDataJson: attestation.response.clientDataJSON,
+    transports: attestation.response.transports.map(
+      protocolTransportEnumToInternalEnum
+    ),
+  };
+}
+
 export async function getWebAuthnAssertion(
   payload: string,
   options?: TurnkeyCredentialRequestOptions
@@ -78,4 +128,17 @@ export async function getWebAuthnAssertion(
   };
 
   return JSON.stringify(stamp);
+}
+
+export async function getWebAuthnAttestation(
+  options: TurnkeyCredentialCreationOptions
+): Promise<TAttestation> {
+  // webauthn-json is an ES module. Nasty!
+  const { create: webauthnCredentialCreate } = await import(
+    "@github/webauthn-json/browser-ponyfill"
+  );
+
+  const res = await webauthnCredentialCreate(options);
+
+  return toInternalAttestation(res.toJSON());
 }
