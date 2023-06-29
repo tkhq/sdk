@@ -16,5 +16,5 @@ export default async function getOrganization(): any {
       },
   });
 
-  return refineNonNull(response);
+  return refineNonNull(response.organizationData);
 }

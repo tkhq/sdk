@@ -58,13 +58,40 @@ async function setup(args: string[]) {
     await createPrivateKey("Source key 3", [sourceTagId]);
 
     // setup policies
-    // TODO(tim): tighten policies to enforce keys can only send to specific addresses
     await createPolicy("Admin users can do everything", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${adminTagId}'))`, "true");
     await createPolicy("Manager users can use Sink keys", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${managerTagId}'))`, `private_key.tags.contains('${sinkTagId}')`);
     await createPolicy("Executor users can use Source keys", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${executorTagId}'))`, `private_key.tags.contains('${sourceTagId}')`);
+
+    // TODO(tim): tighten policies to enforce keys can only send to specific addresses
 }
 
+// TODO(tim): pass options (e.g. source private keys)
 async function fund(args: string[]) {
     const organization = await getOrganization();
-    console.log(organization)
+
+    // find "Bank" private key
+    const bankTag = organization.tags.find(tag => {
+        const isPrivateKeyTag = tag.tagType == 'TAG_TYPE_PRIVATE_KEY';
+        const isBankTag = tag.tagName == 'Bank';
+        return isPrivateKeyTag && isBankTag;
+    });
+
+    const bankPrivateKey = organization.privateKeys.find(privateKey => {
+        return privateKey.privateKeyTags.includes(bankTag.tagId)
+    });
+
+    // find "Source" private keys
+    const sourceTag = organization.tags.find(tag => {
+        const isPrivateKeyTag = tag.tagType == 'TAG_TYPE_PRIVATE_KEY';
+        const isSourceTag = tag.tagName == 'Source';
+        return isPrivateKeyTag && isSourceTag;
+    });
+
+    const sourcePrivateKeys = organization.privateKeys.filter(privateKey => {
+        return privateKey.privateKeyTags.includes(sourceTag.tagId)
+    });
+
+    // TODO(tim): send "X" amount from "Bank" to "Source"
+    console.log(bankPrivateKey)
+    console.log(sourcePrivateKeys)
 }

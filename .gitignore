@@ -120,3 +120,4 @@ playwright/.cache/
 
 # IDE
 .vscode
+.swp
