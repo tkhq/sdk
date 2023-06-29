@@ -1,6 +1,6 @@
 import { TurnkeyApi, init as httpInit, withAsyncPolling } from "@turnkey/http";
 import { TurnkeyActivityError } from "@turnkey/ethers";
-import * as crypto from "crypto";
+import { refineNonNull } from "./utils";
 
 // TODO(tim): refine w/ options
 export default async function createUser(userName: string, userTags: string[], apiKeyName: string, publicKey: string): string {
@@ -63,15 +63,4 @@ export default async function createUser(userName: string, userTags: string[], a
       cause: error as Error,
     });
   }
-}
-
-export function refineNonNull<T>(
-  input: T | null | undefined,
-  errorMessage?: string
-): T {
-  if (input == null) {
-    throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
-  }
-
-  return input;
 }

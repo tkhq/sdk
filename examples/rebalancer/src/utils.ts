@@ -24,3 +24,11 @@ export function toReadableAmount(
 ): string {
   return ethers.utils.formatUnits(rawAmount, decimals).slice(0, maxDecimals);
 }
+
+// isKeyOfObject checks if a key exists within an object
+export function isKeyOfObject<T>(
+  key: string | number | symbol,
+  obj: T,
+): key is keyof T {
+  return key in obj;
+}

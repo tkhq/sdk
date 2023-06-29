@@ -1,8 +1,9 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
 import { ethers } from "ethers";
-import { toReadableAmount } from "./utils";
-import { createPrivateKey, createPrivateKeyTag, createUser, createUserTag, createPolicy } from "./requests";
+import { toReadableAmount, isKeyOfObject } from "./utils";
+import { getOrganization, createPrivateKey, createPrivateKeyTag, createUser, createUserTag, createPolicy } from "./requests";
+import { TurnkeyApi, init as httpInit } from "@turnkey/http";
 // import { getProvider, getTurnkeySigner } from "./provider";
 
 // Load environment variables from `.env.local`
@@ -17,22 +18,23 @@ async function main() {
     const command = args[0];
     const commands =  {
         "setup": setup,
+        "fund": fund,
     };
 
     if (!isKeyOfObject(command, commands)) {
         throw new Error(`Unknown command: ${command}`);
     }
 
-    commands[command]();
+    commands[command](args.slice(1));
 }
 
 main().catch((error) => {
-  console.error(error);
-  process.exit(1);
+    console.error(error);
+    process.exit(1);
 });
 
 // TODO(tim): pass options (e.g. "X" source private keys)
-async function setup() {
+async function setup(args: string[]) {
     // setup user tags
     const adminTagId = await createUserTag("Admin", []);
     const managerTagId = await createUserTag("Manager", []);
@@ -62,9 +64,7 @@ async function setup() {
     await createPolicy("Executor users can use Source keys", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${executorTagId}'))`, `private_key.tags.contains('${sourceTagId}')`);
 }
 
-export function isKeyOfObject<T>(
-  key: string | number | symbol,
-  obj: T,
-): key is keyof T {
-  return key in obj;
+async function fund(args: string[]) {
+    const organization = await getOrganization();
+    console.log(organization)
 }
