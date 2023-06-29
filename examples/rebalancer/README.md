@@ -13,19 +13,16 @@ A demo application utilizing the Turnkey API to sweep funds from a set of addres
 - [x] * Create a policy that "manager" + "admin" can spend funds from a private key labeled "sink"
 
 ### Fund
+- [ ] * Loop over a set of addresses labeled "source"
+- [ ] * Send this address a constant value of ETH from "bank"
 
-* Loop over a set of addresses labeled "source"
-* Send this address a constant value of ETH from "bank"
+### Sweep
+- [ ] * Loop over a "source" addresses
+- [ ] * When an address has a balance that exceeds a constant value, sweep to "sink"
 
-### Execute
-
-* Loop over a "source" addresses
-* When an address has a balance that exceeds a constant value, sweep to "sink"
-
-### Manager
-
-* Initiate a transfer of funds from "sink" to "bank" unless there's an existing pending transfer
-* Approve that transfer in the UI using the authenticator for an "admin" user
+### Recycle
+- [ ] * Initiate a transfer of funds from "sink" to "bank" unless there's an existing pending transfer
+- [ ] * Approve that transfer in the UI using the authenticator for an "admin" user
 
 ### Thoughts
 i'd like to demonstrate how turnkey could be set up to sweep funds from a set of addresses (calling these "source") to a more secure address (calling this "sink"). so first pass at a demo i was hoping to create a structure where:
