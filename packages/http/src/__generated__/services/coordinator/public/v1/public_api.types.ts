@@ -44,10 +44,6 @@ export type paths = {
     /** Get basic information about your current API user and your organization */
     post: operations["PublicApiService_GetWhoami"];
   };
-  "/public/v1/root_quorum/update": {
-    /** Set the threshold and members of the root quorum. This must be approved by the current root quorum. */
-    post: operations["PublicApiService_UpdateRootQuorum"];
-  };
   "/public/v1/submit/approve_activity": {
     /** Approve an Activity */
     post: operations["PublicApiService_ApproveActivity"];
@@ -75,6 +71,10 @@ export type paths = {
   "/public/v1/submit/create_private_keys": {
     /** Create new Private Keys */
     post: operations["PublicApiService_CreatePrivateKeys"];
+  };
+  "/public/v1/submit/create_sub_organization": {
+    /** Create a new Sub-Organization */
+    post: operations["PublicApiService_CreateSubOrganization"];
   };
   "/public/v1/submit/create_users": {
     /** Create Users in an existing Organization */
@@ -107,6 +107,10 @@ export type paths = {
   "/public/v1/submit/update_private_key_tag": {
     /** Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
     post: operations["PublicApiService_UpdatePrivateKeyTag"];
+  };
+  "/public/v1/submit/update_root_quorum": {
+    /** Set the threshold and members of the root quorum. This must be approved by the current root quorum. */
+    post: operations["PublicApiService_UpdateRootQuorum"];
   };
   "/public/v1/submit/update_user_tag": {
     /** Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
@@ -364,7 +368,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"
     | "ACTIVITY_TYPE_CREATE_ORGANIZATION_V2"
     | "ACTIVITY_TYPE_CREATE_USERS_V2"
-    | "ACTIVITY_TYPE_ACCEPT_INVITATION_V2";
+    | "ACTIVITY_TYPE_ACCEPT_INVITATION_V2"
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -737,6 +742,26 @@ export type definitions = {
     /** @description A list of Private Key IDs. */
     privateKeyIds: string[];
   };
+  v1CreateSubOrganizationIntent: {
+    /**
+     * @inject_tag: validate:"omitempty,tk_label,tk_label_length"
+     * @description Name for this sub-organization
+     */
+    name: string;
+    rootAuthenticator: definitions["v1AuthenticatorParamsV2"];
+  };
+  v1CreateSubOrganizationRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateSubOrganizationIntent"];
+  };
+  v1CreateSubOrganizationResult: {
+    subOrganizationId: string;
+  };
   v1CreateUserTagIntent: {
     /**
      * @inject_tag: validate:"required,tk_label,tk_label_length"
@@ -1084,6 +1109,7 @@ export type definitions = {
     acceptInvitationIntentV2?: definitions["v1AcceptInvitationIntentV2"];
     createOrganizationIntentV2?: definitions["v1CreateOrganizationIntentV2"];
     createUsersIntentV2?: definitions["v1CreateUsersIntentV2"];
+    createSubOrganizationIntent?: definitions["v1CreateSubOrganizationIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1294,6 +1320,7 @@ export type definitions = {
     updateRootQuorumResult?: definitions["v1UpdateRootQuorumResult"];
     updateUserTagResult?: definitions["v1UpdateUserTagResult"];
     updatePrivateKeyTagResult?: definitions["v1UpdatePrivateKeyTagResult"];
+    createSubOrganizationResult?: definitions["v1CreateSubOrganizationResult"];
   };
   v1SelectorV2: {
     subject?: string;
@@ -1871,32 +1898,6 @@ export type operations = {
       };
     };
   };
-  /** Set the threshold and members of the root quorum. This must be approved by the current root quorum. */
-  PublicApiService_UpdateRootQuorum: {
-    parameters: {
-      body: {
-        body: definitions["v1UpdateRootQuorumRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
   /** Approve an Activity */
   PublicApiService_ApproveActivity: {
     parameters: {
@@ -2058,6 +2059,32 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreatePrivateKeysRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create a new Sub-Organization */
+  PublicApiService_CreateSubOrganization: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateSubOrganizationRequest"];
       };
     };
     responses: {
@@ -2266,6 +2293,32 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1UpdatePrivateKeyTagRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Set the threshold and members of the root quorum. This must be approved by the current root quorum. */
+  PublicApiService_UpdateRootQuorum: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateRootQuorumRequest"];
       };
     };
     responses: {

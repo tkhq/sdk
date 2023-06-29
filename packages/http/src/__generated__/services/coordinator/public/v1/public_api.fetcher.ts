@@ -492,58 +492,6 @@ export const federatedPostGetWhoami = (
   });
 
 /**
- * `POST /public/v1/root_quorum/update`
- */
-type TPostUpdateRootQuorumBody =
-  operations["PublicApiService_UpdateRootQuorum"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/root_quorum/update`
- */
-export type TPostUpdateRootQuorumResponse =
-  operations["PublicApiService_UpdateRootQuorum"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/root_quorum/update`
- */
-export type TPostUpdateRootQuorumInput = { body: TPostUpdateRootQuorumBody };
-
-/**
- * Set the root quorum
- *
- * Set the threshold and members of the root quorum. This must be approved by the current root quorum.
- *
- * `POST /public/v1/root_quorum/update`
- */
-export const postUpdateRootQuorum = (input: TPostUpdateRootQuorumInput) =>
-  request<
-    TPostUpdateRootQuorumResponse,
-    TPostUpdateRootQuorumBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/root_quorum/update",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Set the root quorum
- *
- * Set the threshold and members of the root quorum. This must be approved by the current root quorum.
- */
-export const federatedPostUpdateRootQuorum = (
-  input: TPostUpdateRootQuorumInput,
-  options?: TurnkeyCredentialRequestOptions
-) =>
-  federatedRequest<TPostUpdateRootQuorumBody, never, never>({
-    uri: "/public/v1/root_quorum/update",
-    body: input.body,
-    options,
-  });
-
-/**
  * `POST /public/v1/submit/approve_activity`
  */
 type TPostApproveActivityBody =
@@ -909,6 +857,62 @@ export const federatedPostCreatePrivateKeys = (
 ) =>
   federatedRequest<TPostCreatePrivateKeysBody, never, never>({
     uri: "/public/v1/submit/create_private_keys",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/create_sub_organization`
+ */
+type TPostCreateSubOrganizationBody =
+  operations["PublicApiService_CreateSubOrganization"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/create_sub_organization`
+ */
+export type TPostCreateSubOrganizationResponse =
+  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_sub_organization`
+ */
+export type TPostCreateSubOrganizationInput = {
+  body: TPostCreateSubOrganizationBody;
+};
+
+/**
+ * Create Sub-Organization
+ *
+ * Create a new Sub-Organization
+ *
+ * `POST /public/v1/submit/create_sub_organization`
+ */
+export const postCreateSubOrganization = (
+  input: TPostCreateSubOrganizationInput
+) =>
+  request<
+    TPostCreateSubOrganizationResponse,
+    TPostCreateSubOrganizationBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_sub_organization",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Create Sub-Organization
+ *
+ * Create a new Sub-Organization
+ */
+export const federatedPostCreateSubOrganization = (
+  input: TPostCreateSubOrganizationInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  federatedRequest<TPostCreateSubOrganizationBody, never, never>({
+    uri: "/public/v1/submit/create_sub_organization",
     body: input.body,
     options,
   });
@@ -1331,6 +1335,58 @@ export const federatedPostUpdatePrivateKeyTag = (
 ) =>
   federatedRequest<TPostUpdatePrivateKeyTagBody, never, never>({
     uri: "/public/v1/submit/update_private_key_tag",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/update_root_quorum`
+ */
+type TPostUpdateRootQuorumBody =
+  operations["PublicApiService_UpdateRootQuorum"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/update_root_quorum`
+ */
+export type TPostUpdateRootQuorumResponse =
+  operations["PublicApiService_UpdateRootQuorum"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_root_quorum`
+ */
+export type TPostUpdateRootQuorumInput = { body: TPostUpdateRootQuorumBody };
+
+/**
+ * Set the root quorum
+ *
+ * Set the threshold and members of the root quorum. This must be approved by the current root quorum.
+ *
+ * `POST /public/v1/submit/update_root_quorum`
+ */
+export const postUpdateRootQuorum = (input: TPostUpdateRootQuorumInput) =>
+  request<
+    TPostUpdateRootQuorumResponse,
+    TPostUpdateRootQuorumBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/update_root_quorum",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Set the root quorum
+ *
+ * Set the threshold and members of the root quorum. This must be approved by the current root quorum.
+ */
+export const federatedPostUpdateRootQuorum = (
+  input: TPostUpdateRootQuorumInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  federatedRequest<TPostUpdateRootQuorumBody, never, never>({
+    uri: "/public/v1/submit/update_root_quorum",
     body: input.body,
     options,
   });

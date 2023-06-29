@@ -1,6 +1,9 @@
 import type { definitions } from "./__generated__/services/coordinator/public/v1/public_api.types";
-import { base64StringToBase64UrlEncodedString } from "./encoding";
-import type { PublicKeyCredentialWithAttestationJSON } from "@github/webauthn-json";
+import type { PublicKeyCredentialWithAttestationJSON } from "./webauthn-json";
+import {
+  get as webauthnCredentialGet,
+  create as webauthnCredentialCreate,
+} from "./webauthn-json";
 
 type TWebAuthnStamp = definitions["v1WebAuthnStamp"];
 type TAttestation = definitions["v1Attestation"];
@@ -46,8 +49,7 @@ async function getCredentialRequestOptions(
   payload: string,
   tkSigningOptions: TurnkeyCredentialRequestOptions = defaultSigningOptions
 ): Promise<CredentialRequestOptions> {
-  const stringChallenge = await getChallengeFromPayload(payload);
-  const challenge = await new TextEncoder().encode(stringChallenge);
+  const challenge = await getChallengeFromPayload(payload);
 
   const signingOptions: CredentialRequestOptions = {
     ...tkSigningOptions,
@@ -61,11 +63,12 @@ async function getCredentialRequestOptions(
   return signingOptions;
 }
 
-async function getChallengeFromPayload(payload: string): Promise<string> {
+async function getChallengeFromPayload(payload: string): Promise<Uint8Array> {
   const messageBuffer = new TextEncoder().encode(payload);
   const hashBuffer = await crypto.subtle.digest("SHA-256", messageBuffer);
-  const base64String = Buffer.from(hashBuffer).toString("base64");
-  return base64StringToBase64UrlEncodedString(base64String);
+  const hexString = Buffer.from(hashBuffer).toString("hex");
+  const hexBuffer = Buffer.from(hexString, "utf8");
+  return new Uint8Array(hexBuffer);
 }
 
 /* Pulled from https://www.w3.org/TR/webauthn-2/#enum-transport */
@@ -111,11 +114,6 @@ export async function getWebAuthnAssertion(
   payload: string,
   options?: TurnkeyCredentialRequestOptions
 ): Promise<string> {
-  // webauthn-json is an ES module. Nasty!
-  const { get: webauthnCredentialGet } = await import(
-    "@github/webauthn-json/browser-ponyfill"
-  );
-
   const signingOptions = await getCredentialRequestOptions(payload, options);
   const clientGetResult = await webauthnCredentialGet(signingOptions);
   const assertion = clientGetResult.toJSON();
@@ -133,10 +131,6 @@ export async function getWebAuthnAssertion(
 export async function getWebAuthnAttestation(
   options: TurnkeyCredentialCreationOptions
 ): Promise<TAttestation> {
-  // webauthn-json is an ES module. Nasty!
-  const { create: webauthnCredentialCreate } =
-    await require("@github/webauthn-json/browser-ponyfill");
-
   const res = await webauthnCredentialCreate(options);
 
   return toInternalAttestation(res.toJSON());

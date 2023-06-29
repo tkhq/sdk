@@ -36,9 +36,9 @@ export function init(value: TConfig): void {
 
 export function getConfig(): TConfig {
   return {
-    apiPublicKey: assertNonEmptyString(config.apiPublicKey, "apiPublicKey"),
-    apiPrivateKey: assertNonEmptyString(config.apiPrivateKey, "apiPrivateKey"),
-    baseUrl: assertNonEmptyString(config.baseUrl, "baseUrl"),
+    apiPublicKey: config.apiPublicKey || "",
+    apiPrivateKey: config.apiPrivateKey || "",
+    baseUrl: config.baseUrl || "https://coordinator-beta.turnkey.io",
   };
 }
 
