@@ -31,12 +31,33 @@ main().catch((error) => {
   process.exit(1);
 });
 
+// TODO(tim): pass options (e.g. "X" source private keys)
 async function setup() {
-    // await createUserTag("Admin", []);
-    // await createUser("Bob", [], "demo1", "0307259bca7f4458fb62ab792eecc2a2b355a8387627b72f55e35e00abe07268f8");
-    // await createPrivateKeyTag("Test", []);
-    // await createPrivateKey("Best Key", []);
-    // await createPolicy("Best Policy", "EFFECT_ALLOW", "true", "true");
+    // setup user tags
+    const adminTagId = await createUserTag("Admin", []);
+    const managerTagId = await createUserTag("Manager", []);
+    const executorTagId = await createUserTag("Executor", []);
+
+    // setup users
+    await createUser("Alice", [adminTagId], "Alice key", "02f1a1f1a30b4bffa3fb757714e79ceec0ec68af233985097aff2bd9cc96808728");
+    await createUser("Bob", [managerTagId], "Bob key", "038a20d6caec750413844bdc9fec964dfa0a153f66dd4152c3c44454a2cc973436");
+    await createUser("Phil", [executorTagId], "Phil key", "0270b604a368191d94417a6b8a4ff27af7cbec944ab84ef6cd7f48edd9cd0f04fe");
+
+    // setup private key tags
+    const bankTagId = await createPrivateKeyTag("Bank", []);
+    const sinkTagId = await createPrivateKeyTag("Sink", []);
+    const sourceTagId = await createPrivateKeyTag("Source", []);
+
+    // setup private keys
+    await createPrivateKey("Bank key", [bankTagId]);
+    await createPrivateKey("Sink key", [sinkTagId]);
+    await createPrivateKey("Source key 1", [sourceTagId]);
+    await createPrivateKey("Source key 2", [sourceTagId]);
+    await createPrivateKey("Source key 3", [sourceTagId]);
+
+    // setup policies
+    // TODO(tim): don't over privilege all users
+    await createPolicy("Allow all", "EFFECT_ALLOW", "true", "true");
 }
 
 export function isKeyOfObject<T>(

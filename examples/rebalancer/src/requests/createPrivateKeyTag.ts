@@ -3,7 +3,7 @@ import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";
 
 // TODO(tim): refine w/ options
-export default async function createPrivateKeyTag(privateKeyTagName: string, privateKeyIds: string[]) {
+export default async function createPrivateKeyTag(privateKeyTagName: string, privateKeyIds: string[]): string {
   // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -44,6 +44,8 @@ export default async function createPrivateKeyTag(privateKeyTagName: string, pri
         ``,
       ].join("\n")
     );
+
+    return privateKeyTagId;
   } catch (error) {
     // If needed, you can read from `TurnkeyActivityError` to find out why the activity didn't succeed
     if (error instanceof TurnkeyActivityError) {

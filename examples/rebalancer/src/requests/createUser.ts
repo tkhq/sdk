@@ -3,7 +3,7 @@ import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";
 
 // TODO(tim): refine w/ options
-export default async function createUser(userName: string, userTags: string[], apiKeyName: string, publicKey: string) {
+export default async function createUser(userName: string, userTags: string[], apiKeyName: string, publicKey: string): string {
   // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -50,6 +50,8 @@ export default async function createUser(userName: string, userTags: string[], a
         ``,
       ].join("\n")
     );
+
+    return userId;
   } catch (error) {
     // If needed, you can read from `TurnkeyActivityError` to find out why the activity didn't succeed
     if (error instanceof TurnkeyActivityError) {
