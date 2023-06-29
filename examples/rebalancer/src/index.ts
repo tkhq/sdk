@@ -18,6 +18,7 @@ async function main() {
     const commands =  {
         "setup": setup,
         "fund": fund,
+        "sweep": sweep,
     };
 
     if (!isKeyOfObject(command, commands)) {
@@ -102,7 +103,50 @@ async function fund(args: string[]) {
             throw new Error(`couldn't lookup ETH address for private key: ${sourcePrivateKey.privateKeyId}`)
         }
 
-        await sendEth(provider, connectedSigner, ethAddress.address, 1);
+        // TODO(tim): pass this amount in
+        await sendEth(provider, connectedSigner, ethAddress.address, 100000000000000);
     }
 }
 
+// TODO(tim): pass options (e.g. source private keys, amount, etc)
+async function sweep(args: string[]) {
+    const organization = await getOrganization();
+
+    // find "Sink" private key
+    const sinkTag = organization.tags.find(tag => {
+        const isPrivateKeyTag = tag.tagType == 'TAG_TYPE_PRIVATE_KEY';
+        const isSinkTag = tag.tagName == 'Sink';
+        return isPrivateKeyTag && isSinkTag;
+    });
+
+    const sinkPrivateKey = organization.privateKeys.find(privateKey => {
+        return privateKey.privateKeyTags.includes(sinkTag.tagId)
+    });
+
+    // find "Source" private keys
+    const sourceTag = organization.tags.find(tag => {
+        const isPrivateKeyTag = tag.tagType == 'TAG_TYPE_PRIVATE_KEY';
+        const isSourceTag = tag.tagName == 'Source';
+        return isPrivateKeyTag && isSourceTag;
+    });
+
+    const sourcePrivateKeys = organization.privateKeys.filter(privateKey => {
+        return privateKey.privateKeyTags.includes(sourceTag.tagId);
+    });
+
+    // send from "Source"s to "Sink"
+    const ethAddress = sinkPrivateKey.addresses.find(address => {
+        return address.format == 'ADDRESS_FORMAT_ETHEREUM';
+    });
+    if (!ethAddress || !ethAddress.address) {
+        throw new Error(`couldn't lookup ETH address for private key: ${sinkPrivateKey.privateKeyId}`)
+    }
+
+    for (const sourcePrivateKey of sourcePrivateKeys) {
+        const provider = getProvider();
+        const connectedSigner = getTurnkeySigner(provider, sourcePrivateKey.privateKeyId);
+
+        // TODO(tim): check balance and only sweep excess funds based on passed in amount
+        await sendEth(provider, connectedSigner, ethAddress.address, 1);
+    }
+}

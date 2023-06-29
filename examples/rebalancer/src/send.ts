@@ -28,9 +28,10 @@ export async function sendEth(
 
   const feeData = await connectedSigner.getFeeData();
   const gasRequired = feeData.maxFeePerGas!.mul(21000);
+  const totalCost = gasRequired.add(value);
 
-  if (balance.lt(gasRequired.add(value))) {
-    throw new Error(`Insufficient ETH balance. Skipping...`);
+  if (balance.lt(totalCost)) {
+    throw new Error(`Insufficient ETH balance. Needs ${totalCost}`);
   }
 
   const transactionRequest = {
