@@ -19,6 +19,7 @@ async function main() {
         "setup": setup,
         "fund": fund,
         "sweep": sweep,
+        "recycle": recycle,
     };
 
     if (!isKeyOfObject(command, commands)) {
@@ -149,4 +150,45 @@ async function sweep(args: string[]) {
         // TODO(tim): check balance and only sweep excess funds based on passed in amount
         await sendEth(provider, connectedSigner, ethAddress.address, 1);
     }
+}
+
+// TODO(tim): pass options (e.g. amount, etc)
+async function recycle(args: string[]) {
+    const organization = await getOrganization();
+
+    // find "Sink" private key
+    const sinkTag = organization.tags.find(tag => {
+        const isPrivateKeyTag = tag.tagType == 'TAG_TYPE_PRIVATE_KEY';
+        const isSinkTag = tag.tagName == 'Sink';
+        return isPrivateKeyTag && isSinkTag;
+    });
+
+    const sinkPrivateKey = organization.privateKeys.find(privateKey => {
+        return privateKey.privateKeyTags.includes(sinkTag.tagId)
+    });
+
+    // find "Bank" private key
+    const bankTag = organization.tags.find(tag => {
+        const isPrivateKeyTag = tag.tagType == 'TAG_TYPE_PRIVATE_KEY';
+        const isBankTag = tag.tagName == 'Bank';
+        return isPrivateKeyTag && isBankTag;
+    });
+
+    const bankPrivateKey = organization.privateKeys.find(privateKey => {
+        return privateKey.privateKeyTags.includes(bankTag.tagId)
+    });
+
+    // send from "Sink" to "Bank"
+    const provider = getProvider();
+    const connectedSigner = getTurnkeySigner(provider, sinkPrivateKey.privateKeyId);
+
+    const ethAddress = bankPrivateKey.addresses.find(address => {
+         return address.format == 'ADDRESS_FORMAT_ETHEREUM';
+    });
+    if (!ethAddress || !ethAddress.address) {
+        throw new Error(`couldn't lookup ETH address for private key: ${bankPrivateKey.privateKeyId}`)
+    }
+
+    // TODO(tim): pass this amount in
+    await sendEth(provider, connectedSigner, ethAddress.address, 1);
 }

@@ -30,21 +30,3 @@ execute a command "initialize" to create a a set of addresses, api keys, and pol
 execute a command "fund" to send funds to the "source" addresses from an address called "bank"
 execute a command "sweep" to send any funds that exceed some threshold from the "source" to the "sinks" using a single API key
 execute a command "recycle" to, using a multi-party approval, sweep everything from "sink" back to "bank"
-
-
-```
-pnpm setup (create users, private keys, policies)
-pnpm fund (bank -> source, requires "admin")
-pnpm sweep (source -> sink)
-pnpm manager (sink -> bank, requires "manager")
-
-// policies (private_keys + addresses)
-addresses:
-"source" keys can only send to "sink" addresses
-"sink" keys can only send to "source" addresses or "bank" addresses
-
-users:
-"admin" can send w/ "bank" keys
-"mananger" can send w/ "sink" keys
-"executor" can send w/ "source" keys
-```
