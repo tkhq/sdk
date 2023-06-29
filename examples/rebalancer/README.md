@@ -17,8 +17,8 @@ A demo application utilizing the Turnkey API to sweep funds from a set of addres
 - [x] * Send this address a constant value of ETH from "bank"
 
 ### Sweep
-- [ ] * Loop over a "source" addresses
-- [ ] * When an address has a balance that exceeds a constant value, sweep to "sink"
+- [x] * Loop over a "source" addresses
+- [x] * When an address has a balance that exceeds a constant value, sweep to "sink"
 
 ### Recycle
 - [ ] * Initiate a transfer of funds from "sink" to "bank" unless there's an existing pending transfer
