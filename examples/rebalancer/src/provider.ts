@@ -28,19 +28,20 @@ export function getProvider(
   return provider;
 }
 
-// Initialize a Turnkey Signer
-const turnkeySigner = new TurnkeySigner({
-  apiPublicKey: process.env.API_PUBLIC_KEY!,
-  apiPrivateKey: process.env.API_PRIVATE_KEY!,
-  baseUrl: process.env.BASE_URL!,
-  organizationId: process.env.ORGANIZATION_ID!,
-  privateKeyId: process.env.PRIVATE_KEY_ID!,
-});
-
 // getTurnkeySigner returns a TurnkeySigner connected to the passed-in Provider
 // (https://docs.ethers.org/v5/api/providers/)
 export function getTurnkeySigner(
-  provider: ethers.providers.Provider
+  provider: ethers.providers.Provider,
+  privateKeyId: string,
 ): TurnkeySigner {
+    // Initialize a Turnkey Signer
+  const turnkeySigner = new TurnkeySigner({
+     apiPublicKey: process.env.API_PUBLIC_KEY!,
+     apiPrivateKey: process.env.API_PRIVATE_KEY!,
+     baseUrl: process.env.BASE_URL!,
+     organizationId: process.env.ORGANIZATION_ID!,
+     privateKeyId,
+  });
+
   return turnkeySigner.connect(provider);
 }

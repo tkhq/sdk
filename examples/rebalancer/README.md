@@ -13,8 +13,8 @@ A demo application utilizing the Turnkey API to sweep funds from a set of addres
 - [x] * Create a policy that "manager" + "admin" can spend funds from a private key labeled "sink"
 
 ### Fund
-- [ ] * Loop over a set of addresses labeled "source"
-- [ ] * Send this address a constant value of ETH from "bank"
+- [x] * Loop over a set of addresses labeled "source"
+- [x] * Send this address a constant value of ETH from "bank"
 
 ### Sweep
 - [ ] * Loop over a "source" addresses

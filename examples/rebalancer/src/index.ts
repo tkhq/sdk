@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { toReadableAmount, isKeyOfObject } from "./utils";
 import { getOrganization, createPrivateKey, createPrivateKeyTag, createUser, createUserTag, createPolicy } from "./requests";
 import { TurnkeyApi, init as httpInit } from "@turnkey/http";
-// import { getProvider, getTurnkeySigner } from "./provider";
+import { getProvider, getTurnkeySigner } from "./provider";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -65,7 +65,7 @@ async function setup(args: string[]) {
     // TODO(tim): tighten policies to enforce keys can only send to specific addresses
 }
 
-// TODO(tim): pass options (e.g. source private keys)
+// TODO(tim): pass options (e.g. source private keys, amount, etc)
 async function fund(args: string[]) {
     const organization = await getOrganization();
 
@@ -88,10 +88,82 @@ async function fund(args: string[]) {
     });
 
     const sourcePrivateKeys = organization.privateKeys.filter(privateKey => {
-        return privateKey.privateKeyTags.includes(sourceTag.tagId)
+        return privateKey.privateKeyTags.includes(sourceTag.tagId);
     });
 
-    // TODO(tim): send "X" amount from "Bank" to "Source"
-    console.log(bankPrivateKey)
-    console.log(sourcePrivateKeys)
+    // send from "Bank" to "Source"
+    const provider = getProvider();
+    const connectedSigner = getTurnkeySigner(provider, bankPrivateKey.privateKeyId);
+
+    for (const sourcePrivateKey of sourcePrivateKeys) {
+        // get address
+        const ethAddress = sourcePrivateKey.addresses.find(address => {
+            return address.format == 'ADDRESS_FORMAT_ETHEREUM';
+        });
+        if (!ethAddress || !ethAddress.address) {
+            throw new Error(`couldn't lookup ETH address for private key: ${sourcePrivateKey.privateKeyId}`)
+        }
+
+        // transfer eth
+        await transferEth(provider, connectedSigner, ethAddress.address, 1);
+    }
+}
+
+async function transferEth(
+    provider: ethers.providers.Provider,
+    connectedSigner: ethers.Signer,
+    destinationAddress: string,
+    value: number,
+) {
+  // TODO(tim): investigate why we can't call `connectedSigner.getNetwork()`
+  const network = await provider.getNetwork();
+  const chainId = await connectedSigner.getChainId();
+  const balance = await connectedSigner.getBalance();
+  const address = await connectedSigner.getAddress();
+
+  print("Network:", `${network.name} (chain ID ${chainId})`);
+  print("Address:", address);
+  print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
+
+  if (balance.isZero()) {
+      let warningMessage = "The transaction won't be broadcasted because your account balance is zero.\n";
+      if (network.name === "goerli") {
+        warningMessage += "Use https://goerlifaucet.com/ to request funds on Goerli, then run the script again.\n";
+      }
+
+      throw new Error(warningMessage);
+  }
+
+  const feeData = await connectedSigner.getFeeData();
+  const gasRequired = feeData.maxFeePerGas!.mul(21000);
+
+  if (balance.lt(gasRequired.add(value))) {
+    throw new Error(`Insufficient ETH balance. Skipping...`);
+  }
+
+  const transactionRequest = {
+    to: destinationAddress,
+    value,
+    type: 2,
+    maxFeePerGas: feeData.maxFeePerGas!,
+    maxPriorityFeePerGas: feeData.maxPriorityFeePerGas!,
+  };
+
+  const sentTx = await connectedSigner.sendTransaction(transactionRequest);
+  console.log("Awaiting confirmation...");
+
+  await connectedSigner.provider?.waitForTransaction(sentTx.hash, 1);
+
+  print(
+      `Sent ${toReadableAmount(
+        value.toString(),
+        18,
+        12
+      )} ETH to ${destinationAddress}:`,
+      `https://${network.name}.etherscan.io/tx/${sentTx.hash}`
+  );
+}
+
+function print(header: string, body: string): void {
+  console.log(`${header}\n\t${body}\n`);
 }
