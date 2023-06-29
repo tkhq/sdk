@@ -2,8 +2,8 @@ import { TurnkeyApi, init as httpInit, withAsyncPolling } from "@turnkey/http";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";
 
-// TODO(tim): refine
-export default async function createPrivateKeyTag() {
+// TODO(tim): refine w/ options
+export default async function createPrivateKeyTag(privateKeyTagName: string, privateKeyIds: string[]) {
   // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -18,8 +18,6 @@ export default async function createPrivateKeyTag() {
     refreshIntervalMs: 250, // defaults to 500ms
   });
 
-  const privateKeyTagName = `Private Key Tag ${crypto.randomBytes(2).toString("hex")}`;
-
   try {
     const activity = await mutation({
       body: {
@@ -27,7 +25,7 @@ export default async function createPrivateKeyTag() {
         organizationId: process.env.ORGANIZATION_ID!,
         parameters: {
             privateKeyTagName,
-            privateKeyIds: [],
+            privateKeyIds,
         },
         timestampMs: String(Date.now()), // millisecond timestamp
       },

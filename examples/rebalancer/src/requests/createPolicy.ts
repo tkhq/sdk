@@ -2,8 +2,8 @@ import { TurnkeyApi, init as httpInit, withAsyncPolling } from "@turnkey/http";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";
 
-// TODO(tim): refine
-export default async function createPolicy() {
+// TODO(tim): refine w/ options
+export default async function createPolicy(policyName: string, effect: string, consensus: string, condition: string) {
   // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -17,11 +17,6 @@ export default async function createPolicy() {
     request: TurnkeyApi.postCreatePrivateKeys,
     refreshIntervalMs: 250, // defaults to 500ms
   });
-
-  const policyName = `Policy ${crypto.randomBytes(2).toString("hex")}`;
-  const effect = "EFFECT_ALLOW";
-  const consensus = "true";
-  const condition = "true";
 
   try {
     const activity = await mutation({

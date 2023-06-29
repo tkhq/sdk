@@ -2,8 +2,8 @@ import { TurnkeyApi, init as httpInit, withAsyncPolling } from "@turnkey/http";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";
 
-// TODO(tim): refine
-export default async function createUser() {
+// TODO(tim): refine w/ options
+export default async function createUser(userName: string, userTags: string[], apiKeyName: string, publicKey: string) {
   // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -18,8 +18,6 @@ export default async function createUser() {
     refreshIntervalMs: 250, // defaults to 500ms
   });
 
-  const userName = `User ${crypto.randomBytes(2).toString("hex")}`;
-
   try {
     const activity = await mutation({
       body: {
@@ -28,10 +26,10 @@ export default async function createUser() {
         parameters: {
           apiOnlyUsers: [{
             userName,
-            userTags: [],
+            userTags,
             apiKeys: [{
-                apiKeyName: "Demo Key",
-                publicKey: "0253bb13e71f19dd9ccc3639f65fb78245adc7069b108965f426a550d0cc040946",
+                apiKeyName,
+                publicKey,
             }],
           }],
         },

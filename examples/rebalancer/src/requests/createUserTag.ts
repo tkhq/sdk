@@ -2,8 +2,8 @@ import { TurnkeyApi, init as httpInit, withAsyncPolling } from "@turnkey/http";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";
 
-// TODO(tim): refine
-export default async function createUserTag() {
+// TODO(tim): refine w/ options
+export default async function createUserTag(userTagName: string, userIds: string[]) {
   // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -18,8 +18,6 @@ export default async function createUserTag() {
     refreshIntervalMs: 250, // defaults to 500ms
   });
 
-  const userTagName = `User Tag ${crypto.randomBytes(2).toString("hex")}`;
-
   try {
     const activity = await mutation({
       body: {
@@ -27,7 +25,7 @@ export default async function createUserTag() {
         organizationId: process.env.ORGANIZATION_ID!,
         parameters: {
             userTagName,
-            userIds: [],
+            userIds,
         },
         timestampMs: String(Date.now()), // millisecond timestamp
       },
