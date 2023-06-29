@@ -56,8 +56,10 @@ async function setup() {
     await createPrivateKey("Source key 3", [sourceTagId]);
 
     // setup policies
-    // TODO(tim): don't over privilege all users
-    await createPolicy("Allow all", "EFFECT_ALLOW", "true", "true");
+    // TODO(tim): tighten policies to enforce keys can only send to specific addresses
+    await createPolicy("Admin users can do everything", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${adminTagId}'))`, "true");
+    await createPolicy("Manager users can use Sink keys", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${managerTagId}'))`, `private_key.tags.contains('${sinkTagId}')`);
+    await createPolicy("Executor users can use Source keys", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${executorTagId}'))`, `private_key.tags.contains('${sourceTagId}')`);
 }
 
 export function isKeyOfObject<T>(

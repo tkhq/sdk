@@ -3,15 +3,14 @@
 A demo application utilizing the Turnkey API to sweep funds from a set of addresses
 
 ### Setup
-
-* Create a user with an API key called "executor"
-* Create a user with an API key called "manager"
-* Create a user with an API key called "admin"
-* Create a private key and label it "bank"
-* Create 5 private keys and label them "source"
-* Create a private key and label it "sink"
-* Create a policy that "executor" can spend funds from a private key labeled "source"
-* Create a policy that "manager" + "admin" can spend funds from a private key labeled "sink"
+- [x] * Create a user with an API key called "executor"
+- [x] * Create a user with an API key called "manager"
+- [x] * Create a user with an API key called "admin"
+- [x] * Create a private key and label it "bank"
+- [x] * Create 5 private keys and label them "source"
+- [x] * Create a private key and label it "sink"
+- [x] * Create a policy that "executor" can spend funds from a private key labeled "source"
+- [x] * Create a policy that "manager" + "admin" can spend funds from a private key labeled "sink"
 
 ### Fund
 
