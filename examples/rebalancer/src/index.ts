@@ -1,7 +1,14 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
 import { isKeyOfObject } from "./utils";
-import { getOrganization, createPrivateKey, createPrivateKeyTag, createUser, createUserTag, createPolicy } from "./requests";
+import {
+  getOrganization,
+  createPrivateKey,
+  createPrivateKeyTag,
+  createUser,
+  createUserTag,
+  createPolicy,
+} from "./requests";
 import { getProvider, getTurnkeySigner } from "./provider";
 import { sendEth } from "./send";
 import keys from "./keys";
@@ -9,217 +16,264 @@ import keys from "./keys";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
+const SWEEP_THRESHOLD = 100000000000000; // 0.0001 ETH
+
 async function main() {
-    const args = process.argv.slice(2);
-    if (!args.length) {
-        throw new Error('Command is required');
+  const args = process.argv.slice(2);
+  if (!args.length) {
+    throw new Error("Command is required");
+  }
+
+  const command = args[0];
+  const options = {};
+
+  for (const arg of args.slice(1)) {
+    if (!arg.startsWith("--")) {
+      throw new Error(`flags must begin with '--': ${arg}`);
     }
 
-    const command = args[0];
-    const options = {};
-
-    for (const arg of args.slice(1)) {
-        if (!arg.startsWith("--")) {
-            throw new Error(`flags must begin with '--': ${arg}`);
-        }
-
-        const parts = arg.slice(2).split("=");
-        if (parts.length != 2) {
-            throw new Error(`flags must have syntax '--key=value': ${arg}`);
-        }
-
-        const key = parts[0];
-        const value = parts[1];
-        options[key] = value;
+    const parts = arg.slice(2).split("=");
+    if (parts.length != 2) {
+      throw new Error(`flags must have syntax '--key=value': ${arg}`);
     }
 
-    // overwrite key env vars
-    if (isKeyOfObject("key", options)) {
-        let keyName = options["key"];
+    const key = parts[0];
+    const value = parts[1];
+    options[key] = value;
+  }
 
-        if (!isKeyOfObject(keyName, keys)) {
-            throw new Error(`no key defined with name: ${keyName}`);
-        }
+  // overwrite key env vars
+  if (isKeyOfObject("key", options)) {
+    let keyName = options["key"];
 
-        process.env.API_PUBLIC_KEY = keys[keyName].publicKey;
-        process.env.API_PRIVATE_KEY = keys[keyName].privateKey;
+    if (!isKeyOfObject(keyName, keys)) {
+      throw new Error(`no key defined with name: ${keyName}`);
     }
 
-    const commands =  {
-        "setup": setup,
-        "fund": fund,
-        "sweep": sweep,
-        "recycle": recycle,
-    };
+    process.env.API_PUBLIC_KEY = keys[keyName].publicKey;
+    process.env.API_PRIVATE_KEY = keys[keyName].privateKey;
+  }
 
-    if (!isKeyOfObject(command, commands)) {
-        throw new Error(`Unknown command: ${command}`);
-    }
+  const commands = {
+    setup: setup,
+    fund: fund,
+    sweep: sweep,
+    recycle: recycle,
+  };
 
-    commands[command](options);
+  if (!isKeyOfObject(command, commands)) {
+    throw new Error(`Unknown command: ${command}`);
+  }
+
+  commands[command](options);
 }
 
 main().catch((error) => {
-    console.error(error);
-    process.exit(1);
+  console.error(error);
+  process.exit(1);
 });
 
 // TODO(tim): pass options (e.g. "X" source private keys)
 async function setup(options: any) {
-    // setup user tags
-    const adminTagId = await createUserTag("Admin", []);
-    const managerTagId = await createUserTag("Manager", []);
-    const executorTagId = await createUserTag("Executor", []);
+  // setup user tags
+  const adminTagId = await createUserTag("Admin", []);
+  const managerTagId = await createUserTag("Manager", []);
+  const executorTagId = await createUserTag("Executor", []);
 
-    // setup users
-    await createUser("Alice", [adminTagId], "Alice key", keys.alice.publicKey);
-    await createUser("Bob", [managerTagId], "Bob key", keys.bob.publicKey);
-    await createUser("Phil", [executorTagId], "Phil key", keys.phil.publicKey);
+  // setup users
+  await createUser("Alice", [adminTagId], "Alice key", keys.alice.publicKey);
+  await createUser("Bob", [managerTagId], "Bob key", keys.bob.publicKey);
+  await createUser("Phil", [executorTagId], "Phil key", keys.phil.publicKey);
 
-    // setup private key tags
-    const bankTagId = await createPrivateKeyTag("Bank", []);
-    const sinkTagId = await createPrivateKeyTag("Sink", []);
-    const sourceTagId = await createPrivateKeyTag("Source", []);
+  // setup private key tags
+  const bankTagId = await createPrivateKeyTag("Bank", []);
+  const sinkTagId = await createPrivateKeyTag("Sink", []);
+  const sourceTagId = await createPrivateKeyTag("Source", []);
 
-    // setup private keys
-    await createPrivateKey("Bank key", [bankTagId]);
-    await createPrivateKey("Sink key", [sinkTagId]);
-    await createPrivateKey("Source key 1", [sourceTagId]);
-    await createPrivateKey("Source key 2", [sourceTagId]);
-    await createPrivateKey("Source key 3", [sourceTagId]);
+  // setup private keys
+  await createPrivateKey("Bank key", [bankTagId]);
+  await createPrivateKey("Sink key", [sinkTagId]);
+  await createPrivateKey("Source key 1", [sourceTagId]);
+  await createPrivateKey("Source key 2", [sourceTagId]);
+  await createPrivateKey("Source key 3", [sourceTagId]);
 
-    // setup policies
-    // grant specific users permissions to use specific private keys
-    await createPolicy("Admin users can do everything", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${adminTagId}'))`, "true");
-    await createPolicy("Two Manager or Admin users can use Sink keys", "EFFECT_ALLOW", `approvers.filter(user, user.tags.contains('${managerTagId}') || user.tags.contains('${adminTagId}')).count() >= 2`, `private_key.tags.contains('${sinkTagId}')`);
-    await createPolicy("Executor users can use Source keys", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${executorTagId}'))`, `private_key.tags.contains('${sourceTagId}')`);
+  // setup policies
+  // grant specific users permissions to use specific private keys
+  await createPolicy(
+    "Admin users can do everything",
+    "EFFECT_ALLOW",
+    `approvers.any(user, user.tags.contains('${adminTagId}'))`,
+    "true"
+  );
+  await createPolicy(
+    "Two Manager or Admin users can use Sink keys",
+    "EFFECT_ALLOW",
+    `approvers.filter(user, user.tags.contains('${managerTagId}') || user.tags.contains('${adminTagId}')).count() >= 2`,
+    `private_key.tags.contains('${sinkTagId}')`
+  );
+  await createPolicy(
+    "Executor users can use Source keys",
+    "EFFECT_ALLOW",
+    `approvers.any(user, user.tags.contains('${executorTagId}'))`,
+    `private_key.tags.contains('${sourceTagId}')`
+  );
 
-    // TODO(tim): tighten policies to enforce keys can only send to specific addresses
+  // TODO(tim): tighten policies to enforce keys can only send to specific addresses
 }
 
 // TODO(tim): pass options (e.g. source private keys, amount, etc)
 async function fund(options: any) {
-    const organization = await getOrganization();
+  const organization = await getOrganization();
 
-    // find "Bank" private key
-    const bankTag = organization.tags.find(tag => {
-        const isPrivateKeyTag = tag.tagType == 'TAG_TYPE_PRIVATE_KEY';
-        const isBankTag = tag.tagName == 'Bank';
-        return isPrivateKeyTag && isBankTag;
+  // find "Bank" private key
+  const bankTag = organization.tags.find((tag) => {
+    const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
+    const isBankTag = tag.tagName == "Bank";
+    return isPrivateKeyTag && isBankTag;
+  });
+
+  const bankPrivateKey = organization.privateKeys.find((privateKey) => {
+    return privateKey.privateKeyTags.includes(bankTag.tagId);
+  });
+
+  // find "Source" private keys
+  const sourceTag = organization.tags.find((tag) => {
+    const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
+    const isSourceTag = tag.tagName == "Source";
+    return isPrivateKeyTag && isSourceTag;
+  });
+
+  const sourcePrivateKeys = organization.privateKeys.filter((privateKey) => {
+    return privateKey.privateKeyTags.includes(sourceTag.tagId);
+  });
+
+  // send from "Bank" to "Source"
+  const provider = getProvider();
+  const connectedSigner = getTurnkeySigner(
+    provider,
+    bankPrivateKey.privateKeyId
+  );
+
+  for (const sourcePrivateKey of sourcePrivateKeys) {
+    const ethAddress = sourcePrivateKey.addresses.find((address) => {
+      return address.format == "ADDRESS_FORMAT_ETHEREUM";
     });
-
-    const bankPrivateKey = organization.privateKeys.find(privateKey => {
-        return privateKey.privateKeyTags.includes(bankTag.tagId)
-    });
-
-    // find "Source" private keys
-    const sourceTag = organization.tags.find(tag => {
-        const isPrivateKeyTag = tag.tagType == 'TAG_TYPE_PRIVATE_KEY';
-        const isSourceTag = tag.tagName == 'Source';
-        return isPrivateKeyTag && isSourceTag;
-    });
-
-    const sourcePrivateKeys = organization.privateKeys.filter(privateKey => {
-        return privateKey.privateKeyTags.includes(sourceTag.tagId);
-    });
-
-    // send from "Bank" to "Source"
-    const provider = getProvider();
-    const connectedSigner = getTurnkeySigner(provider, bankPrivateKey.privateKeyId);
-
-    for (const sourcePrivateKey of sourcePrivateKeys) {
-        const ethAddress = sourcePrivateKey.addresses.find(address => {
-            return address.format == 'ADDRESS_FORMAT_ETHEREUM';
-        });
-        if (!ethAddress || !ethAddress.address) {
-            throw new Error(`couldn't lookup ETH address for private key: ${sourcePrivateKey.privateKeyId}`)
-        }
-
-        // TODO(tim): pass this amount in
-        await sendEth(provider, connectedSigner, ethAddress.address, 120000000000000);
+    if (!ethAddress || !ethAddress.address) {
+      throw new Error(
+        `couldn't lookup ETH address for private key: ${sourcePrivateKey.privateKeyId}`
+      );
     }
+
+    // TODO(tim): pass this amount in
+    await sendEth(
+      provider,
+      connectedSigner,
+      ethAddress.address,
+      120000000000000
+    );
+  }
 }
 
 // TODO(tim): pass options (e.g. source private keys, amount, etc)
 async function sweep(options: any) {
-    const organization = await getOrganization();
+  const organization = await getOrganization();
 
-    // find "Sink" private key
-    const sinkTag = organization.tags.find(tag => {
-        const isPrivateKeyTag = tag.tagType == 'TAG_TYPE_PRIVATE_KEY';
-        const isSinkTag = tag.tagName == 'Sink';
-        return isPrivateKeyTag && isSinkTag;
-    });
+  // find "Sink" private key
+  const sinkTag = organization.tags.find((tag) => {
+    const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
+    const isSinkTag = tag.tagName == "Sink";
+    return isPrivateKeyTag && isSinkTag;
+  });
 
-    const sinkPrivateKey = organization.privateKeys.find(privateKey => {
-        return privateKey.privateKeyTags.includes(sinkTag.tagId)
-    });
+  const sinkPrivateKey = organization.privateKeys.find((privateKey) => {
+    return privateKey.privateKeyTags.includes(sinkTag.tagId);
+  });
 
-    // find "Source" private keys
-    const sourceTag = organization.tags.find(tag => {
-        const isPrivateKeyTag = tag.tagType == 'TAG_TYPE_PRIVATE_KEY';
-        const isSourceTag = tag.tagName == 'Source';
-        return isPrivateKeyTag && isSourceTag;
-    });
+  // find "Source" private keys
+  const sourceTag = organization.tags.find((tag) => {
+    const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
+    const isSourceTag = tag.tagName == "Source";
+    return isPrivateKeyTag && isSourceTag;
+  });
 
-    const sourcePrivateKeys = organization.privateKeys.filter(privateKey => {
-        return privateKey.privateKeyTags.includes(sourceTag.tagId);
-    });
+  const sourcePrivateKeys = organization.privateKeys.filter((privateKey) => {
+    return privateKey.privateKeyTags.includes(sourceTag.tagId);
+  });
 
-    // send from "Source"s to "Sink"
-    const ethAddress = sinkPrivateKey.addresses.find(address => {
-        return address.format == 'ADDRESS_FORMAT_ETHEREUM';
-    });
-    if (!ethAddress || !ethAddress.address) {
-        throw new Error(`couldn't lookup ETH address for private key: ${sinkPrivateKey.privateKeyId}`)
+  // send from "Source"s to "Sink"
+  const ethAddress = sinkPrivateKey.addresses.find((address) => {
+    return address.format == "ADDRESS_FORMAT_ETHEREUM";
+  });
+  if (!ethAddress || !ethAddress.address) {
+    throw new Error(
+      `couldn't lookup ETH address for private key: ${sinkPrivateKey.privateKeyId}`
+    );
+  }
+
+  for (const sourcePrivateKey of sourcePrivateKeys) {
+    const provider = getProvider();
+    const connectedSigner = getTurnkeySigner(
+      provider,
+      sourcePrivateKey.privateKeyId
+    );
+    const balance = await connectedSigner.getBalance();
+    const feeData = await connectedSigner.getFeeData();
+    const gasRequired = feeData.maxFeePerGas!.mul(21000); // 21000 is the gas limit for a simple transfer
+
+    if (balance.lt(SWEEP_THRESHOLD)) {
+      console.log("Insufficient balance for sweep. Moving on...");
+      continue;
     }
 
-    for (const sourcePrivateKey of sourcePrivateKeys) {
-        const provider = getProvider();
-        const connectedSigner = getTurnkeySigner(provider, sourcePrivateKey.privateKeyId);
+    const sweepAmount = balance.sub(gasRequired);
 
-        // TODO(tim): check balance and only sweep excess funds based on passed in amount
-        await sendEth(provider, connectedSigner, ethAddress.address, 110000000000000);
-    }
+    // TODO(tim): check balance and only sweep excess funds based on passed in amount
+    await sendEth(provider, connectedSigner, ethAddress.address, sweepAmount.toNumber());
+  }
 }
 
 // TODO(tim): pass options (e.g. amount, etc)
 async function recycle(options: any) {
-    const organization = await getOrganization();
+  const organization = await getOrganization();
 
-    // find "Sink" private key
-    const sinkTag = organization.tags.find(tag => {
-        const isPrivateKeyTag = tag.tagType == 'TAG_TYPE_PRIVATE_KEY';
-        const isSinkTag = tag.tagName == 'Sink';
-        return isPrivateKeyTag && isSinkTag;
-    });
+  // find "Sink" private key
+  const sinkTag = organization.tags.find((tag) => {
+    const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
+    const isSinkTag = tag.tagName == "Sink";
+    return isPrivateKeyTag && isSinkTag;
+  });
 
-    const sinkPrivateKey = organization.privateKeys.find(privateKey => {
-        return privateKey.privateKeyTags.includes(sinkTag.tagId)
-    });
+  const sinkPrivateKey = organization.privateKeys.find((privateKey) => {
+    return privateKey.privateKeyTags.includes(sinkTag.tagId);
+  });
 
-    // find "Bank" private key
-    const bankTag = organization.tags.find(tag => {
-        const isPrivateKeyTag = tag.tagType == 'TAG_TYPE_PRIVATE_KEY';
-        const isBankTag = tag.tagName == 'Bank';
-        return isPrivateKeyTag && isBankTag;
-    });
+  // find "Bank" private key
+  const bankTag = organization.tags.find((tag) => {
+    const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
+    const isBankTag = tag.tagName == "Bank";
+    return isPrivateKeyTag && isBankTag;
+  });
 
-    const bankPrivateKey = organization.privateKeys.find(privateKey => {
-        return privateKey.privateKeyTags.includes(bankTag.tagId)
-    });
+  const bankPrivateKey = organization.privateKeys.find((privateKey) => {
+    return privateKey.privateKeyTags.includes(bankTag.tagId);
+  });
 
-    // send from "Sink" to "Bank"
-    const provider = getProvider();
-    const connectedSigner = getTurnkeySigner(provider, sinkPrivateKey.privateKeyId);
+  // send from "Sink" to "Bank"
+  const provider = getProvider();
+  const connectedSigner = getTurnkeySigner(
+    provider,
+    sinkPrivateKey.privateKeyId
+  );
 
-    const ethAddress = bankPrivateKey.addresses.find(address => {
-         return address.format == 'ADDRESS_FORMAT_ETHEREUM';
-    });
-    if (!ethAddress || !ethAddress.address) {
-        throw new Error(`couldn't lookup ETH address for private key: ${bankPrivateKey.privateKeyId}`)
-    }
+  const ethAddress = bankPrivateKey.addresses.find((address) => {
+    return address.format == "ADDRESS_FORMAT_ETHEREUM";
+  });
+  if (!ethAddress || !ethAddress.address) {
+    throw new Error(
+      `couldn't lookup ETH address for private key: ${bankPrivateKey.privateKeyId}`
+    );
+  }
 
-    // TODO(tim): pass this amount in
-    await sendEth(provider, connectedSigner, ethAddress.address, 100000000000000);
+  // TODO(tim): pass this amount in
+  await sendEth(provider, connectedSigner, ethAddress.address, 100000000000000);
 }

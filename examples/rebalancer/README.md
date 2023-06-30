@@ -54,7 +54,7 @@ Now open `.env.local` and add the missing environment variables:
 
 ## TODO
 
-A demo application utiltiing the Turnkey API to setup an organization with users, private keys, and policies
+A demo application utilizing the Turnkey API to setup an organization with users, private keys, and policies
 
 ### Setup
 - [x] * Create a user with an API key called "executor"
@@ -72,7 +72,7 @@ A demo application utiltiing the Turnkey API to setup an organization with users
 
 ### Sweep
 - [x] * Loop over a "source" addresses
-- [x] * When an address has a balance that exceeds a constant value, sweep to "sink"
+- [x] * When an address has a balance that exceeds a constant value, sweep all funds (allowing for some dust) to "sink"
 
 ### Recycle
 - [ ] * Initiate a transfer of funds from "sink" to "bank" unless there's an existing pending transfer
