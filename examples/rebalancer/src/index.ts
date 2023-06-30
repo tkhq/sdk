@@ -285,6 +285,16 @@ async function recycle(_options: any) {
     );
   }
 
+  const balance = await connectedSigner.getBalance();
+  const feeData = await connectedSigner.getFeeData();
+  const gasRequired = feeData.maxFeePerGas!.mul(21000); // 21000 is the gas limit for a simple transfer
+  const recycleAmount = balance.sub(gasRequired);
+
   // TODO(tim): pass this amount in
-  await sendEth(provider, connectedSigner, ethAddress.address, 100000000000000);
+  await sendEth(
+    provider,
+    connectedSigner,
+    ethAddress.address,
+    recycleAmount.toNumber()
+  );
 }
