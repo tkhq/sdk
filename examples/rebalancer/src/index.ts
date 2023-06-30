@@ -91,7 +91,7 @@ async function setup(options: any) {
     // setup policies
     // grant specific users permissions to use specific private keys
     await createPolicy("Admin users can do everything", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${adminTagId}'))`, "true");
-    await createPolicy("Manager with Admin users can use Sink keys", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${managerTagId}')) && approvers.any(user, user.tags.contains('${adminTagId}'))`, `private_key.tags.contains('${sinkTagId}')`);
+    await createPolicy("Two Manager or Admin users can use Sink keys", "EFFECT_ALLOW", `approvers.filter(user, user.tags.contains('${managerTagId}') || user.tags.contains('${adminTagId}')).count() >= 2`, `private_key.tags.contains('${sinkTagId}')`);
     await createPolicy("Executor users can use Source keys", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${executorTagId}'))`, `private_key.tags.contains('${sourceTagId}')`);
 
     // TODO(tim): tighten policies to enforce keys can only send to specific addresses
