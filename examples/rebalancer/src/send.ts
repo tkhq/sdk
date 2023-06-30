@@ -44,8 +44,9 @@ export async function sendEth(
     maxPriorityFeePerGas: feeData.maxPriorityFeePerGas!,
   };
 
+  let sentTx;
   try {
-    await connectedSigner.sendTransaction(transactionRequest);
+    sentTx = await connectedSigner.sendTransaction(transactionRequest);
   } catch (err: any) {
     // HACK: allow these activites to require consensus
     if (err.toString().includes("ACTIVITY_STATUS_CONSENSUS_NEEDED")) {
@@ -55,7 +56,7 @@ export async function sendEth(
 
     throw err;
   }
-  const sentTx = await connectedSigner.sendTransaction(transactionRequest);
+  
   console.log("Awaiting confirmation...");
 
   await connectedSigner.provider?.waitForTransaction(sentTx.hash, 1);
