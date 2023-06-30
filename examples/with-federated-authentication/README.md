@@ -1,34 +1,49 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Example: `with-federated-authentication`
 
-## Getting Started
+This example shows how to create a sub organization and faciliate creating a private key for the user's sub organization with Turnkey.
 
-First, run the development server:
+## Getting started
+
+### 1/ Cloning the example
+
+Make sure you have `Node.js` installed locally; we recommend using Node v16+.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+$ git clone https://github.com/tkhq/sdk
+$ cd sdk/
+$ corepack enable  # Install `pnpm`
+$ pnpm install -r  # Install dependencies
+$ pnpm run build-all  # Compile source code
+$ cd examples/with-federated-authentication/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2/ Setting up Turnkey
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://turnkey.readme.io/docs/quickstart) guide, you should have:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- A public/private API key pair for Turnkey
+- An organization ID
+- A (crypto) private key ID
 
-## Learn More
+Once you've gathered these values, add them to a new `.env.local` file. Notice that your private key should be securely managed and **_never_** be committed to git.
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+$ cp .env.local.example .env.local
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Now open `.env.local` and add the missing environment variables:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- `API_PUBLIC_KEY`
+- `API_PRIVATE_KEY`
+- `BASE_URL`
+- `ORGANIZATION_ID`
+- `PRIVATE_KEY_ID` -- if you leave it blank, we'll create one for you via calling the Turnkey API
+- `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
-## Deploy on Vercel
+### 3/ Running the app
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+$ pnpm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+This command will run a nextjs app on localhost:3000. If you navigate to localhost:3000 in your browser, you can follow the prompts to create a sub organization and private key for the newly created sub organization.

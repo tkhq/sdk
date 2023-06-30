@@ -96,7 +96,6 @@ export default function Home() {
         .replace(/=/g, ""),
     });
 
-    console.log(res.data.subOrgId);
     setSubOrgId(res.data.subOrgId);
   };
 
