@@ -89,8 +89,9 @@ async function setup(options: any) {
     await createPrivateKey("Source key 3", [sourceTagId]);
 
     // setup policies
+    // grant specific users permissions to use specific private keys
     await createPolicy("Admin users can do everything", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${adminTagId}'))`, "true");
-    await createPolicy("Manager users can use Sink keys", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${managerTagId}'))`, `private_key.tags.contains('${sinkTagId}')`);
+    await createPolicy("Manager with Admin users can use Sink keys", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${managerTagId}')) && approvers.any(user, user.tags.contains('${adminTagId}'))`, `private_key.tags.contains('${sinkTagId}')`);
     await createPolicy("Executor users can use Source keys", "EFFECT_ALLOW", `approvers.any(user, user.tags.contains('${executorTagId}'))`, `private_key.tags.contains('${sourceTagId}')`);
 
     // TODO(tim): tighten policies to enforce keys can only send to specific addresses
@@ -135,7 +136,7 @@ async function fund(options: any) {
         }
 
         // TODO(tim): pass this amount in
-        await sendEth(provider, connectedSigner, ethAddress.address, 100000000000000);
+        await sendEth(provider, connectedSigner, ethAddress.address, 120000000000000);
     }
 }
 
@@ -178,7 +179,7 @@ async function sweep(options: any) {
         const connectedSigner = getTurnkeySigner(provider, sourcePrivateKey.privateKeyId);
 
         // TODO(tim): check balance and only sweep excess funds based on passed in amount
-        await sendEth(provider, connectedSigner, ethAddress.address, 1);
+        await sendEth(provider, connectedSigner, ethAddress.address, 110000000000000);
     }
 }
 
@@ -220,5 +221,5 @@ async function recycle(options: any) {
     }
 
     // TODO(tim): pass this amount in
-    await sendEth(provider, connectedSigner, ethAddress.address, 1);
+    await sendEth(provider, connectedSigner, ethAddress.address, 100000000000000);
 }
