@@ -4,6 +4,7 @@ import { isKeyOfObject } from "./utils";
 import { getOrganization, createPrivateKey, createPrivateKeyTag, createUser, createUserTag, createPolicy } from "./requests";
 import { getProvider, getTurnkeySigner } from "./provider";
 import { sendEth } from "./send";
+import keys from "./keys";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -15,6 +16,35 @@ async function main() {
     }
 
     const command = args[0];
+    const options = {};
+
+    for (const arg of args.slice(1)) {
+        if (!arg.startsWith("--")) {
+            throw new Error(`flags must begin with '--': ${arg}`);
+        }
+
+        const parts = arg.slice(2).split("=");
+        if (parts.length != 2) {
+            throw new Error(`flags must have syntax '--key=value': ${arg}`);
+        }
+
+        const key = parts[0];
+        const value = parts[1];
+        options[key] = value;
+    }
+
+    // overwrite key env vars
+    if (isKeyOfObject("key", options)) {
+        let keyName = options["key"];
+
+        if (!isKeyOfObject(keyName, keys)) {
+            throw new Error(`no key defined with name: ${keyName}`);
+        }
+
+        process.env.API_PUBLIC_KEY = keys[keyName].publicKey;
+        process.env.API_PRIVATE_KEY = keys[keyName].privateKey;
+    }
+
     const commands =  {
         "setup": setup,
         "fund": fund,
@@ -26,7 +56,7 @@ async function main() {
         throw new Error(`Unknown command: ${command}`);
     }
 
-    commands[command](args.slice(1));
+    commands[command](options);
 }
 
 main().catch((error) => {
@@ -35,16 +65,16 @@ main().catch((error) => {
 });
 
 // TODO(tim): pass options (e.g. "X" source private keys)
-async function setup(args: string[]) {
+async function setup(options: any) {
     // setup user tags
     const adminTagId = await createUserTag("Admin", []);
     const managerTagId = await createUserTag("Manager", []);
     const executorTagId = await createUserTag("Executor", []);
 
     // setup users
-    await createUser("Alice", [adminTagId], "Alice key", "02f1a1f1a30b4bffa3fb757714e79ceec0ec68af233985097aff2bd9cc96808728");
-    await createUser("Bob", [managerTagId], "Bob key", "038a20d6caec750413844bdc9fec964dfa0a153f66dd4152c3c44454a2cc973436");
-    await createUser("Phil", [executorTagId], "Phil key", "0270b604a368191d94417a6b8a4ff27af7cbec944ab84ef6cd7f48edd9cd0f04fe");
+    await createUser("Alice", [adminTagId], "Alice key", keys.alice.publicKey);
+    await createUser("Bob", [managerTagId], "Bob key", keys.bob.publicKey);
+    await createUser("Phil", [executorTagId], "Phil key", keys.phil.publicKey);
 
     // setup private key tags
     const bankTagId = await createPrivateKeyTag("Bank", []);
@@ -67,7 +97,7 @@ async function setup(args: string[]) {
 }
 
 // TODO(tim): pass options (e.g. source private keys, amount, etc)
-async function fund(args: string[]) {
+async function fund(options: any) {
     const organization = await getOrganization();
 
     // find "Bank" private key
@@ -110,7 +140,7 @@ async function fund(args: string[]) {
 }
 
 // TODO(tim): pass options (e.g. source private keys, amount, etc)
-async function sweep(args: string[]) {
+async function sweep(options: any) {
     const organization = await getOrganization();
 
     // find "Sink" private key
@@ -153,7 +183,7 @@ async function sweep(args: string[]) {
 }
 
 // TODO(tim): pass options (e.g. amount, etc)
-async function recycle(args: string[]) {
+async function recycle(options: any) {
     const organization = await getOrganization();
 
     // find "Sink" private key
