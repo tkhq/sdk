@@ -3,7 +3,12 @@ import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
 // TODO(tim): refine w/ options
-export default async function createPolicy(policyName: string, effect: string, consensus: string, condition: string): string {
+export default async function createPolicy(
+  policyName: string,
+  effect: "EFFECT_ALLOW" | "EFFECT_DENY",
+  consensus: string,
+  condition: string
+): Promise<string> {
   // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -14,7 +19,7 @@ export default async function createPolicy(policyName: string, effect: string, c
   // Use `withAsyncPolling` to handle async activity polling.
   // In this example, it polls every 250ms until the activity reaches a terminal state.
   const mutation = withAsyncPolling({
-    request: TurnkeyApi.postCreatePrivateKeys,
+    request: TurnkeyApi.postCreatePolicy,
     refreshIntervalMs: 250, // defaults to 500ms
   });
 
@@ -24,11 +29,11 @@ export default async function createPolicy(policyName: string, effect: string, c
         type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
         organizationId: process.env.ORGANIZATION_ID!,
         parameters: {
-            policyName,
-            condition,
-            consensus,
-            effect,
-            notes: "",
+          policyName,
+          condition,
+          consensus,
+          effect,
+          notes: "",
         },
         timestampMs: String(Date.now()), // millisecond timestamp
       },

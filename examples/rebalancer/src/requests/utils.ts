@@ -8,4 +8,3 @@ export function refineNonNull<T>(
 
   return input;
 }
-

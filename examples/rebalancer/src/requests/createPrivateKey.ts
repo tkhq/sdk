@@ -3,7 +3,10 @@ import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
 // TODO(tim): refine w/ options
-export default async function createPrivateKey(privateKeyName: string, privateKeyTags: string[]): string {
+export default async function createPrivateKey(
+  privateKeyName: string,
+  privateKeyTags: string[]
+): Promise<string> {
   // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,

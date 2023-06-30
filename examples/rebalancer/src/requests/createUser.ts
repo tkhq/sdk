@@ -3,7 +3,12 @@ import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
 // TODO(tim): refine w/ options
-export default async function createUser(userName: string, userTags: string[], apiKeyName: string, publicKey: string): string {
+export default async function createUser(
+  userName: string,
+  userTags: string[],
+  apiKeyName: string,
+  publicKey: string
+): Promise<string> {
   // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -14,7 +19,7 @@ export default async function createUser(userName: string, userTags: string[], a
   // Use `withAsyncPolling` to handle async activity polling.
   // In this example, it polls every 250ms until the activity reaches a terminal state.
   const mutation = withAsyncPolling({
-    request: TurnkeyApi.postCreatePrivateKeys,
+    request: TurnkeyApi.postCreateApiOnlyUsers,
     refreshIntervalMs: 250, // defaults to 500ms
   });
 
@@ -24,14 +29,18 @@ export default async function createUser(userName: string, userTags: string[], a
         type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
         organizationId: process.env.ORGANIZATION_ID!,
         parameters: {
-          apiOnlyUsers: [{
-            userName,
-            userTags,
-            apiKeys: [{
-                apiKeyName,
-                publicKey,
-            }],
-          }],
+          apiOnlyUsers: [
+            {
+              userName,
+              userTags,
+              apiKeys: [
+                {
+                  apiKeyName,
+                  publicKey,
+                },
+              ],
+            },
+          ],
         },
         timestampMs: String(Date.now()), // millisecond timestamp
       },

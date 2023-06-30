@@ -1,7 +1,9 @@
 # Example: `rebalancer`
+
 A demo application utiltiing the Turnkey API to setup an organization with users, private keys, and policies and interact with the resources.
 
 ## Usage
+
 ```
 // setup an organization with users, private keys, and policies
 pnpm cli setup
@@ -57,28 +59,33 @@ Now open `.env.local` and add the missing environment variables:
 A demo application utilizing the Turnkey API to setup an organization with users, private keys, and policies
 
 ### Setup
-- [x] * Create a user with an API key called "executor"
-- [x] * Create a user with an API key called "manager"
-- [x] * Create a user with an API key called "admin"
-- [x] * Create a private key and label it "bank"
-- [x] * Create 5 private keys and label them "source"
-- [x] * Create a private key and label it "sink"
-- [x] * Create a policy that "executor" can spend funds from a private key labeled "source"
-- [x] * Create a policy that "manager" + "admin" can spend funds from a private key labeled "sink"
+
+- [x] - Create a user with an API key called "executor"
+- [x] - Create a user with an API key called "manager"
+- [x] - Create a user with an API key called "admin"
+- [x] - Create a private key and label it "bank"
+- [x] - Create 5 private keys and label them "source"
+- [x] - Create a private key and label it "sink"
+- [x] - Create a policy that "executor" can spend funds from a private key labeled "source"
+- [x] - Create a policy that "manager" + "admin" can spend funds from a private key labeled "sink"
 
 ### Fund
-- [x] * Loop over a set of addresses labeled "source"
-- [x] * Send this address a constant value of ETH from "bank"
+
+- [x] - Loop over a set of addresses labeled "source"
+- [x] - Send this address a constant value of ETH from "bank"
 
 ### Sweep
-- [x] * Loop over a "source" addresses
-- [x] * When an address has a balance that exceeds a constant value, sweep all funds (allowing for some dust) to "sink"
+
+- [x] - Loop over a "source" addresses
+- [x] - When an address has a balance that exceeds a constant value, sweep all funds (allowing for some dust) to "sink"
 
 ### Recycle
-- [ ] * Initiate a transfer of funds from "sink" to "bank" unless there's an existing pending transfer
-- [ ] * Approve that transfer in the UI using the authenticator for an "admin" user
+
+- [ ] - Initiate a transfer of funds from "sink" to "bank" unless there's an existing pending transfer
+- [ ] - Approve that transfer in the UI using the authenticator for an "admin" user
 
 ### Thoughts
+
 i'd like to demonstrate how turnkey could be set up to sweep funds from a set of addresses (calling these "source") to a more secure address (calling this "sink"). so first pass at a demo i was hoping to create a structure where:
 execute a command "initialize" to create a a set of addresses, api keys, and policies in a new Turnkey account (this is outlined in a bit more detail in the README)
 execute a command "fund" to send funds to the "source" addresses from an address called "bank"

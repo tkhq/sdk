@@ -28,7 +28,7 @@ export function toReadableAmount(
 // isKeyOfObject checks if a key exists within an object
 export function isKeyOfObject<T>(
   key: string | number | symbol,
-  obj: T,
+  obj: any
 ): key is keyof T {
   return key in obj;
 }

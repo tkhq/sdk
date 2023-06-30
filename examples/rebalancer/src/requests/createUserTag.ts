@@ -3,7 +3,10 @@ import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
 // TODO(tim): refine w/ options
-export default async function createUserTag(userTagName: string, userIds: string[]): string {
+export default async function createUserTag(
+  userTagName: string,
+  userIds: string[]
+): Promise<string> {
   // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -14,6 +17,7 @@ export default async function createUserTag(userTagName: string, userIds: string
   // Use `withAsyncPolling` to handle async activity polling.
   // In this example, it polls every 250ms until the activity reaches a terminal state.
   const mutation = withAsyncPolling({
+    // this method doesn't currently support creating user tags
     request: TurnkeyApi.postCreatePrivateKeys,
     refreshIntervalMs: 250, // defaults to 500ms
   });
@@ -24,8 +28,8 @@ export default async function createUserTag(userTagName: string, userIds: string
         type: "ACTIVITY_TYPE_CREATE_USER_TAG",
         organizationId: process.env.ORGANIZATION_ID!,
         parameters: {
-            userTagName,
-            userIds,
+          userTagName,
+          userIds,
         },
         timestampMs: String(Date.now()), // millisecond timestamp
       },

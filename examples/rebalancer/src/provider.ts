@@ -32,15 +32,15 @@ export function getProvider(
 // (https://docs.ethers.org/v5/api/providers/)
 export function getTurnkeySigner(
   provider: ethers.providers.Provider,
-  privateKeyId: string,
+  privateKeyId: string
 ): TurnkeySigner {
-    // Initialize a Turnkey Signer
+  // Initialize a Turnkey Signer
   const turnkeySigner = new TurnkeySigner({
-     apiPublicKey: process.env.API_PUBLIC_KEY!,
-     apiPrivateKey: process.env.API_PRIVATE_KEY!,
-     baseUrl: process.env.BASE_URL!,
-     organizationId: process.env.ORGANIZATION_ID!,
-     privateKeyId,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    baseUrl: process.env.BASE_URL!,
+    organizationId: process.env.ORGANIZATION_ID!,
+    privateKeyId,
   });
 
   return turnkeySigner.connect(provider);

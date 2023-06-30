@@ -3,7 +3,10 @@ import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
 // TODO(tim): refine w/ options
-export default async function createPrivateKeyTag(privateKeyTagName: string, privateKeyIds: string[]): string {
+export default async function createPrivateKeyTag(
+  privateKeyTagName: string,
+  privateKeyIds: string[]
+): Promise<string> {
   // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -14,6 +17,7 @@ export default async function createPrivateKeyTag(privateKeyTagName: string, pri
   // Use `withAsyncPolling` to handle async activity polling.
   // In this example, it polls every 250ms until the activity reaches a terminal state.
   const mutation = withAsyncPolling({
+    // this method doesn't currently support creating private key tags
     request: TurnkeyApi.postCreatePrivateKeys,
     refreshIntervalMs: 250, // defaults to 500ms
   });
@@ -24,8 +28,8 @@ export default async function createPrivateKeyTag(privateKeyTagName: string, pri
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
         organizationId: process.env.ORGANIZATION_ID!,
         parameters: {
-            privateKeyTagName,
-            privateKeyIds,
+          privateKeyTagName,
+          privateKeyIds,
         },
         timestampMs: String(Date.now()), // millisecond timestamp
       },

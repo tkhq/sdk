@@ -25,7 +25,7 @@ async function main() {
   }
 
   const command = args[0];
-  const options = {};
+  const options: { [key: string]: any } = {};
 
   for (const arg of args.slice(1)) {
     if (!arg.startsWith("--")) {
@@ -39,6 +39,10 @@ async function main() {
 
     const key = parts[0];
     const value = parts[1];
+
+    if (!key) {
+      throw new Error(`invalid flags provided`);
+    }
     options[key] = value;
   }
 
@@ -61,7 +65,7 @@ async function main() {
     recycle: recycle,
   };
 
-  if (!isKeyOfObject(command, commands)) {
+  if (!isKeyOfObject(command!, commands)) {
     throw new Error(`Unknown command: ${command}`);
   }
 
@@ -74,7 +78,7 @@ main().catch((error) => {
 });
 
 // TODO(tim): pass options (e.g. "X" source private keys)
-async function setup(options: any) {
+async function setup(_options: any) {
   // setup user tags
   const adminTagId = await createUserTag("Admin", []);
   const managerTagId = await createUserTag("Manager", []);
@@ -122,40 +126,42 @@ async function setup(options: any) {
 }
 
 // TODO(tim): pass options (e.g. source private keys, amount, etc)
-async function fund(options: any) {
+async function fund(_options: any) {
   const organization = await getOrganization();
 
   // find "Bank" private key
-  const bankTag = organization.tags.find((tag) => {
+  const bankTag = organization.tags?.find((tag: any) => {
     const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
     const isBankTag = tag.tagName == "Bank";
     return isPrivateKeyTag && isBankTag;
   });
 
-  const bankPrivateKey = organization.privateKeys.find((privateKey) => {
-    return privateKey.privateKeyTags.includes(bankTag.tagId);
+  const bankPrivateKey = organization.privateKeys?.find((privateKey: any) => {
+    return privateKey.privateKeyTags.includes(bankTag!.tagId);
   });
 
   // find "Source" private keys
-  const sourceTag = organization.tags.find((tag) => {
+  const sourceTag = organization.tags?.find((tag: any) => {
     const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
     const isSourceTag = tag.tagName == "Source";
     return isPrivateKeyTag && isSourceTag;
   });
 
-  const sourcePrivateKeys = organization.privateKeys.filter((privateKey) => {
-    return privateKey.privateKeyTags.includes(sourceTag.tagId);
-  });
+  const sourcePrivateKeys = organization.privateKeys?.filter(
+    (privateKey: any) => {
+      return privateKey.privateKeyTags.includes(sourceTag!.tagId);
+    }
+  );
 
   // send from "Bank" to "Source"
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
     provider,
-    bankPrivateKey.privateKeyId
+    bankPrivateKey!.privateKeyId
   );
 
-  for (const sourcePrivateKey of sourcePrivateKeys) {
-    const ethAddress = sourcePrivateKey.addresses.find((address) => {
+  for (const sourcePrivateKey of sourcePrivateKeys!) {
+    const ethAddress = sourcePrivateKey.addresses.find((address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
     });
     if (!ethAddress || !ethAddress.address) {
@@ -169,48 +175,48 @@ async function fund(options: any) {
       provider,
       connectedSigner,
       ethAddress.address,
-      120000000000000
+      120000000000000 // 0.00012 ETH
     );
   }
 }
 
 // TODO(tim): pass options (e.g. source private keys, amount, etc)
-async function sweep(options: any) {
+async function sweep(_options: any) {
   const organization = await getOrganization();
 
   // find "Sink" private key
-  const sinkTag = organization.tags.find((tag) => {
+  const sinkTag = organization.tags?.find((tag) => {
     const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
     const isSinkTag = tag.tagName == "Sink";
     return isPrivateKeyTag && isSinkTag;
   });
 
-  const sinkPrivateKey = organization.privateKeys.find((privateKey) => {
-    return privateKey.privateKeyTags.includes(sinkTag.tagId);
+  const sinkPrivateKey = organization.privateKeys?.find((privateKey) => {
+    return privateKey.privateKeyTags.includes(sinkTag!.tagId);
   });
 
   // find "Source" private keys
-  const sourceTag = organization.tags.find((tag) => {
+  const sourceTag = organization.tags?.find((tag) => {
     const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
     const isSourceTag = tag.tagName == "Source";
     return isPrivateKeyTag && isSourceTag;
   });
 
-  const sourcePrivateKeys = organization.privateKeys.filter((privateKey) => {
-    return privateKey.privateKeyTags.includes(sourceTag.tagId);
+  const sourcePrivateKeys = organization.privateKeys?.filter((privateKey) => {
+    return privateKey.privateKeyTags.includes(sourceTag!.tagId);
   });
 
   // send from "Source"s to "Sink"
-  const ethAddress = sinkPrivateKey.addresses.find((address) => {
+  const ethAddress = sinkPrivateKey?.addresses.find((address) => {
     return address.format == "ADDRESS_FORMAT_ETHEREUM";
   });
   if (!ethAddress || !ethAddress.address) {
     throw new Error(
-      `couldn't lookup ETH address for private key: ${sinkPrivateKey.privateKeyId}`
+      `couldn't lookup ETH address for private key: ${sinkPrivateKey?.privateKeyId}`
     );
   }
 
-  for (const sourcePrivateKey of sourcePrivateKeys) {
+  for (const sourcePrivateKey of sourcePrivateKeys!) {
     const provider = getProvider();
     const connectedSigner = getTurnkeySigner(
       provider,
@@ -228,49 +234,54 @@ async function sweep(options: any) {
     const sweepAmount = balance.sub(gasRequired);
 
     // TODO(tim): check balance and only sweep excess funds based on passed in amount
-    await sendEth(provider, connectedSigner, ethAddress.address, sweepAmount.toNumber());
+    await sendEth(
+      provider,
+      connectedSigner,
+      ethAddress.address,
+      sweepAmount.toNumber()
+    );
   }
 }
 
 // TODO(tim): pass options (e.g. amount, etc)
-async function recycle(options: any) {
+async function recycle(_options: any) {
   const organization = await getOrganization();
 
   // find "Sink" private key
-  const sinkTag = organization.tags.find((tag) => {
+  const sinkTag = organization.tags?.find((tag) => {
     const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
     const isSinkTag = tag.tagName == "Sink";
     return isPrivateKeyTag && isSinkTag;
   });
 
-  const sinkPrivateKey = organization.privateKeys.find((privateKey) => {
-    return privateKey.privateKeyTags.includes(sinkTag.tagId);
+  const sinkPrivateKey = organization.privateKeys?.find((privateKey) => {
+    return privateKey.privateKeyTags.includes(sinkTag!.tagId);
   });
 
   // find "Bank" private key
-  const bankTag = organization.tags.find((tag) => {
+  const bankTag = organization.tags?.find((tag) => {
     const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
     const isBankTag = tag.tagName == "Bank";
     return isPrivateKeyTag && isBankTag;
   });
 
-  const bankPrivateKey = organization.privateKeys.find((privateKey) => {
-    return privateKey.privateKeyTags.includes(bankTag.tagId);
+  const bankPrivateKey = organization.privateKeys?.find((privateKey) => {
+    return privateKey.privateKeyTags.includes(bankTag!.tagId);
   });
 
   // send from "Sink" to "Bank"
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
     provider,
-    sinkPrivateKey.privateKeyId
+    sinkPrivateKey!.privateKeyId
   );
 
-  const ethAddress = bankPrivateKey.addresses.find((address) => {
+  const ethAddress = bankPrivateKey?.addresses.find((address) => {
     return address.format == "ADDRESS_FORMAT_ETHEREUM";
   });
   if (!ethAddress || !ethAddress.address) {
     throw new Error(
-      `couldn't lookup ETH address for private key: ${bankPrivateKey.privateKeyId}`
+      `couldn't lookup ETH address for private key: ${bankPrivateKey?.privateKeyId}`
     );
   }
 
