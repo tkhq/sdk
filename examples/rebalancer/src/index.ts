@@ -1,22 +1,28 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
-import { isKeyOfObject } from "./utils";
+
+// Load environment variables from `.env.local`
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+
+import { ethers } from "ethers";
+import { findPrivateKeys, isKeyOfObject } from "./utils";
 import {
-  getOrganization,
   createPrivateKey,
   createPrivateKeyTag,
   createUser,
   createUserTag,
   createPolicy,
+  getActivities,
+  getOrganization,
 } from "./requests";
 import { getProvider, getTurnkeySigner } from "./provider";
 import { sendEth } from "./send";
 import keys from "./keys";
 
-// Load environment variables from `.env.local`
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
-
 const SWEEP_THRESHOLD = 100000000000000; // 0.0001 ETH
+const MIN_INTERVAL_MS = 10000; // 10 seconds
+const MAX_INTERVAL_MS = 60000; // 60 seconds
+const TRANSFER_GAS_LIMIT = 21000;
 
 async function main() {
   const args = process.argv.slice(2);
@@ -63,6 +69,7 @@ async function main() {
     fund: fund,
     sweep: sweep,
     recycle: recycle,
+    pollAndBroadcast: pollAndBroadcast,
   };
 
   if (!isKeyOfObject(command!, commands)) {
@@ -126,32 +133,27 @@ async function setup(_options: any) {
 }
 
 // TODO(tim): pass options (e.g. source private keys, amount, etc)
-async function fund(_options: any) {
+async function fund(options: any) {
+  const interval = parseInt(options["interval"]);
+
+  if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
+    console.log(
+      `Invalid interval: ${interval}. Please specify a value between 1000 and 60000 milliseconds`
+    );
+  }
+
+  await fundImpl();
+  interval && setInterval(async () => await fundImpl(), interval);
+}
+
+async function fundImpl() {
   const organization = await getOrganization();
 
   // find "Bank" private key
-  const bankTag = organization.tags?.find((tag: any) => {
-    const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
-    const isBankTag = tag.tagName == "Bank";
-    return isPrivateKeyTag && isBankTag;
-  });
-
-  const bankPrivateKey = organization.privateKeys?.find((privateKey: any) => {
-    return privateKey.privateKeyTags.includes(bankTag!.tagId);
-  });
+  const bankPrivateKey = findPrivateKeys(organization, "Bank")[0];
 
   // find "Source" private keys
-  const sourceTag = organization.tags?.find((tag: any) => {
-    const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
-    const isSourceTag = tag.tagName == "Source";
-    return isPrivateKeyTag && isSourceTag;
-  });
-
-  const sourcePrivateKeys = organization.privateKeys?.filter(
-    (privateKey: any) => {
-      return privateKey.privateKeyTags.includes(sourceTag!.tagId);
-    }
-  );
+  const sourcePrivateKeys = findPrivateKeys(organization, "Source");
 
   // send from "Bank" to "Source"
   const provider = getProvider();
@@ -175,39 +177,36 @@ async function fund(_options: any) {
       provider,
       connectedSigner,
       ethAddress.address,
-      120000000000000 // 0.00012 ETH
+      ethers.BigNumber.from(120000000000000) // 0.00012 ETH
     );
   }
 }
 
 // TODO(tim): pass options (e.g. source private keys, amount, etc)
-async function sweep(_options: any) {
+async function sweep(options: any) {
+  const interval = parseInt(options["interval"]);
+
+  if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
+    console.log(
+      `Invalid interval: ${interval}. Please specify a value between 1000 and 60000 milliseconds`
+    );
+  }
+
+  await sweepImpl();
+  interval && setInterval(async () => await sweepImpl(), interval);
+}
+
+async function sweepImpl() {
   const organization = await getOrganization();
 
   // find "Sink" private key
-  const sinkTag = organization.tags?.find((tag) => {
-    const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
-    const isSinkTag = tag.tagName == "Sink";
-    return isPrivateKeyTag && isSinkTag;
-  });
-
-  const sinkPrivateKey = organization.privateKeys?.find((privateKey) => {
-    return privateKey.privateKeyTags.includes(sinkTag!.tagId);
-  });
+  const sinkPrivateKey = findPrivateKeys(organization, "Sink")[0];
 
   // find "Source" private keys
-  const sourceTag = organization.tags?.find((tag) => {
-    const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
-    const isSourceTag = tag.tagName == "Source";
-    return isPrivateKeyTag && isSourceTag;
-  });
-
-  const sourcePrivateKeys = organization.privateKeys?.filter((privateKey) => {
-    return privateKey.privateKeyTags.includes(sourceTag!.tagId);
-  });
+  const sourcePrivateKeys = findPrivateKeys(organization, "Source");
 
   // send from "Source"s to "Sink"
-  const ethAddress = sinkPrivateKey?.addresses.find((address) => {
+  const ethAddress = sinkPrivateKey?.addresses.find((address: any) => {
     return address.format == "ADDRESS_FORMAT_ETHEREUM";
   });
   if (!ethAddress || !ethAddress.address) {
@@ -224,50 +223,50 @@ async function sweep(_options: any) {
     );
     const balance = await connectedSigner.getBalance();
     const feeData = await connectedSigner.getFeeData();
-    const gasRequired = feeData.maxFeePerGas!.mul(21000); // 21000 is the gas limit for a simple transfer
+    const gasRequired = feeData
+      .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
+      .mul(TRANSFER_GAS_LIMIT); // 21000 is the gas limit for a simple transfer
 
     if (balance.lt(SWEEP_THRESHOLD)) {
       console.log("Insufficient balance for sweep. Moving on...");
       continue;
     }
 
-    const sweepAmount = balance.sub(gasRequired);
+    const sweepAmount = balance.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
 
     // TODO(tim): check balance and only sweep excess funds based on passed in amount
     await sendEth(
       provider,
       connectedSigner,
       ethAddress.address,
-      sweepAmount.toNumber()
+      sweepAmount,
+      feeData
     );
   }
 }
 
 // TODO(tim): pass options (e.g. amount, etc)
-async function recycle(_options: any) {
+async function recycle(options: any) {
+  const interval = parseInt(options["interval"]);
+
+  if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
+    console.log(
+      `Invalid interval: ${interval}. Please specify a value between 1000 and 60000 milliseconds`
+    );
+  }
+
+  await recycleImpl();
+  interval && setInterval(async () => await recycleImpl, interval);
+}
+
+async function recycleImpl() {
   const organization = await getOrganization();
 
   // find "Sink" private key
-  const sinkTag = organization.tags?.find((tag) => {
-    const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
-    const isSinkTag = tag.tagName == "Sink";
-    return isPrivateKeyTag && isSinkTag;
-  });
-
-  const sinkPrivateKey = organization.privateKeys?.find((privateKey) => {
-    return privateKey.privateKeyTags.includes(sinkTag!.tagId);
-  });
+  const sinkPrivateKey = findPrivateKeys(organization, "Sink")[0];
 
   // find "Bank" private key
-  const bankTag = organization.tags?.find((tag) => {
-    const isPrivateKeyTag = tag.tagType == "TAG_TYPE_PRIVATE_KEY";
-    const isBankTag = tag.tagName == "Bank";
-    return isPrivateKeyTag && isBankTag;
-  });
-
-  const bankPrivateKey = organization.privateKeys?.find((privateKey) => {
-    return privateKey.privateKeyTags.includes(bankTag!.tagId);
-  });
+  const bankPrivateKey = findPrivateKeys(organization, "Bank")[0];
 
   // send from "Sink" to "Bank"
   const provider = getProvider();
@@ -276,7 +275,7 @@ async function recycle(_options: any) {
     sinkPrivateKey!.privateKeyId
   );
 
-  const ethAddress = bankPrivateKey?.addresses.find((address) => {
+  const ethAddress = bankPrivateKey?.addresses.find((address: any) => {
     return address.format == "ADDRESS_FORMAT_ETHEREUM";
   });
   if (!ethAddress || !ethAddress.address) {
@@ -287,14 +286,76 @@ async function recycle(_options: any) {
 
   const balance = await connectedSigner.getBalance();
   const feeData = await connectedSigner.getFeeData();
-  const gasRequired = feeData.maxFeePerGas!.mul(21000); // 21000 is the gas limit for a simple transfer
-  const recycleAmount = balance.sub(gasRequired);
+  const gasRequired = feeData
+    .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
+    .mul(TRANSFER_GAS_LIMIT); // 21000 is the gas limit for a simple transfer
+  const recycleAmount = balance.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
 
   // TODO(tim): pass this amount in
   await sendEth(
     provider,
     connectedSigner,
     ethAddress.address,
-    recycleAmount.toNumber()
+    recycleAmount,
+    feeData
   );
+}
+
+// two approaches:
+// (1) if there's a pending/consensus needed activity, save its ID and check on it later (stateful)
+// (2) simply attempt to broadcast all signed transactions, based on when the activity was approved/completed
+// Poll for pending recycle transactions (which originate from the `sink` address)
+function pollAndBroadcast(options: any) {
+  const interval = parseInt(options["interval"]);
+
+  if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
+    console.log(
+      `Invalid interval: ${interval}. Please specify a value between 1000 and 60000 milliseconds`
+    );
+  }
+
+  pollAndBroadcastImpl();
+  interval && setInterval(pollAndBroadcastImpl, interval);
+}
+
+async function pollAndBroadcastImpl() {
+  const organization = await getOrganization();
+
+  // find "Sink" private key
+  const sinkPrivateKey = findPrivateKeys(organization, "Sink")[0];
+  const activities = await getActivities();
+  const relevantActivities = activities.filter((activity) => {
+    return (
+      activity.type === "ACTIVITY_TYPE_SIGN_TRANSACTION" &&
+      activity.status === "ACTIVITY_STATUS_COMPLETED" &&
+      activity.intent.signTransactionIntent?.privateKeyId ===
+        sinkPrivateKey.privateKeyId
+    );
+  });
+
+  if (relevantActivities.length === 0) {
+    console.log(
+      "No transactions are ready for broadcasting. Double check activities that need consensus.\n"
+    );
+  }
+
+  for (let activity of relevantActivities) {
+    try {
+      const provider = getProvider();
+      const signedTx = `0x${activity.result.signTransactionResult
+        ?.signedTransaction!}`;
+
+      console.log(
+        `Attempting to broadcast signed transaction payload ${signedTx} corresponding to activity ${activity.id}...\n`
+      );
+
+      const { hash } = await provider.sendTransaction(signedTx);
+
+      console.log(`Awaiting confirmation for transaction hash ${hash}...\n`);
+
+      await provider.waitForTransaction(hash, 1);
+    } catch (error) {
+      console.error("Encountered error:", error);
+    }
+  }
 }

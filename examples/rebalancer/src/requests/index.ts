@@ -1,5 +1,6 @@
 // queries
 export { default as getOrganization } from "./getOrganization";
+export { default as getActivities } from "./getActivities";
 
 // mutations
 export { default as createUser } from "./createUser";

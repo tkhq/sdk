@@ -9,13 +9,20 @@ A demo application utiltiing the Turnkey API to setup an organization with users
 pnpm cli setup
 
 // distribute ETH from "Bank" private key to "Source" private keys
-pnpm cli fund
+// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
+pnpm cli fund [--interval=$INTERVAL_MS]
 
 // move ETH from "Source" private keys to "Sink" private key
-pnpm cli sweep
+// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
+pnpm cli sweep [--interval=$INTERVAL_MS]
 
 // move ETH from "Sink" private key to "Bank" private key
-pnpm cli recycle
+// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
+pnpm cli recycle [--interval=$INTERVAL_MS]
+
+// poll for recycle activities, and broadcast the transaction if consensus has been met
+// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
+pnpm cli pollAndBroadcast [--interval=$INTERVAL_MS]
 ```
 
 ## Getting started
@@ -30,7 +37,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/sweeper/
+$ cd examples/rebalancer/
 ```
 
 ### 2/ Setting up Turnkey
@@ -83,6 +90,10 @@ A demo application utilizing the Turnkey API to setup an organization with users
 
 - [ ] - Initiate a transfer of funds from "sink" to "bank" unless there's an existing pending transfer
 - [ ] - Approve that transfer in the UI using the authenticator for an "admin" user
+
+### Poll and broadcast
+
+- [x] - Continuously poll the status of completed recycle activities that originate from the `sink` address. Once consensus has been reached, broadcast the signed transaction
 
 ### Thoughts
 
