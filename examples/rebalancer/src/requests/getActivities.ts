@@ -3,7 +3,7 @@ import type { definitions as types } from "../types";
 import { refineNonNull } from "./utils";
 
 // TODO(tim): deprecate this
-export default async function getActivities(): Promise<
+export default async function getActivities(limit: number): Promise<
   types["v1GetActivitiesResponse"]["activities"]
 > {
   // Initialize `@turnkey/http` with your credentials
@@ -16,6 +16,9 @@ export default async function getActivities(): Promise<
   const response = await TurnkeyApi.postGetActivities({
     body: {
       organizationId: process.env.ORGANIZATION_ID!,
+      paginationOptions: {
+        limit: limit
+      }
     },
   });
 

@@ -26,6 +26,7 @@ const SWEEP_THRESHOLD = 100000000000000; // 0.0001 ETH
 const MIN_INTERVAL_MS = 10000; // 10 seconds
 const MAX_INTERVAL_MS = 60000; // 60 seconds
 const TRANSFER_GAS_LIMIT = 21000;
+const ACTIVITIES_LIMIT = 100;
 
 async function main() {
   const args = process.argv.slice(2);
@@ -328,7 +329,7 @@ async function pollAndBroadcastImpl() {
 
   // find "Sink" private key
   const sinkPrivateKey = findPrivateKeys(organization, "Sink")[0];
-  const activities = await getActivities();
+  const activities = await getActivities(ACTIVITIES_LIMIT);
   const relevantActivities = activities.filter((activity) => {
     return (
       activity.type === "ACTIVITY_TYPE_SIGN_TRANSACTION" &&
