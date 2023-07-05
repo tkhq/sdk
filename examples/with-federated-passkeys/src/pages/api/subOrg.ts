@@ -11,7 +11,7 @@ import axios from "axios";
 type TAttestation = TurnkeyApiTypes["v1Attestation"];
 
 type CreateSubOrgRequest = {
-  orgName: string;
+  subOrgName: string;
   challenge: string;
   attestation: TAttestation;
 };
@@ -34,23 +34,23 @@ export default async function createUser(
   req: NextApiRequest,
   res: NextApiResponse<CreateSubOrgResponse | ErrorMessage>
 ) {
-  const createUserRequest = req.body as CreateSubOrgRequest;
+  const createSubOrgRequest = req.body as CreateSubOrgRequest;
 
-  const createUserMutation = withAsyncPolling({
+  const createSubOrgMutation = withAsyncPolling({
     request: TurnkeyApi.postCreateSubOrganization,
   });
 
   try {
-    const createUserActivity = await createUserMutation({
+    const createSubOrgActivity = await createSubOrgMutation({
       body: {
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION",
         organizationId: process.env.ORGANIZATION_ID!,
         parameters: {
-          name: createUserRequest.orgName,
+          name: createSubOrgRequest.subOrgName,
           rootAuthenticator: {
             authenticatorName: "Passkey",
-            challenge: createUserRequest.challenge,
-            attestation: createUserRequest.attestation,
+            challenge: createSubOrgRequest.challenge,
+            attestation: createSubOrgRequest.attestation,
           },
         },
         timestampMs: String(Date.now()),
@@ -58,7 +58,7 @@ export default async function createUser(
     });
 
     const subOrgId = refineNonNull(
-      createUserActivity.result.createSubOrganizationResult?.subOrganizationId
+      createSubOrgActivity.result.createSubOrganizationResult?.subOrganizationId
     );
 
     res.status(200).json({

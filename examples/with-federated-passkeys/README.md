@@ -1,6 +1,6 @@
 # Example: `with-federated-passkeys`
 
-This example shows how to create a sub organization and faciliate creating a private key for the user's sub organization with Turnkey.
+This example shows how to create a sub organization and facilitate creating a private key for the user's sub organization with Turnkey.
 
 ## Getting started
 
@@ -35,6 +35,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PUBLIC_KEY`
 - `API_PRIVATE_KEY`
 - `BASE_URL`
+- `ORGANIZATION_ID`
 
 ### 3/ Running the app
 

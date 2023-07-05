@@ -106,7 +106,7 @@ export default function Home() {
     });
 
     const res = await axios.post("/api/subOrg", {
-      orgName: data.subOrgName,
+      subOrgName: data.subOrgName,
       attestation,
       challenge: base64UrlEncode(challenge),
     });
