@@ -13,7 +13,10 @@ import {
   createUserTag,
   createPolicy,
   getActivities,
+  getActivity,
   getOrganization,
+  createActivityApproval,
+  createActivityRejection,
 } from "./requests";
 import { getProvider, getTurnkeySigner } from "./provider";
 import { sendEth, broadcastTx } from "./send";
@@ -70,6 +73,8 @@ async function main() {
     sweep: sweep,
     recycle: recycle,
     pollAndBroadcast: pollAndBroadcast,
+    approveActivity: approveActivity,
+    rejectActivity: rejectActivity,
   };
 
   if (!isKeyOfObject(command!, commands)) {
@@ -347,7 +352,27 @@ async function pollAndBroadcastImpl() {
 
       await broadcastTx(provider, signedTx, activity.id);
     } catch (error: any) {
-      console.error("Encountered error:", error.toString());
+      console.error("Encountered error:", error.toString(), "\n");
     }
   }
+}
+
+async function approveActivity(options: any) {
+  const activityId = options["id"];
+
+  if (!activityId) {
+    console.error("Must provide valid activity ID.\n");
+  }
+  const activity = await getActivity(activityId);
+  await createActivityApproval(activityId, activity.fingerprint);
+}
+
+async function rejectActivity(options: any) {
+  const activityId = options["id"];
+
+  if (!activityId) {
+    console.error("Must provide valid activity ID.\n");
+  }
+  const activity = await getActivity(activityId);
+  await createActivityRejection(activityId, activity.fingerprint);
 }

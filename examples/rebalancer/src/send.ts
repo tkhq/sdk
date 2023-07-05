@@ -10,11 +10,17 @@ export async function broadcastTx(
   const txHash = ethers.utils.keccak256(signedTx);
 
   console.log(
-    `Attempting to broadcast signed transaction payload ${signedTx} corresponding to activity ${activityId}...\n`
+    [
+      `Attempting to broadcast signed transaction:`,
+      `- Activity ID: ${activityId}`,
+      `- Signed payload: ${signedTx}`,
+      `- Hash: ${txHash}`,
+      ``,
+    ].join("\n")
   );
 
-  const { confirmations } = await provider.getTransaction(txHash);
-  if (confirmations > 0) {
+  const transaction = await provider.getTransaction(txHash);
+  if (transaction?.confirmations > 0) {
     console.log(`Transaction ${txHash} has already been broadcasted\n`);
     return;
   }
@@ -94,10 +100,18 @@ export async function sendEth(
   } catch (error: any) {
     // HACK: allow these activites to require consensus
     if (error.toString().includes("ACTIVITY_STATUS_CONSENSUS_NEEDED")) {
-      console.error("Consensus is required. Please visit the dashboard.");
+      console.error(
+        `Consensus is required for activity ${
+          error.activityId
+        } in order to send ${toReadableAmount(
+          value.toString(),
+          18,
+          12
+        )} ETH to ${destinationAddress}. Please visit the dashboard.`
+      );
       return;
     }
 
-    console.error("Encountered error:", error.toString());
+    console.error("Encountered error:", error.toString(), "\n");
   }
 }

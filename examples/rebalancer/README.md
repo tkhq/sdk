@@ -23,6 +23,12 @@ pnpm cli recycle [--interval=$INTERVAL_MS --key=bob]
 // poll for recycle activities, and broadcast the transaction if consensus has been met
 // optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
 pnpm cli pollAndBroadcast [--interval=$INTERVAL_MS]
+
+// approve an activity
+pnpm cli approveActivity [--id=$ACTIVITY_ID --key=alice]
+
+// reject an activity
+pnpm cli rejectActivity [--id=$ACTIVITY_ID --key=alice]
 ```
 
 ## Getting started
