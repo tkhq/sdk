@@ -1,26 +1,44 @@
 import Image from "next/image";
 import styles from "./index.module.css";
-import { getWebAuthnAttestation, TurnkeyApi } from "@turnkey/http";
+import { getWebAuthnAttestation, TurnkeyApi, browserInit } from "@turnkey/http";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { buffer } from "stream/consumers";
 import { useState } from "react";
 
+browserInit({
+  baseUrl: "https://coordinator-beta.turnkey.io",
+});
+
 type subOrgFormData = {
-  orgName: string;
+  subOrgName: string;
 };
 
 type privateKeyFormData = {
   privateKeyName: string;
 };
 
+// All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
+// We only support ES256, which is listed here
 const es256 = -7;
+
+// This constant designates the type of credential we want to create.
+// The enum only supports one value, "public-key"
+// https://www.w3.org/TR/webauthn-2/#enumdef-publickeycredentialtype
 const publicKey = "public-key";
 
 const generateRandomBuffer = (): ArrayBuffer => {
   const arr = new Uint8Array(32);
   crypto.getRandomValues(arr);
   return arr.buffer;
+};
+
+const base64UrlEncode = (challenge: ArrayBuffer): string => {
+  return Buffer.from(challenge)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
 };
 
 export default function Home() {
@@ -34,7 +52,7 @@ export default function Home() {
 
   const createPrivateKey = async (data: privateKeyFormData) => {
     if (!subOrgId) {
-      throw new Error("sub org id id not found");
+      throw new Error("sub-org id not found");
     }
 
     const federatedRequest = await TurnkeyApi.federatedPostCreatePrivateKeys({
@@ -64,11 +82,13 @@ export default function Home() {
     const challenge = generateRandomBuffer();
     const authenticatorUserId = generateRandomBuffer();
 
+    // An example of possible options can be found here:
+    // https://www.w3.org/TR/webauthn-2/#sctn-sample-registration
     const attestation = await getWebAuthnAttestation({
       publicKey: {
         rp: {
           id: "localhost",
-          name: "Turnkey WebaAuthn Demo",
+          name: "Turnkey Federated Passkey Demo",
         },
         challenge,
         pubKeyCredParams: [
@@ -79,21 +99,16 @@ export default function Home() {
         ],
         user: {
           id: authenticatorUserId,
-          name: data.orgName,
-          displayName: data.orgName,
+          name: data.subOrgName,
+          displayName: data.subOrgName,
         },
       },
     });
 
     const res = await axios.post("/api/subOrg", {
-      orgName: data.orgName,
+      orgName: data.subOrgName,
       attestation,
-      // The challenge must be base64 url encoded
-      challenge: Buffer.from(challenge)
-        .toString("base64")
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=/g, ""),
+      challenge: base64UrlEncode(challenge),
     });
 
     setSubOrgId(res.data.subOrgId);
@@ -124,7 +139,7 @@ export default function Home() {
               Name
               <input
                 className={styles.input}
-                {...subOrgFormRegister("orgName")}
+                {...subOrgFormRegister("subOrgName")}
                 placeholder="Your user's sub org"
               />
             </label>

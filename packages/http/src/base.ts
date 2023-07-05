@@ -1,5 +1,5 @@
 import { fetch, stamp } from "./universal";
-import { getConfig } from "./config";
+import { getBrowserConfig, getConfig } from "./config";
 import { stringToBase64urlString } from "./encoding";
 import { TurnkeyRequestError, GrpcStatus, FederatedRequest } from "./shared";
 import {
@@ -126,7 +126,7 @@ function constructUrl(input: {
 }): URL {
   const { uri, query, substitution } = input;
 
-  const { baseUrl } = getConfig();
+  const baseUrl = getBaseUrl();
 
   const url = new URL(substitutePath(uri, substitution), baseUrl);
 
@@ -143,6 +143,16 @@ function constructUrl(input: {
   }
 
   return url;
+}
+
+function getBaseUrl(): string {
+  try {
+    const { baseUrl } = getConfig();
+    return baseUrl;
+  } catch (e) {
+    const { baseUrl } = getBrowserConfig();
+    return baseUrl;
+  }
 }
 
 function substitutePath(

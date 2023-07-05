@@ -1,4 +1,4 @@
-# Example: `with-federated-authentication`
+# Example: `with-federated-passkeys`
 
 This example shows how to create a sub organization and faciliate creating a private key for the user's sub organization with Turnkey.
 
@@ -14,7 +14,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-federated-authentication/
+$ cd examples/with-federated-passkeys/
 ```
 
 ### 2/ Setting up Turnkey
@@ -23,9 +23,8 @@ The first step is to set up your Turnkey organization and account. By following 
 
 - A public/private API key pair for Turnkey
 - An organization ID
-- A (crypto) private key ID
 
-Once you've gathered these values, add them to a new `.env.local` file. Notice that your private key should be securely managed and **_never_** be committed to git.
+Once you've gathered these values, add them to a new `.env.local` file. Notice that your API private key should be securely managed and **_never_** be committed to git.
 
 ```bash
 $ cp .env.local.example .env.local
@@ -36,9 +35,6 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PUBLIC_KEY`
 - `API_PRIVATE_KEY`
 - `BASE_URL`
-- `ORGANIZATION_ID`
-- `PRIVATE_KEY_ID` -- if you leave it blank, we'll create one for you via calling the Turnkey API
-- `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
 ### 3/ Running the app
 

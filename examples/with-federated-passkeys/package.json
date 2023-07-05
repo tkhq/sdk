@@ -1,5 +1,5 @@
 {
-  "name": "with-federated-authentication",
+  "name": "with-federated-passkeys",
   "version": "0.1.0",
   "private": true,
   "scripts": {
