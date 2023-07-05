@@ -16,7 +16,7 @@ import {
   getOrganization,
 } from "./requests";
 import { getProvider, getTurnkeySigner } from "./provider";
-import { sendEth } from "./send";
+import { sendEth, broadcastTx } from "./send";
 import keys from "./keys";
 
 const SWEEP_THRESHOLD = 100000000000000; // 0.0001 ETH
@@ -138,7 +138,7 @@ async function fund(options: any) {
 
   if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
     console.log(
-      `Invalid interval: ${interval}. Please specify a value between 1000 and 60000 milliseconds`
+      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`
     );
   }
 
@@ -188,7 +188,7 @@ async function sweep(options: any) {
 
   if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
     console.log(
-      `Invalid interval: ${interval}. Please specify a value between 1000 and 60000 milliseconds`
+      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`
     );
   }
 
@@ -251,7 +251,7 @@ async function recycle(options: any) {
 
   if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
     console.log(
-      `Invalid interval: ${interval}. Please specify a value between 1000 and 60000 milliseconds`
+      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`
     );
   }
 
@@ -310,7 +310,7 @@ function pollAndBroadcast(options: any) {
 
   if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
     console.log(
-      `Invalid interval: ${interval}. Please specify a value between 1000 and 60000 milliseconds`
+      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`
     );
   }
 
@@ -345,17 +345,9 @@ async function pollAndBroadcastImpl() {
       const signedTx = `0x${activity.result.signTransactionResult
         ?.signedTransaction!}`;
 
-      console.log(
-        `Attempting to broadcast signed transaction payload ${signedTx} corresponding to activity ${activity.id}...\n`
-      );
-
-      const { hash } = await provider.sendTransaction(signedTx);
-
-      console.log(`Awaiting confirmation for transaction hash ${hash}...\n`);
-
-      await provider.waitForTransaction(hash, 1);
-    } catch (error) {
-      console.error("Encountered error:", error);
+      await broadcastTx(provider, signedTx, activity.id);
+    } catch (error: any) {
+      console.error("Encountered error:", error.toString());
     }
   }
 }

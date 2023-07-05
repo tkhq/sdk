@@ -14,11 +14,11 @@ pnpm cli fund [--interval=$INTERVAL_MS]
 
 // move ETH from "Source" private keys to "Sink" private key
 // optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
-pnpm cli sweep [--interval=$INTERVAL_MS]
+pnpm cli sweep [--interval=$INTERVAL_MS --key=phil]
 
 // move ETH from "Sink" private key to "Bank" private key
 // optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
-pnpm cli recycle [--interval=$INTERVAL_MS]
+pnpm cli recycle [--interval=$INTERVAL_MS --key=bob]
 
 // poll for recycle activities, and broadcast the transaction if consensus has been met
 // optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)

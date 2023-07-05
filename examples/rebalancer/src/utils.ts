@@ -47,3 +47,7 @@ export function isKeyOfObject<T>(
 ): key is keyof T {
   return key in obj;
 }
+
+export function print(header: string, body: string): void {
+  console.log(`${header}\n\t${body}\n`);
+}

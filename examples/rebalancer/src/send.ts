@@ -1,5 +1,35 @@
 import { ethers } from "ethers";
-import { toReadableAmount } from "./utils";
+import { toReadableAmount, print } from "./utils";
+
+export async function broadcastTx(
+  provider: ethers.providers.Provider,
+  signedTx: string,
+  activityId: string
+) {
+  const network = await provider.getNetwork();
+  const txHash = ethers.utils.keccak256(signedTx);
+
+  console.log(
+    `Attempting to broadcast signed transaction payload ${signedTx} corresponding to activity ${activityId}...\n`
+  );
+
+  const { confirmations } = await provider.getTransaction(txHash);
+  if (confirmations > 0) {
+    console.log(`Transaction ${txHash} has already been broadcasted\n`);
+    return;
+  }
+
+  const { hash } = await provider.sendTransaction(signedTx);
+
+  console.log(`Awaiting confirmation for transaction hash ${hash}...\n`);
+
+  await provider.waitForTransaction(hash, 1);
+
+  print(
+    `Broadcasted transaction:`,
+    `https://${network.name}.etherscan.io/tx/${hash}`
+  );
+}
 
 export async function sendEth(
   provider: ethers.providers.Provider,
@@ -32,13 +62,6 @@ export async function sendEth(
     .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
     .mul(21000);
   const totalCost = gasRequired.add(value);
-
-  console.log(`Transaction details:`, {
-    totalCost: totalCost.toString(),
-    value: value,
-    balance: balance.toString(),
-    gasRequired: gasRequired.toString(),
-  });
 
   if (balance.lt(totalCost)) {
     console.error(`Insufficient ETH balance of ${balance}. Needs ${totalCost}`);
@@ -75,10 +98,6 @@ export async function sendEth(
       return;
     }
 
-    console.error("Encountered error:", error);
+    console.error("Encountered error:", error.toString());
   }
-}
-
-function print(header: string, body: string): void {
-  console.log(`${header}\n\t${body}\n`);
 }
