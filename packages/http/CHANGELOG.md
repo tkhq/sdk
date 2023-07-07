@@ -1,5 +1,12 @@
 # @turnkey/http
 
+## 0.18.0
+
+### Minor Changes
+
+- Add support for federated requests (an example is included under `sdk/examples/with-federated-passkeys`)
+- Routine re-sync protos from mono
+
 ## 0.17.1
 
 ### Patch Changes
