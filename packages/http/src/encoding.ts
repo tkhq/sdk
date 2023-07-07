@@ -7,14 +7,11 @@ export function stringToBase64urlString(input: string): string {
   // string to base64
   const base64String = btoa(input);
 
-  // base64 to base64url
-  // We assume that the base64url string is well-formed.
-  const base64urlString = base64String
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
+  return base64StringToBase64UrlEncodedString(base64String);
+}
 
-  return base64urlString;
+export function base64StringToBase64UrlEncodedString(input: string): string {
+  return input.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
 export function uint8ArrayToHexString(input: Uint8Array): string {

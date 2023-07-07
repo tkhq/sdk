@@ -26,3 +26,4 @@ API Docs: https://turnkey.readme.io/
 | [`deployer`](/examples/deployer/)                                      | Compile and deploy a smart contract                                                                                |
 | [`with-offline`](/examples/with-offline/)                              | Sign a Turnkey request in offline context                                                                          |
 | [`demo-consumer-wallet`](https://github.com/tkhq/demo-consumer-wallet) | A minimal consumer wallet app powered by Turnkey and WalletConnect                                                 |
+| [`with-federated-passkeys`](/examples/with-federated-passkeys/)        | A nextjs app that demonstrates how to use Turnkey to build a federated, webauthn powered authentication flow       |

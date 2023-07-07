@@ -752,7 +752,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_authenticators --body '{\n\t\"type\": \"ACTIVITY_TYPE_CREATE_AUTHENTICATORS\",\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userId\": \"\",\n\t\t\"authenticators\": [\n\t\t\t{\n\t\t\t\t\"authenticatorName\": \"\",\n\t\t\t\t\"userId\": \"\",\n\t\t\t\t\"challenge\": \"\",\n\t\t\t\t\"attestation\": {\n\t\t\t\t\t\"id\": \"\",\n\t\t\t\t\t\"type\": \"\",\n\t\t\t\t\t\"rawId\": \"\",\n\t\t\t\t\t\"authenticatorAttachment\": \"cross-\"\n\t\t\t\t}\n\t\t\t}\n\t\t]\n\t}\n}\n'",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_authenticators --body '{\n\t\"type\": \"ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2\",\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userId\": \"\",\n\t\t\"authenticators\": [\n\t\t\t{\n\t\t\t\t\"authenticatorName\": \"\",\n\t\t\t\t\"challenge\": \"\",\n\t\t\t\t\"attestation\": {\n\t\t\t\t\t\"credentialId\": \"\",\n\t\t\t\t\t\"clientDataJson\": \"\",\n\t\t\t\t\t\"attestationObject\": \"\",\n\t\t\t\t\t\"transports\": []\n\t\t\t\t}\n\t\t\t}\n\t\t]\n\t}\n}\n'",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -912,6 +912,59 @@
           "code-samples": [
             {
               "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_private_keys --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"privateKeys\": [{\n\t\t\t\"privateKeyName\": \"\",\n\t\t\t\"curve\": \"\",\n\t\t\t\"privateKeyTags\": \"\",\n\t\t\t\"addressFormats\": \"\"\n\t\t}]\n\t}\n}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
+    "/public/v1/submit/create_sub_organization": {
+      "post": {
+        "summary": "Create Sub-Organization",
+        "description": "Create a new Sub-Organization",
+        "operationId": "PublicApiService_CreateSubOrganization",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateSubOrganizationRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_sub_organization --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"name\": \"\",\n\t\t\"rootAuthenticator\": {\n\t\t\t\"authenticatorName\": \"\",\n\t\t\t\"challenge\":\"\",\n\t\t\t\"attestation\":{\n\t\t\t\t\"credentialId\":\"\",\n\t\t\t\t\"clientDataJson\":\"\",\n\t\t\t\t\"attestationObject\":\"\",\n\t\t\t\t\"transports\":[],\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}'",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -1345,6 +1398,59 @@
         }
       }
     },
+    "/public/v1/submit/update_root_quorum": {
+      "post": {
+        "summary": "Set the root quorum",
+        "description": "Set the threshold and members of the root quorum. This must be approved by the current root quorum.",
+        "operationId": "PublicApiService_UpdateRootQuorum",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateRootQuorumRequest"
+            }
+          }
+        ],
+        "tags": ["Root Quorum"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/update_root_quorum --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"UPDATE_ROOT_QUORUM\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userIds\": \"'\"$USER_IDS\"'\",\n\t\t\"threshold\": $THRESHOLD,\n\t\t\"type\": \"\"\n\t}\n}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
     "/public/v1/submit/update_user_tag": {
       "post": {
         "summary": "Update User Tag",
@@ -1396,6 +1502,38 @@
             }
           ]
         }
+      }
+    },
+    "/tkhq/api/v1/noop-codegen-anchor": {
+      "post": {
+        "summary": "This route does nothing and does not need an implementation, but please don't remove it.\nIt's used at compile time for generating extra OpenAPI/TypeScript types\nthat are not directly referenced in requests.",
+        "operationId": "PublicApiService_NOOPCodegenAnchor",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1NOOPCodegenAnchorResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": ["PublicApiService"]
       }
     },
     "/tkhq/public/v1/query/get_private_key": {
@@ -1846,7 +1984,9 @@
         "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
         "ACTIVITY_TYPE_CREATE_ORGANIZATION_V2",
         "ACTIVITY_TYPE_CREATE_USERS_V2",
-        "ACTIVITY_TYPE_ACCEPT_INVITATION_V2"
+        "ACTIVITY_TYPE_ACCEPT_INVITATION_V2",
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION",
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2"
       ],
       "description": "Type of Activity, such as Add User, or Sign Transaction."
     },
@@ -2009,10 +2149,6 @@
           "type": "string",
           "description": "Identifier indicating the type of the Security Key."
         },
-        "userId": {
-          "type": "string",
-          "description": "Unique identifier for a given User."
-        },
         "credentialId": {
           "type": "string",
           "description": "Unique identifier for a WebAuthn credential."
@@ -2043,7 +2179,6 @@
         "transports",
         "attestationType",
         "aaguid",
-        "userId",
         "credentialId",
         "model",
         "credential",
@@ -2589,6 +2724,75 @@
         }
       },
       "required": ["privateKeyIds"]
+    },
+    "v1CreateSubOrganizationIntent": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name for this sub-organization",
+          "title": "@inject_tag: validate:\"omitempty,tk_label,tk_label_length\""
+        },
+        "rootAuthenticator": {
+          "$ref": "#/definitions/v1AuthenticatorParamsV2"
+        }
+      },
+      "required": ["name", "rootAuthenticator"]
+    },
+    "v1CreateSubOrganizationIntentV2": {
+      "type": "object",
+      "properties": {
+        "subOrganizationName": {
+          "type": "string",
+          "description": "Name for this sub-organization",
+          "title": "@inject_tag: validate:\"omitempty,tk_label,tk_label_length\""
+        },
+        "rootUsers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1RootUserParams"
+          },
+          "description": "Root users to create within this sub-organization",
+          "title": "@inject_tag: validate:\"required\""
+        },
+        "rootQuorumThreshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users",
+          "title": "@inject_tag: validate:\"required\""
+        }
+      },
+      "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
+    },
+    "v1CreateSubOrganizationRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateSubOrganizationIntentV2"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateSubOrganizationResult": {
+      "type": "object",
+      "properties": {
+        "subOrganizationId": {
+          "type": "string"
+        }
+      },
+      "required": ["subOrganizationId"]
     },
     "v1CreateUserTagIntent": {
       "type": "object",
@@ -3399,6 +3603,12 @@
         },
         "createUsersIntentV2": {
           "$ref": "#/definitions/v1CreateUsersIntentV2"
+        },
+        "createSubOrganizationIntent": {
+          "$ref": "#/definitions/v1CreateSubOrganizationIntent"
+        },
+        "createSubOrganizationIntentV2": {
+          "$ref": "#/definitions/v1CreateSubOrganizationIntentV2"
         }
       },
       "description": "Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action.",
@@ -3501,6 +3711,15 @@
         "INVITATION_STATUS_REVOKED"
       ]
     },
+    "v1NOOPCodegenAnchorResponse": {
+      "type": "object",
+      "properties": {
+        "stamp": {
+          "$ref": "#/definitions/v1WebAuthnStamp"
+        }
+      },
+      "required": ["stamp"]
+    },
     "v1OrganizationData": {
       "type": "object",
       "properties": {
@@ -3540,47 +3759,14 @@
             "$ref": "#/definitions/datav1Tag"
           }
         },
-        "deletedUsers": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1User"
-          }
-        },
-        "deletedPolicies": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Policy"
-          }
-        },
         "disabledPrivateKeys": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/v1PrivateKey"
           }
         },
-        "deletedInvitations": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Invitation"
-          }
-        },
-        "deletedApiKeys": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1ApiKey"
-          }
-        },
-        "deletedAuthenticators": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Authenticator"
-          }
-        },
-        "deletedTags": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/datav1Tag"
-          }
+        "rootQuorum": {
+          "$ref": "#/definitions/v1Quorum"
         }
       },
       "description": "This proto definition is used in our external-facing APIs.\nIt's important to leverage annotations because they're used in our external interfaces."
@@ -3770,6 +3956,24 @@
       },
       "required": ["id", "type", "rawId", "response", "clientExtensionResults"]
     },
+    "v1Quorum": {
+      "type": "object",
+      "properties": {
+        "threshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Count of unique approvals required to meet quorum."
+        },
+        "userIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Unique identifiers of quorum set members."
+        }
+      },
+      "required": ["threshold", "userIds"]
+    },
     "v1RejectActivityIntent": {
       "type": "object",
       "properties": {
@@ -3888,9 +4092,44 @@
         },
         "updatePrivateKeyTagResult": {
           "$ref": "#/definitions/v1UpdatePrivateKeyTagResult"
+        },
+        "createSubOrganizationResult": {
+          "$ref": "#/definitions/v1CreateSubOrganizationResult"
         }
       },
       "description": "Result of the intended action."
+    },
+    "v1RootUserParams": {
+      "type": "object",
+      "properties": {
+        "userName": {
+          "type": "string",
+          "description": "Human-readable name for a User.",
+          "title": "@inject_tag: validate:\"required,tk_label_length,tk_label\""
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "The user's email address.",
+          "title": "@inject_tag: validate:\"omitempty,email,tk_email\""
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1ApiKeyParams"
+          },
+          "description": "A list of API Key parameters.",
+          "title": "@inject_tag: validate:\"dive\""
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
+          },
+          "description": "A list of Authenticator parameters.",
+          "title": "@inject_tag: validate:\"dive\""
+        }
+      },
+      "required": ["userName", "apiKeys", "authenticators"]
     },
     "v1SelectorV2": {
       "type": "object",
@@ -4188,10 +4427,31 @@
             "type": "string"
           },
           "description": "The unique identifiers of users who comprise the quorum set.",
-          "title": "@inject_tag: validate:\"required,uuid\""
+          "title": "@inject_tag: validate:\"dive,uuid\""
         }
       },
       "required": ["threshold", "userIds"]
+    },
+    "v1UpdateRootQuorumRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateRootQuorumIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1UpdateRootQuorumResult": {
       "type": "object"
@@ -4469,6 +4729,34 @@
         "signature",
         "scheme",
         "createdAt"
+      ]
+    },
+    "v1WebAuthnStamp": {
+      "type": "object",
+      "properties": {
+        "credentialId": {
+          "type": "string",
+          "description": "A base64 url encoded Unique identifier for a given credential."
+        },
+        "clientDataJson": {
+          "type": "string",
+          "description": "A base64 encoded payload containing metadata about the signing context and the challenge."
+        },
+        "authenticatorData": {
+          "type": "string",
+          "description": "A base64 encoded payload containing metadata about the authenticator."
+        },
+        "signature": {
+          "type": "string",
+          "description": "The base64 url encoded signature bytes contained within the WebAuthn assertion response."
+        }
+      },
+      "title": "We expect this to be passed in as a JSON-encoded, then base64-encoded string within a X-Stamp-Webauthn header",
+      "required": [
+        "credentialId",
+        "clientDataJson",
+        "authenticatorData",
+        "signature"
       ]
     }
   },

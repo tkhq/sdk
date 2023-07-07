@@ -72,6 +72,10 @@ export type paths = {
     /** Create new Private Keys */
     post: operations["PublicApiService_CreatePrivateKeys"];
   };
+  "/public/v1/submit/create_sub_organization": {
+    /** Create a new Sub-Organization */
+    post: operations["PublicApiService_CreateSubOrganization"];
+  };
   "/public/v1/submit/create_users": {
     /** Create Users in an existing Organization */
     post: operations["PublicApiService_CreateUsers"];
@@ -104,9 +108,16 @@ export type paths = {
     /** Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
     post: operations["PublicApiService_UpdatePrivateKeyTag"];
   };
+  "/public/v1/submit/update_root_quorum": {
+    /** Set the threshold and members of the root quorum. This must be approved by the current root quorum. */
+    post: operations["PublicApiService_UpdateRootQuorum"];
+  };
   "/public/v1/submit/update_user_tag": {
     /** Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
     post: operations["PublicApiService_UpdateUserTag"];
+  };
+  "/tkhq/api/v1/noop-codegen-anchor": {
+    post: operations["PublicApiService_NOOPCodegenAnchor"];
   };
   "/tkhq/public/v1/query/get_private_key": {
     /** Get details about a Private Key */
@@ -357,7 +368,9 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"
     | "ACTIVITY_TYPE_CREATE_ORGANIZATION_V2"
     | "ACTIVITY_TYPE_CREATE_USERS_V2"
-    | "ACTIVITY_TYPE_ACCEPT_INVITATION_V2";
+    | "ACTIVITY_TYPE_ACCEPT_INVITATION_V2"
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -442,8 +455,6 @@ export type definitions = {
     attestationType: string;
     /** @description Identifier indicating the type of the Security Key. */
     aaguid: string;
-    /** @description Unique identifier for a given User. */
-    userId: string;
     /** @description Unique identifier for a WebAuthn credential. */
     credentialId: string;
     /** @description The type of Authenticator device. */
@@ -729,6 +740,44 @@ export type definitions = {
   v1CreatePrivateKeysResult: {
     /** @description A list of Private Key IDs. */
     privateKeyIds: string[];
+  };
+  v1CreateSubOrganizationIntent: {
+    /**
+     * @inject_tag: validate:"omitempty,tk_label,tk_label_length"
+     * @description Name for this sub-organization
+     */
+    name: string;
+    rootAuthenticator: definitions["v1AuthenticatorParamsV2"];
+  };
+  v1CreateSubOrganizationIntentV2: {
+    /**
+     * @inject_tag: validate:"omitempty,tk_label,tk_label_length"
+     * @description Name for this sub-organization
+     */
+    subOrganizationName: string;
+    /**
+     * @inject_tag: validate:"required"
+     * @description Root users to create within this sub-organization
+     */
+    rootUsers: definitions["v1RootUserParams"][];
+    /**
+     * @inject_tag: validate:"required"
+     * Format: int32
+     * @description The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users
+     */
+    rootQuorumThreshold: number;
+  };
+  v1CreateSubOrganizationRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateSubOrganizationIntentV2"];
+  };
+  v1CreateSubOrganizationResult: {
+    subOrganizationId: string;
   };
   v1CreateUserTagIntent: {
     /**
@@ -1077,6 +1126,8 @@ export type definitions = {
     acceptInvitationIntentV2?: definitions["v1AcceptInvitationIntentV2"];
     createOrganizationIntentV2?: definitions["v1CreateOrganizationIntentV2"];
     createUsersIntentV2?: definitions["v1CreateUsersIntentV2"];
+    createSubOrganizationIntent?: definitions["v1CreateSubOrganizationIntent"];
+    createSubOrganizationIntentV2?: definitions["v1CreateSubOrganizationIntentV2"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1122,6 +1173,9 @@ export type definitions = {
     | "INVITATION_STATUS_CREATED"
     | "INVITATION_STATUS_ACCEPTED"
     | "INVITATION_STATUS_REVOKED";
+  v1NOOPCodegenAnchorResponse: {
+    stamp: definitions["v1WebAuthnStamp"];
+  };
   /**
    * @description This proto definition is used in our external-facing APIs.
    * It's important to leverage annotations because they're used in our external interfaces.
@@ -1134,13 +1188,8 @@ export type definitions = {
     privateKeys?: definitions["v1PrivateKey"][];
     invitations?: definitions["v1Invitation"][];
     tags?: definitions["datav1Tag"][];
-    deletedUsers?: definitions["v1User"][];
-    deletedPolicies?: definitions["v1Policy"][];
     disabledPrivateKeys?: definitions["v1PrivateKey"][];
-    deletedInvitations?: definitions["v1Invitation"][];
-    deletedApiKeys?: definitions["v1ApiKey"][];
-    deletedAuthenticators?: definitions["v1Authenticator"][];
-    deletedTags?: definitions["datav1Tag"][];
+    rootQuorum?: definitions["v1Quorum"];
   };
   v1Pagination: {
     /**
@@ -1228,6 +1277,15 @@ export type definitions = {
     response: definitions["v1AuthenticatorAttestationResponse"];
     clientExtensionResults: definitions["v1SimpleClientExtensionResults"];
   };
+  v1Quorum: {
+    /**
+     * Format: int32
+     * @description Count of unique approvals required to meet quorum.
+     */
+    threshold: number;
+    /** @description Unique identifiers of quorum set members. */
+    userIds: string[];
+  };
   v1RejectActivityIntent: {
     /**
      * @inject_tag: validate:"required"
@@ -1274,6 +1332,29 @@ export type definitions = {
     updateRootQuorumResult?: definitions["v1UpdateRootQuorumResult"];
     updateUserTagResult?: definitions["v1UpdateUserTagResult"];
     updatePrivateKeyTagResult?: definitions["v1UpdatePrivateKeyTagResult"];
+    createSubOrganizationResult?: definitions["v1CreateSubOrganizationResult"];
+  };
+  v1RootUserParams: {
+    /**
+     * @inject_tag: validate:"required,tk_label_length,tk_label"
+     * @description Human-readable name for a User.
+     */
+    userName: string;
+    /**
+     * @inject_tag: validate:"omitempty,email,tk_email"
+     * @description The user's email address.
+     */
+    userEmail?: string;
+    /**
+     * @inject_tag: validate:"dive"
+     * @description A list of API Key parameters.
+     */
+    apiKeys: definitions["v1ApiKeyParams"][];
+    /**
+     * @inject_tag: validate:"dive"
+     * @description A list of Authenticator parameters.
+     */
+    authenticators: definitions["v1AuthenticatorParamsV2"][];
   };
   v1SelectorV2: {
     subject?: string;
@@ -1430,10 +1511,19 @@ export type definitions = {
      */
     threshold: number;
     /**
-     * @inject_tag: validate:"required,uuid"
+     * @inject_tag: validate:"dive,uuid"
      * @description The unique identifiers of users who comprise the quorum set.
      */
     userIds: string[];
+  };
+  v1UpdateRootQuorumRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateRootQuorumIntent"];
   };
   v1UpdateRootQuorumResult: { [key: string]: unknown };
   v1UpdateUserTagIntent: {
@@ -1567,6 +1657,17 @@ export type definitions = {
     /** @description Method used to produce a signature. */
     scheme: string;
     createdAt: definitions["v1Timestamp"];
+  };
+  /** We expect this to be passed in as a JSON-encoded, then base64-encoded string within a X-Stamp-Webauthn header */
+  v1WebAuthnStamp: {
+    /** @description A base64 url encoded Unique identifier for a given credential. */
+    credentialId: string;
+    /** @description A base64 encoded payload containing metadata about the signing context and the challenge. */
+    clientDataJson: string;
+    /** @description A base64 encoded payload containing metadata about the authenticator. */
+    authenticatorData: string;
+    /** @description The base64 url encoded signature bytes contained within the WebAuthn assertion response. */
+    signature: string;
   };
 };
 
@@ -2013,6 +2114,32 @@ export type operations = {
       };
     };
   };
+  /** Create a new Sub-Organization */
+  PublicApiService_CreateSubOrganization: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateSubOrganizationRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Create Users in an existing Organization */
   PublicApiService_CreateUsers: {
     parameters: {
@@ -2221,6 +2348,32 @@ export type operations = {
       };
     };
   };
+  /** Set the threshold and members of the root quorum. This must be approved by the current root quorum. */
+  PublicApiService_UpdateRootQuorum: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateRootQuorumRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
   PublicApiService_UpdateUserTag: {
     parameters: {
@@ -2232,6 +2385,26 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  PublicApiService_NOOPCodegenAnchor: {
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1NOOPCodegenAnchorResponse"];
       };
       /** Returned when the user does not have permission to access the resource. */
       403: {

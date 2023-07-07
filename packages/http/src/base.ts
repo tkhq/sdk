@@ -1,7 +1,13 @@
 import { fetch, stamp } from "./universal";
-import { getConfig } from "./config";
+import { getBrowserConfig, getConfig } from "./config";
 import { stringToBase64urlString } from "./encoding";
-import { TurnkeyRequestError, GrpcStatus } from "./shared";
+import { TurnkeyRequestError, GrpcStatus, FederatedRequest } from "./shared";
+import {
+  getWebAuthnAssertion,
+  TurnkeyCredentialRequestOptions,
+} from "./webauthn";
+
+export type { TurnkeyCredentialRequestOptions };
 
 type TBasicType = string;
 
@@ -15,6 +21,40 @@ const sharedHeaders: THeadersShape = {};
 const sharedRequestOptions: Partial<RequestInit> = {
   redirect: "follow",
 };
+
+export async function federatedRequest<
+  B extends TBodyShape = never,
+  Q extends TQueryShape = never,
+  S extends TSubstitutionShape = never
+>(input: {
+  uri: string;
+  query?: Q;
+  body?: B;
+  substitution?: S;
+  options?: TurnkeyCredentialRequestOptions | undefined;
+}): Promise<FederatedRequest> {
+  const {
+    uri: inputUri,
+    query: inputQuery = {},
+    substitution: inputSubstitution = {},
+    body: inputBody = {},
+  } = input;
+
+  const url = constructUrl({
+    uri: inputUri,
+    query: inputQuery,
+    substitution: inputSubstitution,
+  });
+
+  const body = JSON.stringify(inputBody);
+  const stamp = await getWebAuthnAssertion(body, input.options);
+
+  return {
+    url: url.toString(),
+    body,
+    stamp,
+  };
+}
 
 export async function request<
   ResponseData = never,
@@ -86,7 +126,7 @@ function constructUrl(input: {
 }): URL {
   const { uri, query, substitution } = input;
 
-  const { baseUrl } = getConfig();
+  const baseUrl = getBaseUrl();
 
   const url = new URL(substitutePath(uri, substitution), baseUrl);
 
@@ -103,6 +143,16 @@ function constructUrl(input: {
   }
 
   return url;
+}
+
+function getBaseUrl(): string {
+  try {
+    const { baseUrl } = getConfig();
+    return baseUrl;
+  } catch (e) {
+    const { baseUrl } = getBrowserConfig();
+    return baseUrl;
+  }
 }
 
 function substitutePath(

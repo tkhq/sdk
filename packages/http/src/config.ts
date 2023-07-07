@@ -15,11 +15,26 @@ type TConfig = {
   baseUrl: string;
 };
 
+type TBrowserConfig = {
+  /**
+   * Turnkey API base URL
+   */
+  baseUrl: string;
+};
+
 const config: TNullable<TConfig> = {
   apiPublicKey: null,
   apiPrivateKey: null,
   baseUrl: null,
 };
+
+const browserConfig: TNullable<TBrowserConfig> = {
+  baseUrl: null,
+};
+
+export function browserInit(value: TBrowserConfig): void {
+  browserConfig.baseUrl = assertNonEmptyString(value.baseUrl, "baseUrl");
+}
 
 export function init(value: TConfig): void {
   config.apiPublicKey = assertNonEmptyString(
@@ -39,6 +54,12 @@ export function getConfig(): TConfig {
     apiPublicKey: assertNonEmptyString(config.apiPublicKey, "apiPublicKey"),
     apiPrivateKey: assertNonEmptyString(config.apiPrivateKey, "apiPrivateKey"),
     baseUrl: assertNonEmptyString(config.baseUrl, "baseUrl"),
+  };
+}
+
+export function getBrowserConfig(): TBrowserConfig {
+  return {
+    baseUrl: assertNonEmptyString(browserConfig.baseUrl, "baseUrl"),
   };
 }
 

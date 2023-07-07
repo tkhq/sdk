@@ -64,3 +64,11 @@ export class TurnkeyRequestError extends Error {
     this.code = input.code;
   }
 }
+
+// This federated request is meant to be proxied to the backend
+// and send to Turkey via a http request
+export type FederatedRequest = {
+  body: string;
+  stamp: string;
+  url: string;
+};
