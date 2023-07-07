@@ -43,17 +43,26 @@ export default async function createUser(
   try {
     const createSubOrgActivity = await createSubOrgMutation({
       body: {
-        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION",
+        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2",
+        timestampMs: String(Date.now()),
         organizationId: process.env.ORGANIZATION_ID!,
         parameters: {
-          name: createSubOrgRequest.subOrgName,
-          rootAuthenticator: {
-            authenticatorName: "Passkey",
-            challenge: createSubOrgRequest.challenge,
-            attestation: createSubOrgRequest.attestation,
-          },
+          subOrganizationName: createSubOrgRequest.subOrgName,
+          rootQuorumThreshold: 1,
+          rootUsers: [
+            {
+              userName: "My new user",
+              apiKeys: [],
+              authenticators: [
+                {
+                  authenticatorName: "Passkey",
+                  challenge: createSubOrgRequest.challenge,
+                  attestation: createSubOrgRequest.attestation,
+                },
+              ],
+            },
+          ],
         },
-        timestampMs: String(Date.now()),
       },
     });
 

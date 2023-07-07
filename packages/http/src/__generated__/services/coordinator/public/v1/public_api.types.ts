@@ -369,7 +369,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_ORGANIZATION_V2"
     | "ACTIVITY_TYPE_CREATE_USERS_V2"
     | "ACTIVITY_TYPE_ACCEPT_INVITATION_V2"
-    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION";
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -454,8 +455,6 @@ export type definitions = {
     attestationType: string;
     /** @description Identifier indicating the type of the Security Key. */
     aaguid: string;
-    /** @description Unique identifier for a given User. */
-    userId: string;
     /** @description Unique identifier for a WebAuthn credential. */
     credentialId: string;
     /** @description The type of Authenticator device. */
@@ -750,14 +749,32 @@ export type definitions = {
     name: string;
     rootAuthenticator: definitions["v1AuthenticatorParamsV2"];
   };
+  v1CreateSubOrganizationIntentV2: {
+    /**
+     * @inject_tag: validate:"omitempty,tk_label,tk_label_length"
+     * @description Name for this sub-organization
+     */
+    subOrganizationName: string;
+    /**
+     * @inject_tag: validate:"required"
+     * @description Root users to create within this sub-organization
+     */
+    rootUsers: definitions["v1RootUserParams"][];
+    /**
+     * @inject_tag: validate:"required"
+     * Format: int32
+     * @description The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users
+     */
+    rootQuorumThreshold: number;
+  };
   v1CreateSubOrganizationRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION";
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1CreateSubOrganizationIntent"];
+    parameters: definitions["v1CreateSubOrganizationIntentV2"];
   };
   v1CreateSubOrganizationResult: {
     subOrganizationId: string;
@@ -1110,6 +1127,7 @@ export type definitions = {
     createOrganizationIntentV2?: definitions["v1CreateOrganizationIntentV2"];
     createUsersIntentV2?: definitions["v1CreateUsersIntentV2"];
     createSubOrganizationIntent?: definitions["v1CreateSubOrganizationIntent"];
+    createSubOrganizationIntentV2?: definitions["v1CreateSubOrganizationIntentV2"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1170,13 +1188,7 @@ export type definitions = {
     privateKeys?: definitions["v1PrivateKey"][];
     invitations?: definitions["v1Invitation"][];
     tags?: definitions["datav1Tag"][];
-    deletedUsers?: definitions["v1User"][];
-    deletedPolicies?: definitions["v1Policy"][];
     disabledPrivateKeys?: definitions["v1PrivateKey"][];
-    deletedInvitations?: definitions["v1Invitation"][];
-    deletedApiKeys?: definitions["v1ApiKey"][];
-    deletedAuthenticators?: definitions["v1Authenticator"][];
-    deletedTags?: definitions["datav1Tag"][];
     rootQuorum?: definitions["v1Quorum"];
   };
   v1Pagination: {
@@ -1321,6 +1333,28 @@ export type definitions = {
     updateUserTagResult?: definitions["v1UpdateUserTagResult"];
     updatePrivateKeyTagResult?: definitions["v1UpdatePrivateKeyTagResult"];
     createSubOrganizationResult?: definitions["v1CreateSubOrganizationResult"];
+  };
+  v1RootUserParams: {
+    /**
+     * @inject_tag: validate:"required,tk_label_length,tk_label"
+     * @description Human-readable name for a User.
+     */
+    userName: string;
+    /**
+     * @inject_tag: validate:"omitempty,email,tk_email"
+     * @description The user's email address.
+     */
+    userEmail?: string;
+    /**
+     * @inject_tag: validate:"dive"
+     * @description A list of API Key parameters.
+     */
+    apiKeys: definitions["v1ApiKeyParams"][];
+    /**
+     * @inject_tag: validate:"dive"
+     * @description A list of Authenticator parameters.
+     */
+    authenticators: definitions["v1AuthenticatorParamsV2"][];
   };
   v1SelectorV2: {
     subject?: string;

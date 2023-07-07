@@ -1985,7 +1985,8 @@
         "ACTIVITY_TYPE_CREATE_ORGANIZATION_V2",
         "ACTIVITY_TYPE_CREATE_USERS_V2",
         "ACTIVITY_TYPE_ACCEPT_INVITATION_V2",
-        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION",
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2"
       ],
       "description": "Type of Activity, such as Add User, or Sign Transaction."
     },
@@ -2148,10 +2149,6 @@
           "type": "string",
           "description": "Identifier indicating the type of the Security Key."
         },
-        "userId": {
-          "type": "string",
-          "description": "Unique identifier for a given User."
-        },
         "credentialId": {
           "type": "string",
           "description": "Unique identifier for a WebAuthn credential."
@@ -2182,7 +2179,6 @@
         "transports",
         "attestationType",
         "aaguid",
-        "userId",
         "credentialId",
         "model",
         "credential",
@@ -2743,12 +2739,37 @@
       },
       "required": ["name", "rootAuthenticator"]
     },
+    "v1CreateSubOrganizationIntentV2": {
+      "type": "object",
+      "properties": {
+        "subOrganizationName": {
+          "type": "string",
+          "description": "Name for this sub-organization",
+          "title": "@inject_tag: validate:\"omitempty,tk_label,tk_label_length\""
+        },
+        "rootUsers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1RootUserParams"
+          },
+          "description": "Root users to create within this sub-organization",
+          "title": "@inject_tag: validate:\"required\""
+        },
+        "rootQuorumThreshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users",
+          "title": "@inject_tag: validate:\"required\""
+        }
+      },
+      "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
+    },
     "v1CreateSubOrganizationRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"]
+          "enum": ["ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -2759,7 +2780,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1CreateSubOrganizationIntent"
+          "$ref": "#/definitions/v1CreateSubOrganizationIntentV2"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -3585,6 +3606,9 @@
         },
         "createSubOrganizationIntent": {
           "$ref": "#/definitions/v1CreateSubOrganizationIntent"
+        },
+        "createSubOrganizationIntentV2": {
+          "$ref": "#/definitions/v1CreateSubOrganizationIntentV2"
         }
       },
       "description": "Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action.",
@@ -3735,46 +3759,10 @@
             "$ref": "#/definitions/datav1Tag"
           }
         },
-        "deletedUsers": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1User"
-          }
-        },
-        "deletedPolicies": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Policy"
-          }
-        },
         "disabledPrivateKeys": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/v1PrivateKey"
-          }
-        },
-        "deletedInvitations": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Invitation"
-          }
-        },
-        "deletedApiKeys": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1ApiKey"
-          }
-        },
-        "deletedAuthenticators": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Authenticator"
-          }
-        },
-        "deletedTags": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/datav1Tag"
           }
         },
         "rootQuorum": {
@@ -4110,6 +4098,38 @@
         }
       },
       "description": "Result of the intended action."
+    },
+    "v1RootUserParams": {
+      "type": "object",
+      "properties": {
+        "userName": {
+          "type": "string",
+          "description": "Human-readable name for a User.",
+          "title": "@inject_tag: validate:\"required,tk_label_length,tk_label\""
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "The user's email address.",
+          "title": "@inject_tag: validate:\"omitempty,email,tk_email\""
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1ApiKeyParams"
+          },
+          "description": "A list of API Key parameters.",
+          "title": "@inject_tag: validate:\"dive\""
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
+          },
+          "description": "A list of Authenticator parameters.",
+          "title": "@inject_tag: validate:\"dive\""
+        }
+      },
+      "required": ["userName", "apiKeys", "authenticators"]
     },
     "v1SelectorV2": {
       "type": "object",
