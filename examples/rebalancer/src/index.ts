@@ -26,6 +26,7 @@ const SWEEP_THRESHOLD = 100000000000000; // 0.0001 ETH
 const MIN_INTERVAL_MS = 10000; // 10 seconds
 const MAX_INTERVAL_MS = 60000; // 60 seconds
 const TRANSFER_GAS_LIMIT = 21000;
+const GAS_MULTIPLIER = 2; // 2x gas multiplier
 const ACTIVITIES_LIMIT = 100;
 
 async function main() {
@@ -231,7 +232,8 @@ async function sweepImpl() {
     const feeData = await connectedSigner.getFeeData();
     const gasRequired = feeData
       .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
-      .mul(TRANSFER_GAS_LIMIT); // 21000 is the gas limit for a simple transfer
+      .mul(TRANSFER_GAS_LIMIT) // 21000 is the gas limit for a simple transfer
+      .mul(GAS_MULTIPLIER);
 
     if (balance.lt(SWEEP_THRESHOLD)) {
       console.log("Insufficient balance for sweep. Moving on...");
@@ -294,7 +296,8 @@ async function recycleImpl() {
   const feeData = await connectedSigner.getFeeData();
   const gasRequired = feeData
     .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
-    .mul(TRANSFER_GAS_LIMIT); // 21000 is the gas limit for a simple transfer
+    .mul(TRANSFER_GAS_LIMIT) // 21000 is the gas limit for a simple transfer
+    .mul(GAS_MULTIPLIER);
   const recycleAmount = balance.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
 
   // TODO(tim): pass this amount in
@@ -330,6 +333,7 @@ async function pollAndBroadcastImpl() {
   // find "Sink" private key
   const sinkPrivateKey = findPrivateKeys(organization, "Sink")[0];
   const activities = await getActivities(ACTIVITIES_LIMIT);
+
   const relevantActivities = activities.filter((activity) => {
     return (
       activity.type === "ACTIVITY_TYPE_SIGN_TRANSACTION" &&
