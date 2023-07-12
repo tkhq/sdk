@@ -2,35 +2,6 @@
 
 A demo application utiltiing the Turnkey API to setup an organization with users, private keys, and policies and interact with the resources.
 
-## Usage
-
-```
-// setup an organization with users, private keys, and policies
-pnpm cli setup
-
-// distribute ETH from "Bank" private key to "Source" private keys
-// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
-pnpm cli fund [--interval=$INTERVAL_MS]
-
-// move ETH from "Source" private keys to "Sink" private key
-// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
-pnpm cli sweep [--interval=$INTERVAL_MS --key=phil]
-
-// move ETH from "Sink" private key to "Bank" private key
-// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
-pnpm cli recycle [--interval=$INTERVAL_MS --key=bob]
-
-// poll for recycle activities, and broadcast the transaction if consensus has been met
-// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
-pnpm cli pollAndBroadcast [--interval=$INTERVAL_MS]
-
-// approve an activity
-pnpm cli approveActivity [--id=$ACTIVITY_ID --key=alice]
-
-// reject an activity
-pnpm cli rejectActivity [--id=$ACTIVITY_ID --key=alice]
-```
-
 ## Getting started
 
 ### 1/ Cloning the example
@@ -67,44 +38,45 @@ Now open `.env.local` and add the missing environment variables:
 - `ORGANIZATION_ID`
 - `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
-## TODO
+### 3/ Setup
 
-A demo application utilizing the Turnkey API to setup an organization with users, private keys, and policies
+Create the organizational structure required for this demo:
 
-### Setup
+```
+// setup an organization with users, private keys, and policies
+pnpm cli setup
+```
 
-- [x] - Create a user with an API key called "executor"
-- [x] - Create a user with an API key called "manager"
-- [x] - Create a user with an API key called "admin"
-- [x] - Create a private key and label it "bank"
-- [x] - Create 5 private keys and label them "source"
-- [x] - Create a private key and label it "sink"
-- [x] - Create a policy that "executor" can spend funds from a private key labeled "source"
-- [x] - Create a policy that "manager" + "admin" can spend funds from a private key labeled "sink"
+This will create:
+- Create 3 user tags: Admin, Manager, and Executor
+- Create 3 users: Alice, Bob, and Phil
+- Assign the user tags to the users
+- Create 3 private key tags: Bank, Sink, and Source
+- Create 5 private keys: Bank, Sink, and Source 1-3
+- Assign the private key tags to the private keys
+- Create 3 policies to control which users have access to which private keys
 
-### Fund
 
-- [x] - Loop over a set of addresses labeled "source"
-- [x] - Send this address a constant value of ETH from "bank"
 
-### Sweep
+// distribute ETH from "Bank" private key to "Source" private keys
+// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
+pnpm cli fund [--interval=$INTERVAL_MS]
 
-- [x] - Loop over a "source" addresses
-- [x] - When an address has a balance that exceeds a constant value, sweep all funds (allowing for some dust) to "sink"
+// move ETH from "Source" private keys to "Sink" private key
+// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
+pnpm cli sweep [--interval=$INTERVAL_MS --key=phil]
 
-### Recycle
+// move ETH from "Sink" private key to "Bank" private key
+// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
+pnpm cli recycle [--interval=$INTERVAL_MS --key=bob]
 
-- [ ] - Initiate a transfer of funds from "sink" to "bank" unless there's an existing pending transfer
-- [ ] - Approve that transfer in the UI using the authenticator for an "admin" user
+// poll for recycle activities, and broadcast the transaction if consensus has been met
+// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
+pnpm cli pollAndBroadcast [--interval=$INTERVAL_MS]
 
-### Poll and broadcast
+// approve an activity
+pnpm cli approveActivity [--id=$ACTIVITY_ID --key=alice]
 
-- [x] - Continuously poll the status of completed recycle activities that originate from the `sink` address. Once consensus has been reached, broadcast the signed transaction
-
-### Thoughts
-
-i'd like to demonstrate how turnkey could be set up to sweep funds from a set of addresses (calling these "source") to a more secure address (calling this "sink"). so first pass at a demo i was hoping to create a structure where:
-execute a command "initialize" to create a a set of addresses, api keys, and policies in a new Turnkey account (this is outlined in a bit more detail in the README)
-execute a command "fund" to send funds to the "source" addresses from an address called "bank"
-execute a command "sweep" to send any funds that exceed some threshold from the "source" to the "sinks" using a single API key
-execute a command "recycle" to, using a multi-party approval, sweep everything from "sink" back to "bank"
+// reject an activity
+pnpm cli rejectActivity [--id=$ACTIVITY_ID --key=alice]
+```
