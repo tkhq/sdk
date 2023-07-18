@@ -292,24 +292,24 @@ importers:
   packages/cosmjs:
     dependencies:
       '@cosmjs/amino':
-        specifier: ^0.30.1
-        version: 0.30.1
+        specifier: ^0.31.0
+        version: 0.31.0
       '@cosmjs/crypto':
-        specifier: ^0.30.1
-        version: 0.30.1
+        specifier: ^0.31.0
+        version: 0.31.0
       '@cosmjs/encoding':
-        specifier: ^0.30.1
-        version: 0.30.1
+        specifier: ^0.31.0
+        version: 0.31.0
       '@cosmjs/proto-signing':
-        specifier: ^0.30.1
-        version: 0.30.1
+        specifier: ^0.31.0
+        version: 0.31.0
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
     devDependencies:
       cosmjs-types:
-        specifier: ^0.7.2
-        version: 0.7.2
+        specifier: ^0.8.0
+        version: 0.8.0
 
   packages/ethers:
     dependencies:
@@ -1984,15 +1984,6 @@ packages:
       protobufjs: 7.2.4
     dev: false
 
-  /@cosmjs/amino@0.30.1:
-    resolution: {integrity: sha512-yNHnzmvAlkETDYIpeCTdVqgvrdt1qgkOXwuRVi8s27UKI5hfqyE9fJ/fuunXE6ZZPnKkjIecDznmuUOMrMvw4w==}
-    dependencies:
-      '@cosmjs/crypto': 0.30.1
-      '@cosmjs/encoding': 0.30.1
-      '@cosmjs/math': 0.30.1
-      '@cosmjs/utils': 0.30.1
-    dev: false
-
   /@cosmjs/amino@0.31.0:
     resolution: {integrity: sha512-xJ5CCEK7H79FTpOuEmlpSzVI+ZeYESTVvO3wHDgbnceIyAne3C68SvyaKqLUR4uJB0Z4q4+DZHbqW6itUiv4lA==}
     dependencies:
@@ -2000,18 +1991,6 @@ packages:
       '@cosmjs/encoding': 0.31.0
       '@cosmjs/math': 0.31.0
       '@cosmjs/utils': 0.31.0
-    dev: false
-
-  /@cosmjs/crypto@0.30.1:
-    resolution: {integrity: sha512-rAljUlake3MSXs9xAm87mu34GfBLN0h/1uPPV6jEwClWjNkAMotzjC0ab9MARy5FFAvYHL3lWb57bhkbt2GtzQ==}
-    dependencies:
-      '@cosmjs/encoding': 0.30.1
-      '@cosmjs/math': 0.30.1
-      '@cosmjs/utils': 0.30.1
-      '@noble/hashes': 1.2.0
-      bn.js: 5.2.1
-      elliptic: 6.5.4
-      libsodium-wrappers: 0.7.11
     dev: false
 
   /@cosmjs/crypto@0.31.0:
@@ -2024,14 +2003,6 @@ packages:
       bn.js: 5.2.1
       elliptic: 6.5.4
       libsodium-wrappers-sumo: 0.7.11
-    dev: false
-
-  /@cosmjs/encoding@0.30.1:
-    resolution: {integrity: sha512-rXmrTbgqwihORwJ3xYhIgQFfMSrwLu1s43RIK9I8EBudPx3KmnmyAKzMOVsRDo9edLFNuZ9GIvysUCwQfq3WlQ==}
-    dependencies:
-      base64-js: 1.5.1
-      bech32: 1.1.4
-      readonly-date: 1.0.0
     dev: false
 
   /@cosmjs/encoding@0.31.0:
@@ -2049,28 +2020,10 @@ packages:
       xstream: 11.14.0
     dev: false
 
-  /@cosmjs/math@0.30.1:
-    resolution: {integrity: sha512-yaoeI23pin9ZiPHIisa6qqLngfnBR/25tSaWpkTm8Cy10MX70UF5oN4+/t1heLaM6SSmRrhk3psRkV4+7mH51Q==}
-    dependencies:
-      bn.js: 5.2.1
-    dev: false
-
   /@cosmjs/math@0.31.0:
     resolution: {integrity: sha512-Sb/8Ry/+gKJaYiV6X8q45kxXC9FoV98XCY1WXtu0JQwOi61VCG2VXsURQnVvZ/EhR/CuT/swOlNKrqEs3da0fw==}
     dependencies:
       bn.js: 5.2.1
-    dev: false
-
-  /@cosmjs/proto-signing@0.30.1:
-    resolution: {integrity: sha512-tXh8pPYXV4aiJVhTKHGyeZekjj+K9s2KKojMB93Gcob2DxUjfKapFYBMJSgfKPuWUPEmyr8Q9km2hplI38ILgQ==}
-    dependencies:
-      '@cosmjs/amino': 0.30.1
-      '@cosmjs/crypto': 0.30.1
-      '@cosmjs/encoding': 0.30.1
-      '@cosmjs/math': 0.30.1
-      '@cosmjs/utils': 0.30.1
-      cosmjs-types: 0.7.2
-      long: 4.0.0
     dev: false
 
   /@cosmjs/proto-signing@0.31.0:
@@ -2141,10 +2094,6 @@ packages:
       - bufferutil
       - debug
       - utf-8-validate
-    dev: false
-
-  /@cosmjs/utils@0.30.1:
-    resolution: {integrity: sha512-KvvX58MGMWh7xA+N+deCfunkA/ZNDvFLw4YbOmX3f/XBIkqrVY7qlotfy2aNb1kgp6h4B6Yc8YawJPDTfvWX7g==}
     dev: false
 
   /@cosmjs/utils@0.31.0:
@@ -4994,18 +4943,11 @@ packages:
       browserslist: 4.21.5
     dev: false
 
-  /cosmjs-types@0.7.2:
-    resolution: {integrity: sha512-vf2uLyktjr/XVAgEq0DjMxeAWh1yYREe7AMHDKd7EiHVqxBPCaBS+qEEQUkXbR9ndnckqr1sUG8BQhazh4X5lA==}
-    dependencies:
-      long: 4.0.0
-      protobufjs: 7.2.4
-
   /cosmjs-types@0.8.0:
     resolution: {integrity: sha512-Q2Mj95Fl0PYMWEhA2LuGEIhipF7mQwd9gTQ85DdP9jjjopeoGaDxvmPa5nakNzsq7FnO1DMTatXTAx6bxMH7Lg==}
     dependencies:
       long: 4.0.0
       protobufjs: 7.2.4
-    dev: false
 
   /crc-32@1.2.2:
     resolution: {integrity: sha512-ROmzCKrTnOwybPcJApAA6WBWij23HVfGVNKqqrZpuyZOHqK2CwHSvpGuyt/UNNvaIjEd8X5IFGp4Mh+Ie1IHJQ==}
@@ -7395,16 +7337,6 @@ packages:
     resolution: {integrity: sha512-DGypHOmJbB1nZn89KIfGOAkDgfv5N6SBGC3Qvmy/On0P0WD1JQvNRS/e3UL3aFF+xC0m+MYz5M+MnRnK2HMrKQ==}
     dependencies:
       libsodium-sumo: 0.7.11
-    dev: false
-
-  /libsodium-wrappers@0.7.11:
-    resolution: {integrity: sha512-SrcLtXj7BM19vUKtQuyQKiQCRJPgbpauzl3s0rSwD+60wtHqSUuqcoawlMDheCJga85nKOQwxNYQxf/CKAvs6Q==}
-    dependencies:
-      libsodium: 0.7.11
-    dev: false
-
-  /libsodium@0.7.11:
-    resolution: {integrity: sha512-WPfJ7sS53I2s4iM58QxY3Inb83/6mjlYgcmZs7DJsvDlnmVUwNinBCi5vBT43P6bHRy01O4zsMU2CoVR6xJ40A==}
     dev: false
 
   /lines-and-columns@1.2.4:
