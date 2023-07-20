@@ -26,7 +26,7 @@ const SWEEP_THRESHOLD = 100000000000000; // 0.0001 ETH
 const MIN_INTERVAL_MS = 10000; // 10 seconds
 const MAX_INTERVAL_MS = 60000; // 60 seconds
 const TRANSFER_GAS_LIMIT = 21000;
-const GAS_MULTIPLIER = 2; // 2x gas multiplier
+const GAS_MULTIPLIER = 2;
 const ACTIVITIES_LIMIT = 100;
 
 async function main() {
@@ -91,7 +91,6 @@ main().catch((error) => {
   process.exit(1);
 });
 
-// TODO(tim): pass options (e.g. "X" source private keys)
 async function setup(_options: any) {
   // setup user tags
   const adminTagId = await createUserTag("Admin", []);
@@ -104,16 +103,16 @@ async function setup(_options: any) {
   await createUser("Phil", [executorTagId], "Phil key", keys.phil.publicKey);
 
   // setup private key tags
-  const bankTagId = await createPrivateKeyTag("Bank", []);
-  const sinkTagId = await createPrivateKeyTag("Sink", []);
-  const sourceTagId = await createPrivateKeyTag("Source", []);
+  const distributionTagId = await createPrivateKeyTag("distribution", []);
+  const shortTermStorageTagId = await createPrivateKeyTag("short-term-storage", []);
+  const longTermStorageTagId = await createPrivateKeyTag("long-term-storage", []);
 
   // setup private keys
-  await createPrivateKey("Bank key", [bankTagId]);
-  await createPrivateKey("Sink key", [sinkTagId]);
-  await createPrivateKey("Source key 1", [sourceTagId]);
-  await createPrivateKey("Source key 2", [sourceTagId]);
-  await createPrivateKey("Source key 3", [sourceTagId]);
+  await createPrivateKey("Distribution", [distributionTagId]);
+  await createPrivateKey("Long Term Storage", [longTermStorageTagId]);
+  await createPrivateKey("Short Term Storage 1", [shortTermStorageTagId]);
+  await createPrivateKey("Short Term Storage 2", [shortTermStorageTagId]);
+  await createPrivateKey("Short Term Storage 3", [shortTermStorageTagId]);
 
   // setup policies
   // grant specific users permissions to use specific private keys
@@ -124,22 +123,19 @@ async function setup(_options: any) {
     "true"
   );
   await createPolicy(
-    "Two Manager or Admin users can use Sink keys",
+    "Two Manager or Admin users can use long term storage keys",
     "EFFECT_ALLOW",
     `approvers.filter(user, user.tags.contains('${managerTagId}') || user.tags.contains('${adminTagId}')).count() >= 2`,
-    `private_key.tags.contains('${sinkTagId}')`
+    `private_key.tags.contains('${longTermStorageTagId}')`
   );
   await createPolicy(
-    "Executor users can use Source keys",
+    "Executor users can use short term storage keys",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${executorTagId}'))`,
-    `private_key.tags.contains('${sourceTagId}')`
+    `private_key.tags.contains('${shortTermStorageTagId}')`
   );
-
-  // TODO(tim): tighten policies to enforce keys can only send to specific addresses
 }
 
-// TODO(tim): pass options (e.g. source private keys, amount, etc)
 async function fund(options: any) {
   const interval = parseInt(options["interval"]);
 
@@ -156,26 +152,26 @@ async function fund(options: any) {
 async function fundImpl() {
   const organization = await getOrganization();
 
-  // find "Bank" private key
-  const bankPrivateKey = findPrivateKeys(organization, "Bank")[0];
+  // find "Distribution" private key
+  const distributionPrivateKey = findPrivateKeys(organization, "distribution")[0];
 
-  // find "Source" private keys
-  const sourcePrivateKeys = findPrivateKeys(organization, "Source");
+  // find "Short Term Storage" private keys
+  const shortTermStoragePrivateKeys = findPrivateKeys(organization, "short-term-storage");
 
-  // send from "Bank" to "Source"
+  // send from "Distribution" to "Short Term Storage"
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
     provider,
-    bankPrivateKey!.privateKeyId
+    distributionPrivateKey!.privateKeyId
   );
 
-  for (const sourcePrivateKey of sourcePrivateKeys!) {
-    const ethAddress = sourcePrivateKey.addresses.find((address: any) => {
+  for (const pk of shortTermStoragePrivateKeys!) {
+    const ethAddress = pk.addresses.find((address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
     });
     if (!ethAddress || !ethAddress.address) {
       throw new Error(
-        `couldn't lookup ETH address for private key: ${sourcePrivateKey.privateKeyId}`
+        `couldn't lookup ETH address for private key: ${pk.privateKeyId}`
       );
     }
 
@@ -189,7 +185,6 @@ async function fundImpl() {
   }
 }
 
-// TODO(tim): pass options (e.g. source private keys, amount, etc)
 async function sweep(options: any) {
   const interval = parseInt(options["interval"]);
 
@@ -206,34 +201,37 @@ async function sweep(options: any) {
 async function sweepImpl() {
   const organization = await getOrganization();
 
-  // find "Sink" private key
-  const sinkPrivateKey = findPrivateKeys(organization, "Sink")[0];
+  // find long term storage private key
+  const longTermStoragePrivateKey = findPrivateKeys(organization, "long-term-storage")[0];
 
-  // find "Source" private keys
-  const sourcePrivateKeys = findPrivateKeys(organization, "Source");
+  // find short term storage private keys
+  const shortTermStoragePrivateKeys = findPrivateKeys(organization, "short-term-storage");
 
-  // send from "Source"s to "Sink"
-  const ethAddress = sinkPrivateKey?.addresses.find((address: any) => {
+  // send from short to long term storage
+  const ethAddress = longTermStoragePrivateKey?.addresses.find((address: any) => {
     return address.format == "ADDRESS_FORMAT_ETHEREUM";
   });
   if (!ethAddress || !ethAddress.address) {
     throw new Error(
-      `couldn't lookup ETH address for private key: ${sinkPrivateKey?.privateKeyId}`
+      `couldn't lookup ETH address for private key: ${longTermStoragePrivateKey?.privateKeyId}`
     );
   }
 
-  for (const sourcePrivateKey of sourcePrivateKeys!) {
+  for (const pk of shortTermStoragePrivateKeys!) {
     const provider = getProvider();
     const connectedSigner = getTurnkeySigner(
       provider,
-      sourcePrivateKey.privateKeyId
+      pk.privateKeyId
     );
     const balance = await connectedSigner.getBalance();
     const feeData = await connectedSigner.getFeeData();
+
+    feeData.maxFeePerGas = feeData.maxFeePerGas!.mul(GAS_MULTIPLIER);
+    feeData.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas!.mul(GAS_MULTIPLIER);
+  
     const gasRequired = feeData
       .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
-      .mul(TRANSFER_GAS_LIMIT) // 21000 is the gas limit for a simple transfer
-      .mul(GAS_MULTIPLIER);
+      .mul(TRANSFER_GAS_LIMIT); // 21000 is the gas limit for a simple transfer
 
     if (balance.lt(SWEEP_THRESHOLD)) {
       console.log("Insufficient balance for sweep. Moving on...");
@@ -241,6 +239,11 @@ async function sweepImpl() {
     }
 
     const sweepAmount = balance.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
+
+    if (sweepAmount.lt(0)) {
+      console.log("Insufficient balance for sweep. Moving on...");
+      continue;
+    }
 
     // TODO(tim): check balance and only sweep excess funds based on passed in amount
     await sendEth(
@@ -270,35 +273,43 @@ async function recycle(options: any) {
 async function recycleImpl() {
   const organization = await getOrganization();
 
-  // find "Sink" private key
-  const sinkPrivateKey = findPrivateKeys(organization, "Sink")[0];
+  // find "Long Term Storage" private key
+  const longTermStoragePrivateKey = findPrivateKeys(organization, "long-term-storage")[0];
 
-  // find "Bank" private key
-  const bankPrivateKey = findPrivateKeys(organization, "Bank")[0];
+  // find "Distribution" private key
+  const distributionPrivateKey = findPrivateKeys(organization, "distribution")[0];
 
-  // send from "Sink" to "Bank"
+  // send from "Long Term Storage" to "Distribution"
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
     provider,
-    sinkPrivateKey!.privateKeyId
+    longTermStoragePrivateKey!.privateKeyId
   );
 
-  const ethAddress = bankPrivateKey?.addresses.find((address: any) => {
+  const ethAddress = distributionPrivateKey?.addresses.find((address: any) => {
     return address.format == "ADDRESS_FORMAT_ETHEREUM";
   });
   if (!ethAddress || !ethAddress.address) {
     throw new Error(
-      `couldn't lookup ETH address for private key: ${bankPrivateKey?.privateKeyId}`
+      `couldn't lookup ETH address for private key: ${distributionPrivateKey?.privateKeyId}`
     );
   }
 
   const balance = await connectedSigner.getBalance();
   const feeData = await connectedSigner.getFeeData();
+
+  feeData.maxFeePerGas = feeData.maxFeePerGas!.mul(GAS_MULTIPLIER);
+  feeData.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas!.mul(GAS_MULTIPLIER);
+
   const gasRequired = feeData
     .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
-    .mul(TRANSFER_GAS_LIMIT) // 21000 is the gas limit for a simple transfer
-    .mul(GAS_MULTIPLIER);
+    .mul(TRANSFER_GAS_LIMIT); // 21000 is the gas limit for a simple transfer
   const recycleAmount = balance.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
+
+  if(recycleAmount.lte(0)) {
+    console.log("Insufficient balance for recycle...")
+    return
+  }
 
   // TODO(tim): pass this amount in
   await sendEth(
@@ -313,7 +324,7 @@ async function recycleImpl() {
 // two approaches:
 // (1) if there's a pending/consensus needed activity, save its ID and check on it later (stateful)
 // (2) simply attempt to broadcast all signed transactions, based on when the activity was approved/completed
-// Poll for pending recycle transactions (which originate from the `sink` address)
+// Poll for pending recycle transactions (which originate from the `Long Term Storage` address)
 function pollAndBroadcast(options: any) {
   const interval = parseInt(options["interval"]);
 
@@ -330,8 +341,8 @@ function pollAndBroadcast(options: any) {
 async function pollAndBroadcastImpl() {
   const organization = await getOrganization();
 
-  // find "Sink" private key
-  const sinkPrivateKey = findPrivateKeys(organization, "Sink")[0];
+  // find "Long Term Storage" private key
+  const longTermStoragePrivateKey = findPrivateKeys(organization, "long-term-storage")[0];
   const activities = await getActivities(ACTIVITIES_LIMIT);
 
   const relevantActivities = activities.filter((activity) => {
@@ -339,7 +350,7 @@ async function pollAndBroadcastImpl() {
       activity.type === "ACTIVITY_TYPE_SIGN_TRANSACTION" &&
       activity.status === "ACTIVITY_STATUS_COMPLETED" &&
       activity.intent.signTransactionIntent?.privateKeyId ===
-        sinkPrivateKey.privateKeyId
+        longTermStoragePrivateKey.privateKeyId
     );
   });
 

@@ -107,7 +107,7 @@ export async function sendEth(
           value.toString(),
           18,
           12
-        )} ETH to ${destinationAddress}. Please visit the dashboard.`
+        )} ETH to ${destinationAddress}.`
       );
       return;
     }

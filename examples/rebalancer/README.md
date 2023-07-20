@@ -1,6 +1,24 @@
 # Example: `rebalancer`
 
-A demo application utiltiing the Turnkey API to setup an organization with users, private keys, and policies and interact with the resources.
+A demo application which showcases an example of how to use Turnkey for managing multiple types of  keys & users.
+
+**Note:** This example uses the Sepolia testnet!
+
+## Scenario
+
+This scenario focuses on a cyclical flow of cryptocurrency through three types of accounts: Distribution, Short Term Storage, and Long Term Storage.
+
+**Distribution:** This is the primary account from where the funds are distributed from. It can be unilaterally controlled by a user with the "executor" tag.
+
+**Short Term Storage:** These are a series of accounts that receive funds from the Distribution account. These can be unilaterally controlled by a user with the "management" tag.
+
+**Long Term Storage:** This is an account that is intended to hold cryptocurrency for a longer period of time. As such, 2 "management" users must agree to move funds from this account.
+
+ETH is transferred from the "Distribution" account to the "Short Term Storage" accounts using the `fund` command. Once a sufficient balance is met, ETH can be swept from the "Short Term Storage" accounts to the "Long Term Storage" account using the `sweep` command. And finally, funds can be transferred from the "Long Term Storage" account back to the "Distribution" account using the `recycle` command.
+
+This process is outlined in the diagram below:
+
+![Rebalancer Diagram](./img/rebalancer-diagram.png)
 
 ## Getting started
 
@@ -47,36 +65,72 @@ Create the organizational structure required for this demo:
 pnpm cli setup
 ```
 
-This will create:
-- Create 3 user tags: Admin, Manager, and Executor
-- Create 3 users: Alice, Bob, and Phil
-- Assign the user tags to the users
-- Create 3 private key tags: Bank, Sink, and Source
-- Create 5 private keys: Bank, Sink, and Source 1-3
-- Assign the private key tags to the private keys
-- Create 3 policies to control which users have access to which private keys
+### 4/ Pre-Fund
 
+Before executing any txns using Turnkey, you'll first need the "Distribution" address to have some funds. In the Turnkey dashboard, look up the address for "Distribution" and then send some funds to it from an external wallet or directly from a [faucet](https://sepoliafaucet.com/).
 
+### 5/ Fund
 
-// distribute ETH from "Bank" private key to "Source" private keys
-// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
-pnpm cli fund [--interval=$INTERVAL_MS]
+Once the "Distribution" address has funds in it, execute the "fund" command to transfer funds from "Distribution" to the "Short Term Storage" addresses.
 
-// move ETH from "Source" private keys to "Sink" private key
-// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
-pnpm cli sweep [--interval=$INTERVAL_MS --key=phil]
-
-// move ETH from "Sink" private key to "Bank" private key
-// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
-pnpm cli recycle [--interval=$INTERVAL_MS --key=bob]
-
-// poll for recycle activities, and broadcast the transaction if consensus has been met
-// optional: `--interval` flag to repeatedly run at a specified interval (expressed in milliseconds)
-pnpm cli pollAndBroadcast [--interval=$INTERVAL_MS]
-
-// approve an activity
-pnpm cli approveActivity [--id=$ACTIVITY_ID --key=alice]
-
-// reject an activity
-pnpm cli rejectActivity [--id=$ACTIVITY_ID --key=alice]
 ```
+pnpm cli fund
+```
+
+Alternatively, this command can be continuously executed using the `--interval` flag:
+
+```
+pnpm cli fund --interval=20000
+```
+
+### 6/ Sweep
+
+Next, use the "sweep" command to move the assets from the "Short Term Storage" addresses to the "Long Term Storage" address.
+
+```
+pnpm cli sweep --key=phil
+```
+
+Similar to "fund", this can be executed on an interval:
+
+```
+pnpm cli sweep --key=phil --interval=20000
+```
+
+Note that we're using "Phil" to execute this transaction. Recall from the setup, that Phil is tagged as an "executor". Phil is able to unilaterally move funds from a "Short Term Storage" address.
+
+### 6/ Initiate Recycle
+
+Lastly, use the "recycle" command to move the funds stored in the "Long Term Storage" address back to "Distribution".
+
+```
+pnpm cli recycle --key=bob
+```
+
+We're using "Bob", who is tagged as a "manager", to execucute this transaction. The policy associated with the "Long Term Storage" address ensures that a "manager" can initiate a transaction from "Long Term Storage" but it must be approved by another "manager" or "admin" in order to actually be signed by Turnkey.
+
+If successful, you'll receive a message like:
+
+```
+Consensus is required for activity <ID> in order to send <VALUE> ETH to <ADDRESS>. Please visit the dashboard.
+```
+
+Save the activity ID in this response. You'll use it when approving the txn
+
+### 7/ Poll & Broadcast
+
+Next, run the "pollAndBroadcast" command to wait for the tx to be confirmed and broadcast once it is.
+
+```
+pnpm cli pollAndBroadcast --interval=20000
+```
+
+### 8/ Approve Recyle
+
+Finally, approve the recycle txn using the activity ID from above:
+
+```
+pnpm cli approveActivity --key=alice --id=<ID>
+```
+
+Once approved, you should see the "pollAndBroadcast" command detect the approved txn and broadcast it to the Sepolia testnet.
