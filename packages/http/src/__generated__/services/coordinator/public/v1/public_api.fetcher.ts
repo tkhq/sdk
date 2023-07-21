@@ -54,6 +54,110 @@ export const federatedPostGetActivity = (
   });
 
 /**
+ * `POST /public/v1/query/get_authenticator`
+ */
+type TPostGetAuthenticatorBody =
+  operations["PublicApiService_GetAuthenticator"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/query/get_authenticator`
+ */
+export type TPostGetAuthenticatorResponse =
+  operations["PublicApiService_GetAuthenticator"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_authenticator`
+ */
+export type TPostGetAuthenticatorInput = { body: TPostGetAuthenticatorBody };
+
+/**
+ * Get Authenticator
+ *
+ * Get details about an authenticator
+ *
+ * `POST /public/v1/query/get_authenticator`
+ */
+export const postGetAuthenticator = (input: TPostGetAuthenticatorInput) =>
+  request<
+    TPostGetAuthenticatorResponse,
+    TPostGetAuthenticatorBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_authenticator",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Get Authenticator
+ *
+ * Get details about an authenticator
+ */
+export const federatedPostGetAuthenticator = (
+  input: TPostGetAuthenticatorInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  federatedRequest<TPostGetAuthenticatorBody, never, never>({
+    uri: "/public/v1/query/get_authenticator",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_authenticators`
+ */
+type TPostGetAuthenticatorsBody =
+  operations["PublicApiService_GetAuthenticators"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/query/get_authenticators`
+ */
+export type TPostGetAuthenticatorsResponse =
+  operations["PublicApiService_GetAuthenticators"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_authenticators`
+ */
+export type TPostGetAuthenticatorsInput = { body: TPostGetAuthenticatorsBody };
+
+/**
+ * Get Authenticators
+ *
+ * Get details about authenticators for a user
+ *
+ * `POST /public/v1/query/get_authenticators`
+ */
+export const postGetAuthenticators = (input: TPostGetAuthenticatorsInput) =>
+  request<
+    TPostGetAuthenticatorsResponse,
+    TPostGetAuthenticatorsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_authenticators",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Get Authenticators
+ *
+ * Get details about authenticators for a user
+ */
+export const federatedPostGetAuthenticators = (
+  input: TPostGetAuthenticatorsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  federatedRequest<TPostGetAuthenticatorsBody, never, never>({
+    uri: "/public/v1/query/get_authenticators",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_organization`
  */
 type TPostGetOrganizationBody =
@@ -810,6 +914,60 @@ export const federatedPostCreatePolicy = (
   });
 
 /**
+ * `POST /public/v1/submit/create_private_key_tag`
+ */
+type TPostCreatePrivateKeyTagBody =
+  operations["PublicApiService_CreatePrivateKeyTag"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/create_private_key_tag`
+ */
+export type TPostCreatePrivateKeyTagResponse =
+  operations["PublicApiService_CreatePrivateKeyTag"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_private_key_tag`
+ */
+export type TPostCreatePrivateKeyTagInput = {
+  body: TPostCreatePrivateKeyTagBody;
+};
+
+/**
+ * Create User Tag
+ *
+ * Create a private key tag and add it to private keys.
+ *
+ * `POST /public/v1/submit/create_private_key_tag`
+ */
+export const postCreatePrivateKeyTag = (input: TPostCreatePrivateKeyTagInput) =>
+  request<
+    TPostCreatePrivateKeyTagResponse,
+    TPostCreatePrivateKeyTagBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_private_key_tag",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Create User Tag
+ *
+ * Create a private key tag and add it to private keys.
+ */
+export const federatedPostCreatePrivateKeyTag = (
+  input: TPostCreatePrivateKeyTagInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  federatedRequest<TPostCreatePrivateKeyTagBody, never, never>({
+    uri: "/public/v1/submit/create_private_key_tag",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/create_private_keys`
  */
 type TPostCreatePrivateKeysBody =
@@ -913,6 +1071,58 @@ export const federatedPostCreateSubOrganization = (
 ) =>
   federatedRequest<TPostCreateSubOrganizationBody, never, never>({
     uri: "/public/v1/submit/create_sub_organization",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/create_user_tag`
+ */
+type TPostCreateUserTagBody =
+  operations["PublicApiService_CreateUserTag"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/create_user_tag`
+ */
+export type TPostCreateUserTagResponse =
+  operations["PublicApiService_CreateUserTag"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_user_tag`
+ */
+export type TPostCreateUserTagInput = { body: TPostCreateUserTagBody };
+
+/**
+ * Create User Tag
+ *
+ * Create a user tag and add it to users.
+ *
+ * `POST /public/v1/submit/create_user_tag`
+ */
+export const postCreateUserTag = (input: TPostCreateUserTagInput) =>
+  request<
+    TPostCreateUserTagResponse,
+    TPostCreateUserTagBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_user_tag",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Create User Tag
+ *
+ * Create a user tag and add it to users.
+ */
+export const federatedPostCreateUserTag = (
+  input: TPostCreateUserTagInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  federatedRequest<TPostCreateUserTagBody, never, never>({
+    uri: "/public/v1/submit/create_user_tag",
     body: input.body,
     options,
   });
@@ -1281,6 +1491,62 @@ export const federatedPostSignTransaction = (
 ) =>
   federatedRequest<TPostSignTransactionBody, never, never>({
     uri: "/public/v1/submit/sign_transaction",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/update_allowed_origins`
+ */
+type TPostUpdateAllowedOriginsBody =
+  operations["PublicApiService_UpdateAllowedOrigins"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/update_allowed_origins`
+ */
+export type TPostUpdateAllowedOriginsResponse =
+  operations["PublicApiService_UpdateAllowedOrigins"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_allowed_origins`
+ */
+export type TPostUpdateAllowedOriginsInput = {
+  body: TPostUpdateAllowedOriginsBody;
+};
+
+/**
+ * Update the allowable origins
+ *
+ * Update the additional allowable origins for requests besides Turnkey origins
+ *
+ * `POST /public/v1/submit/update_allowed_origins`
+ */
+export const postUpdateAllowedOrigins = (
+  input: TPostUpdateAllowedOriginsInput
+) =>
+  request<
+    TPostUpdateAllowedOriginsResponse,
+    TPostUpdateAllowedOriginsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/update_allowed_origins",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Update the allowable origins
+ *
+ * Update the additional allowable origins for requests besides Turnkey origins
+ */
+export const federatedPostUpdateAllowedOrigins = (
+  input: TPostUpdateAllowedOriginsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  federatedRequest<TPostUpdateAllowedOriginsBody, never, never>({
+    uri: "/public/v1/submit/update_allowed_origins",
     body: input.body,
     options,
   });

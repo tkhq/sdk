@@ -72,6 +72,112 @@
         }
       }
     },
+    "/public/v1/query/get_authenticator": {
+      "post": {
+        "summary": "Get Authenticator",
+        "description": "Get details about an authenticator",
+        "operationId": "PublicApiService_GetAuthenticator",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAuthenticatorResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetAuthenticatorRequest"
+            }
+          }
+        ],
+        "tags": ["Authenticators"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_authenticator --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"authenticatorId\": \"'\"$AUTHENTICATOR_ID\"'\"\n}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
+    "/public/v1/query/get_authenticators": {
+      "post": {
+        "summary": "Get Authenticators",
+        "description": "Get details about authenticators for a user",
+        "operationId": "PublicApiService_GetAuthenticators",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAuthenticatorsResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetAuthenticatorsRequest"
+            }
+          }
+        ],
+        "tags": ["Authenticators"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_authenticators --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"userId\": \"'\"$USER_ID\"'\"\n}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
     "/public/v1/query/get_organization": {
       "post": {
         "summary": "Get Organization",
@@ -328,7 +434,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_activities --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\"\n}'",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_activities --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"filterByStatus\": [\n\t\t\"$ACTIVITY_STATUS\"\n\t],\n\t\"filterByType\": [\n\t\t\"$ACTIVITY_TYPE\"\n\t],\n\t\"paginationOptions\": {\n\t\t\"limit\": \"$NUM_ACTIVITIES\",\n\t\t\"before\": \"$BEFORE_ACTIVITY_ID\",\n\t\t\"after\": \"$AFTER_ACTIVITY_ID\"\n\t}\n}'",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -867,6 +973,59 @@
         }
       }
     },
+    "/public/v1/submit/create_private_key_tag": {
+      "post": {
+        "summary": "Create User Tag",
+        "description": "Create a private key tag and add it to private keys.",
+        "operationId": "PublicApiService_CreatePrivateKeyTag",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreatePrivateKeyTagRequest"
+            }
+          }
+        ],
+        "tags": ["Private Key Tags"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_private_key_tag --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"privateKeyTagName\": \"\",\n\t\t\"privateKeyIds\": \"\",\n}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
     "/public/v1/submit/create_private_keys": {
       "post": {
         "summary": "Create Private Keys",
@@ -965,6 +1124,59 @@
           "code-samples": [
             {
               "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_sub_organization --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"name\": \"\",\n\t\t\"rootAuthenticator\": {\n\t\t\t\"authenticatorName\": \"\",\n\t\t\t\"challenge\":\"\",\n\t\t\t\"attestation\":{\n\t\t\t\t\"credentialId\":\"\",\n\t\t\t\t\"clientDataJson\":\"\",\n\t\t\t\t\"attestationObject\":\"\",\n\t\t\t\t\"transports\":[],\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
+    "/public/v1/submit/create_user_tag": {
+      "post": {
+        "summary": "Create User Tag",
+        "description": "Create a user tag and add it to users.",
+        "operationId": "PublicApiService_CreateUserTag",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateUserTagRequest"
+            }
+          }
+        ],
+        "tags": ["User Tags"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_user_tag --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_USER_TAG\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userTagName\": \"\",\n\t\t\"userIds\": \"\",\n}'",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -1345,6 +1557,59 @@
         }
       }
     },
+    "/public/v1/submit/update_allowed_origins": {
+      "post": {
+        "summary": "Update the allowable origins",
+        "description": "Update the additional allowable origins for requests besides Turnkey origins",
+        "operationId": "PublicApiService_UpdateAllowedOrigins",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateAllowedOriginsRequest"
+            }
+          }
+        ],
+        "tags": ["Update Domains"],
+        "x-readme": {
+          "code-samples": [
+            {
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/update_allowed_origins --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"UPDATE_DOMAINS\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"domains\": \"'\"$DOMAINS\"'\"\n\t}\n}'",
+              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
+              "language": "curl",
+              "name": "Turnkey CLI"
+            }
+          ]
+        }
+      }
+    },
     "/public/v1/submit/update_private_key_tag": {
       "post": {
         "summary": "Update Private Key Tag",
@@ -1442,7 +1707,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/update_root_quorum --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"UPDATE_ROOT_QUORUM\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userIds\": \"'\"$USER_IDS\"'\",\n\t\t\"threshold\": $THRESHOLD,\n\t\t\"type\": \"\"\n\t}\n}'",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/update_root_quorum --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"UPDATE_ROOT_QUORUM\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userIds\": \"'\"$USER_IDS\"'\",\n\t\t\"threshold\": $THRESHOLD\n\t}\n}'",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -1495,7 +1760,7 @@
         "x-readme": {
           "code-samples": [
             {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/user_tags/update --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_UPDATE_USER_TAG\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userTagId\": \"'\"$USER_TAG_ID\"'\",\n\t\t\"userTagName\": \"\",\n\t\t\"addUserIds\": \"\",\n\t\t\"removeUserIds\": \"\"\n\t}\n}'",
+              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/update_user_tag --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_UPDATE_USER_TAG\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userTagId\": \"'\"$USER_TAG_ID\"'\",\n\t\t\"userTagName\": \"\",\n\t\t\"addUserIds\": \"\",\n\t\t\"removeUserIds\": \"\"\n\t}\n}'",
               "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
               "language": "curl",
               "name": "Turnkey CLI"
@@ -1698,6 +1963,17 @@
     "immutableactivityv1AccessType": {
       "type": "string",
       "enum": ["ACCESS_TYPE_WEB", "ACCESS_TYPE_API", "ACCESS_TYPE_ALL"]
+    },
+    "immutableactivityv1Address": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "$ref": "#/definitions/immutableactivityv1AddressFormat"
+        },
+        "address": {
+          "type": "string"
+        }
+      }
     },
     "immutableactivityv1AddressFormat": {
       "type": "string",
@@ -1986,7 +2262,9 @@
         "ACTIVITY_TYPE_CREATE_USERS_V2",
         "ACTIVITY_TYPE_ACCEPT_INVITATION_V2",
         "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION",
-        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2"
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2",
+        "ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS",
+        "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"
       ],
       "description": "Type of Activity, such as Add User, or Sign Transaction."
     },
@@ -2507,7 +2785,7 @@
         "organizationName": {
           "type": "string",
           "description": "Human-readable name for an Organization.",
-          "title": "@inject_tag: validate:\"required,tk_label_length\""
+          "title": "@inject_tag: validate:\"required,tk_label,tk_label_length\""
         },
         "rootEmail": {
           "type": "string",
@@ -2660,6 +2938,27 @@
       },
       "required": ["privateKeyTagName", "privateKeyIds"]
     },
+    "v1CreatePrivateKeyTagRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreatePrivateKeyTagIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
     "v1CreatePrivateKeyTagResult": {
       "type": "object",
       "properties": {
@@ -2691,12 +2990,26 @@
       },
       "required": ["privateKeys"]
     },
+    "v1CreatePrivateKeysIntentV2": {
+      "type": "object",
+      "properties": {
+        "privateKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1PrivateKeyParams"
+          },
+          "description": "A list of Private Keys.",
+          "title": "@inject_tag: validate:\"dive,required\""
+        }
+      },
+      "required": ["privateKeys"]
+    },
     "v1CreatePrivateKeysRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"]
+          "enum": ["ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -2707,7 +3020,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1CreatePrivateKeysIntent"
+          "$ref": "#/definitions/v1CreatePrivateKeysIntentV2"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -2724,6 +3037,19 @@
         }
       },
       "required": ["privateKeyIds"]
+    },
+    "v1CreatePrivateKeysResultV2": {
+      "type": "object",
+      "properties": {
+        "privateKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1PrivateKeyResult"
+          },
+          "description": "A list of Private Key IDs and addresses."
+        }
+      },
+      "required": ["privateKeys"]
     },
     "v1CreateSubOrganizationIntent": {
       "type": "object",
@@ -2812,6 +3138,27 @@
         }
       },
       "required": ["userTagName", "userIds"]
+    },
+    "v1CreateUserTagRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_USER_TAG"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateUserTagIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateUserTagResult": {
       "type": "object",
@@ -3263,6 +3610,13 @@
         },
         "paginationOptions": {
           "$ref": "#/definitions/v1Pagination"
+        },
+        "filterByType": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1ActivityType"
+          },
+          "description": "Array of Activity Types filtering which Activities will be listed in the response."
         }
       },
       "required": ["organizationId"]
@@ -3293,6 +3647,56 @@
         }
       },
       "required": ["organizationId", "activityId"]
+    },
+    "v1GetAuthenticatorRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "authenticatorId": {
+          "type": "string",
+          "description": "Unique identifier for a given Authenticator."
+        }
+      },
+      "required": ["organizationId", "authenticatorId"]
+    },
+    "v1GetAuthenticatorResponse": {
+      "type": "object",
+      "properties": {
+        "authenticator": {
+          "$ref": "#/definitions/v1Authenticator"
+        }
+      },
+      "required": ["authenticator"]
+    },
+    "v1GetAuthenticatorsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User."
+        }
+      },
+      "required": ["organizationId", "userId"]
+    },
+    "v1GetAuthenticatorsResponse": {
+      "type": "object",
+      "properties": {
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Authenticator"
+          },
+          "description": "A list of authenticators."
+        }
+      },
+      "required": ["authenticators"]
     },
     "v1GetOrganizationRequest": {
       "type": "object",
@@ -3609,6 +4013,12 @@
         },
         "createSubOrganizationIntentV2": {
           "$ref": "#/definitions/v1CreateSubOrganizationIntentV2"
+        },
+        "updateAllowedOriginsIntent": {
+          "$ref": "#/definitions/v1UpdateAllowedOriginsIntent"
+        },
+        "createPrivateKeysIntentV2": {
+          "$ref": "#/definitions/v1CreatePrivateKeysIntentV2"
         }
       },
       "description": "Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action.",
@@ -3767,6 +4177,12 @@
         },
         "rootQuorum": {
           "$ref": "#/definitions/v1Quorum"
+        },
+        "allowedOrigins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "description": "This proto definition is used in our external-facing APIs.\nIt's important to leverage annotations because they're used in our external interfaces."
@@ -3926,6 +4342,20 @@
         "privateKeyTags",
         "addressFormats"
       ]
+    },
+    "v1PrivateKeyResult": {
+      "type": "object",
+      "properties": {
+        "privateKeyId": {
+          "type": "string"
+        },
+        "addresses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/immutableactivityv1Address"
+          }
+        }
+      }
     },
     "v1PublicKeyCredentialWithAttestation": {
       "type": "object",
@@ -4095,6 +4525,12 @@
         },
         "createSubOrganizationResult": {
           "$ref": "#/definitions/v1CreateSubOrganizationResult"
+        },
+        "updateAllowedOriginsResult": {
+          "$ref": "#/definitions/v1UpdateAllowedOriginsResult"
+        },
+        "createPrivateKeysResultV2": {
+          "$ref": "#/definitions/v1CreatePrivateKeysResultV2"
         }
       },
       "description": "Result of the intended action."
@@ -4348,6 +4784,44 @@
         }
       },
       "required": ["seconds", "nanos"]
+    },
+    "v1UpdateAllowedOriginsIntent": {
+      "type": "object",
+      "properties": {
+        "allowedOrigins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional origins requests are allowed from besides Turnkey origins",
+          "title": "@inject_tag: validate:\"required\""
+        }
+      },
+      "required": ["allowedOrigins"]
+    },
+    "v1UpdateAllowedOriginsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateAllowedOriginsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateAllowedOriginsResult": {
+      "type": "object"
     },
     "v1UpdatePrivateKeyTagIntent": {
       "type": "object",

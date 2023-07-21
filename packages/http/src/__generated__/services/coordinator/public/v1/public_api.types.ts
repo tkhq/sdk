@@ -8,6 +8,14 @@ export type paths = {
     /** Get details about an Activity */
     post: operations["PublicApiService_GetActivity"];
   };
+  "/public/v1/query/get_authenticator": {
+    /** Get details about an authenticator */
+    post: operations["PublicApiService_GetAuthenticator"];
+  };
+  "/public/v1/query/get_authenticators": {
+    /** Get details about authenticators for a user */
+    post: operations["PublicApiService_GetAuthenticators"];
+  };
   "/public/v1/query/get_organization": {
     /** Get details about an Organization */
     post: operations["PublicApiService_GetOrganization"];
@@ -68,6 +76,10 @@ export type paths = {
     /** Create a new Policy */
     post: operations["PublicApiService_CreatePolicy"];
   };
+  "/public/v1/submit/create_private_key_tag": {
+    /** Create a private key tag and add it to private keys. */
+    post: operations["PublicApiService_CreatePrivateKeyTag"];
+  };
   "/public/v1/submit/create_private_keys": {
     /** Create new Private Keys */
     post: operations["PublicApiService_CreatePrivateKeys"];
@@ -75,6 +87,10 @@ export type paths = {
   "/public/v1/submit/create_sub_organization": {
     /** Create a new Sub-Organization */
     post: operations["PublicApiService_CreateSubOrganization"];
+  };
+  "/public/v1/submit/create_user_tag": {
+    /** Create a user tag and add it to users. */
+    post: operations["PublicApiService_CreateUserTag"];
   };
   "/public/v1/submit/create_users": {
     /** Create Users in an existing Organization */
@@ -103,6 +119,10 @@ export type paths = {
   "/public/v1/submit/sign_transaction": {
     /** Sign a transaction with a Private Key */
     post: operations["PublicApiService_SignTransaction"];
+  };
+  "/public/v1/submit/update_allowed_origins": {
+    /** Update the additional allowable origins for requests besides Turnkey origins */
+    post: operations["PublicApiService_UpdateAllowedOrigins"];
   };
   "/public/v1/submit/update_private_key_tag": {
     /** Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
@@ -196,6 +216,10 @@ export type definitions = {
     | "ACCESS_TYPE_WEB"
     | "ACCESS_TYPE_API"
     | "ACCESS_TYPE_ALL";
+  immutableactivityv1Address: {
+    format?: definitions["immutableactivityv1AddressFormat"];
+    address?: string;
+  };
   /**
    * @description  - ADDRESS_FORMAT_UNCOMPRESSED: 04<X_COORDINATE><Y_COORDINATE>
    *  - ADDRESS_FORMAT_COMPRESSED: 02 or 03, followed by the X coordinate
@@ -370,7 +394,9 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_USERS_V2"
     | "ACTIVITY_TYPE_ACCEPT_INVITATION_V2"
     | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"
-    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2";
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2"
+    | "ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS"
+    | "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -629,7 +655,7 @@ export type definitions = {
   };
   v1CreateOrganizationIntentV2: {
     /**
-     * @inject_tag: validate:"required,tk_label_length"
+     * @inject_tag: validate:"required,tk_label,tk_label_length"
      * @description Human-readable name for an Organization.
      */
     organizationName: string;
@@ -715,6 +741,15 @@ export type definitions = {
      */
     privateKeyIds: string[];
   };
+  v1CreatePrivateKeyTagRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreatePrivateKeyTagIntent"];
+  };
   v1CreatePrivateKeyTagResult: {
     /** @description Unique identifier for a given Private Key Tag. */
     privateKeyTagId: string;
@@ -728,18 +763,29 @@ export type definitions = {
      */
     privateKeys: definitions["v1PrivateKeyParams"][];
   };
+  v1CreatePrivateKeysIntentV2: {
+    /**
+     * @inject_tag: validate:"dive,required"
+     * @description A list of Private Keys.
+     */
+    privateKeys: definitions["v1PrivateKeyParams"][];
+  };
   v1CreatePrivateKeysRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS";
+    type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1CreatePrivateKeysIntent"];
+    parameters: definitions["v1CreatePrivateKeysIntentV2"];
   };
   v1CreatePrivateKeysResult: {
     /** @description A list of Private Key IDs. */
     privateKeyIds: string[];
+  };
+  v1CreatePrivateKeysResultV2: {
+    /** @description A list of Private Key IDs and addresses. */
+    privateKeys: definitions["v1PrivateKeyResult"][];
   };
   v1CreateSubOrganizationIntent: {
     /**
@@ -790,6 +836,15 @@ export type definitions = {
      * @description A list of User IDs.
      */
     userIds: string[];
+  };
+  v1CreateUserTagRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_USER_TAG";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateUserTagIntent"];
   };
   v1CreateUserTagResult: {
     /** @description Unique identifier for a given User Tag. */
@@ -990,6 +1045,8 @@ export type definitions = {
     /** @description Array of Activity Statuses filtering which Activities will be listed in the response. */
     filterByStatus?: definitions["v1ActivityStatus"][];
     paginationOptions?: definitions["v1Pagination"];
+    /** @description Array of Activity Types filtering which Activities will be listed in the response. */
+    filterByType?: definitions["v1ActivityType"][];
   };
   v1GetActivitiesResponse: {
     /** @description A list of Activities. */
@@ -1000,6 +1057,25 @@ export type definitions = {
     organizationId: string;
     /** @description Unique identifier for a given Activity object. */
     activityId: string;
+  };
+  v1GetAuthenticatorRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given Authenticator. */
+    authenticatorId: string;
+  };
+  v1GetAuthenticatorResponse: {
+    authenticator: definitions["v1Authenticator"];
+  };
+  v1GetAuthenticatorsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given User. */
+    userId: string;
+  };
+  v1GetAuthenticatorsResponse: {
+    /** @description A list of authenticators. */
+    authenticators: definitions["v1Authenticator"][];
   };
   v1GetOrganizationRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -1128,6 +1204,8 @@ export type definitions = {
     createUsersIntentV2?: definitions["v1CreateUsersIntentV2"];
     createSubOrganizationIntent?: definitions["v1CreateSubOrganizationIntent"];
     createSubOrganizationIntentV2?: definitions["v1CreateSubOrganizationIntentV2"];
+    updateAllowedOriginsIntent?: definitions["v1UpdateAllowedOriginsIntent"];
+    createPrivateKeysIntentV2?: definitions["v1CreatePrivateKeysIntentV2"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1190,6 +1268,7 @@ export type definitions = {
     tags?: definitions["datav1Tag"][];
     disabledPrivateKeys?: definitions["v1PrivateKey"][];
     rootQuorum?: definitions["v1Quorum"];
+    allowedOrigins?: string[];
   };
   v1Pagination: {
     /**
@@ -1263,6 +1342,10 @@ export type definitions = {
      */
     addressFormats: definitions["immutableactivityv1AddressFormat"][];
   };
+  v1PrivateKeyResult: {
+    privateKeyId?: string;
+    addresses?: definitions["immutableactivityv1Address"][];
+  };
   v1PublicKeyCredentialWithAttestation: {
     id: string;
     /**
@@ -1333,6 +1416,8 @@ export type definitions = {
     updateUserTagResult?: definitions["v1UpdateUserTagResult"];
     updatePrivateKeyTagResult?: definitions["v1UpdatePrivateKeyTagResult"];
     createSubOrganizationResult?: definitions["v1CreateSubOrganizationResult"];
+    updateAllowedOriginsResult?: definitions["v1UpdateAllowedOriginsResult"];
+    createPrivateKeysResultV2?: definitions["v1CreatePrivateKeysResultV2"];
   };
   v1RootUserParams: {
     /**
@@ -1468,6 +1553,23 @@ export type definitions = {
     seconds: string;
     nanos: string;
   };
+  v1UpdateAllowedOriginsIntent: {
+    /**
+     * @inject_tag: validate:"required"
+     * @description Additional origins requests are allowed from besides Turnkey origins
+     */
+    allowedOrigins: string[];
+  };
+  v1UpdateAllowedOriginsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateAllowedOriginsIntent"];
+  };
+  v1UpdateAllowedOriginsResult: { [key: string]: unknown };
   v1UpdatePrivateKeyTagIntent: {
     /**
      * @inject_tag: validate:"uuid"
@@ -1683,6 +1785,58 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get details about an authenticator */
+  PublicApiService_GetAuthenticator: {
+    parameters: {
+      body: {
+        body: definitions["v1GetAuthenticatorRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetAuthenticatorResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get details about authenticators for a user */
+  PublicApiService_GetAuthenticators: {
+    parameters: {
+      body: {
+        body: definitions["v1GetAuthenticatorsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetAuthenticatorsResponse"];
       };
       /** Returned when the user does not have permission to access the resource. */
       403: {
@@ -2088,6 +2242,32 @@ export type operations = {
       };
     };
   };
+  /** Create a private key tag and add it to private keys. */
+  PublicApiService_CreatePrivateKeyTag: {
+    parameters: {
+      body: {
+        body: definitions["v1CreatePrivateKeyTagRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Create new Private Keys */
   PublicApiService_CreatePrivateKeys: {
     parameters: {
@@ -2119,6 +2299,32 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreateSubOrganizationRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create a user tag and add it to users. */
+  PublicApiService_CreateUserTag: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateUserTagRequest"];
       };
     };
     responses: {
@@ -2301,6 +2507,32 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1SignTransactionRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Update the additional allowable origins for requests besides Turnkey origins */
+  PublicApiService_UpdateAllowedOrigins: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateAllowedOriginsRequest"];
       };
     };
     responses: {
