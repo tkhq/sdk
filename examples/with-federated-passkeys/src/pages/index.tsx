@@ -57,7 +57,7 @@ export default function Home() {
 
     const federatedRequest = await TurnkeyApi.federatedPostCreatePrivateKeys({
       body: {
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         organizationId: subOrgId,
         timestampMs: String(Date.now()),
         parameters: {

@@ -20,7 +20,7 @@ export async function createNewSolanaPrivateKey(turnkeyOrganizationId: string) {
   try {
     const activity = await createKeyMutation({
       body: {
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         organizationId: turnkeyOrganizationId,
         parameters: {
           privateKeys: [

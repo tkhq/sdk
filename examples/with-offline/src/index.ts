@@ -19,7 +19,7 @@ function createPrivateKeyRequest(
   return {
     body: {
       timestampMs: String(Date.now()), // millisecond timestamp
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
       organizationId: organizationId,
       parameters: {
         privateKeys: [

@@ -26,7 +26,7 @@ export async function createNewEthereumPrivateKey() {
   try {
     const activity = await mutation({
       body: {
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         organizationId: process.env.ORGANIZATION_ID!,
         parameters: {
           privateKeys: [
