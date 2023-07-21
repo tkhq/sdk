@@ -24,7 +24,7 @@ beforeEach(async () => {
 
 const sampleCreatePrivateKeysInput: TurnkeyApi.TPostCreatePrivateKeysInput = {
   body: {
-    type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+    type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
     parameters: {
       privateKeys: [
         {
@@ -51,19 +51,19 @@ test("`withAsyncPolling` should return data after activity completion", async ()
     {
       activity: {
         status: "ACTIVITY_STATUS_CREATED",
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
       },
     },
     {
       activity: {
         status: "ACTIVITY_STATUS_PENDING",
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
       },
     },
     {
       activity: {
         status: "ACTIVITY_STATUS_COMPLETED",
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
       },
     },
   ]);
@@ -74,7 +74,7 @@ test("`withAsyncPolling` should return data after activity completion", async ()
   expect(result).toMatchInlineSnapshot(`
     {
       "status": "ACTIVITY_STATUS_COMPLETED",
-      "type": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+      "type": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
     }
   `);
 });
@@ -90,14 +90,14 @@ test("`withAsyncPolling` should throw a rich error when activity requires consen
     {
       activity: {
         status: "ACTIVITY_STATUS_PENDING",
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
       },
     },
     {
       activity: {
         status: "ACTIVITY_STATUS_CONSENSUS_NEEDED",
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
       },
     },
@@ -121,7 +121,7 @@ test("`withAsyncPolling` should throw a rich error when activity requires consen
       {
         "activityId": "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
         "activityStatus": "ACTIVITY_STATUS_CONSENSUS_NEEDED",
-        "activityType": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        "activityType": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         "message": "Consensus needed for activity ee916c38-8151-460d-91c0-8bdbf5a9b20e",
       }
     `);
@@ -141,21 +141,21 @@ test("`withAsyncPolling` should throw a rich error when activity is rejected", a
     {
       activity: {
         status: "ACTIVITY_STATUS_PENDING",
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
       },
     },
     {
       activity: {
         status: "ACTIVITY_STATUS_PENDING",
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
       },
     },
     {
       activity: {
         status: "ACTIVITY_STATUS_REJECTED",
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
       },
     },
@@ -179,7 +179,7 @@ test("`withAsyncPolling` should throw a rich error when activity is rejected", a
       {
         "activityId": "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
         "activityStatus": "ACTIVITY_STATUS_REJECTED",
-        "activityType": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        "activityType": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         "message": "Activity ee916c38-8151-460d-91c0-8bdbf5a9b20e was rejected",
       }
     `);
@@ -199,7 +199,7 @@ test("`withAsyncPolling` should throw a rich error when activity fails", async (
     {
       activity: {
         status: "ACTIVITY_STATUS_FAILED",
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         id: "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
       },
     },
@@ -223,7 +223,7 @@ test("`withAsyncPolling` should throw a rich error when activity fails", async (
       {
         "activityId": "ee916c38-8151-460d-91c0-8bdbf5a9b20e",
         "activityStatus": "ACTIVITY_STATUS_FAILED",
-        "activityType": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        "activityType": "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         "message": "Activity ee916c38-8151-460d-91c0-8bdbf5a9b20e failed",
       }
     `);
