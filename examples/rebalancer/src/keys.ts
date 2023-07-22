@@ -1,7 +1,7 @@
 // NOTE: All of these keys should be considered compromised!!!!
 // NOTE: Only used for demo purposes
 
-export default {
+const keys: { [key: string]: { [key: string]: string } } = {
   alice: {
     publicKey:
       "03178b1cb727bd1ab23c3c5725d633f9ad3c7c0502efda2371e4e4bd88aea8a94d",
@@ -21,3 +21,5 @@ export default {
       "2cbe20eb88ac101c92fa5f216d8261a0b1ae43f9129a629e6b627aa57ff16d3d",
   },
 };
+
+export default keys;

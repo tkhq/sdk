@@ -1,5 +1,4 @@
 import { TurnkeyApi, init as httpInit } from "@turnkey/http";
-// import type { definitions as types } from "../types";
 import { refineNonNull } from "./utils";
 
 // TODO(tim): deprecate this

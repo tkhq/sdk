@@ -1,11 +1,10 @@
-import { TurnkeyApi, init as httpInit } from "@turnkey/http";
-import type { definitions as types } from "../types";
+import { TurnkeyApi, init as httpInit, TurnkeyApiTypes } from "@turnkey/http";
 import { refineNonNull } from "./utils";
 
 // TODO(tim): deprecate this
-export default async function getActivities(limit: number): Promise<
-  types["v1GetActivitiesResponse"]["activities"]
-> {
+export default async function getActivities(
+  limit: number
+): Promise<TurnkeyApiTypes["v1GetActivitiesResponse"]["activities"]> {
   // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -17,8 +16,8 @@ export default async function getActivities(limit: number): Promise<
     body: {
       organizationId: process.env.ORGANIZATION_ID!,
       paginationOptions: {
-        limit: limit
-      }
+        limit: limit,
+      },
     },
   });
 

@@ -1,10 +1,9 @@
-import { TurnkeyApi, init as httpInit } from "@turnkey/http";
-import type { definitions as types } from "../types";
+import { TurnkeyApi, init as httpInit, TurnkeyApiTypes } from "@turnkey/http";
 import { refineNonNull } from "./utils";
 
 // TODO(tim): deprecate this
 export default async function getOrganization(): Promise<
-  types["v1OrganizationData"]
+  TurnkeyApiTypes["v1OrganizationData"]
 > {
   // Initialize `@turnkey/http` with your credentials
   httpInit({

@@ -36,7 +36,7 @@ async function main() {
   }
 
   const command = args[0];
-  const options: { [key: string]: any } = {};
+  const options: { [key: string]: string | undefined } = {};
 
   for (const arg of args.slice(1)) {
     if (!arg.startsWith("--")) {
@@ -65,11 +65,11 @@ async function main() {
       throw new Error(`no key defined with name: ${keyName}`);
     }
 
-    process.env.API_PUBLIC_KEY = keys[keyName].publicKey;
-    process.env.API_PRIVATE_KEY = keys[keyName].privateKey;
+    process.env.API_PUBLIC_KEY = keys[keyName]!.publicKey;
+    process.env.API_PRIVATE_KEY = keys[keyName]!.privateKey;
   }
 
-  const commands = {
+  const commands: { [key: string]: Function } = {
     setup: setup,
     fund: fund,
     sweep: sweep,
@@ -83,7 +83,7 @@ async function main() {
     throw new Error(`Unknown command: ${command}`);
   }
 
-  commands[command](options);
+  commands[command]!(options);
 }
 
 main().catch((error) => {
@@ -98,14 +98,20 @@ async function setup(_options: any) {
   const executorTagId = await createUserTag("Executor", []);
 
   // setup users
-  await createUser("Alice", [adminTagId], "Alice key", keys.alice.publicKey);
-  await createUser("Bob", [managerTagId], "Bob key", keys.bob.publicKey);
-  await createUser("Phil", [executorTagId], "Phil key", keys.phil.publicKey);
+  await createUser("Alice", [adminTagId], "Alice key", keys!.alice!.publicKey!);
+  await createUser("Bob", [managerTagId], "Bob key", keys!.bob!.publicKey!);
+  await createUser("Phil", [executorTagId], "Phil key", keys!.phil!.publicKey!);
 
   // setup private key tags
   const distributionTagId = await createPrivateKeyTag("distribution", []);
-  const shortTermStorageTagId = await createPrivateKeyTag("short-term-storage", []);
-  const longTermStorageTagId = await createPrivateKeyTag("long-term-storage", []);
+  const shortTermStorageTagId = await createPrivateKeyTag(
+    "short-term-storage",
+    []
+  );
+  const longTermStorageTagId = await createPrivateKeyTag(
+    "long-term-storage",
+    []
+  );
 
   // setup private keys
   await createPrivateKey("Distribution", [distributionTagId]);
@@ -153,10 +159,16 @@ async function fundImpl() {
   const organization = await getOrganization();
 
   // find "Distribution" private key
-  const distributionPrivateKey = findPrivateKeys(organization, "distribution")[0];
+  const distributionPrivateKey = findPrivateKeys(
+    organization,
+    "distribution"
+  )[0];
 
   // find "Short Term Storage" private keys
-  const shortTermStoragePrivateKeys = findPrivateKeys(organization, "short-term-storage");
+  const shortTermStoragePrivateKeys = findPrivateKeys(
+    organization,
+    "short-term-storage"
+  );
 
   // send from "Distribution" to "Short Term Storage"
   const provider = getProvider();
@@ -202,15 +214,23 @@ async function sweepImpl() {
   const organization = await getOrganization();
 
   // find long term storage private key
-  const longTermStoragePrivateKey = findPrivateKeys(organization, "long-term-storage")[0];
+  const longTermStoragePrivateKey = findPrivateKeys(
+    organization,
+    "long-term-storage"
+  )[0];
 
   // find short term storage private keys
-  const shortTermStoragePrivateKeys = findPrivateKeys(organization, "short-term-storage");
+  const shortTermStoragePrivateKeys = findPrivateKeys(
+    organization,
+    "short-term-storage"
+  );
 
   // send from short to long term storage
-  const ethAddress = longTermStoragePrivateKey?.addresses.find((address: any) => {
-    return address.format == "ADDRESS_FORMAT_ETHEREUM";
-  });
+  const ethAddress = longTermStoragePrivateKey?.addresses.find(
+    (address: any) => {
+      return address.format == "ADDRESS_FORMAT_ETHEREUM";
+    }
+  );
   if (!ethAddress || !ethAddress.address) {
     throw new Error(
       `couldn't lookup ETH address for private key: ${longTermStoragePrivateKey?.privateKeyId}`
@@ -219,16 +239,14 @@ async function sweepImpl() {
 
   for (const pk of shortTermStoragePrivateKeys!) {
     const provider = getProvider();
-    const connectedSigner = getTurnkeySigner(
-      provider,
-      pk.privateKeyId
-    );
+    const connectedSigner = getTurnkeySigner(provider, pk.privateKeyId);
     const balance = await connectedSigner.getBalance();
     const feeData = await connectedSigner.getFeeData();
 
     feeData.maxFeePerGas = feeData.maxFeePerGas!.mul(GAS_MULTIPLIER);
-    feeData.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas!.mul(GAS_MULTIPLIER);
-  
+    feeData.maxPriorityFeePerGas =
+      feeData.maxPriorityFeePerGas!.mul(GAS_MULTIPLIER);
+
     const gasRequired = feeData
       .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
       .mul(TRANSFER_GAS_LIMIT); // 21000 is the gas limit for a simple transfer
@@ -274,10 +292,16 @@ async function recycleImpl() {
   const organization = await getOrganization();
 
   // find "Long Term Storage" private key
-  const longTermStoragePrivateKey = findPrivateKeys(organization, "long-term-storage")[0];
+  const longTermStoragePrivateKey = findPrivateKeys(
+    organization,
+    "long-term-storage"
+  )[0];
 
   // find "Distribution" private key
-  const distributionPrivateKey = findPrivateKeys(organization, "distribution")[0];
+  const distributionPrivateKey = findPrivateKeys(
+    organization,
+    "distribution"
+  )[0];
 
   // send from "Long Term Storage" to "Distribution"
   const provider = getProvider();
@@ -299,16 +323,17 @@ async function recycleImpl() {
   const feeData = await connectedSigner.getFeeData();
 
   feeData.maxFeePerGas = feeData.maxFeePerGas!.mul(GAS_MULTIPLIER);
-  feeData.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas!.mul(GAS_MULTIPLIER);
+  feeData.maxPriorityFeePerGas =
+    feeData.maxPriorityFeePerGas!.mul(GAS_MULTIPLIER);
 
   const gasRequired = feeData
     .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
     .mul(TRANSFER_GAS_LIMIT); // 21000 is the gas limit for a simple transfer
   const recycleAmount = balance.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
 
-  if(recycleAmount.lte(0)) {
-    console.log("Insufficient balance for recycle...")
-    return
+  if (recycleAmount.lte(0)) {
+    console.log("Insufficient balance for recycle...");
+    return;
   }
 
   // TODO(tim): pass this amount in
@@ -342,7 +367,10 @@ async function pollAndBroadcastImpl() {
   const organization = await getOrganization();
 
   // find "Long Term Storage" private key
-  const longTermStoragePrivateKey = findPrivateKeys(organization, "long-term-storage")[0];
+  const longTermStoragePrivateKey = findPrivateKeys(
+    organization,
+    "long-term-storage"
+  )[0];
   const activities = await getActivities(ACTIVITIES_LIMIT);
 
   const relevantActivities = activities.filter((activity) => {

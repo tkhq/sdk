@@ -24,7 +24,7 @@ export default async function createPrivateKey(
   try {
     const activity = await mutation({
       body: {
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         organizationId: process.env.ORGANIZATION_ID!,
         parameters: {
           privateKeys: [
@@ -40,18 +40,11 @@ export default async function createPrivateKey(
       },
     });
 
-    const privateKeyId = refineNonNull(
-      activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
+    const privateKey = refineNonNull(
+      activity.result.createPrivateKeysResultV2?.privateKeys?.[0]
     );
-
-    const keyInfo = await TurnkeyApi.postGetPrivateKey({
-      body: {
-        organizationId: process.env.ORGANIZATION_ID!,
-        privateKeyId,
-      },
-    });
-
-    const address = refineNonNull(keyInfo.privateKey.addresses[0]?.address);
+    const privateKeyId = refineNonNull(privateKey.privateKeyId);
+    const address = refineNonNull(privateKey.addresses?.[0]?.address);
 
     // Success!
     console.log(
