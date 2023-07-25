@@ -22,7 +22,7 @@ beforeEach(async () => {
   });
 });
 
-const sampleCreatePrivateKeysInput: TurnkeyApi.TPostCreatePrivateKeysInput = {
+const sampleCreatePrivateKeysInput: TurnkeyApi.TCreatePrivateKeysInput = {
   body: {
     type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
     parameters: {
@@ -42,7 +42,7 @@ const sampleCreatePrivateKeysInput: TurnkeyApi.TPostCreatePrivateKeysInput = {
 
 test("`withAsyncPolling` should return data after activity completion", async () => {
   const mutation = withAsyncPolling({
-    request: TurnkeyApi.postCreatePrivateKeys,
+    request: TurnkeyApi.createPrivateKeys,
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
@@ -81,7 +81,7 @@ test("`withAsyncPolling` should return data after activity completion", async ()
 
 test("`withAsyncPolling` should throw a rich error when activity requires consensus", async () => {
   const mutation = withAsyncPolling({
-    request: TurnkeyApi.postCreatePrivateKeys,
+    request: TurnkeyApi.createPrivateKeys,
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
@@ -132,7 +132,7 @@ test("`withAsyncPolling` should throw a rich error when activity requires consen
 
 test("`withAsyncPolling` should throw a rich error when activity is rejected", async () => {
   const mutation = withAsyncPolling({
-    request: TurnkeyApi.postCreatePrivateKeys,
+    request: TurnkeyApi.createPrivateKeys,
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
@@ -190,7 +190,7 @@ test("`withAsyncPolling` should throw a rich error when activity is rejected", a
 
 test("`withAsyncPolling` should throw a rich error when activity fails", async () => {
   const mutation = withAsyncPolling({
-    request: TurnkeyApi.postCreatePrivateKeys,
+    request: TurnkeyApi.createPrivateKeys,
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
@@ -234,7 +234,7 @@ test("`withAsyncPolling` should throw a rich error when activity fails", async (
 
 test("`withAsyncPolling` should also work with synchronous activity endpoints", async () => {
   const mutation = withAsyncPolling({
-    request: TurnkeyApi.postSignTransaction,
+    request: TurnkeyApi.signTransaction,
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
@@ -273,16 +273,16 @@ test("`withAsyncPolling` should also work with synchronous activity endpoints", 
 
 test("typecheck only: `withAsyncPolling` only works with mutations that return an activity", () => {
   // Legit ones
-  withAsyncPolling({ request: TurnkeyApi.postCreateApiKeys });
-  withAsyncPolling({ request: TurnkeyApi.postCreateInvitations });
-  withAsyncPolling({ request: TurnkeyApi.postCreatePolicy });
-  withAsyncPolling({ request: TurnkeyApi.postCreatePrivateKeys });
-  withAsyncPolling({ request: TurnkeyApi.postDeleteApiKeys });
-  withAsyncPolling({ request: TurnkeyApi.postDeleteInvitation });
-  withAsyncPolling({ request: TurnkeyApi.postDeletePolicy });
-  withAsyncPolling({ request: TurnkeyApi.postSignRawPayload });
-  withAsyncPolling({ request: TurnkeyApi.postSignTransaction });
-  withAsyncPolling({ request: TurnkeyApi.postGetActivity });
+  withAsyncPolling({ request: TurnkeyApi.createApiKeys });
+  withAsyncPolling({ request: TurnkeyApi.createInvitations });
+  withAsyncPolling({ request: TurnkeyApi.createPolicy });
+  withAsyncPolling({ request: TurnkeyApi.createPrivateKeys });
+  withAsyncPolling({ request: TurnkeyApi.deleteApiKeys });
+  withAsyncPolling({ request: TurnkeyApi.deleteInvitation });
+  withAsyncPolling({ request: TurnkeyApi.deletePolicy });
+  withAsyncPolling({ request: TurnkeyApi.signRawPayload });
+  withAsyncPolling({ request: TurnkeyApi.signTransaction });
+  withAsyncPolling({ request: TurnkeyApi.getActivity });
 
   // Invalid ones
   // @ts-expect-error

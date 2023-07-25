@@ -11,7 +11,7 @@ export default async function getOrganization(): Promise<
     baseUrl: process.env.BASE_URL!,
   });
 
-  const response = await TurnkeyApi.postGetOrganization({
+  const response = await TurnkeyApi.getOrganization({
     body: {
       organizationId: process.env.ORGANIZATION_ID!,
     },

@@ -139,7 +139,7 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
   private async _signImpl(
     message: Uint8Array
   ): Promise<ExtendedSecp256k1Signature> {
-    const { activity } = await TurnkeyApi.postSignRawPayload({
+    const { activity } = await TurnkeyApi.signRawPayload({
       body: {
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
         organizationId: this.organizationId,
@@ -182,7 +182,7 @@ async function fetchCompressedPublicKey(input: {
 }): Promise<{ compressedPublicKey: Uint8Array }> {
   const { privateKeyId, organizationId } = input;
 
-  const keyInfo = await TurnkeyApi.postGetPrivateKey({
+  const keyInfo = await TurnkeyApi.getPrivateKey({
     body: {
       organizationId,
       privateKeyId,

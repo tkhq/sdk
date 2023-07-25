@@ -11,7 +11,7 @@ export async function createNewSolanaPrivateKey(turnkeyOrganizationId: string) {
   );
 
   const createKeyMutation = withAsyncPolling({
-    request: TurnkeyApi.postCreatePrivateKeys,
+    request: TurnkeyApi.createPrivateKeys,
     refreshIntervalMs: 250, // defaults to 500ms
   });
 

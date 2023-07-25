@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { FederatedRequest } from "@turnkey/http";
+import { SignedRequest } from "@turnkey/http";
 import axios from "axios";
 
 type TResponse = {
@@ -10,18 +10,14 @@ export default async function proxyRequest(
   req: NextApiRequest,
   res: NextApiResponse<TResponse>
 ) {
-  let federatedRequest = req.body as FederatedRequest;
+  let signedRequest = req.body as SignedRequest;
 
   try {
-    const tkRes = await axios.post(
-      federatedRequest.url,
-      federatedRequest.body,
-      {
-        headers: {
-          "X-Stamp-WebAuthn": federatedRequest.stamp,
-        },
-      }
-    );
+    const tkRes = await axios.post(signedRequest.url, signedRequest.body, {
+      headers: {
+        "X-Stamp-WebAuthn": signedRequest.stamp,
+      },
+    });
 
     res.status(200).json({
       message: "Request successfully proxied!",

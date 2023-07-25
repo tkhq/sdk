@@ -9,7 +9,7 @@ import bs58 from "bs58";
 export async function deriveSolanaAddress(
   privateKeyId: string
 ): Promise<string> {
-  const keyInfo = await TurnkeyApi.postGetPrivateKey({
+  const keyInfo = await TurnkeyApi.getPrivateKey({
     body: {
       organizationId: process.env.ORGANIZATION_ID!,
       privateKeyId,

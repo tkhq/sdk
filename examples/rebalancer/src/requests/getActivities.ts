@@ -11,7 +11,7 @@ export default async function getActivities(
     baseUrl: process.env.BASE_URL!,
   });
 
-  const response = await TurnkeyApi.postGetActivities({
+  const response = await TurnkeyApi.getActivities({
     body: {
       organizationId: process.env.ORGANIZATION_ID!,
       paginationOptions: {

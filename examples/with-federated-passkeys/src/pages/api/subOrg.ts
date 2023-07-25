@@ -3,7 +3,7 @@ import {
   TurnkeyApi,
   init as httpInit,
   withAsyncPolling,
-  FederatedRequest,
+  SignedRequest,
   TurnkeyApiTypes,
 } from "@turnkey/http";
 import axios from "axios";
@@ -37,7 +37,7 @@ export default async function createUser(
   const createSubOrgRequest = req.body as CreateSubOrgRequest;
 
   const createSubOrgMutation = withAsyncPolling({
-    request: TurnkeyApi.postCreateSubOrganization,
+    request: TurnkeyApi.createSubOrganization,
   });
 
   try {

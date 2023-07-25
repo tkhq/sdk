@@ -16,7 +16,7 @@ export default async function approveActivity(
   // Use `withAsyncPolling` to handle async activity polling.
   // In this example, it polls every 250ms until the activity reaches a terminal state.
   const mutation = withAsyncPolling({
-    request: TurnkeyApi.postApproveActivity,
+    request: TurnkeyApi.approveActivity,
     refreshIntervalMs: 250, // defaults to 500ms
   });
 

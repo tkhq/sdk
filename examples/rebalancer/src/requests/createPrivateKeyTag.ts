@@ -17,7 +17,7 @@ export default async function createPrivateKeyTag(
   // In this example, it polls every 250ms until the activity reaches a terminal state.
   const mutation = withAsyncPolling({
     // this method doesn't currently support creating private key tags
-    request: TurnkeyApi.postCreatePrivateKeyTag,
+    request: TurnkeyApi.createPrivateKeyTag,
     refreshIntervalMs: 250, // defaults to 500ms
   });
 
