@@ -58,42 +58,29 @@ async function main() {
   const provider = new ethers.providers.InfuraProvider(network);
 
   const connectedSigner1 = turnkeySigner1.connect(provider);
-  const address1 = await connectedSigner1.getAddress();
-  const balance1 = await connectedSigner1.getBalance();
-  const transactionCount1 = await connectedSigner1.getTransactionCount();
-
-  print("Address 1:", address1);
-  print("Balance 1:", `${ethers.utils.formatEther(balance1)} Ether`);
-  print("Transaction count 1:", `${transactionCount1}`);
-
   const connectedSigner2 = turnkeySigner2.connect(provider);
-  const address2 = await connectedSigner2.getAddress();
-  const balance2 = await connectedSigner2.getBalance();
-  const transactionCount2 = await connectedSigner2.getTransactionCount();
-
-  print("Address 2:", address2);
-  print("Balance 2:", `${ethers.utils.formatEther(balance2)} Ether`);
-  print("Transaction count 2:", `${transactionCount2}`);
-
   const connectedSigner3 = turnkeySigner3.connect(provider);
-  const address3 = await connectedSigner3.getAddress();
-  const balance3 = await connectedSigner3.getBalance();
-  const transactionCount3 = await connectedSigner3.getTransactionCount();
 
-  print("Address 3:", address3);
-  print("Balance 3:", `${ethers.utils.formatEther(balance3)} Ether`);
-  print("Transaction count 3:", `${transactionCount3}`);
+  for (let signer of [connectedSigner1, connectedSigner2, connectedSigner3]) {
+    const address = await signer.getAddress();
+    const balance = await signer.getBalance();
+    const transactionCount = await signer.getTransactionCount();
 
-  if (balance1.isZero() || balance2.isZero() || balance3.isZero()) {
-    let warningMessage =
-      "The transaction won't be broadcasted because your account balance is zero.\n";
-    if (network === "sepolia") {
-      warningMessage +=
-        "Use https://sepoliafaucet.com/ to request funds on Sepolia, then run the script again.\n";
+    print("Address:", address);
+    print("Balance:", `${ethers.utils.formatEther(balance)} ETH`);
+    print("Transaction count:", `${transactionCount}`);
+
+    if (balance.isZero()) {
+      let warningMessage =
+        `The transaction won't be broadcasted because the balance for address ${address} is zero.\n`;
+      if (network === "sepolia") {
+        warningMessage +=
+          "Use https://sepoliafaucet.com/ to request funds on Sepolia, then run the script again.\n";
+      }
+  
+      console.warn(warningMessage);
+      return;
     }
-
-    console.warn(warningMessage);
-    return;
   }
 
   // Configure Gnosis Safe
@@ -121,7 +108,7 @@ async function main() {
 
   // Create new Safe using address 1
   const safeFactory = await SafeFactory.create({ ethAdapter: ethAdapter1 });
-  const owners = [address1, address2, address3];
+  const owners = [await connectedSigner1.getAddress(), await connectedSigner2.getAddress(), await connectedSigner3.getAddress()];
   const threshold = 3;
   const safeAccountConfig: SafeAccountConfig = {
     owners,
@@ -138,6 +125,8 @@ async function main() {
     ethAdapter: ethAdapter2,
     safeAddress,
   });
+  
+  // Alternative method to connecting to a precreated Safe
   const safeSdk3 = await Safe.create({
     ethAdapter: ethAdapter3,
     safeAddress,
@@ -151,7 +140,7 @@ async function main() {
   };
   const sentTx = await connectedSigner1.sendTransaction(fundingRequest);
   print(
-    `Sent ${ethers.utils.formatEther(sentTx.value)} Ether to ${sentTx.to}:`,
+    `Funding the safe: sent ${ethers.utils.formatEther(sentTx.value)} ETH to ${sentTx.to}:`,
     `https://${network}.etherscan.io/tx/${sentTx.hash}`
   );
 
@@ -168,11 +157,10 @@ async function main() {
   );
   print(
     `Signed transaction offchain using signer 1. Signature:`,
-    safeTransaction.signatures.get(address1.toLowerCase())?.data ?? ""
+    safeTransaction.signatures.get((await connectedSigner1.getAddress()).toLowerCase())?.data ?? ""
   );
 
   // Obtain *offchain* signature from signer 2 using standard raw message signing, and attach it to the safeTransaction
-  // let's try an offchain signature next time
   txHash = await safeSdk2.getTransactionHash(safeTransaction);
   let signTransactionHashResponse = await safeSdk2.signTransactionHash(txHash);
   print(
@@ -181,7 +169,7 @@ async function main() {
   );
   safeTransaction.addSignature(signTransactionHashResponse);
 
-  // Obtain onchain signature from signer 3.
+  // Obtain *onchain* signature from signer 3.
   // This is technically redundant given this signer will go on to execute the transaction,
   // but is left in for demonstration purposes.
   txHash = await safeSdk3.getTransactionHash(safeTransaction);
@@ -192,11 +180,11 @@ async function main() {
     `https://${network}.etherscan.io/tx/${approveTxResponse.hash}`
   );
 
-  // Execute transaction using last signer
+  // Execute transaction using signer 3
   const executeTxResponse = await safeSdk3.executeTransaction(safeTransaction);
   await executeTxResponse.transactionResponse?.wait();
   print(
-    `Executed transaction using signer 3. Etherscan link:`,
+    `Executed transaction. Etherscan link:`,
     `https://${network}.etherscan.io/tx/${executeTxResponse.hash}`
   );
 }
