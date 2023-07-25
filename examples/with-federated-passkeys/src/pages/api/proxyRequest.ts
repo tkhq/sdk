@@ -13,15 +13,11 @@ export default async function proxyRequest(
   let signedRequest = req.body as SignedRequest;
 
   try {
-    const tkRes = await axios.post(
-      signedRequest.url,
-      signedRequest.body,
-      {
-        headers: {
-          "X-Stamp-WebAuthn": signedRequest.stamp,
-        },
-      }
-    );
+    const tkRes = await axios.post(signedRequest.url, signedRequest.body, {
+      headers: {
+        "X-Stamp-WebAuthn": signedRequest.stamp,
+      },
+    });
 
     res.status(200).json({
       message: "Request successfully proxied!",
