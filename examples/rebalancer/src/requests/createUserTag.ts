@@ -17,7 +17,7 @@ export default async function createUserTag(
   // In this example, it polls every 250ms until the activity reaches a terminal state.
   const mutation = withAsyncPolling({
     // this method doesn't currently support creating user tags
-    request: TurnkeyApi.postCreateUserTag,
+    request: TurnkeyApi.createUserTag,
     refreshIntervalMs: 250, // defaults to 500ms
   });
 

@@ -18,7 +18,7 @@ export default async function createPolicy(
   // Use `withAsyncPolling` to handle async activity polling.
   // In this example, it polls every 250ms until the activity reaches a terminal state.
   const mutation = withAsyncPolling({
-    request: TurnkeyApi.postCreatePolicy,
+    request: TurnkeyApi.createPolicy,
     refreshIntervalMs: 250, // defaults to 500ms
   });
 

@@ -9,7 +9,7 @@ export default async function getActivity(activityId: string): Promise<any> {
     baseUrl: process.env.BASE_URL!,
   });
 
-  const response = await TurnkeyApi.postGetActivity({
+  const response = await TurnkeyApi.getActivity({
     body: {
       organizationId: process.env.ORGANIZATION_ID!,
       activityId,
