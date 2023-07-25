@@ -55,7 +55,7 @@ export default function Home() {
       throw new Error("sub-org id not found");
     }
 
-    const federatedRequest = await TurnkeyApi.federatedPostCreatePrivateKeys({
+    const signedRequest = await TurnkeyApi.signCreatePrivateKeys({
       body: {
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
         organizationId: subOrgId,
@@ -73,7 +73,7 @@ export default function Home() {
       },
     });
 
-    await axios.post("/api/proxyRequest", federatedRequest);
+    await axios.post("/api/proxyRequest", signedRequest);
 
     alert(`Hooray! Key ${data.privateKeyName} created.`);
   };

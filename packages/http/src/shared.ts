@@ -66,11 +66,6 @@ export class TurnkeyRequestError extends Error {
 }
 
 /**
- * @deprecated use `SignedRequest` instead.
- */
-export type FederatedRequest = SignedRequest
-
-/**
  * Represents a signed request ready to be POSTed to Turnkey
  */
 export type SignedRequest = {

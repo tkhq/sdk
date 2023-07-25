@@ -3,7 +3,7 @@ export type { definitions as TurnkeyApiTypes } from "./__generated__/services/co
 export { init, browserInit } from "./config";
 
 export { TurnkeyActivityError, TurnkeyRequestError } from "./shared";
-export type { FederatedRequest } from "./shared";
+export type { SignedRequest } from "./shared";
 export { getWebAuthnAttestation } from "./webauthn";
 
 export { withAsyncPolling } from "./async";
