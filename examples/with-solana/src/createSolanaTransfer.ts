@@ -42,7 +42,7 @@ export async function createAndSignTransfer({
 
   const messageToSign = transferTransaction.serializeMessage();
 
-  const activity = await TurnkeyApi.postSignRawPayload({
+  const activity = await TurnkeyApi.signRawPayload({
     body: {
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
       organizationId: turnkeyOrganizationId,

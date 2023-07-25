@@ -71,7 +71,7 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
   }
 
   async getAddress(): Promise<string> {
-    const data = await TurnkeyApi.postGetPrivateKey({
+    const data = await TurnkeyApi.getPrivateKey({
       body: {
         privateKeyId: this.config.privateKeyId,
         organizationId: this.config.organizationId,
@@ -92,7 +92,7 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
   }
 
   private async _signTransactionImpl(message: string): Promise<string> {
-    const { activity } = await TurnkeyApi.postSignTransaction({
+    const { activity } = await TurnkeyApi.signTransaction({
       body: {
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
         organizationId: this.config.organizationId,
@@ -203,7 +203,7 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
   }
 
   async _signMessageImpl(message: string): Promise<string> {
-    const { activity } = await TurnkeyApi.postSignRawPayload({
+    const { activity } = await TurnkeyApi.signRawPayload({
       body: {
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
         organizationId: this.config.organizationId,

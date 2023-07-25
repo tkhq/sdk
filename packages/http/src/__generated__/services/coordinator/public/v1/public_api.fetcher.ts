@@ -2,7 +2,7 @@
 
 import {
   request,
-  federatedRequest,
+  signedRequest,
   TurnkeyCredentialRequestOptions,
 } from "../../../../../base";
 import type { operations } from "./public_api.types";
@@ -10,19 +10,19 @@ import type { operations } from "./public_api.types";
 /**
  * `POST /public/v1/query/get_activity`
  */
-type TPostGetActivityBody =
+type TGetActivityBody =
   operations["PublicApiService_GetActivity"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/query/get_activity`
  */
-export type TPostGetActivityResponse =
+export type TGetActivityResponse =
   operations["PublicApiService_GetActivity"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/query/get_activity`
  */
-export type TPostGetActivityInput = { body: TPostGetActivityBody };
+export type TGetActivityInput = { body: TGetActivityBody };
 
 /**
  * Get Activity
@@ -31,23 +31,23 @@ export type TPostGetActivityInput = { body: TPostGetActivityBody };
  *
  * `POST /public/v1/query/get_activity`
  */
-export const postGetActivity = (input: TPostGetActivityInput) =>
-  request<TPostGetActivityResponse, TPostGetActivityBody, never, never, never>({
+export const getActivity = (input: TGetActivityInput) =>
+  request<TGetActivityResponse, TGetActivityBody, never, never, never>({
     uri: "/public/v1/query/get_activity",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Get Activity
+ * Request a WebAuthn assertion and return a signed `GetActivity` request, ready to be POSTed to Turnkey.
  *
- * Get details about an Activity
+ * See {@link GetActivity}
  */
-export const federatedPostGetActivity = (
-  input: TPostGetActivityInput,
+export const signGetActivity = (
+  input: TGetActivityInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostGetActivityBody, never, never>({
+  signedRequest<TGetActivityBody, never, never>({
     uri: "/public/v1/query/get_activity",
     body: input.body,
     options,
@@ -56,19 +56,19 @@ export const federatedPostGetActivity = (
 /**
  * `POST /public/v1/query/get_authenticator`
  */
-type TPostGetAuthenticatorBody =
+type TGetAuthenticatorBody =
   operations["PublicApiService_GetAuthenticator"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/query/get_authenticator`
  */
-export type TPostGetAuthenticatorResponse =
+export type TGetAuthenticatorResponse =
   operations["PublicApiService_GetAuthenticator"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/query/get_authenticator`
  */
-export type TPostGetAuthenticatorInput = { body: TPostGetAuthenticatorBody };
+export type TGetAuthenticatorInput = { body: TGetAuthenticatorBody };
 
 /**
  * Get Authenticator
@@ -77,10 +77,10 @@ export type TPostGetAuthenticatorInput = { body: TPostGetAuthenticatorBody };
  *
  * `POST /public/v1/query/get_authenticator`
  */
-export const postGetAuthenticator = (input: TPostGetAuthenticatorInput) =>
+export const getAuthenticator = (input: TGetAuthenticatorInput) =>
   request<
-    TPostGetAuthenticatorResponse,
-    TPostGetAuthenticatorBody,
+    TGetAuthenticatorResponse,
+    TGetAuthenticatorBody,
     never,
     never,
     never
@@ -91,15 +91,15 @@ export const postGetAuthenticator = (input: TPostGetAuthenticatorInput) =>
   });
 
 /**
- * Get Authenticator
+ * Request a WebAuthn assertion and return a signed `GetAuthenticator` request, ready to be POSTed to Turnkey.
  *
- * Get details about an authenticator
+ * See {@link GetAuthenticator}
  */
-export const federatedPostGetAuthenticator = (
-  input: TPostGetAuthenticatorInput,
+export const signGetAuthenticator = (
+  input: TGetAuthenticatorInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostGetAuthenticatorBody, never, never>({
+  signedRequest<TGetAuthenticatorBody, never, never>({
     uri: "/public/v1/query/get_authenticator",
     body: input.body,
     options,
@@ -108,19 +108,19 @@ export const federatedPostGetAuthenticator = (
 /**
  * `POST /public/v1/query/get_authenticators`
  */
-type TPostGetAuthenticatorsBody =
+type TGetAuthenticatorsBody =
   operations["PublicApiService_GetAuthenticators"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/query/get_authenticators`
  */
-export type TPostGetAuthenticatorsResponse =
+export type TGetAuthenticatorsResponse =
   operations["PublicApiService_GetAuthenticators"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/query/get_authenticators`
  */
-export type TPostGetAuthenticatorsInput = { body: TPostGetAuthenticatorsBody };
+export type TGetAuthenticatorsInput = { body: TGetAuthenticatorsBody };
 
 /**
  * Get Authenticators
@@ -129,10 +129,10 @@ export type TPostGetAuthenticatorsInput = { body: TPostGetAuthenticatorsBody };
  *
  * `POST /public/v1/query/get_authenticators`
  */
-export const postGetAuthenticators = (input: TPostGetAuthenticatorsInput) =>
+export const getAuthenticators = (input: TGetAuthenticatorsInput) =>
   request<
-    TPostGetAuthenticatorsResponse,
-    TPostGetAuthenticatorsBody,
+    TGetAuthenticatorsResponse,
+    TGetAuthenticatorsBody,
     never,
     never,
     never
@@ -143,15 +143,15 @@ export const postGetAuthenticators = (input: TPostGetAuthenticatorsInput) =>
   });
 
 /**
- * Get Authenticators
+ * Request a WebAuthn assertion and return a signed `GetAuthenticators` request, ready to be POSTed to Turnkey.
  *
- * Get details about authenticators for a user
+ * See {@link GetAuthenticators}
  */
-export const federatedPostGetAuthenticators = (
-  input: TPostGetAuthenticatorsInput,
+export const signGetAuthenticators = (
+  input: TGetAuthenticatorsInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostGetAuthenticatorsBody, never, never>({
+  signedRequest<TGetAuthenticatorsBody, never, never>({
     uri: "/public/v1/query/get_authenticators",
     body: input.body,
     options,
@@ -160,19 +160,19 @@ export const federatedPostGetAuthenticators = (
 /**
  * `POST /public/v1/query/get_organization`
  */
-type TPostGetOrganizationBody =
+type TGetOrganizationBody =
   operations["PublicApiService_GetOrganization"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/query/get_organization`
  */
-export type TPostGetOrganizationResponse =
+export type TGetOrganizationResponse =
   operations["PublicApiService_GetOrganization"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/query/get_organization`
  */
-export type TPostGetOrganizationInput = { body: TPostGetOrganizationBody };
+export type TGetOrganizationInput = { body: TGetOrganizationBody };
 
 /**
  * Get Organization
@@ -181,29 +181,23 @@ export type TPostGetOrganizationInput = { body: TPostGetOrganizationBody };
  *
  * `POST /public/v1/query/get_organization`
  */
-export const postGetOrganization = (input: TPostGetOrganizationInput) =>
-  request<
-    TPostGetOrganizationResponse,
-    TPostGetOrganizationBody,
-    never,
-    never,
-    never
-  >({
+export const getOrganization = (input: TGetOrganizationInput) =>
+  request<TGetOrganizationResponse, TGetOrganizationBody, never, never, never>({
     uri: "/public/v1/query/get_organization",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Get Organization
+ * Request a WebAuthn assertion and return a signed `GetOrganization` request, ready to be POSTed to Turnkey.
  *
- * Get details about an Organization
+ * See {@link GetOrganization}
  */
-export const federatedPostGetOrganization = (
-  input: TPostGetOrganizationInput,
+export const signGetOrganization = (
+  input: TGetOrganizationInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostGetOrganizationBody, never, never>({
+  signedRequest<TGetOrganizationBody, never, never>({
     uri: "/public/v1/query/get_organization",
     body: input.body,
     options,
@@ -212,19 +206,19 @@ export const federatedPostGetOrganization = (
 /**
  * `POST /public/v1/query/get_policy`
  */
-type TPostGetPolicyBody =
+type TGetPolicyBody =
   operations["PublicApiService_GetPolicy"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/query/get_policy`
  */
-export type TPostGetPolicyResponse =
+export type TGetPolicyResponse =
   operations["PublicApiService_GetPolicy"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/query/get_policy`
  */
-export type TPostGetPolicyInput = { body: TPostGetPolicyBody };
+export type TGetPolicyInput = { body: TGetPolicyBody };
 
 /**
  * Get Policy
@@ -233,23 +227,23 @@ export type TPostGetPolicyInput = { body: TPostGetPolicyBody };
  *
  * `POST /public/v1/query/get_policy`
  */
-export const postGetPolicy = (input: TPostGetPolicyInput) =>
-  request<TPostGetPolicyResponse, TPostGetPolicyBody, never, never, never>({
+export const getPolicy = (input: TGetPolicyInput) =>
+  request<TGetPolicyResponse, TGetPolicyBody, never, never, never>({
     uri: "/public/v1/query/get_policy",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Get Policy
+ * Request a WebAuthn assertion and return a signed `GetPolicy` request, ready to be POSTed to Turnkey.
  *
- * Get details about a Policy
+ * See {@link GetPolicy}
  */
-export const federatedPostGetPolicy = (
-  input: TPostGetPolicyInput,
+export const signGetPolicy = (
+  input: TGetPolicyInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostGetPolicyBody, never, never>({
+  signedRequest<TGetPolicyBody, never, never>({
     uri: "/public/v1/query/get_policy",
     body: input.body,
     options,
@@ -258,19 +252,19 @@ export const federatedPostGetPolicy = (
 /**
  * `POST /public/v1/query/get_private_key`
  */
-type TPostGetPrivateKeyBody =
+type TGetPrivateKeyBody =
   operations["PublicApiService_GetPrivateKey"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/query/get_private_key`
  */
-export type TPostGetPrivateKeyResponse =
+export type TGetPrivateKeyResponse =
   operations["PublicApiService_GetPrivateKey"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/query/get_private_key`
  */
-export type TPostGetPrivateKeyInput = { body: TPostGetPrivateKeyBody };
+export type TGetPrivateKeyInput = { body: TGetPrivateKeyBody };
 
 /**
  * Get Private Key
@@ -279,29 +273,23 @@ export type TPostGetPrivateKeyInput = { body: TPostGetPrivateKeyBody };
  *
  * `POST /public/v1/query/get_private_key`
  */
-export const postGetPrivateKey = (input: TPostGetPrivateKeyInput) =>
-  request<
-    TPostGetPrivateKeyResponse,
-    TPostGetPrivateKeyBody,
-    never,
-    never,
-    never
-  >({
+export const getPrivateKey = (input: TGetPrivateKeyInput) =>
+  request<TGetPrivateKeyResponse, TGetPrivateKeyBody, never, never, never>({
     uri: "/public/v1/query/get_private_key",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Get Private Key
+ * Request a WebAuthn assertion and return a signed `GetPrivateKey` request, ready to be POSTed to Turnkey.
  *
- * Get details about a Private Key
+ * See {@link GetPrivateKey}
  */
-export const federatedPostGetPrivateKey = (
-  input: TPostGetPrivateKeyInput,
+export const signGetPrivateKey = (
+  input: TGetPrivateKeyInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostGetPrivateKeyBody, never, never>({
+  signedRequest<TGetPrivateKeyBody, never, never>({
     uri: "/public/v1/query/get_private_key",
     body: input.body,
     options,
@@ -310,19 +298,19 @@ export const federatedPostGetPrivateKey = (
 /**
  * `POST /public/v1/query/get_user`
  */
-type TPostGetUserBody =
+type TGetUserBody =
   operations["PublicApiService_GetUser"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/query/get_user`
  */
-export type TPostGetUserResponse =
+export type TGetUserResponse =
   operations["PublicApiService_GetUser"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/query/get_user`
  */
-export type TPostGetUserInput = { body: TPostGetUserBody };
+export type TGetUserInput = { body: TGetUserBody };
 
 /**
  * Get User
@@ -331,23 +319,23 @@ export type TPostGetUserInput = { body: TPostGetUserBody };
  *
  * `POST /public/v1/query/get_user`
  */
-export const postGetUser = (input: TPostGetUserInput) =>
-  request<TPostGetUserResponse, TPostGetUserBody, never, never, never>({
+export const getUser = (input: TGetUserInput) =>
+  request<TGetUserResponse, TGetUserBody, never, never, never>({
     uri: "/public/v1/query/get_user",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Get User
+ * Request a WebAuthn assertion and return a signed `GetUser` request, ready to be POSTed to Turnkey.
  *
- * Get details about a User
+ * See {@link GetUser}
  */
-export const federatedPostGetUser = (
-  input: TPostGetUserInput,
+export const signGetUser = (
+  input: TGetUserInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostGetUserBody, never, never>({
+  signedRequest<TGetUserBody, never, never>({
     uri: "/public/v1/query/get_user",
     body: input.body,
     options,
@@ -356,19 +344,19 @@ export const federatedPostGetUser = (
 /**
  * `POST /public/v1/query/list_activities`
  */
-type TPostGetActivitiesBody =
+type TGetActivitiesBody =
   operations["PublicApiService_GetActivities"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/query/list_activities`
  */
-export type TPostGetActivitiesResponse =
+export type TGetActivitiesResponse =
   operations["PublicApiService_GetActivities"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/query/list_activities`
  */
-export type TPostGetActivitiesInput = { body: TPostGetActivitiesBody };
+export type TGetActivitiesInput = { body: TGetActivitiesBody };
 
 /**
  * List Activities
@@ -377,29 +365,23 @@ export type TPostGetActivitiesInput = { body: TPostGetActivitiesBody };
  *
  * `POST /public/v1/query/list_activities`
  */
-export const postGetActivities = (input: TPostGetActivitiesInput) =>
-  request<
-    TPostGetActivitiesResponse,
-    TPostGetActivitiesBody,
-    never,
-    never,
-    never
-  >({
+export const getActivities = (input: TGetActivitiesInput) =>
+  request<TGetActivitiesResponse, TGetActivitiesBody, never, never, never>({
     uri: "/public/v1/query/list_activities",
     method: "POST",
     body: input.body,
   });
 
 /**
- * List Activities
+ * Request a WebAuthn assertion and return a signed `GetActivities` request, ready to be POSTed to Turnkey.
  *
- * List all Activities within an Organization
+ * See {@link GetActivities}
  */
-export const federatedPostGetActivities = (
-  input: TPostGetActivitiesInput,
+export const signGetActivities = (
+  input: TGetActivitiesInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostGetActivitiesBody, never, never>({
+  signedRequest<TGetActivitiesBody, never, never>({
     uri: "/public/v1/query/list_activities",
     body: input.body,
     options,
@@ -408,19 +390,19 @@ export const federatedPostGetActivities = (
 /**
  * `POST /public/v1/query/list_policies`
  */
-type TPostGetPoliciesBody =
+type TGetPoliciesBody =
   operations["PublicApiService_GetPolicies"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/query/list_policies`
  */
-export type TPostGetPoliciesResponse =
+export type TGetPoliciesResponse =
   operations["PublicApiService_GetPolicies"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/query/list_policies`
  */
-export type TPostGetPoliciesInput = { body: TPostGetPoliciesBody };
+export type TGetPoliciesInput = { body: TGetPoliciesBody };
 
 /**
  * List Policies
@@ -429,23 +411,23 @@ export type TPostGetPoliciesInput = { body: TPostGetPoliciesBody };
  *
  * `POST /public/v1/query/list_policies`
  */
-export const postGetPolicies = (input: TPostGetPoliciesInput) =>
-  request<TPostGetPoliciesResponse, TPostGetPoliciesBody, never, never, never>({
+export const getPolicies = (input: TGetPoliciesInput) =>
+  request<TGetPoliciesResponse, TGetPoliciesBody, never, never, never>({
     uri: "/public/v1/query/list_policies",
     method: "POST",
     body: input.body,
   });
 
 /**
- * List Policies
+ * Request a WebAuthn assertion and return a signed `GetPolicies` request, ready to be POSTed to Turnkey.
  *
- * List all Policies within an Organization
+ * See {@link GetPolicies}
  */
-export const federatedPostGetPolicies = (
-  input: TPostGetPoliciesInput,
+export const signGetPolicies = (
+  input: TGetPoliciesInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostGetPoliciesBody, never, never>({
+  signedRequest<TGetPoliciesBody, never, never>({
     uri: "/public/v1/query/list_policies",
     body: input.body,
     options,
@@ -454,19 +436,19 @@ export const federatedPostGetPolicies = (
 /**
  * `POST /public/v1/query/list_private_keys`
  */
-type TPostGetPrivateKeysBody =
+type TGetPrivateKeysBody =
   operations["PublicApiService_GetPrivateKeys"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/query/list_private_keys`
  */
-export type TPostGetPrivateKeysResponse =
+export type TGetPrivateKeysResponse =
   operations["PublicApiService_GetPrivateKeys"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/query/list_private_keys`
  */
-export type TPostGetPrivateKeysInput = { body: TPostGetPrivateKeysBody };
+export type TGetPrivateKeysInput = { body: TGetPrivateKeysBody };
 
 /**
  * List Private Keys
@@ -475,29 +457,23 @@ export type TPostGetPrivateKeysInput = { body: TPostGetPrivateKeysBody };
  *
  * `POST /public/v1/query/list_private_keys`
  */
-export const postGetPrivateKeys = (input: TPostGetPrivateKeysInput) =>
-  request<
-    TPostGetPrivateKeysResponse,
-    TPostGetPrivateKeysBody,
-    never,
-    never,
-    never
-  >({
+export const getPrivateKeys = (input: TGetPrivateKeysInput) =>
+  request<TGetPrivateKeysResponse, TGetPrivateKeysBody, never, never, never>({
     uri: "/public/v1/query/list_private_keys",
     method: "POST",
     body: input.body,
   });
 
 /**
- * List Private Keys
+ * Request a WebAuthn assertion and return a signed `GetPrivateKeys` request, ready to be POSTed to Turnkey.
  *
- * List all Private Keys within an Organization
+ * See {@link GetPrivateKeys}
  */
-export const federatedPostGetPrivateKeys = (
-  input: TPostGetPrivateKeysInput,
+export const signGetPrivateKeys = (
+  input: TGetPrivateKeysInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostGetPrivateKeysBody, never, never>({
+  signedRequest<TGetPrivateKeysBody, never, never>({
     uri: "/public/v1/query/list_private_keys",
     body: input.body,
     options,
@@ -506,19 +482,19 @@ export const federatedPostGetPrivateKeys = (
 /**
  * `POST /public/v1/query/list_users`
  */
-type TPostGetUsersBody =
+type TGetUsersBody =
   operations["PublicApiService_GetUsers"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/query/list_users`
  */
-export type TPostGetUsersResponse =
+export type TGetUsersResponse =
   operations["PublicApiService_GetUsers"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/query/list_users`
  */
-export type TPostGetUsersInput = { body: TPostGetUsersBody };
+export type TGetUsersInput = { body: TGetUsersBody };
 
 /**
  * List Users
@@ -527,23 +503,23 @@ export type TPostGetUsersInput = { body: TPostGetUsersBody };
  *
  * `POST /public/v1/query/list_users`
  */
-export const postGetUsers = (input: TPostGetUsersInput) =>
-  request<TPostGetUsersResponse, TPostGetUsersBody, never, never, never>({
+export const getUsers = (input: TGetUsersInput) =>
+  request<TGetUsersResponse, TGetUsersBody, never, never, never>({
     uri: "/public/v1/query/list_users",
     method: "POST",
     body: input.body,
   });
 
 /**
- * List Users
+ * Request a WebAuthn assertion and return a signed `GetUsers` request, ready to be POSTed to Turnkey.
  *
- * List all Users within an Organization
+ * See {@link GetUsers}
  */
-export const federatedPostGetUsers = (
-  input: TPostGetUsersInput,
+export const signGetUsers = (
+  input: TGetUsersInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostGetUsersBody, never, never>({
+  signedRequest<TGetUsersBody, never, never>({
     uri: "/public/v1/query/list_users",
     body: input.body,
     options,
@@ -552,19 +528,19 @@ export const federatedPostGetUsers = (
 /**
  * `POST /public/v1/query/whoami`
  */
-type TPostGetWhoamiBody =
+type TGetWhoamiBody =
   operations["PublicApiService_GetWhoami"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/query/whoami`
  */
-export type TPostGetWhoamiResponse =
+export type TGetWhoamiResponse =
   operations["PublicApiService_GetWhoami"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/query/whoami`
  */
-export type TPostGetWhoamiInput = { body: TPostGetWhoamiBody };
+export type TGetWhoamiInput = { body: TGetWhoamiBody };
 
 /**
  * Who am I?
@@ -573,23 +549,23 @@ export type TPostGetWhoamiInput = { body: TPostGetWhoamiBody };
  *
  * `POST /public/v1/query/whoami`
  */
-export const postGetWhoami = (input: TPostGetWhoamiInput) =>
-  request<TPostGetWhoamiResponse, TPostGetWhoamiBody, never, never, never>({
+export const getWhoami = (input: TGetWhoamiInput) =>
+  request<TGetWhoamiResponse, TGetWhoamiBody, never, never, never>({
     uri: "/public/v1/query/whoami",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Who am I?
+ * Request a WebAuthn assertion and return a signed `GetWhoami` request, ready to be POSTed to Turnkey.
  *
- * Get basic information about your current API user and your organization
+ * See {@link GetWhoami}
  */
-export const federatedPostGetWhoami = (
-  input: TPostGetWhoamiInput,
+export const signGetWhoami = (
+  input: TGetWhoamiInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostGetWhoamiBody, never, never>({
+  signedRequest<TGetWhoamiBody, never, never>({
     uri: "/public/v1/query/whoami",
     body: input.body,
     options,
@@ -598,19 +574,19 @@ export const federatedPostGetWhoami = (
 /**
  * `POST /public/v1/submit/approve_activity`
  */
-type TPostApproveActivityBody =
+type TApproveActivityBody =
   operations["PublicApiService_ApproveActivity"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/approve_activity`
  */
-export type TPostApproveActivityResponse =
+export type TApproveActivityResponse =
   operations["PublicApiService_ApproveActivity"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/approve_activity`
  */
-export type TPostApproveActivityInput = { body: TPostApproveActivityBody };
+export type TApproveActivityInput = { body: TApproveActivityBody };
 
 /**
  * Approve Activity
@@ -619,29 +595,23 @@ export type TPostApproveActivityInput = { body: TPostApproveActivityBody };
  *
  * `POST /public/v1/submit/approve_activity`
  */
-export const postApproveActivity = (input: TPostApproveActivityInput) =>
-  request<
-    TPostApproveActivityResponse,
-    TPostApproveActivityBody,
-    never,
-    never,
-    never
-  >({
+export const approveActivity = (input: TApproveActivityInput) =>
+  request<TApproveActivityResponse, TApproveActivityBody, never, never, never>({
     uri: "/public/v1/submit/approve_activity",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Approve Activity
+ * Request a WebAuthn assertion and return a signed `ApproveActivity` request, ready to be POSTed to Turnkey.
  *
- * Approve an Activity
+ * See {@link ApproveActivity}
  */
-export const federatedPostApproveActivity = (
-  input: TPostApproveActivityInput,
+export const signApproveActivity = (
+  input: TApproveActivityInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostApproveActivityBody, never, never>({
+  signedRequest<TApproveActivityBody, never, never>({
     uri: "/public/v1/submit/approve_activity",
     body: input.body,
     options,
@@ -650,19 +620,19 @@ export const federatedPostApproveActivity = (
 /**
  * `POST /public/v1/submit/create_api_keys`
  */
-type TPostCreateApiKeysBody =
+type TCreateApiKeysBody =
   operations["PublicApiService_CreateApiKeys"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/create_api_keys`
  */
-export type TPostCreateApiKeysResponse =
+export type TCreateApiKeysResponse =
   operations["PublicApiService_CreateApiKeys"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/create_api_keys`
  */
-export type TPostCreateApiKeysInput = { body: TPostCreateApiKeysBody };
+export type TCreateApiKeysInput = { body: TCreateApiKeysBody };
 
 /**
  * Create API Keys
@@ -671,29 +641,23 @@ export type TPostCreateApiKeysInput = { body: TPostCreateApiKeysBody };
  *
  * `POST /public/v1/submit/create_api_keys`
  */
-export const postCreateApiKeys = (input: TPostCreateApiKeysInput) =>
-  request<
-    TPostCreateApiKeysResponse,
-    TPostCreateApiKeysBody,
-    never,
-    never,
-    never
-  >({
+export const createApiKeys = (input: TCreateApiKeysInput) =>
+  request<TCreateApiKeysResponse, TCreateApiKeysBody, never, never, never>({
     uri: "/public/v1/submit/create_api_keys",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Create API Keys
+ * Request a WebAuthn assertion and return a signed `CreateApiKeys` request, ready to be POSTed to Turnkey.
  *
- * Add api keys to an existing User
+ * See {@link CreateApiKeys}
  */
-export const federatedPostCreateApiKeys = (
-  input: TPostCreateApiKeysInput,
+export const signCreateApiKeys = (
+  input: TCreateApiKeysInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostCreateApiKeysBody, never, never>({
+  signedRequest<TCreateApiKeysBody, never, never>({
     uri: "/public/v1/submit/create_api_keys",
     body: input.body,
     options,
@@ -702,21 +666,19 @@ export const federatedPostCreateApiKeys = (
 /**
  * `POST /public/v1/submit/create_api_only_users`
  */
-type TPostCreateApiOnlyUsersBody =
+type TCreateApiOnlyUsersBody =
   operations["PublicApiService_CreateApiOnlyUsers"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/create_api_only_users`
  */
-export type TPostCreateApiOnlyUsersResponse =
+export type TCreateApiOnlyUsersResponse =
   operations["PublicApiService_CreateApiOnlyUsers"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/create_api_only_users`
  */
-export type TPostCreateApiOnlyUsersInput = {
-  body: TPostCreateApiOnlyUsersBody;
-};
+export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
 
 /**
  * Create API-only Users
@@ -725,10 +687,10 @@ export type TPostCreateApiOnlyUsersInput = {
  *
  * `POST /public/v1/submit/create_api_only_users`
  */
-export const postCreateApiOnlyUsers = (input: TPostCreateApiOnlyUsersInput) =>
+export const createApiOnlyUsers = (input: TCreateApiOnlyUsersInput) =>
   request<
-    TPostCreateApiOnlyUsersResponse,
-    TPostCreateApiOnlyUsersBody,
+    TCreateApiOnlyUsersResponse,
+    TCreateApiOnlyUsersBody,
     never,
     never,
     never
@@ -739,15 +701,15 @@ export const postCreateApiOnlyUsers = (input: TPostCreateApiOnlyUsersInput) =>
   });
 
 /**
- * Create API-only Users
+ * Request a WebAuthn assertion and return a signed `CreateApiOnlyUsers` request, ready to be POSTed to Turnkey.
  *
- * Create API-only Users in an existing Organization
+ * See {@link CreateApiOnlyUsers}
  */
-export const federatedPostCreateApiOnlyUsers = (
-  input: TPostCreateApiOnlyUsersInput,
+export const signCreateApiOnlyUsers = (
+  input: TCreateApiOnlyUsersInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostCreateApiOnlyUsersBody, never, never>({
+  signedRequest<TCreateApiOnlyUsersBody, never, never>({
     uri: "/public/v1/submit/create_api_only_users",
     body: input.body,
     options,
@@ -756,21 +718,19 @@ export const federatedPostCreateApiOnlyUsers = (
 /**
  * `POST /public/v1/submit/create_authenticators`
  */
-type TPostCreateAuthenticatorsBody =
+type TCreateAuthenticatorsBody =
   operations["PublicApiService_CreateAuthenticators"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/create_authenticators`
  */
-export type TPostCreateAuthenticatorsResponse =
+export type TCreateAuthenticatorsResponse =
   operations["PublicApiService_CreateAuthenticators"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/create_authenticators`
  */
-export type TPostCreateAuthenticatorsInput = {
-  body: TPostCreateAuthenticatorsBody;
-};
+export type TCreateAuthenticatorsInput = { body: TCreateAuthenticatorsBody };
 
 /**
  * Create Authenticators
@@ -779,12 +739,10 @@ export type TPostCreateAuthenticatorsInput = {
  *
  * `POST /public/v1/submit/create_authenticators`
  */
-export const postCreateAuthenticators = (
-  input: TPostCreateAuthenticatorsInput
-) =>
+export const createAuthenticators = (input: TCreateAuthenticatorsInput) =>
   request<
-    TPostCreateAuthenticatorsResponse,
-    TPostCreateAuthenticatorsBody,
+    TCreateAuthenticatorsResponse,
+    TCreateAuthenticatorsBody,
     never,
     never,
     never
@@ -795,15 +753,15 @@ export const postCreateAuthenticators = (
   });
 
 /**
- * Create Authenticators
+ * Request a WebAuthn assertion and return a signed `CreateAuthenticators` request, ready to be POSTed to Turnkey.
  *
- * Create Authenticators to authenticate requests to Turnkey
+ * See {@link CreateAuthenticators}
  */
-export const federatedPostCreateAuthenticators = (
-  input: TPostCreateAuthenticatorsInput,
+export const signCreateAuthenticators = (
+  input: TCreateAuthenticatorsInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostCreateAuthenticatorsBody, never, never>({
+  signedRequest<TCreateAuthenticatorsBody, never, never>({
     uri: "/public/v1/submit/create_authenticators",
     body: input.body,
     options,
@@ -812,19 +770,19 @@ export const federatedPostCreateAuthenticators = (
 /**
  * `POST /public/v1/submit/create_invitations`
  */
-type TPostCreateInvitationsBody =
+type TCreateInvitationsBody =
   operations["PublicApiService_CreateInvitations"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/create_invitations`
  */
-export type TPostCreateInvitationsResponse =
+export type TCreateInvitationsResponse =
   operations["PublicApiService_CreateInvitations"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/create_invitations`
  */
-export type TPostCreateInvitationsInput = { body: TPostCreateInvitationsBody };
+export type TCreateInvitationsInput = { body: TCreateInvitationsBody };
 
 /**
  * Create Invitations
@@ -833,10 +791,10 @@ export type TPostCreateInvitationsInput = { body: TPostCreateInvitationsBody };
  *
  * `POST /public/v1/submit/create_invitations`
  */
-export const postCreateInvitations = (input: TPostCreateInvitationsInput) =>
+export const createInvitations = (input: TCreateInvitationsInput) =>
   request<
-    TPostCreateInvitationsResponse,
-    TPostCreateInvitationsBody,
+    TCreateInvitationsResponse,
+    TCreateInvitationsBody,
     never,
     never,
     never
@@ -847,15 +805,15 @@ export const postCreateInvitations = (input: TPostCreateInvitationsInput) =>
   });
 
 /**
- * Create Invitations
+ * Request a WebAuthn assertion and return a signed `CreateInvitations` request, ready to be POSTed to Turnkey.
  *
- * Create Invitations to join an existing Organization
+ * See {@link CreateInvitations}
  */
-export const federatedPostCreateInvitations = (
-  input: TPostCreateInvitationsInput,
+export const signCreateInvitations = (
+  input: TCreateInvitationsInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostCreateInvitationsBody, never, never>({
+  signedRequest<TCreateInvitationsBody, never, never>({
     uri: "/public/v1/submit/create_invitations",
     body: input.body,
     options,
@@ -864,19 +822,19 @@ export const federatedPostCreateInvitations = (
 /**
  * `POST /public/v1/submit/create_policy`
  */
-type TPostCreatePolicyBody =
+type TCreatePolicyBody =
   operations["PublicApiService_CreatePolicy"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/create_policy`
  */
-export type TPostCreatePolicyResponse =
+export type TCreatePolicyResponse =
   operations["PublicApiService_CreatePolicy"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/create_policy`
  */
-export type TPostCreatePolicyInput = { body: TPostCreatePolicyBody };
+export type TCreatePolicyInput = { body: TCreatePolicyBody };
 
 /**
  * Create Policy
@@ -885,29 +843,23 @@ export type TPostCreatePolicyInput = { body: TPostCreatePolicyBody };
  *
  * `POST /public/v1/submit/create_policy`
  */
-export const postCreatePolicy = (input: TPostCreatePolicyInput) =>
-  request<
-    TPostCreatePolicyResponse,
-    TPostCreatePolicyBody,
-    never,
-    never,
-    never
-  >({
+export const createPolicy = (input: TCreatePolicyInput) =>
+  request<TCreatePolicyResponse, TCreatePolicyBody, never, never, never>({
     uri: "/public/v1/submit/create_policy",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Create Policy
+ * Request a WebAuthn assertion and return a signed `CreatePolicy` request, ready to be POSTed to Turnkey.
  *
- * Create a new Policy
+ * See {@link CreatePolicy}
  */
-export const federatedPostCreatePolicy = (
-  input: TPostCreatePolicyInput,
+export const signCreatePolicy = (
+  input: TCreatePolicyInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostCreatePolicyBody, never, never>({
+  signedRequest<TCreatePolicyBody, never, never>({
     uri: "/public/v1/submit/create_policy",
     body: input.body,
     options,
@@ -916,21 +868,19 @@ export const federatedPostCreatePolicy = (
 /**
  * `POST /public/v1/submit/create_private_key_tag`
  */
-type TPostCreatePrivateKeyTagBody =
+type TCreatePrivateKeyTagBody =
   operations["PublicApiService_CreatePrivateKeyTag"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/create_private_key_tag`
  */
-export type TPostCreatePrivateKeyTagResponse =
+export type TCreatePrivateKeyTagResponse =
   operations["PublicApiService_CreatePrivateKeyTag"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/create_private_key_tag`
  */
-export type TPostCreatePrivateKeyTagInput = {
-  body: TPostCreatePrivateKeyTagBody;
-};
+export type TCreatePrivateKeyTagInput = { body: TCreatePrivateKeyTagBody };
 
 /**
  * Create User Tag
@@ -939,10 +889,10 @@ export type TPostCreatePrivateKeyTagInput = {
  *
  * `POST /public/v1/submit/create_private_key_tag`
  */
-export const postCreatePrivateKeyTag = (input: TPostCreatePrivateKeyTagInput) =>
+export const createPrivateKeyTag = (input: TCreatePrivateKeyTagInput) =>
   request<
-    TPostCreatePrivateKeyTagResponse,
-    TPostCreatePrivateKeyTagBody,
+    TCreatePrivateKeyTagResponse,
+    TCreatePrivateKeyTagBody,
     never,
     never,
     never
@@ -953,15 +903,15 @@ export const postCreatePrivateKeyTag = (input: TPostCreatePrivateKeyTagInput) =>
   });
 
 /**
- * Create User Tag
+ * Request a WebAuthn assertion and return a signed `CreatePrivateKeyTag` request, ready to be POSTed to Turnkey.
  *
- * Create a private key tag and add it to private keys.
+ * See {@link CreatePrivateKeyTag}
  */
-export const federatedPostCreatePrivateKeyTag = (
-  input: TPostCreatePrivateKeyTagInput,
+export const signCreatePrivateKeyTag = (
+  input: TCreatePrivateKeyTagInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostCreatePrivateKeyTagBody, never, never>({
+  signedRequest<TCreatePrivateKeyTagBody, never, never>({
     uri: "/public/v1/submit/create_private_key_tag",
     body: input.body,
     options,
@@ -970,19 +920,19 @@ export const federatedPostCreatePrivateKeyTag = (
 /**
  * `POST /public/v1/submit/create_private_keys`
  */
-type TPostCreatePrivateKeysBody =
+type TCreatePrivateKeysBody =
   operations["PublicApiService_CreatePrivateKeys"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/create_private_keys`
  */
-export type TPostCreatePrivateKeysResponse =
+export type TCreatePrivateKeysResponse =
   operations["PublicApiService_CreatePrivateKeys"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/create_private_keys`
  */
-export type TPostCreatePrivateKeysInput = { body: TPostCreatePrivateKeysBody };
+export type TCreatePrivateKeysInput = { body: TCreatePrivateKeysBody };
 
 /**
  * Create Private Keys
@@ -991,10 +941,10 @@ export type TPostCreatePrivateKeysInput = { body: TPostCreatePrivateKeysBody };
  *
  * `POST /public/v1/submit/create_private_keys`
  */
-export const postCreatePrivateKeys = (input: TPostCreatePrivateKeysInput) =>
+export const createPrivateKeys = (input: TCreatePrivateKeysInput) =>
   request<
-    TPostCreatePrivateKeysResponse,
-    TPostCreatePrivateKeysBody,
+    TCreatePrivateKeysResponse,
+    TCreatePrivateKeysBody,
     never,
     never,
     never
@@ -1005,15 +955,15 @@ export const postCreatePrivateKeys = (input: TPostCreatePrivateKeysInput) =>
   });
 
 /**
- * Create Private Keys
+ * Request a WebAuthn assertion and return a signed `CreatePrivateKeys` request, ready to be POSTed to Turnkey.
  *
- * Create new Private Keys
+ * See {@link CreatePrivateKeys}
  */
-export const federatedPostCreatePrivateKeys = (
-  input: TPostCreatePrivateKeysInput,
+export const signCreatePrivateKeys = (
+  input: TCreatePrivateKeysInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostCreatePrivateKeysBody, never, never>({
+  signedRequest<TCreatePrivateKeysBody, never, never>({
     uri: "/public/v1/submit/create_private_keys",
     body: input.body,
     options,
@@ -1022,21 +972,19 @@ export const federatedPostCreatePrivateKeys = (
 /**
  * `POST /public/v1/submit/create_sub_organization`
  */
-type TPostCreateSubOrganizationBody =
+type TCreateSubOrganizationBody =
   operations["PublicApiService_CreateSubOrganization"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/create_sub_organization`
  */
-export type TPostCreateSubOrganizationResponse =
+export type TCreateSubOrganizationResponse =
   operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/create_sub_organization`
  */
-export type TPostCreateSubOrganizationInput = {
-  body: TPostCreateSubOrganizationBody;
-};
+export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
 
 /**
  * Create Sub-Organization
@@ -1045,12 +993,10 @@ export type TPostCreateSubOrganizationInput = {
  *
  * `POST /public/v1/submit/create_sub_organization`
  */
-export const postCreateSubOrganization = (
-  input: TPostCreateSubOrganizationInput
-) =>
+export const createSubOrganization = (input: TCreateSubOrganizationInput) =>
   request<
-    TPostCreateSubOrganizationResponse,
-    TPostCreateSubOrganizationBody,
+    TCreateSubOrganizationResponse,
+    TCreateSubOrganizationBody,
     never,
     never,
     never
@@ -1061,15 +1007,15 @@ export const postCreateSubOrganization = (
   });
 
 /**
- * Create Sub-Organization
+ * Request a WebAuthn assertion and return a signed `CreateSubOrganization` request, ready to be POSTed to Turnkey.
  *
- * Create a new Sub-Organization
+ * See {@link CreateSubOrganization}
  */
-export const federatedPostCreateSubOrganization = (
-  input: TPostCreateSubOrganizationInput,
+export const signCreateSubOrganization = (
+  input: TCreateSubOrganizationInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostCreateSubOrganizationBody, never, never>({
+  signedRequest<TCreateSubOrganizationBody, never, never>({
     uri: "/public/v1/submit/create_sub_organization",
     body: input.body,
     options,
@@ -1078,19 +1024,19 @@ export const federatedPostCreateSubOrganization = (
 /**
  * `POST /public/v1/submit/create_user_tag`
  */
-type TPostCreateUserTagBody =
+type TCreateUserTagBody =
   operations["PublicApiService_CreateUserTag"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/create_user_tag`
  */
-export type TPostCreateUserTagResponse =
+export type TCreateUserTagResponse =
   operations["PublicApiService_CreateUserTag"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/create_user_tag`
  */
-export type TPostCreateUserTagInput = { body: TPostCreateUserTagBody };
+export type TCreateUserTagInput = { body: TCreateUserTagBody };
 
 /**
  * Create User Tag
@@ -1099,29 +1045,23 @@ export type TPostCreateUserTagInput = { body: TPostCreateUserTagBody };
  *
  * `POST /public/v1/submit/create_user_tag`
  */
-export const postCreateUserTag = (input: TPostCreateUserTagInput) =>
-  request<
-    TPostCreateUserTagResponse,
-    TPostCreateUserTagBody,
-    never,
-    never,
-    never
-  >({
+export const createUserTag = (input: TCreateUserTagInput) =>
+  request<TCreateUserTagResponse, TCreateUserTagBody, never, never, never>({
     uri: "/public/v1/submit/create_user_tag",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Create User Tag
+ * Request a WebAuthn assertion and return a signed `CreateUserTag` request, ready to be POSTed to Turnkey.
  *
- * Create a user tag and add it to users.
+ * See {@link CreateUserTag}
  */
-export const federatedPostCreateUserTag = (
-  input: TPostCreateUserTagInput,
+export const signCreateUserTag = (
+  input: TCreateUserTagInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostCreateUserTagBody, never, never>({
+  signedRequest<TCreateUserTagBody, never, never>({
     uri: "/public/v1/submit/create_user_tag",
     body: input.body,
     options,
@@ -1132,7 +1072,7 @@ export const federatedPostCreateUserTag = (
  *
  * @deprecated
  */
-type TPostCreateUsersBody =
+type TCreateUsersBody =
   operations["PublicApiService_CreateUsers"]["parameters"]["body"]["body"];
 
 /**
@@ -1140,7 +1080,7 @@ type TPostCreateUsersBody =
  *
  * @deprecated
  */
-export type TPostCreateUsersResponse =
+export type TCreateUsersResponse =
   operations["PublicApiService_CreateUsers"]["responses"]["200"]["schema"];
 
 /**
@@ -1148,7 +1088,7 @@ export type TPostCreateUsersResponse =
  *
  * @deprecated
  */
-export type TPostCreateUsersInput = { body: TPostCreateUsersBody };
+export type TCreateUsersInput = { body: TCreateUsersBody };
 
 /**
  * Create Users
@@ -1159,25 +1099,25 @@ export type TPostCreateUsersInput = { body: TPostCreateUsersBody };
  *
  * @deprecated
  */
-export const postCreateUsers = (input: TPostCreateUsersInput) =>
-  request<TPostCreateUsersResponse, TPostCreateUsersBody, never, never, never>({
+export const createUsers = (input: TCreateUsersInput) =>
+  request<TCreateUsersResponse, TCreateUsersBody, never, never, never>({
     uri: "/public/v1/submit/create_users",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Create Users
+ * Request a WebAuthn assertion and return a signed `CreateUsers` request, ready to be POSTed to Turnkey.
  *
- * Create Users in an existing Organization
+ * See {@link CreateUsers}
  *
  * @deprecated
  */
-export const federatedPostCreateUsers = (
-  input: TPostCreateUsersInput,
+export const signCreateUsers = (
+  input: TCreateUsersInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostCreateUsersBody, never, never>({
+  signedRequest<TCreateUsersBody, never, never>({
     uri: "/public/v1/submit/create_users",
     body: input.body,
     options,
@@ -1186,19 +1126,19 @@ export const federatedPostCreateUsers = (
 /**
  * `POST /public/v1/submit/delete_api_keys`
  */
-type TPostDeleteApiKeysBody =
+type TDeleteApiKeysBody =
   operations["PublicApiService_DeleteApiKeys"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/delete_api_keys`
  */
-export type TPostDeleteApiKeysResponse =
+export type TDeleteApiKeysResponse =
   operations["PublicApiService_DeleteApiKeys"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/delete_api_keys`
  */
-export type TPostDeleteApiKeysInput = { body: TPostDeleteApiKeysBody };
+export type TDeleteApiKeysInput = { body: TDeleteApiKeysBody };
 
 /**
  * Delete API Keys
@@ -1207,29 +1147,23 @@ export type TPostDeleteApiKeysInput = { body: TPostDeleteApiKeysBody };
  *
  * `POST /public/v1/submit/delete_api_keys`
  */
-export const postDeleteApiKeys = (input: TPostDeleteApiKeysInput) =>
-  request<
-    TPostDeleteApiKeysResponse,
-    TPostDeleteApiKeysBody,
-    never,
-    never,
-    never
-  >({
+export const deleteApiKeys = (input: TDeleteApiKeysInput) =>
+  request<TDeleteApiKeysResponse, TDeleteApiKeysBody, never, never, never>({
     uri: "/public/v1/submit/delete_api_keys",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Delete API Keys
+ * Request a WebAuthn assertion and return a signed `DeleteApiKeys` request, ready to be POSTed to Turnkey.
  *
- * Remove api keys from a User
+ * See {@link DeleteApiKeys}
  */
-export const federatedPostDeleteApiKeys = (
-  input: TPostDeleteApiKeysInput,
+export const signDeleteApiKeys = (
+  input: TDeleteApiKeysInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostDeleteApiKeysBody, never, never>({
+  signedRequest<TDeleteApiKeysBody, never, never>({
     uri: "/public/v1/submit/delete_api_keys",
     body: input.body,
     options,
@@ -1238,19 +1172,19 @@ export const federatedPostDeleteApiKeys = (
 /**
  * `POST /public/v1/submit/delete_invitations`
  */
-type TPostDeleteInvitationBody =
+type TDeleteInvitationBody =
   operations["PublicApiService_DeleteInvitation"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/delete_invitations`
  */
-export type TPostDeleteInvitationResponse =
+export type TDeleteInvitationResponse =
   operations["PublicApiService_DeleteInvitation"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/delete_invitations`
  */
-export type TPostDeleteInvitationInput = { body: TPostDeleteInvitationBody };
+export type TDeleteInvitationInput = { body: TDeleteInvitationBody };
 
 /**
  * Delete Invitation
@@ -1259,10 +1193,10 @@ export type TPostDeleteInvitationInput = { body: TPostDeleteInvitationBody };
  *
  * `POST /public/v1/submit/delete_invitations`
  */
-export const postDeleteInvitation = (input: TPostDeleteInvitationInput) =>
+export const deleteInvitation = (input: TDeleteInvitationInput) =>
   request<
-    TPostDeleteInvitationResponse,
-    TPostDeleteInvitationBody,
+    TDeleteInvitationResponse,
+    TDeleteInvitationBody,
     never,
     never,
     never
@@ -1273,15 +1207,15 @@ export const postDeleteInvitation = (input: TPostDeleteInvitationInput) =>
   });
 
 /**
- * Delete Invitation
+ * Request a WebAuthn assertion and return a signed `DeleteInvitation` request, ready to be POSTed to Turnkey.
  *
- * Delete an existing Invitation
+ * See {@link DeleteInvitation}
  */
-export const federatedPostDeleteInvitation = (
-  input: TPostDeleteInvitationInput,
+export const signDeleteInvitation = (
+  input: TDeleteInvitationInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostDeleteInvitationBody, never, never>({
+  signedRequest<TDeleteInvitationBody, never, never>({
     uri: "/public/v1/submit/delete_invitations",
     body: input.body,
     options,
@@ -1290,19 +1224,19 @@ export const federatedPostDeleteInvitation = (
 /**
  * `POST /public/v1/submit/delete_policy`
  */
-type TPostDeletePolicyBody =
+type TDeletePolicyBody =
   operations["PublicApiService_DeletePolicy"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/delete_policy`
  */
-export type TPostDeletePolicyResponse =
+export type TDeletePolicyResponse =
   operations["PublicApiService_DeletePolicy"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/delete_policy`
  */
-export type TPostDeletePolicyInput = { body: TPostDeletePolicyBody };
+export type TDeletePolicyInput = { body: TDeletePolicyBody };
 
 /**
  * Delete Policy
@@ -1311,29 +1245,23 @@ export type TPostDeletePolicyInput = { body: TPostDeletePolicyBody };
  *
  * `POST /public/v1/submit/delete_policy`
  */
-export const postDeletePolicy = (input: TPostDeletePolicyInput) =>
-  request<
-    TPostDeletePolicyResponse,
-    TPostDeletePolicyBody,
-    never,
-    never,
-    never
-  >({
+export const deletePolicy = (input: TDeletePolicyInput) =>
+  request<TDeletePolicyResponse, TDeletePolicyBody, never, never, never>({
     uri: "/public/v1/submit/delete_policy",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Delete Policy
+ * Request a WebAuthn assertion and return a signed `DeletePolicy` request, ready to be POSTed to Turnkey.
  *
- * Delete an existing Policy
+ * See {@link DeletePolicy}
  */
-export const federatedPostDeletePolicy = (
-  input: TPostDeletePolicyInput,
+export const signDeletePolicy = (
+  input: TDeletePolicyInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostDeletePolicyBody, never, never>({
+  signedRequest<TDeletePolicyBody, never, never>({
     uri: "/public/v1/submit/delete_policy",
     body: input.body,
     options,
@@ -1342,19 +1270,19 @@ export const federatedPostDeletePolicy = (
 /**
  * `POST /public/v1/submit/reject_activity`
  */
-type TPostRejectActivityBody =
+type TRejectActivityBody =
   operations["PublicApiService_RejectActivity"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/reject_activity`
  */
-export type TPostRejectActivityResponse =
+export type TRejectActivityResponse =
   operations["PublicApiService_RejectActivity"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/reject_activity`
  */
-export type TPostRejectActivityInput = { body: TPostRejectActivityBody };
+export type TRejectActivityInput = { body: TRejectActivityBody };
 
 /**
  * Reject Activity
@@ -1363,29 +1291,23 @@ export type TPostRejectActivityInput = { body: TPostRejectActivityBody };
  *
  * `POST /public/v1/submit/reject_activity`
  */
-export const postRejectActivity = (input: TPostRejectActivityInput) =>
-  request<
-    TPostRejectActivityResponse,
-    TPostRejectActivityBody,
-    never,
-    never,
-    never
-  >({
+export const rejectActivity = (input: TRejectActivityInput) =>
+  request<TRejectActivityResponse, TRejectActivityBody, never, never, never>({
     uri: "/public/v1/submit/reject_activity",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Reject Activity
+ * Request a WebAuthn assertion and return a signed `RejectActivity` request, ready to be POSTed to Turnkey.
  *
- * Reject an Activity
+ * See {@link RejectActivity}
  */
-export const federatedPostRejectActivity = (
-  input: TPostRejectActivityInput,
+export const signRejectActivity = (
+  input: TRejectActivityInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostRejectActivityBody, never, never>({
+  signedRequest<TRejectActivityBody, never, never>({
     uri: "/public/v1/submit/reject_activity",
     body: input.body,
     options,
@@ -1394,19 +1316,19 @@ export const federatedPostRejectActivity = (
 /**
  * `POST /public/v1/submit/sign_raw_payload`
  */
-type TPostSignRawPayloadBody =
+type TSignRawPayloadBody =
   operations["PublicApiService_SignRawPayload"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/sign_raw_payload`
  */
-export type TPostSignRawPayloadResponse =
+export type TSignRawPayloadResponse =
   operations["PublicApiService_SignRawPayload"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/sign_raw_payload`
  */
-export type TPostSignRawPayloadInput = { body: TPostSignRawPayloadBody };
+export type TSignRawPayloadInput = { body: TSignRawPayloadBody };
 
 /**
  * Sign Raw Payload
@@ -1415,29 +1337,23 @@ export type TPostSignRawPayloadInput = { body: TPostSignRawPayloadBody };
  *
  * `POST /public/v1/submit/sign_raw_payload`
  */
-export const postSignRawPayload = (input: TPostSignRawPayloadInput) =>
-  request<
-    TPostSignRawPayloadResponse,
-    TPostSignRawPayloadBody,
-    never,
-    never,
-    never
-  >({
+export const signRawPayload = (input: TSignRawPayloadInput) =>
+  request<TSignRawPayloadResponse, TSignRawPayloadBody, never, never, never>({
     uri: "/public/v1/submit/sign_raw_payload",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Sign Raw Payload
+ * Request a WebAuthn assertion and return a signed `SignRawPayload` request, ready to be POSTed to Turnkey.
  *
- * Sign a raw payload with a Private Key
+ * See {@link SignRawPayload}
  */
-export const federatedPostSignRawPayload = (
-  input: TPostSignRawPayloadInput,
+export const signSignRawPayload = (
+  input: TSignRawPayloadInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostSignRawPayloadBody, never, never>({
+  signedRequest<TSignRawPayloadBody, never, never>({
     uri: "/public/v1/submit/sign_raw_payload",
     body: input.body,
     options,
@@ -1446,19 +1362,19 @@ export const federatedPostSignRawPayload = (
 /**
  * `POST /public/v1/submit/sign_transaction`
  */
-type TPostSignTransactionBody =
+type TSignTransactionBody =
   operations["PublicApiService_SignTransaction"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/sign_transaction`
  */
-export type TPostSignTransactionResponse =
+export type TSignTransactionResponse =
   operations["PublicApiService_SignTransaction"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/sign_transaction`
  */
-export type TPostSignTransactionInput = { body: TPostSignTransactionBody };
+export type TSignTransactionInput = { body: TSignTransactionBody };
 
 /**
  * Sign Transaction
@@ -1467,29 +1383,23 @@ export type TPostSignTransactionInput = { body: TPostSignTransactionBody };
  *
  * `POST /public/v1/submit/sign_transaction`
  */
-export const postSignTransaction = (input: TPostSignTransactionInput) =>
-  request<
-    TPostSignTransactionResponse,
-    TPostSignTransactionBody,
-    never,
-    never,
-    never
-  >({
+export const signTransaction = (input: TSignTransactionInput) =>
+  request<TSignTransactionResponse, TSignTransactionBody, never, never, never>({
     uri: "/public/v1/submit/sign_transaction",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Sign Transaction
+ * Request a WebAuthn assertion and return a signed `SignTransaction` request, ready to be POSTed to Turnkey.
  *
- * Sign a transaction with a Private Key
+ * See {@link SignTransaction}
  */
-export const federatedPostSignTransaction = (
-  input: TPostSignTransactionInput,
+export const signSignTransaction = (
+  input: TSignTransactionInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostSignTransactionBody, never, never>({
+  signedRequest<TSignTransactionBody, never, never>({
     uri: "/public/v1/submit/sign_transaction",
     body: input.body,
     options,
@@ -1498,21 +1408,19 @@ export const federatedPostSignTransaction = (
 /**
  * `POST /public/v1/submit/update_allowed_origins`
  */
-type TPostUpdateAllowedOriginsBody =
+type TUpdateAllowedOriginsBody =
   operations["PublicApiService_UpdateAllowedOrigins"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/update_allowed_origins`
  */
-export type TPostUpdateAllowedOriginsResponse =
+export type TUpdateAllowedOriginsResponse =
   operations["PublicApiService_UpdateAllowedOrigins"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/update_allowed_origins`
  */
-export type TPostUpdateAllowedOriginsInput = {
-  body: TPostUpdateAllowedOriginsBody;
-};
+export type TUpdateAllowedOriginsInput = { body: TUpdateAllowedOriginsBody };
 
 /**
  * Update the allowable origins
@@ -1521,12 +1429,10 @@ export type TPostUpdateAllowedOriginsInput = {
  *
  * `POST /public/v1/submit/update_allowed_origins`
  */
-export const postUpdateAllowedOrigins = (
-  input: TPostUpdateAllowedOriginsInput
-) =>
+export const updateAllowedOrigins = (input: TUpdateAllowedOriginsInput) =>
   request<
-    TPostUpdateAllowedOriginsResponse,
-    TPostUpdateAllowedOriginsBody,
+    TUpdateAllowedOriginsResponse,
+    TUpdateAllowedOriginsBody,
     never,
     never,
     never
@@ -1537,15 +1443,15 @@ export const postUpdateAllowedOrigins = (
   });
 
 /**
- * Update the allowable origins
+ * Request a WebAuthn assertion and return a signed `UpdateAllowedOrigins` request, ready to be POSTed to Turnkey.
  *
- * Update the additional allowable origins for requests besides Turnkey origins
+ * See {@link UpdateAllowedOrigins}
  */
-export const federatedPostUpdateAllowedOrigins = (
-  input: TPostUpdateAllowedOriginsInput,
+export const signUpdateAllowedOrigins = (
+  input: TUpdateAllowedOriginsInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostUpdateAllowedOriginsBody, never, never>({
+  signedRequest<TUpdateAllowedOriginsBody, never, never>({
     uri: "/public/v1/submit/update_allowed_origins",
     body: input.body,
     options,
@@ -1554,21 +1460,19 @@ export const federatedPostUpdateAllowedOrigins = (
 /**
  * `POST /public/v1/submit/update_private_key_tag`
  */
-type TPostUpdatePrivateKeyTagBody =
+type TUpdatePrivateKeyTagBody =
   operations["PublicApiService_UpdatePrivateKeyTag"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/update_private_key_tag`
  */
-export type TPostUpdatePrivateKeyTagResponse =
+export type TUpdatePrivateKeyTagResponse =
   operations["PublicApiService_UpdatePrivateKeyTag"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/update_private_key_tag`
  */
-export type TPostUpdatePrivateKeyTagInput = {
-  body: TPostUpdatePrivateKeyTagBody;
-};
+export type TUpdatePrivateKeyTagInput = { body: TUpdatePrivateKeyTagBody };
 
 /**
  * Update Private Key Tag
@@ -1577,10 +1481,10 @@ export type TPostUpdatePrivateKeyTagInput = {
  *
  * `POST /public/v1/submit/update_private_key_tag`
  */
-export const postUpdatePrivateKeyTag = (input: TPostUpdatePrivateKeyTagInput) =>
+export const updatePrivateKeyTag = (input: TUpdatePrivateKeyTagInput) =>
   request<
-    TPostUpdatePrivateKeyTagResponse,
-    TPostUpdatePrivateKeyTagBody,
+    TUpdatePrivateKeyTagResponse,
+    TUpdatePrivateKeyTagBody,
     never,
     never,
     never
@@ -1591,15 +1495,15 @@ export const postUpdatePrivateKeyTag = (input: TPostUpdatePrivateKeyTagInput) =>
   });
 
 /**
- * Update Private Key Tag
+ * Request a WebAuthn assertion and return a signed `UpdatePrivateKeyTag` request, ready to be POSTed to Turnkey.
  *
- * Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.
+ * See {@link UpdatePrivateKeyTag}
  */
-export const federatedPostUpdatePrivateKeyTag = (
-  input: TPostUpdatePrivateKeyTagInput,
+export const signUpdatePrivateKeyTag = (
+  input: TUpdatePrivateKeyTagInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostUpdatePrivateKeyTagBody, never, never>({
+  signedRequest<TUpdatePrivateKeyTagBody, never, never>({
     uri: "/public/v1/submit/update_private_key_tag",
     body: input.body,
     options,
@@ -1608,19 +1512,19 @@ export const federatedPostUpdatePrivateKeyTag = (
 /**
  * `POST /public/v1/submit/update_root_quorum`
  */
-type TPostUpdateRootQuorumBody =
+type TUpdateRootQuorumBody =
   operations["PublicApiService_UpdateRootQuorum"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/update_root_quorum`
  */
-export type TPostUpdateRootQuorumResponse =
+export type TUpdateRootQuorumResponse =
   operations["PublicApiService_UpdateRootQuorum"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/update_root_quorum`
  */
-export type TPostUpdateRootQuorumInput = { body: TPostUpdateRootQuorumBody };
+export type TUpdateRootQuorumInput = { body: TUpdateRootQuorumBody };
 
 /**
  * Set the root quorum
@@ -1629,10 +1533,10 @@ export type TPostUpdateRootQuorumInput = { body: TPostUpdateRootQuorumBody };
  *
  * `POST /public/v1/submit/update_root_quorum`
  */
-export const postUpdateRootQuorum = (input: TPostUpdateRootQuorumInput) =>
+export const updateRootQuorum = (input: TUpdateRootQuorumInput) =>
   request<
-    TPostUpdateRootQuorumResponse,
-    TPostUpdateRootQuorumBody,
+    TUpdateRootQuorumResponse,
+    TUpdateRootQuorumBody,
     never,
     never,
     never
@@ -1643,15 +1547,15 @@ export const postUpdateRootQuorum = (input: TPostUpdateRootQuorumInput) =>
   });
 
 /**
- * Set the root quorum
+ * Request a WebAuthn assertion and return a signed `UpdateRootQuorum` request, ready to be POSTed to Turnkey.
  *
- * Set the threshold and members of the root quorum. This must be approved by the current root quorum.
+ * See {@link UpdateRootQuorum}
  */
-export const federatedPostUpdateRootQuorum = (
-  input: TPostUpdateRootQuorumInput,
+export const signUpdateRootQuorum = (
+  input: TUpdateRootQuorumInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostUpdateRootQuorumBody, never, never>({
+  signedRequest<TUpdateRootQuorumBody, never, never>({
     uri: "/public/v1/submit/update_root_quorum",
     body: input.body,
     options,
@@ -1660,19 +1564,19 @@ export const federatedPostUpdateRootQuorum = (
 /**
  * `POST /public/v1/submit/update_user_tag`
  */
-type TPostUpdateUserTagBody =
+type TUpdateUserTagBody =
   operations["PublicApiService_UpdateUserTag"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/update_user_tag`
  */
-export type TPostUpdateUserTagResponse =
+export type TUpdateUserTagResponse =
   operations["PublicApiService_UpdateUserTag"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/update_user_tag`
  */
-export type TPostUpdateUserTagInput = { body: TPostUpdateUserTagBody };
+export type TUpdateUserTagInput = { body: TUpdateUserTagBody };
 
 /**
  * Update User Tag
@@ -1681,29 +1585,23 @@ export type TPostUpdateUserTagInput = { body: TPostUpdateUserTagBody };
  *
  * `POST /public/v1/submit/update_user_tag`
  */
-export const postUpdateUserTag = (input: TPostUpdateUserTagInput) =>
-  request<
-    TPostUpdateUserTagResponse,
-    TPostUpdateUserTagBody,
-    never,
-    never,
-    never
-  >({
+export const updateUserTag = (input: TUpdateUserTagInput) =>
+  request<TUpdateUserTagResponse, TUpdateUserTagBody, never, never, never>({
     uri: "/public/v1/submit/update_user_tag",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Update User Tag
+ * Request a WebAuthn assertion and return a signed `UpdateUserTag` request, ready to be POSTed to Turnkey.
  *
- * Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.
+ * See {@link UpdateUserTag}
  */
-export const federatedPostUpdateUserTag = (
-  input: TPostUpdateUserTagInput,
+export const signUpdateUserTag = (
+  input: TUpdateUserTagInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostUpdateUserTagBody, never, never>({
+  signedRequest<TUpdateUserTagBody, never, never>({
     uri: "/public/v1/submit/update_user_tag",
     body: input.body,
     options,
@@ -1712,7 +1610,7 @@ export const federatedPostUpdateUserTag = (
 /**
  * `POST /tkhq/api/v1/noop-codegen-anchor`
  */
-export type TPostNOOPCodegenAnchorResponse =
+export type TNOOPCodegenAnchorResponse =
   operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];
 
 /**
@@ -1722,19 +1620,19 @@ that are not directly referenced in requests.
  *
  * `POST /tkhq/api/v1/noop-codegen-anchor`
  */
-export const postNOOPCodegenAnchor = () =>
-  request<TPostNOOPCodegenAnchorResponse, never, never, never, never>({
+export const nOOPCodegenAnchor = () =>
+  request<TNOOPCodegenAnchorResponse, never, never, never, never>({
     uri: "/tkhq/api/v1/noop-codegen-anchor",
     method: "POST",
   });
 
 /**
- * This route does nothing and does not need an implementation, but please don't remove it.
-It's used at compile time for generating extra OpenAPI/TypeScript types
-that are not directly referenced in requests.
+ * Request a WebAuthn assertion and return a signed `NOOPCodegenAnchor` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link NOOPCodegenAnchor}
  */
-export const federatedPostNOOPCodegenAnchor = () =>
-  federatedRequest<never, never, never>({
+export const signNOOPCodegenAnchor = () =>
+  signedRequest<never, never, never>({
     uri: "/tkhq/api/v1/noop-codegen-anchor",
   });
 
@@ -1743,7 +1641,7 @@ export const federatedPostNOOPCodegenAnchor = () =>
  *
  * @deprecated
  */
-type TPostGetPrivateKeyBackwardsCompatBody =
+type TGetPrivateKeyBackwardsCompatBody =
   operations["PublicApiService_GetPrivateKeyBackwardsCompat"]["parameters"]["body"]["body"];
 
 /**
@@ -1751,7 +1649,7 @@ type TPostGetPrivateKeyBackwardsCompatBody =
  *
  * @deprecated
  */
-export type TPostGetPrivateKeyBackwardsCompatResponse =
+export type TGetPrivateKeyBackwardsCompatResponse =
   operations["PublicApiService_GetPrivateKeyBackwardsCompat"]["responses"]["200"]["schema"];
 
 /**
@@ -1759,8 +1657,8 @@ export type TPostGetPrivateKeyBackwardsCompatResponse =
  *
  * @deprecated
  */
-export type TPostGetPrivateKeyBackwardsCompatInput = {
-  body: TPostGetPrivateKeyBackwardsCompatBody;
+export type TGetPrivateKeyBackwardsCompatInput = {
+  body: TGetPrivateKeyBackwardsCompatBody;
 };
 
 /**
@@ -1772,12 +1670,12 @@ export type TPostGetPrivateKeyBackwardsCompatInput = {
  *
  * @deprecated
  */
-export const postGetPrivateKeyBackwardsCompat = (
-  input: TPostGetPrivateKeyBackwardsCompatInput
+export const getPrivateKeyBackwardsCompat = (
+  input: TGetPrivateKeyBackwardsCompatInput
 ) =>
   request<
-    TPostGetPrivateKeyBackwardsCompatResponse,
-    TPostGetPrivateKeyBackwardsCompatBody,
+    TGetPrivateKeyBackwardsCompatResponse,
+    TGetPrivateKeyBackwardsCompatBody,
     never,
     never,
     never
@@ -1788,17 +1686,17 @@ export const postGetPrivateKeyBackwardsCompat = (
   });
 
 /**
- * Get Private Key
+ * Request a WebAuthn assertion and return a signed `GetPrivateKeyBackwardsCompat` request, ready to be POSTed to Turnkey.
  *
- * Get details about a Private Key
+ * See {@link GetPrivateKeyBackwardsCompat}
  *
  * @deprecated
  */
-export const federatedPostGetPrivateKeyBackwardsCompat = (
-  input: TPostGetPrivateKeyBackwardsCompatInput,
+export const signGetPrivateKeyBackwardsCompat = (
+  input: TGetPrivateKeyBackwardsCompatInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  federatedRequest<TPostGetPrivateKeyBackwardsCompatBody, never, never>({
+  signedRequest<TGetPrivateKeyBackwardsCompatBody, never, never>({
     uri: "/tkhq/public/v1/query/get_private_key",
     body: input.body,
     options,

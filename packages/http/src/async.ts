@@ -73,7 +73,7 @@ export function withAsyncPolling<
       await sleep(refreshIntervalMs);
 
       const pollingResponse: TActivityResponse =
-        await TurnkeyApi.postGetActivity({
+        await TurnkeyApi.getActivity({
           body: {
             activityId: activity.id,
             organizationId: activity.organizationId,

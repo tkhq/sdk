@@ -15,7 +15,7 @@ export async function createNewEthereumPrivateKey() {
   // Use `withAsyncPolling` to handle async activity polling.
   // In this example, it polls every 250ms until the activity reaches a terminal state.
   const mutation = withAsyncPolling({
-    request: TurnkeyApi.postCreatePrivateKeys,
+    request: TurnkeyApi.createPrivateKeys,
     refreshIntervalMs: 250, // defaults to 500ms
   });
 
@@ -44,7 +44,7 @@ export async function createNewEthereumPrivateKey() {
       activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
     );
 
-    const keyInfo = await TurnkeyApi.postGetPrivateKey({
+    const keyInfo = await TurnkeyApi.getPrivateKey({
       body: {
         organizationId: process.env.ORGANIZATION_ID!,
         privateKeyId,

@@ -1,7 +1,7 @@
 import { fetch, stamp } from "./universal";
 import { getBrowserConfig, getConfig } from "./config";
 import { stringToBase64urlString } from "./encoding";
-import { TurnkeyRequestError, GrpcStatus, FederatedRequest } from "./shared";
+import { TurnkeyRequestError, GrpcStatus, SignedRequest } from "./shared";
 import {
   getWebAuthnAssertion,
   TurnkeyCredentialRequestOptions,
@@ -22,7 +22,7 @@ const sharedRequestOptions: Partial<RequestInit> = {
   redirect: "follow",
 };
 
-export async function federatedRequest<
+export async function signedRequest<
   B extends TBodyShape = never,
   Q extends TQueryShape = never,
   S extends TSubstitutionShape = never
@@ -32,7 +32,7 @@ export async function federatedRequest<
   body?: B;
   substitution?: S;
   options?: TurnkeyCredentialRequestOptions | undefined;
-}): Promise<FederatedRequest> {
+}): Promise<SignedRequest> {
   const {
     uri: inputUri,
     query: inputQuery = {},

@@ -22,7 +22,7 @@ export async function createNewCosmosPrivateKey() {
   // Use `withAsyncPolling` to handle async activity polling.
   // In this example, it polls every 250ms until the activity reaches a terminal state.
   const createKeyMutation = withAsyncPolling({
-    request: TurnkeyApi.postCreatePrivateKeys,
+    request: TurnkeyApi.createPrivateKeys,
     refreshIntervalMs: 250, // defaults to 500ms
   });
 

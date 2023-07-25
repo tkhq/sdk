@@ -15,7 +15,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 function createPrivateKeyRequest(
   organizationId: string,
   privateKeyName: string
-): TurnkeyApi.TPostCreatePrivateKeysInput {
+): TurnkeyApi.TCreatePrivateKeysInput {
   return {
     body: {
       timestampMs: String(Date.now()), // millisecond timestamp

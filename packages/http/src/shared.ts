@@ -65,9 +65,15 @@ export class TurnkeyRequestError extends Error {
   }
 }
 
-// This federated request is meant to be proxied to the backend
-// and send to Turkey via a http request
-export type FederatedRequest = {
+/**
+ * @deprecated use `SignedRequest` instead.
+ */
+export type FederatedRequest = SignedRequest
+
+/**
+ * Represents a signed request ready to be POSTed to Turnkey
+ */
+export type SignedRequest = {
   body: string;
   stamp: string;
   url: string;
