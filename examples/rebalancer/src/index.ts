@@ -187,7 +187,6 @@ async function fundImpl() {
       );
     }
 
-    // TODO(tim): pass this amount in
     await sendEth(
       provider,
       connectedSigner,
@@ -263,7 +262,6 @@ async function sweepImpl() {
       continue;
     }
 
-    // TODO(tim): check balance and only sweep excess funds based on passed in amount
     await sendEth(
       provider,
       connectedSigner,
@@ -274,7 +272,6 @@ async function sweepImpl() {
   }
 }
 
-// TODO(tim): pass options (e.g. amount, etc)
 async function recycle(options: any) {
   const interval = parseInt(options["interval"]);
 
@@ -329,6 +326,7 @@ async function recycleImpl() {
   const gasRequired = feeData
     .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
     .mul(TRANSFER_GAS_LIMIT); // 21000 is the gas limit for a simple transfer
+
   const recycleAmount = balance.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
 
   if (recycleAmount.lte(0)) {
@@ -336,7 +334,6 @@ async function recycleImpl() {
     return;
   }
 
-  // TODO(tim): pass this amount in
   await sendEth(
     provider,
     connectedSigner,

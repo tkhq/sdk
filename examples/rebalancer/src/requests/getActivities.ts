@@ -1,7 +1,6 @@
 import { TurnkeyApi, init as httpInit, TurnkeyApiTypes } from "@turnkey/http";
 import { refineNonNull } from "./utils";
 
-// TODO(tim): deprecate this
 export default async function getActivities(
   limit: number
 ): Promise<TurnkeyApiTypes["v1GetActivitiesResponse"]["activities"]> {

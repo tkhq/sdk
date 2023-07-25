@@ -44,7 +44,6 @@ export async function sendEth(
   value: ethers.BigNumber,
   precalculatedFeeData: ethers.providers.FeeData | undefined = undefined
 ) {
-  // TODO(tim): investigate why we can't call `connectedSigner.getNetwork()`
   const network = await provider.getNetwork();
   const balance = await connectedSigner.getBalance();
   const address = await connectedSigner.getAddress();
@@ -54,7 +53,7 @@ export async function sendEth(
 
   if (balance.isZero()) {
     let warningMessage =
-      "The transaction won't be broadcasted because your account balance is zero.\n";
+      "The transaction won't be broadcast because your account balance is zero.\n";
     if (network.name === "sepolia") {
       warningMessage +=
         "Use https://sepoliafaucet.com/ to request funds on Sepolia, then run the script again.\n";
@@ -86,7 +85,6 @@ export async function sendEth(
     sentTx = await connectedSigner.sendTransaction(transactionRequest);
 
     console.log(`Awaiting confirmation for tx hash ${sentTx.hash}...\n`);
-
     await connectedSigner.provider?.waitForTransaction(sentTx.hash, 1);
 
     print(
@@ -98,7 +96,6 @@ export async function sendEth(
       `https://${network.name}.etherscan.io/tx/${sentTx.hash}`
     );
   } catch (error: any) {
-    // HACK: allow these activites to require consensus
     if (error.toString().includes("ACTIVITY_STATUS_CONSENSUS_NEEDED")) {
       console.error(
         `Consensus is required for activity ${

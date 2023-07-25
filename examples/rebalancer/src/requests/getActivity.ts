@@ -1,7 +1,6 @@
 import { TurnkeyApi, init as httpInit } from "@turnkey/http";
 import { refineNonNull } from "./utils";
 
-// TODO(tim): deprecate this
 export default async function getActivity(activityId: string): Promise<any> {
   // Initialize `@turnkey/http` with your credentials
   httpInit({

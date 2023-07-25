@@ -2,7 +2,6 @@ import { TurnkeyApi, init as httpInit, withAsyncPolling } from "@turnkey/http";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
-// TODO(tim): refine w/ options
 export default async function createUserTag(
   userTagName: string,
   userIds: string[]
