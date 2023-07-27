@@ -1,6 +1,6 @@
 # Example: `with-gnosis`
 
-This example shows how to construct and broadcast a transaction using [`Ethers`](https://docs.ethers.org/v5/api/signer/) with Turnkey.
+This example shows how to create new Ethereum addresses via Turnkey, configure a 3/3 Gnosis safe, and create, sign, and execute a transaction from it.
 
 ## Getting started
 
@@ -65,48 +65,48 @@ NOTES:
 See the following for a sample output:
 
 ```
-Address 1:
+Address:
         0x1Bce4a8De35Cf22aCaA4D167C722dD80C14Eb0Ee
 
-Balance 1:
-        0.018938199472224931 Ether
+Balance:
+        0.017970393967449568 Ether
 
-Transaction count 1:
-        23
+Transaction count:
+        26
 
-Address 2:
+Address:
         0xf285510B55f62d6787399409418590c9B6d246Fe
 
-Balance 2:
+Balance:
         0.02460411999815256 Ether
 
-Transaction count 2:
+Transaction count:
         5
 
-Address 3:
+Address:
         0xE69b8ede844DB94fe726Cf2537992e61A6a6Ea2e
 
-Balance 3:
-        0.023741618494127553 Ether
+Balance:
+        0.02351972499309205 Ether
 
-Transaction count 3:
-        12
+Transaction count:
+        14
 
 New Gnosis Safe Address:
-        0x10737C16995cBA89B7E2F880e21B18A0baccB9D4
+        0x12AB2c1187e5a96b810CaefEa79129E47c35F0f3
 
-Sent 0.00001 Ether to 0x10737C16995cBA89B7E2F880e21B18A0baccB9D4:
-        https://sepolia.etherscan.io/tx/0xa631252ddd12186289328bfb2d1df1dad6c1682643a2aacc1e2596cec301b492
+Sent 0.00001 Ether to 0x12AB2c1187e5a96b810CaefEa79129E47c35F0f3:
+        https://sepolia.etherscan.io/tx/0x3bc34a581ed2d1ce268ba3c631e0af00b6d54014c5801b3b7d19453fcf571ae2
 
 Signed transaction offchain using signer 1. Signature:
-        0x124781badec42f95994c7b1896a7d61c6f3efeaae181d80ab2681911c2b0490f5b89d18e8604c79a1103869586f277fae49be8414e653503b5eaed6a4957c88e1b
+        0xb71f002a9328b50169cfd8c4d8a03abb307d488e8c0de0455b0999961d6768b3005860f457c25420d1bb993cb0b60d8c07862e6e39d9953a6a2d44da2fd172261c
 
 Signed transaction hash offchain using signer 2. Signature:
-        0x5d532ad0bfd638e785786d936f6dd41ad87e04245215b5278cff1d17cb1f81773bcc3c1926b6b0619b191c0e7f0a510cee03185f059d72a81d831b6ac849e2d21f
+        0x66bf410d0a8a219989cf89a8dbb0adcad66a4764576f0c0a125b50a024ab00974f0c232e42feccb61890186bf22db111481b6f5bb9ebc4c0b95f65795353235720
 
 Approved transaction onchain using signer 3. Etherscan link:
-        https://sepolia.etherscan.io/tx/0x72871b1e3cc1862ea12adb793d061a0c45ac6324e0d95bffae88f0ebeead0c30
+        https://sepolia.etherscan.io/tx/0xe15f9caaa02ea214baac614b86c5db32e556d8ca043060a3f7cf4a899cf81852
 
-Executed transaction using signer 3. Etherscan link:
-        https://sepolia.etherscan.io/tx/0xcc6dafb34b950fd3a38d741c8a93c1612b1026a1dff39632aa2665195a5afda8
+Executed transaction. Etherscan link:
+        https://sepolia.etherscan.io/tx/0x78c7af3fe9f69f616b486b0c6058fefe208ab3c00596c519907a139c78157f92
 ```
