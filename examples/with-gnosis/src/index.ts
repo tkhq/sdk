@@ -71,13 +71,12 @@ async function main() {
     print("Transaction count:", `${transactionCount}`);
 
     if (balance.isZero()) {
-      let warningMessage =
-        `The transaction won't be broadcasted because the balance for address ${address} is zero.\n`;
+      let warningMessage = `The transaction won't be broadcasted because the balance for address ${address} is zero.\n`;
       if (network === "sepolia") {
         warningMessage +=
           "Use https://sepoliafaucet.com/ to request funds on Sepolia, then run the script again.\n";
       }
-  
+
       console.warn(warningMessage);
       return;
     }
@@ -108,7 +107,11 @@ async function main() {
 
   // Create new Safe using address 1
   const safeFactory = await SafeFactory.create({ ethAdapter: ethAdapter1 });
-  const owners = [await connectedSigner1.getAddress(), await connectedSigner2.getAddress(), await connectedSigner3.getAddress()];
+  const owners = [
+    await connectedSigner1.getAddress(),
+    await connectedSigner2.getAddress(),
+    await connectedSigner3.getAddress(),
+  ];
   const threshold = 3;
   const safeAccountConfig: SafeAccountConfig = {
     owners,
@@ -125,7 +128,7 @@ async function main() {
     ethAdapter: ethAdapter2,
     safeAddress,
   });
-  
+
   // Alternative method to connecting to a precreated Safe
   const safeSdk3 = await Safe.create({
     ethAdapter: ethAdapter3,
@@ -140,7 +143,9 @@ async function main() {
   };
   const sentTx = await connectedSigner1.sendTransaction(fundingRequest);
   print(
-    `Funding the safe: sent ${ethers.utils.formatEther(sentTx.value)} ETH to ${sentTx.to}:`,
+    `Funding the safe: sent ${ethers.utils.formatEther(sentTx.value)} ETH to ${
+      sentTx.to
+    }:`,
     `https://${network}.etherscan.io/tx/${sentTx.hash}`
   );
 
@@ -157,7 +162,9 @@ async function main() {
   );
   print(
     `Signed transaction offchain using signer 1. Signature:`,
-    safeTransaction.signatures.get((await connectedSigner1.getAddress()).toLowerCase())?.data ?? ""
+    safeTransaction.signatures.get(
+      (await connectedSigner1.getAddress()).toLowerCase()
+    )?.data ?? ""
   );
 
   // Obtain *offchain* signature from signer 2 using standard raw message signing, and attach it to the safeTransaction
