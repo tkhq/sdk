@@ -59,17 +59,7 @@
             }
           }
         ],
-        "tags": ["Activities"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_activity --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"activityId\": \"\"\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Activities"]
       }
     },
     "/public/v1/query/get_authenticator": {
@@ -112,17 +102,7 @@
             }
           }
         ],
-        "tags": ["Authenticators"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_authenticator --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"authenticatorId\": \"'\"$AUTHENTICATOR_ID\"'\"\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Authenticators"]
       }
     },
     "/public/v1/query/get_authenticators": {
@@ -165,17 +145,7 @@
             }
           }
         ],
-        "tags": ["Authenticators"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_authenticators --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"userId\": \"'\"$USER_ID\"'\"\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Authenticators"]
       }
     },
     "/public/v1/query/get_organization": {
@@ -218,17 +188,7 @@
             }
           }
         ],
-        "tags": ["Organizations"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_organization --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\"\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Organizations"]
       }
     },
     "/public/v1/query/get_policy": {
@@ -271,17 +231,7 @@
             }
           }
         ],
-        "tags": ["Policies"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_policy --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"policyId\": \"\"\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Policies"]
       }
     },
     "/public/v1/query/get_private_key": {
@@ -324,17 +274,7 @@
             }
           }
         ],
-        "tags": ["Private Keys"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_private_key --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"privateKeyId\": \"'\"$PRIVATE_KEY_ID\"'\"\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Private Keys"]
       }
     },
     "/public/v1/query/get_user": {
@@ -377,17 +317,7 @@
             }
           }
         ],
-        "tags": ["Users"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_user --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"userId\": \"\"\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Users"]
       }
     },
     "/public/v1/query/list_activities": {
@@ -430,17 +360,7 @@
             }
           }
         ],
-        "tags": ["Activities"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_activities --body '{\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"filterByStatus\": [\n\t\t\"$ACTIVITY_STATUS\"\n\t],\n\t\"filterByType\": [\n\t\t\"$ACTIVITY_TYPE\"\n\t],\n\t\"paginationOptions\": {\n\t\t\"limit\": \"$NUM_ACTIVITIES\",\n\t\t\"before\": \"$BEFORE_ACTIVITY_ID\",\n\t\t\"after\": \"$AFTER_ACTIVITY_ID\"\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Activities"]
       }
     },
     "/public/v1/query/list_policies": {
@@ -483,17 +403,7 @@
             }
           }
         ],
-        "tags": ["Policies"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_policies --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\"\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Policies"]
       }
     },
     "/public/v1/query/list_private_keys": {
@@ -536,17 +446,7 @@
             }
           }
         ],
-        "tags": ["Private Keys"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_private_keys --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\"\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Private Keys"]
       }
     },
     "/public/v1/query/list_users": {
@@ -589,17 +489,7 @@
             }
           }
         ],
-        "tags": ["Users"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/list_users --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\"\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Users"]
       }
     },
     "/public/v1/query/whoami": {
@@ -642,17 +532,7 @@
             }
           }
         ],
-        "tags": ["Users"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/whoami --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\"\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Users"]
       }
     },
     "/public/v1/submit/approve_activity": {
@@ -695,17 +575,7 @@
             }
           }
         ],
-        "tags": ["Activities"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/approve_activity --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_APPROVE_ACTIVITY\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"fingerprint\": \"\"\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Activities"]
       }
     },
     "/public/v1/submit/create_api_keys": {
@@ -748,17 +618,7 @@
             }
           }
         ],
-        "tags": ["Users"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_api_keys --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_API_KEYS\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"apiKeys\": [{\n\t\t\t\"apiKeyName\": \"\",\n\t\t\t\"publicKey\": \"\"\n\t\t}],\n\t\t\"userId\": \"\"\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Users"]
       }
     },
     "/public/v1/submit/create_api_only_users": {
@@ -801,17 +661,7 @@
             }
           }
         ],
-        "tags": ["Users"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_api_only_users --body '{\n\t\"timestampMs\": \"$TIMESTAMP_IN_MILLISECONDS\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_API_ONLY_USERS\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"api_only_users\": [{\n\t\t\t\"userName\": \"\",\n\t\t\t\"userEmail\": \"\",\n\t\t\t\"userTags\": \"[]\", \n\t\t\t\"apiKeys\": [\n\t\t\t\t{\"publicKey\": \"public-key\",\"apiKeyName\": \"test\"}\n\t\t\t]}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Users"]
       }
     },
     "/public/v1/submit/create_authenticators": {
@@ -854,17 +704,7 @@
             }
           }
         ],
-        "tags": ["Authenticators"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_authenticators --body '{\n\t\"type\": \"ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2\",\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userId\": \"\",\n\t\t\"authenticators\": [\n\t\t\t{\n\t\t\t\t\"authenticatorName\": \"\",\n\t\t\t\t\"challenge\": \"\",\n\t\t\t\t\"attestation\": {\n\t\t\t\t\t\"credentialId\": \"\",\n\t\t\t\t\t\"clientDataJson\": \"\",\n\t\t\t\t\t\"attestationObject\": \"\",\n\t\t\t\t\t\"transports\": []\n\t\t\t\t}\n\t\t\t}\n\t\t]\n\t}\n}\n'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Authenticators"]
       }
     },
     "/public/v1/submit/create_invitations": {
@@ -907,17 +747,7 @@
             }
           }
         ],
-        "tags": ["Organizations"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_invitations --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_INVITATIONS\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"invitations\": [{\n\t\t\t\"userName\": \"\",\n\t\t\t\"userEmail\": \"\",\n\t\t\t\"receiverUserTags\": \"\",\n\t\t\t\"accessType\": \"\",\n\t\t\t\"senderUserId\": \"\"\n\t\t}]\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Invitations"]
       }
     },
     "/public/v1/submit/create_policy": {
@@ -960,22 +790,12 @@
             }
           }
         ],
-        "tags": ["Policies"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_policy --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_POLICY\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"policyName\": \"\",\n\t\t\"effect\": \"\",\n\t\t\"notes\": \"\"\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Policies"]
       }
     },
     "/public/v1/submit/create_private_key_tag": {
       "post": {
-        "summary": "Create User Tag",
+        "summary": "Create Private Key Tag",
         "description": "Create a private key tag and add it to private keys.",
         "operationId": "PublicApiService_CreatePrivateKeyTag",
         "responses": {
@@ -1013,17 +833,7 @@
             }
           }
         ],
-        "tags": ["Private Key Tags"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_private_key_tag --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"privateKeyTagName\": \"\",\n\t\t\"privateKeyIds\": \"\",\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Private Keys"]
       }
     },
     "/public/v1/submit/create_private_keys": {
@@ -1066,17 +876,7 @@
             }
           }
         ],
-        "tags": ["Private Keys"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_private_keys --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"privateKeys\": [{\n\t\t\t\"privateKeyName\": \"\",\n\t\t\t\"curve\": \"\",\n\t\t\t\"privateKeyTags\": \"\",\n\t\t\t\"addressFormats\": \"\"\n\t\t}]\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Private Keys"]
       }
     },
     "/public/v1/submit/create_sub_organization": {
@@ -1119,17 +919,7 @@
             }
           }
         ],
-        "tags": ["Organizations"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_sub_organization --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"name\": \"\",\n\t\t\"rootAuthenticator\": {\n\t\t\t\"authenticatorName\": \"\",\n\t\t\t\"challenge\":\"\",\n\t\t\t\"attestation\":{\n\t\t\t\t\"credentialId\":\"\",\n\t\t\t\t\"clientDataJson\":\"\",\n\t\t\t\t\"attestationObject\":\"\",\n\t\t\t\t\"transports\":[],\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Organizations"]
       }
     },
     "/public/v1/submit/create_user_tag": {
@@ -1172,17 +962,7 @@
             }
           }
         ],
-        "tags": ["User Tags"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_user_tag --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_USER_TAG\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userTagName\": \"\",\n\t\t\"userIds\": \"\",\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Users"]
       }
     },
     "/public/v1/submit/create_users": {
@@ -1226,17 +1006,7 @@
           }
         ],
         "tags": ["Users"],
-        "deprecated": true,
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/create_users --body '{\n\t\"timestampMs\": \"$TIMESTAMP_IN_MILLISECONDS\",\n\t\"type\": \"ACTIVITY_TYPE_CREATE_USERS\",\n\t\"organizationId\": \"$ORGANIZATION_ID\",\n\t\"parameters\": {\n\t\t\"users\": [{\n\t\t\t\"userName\": \"\",\n\t\t\t\"userEmail\": \"\",\n\t\t\t\"accessType\": \"ACCESS_TYPE_API\",\n\t\t\t\"userTags\": \"[]\", \n\t\t\t\"apiKeys\": [\n\t\t\t\t{\"publicKey\": \"public-key\",\"apiKeyName\": \"test\"}\n\t\t\t]}]}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "deprecated": true
       }
     },
     "/public/v1/submit/delete_api_keys": {
@@ -1279,17 +1049,7 @@
             }
           }
         ],
-        "tags": ["Users"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/delete_api_keys --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_DELETE_API_KEYS\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"apiKeyIds\": [],\n\t\t\"userId\": \"\"\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Users"]
       }
     },
     "/public/v1/submit/delete_invitations": {
@@ -1332,17 +1092,7 @@
             }
           }
         ],
-        "tags": ["Organizations"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/delete_invitation --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_DELETE_INVITATION\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"invitationId\": \"\"\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Invitations"]
       }
     },
     "/public/v1/submit/delete_policy": {
@@ -1385,17 +1135,7 @@
             }
           }
         ],
-        "tags": ["Policies"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/delete_policy --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_DELETE_POLICY\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"policyId\": \"\"\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Policies"]
       }
     },
     "/public/v1/submit/reject_activity": {
@@ -1438,17 +1178,7 @@
             }
           }
         ],
-        "tags": ["Activities"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/reject_activity --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_REJECT_ACTIVITY\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"fingerprint\": \"\"\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Activities"]
       }
     },
     "/public/v1/submit/sign_raw_payload": {
@@ -1491,17 +1221,7 @@
             }
           }
         ],
-        "tags": ["Private Keys"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/sign_raw_payload --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_SIGN_RAW_PAYLOAD\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"privateKeyId\": \"'\"$PRIVATE_KEY_ID\"'\",\n\t\t\"encoding\": \"PAYLOAD_ENCODING_TEXT_UTF8\",\n\t\t\"payload\": \"\",\n\t\t\"hashFunction\": \"HASH_FUNCTION_KECCAK256\"\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Private Keys"]
       }
     },
     "/public/v1/submit/sign_transaction": {
@@ -1544,23 +1264,13 @@
             }
           }
         ],
-        "tags": ["Private Keys"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/sign_transaction --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_SIGN_TRANSACTION\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"privateKeyId\": \"'\"$PRIVATE_KEY_ID\"'\",\n\t\t\"unsignedTransaction\": \"\",\n\t\t\"type\": \"\"\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Private Keys"]
       }
     },
     "/public/v1/submit/update_allowed_origins": {
       "post": {
-        "summary": "Update the allowable origins",
-        "description": "Update the additional allowable origins for requests besides Turnkey origins",
+        "summary": "Update Allowable Origins",
+        "description": "Update the allowable origins for credentials and requests",
         "operationId": "PublicApiService_UpdateAllowedOrigins",
         "responses": {
           "200": {
@@ -1597,17 +1307,7 @@
             }
           }
         ],
-        "tags": ["Update Domains"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/update_allowed_origins --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"UPDATE_DOMAINS\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"domains\": \"'\"$DOMAINS\"'\"\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Organizations"]
       }
     },
     "/public/v1/submit/update_private_key_tag": {
@@ -1650,22 +1350,12 @@
             }
           }
         ],
-        "tags": ["Private Key Tags"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/private_key_tags/update --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"privateKeyTagId\": \"'\"$PRIVATE_KEY_TAG_ID\"'\",\n\t\t\"privateKeyTagName\": \"\",\n\t\t\"addPrivateKeyTagIds\": \"\",\n\t\t\"removePrivateKeyTagIds\": \"\"\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Private Keys"]
       }
     },
     "/public/v1/submit/update_root_quorum": {
       "post": {
-        "summary": "Set the root quorum",
+        "summary": "Update Root Quorum",
         "description": "Set the threshold and members of the root quorum. This must be approved by the current root quorum.",
         "operationId": "PublicApiService_UpdateRootQuorum",
         "responses": {
@@ -1703,17 +1393,7 @@
             }
           }
         ],
-        "tags": ["Root Quorum"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/update_root_quorum --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"UPDATE_ROOT_QUORUM\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userIds\": \"'\"$USER_IDS\"'\",\n\t\t\"threshold\": $THRESHOLD\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Organizations"]
       }
     },
     "/public/v1/submit/update_user_tag": {
@@ -1756,17 +1436,7 @@
             }
           }
         ],
-        "tags": ["User Tags"],
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/submit/update_user_tag --body '{\n\t\"timestampMs\": \"'\"$(date +%s)\"'000\",\n\t\"type\": \"ACTIVITY_TYPE_UPDATE_USER_TAG\",\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"parameters\": {\n\t\t\"userTagId\": \"'\"$USER_TAG_ID\"'\",\n\t\t\"userTagName\": \"\",\n\t\t\"addUserIds\": \"\",\n\t\t\"removeUserIds\": \"\"\n\t}\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "tags": ["Users"]
       }
     },
     "/tkhq/api/v1/noop-codegen-anchor": {
@@ -1842,17 +1512,7 @@
           }
         ],
         "tags": ["Private Keys"],
-        "deprecated": true,
-        "x-readme": {
-          "code-samples": [
-            {
-              "code": "turnkey request --host coordinator-beta.turnkey.io --path /public/v1/query/get_private_key --body '{\n\t\"organizationId\": \"'\"$ORGANIZATION_ID\"'\",\n\t\"privateKeyId\": \"'\"$PRIVATE_KEY_ID\"'\"\n}'",
-              "install": "brew tap tkhq/tap \u0026\u0026 brew install turnkey",
-              "language": "curl",
-              "name": "Turnkey CLI"
-            }
-          ]
-        }
+        "deprecated": true
       }
     }
   },
@@ -5245,10 +4905,5 @@
     {
       "ApiKeyAuth": []
     }
-  ],
-  "x-readme": {
-    "explorer-enabled": true,
-    "proxy-enabled": true,
-    "samples-languages": ["curl", "javascript"]
-  }
+  ]
 }

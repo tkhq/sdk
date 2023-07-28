@@ -121,7 +121,7 @@ export type paths = {
     post: operations["PublicApiService_SignTransaction"];
   };
   "/public/v1/submit/update_allowed_origins": {
-    /** Update the additional allowable origins for requests besides Turnkey origins */
+    /** Update the allowable origins for credentials and requests */
     post: operations["PublicApiService_UpdateAllowedOrigins"];
   };
   "/public/v1/submit/update_private_key_tag": {
@@ -2528,7 +2528,7 @@ export type operations = {
       };
     };
   };
-  /** Update the additional allowable origins for requests besides Turnkey origins */
+  /** Update the allowable origins for credentials and requests */
   PublicApiService_UpdateAllowedOrigins: {
     parameters: {
       body: {

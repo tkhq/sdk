@@ -883,7 +883,7 @@ export type TCreatePrivateKeyTagResponse =
 export type TCreatePrivateKeyTagInput = { body: TCreatePrivateKeyTagBody };
 
 /**
- * Create User Tag
+ * Create Private Key Tag
  *
  * Create a private key tag and add it to private keys.
  *
@@ -1423,9 +1423,9 @@ export type TUpdateAllowedOriginsResponse =
 export type TUpdateAllowedOriginsInput = { body: TUpdateAllowedOriginsBody };
 
 /**
- * Update the allowable origins
+ * Update Allowable Origins
  *
- * Update the additional allowable origins for requests besides Turnkey origins
+ * Update the allowable origins for credentials and requests
  *
  * `POST /public/v1/submit/update_allowed_origins`
  */
@@ -1527,7 +1527,7 @@ export type TUpdateRootQuorumResponse =
 export type TUpdateRootQuorumInput = { body: TUpdateRootQuorumBody };
 
 /**
- * Set the root quorum
+ * Update Root Quorum
  *
  * Set the threshold and members of the root quorum. This must be approved by the current root quorum.
  *
