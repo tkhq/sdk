@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/rebalancer",
+  "name": "@turnkey/example-with-rebalancer",
   "version": "0.0.2",
   "private": true,
   "scripts": {
