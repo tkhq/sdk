@@ -16,7 +16,7 @@ import {
   getOrganization,
 } from "./requests";
 import { getProvider, getTurnkeySigner } from "./provider";
-import { sendEth, sendToken, wrapEth } from "./send";
+import { sendEth, sendToken, unwrapWeth, wrapEth } from "./send";
 import keys from "./keys";
 import {
   ASSET_METADATA,
@@ -32,6 +32,7 @@ import {
   DEFAULT_SLIPPAGE_TOLERANCE,
 } from "./uniswap/constants";
 import { prepareV3Trade, executeTrade } from "./uniswap/base";
+import { toReadableAmount } from "./utils";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -134,6 +135,12 @@ async function setup(_options: any) {
     `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${DEPOSIT_SIGNATURE}'`
   );
   await createPolicy(
+    "Traders can use trading keys to withdraw, aka unwrap, WETH",
+    "EFFECT_ALLOW",
+    `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${DEPOSIT_SIGNATURE}'`
+  );
+  await createPolicy(
     "Traders can use trading keys to make ERC20 token approvals for WETH for usage with Uniswap",
     "EFFECT_ALLOW",
     `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
@@ -210,6 +217,14 @@ async function trade(options: { [key: string]: string }) {
     `);
   }
 
+  if (baseAsset === quoteAsset) {
+    console.error(`
+      Invalid asset pair.\n
+      Base: ${baseAsset}\n
+      Quote: ${quoteAsset}
+    `);
+  }
+
   await tradeImpl(baseAsset, quoteAsset, baseAmount);
 }
 
@@ -228,9 +243,12 @@ async function tradeImpl(
     tradingPrivateKey!.privateKeyId
   );
 
+  let inputAsset = baseAsset;
+  let outputAsset = quoteAsset;
+
   if (baseAsset === "ETH") {
     console.log(
-      "For Uniswap trades, native ETH must first be converted to WETH.\n"
+      "For Uniswap v2/v3 trades, native ETH must first be converted to WETH.\n"
     );
 
     const feeData = await connectedSigner.getFeeData();
@@ -260,11 +278,19 @@ async function tradeImpl(
 
     await wrapEth(connectedSigner, wrapAmount, tokenContract, feeData);
 
-    baseAsset = "WETH"; // base asset is now considered WETH
-    console.log(`Moving on to trading ${baseAsset} for ${quoteAsset}...\n`);
+    inputAsset = "WETH"; // base asset is now considered WETH
+    console.log(`Moving on to trading ${inputAsset} for ${outputAsset}...\n`);
   }
 
-  const metadata = ASSET_METADATA[baseAsset];
+  if (quoteAsset === "ETH") {
+    console.log(
+      "For Uniswap v2/v3 trades resulting in ETH, assets must be swapped for WETH and then unrwapped.\n"
+    );
+
+    outputAsset = "WETH";
+  }
+
+  const metadata = ASSET_METADATA[inputAsset];
   const tokenContract = new ethers.Contract(
     metadata!.token.address,
     metadata!.abi,
@@ -275,8 +301,8 @@ async function tradeImpl(
     tradingPrivateKey?.addresses[0]?.address
   );
 
-  const inputToken = ASSET_METADATA[baseAsset]!.token;
-  const outputToken = ASSET_METADATA[quoteAsset]!.token;
+  const inputToken = ASSET_METADATA[inputAsset]!.token;
+  const outputToken = ASSET_METADATA[outputAsset]!.token;
 
   const inputAmount = fromReadableAmount(
     parseFloat(baseAmount),
@@ -300,13 +326,15 @@ async function tradeImpl(
 
   console.log("Trade parameters successfully prepared!\n");
 
+  const quoteAmount = trade
+    .minimumAmountOut(DEFAULT_SLIPPAGE_TOLERANCE)
+    .toExact();
+
   const { confirmed } = await prompts([
     {
       type: "confirm",
       name: "confirmed",
-      message: `Please confirm: trade ${baseAmount} ${baseAsset} for ~${trade
-        .minimumAmountOut(DEFAULT_SLIPPAGE_TOLERANCE)
-        .toExact()} ${quoteAsset}?`,
+      message: `Please confirm: trade ${baseAmount} ${inputAsset} for ~${quoteAmount} ${outputAsset}?`,
     },
   ]);
 
@@ -317,13 +345,45 @@ async function tradeImpl(
 
   // execute trade
   await executeTrade(connectedSigner, trade, inputToken, inputAmount);
+
+  // followup executions, if necessary
+  if (quoteAsset === "ETH") {
+    console.log("Unwrapping WETH...\n");
+
+    const feeData = await connectedSigner.getFeeData();
+    const metadata = ASSET_METADATA["WETH"];
+    const tokenContract = new ethers.Contract(
+      metadata!.token.address,
+      metadata!.abi,
+      connectedSigner
+    );
+    const unwrapAmount = fromReadableAmount(
+      parseFloat(quoteAmount),
+      metadata!.token.decimals
+    );
+
+    const { confirmed } = await prompts([
+      {
+        type: "confirm",
+        name: "confirmed",
+        message: `Please confirm: unwrap ${quoteAmount} WETH?`,
+      },
+    ]);
+
+    if (!confirmed) {
+      console.log("Transaction unconfirmed. Skipping...\n");
+      process.exit();
+    }
+
+    await unwrapWeth(connectedSigner, unwrapAmount, tokenContract, feeData);
+  }
 }
 
 async function sweep(options: any) {
   // parse options
   const asset = options["asset"]!.trim().toUpperCase(); // required
   const destination = options["destination"] || "".trim(); // optional
-  const amount = options["amount"]!.trim(); // whole amounts; optional. if not provided, will default to sending max amount
+  const amount = options["amount"] || "".trim(); // whole amounts; optional. if not provided, will default to sending max amount
 
   const validAssets = ["ETH", "WETH", "USDC"];
 
@@ -420,28 +480,42 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
     const tokenBalance = await tokenContract.balanceOf(
       tradingPrivateKey?.addresses[0]?.address
     );
-    const sweepAmount =
-      fromReadableAmount(parseFloat(amount), metadata!.token.decimals) ||
-      tokenBalance;
+    const sweepAmount = amount
+      ? fromReadableAmount(parseFloat(amount), metadata!.token.decimals)
+      : tokenBalance;
 
     // make balance check to confirm we can make the trade
     if (sweepAmount.gt(tokenBalance)) {
       throw new Error(
-        `Insufficient funds to perform this sweep. Have: ${tokenBalance} ${
-          metadata!.token.symbol
-        }; Need: ${sweepAmount} ${metadata!.token.symbol}.`
+        `Insufficient funds to perform this sweep. Have: ${toReadableAmount(
+          tokenBalance,
+          metadata!.token.decimals,
+          12
+        )} ${metadata!.token.symbol}; Need: ${toReadableAmount(
+          sweepAmount,
+          metadata!.token.decimals,
+          12
+        )} ${metadata!.token.symbol}.`
       );
     }
 
     console.log(
-      `Sweeping ${amount} ${metadata!.token.symbol} to ${destination}...\n`
+      `Sweeping ${toReadableAmount(
+        sweepAmount,
+        metadata!.token.decimals,
+        12
+      )} ${metadata!.token.symbol} to ${destination}...\n`
     );
 
     const { confirmed } = await prompts([
       {
         type: "confirm",
         name: "confirmed",
-        message: `Please confirm: sweep ${amount} ${metadata!.token.symbol}?`,
+        message: `Please confirm: sweep ${toReadableAmount(
+          sweepAmount,
+          18,
+          12
+        )} ${metadata!.token.symbol}?`,
       },
     ]);
 

@@ -84,9 +84,10 @@ export async function sendEth(
 
   let sentTx;
   try {
+    console.log(`Awaiting confirmation for send tx...\n`);
+
     sentTx = await connectedSigner.sendTransaction(transactionRequest);
 
-    console.log(`Awaiting confirmation for tx hash ${sentTx.hash}...\n`);
     await connectedSigner.provider?.waitForTransaction(sentTx.hash, 1);
 
     print(
@@ -152,7 +153,7 @@ export async function sendToken(
 
   // check token balance
   const tokenBalance = await tokenContract.balanceOf(address);
-  if (tokenBalance < value) {
+  if (tokenBalance.lt(value)) {
     throw new Error(
       `Insufficient funds to perform this trade. Have: ${tokenBalance} ${token.symbol}; Need: ${value} ${token.symbol}.`
     );
@@ -169,9 +170,10 @@ export async function sendToken(
   );
 
   try {
+    console.log(`Awaiting confirmation for send tx...\n`);
+
     const submittedTx = await connectedSigner.sendTransaction(populatedTx);
 
-    console.log(`Awaiting confirmation for tx hash ${submittedTx.hash}...\n`);
     await connectedSigner.provider?.waitForTransaction(submittedTx.hash, 1);
 
     print(
@@ -226,15 +228,29 @@ export async function wrapEth(
 
   if (balance.lt(value.add(gasRequired))) {
     throw new Error(
-      `Insufficient ETH balance of ${balance}. Needs ${value.add(
-        gasRequired
+      `Insufficient ETH balance of ${toReadableAmount(
+        balance.toString(),
+        18,
+        12
+      )}. Needs ${toReadableAmount(
+        value.add(gasRequired).toString(),
+        18,
+        12
       )} ETH.`
     );
   }
 
-  if (balance < value) {
+  if (balance.lt(value)) {
     throw new Error(
-      `Insufficient funds to perform this deposit. Have: ${balance} ETH; Need: ${value} ETH.`
+      `Insufficient funds to perform this deposit. Have: ${toReadableAmount(
+        balance.toString(),
+        18,
+        12
+      )} ETH; Need: ${toReadableAmount(
+        value.add(gasRequired).toString(),
+        18,
+        12
+      )} ETH.`
     );
   }
 
@@ -247,9 +263,9 @@ export async function wrapEth(
   });
 
   try {
-    const submittedTx = await connectedSigner.sendTransaction(populatedTx);
-
     console.log("Awaiting confirmation for wrap tx...\n");
+
+    const submittedTx = await connectedSigner.sendTransaction(populatedTx);
 
     await provider.waitForTransaction(submittedTx.hash, 1);
 
@@ -263,6 +279,90 @@ export async function wrapEth(
         `Consensus is required for activity ${
           error.activityId
         } in order to wrap ${toReadableAmount(value.toString(), 18, 12)} ETH.`
+      );
+      return;
+    }
+
+    console.error("Encountered error:", error.toString(), "\n");
+  }
+}
+
+export async function unwrapWeth(
+  connectedSigner: ethers.Signer,
+  value: ethers.BigNumber,
+  tokenContract: ethers.Contract,
+  precalculatedFeeData: ethers.providers.FeeData | undefined = undefined
+) {
+  const provider = connectedSigner.provider!;
+  const network = await provider.getNetwork();
+  const balance = await connectedSigner.getBalance();
+  const address = await connectedSigner.getAddress();
+
+  if (balance.isZero()) {
+    let warningMessage =
+      "The transaction won't be broadcast because your account balance is zero.\n";
+    if (network.name === "goerli") {
+      warningMessage +=
+        "Use https://goerlifaucet.com/ to request funds on goerli, then run the script again.\n";
+    }
+
+    throw new Error(warningMessage);
+  }
+
+  const feeData = precalculatedFeeData || (await connectedSigner.getFeeData());
+  const gasRequired = feeData
+    .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
+    .mul(ERC20_TRANSFER_GAS_LIMIT);
+
+  if (balance.lt(gasRequired)) {
+    throw new Error(
+      `Insufficient ETH balance of ${toReadableAmount(
+        balance.toString(),
+        18,
+        12
+      )}. Needs ${toReadableAmount(
+        value.add(gasRequired).toString(),
+        18,
+        12
+      )} ETH for gas.`
+    );
+  }
+
+  // check token balance
+  const tokenBalance = await tokenContract.balanceOf(address);
+  if (tokenBalance.lt(value)) {
+    throw new Error(
+      `Insufficient funds to unwrap. Have: ${toReadableAmount(
+        tokenBalance.toString(),
+        18,
+        12
+      )} WETH; Need: ${toReadableAmount(value.toString(), 18, 12)} WETH.`
+    );
+  }
+
+  if (!tokenContract.populateTransaction.withdraw) {
+    throw new Error("Invalid contract call. Exiting...\n");
+  }
+
+  const populatedTx = await tokenContract!.populateTransaction!.withdraw(value);
+
+  try {
+    console.log("Awaiting confirmation for unwrap tx...\n");
+
+    const submittedTx = await connectedSigner.sendTransaction(populatedTx);
+
+    await provider.waitForTransaction(submittedTx.hash, 1);
+
+    print(
+      `Unwrapped ${toReadableAmount(value.toString(), 18, 12)} ETH`,
+      `https://${network.name}.etherscan.io/tx/${submittedTx.hash}`
+    );
+  } catch (error: any) {
+    if (error.toString().includes("ACTIVITY_STATUS_CONSENSUS_NEEDED")) {
+      console.error(
+        `Consensus is required for activity ${
+          error.activityId
+        } in order to unwrap ${toReadableAmount(value.toString(), 18, 12)} ETH.`
       );
       return;
     }

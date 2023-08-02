@@ -38,6 +38,7 @@ export const UNI_V3_UNIVERSAL_ROUTER_CONTRACT_ADDRESS_GOERLI =
 export const APPROVE_SIGNATURE = "0x095ea7b3";
 export const TRANSFER_SIGNATURE = "0xa9059cbb";
 export const DEPOSIT_SIGNATURE = "0xd0e30db0";
+export const WITHDRAW_SIGNATURE = "0x2e1a7d4d";
 export const TRADE_SIGNATURE = "0x414bf389"; // specifically for `exactInputSingle`
 
 // ABIs
