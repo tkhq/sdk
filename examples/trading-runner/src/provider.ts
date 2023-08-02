@@ -5,7 +5,7 @@ import { TurnkeySigner } from "@turnkey/ethers";
 import { Environment } from "./utils";
 
 const DEFAULT_INFURA_COMMUNITY_KEY = "84842078b09946638c03157f83405213";
-const DEFAULT_ENV = Environment.SEPOLIA;
+const DEFAULT_ENV = Environment.GOERLI;
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -16,9 +16,9 @@ let provider = new ethers.providers.InfuraProvider(
 );
 
 export function getProvider(
-  env = Environment.SEPOLIA
+  env = Environment.GOERLI
 ): ethers.providers.Provider {
-  if (env !== Environment.SEPOLIA) {
+  if (env !== Environment.GOERLI) {
     provider = new ethers.providers.InfuraProvider(
       env,
       process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY

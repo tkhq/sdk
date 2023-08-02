@@ -18,9 +18,8 @@ import { ethers } from "ethers";
 import JSBI from "jsbi";
 
 import { getV3PoolInfo } from "./pool";
-import { TransactionState } from "./utils";
+import { print } from "../utils";
 // import { fromReadableAmount, TransactionState } from "./utils";
-import { getProvider, getTurnkeySigner } from "./provider";
 import {
   DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
   DEFAULT_MAX_FEE_PER_GAS,
@@ -72,7 +71,7 @@ export async function prepareV3Trade(
 
   const swapRoute = new Route([pool], inputToken, outputToken);
 
-  const amountOut = await getOutputQuote(swapRoute, inputToken, inputAmount);
+  const amountOut = await getOutputQuote(connectedSigner, swapRoute, inputToken, inputAmount);
 
   const uncheckedTrade = Trade.createUncheckedTrade({
     route: swapRoute,
@@ -105,24 +104,15 @@ export async function executeTrade(
 
   // Give approval to the router to spend the token
   // TODO: Realistically, we should only do this if necessary (to prevent unnecessary contract calls)
-  const tokenApproval = await getTokenTransferApproval(inputToken, inputAmount);
-
-  // Fail if transfer approvals do not go through
-  if (tokenApproval !== TransactionState.Sent) {
-    throw new Error("Unable to approve transfer");
-  }
-
-  console.log(`Token approval: ${JSON.stringify(tokenApproval)}`);
+  await getTokenTransferApproval(connectedSigner, inputToken, inputAmount);
 
   const options: SwapOptions = {
     slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
     deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
-    recipient: address, // specifying a recipient is neat
+    recipient: address,
   };
 
   const methodParameters = SwapRouter.swapCallParameters([trade], options);
-
-  console.log(`Swap method parameters: ${JSON.stringify(methodParameters)}`);
 
   const feeData = await provider.getFeeData();
 
@@ -131,7 +121,6 @@ export async function executeTrade(
     to: SWAP_ROUTER_ADDRESS,
     value: methodParameters.value,
     from: address,
-    // the following gas-related fields can be omitted, in which case Ethers will automatically populate them
     maxFeePerGas: feeData.maxFeePerGas || DEFAULT_MAX_FEE_PER_GAS,
     maxPriorityFeePerGas:
       feeData.maxPriorityFeePerGas || DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
@@ -143,11 +132,12 @@ export async function executeTrade(
 // Helper Quoting and Pool Functions
 
 async function getOutputQuote(
+  connectedSigner: TurnkeySigner,
   route: Route<Currency, Currency>,
   inputToken: Token,
   inputAmount: ethers.BigNumber,
 ) {
-  const provider = getProvider();
+  const provider = connectedSigner.provider!;
 
   if (!provider) {
     throw new Error("Provider required to get pool state");
@@ -171,15 +161,14 @@ async function getOutputQuote(
 }
 
 export async function getTokenTransferApproval(
+  connectedSigner: TurnkeySigner,
   token: Token,
   amount: ethers.BigNumber
-): Promise<TransactionState> {
-  const provider = getProvider();
-  const connectedSigner = getTurnkeySigner(provider);
+): Promise<boolean> {
   const address = await connectedSigner.getAddress();
   if (!connectedSigner || !address) {
-    console.log("No Connected Signer Found");
-    return TransactionState.Failed;
+    console.error("No Connected Signer Found");
+    return false;
   }
 
   try {
@@ -191,25 +180,27 @@ export async function getTokenTransferApproval(
 
     // Verify that `approve` is an available method on the contract
     if (!tokenContract.populateTransaction.approve)
-      return TransactionState.Failed;
+      return false;
 
     const transaction = await tokenContract.populateTransaction.approve(
       SWAP_ROUTER_ADDRESS,
       amount.toString() // double check this
     );
 
-    let response = await connectedSigner.sendTransaction({
+    let approveTx = await connectedSigner.sendTransaction({
       ...transaction,
       from: address,
     });
 
-    if (response) {
-      return TransactionState.Sent;
-    } else {
-      return TransactionState.Failed;
-    }
+    console.log("Awaiting confirmation for approve tx...\n");
+
+    await connectedSigner.provider!.waitForTransaction(approveTx.hash, 1);
+
+    print("Token spending approved:", `https://goerli.etherscan.io/tx/${approveTx.hash}`);
+
+    return true;
   } catch (e) {
     console.error(e);
-    return TransactionState.Failed;
+    return false;
   }
 }

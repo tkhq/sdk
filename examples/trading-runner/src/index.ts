@@ -110,8 +110,6 @@ main().catch((error) => {
 });
 
 async function setup(_options: any) {
-  const organization = await getOrganization();
-
   // setup user tags
   const adminTagId = await createUserTag("Admin", []);
   const traderTagId = await createUserTag("Trader", []);
@@ -172,6 +170,7 @@ async function setup(_options: any) {
 
   // SENDING
   // first, get long term storage address(es)
+  const organization = await getOrganization();
   const longTermStoragePrivateKey = findPrivateKeys(organization, "long-term-storage")[0];
   const longTermStorageAddress = longTermStoragePrivateKey?.addresses.find(
     (address: any) => {
@@ -239,17 +238,35 @@ async function tradeImpl(
 
   // Wrap if necessary. Should also account for gas
   if (baseAsset === "ETH") {
+    console.log("For Uniswap trades, native ETH must first be converted to WETH.\n");
+
     const wethContract = new ethers.Contract(
       WETH_TOKEN_GOERLI.address,
       WETH_ABI,
       connectedSigner
     );
 
-    const depositTx = await wethContract.deposit({
+    if (!wethContract.populateTransaction.deposit) {
+      console.error("Invalid contract call. Exiting...\n");
+      return;
+    }
+
+    const populatedTx = await wethContract!.populateTransaction!.deposit({
       value: ethers.utils.parseEther(baseAmount),
     });
 
-    console.log("Awaiting confirmation...");
+    console.log({
+      tradingPrivateKey,
+      populatedTx,
+      // user: process.env.
+    })
+
+    const depositTx = await connectedSigner.sendTransaction({
+      ...populatedTx,
+      from: await connectedSigner.getAddress(),
+    });
+
+    console.log("Awaiting confirmation for wrap tx...\n");
 
     await provider.waitForTransaction(depositTx.hash, 1);
 
@@ -277,7 +294,7 @@ async function tradeImpl(
   const outputToken = ASSET_METADATA[quoteAsset]!.token;
 
   const inputAmount = fromReadableAmount(
-    parseInt(baseAmount),
+    parseFloat(baseAmount),
     inputToken.decimals
   );
 
@@ -295,7 +312,7 @@ async function tradeImpl(
     inputAmount
   );
 
-  print("Successfully prepared trade:", `${JSON.stringify(trade)}`);
+  console.log("Successfully prepared trade!\n");
 
   // execute trade
   let result = await executeTrade(

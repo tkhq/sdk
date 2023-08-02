@@ -54,9 +54,9 @@ export async function sendEth(
   if (balance.isZero()) {
     let warningMessage =
       "The transaction won't be broadcast because your account balance is zero.\n";
-    if (network.name === "sepolia") {
+    if (network.name === "goerli") {
       warningMessage +=
-        "Use https://sepoliafaucet.com/ to request funds on Sepolia, then run the script again.\n";
+        "Use https://goerlifaucet.com/ to request funds on goerli, then run the script again.\n";
     }
 
     throw new Error(warningMessage);
