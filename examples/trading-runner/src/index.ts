@@ -5,12 +5,8 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { ethers } from "ethers";
-import {
-  findPrivateKeys,
-  isKeyOfObject,
-  print,
-  fromReadableAmount,
-} from "./utils";
+import prompts from "prompts";
+import { findPrivateKeys, isKeyOfObject, fromReadableAmount } from "./utils";
 import {
   createPrivateKey,
   createPrivateKeyTag,
@@ -20,35 +16,22 @@ import {
   getOrganization,
 } from "./requests";
 import { getProvider, getTurnkeySigner } from "./provider";
-import { sendEth } from "./send";
+import { sendEth, sendToken, wrapEth } from "./send";
 import keys from "./keys";
 import {
+  ASSET_METADATA,
   WETH_TOKEN_GOERLI,
   USDC_TOKEN_GOERLI,
   APPROVE_SIGNATURE,
   DEPOSIT_SIGNATURE,
+  GAS_MULTIPLIER,
   TRANSFER_SIGNATURE,
+  NATIVE_TRANSFER_GAS_LIMIT,
   SWAP_ROUTER_ADDRESS,
   TRADE_SIGNATURE,
-  WETH_ABI,
-  ERC20_ABI,
+  DEFAULT_SLIPPAGE_TOLERANCE,
 } from "./uniswap/constants";
 import { prepareV3Trade, executeTrade } from "./uniswap/base";
-
-const SWEEP_THRESHOLD = 100000000000000; // 0.0001 ETH
-const TRANSFER_GAS_LIMIT = 21000;
-const GAS_MULTIPLIER = 2;
-
-const ASSET_METADATA: { [key: string]: { [key: string]: any } } = {
-  WETH: {
-    abi: WETH_ABI,
-    token: WETH_TOKEN_GOERLI,
-  },
-  USDC: {
-    abi: ERC20_ABI,
-    token: USDC_TOKEN_GOERLI,
-  },
-};
 
 async function main() {
   const args = process.argv.slice(2);
@@ -94,7 +77,6 @@ async function main() {
     setup: setup,
     trade: trade,
     sweep: sweep,
-    // add unauthorized send here
   };
 
   if (!isKeyOfObject(command!, commands)) {
@@ -140,7 +122,9 @@ async function setup(_options: any) {
     "true"
   );
 
-  const approveAddressParameter = SWAP_ROUTER_ADDRESS.substring(2).padStart(64, '0');
+  const paddedRouterAddress = SWAP_ROUTER_ADDRESS.toLowerCase()
+    .substring(2)
+    .padStart(64, "0");
 
   // TRADING
   await createPolicy(
@@ -153,13 +137,13 @@ async function setup(_options: any) {
     "Traders can use trading keys to make ERC20 token approvals for WETH for usage with Uniswap",
     "EFFECT_ALLOW",
     `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SIGNATURE}' && eth.tx.data[10..74] == '${approveAddressParameter}'`
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SIGNATURE}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`
   );
   await createPolicy(
     "Traders can use trading keys to make ERC20 token approvals for USDC for usage with Uniswap",
     "EFFECT_ALLOW",
     `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SIGNATURE}' && eth.tx.data[10..74] == '${approveAddressParameter}'`
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SIGNATURE}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`
   );
   await createPolicy(
     "Traders can use trading keys to make trades using Uniswap",
@@ -171,7 +155,10 @@ async function setup(_options: any) {
   // SENDING
   // first, get long term storage address(es)
   const organization = await getOrganization();
-  const longTermStoragePrivateKey = findPrivateKeys(organization, "long-term-storage")[0];
+  const longTermStoragePrivateKey = findPrivateKeys(
+    organization,
+    "long-term-storage"
+  )[0];
   const longTermStorageAddress = longTermStoragePrivateKey?.addresses.find(
     (address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
@@ -182,27 +169,32 @@ async function setup(_options: any) {
       `couldn't lookup ETH address for private key: ${longTermStoragePrivateKey?.privateKeyId}`
     );
   }
+
+  const paddedLongTermStorageAddress = longTermStorageAddress.address
+    .toLowerCase()
+    .substring(2)
+    .padStart(64, "0");
+
   await createPolicy(
     "Traders can use trading keys to send ETH to long term storage addresses",
     "EFFECT_ALLOW",
     `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${longTermStorageAddress.address!}' && eth.tx.data == ''` // empty data implies simple ETH send
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${longTermStorageAddress.address!}' && eth.tx.data == '0x'` // empty data implies simple ETH send
   );
   await createPolicy(
     "Traders can use trading keys to send WETH to long term storage addresses",
     "EFFECT_ALLOW",
     `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SIGNATURE}'`
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SIGNATURE}' && eth.tx.data[10..74] == '${paddedLongTermStorageAddress}'`
   );
   await createPolicy(
     "Traders can use trading keys to send USDC to long term storage addresses",
     "EFFECT_ALLOW",
     `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SIGNATURE}'`
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SIGNATURE}' && eth.tx.data[10..74] == '${paddedLongTermStorageAddress}'`
   );
 }
 
-// send funds from
 async function trade(options: { [key: string]: string }) {
   const baseAsset = options["baseAsset"]!.trim().toUpperCase(); // required
   const quoteAsset = options["quoteAsset"]!.trim().toUpperCase(); // required
@@ -224,7 +216,7 @@ async function trade(options: { [key: string]: string }) {
 async function tradeImpl(
   baseAsset: string,
   quoteAsset: string,
-  baseAmount: string,
+  baseAmount: string
 ) {
   const organization = await getOrganization();
 
@@ -236,46 +228,40 @@ async function tradeImpl(
     tradingPrivateKey!.privateKeyId
   );
 
-  // Wrap if necessary. Should also account for gas
   if (baseAsset === "ETH") {
-    console.log("For Uniswap trades, native ETH must first be converted to WETH.\n");
+    console.log(
+      "For Uniswap trades, native ETH must first be converted to WETH.\n"
+    );
 
-    const wethContract = new ethers.Contract(
-      WETH_TOKEN_GOERLI.address,
-      WETH_ABI,
+    const feeData = await connectedSigner.getFeeData();
+    const metadata = ASSET_METADATA["WETH"];
+    const tokenContract = new ethers.Contract(
+      metadata!.token.address,
+      metadata!.abi,
       connectedSigner
     );
-
-    if (!wethContract.populateTransaction.deposit) {
-      console.error("Invalid contract call. Exiting...\n");
-      return;
-    }
-
-    const populatedTx = await wethContract!.populateTransaction!.deposit({
-      value: ethers.utils.parseEther(baseAmount),
-    });
-
-    console.log({
-      tradingPrivateKey,
-      populatedTx,
-      // user: process.env.
-    })
-
-    const depositTx = await connectedSigner.sendTransaction({
-      ...populatedTx,
-      from: await connectedSigner.getAddress(),
-    });
-
-    console.log("Awaiting confirmation for wrap tx...\n");
-
-    await provider.waitForTransaction(depositTx.hash, 1);
-
-    print(
-      `Wrapped ${ethers.utils.formatEther(depositTx.value)} ETH:`,
-      `https://goerli.etherscan.io/tx/${depositTx.hash}` // hardcoded to goerli for now
+    const wrapAmount = fromReadableAmount(
+      parseFloat(baseAmount),
+      metadata!.token.decimals
     );
 
+    const { confirmed } = await prompts([
+      {
+        type: "confirm",
+        name: "confirmed",
+        message: `Please confirm: wrap ${baseAmount} ETH?`,
+      },
+    ]);
+
+    if (!confirmed) {
+      console.log("Transaction unconfirmed. Skipping...\n");
+      process.exit();
+    }
+
+    await wrapEth(connectedSigner, wrapAmount, tokenContract, feeData);
+
     baseAsset = "WETH"; // base asset is now considered WETH
+    console.log(`Moving on to trading ${baseAsset} for ${quoteAsset}...\n`);
   }
 
   const metadata = ASSET_METADATA[baseAsset];
@@ -285,7 +271,6 @@ async function tradeImpl(
     connectedSigner
   );
 
-  // make balance check to confirm we can make the trade
   const tokenBalance = await tokenContract.balanceOf(
     tradingPrivateKey?.addresses[0]?.address
   );
@@ -298,6 +283,7 @@ async function tradeImpl(
     inputToken.decimals
   );
 
+  // make balance check to confirm we can make the trade
   if (tokenBalance < inputAmount) {
     throw new Error(
       `Insufficient funds to perform this trade. Have: ${tokenBalance} ${inputToken.symbol}; Need: ${inputAmount} ${inputToken.symbol}.`
@@ -312,30 +298,50 @@ async function tradeImpl(
     inputAmount
   );
 
-  console.log("Successfully prepared trade!\n");
+  console.log("Trade parameters successfully prepared!\n");
+
+  const { confirmed } = await prompts([
+    {
+      type: "confirm",
+      name: "confirmed",
+      message: `Please confirm: trade ${baseAmount} ${baseAsset} for ~${trade
+        .minimumAmountOut(DEFAULT_SLIPPAGE_TOLERANCE)
+        .toExact()} ${quoteAsset}?`,
+    },
+  ]);
+
+  if (!confirmed) {
+    console.log("Transaction unconfirmed. Skipping...\n");
+    process.exit();
+  }
 
   // execute trade
-  let result = await executeTrade(
-    connectedSigner,
-    trade,
-    inputToken,
-    inputAmount
-  );
-
-  print(
-    `Successfully executed trade via Uniswap v3:`,
-    `https://goerli.etherscan.io/tx/${result.hash}`
-  );
+  await executeTrade(connectedSigner, trade, inputToken, inputAmount);
 }
 
-async function sweep(_options: any) {
+async function sweep(options: any) {
   // parse options
-  await sweepImpl();
+  const asset = options["asset"]!.trim().toUpperCase(); // required
+  const destination = options["destination"] || "".trim(); // optional
+  const amount = options["amount"]!.trim(); // whole amounts; optional. if not provided, will default to sending max amount
+
+  const validAssets = ["ETH", "WETH", "USDC"];
+
+  if (!validAssets.includes(asset)) {
+    console.error(`
+      Invalid asset: ${asset}\n
+    `);
+  }
+
+  await sweepImpl(asset, destination, amount);
 }
 
 // sweep one asset at a time, and only to long term storage
-async function sweepImpl() {
+async function sweepImpl(asset: string, destination: string, amount: string) {
   const organization = await getOrganization();
+
+  // find trading private keys
+  const tradingPrivateKey = findPrivateKeys(organization, "trading")[0]!;
 
   // find long term storage private key
   const longTermStoragePrivateKey = findPrivateKeys(
@@ -343,52 +349,114 @@ async function sweepImpl() {
     "long-term-storage"
   )[0];
 
-  // find trading private keys
-  const tradingPrivateKeys = findPrivateKeys(organization, "trading");
-
-  // send from short to long term storage
-  const ethAddress = longTermStoragePrivateKey?.addresses.find(
+  // send from trading address to long term storage
+  const longTermStorageAddress = longTermStoragePrivateKey?.addresses.find(
     (address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
     }
   );
-  if (!ethAddress || !ethAddress.address) {
+  if (!longTermStorageAddress || !longTermStorageAddress.address) {
     throw new Error(
       `couldn't lookup ETH address for private key: ${longTermStoragePrivateKey?.privateKeyId}`
     );
   }
+  if (destination.length === 0) {
+    destination = longTermStorageAddress.address;
+  }
+  if (destination !== longTermStorageAddress.address) {
+    console.error(
+      "Destination is not authorized. Allowing script to continue as the policy engine will block the transaction...\n"
+    );
+  }
 
-  for (const pk of tradingPrivateKeys!) {
-    const provider = getProvider();
-    const connectedSigner = getTurnkeySigner(provider, pk.privateKeyId);
+  const provider = getProvider();
+  const connectedSigner = getTurnkeySigner(
+    provider,
+    tradingPrivateKey.privateKeyId
+  );
+  const feeData = await connectedSigner.getFeeData();
+
+  feeData.maxFeePerGas = feeData.maxFeePerGas!.mul(GAS_MULTIPLIER);
+  feeData.maxPriorityFeePerGas =
+    feeData.maxPriorityFeePerGas!.mul(GAS_MULTIPLIER);
+
+  if (asset === "ETH") {
     const balance = await connectedSigner.getBalance();
-    const feeData = await connectedSigner.getFeeData();
-
-    feeData.maxFeePerGas = feeData.maxFeePerGas!.mul(GAS_MULTIPLIER);
-    feeData.maxPriorityFeePerGas =
-      feeData.maxPriorityFeePerGas!.mul(GAS_MULTIPLIER);
-
+    const sweepAmount = fromReadableAmount(parseFloat(amount), 18) || balance;
     const gasRequired = feeData
       .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
-      .mul(TRANSFER_GAS_LIMIT); // 21000 is the gas limit for a simple transfer
+      .mul(NATIVE_TRANSFER_GAS_LIMIT);
 
-    if (balance.lt(SWEEP_THRESHOLD)) {
-      console.log("Insufficient balance for sweep. Moving on...");
-      continue;
+    const finalAmount = sweepAmount.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
+
+    // make balance check to confirm we can make the trade
+    if (finalAmount.lte(0)) {
+      throw new Error(`Insufficient funds to sweep ${sweepAmount} ETH.`);
     }
 
-    const sweepAmount = balance.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
+    console.log(`Sweeping ${finalAmount} ETH to ${destination}...\n`);
 
-    if (sweepAmount.lt(0)) {
-      console.log("Insufficient balance for sweep. Moving on...");
-      continue;
+    const { confirmed } = await prompts([
+      {
+        type: "confirm",
+        name: "confirmed",
+        message: `Please confirm: sweep ${amount} ETH?`,
+      },
+    ]);
+
+    if (!confirmed) {
+      console.log("Transaction unconfirmed. Skipping...\n");
+      process.exit();
     }
 
-    await sendEth(
+    await sendEth(provider, connectedSigner, destination, finalAmount, feeData);
+  } else {
+    const metadata = ASSET_METADATA[asset];
+    const tokenContract = new ethers.Contract(
+      metadata!.token.address,
+      metadata!.abi,
+      connectedSigner
+    );
+    const tokenBalance = await tokenContract.balanceOf(
+      tradingPrivateKey?.addresses[0]?.address
+    );
+    const sweepAmount =
+      fromReadableAmount(parseFloat(amount), metadata!.token.decimals) ||
+      tokenBalance;
+
+    // make balance check to confirm we can make the trade
+    if (sweepAmount.gt(tokenBalance)) {
+      throw new Error(
+        `Insufficient funds to perform this sweep. Have: ${tokenBalance} ${
+          metadata!.token.symbol
+        }; Need: ${sweepAmount} ${metadata!.token.symbol}.`
+      );
+    }
+
+    console.log(
+      `Sweeping ${amount} ${metadata!.token.symbol} to ${destination}...\n`
+    );
+
+    const { confirmed } = await prompts([
+      {
+        type: "confirm",
+        name: "confirmed",
+        message: `Please confirm: sweep ${amount} ${metadata!.token.symbol}?`,
+      },
+    ]);
+
+    if (!confirmed) {
+      console.log("Transaction unconfirmed. Skipping...\n");
+      process.exit();
+    }
+
+    await sendToken(
       provider,
       connectedSigner,
-      ethAddress.address,
+      destination,
       sweepAmount,
+      metadata!.token,
+      tokenContract,
       feeData
     );
   }

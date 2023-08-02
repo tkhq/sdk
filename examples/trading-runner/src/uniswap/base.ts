@@ -1,11 +1,5 @@
 import type { TurnkeySigner } from "@turnkey/ethers";
-import {
-  Currency,
-  CurrencyAmount,
-  Percent,
-  Token,
-  TradeType,
-} from "@uniswap/sdk-core";
+import { Currency, CurrencyAmount, Token, TradeType } from "@uniswap/sdk-core";
 import {
   Pool,
   Route,
@@ -19,10 +13,11 @@ import JSBI from "jsbi";
 
 import { getV3PoolInfo } from "./pool";
 import { print } from "../utils";
-// import { fromReadableAmount, TransactionState } from "./utils";
 import {
+  DEFAULT_SLIPPAGE_TOLERANCE,
   DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
   DEFAULT_MAX_FEE_PER_GAS,
+  GAS_MULTIPLIER,
   ERC20_ABI,
   FEE_AMOUNT,
   QUOTER_CONTRACT_ADDRESS,
@@ -71,7 +66,12 @@ export async function prepareV3Trade(
 
   const swapRoute = new Route([pool], inputToken, outputToken);
 
-  const amountOut = await getOutputQuote(connectedSigner, swapRoute, inputToken, inputAmount);
+  const amountOut = await getOutputQuote(
+    connectedSigner,
+    swapRoute,
+    inputToken,
+    inputAmount
+  );
 
   const uncheckedTrade = Trade.createUncheckedTrade({
     route: swapRoute,
@@ -94,7 +94,7 @@ export async function executeTrade(
   trade: TokenTrade,
   inputToken: Token,
   inputAmount: ethers.BigNumber
-): Promise<ethers.providers.TransactionResponse> {
+): Promise<ethers.providers.TransactionReceipt> {
   const provider = connectedSigner.provider!;
   const address = await connectedSigner.getAddress();
 
@@ -107,7 +107,7 @@ export async function executeTrade(
   await getTokenTransferApproval(connectedSigner, inputToken, inputAmount);
 
   const options: SwapOptions = {
-    slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
+    slippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
     deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
     recipient: address,
   };
@@ -121,12 +121,25 @@ export async function executeTrade(
     to: SWAP_ROUTER_ADDRESS,
     value: methodParameters.value,
     from: address,
-    maxFeePerGas: feeData.maxFeePerGas || DEFAULT_MAX_FEE_PER_GAS,
+    maxFeePerGas:
+      feeData.maxFeePerGas?.mul(GAS_MULTIPLIER) || DEFAULT_MAX_FEE_PER_GAS,
     maxPriorityFeePerGas:
-      feeData.maxPriorityFeePerGas || DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
+      feeData.maxPriorityFeePerGas?.mul(GAS_MULTIPLIER) ||
+      DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
   };
 
-  return await connectedSigner.sendTransaction(tx);
+  const swapTx = await connectedSigner.sendTransaction(tx);
+
+  console.log("Awaiting confirmation for swap tx...\n");
+
+  const result = await connectedSigner.provider!.waitForTransaction(
+    swapTx.hash,
+    1
+  );
+
+  print(`Swap successful:`, `https://goerli.etherscan.io/tx/${swapTx.hash}`);
+
+  return result;
 }
 
 // Helper Quoting and Pool Functions
@@ -135,7 +148,7 @@ async function getOutputQuote(
   connectedSigner: TurnkeySigner,
   route: Route<Currency, Currency>,
   inputToken: Token,
-  inputAmount: ethers.BigNumber,
+  inputAmount: ethers.BigNumber
 ) {
   const provider = connectedSigner.provider!;
 
@@ -179,8 +192,7 @@ export async function getTokenTransferApproval(
     );
 
     // Verify that `approve` is an available method on the contract
-    if (!tokenContract.populateTransaction.approve)
-      return false;
+    if (!tokenContract.populateTransaction.approve) return false;
 
     const transaction = await tokenContract.populateTransaction.approve(
       SWAP_ROUTER_ADDRESS,
@@ -196,7 +208,10 @@ export async function getTokenTransferApproval(
 
     await connectedSigner.provider!.waitForTransaction(approveTx.hash, 1);
 
-    print("Token spending approved:", `https://goerli.etherscan.io/tx/${approveTx.hash}`);
+    print(
+      "Token spending approved:",
+      `https://goerli.etherscan.io/tx/${approveTx.hash}`
+    );
 
     return true;
   } catch (e) {

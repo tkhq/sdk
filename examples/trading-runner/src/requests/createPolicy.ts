@@ -8,13 +8,6 @@ export default async function createPolicy(
   consensus: string,
   condition: string
 ): Promise<string> {
-  console.log({
-    policyName,
-    effect,
-    consensus,
-    condition
-  })
-
   // Initialize `@turnkey/http` with your credentials
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,

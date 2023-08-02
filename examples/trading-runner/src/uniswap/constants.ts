@@ -1,7 +1,7 @@
 // This file stores web3 related constants such as addresses, token definitions, ETH currency references and ABIs
 
 import { FeeAmount } from "@uniswap/v3-sdk";
-import { SupportedChainId, Token } from "@uniswap/sdk-core";
+import { SupportedChainId, Token, Percent } from "@uniswap/sdk-core";
 import uniV3UniversalRouterContractABI from "./abi/univ3-universal-router-contract-abi.json";
 import wethContractABI from "./abi/weth-contract-abi.json";
 
@@ -17,7 +17,11 @@ export enum Environment {
 export const DEFAULT_MAX_FEE_PER_GAS = 10000000000; // 10 gwei
 export const DEFAULT_MAX_PRIORITY_FEE_PER_GAS = 10000000000; // 10 gwei
 export const DEFAULT_TOKEN_APPROVAL_AMOUNT = 1000; // whole units
+export const DEFAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000); // 50 bips, or 0.50%
 export const FEE_AMOUNT = FeeAmount.MEDIUM;
+export const NATIVE_TRANSFER_GAS_LIMIT = 21000;
+export const ERC20_TRANSFER_GAS_LIMIT = 200000; // conservatively high
+export const GAS_MULTIPLIER = 2;
 
 // Contract Addresses
 
@@ -29,12 +33,33 @@ export const SWAP_ROUTER_ADDRESS = "0xE592427A0AEce92De3Edee1F18E0157C05861564";
 export const UNI_V3_UNIVERSAL_ROUTER_CONTRACT_ADDRESS_GOERLI =
   "0x4648a43b2c14da09fdf82b161150d3f634f40491";
 
-// Contract call function signatures
+// Contract call function signatures. Must be lowercase.
 
 export const APPROVE_SIGNATURE = "0x095ea7b3";
 export const TRANSFER_SIGNATURE = "0xa9059cbb";
 export const DEPOSIT_SIGNATURE = "0xd0e30db0";
 export const TRADE_SIGNATURE = "0x414bf389"; // specifically for `exactInputSingle`
+
+// ABIs
+
+export const ERC20_ABI = [
+  // Read-Only Functions
+  "function balanceOf(address owner) view returns (uint256)",
+  "function decimals() view returns (uint8)",
+  "function symbol() view returns (string)",
+
+  // Authenticated Functions
+  "function transfer(address to, uint amount) returns (bool)",
+  "function approve(address _spender, uint256 _value) returns (bool)",
+
+  // Events
+  "event Transfer(address indexed from, address indexed to, uint amount)",
+];
+
+export const WETH_ABI = wethContractABI;
+
+export const UNI_V3_UNIVERSAL_ROUTER_CONTRACT_ABI =
+  uniV3UniversalRouterContractABI;
 
 // Currencies and Tokens
 
@@ -86,23 +111,13 @@ export const UNI_TOKEN_GOERLI = new Token(
   "Uniswap"
 );
 
-// ABIs
-
-export const ERC20_ABI = [
-  // Read-Only Functions
-  "function balanceOf(address owner) view returns (uint256)",
-  "function decimals() view returns (uint8)",
-  "function symbol() view returns (string)",
-
-  // Authenticated Functions
-  "function transfer(address to, uint amount) returns (bool)",
-  "function approve(address _spender, uint256 _value) returns (bool)",
-
-  // Events
-  "event Transfer(address indexed from, address indexed to, uint amount)",
-];
-
-export const WETH_ABI = wethContractABI;
-
-export const UNI_V3_UNIVERSAL_ROUTER_CONTRACT_ABI =
-  uniV3UniversalRouterContractABI;
+export const ASSET_METADATA: { [key: string]: { [key: string]: any } } = {
+  WETH: {
+    abi: WETH_ABI,
+    token: WETH_TOKEN_GOERLI,
+  },
+  USDC: {
+    abi: ERC20_ABI,
+    token: USDC_TOKEN_GOERLI,
+  },
+};
