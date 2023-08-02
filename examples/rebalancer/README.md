@@ -1,6 +1,6 @@
 # Example: `rebalancer`
 
-A demo application which showcases an example of how to use Turnkey for managing multiple types of  keys & users.
+A demo application which showcases an example of how to use Turnkey for managing multiple types of keys & users.
 
 **Note:** This example uses the Sepolia testnet!
 
