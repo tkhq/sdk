@@ -54,7 +54,7 @@ Now open `.env.local` and add the missing environment variables:
 
 Create the organizational structure required for this demo:
 
-```
+```bash
 // setup an organization with users, private keys, and policies
 pnpm cli setup
 ```
@@ -67,7 +67,7 @@ Before executing any txns using Turnkey, you'll first need the "Trading" address
 
 Once the "Trading" address has funds in it, execute the "trade" command to make a t
 
-```
+```bash
 pnpm cli trade --baseAsset=<SYMBOL> --quoteAsset=<SYMBOL> --baseAmount=<WHOLE AMOUNT> --key=<USER>
 ```
 
@@ -77,7 +77,7 @@ Note: when trading ETH using Uniswap v2/v3, wrapping and unwrapping ETH/WETH wil
 
 Next, use the "sweep" command to move the assets from the "Trading" address(es) to the "Long Term Storage" address(es).
 
-```
+```bash
 pnpm cli sweep --asset=<ASSET> --destination=<ADDRESS> --amount=<WHOLE AMOUNT> --key=<USER>
 ```
 
@@ -89,7 +89,7 @@ Notes:
 
 ## Sample trades
 
-```
+```bash
 pnpm cli trade --baseAsset=ETH --quoteAsset=USDC --baseAmount=0.001 --key=bob # will auto-wrap ETH into WETH
 pnpm cli trade --baseAsset=WETH --quoteAsset=USDC --baseAmount=0.001 --key=bob
 pnpm cli trade --baseAsset=USDC --quoteAsset=WETH --baseAmount=1000 --key=bob
@@ -98,7 +98,7 @@ pnpm cli trade --baseAsset=USDC --quoteAsset=ETH --baseAmount=1000 --key=bob # w
 
 ## Sample sweeps
 
-```
+```bash
 pnpm cli sweep --asset=USDC --amount=1 --key=bob
 pnpm cli sweep --asset=USDC --amount=1 --key=bob --destination=0xf0609e87Dfa4DA10f38313868b15296f7B30c00A # will get denied
 ```
@@ -111,6 +111,41 @@ First, see our [Policies docs](https://turnkey.readme.io/docs/policy-engine-over
 0xa9059cbb000000000000000000000000d3b433723858612da3260eac465758c7ddfa5e5000000000000000000000000000000000000000000000000000000000000f4240
 ```
 
-The function signature is stored in the first 4 bytes after the `0x`, i.e. the first 8 hex characters. This evaluates to `a9059cbb`, and because our policy engine includes the `0x` prefix, this is why the policy checks the first ten characters (`eth.tx.data[0..10]`) to see if it equates to `0xa9059cbb`.
+The function selector is stored in the first 4 bytes after the `0x`, i.e. the first 8 hex characters. This evaluates to `a9059cbb`, and because our policy engine includes the `0x` prefix, this is why the policy checks the first ten characters (`eth.tx.data[0..10]`) to see if it equates to `0xa9059cbb`.
 
-Next, we have 2 static parameters, `to (address)` and `value (uint256)`, which each fit into 32 bytes, or 64 hex characters. Similar to accessing the `signature` chars, we can hone in on the `to` chars with `eth.tx.data[10..74]`, and `value` chars with `eth.tx.data[74..138]`. Note that these bits will not be 0x-prefixed, so we are comparing pure hex chars.
+Next, we have 2 static parameters, `to (address)` and `value (uint256)`, which each conform to the invariant that EVM call data parameters consist of 32 bytes, or 64 hex characters, left-padded with 0s (if necessary). Similar to accessing the `selector` chars, we can hone in on the `to` chars with `eth.tx.data[10..74]`, and `value` chars with `eth.tx.data[74..138]`. Note that these bits will not be 0x-prefixed, so we are comparing pure hex chars. In summary:
+
+```javascript
+eth.tx.data[0..10]: "0xa9059cbb"
+eth.tx.data[10..74]: "000000000000000000000000d3b433723858612da3260eac465758c7ddfa5e50"
+eth.tx.data[74..138]: "00000000000000000000000000000000000000000000000000000000000f4240"
+```
+
+Additional note: the policies specified in this example are separate for the purposes of clarity. However, certain causes can be combined as well. For example:
+These two calls
+
+```javascript
+await createPolicy(
+  "Traders can use trading keys to deposit, aka wrap, ETH",
+  "EFFECT_ALLOW",
+  `approvers.any(user, user.tags.contains('${traderTagId}'))`,
+  `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${DEPOSIT_SELECTOR}'`
+);
+await createPolicy(
+  "Traders can use trading keys to withdraw, aka unwrap, WETH",
+  "EFFECT_ALLOW",
+  `approvers.any(user, user.tags.contains('${traderTagId}'))`,
+  `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${WITHDRAW_SELECTOR}'`
+);
+```
+
+... can alternatively be expressed as
+
+```javascript
+await createPolicy(
+  "Traders can use trading keys to wrap or unwrap ETH",
+  "EFFECT_ALLOW",
+  `approvers.any(user, user.tags.contains('${traderTagId}'))`,
+  `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] in ['${DEPOSIT_SELECTOR}', '${WITHDRAW_SELECTOR}']`
+);
+```

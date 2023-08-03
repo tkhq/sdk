@@ -22,14 +22,15 @@ import {
   ASSET_METADATA,
   WETH_TOKEN_GOERLI,
   USDC_TOKEN_GOERLI,
-  APPROVE_SIGNATURE,
-  DEPOSIT_SIGNATURE,
+  APPROVE_SELECTOR,
+  DEPOSIT_SELECTOR,
   GAS_MULTIPLIER,
-  TRANSFER_SIGNATURE,
+  TRANSFER_SELECTOR,
   NATIVE_TRANSFER_GAS_LIMIT,
   SWAP_ROUTER_ADDRESS,
-  TRADE_SIGNATURE,
+  TRADE_SELECTOR,
   DEFAULT_SLIPPAGE_TOLERANCE,
+  WITHDRAW_SELECTOR,
 } from "./uniswap/constants";
 import { prepareV3Trade, executeTrade } from "./uniswap/base";
 import { toReadableAmount } from "./utils";
@@ -131,32 +132,32 @@ async function setup(_options: any) {
   await createPolicy(
     "Traders can use trading keys to deposit, aka wrap, ETH",
     "EFFECT_ALLOW",
-    `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${DEPOSIT_SIGNATURE}'`
+    `approvers.any(user, user.tags.contains('${traderTagId}'))`,
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${DEPOSIT_SELECTOR}'`
   );
   await createPolicy(
     "Traders can use trading keys to withdraw, aka unwrap, WETH",
     "EFFECT_ALLOW",
-    `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${DEPOSIT_SIGNATURE}'`
+    `approvers.any(user, user.tags.contains('${traderTagId}'))`,
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${WITHDRAW_SELECTOR}'`
   );
   await createPolicy(
     "Traders can use trading keys to make ERC20 token approvals for WETH for usage with Uniswap",
     "EFFECT_ALLOW",
-    `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SIGNATURE}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`
+    `approvers.any(user, user.tags.contains('${traderTagId}'))`,
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SELECTOR}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`
   );
   await createPolicy(
     "Traders can use trading keys to make ERC20 token approvals for USDC for usage with Uniswap",
     "EFFECT_ALLOW",
-    `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SIGNATURE}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`
+    `approvers.any(user, user.tags.contains('${traderTagId}'))`,
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SELECTOR}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`
   );
   await createPolicy(
     "Traders can use trading keys to make trades using Uniswap",
     "EFFECT_ALLOW",
-    `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${SWAP_ROUTER_ADDRESS}' && eth.tx.data[0..10] == '${TRADE_SIGNATURE}'` // in theory, you can get more granular here with specific trade parameters
+    `approvers.any(user, user.tags.contains('${traderTagId}'))`,
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${SWAP_ROUTER_ADDRESS}' && eth.tx.data[0..10] == '${TRADE_SELECTOR}'` // in theory, you can get more granular here with specific trade parameters
   );
 
   // SENDING
@@ -185,20 +186,20 @@ async function setup(_options: any) {
   await createPolicy(
     "Traders can use trading keys to send ETH to long term storage addresses",
     "EFFECT_ALLOW",
-    `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${longTermStorageAddress.address!}' && eth.tx.data == '0x'` // empty data implies simple ETH send
+    `approvers.any(user, user.tags.contains('${traderTagId}'))`,
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${longTermStorageAddress.address!}'`
   );
   await createPolicy(
     "Traders can use trading keys to send WETH to long term storage addresses",
     "EFFECT_ALLOW",
-    `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SIGNATURE}' && eth.tx.data[10..74] == '${paddedLongTermStorageAddress}'`
+    `approvers.any(user, user.tags.contains('${traderTagId}'))`,
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SELECTOR}' && eth.tx.data[10..74] == '${paddedLongTermStorageAddress}'`
   );
   await createPolicy(
     "Traders can use trading keys to send USDC to long term storage addresses",
     "EFFECT_ALLOW",
-    `approvers.filter(user, user.tags.contains('${traderTagId}')).count() >= 1`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SIGNATURE}' && eth.tx.data[10..74] == '${paddedLongTermStorageAddress}'`
+    `approvers.any(user, user.tags.contains('${traderTagId}'))`,
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SELECTOR}' && eth.tx.data[10..74] == '${paddedLongTermStorageAddress}'`
   );
 }
 

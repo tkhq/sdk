@@ -33,13 +33,13 @@ export const SWAP_ROUTER_ADDRESS = "0xE592427A0AEce92De3Edee1F18E0157C05861564";
 export const UNI_V3_UNIVERSAL_ROUTER_CONTRACT_ADDRESS_GOERLI =
   "0x4648a43b2c14da09fdf82b161150d3f634f40491";
 
-// Contract call function signatures. Must be lowercase.
+// Contract call function selectors. Must be lowercase.
 
-export const APPROVE_SIGNATURE = "0x095ea7b3";
-export const TRANSFER_SIGNATURE = "0xa9059cbb";
-export const DEPOSIT_SIGNATURE = "0xd0e30db0";
-export const WITHDRAW_SIGNATURE = "0x2e1a7d4d";
-export const TRADE_SIGNATURE = "0x414bf389"; // specifically for `exactInputSingle`
+export const APPROVE_SELECTOR = "0x095ea7b3";
+export const TRANSFER_SELECTOR = "0xa9059cbb";
+export const DEPOSIT_SELECTOR = "0xd0e30db0";
+export const WITHDRAW_SELECTOR = "0x2e1a7d4d";
+export const TRADE_SELECTOR = "0x414bf389"; // specifically for `exactInputSingle`
 
 // ABIs
 
