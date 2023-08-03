@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 1.0.1
+
+### Patch Changes
+
+- 8d1d0e8: Synced protos from mono
+
 ## 1.0.0
 
 ### Major Changes

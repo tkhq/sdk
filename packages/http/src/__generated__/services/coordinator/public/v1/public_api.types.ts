@@ -100,6 +100,10 @@ export type paths = {
     /** Remove api keys from a User */
     post: operations["PublicApiService_DeleteApiKeys"];
   };
+  "/public/v1/submit/delete_authenticators": {
+    /** Remove authenticators from a User */
+    post: operations["PublicApiService_DeleteAuthenticators"];
+  };
   "/public/v1/submit/delete_invitations": {
     /** Delete an existing Invitation */
     post: operations["PublicApiService_DeleteInvitation"];
@@ -124,6 +128,10 @@ export type paths = {
     /** Update the allowable origins for credentials and requests */
     post: operations["PublicApiService_UpdateAllowedOrigins"];
   };
+  "/public/v1/submit/update_policy": {
+    /** Update an existing Policy */
+    post: operations["PublicApiService_UpdatePolicy"];
+  };
   "/public/v1/submit/update_private_key_tag": {
     /** Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
     post: operations["PublicApiService_UpdatePrivateKeyTag"];
@@ -138,10 +146,6 @@ export type paths = {
   };
   "/tkhq/api/v1/noop-codegen-anchor": {
     post: operations["PublicApiService_NOOPCodegenAnchor"];
-  };
-  "/tkhq/public/v1/query/get_private_key": {
-    /** Get details about a Private Key */
-    post: operations["PublicApiService_GetPrivateKeyBackwardsCompat"];
   };
 };
 
@@ -396,7 +400,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"
     | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2"
     | "ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS"
-    | "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2";
+    | "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"
+    | "ACTIVITY_TYPE_UPDATE_POLICY";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -928,6 +933,15 @@ export type definitions = {
      */
     authenticatorIds: string[];
   };
+  v1DeleteAuthenticatorsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteAuthenticatorsIntent"];
+  };
   v1DeleteAuthenticatorsResult: {
     /** @description Unique identifier for a given Authenticator. */
     authenticatorIds: string[];
@@ -1206,6 +1220,7 @@ export type definitions = {
     createSubOrganizationIntentV2?: definitions["v1CreateSubOrganizationIntentV2"];
     updateAllowedOriginsIntent?: definitions["v1UpdateAllowedOriginsIntent"];
     createPrivateKeysIntentV2?: definitions["v1CreatePrivateKeysIntentV2"];
+    updatePolicyIntent?: definitions["v1UpdatePolicyIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1418,6 +1433,7 @@ export type definitions = {
     createSubOrganizationResult?: definitions["v1CreateSubOrganizationResult"];
     updateAllowedOriginsResult?: definitions["v1UpdateAllowedOriginsResult"];
     createPrivateKeysResultV2?: definitions["v1CreatePrivateKeysResultV2"];
+    updatePolicyResult?: definitions["v1UpdatePolicyResult"];
   };
   v1RootUserParams: {
     /**
@@ -1570,6 +1586,38 @@ export type definitions = {
     parameters: definitions["v1UpdateAllowedOriginsIntent"];
   };
   v1UpdateAllowedOriginsResult: { [key: string]: unknown };
+  v1UpdatePolicyIntent: {
+    /**
+     * @inject_tag: validate:"uuid"
+     * @description Unique identifier for a given Policy.
+     */
+    policyId: string;
+    /**
+     * @inject_tag: validate:"omitempty,tk_label,tk_label_length"
+     * @description Human-readable name for a Policy.
+     */
+    policyName?: string;
+    policyEffect?: definitions["immutableactivityv1Effect"];
+    /** @description The condition expression that triggers the Effect (optional). */
+    policyCondition?: string;
+    /** @description The consensus expression that triggers the Effect (optional). */
+    policyConsensus?: string;
+    /** @description Accompanying notes for a Policy (optional). */
+    policyNotes?: string;
+  };
+  v1UpdatePolicyRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_POLICY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdatePolicyIntent"];
+  };
+  v1UpdatePolicyResult: {
+    /** @description Unique identifier for a given Policy. */
+    policyId: string;
+  };
   v1UpdatePrivateKeyTagIntent: {
     /**
      * @inject_tag: validate:"uuid"
@@ -2398,6 +2446,32 @@ export type operations = {
       };
     };
   };
+  /** Remove authenticators from a User */
+  PublicApiService_DeleteAuthenticators: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteAuthenticatorsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Delete an existing Invitation */
   PublicApiService_DeleteInvitation: {
     parameters: {
@@ -2554,6 +2628,32 @@ export type operations = {
       };
     };
   };
+  /** Update an existing Policy */
+  PublicApiService_UpdatePolicy: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdatePolicyRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** Returned when the user does not have permission to access the resource. */
+      403: {
+        schema: unknown;
+      };
+      /** Returned when the resource does not exist. */
+      404: {
+        schema: string;
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
   PublicApiService_UpdatePrivateKeyTag: {
     parameters: {
@@ -2637,32 +2737,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1NOOPCodegenAnchorResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get details about a Private Key */
-  PublicApiService_GetPrivateKeyBackwardsCompat: {
-    parameters: {
-      body: {
-        body: definitions["v1GetPrivateKeyRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetPrivateKeyResponse"];
       };
       /** Returned when the user does not have permission to access the resource. */
       403: {

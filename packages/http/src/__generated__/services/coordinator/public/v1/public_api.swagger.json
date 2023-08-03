@@ -1052,6 +1052,49 @@
         "tags": ["Users"]
       }
     },
+    "/public/v1/submit/delete_authenticators": {
+      "post": {
+        "summary": "Delete Authenticators",
+        "description": "Remove authenticators from a User",
+        "operationId": "PublicApiService_DeleteAuthenticators",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteAuthenticatorsRequest"
+            }
+          }
+        ],
+        "tags": ["Authenticators"]
+      }
+    },
     "/public/v1/submit/delete_invitations": {
       "post": {
         "summary": "Delete Invitation",
@@ -1310,6 +1353,49 @@
         "tags": ["Organizations"]
       }
     },
+    "/public/v1/submit/update_policy": {
+      "post": {
+        "summary": "Update Policy",
+        "description": "Update an existing Policy",
+        "operationId": "PublicApiService_UpdatePolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdatePolicyRequest"
+            }
+          }
+        ],
+        "tags": ["Policies"]
+      }
+    },
     "/public/v1/submit/update_private_key_tag": {
       "post": {
         "summary": "Update Private Key Tag",
@@ -1469,50 +1555,6 @@
           }
         },
         "tags": ["PublicApiService"]
-      }
-    },
-    "/tkhq/public/v1/query/get_private_key": {
-      "post": {
-        "summary": "Get Private Key",
-        "description": "Get details about a Private Key",
-        "operationId": "PublicApiService_GetPrivateKeyBackwardsCompat",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetPrivateKeyResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetPrivateKeyRequest"
-            }
-          }
-        ],
-        "tags": ["Private Keys"],
-        "deprecated": true
       }
     }
   },
@@ -1924,7 +1966,8 @@
         "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION",
         "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2",
         "ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS",
-        "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"
+        "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+        "ACTIVITY_TYPE_UPDATE_POLICY"
       ],
       "description": "Type of Activity, such as Add User, or Sign Transaction."
     },
@@ -3000,6 +3043,27 @@
       },
       "required": ["userId", "authenticatorIds"]
     },
+    "v1DeleteAuthenticatorsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_AUTHENTICATORS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteAuthenticatorsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
     "v1DeleteAuthenticatorsResult": {
       "type": "object",
       "properties": {
@@ -3679,6 +3743,9 @@
         },
         "createPrivateKeysIntentV2": {
           "$ref": "#/definitions/v1CreatePrivateKeysIntentV2"
+        },
+        "updatePolicyIntent": {
+          "$ref": "#/definitions/v1UpdatePolicyIntent"
         }
       },
       "description": "Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action.",
@@ -4191,6 +4258,9 @@
         },
         "createPrivateKeysResultV2": {
           "$ref": "#/definitions/v1CreatePrivateKeysResultV2"
+        },
+        "updatePolicyResult": {
+          "$ref": "#/definitions/v1UpdatePolicyResult"
         }
       },
       "description": "Result of the intended action."
@@ -4482,6 +4552,68 @@
     },
     "v1UpdateAllowedOriginsResult": {
       "type": "object"
+    },
+    "v1UpdatePolicyIntent": {
+      "type": "object",
+      "properties": {
+        "policyId": {
+          "type": "string",
+          "description": "Unique identifier for a given Policy.",
+          "title": "@inject_tag: validate:\"uuid\""
+        },
+        "policyName": {
+          "type": "string",
+          "description": "Human-readable name for a Policy.",
+          "title": "@inject_tag: validate:\"omitempty,tk_label,tk_label_length\""
+        },
+        "policyEffect": {
+          "$ref": "#/definitions/immutableactivityv1Effect"
+        },
+        "policyCondition": {
+          "type": "string",
+          "description": "The condition expression that triggers the Effect (optional)."
+        },
+        "policyConsensus": {
+          "type": "string",
+          "description": "The consensus expression that triggers the Effect (optional)."
+        },
+        "policyNotes": {
+          "type": "string",
+          "description": "Accompanying notes for a Policy (optional)."
+        }
+      },
+      "required": ["policyId"]
+    },
+    "v1UpdatePolicyRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_POLICY"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdatePolicyIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdatePolicyResult": {
+      "type": "object",
+      "properties": {
+        "policyId": {
+          "type": "string",
+          "description": "Unique identifier for a given Policy."
+        }
+      },
+      "required": ["policyId"]
     },
     "v1UpdatePrivateKeyTagIntent": {
       "type": "object",

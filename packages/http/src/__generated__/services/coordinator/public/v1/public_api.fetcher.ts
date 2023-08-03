@@ -1170,6 +1170,58 @@ export const signDeleteApiKeys = (
   });
 
 /**
+ * `POST /public/v1/submit/delete_authenticators`
+ */
+type TDeleteAuthenticatorsBody =
+  operations["PublicApiService_DeleteAuthenticators"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/delete_authenticators`
+ */
+export type TDeleteAuthenticatorsResponse =
+  operations["PublicApiService_DeleteAuthenticators"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_authenticators`
+ */
+export type TDeleteAuthenticatorsInput = { body: TDeleteAuthenticatorsBody };
+
+/**
+ * Delete Authenticators
+ *
+ * Remove authenticators from a User
+ *
+ * `POST /public/v1/submit/delete_authenticators`
+ */
+export const deleteAuthenticators = (input: TDeleteAuthenticatorsInput) =>
+  request<
+    TDeleteAuthenticatorsResponse,
+    TDeleteAuthenticatorsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_authenticators",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteAuthenticators` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteAuthenticators}
+ */
+export const signDeleteAuthenticators = (
+  input: TDeleteAuthenticatorsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TDeleteAuthenticatorsBody, never, never>({
+    uri: "/public/v1/submit/delete_authenticators",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/delete_invitations`
  */
 type TDeleteInvitationBody =
@@ -1458,6 +1510,52 @@ export const signUpdateAllowedOrigins = (
   });
 
 /**
+ * `POST /public/v1/submit/update_policy`
+ */
+type TUpdatePolicyBody =
+  operations["PublicApiService_UpdatePolicy"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/update_policy`
+ */
+export type TUpdatePolicyResponse =
+  operations["PublicApiService_UpdatePolicy"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_policy`
+ */
+export type TUpdatePolicyInput = { body: TUpdatePolicyBody };
+
+/**
+ * Update Policy
+ *
+ * Update an existing Policy
+ *
+ * `POST /public/v1/submit/update_policy`
+ */
+export const updatePolicy = (input: TUpdatePolicyInput) =>
+  request<TUpdatePolicyResponse, TUpdatePolicyBody, never, never, never>({
+    uri: "/public/v1/submit/update_policy",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdatePolicy` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdatePolicy}
+ */
+export const signUpdatePolicy = (
+  input: TUpdatePolicyInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TUpdatePolicyBody, never, never>({
+    uri: "/public/v1/submit/update_policy",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/update_private_key_tag`
  */
 type TUpdatePrivateKeyTagBody =
@@ -1634,70 +1732,4 @@ export const nOOPCodegenAnchor = () =>
 export const signNOOPCodegenAnchor = () =>
   signedRequest<never, never, never>({
     uri: "/tkhq/api/v1/noop-codegen-anchor",
-  });
-
-/**
- * `POST /tkhq/public/v1/query/get_private_key`
- *
- * @deprecated
- */
-type TGetPrivateKeyBackwardsCompatBody =
-  operations["PublicApiService_GetPrivateKeyBackwardsCompat"]["parameters"]["body"]["body"];
-
-/**
- * `POST /tkhq/public/v1/query/get_private_key`
- *
- * @deprecated
- */
-export type TGetPrivateKeyBackwardsCompatResponse =
-  operations["PublicApiService_GetPrivateKeyBackwardsCompat"]["responses"]["200"]["schema"];
-
-/**
- * `POST /tkhq/public/v1/query/get_private_key`
- *
- * @deprecated
- */
-export type TGetPrivateKeyBackwardsCompatInput = {
-  body: TGetPrivateKeyBackwardsCompatBody;
-};
-
-/**
- * Get Private Key
- *
- * Get details about a Private Key
- *
- * `POST /tkhq/public/v1/query/get_private_key`
- *
- * @deprecated
- */
-export const getPrivateKeyBackwardsCompat = (
-  input: TGetPrivateKeyBackwardsCompatInput
-) =>
-  request<
-    TGetPrivateKeyBackwardsCompatResponse,
-    TGetPrivateKeyBackwardsCompatBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/tkhq/public/v1/query/get_private_key",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `GetPrivateKeyBackwardsCompat` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetPrivateKeyBackwardsCompat}
- *
- * @deprecated
- */
-export const signGetPrivateKeyBackwardsCompat = (
-  input: TGetPrivateKeyBackwardsCompatInput,
-  options?: TurnkeyCredentialRequestOptions
-) =>
-  signedRequest<TGetPrivateKeyBackwardsCompatBody, never, never>({
-    uri: "/tkhq/public/v1/query/get_private_key",
-    body: input.body,
-    options,
   });
