@@ -103,6 +103,40 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
 
+  examples/trading-runner:
+    dependencies:
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../packages/ethers
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../packages/http
+      '@uniswap/sdk-core':
+        specifier: ^3.1.1
+        version: 3.1.1
+      '@uniswap/v3-core':
+        specifier: ^1.0.1
+        version: 1.0.1
+      '@uniswap/v3-sdk':
+        specifier: ^3.9.0
+        version: 3.9.0(hardhat@2.12.7)
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2
+      jsbi:
+        specifier: ^3.2.5
+        version: 3.2.5
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+
   examples/with-cosmjs:
     dependencies:
       '@cosmjs/encoding':
