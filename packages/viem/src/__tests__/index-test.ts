@@ -3,8 +3,7 @@ import { sepolia } from "viem/chains";
 
 import { createApiKeyAccount } from "../";
 
-import {expect, beforeEach, describe, test } from "@jest/globals";
-
+import { expect, beforeEach, describe, test } from "@jest/globals";
 
 describe("createApiKeyAccount", () => {
   let client: WalletClient;
@@ -44,7 +43,7 @@ describe("createApiKeyAccount", () => {
       organizationId,
       privateKeyId,
     });
-  
+
     client = createWalletClient({
       account: turnkeyAccount,
       chain: sepolia,
@@ -60,8 +59,10 @@ describe("createApiKeyAccount", () => {
     const signature = await client.signMessage({
       message: "rno was here",
       account: client.account!,
-    })
-    expect(signature).toEqual("0x42ea50d0e54726f9ce0eabf2823381a89ee9131eb2095f431ced65087213a1b767c112bd892dd9221cd269364a9938bbe63c65eea4794abbb7b7d355eadeb9131c")
+    });
+    expect(signature).toEqual(
+      "0x42ea50d0e54726f9ce0eabf2823381a89ee9131eb2095f431ced65087213a1b767c112bd892dd9221cd269364a9938bbe63c65eea4794abbb7b7d355eadeb9131c"
+    );
   });
 });
 

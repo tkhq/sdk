@@ -52,6 +52,7 @@ This script will do the following:
 3. broadcast it via Infura
 
 Sample output from a successful execution:
+
 ```
 $ pnpm start
 Fetching Node.js 18.0.0 ...
