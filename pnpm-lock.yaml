@@ -288,9 +288,6 @@ importers:
 
   examples/with-viem:
     dependencies:
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../packages/http
       '@turnkey/viem':
         specifier: workspace:*
         version: link:../../packages/viem
