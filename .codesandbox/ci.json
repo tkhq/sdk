@@ -1,7 +1,7 @@
 {
   "installCommand": "csb:install",
   "buildCommand": "csb:build",
-  "packages": ["packages/cosmjs", "packages/ethers", "packages/http"],
+  "packages": ["packages/cosmjs", "packages/ethers", "packages/http", "packages/viem"],
   "sandboxes": [],
   "node": "18"
 }
