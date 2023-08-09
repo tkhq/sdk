@@ -9,6 +9,11 @@
     "isolatedModules": true,
     "noPropertyAccessFromIndexSignature": false,
     "resolveJsonModule": true,
-    "sourceMap": true
-  }
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
+  "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"]
 }
