@@ -1,10 +1,12 @@
-# @turnkey/ethers
+# @turnkey/viem
 
 [![npm](https://img.shields.io/npm/v/@turnkey/viem?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/viem)
 
-[Turnkey](https://turnkey.com) Custom Account for [`Viem`](https://viem.sh/docs/accounts/custom.html#custom-account).
+This package contains helpers to work with [Turnkey](https://turnkey.com). Currently:
 
-If you need a lower-level, fully typed HTTP client for interacting with Turnkey API, check out [`@turnkey/http`](/packages/http/).
+- a Turnkey [Custom Account](https://viem.sh/docs/accounts/custom.html#custom-account) (signer)
+
+If you need a lower-level, fully typed HTTP client for interacting with Turnkey API, check out [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http).
 
 ## Getting started
 
@@ -48,5 +50,5 @@ main().catch((error) => {
 
 ## See also
 
-- [`@turnkey/example-with-viem`](/examples/with-viem/): example using this package to create, sign, and broadcast a transaction on Sepolia (Ethereum testnet)
-- [`@turnkey/http`](/packages/http/): lower-level fully typed HTTP client for interacting with Turnkey API
+- [`@turnkey/example-with-viem`](https://github.com/tkhq/sdk/tree/main/examples/with-viem): example using this package to create, sign, and broadcast a transaction on Sepolia (Ethereum testnet)
+- [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http): lower-level fully typed HTTP client for interacting with Turnkey API
