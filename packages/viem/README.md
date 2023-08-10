@@ -3,7 +3,8 @@
 [![npm](https://img.shields.io/npm/v/@turnkey/viem?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/viem)
 
 This package contains helpers to work with [Turnkey](https://turnkey.com). Currently:
-* a Turnkey [Custom Account](https://viem.sh/docs/accounts/custom.html#custom-account) (signer)
+
+- a Turnkey [Custom Account](https://viem.sh/docs/accounts/custom.html#custom-account) (signer)
 
 If you need a lower-level, fully typed HTTP client for interacting with Turnkey API, check out [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http).
 
