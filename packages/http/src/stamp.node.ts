@@ -1,8 +1,8 @@
 import * as crypto from "crypto";
 import { convertTurnkeyApiKeyToJwk } from "./encoding";
-import type { TStamper } from "./shared";
+import type { TLegacyStamper } from "./shared";
 
-export const stamp: TStamper = async (input: {
+export const stamp: TLegacyStamper = async (input: {
   content: string;
   publicKey: string;
   privateKey: string;

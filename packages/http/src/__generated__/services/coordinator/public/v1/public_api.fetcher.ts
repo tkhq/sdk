@@ -1069,24 +1069,18 @@ export const signCreateUserTag = (
 
 /**
  * `POST /public/v1/submit/create_users`
- *
- * @deprecated
  */
 type TCreateUsersBody =
   operations["PublicApiService_CreateUsers"]["parameters"]["body"]["body"];
 
 /**
  * `POST /public/v1/submit/create_users`
- *
- * @deprecated
  */
 export type TCreateUsersResponse =
   operations["PublicApiService_CreateUsers"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/create_users`
- *
- * @deprecated
  */
 export type TCreateUsersInput = { body: TCreateUsersBody };
 
@@ -1096,8 +1090,6 @@ export type TCreateUsersInput = { body: TCreateUsersBody };
  * Create Users in an existing Organization
  *
  * `POST /public/v1/submit/create_users`
- *
- * @deprecated
  */
 export const createUsers = (input: TCreateUsersInput) =>
   request<TCreateUsersResponse, TCreateUsersBody, never, never, never>({
@@ -1110,8 +1102,6 @@ export const createUsers = (input: TCreateUsersInput) =>
  * Request a WebAuthn assertion and return a signed `CreateUsers` request, ready to be POSTed to Turnkey.
  *
  * See {@link CreateUsers}
- *
- * @deprecated
  */
 export const signCreateUsers = (
   input: TCreateUsersInput,
@@ -1655,6 +1645,52 @@ export const signUpdateRootQuorum = (
 ) =>
   signedRequest<TUpdateRootQuorumBody, never, never>({
     uri: "/public/v1/submit/update_root_quorum",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/update_user`
+ */
+type TUpdateUserBody =
+  operations["PublicApiService_UpdateUser"]["parameters"]["body"]["body"];
+
+/**
+ * `POST /public/v1/submit/update_user`
+ */
+export type TUpdateUserResponse =
+  operations["PublicApiService_UpdateUser"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_user`
+ */
+export type TUpdateUserInput = { body: TUpdateUserBody };
+
+/**
+ * Update User
+ *
+ * Update a User in an existing Organization
+ *
+ * `POST /public/v1/submit/update_user`
+ */
+export const updateUser = (input: TUpdateUserInput) =>
+  request<TUpdateUserResponse, TUpdateUserBody, never, never, never>({
+    uri: "/public/v1/submit/update_user",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateUser` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateUser}
+ */
+export const signUpdateUser = (
+  input: TUpdateUserInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TUpdateUserBody, never, never>({
+    uri: "/public/v1/submit/update_user",
     body: input.body,
     options,
   });

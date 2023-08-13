@@ -140,6 +140,10 @@ export type paths = {
     /** Set the threshold and members of the root quorum. This must be approved by the current root quorum. */
     post: operations["PublicApiService_UpdateRootQuorum"];
   };
+  "/public/v1/submit/update_user": {
+    /** Update a User in an existing Organization */
+    post: operations["PublicApiService_UpdateUser"];
+  };
   "/public/v1/submit/update_user_tag": {
     /** Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
     post: operations["PublicApiService_UpdateUserTag"];
@@ -401,7 +405,9 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2"
     | "ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS"
     | "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"
-    | "ACTIVITY_TYPE_UPDATE_POLICY";
+    | "ACTIVITY_TYPE_UPDATE_USER"
+    | "ACTIVITY_TYPE_UPDATE_POLICY"
+    | "ACTIVITY_TYPE_SET_PAYMENT_METHOD_V2";
   v1ApiKey: {
     credential: definitions["v1Credential"];
     /** @description Unique identifier for a given API Key. */
@@ -1220,7 +1226,9 @@ export type definitions = {
     createSubOrganizationIntentV2?: definitions["v1CreateSubOrganizationIntentV2"];
     updateAllowedOriginsIntent?: definitions["v1UpdateAllowedOriginsIntent"];
     createPrivateKeysIntentV2?: definitions["v1CreatePrivateKeysIntentV2"];
+    updateUserIntent?: definitions["v1UpdateUserIntent"];
     updatePolicyIntent?: definitions["v1UpdatePolicyIntent"];
+    setPaymentMethodIntentV2?: definitions["v1SetPaymentMethodIntentV2"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1433,6 +1441,7 @@ export type definitions = {
     createSubOrganizationResult?: definitions["v1CreateSubOrganizationResult"];
     updateAllowedOriginsResult?: definitions["v1UpdateAllowedOriginsResult"];
     createPrivateKeysResultV2?: definitions["v1CreatePrivateKeysResultV2"];
+    updateUserResult?: definitions["v1UpdateUserResult"];
     updatePolicyResult?: definitions["v1UpdatePolicyResult"];
   };
   v1RootUserParams: {
@@ -1483,6 +1492,23 @@ export type definitions = {
      * @description The year that the credit card expires.
      */
     expiryYear: string;
+    /**
+     * @inject_tag: validate:"required,email,tk_email"
+     * @description The email that will receive invoices for the credit card.
+     */
+    cardHolderEmail: string;
+    /**
+     * @inject_tag: validate:"required,tk_label_length"
+     * @description The name associated with the credit card.
+     */
+    cardHolderName: string;
+  };
+  v1SetPaymentMethodIntentV2: {
+    /**
+     * @inject_tag: validate:"required,max=256"
+     * @description The id of the payment method that was created clientside.
+     */
+    paymentMethodId: string;
     /**
      * @inject_tag: validate:"required,email,tk_email"
      * @description The email that will receive invoices for the credit card.
@@ -1676,6 +1702,41 @@ export type definitions = {
     parameters: definitions["v1UpdateRootQuorumIntent"];
   };
   v1UpdateRootQuorumResult: { [key: string]: unknown };
+  v1UpdateUserIntent: {
+    /**
+     * @inject_tag: validate:"uuid"
+     * @description Unique identifier for a given User.
+     */
+    userId: string;
+    /**
+     * @inject_tag: validate:"omitempty,tk_label,tk_label_length"
+     * @description Human-readable name for a User.
+     */
+    userName?: string;
+    /**
+     * @inject_tag: validate:"omitempty,email,tk_email"
+     * @description The user's email address.
+     */
+    userEmail?: string;
+    /**
+     * @inject_tag: validate:"omitempty,dive,uuid"
+     * @description An updated list of User Tags to apply to this User.
+     */
+    userTagIds?: string[];
+  };
+  v1UpdateUserRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_USER";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateUserIntent"];
+  };
+  v1UpdateUserResult: {
+    /** @description A User ID. */
+    userId: string;
+  };
   v1UpdateUserTagIntent: {
     /**
      * @inject_tag: validate:"uuid"
@@ -1834,14 +1895,6 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -1859,14 +1912,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetAuthenticatorResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -1886,14 +1931,6 @@ export type operations = {
       200: {
         schema: definitions["v1GetAuthenticatorsResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -1911,14 +1948,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetOrganizationResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -1938,14 +1967,6 @@ export type operations = {
       200: {
         schema: definitions["v1GetPolicyResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -1963,14 +1984,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetPrivateKeyResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -1990,14 +2003,6 @@ export type operations = {
       200: {
         schema: definitions["v1GetUserResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2015,14 +2020,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetActivitiesResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -2042,14 +2039,6 @@ export type operations = {
       200: {
         schema: definitions["v1GetPoliciesResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2067,14 +2056,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetPrivateKeysResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -2094,14 +2075,6 @@ export type operations = {
       200: {
         schema: definitions["v1GetUsersResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2119,14 +2092,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetWhoamiResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -2146,14 +2111,6 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2171,14 +2128,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -2198,14 +2147,6 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2223,14 +2164,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -2250,14 +2183,6 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2275,14 +2200,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -2302,14 +2219,6 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2327,14 +2236,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -2354,14 +2255,6 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2379,14 +2272,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -2406,14 +2291,6 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2431,14 +2308,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -2458,14 +2327,6 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2483,14 +2344,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -2510,14 +2363,6 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2535,14 +2380,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -2562,14 +2399,6 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2587,14 +2416,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -2614,14 +2435,6 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2639,14 +2452,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {
@@ -2666,14 +2471,6 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2692,13 +2489,23 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
       };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
+    };
+  };
+  /** Update a User in an existing Organization */
+  PublicApiService_UpdateUser: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateUserRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -2718,14 +2525,6 @@ export type operations = {
       200: {
         schema: definitions["v1ActivityResponse"];
       };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
-      };
       /** An unexpected error response. */
       default: {
         schema: definitions["rpcStatus"];
@@ -2737,14 +2536,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1NOOPCodegenAnchorResponse"];
-      };
-      /** Returned when the user does not have permission to access the resource. */
-      403: {
-        schema: unknown;
-      };
-      /** Returned when the resource does not exist. */
-      404: {
-        schema: string;
       };
       /** An unexpected error response. */
       default: {

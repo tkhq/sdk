@@ -1,20 +1,61 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Turnkey Public API",
+    "title": "API Reference",
+    "description": "Review our [API Introduction](../api-introduction) to get started.",
     "version": "1.0",
-    "contact": {
-      "name": "Turnkey Engineering",
-      "url": "https://turnkey.io/contact",
-      "email": "eng@turnkey.io"
-    }
+    "contact": {}
   },
   "tags": [
     {
       "name": "PublicApiService"
+    },
+    {
+      "name": "Organizations",
+      "description": "An Organization is the highest level of hierarchy in Turnkey. It can contain many Users, Private Keys, and Policies managed by a Root Quorum. The Root Quorum consists of a set of Users with a consensus threshold. This consensus threshold must be reached by Quorum members in order for any actions to take place.\n\nSee [Root Quorum](../managing-users/root-quorum) for more information"
+    },
+    {
+      "name": "Invitations",
+      "description": "Invitations allow you to invite Users into your Organization via email. Alternatively, Users can be added directly without an Invitation if their ApiKey or Authenticator credentials are known ahead of time.\n\nSee [Users](./api#tag/Users) for more information"
+    },
+    {
+      "name": "Policies",
+      "description": "Policies allow for deep customization of the security of your Organization. They can be used to grant permissions or restrict usage of Users and Private Keys. The Policy Engine analyzes all of your Policies on each request to determine whether an Activity is allowed.\n\nSee [Policy Overview](../managing-policies/overview) for more information"
+    },
+    {
+      "name": "Private Keys",
+      "description": "Private Keys are cryptographic public / private key pairs that can be used for cryptocurrency needs or more generalized encryption. Think of Private Keys as your own programmable wallet. Turnkey securely holds all Private Key materials for you, but only you can access them."
+    },
+    {
+      "name": "Private Key Tags",
+      "description": "Private Key Tags allow you to easily group and permission Private Keys through Policies."
+    },
+    {
+      "name": "Users",
+      "description": "Users are responsible for any action taken within an Organization. They can have ApiKey or Auuthenticator credentials, allowing you to onboard teammates to the Organization, or create API-only Users to run as part of your infrastructure."
+    },
+    {
+      "name": "User Tags",
+      "description": "User Key Tags allow you to easily group and permission Users through Policies."
+    },
+    {
+      "name": "Authenticators",
+      "description": "Authenticators are WebAuthN hardware devices, such as a Macbook TouchID or Yubikey, that can be used to authenticate requests."
+    },
+    {
+      "name": "API Keys",
+      "description": "API Keys are used to authenticate requests\n\nSee our [CLI](https://github.com/tkhq/tkcli) for instructions on generating API Keys"
+    },
+    {
+      "name": "Activities",
+      "description": "Activities encapsulate all the possible actions that can be taken with Turnkey. Some examples include adding a new user, creating a private key, and signing a transaction.\n\nActivities that modify your Organization are processed asynchronously. To confirm processing is complete and retrieve the Activity results, these activities must be polled until that status has been updated to a finalized state: `COMPLETED` when the activity is successful or `FAILED` when the activity has failed"
+    },
+    {
+      "name": "Consensus",
+      "description": "Policies can enforce consensus requirements for Activities. For example, adding a new user requires two admins to approve the request.\n\nActivities that have been proposed, but don't yet meet the Consesnsus requirements will have the status: `REQUIRES_CONSENSUS`. Activities in this state can be approved or rejected using the unique fingerprint generated when an Activity is created."
     }
   ],
-  "host": "coordinator-beta.turnkey.io",
+  "host": "api.turnkey.com",
   "schemes": ["https"],
   "consumes": ["application/json"],
   "produces": ["application/json"],
@@ -29,17 +70,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -74,17 +104,6 @@
               "$ref": "#/definitions/v1GetAuthenticatorResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -115,17 +134,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1GetAuthenticatorsResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -160,17 +168,6 @@
               "$ref": "#/definitions/v1GetOrganizationResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -201,17 +198,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1GetPolicyResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -246,17 +232,6 @@
               "$ref": "#/definitions/v1GetPrivateKeyResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -287,17 +262,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1GetUserResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -332,17 +296,6 @@
               "$ref": "#/definitions/v1GetActivitiesResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -373,17 +326,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1GetPoliciesResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -418,17 +360,6 @@
               "$ref": "#/definitions/v1GetPrivateKeysResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -459,17 +390,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1GetUsersResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -504,17 +424,6 @@
               "$ref": "#/definitions/v1GetWhoamiResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -532,7 +441,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["Who am I?"]
       }
     },
     "/public/v1/submit/approve_activity": {
@@ -545,17 +454,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -575,7 +473,7 @@
             }
           }
         ],
-        "tags": ["Activities"]
+        "tags": ["Consensus"]
       }
     },
     "/public/v1/submit/create_api_keys": {
@@ -588,17 +486,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -618,7 +505,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["API Keys"]
       }
     },
     "/public/v1/submit/create_api_only_users": {
@@ -631,17 +518,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -676,17 +552,6 @@
               "$ref": "#/definitions/v1ActivityResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -717,17 +582,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -762,17 +616,6 @@
               "$ref": "#/definitions/v1ActivityResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -805,17 +648,6 @@
               "$ref": "#/definitions/v1ActivityResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -833,7 +665,7 @@
             }
           }
         ],
-        "tags": ["Private Keys"]
+        "tags": ["Private Key Tags"]
       }
     },
     "/public/v1/submit/create_private_keys": {
@@ -846,17 +678,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -891,17 +712,6 @@
               "$ref": "#/definitions/v1ActivityResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -934,17 +744,6 @@
               "$ref": "#/definitions/v1ActivityResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -962,7 +761,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Tags"]
       }
     },
     "/public/v1/submit/create_users": {
@@ -975,17 +774,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -1005,8 +793,7 @@
             }
           }
         ],
-        "tags": ["Users"],
-        "deprecated": true
+        "tags": ["Users"]
       }
     },
     "/public/v1/submit/delete_api_keys": {
@@ -1019,17 +806,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -1049,7 +825,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["API Keys"]
       }
     },
     "/public/v1/submit/delete_authenticators": {
@@ -1062,17 +838,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -1107,17 +872,6 @@
               "$ref": "#/definitions/v1ActivityResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -1148,17 +902,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -1193,17 +936,6 @@
               "$ref": "#/definitions/v1ActivityResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -1221,7 +953,7 @@
             }
           }
         ],
-        "tags": ["Activities"]
+        "tags": ["Consensus"]
       }
     },
     "/public/v1/submit/sign_raw_payload": {
@@ -1234,17 +966,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -1279,17 +1000,6 @@
               "$ref": "#/definitions/v1ActivityResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -1320,17 +1030,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -1365,17 +1064,6 @@
               "$ref": "#/definitions/v1ActivityResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -1408,17 +1096,6 @@
               "$ref": "#/definitions/v1ActivityResponse"
             }
           },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
@@ -1436,7 +1113,7 @@
             }
           }
         ],
-        "tags": ["Private Keys"]
+        "tags": ["Private Key Tags"]
       }
     },
     "/public/v1/submit/update_root_quorum": {
@@ -1449,17 +1126,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -1482,6 +1148,38 @@
         "tags": ["Organizations"]
       }
     },
+    "/public/v1/submit/update_user": {
+      "post": {
+        "summary": "Update User",
+        "description": "Update a User in an existing Organization",
+        "operationId": "PublicApiService_UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateUserRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
     "/public/v1/submit/update_user_tag": {
       "post": {
         "summary": "Update User Tag",
@@ -1492,17 +1190,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -1522,7 +1209,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Tags"]
       }
     },
     "/tkhq/api/v1/noop-codegen-anchor": {
@@ -1534,17 +1221,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1NOOPCodegenAnchorResponse"
-            }
-          },
-          "403": {
-            "description": "Returned when the user does not have permission to access the resource.",
-            "schema": {}
-          },
-          "404": {
-            "description": "Returned when the resource does not exist.",
-            "schema": {
-              "type": "string",
-              "format": "string"
             }
           },
           "default": {
@@ -1967,7 +1643,9 @@
         "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2",
         "ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS",
         "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
-        "ACTIVITY_TYPE_UPDATE_POLICY"
+        "ACTIVITY_TYPE_UPDATE_USER",
+        "ACTIVITY_TYPE_UPDATE_POLICY",
+        "ACTIVITY_TYPE_SET_PAYMENT_METHOD_V2"
       ],
       "description": "Type of Activity, such as Add User, or Sign Transaction."
     },
@@ -3744,8 +3422,14 @@
         "createPrivateKeysIntentV2": {
           "$ref": "#/definitions/v1CreatePrivateKeysIntentV2"
         },
+        "updateUserIntent": {
+          "$ref": "#/definitions/v1UpdateUserIntent"
+        },
         "updatePolicyIntent": {
           "$ref": "#/definitions/v1UpdatePolicyIntent"
+        },
+        "setPaymentMethodIntentV2": {
+          "$ref": "#/definitions/v1SetPaymentMethodIntentV2"
         }
       },
       "description": "Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action.",
@@ -4259,6 +3943,9 @@
         "createPrivateKeysResultV2": {
           "$ref": "#/definitions/v1CreatePrivateKeysResultV2"
         },
+        "updateUserResult": {
+          "$ref": "#/definitions/v1UpdateUserResult"
+        },
         "updatePolicyResult": {
           "$ref": "#/definitions/v1UpdatePolicyResult"
         }
@@ -4356,6 +4043,27 @@
         "cardHolderEmail",
         "cardHolderName"
       ]
+    },
+    "v1SetPaymentMethodIntentV2": {
+      "type": "object",
+      "properties": {
+        "paymentMethodId": {
+          "type": "string",
+          "description": "The id of the payment method that was created clientside.",
+          "title": "@inject_tag: validate:\"required,max=256\""
+        },
+        "cardHolderEmail": {
+          "type": "string",
+          "description": "The email that will receive invoices for the credit card.",
+          "title": "@inject_tag: validate:\"required,email,tk_email\""
+        },
+        "cardHolderName": {
+          "type": "string",
+          "description": "The name associated with the credit card.",
+          "title": "@inject_tag: validate:\"required,tk_label_length\""
+        }
+      },
+      "required": ["paymentMethodId", "cardHolderEmail", "cardHolderName"]
     },
     "v1SetPaymentMethodResult": {
       "type": "object",
@@ -4722,6 +4430,66 @@
     "v1UpdateRootQuorumResult": {
       "type": "object"
     },
+    "v1UpdateUserIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User.",
+          "title": "@inject_tag: validate:\"uuid\""
+        },
+        "userName": {
+          "type": "string",
+          "description": "Human-readable name for a User.",
+          "title": "@inject_tag: validate:\"omitempty,tk_label,tk_label_length\""
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "The user's email address.",
+          "title": "@inject_tag: validate:\"omitempty,email,tk_email\""
+        },
+        "userTagIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "An updated list of User Tags to apply to this User.",
+          "title": "@inject_tag: validate:\"omitempty,dive,uuid\""
+        }
+      },
+      "required": ["userId"]
+    },
+    "v1UpdateUserRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_USER"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateUserIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateUserResult": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "A User ID."
+        }
+      },
+      "required": ["userId"]
+    },
     "v1UpdateUserTagIntent": {
       "type": "object",
       "properties": {
@@ -5031,11 +4799,37 @@
       "type": "apiKey",
       "name": "X-Stamp",
       "in": "header"
+    },
+    "AuthenticatorAuth": {
+      "type": "apiKey",
+      "name": "X-Stamp-WebAuthn",
+      "in": "header"
     }
   },
   "security": [
     {
       "ApiKeyAuth": []
+    },
+    {
+      "AuthenticatorAuth": []
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "ORGANIZATIONS",
+      "tags": ["Organizations", "Invitations", "Policies"]
+    },
+    {
+      "name": "PRIVATE KEYS",
+      "tags": ["Private Keys", "Private Key Tags"]
+    },
+    {
+      "name": "USERS",
+      "tags": ["Users", "User Tags", "Authenticators", "API Keys", "Who am I?"]
+    },
+    {
+      "name": "ACTIVITIES",
+      "tags": ["Activities", "Consensus"]
     }
   ]
 }

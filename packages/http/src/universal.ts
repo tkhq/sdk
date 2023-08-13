@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
-import type { TStamper } from "./shared";
+import type { TLegacyStamper } from "./shared";
 
 let fetch: typeof globalThis.fetch;
 
@@ -9,7 +9,7 @@ if (typeof globalThis?.fetch !== "undefined") {
   fetch = require("cross-fetch");
 }
 
-let stamp: TStamper;
+let stamp: TLegacyStamper;
 
 if (typeof globalThis?.crypto?.subtle !== "undefined") {
   stamp = require("./stamp.webcrypto").stamp;

@@ -1,14 +1,13 @@
 import { fetch, stamp } from "./universal";
 import { getBrowserConfig, getConfig } from "./config";
 import { stringToBase64urlString } from "./encoding";
-import { TurnkeyRequestError, GrpcStatus, SignedRequest } from "./shared";
 import {
   getWebAuthnAssertion,
   TurnkeyCredentialRequestOptions,
 } from "./webauthn";
 
 export type { TurnkeyCredentialRequestOptions };
-
+export { fetch };
 type TBasicType = string;
 
 type TQueryShape = Record<string, TBasicType | Array<TBasicType>>;
@@ -22,6 +21,19 @@ const sharedRequestOptions: Partial<RequestInit> = {
   redirect: "follow",
 };
 
+/**
+ * Represents a signed request ready to be POSTed to Turnkey
+ * @deprecated use {@link TSignedRequest} instead
+ */
+export type SignedRequest = {
+  body: string;
+  stamp: string;
+  url: string;
+};
+
+/**
+ * @deprecated
+ */
 export async function signedRequest<
   B extends TBodyShape = never,
   Q extends TQueryShape = never,
@@ -236,4 +248,54 @@ export async function sealAndStampRequestBody(input: {
     sealedBody,
     xStamp,
   };
+}
+
+export type THttpConfig = {
+  baseUrl: string;
+};
+
+/**
+ * Represents a signed request ready to be POSTed to Turnkey
+ */
+export type TSignedRequest = {
+  body: string;
+  stamp: TStamp;
+  url: string;
+};
+
+/**
+ * Represents a stamp header name/value pair
+ */
+export type TStamp = {
+  stampHeaderName: string;
+  stampHeaderValue: string;
+};
+
+export type GrpcStatus = {
+  message: string;
+  code: number;
+  details: unknown[] | null;
+};
+
+export interface TStamper {
+  stamp: (input: string) => Promise<TStamp>;
+}
+
+export class TurnkeyRequestError extends Error {
+  details: any[] | null;
+  code: number;
+
+  constructor(input: GrpcStatus) {
+    let turnkeyErrorMessage = `Turnkey error ${input.code}: ${input.message}`;
+
+    if (input.details != null) {
+      turnkeyErrorMessage += ` (Details: ${JSON.stringify(input.details)})`;
+    }
+
+    super(turnkeyErrorMessage);
+
+    this.name = "TurnkeyRequestError";
+    this.details = input.details ?? null;
+    this.code = input.code;
+  }
 }
