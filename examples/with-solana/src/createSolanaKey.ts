@@ -37,7 +37,7 @@ export async function createNewSolanaPrivateKey(turnkeyOrganizationId: string) {
     });
 
     const privateKeyId =
-      activity.result.createPrivateKeysResult?.privateKeyIds?.[0];
+      activity.result.createPrivateKeysResultV2?.privateKeys[0]?.privateKeyId;
     if (!privateKeyId) {
       console.error(
         "activity doesn't contain a valid private key ID",
