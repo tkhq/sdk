@@ -1,12 +1,13 @@
 import * as crypto from "crypto";
 import { convertTurnkeyApiKeyToJwk } from "./encoding";
-import type { TLegacyStamper } from "./shared";
 
-export const stamp: TLegacyStamper = async (input: {
+
+
+export const stamp = async (input: {
   content: string;
   publicKey: string;
   privateKey: string;
-}) => {
+}): Promise<string> => {
   const { content, publicKey, privateKey } = input;
 
   const privateKeyObject = crypto.createPrivateKey({
@@ -23,11 +24,5 @@ export const stamp: TLegacyStamper = async (input: {
   sign.write(Buffer.from(content));
   sign.end();
 
-  const signature = sign.sign(privateKeyObject, "hex");
-
-  return {
-    publicKey: publicKey,
-    scheme: "SIGNATURE_SCHEME_TK_API_P256",
-    signature: signature,
-  };
+  return sign.sign(privateKeyObject, "hex");
 };

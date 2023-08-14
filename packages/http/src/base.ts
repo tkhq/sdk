@@ -1,4 +1,5 @@
-import { fetch, stamp } from "./universal";
+import { signWithApiKey } from "@turnkey/api-key-stamper";
+import { fetch } from "./universal";
 import { getBrowserConfig, getConfig } from "./config";
 import { stringToBase64urlString } from "./encoding";
 import {
@@ -234,13 +235,16 @@ export async function sealAndStampRequestBody(input: {
   }
 
   const sealedBody = stableStringify(body);
-  const sealedStamp = stableStringify(
-    await stamp({
-      content: sealedBody,
-      privateKey: apiPrivateKey,
-      publicKey: apiPublicKey,
-    })
-  );
+  const signature = await signWithApiKey({
+    content: sealedBody,
+    privateKey: apiPrivateKey,
+    publicKey: apiPublicKey,
+  });
+  const sealedStamp = stableStringify({
+    publicKey: apiPublicKey,
+    scheme: "SIGNATURE_SCHEME_TK_API_P256",
+    signature: signature,
+  });
 
   const xStamp = stringToBase64urlString(sealedStamp);
 
@@ -277,6 +281,12 @@ export type GrpcStatus = {
   details: unknown[] | null;
 };
 
+/**
+ * Interface to implement if you want to provide your own stampers to your {@link TurnkeyClient}.
+ * Currently Turnkey provides 2 stampers:
+ * - applications signing requests with Passkeys or webauthn devices should use `@turnkey/webauthn-stamper`
+ * - applications signing requests with API keys should use `@turnkey/api-key-stamper`
+ */
 export interface TStamper {
   stamp: (input: string) => Promise<TStamp>;
 }

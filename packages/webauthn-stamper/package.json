@@ -1,16 +1,18 @@
 {
-  "name": "@turnkey/http",
-  "version": "1.0.1",
+  "name": "@turnkey/webauthn-stamper",
+  "version": "0.1.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "Apache-2.0",
-  "description": "Typed HTTP client for interacting with Turnkey API",
+  "description": "Webauthn stamper for @turnkey/http",
   "keywords": [
-    "Turnkey"
+    "Turnkey",
+    "http",
+    "stamper"
   ],
   "author": {
     "name": "Turnkey",
-    "url": "https://turnkey.io/"
+    "url": "https://turnkey.com/"
   },
   "homepage": "https://github.com/tkhq/sdk",
   "bugs": {
@@ -19,7 +21,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/tkhq/sdk.git",
-    "directory": "packages/http"
+    "directory": "packages/webauthn-stamper"
   },
   "files": [
     "dist/",
@@ -32,13 +34,11 @@
     "prepublishOnly": "pnpm -w run clean-all && pnpm -w run build-all",
     "build": "tsc",
     "clean": "rimraf ./dist ./.cache",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
-  "dependencies": {
-    "cross-fetch": "^3.1.5",
-    "@turnkey/api-key-stamper": "workspace:*",
-    "@turnkey/webauthn-stamper": "workspace:*"
+  "peerDependencies": {
+    "@turnkey/http": "workspace:*"
   },
   "engines": {
     "node": ">=16.0.0"
