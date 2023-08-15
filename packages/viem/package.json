@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@turnkey/http": "workspace:*",
+    "@turnkey/api-key-stamper": "workspace:*",
     "typescript": "5.1"
   },
   "devDependencies": {

@@ -10,13 +10,84 @@ import type {
   TypedData,
 } from "viem";
 import {
-  TurnkeyApi,
   TurnkeyActivityError,
-  init as httpInit,
+  TurnkeyClient,
 } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper"
+
+
+export async function createAccount(input: {
+  client: TurnkeyClient,
+  organizationId: string,
+  privateKeyId: string,
+  // Ethereum address to use for this account.
+  // If left undefined, `createAccount` will fetch it from the Turnkey API.
+  // We recommend setting this if you're using a passkey client, so that your users are not prompted for a passkey signature just to fetch their address.
+  // You may leave this undefined if using an API key client.
+  ethereumAddress?: string,
+}): Promise<LocalAccount> {
+  const { client, organizationId, privateKeyId } = input;
+  let { ethereumAddress } = input;
+  
+  // Fetch the address if we don't have it
+  if (ethereumAddress === undefined) {
+    console.log("organization ID", organizationId);
+    const data = await client.getPrivateKey({
+      privateKeyId: privateKeyId,
+      organizationId: organizationId,
+    });
+  
+    ethereumAddress = data.privateKey.addresses.find(
+      (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM"
+    )?.address;
+  
+    if (typeof ethereumAddress !== "string" || !ethereumAddress) {
+      throw new TurnkeyActivityError({
+        message: `Unable to find Ethereum address for key ${privateKeyId} under organization ${organizationId}`,
+      });
+    }
+  }
+  
+  return toAccount({
+    address: ethereumAddress as `0x${string}`,
+    signMessage: function ({
+      message,
+    }: {
+      message: SignableMessage;
+    }): Promise<`0x${string}`> {
+      return signMessage(client, message, organizationId, privateKeyId);
+    },
+    signTransaction: function <
+      TTransactionSerializable extends TransactionSerializable
+    >(
+      transaction: TTransactionSerializable,
+      args?:
+        | { serializer?: SerializeTransactionFn<TTransactionSerializable> }
+        | undefined
+    ): Promise<`0x${string}`> {
+      const serializer = !args?.serializer
+        ? serializeTransaction
+        : args.serializer;
+
+      return signTransaction(
+        client,
+        transaction,
+        serializer,
+        organizationId,
+        privateKeyId
+      );
+    },
+    signTypedData: function (
+      typedData: TypedData | { [key: string]: unknown }
+    ): Promise<`0x${string}`> {
+      return signTypedData(client, typedData, organizationId, privateKeyId);
+    },
+  });
+}
 
 /**
  * Type bundling configuration for an API Key Viem account creation
+ * @deprecated this is used only with {@link createApiKeyAccount}, a deprecated API. See {@link createAccount}.
  */
 type TApiKeyAccountConfig = {
   /**
@@ -43,6 +114,7 @@ type TApiKeyAccountConfig = {
 
 /**
  * Creates a new Custom Account backed by a Turnkey API key.
+ * @deprecated use {@link createAccount} instead.
  */
 export async function createApiKeyAccount(
   config: TApiKeyAccountConfig
@@ -50,17 +122,18 @@ export async function createApiKeyAccount(
   const { apiPublicKey, apiPrivateKey, baseUrl, organizationId, privateKeyId } =
     config;
 
-  httpInit({
-    apiPublicKey,
-    apiPrivateKey,
-    baseUrl,
-  });
+  const stamper = new ApiKeyStamper({
+    apiPublicKey: apiPublicKey,
+    apiPrivateKey: apiPrivateKey,
+  })
 
-  const data = await TurnkeyApi.getPrivateKey({
-    body: {
+  const client = new TurnkeyClient({
+    baseUrl: baseUrl,
+  }, stamper)
+  
+  const data = await client.getPrivateKey({
       privateKeyId: privateKeyId,
       organizationId: organizationId,
-    },
   });
 
   const ethereumAddress = data.privateKey.addresses.find(
@@ -80,7 +153,7 @@ export async function createApiKeyAccount(
     }: {
       message: SignableMessage;
     }): Promise<`0x${string}`> {
-      return signMessage(message, organizationId, privateKeyId);
+      return signMessage(client, message, organizationId, privateKeyId);
     },
     signTransaction: function <
       TTransactionSerializable extends TransactionSerializable
@@ -95,6 +168,7 @@ export async function createApiKeyAccount(
         : args.serializer;
 
       return signTransaction(
+        client,
         transaction,
         serializer,
         organizationId,
@@ -104,18 +178,20 @@ export async function createApiKeyAccount(
     signTypedData: function (
       typedData: TypedData | { [key: string]: unknown }
     ): Promise<`0x${string}`> {
-      return signTypedData(typedData, organizationId, privateKeyId);
+      return signTypedData(client, typedData, organizationId, privateKeyId);
     },
   });
 }
 
 async function signMessage(
+  client: TurnkeyClient,
   message: SignableMessage,
   organizationId: string,
   privateKeyId: string
 ): Promise<`0x${string}`> {
   const hashedMessage = keccak256(message as `0x${string}`);
   const signedMessage = await signMessageWithErrorWrapping(
+    client,
     hashedMessage,
     organizationId,
     privateKeyId
@@ -126,6 +202,7 @@ async function signMessage(
 async function signTransaction<
   TTransactionSerializable extends TransactionSerializable
 >(
+  client: TurnkeyClient,
   transaction: TTransactionSerializable,
   serializer: SerializeTransactionFn<TTransactionSerializable>,
   organizationId: string,
@@ -134,6 +211,7 @@ async function signTransaction<
   const serializedTx = serializer(transaction);
   const nonHexPrefixedSerializedTx = serializedTx.replace(/^0x/, "");
   return await signTransactionWithErrorWrapping(
+    client,
     nonHexPrefixedSerializedTx,
     organizationId,
     privateKeyId
@@ -141,6 +219,7 @@ async function signTransaction<
 }
 
 async function signTypedData(
+  client: TurnkeyClient,
   data: TypedData | { [key: string]: unknown },
   organizationId: string,
   privateKeyId: string
@@ -148,6 +227,7 @@ async function signTypedData(
   const hashToSign = hashTypedData(data as HashTypedDataParameters);
 
   return await signMessageWithErrorWrapping(
+    client,
     hashToSign,
     organizationId,
     privateKeyId
@@ -155,6 +235,7 @@ async function signTypedData(
 }
 
 async function signTransactionWithErrorWrapping(
+  client: TurnkeyClient,
   unsignedTransaction: string,
   organizationId: string,
   privateKeyId: string
@@ -162,6 +243,7 @@ async function signTransactionWithErrorWrapping(
   let signedTx: string;
   try {
     signedTx = await signTransactionImpl(
+      client,
       unsignedTransaction,
       organizationId,
       privateKeyId
@@ -181,12 +263,12 @@ async function signTransactionWithErrorWrapping(
 }
 
 async function signTransactionImpl(
+  client: TurnkeyClient,
   unsignedTransaction: string,
   organizationId: string,
   privateKeyId: string
 ): Promise<string> {
-  const { activity } = await TurnkeyApi.signTransaction({
-    body: {
+  const { activity } = await client.signTransaction({
       type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
       organizationId: organizationId,
       parameters: {
@@ -195,7 +277,6 @@ async function signTransactionImpl(
         unsignedTransaction: unsignedTransaction,
       },
       timestampMs: String(Date.now()), // millisecond timestamp
-    },
   });
 
   const { id, status, type } = activity;
@@ -215,6 +296,7 @@ async function signTransactionImpl(
 }
 
 async function signMessageWithErrorWrapping(
+  client: TurnkeyClient,
   message: string,
   organizationId: string,
   privateKeyId: string
@@ -222,6 +304,7 @@ async function signMessageWithErrorWrapping(
   let signedMessage: string;
   try {
     signedMessage = await signMessageImpl(
+      client,
       message,
       organizationId,
       privateKeyId
@@ -241,22 +324,21 @@ async function signMessageWithErrorWrapping(
 }
 
 async function signMessageImpl(
+  client: TurnkeyClient,
   message: string,
   organizationId: string,
   privateKeyId: string
 ): Promise<string> {
-  const { activity } = await TurnkeyApi.signRawPayload({
-    body: {
-      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
-      organizationId: organizationId,
-      parameters: {
-        privateKeyId: privateKeyId,
-        payload: message,
-        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-        hashFunction: "HASH_FUNCTION_NO_OP",
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
+  const { activity } = await client.signRawPayload({
+    type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
+    organizationId: organizationId,
+    parameters: {
+      privateKeyId: privateKeyId,
+      payload: message,
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_NO_OP",
     },
+    timestampMs: String(Date.now()), // millisecond timestamp
   });
 
   const { id, status, type } = activity;

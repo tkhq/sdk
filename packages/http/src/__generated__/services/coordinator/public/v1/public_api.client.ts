@@ -9,135 +9,135 @@ import {
   TurnkeyRequestError,
 } from "../../../../../base";
 import type {
-  TGetActivityInput,
+  TGetActivityBody,
   TGetActivityResponse,
 } from "./public_api.fetcher";
 import type {
-  TGetAuthenticatorInput,
+  TGetAuthenticatorBody,
   TGetAuthenticatorResponse,
 } from "./public_api.fetcher";
 import type {
-  TGetAuthenticatorsInput,
+  TGetAuthenticatorsBody,
   TGetAuthenticatorsResponse,
 } from "./public_api.fetcher";
 import type {
-  TGetOrganizationInput,
+  TGetOrganizationBody,
   TGetOrganizationResponse,
 } from "./public_api.fetcher";
-import type { TGetPolicyInput, TGetPolicyResponse } from "./public_api.fetcher";
+import type { TGetPolicyBody, TGetPolicyResponse } from "./public_api.fetcher";
 import type {
-  TGetPrivateKeyInput,
+  TGetPrivateKeyBody,
   TGetPrivateKeyResponse,
 } from "./public_api.fetcher";
-import type { TGetUserInput, TGetUserResponse } from "./public_api.fetcher";
+import type { TGetUserBody, TGetUserResponse } from "./public_api.fetcher";
 import type {
-  TGetActivitiesInput,
+  TGetActivitiesBody,
   TGetActivitiesResponse,
 } from "./public_api.fetcher";
 import type {
-  TGetPoliciesInput,
+  TGetPoliciesBody,
   TGetPoliciesResponse,
 } from "./public_api.fetcher";
 import type {
-  TGetPrivateKeysInput,
+  TGetPrivateKeysBody,
   TGetPrivateKeysResponse,
 } from "./public_api.fetcher";
-import type { TGetUsersInput, TGetUsersResponse } from "./public_api.fetcher";
-import type { TGetWhoamiInput, TGetWhoamiResponse } from "./public_api.fetcher";
+import type { TGetUsersBody, TGetUsersResponse } from "./public_api.fetcher";
+import type { TGetWhoamiBody, TGetWhoamiResponse } from "./public_api.fetcher";
 import type {
-  TApproveActivityInput,
+  TApproveActivityBody,
   TApproveActivityResponse,
 } from "./public_api.fetcher";
 import type {
-  TCreateApiKeysInput,
+  TCreateApiKeysBody,
   TCreateApiKeysResponse,
 } from "./public_api.fetcher";
 import type {
-  TCreateApiOnlyUsersInput,
+  TCreateApiOnlyUsersBody,
   TCreateApiOnlyUsersResponse,
 } from "./public_api.fetcher";
 import type {
-  TCreateAuthenticatorsInput,
+  TCreateAuthenticatorsBody,
   TCreateAuthenticatorsResponse,
 } from "./public_api.fetcher";
 import type {
-  TCreateInvitationsInput,
+  TCreateInvitationsBody,
   TCreateInvitationsResponse,
 } from "./public_api.fetcher";
 import type {
-  TCreatePolicyInput,
+  TCreatePolicyBody,
   TCreatePolicyResponse,
 } from "./public_api.fetcher";
 import type {
-  TCreatePrivateKeyTagInput,
+  TCreatePrivateKeyTagBody,
   TCreatePrivateKeyTagResponse,
 } from "./public_api.fetcher";
 import type {
-  TCreatePrivateKeysInput,
+  TCreatePrivateKeysBody,
   TCreatePrivateKeysResponse,
 } from "./public_api.fetcher";
 import type {
-  TCreateSubOrganizationInput,
+  TCreateSubOrganizationBody,
   TCreateSubOrganizationResponse,
 } from "./public_api.fetcher";
 import type {
-  TCreateUserTagInput,
+  TCreateUserTagBody,
   TCreateUserTagResponse,
 } from "./public_api.fetcher";
 import type {
-  TCreateUsersInput,
+  TCreateUsersBody,
   TCreateUsersResponse,
 } from "./public_api.fetcher";
 import type {
-  TDeleteApiKeysInput,
+  TDeleteApiKeysBody,
   TDeleteApiKeysResponse,
 } from "./public_api.fetcher";
 import type {
-  TDeleteAuthenticatorsInput,
+  TDeleteAuthenticatorsBody,
   TDeleteAuthenticatorsResponse,
 } from "./public_api.fetcher";
 import type {
-  TDeleteInvitationInput,
+  TDeleteInvitationBody,
   TDeleteInvitationResponse,
 } from "./public_api.fetcher";
 import type {
-  TDeletePolicyInput,
+  TDeletePolicyBody,
   TDeletePolicyResponse,
 } from "./public_api.fetcher";
 import type {
-  TRejectActivityInput,
+  TRejectActivityBody,
   TRejectActivityResponse,
 } from "./public_api.fetcher";
 import type {
-  TSignRawPayloadInput,
+  TSignRawPayloadBody,
   TSignRawPayloadResponse,
 } from "./public_api.fetcher";
 import type {
-  TSignTransactionInput,
+  TSignTransactionBody,
   TSignTransactionResponse,
 } from "./public_api.fetcher";
 import type {
-  TUpdateAllowedOriginsInput,
+  TUpdateAllowedOriginsBody,
   TUpdateAllowedOriginsResponse,
 } from "./public_api.fetcher";
 import type {
-  TUpdatePolicyInput,
+  TUpdatePolicyBody,
   TUpdatePolicyResponse,
 } from "./public_api.fetcher";
 import type {
-  TUpdatePrivateKeyTagInput,
+  TUpdatePrivateKeyTagBody,
   TUpdatePrivateKeyTagResponse,
 } from "./public_api.fetcher";
 import type {
-  TUpdateRootQuorumInput,
+  TUpdateRootQuorumBody,
   TUpdateRootQuorumResponse,
 } from "./public_api.fetcher";
 import type {
-  TUpdateUserInput,
+  TUpdateUserBody,
   TUpdateUserResponse,
 } from "./public_api.fetcher";
 import type {
-  TUpdateUserTagInput,
+  TUpdateUserTagBody,
   TUpdateUserTagResponse,
 } from "./public_api.fetcher";
 
@@ -149,9 +149,9 @@ export class TurnkeyClient {
     this.config = config;
     this.stamper = stamper;
   }
-  async request<TInputType, TResponseType>(
+  async request<TBodyType, TResponseType>(
     url: string,
-    input: TInputType
+    input: TBodyType
   ): Promise<TResponseType> {
     const fullUrl = this.config.baseUrl + url;
     const body = JSON.stringify(input);
@@ -184,20 +184,20 @@ export class TurnkeyClient {
   /**
    * Get details about an Activity
    *
-   * Sign the provided `TGetActivityInput` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_activity).
+   * Sign the provided `TGetActivityBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_activity).
    *
    * See also {@link stampGetActivity}.
    */
-  async getActivity(input: TGetActivityInput): Promise<TGetActivityResponse> {
+  async getActivity(input: TGetActivityBody): Promise<TGetActivityResponse> {
     return this.request("/public/v1/query/get_activity", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TGetActivityInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TGetActivityBody` by using the client's `stamp` function.
    *
    * See also {@link GetActivity}.
    */
-  async stampGetActivity(input: TGetActivityInput): Promise<TSignedRequest> {
+  async stampGetActivity(input: TGetActivityBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_activity";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -211,23 +211,23 @@ export class TurnkeyClient {
   /**
    * Get details about an authenticator
    *
-   * Sign the provided `TGetAuthenticatorInput` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_authenticator).
+   * Sign the provided `TGetAuthenticatorBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_authenticator).
    *
    * See also {@link stampGetAuthenticator}.
    */
   async getAuthenticator(
-    input: TGetAuthenticatorInput
+    input: TGetAuthenticatorBody
   ): Promise<TGetAuthenticatorResponse> {
     return this.request("/public/v1/query/get_authenticator", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TGetAuthenticatorInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TGetAuthenticatorBody` by using the client's `stamp` function.
    *
    * See also {@link GetAuthenticator}.
    */
   async stampGetAuthenticator(
-    input: TGetAuthenticatorInput
+    input: TGetAuthenticatorBody
   ): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_authenticator";
     const body = JSON.stringify(input);
@@ -242,23 +242,23 @@ export class TurnkeyClient {
   /**
    * Get details about authenticators for a user
    *
-   * Sign the provided `TGetAuthenticatorsInput` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_authenticators).
+   * Sign the provided `TGetAuthenticatorsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_authenticators).
    *
    * See also {@link stampGetAuthenticators}.
    */
   async getAuthenticators(
-    input: TGetAuthenticatorsInput
+    input: TGetAuthenticatorsBody
   ): Promise<TGetAuthenticatorsResponse> {
     return this.request("/public/v1/query/get_authenticators", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TGetAuthenticatorsInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TGetAuthenticatorsBody` by using the client's `stamp` function.
    *
    * See also {@link GetAuthenticators}.
    */
   async stampGetAuthenticators(
-    input: TGetAuthenticatorsInput
+    input: TGetAuthenticatorsBody
   ): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_authenticators";
     const body = JSON.stringify(input);
@@ -273,23 +273,23 @@ export class TurnkeyClient {
   /**
    * Get details about an Organization
    *
-   * Sign the provided `TGetOrganizationInput` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_organization).
+   * Sign the provided `TGetOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_organization).
    *
    * See also {@link stampGetOrganization}.
    */
   async getOrganization(
-    input: TGetOrganizationInput
+    input: TGetOrganizationBody
   ): Promise<TGetOrganizationResponse> {
     return this.request("/public/v1/query/get_organization", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TGetOrganizationInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TGetOrganizationBody` by using the client's `stamp` function.
    *
    * See also {@link GetOrganization}.
    */
   async stampGetOrganization(
-    input: TGetOrganizationInput
+    input: TGetOrganizationBody
   ): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_organization";
     const body = JSON.stringify(input);
@@ -304,20 +304,20 @@ export class TurnkeyClient {
   /**
    * Get details about a Policy
    *
-   * Sign the provided `TGetPolicyInput` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_policy).
+   * Sign the provided `TGetPolicyBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_policy).
    *
    * See also {@link stampGetPolicy}.
    */
-  async getPolicy(input: TGetPolicyInput): Promise<TGetPolicyResponse> {
+  async getPolicy(input: TGetPolicyBody): Promise<TGetPolicyResponse> {
     return this.request("/public/v1/query/get_policy", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TGetPolicyInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TGetPolicyBody` by using the client's `stamp` function.
    *
    * See also {@link GetPolicy}.
    */
-  async stampGetPolicy(input: TGetPolicyInput): Promise<TSignedRequest> {
+  async stampGetPolicy(input: TGetPolicyBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_policy";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -331,24 +331,22 @@ export class TurnkeyClient {
   /**
    * Get details about a Private Key
    *
-   * Sign the provided `TGetPrivateKeyInput` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_private_key).
+   * Sign the provided `TGetPrivateKeyBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_private_key).
    *
    * See also {@link stampGetPrivateKey}.
    */
   async getPrivateKey(
-    input: TGetPrivateKeyInput
+    input: TGetPrivateKeyBody
   ): Promise<TGetPrivateKeyResponse> {
     return this.request("/public/v1/query/get_private_key", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TGetPrivateKeyInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TGetPrivateKeyBody` by using the client's `stamp` function.
    *
    * See also {@link GetPrivateKey}.
    */
-  async stampGetPrivateKey(
-    input: TGetPrivateKeyInput
-  ): Promise<TSignedRequest> {
+  async stampGetPrivateKey(input: TGetPrivateKeyBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_private_key";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -362,20 +360,20 @@ export class TurnkeyClient {
   /**
    * Get details about a User
    *
-   * Sign the provided `TGetUserInput` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_user).
+   * Sign the provided `TGetUserBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_user).
    *
    * See also {@link stampGetUser}.
    */
-  async getUser(input: TGetUserInput): Promise<TGetUserResponse> {
+  async getUser(input: TGetUserBody): Promise<TGetUserResponse> {
     return this.request("/public/v1/query/get_user", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TGetUserInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TGetUserBody` by using the client's `stamp` function.
    *
    * See also {@link GetUser}.
    */
-  async stampGetUser(input: TGetUserInput): Promise<TSignedRequest> {
+  async stampGetUser(input: TGetUserBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_user";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -389,24 +387,22 @@ export class TurnkeyClient {
   /**
    * List all Activities within an Organization
    *
-   * Sign the provided `TGetActivitiesInput` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_activities).
+   * Sign the provided `TGetActivitiesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_activities).
    *
    * See also {@link stampGetActivities}.
    */
   async getActivities(
-    input: TGetActivitiesInput
+    input: TGetActivitiesBody
   ): Promise<TGetActivitiesResponse> {
     return this.request("/public/v1/query/list_activities", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TGetActivitiesInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TGetActivitiesBody` by using the client's `stamp` function.
    *
    * See also {@link GetActivities}.
    */
-  async stampGetActivities(
-    input: TGetActivitiesInput
-  ): Promise<TSignedRequest> {
+  async stampGetActivities(input: TGetActivitiesBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_activities";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -420,20 +416,20 @@ export class TurnkeyClient {
   /**
    * List all Policies within an Organization
    *
-   * Sign the provided `TGetPoliciesInput` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_policies).
+   * Sign the provided `TGetPoliciesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_policies).
    *
    * See also {@link stampGetPolicies}.
    */
-  async getPolicies(input: TGetPoliciesInput): Promise<TGetPoliciesResponse> {
+  async getPolicies(input: TGetPoliciesBody): Promise<TGetPoliciesResponse> {
     return this.request("/public/v1/query/list_policies", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TGetPoliciesInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TGetPoliciesBody` by using the client's `stamp` function.
    *
    * See also {@link GetPolicies}.
    */
-  async stampGetPolicies(input: TGetPoliciesInput): Promise<TSignedRequest> {
+  async stampGetPolicies(input: TGetPoliciesBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_policies";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -447,23 +443,23 @@ export class TurnkeyClient {
   /**
    * List all Private Keys within an Organization
    *
-   * Sign the provided `TGetPrivateKeysInput` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_private_keys).
+   * Sign the provided `TGetPrivateKeysBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_private_keys).
    *
    * See also {@link stampGetPrivateKeys}.
    */
   async getPrivateKeys(
-    input: TGetPrivateKeysInput
+    input: TGetPrivateKeysBody
   ): Promise<TGetPrivateKeysResponse> {
     return this.request("/public/v1/query/list_private_keys", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TGetPrivateKeysInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TGetPrivateKeysBody` by using the client's `stamp` function.
    *
    * See also {@link GetPrivateKeys}.
    */
   async stampGetPrivateKeys(
-    input: TGetPrivateKeysInput
+    input: TGetPrivateKeysBody
   ): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_private_keys";
     const body = JSON.stringify(input);
@@ -478,20 +474,20 @@ export class TurnkeyClient {
   /**
    * List all Users within an Organization
    *
-   * Sign the provided `TGetUsersInput` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_users).
+   * Sign the provided `TGetUsersBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_users).
    *
    * See also {@link stampGetUsers}.
    */
-  async getUsers(input: TGetUsersInput): Promise<TGetUsersResponse> {
+  async getUsers(input: TGetUsersBody): Promise<TGetUsersResponse> {
     return this.request("/public/v1/query/list_users", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TGetUsersInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TGetUsersBody` by using the client's `stamp` function.
    *
    * See also {@link GetUsers}.
    */
-  async stampGetUsers(input: TGetUsersInput): Promise<TSignedRequest> {
+  async stampGetUsers(input: TGetUsersBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_users";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -505,20 +501,20 @@ export class TurnkeyClient {
   /**
    * Get basic information about your current API user and your organization
    *
-   * Sign the provided `TGetWhoamiInput` with the client's `stamp` function, and submit the request (POST /public/v1/query/whoami).
+   * Sign the provided `TGetWhoamiBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/whoami).
    *
    * See also {@link stampGetWhoami}.
    */
-  async getWhoami(input: TGetWhoamiInput): Promise<TGetWhoamiResponse> {
+  async getWhoami(input: TGetWhoamiBody): Promise<TGetWhoamiResponse> {
     return this.request("/public/v1/query/whoami", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TGetWhoamiInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TGetWhoamiBody` by using the client's `stamp` function.
    *
    * See also {@link GetWhoami}.
    */
-  async stampGetWhoami(input: TGetWhoamiInput): Promise<TSignedRequest> {
+  async stampGetWhoami(input: TGetWhoamiBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/query/whoami";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -532,23 +528,23 @@ export class TurnkeyClient {
   /**
    * Approve an Activity
    *
-   * Sign the provided `TApproveActivityInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/approve_activity).
+   * Sign the provided `TApproveActivityBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/approve_activity).
    *
    * See also {@link stampApproveActivity}.
    */
   async approveActivity(
-    input: TApproveActivityInput
+    input: TApproveActivityBody
   ): Promise<TApproveActivityResponse> {
     return this.request("/public/v1/submit/approve_activity", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TApproveActivityInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TApproveActivityBody` by using the client's `stamp` function.
    *
    * See also {@link ApproveActivity}.
    */
   async stampApproveActivity(
-    input: TApproveActivityInput
+    input: TApproveActivityBody
   ): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/approve_activity";
     const body = JSON.stringify(input);
@@ -563,24 +559,22 @@ export class TurnkeyClient {
   /**
    * Add api keys to an existing User
    *
-   * Sign the provided `TCreateApiKeysInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_api_keys).
+   * Sign the provided `TCreateApiKeysBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_api_keys).
    *
    * See also {@link stampCreateApiKeys}.
    */
   async createApiKeys(
-    input: TCreateApiKeysInput
+    input: TCreateApiKeysBody
   ): Promise<TCreateApiKeysResponse> {
     return this.request("/public/v1/submit/create_api_keys", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TCreateApiKeysInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TCreateApiKeysBody` by using the client's `stamp` function.
    *
    * See also {@link CreateApiKeys}.
    */
-  async stampCreateApiKeys(
-    input: TCreateApiKeysInput
-  ): Promise<TSignedRequest> {
+  async stampCreateApiKeys(input: TCreateApiKeysBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/create_api_keys";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -594,23 +588,23 @@ export class TurnkeyClient {
   /**
    * Create API-only Users in an existing Organization
    *
-   * Sign the provided `TCreateApiOnlyUsersInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_api_only_users).
+   * Sign the provided `TCreateApiOnlyUsersBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_api_only_users).
    *
    * See also {@link stampCreateApiOnlyUsers}.
    */
   async createApiOnlyUsers(
-    input: TCreateApiOnlyUsersInput
+    input: TCreateApiOnlyUsersBody
   ): Promise<TCreateApiOnlyUsersResponse> {
     return this.request("/public/v1/submit/create_api_only_users", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TCreateApiOnlyUsersInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TCreateApiOnlyUsersBody` by using the client's `stamp` function.
    *
    * See also {@link CreateApiOnlyUsers}.
    */
   async stampCreateApiOnlyUsers(
-    input: TCreateApiOnlyUsersInput
+    input: TCreateApiOnlyUsersBody
   ): Promise<TSignedRequest> {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_api_only_users";
@@ -626,23 +620,23 @@ export class TurnkeyClient {
   /**
    * Create Authenticators to authenticate requests to Turnkey
    *
-   * Sign the provided `TCreateAuthenticatorsInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_authenticators).
+   * Sign the provided `TCreateAuthenticatorsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_authenticators).
    *
    * See also {@link stampCreateAuthenticators}.
    */
   async createAuthenticators(
-    input: TCreateAuthenticatorsInput
+    input: TCreateAuthenticatorsBody
   ): Promise<TCreateAuthenticatorsResponse> {
     return this.request("/public/v1/submit/create_authenticators", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TCreateAuthenticatorsInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TCreateAuthenticatorsBody` by using the client's `stamp` function.
    *
    * See also {@link CreateAuthenticators}.
    */
   async stampCreateAuthenticators(
-    input: TCreateAuthenticatorsInput
+    input: TCreateAuthenticatorsBody
   ): Promise<TSignedRequest> {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_authenticators";
@@ -658,23 +652,23 @@ export class TurnkeyClient {
   /**
    * Create Invitations to join an existing Organization
    *
-   * Sign the provided `TCreateInvitationsInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_invitations).
+   * Sign the provided `TCreateInvitationsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_invitations).
    *
    * See also {@link stampCreateInvitations}.
    */
   async createInvitations(
-    input: TCreateInvitationsInput
+    input: TCreateInvitationsBody
   ): Promise<TCreateInvitationsResponse> {
     return this.request("/public/v1/submit/create_invitations", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TCreateInvitationsInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TCreateInvitationsBody` by using the client's `stamp` function.
    *
    * See also {@link CreateInvitations}.
    */
   async stampCreateInvitations(
-    input: TCreateInvitationsInput
+    input: TCreateInvitationsBody
   ): Promise<TSignedRequest> {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_invitations";
@@ -690,22 +684,20 @@ export class TurnkeyClient {
   /**
    * Create a new Policy
    *
-   * Sign the provided `TCreatePolicyInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_policy).
+   * Sign the provided `TCreatePolicyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_policy).
    *
    * See also {@link stampCreatePolicy}.
    */
-  async createPolicy(
-    input: TCreatePolicyInput
-  ): Promise<TCreatePolicyResponse> {
+  async createPolicy(input: TCreatePolicyBody): Promise<TCreatePolicyResponse> {
     return this.request("/public/v1/submit/create_policy", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TCreatePolicyInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TCreatePolicyBody` by using the client's `stamp` function.
    *
    * See also {@link CreatePolicy}.
    */
-  async stampCreatePolicy(input: TCreatePolicyInput): Promise<TSignedRequest> {
+  async stampCreatePolicy(input: TCreatePolicyBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/create_policy";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -719,23 +711,23 @@ export class TurnkeyClient {
   /**
    * Create a private key tag and add it to private keys.
    *
-   * Sign the provided `TCreatePrivateKeyTagInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_private_key_tag).
+   * Sign the provided `TCreatePrivateKeyTagBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_private_key_tag).
    *
    * See also {@link stampCreatePrivateKeyTag}.
    */
   async createPrivateKeyTag(
-    input: TCreatePrivateKeyTagInput
+    input: TCreatePrivateKeyTagBody
   ): Promise<TCreatePrivateKeyTagResponse> {
     return this.request("/public/v1/submit/create_private_key_tag", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TCreatePrivateKeyTagInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TCreatePrivateKeyTagBody` by using the client's `stamp` function.
    *
    * See also {@link CreatePrivateKeyTag}.
    */
   async stampCreatePrivateKeyTag(
-    input: TCreatePrivateKeyTagInput
+    input: TCreatePrivateKeyTagBody
   ): Promise<TSignedRequest> {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_private_key_tag";
@@ -751,23 +743,23 @@ export class TurnkeyClient {
   /**
    * Create new Private Keys
    *
-   * Sign the provided `TCreatePrivateKeysInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_private_keys).
+   * Sign the provided `TCreatePrivateKeysBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_private_keys).
    *
    * See also {@link stampCreatePrivateKeys}.
    */
   async createPrivateKeys(
-    input: TCreatePrivateKeysInput
+    input: TCreatePrivateKeysBody
   ): Promise<TCreatePrivateKeysResponse> {
     return this.request("/public/v1/submit/create_private_keys", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TCreatePrivateKeysInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TCreatePrivateKeysBody` by using the client's `stamp` function.
    *
    * See also {@link CreatePrivateKeys}.
    */
   async stampCreatePrivateKeys(
-    input: TCreatePrivateKeysInput
+    input: TCreatePrivateKeysBody
   ): Promise<TSignedRequest> {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_private_keys";
@@ -783,23 +775,23 @@ export class TurnkeyClient {
   /**
    * Create a new Sub-Organization
    *
-   * Sign the provided `TCreateSubOrganizationInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_sub_organization).
+   * Sign the provided `TCreateSubOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_sub_organization).
    *
    * See also {@link stampCreateSubOrganization}.
    */
   async createSubOrganization(
-    input: TCreateSubOrganizationInput
+    input: TCreateSubOrganizationBody
   ): Promise<TCreateSubOrganizationResponse> {
     return this.request("/public/v1/submit/create_sub_organization", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TCreateSubOrganizationInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TCreateSubOrganizationBody` by using the client's `stamp` function.
    *
    * See also {@link CreateSubOrganization}.
    */
   async stampCreateSubOrganization(
-    input: TCreateSubOrganizationInput
+    input: TCreateSubOrganizationBody
   ): Promise<TSignedRequest> {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_sub_organization";
@@ -815,24 +807,22 @@ export class TurnkeyClient {
   /**
    * Create a user tag and add it to users.
    *
-   * Sign the provided `TCreateUserTagInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_user_tag).
+   * Sign the provided `TCreateUserTagBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_user_tag).
    *
    * See also {@link stampCreateUserTag}.
    */
   async createUserTag(
-    input: TCreateUserTagInput
+    input: TCreateUserTagBody
   ): Promise<TCreateUserTagResponse> {
     return this.request("/public/v1/submit/create_user_tag", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TCreateUserTagInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TCreateUserTagBody` by using the client's `stamp` function.
    *
    * See also {@link CreateUserTag}.
    */
-  async stampCreateUserTag(
-    input: TCreateUserTagInput
-  ): Promise<TSignedRequest> {
+  async stampCreateUserTag(input: TCreateUserTagBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/create_user_tag";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -846,20 +836,20 @@ export class TurnkeyClient {
   /**
    * Create Users in an existing Organization
    *
-   * Sign the provided `TCreateUsersInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_users).
+   * Sign the provided `TCreateUsersBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_users).
    *
    * See also {@link stampCreateUsers}.
    */
-  async createUsers(input: TCreateUsersInput): Promise<TCreateUsersResponse> {
+  async createUsers(input: TCreateUsersBody): Promise<TCreateUsersResponse> {
     return this.request("/public/v1/submit/create_users", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TCreateUsersInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TCreateUsersBody` by using the client's `stamp` function.
    *
    * See also {@link CreateUsers}.
    */
-  async stampCreateUsers(input: TCreateUsersInput): Promise<TSignedRequest> {
+  async stampCreateUsers(input: TCreateUsersBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/create_users";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -873,24 +863,22 @@ export class TurnkeyClient {
   /**
    * Remove api keys from a User
    *
-   * Sign the provided `TDeleteApiKeysInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_api_keys).
+   * Sign the provided `TDeleteApiKeysBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_api_keys).
    *
    * See also {@link stampDeleteApiKeys}.
    */
   async deleteApiKeys(
-    input: TDeleteApiKeysInput
+    input: TDeleteApiKeysBody
   ): Promise<TDeleteApiKeysResponse> {
     return this.request("/public/v1/submit/delete_api_keys", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TDeleteApiKeysInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TDeleteApiKeysBody` by using the client's `stamp` function.
    *
    * See also {@link DeleteApiKeys}.
    */
-  async stampDeleteApiKeys(
-    input: TDeleteApiKeysInput
-  ): Promise<TSignedRequest> {
+  async stampDeleteApiKeys(input: TDeleteApiKeysBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_api_keys";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -904,23 +892,23 @@ export class TurnkeyClient {
   /**
    * Remove authenticators from a User
    *
-   * Sign the provided `TDeleteAuthenticatorsInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_authenticators).
+   * Sign the provided `TDeleteAuthenticatorsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_authenticators).
    *
    * See also {@link stampDeleteAuthenticators}.
    */
   async deleteAuthenticators(
-    input: TDeleteAuthenticatorsInput
+    input: TDeleteAuthenticatorsBody
   ): Promise<TDeleteAuthenticatorsResponse> {
     return this.request("/public/v1/submit/delete_authenticators", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TDeleteAuthenticatorsInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TDeleteAuthenticatorsBody` by using the client's `stamp` function.
    *
    * See also {@link DeleteAuthenticators}.
    */
   async stampDeleteAuthenticators(
-    input: TDeleteAuthenticatorsInput
+    input: TDeleteAuthenticatorsBody
   ): Promise<TSignedRequest> {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/delete_authenticators";
@@ -936,23 +924,23 @@ export class TurnkeyClient {
   /**
    * Delete an existing Invitation
    *
-   * Sign the provided `TDeleteInvitationInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_invitations).
+   * Sign the provided `TDeleteInvitationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_invitations).
    *
    * See also {@link stampDeleteInvitation}.
    */
   async deleteInvitation(
-    input: TDeleteInvitationInput
+    input: TDeleteInvitationBody
   ): Promise<TDeleteInvitationResponse> {
     return this.request("/public/v1/submit/delete_invitations", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TDeleteInvitationInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TDeleteInvitationBody` by using the client's `stamp` function.
    *
    * See also {@link DeleteInvitation}.
    */
   async stampDeleteInvitation(
-    input: TDeleteInvitationInput
+    input: TDeleteInvitationBody
   ): Promise<TSignedRequest> {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/delete_invitations";
@@ -968,22 +956,20 @@ export class TurnkeyClient {
   /**
    * Delete an existing Policy
    *
-   * Sign the provided `TDeletePolicyInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_policy).
+   * Sign the provided `TDeletePolicyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_policy).
    *
    * See also {@link stampDeletePolicy}.
    */
-  async deletePolicy(
-    input: TDeletePolicyInput
-  ): Promise<TDeletePolicyResponse> {
+  async deletePolicy(input: TDeletePolicyBody): Promise<TDeletePolicyResponse> {
     return this.request("/public/v1/submit/delete_policy", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TDeletePolicyInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TDeletePolicyBody` by using the client's `stamp` function.
    *
    * See also {@link DeletePolicy}.
    */
-  async stampDeletePolicy(input: TDeletePolicyInput): Promise<TSignedRequest> {
+  async stampDeletePolicy(input: TDeletePolicyBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_policy";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -997,23 +983,23 @@ export class TurnkeyClient {
   /**
    * Reject an Activity
    *
-   * Sign the provided `TRejectActivityInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/reject_activity).
+   * Sign the provided `TRejectActivityBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/reject_activity).
    *
    * See also {@link stampRejectActivity}.
    */
   async rejectActivity(
-    input: TRejectActivityInput
+    input: TRejectActivityBody
   ): Promise<TRejectActivityResponse> {
     return this.request("/public/v1/submit/reject_activity", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TRejectActivityInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TRejectActivityBody` by using the client's `stamp` function.
    *
    * See also {@link RejectActivity}.
    */
   async stampRejectActivity(
-    input: TRejectActivityInput
+    input: TRejectActivityBody
   ): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/reject_activity";
     const body = JSON.stringify(input);
@@ -1028,23 +1014,23 @@ export class TurnkeyClient {
   /**
    * Sign a raw payload with a Private Key
    *
-   * Sign the provided `TSignRawPayloadInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sign_raw_payload).
+   * Sign the provided `TSignRawPayloadBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sign_raw_payload).
    *
    * See also {@link stampSignRawPayload}.
    */
   async signRawPayload(
-    input: TSignRawPayloadInput
+    input: TSignRawPayloadBody
   ): Promise<TSignRawPayloadResponse> {
     return this.request("/public/v1/submit/sign_raw_payload", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TSignRawPayloadInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TSignRawPayloadBody` by using the client's `stamp` function.
    *
    * See also {@link SignRawPayload}.
    */
   async stampSignRawPayload(
-    input: TSignRawPayloadInput
+    input: TSignRawPayloadBody
   ): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/sign_raw_payload";
     const body = JSON.stringify(input);
@@ -1059,23 +1045,23 @@ export class TurnkeyClient {
   /**
    * Sign a transaction with a Private Key
    *
-   * Sign the provided `TSignTransactionInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sign_transaction).
+   * Sign the provided `TSignTransactionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sign_transaction).
    *
    * See also {@link stampSignTransaction}.
    */
   async signTransaction(
-    input: TSignTransactionInput
+    input: TSignTransactionBody
   ): Promise<TSignTransactionResponse> {
     return this.request("/public/v1/submit/sign_transaction", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TSignTransactionInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TSignTransactionBody` by using the client's `stamp` function.
    *
    * See also {@link SignTransaction}.
    */
   async stampSignTransaction(
-    input: TSignTransactionInput
+    input: TSignTransactionBody
   ): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/sign_transaction";
     const body = JSON.stringify(input);
@@ -1090,23 +1076,23 @@ export class TurnkeyClient {
   /**
    * Update the allowable origins for credentials and requests
    *
-   * Sign the provided `TUpdateAllowedOriginsInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_allowed_origins).
+   * Sign the provided `TUpdateAllowedOriginsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_allowed_origins).
    *
    * See also {@link stampUpdateAllowedOrigins}.
    */
   async updateAllowedOrigins(
-    input: TUpdateAllowedOriginsInput
+    input: TUpdateAllowedOriginsBody
   ): Promise<TUpdateAllowedOriginsResponse> {
     return this.request("/public/v1/submit/update_allowed_origins", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TUpdateAllowedOriginsInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TUpdateAllowedOriginsBody` by using the client's `stamp` function.
    *
    * See also {@link UpdateAllowedOrigins}.
    */
   async stampUpdateAllowedOrigins(
-    input: TUpdateAllowedOriginsInput
+    input: TUpdateAllowedOriginsBody
   ): Promise<TSignedRequest> {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/update_allowed_origins";
@@ -1122,22 +1108,20 @@ export class TurnkeyClient {
   /**
    * Update an existing Policy
    *
-   * Sign the provided `TUpdatePolicyInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_policy).
+   * Sign the provided `TUpdatePolicyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_policy).
    *
    * See also {@link stampUpdatePolicy}.
    */
-  async updatePolicy(
-    input: TUpdatePolicyInput
-  ): Promise<TUpdatePolicyResponse> {
+  async updatePolicy(input: TUpdatePolicyBody): Promise<TUpdatePolicyResponse> {
     return this.request("/public/v1/submit/update_policy", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TUpdatePolicyInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TUpdatePolicyBody` by using the client's `stamp` function.
    *
    * See also {@link UpdatePolicy}.
    */
-  async stampUpdatePolicy(input: TUpdatePolicyInput): Promise<TSignedRequest> {
+  async stampUpdatePolicy(input: TUpdatePolicyBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/update_policy";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -1151,23 +1135,23 @@ export class TurnkeyClient {
   /**
    * Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.
    *
-   * Sign the provided `TUpdatePrivateKeyTagInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_private_key_tag).
+   * Sign the provided `TUpdatePrivateKeyTagBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_private_key_tag).
    *
    * See also {@link stampUpdatePrivateKeyTag}.
    */
   async updatePrivateKeyTag(
-    input: TUpdatePrivateKeyTagInput
+    input: TUpdatePrivateKeyTagBody
   ): Promise<TUpdatePrivateKeyTagResponse> {
     return this.request("/public/v1/submit/update_private_key_tag", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TUpdatePrivateKeyTagInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TUpdatePrivateKeyTagBody` by using the client's `stamp` function.
    *
    * See also {@link UpdatePrivateKeyTag}.
    */
   async stampUpdatePrivateKeyTag(
-    input: TUpdatePrivateKeyTagInput
+    input: TUpdatePrivateKeyTagBody
   ): Promise<TSignedRequest> {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/update_private_key_tag";
@@ -1183,23 +1167,23 @@ export class TurnkeyClient {
   /**
    * Set the threshold and members of the root quorum. This must be approved by the current root quorum.
    *
-   * Sign the provided `TUpdateRootQuorumInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_root_quorum).
+   * Sign the provided `TUpdateRootQuorumBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_root_quorum).
    *
    * See also {@link stampUpdateRootQuorum}.
    */
   async updateRootQuorum(
-    input: TUpdateRootQuorumInput
+    input: TUpdateRootQuorumBody
   ): Promise<TUpdateRootQuorumResponse> {
     return this.request("/public/v1/submit/update_root_quorum", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TUpdateRootQuorumInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TUpdateRootQuorumBody` by using the client's `stamp` function.
    *
    * See also {@link UpdateRootQuorum}.
    */
   async stampUpdateRootQuorum(
-    input: TUpdateRootQuorumInput
+    input: TUpdateRootQuorumBody
   ): Promise<TSignedRequest> {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/update_root_quorum";
@@ -1215,20 +1199,20 @@ export class TurnkeyClient {
   /**
    * Update a User in an existing Organization
    *
-   * Sign the provided `TUpdateUserInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_user).
+   * Sign the provided `TUpdateUserBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_user).
    *
    * See also {@link stampUpdateUser}.
    */
-  async updateUser(input: TUpdateUserInput): Promise<TUpdateUserResponse> {
+  async updateUser(input: TUpdateUserBody): Promise<TUpdateUserResponse> {
     return this.request("/public/v1/submit/update_user", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TUpdateUserInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TUpdateUserBody` by using the client's `stamp` function.
    *
    * See also {@link UpdateUser}.
    */
-  async stampUpdateUser(input: TUpdateUserInput): Promise<TSignedRequest> {
+  async stampUpdateUser(input: TUpdateUserBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/update_user";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
@@ -1242,24 +1226,22 @@ export class TurnkeyClient {
   /**
    * Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.
    *
-   * Sign the provided `TUpdateUserTagInput` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_user_tag).
+   * Sign the provided `TUpdateUserTagBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_user_tag).
    *
    * See also {@link stampUpdateUserTag}.
    */
   async updateUserTag(
-    input: TUpdateUserTagInput
+    input: TUpdateUserTagBody
   ): Promise<TUpdateUserTagResponse> {
     return this.request("/public/v1/submit/update_user_tag", input);
   }
 
   /**
-   * Produce a `SignedRequest` from `TUpdateUserTagInput` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TUpdateUserTagBody` by using the client's `stamp` function.
    *
    * See also {@link UpdateUserTag}.
    */
-  async stampUpdateUserTag(
-    input: TUpdateUserTagInput
-  ): Promise<TSignedRequest> {
+  async stampUpdateUserTag(input: TUpdateUserTagBody): Promise<TSignedRequest> {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/update_user_tag";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);

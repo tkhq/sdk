@@ -1,9 +1,7 @@
 import * as crypto from "crypto";
 import { convertTurnkeyApiKeyToJwk } from "./encoding";
 
-
-
-export const stamp = async (input: {
+export const signWithApiKey = async (input: {
   content: string;
   publicKey: string;
   privateKey: string;

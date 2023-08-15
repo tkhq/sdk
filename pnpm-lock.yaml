@@ -322,6 +322,12 @@ importers:
 
   examples/with-viem:
     dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../packages/api-key-stamper
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../packages/http
       '@turnkey/viem':
         specifier: workspace:*
         version: link:../../packages/viem
@@ -356,11 +362,7 @@ importers:
         specifier: ^29.3.1
         version: 29.4.3(@babel/core@7.20.12)
 
-  packages/api-key-stamper:
-    dependencies:
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../http
+  packages/api-key-stamper: {}
 
   packages/cosmjs:
     dependencies:
@@ -426,6 +428,9 @@ importers:
 
   packages/viem:
     dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../api-key-stamper
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http

@@ -2,9 +2,9 @@
   "references": [
     { "path": "./packages/cosmjs" },
     { "path": "./packages/ethers" },
+    { "path": "./packages/http" },
     { "path": "./packages/webauthn-stamper" },
     { "path": "./packages/api-key-stamper" },
-    { "path": "./packages/http" },
     { "path": "./packages/viem" }
   ],
   "files": []

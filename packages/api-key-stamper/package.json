@@ -22,7 +22,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/tkhq/sdk.git",
-    "directory": "packages/webauthn-stamper"
+    "directory": "packages/api-key-stamper"
   },
   "files": [
     "dist/",
@@ -37,9 +37,6 @@
     "clean": "rimraf ./dist ./.cache",
     "test": "jest --passWithNoTests",
     "typecheck": "tsc -p tsconfig.typecheck.json"
-  },
-  "peerDependencies": {
-    "@turnkey/http": "workspace:*"
   },
   "engines": {
     "node": ">=16.0.0"

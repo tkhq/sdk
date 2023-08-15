@@ -1,6 +1,8 @@
 /// <reference lib="dom" />
 import { get as webauthnCredentialGet } from "./webauthn-json";
 
+// Header name for a webauthn stamp
+const stampHeaderName = "X-Stamp-Webauthn"
 
 export type TWebauthnStamperConfig = {
   // The RPID ("Relying Party ID") for your origin.
@@ -57,7 +59,10 @@ export class WebauthnStamper {
       signature: assertion.response.signature,
     };
 
-    return JSON.stringify(stamp);
+    return {
+      stampHeaderName: stampHeaderName,
+      stampHeaderValue: JSON.stringify(stamp)
+    };
   }
 }
 
