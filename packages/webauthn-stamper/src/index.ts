@@ -2,7 +2,7 @@
 import { get as webauthnCredentialGet } from "./webauthn-json";
 
 // Header name for a webauthn stamp
-const stampHeaderName = "X-Stamp-Webauthn"
+const stampHeaderName = "X-Stamp-Webauthn";
 
 export type TWebauthnStamperConfig = {
   // The RPID ("Relying Party ID") for your origin.
@@ -10,12 +10,12 @@ export type TWebauthnStamperConfig = {
   // If you're testing on localhost, the RPID should be "localhost".
   rpId: string;
   // Optional timeout value. Defaults to 5 minutes.
-  timeout?: number,
+  timeout?: number;
   // Optional override for UV flag. Defaults to "preferred".
-  userVerification?: UserVerificationRequirement,
+  userVerification?: UserVerificationRequirement;
   // Optional list of credentials to pass. Defaults to empty
   allowCredentials?: PublicKeyCredentialDescriptor[];
-}
+};
 
 const defaultTimeout = 5 * 60 * 1000; // five minutes
 const defaultUserVerification = "preferred";
@@ -30,7 +30,7 @@ export class WebauthnStamper {
   allowCredentials: PublicKeyCredentialDescriptor[];
 
   constructor(config: TWebauthnStamperConfig) {
-    this.rpId = config.rpId
+    this.rpId = config.rpId;
     this.timeout = config.timeout || defaultTimeout;
     this.userVerification = config.userVerification || defaultUserVerification;
     this.allowCredentials = config.allowCredentials || [];
@@ -47,7 +47,7 @@ export class WebauthnStamper {
         timeout: this.timeout,
         userVerification: this.userVerification,
       },
-    };  
+    };
 
     const clientGetResult = await webauthnCredentialGet(signingOptions);
     const assertion = clientGetResult.toJSON();
@@ -61,7 +61,7 @@ export class WebauthnStamper {
 
     return {
       stampHeaderName: stampHeaderName,
-      stampHeaderValue: JSON.stringify(stamp)
+      stampHeaderValue: JSON.stringify(stamp),
     };
   }
 }

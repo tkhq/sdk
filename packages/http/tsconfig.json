@@ -7,5 +7,8 @@
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
-  "references": [{"path": "../api-key-stamper"}, {"path": "../webauthn-stamper"}]
+  "references": [
+    { "path": "../api-key-stamper" },
+    { "path": "../webauthn-stamper" }
+  ]
 }

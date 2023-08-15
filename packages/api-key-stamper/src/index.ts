@@ -3,12 +3,12 @@
 import { stringToBase64urlString } from "./encoding";
 
 // Header name for an API key stamp
-const stampHeaderName = "X-Stamp"
+const stampHeaderName = "X-Stamp";
 
 export type TApiKeyStamperConfig = {
   apiPublicKey: string;
   apiPrivateKey: string;
-}
+};
 
 /**
  * Signature function abstracting the differences between NodeJS and web environments for signing with API keys.
@@ -24,7 +24,7 @@ if (typeof globalThis?.crypto?.subtle !== "undefined") {
 } else {
   signWithApiKey = require("./nodecrypto").signWithApiKey;
 }
-export { signWithApiKey }
+export { signWithApiKey };
 
 /**
  * Stamper to use with `@turnkey/http`'s `TurnkeyClient`
@@ -34,8 +34,8 @@ export class ApiKeyStamper {
   apiPrivateKey: string;
 
   constructor(config: TApiKeyStamperConfig) {
-    this.apiPublicKey = config.apiPublicKey
-    this.apiPrivateKey = config.apiPrivateKey
+    this.apiPublicKey = config.apiPublicKey;
+    this.apiPrivateKey = config.apiPrivateKey;
   }
 
   async stamp(payload: string) {
@@ -43,7 +43,7 @@ export class ApiKeyStamper {
       publicKey: this.apiPublicKey,
       privateKey: this.apiPrivateKey,
       content: payload,
-    })
+    });
 
     const stamp = {
       publicKey: this.apiPublicKey,
@@ -54,6 +54,6 @@ export class ApiKeyStamper {
     return {
       stampHeaderName: stampHeaderName,
       stampHeaderValue: stringToBase64urlString(JSON.stringify(stamp)),
-    }
+    };
   }
 }

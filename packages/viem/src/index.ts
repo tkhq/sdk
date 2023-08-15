@@ -9,26 +9,22 @@ import type {
   TransactionSerializable,
   TypedData,
 } from "viem";
-import {
-  TurnkeyActivityError,
-  TurnkeyClient,
-} from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper"
-
+import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 export async function createAccount(input: {
-  client: TurnkeyClient,
-  organizationId: string,
-  privateKeyId: string,
+  client: TurnkeyClient;
+  organizationId: string;
+  privateKeyId: string;
   // Ethereum address to use for this account.
   // If left undefined, `createAccount` will fetch it from the Turnkey API.
   // We recommend setting this if you're using a passkey client, so that your users are not prompted for a passkey signature just to fetch their address.
   // You may leave this undefined if using an API key client.
-  ethereumAddress?: string,
+  ethereumAddress?: string;
 }): Promise<LocalAccount> {
   const { client, organizationId, privateKeyId } = input;
   let { ethereumAddress } = input;
-  
+
   // Fetch the address if we don't have it
   if (ethereumAddress === undefined) {
     console.log("organization ID", organizationId);
@@ -36,18 +32,18 @@ export async function createAccount(input: {
       privateKeyId: privateKeyId,
       organizationId: organizationId,
     });
-  
+
     ethereumAddress = data.privateKey.addresses.find(
       (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM"
     )?.address;
-  
+
     if (typeof ethereumAddress !== "string" || !ethereumAddress) {
       throw new TurnkeyActivityError({
         message: `Unable to find Ethereum address for key ${privateKeyId} under organization ${organizationId}`,
       });
     }
   }
-  
+
   return toAccount({
     address: ethereumAddress as `0x${string}`,
     signMessage: function ({
@@ -125,15 +121,18 @@ export async function createApiKeyAccount(
   const stamper = new ApiKeyStamper({
     apiPublicKey: apiPublicKey,
     apiPrivateKey: apiPrivateKey,
-  })
+  });
 
-  const client = new TurnkeyClient({
-    baseUrl: baseUrl,
-  }, stamper)
-  
+  const client = new TurnkeyClient(
+    {
+      baseUrl: baseUrl,
+    },
+    stamper
+  );
+
   const data = await client.getPrivateKey({
-      privateKeyId: privateKeyId,
-      organizationId: organizationId,
+    privateKeyId: privateKeyId,
+    organizationId: organizationId,
   });
 
   const ethereumAddress = data.privateKey.addresses.find(
@@ -269,14 +268,14 @@ async function signTransactionImpl(
   privateKeyId: string
 ): Promise<string> {
   const { activity } = await client.signTransaction({
-      type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
-      organizationId: organizationId,
-      parameters: {
-        privateKeyId: privateKeyId,
-        type: "TRANSACTION_TYPE_ETHEREUM",
-        unsignedTransaction: unsignedTransaction,
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
+    type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
+    organizationId: organizationId,
+    parameters: {
+      privateKeyId: privateKeyId,
+      type: "TRANSACTION_TYPE_ETHEREUM",
+      unsignedTransaction: unsignedTransaction,
+    },
+    timestampMs: String(Date.now()), // millisecond timestamp
   });
 
   const { id, status, type } = activity;

@@ -6,7 +6,6 @@ export type TActivityId = TActivity["id"];
 export type TActivityStatus = TActivity["status"];
 export type TActivityType = TActivity["type"];
 
-
 /**
  * @deprecated use {@link TStamper} instead
  */
