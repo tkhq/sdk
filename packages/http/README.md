@@ -2,11 +2,11 @@
 
 [![npm](https://img.shields.io/npm/v/@turnkey/http?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/http)
 
-A lower-level, fully typed HTTP client for interacting with [Turnkey](https://turnkey.io) API.
+A lower-level, fully typed HTTP client for interacting with [Turnkey](https://turnkey.com) API.
 
-For signing transactions and messages, check out the higher-level [`@turnkey/ethers`](/packages/ethers/) Signer.
+For signing transactions and messages, check out the higher-level [`@turnkey/ethers`](https://www.npmjs.com/package/@turnkey/ethers) or [`@turnkey/viem`](https://www.npmjs.com/package/@turnkey/viem) signers.
 
-API Docs: https://turnkey.readme.io/
+Turnkey API documentation lives here: https://docs.turnkey.com.
 
 ## Getting started
 
@@ -14,19 +14,27 @@ API Docs: https://turnkey.readme.io/
 $ npm install @turnkey/http
 ```
 
-Before making http calls, initialize the package with your credentials:
-
 ```typescript
-import { TurnkeyApi, init } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { TurnkeyClient } from "@turnkey/http";
 
-init({
+// This stamper produces signatures using the API key pair passed in.
+const stamper = new ApiKeyStamper({
   apiPublicKey: "...",
   apiPrivateKey: "...",
-  baseUrl: "...",
 });
 
+// The Turnkey client uses the passed in stamper to produce signed requests
+// and sends them to Turnkey
+const client = new TurnkeyClient(
+  {
+    baseUrl: "https://api.turnkey.com",
+  },
+  stamper
+);
+
 // Now you can make authenticated requests!
-const data = await TurnkeyApi.postGetWhoami({
+const data = await TurnkeyApi.getWhoami({
   body: {
     organizationId: "...",
   },
@@ -45,14 +53,13 @@ All Turnkey mutation endpoints are asynchronous (with the exception of private k
 
 ```typescript
 import {
-  TurnkeyApi,
   withAsyncPolling,
   TurnkeyActivityError,
 } from "@turnkey/http";
 
 // Use `withAsyncPolling(...)` to wrap & create a fetcher with built-in async polling support
 const fetcher = withAsyncPolling({
-  request: TurnkeyApi.postCreatePrivateKeys,
+  request: client.createPrivateKeys,
 });
 
 // The fetcher remains fully typed. After submitting the request,
@@ -86,4 +93,5 @@ See [`createNewEthereumPrivateKey.ts`](/examples/with-ethers/src/createNewEthere
 
 ## See also
 
-- [`@turnkey/ethers`](/packages/ethers/): higher-level Turnkey Signer for [`Ethers`](https://docs.ethers.org/v5/api/signer/)
+- [`@turnkey/ethers`](https://www.npmjs.com/package/@turnkey/ethers): Turnkey Signer for [`Ethers`](https://docs.ethers.org/v5/api/signer/)
+- [`@turnkey/viem`](https://www.npmjs.com/package/@turnkey/viem): Turnkey Custom Account for [`Viem`](https://viem.sh/docs/accounts/custom.html)
