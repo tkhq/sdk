@@ -52,10 +52,7 @@ The OpenAPI spec that generates all fetchers is also [included](/packages/http/s
 All Turnkey mutation endpoints are asynchronous (with the exception of private key-related signing endpoints, e.g. `/submit/sign_transaction`, `/submit/sign_raw_payload`). To help you simplify async mutations, `@turnkey/http` provides a `withAsyncPolling(...)` wrapper. Here's a quick example:
 
 ```typescript
-import {
-  withAsyncPolling,
-  TurnkeyActivityError,
-} from "@turnkey/http";
+import { withAsyncPolling, TurnkeyActivityError } from "@turnkey/http";
 
 // Use `withAsyncPolling(...)` to wrap & create a fetcher with built-in async polling support
 const fetcher = withAsyncPolling({

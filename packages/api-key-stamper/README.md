@@ -5,6 +5,7 @@
 This package contains functions to stamp a Turnkey request. It is meant to be used with [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http)
 
 Usage:
+
 ```ts
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { TurnkeyClient } from "@turnkey/http";
@@ -14,5 +15,8 @@ const stamper = new ApiKeyStamper({
   apiPrivateKey: "...",
 });
 
-const httpClient = new TurnkeyClient({ baseUrl: "https://api.turnkey.com" }, stamper);
+const httpClient = new TurnkeyClient(
+  { baseUrl: "https://api.turnkey.com" },
+  stamper
+);
 ```

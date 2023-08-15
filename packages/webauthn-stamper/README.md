@@ -5,6 +5,7 @@
 This package contains functions to stamp a Turnkey request. It is meant to be used with [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http)
 
 Usage:
+
 ```ts
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { TurnkeyClient } from "@turnkey/http";
@@ -14,5 +15,8 @@ const stamper = new WebAuthnStamper({
 });
 
 // New HTTP client able to sign with passkeys!
-const httpClient = new TurnkeyClient({ baseUrl: "https://api.turnkey.com" }, stamper);
+const httpClient = new TurnkeyClient(
+  { baseUrl: "https://api.turnkey.com" },
+  stamper
+);
 ```
