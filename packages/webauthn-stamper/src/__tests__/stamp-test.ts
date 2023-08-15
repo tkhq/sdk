@@ -7,7 +7,7 @@ import { WebauthnStamper } from "../index";
 // This lets us assert against it.
 jest.mock("../webauthn-json", () => {
   return {
-    get: (_options) => {
+    get: (_: any) => {
       return {
         toJSON: () => {
           return {
