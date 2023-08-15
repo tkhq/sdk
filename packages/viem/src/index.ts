@@ -27,7 +27,6 @@ export async function createAccount(input: {
 
   // Fetch the address if we don't have it
   if (ethereumAddress === undefined) {
-    console.log("organization ID", organizationId);
     const data = await client.getPrivateKey({
       privateKeyId: privateKeyId,
       organizationId: organizationId,
