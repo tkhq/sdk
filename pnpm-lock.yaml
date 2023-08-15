@@ -448,11 +448,7 @@ importers:
         specifier: ^1.5.3
         version: 1.5.3(typescript@5.1.3)
 
-  packages/webauthn-stamper:
-    dependencies:
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../http
+  packages/webauthn-stamper: {}
 
 packages:
 
