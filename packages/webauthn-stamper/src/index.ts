@@ -61,7 +61,7 @@ export class WebauthnStamper {
 
     return {
       stampHeaderName: stampHeaderName,
-      stampHeaderValue: stringToBase64urlString(JSON.stringify(stamp)),
+      stampHeaderValue: JSON.stringify(stamp),
     };
   }
 }
@@ -72,17 +72,4 @@ async function getChallengeFromPayload(payload: string): Promise<Uint8Array> {
   const hexString = Buffer.from(hashBuffer).toString("hex");
   const hexBuffer = Buffer.from(hexString, "utf8");
   return new Uint8Array(hexBuffer);
-}
-
-/**
- * Code modified from https://github.com/github/webauthn-json/blob/e932b3585fa70b0bd5b5a4012ba7dbad7b0a0d0f/src/webauthn-json/base64url.ts#L23
- */
-export function stringToBase64urlString(input: string): string {
-  // string to base64
-  const base64String = btoa(input);
-  return base64StringToBase64UrlEncodedString(base64String);
-}
-
-export function base64StringToBase64UrlEncodedString(input: string): string {
-  return input.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }

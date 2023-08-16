@@ -38,11 +38,8 @@ test("uses provided signature to make stamp", async function () {
 
   expect(stamp.stampHeaderName).toBe("X-Stamp-Webauthn");
 
-  // We expect the stamp to be base64url encoded + a valid JSON string after that
-  const decodedStamp = JSON.parse(
-    Buffer.from(stamp.stampHeaderValue, "base64url").toString()
-  );
-  expect(decodedStamp).toEqual({
+  // We expect the stamp to be a valid JSON string after that
+  expect(JSON.parse(stamp.stampHeaderValue)).toEqual({
     authenticatorData: "authenticator-data",
     clientDataJson: "client-data-json",
     credentialId: "credential-id",
