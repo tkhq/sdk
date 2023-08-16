@@ -1748,10 +1748,6 @@ export type TNOOPCodegenAnchorResponse =
   operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];
 
 /**
- * This route does nothing and does not need an implementation, but please don't remove it.
-It's used at compile time for generating extra OpenAPI/TypeScript types
-that are not directly referenced in requests.
- *
  * `POST /tkhq/api/v1/noop-codegen-anchor`
  */
 export const nOOPCodegenAnchor = () =>

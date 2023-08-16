@@ -151,18 +151,18 @@ export class TurnkeyClient {
   }
   async request<TBodyType, TResponseType>(
     url: string,
-    input: TBodyType
+    body: TBodyType
   ): Promise<TResponseType> {
     const fullUrl = this.config.baseUrl + url;
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
 
     const response = await fetch(fullUrl, {
       method: "POST",
       headers: {
         [stamp.stampHeaderName]: stamp.stampHeaderValue,
       },
-      body: body,
+      body: stringifiedBody,
       redirect: "follow",
     });
 
