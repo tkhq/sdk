@@ -5,10 +5,10 @@ export { init, browserInit } from "./config";
 
 export { TurnkeyRequestError } from "./base";
 export { TurnkeyActivityError } from "./shared";
-export type { SignedRequest } from "./base";
+export type { SignedRequest, TSignedRequest } from "./base";
 export { getWebAuthnAttestation } from "./webauthn";
 
-export { withAsyncPolling } from "./async";
+export { withAsyncPolling, createActivityPoller } from "./async";
 
 export { TurnkeyApi };
 
