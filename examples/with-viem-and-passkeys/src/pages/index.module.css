@@ -17,7 +17,7 @@
   gap: 30px;
   font-family: "Inter";
   max-width: 50ch;
-  margin: auto
+  margin: auto;
 }
 
 .input {
@@ -30,7 +30,6 @@
   border-color: rgba(216, 219, 227, 1);
   font-family: "Inter";
 }
-
 
 .label {
   font-family: "Inter";
@@ -87,5 +86,5 @@
 .explainer {
   line-height: 1.4em;
   font-size: 0.9em;
-  color:rgb(134, 153, 156)
+  color: rgb(134, 153, 156);
 }

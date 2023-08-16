@@ -5,6 +5,7 @@ This example shows how to create sub-organizations, create private keys, and sig
 ![UI screenshot](./img/ui-screenshot.png)
 
 The flow showcases 3 ways to make requests to Turnkey:
+
 - the initial request to create a new [sub-organization](https://docs.turnkey.com/getting-started/sub-organizations) is authenticated in the NextJS backend with an API signature (using `API_PUBLIC_KEY`/`API_PRIVATE_KEY` from your `.env.local` file)
 - the request to create a new ETH address is signed on the frontend with your passkey, but it's passed to the NextJS backend as a signed request (the body, stamp, and url are POSTed). This lets the backend submit this request on your behalf, and poll until the new "create private keys" activity completes. Once the activity completes it returns the new address to the frontend
 - the request to sign a message is done 100% client-side via a Turnkey Viem signer (see [@turnkey/viem](../../packages/viem/)): it's signed with your passkey, and submitted from the browser to the Turnkey API directly.

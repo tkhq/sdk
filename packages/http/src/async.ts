@@ -6,7 +6,7 @@ const DEFAULT_REFRESH_INTERVAL_MS = 500;
 
 /**
  * Wraps a request to create a fetcher with built-in async polling support.
- * 
+ *
  * @deprecated this function only works with {@link TurnkeyApi}.
  * Use {@link TurnkeyClient} and {@link createActivityPoller} instead.
  */
@@ -106,7 +106,11 @@ export function createActivityPoller<
   requestFn: (input: I) => Promise<O>;
   refreshIntervalMs?: number;
 }): (input: I) => Promise<O["activity"]> {
-  const { client, requestFn, refreshIntervalMs = DEFAULT_REFRESH_INTERVAL_MS } = params;
+  const {
+    client,
+    requestFn,
+    refreshIntervalMs = DEFAULT_REFRESH_INTERVAL_MS,
+  } = params;
 
   return async (input: I) => {
     const initialResponse: TActivityResponse = await requestFn(input);

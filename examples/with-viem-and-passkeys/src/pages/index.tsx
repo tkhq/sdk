@@ -36,13 +36,13 @@ const base64UrlEncode = (challenge: ArrayBuffer): string => {
 };
 
 type TPrivateKeyState = {
-  id: string,
-  address: string,
+  id: string;
+  address: string;
 } | null;
 
 type TSignedMessage = {
-  message: string,
-  signature: string,
+  message: string;
+  signature: string;
 } | null;
 
 export default function Home() {
@@ -51,16 +51,20 @@ export default function Home() {
   const [signedMessage, setSignedMessage] = useState<TSignedMessage>(null);
 
   const { handleSubmit: subOrgFormSubmit } = useForm<subOrgFormData>();
-  const { register: signingFormRegister, handleSubmit: signingFormSubmit } = useForm<signingFormData>();
+  const { register: signingFormRegister, handleSubmit: signingFormSubmit } =
+    useForm<signingFormData>();
   const { handleSubmit: privateKeyFormSubmit } = useForm<privateKeyFormData>();
 
   const stamper = new WebauthnStamper({
-    rpId: "localhost"
-  })
+    rpId: "localhost",
+  });
 
-  const passkeyHttpClient = new TurnkeyClient({
-    baseUrl: process.env.NEXT_PUBLIC_TURNKEY_API_BASE_URL!,
-  }, stamper);
+  const passkeyHttpClient = new TurnkeyClient(
+    {
+      baseUrl: process.env.NEXT_PUBLIC_TURNKEY_API_BASE_URL!,
+    },
+    stamper
+  );
 
   const createPrivateKey = async () => {
     if (!subOrgId) {
@@ -84,11 +88,11 @@ export default function Home() {
     });
 
     const response = await axios.post("/api/createKey", signedRequest);
-    
+
     setPrivateKey({
       id: response.data["privateKeyId"],
       address: response.data["address"],
-    })
+    });
   };
 
   const signMessage = async (data: signingFormData) => {
@@ -101,7 +105,7 @@ export default function Home() {
       organizationId: subOrgId,
       privateKeyId: privateKey.id,
       ethereumAddress: privateKey.address,
-    })
+    });
 
     const viemClient = createWalletClient({
       account: viemAccount,
@@ -111,12 +115,12 @@ export default function Home() {
 
     const signedMessage = await viemClient.signMessage({
       message: data.messageToSign,
-    })
+    });
 
     setSignedMessage({
       message: data.messageToSign,
       signature: signedMessage,
-    })
+    });
   };
 
   const createSubOrg = async () => {
@@ -171,33 +175,55 @@ export default function Home() {
       <div>
         {subOrgId && (
           <div className={styles.info}>
-            Your sub-org ID: <br/><span className={styles.code}>{subOrgId}</span>
+            Your sub-org ID: <br />
+            <span className={styles.code}>{subOrgId}</span>
           </div>
         )}
         {privateKey && (
-          <div  className={styles.info}>
-            ETH address: <br/><span className={styles.code}>{privateKey.address}</span>
+          <div className={styles.info}>
+            ETH address: <br />
+            <span className={styles.code}>{privateKey.address}</span>
           </div>
         )}
         {signedMessage && (
           <div className={styles.info}>
-            Message: <br/><span className={styles.code}>{signedMessage.message}</span><br/>
-            <br/>
-            Signature: <br/><span className={styles.code}>{signedMessage.signature}</span>
-            <br/><br/>
-            <a href="https://etherscan.io/verifiedSignatures" target="_blank" rel="noopener noreferrer">Verify with Etherscan</a>
+            Message: <br />
+            <span className={styles.code}>{signedMessage.message}</span>
+            <br />
+            <br />
+            Signature: <br />
+            <span className={styles.code}>{signedMessage.signature}</span>
+            <br />
+            <br />
+            <a
+              href="https://etherscan.io/verifiedSignatures"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Verify with Etherscan
+            </a>
           </div>
         )}
       </div>
       {!subOrgId && (
         <div>
-          <h2>
-            First, create a new sub-organization
-          </h2>
+          <h2>First, create a new sub-organization</h2>
           <p className={styles.explainer}>
-            We'll prompt your browser to create a new passkey. The details (credential ID, authenticator data, client data, attestation) will be used to create a new <a href="https://docs.turnkey.com/getting-started/sub-organizations" target="_blank" rel="noopener noreferrer">Turnkey Sub-Organization</a>.
-            <br/><br/>
-            This request to Turnkey will be created and signed by the backend API key pair.
+            We'll prompt your browser to create a new passkey. The details
+            (credential ID, authenticator data, client data, attestation) will
+            be used to create a new{" "}
+            <a
+              href="https://docs.turnkey.com/getting-started/sub-organizations"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Turnkey Sub-Organization
+            </a>
+            .
+            <br />
+            <br />
+            This request to Turnkey will be created and signed by the backend
+            API key pair.
           </p>
           <form
             className={styles.form}
@@ -213,29 +239,57 @@ export default function Home() {
       )}
       {subOrgId && !privateKey && (
         <div>
-          <h2>
-            Next, create a new Ethereum address using your passkey{" "}
-          </h2>
+          <h2>Next, create a new Ethereum address using your passkey </h2>
           <p className={styles.explainer}>
-            We will sign the key creation request (<a href="https://docs.turnkey.com/api#tag/Private-Keys/operation/PublicApiService_CreatePrivateKeys" target="_blank" rel="noopener noreferrer">/public/v1/submit/create_private_keys</a>) with your passkey, and forward it to Turnkey through the NextJS backend.
-            <br/><br/>This ensures we can safely poll for activity completion and handle errors.
+            We will sign the key creation request (
+            <a
+              href="https://docs.turnkey.com/api#tag/Private-Keys/operation/PublicApiService_CreatePrivateKeys"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              /public/v1/submit/create_private_keys
+            </a>
+            ) with your passkey, and forward it to Turnkey through the NextJS
+            backend.
+            <br />
+            <br />
+            This ensures we can safely poll for activity completion and handle
+            errors.
           </p>
           <form
             className={styles.form}
             onSubmit={privateKeyFormSubmit(createPrivateKey)}
           >
-            <input className={styles.button} type="submit" value="Create ETH address" />
+            <input
+              className={styles.button}
+              type="submit"
+              value="Create ETH address"
+            />
           </form>
         </div>
       )}
       {subOrgId && privateKey && (
         <div>
-          <h2>
-            Now let's sign something!
-          </h2>
+          <h2>Now let's sign something!</h2>
           <p className={styles.explainer}>
-            We'll use a <a href="https://viem.sh/docs/accounts/custom.html" target="_blank" rel="noopener noreferrer">Viem custom account</a> to do this, using <a href="https://www.npmjs.com/package/@turnkey/viem" target="_blank" rel="noopener noreferrer">@turnkey/viem</a>.
-            You can kill your NextJS server if you want, everything happens on the client-side!
+            We'll use a{" "}
+            <a
+              href="https://viem.sh/docs/accounts/custom.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Viem custom account
+            </a>{" "}
+            to do this, using{" "}
+            <a
+              href="https://www.npmjs.com/package/@turnkey/viem"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              @turnkey/viem
+            </a>
+            . You can kill your NextJS server if you want, everything happens on
+            the client-side!
           </p>
           <form
             className={styles.form}
@@ -246,7 +300,11 @@ export default function Home() {
               {...signingFormRegister("messageToSign")}
               placeholder="Write something to sign..."
             />
-            <input className={styles.button} type="submit" value="Sign Message" />
+            <input
+              className={styles.button}
+              type="submit"
+              value="Sign Message"
+            />
           </form>
         </div>
       )}

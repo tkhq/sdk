@@ -1,8 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import {
-  TurnkeyApiTypes,
-  TurnkeyClient,
-} from "@turnkey/http";
+import { TurnkeyApiTypes, TurnkeyClient } from "@turnkey/http";
 import { createActivityPoller } from "@turnkey/http/dist/async";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
@@ -35,7 +32,7 @@ export default async function createUser(
         apiPublicKey: process.env.API_PUBLIC_KEY!,
         apiPrivateKey: process.env.API_PRIVATE_KEY!,
       })
-    )
+    );
 
     const activityPoller = createActivityPoller({
       client: turnkeyClient,
