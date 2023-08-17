@@ -5,7 +5,9 @@
     "packages/cosmjs",
     "packages/ethers",
     "packages/http",
-    "packages/viem"
+    "packages/viem",
+    "packages/webauthn-stamper",
+    "packages/api-key-stamper"
   ],
   "sandboxes": [],
   "node": "18"

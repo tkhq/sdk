@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/viem",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "Apache-2.0",
@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@turnkey/http": "workspace:*",
+    "@turnkey/api-key-stamper": "workspace:*",
     "typescript": "5.1"
   },
   "devDependencies": {

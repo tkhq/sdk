@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/http",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "Apache-2.0",
@@ -36,7 +36,9 @@
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "dependencies": {
-    "cross-fetch": "^3.1.5"
+    "cross-fetch": "^3.1.5",
+    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/webauthn-stamper": "workspace:*"
   },
   "engines": {
     "node": ">=16.0.0"

@@ -1,7 +1,9 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
 
-import { createApiKeyAccount } from "@turnkey/viem";
+import { createAccount } from "@turnkey/viem";
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createWalletClient, http } from "viem";
 import { sepolia } from "viem/chains";
 
@@ -9,10 +11,18 @@ import { sepolia } from "viem/chains";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 async function main() {
-  const turnkeyAccount = await createApiKeyAccount({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: process.env.BASE_URL!,
+  const turnkeyClient = new TurnkeyClient(
+    {
+      baseUrl: process.env.BASE_URL!,
+    },
+    new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    })
+  );
+
+  const turnkeyAccount = await createAccount({
+    client: turnkeyClient,
     organizationId: process.env.ORGANIZATION_ID!,
     privateKeyId: process.env.PRIVATE_KEY_ID!,
   });

@@ -1,26 +1,18 @@
 /// <reference lib="dom" />
-
 import { uint8ArrayToHexString, convertTurnkeyApiKeyToJwk } from "./encoding";
-import type { TStamper } from "./shared";
 
-export const stamp: TStamper = async (input: {
+export const signWithApiKey = async (input: {
   content: string;
   publicKey: string;
   privateKey: string;
-}) => {
+}): Promise<string> => {
   const { content, publicKey, privateKey } = input;
 
   const key = await importTurnkeyApiKey({
     uncompressedPrivateKeyHex: privateKey,
     compressedPublicKeyHex: publicKey,
   });
-  const signature = await signMessage({ key, content });
-
-  return {
-    publicKey: publicKey,
-    scheme: "SIGNATURE_SCHEME_TK_API_P256",
-    signature: signature,
-  };
+  return await signMessage({ key, content });
 };
 
 async function importTurnkeyApiKey(input: {

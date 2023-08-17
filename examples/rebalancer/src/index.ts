@@ -27,7 +27,7 @@ const MIN_INTERVAL_MS = 10000; // 10 seconds
 const MAX_INTERVAL_MS = 60000; // 60 seconds
 const TRANSFER_GAS_LIMIT = 21000;
 const GAS_MULTIPLIER = 2;
-const ACTIVITIES_LIMIT = 100;
+const ACTIVITIES_LIMIT = "100";
 
 async function main() {
   const args = process.argv.slice(2);

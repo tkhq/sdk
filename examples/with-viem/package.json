@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/example-with-viem",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "pnpm -w run build-all && tsx src/index.ts",
@@ -11,6 +11,8 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@turnkey/http": "workspace:*",
+    "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/viem": "workspace:*",
     "dotenv": "^16.0.3",
     "fetch": "^1.1.0",

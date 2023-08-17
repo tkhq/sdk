@@ -30,46 +30,6 @@ export class TurnkeyActivityError extends Error {
   }
 }
 
-export type TStamper = (input: {
-  content: string;
-  publicKey: string;
-  privateKey: string;
-}) => Promise<{
-  publicKey: string;
-  scheme: string;
-  signature: string;
-}>;
-
-export type GrpcStatus = {
-  message: string;
-  code: number;
-  details: unknown[] | null;
-};
-
-export class TurnkeyRequestError extends Error {
-  details: any[] | null;
-  code: number;
-
-  constructor(input: GrpcStatus) {
-    let turnkeyErrorMessage = `Turnkey error ${input.code}: ${input.message}`;
-
-    if (input.details != null) {
-      turnkeyErrorMessage += ` (Details: ${JSON.stringify(input.details)})`;
-    }
-
-    super(turnkeyErrorMessage);
-
-    this.name = "TurnkeyRequestError";
-    this.details = input.details ?? null;
-    this.code = input.code;
-  }
+export function stableStringify(input: Record<string, any>): string {
+  return JSON.stringify(input);
 }
-
-/**
- * Represents a signed request ready to be POSTed to Turnkey
- */
-export type SignedRequest = {
-  body: string;
-  stamp: string;
-  url: string;
-};

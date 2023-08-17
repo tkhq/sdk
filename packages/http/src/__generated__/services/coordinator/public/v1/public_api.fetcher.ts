@@ -10,12 +10,6 @@ import type { operations } from "./public_api.types";
 /**
  * `POST /public/v1/query/get_activity`
  */
-type TGetActivityBody =
-  operations["PublicApiService_GetActivity"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/query/get_activity`
- */
 export type TGetActivityResponse =
   operations["PublicApiService_GetActivity"]["responses"]["200"]["schema"];
 
@@ -23,6 +17,12 @@ export type TGetActivityResponse =
  * `POST /public/v1/query/get_activity`
  */
 export type TGetActivityInput = { body: TGetActivityBody };
+
+/**
+ * `POST /public/v1/query/get_activity`
+ */
+export type TGetActivityBody =
+  operations["PublicApiService_GetActivity"]["parameters"]["body"]["body"];
 
 /**
  * Get Activity
@@ -56,12 +56,6 @@ export const signGetActivity = (
 /**
  * `POST /public/v1/query/get_authenticator`
  */
-type TGetAuthenticatorBody =
-  operations["PublicApiService_GetAuthenticator"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/query/get_authenticator`
- */
 export type TGetAuthenticatorResponse =
   operations["PublicApiService_GetAuthenticator"]["responses"]["200"]["schema"];
 
@@ -69,6 +63,12 @@ export type TGetAuthenticatorResponse =
  * `POST /public/v1/query/get_authenticator`
  */
 export type TGetAuthenticatorInput = { body: TGetAuthenticatorBody };
+
+/**
+ * `POST /public/v1/query/get_authenticator`
+ */
+export type TGetAuthenticatorBody =
+  operations["PublicApiService_GetAuthenticator"]["parameters"]["body"]["body"];
 
 /**
  * Get Authenticator
@@ -108,12 +108,6 @@ export const signGetAuthenticator = (
 /**
  * `POST /public/v1/query/get_authenticators`
  */
-type TGetAuthenticatorsBody =
-  operations["PublicApiService_GetAuthenticators"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/query/get_authenticators`
- */
 export type TGetAuthenticatorsResponse =
   operations["PublicApiService_GetAuthenticators"]["responses"]["200"]["schema"];
 
@@ -121,6 +115,12 @@ export type TGetAuthenticatorsResponse =
  * `POST /public/v1/query/get_authenticators`
  */
 export type TGetAuthenticatorsInput = { body: TGetAuthenticatorsBody };
+
+/**
+ * `POST /public/v1/query/get_authenticators`
+ */
+export type TGetAuthenticatorsBody =
+  operations["PublicApiService_GetAuthenticators"]["parameters"]["body"]["body"];
 
 /**
  * Get Authenticators
@@ -160,12 +160,6 @@ export const signGetAuthenticators = (
 /**
  * `POST /public/v1/query/get_organization`
  */
-type TGetOrganizationBody =
-  operations["PublicApiService_GetOrganization"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/query/get_organization`
- */
 export type TGetOrganizationResponse =
   operations["PublicApiService_GetOrganization"]["responses"]["200"]["schema"];
 
@@ -173,6 +167,12 @@ export type TGetOrganizationResponse =
  * `POST /public/v1/query/get_organization`
  */
 export type TGetOrganizationInput = { body: TGetOrganizationBody };
+
+/**
+ * `POST /public/v1/query/get_organization`
+ */
+export type TGetOrganizationBody =
+  operations["PublicApiService_GetOrganization"]["parameters"]["body"]["body"];
 
 /**
  * Get Organization
@@ -206,12 +206,6 @@ export const signGetOrganization = (
 /**
  * `POST /public/v1/query/get_policy`
  */
-type TGetPolicyBody =
-  operations["PublicApiService_GetPolicy"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/query/get_policy`
- */
 export type TGetPolicyResponse =
   operations["PublicApiService_GetPolicy"]["responses"]["200"]["schema"];
 
@@ -219,6 +213,12 @@ export type TGetPolicyResponse =
  * `POST /public/v1/query/get_policy`
  */
 export type TGetPolicyInput = { body: TGetPolicyBody };
+
+/**
+ * `POST /public/v1/query/get_policy`
+ */
+export type TGetPolicyBody =
+  operations["PublicApiService_GetPolicy"]["parameters"]["body"]["body"];
 
 /**
  * Get Policy
@@ -252,12 +252,6 @@ export const signGetPolicy = (
 /**
  * `POST /public/v1/query/get_private_key`
  */
-type TGetPrivateKeyBody =
-  operations["PublicApiService_GetPrivateKey"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/query/get_private_key`
- */
 export type TGetPrivateKeyResponse =
   operations["PublicApiService_GetPrivateKey"]["responses"]["200"]["schema"];
 
@@ -265,6 +259,12 @@ export type TGetPrivateKeyResponse =
  * `POST /public/v1/query/get_private_key`
  */
 export type TGetPrivateKeyInput = { body: TGetPrivateKeyBody };
+
+/**
+ * `POST /public/v1/query/get_private_key`
+ */
+export type TGetPrivateKeyBody =
+  operations["PublicApiService_GetPrivateKey"]["parameters"]["body"]["body"];
 
 /**
  * Get Private Key
@@ -298,12 +298,6 @@ export const signGetPrivateKey = (
 /**
  * `POST /public/v1/query/get_user`
  */
-type TGetUserBody =
-  operations["PublicApiService_GetUser"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/query/get_user`
- */
 export type TGetUserResponse =
   operations["PublicApiService_GetUser"]["responses"]["200"]["schema"];
 
@@ -311,6 +305,12 @@ export type TGetUserResponse =
  * `POST /public/v1/query/get_user`
  */
 export type TGetUserInput = { body: TGetUserBody };
+
+/**
+ * `POST /public/v1/query/get_user`
+ */
+export type TGetUserBody =
+  operations["PublicApiService_GetUser"]["parameters"]["body"]["body"];
 
 /**
  * Get User
@@ -344,12 +344,6 @@ export const signGetUser = (
 /**
  * `POST /public/v1/query/list_activities`
  */
-type TGetActivitiesBody =
-  operations["PublicApiService_GetActivities"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/query/list_activities`
- */
 export type TGetActivitiesResponse =
   operations["PublicApiService_GetActivities"]["responses"]["200"]["schema"];
 
@@ -357,6 +351,12 @@ export type TGetActivitiesResponse =
  * `POST /public/v1/query/list_activities`
  */
 export type TGetActivitiesInput = { body: TGetActivitiesBody };
+
+/**
+ * `POST /public/v1/query/list_activities`
+ */
+export type TGetActivitiesBody =
+  operations["PublicApiService_GetActivities"]["parameters"]["body"]["body"];
 
 /**
  * List Activities
@@ -390,12 +390,6 @@ export const signGetActivities = (
 /**
  * `POST /public/v1/query/list_policies`
  */
-type TGetPoliciesBody =
-  operations["PublicApiService_GetPolicies"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/query/list_policies`
- */
 export type TGetPoliciesResponse =
   operations["PublicApiService_GetPolicies"]["responses"]["200"]["schema"];
 
@@ -403,6 +397,12 @@ export type TGetPoliciesResponse =
  * `POST /public/v1/query/list_policies`
  */
 export type TGetPoliciesInput = { body: TGetPoliciesBody };
+
+/**
+ * `POST /public/v1/query/list_policies`
+ */
+export type TGetPoliciesBody =
+  operations["PublicApiService_GetPolicies"]["parameters"]["body"]["body"];
 
 /**
  * List Policies
@@ -436,12 +436,6 @@ export const signGetPolicies = (
 /**
  * `POST /public/v1/query/list_private_keys`
  */
-type TGetPrivateKeysBody =
-  operations["PublicApiService_GetPrivateKeys"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/query/list_private_keys`
- */
 export type TGetPrivateKeysResponse =
   operations["PublicApiService_GetPrivateKeys"]["responses"]["200"]["schema"];
 
@@ -449,6 +443,12 @@ export type TGetPrivateKeysResponse =
  * `POST /public/v1/query/list_private_keys`
  */
 export type TGetPrivateKeysInput = { body: TGetPrivateKeysBody };
+
+/**
+ * `POST /public/v1/query/list_private_keys`
+ */
+export type TGetPrivateKeysBody =
+  operations["PublicApiService_GetPrivateKeys"]["parameters"]["body"]["body"];
 
 /**
  * List Private Keys
@@ -482,12 +482,6 @@ export const signGetPrivateKeys = (
 /**
  * `POST /public/v1/query/list_users`
  */
-type TGetUsersBody =
-  operations["PublicApiService_GetUsers"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/query/list_users`
- */
 export type TGetUsersResponse =
   operations["PublicApiService_GetUsers"]["responses"]["200"]["schema"];
 
@@ -495,6 +489,12 @@ export type TGetUsersResponse =
  * `POST /public/v1/query/list_users`
  */
 export type TGetUsersInput = { body: TGetUsersBody };
+
+/**
+ * `POST /public/v1/query/list_users`
+ */
+export type TGetUsersBody =
+  operations["PublicApiService_GetUsers"]["parameters"]["body"]["body"];
 
 /**
  * List Users
@@ -528,12 +528,6 @@ export const signGetUsers = (
 /**
  * `POST /public/v1/query/whoami`
  */
-type TGetWhoamiBody =
-  operations["PublicApiService_GetWhoami"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/query/whoami`
- */
 export type TGetWhoamiResponse =
   operations["PublicApiService_GetWhoami"]["responses"]["200"]["schema"];
 
@@ -541,6 +535,12 @@ export type TGetWhoamiResponse =
  * `POST /public/v1/query/whoami`
  */
 export type TGetWhoamiInput = { body: TGetWhoamiBody };
+
+/**
+ * `POST /public/v1/query/whoami`
+ */
+export type TGetWhoamiBody =
+  operations["PublicApiService_GetWhoami"]["parameters"]["body"]["body"];
 
 /**
  * Who am I?
@@ -574,12 +574,6 @@ export const signGetWhoami = (
 /**
  * `POST /public/v1/submit/approve_activity`
  */
-type TApproveActivityBody =
-  operations["PublicApiService_ApproveActivity"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/approve_activity`
- */
 export type TApproveActivityResponse =
   operations["PublicApiService_ApproveActivity"]["responses"]["200"]["schema"];
 
@@ -587,6 +581,12 @@ export type TApproveActivityResponse =
  * `POST /public/v1/submit/approve_activity`
  */
 export type TApproveActivityInput = { body: TApproveActivityBody };
+
+/**
+ * `POST /public/v1/submit/approve_activity`
+ */
+export type TApproveActivityBody =
+  operations["PublicApiService_ApproveActivity"]["parameters"]["body"]["body"];
 
 /**
  * Approve Activity
@@ -620,12 +620,6 @@ export const signApproveActivity = (
 /**
  * `POST /public/v1/submit/create_api_keys`
  */
-type TCreateApiKeysBody =
-  operations["PublicApiService_CreateApiKeys"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/create_api_keys`
- */
 export type TCreateApiKeysResponse =
   operations["PublicApiService_CreateApiKeys"]["responses"]["200"]["schema"];
 
@@ -633,6 +627,12 @@ export type TCreateApiKeysResponse =
  * `POST /public/v1/submit/create_api_keys`
  */
 export type TCreateApiKeysInput = { body: TCreateApiKeysBody };
+
+/**
+ * `POST /public/v1/submit/create_api_keys`
+ */
+export type TCreateApiKeysBody =
+  operations["PublicApiService_CreateApiKeys"]["parameters"]["body"]["body"];
 
 /**
  * Create API Keys
@@ -666,12 +666,6 @@ export const signCreateApiKeys = (
 /**
  * `POST /public/v1/submit/create_api_only_users`
  */
-type TCreateApiOnlyUsersBody =
-  operations["PublicApiService_CreateApiOnlyUsers"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/create_api_only_users`
- */
 export type TCreateApiOnlyUsersResponse =
   operations["PublicApiService_CreateApiOnlyUsers"]["responses"]["200"]["schema"];
 
@@ -679,6 +673,12 @@ export type TCreateApiOnlyUsersResponse =
  * `POST /public/v1/submit/create_api_only_users`
  */
 export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
+
+/**
+ * `POST /public/v1/submit/create_api_only_users`
+ */
+export type TCreateApiOnlyUsersBody =
+  operations["PublicApiService_CreateApiOnlyUsers"]["parameters"]["body"]["body"];
 
 /**
  * Create API-only Users
@@ -718,12 +718,6 @@ export const signCreateApiOnlyUsers = (
 /**
  * `POST /public/v1/submit/create_authenticators`
  */
-type TCreateAuthenticatorsBody =
-  operations["PublicApiService_CreateAuthenticators"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/create_authenticators`
- */
 export type TCreateAuthenticatorsResponse =
   operations["PublicApiService_CreateAuthenticators"]["responses"]["200"]["schema"];
 
@@ -731,6 +725,12 @@ export type TCreateAuthenticatorsResponse =
  * `POST /public/v1/submit/create_authenticators`
  */
 export type TCreateAuthenticatorsInput = { body: TCreateAuthenticatorsBody };
+
+/**
+ * `POST /public/v1/submit/create_authenticators`
+ */
+export type TCreateAuthenticatorsBody =
+  operations["PublicApiService_CreateAuthenticators"]["parameters"]["body"]["body"];
 
 /**
  * Create Authenticators
@@ -770,12 +770,6 @@ export const signCreateAuthenticators = (
 /**
  * `POST /public/v1/submit/create_invitations`
  */
-type TCreateInvitationsBody =
-  operations["PublicApiService_CreateInvitations"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/create_invitations`
- */
 export type TCreateInvitationsResponse =
   operations["PublicApiService_CreateInvitations"]["responses"]["200"]["schema"];
 
@@ -783,6 +777,12 @@ export type TCreateInvitationsResponse =
  * `POST /public/v1/submit/create_invitations`
  */
 export type TCreateInvitationsInput = { body: TCreateInvitationsBody };
+
+/**
+ * `POST /public/v1/submit/create_invitations`
+ */
+export type TCreateInvitationsBody =
+  operations["PublicApiService_CreateInvitations"]["parameters"]["body"]["body"];
 
 /**
  * Create Invitations
@@ -822,12 +822,6 @@ export const signCreateInvitations = (
 /**
  * `POST /public/v1/submit/create_policy`
  */
-type TCreatePolicyBody =
-  operations["PublicApiService_CreatePolicy"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/create_policy`
- */
 export type TCreatePolicyResponse =
   operations["PublicApiService_CreatePolicy"]["responses"]["200"]["schema"];
 
@@ -835,6 +829,12 @@ export type TCreatePolicyResponse =
  * `POST /public/v1/submit/create_policy`
  */
 export type TCreatePolicyInput = { body: TCreatePolicyBody };
+
+/**
+ * `POST /public/v1/submit/create_policy`
+ */
+export type TCreatePolicyBody =
+  operations["PublicApiService_CreatePolicy"]["parameters"]["body"]["body"];
 
 /**
  * Create Policy
@@ -868,12 +868,6 @@ export const signCreatePolicy = (
 /**
  * `POST /public/v1/submit/create_private_key_tag`
  */
-type TCreatePrivateKeyTagBody =
-  operations["PublicApiService_CreatePrivateKeyTag"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/create_private_key_tag`
- */
 export type TCreatePrivateKeyTagResponse =
   operations["PublicApiService_CreatePrivateKeyTag"]["responses"]["200"]["schema"];
 
@@ -881,6 +875,12 @@ export type TCreatePrivateKeyTagResponse =
  * `POST /public/v1/submit/create_private_key_tag`
  */
 export type TCreatePrivateKeyTagInput = { body: TCreatePrivateKeyTagBody };
+
+/**
+ * `POST /public/v1/submit/create_private_key_tag`
+ */
+export type TCreatePrivateKeyTagBody =
+  operations["PublicApiService_CreatePrivateKeyTag"]["parameters"]["body"]["body"];
 
 /**
  * Create Private Key Tag
@@ -920,12 +920,6 @@ export const signCreatePrivateKeyTag = (
 /**
  * `POST /public/v1/submit/create_private_keys`
  */
-type TCreatePrivateKeysBody =
-  operations["PublicApiService_CreatePrivateKeys"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/create_private_keys`
- */
 export type TCreatePrivateKeysResponse =
   operations["PublicApiService_CreatePrivateKeys"]["responses"]["200"]["schema"];
 
@@ -933,6 +927,12 @@ export type TCreatePrivateKeysResponse =
  * `POST /public/v1/submit/create_private_keys`
  */
 export type TCreatePrivateKeysInput = { body: TCreatePrivateKeysBody };
+
+/**
+ * `POST /public/v1/submit/create_private_keys`
+ */
+export type TCreatePrivateKeysBody =
+  operations["PublicApiService_CreatePrivateKeys"]["parameters"]["body"]["body"];
 
 /**
  * Create Private Keys
@@ -972,12 +972,6 @@ export const signCreatePrivateKeys = (
 /**
  * `POST /public/v1/submit/create_sub_organization`
  */
-type TCreateSubOrganizationBody =
-  operations["PublicApiService_CreateSubOrganization"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/create_sub_organization`
- */
 export type TCreateSubOrganizationResponse =
   operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"];
 
@@ -985,6 +979,12 @@ export type TCreateSubOrganizationResponse =
  * `POST /public/v1/submit/create_sub_organization`
  */
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
+
+/**
+ * `POST /public/v1/submit/create_sub_organization`
+ */
+export type TCreateSubOrganizationBody =
+  operations["PublicApiService_CreateSubOrganization"]["parameters"]["body"]["body"];
 
 /**
  * Create Sub-Organization
@@ -1024,12 +1024,6 @@ export const signCreateSubOrganization = (
 /**
  * `POST /public/v1/submit/create_user_tag`
  */
-type TCreateUserTagBody =
-  operations["PublicApiService_CreateUserTag"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/create_user_tag`
- */
 export type TCreateUserTagResponse =
   operations["PublicApiService_CreateUserTag"]["responses"]["200"]["schema"];
 
@@ -1037,6 +1031,12 @@ export type TCreateUserTagResponse =
  * `POST /public/v1/submit/create_user_tag`
  */
 export type TCreateUserTagInput = { body: TCreateUserTagBody };
+
+/**
+ * `POST /public/v1/submit/create_user_tag`
+ */
+export type TCreateUserTagBody =
+  operations["PublicApiService_CreateUserTag"]["parameters"]["body"]["body"];
 
 /**
  * Create User Tag
@@ -1069,26 +1069,20 @@ export const signCreateUserTag = (
 
 /**
  * `POST /public/v1/submit/create_users`
- *
- * @deprecated
- */
-type TCreateUsersBody =
-  operations["PublicApiService_CreateUsers"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/create_users`
- *
- * @deprecated
  */
 export type TCreateUsersResponse =
   operations["PublicApiService_CreateUsers"]["responses"]["200"]["schema"];
 
 /**
  * `POST /public/v1/submit/create_users`
- *
- * @deprecated
  */
 export type TCreateUsersInput = { body: TCreateUsersBody };
+
+/**
+ * `POST /public/v1/submit/create_users`
+ */
+export type TCreateUsersBody =
+  operations["PublicApiService_CreateUsers"]["parameters"]["body"]["body"];
 
 /**
  * Create Users
@@ -1096,8 +1090,6 @@ export type TCreateUsersInput = { body: TCreateUsersBody };
  * Create Users in an existing Organization
  *
  * `POST /public/v1/submit/create_users`
- *
- * @deprecated
  */
 export const createUsers = (input: TCreateUsersInput) =>
   request<TCreateUsersResponse, TCreateUsersBody, never, never, never>({
@@ -1110,8 +1102,6 @@ export const createUsers = (input: TCreateUsersInput) =>
  * Request a WebAuthn assertion and return a signed `CreateUsers` request, ready to be POSTed to Turnkey.
  *
  * See {@link CreateUsers}
- *
- * @deprecated
  */
 export const signCreateUsers = (
   input: TCreateUsersInput,
@@ -1126,12 +1116,6 @@ export const signCreateUsers = (
 /**
  * `POST /public/v1/submit/delete_api_keys`
  */
-type TDeleteApiKeysBody =
-  operations["PublicApiService_DeleteApiKeys"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/delete_api_keys`
- */
 export type TDeleteApiKeysResponse =
   operations["PublicApiService_DeleteApiKeys"]["responses"]["200"]["schema"];
 
@@ -1139,6 +1123,12 @@ export type TDeleteApiKeysResponse =
  * `POST /public/v1/submit/delete_api_keys`
  */
 export type TDeleteApiKeysInput = { body: TDeleteApiKeysBody };
+
+/**
+ * `POST /public/v1/submit/delete_api_keys`
+ */
+export type TDeleteApiKeysBody =
+  operations["PublicApiService_DeleteApiKeys"]["parameters"]["body"]["body"];
 
 /**
  * Delete API Keys
@@ -1172,12 +1162,6 @@ export const signDeleteApiKeys = (
 /**
  * `POST /public/v1/submit/delete_authenticators`
  */
-type TDeleteAuthenticatorsBody =
-  operations["PublicApiService_DeleteAuthenticators"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/delete_authenticators`
- */
 export type TDeleteAuthenticatorsResponse =
   operations["PublicApiService_DeleteAuthenticators"]["responses"]["200"]["schema"];
 
@@ -1185,6 +1169,12 @@ export type TDeleteAuthenticatorsResponse =
  * `POST /public/v1/submit/delete_authenticators`
  */
 export type TDeleteAuthenticatorsInput = { body: TDeleteAuthenticatorsBody };
+
+/**
+ * `POST /public/v1/submit/delete_authenticators`
+ */
+export type TDeleteAuthenticatorsBody =
+  operations["PublicApiService_DeleteAuthenticators"]["parameters"]["body"]["body"];
 
 /**
  * Delete Authenticators
@@ -1224,12 +1214,6 @@ export const signDeleteAuthenticators = (
 /**
  * `POST /public/v1/submit/delete_invitations`
  */
-type TDeleteInvitationBody =
-  operations["PublicApiService_DeleteInvitation"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/delete_invitations`
- */
 export type TDeleteInvitationResponse =
   operations["PublicApiService_DeleteInvitation"]["responses"]["200"]["schema"];
 
@@ -1237,6 +1221,12 @@ export type TDeleteInvitationResponse =
  * `POST /public/v1/submit/delete_invitations`
  */
 export type TDeleteInvitationInput = { body: TDeleteInvitationBody };
+
+/**
+ * `POST /public/v1/submit/delete_invitations`
+ */
+export type TDeleteInvitationBody =
+  operations["PublicApiService_DeleteInvitation"]["parameters"]["body"]["body"];
 
 /**
  * Delete Invitation
@@ -1276,12 +1266,6 @@ export const signDeleteInvitation = (
 /**
  * `POST /public/v1/submit/delete_policy`
  */
-type TDeletePolicyBody =
-  operations["PublicApiService_DeletePolicy"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/delete_policy`
- */
 export type TDeletePolicyResponse =
   operations["PublicApiService_DeletePolicy"]["responses"]["200"]["schema"];
 
@@ -1289,6 +1273,12 @@ export type TDeletePolicyResponse =
  * `POST /public/v1/submit/delete_policy`
  */
 export type TDeletePolicyInput = { body: TDeletePolicyBody };
+
+/**
+ * `POST /public/v1/submit/delete_policy`
+ */
+export type TDeletePolicyBody =
+  operations["PublicApiService_DeletePolicy"]["parameters"]["body"]["body"];
 
 /**
  * Delete Policy
@@ -1322,12 +1312,6 @@ export const signDeletePolicy = (
 /**
  * `POST /public/v1/submit/reject_activity`
  */
-type TRejectActivityBody =
-  operations["PublicApiService_RejectActivity"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/reject_activity`
- */
 export type TRejectActivityResponse =
   operations["PublicApiService_RejectActivity"]["responses"]["200"]["schema"];
 
@@ -1335,6 +1319,12 @@ export type TRejectActivityResponse =
  * `POST /public/v1/submit/reject_activity`
  */
 export type TRejectActivityInput = { body: TRejectActivityBody };
+
+/**
+ * `POST /public/v1/submit/reject_activity`
+ */
+export type TRejectActivityBody =
+  operations["PublicApiService_RejectActivity"]["parameters"]["body"]["body"];
 
 /**
  * Reject Activity
@@ -1368,12 +1358,6 @@ export const signRejectActivity = (
 /**
  * `POST /public/v1/submit/sign_raw_payload`
  */
-type TSignRawPayloadBody =
-  operations["PublicApiService_SignRawPayload"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/sign_raw_payload`
- */
 export type TSignRawPayloadResponse =
   operations["PublicApiService_SignRawPayload"]["responses"]["200"]["schema"];
 
@@ -1381,6 +1365,12 @@ export type TSignRawPayloadResponse =
  * `POST /public/v1/submit/sign_raw_payload`
  */
 export type TSignRawPayloadInput = { body: TSignRawPayloadBody };
+
+/**
+ * `POST /public/v1/submit/sign_raw_payload`
+ */
+export type TSignRawPayloadBody =
+  operations["PublicApiService_SignRawPayload"]["parameters"]["body"]["body"];
 
 /**
  * Sign Raw Payload
@@ -1414,12 +1404,6 @@ export const signSignRawPayload = (
 /**
  * `POST /public/v1/submit/sign_transaction`
  */
-type TSignTransactionBody =
-  operations["PublicApiService_SignTransaction"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/sign_transaction`
- */
 export type TSignTransactionResponse =
   operations["PublicApiService_SignTransaction"]["responses"]["200"]["schema"];
 
@@ -1427,6 +1411,12 @@ export type TSignTransactionResponse =
  * `POST /public/v1/submit/sign_transaction`
  */
 export type TSignTransactionInput = { body: TSignTransactionBody };
+
+/**
+ * `POST /public/v1/submit/sign_transaction`
+ */
+export type TSignTransactionBody =
+  operations["PublicApiService_SignTransaction"]["parameters"]["body"]["body"];
 
 /**
  * Sign Transaction
@@ -1460,12 +1450,6 @@ export const signSignTransaction = (
 /**
  * `POST /public/v1/submit/update_allowed_origins`
  */
-type TUpdateAllowedOriginsBody =
-  operations["PublicApiService_UpdateAllowedOrigins"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/update_allowed_origins`
- */
 export type TUpdateAllowedOriginsResponse =
   operations["PublicApiService_UpdateAllowedOrigins"]["responses"]["200"]["schema"];
 
@@ -1473,6 +1457,12 @@ export type TUpdateAllowedOriginsResponse =
  * `POST /public/v1/submit/update_allowed_origins`
  */
 export type TUpdateAllowedOriginsInput = { body: TUpdateAllowedOriginsBody };
+
+/**
+ * `POST /public/v1/submit/update_allowed_origins`
+ */
+export type TUpdateAllowedOriginsBody =
+  operations["PublicApiService_UpdateAllowedOrigins"]["parameters"]["body"]["body"];
 
 /**
  * Update Allowable Origins
@@ -1512,12 +1502,6 @@ export const signUpdateAllowedOrigins = (
 /**
  * `POST /public/v1/submit/update_policy`
  */
-type TUpdatePolicyBody =
-  operations["PublicApiService_UpdatePolicy"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/update_policy`
- */
 export type TUpdatePolicyResponse =
   operations["PublicApiService_UpdatePolicy"]["responses"]["200"]["schema"];
 
@@ -1525,6 +1509,12 @@ export type TUpdatePolicyResponse =
  * `POST /public/v1/submit/update_policy`
  */
 export type TUpdatePolicyInput = { body: TUpdatePolicyBody };
+
+/**
+ * `POST /public/v1/submit/update_policy`
+ */
+export type TUpdatePolicyBody =
+  operations["PublicApiService_UpdatePolicy"]["parameters"]["body"]["body"];
 
 /**
  * Update Policy
@@ -1558,12 +1548,6 @@ export const signUpdatePolicy = (
 /**
  * `POST /public/v1/submit/update_private_key_tag`
  */
-type TUpdatePrivateKeyTagBody =
-  operations["PublicApiService_UpdatePrivateKeyTag"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/update_private_key_tag`
- */
 export type TUpdatePrivateKeyTagResponse =
   operations["PublicApiService_UpdatePrivateKeyTag"]["responses"]["200"]["schema"];
 
@@ -1571,6 +1555,12 @@ export type TUpdatePrivateKeyTagResponse =
  * `POST /public/v1/submit/update_private_key_tag`
  */
 export type TUpdatePrivateKeyTagInput = { body: TUpdatePrivateKeyTagBody };
+
+/**
+ * `POST /public/v1/submit/update_private_key_tag`
+ */
+export type TUpdatePrivateKeyTagBody =
+  operations["PublicApiService_UpdatePrivateKeyTag"]["parameters"]["body"]["body"];
 
 /**
  * Update Private Key Tag
@@ -1610,12 +1600,6 @@ export const signUpdatePrivateKeyTag = (
 /**
  * `POST /public/v1/submit/update_root_quorum`
  */
-type TUpdateRootQuorumBody =
-  operations["PublicApiService_UpdateRootQuorum"]["parameters"]["body"]["body"];
-
-/**
- * `POST /public/v1/submit/update_root_quorum`
- */
 export type TUpdateRootQuorumResponse =
   operations["PublicApiService_UpdateRootQuorum"]["responses"]["200"]["schema"];
 
@@ -1623,6 +1607,12 @@ export type TUpdateRootQuorumResponse =
  * `POST /public/v1/submit/update_root_quorum`
  */
 export type TUpdateRootQuorumInput = { body: TUpdateRootQuorumBody };
+
+/**
+ * `POST /public/v1/submit/update_root_quorum`
+ */
+export type TUpdateRootQuorumBody =
+  operations["PublicApiService_UpdateRootQuorum"]["parameters"]["body"]["body"];
 
 /**
  * Update Root Quorum
@@ -1660,10 +1650,50 @@ export const signUpdateRootQuorum = (
   });
 
 /**
- * `POST /public/v1/submit/update_user_tag`
+ * `POST /public/v1/submit/update_user`
  */
-type TUpdateUserTagBody =
-  operations["PublicApiService_UpdateUserTag"]["parameters"]["body"]["body"];
+export type TUpdateUserResponse =
+  operations["PublicApiService_UpdateUser"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_user`
+ */
+export type TUpdateUserInput = { body: TUpdateUserBody };
+
+/**
+ * `POST /public/v1/submit/update_user`
+ */
+export type TUpdateUserBody =
+  operations["PublicApiService_UpdateUser"]["parameters"]["body"]["body"];
+
+/**
+ * Update User
+ *
+ * Update a User in an existing Organization
+ *
+ * `POST /public/v1/submit/update_user`
+ */
+export const updateUser = (input: TUpdateUserInput) =>
+  request<TUpdateUserResponse, TUpdateUserBody, never, never, never>({
+    uri: "/public/v1/submit/update_user",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateUser` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateUser}
+ */
+export const signUpdateUser = (
+  input: TUpdateUserInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TUpdateUserBody, never, never>({
+    uri: "/public/v1/submit/update_user",
+    body: input.body,
+    options,
+  });
 
 /**
  * `POST /public/v1/submit/update_user_tag`
@@ -1675,6 +1705,12 @@ export type TUpdateUserTagResponse =
  * `POST /public/v1/submit/update_user_tag`
  */
 export type TUpdateUserTagInput = { body: TUpdateUserTagBody };
+
+/**
+ * `POST /public/v1/submit/update_user_tag`
+ */
+export type TUpdateUserTagBody =
+  operations["PublicApiService_UpdateUserTag"]["parameters"]["body"]["body"];
 
 /**
  * Update User Tag
@@ -1712,10 +1748,6 @@ export type TNOOPCodegenAnchorResponse =
   operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];
 
 /**
- * This route does nothing and does not need an implementation, but please don't remove it.
-It's used at compile time for generating extra OpenAPI/TypeScript types
-that are not directly referenced in requests.
- *
  * `POST /tkhq/api/v1/noop-codegen-anchor`
  */
 export const nOOPCodegenAnchor = () =>
