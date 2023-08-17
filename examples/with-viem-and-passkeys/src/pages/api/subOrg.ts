@@ -36,7 +36,7 @@ export default async function createUser(
 
     const activityPoller = createActivityPoller({
       client: turnkeyClient,
-      requestFn: turnkeyClient.createSubOrganization.bind(turnkeyClient),
+      requestFn: turnkeyClient.createSubOrganization,
     });
 
     const completedActivity = await activityPoller({

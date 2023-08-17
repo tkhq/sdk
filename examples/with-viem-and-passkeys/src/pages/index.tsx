@@ -45,6 +45,10 @@ type TSignedMessage = {
   signature: string;
 } | null;
 
+const humanReadableDateTime = (): string => {
+  return new Date().toLocaleString().replaceAll("/", "-").replaceAll(":", ".");
+};
+
 export default function Home() {
   const [subOrgId, setSubOrgId] = useState<string | null>(null);
   const [privateKey, setPrivateKey] = useState<TPrivateKeyState>(null);
@@ -125,7 +129,7 @@ export default function Home() {
 
   const createSubOrg = async () => {
     const challenge = generateRandomBuffer();
-    const subOrgName = `Turnkey Demo ${Math.floor(Math.random() * 1000)}`;
+    const subOrgName = `Turnkey Viem+Passkey Demo - ${humanReadableDateTime()}`;
     const authenticatorUserId = generateRandomBuffer();
 
     const attestation = await getWebAuthnAttestation({
@@ -232,7 +236,7 @@ export default function Home() {
             <input
               className={styles.button}
               type="submit"
-              value="Create sub-org"
+              value="Create new passkey & sub-org"
             />
           </form>
         </div>
