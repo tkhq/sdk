@@ -1,5 +1,11 @@
 # @turnkey/viem
 
+## 0.2.1
+
+### Patch Changes
+
+- Fix code sample in the README; add more details and links
+
 ## 0.2.0
 
 ### Minor Changes
