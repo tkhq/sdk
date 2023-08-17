@@ -25,7 +25,7 @@ $ cd examples/with-offline/
 
 ### 2/ Setting up Turnkey
 
-The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://turnkey.readme.io/docs/quickstart) guide, you should have:
+The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide, you should have:
 
 - A public/private API key pair for Turnkey
 - An organization ID
@@ -71,12 +71,12 @@ Creating a new Private Key for organization b8d8fa59-e1b7-4897-866a-551c32d061fa
 ? New Private Key Name hello
 Your request details:
 ✅ Route:
-        https://coordinator-beta.turnkey.io/public/v1/submit/create_private_keys
+        https://api.turnkey.com/public/v1/submit/create_private_keys
 ✅ Stamp (goes in X-Stamp HTTP header)
         eyJwdWJsaWNLZXkiOiIwM2JmMTYyNTc2ZWI4ZGZlY2YzM2Q5Mjc1ZDA5NTk1Mjg0ZjZjNGRmMGRiNjE1NmMzYzU4Mjc3Nzg4NmEwZWUwYWMiLCJzY2hlbWUiOiJTSUdOQVRVUkVfU0NIRU1FX1RLX0FQSV9QMjU2Iiwic2lnbmF0dXJlIjoiMzA0NDAyMjA0MjFjNzk0YzAzZDQxNDRhNjkyZmMwN2YxZjZhNGYxNzNhOGRhMGU3NTdiNWNlYWU1ZGQzNmQ2YWZjZmYwMzdkMDIyMDAzZmQ3OWRjYWI4MTYxMDAxYjRiYWQwNjVjMzE4ZWYzNDUxZTViZGVhMTYxM2VlMmNiOTkzMjVmZjVmMjBmNjIifQ
 ✅ POST body:
         {"timestampMs":"1685118651239","type":"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS","organizationId":"b8d8fa59-e1b7-4897-866a-551c32d061fa","parameters":{"privateKeys":[{"privateKeyName":"hello","curve":"CURVE_SECP256K1","addressFormats":["ADDRESS_FORMAT_ETHEREUM"],"privateKeyTags":[]}]}}
 
 For example, you can send this request to Turnkey by running the following cURL command:
-        curl -X POST -d'{"timestampMs":"1685118651239","type":"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS","organizationId":"b8d8fa59-e1b7-4897-866a-551c32d061fa","parameters":{"privateKeys":[{"privateKeyName":"hello","curve":"CURVE_SECP256K1","addressFormats":["ADDRESS_FORMAT_ETHEREUM"],"privateKeyTags":[]}]}}' -H'X-Stamp:eyJwdWJsaWNLZXkiOiIwM2JmMTYyNTc2ZWI4ZGZlY2YzM2Q5Mjc1ZDA5NTk1Mjg0ZjZjNGRmMGRiNjE1NmMzYzU4Mjc3Nzg4NmEwZWUwYWMiLCJzY2hlbWUiOiJTSUdOQVRVUkVfU0NIRU1FX1RLX0FQSV9QMjU2Iiwic2lnbmF0dXJlIjoiMzA0NDAyMjA0MjFjNzk0YzAzZDQxNDRhNjkyZmMwN2YxZjZhNGYxNzNhOGRhMGU3NTdiNWNlYWU1ZGQzNmQ2YWZjZmYwMzdkMDIyMDAzZmQ3OWRjYWI4MTYxMDAxYjRiYWQwNjVjMzE4ZWYzNDUxZTViZGVhMTYxM2VlMmNiOTkzMjVmZjVmMjBmNjIifQ' -v 'https://coordinator-beta.turnkey.io/public/v1/submit/create_private_keys'
+        curl -X POST -d'{"timestampMs":"1685118651239","type":"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS","organizationId":"b8d8fa59-e1b7-4897-866a-551c32d061fa","parameters":{"privateKeys":[{"privateKeyName":"hello","curve":"CURVE_SECP256K1","addressFormats":["ADDRESS_FORMAT_ETHEREUM"],"privateKeyTags":[]}]}}' -H'X-Stamp:eyJwdWJsaWNLZXkiOiIwM2JmMTYyNTc2ZWI4ZGZlY2YzM2Q5Mjc1ZDA5NTk1Mjg0ZjZjNGRmMGRiNjE1NmMzYzU4Mjc3Nzg4NmEwZWUwYWMiLCJzY2hlbWUiOiJTSUdOQVRVUkVfU0NIRU1FX1RLX0FQSV9QMjU2Iiwic2lnbmF0dXJlIjoiMzA0NDAyMjA0MjFjNzk0YzAzZDQxNDRhNjkyZmMwN2YxZjZhNGYxNzNhOGRhMGU3NTdiNWNlYWU1ZGQzNmQ2YWZjZmYwMzdkMDIyMDAzZmQ3OWRjYWI4MTYxMDAxYjRiYWQwNjVjMzE4ZWYzNDUxZTViZGVhMTYxM2VlMmNiOTkzMjVmZjVmMjBmNjIifQ' -v 'https://api.turnkey.com/public/v1/submit/create_private_keys'
 ```

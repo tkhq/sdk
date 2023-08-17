@@ -19,7 +19,7 @@ $ cd examples/sweeper/
 
 ### 2/ Setting up Turnkey
 
-The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://turnkey.readme.io/docs/quickstart) guide, you should have:
+The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide, you should have:
 
 - A public/private API key pair for Turnkey
 - An organization ID

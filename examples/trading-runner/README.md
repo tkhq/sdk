@@ -31,7 +31,7 @@ $ cd examples/trading-runner/
 
 ### 2/ Setting up Turnkey
 
-The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://turnkey.readme.io/docs/quickstart) guide, you should have:
+The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide, you should have:
 
 - A public/private API key pair for Turnkey
 - An organization ID
@@ -105,7 +105,7 @@ pnpm cli sweep --asset=USDC --amount=1 --key=bob --destination=0xf0609e87Dfa4DA1
 
 ## Understanding policies
 
-First, see our [Policies docs](https://turnkey.readme.io/docs/policy-engine-overview) for a primer on how policies work and are written. You'll notice that the policies used in this demo make use of directly accessing the transaction data of the Ethereum transactions. For example, let's break down the transaction data for an ERC20 `transfer`, specifically USDC ([Etherscan link](https://goerli.etherscan.io/tx/0x11a4f4c0778ddbf7731cab1b07d7db577918397c47bf3270ea9016237c8d4d11)):
+First, see our [Policies docs](https://docs.turnkey.com/managing-policies/overview) for a primer on how policies work and are written. You'll notice that the policies used in this demo make use of directly accessing the transaction data of the Ethereum transactions. For example, let's break down the transaction data for an ERC20 `transfer`, specifically USDC ([Etherscan link](https://goerli.etherscan.io/tx/0x11a4f4c0778ddbf7731cab1b07d7db577918397c47bf3270ea9016237c8d4d11)):
 
 ```
 0xa9059cbb000000000000000000000000d3b433723858612da3260eac465758c7ddfa5e5000000000000000000000000000000000000000000000000000000000000f4240

@@ -11,7 +11,7 @@ test("requests are stamped after initialization", async () => {
   init({
     apiPublicKey: publicKey,
     apiPrivateKey: privateKey,
-    baseUrl: "https://mocked.turnkey.io",
+    baseUrl: "https://mocked.turnkey.com",
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
@@ -41,7 +41,7 @@ test("requests return grpc status details as part of their errors", async () => 
   init({
     apiPublicKey: publicKey,
     apiPrivateKey: privateKey,
-    baseUrl: "https://mocked.turnkey.io",
+    baseUrl: "https://mocked.turnkey.com",
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
