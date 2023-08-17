@@ -4,11 +4,20 @@
 
 ### Minor Changes
 
+New exports:
+
 - new `TurnkeyClient`. This is now the preferred interface to make Turnkey requests, because it supports both API keys and webauthn-signed requests. It also doesn't rely on global initialization
 - new method to poll requests: `createActivityPoller`
+
+Deprecation notices:
+
 - deprecate `TurnkeyApi` (use `TurnkeyClient` instead), `init`, `browserInit` (no need for them anymore if you're using `TurnkeyClient`), and `withAsyncPolling` (use `createActivityPoller` instead)
 - deprecate `SignedRequest` in favor of `TSignedRequest`. Besides the more correct name, `TSignedRequest` differs in its `stamp` property. It now stores the stamper header name as well as value, so users do not have to hardcode Turnkey stamp header names (e.g. "X-Stamp-Webauthn").
--
+
+Update our swagger and generated files to latest versions:
+
+- new endpoint to update users: `/public/v1/submit/update_user`
+- pagination `limit` option has been updated to `string` instead of number for consistency with other pagination options
 
 Signing is now performed through Turnkey stampers. New dependencies:
 
