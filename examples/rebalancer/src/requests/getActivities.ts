@@ -2,7 +2,7 @@ import { TurnkeyApi, init as httpInit, TurnkeyApiTypes } from "@turnkey/http";
 import { refineNonNull } from "./utils";
 
 export default async function getActivities(
-  limit: number
+  limit: string
 ): Promise<TurnkeyApiTypes["v1GetActivitiesResponse"]["activities"]> {
   // Initialize `@turnkey/http` with your credentials
   httpInit({
