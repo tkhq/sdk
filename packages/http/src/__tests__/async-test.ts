@@ -18,7 +18,7 @@ beforeEach(async () => {
   init({
     apiPublicKey: publicKey,
     apiPrivateKey: privateKey,
-    baseUrl: "https://mocked.turnkey.io",
+    baseUrl: "https://mocked.turnkey.com",
   });
 });
 

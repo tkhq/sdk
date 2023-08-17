@@ -7,7 +7,7 @@ import { buffer } from "stream/consumers";
 import { useState } from "react";
 
 browserInit({
-  baseUrl: "https://coordinator-beta.turnkey.io",
+  baseUrl: "https://api.turnkey.com",
 });
 
 type subOrgFormData = {
@@ -116,7 +116,7 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <a href="https://turnkey.io" target="_blank" rel="noopener noreferrer">
+      <a href="https://turnkey.com" target="_blank" rel="noopener noreferrer">
         <Image
           src="/logo.svg"
           alt="Turnkey Logo"

@@ -67,7 +67,7 @@ async function main() {
   httpInit({
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: "https://coordinator-beta.turnkey.io",
+    baseUrl: "https://api.turnkey.com",
   });
 
   const organizationId = process.env.ORGANIZATION_ID;
@@ -85,9 +85,7 @@ async function main() {
 
   console.log("Your request details:");
   console.log("✅ Route:");
-  console.log(
-    `\thttps://coordinator-beta.turnkey.io/public/v1/submit/create_private_keys`
-  );
+  console.log(`\thttps://api.turnkey.com/public/v1/submit/create_private_keys`);
   console.log("✅ Stamp (goes in X-Stamp HTTP header)");
   console.log(`\t${xStamp}`);
   console.log("✅ POST body:");
@@ -97,7 +95,7 @@ async function main() {
     "\nFor example, you can send this request to Turnkey by running the following cURL command:"
   );
   console.log(
-    `\tcurl -X POST -d'${sealedBody}' -H'X-Stamp:${xStamp}' -v 'https://coordinator-beta.turnkey.io/public/v1/submit/create_private_keys'`
+    `\tcurl -X POST -d'${sealedBody}' -H'X-Stamp:${xStamp}' -v 'https://api.turnkey.com/public/v1/submit/create_private_keys'`
   );
 
   console.log(
