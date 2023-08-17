@@ -32,10 +32,16 @@ const browserConfig: TNullable<TBrowserConfig> = {
   baseUrl: null,
 };
 
+/**
+ * @deprecated use {@link TurnkeyClient} instead, which doesn't rely on global initialization logic.
+ */
 export function browserInit(value: TBrowserConfig): void {
   browserConfig.baseUrl = assertNonEmptyString(value.baseUrl, "baseUrl");
 }
 
+/**
+ * @deprecated use {@link TurnkeyClient} instead, which doesn't rely on global initialization logic.
+ */
 export function init(value: TConfig): void {
   config.apiPublicKey = assertNonEmptyString(
     value.apiPublicKey,

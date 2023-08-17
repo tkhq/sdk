@@ -6,19 +6,6 @@ export type TActivityId = TActivity["id"];
 export type TActivityStatus = TActivity["status"];
 export type TActivityType = TActivity["type"];
 
-/**
- * @deprecated use {@link TStamper} instead
- */
-export type TLegacyStamper = (input: {
-  content: string;
-  publicKey: string;
-  privateKey: string;
-}) => Promise<{
-  publicKey: string;
-  scheme: string;
-  signature: string;
-}>;
-
 export class TurnkeyActivityError extends Error {
   activityId: TActivityId | null;
   activityStatus: TActivityStatus | null;
