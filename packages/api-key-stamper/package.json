@@ -40,5 +40,6 @@
   },
   "engines": {
     "node": ">=16.0.0"
-  }
+  },
+  "browser": "dist/index-browser.js"
 }

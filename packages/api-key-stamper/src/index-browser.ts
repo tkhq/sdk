@@ -1,7 +1,8 @@
+/// <reference lib="dom" />
 import { TApiKeyStamperConfig, stampHeaderName } from "./common";
 import { stringToBase64urlString } from "./encoding";
 
-const signWithApiKey = require("./nodecrypto").signWithApiKey;
+const signWithApiKey = require("./webcrypto").signWithApiKey;
 export { signWithApiKey };
 
 /**
