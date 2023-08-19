@@ -1,7 +1,29 @@
-import { TApiKeyStamperConfig, stampHeaderName } from "./common";
+/// <reference lib="dom" />
+
 import { stringToBase64urlString } from "./encoding";
 
-const signWithApiKey = require("./nodecrypto").signWithApiKey;
+// Header name for an API key stamp
+const stampHeaderName = "X-Stamp";
+
+export type TApiKeyStamperConfig = {
+  apiPublicKey: string;
+  apiPrivateKey: string;
+};
+
+/**
+ * Signature function abstracting the differences between NodeJS and web environments for signing with API keys.
+ */
+let signWithApiKey: (input: {
+  content: string;
+  publicKey: string;
+  privateKey: string;
+}) => string;
+
+if (typeof globalThis?.crypto?.subtle !== "undefined") {
+  signWithApiKey = require("./webcrypto").signWithApiKey;
+} else {
+  signWithApiKey = require("./nodecrypto").signWithApiKey;
+}
 export { signWithApiKey };
 
 /**
