@@ -1,5 +1,13 @@
 # @turnkey/viem
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/api-key-stamper@0.1.1
+  - @turnkey/http@1.1.1
+
 ## 0.2.1
 
 ### Patch Changes
