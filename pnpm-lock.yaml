@@ -44,6 +44,9 @@ importers:
 
   examples/deployer:
     dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:^
+        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
@@ -62,6 +65,9 @@ importers:
 
   examples/rebalancer:
     dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:^
+        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
@@ -105,6 +111,9 @@ importers:
 
   examples/trading-runner:
     dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:^
+        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
@@ -145,6 +154,9 @@ importers:
       '@cosmjs/stargate':
         specifier: ^0.31.0
         version: 0.31.0
+      '@turnkey/api-key-stamper':
+        specifier: workspace:^
+        version: link:../../packages/api-key-stamper
       '@turnkey/cosmjs':
         specifier: workspace:*
         version: link:../../packages/cosmjs
@@ -241,6 +253,9 @@ importers:
       '@safe-global/safe-ethers-lib':
         specifier: ^1.9.2
         version: 1.9.2
+      '@turnkey/api-key-stamper':
+        specifier: workspace:^
+        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
@@ -256,6 +271,9 @@ importers:
 
   examples/with-nonce-manager:
     dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:^
+        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers

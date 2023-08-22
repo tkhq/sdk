@@ -1,54 +1,48 @@
-import {
-  init as httpInit,
-  TurnkeyApi,
-  withAsyncPolling,
-  TurnkeyActivityError,
-} from "@turnkey/http";
+import { TurnkeyClient, TurnkeyActivityError } from "@turnkey/http";
+import { createActivityPoller } from "@turnkey/http/dist/async";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import * as crypto from "crypto";
 import { refineNonNull } from "./shared";
 
 export async function createNewCosmosPrivateKey() {
-  // Initialize `@turnkey/http` with your credentials
-  httpInit({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: process.env.BASE_URL!,
-  });
+  const turnkeyClient = new TurnkeyClient(
+    { baseUrl: process.env.BASE_URL! },
+    new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    })
+  );
 
   console.log(
     "`process.env.PRIVATE_KEY_ID` not found; creating a new Cosmos private key on Turnkey...\n"
   );
 
-  // Use `withAsyncPolling` to handle async activity polling.
-  // In this example, it polls every 250ms until the activity reaches a terminal state.
-  const createKeyMutation = withAsyncPolling({
-    request: TurnkeyApi.createPrivateKeys,
-    refreshIntervalMs: 250, // defaults to 500ms
+  const activityPoller = createActivityPoller({
+    client: turnkeyClient,
+    requestFn: turnkeyClient.createPrivateKeys,
   });
 
   const privateKeyName = `Cosmos Key ${crypto.randomBytes(2).toString("hex")}`;
 
   try {
-    const activity = await createKeyMutation({
-      body: {
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
-        organizationId: process.env.ORGANIZATION_ID!,
-        parameters: {
-          privateKeys: [
-            {
-              privateKeyName,
-              curve: "CURVE_SECP256K1",
-              addressFormats: [],
-              privateKeyTags: [],
-            },
-          ],
-        },
-        timestampMs: String(Date.now()), // millisecond timestamp
+    const activity = await activityPoller({
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+      organizationId: process.env.ORGANIZATION_ID!,
+      parameters: {
+        privateKeys: [
+          {
+            privateKeyName,
+            curve: "CURVE_SECP256K1",
+            addressFormats: [],
+            privateKeyTags: [],
+          },
+        ],
       },
+      timestampMs: String(Date.now()), // millisecond timestamp
     });
 
     const privateKeyId = refineNonNull(
-      activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
+      activity.result.createPrivateKeysResultV2?.privateKeys?.[0]?.privateKeyId
     );
 
     // Success!

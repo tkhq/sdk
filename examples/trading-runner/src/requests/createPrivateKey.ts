@@ -1,49 +1,56 @@
-import { TurnkeyApi, init as httpInit, withAsyncPolling } from "@turnkey/http";
+import { TurnkeyClient } from "@turnkey/http";
+import { createActivityPoller } from "@turnkey/http/dist/async";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { TurnkeyActivityError } from "@turnkey/ethers";
-import { refineNonNull } from "./utils";
 
 export default async function createPrivateKey(
   privateKeyName: string,
   privateKeyTags: string[]
 ): Promise<string> {
-  // Initialize `@turnkey/http` with your credentials
-  httpInit({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: process.env.BASE_URL!,
-  });
+  const turnkeyClient = new TurnkeyClient(
+    { baseUrl: process.env.BASE_URL! },
+    new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    })
+  );
 
-  // Use `withAsyncPolling` to handle async activity polling.
-  // In this example, it polls every 250ms until the activity reaches a terminal state.
-  const mutation = withAsyncPolling({
-    request: TurnkeyApi.createPrivateKeys,
-    refreshIntervalMs: 250, // defaults to 500ms
+  console.log(
+    "`process.env.PRIVATE_KEY_ID` not found; creating a new Ethereum private key on Turnkey...\n"
+  );
+
+  const activityPoller = createActivityPoller({
+    client: turnkeyClient,
+    requestFn: turnkeyClient.createPrivateKeys,
   });
 
   try {
-    const activity = await mutation({
-      body: {
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
-        organizationId: process.env.ORGANIZATION_ID!,
-        parameters: {
-          privateKeys: [
-            {
-              privateKeyName,
-              privateKeyTags,
-              curve: "CURVE_SECP256K1",
-              addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-            },
-          ],
-        },
-        timestampMs: String(Date.now()), // millisecond timestamp
+    const activity = await activityPoller({
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+      organizationId: process.env.ORGANIZATION_ID!,
+      parameters: {
+        privateKeys: [
+          {
+            privateKeyName,
+            privateKeyTags,
+            curve: "CURVE_SECP256K1",
+            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
+          },
+        ],
       },
+      timestampMs: String(Date.now()), // millisecond timestamp
     });
 
-    const privateKey = refineNonNull(
-      activity.result.createPrivateKeysResultV2?.privateKeys?.[0]
+    const privateKeyId = refineNonNull(
+      activity.result.createPrivateKeysResultV2?.privateKeys?.[0]?.privateKeyId
     );
-    const privateKeyId = refineNonNull(privateKey.privateKeyId);
-    const address = refineNonNull(privateKey.addresses?.[0]?.address);
+
+    const keyInfo = await turnkeyClient.getPrivateKey({
+      organizationId: process.env.ORGANIZATION_ID!,
+      privateKeyId,
+    });
+
+    const address = refineNonNull(keyInfo.privateKey.addresses[0]?.address);
 
     // Success!
     console.log(
@@ -53,6 +60,7 @@ export default async function createPrivateKey(
         `- Private key ID: ${privateKeyId}`,
         `- Address: ${address}`,
         ``,
+        "Now you can take the private key ID, put it in `.env.local`, then re-run the script.",
       ].join("\n")
     );
 
@@ -68,4 +76,15 @@ export default async function createPrivateKey(
       cause: error as Error,
     });
   }
+}
+
+export function refineNonNull<T>(
+  input: T | null | undefined,
+  errorMessage?: string
+): T {
+  if (input == null) {
+    throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
+  }
+
+  return input;
 }
