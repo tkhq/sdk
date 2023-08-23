@@ -8,12 +8,11 @@ import { ethers } from "ethers";
 import { TurnkeySigner } from "@turnkey/ethers";
 import { Environment } from "./constants";
 
-const DEFAULT_INFURA_COMMUNITY_KEY = "84842078b09946638c03157f83405213";
 const DEFAULT_ENV = Environment.GOERLI;
 
 let provider = new ethers.providers.InfuraProvider(
   DEFAULT_ENV,
-  process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY
+  process.env.INFURA_KEY!
 );
 
 export function getProvider(
@@ -22,7 +21,7 @@ export function getProvider(
   if (env !== Environment.GOERLI) {
     provider = new ethers.providers.InfuraProvider(
       env,
-      process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY
+      process.env.INFURA_KEY!
     );
   }
 
