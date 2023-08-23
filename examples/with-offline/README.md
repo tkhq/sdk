@@ -4,9 +4,9 @@ This example shows how to sign a Turnkey request in offline contexts. Note that 
 
 - produce a signature on an actually offline laptop, then export that signed request to an online machine which has internet connectivity
 - produce a signed Turnkey requests in a sandboxed browser environment (service worker, Chrome extension) which has access to API keys but isn't able to make direct network requests to Turnkey's API for security reasons. Instead, signed requests are forwarded to a backend component before hitting the Turnkey API. This emulates the setup from the previous bullet point
-- produce signed Turnkey requests in browser contexts that can be forwarded to a backend application connected to Turnkey's API. This setup is a good workaround for CORS (Turnkey's API doesn't allow arbitrary 3rd party origins to POST requests directly; this prevents phishing and distributed denial-of-service attacks)
+- produce signed Turnkey requests in browser contexts that can be forwarded to a backend application connected to Turnkey's API. While Turnkey allows browsers to POST directly to its API (open CORS policy), proxying to a backend has advantages: collecting metrics, feature toggle or circuit breakers, etc.
 
-This example is similar, in spirit, to running `turnkey request` with the `--no-post` option set. When called with `--no-post`, [Turnkey's CLI](https://github.com/tkhq/tkcli) produces a stamp and displays the cURL command to use. We show the same thing here, but do it with TypeScript and rely on the Turnkey SDK typed helpers to generate the POST bodies.
+This example is similar, in spirit, to running our CLI (`turnkey request`) with the `--no-post` option set. When called with `--no-post`, [Turnkey's CLI](https://github.com/tkhq/tkcli) produces a stamp and displays the cURL command to use. We show the same thing here, but do it with TypeScript and rely on the Turnkey SDK typed helpers to generate the signed request components.
 
 ## Getting started
 
@@ -41,6 +41,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PUBLIC_KEY`
 - `API_PRIVATE_KEY`
 - `ORGANIZATION_ID`
+- `BASE_URL`: this is only used to output the right URL. No actual request will be made!
 
 ### 3/ Running the scripts
 
@@ -51,32 +52,27 @@ $ pnpm start
 By default, this script will do the following:
 
 1. Load your API key
-2. Produce a payload to create a new private key
-3. Output the signed request components (path, stamp, body), and also produces a ready-to-use `curl` command for quick testing
+2. Generates a signed request to create a new private key
+3. Output the signed request components (URL, stamp, body), and also produces a ready-to-use `curl` command for quick testing
 
 Here's a sample output:
 
 ```
-pnpm start
-
-> @turnkey/example-with-offline@0.0.0 start /Users/rno/tkhq/code/sdk/examples/with-offline
-> pnpm -w run build-all && tsx src/index.ts
-
-
-> @turnkey/oss@ build-all /Users/rno/tkhq/code/sdk
-> tsc --build tsconfig.mono.json
+$ pnpm start
 
 Configuration loaded!
 Creating a new Private Key for organization b8d8fa59-e1b7-4897-866a-551c32d061fa using the configured Turnkey API key...
-? New Private Key Name hello
-Your request details:
-✅ Route:
+? New Private Key Name: Hello
+Your signed request details:
+✅ Request URL:
         https://api.turnkey.com/public/v1/submit/create_private_keys
-✅ Stamp (goes in X-Stamp HTTP header)
-        eyJwdWJsaWNLZXkiOiIwM2JmMTYyNTc2ZWI4ZGZlY2YzM2Q5Mjc1ZDA5NTk1Mjg0ZjZjNGRmMGRiNjE1NmMzYzU4Mjc3Nzg4NmEwZWUwYWMiLCJzY2hlbWUiOiJTSUdOQVRVUkVfU0NIRU1FX1RLX0FQSV9QMjU2Iiwic2lnbmF0dXJlIjoiMzA0NDAyMjA0MjFjNzk0YzAzZDQxNDRhNjkyZmMwN2YxZjZhNGYxNzNhOGRhMGU3NTdiNWNlYWU1ZGQzNmQ2YWZjZmYwMzdkMDIyMDAzZmQ3OWRjYWI4MTYxMDAxYjRiYWQwNjVjMzE4ZWYzNDUxZTViZGVhMTYxM2VlMmNiOTkzMjVmZjVmMjBmNjIifQ
+✅ Stamp header name and value
+        X-Stamp: eyJwdWJsaWNLZXkiOiIwM2JmMTYyNTc2ZWI4ZGZlY2YzM2Q5Mjc1ZDA5NTk1Mjg0ZjZjNGRmMGRiNjE1NmMzYzU4Mjc3Nzg4NmEwZWUwYWMiLCJzY2hlbWUiOiJTSUdOQVRVUkVfU0NIRU1FX1RLX0FQSV9QMjU2Iiwic2lnbmF0dXJlIjoiMzA0NTAyMjAxOGNkNzVhYzUyZjhhMGQzMzdkZTZjMzJjOGNhODUyNDdlODQwYzQ2MDIxZWY1MjQ0MTJlYzFhNGFlNTAyNDMxMDIyMTAwZjRlZWQwZTJlMzExYTkyMDAzZmQ4MmFkMmQ2MTRkMDI2NGI2ZjUxNjkwNzA5MWFmMmFmZGNmOGZiOTVlY2IxMSJ9
 ✅ POST body:
-        {"timestampMs":"1685118651239","type":"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS","organizationId":"b8d8fa59-e1b7-4897-866a-551c32d061fa","parameters":{"privateKeys":[{"privateKeyName":"hello","curve":"CURVE_SECP256K1","addressFormats":["ADDRESS_FORMAT_ETHEREUM"],"privateKeyTags":[]}]}}
+        {"timestampMs":"1692804998969","type":"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2","organizationId":"b8d8fa59-e1b7-4897-866a-551c32d061fa","parameters":{"privateKeys":[{"privateKeyName":"Hello","curve":"CURVE_SECP256K1","addressFormats":["ADDRESS_FORMAT_ETHEREUM"],"privateKeyTags":[]}]}}
 
 For example, you can send this request to Turnkey by running the following cURL command:
-        curl -X POST -d'{"timestampMs":"1685118651239","type":"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS","organizationId":"b8d8fa59-e1b7-4897-866a-551c32d061fa","parameters":{"privateKeys":[{"privateKeyName":"hello","curve":"CURVE_SECP256K1","addressFormats":["ADDRESS_FORMAT_ETHEREUM"],"privateKeyTags":[]}]}}' -H'X-Stamp:eyJwdWJsaWNLZXkiOiIwM2JmMTYyNTc2ZWI4ZGZlY2YzM2Q5Mjc1ZDA5NTk1Mjg0ZjZjNGRmMGRiNjE1NmMzYzU4Mjc3Nzg4NmEwZWUwYWMiLCJzY2hlbWUiOiJTSUdOQVRVUkVfU0NIRU1FX1RLX0FQSV9QMjU2Iiwic2lnbmF0dXJlIjoiMzA0NDAyMjA0MjFjNzk0YzAzZDQxNDRhNjkyZmMwN2YxZjZhNGYxNzNhOGRhMGU3NTdiNWNlYWU1ZGQzNmQ2YWZjZmYwMzdkMDIyMDAzZmQ3OWRjYWI4MTYxMDAxYjRiYWQwNjVjMzE4ZWYzNDUxZTViZGVhMTYxM2VlMmNiOTkzMjVmZjVmMjBmNjIifQ' -v 'https://api.turnkey.com/public/v1/submit/create_private_keys'
+        curl -X POST -d'{"timestampMs":"1692804998969","type":"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2","organizationId":"b8d8fa59-e1b7-4897-866a-551c32d061fa","parameters":{"privateKeys":[{"privateKeyName":"Hello","curve":"CURVE_SECP256K1","addressFormats":["ADDRESS_FORMAT_ETHEREUM"],"privateKeyTags":[]}]}}' -H'X-Stamp:eyJwdWJsaWNLZXkiOiIwM2JmMTYyNTc2ZWI4ZGZlY2YzM2Q5Mjc1ZDA5NTk1Mjg0ZjZjNGRmMGRiNjE1NmMzYzU4Mjc3Nzg4NmEwZWUwYWMiLCJzY2hlbWUiOiJTSUdOQVRVUkVfU0NIRU1FX1RLX0FQSV9QMjU2Iiwic2lnbmF0dXJlIjoiMzA0NTAyMjAxOGNkNzVhYzUyZjhhMGQzMzdkZTZjMzJjOGNhODUyNDdlODQwYzQ2MDIxZWY1MjQ0MTJlYzFhNGFlNTAyNDMxMDIyMTAwZjRlZWQwZTJlMzExYTkyMDAzZmQ4MmFkMmQ2MTRkMDI2NGI2ZjUxNjkwNzA5MWFmMmFmZGNmOGZiOTVlY2IxMSJ9' -v 'https://api.turnkey.com/public/v1/submit/create_private_keys'
+
+Important note: this request is only valid for 24hrs. After that, a new request needs to be generated.
 ```
