@@ -6,7 +6,7 @@ This example shows how to create a sub organization and facilitate creating a pr
 
 ### 1/ Cloning the example
 
-Make sure you have `Node.js` installed locally; we recommend using Node v16+.
+Make sure you have `node` installed locally; we recommend using Node v16+.
 
 ```bash
 $ git clone https://github.com/tkhq/sdk
@@ -34,8 +34,8 @@ Now open `.env.local` and add the missing environment variables:
 
 - `API_PUBLIC_KEY`
 - `API_PRIVATE_KEY`
-- `BASE_URL`
 - `ORGANIZATION_ID`
+- `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
 
 ### 3/ Running the app
 
@@ -43,4 +43,4 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm run dev
 ```
 
-This command will run a nextjs app on localhost:3000. If you navigate to localhost:3000 in your browser, you can follow the prompts to create a sub organization and private key for the newly created sub organization.
+This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to create a sub-organization and private key for the newly created sub-organization.
