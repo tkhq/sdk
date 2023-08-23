@@ -1,8 +1,8 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
 
-import {  TurnkeyClient } from "@turnkey/http";
-import {  ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { input } from "@inquirer/prompts";
 
 // Load environment variables from `.env.local`
@@ -66,13 +66,15 @@ async function main() {
         },
       ],
     },
-  })
+  });
 
   console.log("Your signed request details:");
   console.log("✅ Request URL:");
   console.log(`\t${signedRequest.url}`);
   console.log("✅ Stamp header name and value");
-  console.log(`\t${signedRequest.stamp.stampHeaderName}: ${signedRequest.stamp.stampHeaderValue}`);
+  console.log(
+    `\t${signedRequest.stamp.stampHeaderName}: ${signedRequest.stamp.stampHeaderValue}`
+  );
   console.log("✅ POST body:");
   console.log(`\t${signedRequest.body}`);
 

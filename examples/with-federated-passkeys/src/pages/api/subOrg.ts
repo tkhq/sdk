@@ -22,13 +22,12 @@ type ErrorMessage = {
   message: string;
 };
 
-
 export default async function createUser(
   req: NextApiRequest,
   res: NextApiResponse<CreateSubOrgResponse | ErrorMessage>
 ) {
   const createSubOrgRequest = req.body as CreateSubOrgRequest;
-  
+
   const turnkeyClient = new TurnkeyClient(
     { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
     new ApiKeyStamper({
@@ -36,7 +35,7 @@ export default async function createUser(
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
     })
   );
-  
+
   const activityPoller = createActivityPoller({
     client: turnkeyClient,
     requestFn: turnkeyClient.createSubOrganization,

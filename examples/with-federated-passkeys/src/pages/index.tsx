@@ -59,19 +59,19 @@ export default function Home() {
     );
 
     const signedRequest = await turnkeyClient.stampCreatePrivateKeys({
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
-        organizationId: subOrgId,
-        timestampMs: String(Date.now()),
-        parameters: {
-          privateKeys: [
-            {
-              privateKeyName: data.privateKeyName,
-              curve: "CURVE_SECP256K1",
-              addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-              privateKeyTags: [],
-            },
-          ],
-        },
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+      organizationId: subOrgId,
+      timestampMs: String(Date.now()),
+      parameters: {
+        privateKeys: [
+          {
+            privateKeyName: data.privateKeyName,
+            curve: "CURVE_SECP256K1",
+            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
+            privateKeyTags: [],
+          },
+        ],
+      },
     });
 
     await axios.post("/api/proxyRequest", signedRequest);
@@ -169,7 +169,11 @@ export default function Home() {
                 placeholder="Private Key Name"
               />
             </label>
-            <input className={styles.button} type="submit" value="Create new private key" />
+            <input
+              className={styles.button}
+              type="submit"
+              value="Create new private key"
+            />
           </form>
         </div>
       )}

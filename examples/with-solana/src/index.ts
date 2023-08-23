@@ -29,7 +29,10 @@ async function main() {
 
   let privateKeyId = process.env.PRIVATE_KEY_ID;
   if (!privateKeyId) {
-    privateKeyId = await createNewSolanaPrivateKey(turnkeyClient, organizationId);
+    privateKeyId = await createNewSolanaPrivateKey(
+      turnkeyClient,
+      organizationId
+    );
   }
   const solAddress = await deriveSolanaAddress(turnkeyClient, privateKeyId);
 

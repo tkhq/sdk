@@ -5,7 +5,10 @@ import {
 } from "@turnkey/http";
 import * as crypto from "crypto";
 
-export async function createNewSolanaPrivateKey(client: TurnkeyClient, turnkeyOrganizationId: string) {
+export async function createNewSolanaPrivateKey(
+  client: TurnkeyClient,
+  turnkeyOrganizationId: string
+) {
   console.log(
     "creating a new Solana private key on your Turnkey organization...\n"
   );
@@ -17,25 +20,26 @@ export async function createNewSolanaPrivateKey(client: TurnkeyClient, turnkeyOr
       client: client,
       requestFn: client.createPrivateKeys,
     });
-  
+
     const completedActivity = await activityPoller({
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
-        organizationId: turnkeyOrganizationId,
-        parameters: {
-          privateKeys: [
-            {
-              privateKeyName,
-              curve: "CURVE_ED25519",
-              addressFormats: [],
-              privateKeyTags: [],
-            },
-          ],
-        },
-        timestampMs: String(Date.now()), // millisecond timestamp
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+      organizationId: turnkeyOrganizationId,
+      parameters: {
+        privateKeys: [
+          {
+            privateKeyName,
+            curve: "CURVE_ED25519",
+            addressFormats: [],
+            privateKeyTags: [],
+          },
+        ],
+      },
+      timestampMs: String(Date.now()), // millisecond timestamp
     });
 
     const privateKeyId =
-      completedActivity.result.createPrivateKeysResultV2?.privateKeys[0]?.privateKeyId;
+      completedActivity.result.createPrivateKeysResultV2?.privateKeys[0]
+        ?.privateKeyId;
     if (!privateKeyId) {
       console.error(
         "activity doesn't contain a valid private key ID",

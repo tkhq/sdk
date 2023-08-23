@@ -157,6 +157,9 @@ importers:
 
   examples/with-ethers:
     dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
@@ -172,9 +175,15 @@ importers:
 
   examples/with-federated-passkeys:
     dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../packages/api-key-stamper
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
+      '@turnkey/webauthn-stamper':
+        specifier: workspace:*
+        version: link:../../packages/webauthn-stamper
       '@types/node':
         specifier: 20.3.1
         version: 20.3.1
@@ -265,6 +274,9 @@ importers:
       '@inquirer/prompts':
         specifier: ^1.2.3
         version: 1.2.3
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../packages/api-key-stamper
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
@@ -280,6 +292,9 @@ importers:
       '@solana/web3.js':
         specifier: ^1.77.3
         version: 1.77.3
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../packages/api-key-stamper
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http

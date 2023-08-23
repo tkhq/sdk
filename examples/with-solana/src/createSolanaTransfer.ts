@@ -19,7 +19,14 @@ export async function createAndSignTransfer(input: {
   turnkeyOrganizationId: string;
   turnkeyPrivateKeyId: string;
 }): Promise<Buffer> {
-  const {client, fromAddress, toAddress, amount, turnkeyOrganizationId, turnkeyPrivateKeyId} = input;
+  const {
+    client,
+    fromAddress,
+    toAddress,
+    amount,
+    turnkeyOrganizationId,
+    turnkeyPrivateKeyId,
+  } = input;
   const fromKey = new PublicKey(fromAddress);
   const toKey = new PublicKey(toAddress);
 
@@ -39,17 +46,17 @@ export async function createAndSignTransfer(input: {
   const messageToSign = transferTransaction.serializeMessage();
 
   const activity = await client.signRawPayload({
-      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
-      organizationId: turnkeyOrganizationId,
-      timestampMs: String(Date.now()),
-      parameters: {
-        privateKeyId: turnkeyPrivateKeyId,
-        payload: messageToSign.toString("hex"),
-        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-        // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
-        // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
-        hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
-      },
+    type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
+    organizationId: turnkeyOrganizationId,
+    timestampMs: String(Date.now()),
+    parameters: {
+      privateKeyId: turnkeyPrivateKeyId,
+      payload: messageToSign.toString("hex"),
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
+      // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
+      hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+    },
   });
 
   const signature = `${activity.activity.result.signRawPayloadResult?.r}${activity.activity.result.signRawPayloadResult?.s}`;

@@ -15,7 +15,8 @@ export default async function proxyRequest(
   try {
     const tkRes = await axios.post(signedRequest.url, signedRequest.body, {
       headers: {
-        [signedRequest.stamp.stampHeaderName]: signedRequest.stamp.stampHeaderValue,
+        [signedRequest.stamp.stampHeaderName]:
+          signedRequest.stamp.stampHeaderValue,
       },
     });
 

@@ -4,9 +4,7 @@ import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";
 
 export async function createNewEthereumPrivateKey() {
-  console.log(
-    "creating a new Ethereum private key on Turnkey...\n"
-  );
+  console.log("creating a new Ethereum private key on Turnkey...\n");
 
   const privateKeyName = `ETH Key ${crypto.randomBytes(2).toString("hex")}`;
 
@@ -43,7 +41,7 @@ export async function createNewEthereumPrivateKey() {
     const privateKey = refineNonNull(
       completedActivity.result.createPrivateKeysResultV2?.privateKeys?.[0]
     );
-    
+
     const privateKeyId = refineNonNull(privateKey.privateKeyId);
     const address = refineNonNull(privateKey.addresses?.[0]?.address);
 
