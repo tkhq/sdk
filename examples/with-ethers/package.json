@@ -11,6 +11,7 @@
   "dependencies": {
     "@turnkey/ethers": "workspace:*",
     "@turnkey/http": "workspace:*",
+    "@turnkey/api-key-stamper": "workspace:*",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2"
   }

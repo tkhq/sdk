@@ -1,12 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import {
-  TurnkeyApi,
-  init as httpInit,
-  withAsyncPolling,
-  SignedRequest,
   TurnkeyApiTypes,
+  TurnkeyClient,
+  createActivityPoller,
 } from "@turnkey/http";
-import axios from "axios";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 type TAttestation = TurnkeyApiTypes["v1Attestation"];
 
@@ -24,45 +22,46 @@ type ErrorMessage = {
   message: string;
 };
 
-httpInit({
-  apiPublicKey: process.env.API_PUBLIC_KEY!,
-  apiPrivateKey: process.env.API_PRIVATE_KEY!,
-  baseUrl: process.env.BASE_URL!,
-});
-
 export default async function createUser(
   req: NextApiRequest,
   res: NextApiResponse<CreateSubOrgResponse | ErrorMessage>
 ) {
   const createSubOrgRequest = req.body as CreateSubOrgRequest;
 
-  const createSubOrgMutation = withAsyncPolling({
-    request: TurnkeyApi.createSubOrganization,
+  const turnkeyClient = new TurnkeyClient(
+    { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
+    new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    })
+  );
+
+  const activityPoller = createActivityPoller({
+    client: turnkeyClient,
+    requestFn: turnkeyClient.createSubOrganization,
   });
 
   try {
-    const createSubOrgActivity = await createSubOrgMutation({
-      body: {
-        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2",
-        timestampMs: String(Date.now()),
-        organizationId: process.env.ORGANIZATION_ID!,
-        parameters: {
-          subOrganizationName: createSubOrgRequest.subOrgName,
-          rootQuorumThreshold: 1,
-          rootUsers: [
-            {
-              userName: "My new user",
-              apiKeys: [],
-              authenticators: [
-                {
-                  authenticatorName: "Passkey",
-                  challenge: createSubOrgRequest.challenge,
-                  attestation: createSubOrgRequest.attestation,
-                },
-              ],
-            },
-          ],
-        },
+    const createSubOrgActivity = await activityPoller({
+      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2",
+      timestampMs: String(Date.now()),
+      organizationId: process.env.ORGANIZATION_ID!,
+      parameters: {
+        subOrganizationName: createSubOrgRequest.subOrgName,
+        rootQuorumThreshold: 1,
+        rootUsers: [
+          {
+            userName: "My new user",
+            apiKeys: [],
+            authenticators: [
+              {
+                authenticatorName: "Passkey",
+                challenge: createSubOrgRequest.challenge,
+                attestation: createSubOrgRequest.attestation,
+              },
+            ],
+          },
+        ],
       },
     });
 

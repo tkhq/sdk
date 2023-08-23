@@ -1,14 +1,10 @@
 import Image from "next/image";
 import styles from "./index.module.css";
-import { getWebAuthnAttestation, TurnkeyApi, browserInit } from "@turnkey/http";
+import { getWebAuthnAttestation, TurnkeyClient } from "@turnkey/http";
+import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import { buffer } from "stream/consumers";
 import { useState } from "react";
-
-browserInit({
-  baseUrl: "https://api.turnkey.com",
-});
 
 type subOrgFormData = {
   subOrgName: string;
@@ -55,21 +51,26 @@ export default function Home() {
       throw new Error("sub-org id not found");
     }
 
-    const signedRequest = await TurnkeyApi.signCreatePrivateKeys({
-      body: {
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
-        organizationId: subOrgId,
-        timestampMs: String(Date.now()),
-        parameters: {
-          privateKeys: [
-            {
-              privateKeyName: data.privateKeyName,
-              curve: "CURVE_SECP256K1",
-              addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-              privateKeyTags: [],
-            },
-          ],
-        },
+    const turnkeyClient = new TurnkeyClient(
+      { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
+      new WebauthnStamper({
+        rpId: "localhost",
+      })
+    );
+
+    const signedRequest = await turnkeyClient.stampCreatePrivateKeys({
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+      organizationId: subOrgId,
+      timestampMs: String(Date.now()),
+      parameters: {
+        privateKeys: [
+          {
+            privateKeyName: data.privateKeyName,
+            curve: "CURVE_SECP256K1",
+            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
+            privateKeyTags: [],
+          },
+        ],
       },
     });
 
@@ -129,7 +130,7 @@ export default function Home() {
       {!subOrgId && (
         <div>
           <h2 className={styles.prompt}>
-            First, we create a sub organization for the user:
+            First, create your sub-organization:
           </h2>
           <form
             className={styles.form}
@@ -140,13 +141,13 @@ export default function Home() {
               <input
                 className={styles.input}
                 {...subOrgFormRegister("subOrgName")}
-                placeholder="Your user's sub org"
+                placeholder="Sub-Organization Name"
               />
             </label>
             <input
               className={styles.button}
               type="submit"
-              value="Create sub org"
+              value="Create new sub-organization"
             />
           </form>
         </div>
@@ -154,7 +155,7 @@ export default function Home() {
       {subOrgId && (
         <div>
           <h2 className={styles.prompt}>
-            Next, we generate a key for the user using their credentials{" "}
+            Next, create a new private key using your passkey{" "}
           </h2>
           <form
             className={styles.form}
@@ -165,10 +166,14 @@ export default function Home() {
               <input
                 className={styles.input}
                 {...privateKeyFormRegister("privateKeyName")}
-                placeholder="Your user's private key"
+                placeholder="Private Key Name"
               />
             </label>
-            <input className={styles.button} type="submit" value="Create key" />
+            <input
+              className={styles.button}
+              type="submit"
+              value="Create new private key"
+            />
           </form>
         </div>
       )}

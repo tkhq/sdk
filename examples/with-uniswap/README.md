@@ -1,12 +1,12 @@
 # Example: `with-uniswap`
 
-This example shows how to construct and broadcast Uniswap-related transactions, built on top of [`Ethers`](https://docs.ethers.org/v5/api/signer/) with Turnkey.
+This example shows how to construct and broadcast Uniswap-related transactions, built on top of our [`@turnkey/ethers` signer](https://www.npmjs.com/package/@turnkey/ethers) with Turnkey.
 
 ## Getting started
 
 ### 1/ Cloning the example
 
-Make sure you have `Node.js` installed locally; we recommend using Node v16+.
+Make sure you have `node` installed locally; we recommend using Node v16+.
 
 ```bash
 $ git clone https://github.com/tkhq/sdk
@@ -38,7 +38,7 @@ Now open `.env.local` and add the missing environment variables:
 - `BASE_URL`
 - `ORGANIZATION_ID`
 - `PRIVATE_KEY_ID`
-- `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
+- `INFURA_KEY` (replace it with your own if you don't want to use the community key)
 
 ### 3/ Running the script
 

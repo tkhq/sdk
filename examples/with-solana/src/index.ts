@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
-import { init as httpInit } from "@turnkey/http";
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
@@ -14,22 +15,26 @@ import { createAndSignTransfer } from "./createSolanaTransfer";
 import { input, confirm } from "@inquirer/prompts";
 
 async function main() {
-  // Initializes `@turnkey/http` with credentials
-  httpInit({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: process.env.BASE_URL!,
-  });
-
   const organizationId = process.env.ORGANIZATION_ID!;
 
   const connection = solanaNetwork.connect();
 
+  const turnkeyClient = new TurnkeyClient(
+    { baseUrl: process.env.BASE_URL! },
+    new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    })
+  );
+
   let privateKeyId = process.env.PRIVATE_KEY_ID;
   if (!privateKeyId) {
-    privateKeyId = await createNewSolanaPrivateKey(organizationId);
+    privateKeyId = await createNewSolanaPrivateKey(
+      turnkeyClient,
+      organizationId
+    );
   }
-  const solAddress = await deriveSolanaAddress(privateKeyId);
+  const solAddress = await deriveSolanaAddress(turnkeyClient, privateKeyId);
 
   console.log(`\nYour Solana address: "${solAddress}"`);
 
@@ -82,6 +87,7 @@ async function main() {
 
   // Create a transfer transaction
   const signedTransaction = await createAndSignTransfer({
+    client: turnkeyClient,
     fromAddress: solAddress,
     toAddress: destination,
     amount: Number(amount),

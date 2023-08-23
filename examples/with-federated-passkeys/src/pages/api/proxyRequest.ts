@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { SignedRequest } from "@turnkey/http";
+import { TSignedRequest } from "@turnkey/http";
 import axios from "axios";
 
 type TResponse = {
@@ -10,12 +10,13 @@ export default async function proxyRequest(
   req: NextApiRequest,
   res: NextApiResponse<TResponse>
 ) {
-  let signedRequest = req.body as SignedRequest;
+  let signedRequest = req.body as TSignedRequest;
 
   try {
     const tkRes = await axios.post(signedRequest.url, signedRequest.body, {
       headers: {
-        "X-Stamp-WebAuthn": signedRequest.stamp,
+        [signedRequest.stamp.stampHeaderName]:
+          signedRequest.stamp.stampHeaderValue,
       },
     });
 
