@@ -213,7 +213,7 @@ export default function Home() {
         <div>
           <h2>First, create a new sub-organization</h2>
           <p className={styles.explainer}>
-            We'll prompt your browser to create a new passkey. The details
+            We&apos;ll prompt your browser to create a new passkey. The details
             (credential ID, authenticator data, client data, attestation) will
             be used to create a new{" "}
             <a
@@ -274,9 +274,9 @@ export default function Home() {
       )}
       {subOrgId && privateKey && (
         <div>
-          <h2>Now let's sign something!</h2>
+          <h2>Now let&apos;s sign something!</h2>
           <p className={styles.explainer}>
-            We'll use a{" "}
+            We&apos;ll use a{" "}
             <a
               href="https://viem.sh/docs/accounts/custom.html"
               target="_blank"
