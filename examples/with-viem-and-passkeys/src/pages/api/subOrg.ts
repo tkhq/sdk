@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { TurnkeyApiTypes, TurnkeyClient } from "@turnkey/http";
-import { createActivityPoller } from "@turnkey/http/dist/async";
+import { createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 type TAttestation = TurnkeyApiTypes["v1Attestation"];
