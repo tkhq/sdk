@@ -1,5 +1,5 @@
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
-import { TurnkeyApi } from "@turnkey/http";
+import type { TurnkeyClient } from "@turnkey/http";
 import { recentBlockhash } from "./solanaNetwork";
 import base58 from "bs58";
 
@@ -11,19 +11,15 @@ import base58 from "bs58";
  * @param TurnkeyOrganizationId
  * @param TurnkeyPrivateKeyId
  */
-export async function createAndSignTransfer({
-  fromAddress,
-  toAddress,
-  amount,
-  turnkeyOrganizationId,
-  turnkeyPrivateKeyId,
-}: {
+export async function createAndSignTransfer(input: {
+  client: TurnkeyClient;
   fromAddress: string;
   toAddress: string;
   amount: number;
   turnkeyOrganizationId: string;
   turnkeyPrivateKeyId: string;
 }): Promise<Buffer> {
+  const {client, fromAddress, toAddress, amount, turnkeyOrganizationId, turnkeyPrivateKeyId} = input;
   const fromKey = new PublicKey(fromAddress);
   const toKey = new PublicKey(toAddress);
 
@@ -42,8 +38,7 @@ export async function createAndSignTransfer({
 
   const messageToSign = transferTransaction.serializeMessage();
 
-  const activity = await TurnkeyApi.signRawPayload({
-    body: {
+  const activity = await client.signRawPayload({
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
       organizationId: turnkeyOrganizationId,
       timestampMs: String(Date.now()),
@@ -55,7 +50,6 @@ export async function createAndSignTransfer({
         // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       },
-    },
   });
 
   const signature = `${activity.activity.result.signRawPayloadResult?.r}${activity.activity.result.signRawPayloadResult?.s}`;

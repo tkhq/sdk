@@ -1,4 +1,4 @@
-import { TurnkeyApi } from "@turnkey/http";
+import type { TurnkeyClient } from "@turnkey/http";
 import bs58 from "bs58";
 
 /**
@@ -7,13 +7,12 @@ import bs58 from "bs58";
  * @returns string
  */
 export async function deriveSolanaAddress(
+  client: TurnkeyClient,
   privateKeyId: string
 ): Promise<string> {
-  const keyInfo = await TurnkeyApi.getPrivateKey({
-    body: {
-      organizationId: process.env.ORGANIZATION_ID!,
-      privateKeyId,
-    },
+  const keyInfo = await client.getPrivateKey({
+    organizationId: process.env.ORGANIZATION_ID!,
+    privateKeyId,
   });
 
   const publicKey = keyInfo.privateKey.publicKey;
