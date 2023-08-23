@@ -69,7 +69,9 @@ try {
   });
 
   // Success!
-  console.log(activity.result.createPrivateKeysResult?.privateKeyIds?.[0]);
+  console.log(
+    activity.result.createPrivateKeysResultV2?.privateKeys?.[0]?.privateKeyId
+  );
 } catch (error) {
   if (error instanceof TurnkeyActivityError) {
     // In case the activity is rejected, failed, or requires consensus,

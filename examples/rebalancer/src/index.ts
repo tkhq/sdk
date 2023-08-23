@@ -241,6 +241,7 @@ async function sweepImpl() {
     const connectedSigner = getTurnkeySigner(provider, pk.privateKeyId);
     const balance = await connectedSigner.getBalance();
     const feeData = await connectedSigner.getFeeData();
+    const address = await connectedSigner.getAddress();
 
     feeData.maxFeePerGas = feeData.maxFeePerGas!.mul(GAS_MULTIPLIER);
     feeData.maxPriorityFeePerGas =
@@ -251,14 +252,18 @@ async function sweepImpl() {
       .mul(TRANSFER_GAS_LIMIT); // 21000 is the gas limit for a simple transfer
 
     if (balance.lt(SWEEP_THRESHOLD)) {
-      console.log("Insufficient balance for sweep. Moving on...");
+      console.log(
+        `Address ${address} has an insufficient balance for sweep. Moving on...`
+      );
       continue;
     }
 
     const sweepAmount = balance.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
 
     if (sweepAmount.lt(0)) {
-      console.log("Insufficient balance for sweep. Moving on...");
+      console.log(
+        `Address ${address} has an insufficient balance for sweep. Moving on...`
+      );
       continue;
     }
 

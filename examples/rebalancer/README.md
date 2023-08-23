@@ -125,7 +125,7 @@ Next, run the "pollAndBroadcast" command to wait for the tx to be confirmed and 
 pnpm cli pollAndBroadcast --interval=20000
 ```
 
-### 8/ Approve Recyle
+### 8/ Approve Recycle
 
 Finally, approve the recycle txn using the activity ID from above:
 

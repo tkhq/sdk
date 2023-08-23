@@ -226,7 +226,74 @@ async function trade(options: { [key: string]: string }) {
     `);
   }
 
+  if (checkWrapUnwrapEth(baseAsset, quoteAsset)) {
+    await wrapUnwrapImpl(baseAsset, baseAmount);
+    return;
+  }
+
   await tradeImpl(baseAsset, quoteAsset, baseAmount);
+}
+
+async function wrapUnwrapImpl(baseAsset: string, baseAmount: string) {
+  const organization = await getOrganization();
+
+  // find "trading" private key
+  const tradingPrivateKey = findPrivateKeys(organization, "trading")[0];
+  const provider = getProvider();
+  const connectedSigner = getTurnkeySigner(
+    provider,
+    tradingPrivateKey!.privateKeyId
+  );
+
+  const feeData = await connectedSigner.getFeeData();
+  const metadata = ASSET_METADATA["WETH"];
+  const tokenContract = new ethers.Contract(
+    metadata!.token.address,
+    metadata!.abi,
+    connectedSigner
+  );
+
+  if (baseAsset === "ETH") {
+    const wrapAmount = fromReadableAmount(
+      parseFloat(baseAmount),
+      metadata!.token.decimals
+    );
+
+    const { confirmed } = await prompts([
+      {
+        type: "confirm",
+        name: "confirmed",
+        message: `Please confirm: wrap ${baseAmount} ETH?`,
+      },
+    ]);
+
+    if (!confirmed) {
+      console.log("Transaction unconfirmed. Skipping...\n");
+      process.exit();
+    }
+
+    await wrapEth(connectedSigner, wrapAmount, tokenContract, feeData);
+  } else {
+    const unwrapAmount = fromReadableAmount(
+      parseFloat(baseAmount),
+      metadata!.token.decimals
+    );
+
+    const { confirmed } = await prompts([
+      {
+        type: "confirm",
+        name: "confirmed",
+        message: `Please confirm: unwrap ${baseAmount} WETH?`,
+      },
+    ]);
+
+    if (!confirmed) {
+      console.log("Transaction unconfirmed. Skipping...\n");
+      process.exit();
+    }
+
+    await unwrapWeth(connectedSigner, unwrapAmount, tokenContract, feeData);
+  }
 }
 
 async function tradeImpl(
@@ -285,7 +352,7 @@ async function tradeImpl(
 
   if (quoteAsset === "ETH") {
     console.log(
-      "For Uniswap v2/v3 trades resulting in ETH, assets must be swapped for WETH and then unrwapped.\n"
+      "For Uniswap v2/v3 trades resulting in ETH, assets must be swapped for WETH and then unwrapped.\n"
     );
 
     outputAsset = "WETH";
@@ -378,6 +445,13 @@ async function tradeImpl(
 
     await unwrapWeth(connectedSigner, unwrapAmount, tokenContract, feeData);
   }
+}
+
+function checkWrapUnwrapEth(baseAsset: string, quoteAsset: string) {
+  return (
+    (baseAsset === "ETH" && quoteAsset === "WETH") ||
+    (baseAsset === "WETH" && quoteAsset === "ETH")
+  );
 }
 
 async function sweep(options: any) {

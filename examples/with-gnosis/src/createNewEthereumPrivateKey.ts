@@ -14,7 +14,7 @@ export async function createNewEthereumPrivateKey() {
   );
 
   console.log(
-    "`process.env.PRIVATE_KEY_ID` not found; creating a new Ethereum private key on Turnkey...\n"
+    "`process.env.PRIVATE_KEY_ID_{INDEX}` not found; creating a new Ethereum private key on Turnkey...\n"
   );
 
   const activityPoller = createActivityPoller({
