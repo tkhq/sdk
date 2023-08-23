@@ -1,22 +1,22 @@
-import { TurnkeyApi, init as httpInit, TurnkeyApiTypes } from "@turnkey/http";
+import { TurnkeyClient, TurnkeyApiTypes } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { refineNonNull } from "./utils";
 
 export default async function getActivities(
   limit: string
 ): Promise<TurnkeyApiTypes["v1GetActivitiesResponse"]["activities"]> {
-  // Initialize `@turnkey/http` with your credentials
-  httpInit({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: process.env.BASE_URL!,
-  });
+  const turnkeyClient = new TurnkeyClient(
+    { baseUrl: process.env.BASE_URL! },
+    new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    })
+  );
 
-  const response = await TurnkeyApi.getActivities({
-    body: {
-      organizationId: process.env.ORGANIZATION_ID!,
-      paginationOptions: {
-        limit: limit,
-      },
+  const response = await turnkeyClient.getActivities({
+    organizationId: process.env.ORGANIZATION_ID!,
+    paginationOptions: {
+      limit: limit,
     },
   });
 

@@ -1,4 +1,6 @@
-import { TurnkeyApi, init as httpInit, withAsyncPolling } from "@turnkey/http";
+import { TurnkeyClient } from "@turnkey/http";
+import { createActivityPoller } from "@turnkey/http/dist/async";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
@@ -6,30 +8,27 @@ export default async function rejectActivity(
   activityId: string,
   activityFingerprint: string
 ): Promise<string> {
-  // Initialize `@turnkey/http` with your credentials
-  httpInit({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: process.env.BASE_URL!,
-  });
+  const turnkeyClient = new TurnkeyClient(
+    { baseUrl: process.env.BASE_URL! },
+    new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    })
+  );
 
-  // Use `withAsyncPolling` to handle async activity polling.
-  // In this example, it polls every 250ms until the activity reaches a terminal state.
-  const mutation = withAsyncPolling({
-    request: TurnkeyApi.rejectActivity,
-    refreshIntervalMs: 250, // defaults to 500ms
+  const activityPoller = createActivityPoller({
+    client: turnkeyClient,
+    requestFn: turnkeyClient.rejectActivity,
   });
 
   try {
-    const activity = await mutation({
-      body: {
-        type: "ACTIVITY_TYPE_REJECT_ACTIVITY",
-        organizationId: process.env.ORGANIZATION_ID!,
-        parameters: {
-          fingerprint: activityFingerprint,
-        },
-        timestampMs: String(Date.now()), // millisecond timestamp
+    const activity = await activityPoller({
+      type: "ACTIVITY_TYPE_REJECT_ACTIVITY",
+      organizationId: process.env.ORGANIZATION_ID!,
+      parameters: {
+        fingerprint: activityFingerprint,
       },
+      timestampMs: String(Date.now()), // millisecond timestamp
     });
 
     const result = refineNonNull(activity);
