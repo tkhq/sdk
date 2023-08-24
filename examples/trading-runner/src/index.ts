@@ -4,6 +4,8 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { ethers } from "ethers";
 import prompts from "prompts";
 import { findPrivateKeys, isKeyOfObject, fromReadableAmount } from "./utils";
@@ -34,6 +36,15 @@ import {
 } from "./uniswap/constants";
 import { prepareV3Trade, executeTrade } from "./uniswap/base";
 import { toReadableAmount } from "./utils";
+
+// For demonstration purposes, create a globally accessible TurnkeyClient
+const turnkeyClient = new TurnkeyClient(
+  { baseUrl: process.env.BASE_URL! },
+  new ApiKeyStamper({
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+  })
+);
 
 async function main() {
   const args = process.argv.slice(2);
@@ -95,29 +106,45 @@ main().catch((error) => {
 
 async function setup(_options: any) {
   // setup user tags
-  const adminTagId = await createUserTag("Admin", []);
-  const traderTagId = await createUserTag("Trader", []);
+  const adminTagId = await createUserTag(turnkeyClient, "Admin", []);
+  const traderTagId = await createUserTag(turnkeyClient, "Trader", []);
 
   // setup users
-  await createUser("Alice", [adminTagId], "Alice key", keys!.alice!.publicKey!);
-  await createUser("Bob", [traderTagId], "Bob key", keys!.bob!.publicKey!);
+  await createUser(
+    turnkeyClient,
+    "Alice",
+    [adminTagId],
+    "Alice key",
+    keys!.alice!.publicKey!
+  );
+  await createUser(
+    turnkeyClient,
+    "Bob",
+    [traderTagId],
+    "Bob key",
+    keys!.bob!.publicKey!
+  );
 
   // setup private key tags
-  const tradingTagId = await createPrivateKeyTag("trading", []);
-  const personal = await createPrivateKeyTag("personal", []);
+  const tradingTagId = await createPrivateKeyTag(turnkeyClient, "trading", []);
+  const personal = await createPrivateKeyTag(turnkeyClient, "personal", []);
   const longTermStorageTagId = await createPrivateKeyTag(
+    turnkeyClient,
     "long-term-storage",
     []
   );
 
   // setup private keys
-  await createPrivateKey("Trading Wallet", [tradingTagId]);
-  await createPrivateKey("Long Term Storage", [longTermStorageTagId]);
-  await createPrivateKey("Personal", [personal]);
+  await createPrivateKey(turnkeyClient, "Trading Wallet", [tradingTagId]);
+  await createPrivateKey(turnkeyClient, "Long Term Storage", [
+    longTermStorageTagId,
+  ]);
+  await createPrivateKey(turnkeyClient, "Personal", [personal]);
 
   // setup policies: grant specific users permissions to use specific private keys
   // ADMIN
   await createPolicy(
+    turnkeyClient,
     "Admin users can do everything",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${adminTagId}'))`,
@@ -130,30 +157,35 @@ async function setup(_options: any) {
 
   // TRADING
   await createPolicy(
+    turnkeyClient,
     "Traders can use trading keys to deposit, aka wrap, ETH",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
     `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${DEPOSIT_SELECTOR}'`
   );
   await createPolicy(
+    turnkeyClient,
     "Traders can use trading keys to withdraw, aka unwrap, WETH",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
     `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${WITHDRAW_SELECTOR}'`
   );
   await createPolicy(
+    turnkeyClient,
     "Traders can use trading keys to make ERC20 token approvals for WETH for usage with Uniswap",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
     `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SELECTOR}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`
   );
   await createPolicy(
+    turnkeyClient,
     "Traders can use trading keys to make ERC20 token approvals for USDC for usage with Uniswap",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
     `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SELECTOR}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`
   );
   await createPolicy(
+    turnkeyClient,
     "Traders can use trading keys to make trades using Uniswap",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
@@ -162,7 +194,7 @@ async function setup(_options: any) {
 
   // SENDING
   // first, get long term storage address(es)
-  const organization = await getOrganization();
+  const organization = await getOrganization(turnkeyClient);
   const longTermStoragePrivateKey = findPrivateKeys(
     organization,
     "long-term-storage"
@@ -184,18 +216,21 @@ async function setup(_options: any) {
     .padStart(64, "0");
 
   await createPolicy(
+    turnkeyClient,
     "Traders can use trading keys to send ETH to long term storage addresses",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
     `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${longTermStorageAddress.address!}'`
   );
   await createPolicy(
+    turnkeyClient,
     "Traders can use trading keys to send WETH to long term storage addresses",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
     `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SELECTOR}' && eth.tx.data[10..74] == '${paddedLongTermStorageAddress}'`
   );
   await createPolicy(
+    turnkeyClient,
     "Traders can use trading keys to send USDC to long term storage addresses",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
@@ -226,7 +261,74 @@ async function trade(options: { [key: string]: string }) {
     `);
   }
 
+  if (checkWrapUnwrapEth(baseAsset, quoteAsset)) {
+    await wrapUnwrapImpl(baseAsset, baseAmount);
+    return;
+  }
+
   await tradeImpl(baseAsset, quoteAsset, baseAmount);
+}
+
+async function wrapUnwrapImpl(baseAsset: string, baseAmount: string) {
+  const organization = await getOrganization(turnkeyClient);
+
+  // find "trading" private key
+  const tradingPrivateKey = findPrivateKeys(organization, "trading")[0];
+  const provider = getProvider();
+  const connectedSigner = getTurnkeySigner(
+    provider,
+    tradingPrivateKey!.privateKeyId
+  );
+
+  const feeData = await connectedSigner.getFeeData();
+  const metadata = ASSET_METADATA["WETH"];
+  const tokenContract = new ethers.Contract(
+    metadata!.token.address,
+    metadata!.abi,
+    connectedSigner
+  );
+
+  if (baseAsset === "ETH") {
+    const wrapAmount = fromReadableAmount(
+      parseFloat(baseAmount),
+      metadata!.token.decimals
+    );
+
+    const { confirmed } = await prompts([
+      {
+        type: "confirm",
+        name: "confirmed",
+        message: `Please confirm: wrap ${baseAmount} ETH?`,
+      },
+    ]);
+
+    if (!confirmed) {
+      console.log("Transaction unconfirmed. Skipping...\n");
+      process.exit();
+    }
+
+    await wrapEth(connectedSigner, wrapAmount, tokenContract, feeData);
+  } else {
+    const unwrapAmount = fromReadableAmount(
+      parseFloat(baseAmount),
+      metadata!.token.decimals
+    );
+
+    const { confirmed } = await prompts([
+      {
+        type: "confirm",
+        name: "confirmed",
+        message: `Please confirm: unwrap ${baseAmount} WETH?`,
+      },
+    ]);
+
+    if (!confirmed) {
+      console.log("Transaction unconfirmed. Skipping...\n");
+      process.exit();
+    }
+
+    await unwrapWeth(connectedSigner, unwrapAmount, tokenContract, feeData);
+  }
 }
 
 async function tradeImpl(
@@ -234,7 +336,7 @@ async function tradeImpl(
   quoteAsset: string,
   baseAmount: string
 ) {
-  const organization = await getOrganization();
+  const organization = await getOrganization(turnkeyClient);
 
   // find "trading" private key
   const tradingPrivateKey = findPrivateKeys(organization, "trading")[0];
@@ -285,7 +387,7 @@ async function tradeImpl(
 
   if (quoteAsset === "ETH") {
     console.log(
-      "For Uniswap v2/v3 trades resulting in ETH, assets must be swapped for WETH and then unrwapped.\n"
+      "For Uniswap v2/v3 trades resulting in ETH, assets must be swapped for WETH and then unwrapped.\n"
     );
 
     outputAsset = "WETH";
@@ -380,6 +482,13 @@ async function tradeImpl(
   }
 }
 
+function checkWrapUnwrapEth(baseAsset: string, quoteAsset: string) {
+  return (
+    (baseAsset === "ETH" && quoteAsset === "WETH") ||
+    (baseAsset === "WETH" && quoteAsset === "ETH")
+  );
+}
+
 async function sweep(options: any) {
   // parse options
   const asset = options["asset"]!.trim().toUpperCase(); // required
@@ -399,7 +508,7 @@ async function sweep(options: any) {
 
 // sweep one asset at a time, and only to long term storage
 async function sweepImpl(asset: string, destination: string, amount: string) {
-  const organization = await getOrganization();
+  const organization = await getOrganization(turnkeyClient);
 
   // find trading private keys
   const tradingPrivateKey = findPrivateKeys(organization, "trading")[0]!;

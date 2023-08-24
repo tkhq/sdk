@@ -41,7 +41,6 @@ export async function createNewEthereumPrivateKey() {
     const privateKey = refineNonNull(
       completedActivity.result.createPrivateKeysResultV2?.privateKeys?.[0]
     );
-
     const privateKeyId = refineNonNull(privateKey.privateKeyId);
     const address = refineNonNull(privateKey.addresses?.[0]?.address);
 

@@ -50,17 +50,17 @@ Visit the explorer links to view your transaction; you have successfully sent yo
 
 ```
 Compressed public key:
-	03be8c88bc5e77aaa9a65ba29f38e892e68d736778fce1bf462d27bfaa3beefc93
+	025adbb33ec36206ae2e022ddc55d3d083aeb9959311227a7699dcb31068286c79
 
 Wallet address:
-	celestia1kaefh2tuh7syp8x0zy9a3wspnhyn50ruw63ynf
+	celestia160pdug04aedlqhfeue5vhjjke5zgmtyruzk6w7
 
 Wallet on explorer:
-	https://testnet.mintscan.io/celestia-incentivized-testnet/account/celestia1kaefh2tuh7syp8x0zy9a3wspnhyn50ruw63ynf
+	https://testnet.mintscan.io/celestia-incentivized-testnet/account/celestia160pdug04aedlqhfeue5vhjjke5zgmtyruzk6w7
 
 Account balance:
-	[{"denom":"utia","amount":"99997600"}]
+	[{"denom":"utia","amount":"4979900"}]
 
 Sent 0.0001 TIA to celestia1vsvx8n7f8dh5udesqqhgrjutyun7zqrgehdq2l:
-	https://testnet.mintscan.io/celestia-incentivized-testnet/txs/A89766D155C51E9F7C1B13DEDCB3E1E00D57F2950490184BC8477F0F081E9E92
+	https://explorer-arabica-9.celestia-arabica.com/arabica-9/tx/933236071C0AFEC756E09F4C2F14F52FAD56971FBD5E83D9E405B4A538D10E63
 ```

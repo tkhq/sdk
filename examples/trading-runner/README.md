@@ -65,7 +65,7 @@ Before executing any txns using Turnkey, you'll first need the "Trading" address
 
 ### 5/ Trade
 
-Once the "Trading" address has funds in it, execute the "trade" command to make a t
+Once the "Trading" address has funds in it, execute the "trade" command to exchange a base asset for the quote asset, for a specified amount.
 
 ```bash
 pnpm cli trade --baseAsset=<SYMBOL> --quoteAsset=<SYMBOL> --baseAmount=<WHOLE AMOUNT> --key=<USER>

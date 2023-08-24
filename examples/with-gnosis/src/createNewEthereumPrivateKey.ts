@@ -1,57 +1,51 @@
-import { TurnkeyApi, init as httpInit, withAsyncPolling } from "@turnkey/http";
+import { TurnkeyClient } from "@turnkey/http";
+import { createActivityPoller } from "@turnkey/http/dist/async";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";
 
 export async function createNewEthereumPrivateKey() {
-  // Initialize `@turnkey/http` with your credentials
-  httpInit({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: process.env.BASE_URL!,
-  });
+  const turnkeyClient = new TurnkeyClient(
+    { baseUrl: process.env.BASE_URL! },
+    new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    })
+  );
 
-  console.log("Creating a new Ethereum private key on Turnkey...\n");
+  console.log(
+    "`process.env.PRIVATE_KEY_ID_{INDEX}` not found; creating a new Ethereum private key on Turnkey...\n"
+  );
 
-  // Use `withAsyncPolling` to handle async activity polling.
-  // In this example, it polls every 250ms until the activity reaches a terminal state.
-  const mutation = withAsyncPolling({
-    request: TurnkeyApi.createPrivateKeys,
-    refreshIntervalMs: 250, // defaults to 500ms
+  const activityPoller = createActivityPoller({
+    client: turnkeyClient,
+    requestFn: turnkeyClient.createPrivateKeys,
   });
 
   const privateKeyName = `ETH Key ${crypto.randomBytes(2).toString("hex")}`;
 
   try {
-    const activity = await mutation({
-      body: {
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
-        organizationId: process.env.ORGANIZATION_ID!,
-        parameters: {
-          privateKeys: [
-            {
-              privateKeyName,
-              curve: "CURVE_SECP256K1",
-              addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-              privateKeyTags: [],
-            },
-          ],
-        },
-        timestampMs: String(Date.now()), // millisecond timestamp
+    const activity = await activityPoller({
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
+      organizationId: process.env.ORGANIZATION_ID!,
+      parameters: {
+        privateKeys: [
+          {
+            privateKeyName,
+            curve: "CURVE_SECP256K1",
+            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
+            privateKeyTags: [],
+          },
+        ],
       },
+      timestampMs: String(Date.now()), // millisecond timestamp
     });
 
-    const privateKeyId = refineNonNull(
-      activity.result.createPrivateKeysResult?.privateKeyIds?.[0]
+    const privateKeys = refineNonNull(
+      activity.result.createPrivateKeysResultV2?.privateKeys
     );
-
-    const keyInfo = await TurnkeyApi.getPrivateKey({
-      body: {
-        organizationId: process.env.ORGANIZATION_ID!,
-        privateKeyId,
-      },
-    });
-
-    const address = refineNonNull(keyInfo.privateKey.addresses[0]?.address);
+    const privateKeyId = refineNonNull(privateKeys?.[0]?.privateKeyId);
+    const address = refineNonNull(privateKeys?.[0]?.addresses?.[0]?.address);
 
     // Success!
     console.log(

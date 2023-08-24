@@ -10,8 +10,8 @@ import { TurnkeyDirectWallet } from "@turnkey/cosmjs";
 import { createNewCosmosPrivateKey } from "./createNewCosmosPrivateKey";
 import { print, refineNonNull } from "./shared";
 
-// https://docs.celestia.org/nodes/blockspace-race/#rpc-endpoints
-const ENDPOINT = "https://rpc-celestia-testnet-blockspacerace.keplr.app";
+// https://docs.celestia.org/nodes/arabica-devnet/#rpc-endpoints
+const ENDPOINT = "https://rpc-arabica-9.consensus.celestia-arabica.com";
 
 async function main() {
   if (!process.env.PRIVATE_KEY_ID) {
@@ -70,7 +70,7 @@ async function main() {
     destinationAddress,
     [{ denom: "utia", amount: transactionAmount }],
     {
-      amount: [{ denom: "utia", amount: "500" }],
+      amount: [{ denom: "utia", amount: "20000" }],
       gas: "200000",
     },
     "Hello from Turnkey!"
@@ -80,7 +80,7 @@ async function main() {
     `Sent ${
       Number(transactionAmount) / 1_000_000
     } TIA to ${destinationAddress}:`,
-    `https://testnet.mintscan.io/celestia-incentivized-testnet/txs/${result.transactionHash}`
+    `https://explorer-arabica-9.celestia-arabica.com/arabica-9/tx/${result.transactionHash}`
   );
 
   signingClient.disconnect();
