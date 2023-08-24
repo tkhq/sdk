@@ -4,6 +4,8 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { ethers } from "ethers";
 import { findPrivateKeys, isKeyOfObject } from "./utils";
 import {
@@ -28,6 +30,15 @@ const MAX_INTERVAL_MS = 60000; // 60 seconds
 const TRANSFER_GAS_LIMIT = 21000;
 const GAS_MULTIPLIER = 2;
 const ACTIVITIES_LIMIT = "100";
+
+// For demonstration purposes, create a globally accessible TurnkeyClient
+const turnkeyClient = new TurnkeyClient(
+  { baseUrl: process.env.BASE_URL! },
+  new ApiKeyStamper({
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+  })
+);
 
 async function main() {
   const args = process.argv.slice(2);
@@ -93,48 +104,83 @@ main().catch((error) => {
 
 async function setup(_options: any) {
   // setup user tags
-  const adminTagId = await createUserTag("Admin", []);
-  const managerTagId = await createUserTag("Manager", []);
-  const executorTagId = await createUserTag("Executor", []);
+  const adminTagId = await createUserTag(turnkeyClient, "Admin", []);
+  const managerTagId = await createUserTag(turnkeyClient, "Manager", []);
+  const executorTagId = await createUserTag(turnkeyClient, "Executor", []);
 
   // setup users
-  await createUser("Alice", [adminTagId], "Alice key", keys!.alice!.publicKey!);
-  await createUser("Bob", [managerTagId], "Bob key", keys!.bob!.publicKey!);
-  await createUser("Phil", [executorTagId], "Phil key", keys!.phil!.publicKey!);
+  await createUser(
+    turnkeyClient,
+    "Alice",
+    [adminTagId],
+    "Alice key",
+    keys!.alice!.publicKey!
+  );
+  await createUser(
+    turnkeyClient,
+    "Bob",
+    [managerTagId],
+    "Bob key",
+    keys!.bob!.publicKey!
+  );
+  await createUser(
+    turnkeyClient,
+    "Phil",
+    [executorTagId],
+    "Phil key",
+    keys!.phil!.publicKey!
+  );
 
   // setup private key tags
-  const distributionTagId = await createPrivateKeyTag("distribution", []);
+  const distributionTagId = await createPrivateKeyTag(
+    turnkeyClient,
+    "distribution",
+    []
+  );
   const shortTermStorageTagId = await createPrivateKeyTag(
+    turnkeyClient,
     "short-term-storage",
     []
   );
   const longTermStorageTagId = await createPrivateKeyTag(
+    turnkeyClient,
     "long-term-storage",
     []
   );
 
   // setup private keys
-  await createPrivateKey("Distribution", [distributionTagId]);
-  await createPrivateKey("Long Term Storage", [longTermStorageTagId]);
-  await createPrivateKey("Short Term Storage 1", [shortTermStorageTagId]);
-  await createPrivateKey("Short Term Storage 2", [shortTermStorageTagId]);
-  await createPrivateKey("Short Term Storage 3", [shortTermStorageTagId]);
+  await createPrivateKey(turnkeyClient, "Distribution", [distributionTagId]);
+  await createPrivateKey(turnkeyClient, "Long Term Storage", [
+    longTermStorageTagId,
+  ]);
+  await createPrivateKey(turnkeyClient, "Short Term Storage 1", [
+    shortTermStorageTagId,
+  ]);
+  await createPrivateKey(turnkeyClient, "Short Term Storage 2", [
+    shortTermStorageTagId,
+  ]);
+  await createPrivateKey(turnkeyClient, "Short Term Storage 3", [
+    shortTermStorageTagId,
+  ]);
 
   // setup policies
   // grant specific users permissions to use specific private keys
   await createPolicy(
+    turnkeyClient,
     "Admin users can do everything",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${adminTagId}'))`,
     "true"
   );
   await createPolicy(
+    turnkeyClient,
     "Two Manager or Admin users can use long term storage keys",
     "EFFECT_ALLOW",
     `approvers.filter(user, user.tags.contains('${managerTagId}') || user.tags.contains('${adminTagId}')).count() >= 2`,
     `private_key.tags.contains('${longTermStorageTagId}')`
   );
   await createPolicy(
+    turnkeyClient,
     "Executor users can use short term storage keys",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${executorTagId}'))`,
@@ -156,7 +202,7 @@ async function fund(options: any) {
 }
 
 async function fundImpl() {
-  const organization = await getOrganization();
+  const organization = await getOrganization(turnkeyClient);
 
   // find "Distribution" private key
   const distributionPrivateKey = findPrivateKeys(
@@ -210,7 +256,7 @@ async function sweep(options: any) {
 }
 
 async function sweepImpl() {
-  const organization = await getOrganization();
+  const organization = await getOrganization(turnkeyClient);
 
   // find long term storage private key
   const longTermStoragePrivateKey = findPrivateKeys(
@@ -291,7 +337,7 @@ async function recycle(options: any) {
 }
 
 async function recycleImpl() {
-  const organization = await getOrganization();
+  const organization = await getOrganization(turnkeyClient);
 
   // find "Long Term Storage" private key
   const longTermStoragePrivateKey = findPrivateKeys(
@@ -366,14 +412,14 @@ function pollAndBroadcast(options: any) {
 }
 
 async function pollAndBroadcastImpl() {
-  const organization = await getOrganization();
+  const organization = await getOrganization(turnkeyClient);
 
   // find "Long Term Storage" private key
   const longTermStoragePrivateKey = findPrivateKeys(
     organization,
     "long-term-storage"
   )[0];
-  const activities = await getActivities(ACTIVITIES_LIMIT);
+  const activities = await getActivities(turnkeyClient, ACTIVITIES_LIMIT);
 
   const relevantActivities = activities.filter((activity) => {
     return (
@@ -409,8 +455,8 @@ async function approveActivity(options: any) {
   if (!activityId) {
     console.error("Must provide valid activity ID.\n");
   }
-  const activity = await getActivity(activityId);
-  await createActivityApproval(activityId, activity.fingerprint);
+  const activity = await getActivity(turnkeyClient, activityId);
+  await createActivityApproval(turnkeyClient, activityId, activity.fingerprint);
 }
 
 async function rejectActivity(options: any) {
@@ -419,6 +465,10 @@ async function rejectActivity(options: any) {
   if (!activityId) {
     console.error("Must provide valid activity ID.\n");
   }
-  const activity = await getActivity(activityId);
-  await createActivityRejection(activityId, activity.fingerprint);
+  const activity = await getActivity(turnkeyClient, activityId);
+  await createActivityRejection(
+    turnkeyClient,
+    activityId,
+    activity.fingerprint
+  );
 }

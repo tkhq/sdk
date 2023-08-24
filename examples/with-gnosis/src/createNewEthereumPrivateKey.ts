@@ -41,16 +41,11 @@ export async function createNewEthereumPrivateKey() {
       timestampMs: String(Date.now()), // millisecond timestamp
     });
 
-    const privateKeyId = refineNonNull(
-      activity.result.createPrivateKeysResultV2?.privateKeys?.[0]?.privateKeyId
+    const privateKeys = refineNonNull(
+      activity.result.createPrivateKeysResultV2?.privateKeys
     );
-
-    const keyInfo = await turnkeyClient.getPrivateKey({
-      organizationId: process.env.ORGANIZATION_ID!,
-      privateKeyId,
-    });
-
-    const address = refineNonNull(keyInfo.privateKey.addresses[0]?.address);
+    const privateKeyId = refineNonNull(privateKeys?.[0]?.privateKeyId);
+    const address = refineNonNull(privateKeys?.[0]?.addresses?.[0]?.address);
 
     // Success!
     console.log(
