@@ -44,6 +44,13 @@
   font-family: "Inter";
 }
 
+.base {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -66,4 +73,25 @@
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+}
+
+.baseTable {
+  font-family: "Inter";
+  width: 75%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.table {
+  width: 100%;
+}
+
+.td {
+  border-spacing: 1px;
+}
+
+.th {
+  padding-right: 5vw;
+  border-spacing: 1px;
 }

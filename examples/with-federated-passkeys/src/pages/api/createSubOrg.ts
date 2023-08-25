@@ -16,6 +16,8 @@ type CreateSubOrgRequest = {
 
 type CreateSubOrgResponse = {
   subOrgId: string;
+  privateKeyId: string;
+  privateKeyAddress: string;
 };
 
 type ErrorMessage = {
@@ -42,7 +44,9 @@ export default async function createUser(
   });
 
   try {
-    const createSubOrgActivity = await activityPoller({
+    const privateKeyName = `Default ETH Key`;
+
+    const completedActivity = await activityPoller({
       type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3",
       timestampMs: String(Date.now()),
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
@@ -51,7 +55,7 @@ export default async function createUser(
         rootQuorumThreshold: 1,
         rootUsers: [
           {
-            userName: "My new user",
+            userName: "New user",
             apiKeys: [],
             authenticators: [
               {
@@ -62,16 +66,32 @@ export default async function createUser(
             ],
           },
         ],
-        privateKeys: [],
+        privateKeys: [
+          {
+            privateKeyName,
+            curve: "CURVE_SECP256K1",
+            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
+            privateKeyTags: [],
+          },
+        ],
       },
     });
 
     const subOrgId = refineNonNull(
-      createSubOrgActivity.result.createSubOrganizationResult?.subOrganizationId
+      completedActivity.result.createSubOrganizationResultV3?.subOrganizationId
+    );
+    const privateKeys = refineNonNull(
+      completedActivity.result.createSubOrganizationResultV3?.privateKeys
+    );
+    const privateKeyId = refineNonNull(privateKeys?.[0]?.privateKeyId);
+    const privateKeyAddress = refineNonNull(
+      privateKeys?.[0]?.addresses?.[0]?.address
     );
 
     res.status(200).json({
       subOrgId,
+      privateKeyId,
+      privateKeyAddress,
     });
   } catch (e) {
     console.error(e);

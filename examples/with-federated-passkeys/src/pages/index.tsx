@@ -4,7 +4,7 @@ import { getWebAuthnAttestation, TurnkeyClient } from "@turnkey/http";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import { useState } from "react";
+import * as React from "react";
 
 type subOrgFormData = {
   subOrgName: string;
@@ -12,6 +12,12 @@ type subOrgFormData = {
 
 type privateKeyFormData = {
   privateKeyName: string;
+};
+
+type privateKeyResult = {
+  privateKeyId: string;
+  privateKeyName: string;
+  privateKeyAddress: string;
 };
 
 // All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
@@ -37,14 +43,30 @@ const base64UrlEncode = (challenge: ArrayBuffer): string => {
     .replace(/=/g, "");
 };
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, ms);
+  });
+}
+
 export default function Home() {
-  const [subOrgId, setSubOrgId] = useState<string | null>(null);
+  const [subOrgId, setSubOrgId] = React.useState<string | null>(null);
+  const [privateKeys, setPrivateKeys] = React.useState<privateKeyResult[]>([]);
   const { register: subOrgFormRegister, handleSubmit: subOrgFormSubmit } =
     useForm<subOrgFormData>();
   const {
     register: privateKeyFormRegister,
     handleSubmit: privateKeyFormSubmit,
   } = useForm<privateKeyFormData>();
+
+  const getPrivateKeys = async (organizationId: string) => {
+    const res = await axios.post("/api/getPrivateKeys", { organizationId });
+
+    setPrivateKeys(res.data.privateKeys);
+  };
+
   const { register: _loginFormRegister, handleSubmit: loginFormSubmit } =
     useForm();
 
@@ -77,8 +99,9 @@ export default function Home() {
     });
 
     await axios.post("/api/proxyRequest", signedRequest);
-
-    alert(`Hooray! Key ${data.privateKeyName} created.`);
+    await sleep(1000); // alternative would be to poll the activity itself repeatedly
+    await getPrivateKeys(subOrgId);
+    alert(`Hooray! Key "${data.privateKeyName}" created.`);
   };
 
   const createSubOrg = async (data: subOrgFormData) => {
@@ -108,14 +131,49 @@ export default function Home() {
       },
     });
 
-    const res = await axios.post("/api/subOrg", {
+    const res = await axios.post("/api/createSubOrg", {
       subOrgName: data.subOrgName,
       attestation,
       challenge: base64UrlEncode(challenge),
     });
 
     setSubOrgId(res.data.subOrgId);
+    setPrivateKeys([
+      ...privateKeys,
+      {
+        privateKeyId: res.data.privateKeyId,
+        privateKeyName: res.data.privateKeyName,
+        privateKeyAddress: res.data.privateKeyAddress,
+      },
+    ]);
   };
+
+  const privateKeysTable = (
+    <div className={styles.baseTable}>
+      <table className={styles.table}>
+        <tbody>
+          <tr>
+            <th className={styles.th}>Name</th>
+            <th className={styles.th}>Address</th>
+          </tr>
+          {privateKeys.map((val, key) => {
+            return (
+              <tr key={key}>
+                <td className={styles.td}>{val.privateKeyName}</td>
+                <td className={styles.td}>{val.privateKeyAddress}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const privateKeyElements = privateKeys.map((pk) => (
+    <li key={pk.privateKeyId} className={styles.prompt}>
+      {pk.privateKeyAddress}
+    </li>
+  ));
 
   const login = async () => {
     // We use the parent org ID, which we know at all times,
@@ -126,6 +184,8 @@ export default function Home() {
     // have a DB. Note that we are able to perform this lookup by using the
     // credential ID from the users WebAuthn stamp.
     setSubOrgId(res.organizationId);
+
+    await getPrivateKeys(res.organizationId);
   };
 
   return (
@@ -141,7 +201,7 @@ export default function Home() {
         />
       </a>
       {!subOrgId && (
-        <div>
+        <div className={styles.base}>
           <h2 className={styles.prompt}>
             First, create your sub-organization:
           </h2>
@@ -177,10 +237,26 @@ export default function Home() {
           </form>
         </div>
       )}
-      {subOrgId && (
-        <div>
+      {subOrgId && privateKeys.length === 1 && (
+        <div className={styles.base}>
           <h2 className={styles.prompt}>
-            Next, create a new private key using your passkey{" "}
+            🚀🥳🎉 Hooray! Here's your first private key address:
+          </h2>
+          {privateKeyElements}
+        </div>
+      )}
+      {subOrgId && privateKeys.length > 1 && (
+        <div className={styles.base}>
+          <h2 className={styles.prompt}>
+            🚀🥳🎉 Hooray! Here are your private keys:
+          </h2>
+          {privateKeysTable}
+        </div>
+      )}
+      {subOrgId && (
+        <div className={styles.base}>
+          <h2 className={styles.prompt}>
+            👀 Want more? Create another using your passkey{" "}
           </h2>
           <form
             className={styles.form}
