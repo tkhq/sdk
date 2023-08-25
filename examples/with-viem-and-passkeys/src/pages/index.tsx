@@ -166,7 +166,7 @@ export default function Home() {
     setSubOrgId(res.data.subOrgId);
   };
 
-    const login = async () => {
+  const login = async () => {
     // We use the parent org ID, which we know at all times,
     const res = await passkeyHttpClient.getWhoami({
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
@@ -256,17 +256,18 @@ export default function Home() {
           <br />
           <h2>Already created a sub-organization? Log back in</h2>
           <p className={styles.explainer}>
-            Based on the parent organization ID and a stamp from your passkey used
-            to created the sub-organization, we can look up your
+            Based on the parent organization ID and a stamp from your passkey
+            used to created the sub-organization, we can look up your
             sug-organization using the
-            <a href="https://docs.turnkey.com/api#tag/Who-am-I" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://docs.turnkey.com/api#tag/Who-am-I"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Whoami endpoint.
             </a>
           </p>
-          <form
-            className={styles.form}
-            onSubmit={loginFormSubmit(login)}
-          >
+          <form className={styles.form} onSubmit={loginFormSubmit(login)}>
             <input
               className={styles.button}
               type="submit"

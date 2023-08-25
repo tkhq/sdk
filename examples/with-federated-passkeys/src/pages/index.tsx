@@ -45,18 +45,20 @@ export default function Home() {
     register: privateKeyFormRegister,
     handleSubmit: privateKeyFormSubmit,
   } = useForm<privateKeyFormData>();
+  const { register: _loginFormRegister, handleSubmit: loginFormSubmit } =
+    useForm();
+
+  const turnkeyClient = new TurnkeyClient(
+    { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
+    new WebauthnStamper({
+      rpId: "localhost",
+    })
+  );
 
   const createPrivateKey = async (data: privateKeyFormData) => {
     if (!subOrgId) {
       throw new Error("sub-org id not found");
     }
-
-    const turnkeyClient = new TurnkeyClient(
-      { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
-      new WebauthnStamper({
-        rpId: "localhost",
-      })
-    );
 
     const signedRequest = await turnkeyClient.stampCreatePrivateKeys({
       type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
@@ -115,6 +117,17 @@ export default function Home() {
     setSubOrgId(res.data.subOrgId);
   };
 
+  const login = async () => {
+    // We use the parent org ID, which we know at all times,
+    const res = await turnkeyClient.getWhoami({
+      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+    });
+    // to get the sub-org ID, which we don't know at this point because we don't
+    // have a DB. Note that we are able to perform this lookup by using the
+    // credential ID from the users WebAuthn stamp.
+    setSubOrgId(res.organizationId);
+  };
+
   return (
     <main className={styles.main}>
       <a href="https://turnkey.com" target="_blank" rel="noopener noreferrer">
@@ -148,6 +161,18 @@ export default function Home() {
               className={styles.button}
               type="submit"
               value="Create new sub-organization"
+            />
+          </form>
+          <br />
+          <br />
+          <h2 className={styles.prompt}>
+            OR already created a sub-org? Login!
+          </h2>
+          <form className={styles.form} onSubmit={loginFormSubmit(login)}>
+            <input
+              className={styles.button}
+              type="submit"
+              value="Log back into your sub-organization"
             />
           </form>
         </div>
