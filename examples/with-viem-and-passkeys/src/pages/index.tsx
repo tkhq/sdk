@@ -58,6 +58,8 @@ export default function Home() {
   const { register: signingFormRegister, handleSubmit: signingFormSubmit } =
     useForm<signingFormData>();
   const { handleSubmit: privateKeyFormSubmit } = useForm<privateKeyFormData>();
+  const { register: _loginFormRegister, handleSubmit: loginFormSubmit } =
+    useForm();
 
   const stamper = new WebauthnStamper({
     rpId: "localhost",
@@ -164,6 +166,17 @@ export default function Home() {
     setSubOrgId(res.data.subOrgId);
   };
 
+    const login = async () => {
+    // We use the parent org ID, which we know at all times,
+    const res = await passkeyHttpClient.getWhoami({
+      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+    });
+    // to get the sub-org ID, which we don't know at this point because we don't
+    // have a DB. Note that we are able to perform this lookup by using the
+    // credential ID from the users WebAuthn stamp.
+    setSubOrgId(res.organizationId);
+  };
+
   return (
     <main className={styles.main}>
       <a href="https://turnkey.com" target="_blank" rel="noopener noreferrer">
@@ -237,6 +250,27 @@ export default function Home() {
               className={styles.button}
               type="submit"
               value="Create new passkey & sub-org"
+            />
+          </form>
+          <br />
+          <br />
+          <h2>Already created a sub-organization? Log back in</h2>
+          <p className={styles.explainer}>
+            Based on the parent organization ID and a stamp from your passkey used
+            to created the sub-organization, we can look up your
+            sug-organization using the
+            <a href="https://docs.turnkey.com/api#tag/Who-am-I" target="_blank" rel="noopener noreferrer">
+              Whoami endpoint.
+            </a>
+          </p>
+          <form
+            className={styles.form}
+            onSubmit={loginFormSubmit(login)}
+          >
+            <input
+              className={styles.button}
+              type="submit"
+              value="Login to sub-org with existing passkey"
             />
           </form>
         </div>

@@ -42,7 +42,7 @@ export default async function createUser(
     const completedActivity = await activityPoller({
       type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2",
       timestampMs: String(Date.now()),
-      organizationId: process.env.ORGANIZATION_ID!,
+      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       parameters: {
         subOrganizationName: createSubOrgRequest.subOrgName,
         rootQuorumThreshold: 1,
