@@ -42,6 +42,8 @@ export default async function createUser(
       requestFn: turnkeyClient.createSubOrganization,
     });
 
+    const privateKeyName = `Default ETH Key`;
+
     const completedActivity = await activityPoller({
       type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3",
       timestampMs: String(Date.now()),
@@ -64,7 +66,7 @@ export default async function createUser(
         ],
         privateKeys: [
           {
-            privateKeyName: createSubOrgRequest.privateKeyName,
+            privateKeyName: privateKeyName,
             curve: "CURVE_SECP256K1",
             addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
             privateKeyTags: [],
