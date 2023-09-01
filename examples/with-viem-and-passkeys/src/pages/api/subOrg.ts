@@ -40,7 +40,7 @@ export default async function createUser(
     });
 
     const completedActivity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2",
+      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3",
       timestampMs: String(Date.now()),
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       parameters: {
@@ -59,6 +59,7 @@ export default async function createUser(
             ],
           },
         ],
+        privateKeys: []
       },
     });
 
