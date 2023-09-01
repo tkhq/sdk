@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 1.1.2
+
+### Patch Changes
+
+- Sync protos
+
 ## 1.1.1
 
 ### Patch Changes

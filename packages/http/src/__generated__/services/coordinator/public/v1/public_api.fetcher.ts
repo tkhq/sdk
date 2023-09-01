@@ -545,7 +545,7 @@ export type TGetWhoamiBody =
 /**
  * Who am I?
  *
- * Get basic information about your current API user and your organization
+ * Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN users.
  *
  * `POST /public/v1/query/whoami`
  */
