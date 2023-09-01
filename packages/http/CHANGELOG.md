@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 1.2.0
+
+### Minor Changes
+
+- The return type for `createSubOrganization` has been updated to include a `privateKeys` field to reflect that it now calls createSubOrganizationV3
+
 ## 1.1.1
 
 ### Patch Changes

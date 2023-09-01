@@ -511,7 +511,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get basic information about your current API user and your organization
+   * Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN users.
    *
    * Sign the provided `TGetWhoamiBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/whoami).
    *

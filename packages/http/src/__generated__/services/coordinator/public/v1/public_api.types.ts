@@ -49,7 +49,7 @@ export type paths = {
     post: operations["PublicApiService_GetUsers"];
   };
   "/public/v1/query/whoami": {
-    /** Get basic information about your current API user and your organization */
+    /** Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN users. */
     post: operations["PublicApiService_GetWhoami"];
   };
   "/public/v1/submit/approve_activity": {
@@ -371,7 +371,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"
     | "ACTIVITY_TYPE_UPDATE_USER"
     | "ACTIVITY_TYPE_UPDATE_POLICY"
-    | "ACTIVITY_TYPE_SET_PAYMENT_METHOD_V2";
+    | "ACTIVITY_TYPE_SET_PAYMENT_METHOD_V2"
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3";
   v1ApiKey: {
     /** @description A User credential that can be used to authenticate to Turnkey. */
     credential: definitions["v1Credential"];
@@ -671,17 +672,35 @@ export type definitions = {
      */
     rootQuorumThreshold: number;
   };
+  v1CreateSubOrganizationIntentV3: {
+    /** @description Name for this sub-organization */
+    subOrganizationName: string;
+    /** @description Root users to create within this sub-organization */
+    rootUsers: definitions["v1RootUserParams"][];
+    /**
+     * Format: int32
+     * @description The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users
+     */
+    rootQuorumThreshold: number;
+    /** @description A list of Private Keys. */
+    privateKeys: definitions["v1PrivateKeyParams"][];
+  };
   v1CreateSubOrganizationRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2";
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1CreateSubOrganizationIntentV2"];
+    parameters: definitions["v1CreateSubOrganizationIntentV3"];
   };
   v1CreateSubOrganizationResult: {
     subOrganizationId: string;
+  };
+  v1CreateSubOrganizationResultV3: {
+    subOrganizationId: string;
+    /** @description A list of Private Key IDs and addresses. */
+    privateKeys: definitions["v1PrivateKeyResult"][];
   };
   v1CreateUserTagIntent: {
     /** @description Human-readable name for a User Tag. */
@@ -964,7 +983,7 @@ export type definitions = {
     users: definitions["v1User"][];
   };
   v1GetWhoamiRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons. */
     organizationId: string;
   };
   v1GetWhoamiResponse: {
@@ -1027,6 +1046,7 @@ export type definitions = {
     updateUserIntent?: definitions["v1UpdateUserIntent"];
     updatePolicyIntent?: definitions["v1UpdatePolicyIntent"];
     setPaymentMethodIntentV2?: definitions["v1SetPaymentMethodIntentV2"];
+    createSubOrganizationIntentV3?: definitions["v1CreateSubOrganizationIntentV3"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1203,6 +1223,7 @@ export type definitions = {
     createPrivateKeysResultV2?: definitions["v1CreatePrivateKeysResultV2"];
     updateUserResult?: definitions["v1UpdateUserResult"];
     updatePolicyResult?: definitions["v1UpdatePolicyResult"];
+    createSubOrganizationResultV3?: definitions["v1CreateSubOrganizationResultV3"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -1713,7 +1734,7 @@ export type operations = {
       };
     };
   };
-  /** Get basic information about your current API user and your organization */
+  /** Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN users. */
   PublicApiService_GetWhoami: {
     parameters: {
       body: {
