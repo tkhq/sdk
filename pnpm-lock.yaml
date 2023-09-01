@@ -487,6 +487,9 @@ importers:
       '@ethersproject/abstract-signer':
         specifier: ^5.7.0
         version: 5.7.0
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../api-key-stamper
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http

@@ -1,10 +1,6 @@
 import { ethers } from "ethers";
-import {
-  TurnkeyApi,
-  TurnkeyActivityError,
-  TurnkeyRequestError,
-  init as httpInit,
-} from "@turnkey/http";
+import { TurnkeyActivityError, TurnkeyRequestError } from "@turnkey/http";
+import type { TurnkeyClient } from "@turnkey/http";
 import type { TypedDataSigner } from "@ethersproject/abstract-signer";
 import type {
   UnsignedTransaction,
@@ -13,69 +9,40 @@ import type {
   TypedDataField,
 } from "ethers";
 
-type TConfig = {
-  /**
-   * Turnkey API public key
-   */
-  apiPublicKey: string;
-  /**
-   * Turnkey API private key
-   */
-  apiPrivateKey: string;
-  /**
-   * Turnkey API base URL
-   */
-  baseUrl: string;
-  /**
-   * Turnkey organization ID
-   */
-  organizationId: string;
-  /**
-   * Turnkey private key ID
-   */
-  privateKeyId: string;
-};
-
 export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
-  private readonly config: TConfig;
+  private readonly client: TurnkeyClient;
 
   public readonly organizationId: string;
   public readonly privateKeyId: string;
 
-  constructor(config: TConfig, provider?: ethers.providers.Provider) {
+  constructor(
+    client: TurnkeyClient,
+    organizationId: string,
+    privateKeyId: string,
+    provider?: ethers.providers.Provider
+  ) {
     super();
 
     ethers.utils.defineReadOnly(this, "provider", provider);
-    this.config = config;
-
-    const {
-      apiPublicKey,
-      apiPrivateKey,
-      baseUrl,
-      organizationId,
-      privateKeyId,
-    } = config;
+    this.client = client;
 
     this.organizationId = organizationId;
     this.privateKeyId = privateKeyId;
-
-    httpInit({
-      apiPublicKey,
-      apiPrivateKey,
-      baseUrl,
-    });
   }
 
   connect(provider: ethers.providers.Provider): TurnkeySigner {
-    return new TurnkeySigner(this.config, provider);
+    return new TurnkeySigner(
+      this.client,
+      this.organizationId,
+      this.privateKeyId,
+      provider
+    );
   }
 
   async getAddress(): Promise<string> {
-    const data = await TurnkeyApi.getPrivateKey({
-      body: {
-        privateKeyId: this.config.privateKeyId,
-        organizationId: this.config.organizationId,
-      },
+    const data = await this.client.getPrivateKey({
+      privateKeyId: this.privateKeyId,
+      organizationId: this.organizationId,
     });
 
     const maybeAddress = data.privateKey.addresses.find(
@@ -84,7 +51,7 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
 
     if (typeof maybeAddress !== "string" || !maybeAddress) {
       throw new TurnkeyActivityError({
-        message: `Unable to find Ethereum address for key ${this.config.privateKeyId} under organization ${this.config.organizationId}`,
+        message: `Unable to find Ethereum address for key ${this.privateKeyId} under organization ${this.organizationId}`,
       });
     }
 
@@ -92,17 +59,15 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
   }
 
   private async _signTransactionImpl(message: string): Promise<string> {
-    const { activity } = await TurnkeyApi.signTransaction({
-      body: {
-        type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
-        organizationId: this.config.organizationId,
-        parameters: {
-          privateKeyId: this.config.privateKeyId,
-          type: "TRANSACTION_TYPE_ETHEREUM",
-          unsignedTransaction: message,
-        },
-        timestampMs: String(Date.now()), // millisecond timestamp
+    const { activity } = await this.client.signTransaction({
+      type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
+      organizationId: this.organizationId,
+      parameters: {
+        privateKeyId: this.privateKeyId,
+        type: "TRANSACTION_TYPE_ETHEREUM",
+        unsignedTransaction: message,
       },
+      timestampMs: String(Date.now()), // millisecond timestamp
     });
 
     const { id, status, type } = activity;
@@ -203,18 +168,16 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
   }
 
   async _signMessageImpl(message: string): Promise<string> {
-    const { activity } = await TurnkeyApi.signRawPayload({
-      body: {
-        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
-        organizationId: this.config.organizationId,
-        parameters: {
-          privateKeyId: this.config.privateKeyId,
-          payload: message,
-          encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-          hashFunction: "HASH_FUNCTION_NO_OP",
-        },
-        timestampMs: String(Date.now()), // millisecond timestamp
+    const { activity } = await this.client.signRawPayload({
+      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
+      organizationId: this.organizationId,
+      parameters: {
+        privateKeyId: this.privateKeyId,
+        payload: message,
+        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+        hashFunction: "HASH_FUNCTION_NO_OP",
       },
+      timestampMs: String(Date.now()), // millisecond timestamp
     });
 
     const { id, status, type } = activity;

@@ -5,6 +5,8 @@ import hre from "hardhat";
 import { test, expect, beforeEach, describe } from "@jest/globals";
 import { TurnkeySigner, TurnkeyActivityError } from "../";
 import Test721 from "./contracts/artifacts/src/__tests__/contracts/source/Test721.sol/Test721.json";
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 // @ts-expect-error
 const testCase: typeof test = (...argList) => {
@@ -63,13 +65,22 @@ describe("TurnkeySigner", () => {
     // @ts-ignore
     const provider = hre.ethers.provider;
 
-    connectedSigner = new TurnkeySigner({
-      apiPublicKey,
-      apiPrivateKey,
-      baseUrl,
+    // create new client
+    const turnkeyClient = new TurnkeyClient(
+      {
+        baseUrl,
+      },
+      new ApiKeyStamper({
+        apiPublicKey,
+        apiPrivateKey,
+      })
+    );
+
+    connectedSigner = new TurnkeySigner(
+      turnkeyClient,
       organizationId,
-      privateKeyId,
-    }).connect(provider);
+      privateKeyId
+    ).connect(provider);
 
     chainId = (await connectedSigner.provider!.getNetwork()).chainId;
 
