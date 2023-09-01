@@ -59,7 +59,7 @@ export default async function createUser(
             ],
           },
         ],
-        privateKeys: []
+        privateKeys: [],
       },
     });
 
