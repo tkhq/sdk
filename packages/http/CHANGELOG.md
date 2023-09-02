@@ -4,7 +4,12 @@
 
 ### Minor Changes
 
-- The return type for `createSubOrganization` has been updated to include a `privateKeys` field to reflect that it now calls createSubOrganizationV3
+- The `createSubOrganization` request has been updated under the hood:
+
+  - Calling `.createSubOrganization` on our HTTP client will trigger an activity of type `CREATE_SUB_ORGANIZATION_V3` instead of `CREATE_SUB_ORGANIZATION_V2` previously.
+  - If there are any policies referencing `CREATE_SUB_ORGANIZATION_V2` specifically, they will no longer work out of the box if creating sub-orgs via SDK. These policies will need to be updated to allow `CREATE_SUB_ORGANIZATION_V3`. See policy examples related to access control [here](https://docs.turnkey.com/managing-policies/examples#access-control) for additional methods of constructing policies.
+  - `CREATE_SUB_ORGANIZATION_V3` supports everything `CREATE_SUB_ORGANIZATION_V2` supports, with the addition of a `privateKeys` field to atomically create a sub-org with private keys. If no private keys are desired, simply provide an empty array.
+  - **NOTE**: when reading `createSubOrganization` results, SDK users will now need to look at `activity.result.createSubOrganizationResultV3` instead of the previously valid `activity.result.createSubOrganizationResult`.
 
 ## 1.1.1
 
