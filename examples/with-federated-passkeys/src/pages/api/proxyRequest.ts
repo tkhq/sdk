@@ -4,6 +4,7 @@ import axios from "axios";
 
 type TResponse = {
   message: string;
+  activityId?: string;
 };
 
 export default async function proxyRequest(
@@ -22,6 +23,7 @@ export default async function proxyRequest(
 
     res.status(200).json({
       message: "Request successfully proxied!",
+      activityId: tkRes.data.activityId,
     });
   } catch (e) {
     console.error(e);

@@ -10,6 +10,14 @@ type TResponse = {
   privateKeyId?: string;
 };
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, ms);
+  });
+}
+
 export default async function createKey(
   req: NextApiRequest,
   res: NextApiResponse<TResponse>
@@ -36,6 +44,7 @@ export default async function createKey(
 
     let response = activityResponse.data as TActivityResponse;
     let attempts = 0;
+
     while (attempts < 3) {
       if (response.activity.status != "ACTIVITY_STATUS_COMPLETED") {
         const stamper = new ApiKeyStamper({
@@ -50,6 +59,8 @@ export default async function createKey(
           organizationId: response.activity.organizationId,
           activityId: response.activity.id,
         });
+
+        await sleep(500);
 
         attempts++;
       } else {
@@ -71,6 +82,10 @@ export default async function createKey(
         return;
       }
     }
+
+    res.status(500).json({
+      message: "failed to create key",
+    });
   } catch (e) {
     console.error(e);
 
