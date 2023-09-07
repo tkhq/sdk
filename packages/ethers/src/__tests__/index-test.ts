@@ -20,6 +20,7 @@ const testCase: typeof test = (...argList) => {
 
 describe("TurnkeySigner", () => {
   let connectedSigner: TurnkeySigner;
+  let signerWithProvider: TurnkeySigner;
   let chainId: number;
   let expectedEthAddress: string;
   let bannedToAddress: string;
@@ -76,11 +77,20 @@ describe("TurnkeySigner", () => {
       })
     );
 
-    connectedSigner = new TurnkeySigner(
-      turnkeyClient,
+    connectedSigner = new TurnkeySigner({
+      client: turnkeyClient,
       organizationId,
-      privateKeyId
-    ).connect(provider);
+      privateKeyId,
+    }).connect(provider);
+
+    signerWithProvider = new TurnkeySigner(
+      {
+        client: turnkeyClient,
+        organizationId,
+        privateKeyId,
+      },
+      provider
+    );
 
     chainId = (await connectedSigner.provider!.getNetwork()).chainId;
 
@@ -89,9 +99,14 @@ describe("TurnkeySigner", () => {
     setBalance(expectedEthAddress, ethers.utils.parseEther("999999"));
   });
 
-  testCase("basics", async () => {
+  testCase("basics for connected signer", async () => {
     expect(ethers.Signer.isSigner(connectedSigner)).toBe(true);
     expect(await connectedSigner.getAddress()).toBe(expectedEthAddress);
+  });
+
+  testCase("basics for connected signer via constructor", async () => {
+    expect(ethers.Signer.isSigner(signerWithProvider)).toBe(true);
+    expect(await signerWithProvider.getAddress()).toBe(expectedEthAddress);
   });
 
   testCase("it signs transactions", async () => {

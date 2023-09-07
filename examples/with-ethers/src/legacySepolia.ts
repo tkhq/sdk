@@ -31,11 +31,11 @@ async function main() {
   );
 
   // Initialize a Turnkey Signer
-  const turnkeySigner = new TurnkeySigner(
-    turnkeyClient,
-    process.env.ORGANIZATION_ID!,
-    process.env.PRIVATE_KEY_ID!
-  );
+  const turnkeySigner = new TurnkeySigner({
+    client: turnkeyClient,
+    organizationId: process.env.ORGANIZATION_ID!,
+    privateKeyId: process.env.PRIVATE_KEY_ID!,
+  });
 
   // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
   const network = "sepolia";

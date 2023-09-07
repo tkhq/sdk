@@ -9,32 +9,44 @@ import type {
   TypedDataField,
 } from "ethers";
 
+type TConfig = {
+  /**
+   * Turnkey client
+   */
+  client: TurnkeyClient;
+  /**
+   * Turnkey organization ID
+   */
+  organizationId: string;
+  /**
+   * Turnkey private key ID
+   */
+  privateKeyId: string;
+};
+
 export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
   private readonly client: TurnkeyClient;
 
   public readonly organizationId: string;
   public readonly privateKeyId: string;
 
-  constructor(
-    client: TurnkeyClient,
-    organizationId: string,
-    privateKeyId: string,
-    provider?: ethers.providers.Provider
-  ) {
+  constructor(config: TConfig, provider?: ethers.providers.Provider) {
     super();
 
     ethers.utils.defineReadOnly(this, "provider", provider);
-    this.client = client;
+    this.client = config.client;
 
-    this.organizationId = organizationId;
-    this.privateKeyId = privateKeyId;
+    this.organizationId = config.organizationId;
+    this.privateKeyId = config.privateKeyId;
   }
 
   connect(provider: ethers.providers.Provider): TurnkeySigner {
     return new TurnkeySigner(
-      this.client,
-      this.organizationId,
-      this.privateKeyId,
+      {
+        client: this.client,
+        organizationId: this.organizationId,
+        privateKeyId: this.privateKeyId,
+      },
       provider
     );
   }

@@ -41,23 +41,23 @@ async function main() {
   );
 
   // Initialize a Turnkey Signer
-  const turnkeySigner1 = new TurnkeySigner(
-    turnkeyClient,
-    process.env.ORGANIZATION_ID!,
-    process.env.PRIVATE_KEY_ID_1!
-  );
+  const turnkeySigner1 = new TurnkeySigner({
+    client: turnkeyClient,
+    organizationId: process.env.ORGANIZATION_ID!,
+    privateKeyId: process.env.PRIVATE_KEY_ID_1!,
+  });
 
-  const turnkeySigner2 = new TurnkeySigner(
-    turnkeyClient,
-    process.env.ORGANIZATION_ID!,
-    process.env.PRIVATE_KEY_ID_2!
-  );
+  const turnkeySigner2 = new TurnkeySigner({
+    client: turnkeyClient,
+    organizationId: process.env.ORGANIZATION_ID!,
+    privateKeyId: process.env.PRIVATE_KEY_ID_2!,
+  });
 
-  const turnkeySigner3 = new TurnkeySigner(
-    turnkeyClient,
-    process.env.ORGANIZATION_ID!,
-    process.env.PRIVATE_KEY_ID_3!
-  );
+  const turnkeySigner3 = new TurnkeySigner({
+    client: turnkeyClient,
+    organizationId: process.env.ORGANIZATION_ID!,
+    privateKeyId: process.env.PRIVATE_KEY_ID_3!,
+  });
 
   // Bring your own provider (for the sake of this demo, we recommend using Sepolia + Infura)
   const network = "sepolia";

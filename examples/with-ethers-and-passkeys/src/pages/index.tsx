@@ -105,11 +105,11 @@ export default function Home() {
       throw new Error("sub-org id or private key not found");
     }
 
-    const ethersSigner = new TurnkeySigner(
-      passkeyHttpClient,
-      subOrgId,
-      privateKey.id
-    );
+    const ethersSigner = new TurnkeySigner({
+      client: passkeyHttpClient,
+      organizationId: subOrgId,
+      privateKeyId: privateKey.id,
+    });
 
     const signedMessage = await ethersSigner.signMessage(data.messageToSign);
 

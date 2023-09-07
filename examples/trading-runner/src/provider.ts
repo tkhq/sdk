@@ -47,11 +47,11 @@ export function getTurnkeySigner(
   );
 
   // Initialize a Turnkey Signer
-  const turnkeySigner = new TurnkeySigner(
-    turnkeyClient,
-    process.env.ORGANIZATION_ID!,
-    privateKeyId
-  );
+  const turnkeySigner = new TurnkeySigner({
+    client: turnkeyClient,
+    organizationId: process.env.ORGANIZATION_ID!,
+    privateKeyId,
+  });
 
   return turnkeySigner.connect(provider);
 }
