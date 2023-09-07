@@ -83,6 +83,9 @@ importers:
 
   examples/sweeper:
     dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
@@ -325,6 +328,9 @@ importers:
 
   examples/with-uniswap:
     dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers

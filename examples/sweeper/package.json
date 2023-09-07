@@ -10,6 +10,7 @@
   "dependencies": {
     "@turnkey/ethers": "workspace:*",
     "@turnkey/http": "workspace:*",
+    "@turnkey/api-key-stamper": "workspace:*",
     "@uniswap/sdk-core": "^3.1.1",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2",

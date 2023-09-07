@@ -6,6 +6,8 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import EthersAdapter from "@safe-global/safe-ethers-lib";
 import Safe, {
   SafeFactory,
@@ -28,30 +30,34 @@ async function main() {
     return;
   }
 
+  const turnkeyClient = new TurnkeyClient(
+    {
+      baseUrl: process.env.BASE_URL!,
+    },
+    new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    })
+  );
+
   // Initialize a Turnkey Signer
-  const turnkeySigner1 = new TurnkeySigner({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: process.env.BASE_URL!,
-    organizationId: process.env.ORGANIZATION_ID!,
-    privateKeyId: process.env.PRIVATE_KEY_ID_1!,
-  });
+  const turnkeySigner1 = new TurnkeySigner(
+    turnkeyClient,
+    process.env.ORGANIZATION_ID!,
+    process.env.PRIVATE_KEY_ID_1!,
+  );
 
-  const turnkeySigner2 = new TurnkeySigner({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: process.env.BASE_URL!,
-    organizationId: process.env.ORGANIZATION_ID!,
-    privateKeyId: process.env.PRIVATE_KEY_ID_2!,
-  });
+  const turnkeySigner2 = new TurnkeySigner(
+    turnkeyClient,
+    process.env.ORGANIZATION_ID!,
+    process.env.PRIVATE_KEY_ID_2!,
+  );
 
-  const turnkeySigner3 = new TurnkeySigner({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: process.env.BASE_URL!,
-    organizationId: process.env.ORGANIZATION_ID!,
-    privateKeyId: process.env.PRIVATE_KEY_ID_3!,
-  });
+  const turnkeySigner3 = new TurnkeySigner(
+    turnkeyClient,
+    process.env.ORGANIZATION_ID!,
+    process.env.PRIVATE_KEY_ID_3!,
+  );
 
   // Bring your own provider (for the sake of this demo, we recommend using Sepolia + Infura)
   const network = "sepolia";

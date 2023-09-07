@@ -6,6 +6,8 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
 import compile from "./compile";
 
@@ -16,14 +18,22 @@ async function main() {
     return;
   }
 
+  const turnkeyClient = new TurnkeyClient(
+    {
+      baseUrl: process.env.BASE_URL!,
+    },
+    new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    })
+  );
+
   // Initialize a Turnkey Signer
-  const turnkeySigner = new TurnkeySigner({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: process.env.BASE_URL!,
-    organizationId: process.env.ORGANIZATION_ID!,
-    privateKeyId: process.env.PRIVATE_KEY_ID!,
-  });
+  const turnkeySigner = new TurnkeySigner(
+    turnkeyClient,
+    process.env.ORGANIZATION_ID!,
+    process.env.PRIVATE_KEY_ID!,
+  );
 
   // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
   const network = "goerli";

@@ -2,6 +2,8 @@ import * as path from "path";
 import * as dotenv from "dotenv";
 import { ethers } from "ethers";
 import { TurnkeySigner } from "@turnkey/ethers";
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { Environment } from "./utils";
 
 const DEFAULT_INFURA_COMMUNITY_KEY = "84842078b09946638c03157f83405213";
@@ -34,14 +36,22 @@ export function getTurnkeySigner(
   provider: ethers.providers.Provider,
   privateKeyId: string
 ): TurnkeySigner {
+  const turnkeyClient = new TurnkeyClient(
+    {
+      baseUrl: process.env.BASE_URL!,
+    },
+    new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    })
+  );
+
   // Initialize a Turnkey Signer
-  const turnkeySigner = new TurnkeySigner({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    baseUrl: process.env.BASE_URL!,
-    organizationId: process.env.ORGANIZATION_ID!,
+  const turnkeySigner = new TurnkeySigner(
+    turnkeyClient,
+    process.env.ORGANIZATION_ID!,
     privateKeyId,
-  });
+  );
 
   return turnkeySigner.connect(provider);
 }
