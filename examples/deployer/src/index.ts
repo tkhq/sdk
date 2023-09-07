@@ -32,7 +32,7 @@ async function main() {
   const turnkeySigner = new TurnkeySigner(
     turnkeyClient,
     process.env.ORGANIZATION_ID!,
-    process.env.PRIVATE_KEY_ID!,
+    process.env.PRIVATE_KEY_ID!
   );
 
   // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)

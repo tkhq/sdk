@@ -34,7 +34,7 @@ async function main() {
   const turnkeySigner = new TurnkeySigner(
     turnkeyClient,
     process.env.ORGANIZATION_ID!,
-    process.env.PRIVATE_KEY_ID!,
+    process.env.PRIVATE_KEY_ID!
   );
 
   // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)

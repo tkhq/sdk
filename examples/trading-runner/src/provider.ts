@@ -50,7 +50,7 @@ export function getTurnkeySigner(
   const turnkeySigner = new TurnkeySigner(
     turnkeyClient,
     process.env.ORGANIZATION_ID!,
-    privateKeyId,
+    privateKeyId
   );
 
   return turnkeySigner.connect(provider);
