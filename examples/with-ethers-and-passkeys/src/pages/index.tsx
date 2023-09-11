@@ -147,7 +147,7 @@ export default function Home() {
       },
     });
 
-    const res = await axios.post("/api/subOrg", {
+    const res = await axios.post("/api/createSubOrg", {
       subOrgName: subOrgName,
       attestation,
       challenge: base64UrlEncode(challenge),

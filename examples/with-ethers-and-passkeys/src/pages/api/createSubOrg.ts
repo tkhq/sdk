@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { TurnkeyApiTypes, TurnkeyClient } from "@turnkey/http";
 import { createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { refineNonNull } from "./utils";
 
 type TAttestation = TurnkeyApiTypes["v1Attestation"];
 
@@ -98,15 +99,4 @@ export default async function createUser(
       message: "Something went wrong.",
     });
   }
-}
-
-function refineNonNull<T>(
-  input: T | null | undefined,
-  errorMessage?: string
-): T {
-  if (input == null) {
-    throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
-  }
-
-  return input;
 }

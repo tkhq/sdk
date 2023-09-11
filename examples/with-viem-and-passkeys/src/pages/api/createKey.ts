@@ -1,8 +1,12 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { TSignedRequest, TurnkeyClient } from "@turnkey/http";
 import axios from "axios";
-import { TActivityResponse } from "@turnkey/http/dist/shared";
+import type { NextApiRequest, NextApiResponse } from "next";
+import {
+  TSignedRequest,
+  TurnkeyClient,
+  createActivityPoller,
+} from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { refineNonNull } from "./utils";
 
 type TResponse = {
   message: string;
@@ -42,49 +46,44 @@ export default async function createKey(
       });
     }
 
-    let response = activityResponse.data as TActivityResponse;
-    let attempts = 0;
+    const stamper = new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    });
+    const client = new TurnkeyClient(
+      { baseUrl: process.env.NEXT_PUBLIC_TURNKEY_API_BASE_URL! },
+      stamper
+    );
 
-    while (attempts < 3) {
-      if (response.activity.status != "ACTIVITY_STATUS_COMPLETED") {
-        const stamper = new ApiKeyStamper({
-          apiPublicKey: process.env.API_PUBLIC_KEY!,
-          apiPrivateKey: process.env.API_PRIVATE_KEY!,
-        });
-        const client = new TurnkeyClient(
-          { baseUrl: process.env.NEXT_PUBLIC_TURNKEY_API_BASE_URL! },
-          stamper
-        );
-        response = await client.getActivity({
-          organizationId: response.activity.organizationId,
-          activityId: response.activity.id,
-        });
+    const activityPoller = createActivityPoller({
+      client: client,
+      requestFn: client.getActivity,
+    });
 
-        await sleep(500);
+    const activityId = refineNonNull(activityResponse.data.activity?.id);
+    const subOrgId = refineNonNull(
+      activityResponse.data.activity?.organizationId
+    );
 
-        attempts++;
-      } else {
-        const privateKeys =
-          response.activity.result.createPrivateKeysResultV2?.privateKeys;
+    const completedActivity = await activityPoller({
+      activityId,
+      organizationId: subOrgId,
+    });
 
-        // XXX: sorry for the ugly code! We expect a single key / address returned.
-        // If we have more than one key / address returned, or none, this would break.
-        const address = privateKeys
-          ?.map((pk) => pk.addresses?.map((addr) => addr.address).join(""))
-          .join("");
-        const privateKeyId = privateKeys?.map((pk) => pk.privateKeyId).join("");
+    const privateKeys =
+      completedActivity.result.createPrivateKeysResultV2?.privateKeys;
 
-        res.status(200).json({
-          message: "successfully created key",
-          address: address,
-          privateKeyId: privateKeyId,
-        });
-        return;
-      }
-    }
+    // XXX: sorry for the ugly code! We expect a single key / address returned.
+    // If we have more than one key / address returned, or none, this would break.
+    const address = privateKeys
+      ?.map((pk) => pk.addresses?.map((addr) => addr.address).join(""))
+      .join("");
+    const privateKeyId = privateKeys?.map((pk) => pk.privateKeyId).join("");
 
-    res.status(500).json({
-      message: "failed to create key",
+    res.status(200).json({
+      message: "successfully created key",
+      address: address,
+      privateKeyId: privateKeyId,
     });
   } catch (e) {
     console.error(e);
