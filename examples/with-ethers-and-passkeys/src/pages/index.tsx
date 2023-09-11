@@ -1,13 +1,12 @@
 import Image from "next/image";
 import styles from "./index.module.css";
-import { getWebAuthnAttestation, TurnkeyClient } from "@turnkey/http";
-import { createAccount } from "@turnkey/viem";
-import { useForm } from "react-hook-form";
 import axios from "axios";
-import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import { ethers } from "ethers";
 import { useState } from "react";
-import { createWalletClient, http } from "viem";
-import { sepolia } from "viem/chains";
+import { useForm } from "react-hook-form";
+import { getWebAuthnAttestation, TurnkeyClient } from "@turnkey/http";
+import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import { TurnkeySigner } from "@turnkey/ethers";
 
 type subOrgFormData = {
   subOrgName: string;
@@ -106,22 +105,13 @@ export default function Home() {
       throw new Error("sub-org id or private key not found");
     }
 
-    const viemAccount = await createAccount({
+    const ethersSigner = new TurnkeySigner({
       client: passkeyHttpClient,
       organizationId: subOrgId,
       privateKeyId: privateKey.id,
-      ethereumAddress: privateKey.address,
     });
 
-    const viemClient = createWalletClient({
-      account: viemAccount,
-      chain: sepolia,
-      transport: http(),
-    });
-
-    const signedMessage = await viemClient.signMessage({
-      message: data.messageToSign,
-    });
+    const signedMessage = await ethersSigner.signMessage(data.messageToSign);
 
     setSignedMessage({
       message: data.messageToSign,
@@ -131,14 +121,14 @@ export default function Home() {
 
   const createSubOrg = async () => {
     const challenge = generateRandomBuffer();
-    const subOrgName = `Turnkey Viem+Passkey Demo - ${humanReadableDateTime()}`;
+    const subOrgName = `Turnkey Ethers+Passkey Demo - ${humanReadableDateTime()}`;
     const authenticatorUserId = generateRandomBuffer();
 
     const attestation = await getWebAuthnAttestation({
       publicKey: {
         rp: {
           id: "localhost",
-          name: "Turnkey Viem Passkey Demo",
+          name: "Turnkey Ethers Passkey Demo",
         },
         challenge,
         pubKeyCredParams: [
@@ -311,21 +301,21 @@ export default function Home() {
         <div>
           <h2>Now let&apos;s sign something!</h2>
           <p className={styles.explainer}>
-            We&apos;ll use a{" "}
+            We&apos;ll use an{" "}
             <a
-              href="https://viem.sh/docs/accounts/custom.html"
+              href="https://docs.ethers.org/v5/api/signer/"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Viem custom account
+              Ethers signer
             </a>{" "}
             to do this, using{" "}
             <a
-              href="https://www.npmjs.com/package/@turnkey/viem"
+              href="https://www.npmjs.com/package/@turnkey/ethers"
               target="_blank"
               rel="noopener noreferrer"
             >
-              @turnkey/viem
+              @turnkey/ethers
             </a>
             . You can kill your NextJS server if you want, everything happens on
             the client-side!

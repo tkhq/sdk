@@ -5,6 +5,8 @@ import hre from "hardhat";
 import { test, expect, beforeEach, describe } from "@jest/globals";
 import { TurnkeySigner, TurnkeyActivityError } from "../";
 import Test721 from "./contracts/artifacts/src/__tests__/contracts/source/Test721.sol/Test721.json";
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 // @ts-expect-error
 const testCase: typeof test = (...argList) => {
@@ -18,6 +20,7 @@ const testCase: typeof test = (...argList) => {
 
 describe("TurnkeySigner", () => {
   let connectedSigner: TurnkeySigner;
+  let signerWithProvider: TurnkeySigner;
   let chainId: number;
   let expectedEthAddress: string;
   let bannedToAddress: string;
@@ -63,13 +66,31 @@ describe("TurnkeySigner", () => {
     // @ts-ignore
     const provider = hre.ethers.provider;
 
+    // create new client
+    const turnkeyClient = new TurnkeyClient(
+      {
+        baseUrl,
+      },
+      new ApiKeyStamper({
+        apiPublicKey,
+        apiPrivateKey,
+      })
+    );
+
     connectedSigner = new TurnkeySigner({
-      apiPublicKey,
-      apiPrivateKey,
-      baseUrl,
+      client: turnkeyClient,
       organizationId,
       privateKeyId,
     }).connect(provider);
+
+    signerWithProvider = new TurnkeySigner(
+      {
+        client: turnkeyClient,
+        organizationId,
+        privateKeyId,
+      },
+      provider
+    );
 
     chainId = (await connectedSigner.provider!.getNetwork()).chainId;
 
@@ -78,9 +99,14 @@ describe("TurnkeySigner", () => {
     setBalance(expectedEthAddress, ethers.utils.parseEther("999999"));
   });
 
-  testCase("basics", async () => {
+  testCase("basics for connected signer", async () => {
     expect(ethers.Signer.isSigner(connectedSigner)).toBe(true);
     expect(await connectedSigner.getAddress()).toBe(expectedEthAddress);
+  });
+
+  testCase("basics for connected signer via constructor", async () => {
+    expect(ethers.Signer.isSigner(signerWithProvider)).toBe(true);
+    expect(await signerWithProvider.getAddress()).toBe(expectedEthAddress);
   });
 
   testCase("it signs transactions", async () => {

@@ -43,7 +43,8 @@
   },
   "dependencies": {
     "@ethersproject/abstract-signer": "^5.7.0",
-    "@turnkey/http": "workspace:*"
+    "@turnkey/http": "workspace:*",
+    "@turnkey/api-key-stamper": "workspace:*"
   },
   "devDependencies": {
     "@ethersproject/experimental": "^5.7.0",
