@@ -1,5 +1,11 @@
 # @turnkey/ethers
 
+## 0.17.0
+
+### Minor Changes
+
+- Add support for stampers (@turnkey/api-key-stamper / @turnkey/webauthn-stamper) to integrate with API keys or passkeys.
+
 ## 0.16.8
 
 ### Patch Changes
