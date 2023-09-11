@@ -1,5 +1,14 @@
 # @turnkey/ethers
 
+## 0.17.1
+
+### Patch Changes
+
+- Update documentation as follows:
+- ebf87a9: This breaking change adds support for stampers (@turnkey/api-key-stamper / @turnkey/webauthn-stamper) to integrate with API keys or passkeys, bringing it to parity with our [Viem](https://github.com/tkhq/sdk/tree/main/packages/viem) package. See the following examples for sample usage:
+  - [with-ethers](https://github.com/tkhq/sdk/tree/main/examples/with-ethers): updated to use `@turnkey/api-key-stamper`
+  - [with-ethers-and-passkeys](https://github.com/tkhq/sdk/tree/main/examples/with-ethers-and-passkeys): demonstrates usage of `@turnkey/webauthn-stamper`
+
 ## 0.17.0
 
 ### Minor Changes
