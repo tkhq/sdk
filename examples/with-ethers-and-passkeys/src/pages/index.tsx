@@ -248,7 +248,7 @@ export default function Home() {
           <p className={styles.explainer}>
             Based on the parent organization ID and a stamp from your passkey
             used to created the sub-organization, we can look up your
-            sug-organization using the
+            sug-organization using the{" "}
             <a
               href="https://docs.turnkey.com/api#tag/Who-am-I"
               target="_blank"

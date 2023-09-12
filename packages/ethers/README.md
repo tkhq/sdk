@@ -17,16 +17,29 @@ $ npm install ethers @turnkey/ethers
 ```typescript
 import { ethers } from "ethers";
 import { TurnkeySigner } from "@turnkey/ethers";
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 async function main() {
   const network = "goerli";
   const provider = new ethers.providers.InfuraProvider(network);
 
+  const turnkeyClient = new TurnkeyClient(
+    {
+      baseUrl: "https://api.turnkey.com",
+    },
+    // This uses API key credentials.
+    // If you're using passkeys, use `@turnkey/webauthn-stamper` to collect webauthn signatures:
+    // new WebauthnStamper({...options...})
+    new ApiKeyStamper({
+      apiPublicKey: "...",
+      apiPrivateKey: "...",
+    })
+  );
+
   // Initialize a Turnkey Signer
   const turnkeySigner = new TurnkeySigner({
-    apiPublicKey: "...",
-    apiPrivateKey: "...",
-    baseUrl: "https://api.turnkey.com",
+    client: turnkeyClient,
     organizationId: "...",
     privateKeyId: "...",
   });
