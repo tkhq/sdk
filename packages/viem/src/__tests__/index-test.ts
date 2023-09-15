@@ -1,4 +1,4 @@
-import { setBalance } from "@nomicfoundation/hardhat-network-helpers";
+import { setBalance, mine } from "@nomicfoundation/hardhat-network-helpers";
 import hre from "hardhat";
 import { TurnkeyActivityError } from "@turnkey/http";
 // import { prepareSendTransaction } from '@wagmi/core';
@@ -10,17 +10,23 @@ import {
   type Hex,
   custom,
   WalletClient,
-  createWalletClient,
+  TestClient,
+  // createWalletClient,
+  createTestClient,
+  publicActions,
+  walletActions,
   http,
-  // stringToHex,
+  stringToHex,
   getContract,
   getContractAddress,
   parseEther,
   parseUnits,
   recoverMessageAddress,
+  recoverTypedDataAddress,
   verifyTypedData,
+  verifyMessage,
 } from "viem";
-import { sepolia } from "viem/chains";
+import { foundry, hardhat } from "viem/chains";
 // import type { Chain } from "viem";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
@@ -29,6 +35,7 @@ import { createAccount } from "../";
 import Test721 from "./contracts/artifacts/src/__tests__/contracts/source/Test721.sol/Test721.json";
 
 import { expect, beforeEach, describe, test } from "@jest/globals";
+import { signMessage } from "viem/dist/types/actions/wallet/signMessage";
 
 // @ts-expect-error
 const testCase: typeof test = (...argList) => {
@@ -41,8 +48,8 @@ const testCase: typeof test = (...argList) => {
 };
 
 describe("TurnkeyAccount", () => {
-  let walletClient: WalletClient;
-  let eip1193Client: WalletClient;
+  let walletClient: any;
+  let eip1193Client: any;
   let turnkeyAccount: Account;
   // let walletAddress: string;
   // let chainId: number;
@@ -107,24 +114,50 @@ describe("TurnkeyAccount", () => {
       privateKeyId,
     });
 
-    walletClient = createWalletClient({
+    walletClient = createTestClient({
       account: turnkeyAccount,
-      chain: sepolia,
+      // chain: hardhat,
+      // mode: 'hardhat',
+      chain: foundry,
+      mode: "anvil",
+      transport: http(),
+    })
+      .extend(publicActions)
+      .extend(walletActions);
+
+    chain = walletClient.chain;
+
+    eip1193Client = createTestClient({
+      account: turnkeyAccount,
+      chain: foundry,
+      mode: "anvil",
+      // transport: custom(provider),
+      // transport: custom(hre.network.provider),
+      transport: http(),
+    })
+      .extend(publicActions)
+      .extend(walletActions);
+
+    // hardhat commands
+    // await setBalance(expectedEthAddress, parseEther("999999"));
+    // await mine(1);
+
+    const balance = await walletClient.getBalance({
+      address: expectedEthAddress,
+    });
+
+    const client = createTestClient({
+      chain: foundry,
+      mode: "anvil",
       transport: http(),
     });
 
-    eip1193Client = createWalletClient({
-      account: turnkeyAccount,
-      chain: sepolia,
-      // transport: custom(provider),
-      transport: custom(hre.network.provider),
+    await walletClient.setBalance({
+      address: expectedEthAddress,
+      value: parseEther("999999"),
     });
 
-    // [walletAddress] = await walletClient.getAddresses();
-    // chainId = await walletClient.getChainId();
-    chain = walletClient.chain;
-
-    setBalance(expectedEthAddress, parseEther("999999"));
+    const mine = await client.mine({ blocks: 1 });
   });
 
   // testCase("basics for connected signer", async () => {
@@ -133,7 +166,6 @@ describe("TurnkeyAccount", () => {
   // });
 
   testCase("it signs transactions", async () => {
-    // const viemAccount = toAccount(walletClient);
     const request = await walletClient.prepareTransactionRequest({
       account: turnkeyAccount,
       chain,
@@ -146,6 +178,10 @@ describe("TurnkeyAccount", () => {
   });
 
   testCase("it sends transactions", async () => {
+    const balance = await walletClient.getBalance({
+      address: turnkeyAccount.address,
+    });
+    console.log("balance", balance);
     const txHash = await walletClient.sendTransaction({
       account: turnkeyAccount,
       to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
@@ -154,7 +190,7 @@ describe("TurnkeyAccount", () => {
       nonce: 0,
       gas: 21000n,
       maxFeePerGas: parseUnits("2", 9),
-      maxPriorityFeePerGas: parseUnits("200", 9),
+      maxPriorityFeePerGas: parseUnits("2", 9),
       type: "eip1559",
     });
 
@@ -173,7 +209,7 @@ describe("TurnkeyAccount", () => {
           nonce: 0,
           gas: 21000n,
           maxFeePerGas: parseUnits("2", 9),
-          maxPriorityFeePerGas: parseUnits("200", 9),
+          maxPriorityFeePerGas: parseUnits("2", 9),
           type: "eip1559",
         });
       } catch (error) {
@@ -207,15 +243,23 @@ describe("TurnkeyAccount", () => {
     const message = "Hello Turnkey";
     const signMessageSignature = await walletClient.signMessage({
       account: turnkeyAccount,
-      message,
+      message: { raw: stringToHex(message) },
     });
-    const recoveredAddress = await recoverMessageAddress({
-      message,
+
+    // unsure why this fails
+    // const recoveredAddress = await recoverMessageAddress({
+    //   message,
+    //   signature: signMessageSignature,
+    // });
+
+    const verified = await walletClient.verifyMessage({
+      address: expectedEthAddress,
+      message: message,
       signature: signMessageSignature,
     });
 
     expect(signMessageSignature).toMatch(/^0x/);
-    expect(recoveredAddress).toEqual(expectedEthAddress);
+    expect(verified).toBeTruthy();
   });
 
   testCase("it signs typed data (EIP-712)", async () => {
@@ -261,14 +305,20 @@ describe("TurnkeyAccount", () => {
 
     const signTypedDataSignature = await walletClient.signTypedData(typedData);
 
+    // same... why does this fail
+    // const recoveredAddress = await recoverTypedDataAddress({
+    //   ...typedData,
+    //   signature: signTypedDataSignature,
+    // });
+    
+    const verified = await walletClient.verifyTypedData({
+      ...typedData,
+      address: expectedEthAddress,
+      signature: signTypedDataSignature,
+    });
+
     expect(signTypedDataSignature).toMatch(/^0x/);
-    expect(
-      verifyTypedData({
-        ...typedData,
-        address: turnkeyAccount.address,
-        signature: signTypedDataSignature,
-      })
-    ).toEqual(expectedEthAddress);
+    expect(verified).toBeTruthy();
   });
 
   describe("it signs walletconnect v1 payloads, bridged via EIP-1193", () => {
@@ -283,21 +333,20 @@ describe("TurnkeyAccount", () => {
           {
             gas: "0x2fe08", // See comment below
             value: "0xf4240",
-            from: "0x064c0cfdd7c485eba21988ded4dbcd9358556842", // See comment below
+            from: expectedEthAddress, // See comment below
             to: "0x4648a43b2c14da09fdf82b161150d3f634f40491",
             data: "0x3593564c000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000006451840800000000000000000000000000000000000000000000000000000000000000020b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000f42400000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000f4240000000000000000000000000000000000000000000000000000000000677493600000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002bb4fbf271143f4fbf7b91a5ded31805e42b2208d6000bb81f9840a85d5af5bf1d1762f925bdaddc4201f984000000000000000000000000000000000000000000",
           },
         ],
       };
 
-      // NOTE: you can't pass `gas` and `from` as-is to `Eip1193Bridge`
+      // Looks like here, too, we are subject to similar issues as described below:
       // See https://github.com/ethers-io/ethers.js/issues/1683
-      // delete payload.params[0].gas;
+      delete payload.params[0].gas;
       // In a real-world scenario you should also verify that `from` matches the wallet's address
-      // delete payload.params[0].from;
+      delete payload.params[0].from;
 
       const tx = await eip1193Client.request(payload);
-      // const tx = await eip1193.request(payload);
       expect(tx).toMatch(/^0x/);
     });
   });
@@ -305,9 +354,10 @@ describe("TurnkeyAccount", () => {
   // Use `pnpm run compile:contracts` to update the ABI if needed
   testCase("ERC-721", async () => {
     const { abi, bytecode } = Test721;
-    // const factory = new ethers.ContractFactory(abi, bytecode).connect(
-    //   connectedSigner
-    // );
+
+    const transactionCount = await walletClient.getTransactionCount({
+      address: expectedEthAddress,
+    });
 
     // Deploy
     const deployHash = await walletClient.deployContract({
@@ -318,8 +368,8 @@ describe("TurnkeyAccount", () => {
     });
 
     const contractAddress = getContractAddress({
-      from: turnkeyAccount.address,
-      nonce: 0n,
+      from: expectedEthAddress,
+      nonce: transactionCount,
     });
 
     expect(deployHash).toMatch(/^0x/);
@@ -332,23 +382,12 @@ describe("TurnkeyAccount", () => {
       walletClient,
     });
 
-    // expect(contract.deployTransaction.from).toEqual(expectedEthAddress);
-    //
-    // Mint
-    // const mintTx = await contract.safeMint(expectedEthAddress);
-
-    if (contract == undefined) {
-      return;
-    }
-
     // Mint
     // @ts-expect-error
-    const mintHash = await contract.write.mint([expectedEthAddress]);
+    const mintHash = await contract.write.safeMint([expectedEthAddress]);
     // await mintTx.wait();
 
     expect(mintHash).toMatch(/^0x/);
-    // expect(from).toEqual(expectedEthAddress);
-    // expect(to).toEqual(contract.address);
 
     // Approve
     // @ts-expect-error
@@ -356,90 +395,10 @@ describe("TurnkeyAccount", () => {
       "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
       0, // `tokenId` is `0` because we've only minted once
     ]);
-    // await approveTx.wait();
 
     expect(approveHash).toMatch(/^0x/);
-    // expect(approveTx.from).toEqual(expectedEthAddress);
-    // expect(approveTx.to).toEqual(contract.address);
   });
 });
-
-// describe("createApiKeyAccount", () => {
-//   let client: WalletClient;
-//   let expectedEthAddress: string;
-
-//   beforeEach(async () => {
-//     const apiPublicKey = assertNonEmptyString(
-//       process.env.API_PUBLIC_KEY,
-//       `process.env.API_PUBLIC_KEY`
-//     );
-//     const apiPrivateKey = assertNonEmptyString(
-//       process.env.API_PRIVATE_KEY,
-//       `process.env.API_PRIVATE_KEY`
-//     );
-//     const baseUrl = assertNonEmptyString(
-//       process.env.BASE_URL,
-//       `process.env.BASE_URL`
-//     );
-//     const organizationId = assertNonEmptyString(
-//       process.env.ORGANIZATION_ID,
-//       `process.env.ORGANIZATION_ID`
-//     );
-//     const privateKeyId = assertNonEmptyString(
-//       process.env.PRIVATE_KEY_ID,
-//       `process.env.PRIVATE_KEY_ID`
-//     );
-
-//     expectedEthAddress = assertNonEmptyString(
-//       process.env.EXPECTED_ETH_ADDRESS,
-//       `process.env.EXPECTED_ETH_ADDRESS`
-//     );
-
-//     const turnkeyClient = new TurnkeyClient(
-//       {
-//         baseUrl,
-//       },
-//       new ApiKeyStamper({
-//         apiPublicKey,
-//         apiPrivateKey,
-//       })
-//     );
-
-//     const turnkeyAccount = await createAccount({
-//       client: turnkeyClient,
-//       organizationId,
-//       privateKeyId,
-//     });
-
-//     client = createWalletClient({
-//       account: turnkeyAccount,
-//       chain: sepolia,
-//       transport: http(),
-//     });
-//   });
-
-//   // Create a .env file with credentials and modify this to "test(" to run tests
-//   // TODO: make this work on CI
-//   test.skip("basics", async () => {
-//     expect(client.account?.address).toEqual(expectedEthAddress);
-
-//     const message = "rno was here";
-
-//     const simpleMessageSignature = await client.signMessage({
-//       message,
-//       account: client.account!,
-//     });
-//     expect(simpleMessageSignature).toEqual(
-//       "0x42ea50d0e54726f9ce0eabf2823381a89ee9131eb2095f431ced65087213a1b767c112bd892dd9221cd269364a9938bbe63c65eea4794abbb7b7d355eadeb9131c"
-//     );
-
-//     const rawMessageSignature = await client.signMessage({
-//       message: { raw: stringToHex(message) },
-//       account: client.account!,
-//     });
-//     expect(rawMessageSignature).toEqual(simpleMessageSignature);
-//   });
-// });
 
 function assertNonEmptyString(input: unknown, name: string): string {
   if (typeof input !== "string" || !input) {

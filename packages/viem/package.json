@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "hardhat": "^2.12.7",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@openzeppelin/contracts": "^4.9.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8"
   },
