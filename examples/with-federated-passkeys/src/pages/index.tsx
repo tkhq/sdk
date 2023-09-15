@@ -21,8 +21,9 @@ type privateKeyResult = {
 };
 
 // All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
-// We only support ES256, which is listed here
+// We only support ES256 and RS256, which are listed here
 const es256 = -7;
+const rs256 = -257;
 
 // This constant designates the type of credential we want to create.
 // The enum only supports one value, "public-key"
@@ -112,6 +113,11 @@ export default function Home() {
     // https://www.w3.org/TR/webauthn-2/#sctn-sample-registration
     const attestation = await getWebAuthnAttestation({
       publicKey: {
+         authenticatorSelection: {
+          residentKey: "preferred",
+          requireResidentKey: false,
+          userVerification: "preferred"
+        },
         rp: {
           id: "localhost",
           name: "Turnkey Federated Passkey Demo",
@@ -122,6 +128,10 @@ export default function Home() {
             type: publicKey,
             alg: es256,
           },
+          {
+            type: publicKey,
+            alg: rs256,
+          }
         ],
         user: {
           id: authenticatorUserId,
