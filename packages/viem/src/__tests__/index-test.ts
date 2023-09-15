@@ -1,17 +1,8 @@
-import { setBalance, mine } from "@nomicfoundation/hardhat-network-helpers";
-import hre from "hardhat";
 import { TurnkeyActivityError } from "@turnkey/http";
-// import { prepareSendTransaction } from '@wagmi/core';
-// import { toAccount } from 'viem/accounts'
-
 import {
   type Account,
   type Chain,
   type Hex,
-  custom,
-  WalletClient,
-  TestClient,
-  // createWalletClient,
   createTestClient,
   publicActions,
   walletActions,
@@ -21,21 +12,13 @@ import {
   getContractAddress,
   parseEther,
   parseUnits,
-  recoverMessageAddress,
-  recoverTypedDataAddress,
-  verifyTypedData,
-  verifyMessage,
 } from "viem";
-import { foundry, hardhat } from "viem/chains";
-// import type { Chain } from "viem";
+import { foundry } from "viem/chains";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createAccount } from "../";
-
 import Test721 from "./contracts/artifacts/src/__tests__/contracts/source/Test721.sol/Test721.json";
-
 import { expect, beforeEach, describe, test } from "@jest/globals";
-import { signMessage } from "viem/dist/types/actions/wallet/signMessage";
 
 // @ts-expect-error
 const testCase: typeof test = (...argList) => {
@@ -49,10 +32,7 @@ const testCase: typeof test = (...argList) => {
 
 describe("TurnkeyAccount", () => {
   let walletClient: any;
-  let eip1193Client: any;
   let turnkeyAccount: Account;
-  // let walletAddress: string;
-  // let chainId: number;
   let chain: Chain | undefined;
   let expectedEthAddress: Hex;
   let bannedToAddress: Hex;
@@ -94,9 +74,6 @@ describe("TurnkeyAccount", () => {
       `process.env.BANNED_TO_ADDRESS`
     ) as Hex;
 
-    // @ts-ignore
-    const provider = hre.ethers.provider;
-
     // create new client
     const turnkeyClient = new TurnkeyClient(
       {
@@ -116,8 +93,6 @@ describe("TurnkeyAccount", () => {
 
     walletClient = createTestClient({
       account: turnkeyAccount,
-      // chain: hardhat,
-      // mode: 'hardhat',
       chain: foundry,
       mode: "anvil",
       transport: http(),
@@ -127,43 +102,11 @@ describe("TurnkeyAccount", () => {
 
     chain = walletClient.chain;
 
-    eip1193Client = createTestClient({
-      account: turnkeyAccount,
-      chain: foundry,
-      mode: "anvil",
-      // transport: custom(provider),
-      // transport: custom(hre.network.provider),
-      transport: http(),
-    })
-      .extend(publicActions)
-      .extend(walletActions);
-
-    // hardhat commands
-    // await setBalance(expectedEthAddress, parseEther("999999"));
-    // await mine(1);
-
-    const balance = await walletClient.getBalance({
-      address: expectedEthAddress,
-    });
-
-    const client = createTestClient({
-      chain: foundry,
-      mode: "anvil",
-      transport: http(),
-    });
-
     await walletClient.setBalance({
       address: expectedEthAddress,
       value: parseEther("999999"),
     });
-
-    const mine = await client.mine({ blocks: 1 });
   });
-
-  // testCase("basics for connected signer", async () => {
-  //   expect(ethers.Signer.isSigner(connectedSigner)).toBe(true);
-  //   expect(await connectedSigner.getAddress()).toBe(expectedEthAddress);
-  // });
 
   testCase("it signs transactions", async () => {
     const request = await walletClient.prepareTransactionRequest({
@@ -178,10 +121,6 @@ describe("TurnkeyAccount", () => {
   });
 
   testCase("it sends transactions", async () => {
-    const balance = await walletClient.getBalance({
-      address: turnkeyAccount.address,
-    });
-    console.log("balance", balance);
     const txHash = await walletClient.sendTransaction({
       account: turnkeyAccount,
       to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
@@ -245,13 +184,6 @@ describe("TurnkeyAccount", () => {
       account: turnkeyAccount,
       message: { raw: stringToHex(message) },
     });
-
-    // unsure why this fails
-    // const recoveredAddress = await recoverMessageAddress({
-    //   message,
-    //   signature: signMessageSignature,
-    // });
-
     const verified = await walletClient.verifyMessage({
       address: expectedEthAddress,
       message: message,
@@ -304,13 +236,6 @@ describe("TurnkeyAccount", () => {
     } as const;
 
     const signTypedDataSignature = await walletClient.signTypedData(typedData);
-
-    // same... why does this fail
-    // const recoveredAddress = await recoverTypedDataAddress({
-    //   ...typedData,
-    //   signature: signTypedDataSignature,
-    // });
-    
     const verified = await walletClient.verifyTypedData({
       ...typedData,
       address: expectedEthAddress,
@@ -346,7 +271,8 @@ describe("TurnkeyAccount", () => {
       // In a real-world scenario you should also verify that `from` matches the wallet's address
       delete payload.params[0].from;
 
-      const tx = await eip1193Client.request(payload);
+      // Anvil client seems to be able to host eip1193 requests just fine
+      const tx = await walletClient.request(payload);
       expect(tx).toMatch(/^0x/);
     });
   });
@@ -385,7 +311,6 @@ describe("TurnkeyAccount", () => {
     // Mint
     // @ts-expect-error
     const mintHash = await contract.write.safeMint([expectedEthAddress]);
-    // await mintTx.wait();
 
     expect(mintHash).toMatch(/^0x/);
 
