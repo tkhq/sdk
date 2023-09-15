@@ -1,6 +1,6 @@
 import { TurnkeyActivityError } from "@turnkey/http";
 import {
-  type Account,
+  type LocalAccount,
   type Chain,
   type Hex,
   createTestClient,
@@ -32,7 +32,7 @@ const testCase: typeof test = (...argList) => {
 
 describe("TurnkeyAccount", () => {
   let walletClient: any;
-  let turnkeyAccount: Account;
+  let turnkeyAccount: LocalAccount;
   let chain: Chain | undefined;
   let expectedEthAddress: Hex;
   let bannedToAddress: Hex;

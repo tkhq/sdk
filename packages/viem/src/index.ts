@@ -4,7 +4,7 @@ import { hashMessage } from "viem";
 import type {
   Hex,
   HashTypedDataParameters,
-  Account,
+  LocalAccount,
   SerializeTransactionFn,
   SignableMessage,
   TransactionSerializable,
@@ -22,7 +22,7 @@ export async function createAccount(input: {
   // We recommend setting this if you're using a passkey client, so that your users are not prompted for a passkey signature just to fetch their address.
   // You may leave this undefined if using an API key client.
   ethereumAddress?: string;
-}): Promise<Account> {
+}): Promise<LocalAccount> {
   const { client, organizationId, privateKeyId } = input;
   let { ethereumAddress } = input;
 
@@ -114,7 +114,7 @@ type TApiKeyAccountConfig = {
  */
 export async function createApiKeyAccount(
   config: TApiKeyAccountConfig
-): Promise<Account> {
+): Promise<LocalAccount> {
   const { apiPublicKey, apiPrivateKey, baseUrl, organizationId, privateKeyId } =
     config;
 
