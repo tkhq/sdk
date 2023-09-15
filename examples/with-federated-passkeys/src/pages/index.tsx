@@ -131,7 +131,7 @@ export default function Home() {
           {
             type: publicKey,
             alg: rs256,
-          }
+          },
         ],
         user: {
           id: authenticatorUserId,
