@@ -4,7 +4,14 @@ import * as dotenv from "dotenv";
 import { createAccount } from "@turnkey/viem";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { createWalletClient, http } from "viem";
+import {
+  createWalletClient,
+  http,
+  recoverMessageAddress,
+  // verifyMessage,
+  stringToHex,
+  type Account,
+} from "viem";
 import { sepolia } from "viem/chains";
 
 // Load environment variables from `.env.local`
@@ -28,7 +35,7 @@ async function main() {
   });
 
   const client = createWalletClient({
-    account: turnkeyAccount,
+    account: turnkeyAccount as Account,
     chain: sepolia,
     transport: http(
       `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`
@@ -38,6 +45,7 @@ async function main() {
   // This demo sends ETH back to our faucet (we keep a bunch of Sepolia ETH at this address)
   const turnkeyFaucet = "0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7";
 
+  // 1. Simple send tx
   const transactionRequest = {
     to: turnkeyFaucet as `0x${string}`,
     value: 1000000000000000n,
@@ -47,6 +55,21 @@ async function main() {
 
   print("Source address", client.account.address);
   print("Transaction", `https://sepolia.etherscan.io/tx/${txHash}`);
+
+  // 2. Sign a message
+  const address = client.account.address;
+  const message = "Hello Turnkey";
+  const signature = await client.signMessage({
+    message: { raw: stringToHex(message) },
+  });
+  const recoveredAddress = await recoverMessageAddress({
+    message,
+    signature,
+  });
+
+  print("Turnkey-powered signature:", `${signature}`);
+  print("Recovered address:", `${recoveredAddress}`);
+  assertEqual(address, recoveredAddress);
 }
 
 main().catch((error) => {
@@ -56,4 +79,10 @@ main().catch((error) => {
 
 function print(header: string, body: string): void {
   console.log(`${header}\n\t${body}\n`);
+}
+
+function assertEqual<T>(left: T, right: T) {
+  if (left !== right) {
+    throw new Error(`${JSON.stringify(left)} !== ${JSON.stringify(right)}`);
+  }
 }
