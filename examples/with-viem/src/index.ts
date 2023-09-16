@@ -4,8 +4,9 @@ import * as dotenv from "dotenv";
 import { createAccount } from "@turnkey/viem";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { createWalletClient, http } from "viem";
+import { createWalletClient, http, recoverMessageAddress } from "viem";
 import { sepolia } from "viem/chains";
+import { print, assertEqual } from "./util";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -38,6 +39,7 @@ async function main() {
   // This demo sends ETH back to our faucet (we keep a bunch of Sepolia ETH at this address)
   const turnkeyFaucet = "0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7";
 
+  // 1. Simple send tx
   const transactionRequest = {
     to: turnkeyFaucet as `0x${string}`,
     value: 1000000000000000n,
@@ -47,13 +49,24 @@ async function main() {
 
   print("Source address", client.account.address);
   print("Transaction", `https://sepolia.etherscan.io/tx/${txHash}`);
+
+  // 2. Sign a simple message
+  let address = client.account.address;
+  let message = "Hello Turnkey";
+  let signature = await client.signMessage({
+    message,
+  });
+  let recoveredAddress = await recoverMessageAddress({
+    message,
+    signature,
+  });
+
+  print("Turnkey-powered signature:", `${signature}`);
+  print("Recovered address:", `${recoveredAddress}`);
+  assertEqual(address, recoveredAddress);
 }
 
 main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
-
-function print(header: string, body: string): void {
-  console.log(`${header}\n\t${body}\n`);
-}
