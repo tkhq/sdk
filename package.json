@@ -37,7 +37,8 @@
   "pnpm": {
     "overrides": {
       "@confio/ics23@0.6.8>protobufjs": ">=7.2.4",
-      "protobufjs@>=6.10.0 <7.2.4": ">=7.2.4"
+      "protobufjs@>=6.10.0 <7.2.4": ">=7.2.4",
+      "cross-fetch": "4.0.0"
     }
   }
 }

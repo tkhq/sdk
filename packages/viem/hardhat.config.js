@@ -1,4 +1,5 @@
 require("@nomiclabs/hardhat-ethers");
+require("hardhat-jest-plugin");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 const config = {

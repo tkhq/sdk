@@ -13,19 +13,27 @@ import {
   parseEther,
   parseUnits,
 } from "viem";
-import { foundry } from "viem/chains";
+import { foundry, hardhat } from "viem/chains";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createAccount } from "../";
 import Test721 from "./contracts/artifacts/src/__tests__/contracts/source/Test721.sol/Test721.json";
 import { expect, beforeEach, describe, test } from "@jest/globals";
 
+global.fetch = require("cross-fetch");
+
+// Ethers stuff
+import { Eip1193Bridge } from "@ethersproject/experimental";
+import { setBalance } from "@nomicfoundation/hardhat-network-helpers";
+import { ethers } from "ethers";
+import hre from "hardhat";
+
 // @ts-expect-error
 const testCase: typeof test = (...argList) => {
-  if (!process.env.BANNED_TO_ADDRESS) {
-    // For now, this test requires certain environment variables to be injected (from Turnkey's internal environment)
-    return test.skip(...argList);
-  }
+  // if (!process.env.BANNED_TO_ADDRESS) {
+  //   // For now, this test requires certain environment variables to be injected (from Turnkey's internal environment)
+  //   return test.skip(...argList);
+  // }
 
   return test(...argList);
 };
@@ -38,41 +46,20 @@ describe("TurnkeyAccount", () => {
   let bannedToAddress: Hex;
 
   beforeEach(async () => {
-    if (!process.env.BANNED_TO_ADDRESS) {
-      // For now, this test requires certain environment variables to be injected (from Turnkey's internal environment)
-      return;
-    }
+    // if (!process.env.BANNED_TO_ADDRESS) {
+    //   // For now, this test requires certain environment variables to be injected (from Turnkey's internal environment)
+    //   return;
+    // }
 
-    const apiPublicKey = assertNonEmptyString(
-      process.env.API_PUBLIC_KEY,
-      `process.env.API_PUBLIC_KEY`
-    );
-    const apiPrivateKey = assertNonEmptyString(
-      process.env.API_PRIVATE_KEY,
-      `process.env.API_PRIVATE_KEY`
-    );
-    const baseUrl = assertNonEmptyString(
-      process.env.BASE_URL,
-      `process.env.BASE_URL`
-    );
-    const organizationId = assertNonEmptyString(
-      process.env.ORGANIZATION_ID,
-      `process.env.ORGANIZATION_ID`
-    );
-    const privateKeyId = assertNonEmptyString(
-      process.env.PRIVATE_KEY_ID,
-      `process.env.PRIVATE_KEY_ID`
-    );
+    const apiPublicKey = "0295d8a44598df9de61bc831b2ad1a48eecc651e35c3703d40e470a493483caa06";
+    const apiPrivateKey = "209a8b76eb8f24f92ed13c0f0da1a0a3b266f74e9c7f03a7532c8eb13017b062";
+    const baseUrl = "http://localhost:8081";
+    const organizationId = "eb971566-9d9d-4565-9d02-50e1a0bf2762";
+    const privateKeyId = "81f412f6-3278-492a-90a2-ce0afd279f82";
 
-    expectedEthAddress = assertNonEmptyString(
-      process.env.EXPECTED_ETH_ADDRESS,
-      `process.env.EXPECTED_ETH_ADDRESS`
-    ) as Hex;
+    expectedEthAddress = "0x310E1680305EAf4B1Efe88e9717f9204a69D9448";
 
-    bannedToAddress = assertNonEmptyString(
-      process.env.BANNED_TO_ADDRESS,
-      `process.env.BANNED_TO_ADDRESS`
-    ) as Hex;
+    bannedToAddress = "0x6F72eDB2429820c2A0606a9FC3cA364f5E9b2375";
 
     // create new client
     const turnkeyClient = new TurnkeyClient(
@@ -91,10 +78,25 @@ describe("TurnkeyAccount", () => {
       privateKeyId,
     });
 
+    // walletClient = createTestClient({
+    //   account: turnkeyAccount,
+    //   chain: foundry,
+    //   mode: "anvil",
+    //   transport: http(),
+    // })
+    //   .extend(publicActions)
+    //   .extend(walletActions);
+
+    // console.log('wallet client');
+    // console.log(walletClient);
+
+     // @ts-ignore
+     const provider = hre.ethers.provider;
+
     walletClient = createTestClient({
       account: turnkeyAccount,
-      chain: foundry,
-      mode: "anvil",
+      chain: hardhat,
+      mode: "hardhat",
       transport: http(),
     })
       .extend(publicActions)
@@ -106,6 +108,13 @@ describe("TurnkeyAccount", () => {
       address: expectedEthAddress,
       value: parseEther("999999"),
     });
+
+    const balance = await walletClient.getBalance({
+      address: expectedEthAddress
+    });
+
+    console.log('balance', balance)
+    // setBalance(expectedEthAddress, ethers.utils.parseEther("999999"));
   });
 
   testCase("it signs transactions", async () => {
@@ -121,12 +130,16 @@ describe("TurnkeyAccount", () => {
   });
 
   testCase("it sends transactions", async () => {
+    const transactionCount = await walletClient.getTransactionCount({
+      address: expectedEthAddress,
+    });
+
     const txHash = await walletClient.sendTransaction({
       account: turnkeyAccount,
       to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
       value: parseEther("1.0"),
       chain,
-      nonce: 0,
+      nonce: transactionCount,
       gas: 21000n,
       maxFeePerGas: parseUnits("2", 9),
       maxPriorityFeePerGas: parseUnits("2", 9),
