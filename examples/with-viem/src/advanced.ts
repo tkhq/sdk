@@ -45,6 +45,8 @@ async function main() {
   });
 
   const address = client.account.address;
+  print("Address:", address);
+
   const baseMessage = "Hello Turnkey";
 
   // 1. Sign a raw hex message
@@ -118,7 +120,7 @@ async function main() {
     signature,
   });
 
-  print("Turnkey-powered signature - typed data:", `${signature}`);
+  print("Turnkey-powered signature - typed data (EIP-712):", `${signature}`);
   assertEqual(address, recoveredAddress);
 }
 

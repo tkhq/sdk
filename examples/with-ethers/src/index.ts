@@ -9,6 +9,7 @@ import { ethers } from "ethers";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
+import { print, assertEqual } from "./util";
 import WETH_TOKEN_ABI from "./weth-contract-abi.json";
 
 const WETH_TOKEN_ADDRESS_GOERLI = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
@@ -123,13 +124,3 @@ main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
-
-function print(header: string, body: string): void {
-  console.log(`${header}\n\t${body}\n`);
-}
-
-function assertEqual<T>(left: T, right: T) {
-  if (left !== right) {
-    throw new Error(`${JSON.stringify(left)} !== ${JSON.stringify(right)}`);
-  }
-}
