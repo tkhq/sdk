@@ -1,5 +1,11 @@
 # @turnkey/viem
 
+## 0.2.4
+
+### Patch Changes
+
+- 0ec2d94: Addresses a bug when signing raw messages (see https://github.com/tkhq/sdk/issues/116)
+
 ## 0.2.3
 
 ### Patch Changes
