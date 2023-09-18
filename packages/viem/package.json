@@ -46,8 +46,9 @@
     "viem": "^1.10.0"
   },
   "dependencies": {
-    "@turnkey/http": "workspace:*",
     "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "cross-fetch": "^4.0.0",
     "typescript": "5.1"
   },
   "devDependencies": {

@@ -69,6 +69,7 @@ main().catch((error) => {
 ```
 
 ## Testing (Local)
+
 See `.env.example` to get your local testing environment right. In order to run the tests, run an Anvil node in one shell (via `pnpm anvil`), and run `pnpm jest` in another.
 
 ## See also

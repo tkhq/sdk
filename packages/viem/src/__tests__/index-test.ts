@@ -20,6 +20,9 @@ import { createAccount } from "../";
 import Test721 from "./Test721.json";
 import { expect, beforeEach, describe, test } from "@jest/globals";
 
+import fetch from "cross-fetch";
+globalThis.fetch = fetch;
+
 // @ts-expect-error
 const testCase: typeof test = (...argList) => {
   if (!process.env.BANNED_TO_ADDRESS) {
