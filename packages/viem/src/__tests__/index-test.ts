@@ -23,7 +23,7 @@ import { expect, beforeEach, describe, test } from "@jest/globals";
 // @ts-expect-error
 const testCase: typeof test = (...argList) => {
   if (!process.env.BANNED_TO_ADDRESS) {
-    // For now, this test requires certain environment variables to be injected (from Turnkey's internal environment)
+    // For now, this test requires certain environment variables to be injected (from either Turnkey's internal environment, or a local `.env` file)
     return test.skip(...argList);
   }
 
@@ -39,7 +39,7 @@ describe("TurnkeyAccount", () => {
 
   beforeEach(async () => {
     if (!process.env.BANNED_TO_ADDRESS) {
-      // For now, this test requires certain environment variables to be injected (from Turnkey's internal environment)
+      // For now, this test requires certain environment variables to be injected (from either Turnkey's internal environment, or a local `.env` file)
       return;
     }
 

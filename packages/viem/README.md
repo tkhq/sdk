@@ -68,6 +68,9 @@ main().catch((error) => {
 });
 ```
 
+## Testing (Local)
+See `.env.example` to get your local testing environment right. In order to run the tests, run an Anvil node in one shell (via `pnpm anvil`), and run `pnpm jest` in another.
+
 ## See also
 
 - [`@turnkey/example-with-viem`](https://github.com/tkhq/sdk/tree/main/examples/with-viem): example using this package to create, sign, and broadcast a transaction on Sepolia (Ethereum testnet)

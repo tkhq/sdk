@@ -44,3 +44,6 @@ runs:
     - name: Install dependencies
       run: pnpm install -r --frozen-lockfile
       shell: bash
+    
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@cb603ca0abb544f301eaed59ac0baf579aa6aecf
