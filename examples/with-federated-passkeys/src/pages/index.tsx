@@ -116,7 +116,7 @@ export default function Home() {
          authenticatorSelection: {
           residentKey: "preferred",
           requireResidentKey: false,
-          userVerification: "preferred"
+          userVerification: "preferred",
         },
         rp: {
           id: "localhost",
