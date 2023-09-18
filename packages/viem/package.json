@@ -42,7 +42,7 @@
     "compile:contracts": "hardhat compile"
   },
   "peerDependencies": {
-    "viem": "^1.5.0"
+    "viem": "^1.10.0"
   },
   "dependencies": {
     "@turnkey/http": "workspace:*",

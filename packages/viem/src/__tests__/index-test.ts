@@ -17,7 +17,7 @@ import { foundry } from "viem/chains";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createAccount } from "../";
-import Test721 from "./contracts/artifacts/src/__tests__/contracts/source/Test721.sol/Test721.json";
+import Test721 from "./Test721.json";
 import { expect, beforeEach, describe, test } from "@jest/globals";
 
 // @ts-expect-error
