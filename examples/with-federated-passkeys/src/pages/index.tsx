@@ -113,7 +113,7 @@ export default function Home() {
     // https://www.w3.org/TR/webauthn-2/#sctn-sample-registration
     const attestation = await getWebAuthnAttestation({
       publicKey: {
-         authenticatorSelection: {
+        authenticatorSelection: {
           residentKey: "preferred",
           requireResidentKey: false,
           userVerification: "preferred",
