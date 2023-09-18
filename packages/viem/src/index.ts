@@ -1,7 +1,8 @@
 import { hashTypedData, serializeTransaction, signatureToHex } from "viem";
 import { toAccount } from "viem/accounts";
-import { keccak256 } from "viem";
+import { hashMessage } from "viem";
 import type {
+  Hex,
   HashTypedDataParameters,
   LocalAccount,
   SerializeTransactionFn,
@@ -44,12 +45,12 @@ export async function createAccount(input: {
   }
 
   return toAccount({
-    address: ethereumAddress as `0x${string}`,
+    address: ethereumAddress as Hex,
     signMessage: function ({
       message,
     }: {
       message: SignableMessage;
-    }): Promise<`0x${string}`> {
+    }): Promise<Hex> {
       return signMessage(client, message, organizationId, privateKeyId);
     },
     signTransaction: function <
@@ -59,7 +60,7 @@ export async function createAccount(input: {
       args?:
         | { serializer?: SerializeTransactionFn<TTransactionSerializable> }
         | undefined
-    ): Promise<`0x${string}`> {
+    ): Promise<Hex> {
       const serializer = !args?.serializer
         ? serializeTransaction
         : args.serializer;
@@ -74,7 +75,7 @@ export async function createAccount(input: {
     },
     signTypedData: function (
       typedData: TypedData | { [key: string]: unknown }
-    ): Promise<`0x${string}`> {
+    ): Promise<Hex> {
       return signTypedData(client, typedData, organizationId, privateKeyId);
     },
   });
@@ -145,12 +146,12 @@ export async function createApiKeyAccount(
   }
 
   return toAccount({
-    address: ethereumAddress as `0x${string}`,
+    address: ethereumAddress as Hex,
     signMessage: function ({
       message,
     }: {
       message: SignableMessage;
-    }): Promise<`0x${string}`> {
+    }): Promise<Hex> {
       return signMessage(client, message, organizationId, privateKeyId);
     },
     signTransaction: function <
@@ -160,7 +161,7 @@ export async function createApiKeyAccount(
       args?:
         | { serializer?: SerializeTransactionFn<TTransactionSerializable> }
         | undefined
-    ): Promise<`0x${string}`> {
+    ): Promise<Hex> {
       const serializer = !args?.serializer
         ? serializeTransaction
         : args.serializer;
@@ -175,7 +176,7 @@ export async function createApiKeyAccount(
     },
     signTypedData: function (
       typedData: TypedData | { [key: string]: unknown }
-    ): Promise<`0x${string}`> {
+    ): Promise<Hex> {
       return signTypedData(client, typedData, organizationId, privateKeyId);
     },
   });
@@ -186,15 +187,15 @@ async function signMessage(
   message: SignableMessage,
   organizationId: string,
   privateKeyId: string
-): Promise<`0x${string}`> {
-  const hashedMessage = keccak256(message as `0x${string}`);
+): Promise<Hex> {
+  const hashedMessage = hashMessage(message);
   const signedMessage = await signMessageWithErrorWrapping(
     client,
     hashedMessage,
     organizationId,
     privateKeyId
   );
-  return `${signedMessage}` as `0x${string}`;
+  return `${signedMessage}` as Hex;
 }
 
 async function signTransaction<
@@ -205,7 +206,7 @@ async function signTransaction<
   serializer: SerializeTransactionFn<TTransactionSerializable>,
   organizationId: string,
   privateKeyId: string
-): Promise<`0x${string}`> {
+): Promise<Hex> {
   const serializedTx = serializer(transaction);
   const nonHexPrefixedSerializedTx = serializedTx.replace(/^0x/, "");
   return await signTransactionWithErrorWrapping(
@@ -221,7 +222,7 @@ async function signTypedData(
   data: TypedData | { [key: string]: unknown },
   organizationId: string,
   privateKeyId: string
-): Promise<`0x${string}`> {
+): Promise<Hex> {
   const hashToSign = hashTypedData(data as HashTypedDataParameters);
 
   return await signMessageWithErrorWrapping(
@@ -237,7 +238,7 @@ async function signTransactionWithErrorWrapping(
   unsignedTransaction: string,
   organizationId: string,
   privateKeyId: string
-): Promise<`0x${string}`> {
+): Promise<Hex> {
   let signedTx: string;
   try {
     signedTx = await signTransactionImpl(
@@ -298,7 +299,7 @@ async function signMessageWithErrorWrapping(
   message: string,
   organizationId: string,
   privateKeyId: string
-): Promise<`0x${string}`> {
+): Promise<Hex> {
   let signedMessage: string;
   try {
     signedMessage = await signMessageImpl(
@@ -318,7 +319,7 @@ async function signMessageWithErrorWrapping(
     });
   }
 
-  return signedMessage as `0x${string}`;
+  return signedMessage as Hex;
 }
 
 async function signMessageImpl(
