@@ -26,21 +26,16 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck-all
 
-      # Run Anvil node in background for e2e tests
-      # - name: Anvil
-      #   run: |
-      #     anvil &
-
       - name: Test
         run: anvil & pnpm run test-all
-        env: # Or as an environment variable
+        env:
           API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
-          BASE_URL: ${{ secrets.BASE_URL }}
+          BASE_URL: "https://api.turnkey.com"
           ORGANIZATION_ID: ${{ secrets.ORGANIZATION_ID }}
           PRIVATE_KEY_ID: ${{ secrets.PRIVATE_KEY_ID }}
           EXPECTED_ETH_ADDRESS: ${{ secrets.EXPECTED_ETH_ADDRESS }}
-          BANNED_TO_ADDRESS: ${{ secrets.BANNED_TO_ADDRESS }}
+          BANNED_TO_ADDRESS: "0x6F72eDB2429820c2A0606a9FC3cA364f5E9b2375"
 
       - name: Prettier
         run: pnpm run prettier-all:check
