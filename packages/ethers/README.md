@@ -92,6 +92,10 @@ main().catch((error) => {
 });
 ```
 
+## Testing (Local)
+
+See `.env.example` to get your local testing environment right. Run `pnpm jest` to run the tests.
+
 ## More examples
 
 | Example                                               | Description                                                                                                        |

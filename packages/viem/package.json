@@ -38,20 +38,23 @@
     "build": "tsc",
     "clean": "rimraf ./dist ./.cache",
     "test": "jest",
-    "typecheck": "tsc -p tsconfig.typecheck.json"
+    "anvil": "anvil",
+    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "compile:contracts": "hardhat compile"
   },
   "peerDependencies": {
-    "viem": "^1.5.0"
+    "viem": "^1.10.0"
   },
   "dependencies": {
-    "@turnkey/http": "workspace:*",
     "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "cross-fetch": "^4.0.0",
     "typescript": "5.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",
     "jest": "^29.3.1",
-    "viem": "^1.5.3"
+    "viem": "^1.10.0"
   },
   "engines": {
     "node": ">=18.0.0"
