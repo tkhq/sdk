@@ -1,0 +1,90 @@
+{
+  "name": "@turnkey/native-passkey-stamper",
+  "version": "0.1.1",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "license": "Apache-2.0",
+  "description": "Stamper for @turnkey/http using the native passkey APIs from Android or iOS",
+  "keywords": [
+    "Turnkey",
+    "http",
+    "stamper",
+    "api key"
+  ],
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.com/"
+  },
+  "homepage": "https://github.com/tkhq/sdk",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tkhq/sdk.git",
+    "directory": "packages/native-passkey-stamper"
+  },
+  "files": [
+    "dist/",
+    "CHANGELOG.md",
+    "lib",
+    "android",
+    "ios",
+    "cpp",
+    "*.podspec",
+    "!lib/typescript/example",
+    "!ios/build",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepublishOnly": "pnpm -w run clean-all && pnpm -w run build-all",
+    "build": "tsc",
+    "clean": "rimraf ./dist ./.cache",
+    "test": "jest",
+    "typecheck": "tsc -p tsconfig.typecheck.json"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "@commitlint/config-conventional": "^17.0.2",
+    "@react-native-community/eslint-config": "^3.0.2",
+    "@release-it/conventional-changelog": "^5.0.0",
+    "@types/jest": "^28.1.2",
+    "@types/react": "~17.0.21",
+    "@types/react-native": "0.68.0",
+    "commitlint": "^17.0.2",
+    "eslint": "^8.4.1",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^28.1.1",
+    "pod-install": "^0.1.0",
+    "prettier": "^2.0.5",
+    "react": "18.1.0",
+    "react-native": "0.70.3",
+    "react-native-builder-bob": "^0.20.0",
+    "release-it": "^15.0.0",
+    "typescript": "^4.5.2"
+  },
+  "resolutions": {
+    "@types/react": "17.0.21"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "browser": {
+    "crypto": false
+  }
+}
