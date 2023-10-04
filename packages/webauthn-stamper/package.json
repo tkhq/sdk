@@ -39,5 +39,8 @@
   },
   "engines": {
     "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "buffer": "^6.0.3"
   }
 }
