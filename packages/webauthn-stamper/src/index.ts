@@ -1,5 +1,6 @@
 /// <reference lib="dom" />
 import { get as webauthnCredentialGet } from "./webauthn-json";
+import { buffer as Buffer } from "./universal";
 
 // Header name for a webauthn stamp
 const stampHeaderName = "X-Stamp-Webauthn";
