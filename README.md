@@ -19,6 +19,14 @@ API Docs: https://docs.turnkey.com/
 
 | Example                                                                | Description                                                                                                                 |
 | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| [`demo-consumer-wallet`](https://github.com/tkhq/demo-consumer-wallet) | A minimal consumer wallet app powered by Turnkey and WalletConnect                                                          |
+| [`demo-passkey-wallet`](https://github.com/tkhq/demo-passkey-wallet)   | A minimal consumer wallet app powered by Turnkey and passkeys                                                               |
+| [`demo-ethers-passkeys`](https://github.com/tkhq/demo-ethers-passkeys) | A NextJS app that demonstrates how to use `@turnkey/ethers` to build a passkey-powered application                          |
+| [`demo-viem-passkeys`](https://github.com/tkhq/demo-viem-passkeys)     | A NextJS app that demonstrates how to use `@turnkey/viem` to build a passkey-powered application                            |
+| [`deployer`](/examples/deployer/)                                      | Compile and deploy a smart contract                                                                                         |
+| [`rebalancer`](/examples/rebalancer/)                                  | A demo application which showcases an example of how to use Turnkey for managing multiple types of keys & users             |
+| [`sweeper`](/examples/sweeper/)                                        | Sweep funds from one address to a different address                                                                         |
+| [`trading-runner`](/examples/trading-runner/)                          | A sample application demonstrating a trading operation, using various private keys, users, and policies, powered by Uniswap |
 | [`with-ethers`](/examples/with-ethers/)                                | Create a new Ethereum address, then sign and broadcast a transaction using the Ethers signer with Infura                    |
 | [`with-viem`](/examples/with-viem/)                                    | Sign and broadcast a transaction using the Turnkey Custom Account and Infura                                                |
 | [`with-cosmjs`](/examples/with-cosmjs/)                                | Create a new Cosmos address, then sign and broadcast a transaction on Celestia testnet using the CosmJS signer              |
@@ -28,13 +36,6 @@ API Docs: https://docs.turnkey.com/
 | [`with-nonce-manager`](/examples/with-nonce-manager/)                  | Create a new Ethereum address, then sign and broadcast multiple transactions in a sequential or optimistic manner           |
 | [`with-offline`](/examples/with-offline/)                              | Sign a Turnkey request in offline context                                                                                   |
 | [`with-federated-passkeys`](/examples/with-federated-passkeys/)        | A NextJS app that demonstrates how to use Turnkey to build a federated, webauthn powered authentication flow                |
-| [`with-ethers-and-passkeys`](/examples/with-ethers-and-passkeys/)      | A NextJS app that demonstrates how to use `@turnkey/ethers` to build a passkey-powered application                          |
-| [`with-viem-and-passkeys`](/examples/with-viem-and-passkeys/)          | A NextJS app that demonstrates how to use `@turnkey/viem` to build a passkey-powered application                            |
-| [`demo-consumer-wallet`](https://github.com/tkhq/demo-consumer-wallet) | A minimal consumer wallet app powered by Turnkey and WalletConnect                                                          |
-| [`deployer`](/examples/deployer/)                                      | Compile and deploy a smart contract                                                                                         |
-| [`rebalancer`](/examples/rebalancer/)                                  | A demo application which showcases an example of how to use Turnkey for managing multiple types of keys & users             |
-| [`sweeper`](/examples/sweeper/)                                        | Sweep funds from one address to a different address                                                                         |
-| [`trading-runner`](/examples/trading-runner/)                          | A sample application demonstrating a trading operation, using various private keys, users, and policies, powered by Uniswap |
 
 ## Demos built with Turnkey
 
@@ -53,4 +54,20 @@ This demo uses the Turnkey API to create a new [Turnkey Sub-Organization](https:
 
 <img src="./img/demo-passkey-wallet.png" alt="homepage screenshot" width="800px">
 
-See https://wallet.tx.xyz (and https://github.com/tkhq/demo-passkey-wallet for the code)
+See https://wallet.tx.xyz (and https://github.com/tkhq/demo-passkey-wallet for the code).
+
+### Demo Ethers Passkeys ([code](https://github.com/tkhq/demo-ethers-passkeys))
+
+A simple application demonstrating how to create sub-organizations, create private keys, and sign with the [`@turnkey/ethers`](https://github.com/tkhq/sdk/tree/main/packages/ethers) signer, using passkeys.
+
+<img src="./img/ethers-ui-screenshot.png" alt="homepage screenshot" width="800px">
+
+See https://github.com/tkhq/demo-ethers-passkeys for the code.
+
+### Demo Viem Passkeys ([code](https://github.com/tkhq/demo-viem-passkeys))
+
+A similar, simple application demonstrating how to create sub-organizations, create private keys, and sign with the [`@turnkey/viem`](https://github.com/tkhq/sdk/tree/main/packages/viem) signer, using passkeys.
+
+<img src="./img/viem-ui-screenshot.png" alt="homepage screenshot" width="800px">
+
+See https://github.com/tkhq/demo-viem-passkeys for the code.
