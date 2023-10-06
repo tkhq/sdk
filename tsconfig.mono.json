@@ -5,6 +5,7 @@
     { "path": "./packages/http" },
     { "path": "./packages/webauthn-stamper" },
     { "path": "./packages/api-key-stamper" },
+    { "path": "./packages/iframe-stamper" },
     { "path": "./packages/viem" }
   ],
   "files": []
