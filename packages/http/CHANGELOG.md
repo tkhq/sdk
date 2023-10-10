@@ -1,5 +1,22 @@
 # @turnkey/http
 
+## 1.3.0
+
+### Minor Changes
+
+- Synced protos from mono
+- Adds base URL check during initialization (closes https://github.com/tkhq/sdk/issues/124)
+- The following are new features additions, fresh out the oven. Still getting them ready for primetime! Refreshed examples to come soon™️. Stay tuned and reach out to the Turnkey team if you have any questions.
+  - Wallets: HD wallets, with wallet accounts, and all the related endpoints to create + sign with them.
+  - Export private key
+  - Email recovery
+  - Set + remove organization features
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/webauthn-stamper@0.2.0
+
 ## 1.2.0
 
 ### Minor Changes
