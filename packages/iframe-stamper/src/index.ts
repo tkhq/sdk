@@ -30,7 +30,7 @@ export class IframeStamper {
    */
   constructor(config: TIframeStamperConfig) {
     if (typeof window === "undefined") {
-      throw new Error("cannot initialize iframe in non-browser environment");
+      throw new Error("Cannot initialize iframe in non-browser environment");
     }
 
     if (document.getElementById(config.iframeElementId)) {
@@ -64,25 +64,18 @@ export class IframeStamper {
    */
   async init(): Promise<string> {
     this.container.appendChild(this.iframe);
-    const iframeOrigin = this.iframeOrigin;
-
-    // TODO: undo this hack.
-    const that = this;
-
-    return new Promise(function (resolve, _reject) {
+    return new Promise((resolve, _reject) => {
       window.addEventListener(
         "message",
         (event) => {
-          console.log("window received event", event);
-          if (event.origin !== iframeOrigin) {
+          if (event.origin !== this.iframeOrigin) {
             // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
             // Instead of erroring out
             return;
           }
           if (event.data && event.data["type"] == "PUBLIC_KEY_READY") {
-            console.log(`iframe ready. Public key ${event.data["value"]}`);
             resolve(event.data["value"]);
-            that.iframePublicKey = event.data["value"];
+            this.iframePublicKey = event.data["value"];
           }
         },
         false
@@ -111,8 +104,6 @@ export class IframeStamper {
    * This is used during recovery flows.
    */
   async injectRecoveryBundle(bundle: string): Promise<boolean> {
-    const iframeOrigin = this.iframeOrigin;
-
     this.iframe.contentWindow?.postMessage(
       {
         type: "INJECT_RECOVERY_BUNDLE",
@@ -121,12 +112,11 @@ export class IframeStamper {
       "*"
     );
 
-    return new Promise(function (resolve, _reject) {
+    return new Promise((resolve, _reject) => {
       window.addEventListener(
         "message",
         (event) => {
-          console.log("window received event", event);
-          if (event.origin !== iframeOrigin) {
+          if (event.origin !== this.iframeOrigin) {
             // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
             // Instead of erroring out we simply return. Not our event!
             return;

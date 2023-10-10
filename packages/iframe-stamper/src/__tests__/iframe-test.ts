@@ -8,5 +8,5 @@ test("throws when instantiated outside of a browser environment", async function
       iframeContainerId: "my-container-id",
       iframeElementId: "my-iframe-id",
     });
-  }).toThrow("cannot initialize iframe in non-browser environment");
+  }).toThrow("Cannot initialize iframe in non-browser environment");
 });
