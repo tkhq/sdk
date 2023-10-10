@@ -5,6 +5,7 @@ const config = {
   },
   testPathIgnorePatterns: ["<rootDir>/dist/", "<rootDir>/node_modules/"],
   setupFiles: ["dotenv/config"],
+  testTimeout: 30 * 1000, // For slow CI machines
 };
 
 module.exports = config;
