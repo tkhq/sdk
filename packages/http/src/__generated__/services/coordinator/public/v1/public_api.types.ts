@@ -96,6 +96,14 @@ export type paths = {
     /** Create Users in an existing Organization */
     post: operations["PublicApiService_CreateUsers"];
   };
+  "/public/v1/submit/create_wallet": {
+    /** Create a Wallet */
+    post: operations["PublicApiService_CreateWallet"];
+  };
+  "/public/v1/submit/create_wallet_accounts": {
+    /** Create Wallet accounts */
+    post: operations["PublicApiService_CreateWalletAccounts"];
+  };
   "/public/v1/submit/delete_api_keys": {
     /** Remove api keys from a User */
     post: operations["PublicApiService_DeleteApiKeys"];
@@ -112,17 +120,41 @@ export type paths = {
     /** Delete an existing Policy */
     post: operations["PublicApiService_DeletePolicy"];
   };
+  "/public/v1/submit/export_private_key": {
+    /** Exports a Private Key */
+    post: operations["PublicApiService_ExportPrivateKey"];
+  };
+  "/public/v1/submit/init_user_email_recovery": {
+    /** Initializes a new recovery */
+    post: operations["PublicApiService_InitUserEmailRecovery"];
+  };
   "/public/v1/submit/reject_activity": {
     /** Reject an Activity */
     post: operations["PublicApiService_RejectActivity"];
+  };
+  "/public/v1/submit/remove_organization_feature": {
+    /** Removes an organization feature */
+    post: operations["PublicApiService_RemoveOrganizationFeature"];
+  };
+  "/public/v1/submit/set_organization_feature": {
+    /** Sets an organization feature */
+    post: operations["PublicApiService_SetOrganizationFeature"];
   };
   "/public/v1/submit/sign_raw_payload": {
     /** Sign a raw payload with a Private Key */
     post: operations["PublicApiService_SignRawPayload"];
   };
+  "/public/v1/submit/sign_raw_payload_v2": {
+    /** Sign a raw payload with a Private Key id or address */
+    post: operations["PublicApiService_SignRawPayloadV2"];
+  };
   "/public/v1/submit/sign_transaction": {
     /** Sign a transaction with a Private Key */
     post: operations["PublicApiService_SignTransaction"];
+  };
+  "/public/v1/submit/sign_transaction_v2": {
+    /** Sign a transaction with a Private Key id or address */
+    post: operations["PublicApiService_SignTransactionV2"];
   };
   "/public/v1/submit/update_allowed_origins": {
     /** Update the allowable origins for credentials and requests */
@@ -160,8 +192,8 @@ export type definitions = {
     /** @description Human-readable name for a Tag. */
     tagName: string;
     tagType: definitions["v1TagType"];
-    createdAt: definitions["v1Timestamp"];
-    updatedAt: definitions["v1Timestamp"];
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
   };
   /** @enum {string} */
   externaldatav1AccessType:
@@ -184,6 +216,16 @@ export type definitions = {
     | "AUTHENTICATOR_TRANSPORT_NFC"
     | "AUTHENTICATOR_TRANSPORT_USB"
     | "AUTHENTICATOR_TRANSPORT_HYBRID";
+  externaldatav1Credential: {
+    /** @description The public component of a cryptographic key pair used to sign messages and transactions. */
+    publicKey: string;
+    type: definitions["externaldatav1CredentialType"];
+  };
+  /** @enum {string} */
+  externaldatav1CredentialType:
+    | "CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"
+    | "CREDENTIAL_TYPE_API_KEY_P256"
+    | "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256";
   /** @enum {string} */
   externaldatav1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
   /** @enum {string} */
@@ -201,6 +243,15 @@ export type definitions = {
     | "OPERATOR_NOT_IN"
     | "OPERATOR_CONTAINS_ONE"
     | "OPERATOR_CONTAINS_ALL";
+  externaldatav1Quorum: {
+    /**
+     * Format: int32
+     * @description Count of unique approvals required to meet quorum.
+     */
+    threshold: number;
+    /** @description Unique identifiers of quorum set members. */
+    userIds: string[];
+  };
   externaldatav1Selector: {
     /** @description The resource being referenced within a policy (e.g., user.tags or activities.type). */
     subject: string;
@@ -209,24 +260,27 @@ export type definitions = {
     /** @description The specific parameter from the subject being referenced, like a specific user ID. */
     targets: string[];
   };
+  externaldatav1Timestamp: {
+    seconds: string;
+    nanos: string;
+  };
   /** @enum {string} */
   immutableactivityv1AccessType:
     | "ACCESS_TYPE_WEB"
     | "ACCESS_TYPE_API"
     | "ACCESS_TYPE_ALL";
   immutableactivityv1Address: {
-    format?: definitions["immutableactivityv1AddressFormat"];
+    format?: definitions["immutablecommonv1AddressFormat"];
     address?: string;
   };
   /** @enum {string} */
-  immutableactivityv1AddressFormat:
-    | "ADDRESS_FORMAT_UNCOMPRESSED"
-    | "ADDRESS_FORMAT_COMPRESSED"
-    | "ADDRESS_FORMAT_ETHEREUM";
-  /** @enum {string} */
-  immutableactivityv1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
-  /** @enum {string} */
   immutableactivityv1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
+  /** @enum {string} */
+  immutableactivityv1HashFunction:
+    | "HASH_FUNCTION_NO_OP"
+    | "HASH_FUNCTION_SHA256"
+    | "HASH_FUNCTION_KECCAK256"
+    | "HASH_FUNCTION_NOT_APPLICABLE";
   /** @enum {string} */
   immutableactivityv1Operator:
     | "OPERATOR_EQUAL"
@@ -240,13 +294,24 @@ export type definitions = {
     | "OPERATOR_NOT_IN"
     | "OPERATOR_CONTAINS_ONE"
     | "OPERATOR_CONTAINS_ALL";
+  /** @enum {string} */
+  immutableactivityv1PayloadEncoding:
+    | "PAYLOAD_ENCODING_HEXADECIMAL"
+    | "PAYLOAD_ENCODING_TEXT_UTF8";
   immutableactivityv1Selector: {
     subject?: string;
     operator?: definitions["immutableactivityv1Operator"];
     target?: string;
   };
   /** @enum {string} */
-  immutableactivityv1TransactionType: "TRANSACTION_TYPE_ETHEREUM";
+  immutablecommonv1AddressFormat:
+    | "ADDRESS_FORMAT_UNCOMPRESSED"
+    | "ADDRESS_FORMAT_COMPRESSED"
+    | "ADDRESS_FORMAT_ETHEREUM"
+    | "ADDRESS_FORMAT_SOLANA"
+    | "ADDRESS_FORMAT_COSMOS";
+  /** @enum {string} */
+  immutablecommonv1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
   /** @enum {string} */
   immutablewebauthnv1AuthenticatorTransport:
     | "AUTHENTICATOR_TRANSPORT_BLE"
@@ -312,8 +377,8 @@ export type definitions = {
     fingerprint: string;
     canApprove: boolean;
     canReject: boolean;
-    createdAt: definitions["v1Timestamp"];
-    updatedAt: definitions["v1Timestamp"];
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
   };
   v1ActivityResponse: {
     /** @description An action that can that can be taken within the Turnkey infrastructure. */
@@ -372,16 +437,25 @@ export type definitions = {
     | "ACTIVITY_TYPE_UPDATE_USER"
     | "ACTIVITY_TYPE_UPDATE_POLICY"
     | "ACTIVITY_TYPE_SET_PAYMENT_METHOD_V2"
-    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3";
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3"
+    | "ACTIVITY_TYPE_CREATE_WALLET"
+    | "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"
+    | "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY"
+    | "ACTIVITY_TYPE_RECOVER_USER"
+    | "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"
+    | "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"
+    | "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"
+    | "ACTIVITY_TYPE_SIGN_TRANSACTION_V2"
+    | "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY";
   v1ApiKey: {
     /** @description A User credential that can be used to authenticate to Turnkey. */
-    credential: definitions["v1Credential"];
+    credential: definitions["externaldatav1Credential"];
     /** @description Unique identifier for a given API Key. */
     apiKeyId: string;
     /** @description Human-readable name for an API Key. */
     apiKeyName: string;
-    createdAt: definitions["v1Timestamp"];
-    updatedAt: definitions["v1Timestamp"];
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
   };
   v1ApiKeyParams: {
     /** @description Human-readable name for an API Key. */
@@ -433,13 +507,13 @@ export type definitions = {
     /** @description The type of Authenticator device. */
     model: string;
     /** @description A User credential that can be used to authenticate to Turnkey. */
-    credential: definitions["v1Credential"];
+    credential: definitions["externaldatav1Credential"];
     /** @description Unique identifier for a given Authenticator. */
     authenticatorId: string;
     /** @description Human-readable name for an Authenticator. */
     authenticatorName: string;
-    createdAt: definitions["v1Timestamp"];
-    updatedAt: definitions["v1Timestamp"];
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
   };
   v1AuthenticatorAttestationResponse: {
     clientDataJson: string;
@@ -744,18 +818,49 @@ export type definitions = {
     /** @description A list of User IDs. */
     userIds: string[];
   };
+  v1CreateWalletAccountsIntent: {
+    /** @description Unique identifier for a given Wallet. */
+    walletId: string;
+    /** @description A list of wallet Accounts. */
+    accounts: definitions["v1WalletAccountParams"][];
+  };
+  v1CreateWalletAccountsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateWalletAccountsIntent"];
+  };
+  v1CreateWalletAccountsResult: {
+    /** @description A list of derived addresses. */
+    addresses: string[];
+  };
+  v1CreateWalletIntent: {
+    /** @description Human-readable name for a Wallet. */
+    walletName: string;
+    /** @description A list of wallet Accounts. */
+    accounts: definitions["v1WalletAccountParams"][];
+  };
+  v1CreateWalletRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_WALLET";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateWalletIntent"];
+  };
+  v1CreateWalletResult: {
+    /** @description A list of Wallet IDs. */
+    walletId: string;
+    /** @description A list of account addresses. */
+    addresses: string[];
+  };
   v1CredPropsAuthenticationExtensionsClientOutputs: {
     rk: boolean;
   };
-  v1Credential: {
-    /** @description The public component of a cryptographic key pair used to sign messages and transactions. */
-    publicKey: string;
-    type: definitions["v1CredentialType"];
-  };
-  /** @enum {string} */
-  v1CredentialType:
-    | "CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"
-    | "CREDENTIAL_TYPE_API_KEY_P256";
   v1DeleteApiKeysIntent: {
     /** @description Unique identifier for a given User. */
     userId: string;
@@ -880,6 +985,33 @@ export type definitions = {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
   };
+  v1ExportPrivateKeyIntent: {
+    /** @description Unique identifier for a given Private Key. */
+    privateKeyId: string;
+    /** @description Client-side public key generated by the user, to which the export bundle will be encrypted. */
+    targetPublicKey: string;
+  };
+  v1ExportPrivateKeyRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1ExportPrivateKeyIntent"];
+  };
+  v1ExportPrivateKeyResult: {
+    /** @description Unique identifier for a given Private Key. */
+    privateKeyId: string;
+    /** @description Export bundle containing a private key encrypted to the client's target public key. */
+    exportBundle: string;
+  };
+  v1Feature: {
+    name?: definitions["v1FeatureName"];
+    value?: string;
+  };
+  /** @enum {string} */
+  v1FeatureName: "FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY";
   v1GetActivitiesRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -996,12 +1128,25 @@ export type definitions = {
     /** @description Human-readable name for a User. */
     username: string;
   };
-  /** @enum {string} */
-  v1HashFunction:
-    | "HASH_FUNCTION_NO_OP"
-    | "HASH_FUNCTION_SHA256"
-    | "HASH_FUNCTION_KECCAK256"
-    | "HASH_FUNCTION_NOT_APPLICABLE";
+  v1InitUserEmailRecoveryIntent: {
+    /** @description Email of the user starting recovery */
+    email: string;
+    /** @description Client-side public key generated by the user, to which the recovery bundle will be encrypted. */
+    targetPublicKey: string;
+  };
+  v1InitUserEmailRecoveryRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1InitUserEmailRecoveryIntent"];
+  };
+  v1InitUserEmailRecoveryResult: {
+    /** @description Unique identifier for the user being recovered. */
+    userId: string;
+  };
   v1Intent: {
     createOrganizationIntent: definitions["v1CreateOrganizationIntent"];
     createAuthenticatorsIntent?: definitions["v1CreateAuthenticatorsIntent"];
@@ -1047,6 +1192,15 @@ export type definitions = {
     updatePolicyIntent?: definitions["v1UpdatePolicyIntent"];
     setPaymentMethodIntentV2?: definitions["v1SetPaymentMethodIntentV2"];
     createSubOrganizationIntentV3?: definitions["v1CreateSubOrganizationIntentV3"];
+    createWalletIntent?: definitions["v1CreateWalletIntent"];
+    createWalletAccountsIntent?: definitions["v1CreateWalletAccountsIntent"];
+    initUserEmailRecoveryIntent?: definitions["v1InitUserEmailRecoveryIntent"];
+    recoverUserIntent?: definitions["v1RecoverUserIntent"];
+    setOrganizationFeatureIntent?: definitions["v1SetOrganizationFeatureIntent"];
+    removeOrganizationFeatureIntent?: definitions["v1RemoveOrganizationFeatureIntent"];
+    signRawPayloadIntentV2?: definitions["v1SignRawPayloadIntentV2"];
+    signTransactionIntentV2?: definitions["v1SignTransactionIntentV2"];
+    exportPrivateKeyIntent?: definitions["v1ExportPrivateKeyIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1061,8 +1215,8 @@ export type definitions = {
     accessType: definitions["externaldatav1AccessType"];
     /** @description The current processing status of a specified Invitation. */
     status: definitions["v1InvitationStatus"];
-    createdAt: definitions["v1Timestamp"];
-    updatedAt: definitions["v1Timestamp"];
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
     /** @description Unique identifier for the Sender of an Invitation. */
     senderUserId: string;
   };
@@ -1095,8 +1249,9 @@ export type definitions = {
     invitations?: definitions["v1Invitation"][];
     tags?: definitions["datav1Tag"][];
     disabledPrivateKeys?: definitions["v1PrivateKey"][];
-    rootQuorum?: definitions["v1Quorum"];
+    rootQuorum?: definitions["externaldatav1Quorum"];
     allowedOrigins?: string[];
+    features?: definitions["v1Feature"][];
   };
   v1Pagination: {
     /** @description A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
@@ -1107,9 +1262,7 @@ export type definitions = {
     after?: string;
   };
   /** @enum {string} */
-  v1PayloadEncoding:
-    | "PAYLOAD_ENCODING_HEXADECIMAL"
-    | "PAYLOAD_ENCODING_TEXT_UTF8";
+  v1PathFormat: "PATH_FORMAT_BIP32";
   v1Policy: {
     /** @description Unique identifier for a given Policy. */
     policyId: string;
@@ -1119,8 +1272,8 @@ export type definitions = {
     effect: definitions["externaldatav1Effect"];
     /** @description A list of simple functions each including a subject, target and boolean. See Policy Engine Language section for additional details. */
     selectors: definitions["externaldatav1Selector"][];
-    createdAt: definitions["v1Timestamp"];
-    updatedAt: definitions["v1Timestamp"];
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
     /** @description Human-readable notes added by a User to describe a particular policy. */
     notes: string;
     /** @description A consensus expression that evalutes to true or false. */
@@ -1141,17 +1294,17 @@ export type definitions = {
     addresses: definitions["externaldatav1Address"][];
     /** @description A list of Private Key Tag IDs. */
     privateKeyTags: string[];
-    createdAt: definitions["v1Timestamp"];
+    createdAt: definitions["externaldatav1Timestamp"];
   };
   v1PrivateKeyParams: {
     /** @description Human-readable name for a Private Key. */
     privateKeyName: string;
     /** @description Cryptographic Curve used to generate a given Private Key. */
-    curve: definitions["immutableactivityv1Curve"];
+    curve: definitions["immutablecommonv1Curve"];
     /** @description A list of Private Key Tag IDs. */
     privateKeyTags: string[];
     /** @description Cryptocurrency-specific formats for a derived address (e.g., Ethereum). */
-    addressFormats: definitions["immutableactivityv1AddressFormat"][];
+    addressFormats: definitions["immutablecommonv1AddressFormat"][];
   };
   v1PrivateKeyResult: {
     privateKeyId?: string;
@@ -1167,14 +1320,15 @@ export type definitions = {
     response: definitions["v1AuthenticatorAttestationResponse"];
     clientExtensionResults: definitions["v1SimpleClientExtensionResults"];
   };
-  v1Quorum: {
-    /**
-     * Format: int32
-     * @description Count of unique approvals required to meet quorum.
-     */
-    threshold: number;
-    /** @description Unique identifiers of quorum set members. */
-    userIds: string[];
+  v1RecoverUserIntent: {
+    /** @description The new authenticator to register. */
+    authenticator: definitions["v1AuthenticatorParamsV2"];
+    /** @description Unique identifier for the user performing recovery. */
+    userId: string;
+  };
+  v1RecoverUserResult: {
+    /** @description ID of the authenticator created. */
+    authenticatorId: string[];
   };
   v1RejectActivityIntent: {
     /** @description An artifact verifying a User's action. */
@@ -1188,6 +1342,23 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1RejectActivityIntent"];
+  };
+  v1RemoveOrganizationFeatureIntent: {
+    /** @description Name of the feature to remove */
+    name: definitions["v1FeatureName"];
+  };
+  v1RemoveOrganizationFeatureRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1RemoveOrganizationFeatureIntent"];
+  };
+  v1RemoveOrganizationFeatureResult: {
+    /** @description Resulting list of organization features. */
+    features: definitions["v1Feature"][];
   };
   v1Result: {
     createOrganizationResult?: definitions["v1CreateOrganizationResult"];
@@ -1224,6 +1395,13 @@ export type definitions = {
     updateUserResult?: definitions["v1UpdateUserResult"];
     updatePolicyResult?: definitions["v1UpdatePolicyResult"];
     createSubOrganizationResultV3?: definitions["v1CreateSubOrganizationResultV3"];
+    createWalletResult?: definitions["v1CreateWalletResult"];
+    createWalletAccountsResult?: definitions["v1CreateWalletAccountsResult"];
+    initUserEmailRecoveryResult?: definitions["v1InitUserEmailRecoveryResult"];
+    recoverUserResult?: definitions["v1RecoverUserResult"];
+    setOrganizationFeatureResult?: definitions["v1SetOrganizationFeatureResult"];
+    removeOrganizationFeatureResult?: definitions["v1RemoveOrganizationFeatureResult"];
+    exportPrivateKeyResult?: definitions["v1ExportPrivateKeyResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -1239,6 +1417,25 @@ export type definitions = {
     subject?: string;
     operator?: definitions["immutableactivityv1Operator"];
     targets?: string[];
+  };
+  v1SetOrganizationFeatureIntent: {
+    /** @description Name of the feature to set */
+    name: definitions["v1FeatureName"];
+    /** @description Optional value for the feature. Will override existing values if feature is already set. */
+    value: string;
+  };
+  v1SetOrganizationFeatureRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1SetOrganizationFeatureIntent"];
+  };
+  v1SetOrganizationFeatureResult: {
+    /** @description Resulting list of organization features. */
+    features: definitions["v1Feature"][];
   };
   v1SetPaymentMethodIntent: {
     /** @description The account number of the customer's credit card. */
@@ -1276,9 +1473,19 @@ export type definitions = {
     /** @description Raw unsigned payload to be signed. */
     payload: string;
     /** @description Encoding of the `payload` string. Turnkey uses this information to convert `payload` into bytes with the correct decoder (e.g. hex, utf8). */
-    encoding: definitions["v1PayloadEncoding"];
+    encoding: definitions["immutableactivityv1PayloadEncoding"];
     /** @description Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032. */
-    hashFunction: definitions["v1HashFunction"];
+    hashFunction: definitions["immutableactivityv1HashFunction"];
+  };
+  v1SignRawPayloadIntentV2: {
+    /** @description The Private Key identifier or address. */
+    signWith: string;
+    /** @description Raw unsigned payload to be signed. */
+    payload: string;
+    /** @description Encoding of the `payload` string. Turnkey uses this information to convert `payload` into bytes with the correct decoder (e.g. hex, utf8). */
+    encoding: definitions["immutableactivityv1PayloadEncoding"];
+    /** @description Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032. */
+    hashFunction: definitions["immutableactivityv1HashFunction"];
   };
   v1SignRawPayloadRequest: {
     /** @enum {string} */
@@ -1297,12 +1504,28 @@ export type definitions = {
     /** @description Component of an ECSDA signature. */
     v: string;
   };
+  v1SignRawPayloadV2Request: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1SignRawPayloadIntentV2"];
+  };
   v1SignTransactionIntent: {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
     /** @description Raw unsigned transaction to be signed by a particular Private Key. */
     unsignedTransaction: string;
-    type: definitions["immutableactivityv1TransactionType"];
+    type: definitions["v1TransactionType"];
+  };
+  v1SignTransactionIntentV2: {
+    /** @description The Private Key identifier or address. */
+    signWith: string;
+    /** @description Raw unsigned transaction to be signed */
+    unsignedTransaction: string;
+    type: definitions["v1TransactionType"];
   };
   v1SignTransactionRequest: {
     /** @enum {string} */
@@ -1316,6 +1539,15 @@ export type definitions = {
   v1SignTransactionResult: {
     signedTransaction: string;
   };
+  v1SignTransactionV2Request: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1SignTransactionIntentV2"];
+  };
   v1SimpleClientExtensionResults: {
     appid?: boolean;
     appidExclude?: boolean;
@@ -1323,10 +1555,8 @@ export type definitions = {
   };
   /** @enum {string} */
   v1TagType: "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
-  v1Timestamp: {
-    seconds: string;
-    nanos: string;
-  };
+  /** @enum {string} */
+  v1TransactionType: "TRANSACTION_TYPE_ETHEREUM";
   v1UpdateAllowedOriginsIntent: {
     /** @description Additional origins requests are allowed from besides Turnkey origins */
     allowedOrigins: string[];
@@ -1471,8 +1701,8 @@ export type definitions = {
     apiKeys: definitions["v1ApiKey"][];
     /** @description A list of User Tag IDs. */
     userTags: string[];
-    createdAt: definitions["v1Timestamp"];
-    updatedAt: definitions["v1Timestamp"];
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
   };
   v1UserParams: {
     /** @description Human-readable name for a User. */
@@ -1521,7 +1751,17 @@ export type definitions = {
     signature: string;
     /** @description Method used to produce a signature. */
     scheme: string;
-    createdAt: definitions["v1Timestamp"];
+    createdAt: definitions["externaldatav1Timestamp"];
+  };
+  v1WalletAccountParams: {
+    /** @description Cryptographic curve used to generate a wallet Account. */
+    curve: definitions["immutablecommonv1Curve"];
+    /** @description Path format used to generate a wallet Account. */
+    pathFormat: definitions["v1PathFormat"];
+    /** @description Path used to generate a wallet Account. */
+    path: string;
+    /** @description Address format used to generate a wallet Acccount. */
+    addressFormat: definitions["immutablecommonv1AddressFormat"];
   };
   v1WebAuthnStamp: {
     /** @description A base64 url encoded Unique identifier for a given credential. */
@@ -1950,6 +2190,42 @@ export type operations = {
       };
     };
   };
+  /** Create a Wallet */
+  PublicApiService_CreateWallet: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateWalletRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create Wallet accounts */
+  PublicApiService_CreateWalletAccounts: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateWalletAccountsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Remove api keys from a User */
   PublicApiService_DeleteApiKeys: {
     parameters: {
@@ -2022,11 +2298,83 @@ export type operations = {
       };
     };
   };
+  /** Exports a Private Key */
+  PublicApiService_ExportPrivateKey: {
+    parameters: {
+      body: {
+        body: definitions["v1ExportPrivateKeyRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Initializes a new recovery */
+  PublicApiService_InitUserEmailRecovery: {
+    parameters: {
+      body: {
+        body: definitions["v1InitUserEmailRecoveryRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Reject an Activity */
   PublicApiService_RejectActivity: {
     parameters: {
       body: {
         body: definitions["v1RejectActivityRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Removes an organization feature */
+  PublicApiService_RemoveOrganizationFeature: {
+    parameters: {
+      body: {
+        body: definitions["v1RemoveOrganizationFeatureRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Sets an organization feature */
+  PublicApiService_SetOrganizationFeature: {
+    parameters: {
+      body: {
+        body: definitions["v1SetOrganizationFeatureRequest"];
       };
     };
     responses: {
@@ -2058,11 +2406,47 @@ export type operations = {
       };
     };
   };
+  /** Sign a raw payload with a Private Key id or address */
+  PublicApiService_SignRawPayloadV2: {
+    parameters: {
+      body: {
+        body: definitions["v1SignRawPayloadV2Request"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Sign a transaction with a Private Key */
   PublicApiService_SignTransaction: {
     parameters: {
       body: {
         body: definitions["v1SignTransactionRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Sign a transaction with a Private Key id or address */
+  PublicApiService_SignTransactionV2: {
+    parameters: {
+      body: {
+        body: definitions["v1SignTransactionV2Request"];
       };
     };
     responses: {

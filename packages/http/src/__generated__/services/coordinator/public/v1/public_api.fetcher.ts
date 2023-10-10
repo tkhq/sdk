@@ -1114,6 +1114,104 @@ export const signCreateUsers = (
   });
 
 /**
+ * `POST /public/v1/submit/create_wallet`
+ */
+export type TCreateWalletResponse =
+  operations["PublicApiService_CreateWallet"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_wallet`
+ */
+export type TCreateWalletInput = { body: TCreateWalletBody };
+
+/**
+ * `POST /public/v1/submit/create_wallet`
+ */
+export type TCreateWalletBody =
+  operations["PublicApiService_CreateWallet"]["parameters"]["body"]["body"];
+
+/**
+ * Create Wallet
+ *
+ * Create a Wallet
+ *
+ * `POST /public/v1/submit/create_wallet`
+ */
+export const createWallet = (input: TCreateWalletInput) =>
+  request<TCreateWalletResponse, TCreateWalletBody, never, never, never>({
+    uri: "/public/v1/submit/create_wallet",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateWallet` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateWallet}
+ */
+export const signCreateWallet = (
+  input: TCreateWalletInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TCreateWalletBody, never, never>({
+    uri: "/public/v1/submit/create_wallet",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/create_wallet_accounts`
+ */
+export type TCreateWalletAccountsResponse =
+  operations["PublicApiService_CreateWalletAccounts"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_wallet_accounts`
+ */
+export type TCreateWalletAccountsInput = { body: TCreateWalletAccountsBody };
+
+/**
+ * `POST /public/v1/submit/create_wallet_accounts`
+ */
+export type TCreateWalletAccountsBody =
+  operations["PublicApiService_CreateWalletAccounts"]["parameters"]["body"]["body"];
+
+/**
+ * Create Wallet accounts
+ *
+ * Create Wallet accounts
+ *
+ * `POST /public/v1/submit/create_wallet_accounts`
+ */
+export const createWalletAccounts = (input: TCreateWalletAccountsInput) =>
+  request<
+    TCreateWalletAccountsResponse,
+    TCreateWalletAccountsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_wallet_accounts",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateWalletAccounts` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateWalletAccounts}
+ */
+export const signCreateWalletAccounts = (
+  input: TCreateWalletAccountsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TCreateWalletAccountsBody, never, never>({
+    uri: "/public/v1/submit/create_wallet_accounts",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/delete_api_keys`
  */
 export type TDeleteApiKeysResponse =
@@ -1310,6 +1408,110 @@ export const signDeletePolicy = (
   });
 
 /**
+ * `POST /public/v1/submit/export_private_key`
+ */
+export type TExportPrivateKeyResponse =
+  operations["PublicApiService_ExportPrivateKey"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/export_private_key`
+ */
+export type TExportPrivateKeyInput = { body: TExportPrivateKeyBody };
+
+/**
+ * `POST /public/v1/submit/export_private_key`
+ */
+export type TExportPrivateKeyBody =
+  operations["PublicApiService_ExportPrivateKey"]["parameters"]["body"]["body"];
+
+/**
+ * Export Private Key
+ *
+ * Exports a Private Key
+ *
+ * `POST /public/v1/submit/export_private_key`
+ */
+export const exportPrivateKey = (input: TExportPrivateKeyInput) =>
+  request<
+    TExportPrivateKeyResponse,
+    TExportPrivateKeyBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/export_private_key",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ExportPrivateKey` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ExportPrivateKey}
+ */
+export const signExportPrivateKey = (
+  input: TExportPrivateKeyInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TExportPrivateKeyBody, never, never>({
+    uri: "/public/v1/submit/export_private_key",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/init_user_email_recovery`
+ */
+export type TInitUserEmailRecoveryResponse =
+  operations["PublicApiService_InitUserEmailRecovery"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/init_user_email_recovery`
+ */
+export type TInitUserEmailRecoveryInput = { body: TInitUserEmailRecoveryBody };
+
+/**
+ * `POST /public/v1/submit/init_user_email_recovery`
+ */
+export type TInitUserEmailRecoveryBody =
+  operations["PublicApiService_InitUserEmailRecovery"]["parameters"]["body"]["body"];
+
+/**
+ * Init Recovery
+ *
+ * Initializes a new recovery
+ *
+ * `POST /public/v1/submit/init_user_email_recovery`
+ */
+export const initUserEmailRecovery = (input: TInitUserEmailRecoveryInput) =>
+  request<
+    TInitUserEmailRecoveryResponse,
+    TInitUserEmailRecoveryBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/init_user_email_recovery",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `InitUserEmailRecovery` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link InitUserEmailRecovery}
+ */
+export const signInitUserEmailRecovery = (
+  input: TInitUserEmailRecoveryInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TInitUserEmailRecoveryBody, never, never>({
+    uri: "/public/v1/submit/init_user_email_recovery",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/reject_activity`
  */
 export type TRejectActivityResponse =
@@ -1351,6 +1553,116 @@ export const signRejectActivity = (
 ) =>
   signedRequest<TRejectActivityBody, never, never>({
     uri: "/public/v1/submit/reject_activity",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/remove_organization_feature`
+ */
+export type TRemoveOrganizationFeatureResponse =
+  operations["PublicApiService_RemoveOrganizationFeature"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/remove_organization_feature`
+ */
+export type TRemoveOrganizationFeatureInput = {
+  body: TRemoveOrganizationFeatureBody;
+};
+
+/**
+ * `POST /public/v1/submit/remove_organization_feature`
+ */
+export type TRemoveOrganizationFeatureBody =
+  operations["PublicApiService_RemoveOrganizationFeature"]["parameters"]["body"]["body"];
+
+/**
+ * Remove Organization Feature
+ *
+ * Removes an organization feature
+ *
+ * `POST /public/v1/submit/remove_organization_feature`
+ */
+export const removeOrganizationFeature = (
+  input: TRemoveOrganizationFeatureInput
+) =>
+  request<
+    TRemoveOrganizationFeatureResponse,
+    TRemoveOrganizationFeatureBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/remove_organization_feature",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `RemoveOrganizationFeature` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link RemoveOrganizationFeature}
+ */
+export const signRemoveOrganizationFeature = (
+  input: TRemoveOrganizationFeatureInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TRemoveOrganizationFeatureBody, never, never>({
+    uri: "/public/v1/submit/remove_organization_feature",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/set_organization_feature`
+ */
+export type TSetOrganizationFeatureResponse =
+  operations["PublicApiService_SetOrganizationFeature"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/set_organization_feature`
+ */
+export type TSetOrganizationFeatureInput = {
+  body: TSetOrganizationFeatureBody;
+};
+
+/**
+ * `POST /public/v1/submit/set_organization_feature`
+ */
+export type TSetOrganizationFeatureBody =
+  operations["PublicApiService_SetOrganizationFeature"]["parameters"]["body"]["body"];
+
+/**
+ * Set Organization Feature
+ *
+ * Sets an organization feature
+ *
+ * `POST /public/v1/submit/set_organization_feature`
+ */
+export const setOrganizationFeature = (input: TSetOrganizationFeatureInput) =>
+  request<
+    TSetOrganizationFeatureResponse,
+    TSetOrganizationFeatureBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/set_organization_feature",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `SetOrganizationFeature` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link SetOrganizationFeature}
+ */
+export const signSetOrganizationFeature = (
+  input: TSetOrganizationFeatureInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TSetOrganizationFeatureBody, never, never>({
+    uri: "/public/v1/submit/set_organization_feature",
     body: input.body,
     options,
   });
@@ -1402,6 +1714,58 @@ export const signSignRawPayload = (
   });
 
 /**
+ * `POST /public/v1/submit/sign_raw_payload_v2`
+ */
+export type TSignRawPayloadV2Response =
+  operations["PublicApiService_SignRawPayloadV2"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/sign_raw_payload_v2`
+ */
+export type TSignRawPayloadV2Input = { body: TSignRawPayloadV2Body };
+
+/**
+ * `POST /public/v1/submit/sign_raw_payload_v2`
+ */
+export type TSignRawPayloadV2Body =
+  operations["PublicApiService_SignRawPayloadV2"]["parameters"]["body"]["body"];
+
+/**
+ * Sign Raw Payload
+ *
+ * Sign a raw payload with a Private Key id or address
+ *
+ * `POST /public/v1/submit/sign_raw_payload_v2`
+ */
+export const signRawPayloadV2 = (input: TSignRawPayloadV2Input) =>
+  request<
+    TSignRawPayloadV2Response,
+    TSignRawPayloadV2Body,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/sign_raw_payload_v2",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `SignRawPayloadV2` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link SignRawPayloadV2}
+ */
+export const signSignRawPayloadV2 = (
+  input: TSignRawPayloadV2Input,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TSignRawPayloadV2Body, never, never>({
+    uri: "/public/v1/submit/sign_raw_payload_v2",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/sign_transaction`
  */
 export type TSignTransactionResponse =
@@ -1443,6 +1807,58 @@ export const signSignTransaction = (
 ) =>
   signedRequest<TSignTransactionBody, never, never>({
     uri: "/public/v1/submit/sign_transaction",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/sign_transaction_v2`
+ */
+export type TSignTransactionV2Response =
+  operations["PublicApiService_SignTransactionV2"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/sign_transaction_v2`
+ */
+export type TSignTransactionV2Input = { body: TSignTransactionV2Body };
+
+/**
+ * `POST /public/v1/submit/sign_transaction_v2`
+ */
+export type TSignTransactionV2Body =
+  operations["PublicApiService_SignTransactionV2"]["parameters"]["body"]["body"];
+
+/**
+ * Sign Transaction
+ *
+ * Sign a transaction with a Private Key id or address
+ *
+ * `POST /public/v1/submit/sign_transaction_v2`
+ */
+export const signTransactionV2 = (input: TSignTransactionV2Input) =>
+  request<
+    TSignTransactionV2Response,
+    TSignTransactionV2Body,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/sign_transaction_v2",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `SignTransactionV2` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link SignTransactionV2}
+ */
+export const signSignTransactionV2 = (
+  input: TSignTransactionV2Input,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TSignTransactionV2Body, never, never>({
+    uri: "/public/v1/submit/sign_transaction_v2",
     body: input.body,
     options,
   });
