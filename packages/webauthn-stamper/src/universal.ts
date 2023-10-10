@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 let buffer: typeof globalThis.Buffer;
 
 if (typeof globalThis?.Buffer !== "undefined") {

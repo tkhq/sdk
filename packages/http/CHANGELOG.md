@@ -1,5 +1,36 @@
 # @turnkey/http
 
+## 1.3.0
+
+### Minor Changes
+
+- Synced protos from mono
+- Adds base URL check during initialization (closes https://github.com/tkhq/sdk/issues/124)
+- The following are new features additions, fresh out the oven. Still getting them ready for primetime! Refreshed examples to come soon™️. Stay tuned and reach out to the Turnkey team if you have any questions.
+  - Wallets:
+    - 🟢 `ACTIVITY_TYPE_CREATE_WALLET` (via `/api/v1/submit/create_wallet`): create a HD wallet
+    - 🟢 `ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS` (via `/api/v1/submit/create_wallet_accounts`): create a wallet account (address)
+    - 🟢 `ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2` (via `/api/v1/submit/sign_raw_payload_v2`): sign a payload with a specified private key or address
+    - 🟢 `ACTIVITY_TYPE_SIGN_TRANSACTION_V2` (via `/api/v1/submit/sign_transaction_v2`): sign a transaction with a specified private key or address
+  - Organization features:
+    - 🟢 `ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE` (via `/api/v1/submit/set_organization_feature`): set an organization feature
+    - 🟢 `ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE` (via `/api/v1/submit/remove_organization_feature`): remove an organization feature
+    - Only one feature supported as of this time; additional documentation to follow.
+  - Export private key:
+    - 🟡 `ACTIVITY_TYPE_EXPORT_PRIVATE_KEY` (via `/api/v1/submit/export_private_key`): export a private key, encrypted to a target public key. We do not yet have CLI or front-end tooling to use this safely; stay tuned!
+  - Email recovery:
+    - 🟡 `ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY` (via `/api/v1/submit/init_user_email_recovery`): initialize a new email recovery flow
+
+Note:
+
+- 🟢: good to go!
+- 🟡: these endpoints are safe to use, but still experimental/unstable. Check back for updates and guidance.
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/webauthn-stamper@0.2.0
+
 ## 1.2.0
 
 ### Minor Changes
