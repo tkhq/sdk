@@ -10,7 +10,7 @@ import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
 import { print, assertEqual } from "./util";
-import WETH_TOKEN_ABI from "./weth-contract-abi.json";
+import { WethContractAbi__factory as WethContractFactory } from "./typechain";
 
 const WETH_TOKEN_ADDRESS_GOERLI = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
 
@@ -97,19 +97,15 @@ async function main() {
 
   if (network === "goerli") {
     // https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6
-    const wethContract = new ethers.Contract(
-      WETH_TOKEN_ADDRESS_GOERLI,
-      WETH_TOKEN_ABI,
-      connectedSigner
-    );
+    const wethContract = WethContractFactory.connect(WETH_TOKEN_ADDRESS_GOERLI, connectedSigner);
 
     // Read from contract
-    const wethBalance = await wethContract.balanceOf!(address);
+    const wethBalance = await wethContract.balanceOf(address);
 
     print("WETH Balance:", `${ethers.formatEther(wethBalance)} WETH`);
 
     // 3. Wrap ETH -> WETH
-    const depositTx = await wethContract.deposit!({
+    const depositTx = await wethContract.deposit({
       value: ethers.parseEther(transactionAmount),
     });
 

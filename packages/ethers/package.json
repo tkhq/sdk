@@ -49,7 +49,7 @@
   "devDependencies": {
     "@ethersproject/experimental": "^5.7.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
-    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomicfoundation/hardhat-ethers": "^3.0.4",
     "@openzeppelin/contracts": "^4.9.0",
     "ethers": "^6.7.1",
     "hardhat": "^2.12.7"

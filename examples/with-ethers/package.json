@@ -10,10 +10,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/ethers": "workspace:*",
     "@turnkey/http": "workspace:*",
-    "@turnkey/api-key-stamper": "workspace:*",
+    "@typechain/ethers-v6": "^0.5.0",
     "dotenv": "^16.0.3",
     "ethers": "^6.7.1"
+  },
+  "devDependencies": {
+    "typechain": "^8.3.1"
   }
 }
