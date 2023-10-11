@@ -114,10 +114,15 @@ export async function getWebAuthnAssertion(
   payload: string,
   options?: TurnkeyCredentialRequestOptions
 ): Promise<string> {
+  const webAuthnSupported = await hasWebAuthnSupport();
+
+  if (!webAuthnSupported) {
+    throw new Error("webauthn is not supported by this browser");
+  }
+
   const signingOptions = await getCredentialRequestOptions(payload, options);
   const clientGetResult = await webauthnCredentialGet(signingOptions);
   const assertion = clientGetResult.toJSON();
-
   const stamp: TWebAuthnStamp = {
     authenticatorData: assertion.response.authenticatorData,
     clientDataJson: assertion.response.clientDataJSON,
@@ -131,7 +136,27 @@ export async function getWebAuthnAssertion(
 export async function getWebAuthnAttestation(
   options: TurnkeyCredentialCreationOptions
 ): Promise<TAttestation> {
+  const webAuthnSupported = await hasWebAuthnSupport();
+
+  if (!webAuthnSupported) {
+    throw new Error("webauthn is not supported by this browser");
+  }
+
   const res = await webauthnCredentialCreate(options);
 
   return toInternalAttestation(res.toJSON());
+}
+
+// For additional details see https://web.dev/articles/passkey-form-autofill#feature-detection, https://github.com/w3c/webauthn/wiki/Explainer:-WebAuthn-Conditional-UI
+async function hasWebAuthnSupport(): Promise<boolean> {
+  if (
+    window.PublicKeyCredential &&
+    PublicKeyCredential.isConditionalMediationAvailable
+  ) {
+    const isCMA = await PublicKeyCredential.isConditionalMediationAvailable();
+
+    return isCMA;
+  }
+
+  return false;
 }
