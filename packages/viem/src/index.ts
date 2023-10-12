@@ -46,6 +46,9 @@ export async function createAccount(input: {
 
   return toAccount({
     address: ethereumAddress as Hex,
+    getAddresses: function (): Hex[] {
+      return [ethereumAddress as Hex];
+    },
     signMessage: function ({
       message,
     }: {
@@ -147,6 +150,9 @@ export async function createApiKeyAccount(
 
   return toAccount({
     address: ethereumAddress as Hex,
+    getAddresses: function (): Hex[] {
+      return [ethereumAddress as Hex];
+    },
     signMessage: function ({
       message,
     }: {
