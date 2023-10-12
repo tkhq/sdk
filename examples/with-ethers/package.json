@@ -7,7 +7,7 @@
     "start-advanced": "pnpm -w run build-all && tsx src/advanced.ts",
     "start-legacy-sepolia": "pnpm -w run build-all && tsx src/legacySepolia.ts",
     "clean": "rimraf ./dist ./.cache",
-    "typechain": "typechain --target ethers-v6 --out-dir ./src/typechain './src/weth-contract-abi.json'",
+    "typechain": "typechain --target ethers-v6 --out-dir ./src/typechain './src/contracts/weth-contract-abi.json'",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -34,9 +34,9 @@
     "prepublishOnly": "pnpm -w run clean-all && pnpm -w run build-all",
     "build": "tsc",
     "clean": "rimraf ./dist ./.cache",
+    "compile:clean": "hardhat clean",
     "compile:contracts": "hardhat compile",
     "test": "jest",
-    "typechain": "typechain --target ethers-v6 --out-dir ./src/__tests__/typechain './src/weth-contract-abi.json'",
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "peerDependencies": {

@@ -122,3 +122,6 @@ playwright/.cache/
 # IDE
 .vscode
 .swp
+
+# Typechain
+typechain

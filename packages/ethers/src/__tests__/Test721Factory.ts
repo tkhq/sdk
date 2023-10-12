@@ -8,11 +8,11 @@ import {
   Interface,
 } from "ethers";
 import type { Signer, ContractDeployTransaction, ContractRunner } from "ethers";
-import type { NonPayableOverrides } from "../../../../../common";
+import type { NonPayableOverrides } from "./common";
 import type {
   Test721,
   Test721Interface,
-} from "../../../../../src/__tests__/contracts/source/Test721";
+} from "./Test721";
 
 const _abi = [
   {

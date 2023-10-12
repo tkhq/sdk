@@ -21,9 +21,9 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../../common";
+} from "./common";
 
-export interface ERC721Interface extends Interface {
+export interface Test721Interface extends Interface {
   getFunction(
     nameOrSignature:
       | "approve"
@@ -31,7 +31,10 @@ export interface ERC721Interface extends Interface {
       | "getApproved"
       | "isApprovedForAll"
       | "name"
+      | "owner"
       | "ownerOf"
+      | "renounceOwnership"
+      | "safeMint"
       | "safeTransferFrom(address,address,uint256)"
       | "safeTransferFrom(address,address,uint256,bytes)"
       | "setApprovalForAll"
@@ -39,10 +42,15 @@ export interface ERC721Interface extends Interface {
       | "symbol"
       | "tokenURI"
       | "transferFrom"
+      | "transferOwnership"
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic: "Approval" | "ApprovalForAll" | "Transfer"
+    nameOrSignatureOrTopic:
+      | "Approval"
+      | "ApprovalForAll"
+      | "OwnershipTransferred"
+      | "Transfer"
   ): EventFragment;
 
   encodeFunctionData(
@@ -62,9 +70,18 @@ export interface ERC721Interface extends Interface {
     values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "ownerOf",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "safeMint",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "safeTransferFrom(address,address,uint256)",
@@ -91,6 +108,10 @@ export interface ERC721Interface extends Interface {
     functionFragment: "transferFrom",
     values: [AddressLike, AddressLike, BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [AddressLike]
+  ): string;
 
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
@@ -103,7 +124,13 @@ export interface ERC721Interface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "safeMint", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "safeTransferFrom(address,address,uint256)",
     data: BytesLike
@@ -124,6 +151,10 @@ export interface ERC721Interface extends Interface {
   decodeFunctionResult(functionFragment: "tokenURI", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferFrom",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
 }
@@ -168,6 +199,19 @@ export namespace ApprovalForAllEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace OwnershipTransferredEvent {
+  export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
+  export type OutputTuple = [previousOwner: string, newOwner: string];
+  export interface OutputObject {
+    previousOwner: string;
+    newOwner: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace TransferEvent {
   export type InputTuple = [
     from: AddressLike,
@@ -186,11 +230,11 @@ export namespace TransferEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export interface ERC721 extends BaseContract {
-  connect(runner?: ContractRunner | null): ERC721;
+export interface Test721 extends BaseContract {
+  connect(runner?: ContractRunner | null): Test721;
   waitForDeployment(): Promise<this>;
 
-  interface: ERC721Interface;
+  interface: Test721Interface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -247,7 +291,13 @@ export interface ERC721 extends BaseContract {
 
   name: TypedContractMethod<[], [string], "view">;
 
+  owner: TypedContractMethod<[], [string], "view">;
+
   ownerOf: TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
+
+  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  safeMint: TypedContractMethod<[to: AddressLike], [void], "nonpayable">;
 
   "safeTransferFrom(address,address,uint256)": TypedContractMethod<
     [from: AddressLike, to: AddressLike, tokenId: BigNumberish],
@@ -288,6 +338,12 @@ export interface ERC721 extends BaseContract {
     "nonpayable"
   >;
 
+  transferOwnership: TypedContractMethod<
+    [newOwner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
@@ -316,8 +372,17 @@ export interface ERC721 extends BaseContract {
     nameOrSignature: "name"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "ownerOf"
   ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "renounceOwnership"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "safeMint"
+  ): TypedContractMethod<[to: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "safeTransferFrom(address,address,uint256)"
   ): TypedContractMethod<
@@ -360,6 +425,9 @@ export interface ERC721 extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "transferOwnership"
+  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
 
   getEvent(
     key: "Approval"
@@ -374,6 +442,13 @@ export interface ERC721 extends BaseContract {
     ApprovalForAllEvent.InputTuple,
     ApprovalForAllEvent.OutputTuple,
     ApprovalForAllEvent.OutputObject
+  >;
+  getEvent(
+    key: "OwnershipTransferred"
+  ): TypedContractEvent<
+    OwnershipTransferredEvent.InputTuple,
+    OwnershipTransferredEvent.OutputTuple,
+    OwnershipTransferredEvent.OutputObject
   >;
   getEvent(
     key: "Transfer"
@@ -404,6 +479,17 @@ export interface ERC721 extends BaseContract {
       ApprovalForAllEvent.InputTuple,
       ApprovalForAllEvent.OutputTuple,
       ApprovalForAllEvent.OutputObject
+    >;
+
+    "OwnershipTransferred(address,address)": TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >;
+    OwnershipTransferred: TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
     >;
 
     "Transfer(address,address,uint256)": TypedContractEvent<

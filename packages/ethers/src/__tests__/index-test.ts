@@ -5,7 +5,7 @@ import { test, expect, beforeEach, describe } from "@jest/globals";
 import { TurnkeySigner, TurnkeyActivityError } from "../";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { Test721__factory as Test721Factory } from "./typechain/factories/src/__tests__/contracts/source/Test721__factory";
+import { Test721__factory as Test721Factory } from "./Test721Factory";
 
 // @ts-expect-error
 const testCase: typeof test = (...argList) => {

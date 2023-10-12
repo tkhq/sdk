@@ -134,3 +134,6 @@ WETH Balance:
 Wrapped 0.00001 ETH:
 	https://sepolia.etherscan.io/tx/0x428a6f3c24f6f0c2de34f41776566c875bd56bfe4d5d8db4a7ef57c2c4e69dec
 ```
+
+### 4/ Dev notes
+For our contract types bindings, we use [Typechain](https://github.com/dethcrypto/TypeChain). To generate new Typechain bindings, run `pnpm typechain`. Note that per our top-level `.gitignore`, we are excluding Typechain-related artifacts from git for the sake of simplicity. Artifacts found in `./src/contracts` were simply moved over from the Typechain-generated files.

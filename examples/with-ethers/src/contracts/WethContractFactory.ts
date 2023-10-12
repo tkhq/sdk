@@ -6,7 +6,7 @@ import { Contract, Interface, type ContractRunner } from "ethers";
 import type {
   WethContractAbi,
   WethContractAbiInterface,
-} from "../WethContractAbi";
+} from "./WethContractAbi";
 
 const _abi = [
   {

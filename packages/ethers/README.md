@@ -110,3 +110,6 @@ See `.env.example` to get your local testing environment right. Run `pnpm jest` 
 ## See also
 
 - [`@turnkey/http`](/packages/http/): lower-level fully typed HTTP client for interacting with Turnkey API
+
+## Dev notes
+For our contract types bindings, we use [Typechain](https://github.com/dethcrypto/TypeChain). These Typechain artifacts are included with our hardhat compilation: `pnpm compile:contracts` (you may need to run `pnpm compile:clean` first). Note that per our top-level `.gitignore`, we are excluding Typechain-related artifacts from git for the sake of simplicity. The artifacts found in `./src/__tests__` are the bare minimum required for our tests, and were simply moved over from the Typechain-generated files.
