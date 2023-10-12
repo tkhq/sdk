@@ -1,12 +1,11 @@
-import { Eip1193Bridge } from "@ethersproject/experimental";
 import { setBalance } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers } from "ethers";
 import hre from "hardhat";
 import { test, expect, beforeEach, describe } from "@jest/globals";
 import { TurnkeySigner, TurnkeyActivityError } from "../";
-import Test721 from "./contracts/artifacts/src/__tests__/contracts/source/Test721.sol/Test721.json";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { Test721__factory as Test721Factory } from "./typechain/factories/src/__tests__/contracts/source/Test721__factory";
 
 // @ts-expect-error
 const testCase: typeof test = (...argList) => {
@@ -21,10 +20,10 @@ const testCase: typeof test = (...argList) => {
 describe("TurnkeySigner", () => {
   let connectedSigner: TurnkeySigner;
   let signerWithProvider: TurnkeySigner;
-  let chainId: number;
+  let chainId: bigint;
   let expectedEthAddress: string;
   let bannedToAddress: string;
-  let eip1193: Eip1193Bridge;
+  let eip1193Provider: ethers.Provider;
 
   beforeEach(async () => {
     if (!process.env.BANNED_TO_ADDRESS) {
@@ -94,25 +93,26 @@ describe("TurnkeySigner", () => {
 
     chainId = (await connectedSigner.provider!.getNetwork()).chainId;
 
-    eip1193 = new Eip1193Bridge(connectedSigner, provider);
+    // need a node-compatible (read: non-`window.ethereum`) Eip1193Provider
+    eip1193Provider = new ethers.BrowserProvider(provider);
 
-    setBalance(expectedEthAddress, ethers.utils.parseEther("999999"));
+    setBalance(expectedEthAddress, ethers.parseEther("999999"));
   });
 
   testCase("basics for connected signer", async () => {
-    expect(ethers.Signer.isSigner(connectedSigner)).toBe(true);
+    expect(connectedSigner.signMessage).toBeTruthy();
     expect(await connectedSigner.getAddress()).toBe(expectedEthAddress);
   });
-
+  
   testCase("basics for connected signer via constructor", async () => {
-    expect(ethers.Signer.isSigner(signerWithProvider)).toBe(true);
+    expect(signerWithProvider.signMessage).toBeTruthy();
     expect(await signerWithProvider.getAddress()).toBe(expectedEthAddress);
   });
 
   testCase("it signs transactions", async () => {
     const tx = await connectedSigner.signTransaction({
       to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
-      value: ethers.utils.parseEther("1.0"),
+      value: ethers.parseEther("1.0"),
       chainId,
       nonce: 0,
       gasLimit: 21000,
@@ -128,7 +128,7 @@ describe("TurnkeySigner", () => {
     const goodTx = await connectedSigner.signTransaction({
       from: expectedEthAddress,
       to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
-      value: ethers.utils.parseEther("1.0"),
+      value: ethers.parseEther("1.0"),
       chainId,
       nonce: 0,
       gasLimit: 21000,
@@ -145,7 +145,7 @@ describe("TurnkeySigner", () => {
       await connectedSigner.signTransaction({
         from: badFromAddress,
         to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
-        value: ethers.utils.parseEther("1.0"),
+        value: ethers.parseEther("1.0"),
         chainId,
         nonce: 0,
         gasLimit: 21000,
@@ -165,15 +165,15 @@ describe("TurnkeySigner", () => {
   testCase("it sends transactions", async () => {
     const tx = await connectedSigner.sendTransaction({
       to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
-      value: ethers.utils.parseEther("2"),
+      value: ethers.parseEther("2"),
       type: 2,
     });
     const receipt = await tx.wait();
 
-    expect(receipt.status).toBe(1);
-    expect(receipt.type).toBe(2);
-    expect(receipt.from).toBe(expectedEthAddress);
-    expect(receipt.transactionHash).toMatch(/^0x/);
+    expect(receipt!.status).toBe(1);
+    expect(receipt!.type).toBe(2);
+    expect(receipt!.from).toBe(expectedEthAddress);
+    expect(receipt!.hash).toMatch(/^0x/);
   });
 
   testCase(
@@ -182,7 +182,7 @@ describe("TurnkeySigner", () => {
       try {
         await connectedSigner.signTransaction({
           to: bannedToAddress,
-          value: ethers.utils.parseEther("1.0"),
+          value: ethers.parseEther("1.0"),
           chainId,
           nonce: 0,
           gasLimit: 21000,
@@ -222,7 +222,7 @@ describe("TurnkeySigner", () => {
     const signMessageSignature = await connectedSigner.signMessage(message);
 
     expect(signMessageSignature).toMatch(/^0x/);
-    expect(ethers.utils.verifyMessage(message, signMessageSignature)).toEqual(
+    expect(ethers.verifyMessage(message, signMessageSignature)).toEqual(
       expectedEthAddress
     );
   });
@@ -256,7 +256,7 @@ describe("TurnkeySigner", () => {
 
     expect(signTypedDataSignature).toMatch(/^0x/);
     expect(
-      ethers.utils.verifyTypedData(
+      ethers.verifyTypedData(
         typedData.domain,
         typedData.types,
         typedData.message,
@@ -290,24 +290,21 @@ describe("TurnkeySigner", () => {
       // In a real-world scenario you should also verify that `from` matches the wallet's address
       delete payload.params[0].from;
 
-      const tx = await eip1193.request(payload);
+      const tx = await eip1193Provider.request(payload);
       expect(tx).toMatch(/^0x/);
     });
   });
 
   // Use `pnpm run compile:contracts` to update the ABI if needed
   testCase("ERC-721", async () => {
-    const { abi, bytecode } = Test721;
-    const factory = new ethers.ContractFactory(abi, bytecode).connect(
-      connectedSigner
-    );
+    // Deploy contract
+    const contract = await new Test721Factory(connectedSigner).deploy();
 
-    // Deploy
-    const contract = await factory.deploy();
-    await contract.deployed();
+    const deploymentAddress = await contract.getAddress();
+    const deploymentTransaction = await contract.deploymentTransaction();
 
-    expect(contract.address).toMatch(/^0x/);
-    expect(contract.deployTransaction.from).toEqual(expectedEthAddress);
+    expect(deploymentAddress).toMatch(/^0x/);
+    expect(deploymentTransaction!.from).toEqual(expectedEthAddress);
 
     // Mint
     const mintTx = await contract.safeMint(expectedEthAddress);
@@ -315,7 +312,7 @@ describe("TurnkeySigner", () => {
 
     expect(mintTx.hash).toMatch(/^0x/);
     expect(mintTx.from).toEqual(expectedEthAddress);
-    expect(mintTx.to).toEqual(contract.address);
+    expect(mintTx.to).toEqual(deploymentAddress);
 
     // Approve
     const approveTx = await contract.approve(
@@ -326,7 +323,7 @@ describe("TurnkeySigner", () => {
 
     expect(approveTx.hash).toMatch(/^0x/);
     expect(approveTx.from).toEqual(expectedEthAddress);
-    expect(approveTx.to).toEqual(contract.address);
+    expect(approveTx.to).toEqual(deploymentAddress);
   });
 });
 
