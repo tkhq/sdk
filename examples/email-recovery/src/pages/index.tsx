@@ -194,7 +194,7 @@ export default function RecoveryPage() {
               />
             </label>
             <label className={styles.label}>
-              Target Public Key (FYI)
+              Target Public Key (from iframe)
               <input
                 className={styles.input}
                 {...initRecoveryFormRegister("targetPublicKey")}

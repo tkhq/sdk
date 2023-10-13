@@ -18,7 +18,7 @@ export function Recovery(props: RecoveryProps) {
   );
 
   useEffect(() => {
-    if (iframeStamper === null) {
+    if (!iframeStamper) {
       const iframeStamper = new IframeStamper({
         iframeUrl: props.iframeUrl,
         iframeContainerId: TurnkeyIframeContainerId,
@@ -31,7 +31,7 @@ export function Recovery(props: RecoveryProps) {
     }
 
     return () => {
-      if (iframeStamper !== null) {
+      if (iframeStamper) {
         iframeStamper.clear();
         setIframeStamper(null);
       }

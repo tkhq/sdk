@@ -3,6 +3,25 @@
 // Header name for an API key stamp
 const stampHeaderName = "X-Stamp";
 
+// Set of constants for event types expected to be sent and received between a parent page and its iframe.
+export enum IframeEventType {
+  // Event sent by the iframe to its parent to indicate readiness.
+  // Value: the iframe public key
+  PublicKeyReady = "PUBLIC_KEY_READY",
+  // Event sent by the parent to inject a recovery bundle into the iframe.
+  // Value: the bundle to inject
+  InjectRecoveryBundle = "INJECT_RECOVERY_BUNDLE",
+  // Event sent by the iframe to its parent when `InjectBundle` is successful
+  // Value: true (boolean)
+  BundleInjected = "BUNDLE_INJECTED",
+  // Event sent by the parent page to request a signature
+  // Value: payload to sign
+  StampRequest = "STAMP_REQUEST",
+  // Event sent by the iframe to communicate the result of a stamp operation.
+  // Value: signed payload
+  Stamp = "STAMP",
+}
+
 type TStamp = {
   stampHeaderName: string;
   stampHeaderValue: string;
@@ -73,7 +92,7 @@ export class IframeStamper {
             // Instead of erroring out
             return;
           }
-          if (event.data && event.data["type"] == "PUBLIC_KEY_READY") {
+          if (event.data?.type == IframeEventType.PublicKeyReady) {
             resolve(event.data["value"]);
             this.iframePublicKey = event.data["value"];
           }
@@ -106,7 +125,7 @@ export class IframeStamper {
   async injectRecoveryBundle(bundle: string): Promise<boolean> {
     this.iframe.contentWindow?.postMessage(
       {
-        type: "INJECT_RECOVERY_BUNDLE",
+        type: IframeEventType.InjectRecoveryBundle,
         value: bundle,
       },
       "*"
@@ -121,7 +140,7 @@ export class IframeStamper {
             // Instead of erroring out we simply return. Not our event!
             return;
           }
-          if (event.data && event.data["type"] == "BUNDLE_INJECTED") {
+          if (event.data?.type == IframeEventType.BundleInjected) {
             resolve(event.data["value"]);
           }
         },
@@ -145,7 +164,7 @@ export class IframeStamper {
 
     this.iframe.contentWindow?.postMessage(
       {
-        type: "STAMP_REQUEST",
+        type: IframeEventType.StampRequest,
         value: Buffer.from(challenge).toString("hex"),
       },
       "*"
@@ -160,7 +179,7 @@ export class IframeStamper {
             // Instead of erroring out we simply return. Not our event!
             return;
           }
-          if (event.data && event.data["type"] == "STAMP") {
+          if (event.data?.type == IframeEventType.Stamp) {
             resolve({
               stampHeaderName: stampHeaderName,
               stampHeaderValue: event.data["value"],
