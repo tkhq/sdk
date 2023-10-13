@@ -128,7 +128,7 @@ export default function RecoveryPage() {
 
     // TODO: switch this to be `client.recoverUser`!
     // Similar in spirit though, we're adding a new authenticator.
-    const signedRequest = await client.stampCreateAuthenticators({
+    const response = await client.createAuthenticators({
       type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
       timestampMs: String(Date.now()),
       organizationId: initRecoveryResponse.organizationId,
@@ -144,9 +144,13 @@ export default function RecoveryPage() {
       },
     });
 
-    // TODO: instead of simply alerting, POST the request to Turnkey to complete recovery.
-    console.log("SUCCESS", signedRequest);
-    alert("SUCCESS! Request SIGNED!");
+    // TODO: error handling goes here
+    // We do not yet have passkey-friendly pollers
+    // There is an interesting edge case here: if we poll using the recovery credential, it will fail as soon as the activity is successful!
+    console.log(response);
+
+    // Instead of simply alerting, redirect the user to your app's login page.
+    alert("SUCCESS! Authenticator added. Recovery flow complete.");
   };
 
   return (
