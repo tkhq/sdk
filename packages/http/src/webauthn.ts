@@ -114,10 +114,15 @@ export async function getWebAuthnAssertion(
   payload: string,
   options?: TurnkeyCredentialRequestOptions
 ): Promise<string> {
+  const webAuthnSupported = hasWebAuthnSupport();
+
+  if (!webAuthnSupported) {
+    throw new Error("webauthn is not supported by this browser");
+  }
+
   const signingOptions = await getCredentialRequestOptions(payload, options);
   const clientGetResult = await webauthnCredentialGet(signingOptions);
   const assertion = clientGetResult.toJSON();
-
   const stamp: TWebAuthnStamp = {
     authenticatorData: assertion.response.authenticatorData,
     clientDataJson: assertion.response.clientDataJSON,
@@ -131,7 +136,20 @@ export async function getWebAuthnAssertion(
 export async function getWebAuthnAttestation(
   options: TurnkeyCredentialCreationOptions
 ): Promise<TAttestation> {
+  const webAuthnSupported = hasWebAuthnSupport();
+
+  if (!webAuthnSupported) {
+    throw new Error("webauthn is not supported by this browser");
+  }
+
   const res = await webauthnCredentialCreate(options);
 
   return toInternalAttestation(res.toJSON());
+}
+
+// `hasWebAuthnSupport` checks for barebones webauthn support.
+// For additional details and granular settings, see:
+// https://web.dev/articles/passkey-form-autofill#feature-detection, https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential
+function hasWebAuthnSupport(): boolean {
+  return !!window.PublicKeyCredential;
 }
