@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 import { SupportedChainId, Token } from "@uniswap/sdk-core";
 
 // Environment
@@ -80,8 +80,8 @@ const MAX_DECIMALS = 4;
 export function fromReadableAmount(
   amount: number,
   decimals: number
-): BigNumber {
-  return ethers.utils.parseUnits(amount.toString(), decimals);
+): BigNumberish {
+  return ethers.parseUnits(amount.toString(), decimals);
 }
 
 // toReadableAmount converts atomic amounts to whole amounts
@@ -90,5 +90,5 @@ export function toReadableAmount(
   decimals: number,
   maxDecimals = MAX_DECIMALS
 ): string {
-  return ethers.utils.formatUnits(rawAmount, decimals).slice(0, maxDecimals);
+  return ethers.formatUnits(rawAmount, decimals).slice(0, maxDecimals);
 }

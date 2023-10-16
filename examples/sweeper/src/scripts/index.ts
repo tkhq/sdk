@@ -28,16 +28,16 @@ async function main() {
   const connectedSigner = getTurnkeySigner(provider);
 
   const network = await provider.getNetwork();
-  const chainId = await connectedSigner.getChainId();
+  const chainId = network.chainId;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.getBalance();
+  const balance = await provider.getBalance(address);
   const destinationAddress = "0x2Ad9eA1E677949a536A270CEC812D6e868C88108";
 
   print("Network:", `${network.name} (chain ID ${chainId})`);
   print("Address:", address);
-  print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
+  print("Balance:", `${ethers.formatEther(balance)} Ether`);
 
-  if (balance.isZero()) {
+  if (balance === 0n) {
     let warningMessage =
       "The transaction won't be broadcasted because your account balance is zero.\n";
     if (network.name === "goerli") {
@@ -76,7 +76,7 @@ async function sweepTokens(
 ) {
   for (let t of tokens) {
     let contract = new ethers.Contract(t.address, ERC20_ABI, connectedSigner);
-    let balance = await contract.balanceOf(address);
+    let balance = await contract.balanceOf!(address);
 
     if (balance == 0) {
       console.warn(`No balance for ${t.symbol}. Skipping...`);
@@ -98,7 +98,7 @@ async function sweepTokens(
     ]);
 
     if (confirmed) {
-      let transferTx = await contract.transfer(destinationAddress, balance);
+      let transferTx = await contract.transfer!(destinationAddress, balance);
 
       console.log("Awaiting confirmation...");
 
@@ -121,12 +121,13 @@ async function sweepEth(
   network: string,
   destinationAddress: string
 ) {
-  const balance = await connectedSigner.getBalance();
-  const feeData = await connectedSigner.getFeeData();
-  const gasRequired = feeData.maxFeePerGas!.mul(21000);
-  const value = balance.sub(gasRequired);
+  const address = await connectedSigner.getAddress();
+  const balance = await connectedSigner.provider!.getBalance(address);
+  const feeData = await connectedSigner.provider!.getFeeData();
+  const gasRequired = feeData.maxFeePerGas! * 21000n;
+  const value = balance - gasRequired;
 
-  if (value.lte(0)) {
+  if (value <= 0n) {
     console.warn(`Insufficient ETH balance to sweep. Skipping...`);
     return;
   }
