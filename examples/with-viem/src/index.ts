@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 import { createAccount } from "@turnkey/viem";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { createWalletClient, http, recoverMessageAddress } from "viem";
+import { type Account, createWalletClient, http, recoverMessageAddress } from "viem";
 import { sepolia } from "viem/chains";
 import { print, assertEqual } from "./util";
 
@@ -29,7 +29,7 @@ async function main() {
   });
 
   const client = createWalletClient({
-    account: turnkeyAccount,
+    account: turnkeyAccount as Account,
     chain: sepolia,
     transport: http(
       `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`
