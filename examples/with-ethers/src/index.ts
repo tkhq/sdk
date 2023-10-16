@@ -38,12 +38,13 @@ async function main() {
     privateKeyId: process.env.PRIVATE_KEY_ID!,
   });
 
-  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
+  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v6/api/providers/)
   const network = "goerli";
   const provider = new ethers.InfuraProvider(network);
   const connectedSigner = turnkeySigner.connect(provider);
 
-  const chainId = await connectedSigner.provider!.getNetwork();
+  const connectedNetwork = await connectedSigner.provider!.getNetwork();
+  const chainId = connectedNetwork.chainId;
   const address = await connectedSigner.getAddress();
   const balance = await connectedSigner.provider!.getBalance(address);
   const transactionCount = await connectedSigner.getNonce();

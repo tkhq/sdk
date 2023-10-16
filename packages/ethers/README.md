@@ -8,6 +8,9 @@ If you need a lower-level, fully typed HTTP client for interacting with Turnkey 
 
 API Docs: https://docs.turnkey.com/
 
+## Upgrading from v5 to v6
+For starters, check out the official Ethers v5 to v6 [migration guide](https://docs.ethers.org/v6/migrating/) for a summary of changes. Note: if EIP-1193 is a critical feature for you, we would recommend to continue using our v5 implementation until an Eip1193Bridge is available for Ethers v6.
+
 ## Getting started
 
 ```bash

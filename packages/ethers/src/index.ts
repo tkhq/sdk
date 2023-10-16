@@ -1,9 +1,7 @@
 import { ethers } from "ethers";
 import { TurnkeyActivityError, TurnkeyRequestError } from "@turnkey/http";
 import type { TurnkeyClient } from "@turnkey/http";
-// import type { TypedDataSigner } from "@ethersproject/abstract-signer";
 import type {
-  // UnsignedTransaction,
   BytesLike,
   TypedDataDomain,
   TypedDataField,
@@ -126,13 +124,13 @@ export class TurnkeySigner extends ethers.AbstractSigner implements ethers.Signe
   ): Promise<string> {
     const unsignedTx = (await ethers.resolveProperties(
       transaction
-    )) as ethers.Transaction;
+    ));
 
     // Mimic the behavior of ethers' `Wallet`:
     // - You don't need to pass in `tx.from`
     // - However if you do provide `tx.from`, verify and drop it before serialization
     //
-    // https://github.com/ethers-io/ethers.js/blob/f97b92bbb1bde22fcc44100af78d7f31602863ab/packages/wallet/src.ts/index.ts#L117-L121
+    // https://github.com/ethers-io/ethers.js/blob/e454afb2fa3612c273a09b154c36b35fafab17b1/lib.esm/wallet/base-wallet.js#L65-L66
     if (unsignedTx.from != null) {
       const selfAddress = await this.getAddress();
       if (ethers.getAddress(unsignedTx.from.toString()) !== selfAddress) {
@@ -141,11 +139,10 @@ export class TurnkeySigner extends ethers.AbstractSigner implements ethers.Signe
         );
       }
 
-      // maybe we no longer need to drop this
-      // delete unsignedTx.from;
+      delete unsignedTx.from;
     }
 
-    const serializedTx = ethers.Transaction.from(unsignedTx).unsignedSerialized;
+    const serializedTx = ethers.Transaction.from(unsignedTx as ethers.Transaction).unsignedSerialized;
     const nonHexPrefixedSerializedTx = serializedTx.replace(/^0x/, "");
     const signedTx = await this._signTransactionWithErrorWrapping(
       nonHexPrefixedSerializedTx
