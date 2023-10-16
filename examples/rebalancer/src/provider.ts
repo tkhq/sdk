@@ -12,16 +12,16 @@ const DEFAULT_ENV = Environment.SEPOLIA;
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-let provider = new ethers.providers.InfuraProvider(
+let provider = new ethers.InfuraProvider(
   DEFAULT_ENV,
   process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY
 );
 
 export function getProvider(
   env = Environment.SEPOLIA
-): ethers.providers.Provider {
+): ethers.Provider {
   if (env !== Environment.SEPOLIA) {
-    provider = new ethers.providers.InfuraProvider(
+    provider = new ethers.InfuraProvider(
       env,
       process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY
     );
@@ -31,9 +31,9 @@ export function getProvider(
 }
 
 // getTurnkeySigner returns a TurnkeySigner connected to the passed-in Provider
-// (https://docs.ethers.org/v5/api/providers/)
+// (https://docs.ethers.org/v6/api/providers/)
 export function getTurnkeySigner(
-  provider: ethers.providers.Provider,
+  provider: ethers.Provider,
   privateKeyId: string
 ): TurnkeySigner {
   const turnkeyClient = new TurnkeyClient(

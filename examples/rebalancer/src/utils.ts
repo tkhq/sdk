@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 
 // Environment
 export enum Environment {
@@ -27,8 +27,8 @@ export function findPrivateKeys(organization: any, tagName: string) {
 export function fromReadableAmount(
   amount: number,
   decimals: number
-): BigNumber {
-  return ethers.utils.parseUnits(amount.toString(), decimals);
+): BigNumberish {
+  return ethers.parseUnits(amount.toString(), decimals);
 }
 
 // toReadableAmount converts atomic amounts to whole amounts
@@ -37,7 +37,7 @@ export function toReadableAmount(
   decimals: number,
   maxDecimals = MAX_DECIMALS
 ): string {
-  return ethers.utils.formatUnits(rawAmount, decimals).slice(0, maxDecimals);
+  return ethers.formatUnits(rawAmount, decimals).slice(0, maxDecimals);
 }
 
 // isKeyOfObject checks if a key exists within an object
