@@ -159,13 +159,12 @@ export class IframeStamper {
       );
     }
 
-    const challenge = await getChallengeFromPayload(payload);
     const iframeOrigin = this.iframeOrigin;
 
     this.iframe.contentWindow?.postMessage(
       {
         type: IframeEventType.StampRequest,
-        value: Buffer.from(challenge).toString("hex"),
+        value: payload,
       },
       "*"
     );
@@ -190,12 +189,4 @@ export class IframeStamper {
       );
     });
   }
-}
-
-async function getChallengeFromPayload(payload: string): Promise<Uint8Array> {
-  const messageBuffer = new TextEncoder().encode(payload);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", messageBuffer);
-  const hexString = Buffer.from(hashBuffer).toString("hex");
-  const hexBuffer = Buffer.from(hexString, "utf8");
-  return new Uint8Array(hexBuffer);
 }
