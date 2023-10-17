@@ -117,8 +117,16 @@ import type {
   TExportPrivateKeyResponse,
 } from "./public_api.fetcher";
 import type {
+  TExportWalletBody,
+  TExportWalletResponse,
+} from "./public_api.fetcher";
+import type {
   TInitUserEmailRecoveryBody,
   TInitUserEmailRecoveryResponse,
+} from "./public_api.fetcher";
+import type {
+  TRecoverUserBody,
+  TRecoverUserResponse,
 } from "./public_api.fetcher";
 import type {
   TRejectActivityBody,
@@ -1142,6 +1150,37 @@ export class TurnkeyClient {
   };
 
   /**
+   * Exports a Wallet
+   *
+   * Sign the provided `TExportWalletBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/export_wallet).
+   *
+   * See also {@link stampExportWallet}.
+   */
+  exportWallet = async (
+    input: TExportWalletBody
+  ): Promise<TExportWalletResponse> => {
+    return this.request("/public/v1/submit/export_wallet", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TExportWalletBody` by using the client's `stamp` function.
+   *
+   * See also {@link ExportWallet}.
+   */
+  stampExportWallet = async (
+    input: TExportWalletBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/export_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Initializes a new recovery
    *
    * Sign the provided `TInitUserEmailRecoveryBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_user_email_recovery).
@@ -1164,6 +1203,37 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/init_user_email_recovery";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Completes the process of recovering a user by adding an authenticator
+   *
+   * Sign the provided `TRecoverUserBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/recover_user).
+   *
+   * See also {@link stampRecoverUser}.
+   */
+  recoverUser = async (
+    input: TRecoverUserBody
+  ): Promise<TRecoverUserResponse> => {
+    return this.request("/public/v1/submit/recover_user", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TRecoverUserBody` by using the client's `stamp` function.
+   *
+   * See also {@link RecoverUser}.
+   */
+  stampRecoverUser = async (
+    input: TRecoverUserBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/recover_user";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

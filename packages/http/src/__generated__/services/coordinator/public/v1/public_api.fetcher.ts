@@ -1460,6 +1460,52 @@ export const signExportPrivateKey = (
   });
 
 /**
+ * `POST /public/v1/submit/export_wallet`
+ */
+export type TExportWalletResponse =
+  operations["PublicApiService_ExportWallet"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/export_wallet`
+ */
+export type TExportWalletInput = { body: TExportWalletBody };
+
+/**
+ * `POST /public/v1/submit/export_wallet`
+ */
+export type TExportWalletBody =
+  operations["PublicApiService_ExportWallet"]["parameters"]["body"]["body"];
+
+/**
+ * Export Wallet
+ *
+ * Exports a Wallet
+ *
+ * `POST /public/v1/submit/export_wallet`
+ */
+export const exportWallet = (input: TExportWalletInput) =>
+  request<TExportWalletResponse, TExportWalletBody, never, never, never>({
+    uri: "/public/v1/submit/export_wallet",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ExportWallet` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ExportWallet}
+ */
+export const signExportWallet = (
+  input: TExportWalletInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TExportWalletBody, never, never>({
+    uri: "/public/v1/submit/export_wallet",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/init_user_email_recovery`
  */
 export type TInitUserEmailRecoveryResponse =
@@ -1507,6 +1553,52 @@ export const signInitUserEmailRecovery = (
 ) =>
   signedRequest<TInitUserEmailRecoveryBody, never, never>({
     uri: "/public/v1/submit/init_user_email_recovery",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/recover_user`
+ */
+export type TRecoverUserResponse =
+  operations["PublicApiService_RecoverUser"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/recover_user`
+ */
+export type TRecoverUserInput = { body: TRecoverUserBody };
+
+/**
+ * `POST /public/v1/submit/recover_user`
+ */
+export type TRecoverUserBody =
+  operations["PublicApiService_RecoverUser"]["parameters"]["body"]["body"];
+
+/**
+ * Recover a user
+ *
+ * Completes the process of recovering a user by adding an authenticator
+ *
+ * `POST /public/v1/submit/recover_user`
+ */
+export const recoverUser = (input: TRecoverUserInput) =>
+  request<TRecoverUserResponse, TRecoverUserBody, never, never, never>({
+    uri: "/public/v1/submit/recover_user",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `RecoverUser` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link RecoverUser}
+ */
+export const signRecoverUser = (
+  input: TRecoverUserInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TRecoverUserBody, never, never>({
+    uri: "/public/v1/submit/recover_user",
     body: input.body,
     options,
   });

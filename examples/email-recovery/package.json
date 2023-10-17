@@ -1,0 +1,32 @@
+{
+  "name": "@turnkey/example-email-recovery",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/http": "workspace:*",
+    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/iframe-stamper": "workspace:*",
+    "@types/node": "20.3.1",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6",
+    "axios": "^1.4.0",
+    "encoding": "^0.1.13",
+    "eslint": "8.43.0",
+    "eslint-config-next": "13.4.7",
+    "esm": "^3.2.25",
+    "install": "^0.13.0",
+    "next": "13.4.7",
+    "npm": "^9.7.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "^7.45.1",
+    "typescript": "5.1.3"
+  }
+}

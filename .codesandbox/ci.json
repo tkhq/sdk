@@ -7,7 +7,8 @@
     "packages/http",
     "packages/viem",
     "packages/webauthn-stamper",
-    "packages/api-key-stamper"
+    "packages/api-key-stamper",
+    "packages/iframe-stamper"
   ],
   "sandboxes": [],
   "node": "18"
