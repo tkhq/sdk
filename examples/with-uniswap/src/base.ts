@@ -55,7 +55,7 @@ export async function createV3Trade(): Promise<TokenTrade> {
     connectedSigner
   );
 
-  const tokenBalance = await tokenContract.balanceOf(address);
+  const tokenBalance = await tokenContract.balanceOf!(address);
   if (tokenBalance < inputAmount) {
     throw new Error(
       `Insufficient funds to perform this trade. Have: ${tokenBalance} ${inputToken.symbol}; Need: ${inputAmount} ${inputToken.symbol}.`
@@ -95,7 +95,7 @@ export async function createV3Trade(): Promise<TokenTrade> {
 
 export async function executeTrade(
   trade: TokenTrade
-): Promise<ethers.providers.TransactionResponse> {
+): Promise<ethers.TransactionResponse> {
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(provider);
   const address = await connectedSigner.getAddress();
@@ -172,7 +172,7 @@ async function getOutputQuote(route: Route<Currency, Currency>) {
     data: calldata,
   });
 
-  return ethers.utils.defaultAbiCoder.decode(["uint256"], quoteCallReturnData);
+  return ethers.AbiCoder.defaultAbiCoder().decode(["uint256"], quoteCallReturnData);
 }
 
 export async function getTokenTransferApproval(
@@ -193,11 +193,7 @@ export async function getTokenTransferApproval(
       connectedSigner
     );
 
-    // Verify that `approve` is an available method on the contract
-    if (!tokenContract.populateTransaction.approve)
-      return TransactionState.Failed;
-
-    const transaction = await tokenContract.populateTransaction.approve(
+    const transaction = await tokenContract.approve!.populateTransaction(
       SWAP_ROUTER_ADDRESS,
       fromReadableAmount(
         UniV3SwapConfig.tokens.amountIn,
