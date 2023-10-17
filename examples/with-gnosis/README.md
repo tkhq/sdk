@@ -1,6 +1,6 @@
 # Example: `with-gnosis`
 
-This example shows how to create new Ethereum addresses via Turnkey, configure a 3/3 Gnosis safe, and create, sign, and execute a transaction from it.
+This example shows how to create new Ethereum addresses via Turnkey, configure a 3/3 Gnosis safe, and create, sign, and execute a transaction from it. Note that this example is pinned to Ethers v5, the Gnosis Safe SDK is currently adding support for Ethers v6. As a result, this specific directory has been isolated (in the pnpm sense) -- note the presence of its own `pnpm-lock.yaml`.
 
 ## Getting started
 
@@ -15,6 +15,7 @@ $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
 $ cd examples/with-gnosis/
+$ pnpm --ignore-workspace install # Because this example relies on Ethers v5
 ```
 
 ### 2/ Setting up Turnkey
