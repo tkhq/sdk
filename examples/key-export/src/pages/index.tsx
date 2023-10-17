@@ -6,49 +6,16 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Export } from "@/components/Export";
+import exp from "constants";
 
 type TPrivateKey = TurnkeyApiTypes["v1PrivateKey"];
-
-/**
- * Type definitions for the client-side requests
- */
-type ExportRequestData = {
-  targetPublicKey: string;
-  privateKeyId: string;
-};
 
 const TurnkeyIframeContainerId = "turnkey-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-iframe-element-id";
 
-// All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
-// We only support ES256 and RS256, which are listed here
-const es256 = -7;
-const rs256 = -257;
-
-// This constant designates the type of credential we want to create.
-// The enum only supports one value, "public-key"
-// https://www.w3.org/TR/webauthn-2/#enumdef-publickeycredentialtype
-const publicKey = "public-key";
-
-const generateRandomBuffer = (): ArrayBuffer => {
-  const arr = new Uint8Array(32);
-  crypto.getRandomValues(arr);
-  return arr.buffer;
-};
-
-const base64UrlEncode = (challenge: ArrayBuffer): string => {
-  return Buffer.from(challenge)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
-};
-
 export default function ExportPage() {
   const [privateKeys, setPrivateKeys] = useState<TPrivateKey[]>([]);
-  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
-    null
-  );
+  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(null);
 
   useEffect(() => {
     const instantiateIframeStamper = async () => {
@@ -120,7 +87,12 @@ export default function ExportPage() {
             return (
               <tr className={styles.tableRow} key={key}>
                 <td className={styles.cell}>
-                  <button id="export" className={styles.exportButton}>
+                  <button
+                    className={styles.exportButton}
+                    onClick={() => {
+                      exportKey(val.privateKeyId)
+                    }}
+                  >
                     <ExportIcon />
                   </button>
                 </td>
@@ -146,6 +118,24 @@ export default function ExportPage() {
       </table>
     </div>
   );
+
+  const exportKey = async (keyId: string) => {
+    if (iframeStamper === null) {
+      throw new Error("cannot export private key without an iframe");
+    }
+
+    const response = await axios.post("/api/exportPrivateKey", {
+      privateKeyId: keyId,
+      targetPublicKey: iframeStamper.publicKey(),
+    });
+    
+    let injected = await iframeStamper.injectExportBundle(
+      response.data["exportBundle"],
+    );
+    if (injected !== true) {
+      throw new Error("unexpected error while injecting export bundle");
+    }
+  };
  
 
   return (
