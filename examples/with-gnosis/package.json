@@ -15,6 +15,6 @@
     "@turnkey/ethers": "workspace:*",
     "@turnkey/http": "workspace:*",
     "dotenv": "^16.0.3",
-    "ethers": "^5.7.2"
+    "ethers": "^6.8.0"
   }
 }
