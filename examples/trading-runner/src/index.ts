@@ -280,12 +280,12 @@ async function wrapUnwrapImpl(baseAsset: string, baseAmount: string) {
     tradingPrivateKey!.privateKeyId
   );
 
-  const feeData = await connectedSigner.getFeeData();
+  const feeData = await provider.getFeeData();
   const metadata = ASSET_METADATA["WETH"];
   const tokenContract = new ethers.Contract(
     metadata!.token.address,
     metadata!.abi,
-    connectedSigner
+    provider,
   );
 
   if (baseAsset === "ETH") {
@@ -354,7 +354,7 @@ async function tradeImpl(
       "For Uniswap v2/v3 trades, native ETH must first be converted to WETH.\n"
     );
 
-    const feeData = await connectedSigner.getFeeData();
+    const feeData = await provider.getFeeData();
     const metadata = ASSET_METADATA["WETH"];
     const tokenContract = new ethers.Contract(
       metadata!.token.address,
@@ -400,7 +400,7 @@ async function tradeImpl(
     connectedSigner
   );
 
-  const tokenBalance = await tokenContract.balanceOf(
+  const tokenBalance = await tokenContract.balanceOf!(
     tradingPrivateKey?.addresses[0]?.address
   );
 
@@ -453,7 +453,7 @@ async function tradeImpl(
   if (quoteAsset === "ETH") {
     console.log("Unwrapping WETH...\n");
 
-    const feeData = await connectedSigner.getFeeData();
+    const feeData = await provider.getFeeData();
     const metadata = ASSET_METADATA["WETH"];
     const tokenContract = new ethers.Contract(
       metadata!.token.address,
@@ -544,23 +544,28 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
     provider,
     tradingPrivateKey.privateKeyId
   );
-  const feeData = await connectedSigner.getFeeData();
+  const address = await connectedSigner.getAddress();
+  const feeDataResults = await provider.getFeeData();
+  const newFeeData = {
+    maxFeePerGas: feeDataResults.maxFeePerGas! * BigInt(GAS_MULTIPLIER),
+    maxPriorityFeePerGas:
+      feeDataResults.maxPriorityFeePerGas! * BigInt(GAS_MULTIPLIER),
+  };
 
-  feeData.maxFeePerGas = feeData.maxFeePerGas!.mul(GAS_MULTIPLIER);
-  feeData.maxPriorityFeePerGas =
-    feeData.maxPriorityFeePerGas!.mul(GAS_MULTIPLIER);
+  const feeData = {
+    ...feeDataResults,
+    ...newFeeData,
+  } as ethers.FeeData;
 
   if (asset === "ETH") {
-    const balance = await connectedSigner.getBalance();
+    const balance = await provider.getBalance(address);
     const sweepAmount = fromReadableAmount(parseFloat(amount), 18) || balance;
-    const gasRequired = feeData
-      .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
-      .mul(NATIVE_TRANSFER_GAS_LIMIT);
+    const gasRequired = (feeData.maxFeePerGas! + feeData.maxPriorityFeePerGas!) * BigInt(NATIVE_TRANSFER_GAS_LIMIT);
 
-    const finalAmount = sweepAmount.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
+    const finalAmount = BigInt(sweepAmount) - (gasRequired * 2n); // be relatively conservative with sweep amount to prevent overdraft
 
     // make balance check to confirm we can make the trade
-    if (finalAmount.lte(0)) {
+    if (finalAmount <= 0n) {
       throw new Error(`Insufficient funds to sweep ${sweepAmount} ETH.`);
     }
 
@@ -587,7 +592,7 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
       metadata!.abi,
       connectedSigner
     );
-    const tokenBalance = await tokenContract.balanceOf(
+    const tokenBalance = await tokenContract.balanceOf!(
       tradingPrivateKey?.addresses[0]?.address
     );
     const sweepAmount = amount

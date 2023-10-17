@@ -8,12 +8,12 @@ import {
 } from "./uniswap/constants";
 
 export async function broadcastTx(
-  provider: ethers.providers.Provider,
+  provider: ethers.Provider,
   signedTx: string,
   activityId: string
 ) {
   const network = await provider.getNetwork();
-  const txHash = ethers.utils.keccak256(signedTx);
+  const txHash = ethers.keccak256(signedTx);
 
   console.log(
     [
@@ -26,12 +26,14 @@ export async function broadcastTx(
   );
 
   const transaction = await provider.getTransaction(txHash);
-  if (transaction?.confirmations > 0) {
+  const confirmations = await transaction?.confirmations();
+
+  if (confirmations! > 0) {
     console.log(`Transaction ${txHash} has already been broadcasted\n`);
     return;
   }
 
-  const { hash } = await provider.sendTransaction(signedTx);
+  const { hash } = await provider.broadcastTransaction(signedTx);
 
   console.log(`Awaiting confirmation for transaction hash ${hash}...\n`);
 
@@ -44,16 +46,17 @@ export async function broadcastTx(
 }
 
 export async function sendEth(
-  provider: ethers.providers.Provider,
+  provider: ethers.Provider,
   connectedSigner: ethers.Signer,
   destinationAddress: string,
-  value: ethers.BigNumber,
-  precalculatedFeeData: ethers.providers.FeeData | undefined = undefined
+  value: ethers.BigNumberish,
+  precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
   const network = await provider.getNetwork();
-  const balance = await connectedSigner.getBalance();
+  const address = await connectedSigner.getAddress();
+  const balance = await provider.getBalance(address);
 
-  if (balance.isZero()) {
+  if (balance === 0n) {
     let warningMessage =
       "The transaction won't be broadcast because your account balance is zero.\n";
     if (network.name === "goerli") {
@@ -64,13 +67,11 @@ export async function sendEth(
     throw new Error(warningMessage);
   }
 
-  const feeData = precalculatedFeeData || (await connectedSigner.getFeeData());
-  const gasRequired = feeData
-    .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
-    .mul(NATIVE_TRANSFER_GAS_LIMIT);
-  const totalCost = gasRequired.add(value);
+  const feeData = precalculatedFeeData || (await provider.getFeeData());
+  const gasRequired = (feeData.maxFeePerGas! + feeData.maxPriorityFeePerGas!) * BigInt(NATIVE_TRANSFER_GAS_LIMIT);
+  const totalCost = gasRequired + BigInt(value);
 
-  if (balance.lt(totalCost)) {
+  if (balance < totalCost) {
     console.error(`Insufficient ETH balance of ${balance}. Needs ${totalCost}`);
   }
 
@@ -117,19 +118,19 @@ export async function sendEth(
 }
 
 export async function sendToken(
-  provider: ethers.providers.Provider,
+  provider: ethers.Provider,
   connectedSigner: ethers.Signer,
   destinationAddress: string,
-  value: ethers.BigNumber,
+  value: ethers.BigNumberish,
   token: Token,
   tokenContract: ethers.Contract,
-  precalculatedFeeData: ethers.providers.FeeData | undefined = undefined
+  precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
   const network = await provider.getNetwork();
-  const balance = await connectedSigner.getBalance();
   const address = await connectedSigner.getAddress();
+  const balance = await provider.getBalance(address);
 
-  if (balance.isZero()) {
+  if (balance === 0n) {
     let warningMessage =
       "The transaction won't be broadcast because your account balance is zero.\n";
     if (network.name === "goerli") {
@@ -140,31 +141,27 @@ export async function sendToken(
     throw new Error(warningMessage);
   }
 
-  const feeData = precalculatedFeeData || (await connectedSigner.getFeeData());
-  const gasRequired = feeData
-    .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
-    .mul(ERC20_TRANSFER_GAS_LIMIT);
+  const feeData = precalculatedFeeData || (await provider.getFeeData());
+  const gasRequired =
+    (feeData.maxFeePerGas! + feeData.maxPriorityFeePerGas!) *
+    BigInt(ERC20_TRANSFER_GAS_LIMIT);
 
-  if (balance.lt(gasRequired)) {
+  if (balance < gasRequired) {
     throw new Error(
       `Insufficient ETH balance of ${balance}. Needs ${gasRequired} for gas`
     );
   }
 
   // check token balance
-  const tokenBalance = await tokenContract.balanceOf(address);
+  const tokenBalance = await tokenContract.balanceOf!(address);
   if (tokenBalance.lt(value)) {
     throw new Error(
       `Insufficient funds to perform this trade. Have: ${tokenBalance} ${token.symbol}; Need: ${value} ${token.symbol}.`
     );
   }
 
-  if (!tokenContract.populateTransaction.transfer) {
-    throw new Error("Invalid contract call. Exiting...\n");
-  }
-
   // populate transaction
-  const populatedTx = await tokenContract.populateTransaction.transfer(
+  const populatedTx = await tokenContract.transfer!.populateTransaction(
     destinationAddress,
     value
   );
@@ -202,15 +199,16 @@ export async function sendToken(
 
 export async function wrapEth(
   connectedSigner: ethers.Signer,
-  value: ethers.BigNumber,
+  value: ethers.BigNumberish,
   tokenContract: ethers.Contract,
-  precalculatedFeeData: ethers.providers.FeeData | undefined = undefined
+  precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
   const provider = connectedSigner.provider!;
   const network = await provider.getNetwork();
-  const balance = await connectedSigner.getBalance();
+  const address = await connectedSigner.getAddress();
+  const balance = await provider.getBalance(address);
 
-  if (balance.isZero()) {
+  if (balance === 0n) {
     let warningMessage =
       "The transaction won't be broadcast because your account balance is zero.\n";
     if (network.name === "goerli") {
@@ -221,44 +219,40 @@ export async function wrapEth(
     throw new Error(warningMessage);
   }
 
-  const feeData = precalculatedFeeData || (await connectedSigner.getFeeData());
-  const gasRequired = feeData
-    .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
-    .mul(ERC20_TRANSFER_GAS_LIMIT);
+  const feeData = precalculatedFeeData || (await provider.getFeeData());
+  const gasRequired =
+    (feeData.maxFeePerGas! + feeData.maxPriorityFeePerGas!) *
+    BigInt(ERC20_TRANSFER_GAS_LIMIT);
 
-  if (balance.lt(value.add(gasRequired))) {
+  if (balance < (BigInt(value) + gasRequired)) {
     throw new Error(
       `Insufficient ETH balance of ${toReadableAmount(
         balance.toString(),
         18,
         12
       )}. Needs ${toReadableAmount(
-        value.add(gasRequired).toString(),
+        (BigInt(value) + gasRequired).toString(),
         18,
         12
       )} ETH.`
     );
   }
 
-  if (balance.lt(value)) {
+  if (balance < BigInt(value)) {
     throw new Error(
       `Insufficient funds to perform this deposit. Have: ${toReadableAmount(
         balance.toString(),
         18,
         12
       )} ETH; Need: ${toReadableAmount(
-        value.add(gasRequired).toString(),
+        (BigInt(value) + gasRequired).toString(),
         18,
         12
       )} ETH.`
     );
   }
 
-  if (!tokenContract.populateTransaction.deposit) {
-    throw new Error("Invalid contract call. Exiting...\n");
-  }
-
-  const populatedTx = await tokenContract!.populateTransaction!.deposit({
+  const populatedTx = await tokenContract.deposit!.populateTransaction({
     value,
   });
 
@@ -289,16 +283,16 @@ export async function wrapEth(
 
 export async function unwrapWeth(
   connectedSigner: ethers.Signer,
-  value: ethers.BigNumber,
+  value: ethers.BigNumberish,
   tokenContract: ethers.Contract,
-  precalculatedFeeData: ethers.providers.FeeData | undefined = undefined
+  precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
   const provider = connectedSigner.provider!;
   const network = await provider.getNetwork();
-  const balance = await connectedSigner.getBalance();
   const address = await connectedSigner.getAddress();
+  const balance = await provider.getBalance(address);
 
-  if (balance.isZero()) {
+  if (balance === 0n) {
     let warningMessage =
       "The transaction won't be broadcast because your account balance is zero.\n";
     if (network.name === "goerli") {
@@ -309,19 +303,17 @@ export async function unwrapWeth(
     throw new Error(warningMessage);
   }
 
-  const feeData = precalculatedFeeData || (await connectedSigner.getFeeData());
-  const gasRequired = feeData
-    .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
-    .mul(ERC20_TRANSFER_GAS_LIMIT);
+  const feeData = precalculatedFeeData || (await provider.getFeeData());
+  const gasRequired = (feeData.maxFeePerGas! + feeData.maxPriorityFeePerGas!) * BigInt(ERC20_TRANSFER_GAS_LIMIT);
 
-  if (balance.lt(gasRequired)) {
+  if (balance < gasRequired) {
     throw new Error(
       `Insufficient ETH balance of ${toReadableAmount(
         balance.toString(),
         18,
         12
       )}. Needs ${toReadableAmount(
-        value.add(gasRequired).toString(),
+        (BigInt(value) + gasRequired).toString(),
         18,
         12
       )} ETH for gas.`
@@ -329,7 +321,7 @@ export async function unwrapWeth(
   }
 
   // check token balance
-  const tokenBalance = await tokenContract.balanceOf(address);
+  const tokenBalance = await tokenContract.balanceOf!(address);
   if (tokenBalance.lt(value)) {
     throw new Error(
       `Insufficient funds to unwrap. Have: ${toReadableAmount(
@@ -340,11 +332,7 @@ export async function unwrapWeth(
     );
   }
 
-  if (!tokenContract.populateTransaction.withdraw) {
-    throw new Error("Invalid contract call. Exiting...\n");
-  }
-
-  const populatedTx = await tokenContract!.populateTransaction!.withdraw(value);
+  const populatedTx = await tokenContract.wiwthdraw!.populateTransaction(value);
 
   try {
     console.log("Awaiting confirmation for unwrap tx...\n");
