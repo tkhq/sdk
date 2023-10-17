@@ -153,7 +153,9 @@ export default function RecoveryPage() {
     console.log(response);
 
     // Instead of simply alerting, redirect the user to your app's login page.
-    alert("SUCCESS! Authenticator added. Recovery flow complete. Try logging back in!");
+    alert(
+      "SUCCESS! Authenticator added. Recovery flow complete. Try logging back in!"
+    );
   };
 
   return (
@@ -197,8 +199,11 @@ export default function RecoveryPage() {
               />
             </label>
             <label className={styles.label}>
-              Encryption Target from iframe:<br/>
-              <code title={iframeStamper.publicKey()!}>{iframeStamper.publicKey()!.substring(0,30)}...</code>
+              Encryption Target from iframe:
+              <br />
+              <code title={iframeStamper.publicKey()!}>
+                {iframeStamper.publicKey()!.substring(0, 30)}...
+              </code>
             </label>
 
             <input
