@@ -66,7 +66,7 @@ export class IframeStamper {
     }
     this.container = container;
 
-    var iframe = window.document.createElement("iframe");
+    let iframe = window.document.createElement("iframe");
     iframe.id = config.iframeElementId;
     iframe.src = config.iframeUrl;
     this.iframe = iframe;
@@ -92,9 +92,9 @@ export class IframeStamper {
             // Instead of erroring out
             return;
           }
-          if (event.data?.type == IframeEventType.PublicKeyReady) {
-            resolve(event.data["value"]);
+          if (event.data?.type === IframeEventType.PublicKeyReady) {
             this.iframePublicKey = event.data["value"];
+            resolve(event.data["value"]);
           }
         },
         false
@@ -140,7 +140,7 @@ export class IframeStamper {
             // Instead of erroring out we simply return. Not our event!
             return;
           }
-          if (event.data?.type == IframeEventType.BundleInjected) {
+          if (event.data?.type === IframeEventType.BundleInjected) {
             resolve(event.data["value"]);
           }
         },
@@ -179,7 +179,7 @@ export class IframeStamper {
             // Instead of erroring out we simply return. Not our event!
             return;
           }
-          if (event.data?.type == IframeEventType.Stamp) {
+          if (event.data?.type === IframeEventType.Stamp) {
             resolve({
               stampHeaderName: stampHeaderName,
               stampHeaderValue: event.data["value"],

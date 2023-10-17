@@ -24,7 +24,6 @@ type RecoverUserFormData = {
   authenticatorName: string;
 };
 type InitRecoveryFormData = {
-  targetPublicKey: string;
   email: string;
 };
 
@@ -68,9 +67,13 @@ export default function RecoveryPage() {
   } = useForm<RecoverUserFormData>();
 
   const initRecovery = async (data: InitRecoveryFormData) => {
+    if (iframeStamper === null) {
+      throw new Error("cannot initialize recovery without an iframe");
+    }
+
     const response = await axios.post("/api/initRecovery", {
       email: data.email,
-      targetPublicKey: data.targetPublicKey,
+      targetPublicKey: iframeStamper.publicKey(),
     });
     setInitRecoveryResponse(response.data);
   };
@@ -194,13 +197,8 @@ export default function RecoveryPage() {
               />
             </label>
             <label className={styles.label}>
-              Target Public Key (from iframe)
-              <input
-                className={styles.input}
-                {...initRecoveryFormRegister("targetPublicKey")}
-                value={iframeStamper.publicKey()!}
-                disabled
-              />
+              Encryption Target from iframe:<br/>
+              <code title={iframeStamper.publicKey()!}>{iframeStamper.publicKey()!.substring(0,30)}...</code>
             </label>
 
             <input
