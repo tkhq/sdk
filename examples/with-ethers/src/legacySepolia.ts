@@ -9,7 +9,7 @@ import { ethers } from "ethers";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
-import WETH_TOKEN_ABI from "./weth-contract-abi.json";
+import WETH_TOKEN_ABI from "./contracts/weth-contract-abi.json";
 
 const WETH_TOKEN_ADDRESS_SEPOLIA = "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9";
 
@@ -37,20 +37,21 @@ async function main() {
     privateKeyId: process.env.PRIVATE_KEY_ID!,
   });
 
-  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
+  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v6/api/providers/)
   const network = "sepolia";
-  const provider = new ethers.providers.InfuraProvider(network);
+  const provider = new ethers.InfuraProvider(network);
   const connectedSigner = turnkeySigner.connect(provider);
+  const connectedNetwork = await provider.getNetwork();
 
-  const chainId = await connectedSigner.getChainId();
+  const chainId = connectedNetwork.chainId;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.getBalance();
-  const transactionCount = await connectedSigner.getTransactionCount();
-  const gasPrice = await connectedSigner.getGasPrice();
+  const balance = await provider.getBalance(address);
+  const transactionCount = await connectedSigner.getNonce();
+  const { gasPrice } = await provider.getFeeData();
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);
-  print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
+  print("Balance:", `${ethers.formatEther(balance)} Ether`);
   print("Transaction count:", `${transactionCount}`);
 
   // 1. Create a legacy, EIP-155 (replay attack-preventing) send transaction
@@ -62,7 +63,7 @@ async function main() {
     to: destinationAddress,
     gasLimit: 21000,
     gasPrice: gasPrice,
-    value: ethers.utils.parseEther(transactionAmount),
+    value: ethers.parseEther(transactionAmount),
     data: "0x",
     type: 0,
   };
@@ -71,7 +72,7 @@ async function main() {
 
   print("Turnkey-signed transaction:", `${signedTx}`);
 
-  if (balance.isZero()) {
+  if (balance === 0n) {
     let warningMessage =
       "The transaction won't be broadcasted because your account balance is zero.\n";
     if (network === "sepolia") {
@@ -86,7 +87,7 @@ async function main() {
   const sentTx = await connectedSigner.sendTransaction(transactionRequest);
 
   print(
-    `Sent ${ethers.utils.formatEther(sentTx.value)} Ether to ${sentTx.to}:`,
+    `Sent ${ethers.formatEther(sentTx.value)} Ether to ${sentTx.to}:`,
     `https://${network}.etherscan.io/tx/${sentTx.hash}`
   );
 
@@ -99,17 +100,17 @@ async function main() {
     );
 
     // Read from contract
-    const wethBalance = await wethContract.balanceOf(address);
+    const wethBalance = await wethContract.balanceOf!(address);
 
-    print("WETH Balance:", `${ethers.utils.formatEther(wethBalance)} WETH`);
+    print("WETH Balance:", `${ethers.formatEther(wethBalance)} WETH`);
 
     // 2. Wrap ETH -> WETH
-    const depositTx = await wethContract.deposit({
-      value: ethers.utils.parseEther(transactionAmount),
+    const depositTx = await wethContract.deposit!({
+      value: ethers.parseEther(transactionAmount),
     });
 
     print(
-      `Wrapped ${ethers.utils.formatEther(depositTx.value)} ETH:`,
+      `Wrapped ${ethers.formatEther(depositTx.value)} ETH:`,
       `https://${network}.etherscan.io/tx/${depositTx.hash}`
     );
   }
