@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import type { Provider, TransactionRequest, BigNumberish } from "ethers";
 import {
   DEFAULT_MAX_FEE_PER_GAS,
   DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
@@ -15,19 +15,19 @@ export function sleep(milliseconds: number) {
 
 // Helper to update a transaction with increased gas fee params
 export async function getUpdatedTransaction(
-  provider: ethers.providers.Provider,
-  transaction: ethers.providers.TransactionRequest
+  provider: Provider,
+  transaction: TransactionRequest
 ) {
   const feeData = await provider.getFeeData();
 
   const maxFee = maxBigNumber([
     feeData.maxFeePerGas!,
-    transaction.maxFeePerGas,
+    transaction.maxFeePerGas || 0,
     DEFAULT_MAX_FEE_PER_GAS,
   ]);
   const maxPriorityFee = maxBigNumber([
     feeData.maxPriorityFeePerGas!,
-    transaction.maxPriorityFeePerGas,
+    transaction.maxPriorityFeePerGas || 0,
     DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
   ]);
 
@@ -49,13 +49,13 @@ export async function getUpdatedTransaction(
 
 // Helper to get the maximum BigNumber in a given array
 export function maxBigNumber(
-  arr: (ethers.BigNumberish | undefined)[]
-): ethers.BigNumber {
-  let max = ethers.BigNumber.from(0);
+  arr: (BigNumberish | undefined)[]
+): BigNumberish {
+  let max = 0n;
 
   for (let i = 0; i < arr.length; i++) {
-    const value = ethers.BigNumber.from(arr[i] || 0);
-    if (value.gt(max)) {
+    const value = BigInt(arr[i] || 0);
+    if (value > max) {
       max = value;
     }
   }
