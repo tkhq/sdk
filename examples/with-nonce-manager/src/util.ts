@@ -48,9 +48,7 @@ export async function getUpdatedTransaction(
 }
 
 // Helper to get the maximum BigNumber in a given array
-export function maxBigNumber(
-  arr: (BigNumberish | undefined)[]
-): BigNumberish {
+export function maxBigNumber(arr: (BigNumberish | undefined)[]): BigNumberish {
   let max = 0n;
 
   for (let i = 0; i < arr.length; i++) {

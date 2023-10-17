@@ -98,7 +98,10 @@ async function main() {
 
   if (network === "goerli") {
     // https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6
-    const wethContract = WethContractFactory.connect(WETH_TOKEN_ADDRESS_GOERLI, connectedSigner);
+    const wethContract = WethContractFactory.connect(
+      WETH_TOKEN_ADDRESS_GOERLI,
+      connectedSigner
+    );
 
     // Read from contract
     const wethBalance = await wethContract.balanceOf(address);

@@ -172,7 +172,10 @@ async function getOutputQuote(route: Route<Currency, Currency>) {
     data: calldata,
   });
 
-  return ethers.AbiCoder.defaultAbiCoder().decode(["uint256"], quoteCallReturnData);
+  return ethers.AbiCoder.defaultAbiCoder().decode(
+    ["uint256"],
+    quoteCallReturnData
+  );
 }
 
 export async function getTokenTransferApproval(

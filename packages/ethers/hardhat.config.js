@@ -10,11 +10,11 @@ const config = {
     cache: "./.cache",
   },
   typechain: {
-    outDir: 'src/__tests__/typechain',
-    target: 'ethers-v6',
+    outDir: "src/__tests__/typechain",
+    target: "ethers-v6",
     alwaysGenerateOverloads: false,
     externalArtifacts: [],
-    dontOverrideCompile: false
+    dontOverrideCompile: false,
   },
 };
 

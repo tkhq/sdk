@@ -9,6 +9,7 @@ If you need a lower-level, fully typed HTTP client for interacting with Turnkey 
 API Docs: https://docs.turnkey.com/
 
 ## Upgrading from v5 to v6
+
 For starters, check out the official Ethers v5 to v6 [migration guide](https://docs.ethers.org/v6/migrating/) for a summary of changes. Note: if EIP-1193 is a critical feature for you, we would recommend to continue using our v5 implementation until an Eip1193Bridge is available for Ethers v6.
 
 ## Getting started
@@ -115,4 +116,5 @@ See `.env.example` to get your local testing environment right. Run `pnpm jest` 
 - [`@turnkey/http`](/packages/http/): lower-level fully typed HTTP client for interacting with Turnkey API
 
 ## Dev notes
+
 For our contract types bindings, we use [Typechain](https://github.com/dethcrypto/TypeChain). These Typechain artifacts are included with our hardhat compilation: `pnpm compile:contracts` (you may need to run `pnpm compile:clean` first). Note that per our top-level `.gitignore`, we are excluding Typechain-related artifacts from git for the sake of simplicity. The artifacts found in `./src/__tests__` are the bare minimum required for our tests, and were simply moved over from the Typechain-generated files.

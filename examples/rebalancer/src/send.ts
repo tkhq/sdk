@@ -65,8 +65,8 @@ export async function sendEth(
   }
 
   const feeData = precalculatedFeeData || (await provider.getFeeData());
-  const gasRequired = (feeData
-    .maxFeePerGas! + feeData.maxPriorityFeePerGas!) * 21000n;
+  const gasRequired =
+    (feeData.maxFeePerGas! + feeData.maxPriorityFeePerGas!) * 21000n;
   const totalCost = gasRequired + BigInt(value);
 
   if (balance < totalCost) {

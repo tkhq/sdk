@@ -99,7 +99,7 @@ describe("TurnkeySigner", () => {
     expect(connectedSigner.signMessage).toBeTruthy();
     expect(await connectedSigner.getAddress()).toBe(expectedEthAddress);
   });
-  
+
   testCase("basics for connected signer via constructor", async () => {
     expect(signerWithProvider.signMessage).toBeTruthy();
     expect(await signerWithProvider.getAddress()).toBe(expectedEthAddress);

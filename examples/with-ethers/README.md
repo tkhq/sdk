@@ -136,4 +136,5 @@ Wrapped 0.00001 ETH:
 ```
 
 ### 4/ Dev notes
+
 For our contract types bindings, we use [Typechain](https://github.com/dethcrypto/TypeChain). To generate new Typechain bindings, run `pnpm typechain`. Note that per our top-level `.gitignore`, we are excluding Typechain-related artifacts from git for the sake of simplicity. Artifacts found in `./src/contracts` were simply moved over from the Typechain-generated files.

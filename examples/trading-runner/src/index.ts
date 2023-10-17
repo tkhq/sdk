@@ -285,7 +285,7 @@ async function wrapUnwrapImpl(baseAsset: string, baseAmount: string) {
   const tokenContract = new ethers.Contract(
     metadata!.token.address,
     metadata!.abi,
-    provider,
+    provider
   );
 
   if (baseAsset === "ETH") {
@@ -560,9 +560,11 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
   if (asset === "ETH") {
     const balance = await provider.getBalance(address);
     const sweepAmount = fromReadableAmount(parseFloat(amount), 18) || balance;
-    const gasRequired = (feeData.maxFeePerGas! + feeData.maxPriorityFeePerGas!) * BigInt(NATIVE_TRANSFER_GAS_LIMIT);
+    const gasRequired =
+      (feeData.maxFeePerGas! + feeData.maxPriorityFeePerGas!) *
+      BigInt(NATIVE_TRANSFER_GAS_LIMIT);
 
-    const finalAmount = BigInt(sweepAmount) - (gasRequired * 2n); // be relatively conservative with sweep amount to prevent overdraft
+    const finalAmount = BigInt(sweepAmount) - gasRequired * 2n; // be relatively conservative with sweep amount to prevent overdraft
 
     // make balance check to confirm we can make the trade
     if (finalAmount <= 0n) {

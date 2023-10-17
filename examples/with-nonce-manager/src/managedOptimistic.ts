@@ -75,18 +75,14 @@ function saveTxs(txMap: Map<string, ethers.TransactionRequest>) {
   console.log(`Successfully wrote transactions to ${fileName}\n`);
 }
 
-async function monitor(
-  provider: ethers.Provider,
-  signer: ethers.Signer
-) {
+async function monitor(provider: ethers.Provider, signer: ethers.Signer) {
   const network = (await signer.provider?.getNetwork())?.name;
   const transactionCount = await signer.getNonce();
   const startTime = Date.now();
   let nonce = transactionCount;
 
   // Load saved transactions from local file and fetch the highest nonce
-  const txMap: Map<string, ethers.TransactionRequest> =
-    await loadTxs();
+  const txMap: Map<string, ethers.TransactionRequest> = await loadTxs();
   const nonces = [...txMap.keys()].map((v) => parseInt(v));
   const finalExpectedNonce = Math.max(...nonces);
 

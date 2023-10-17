@@ -1,11 +1,7 @@
 import { ethers } from "ethers";
 import { TurnkeyActivityError, TurnkeyRequestError } from "@turnkey/http";
 import type { TurnkeyClient } from "@turnkey/http";
-import type {
-  BytesLike,
-  TypedDataDomain,
-  TypedDataField,
-} from "ethers";
+import type { BytesLike, TypedDataDomain, TypedDataField } from "ethers";
 
 type TConfig = {
   /**
@@ -22,7 +18,10 @@ type TConfig = {
   privateKeyId: string;
 };
 
-export class TurnkeySigner extends ethers.AbstractSigner implements ethers.Signer {
+export class TurnkeySigner
+  extends ethers.AbstractSigner
+  implements ethers.Signer
+{
   private readonly client: TurnkeyClient;
 
   public readonly organizationId: string;
@@ -32,7 +31,9 @@ export class TurnkeySigner extends ethers.AbstractSigner implements ethers.Signe
     super();
 
     if (provider != null) {
-      ethers.defineProperties(this, { provider: provider } as { [K in keyof this]?: this[K]; });
+      ethers.defineProperties(this, { provider: provider } as {
+        [K in keyof this]?: this[K];
+      });
     }
 
     this.client = config.client;
@@ -122,9 +123,7 @@ export class TurnkeySigner extends ethers.AbstractSigner implements ethers.Signe
   async signTransaction(
     transaction: ethers.TransactionRequest
   ): Promise<string> {
-    const unsignedTx = (await ethers.resolveProperties(
-      transaction
-    ));
+    const unsignedTx = await ethers.resolveProperties(transaction);
 
     // Mimic the behavior of ethers' `Wallet`:
     // - You don't need to pass in `tx.from`
@@ -142,7 +141,9 @@ export class TurnkeySigner extends ethers.AbstractSigner implements ethers.Signe
       delete unsignedTx.from;
     }
 
-    const serializedTx = ethers.Transaction.from(unsignedTx as ethers.Transaction).unsignedSerialized;
+    const serializedTx = ethers.Transaction.from(
+      unsignedTx as ethers.Transaction
+    ).unsignedSerialized;
     const nonHexPrefixedSerializedTx = serializedTx.replace(/^0x/, "");
     const signedTx = await this._signTransactionWithErrorWrapping(
       nonHexPrefixedSerializedTx

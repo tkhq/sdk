@@ -17,9 +17,7 @@ let provider = new ethers.InfuraProvider(
   process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY
 );
 
-export function getProvider(
-  env = Environment.SEPOLIA
-): ethers.Provider {
+export function getProvider(env = Environment.SEPOLIA): ethers.Provider {
   if (env !== Environment.SEPOLIA) {
     provider = new ethers.InfuraProvider(
       env,

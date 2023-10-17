@@ -68,7 +68,9 @@ export async function sendEth(
   }
 
   const feeData = precalculatedFeeData || (await provider.getFeeData());
-  const gasRequired = (feeData.maxFeePerGas! + feeData.maxPriorityFeePerGas!) * BigInt(NATIVE_TRANSFER_GAS_LIMIT);
+  const gasRequired =
+    (feeData.maxFeePerGas! + feeData.maxPriorityFeePerGas!) *
+    BigInt(NATIVE_TRANSFER_GAS_LIMIT);
   const totalCost = gasRequired + BigInt(value);
 
   if (balance < totalCost) {
@@ -224,7 +226,7 @@ export async function wrapEth(
     (feeData.maxFeePerGas! + feeData.maxPriorityFeePerGas!) *
     BigInt(ERC20_TRANSFER_GAS_LIMIT);
 
-  if (balance < (BigInt(value) + gasRequired)) {
+  if (balance < BigInt(value) + gasRequired) {
     throw new Error(
       `Insufficient ETH balance of ${toReadableAmount(
         balance.toString(),
@@ -304,7 +306,9 @@ export async function unwrapWeth(
   }
 
   const feeData = precalculatedFeeData || (await provider.getFeeData());
-  const gasRequired = (feeData.maxFeePerGas! + feeData.maxPriorityFeePerGas!) * BigInt(ERC20_TRANSFER_GAS_LIMIT);
+  const gasRequired =
+    (feeData.maxFeePerGas! + feeData.maxPriorityFeePerGas!) *
+    BigInt(ERC20_TRANSFER_GAS_LIMIT);
 
   if (balance < gasRequired) {
     throw new Error(
