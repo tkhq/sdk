@@ -45,13 +45,13 @@ async function main() {
   const address = client.account.address;
   print("Address:", address);
 
-  const account = client?.account?.address;
+//   const account = client?.account?.address;
   const hash = await client.writeContract({
     abi,
     address: "0x85111DF47D97Cc1aB3e76889fCF08594d053E85d",
     functionName: "mint",
     chain: goerli,
-    account,
+    account: client?.account,
   });
 
   print("Mint transaction hash:", hash);
@@ -66,7 +66,7 @@ async function main() {
     address: "0x85111DF47D97Cc1aB3e76889fCF08594d053E85d",
     functionName: "mint",
     chain: goerli,
-    account,
+    account: client?.account,
   });
 
   const hash2 = await client.writeContract(request);
