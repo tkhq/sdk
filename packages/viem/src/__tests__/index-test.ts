@@ -111,6 +111,13 @@ describe("TurnkeyAccount", () => {
     });
   });
 
+  testCase("it is connected to the right address", async () => {
+    const addresses = await walletClient.getAddresses();
+
+    expect(turnkeyAccount.address).toEqual(expectedEthAddress);
+    expect(addresses).toEqual([expectedEthAddress]);
+  });
+
   testCase("it signs transactions", async () => {
     const request = await walletClient.prepareTransactionRequest({
       account: turnkeyAccount,
