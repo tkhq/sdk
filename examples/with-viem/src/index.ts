@@ -18,7 +18,7 @@ async function main() {
     await createNewEthereumPrivateKey();
     return;
   }
-  
+
   const turnkeyClient = new TurnkeyClient(
     {
       baseUrl: process.env.BASE_URL!,
