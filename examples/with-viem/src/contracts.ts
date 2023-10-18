@@ -4,10 +4,17 @@ import * as dotenv from "dotenv";
 import { createAccount } from "@turnkey/viem";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { createWalletClient, http, recoverMessageAddress } from "viem";
-import { sepolia } from "viem/chains";
-import { print, assertEqual } from "./util";
+import {
+  createWalletClient,
+  createPublicClient,
+  http,
+  type Account,
+} from "viem";
+import { goerli } from "viem/chains";
+import { print } from "./util";
 import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
+import WETH_TOKEN_ABI from "./weth-contract-abi.json";
+const WETH_TOKEN_ADDRESS_GOERLI = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -36,41 +43,36 @@ async function main() {
   });
 
   const client = createWalletClient({
-    account: turnkeyAccount,
-    chain: sepolia,
+    account: turnkeyAccount as Account,
+    chain: goerli,
     transport: http(
-      `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`
+      `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY!}`
     ),
   });
 
-  // This demo sends ETH back to our faucet (we keep a bunch of Sepolia ETH at this address)
-  const turnkeyFaucet = "0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7";
+  const address = client.account.address;
+  print("Address:", address);
 
-  // 1. Simple send tx
-  const transactionRequest = {
-    to: turnkeyFaucet as `0x${string}`,
-    value: 1000000000000000n,
-  };
-
-  const txHash = await client.sendTransaction(transactionRequest);
-
-  print("Source address", client.account.address);
-  print("Transaction", `https://sepolia.etherscan.io/tx/${txHash}`);
-
-  // 2. Sign a simple message
-  let address = client.account.address;
-  let message = "Hello Turnkey";
-  let signature = await client.signMessage({
-    message,
-  });
-  let recoveredAddress = await recoverMessageAddress({
-    message,
-    signature,
+  const publicClient = createPublicClient({
+    transport: http("https://rpc.ankr.com/eth_goerli"),
+    chain: goerli,
   });
 
-  print("Turnkey-powered signature:", `${signature}`);
-  print("Recovered address:", `${recoveredAddress}`);
-  assertEqual(address, recoveredAddress);
+  const { request } = await publicClient.simulateContract({
+    abi: WETH_TOKEN_ABI,
+    address: WETH_TOKEN_ADDRESS_GOERLI,
+    functionName: "deposit",
+    chain: goerli,
+    value: 1n,
+    account: client.account,
+  });
+
+  const hash = await client.writeContract(request);
+
+  print(
+    "Successfully wrapped ETH 🥳. Transaction:",
+    `https://goerli.etherscan.io/tx/${hash}`
+  );
 }
 
 main().catch((error) => {

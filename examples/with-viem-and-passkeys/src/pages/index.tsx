@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { useState } from "react";
-import { createWalletClient, http } from "viem";
+import { createWalletClient, http, type Account } from "viem";
 import { sepolia } from "viem/chains";
 
 type subOrgFormData = {
@@ -114,7 +114,7 @@ export default function Home() {
     });
 
     const viemClient = createWalletClient({
-      account: viemAccount,
+      account: viemAccount as Account,
       chain: sepolia,
       transport: http(),
     });
