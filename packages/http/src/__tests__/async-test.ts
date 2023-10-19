@@ -250,9 +250,9 @@ test("`withAsyncPolling` should also work with synchronous activity endpoints", 
 
   const result = await mutation({
     body: {
-      type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
+      type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       parameters: {
-        privateKeyId: "9725c4f7-8387-4990-9128-1d2218bef256",
+        signWith: "9725c4f7-8387-4990-9128-1d2218bef256",
         type: "TRANSACTION_TYPE_ETHEREUM",
         unsignedTransaction:
           "02e801808459682f008509d4ae542e8252089440f008f4c17075efca092ae650655f6693aeced00180c0",

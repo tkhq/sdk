@@ -268,10 +268,10 @@ async function signTransactionImpl(
   privateKeyId: string
 ): Promise<string> {
   const { activity } = await client.signTransaction({
-    type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
+    type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
     organizationId: organizationId,
     parameters: {
-      privateKeyId: privateKeyId,
+      signWith: privateKeyId,
       type: "TRANSACTION_TYPE_ETHEREUM",
       unsignedTransaction: unsignedTransaction,
     },
@@ -329,10 +329,10 @@ async function signMessageImpl(
   privateKeyId: string
 ): Promise<string> {
   const { activity } = await client.signRawPayload({
-    type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
+    type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
     organizationId: organizationId,
     parameters: {
-      privateKeyId: privateKeyId,
+      signWith: privateKeyId,
       payload: message,
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
       hashFunction: "HASH_FUNCTION_NO_OP",

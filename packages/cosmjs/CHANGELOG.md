@@ -1,5 +1,13 @@
 # @turnkey/cosmjs
 
+## 0.4.10
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@1.4.0
+- Updated the shape of signing
+
 ## 0.4.9
 
 ### Patch Changes

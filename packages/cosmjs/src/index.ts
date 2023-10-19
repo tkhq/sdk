@@ -141,11 +141,11 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
   ): Promise<ExtendedSecp256k1Signature> {
     const { activity } = await TurnkeyApi.signRawPayload({
       body: {
-        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
+        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
         organizationId: this.organizationId,
         timestampMs: String(Date.now()),
         parameters: {
-          privateKeyId: this.privateKeyId,
+          signWith: this.privateKeyId,
           payload: toHex(message),
           encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
           hashFunction: "HASH_FUNCTION_SHA256",
