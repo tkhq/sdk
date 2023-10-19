@@ -14,7 +14,8 @@ const TurnkeyIframeElementId = "turnkey-iframe-element-id";
 export default function ExportPage() {
   const [privateKeys, setPrivateKeys] = useState<TPrivateKey[]>([]);
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(null);
-  const [showIframe, setShowIframe] = useState<boolean>(false);
+  const [showPrivateKey, setShowPrivateKey] = useState<boolean>(false);
+  const [selectedPrivateKey, setSelectedPrivateKey] = useState<string | null>(null);
 
   useEffect(() => {
     const instantiateIframeStamper = async () => {
@@ -90,7 +91,7 @@ export default function ExportPage() {
                   <button
                     className={styles.exportButton}
                     onClick={() => {
-                      exportKey(val.privateKeyId)
+                      setSelectedPrivateKey(val.privateKeyId)
                     }}
                   >
                     <ExportIcon />
@@ -136,7 +137,7 @@ export default function ExportPage() {
       throw new Error("unexpected error while injecting export bundle");
     }
 
-    setShowIframe(true);
+    setShowPrivateKey(true);
   };
  
 
@@ -165,9 +166,10 @@ export default function ExportPage() {
           {PrivateKeysTable}
         </div>
       )}
-      {showIframe && (
+      {selectedPrivateKey && (
         <div className={styles.copyKey}>
           <h2>Private key</h2>
+          <p>You are about to reveal your private key. By revealing this private key you understand that:</p>
           <ul>
             <li>
               <p>
@@ -185,9 +187,19 @@ export default function ExportPage() {
               </p>
             </li>
           </ul>
+          <div className={styles.reveal}>
+            <button
+              className={styles.revealButton}
+              onClick={() => {
+                exportKey(selectedPrivateKey)
+              }}
+            >
+              Reveal
+            </button>
+          </div>
         </div>
       )}
-      <div style={{ display: showIframe ? "block" : "none" }} id={TurnkeyIframeContainerId}></div>
+      <div style={{ display: showPrivateKey ? "block" : "none" }} id={TurnkeyIframeContainerId}></div>
     </main>
   );
 };

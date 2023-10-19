@@ -103,16 +103,39 @@
   background-color: #ebedf2;
 }
 
-#turnkey-iframe-container-id {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
+.reveal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.revealButton {
+  background-color: #050a0b;
+  border: none;
+  border-radius: 8px;
+  width: 90px;
+  height: 40px;
+  cursor: pointer;
+  outline: none;
+  font-family: "Inter";
+  border: 1px solid #050a0b;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.copyKey {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .copyKey h2 {
   text-align: center;
   font-family: "Inter";
   padding-top: 40px;
+}
+
+.copyKey ul {
+  margin-top: 0;
 }
 
 .copyKey p {

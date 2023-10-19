@@ -76,6 +76,7 @@ export class IframeStamper {
     if (config.iframeStyle != null) {
       iframe.setAttribute("style", config.iframeStyle);
     }
+
     this.iframe = iframe;
     const iframeUrl = new URL(config.iframeUrl);
     this.iframeOrigin = iframeUrl.origin;
@@ -179,7 +180,6 @@ export class IframeStamper {
             // Instead of erroring out we simply return. Not our event!
             return;
           }
-          // todo
           if (event.data?.type === IframeEventType.BundleInjected) {
             resolve(event.data["value"]);
           }
