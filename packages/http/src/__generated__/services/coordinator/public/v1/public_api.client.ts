@@ -145,16 +145,8 @@ import type {
   TSignRawPayloadResponse,
 } from "./public_api.fetcher";
 import type {
-  TSignRawPayloadV2Body,
-  TSignRawPayloadV2Response,
-} from "./public_api.fetcher";
-import type {
   TSignTransactionBody,
   TSignTransactionResponse,
-} from "./public_api.fetcher";
-import type {
-  TSignTransactionV2Body,
-  TSignTransactionV2Response,
 } from "./public_api.fetcher";
 import type {
   TUpdateAllowedOriginsBody,
@@ -1370,38 +1362,6 @@ export class TurnkeyClient {
   };
 
   /**
-   * Sign a raw payload with a Private Key id or address
-   *
-   * Sign the provided `TSignRawPayloadV2Body` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sign_raw_payload_v2).
-   *
-   * See also {@link stampSignRawPayloadV2}.
-   */
-  signRawPayloadV2 = async (
-    input: TSignRawPayloadV2Body
-  ): Promise<TSignRawPayloadV2Response> => {
-    return this.request("/public/v1/submit/sign_raw_payload_v2", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TSignRawPayloadV2Body` by using the client's `stamp` function.
-   *
-   * See also {@link SignRawPayloadV2}.
-   */
-  stampSignRawPayloadV2 = async (
-    input: TSignRawPayloadV2Body
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/submit/sign_raw_payload_v2";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
    * Sign a transaction with a Private Key
    *
    * Sign the provided `TSignTransactionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sign_transaction).
@@ -1423,38 +1383,6 @@ export class TurnkeyClient {
     input: TSignTransactionBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/sign_transaction";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Sign a transaction with a Private Key id or address
-   *
-   * Sign the provided `TSignTransactionV2Body` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sign_transaction_v2).
-   *
-   * See also {@link stampSignTransactionV2}.
-   */
-  signTransactionV2 = async (
-    input: TSignTransactionV2Body
-  ): Promise<TSignTransactionV2Response> => {
-    return this.request("/public/v1/submit/sign_transaction_v2", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TSignTransactionV2Body` by using the client's `stamp` function.
-   *
-   * See also {@link SignTransactionV2}.
-   */
-  stampSignTransactionV2 = async (
-    input: TSignTransactionV2Body
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/submit/sign_transaction_v2";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
