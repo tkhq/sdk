@@ -44,10 +44,10 @@ export default async function createUser(
   });
 
   try {
-    const privateKeyName = `Default ETH Key`;
+    const walletName = `Default Wallet`;
 
     const completedActivity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3",
+      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4",
       timestampMs: String(Date.now()),
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       parameters: {
@@ -66,14 +66,17 @@ export default async function createUser(
             ],
           },
         ],
-        privateKeys: [
-          {
-            privateKeyName,
-            curve: "CURVE_SECP256K1",
-            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-            privateKeyTags: [],
-          },
-        ],
+        wallet: {
+          walletName,
+          accounts: [
+            {
+              curve: "CURVE_SECP256K1",
+              pathFormat: "PATH_FORMAT_BIP32",
+              path: "m/44'/60'/0'/0/0",
+              addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+            },
+          ],
+        },
       },
     });
 

@@ -46,11 +46,11 @@ export async function createAndSignTransfer(input: {
   const messageToSign = transferTransaction.serializeMessage();
 
   const activity = await client.signRawPayload({
-    type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
+    type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
     organizationId: turnkeyOrganizationId,
     timestampMs: String(Date.now()),
     parameters: {
-      privateKeyId: turnkeyPrivateKeyId,
+      signWith: turnkeyPrivateKeyId,
       payload: messageToSign.toString("hex"),
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
       // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).

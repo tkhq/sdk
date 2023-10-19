@@ -72,10 +72,10 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
 
   private async _signTransactionImpl(message: string): Promise<string> {
     const { activity } = await this.client.signTransaction({
-      type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
+      type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       organizationId: this.organizationId,
       parameters: {
-        privateKeyId: this.privateKeyId,
+        signWith: this.privateKeyId,
         type: "TRANSACTION_TYPE_ETHEREUM",
         unsignedTransaction: message,
       },
@@ -181,10 +181,10 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
 
   async _signMessageImpl(message: string): Promise<string> {
     const { activity } = await this.client.signRawPayload({
-      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
+      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
       organizationId: this.organizationId,
       parameters: {
-        privateKeyId: this.privateKeyId,
+        signWith: this.privateKeyId,
         payload: message,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NO_OP",
