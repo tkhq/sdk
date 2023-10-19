@@ -1,5 +1,15 @@
 # @turnkey/http
 
+## 1.4.0
+
+### Minor Changes
+
+- Synced protos from mono
+- Consolidated signing routes:
+  - We now have a single route, `/api/v1/submit/sign_raw_payload` for `SignRawPayload` activities (previously this was split into `SignRawPayload` and `SignRawPayloadV2`)
+  - This extends to `/api/v1/submit/sign_transaction` as well. `SignTransaction` and `SignTransactionV2` now have a unified activity: `SignTransaction`
+  - Under the hood, these routes stay largely the same: you can sign raw payloads and transactions with an address (from a wallet account), or a private key ID
+
 ## 1.3.0
 
 ### Minor Changes
