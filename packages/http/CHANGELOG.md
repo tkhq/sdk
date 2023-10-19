@@ -1,14 +1,16 @@
 # @turnkey/http
 
-## 1.4.0
+## 2.0.0
 
-### Minor Changes
+### Major Changes
 
 - Synced protos from mono
-- Consolidated signing routes:
-  - We now have a single route, `/api/v1/submit/sign_raw_payload` for `SignRawPayload` activities (previously this was split into `SignRawPayload` and `SignRawPayloadV2`)
-  - This extends to `/api/v1/submit/sign_transaction` as well. `SignTransaction` and `SignTransactionV2` now have a unified activity: `SignTransaction`
-  - Under the hood, these routes stay largely the same: you can sign raw payloads and transactions with an address (from a wallet account), or a private key ID
+
+### Upgrade notes
+
+- `signRawPayload` and `signTransaction` now expect a `signWith` param instead of `privateKeyId` previously
+- `signRawPayload` and `signTransaction` have been updated to expect a new type: `ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2` and `ACTIVITY_TYPE_SIGN_TRANSACTION_V2`, respectively
+- If you have policies authorizing `ACTIVITY_TYPE_SIGN_RAW_PAYLOAD` or `ACTIVITY_TYPE_SIGN_TRANSACTION` specifically, they will need to be updated to authorize `ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2` and `ACTIVITY_TYPE_SIGN_TRANSACTION_V2` (or better yet, update your policies to allow all signing actions categorically using policy resources and actions. See https://docs.turnkey.com/managing-policies/examples)
 
 ## 1.3.0
 

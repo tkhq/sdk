@@ -5,7 +5,7 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @turnkey/http@1.4.0
+  - @turnkey/http@2.0.0
 - Updated the shape of signing
 
 ## 0.17.2

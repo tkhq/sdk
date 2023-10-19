@@ -7,7 +7,7 @@
 - 59dcd2f: Unpin typescript
 - da7c960: Bump Viem dependency to fix `getAddresses()` for LocalAccount
 - Updated dependencies
-  - @turnkey/http@1.4.0
+  - @turnkey/http@2.0.0
 - Updated the shape of signing
 
 ## 0.2.5
