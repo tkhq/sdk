@@ -22,66 +22,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 6rem;
-  gap: 60px;
 }
 
-.input {
-  display: block;
-  width: 240px;
-  margin: 0;
-  padding: 10px 16px;
-  border-radius: 8px;
-  border-width: 1px;
-  border-style: solid;
-  border-color: rgba(216, 219, 227, 1);
-  font-family: "Inter";
-}
-
-.label {
-  font-family: "Inter";
-  display: block;
-  text-align: center;
-}
-
-.prompt {
-  font-family: "Inter";
-}
-
-.base {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  padding: 10px 16px;
-  border-radius: 8px;
-  border-width: 1px;
-  border-style: solid;
-  cursor: pointer;
-  color: white;
-  background-color: rgba(43, 47, 51, 1);
-  border-color: rgba(63, 70, 75, 1);
-  font-family: "Inter";
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  min-width: 400px;
-}
 .table {
   border-collapse: collapse;
   width: 100%;
   font-family: "Inter";
+  margin-top: 60px;
 }
 
 .tableHeader {
@@ -154,5 +101,24 @@
 
 .exportButton:hover {
   background-color: #ebedf2;
+}
+
+#turnkey-iframe-container-id {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.copyKey h2 {
+  text-align: center;
+  font-family: "Inter";
+  padding-top: 40px;
+}
+
+.copyKey p {
+  font-family: "Inter";
+  font-size: 14px;
+  color: #555b64;
+
 }
 

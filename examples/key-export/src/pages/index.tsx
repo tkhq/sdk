@@ -5,8 +5,6 @@ import { IframeStamper } from "@turnkey/iframe-stamper";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Export } from "@/components/Export";
-import exp from "constants";
 
 type TPrivateKey = TurnkeyApiTypes["v1PrivateKey"];
 
@@ -16,6 +14,7 @@ const TurnkeyIframeElementId = "turnkey-iframe-element-id";
 export default function ExportPage() {
   const [privateKeys, setPrivateKeys] = useState<TPrivateKey[]>([]);
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(null);
+  const [showIframe, setShowIframe] = useState<boolean>(false);
 
   useEffect(() => {
     const instantiateIframeStamper = async () => {
@@ -23,6 +22,7 @@ export default function ExportPage() {
         iframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
         iframeContainerId: TurnkeyIframeContainerId,
         iframeElementId: TurnkeyIframeElementId,
+        iframeStyle: "border: none; width: 600px; height: 200px;"
       });
 
       await stamper.init();
@@ -135,6 +135,8 @@ export default function ExportPage() {
     if (injected !== true) {
       throw new Error("unexpected error while injecting export bundle");
     }
+
+    setShowIframe(true);
   };
  
 
@@ -155,17 +157,37 @@ export default function ExportPage() {
         />
       </a>
 
-      <Export
-        iframeStamper={iframeStamper}
-        turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
-      ></Export>
-
       {!iframeStamper && <p>Loading...</p>}
-      {privateKeys.length > 0 &&
+      {iframeStamper &&
+        iframeStamper.publicKey() &&
+        privateKeys.length > 0 && (
         <div>
           {PrivateKeysTable}
         </div>
-      }
+      )}
+      {showIframe && (
+        <div className={styles.copyKey}>
+          <h2>Private key</h2>
+          <ul>
+            <li>
+              <p>
+                Your private key is the only way to recover your funds.
+              </p>
+            </li>
+            <li>
+              <p>
+                Do not let anyone see your private key.
+              </p>
+            </li>
+            <li>
+              <p>
+                Never share your private key with anyone, including Turnkey.
+              </p>
+            </li>
+          </ul>
+        </div>
+      )}
+      <div style={{ display: showIframe ? "block" : "none" }} id={TurnkeyIframeContainerId}></div>
     </main>
   );
 };
