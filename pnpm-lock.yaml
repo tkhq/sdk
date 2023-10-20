@@ -246,69 +246,6 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
 
-  examples/with-ethers-and-passkeys:
-    dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../packages/api-key-stamper
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../packages/ethers
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../packages/http
-      '@turnkey/webauthn-stamper':
-        specifier: workspace:*
-        version: link:../../packages/webauthn-stamper
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      axios:
-        specifier: ^1.4.0
-        version: 1.4.0
-      encoding:
-        specifier: ^0.1.13
-        version: 0.1.13
-      eslint:
-        specifier: 8.43.0
-        version: 8.43.0
-      eslint-config-next:
-        specifier: 13.4.7
-        version: 13.4.7(eslint@8.43.0)(typescript@5.1.3)
-      esm:
-        specifier: ^3.2.25
-        version: 3.2.25
-      ethers:
-        specifier: ^5.7.2
-        version: 5.7.2
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
-      next:
-        specifier: 13.4.7
-        version: 13.4.7(@babel/core@7.22.20)(react-dom@18.2.0)(react@18.2.0)
-      npm:
-        specifier: ^9.7.2
-        version: 9.7.2
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
-      react-hook-form:
-        specifier: ^7.45.1
-        version: 7.45.1(react@18.2.0)
-      typescript:
-        specifier: 5.1.3
-        version: 5.1.3
-
   examples/with-federated-passkeys:
     dependencies:
       '@turnkey/api-key-stamper':
@@ -504,69 +441,6 @@ importers:
         specifier: ^1.16.6
         version: 1.16.6(typescript@5.1.3)
 
-  examples/with-viem-and-passkeys:
-    dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../packages/api-key-stamper
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../packages/http
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../packages/viem
-      '@turnkey/webauthn-stamper':
-        specifier: workspace:*
-        version: link:../../packages/webauthn-stamper
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      axios:
-        specifier: ^1.4.0
-        version: 1.4.0
-      encoding:
-        specifier: ^0.1.13
-        version: 0.1.13
-      eslint:
-        specifier: 8.43.0
-        version: 8.43.0
-      eslint-config-next:
-        specifier: 13.4.7
-        version: 13.4.7(eslint@8.43.0)(typescript@5.1.3)
-      esm:
-        specifier: ^3.2.25
-        version: 3.2.25
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
-      next:
-        specifier: 13.4.7
-        version: 13.4.7(@babel/core@7.22.20)(react-dom@18.2.0)(react@18.2.0)
-      npm:
-        specifier: ^9.7.2
-        version: 9.7.2
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
-      react-hook-form:
-        specifier: ^7.45.1
-        version: 7.45.1(react@18.2.0)
-      typescript:
-        specifier: 5.1.3
-        version: 5.1.3
-      viem:
-        specifier: ^1.10.0
-        version: 1.10.0(typescript@5.1.3)
-
   internal/jest-config:
     dependencies:
       '@babel/core':
@@ -690,10 +564,6 @@ packages:
   /@aashutoshrathi/word-wrap@1.2.6:
     resolution: {integrity: sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==}
     engines: {node: '>=0.10.0'}
-    dev: false
-
-  /@adraffy/ens-normalize@1.9.0:
-    resolution: {integrity: sha512-iowxq3U30sghZotgl4s/oJRci6WPBfNO5YYgk2cIOMCHr3LeGPcsZjCEr+33Q4N+oV3OABDAtA+pyvWjbvBifQ==}
     dev: false
 
   /@adraffy/ens-normalize@1.9.4:
@@ -3660,12 +3530,6 @@ packages:
     dev: false
     optional: true
 
-  /@noble/curves@1.0.0:
-    resolution: {integrity: sha512-2upgEu0iLiDVDZkNLeFV2+ht0BAVgQnEmCk6JsOch9Rp8xfkMCbvbAZlA2pBHQc73dbl+vFOXfqkf4uemdn0bw==}
-    dependencies:
-      '@noble/hashes': 1.3.0
-    dev: false
-
   /@noble/curves@1.1.0:
     resolution: {integrity: sha512-091oBExgENk/kGj3AZmtBDMpxQPDtxQABR2B9lb1JbVTs6ytdzZNwvhxQ4MWasRNEzlbEH8jCWFCwhF/Obj5AA==}
     dependencies:
@@ -3679,10 +3543,6 @@ packages:
 
   /@noble/hashes@1.2.0:
     resolution: {integrity: sha512-FZfhjEDbT5GRswV3C6uvLPHMiVD6lQBmpoX5+eSiPaMTXte/IKqI5dykDxzZB/WBeK/CDuQRBWarPdi3FNY2zQ==}
-
-  /@noble/hashes@1.3.0:
-    resolution: {integrity: sha512-ilHEACi9DwqJB0pw7kv+Apvh50jiiSyR/cQ3y4W7lOR5mhvn/50FLUfsnfJz0BDZtl/RR16kXvptiv6q1msYZg==}
-    dev: false
 
   /@noble/hashes@1.3.1:
     resolution: {integrity: sha512-EbqwksQwz9xDRGfDST86whPBgM65E0OH/pCgqW0GBVzO22bNE+NuIbeTb714+IfSjU3aRk47EUvXIb5bTsenKA==}
@@ -4352,14 +4212,6 @@ packages:
       '@noble/secp256k1': 1.7.1
       '@scure/base': 1.1.3
 
-  /@scure/bip32@1.3.0:
-    resolution: {integrity: sha512-bcKpo1oj54hGholplGLpqPHRbIsnbixFtc06nwuNM5/dwSXOq/AAYoIBRsBmnZJSdfeNW5rnff7NTAz3ZCqR9Q==}
-    dependencies:
-      '@noble/curves': 1.0.0
-      '@noble/hashes': 1.3.2
-      '@scure/base': 1.1.1
-    dev: false
-
   /@scure/bip32@1.3.2:
     resolution: {integrity: sha512-N1ZhksgwD3OBlwTv3R6KFEcPojl/W4ElJOeCZdi+vuI5QmTFwLq3OFf2zd2ROpKvxFdgZ6hUpb0dx9bVNEwYCA==}
     dependencies:
@@ -4372,13 +4224,6 @@ packages:
     dependencies:
       '@noble/hashes': 1.2.0
       '@scure/base': 1.1.3
-
-  /@scure/bip39@1.2.0:
-    resolution: {integrity: sha512-SX/uKq52cuxm4YFXWFaVByaSHJh2w3BnokVSeUJVCv6K7WulT9u2BuNRBhuFl8vAuYnzx9bEu9WgpcNYTrYieg==}
-    dependencies:
-      '@noble/hashes': 1.3.2
-      '@scure/base': 1.1.1
-    dev: false
 
   /@scure/bip39@1.2.1:
     resolution: {integrity: sha512-Z3/Fsz1yr904dduJD0NpiyRHhRYHdcnyh73FZWiV+/qhWi83wNJ3NWolYqCEN+ZWsUz2TWwajJggcRE9r1zUYg==}
@@ -4676,12 +4521,6 @@ packages:
       '@types/node': 16.18.12
     dev: false
 
-  /@types/ws@8.5.5:
-    resolution: {integrity: sha512-lwhs8hktwxSjf9UaZ9tG5M03PGogvFaH8gUgLNbN9HKIg0dvv6q+gkSuJ8HN4/VbyxkuLzCjlN7GquQ0gUJfIg==}
-    dependencies:
-      '@types/node': 16.18.12
-    dev: false
-
   /@types/yargs-parser@21.0.0:
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
 
@@ -4899,20 +4738,6 @@ packages:
     dependencies:
       jsonparse: 1.3.1
       through: 2.3.8
-    dev: false
-
-  /abitype@0.9.3(typescript@5.1.3):
-    resolution: {integrity: sha512-dz4qCQLurx97FQhnb/EIYTk/ldQ+oafEDUqC0VVIeQS1Q48/YWt/9YNfMmp9SLFqN41ktxny3c8aYxHjmFIB/w==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-      zod: ^3 >=3.19.1
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-      zod:
-        optional: true
-    dependencies:
-      typescript: 5.1.3
     dev: false
 
   /abitype@0.9.8(typescript@5.1.3):
@@ -7614,14 +7439,6 @@ packages:
       ws: 7.5.9
     dev: false
 
-  /isomorphic-ws@5.0.0(ws@8.12.0):
-    resolution: {integrity: sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==}
-    peerDependencies:
-      ws: '*'
-    dependencies:
-      ws: 8.12.0
-    dev: false
-
   /isows@1.0.3(ws@8.13.0):
     resolution: {integrity: sha512-2cKei4vlmg2cxEjm3wVSqn8pcoRF/LX/wpifuuNquFO4SQmPwarClT+SUCA2lt+l581tTeZIPIZuIDo2jWN1fg==}
     peerDependencies:
@@ -10134,30 +9951,6 @@ packages:
       spdx-expression-parse: 3.0.1
     dev: true
 
-  /viem@1.10.0(typescript@5.1.3):
-    resolution: {integrity: sha512-uV8ICcgu+3BghTpzsSiYtpyPUrZpTYgPjBkwhPoM6WsF34JAKdV7HVWiWKxrrkP5GqIRJhkT5lRflJrdv5ftng==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@adraffy/ens-normalize': 1.9.0
-      '@noble/curves': 1.1.0
-      '@noble/hashes': 1.3.0
-      '@scure/bip32': 1.3.0
-      '@scure/bip39': 1.2.0
-      '@types/ws': 8.5.5
-      abitype: 0.9.3(typescript@5.1.3)
-      isomorphic-ws: 5.0.0(ws@8.12.0)
-      typescript: 5.1.3
-      ws: 8.12.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-    dev: false
-
   /viem@1.16.6(typescript@5.1.3):
     resolution: {integrity: sha512-jcWcFQ+xzIfDwexwPJRvCuCRJKEkK9iHTStG7mpU5MmuSBpACs4nATBDyXNFtUiyYTFzLlVEwWkt68K0nCSImg==}
     peerDependencies:
@@ -10462,19 +10255,6 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
-
-  /ws@8.12.0:
-    resolution: {integrity: sha512-kU62emKIdKVeEIOIKVegvqpXMSTAMLJozpHZaJNDYqBjzlSYXQGviYwN1osDLJ9av68qHd4a2oSjd7yD4pacig==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-    dev: false
 
   /ws@8.13.0(bufferutil@4.0.7)(utf-8-validate@5.0.10):
     resolution: {integrity: sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==}

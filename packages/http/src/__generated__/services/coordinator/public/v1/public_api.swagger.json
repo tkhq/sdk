@@ -23,8 +23,16 @@
       "description": "Policies allow for deep customization of the security of your Organization. They can be used to grant permissions or restrict usage of Users and Private Keys. The Policy Engine analyzes all of your Policies on each request to determine whether an Activity is allowed.\n\nSee [Policy Overview](../managing-policies/overview) for more information"
     },
     {
+      "name": "Wallets",
+      "description": "Wallets contain collections of deterministically generated cryptographic public / private key pairs that share a common seed. Turnkey securely holds the common seed, but only you can access it. In most cases, Wallets should be preferred over Private Keys since they can be represented by a mnemonic phrase, used across a variety of cryptographic curves, and can derive many addresses."
+    },
+    {
+      "name": "Signatures",
+      "description": "Signatures are used to validate the authenticity and integrity of a digital message. Signatures are a fundamental building block in blockchains. Turnkey makes it easy to produce signatures by allowing you to sign with an address. If Turnkey doesn't yet support an address format you need, you can generate and sign with the public key instead by using the address format `ADDRESS_FORMAT_COMPRESSED`."
+    },
+    {
       "name": "Private Keys",
-      "description": "Private Keys are cryptographic public / private key pairs that can be used for cryptocurrency needs or more generalized encryption. Think of Private Keys as your own programmable wallet. Turnkey securely holds all Private Key materials for you, but only you can access them."
+      "description": "Private Keys are cryptographic public / private key pairs that can be used for cryptocurrency needs or more generalized encryption. Turnkey securely holds all Private Key materials for you, but only you can access them."
     },
     {
       "name": "Private Key Tags",
@@ -799,7 +807,7 @@
     "/public/v1/submit/create_wallet": {
       "post": {
         "summary": "Create Wallet",
-        "description": "Create a Wallet",
+        "description": "Create a Wallet and derive addresses",
         "operationId": "PublicApiService_CreateWallet",
         "responses": {
           "200": {
@@ -825,13 +833,13 @@
             }
           }
         ],
-        "tags": ["PublicApiService"]
+        "tags": ["Wallets"]
       }
     },
     "/public/v1/submit/create_wallet_accounts": {
       "post": {
-        "summary": "Create Wallet accounts",
-        "description": "Create Wallet accounts",
+        "summary": "Create Wallet Accounts",
+        "description": "Derive additional addresses using an existing wallet",
         "operationId": "PublicApiService_CreateWalletAccounts",
         "responses": {
           "200": {
@@ -857,7 +865,7 @@
             }
           }
         ],
-        "tags": ["PublicApiService"]
+        "tags": ["Wallets"]
       }
     },
     "/public/v1/submit/delete_api_keys": {
@@ -924,7 +932,7 @@
         "tags": ["Authenticators"]
       }
     },
-    "/public/v1/submit/delete_invitations": {
+    "/public/v1/submit/delete_invitation": {
       "post": {
         "summary": "Delete Invitation",
         "description": "Delete an existing Invitation",
@@ -1049,13 +1057,13 @@
             }
           }
         ],
-        "tags": ["PublicApiService"]
+        "tags": ["Wallets"]
       }
     },
     "/public/v1/submit/init_user_email_recovery": {
       "post": {
-        "summary": "Init Recovery",
-        "description": "Initializes a new recovery",
+        "summary": "Init Email Recovery",
+        "description": "Initializes a new email recovery",
         "operationId": "PublicApiService_InitUserEmailRecovery",
         "responses": {
           "200": {
@@ -1081,7 +1089,7 @@
             }
           }
         ],
-        "tags": ["Organizations"]
+        "tags": ["User Recovery"]
       }
     },
     "/public/v1/submit/recover_user": {
@@ -1113,7 +1121,7 @@
             }
           }
         ],
-        "tags": ["Organizations"]
+        "tags": ["User Recovery"]
       }
     },
     "/public/v1/submit/reject_activity": {
@@ -1177,7 +1185,7 @@
             }
           }
         ],
-        "tags": ["Organizations"]
+        "tags": ["Features"]
       }
     },
     "/public/v1/submit/set_organization_feature": {
@@ -1209,13 +1217,13 @@
             }
           }
         ],
-        "tags": ["Organizations"]
+        "tags": ["Features"]
       }
     },
     "/public/v1/submit/sign_raw_payload": {
       "post": {
         "summary": "Sign Raw Payload",
-        "description": "Sign a raw payload with a Private Key",
+        "description": "Sign a raw payload",
         "operationId": "PublicApiService_SignRawPayload",
         "responses": {
           "200": {
@@ -1241,45 +1249,13 @@
             }
           }
         ],
-        "tags": ["Private Keys"]
-      }
-    },
-    "/public/v1/submit/sign_raw_payload_v2": {
-      "post": {
-        "summary": "Sign Raw Payload",
-        "description": "Sign a raw payload with a Private Key id or address",
-        "operationId": "PublicApiService_SignRawPayloadV2",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1SignRawPayloadV2Request"
-            }
-          }
-        ],
-        "tags": ["PublicApiService"]
+        "tags": ["Signatures"]
       }
     },
     "/public/v1/submit/sign_transaction": {
       "post": {
         "summary": "Sign Transaction",
-        "description": "Sign a transaction with a Private Key",
+        "description": "Sign a transaction",
         "operationId": "PublicApiService_SignTransaction",
         "responses": {
           "200": {
@@ -1305,39 +1281,7 @@
             }
           }
         ],
-        "tags": ["Private Keys"]
-      }
-    },
-    "/public/v1/submit/sign_transaction_v2": {
-      "post": {
-        "summary": "Sign Transaction",
-        "description": "Sign a transaction with a Private Key id or address",
-        "operationId": "PublicApiService_SignTransactionV2",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1SignTransactionV2Request"
-            }
-          }
-        ],
-        "tags": ["PublicApiService"]
+        "tags": ["Signatures"]
       }
     },
     "/public/v1/submit/update_allowed_origins": {
@@ -1369,7 +1313,7 @@
             }
           }
         ],
-        "tags": ["Organizations"]
+        "tags": ["Features"]
       }
     },
     "/public/v1/submit/update_policy": {
@@ -2034,7 +1978,8 @@
         "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
         "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
         "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY",
-        "ACTIVITY_TYPE_EXPORT_WALLET"
+        "ACTIVITY_TYPE_EXPORT_WALLET",
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4"
       ]
     },
     "v1ApiKey": {
@@ -2872,12 +2817,43 @@
         "privateKeys"
       ]
     },
+    "v1CreateSubOrganizationIntentV4": {
+      "type": "object",
+      "properties": {
+        "subOrganizationName": {
+          "type": "string",
+          "description": "Name for this sub-organization"
+        },
+        "rootUsers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RootUserParams"
+          },
+          "description": "Root users to create within this sub-organization"
+        },
+        "rootQuorumThreshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users"
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1WalletParams",
+          "description": "The wallet to create for the sub-organization"
+        },
+        "disableEmailRecovery": {
+          "type": "boolean",
+          "description": "Disable email recovery for the sub-organization"
+        }
+      },
+      "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
+    },
     "v1CreateSubOrganizationRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3"]
+          "enum": ["ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4"]
         },
         "timestampMs": {
           "type": "string",
@@ -2888,7 +2864,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1CreateSubOrganizationIntentV3"
+          "$ref": "#/definitions/v1CreateSubOrganizationIntentV4"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -2918,6 +2894,18 @@
         }
       },
       "required": ["subOrganizationId", "privateKeys"]
+    },
+    "v1CreateSubOrganizationResultV4": {
+      "type": "object",
+      "properties": {
+        "subOrganizationId": {
+          "type": "string"
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1WalletResult"
+        }
+      },
+      "required": ["subOrganizationId"]
     },
     "v1CreateUserTagIntent": {
       "type": "object",
@@ -4119,6 +4107,9 @@
         },
         "exportWalletIntent": {
           "$ref": "#/definitions/v1ExportWalletIntent"
+        },
+        "createSubOrganizationIntentV4": {
+          "$ref": "#/definitions/v1CreateSubOrganizationIntentV4"
         }
       },
       "required": ["createOrganizationIntent"]
@@ -4777,6 +4768,9 @@
         },
         "exportWalletResult": {
           "$ref": "#/definitions/v1ExportWalletResult"
+        },
+        "createSubOrganizationResultV4": {
+          "$ref": "#/definitions/v1CreateSubOrganizationResultV4"
         }
       }
     },
@@ -4976,7 +4970,7 @@
       "properties": {
         "signWith": {
           "type": "string",
-          "description": "The Private Key identifier or address."
+          "description": "A Wallet account address, Private Key address, or Private Key identifier."
         },
         "payload": {
           "type": "string",
@@ -4998,7 +4992,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"]
+          "enum": ["ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -5009,7 +5003,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1SignRawPayloadIntent"
+          "$ref": "#/definitions/v1SignRawPayloadIntentV2"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -5031,27 +5025,6 @@
         }
       },
       "required": ["r", "s", "v"]
-    },
-    "v1SignRawPayloadV2Request": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1SignRawPayloadIntentV2"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1SignTransactionIntent": {
       "type": "object",
@@ -5075,7 +5048,7 @@
       "properties": {
         "signWith": {
           "type": "string",
-          "description": "The Private Key identifier or address."
+          "description": "A Wallet account address, Private Key address, or Private Key identifier."
         },
         "unsignedTransaction": {
           "type": "string",
@@ -5088,36 +5061,6 @@
       "required": ["signWith", "unsignedTransaction", "type"]
     },
     "v1SignTransactionRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_SIGN_TRANSACTION"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1SignTransactionIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1SignTransactionResult": {
-      "type": "object",
-      "properties": {
-        "signedTransaction": {
-          "type": "string"
-        }
-      },
-      "required": ["signedTransaction"]
-    },
-    "v1SignTransactionV2Request": {
       "type": "object",
       "properties": {
         "type": {
@@ -5137,6 +5080,15 @@
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1SignTransactionResult": {
+      "type": "object",
+      "properties": {
+        "signedTransaction": {
+          "type": "string"
+        }
+      },
+      "required": ["signedTransaction"]
     },
     "v1SimpleClientExtensionResults": {
       "type": "object",
@@ -5736,6 +5688,40 @@
       },
       "required": ["curve", "pathFormat", "path", "addressFormat"]
     },
+    "v1WalletParams": {
+      "type": "object",
+      "properties": {
+        "walletName": {
+          "type": "string",
+          "description": "Human-readable name for a Wallet."
+        },
+        "accounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1WalletAccountParams"
+          },
+          "description": "A list of wallet Accounts."
+        }
+      },
+      "required": ["walletName", "accounts"]
+    },
+    "v1WalletResult": {
+      "type": "object",
+      "properties": {
+        "walletId": {
+          "type": "string"
+        },
+        "addresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of account addresses."
+        }
+      },
+      "required": ["walletId", "addresses"]
+    },
     "v1WebAuthnStamp": {
       "type": "object",
       "properties": {
@@ -5787,15 +5773,19 @@
   "x-tagGroups": [
     {
       "name": "ORGANIZATIONS",
-      "tags": ["Organizations", "Invitations", "Policies"]
+      "tags": ["Organizations", "Invitations", "Policies", "Features"]
     },
     {
       "name": "PRIVATE KEYS",
-      "tags": ["Private Keys", "Private Key Tags"]
+      "tags": ["Wallets", "Signatures", "Private Keys", "Private Key Tags"]
     },
     {
       "name": "USERS",
-      "tags": ["Users", "User Tags", "Authenticators", "API Keys", "Who am I?"]
+      "tags": ["Users", "User Tags", "User Recovery"]
+    },
+    {
+      "name": "CREDENTIALS",
+      "tags": ["Authenticators", "API Keys", "Who am I?"]
     },
     {
       "name": "ACTIVITIES",

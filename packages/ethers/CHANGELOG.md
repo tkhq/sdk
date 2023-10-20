@@ -1,5 +1,13 @@
 # @turnkey/ethers
 
+## 0.17.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@2.0.0
+- Updated the shape of signing
+
 ## 0.17.2
 
 ### Patch Changes

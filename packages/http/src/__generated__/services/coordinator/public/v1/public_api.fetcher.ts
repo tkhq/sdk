@@ -1133,7 +1133,7 @@ export type TCreateWalletBody =
 /**
  * Create Wallet
  *
- * Create a Wallet
+ * Create a Wallet and derive addresses
  *
  * `POST /public/v1/submit/create_wallet`
  */
@@ -1177,9 +1177,9 @@ export type TCreateWalletAccountsBody =
   operations["PublicApiService_CreateWalletAccounts"]["parameters"]["body"]["body"];
 
 /**
- * Create Wallet accounts
+ * Create Wallet Accounts
  *
- * Create Wallet accounts
+ * Derive additional addresses using an existing wallet
  *
  * `POST /public/v1/submit/create_wallet_accounts`
  */
@@ -1310,18 +1310,18 @@ export const signDeleteAuthenticators = (
   });
 
 /**
- * `POST /public/v1/submit/delete_invitations`
+ * `POST /public/v1/submit/delete_invitation`
  */
 export type TDeleteInvitationResponse =
   operations["PublicApiService_DeleteInvitation"]["responses"]["200"]["schema"];
 
 /**
- * `POST /public/v1/submit/delete_invitations`
+ * `POST /public/v1/submit/delete_invitation`
  */
 export type TDeleteInvitationInput = { body: TDeleteInvitationBody };
 
 /**
- * `POST /public/v1/submit/delete_invitations`
+ * `POST /public/v1/submit/delete_invitation`
  */
 export type TDeleteInvitationBody =
   operations["PublicApiService_DeleteInvitation"]["parameters"]["body"]["body"];
@@ -1331,7 +1331,7 @@ export type TDeleteInvitationBody =
  *
  * Delete an existing Invitation
  *
- * `POST /public/v1/submit/delete_invitations`
+ * `POST /public/v1/submit/delete_invitation`
  */
 export const deleteInvitation = (input: TDeleteInvitationInput) =>
   request<
@@ -1341,7 +1341,7 @@ export const deleteInvitation = (input: TDeleteInvitationInput) =>
     never,
     never
   >({
-    uri: "/public/v1/submit/delete_invitations",
+    uri: "/public/v1/submit/delete_invitation",
     method: "POST",
     body: input.body,
   });
@@ -1356,7 +1356,7 @@ export const signDeleteInvitation = (
   options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TDeleteInvitationBody, never, never>({
-    uri: "/public/v1/submit/delete_invitations",
+    uri: "/public/v1/submit/delete_invitation",
     body: input.body,
     options,
   });
@@ -1523,9 +1523,9 @@ export type TInitUserEmailRecoveryBody =
   operations["PublicApiService_InitUserEmailRecovery"]["parameters"]["body"]["body"];
 
 /**
- * Init Recovery
+ * Init Email Recovery
  *
- * Initializes a new recovery
+ * Initializes a new email recovery
  *
  * `POST /public/v1/submit/init_user_email_recovery`
  */
@@ -1779,7 +1779,7 @@ export type TSignRawPayloadBody =
 /**
  * Sign Raw Payload
  *
- * Sign a raw payload with a Private Key
+ * Sign a raw payload
  *
  * `POST /public/v1/submit/sign_raw_payload`
  */
@@ -1806,58 +1806,6 @@ export const signSignRawPayload = (
   });
 
 /**
- * `POST /public/v1/submit/sign_raw_payload_v2`
- */
-export type TSignRawPayloadV2Response =
-  operations["PublicApiService_SignRawPayloadV2"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/submit/sign_raw_payload_v2`
- */
-export type TSignRawPayloadV2Input = { body: TSignRawPayloadV2Body };
-
-/**
- * `POST /public/v1/submit/sign_raw_payload_v2`
- */
-export type TSignRawPayloadV2Body =
-  operations["PublicApiService_SignRawPayloadV2"]["parameters"]["body"]["body"];
-
-/**
- * Sign Raw Payload
- *
- * Sign a raw payload with a Private Key id or address
- *
- * `POST /public/v1/submit/sign_raw_payload_v2`
- */
-export const signRawPayloadV2 = (input: TSignRawPayloadV2Input) =>
-  request<
-    TSignRawPayloadV2Response,
-    TSignRawPayloadV2Body,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/submit/sign_raw_payload_v2",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `SignRawPayloadV2` request, ready to be POSTed to Turnkey.
- *
- * See {@link SignRawPayloadV2}
- */
-export const signSignRawPayloadV2 = (
-  input: TSignRawPayloadV2Input,
-  options?: TurnkeyCredentialRequestOptions
-) =>
-  signedRequest<TSignRawPayloadV2Body, never, never>({
-    uri: "/public/v1/submit/sign_raw_payload_v2",
-    body: input.body,
-    options,
-  });
-
-/**
  * `POST /public/v1/submit/sign_transaction`
  */
 export type TSignTransactionResponse =
@@ -1877,7 +1825,7 @@ export type TSignTransactionBody =
 /**
  * Sign Transaction
  *
- * Sign a transaction with a Private Key
+ * Sign a transaction
  *
  * `POST /public/v1/submit/sign_transaction`
  */
@@ -1899,58 +1847,6 @@ export const signSignTransaction = (
 ) =>
   signedRequest<TSignTransactionBody, never, never>({
     uri: "/public/v1/submit/sign_transaction",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/submit/sign_transaction_v2`
- */
-export type TSignTransactionV2Response =
-  operations["PublicApiService_SignTransactionV2"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/submit/sign_transaction_v2`
- */
-export type TSignTransactionV2Input = { body: TSignTransactionV2Body };
-
-/**
- * `POST /public/v1/submit/sign_transaction_v2`
- */
-export type TSignTransactionV2Body =
-  operations["PublicApiService_SignTransactionV2"]["parameters"]["body"]["body"];
-
-/**
- * Sign Transaction
- *
- * Sign a transaction with a Private Key id or address
- *
- * `POST /public/v1/submit/sign_transaction_v2`
- */
-export const signTransactionV2 = (input: TSignTransactionV2Input) =>
-  request<
-    TSignTransactionV2Response,
-    TSignTransactionV2Body,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/submit/sign_transaction_v2",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `SignTransactionV2` request, ready to be POSTed to Turnkey.
- *
- * See {@link SignTransactionV2}
- */
-export const signSignTransactionV2 = (
-  input: TSignTransactionV2Input,
-  options?: TurnkeyCredentialRequestOptions
-) =>
-  signedRequest<TSignTransactionV2Body, never, never>({
-    uri: "/public/v1/submit/sign_transaction_v2",
     body: input.body,
     options,
   });
