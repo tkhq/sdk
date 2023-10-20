@@ -89,6 +89,14 @@ import type {
   TCreateUsersResponse,
 } from "./public_api.fetcher";
 import type {
+  TCreateWalletBody,
+  TCreateWalletResponse,
+} from "./public_api.fetcher";
+import type {
+  TCreateWalletAccountsBody,
+  TCreateWalletAccountsResponse,
+} from "./public_api.fetcher";
+import type {
   TDeleteApiKeysBody,
   TDeleteApiKeysResponse,
 } from "./public_api.fetcher";
@@ -105,8 +113,32 @@ import type {
   TDeletePolicyResponse,
 } from "./public_api.fetcher";
 import type {
+  TExportPrivateKeyBody,
+  TExportPrivateKeyResponse,
+} from "./public_api.fetcher";
+import type {
+  TExportWalletBody,
+  TExportWalletResponse,
+} from "./public_api.fetcher";
+import type {
+  TInitUserEmailRecoveryBody,
+  TInitUserEmailRecoveryResponse,
+} from "./public_api.fetcher";
+import type {
+  TRecoverUserBody,
+  TRecoverUserResponse,
+} from "./public_api.fetcher";
+import type {
   TRejectActivityBody,
   TRejectActivityResponse,
+} from "./public_api.fetcher";
+import type {
+  TRemoveOrganizationFeatureBody,
+  TRemoveOrganizationFeatureResponse,
+} from "./public_api.fetcher";
+import type {
+  TSetOrganizationFeatureBody,
+  TSetOrganizationFeatureResponse,
 } from "./public_api.fetcher";
 import type {
   TSignRawPayloadBody,
@@ -146,6 +178,10 @@ export class TurnkeyClient {
   stamper: TStamper;
 
   constructor(config: THttpConfig, stamper: TStamper) {
+    if (!config.baseUrl) {
+      throw new Error(`Missing base URL. Please verify env vars.`);
+    }
+
     this.config = config;
     this.stamper = stamper;
   }
@@ -885,6 +921,69 @@ export class TurnkeyClient {
   };
 
   /**
+   * Create a Wallet and derive addresses
+   *
+   * Sign the provided `TCreateWalletBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_wallet).
+   *
+   * See also {@link stampCreateWallet}.
+   */
+  createWallet = async (
+    input: TCreateWalletBody
+  ): Promise<TCreateWalletResponse> => {
+    return this.request("/public/v1/submit/create_wallet", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateWalletBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateWallet}.
+   */
+  stampCreateWallet = async (
+    input: TCreateWalletBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/create_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Derive additional addresses using an existing wallet
+   *
+   * Sign the provided `TCreateWalletAccountsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_wallet_accounts).
+   *
+   * See also {@link stampCreateWalletAccounts}.
+   */
+  createWalletAccounts = async (
+    input: TCreateWalletAccountsBody
+  ): Promise<TCreateWalletAccountsResponse> => {
+    return this.request("/public/v1/submit/create_wallet_accounts", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateWalletAccountsBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateWalletAccounts}.
+   */
+  stampCreateWalletAccounts = async (
+    input: TCreateWalletAccountsBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_wallet_accounts";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Remove api keys from a User
    *
    * Sign the provided `TDeleteApiKeysBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_api_keys).
@@ -950,14 +1049,14 @@ export class TurnkeyClient {
   /**
    * Delete an existing Invitation
    *
-   * Sign the provided `TDeleteInvitationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_invitations).
+   * Sign the provided `TDeleteInvitationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_invitation).
    *
    * See also {@link stampDeleteInvitation}.
    */
   deleteInvitation = async (
     input: TDeleteInvitationBody
   ): Promise<TDeleteInvitationResponse> => {
-    return this.request("/public/v1/submit/delete_invitations", input);
+    return this.request("/public/v1/submit/delete_invitation", input);
   };
 
   /**
@@ -968,8 +1067,7 @@ export class TurnkeyClient {
   stampDeleteInvitation = async (
     input: TDeleteInvitationBody
   ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/submit/delete_invitations";
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_invitation";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1011,6 +1109,132 @@ export class TurnkeyClient {
   };
 
   /**
+   * Exports a Private Key
+   *
+   * Sign the provided `TExportPrivateKeyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/export_private_key).
+   *
+   * See also {@link stampExportPrivateKey}.
+   */
+  exportPrivateKey = async (
+    input: TExportPrivateKeyBody
+  ): Promise<TExportPrivateKeyResponse> => {
+    return this.request("/public/v1/submit/export_private_key", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TExportPrivateKeyBody` by using the client's `stamp` function.
+   *
+   * See also {@link ExportPrivateKey}.
+   */
+  stampExportPrivateKey = async (
+    input: TExportPrivateKeyBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/export_private_key";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Exports a Wallet
+   *
+   * Sign the provided `TExportWalletBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/export_wallet).
+   *
+   * See also {@link stampExportWallet}.
+   */
+  exportWallet = async (
+    input: TExportWalletBody
+  ): Promise<TExportWalletResponse> => {
+    return this.request("/public/v1/submit/export_wallet", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TExportWalletBody` by using the client's `stamp` function.
+   *
+   * See also {@link ExportWallet}.
+   */
+  stampExportWallet = async (
+    input: TExportWalletBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/export_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Initializes a new email recovery
+   *
+   * Sign the provided `TInitUserEmailRecoveryBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_user_email_recovery).
+   *
+   * See also {@link stampInitUserEmailRecovery}.
+   */
+  initUserEmailRecovery = async (
+    input: TInitUserEmailRecoveryBody
+  ): Promise<TInitUserEmailRecoveryResponse> => {
+    return this.request("/public/v1/submit/init_user_email_recovery", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TInitUserEmailRecoveryBody` by using the client's `stamp` function.
+   *
+   * See also {@link InitUserEmailRecovery}.
+   */
+  stampInitUserEmailRecovery = async (
+    input: TInitUserEmailRecoveryBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/init_user_email_recovery";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Completes the process of recovering a user by adding an authenticator
+   *
+   * Sign the provided `TRecoverUserBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/recover_user).
+   *
+   * See also {@link stampRecoverUser}.
+   */
+  recoverUser = async (
+    input: TRecoverUserBody
+  ): Promise<TRecoverUserResponse> => {
+    return this.request("/public/v1/submit/recover_user", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TRecoverUserBody` by using the client's `stamp` function.
+   *
+   * See also {@link RecoverUser}.
+   */
+  stampRecoverUser = async (
+    input: TRecoverUserBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/recover_user";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Reject an Activity
    *
    * Sign the provided `TRejectActivityBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/reject_activity).
@@ -1042,7 +1266,71 @@ export class TurnkeyClient {
   };
 
   /**
-   * Sign a raw payload with a Private Key
+   * Removes an organization feature
+   *
+   * Sign the provided `TRemoveOrganizationFeatureBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/remove_organization_feature).
+   *
+   * See also {@link stampRemoveOrganizationFeature}.
+   */
+  removeOrganizationFeature = async (
+    input: TRemoveOrganizationFeatureBody
+  ): Promise<TRemoveOrganizationFeatureResponse> => {
+    return this.request("/public/v1/submit/remove_organization_feature", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TRemoveOrganizationFeatureBody` by using the client's `stamp` function.
+   *
+   * See also {@link RemoveOrganizationFeature}.
+   */
+  stampRemoveOrganizationFeature = async (
+    input: TRemoveOrganizationFeatureBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/remove_organization_feature";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Sets an organization feature
+   *
+   * Sign the provided `TSetOrganizationFeatureBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/set_organization_feature).
+   *
+   * See also {@link stampSetOrganizationFeature}.
+   */
+  setOrganizationFeature = async (
+    input: TSetOrganizationFeatureBody
+  ): Promise<TSetOrganizationFeatureResponse> => {
+    return this.request("/public/v1/submit/set_organization_feature", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TSetOrganizationFeatureBody` by using the client's `stamp` function.
+   *
+   * See also {@link SetOrganizationFeature}.
+   */
+  stampSetOrganizationFeature = async (
+    input: TSetOrganizationFeatureBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/set_organization_feature";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Sign a raw payload
    *
    * Sign the provided `TSignRawPayloadBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sign_raw_payload).
    *
@@ -1073,7 +1361,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Sign a transaction with a Private Key
+   * Sign a transaction
    *
    * Sign the provided `TSignTransactionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sign_transaction).
    *
