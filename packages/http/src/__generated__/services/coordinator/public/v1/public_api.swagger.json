@@ -24,15 +24,15 @@
     },
     {
       "name": "Wallets",
-      "description": "Wallets contain collections of deterministically generated cryptographic public / private key pairs that share a common seed. Turnkey securely holds the common seed, but only you can access it. In most cases, Wallets should be preferred over Private Keys since they can be represented by a mnemonic phrase, used across a variety of cryptographic curves, and can derive many addresses."
+      "description": "Wallets contain collections of deterministically generated cryptographic public / private key pairs that share a common seed. Turnkey securely holds the common seed, but only you can access it. In most cases, Wallets should be preferred over Private Keys since they can be represented by a mnemonic phrase, used across a variety of cryptographic curves, and can derive many addresses.\n\nDerived addresses can be used to create digital signatures using the corresponding underlying private key. See [Signers](./api#tag/Signers) for more information"
     },
     {
-      "name": "Signatures",
-      "description": "Signatures are used to validate the authenticity and integrity of a digital message. Signatures are a fundamental building block in blockchains. Turnkey makes it easy to produce signatures by allowing you to sign with an address. If Turnkey doesn't yet support an address format you need, you can generate and sign with the public key instead by using the address format `ADDRESS_FORMAT_COMPRESSED`."
+      "name": "Signers",
+      "description": "Signers allow you to create digitial signatures. Signatures are used to validate the authenticity and integrity of a digital message. Turnkey makes it easy to produce signatures by allowing you to sign with an address. If Turnkey doesn't yet support an address format you need, you can generate and sign with the public key instead by using the address format `ADDRESS_FORMAT_COMPRESSED`."
     },
     {
       "name": "Private Keys",
-      "description": "Private Keys are cryptographic public / private key pairs that can be used for cryptocurrency needs or more generalized encryption. Turnkey securely holds all Private Key materials for you, but only you can access them."
+      "description": "Private Keys are cryptographic public / private key pairs that can be used for cryptocurrency needs or more generalized encryption. Turnkey securely holds all private key materials for you, but only you can access them.\n\nThe Private Key ID or any derived address can be used to create digital signatures. See [Signers](./api#tag/Signers) for more information"
     },
     {
       "name": "Private Key Tags",
@@ -449,7 +449,7 @@
             }
           }
         ],
-        "tags": ["Who am I?"]
+        "tags": ["Sessions"]
       }
     },
     "/public/v1/submit/approve_activity": {
@@ -1249,7 +1249,7 @@
             }
           }
         ],
-        "tags": ["Signatures"]
+        "tags": ["Signers"]
       }
     },
     "/public/v1/submit/sign_transaction": {
@@ -1281,7 +1281,7 @@
             }
           }
         ],
-        "tags": ["Signatures"]
+        "tags": ["Signers"]
       }
     },
     "/public/v1/submit/update_allowed_origins": {
@@ -5777,7 +5777,7 @@
     },
     {
       "name": "PRIVATE KEYS",
-      "tags": ["Wallets", "Signatures", "Private Keys", "Private Key Tags"]
+      "tags": ["Wallets", "Signers", "Private Keys", "Private Key Tags"]
     },
     {
       "name": "USERS",
@@ -5785,7 +5785,7 @@
     },
     {
       "name": "CREDENTIALS",
-      "tags": ["Authenticators", "API Keys", "Who am I?"]
+      "tags": ["Authenticators", "API Keys", "Sessions"]
     },
     {
       "name": "ACTIVITIES",
