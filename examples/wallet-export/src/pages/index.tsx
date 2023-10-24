@@ -6,16 +6,16 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-type TPrivateKey = TurnkeyApiTypes["v1PrivateKey"];
+type TWallet = TurnkeyApiTypes["v1Wallet"];
 
 const TurnkeyIframeContainerId = "turnkey-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-iframe-element-id";
 
 export default function ExportPage() {
-  const [privateKeys, setPrivateKeys] = useState<TPrivateKey[]>([]);
+  const [wallets, setWallets] = useState<TWallet[]>([]);
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(null);
-  const [showPrivateKey, setShowPrivateKey] = useState<boolean>(false);
-  const [selectedPrivateKey, setSelectedPrivateKey] = useState<string | null>(null);
+  const [showWallet, setShowWallet] = useState<boolean>(false);
+  const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
 
   useEffect(() => {
     const instantiateIframeStamper = async () => {
@@ -23,7 +23,7 @@ export default function ExportPage() {
         iframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
         iframeContainerId: TurnkeyIframeContainerId,
         iframeElementId: TurnkeyIframeElementId,
-        iframeStyle: "border: none; width: 600px; height: 200px;"
+        iframeStyle: "border: none; width: 600px; height: 600px;"
       });
 
       await stamper.init();
@@ -40,14 +40,14 @@ export default function ExportPage() {
   }, [iframeStamper]);
 
   useEffect(() => {
-    getPrivateKeys();
+    getWallets();
   }, []);
 
-  const getPrivateKeys = async () => {
+  const getWallets = async () => {
     const organizationId =  process.env.NEXT_PUBLIC_ORGANIZATION_ID!;
-    const res = await axios.post("/api/getPrivateKeys", { organizationId });
+    const res = await axios.post("/api/getWallets", { organizationId });
 
-    setPrivateKeys(res.data.privateKeys);
+    setWallets(res.data.wallets);
   };
 
   const ExportIcon: React.FC = () => (
@@ -56,61 +56,38 @@ export default function ExportPage() {
     </svg>
   );
 
-  const formatCurve = (curve: string) => {
-    switch (curve) {
-      case "CURVE_SECP256K1": {
-        return "SECP256K1";
-      }
-      case "CURVE_ED25519": {
-        return "ED25519";
-      }
-      default: {
-        assertNever(curve);
-      }
-    }
-  }
-
-  const PrivateKeysTable = (
+  const WalletsTable = (
     <div>
       <table className={styles.table}>
         <thead className={styles.tableHeader}>
           <tr>
             <th className={styles.tableHeaderCell}></th>
-            <th className={styles.tableHeaderCell}>Private key name</th>
-            <th className={styles.tableHeaderCell}>Private key ID</th>
-            <th className={styles.tableHeaderCell}>Curve type</th>
-            <th className={styles.tableHeaderCell}>Asset address</th>
+            <th className={styles.tableHeaderCell}>Wallet name</th>
+            <th className={styles.tableHeaderCell}>Wallet ID</th>
           </tr>
         </thead>
         <tbody>
-          {privateKeys.map((val, key) => {
+          {wallets.map((val, key) => {
             return (
               <tr className={styles.tableRow} key={key}>
                 <td className={styles.cell}>
                   <button
                     className={styles.exportButton}
                     onClick={() => {
-                      setSelectedPrivateKey(val.privateKeyId)
+                      setSelectedWallet(val.walletId)
                     }}
                   >
                     <ExportIcon />
                   </button>
                 </td>
                 <td className={styles.cell}>
-                  <p>{val.privateKeyName}</p>
+                  <p>{val.walletName}</p>
                 </td>
                 <td className={styles.cell}>
                   <p className={styles.idCell}>
-                    {val.privateKeyId}
+                    {val.walletId}
                   </p>
                 </td>
-                <td className={styles.cell}>
-                  <p>{formatCurve(val.curve!)}</p>
-                </td>
-                <td className={styles.cell}>
-                  <p className={styles.addressCell}>
-                    {val.addresses[0].address!}
-                  </p></td>
               </tr>
             );
           })}
@@ -119,24 +96,24 @@ export default function ExportPage() {
     </div>
   );
 
-  const exportKey = async (keyId: string) => {
+  const exportWallet = async (walletId: string) => {
     if (iframeStamper === null) {
-      throw new Error("cannot export private key without an iframe");
+      throw new Error("cannot export wallet without an iframe");
     }
 
-    const response = await axios.post("/api/exportPrivateKey", {
-      privateKeyId: keyId,
+    const response = await axios.post("/api/exportWallet", {
+      walletId: walletId,
       targetPublicKey: iframeStamper.publicKey(),
     });
     
-    let injected = await iframeStamper.injectKeyExportBundle(
+    let injected = await iframeStamper.injectWalletExportBundle(
       response.data["exportBundle"],
     );
     if (injected !== true) {
       throw new Error("unexpected error while injecting export bundle");
     }
 
-    setShowPrivateKey(true);
+    setShowWallet(true);
   };
  
 
@@ -160,29 +137,29 @@ export default function ExportPage() {
       {!iframeStamper && <p>Loading...</p>}
       {iframeStamper &&
         iframeStamper.publicKey() &&
-        privateKeys.length > 0 && (
+        wallets.length > 0 && (
         <div>
-          {PrivateKeysTable}
+          {WalletsTable}
         </div>
       )}
-      {selectedPrivateKey && (
+      {selectedWallet && (
         <div className={styles.copyKey}>
-          <h2>Private key</h2>
-          <p>You are about to reveal your private key. By revealing this private key you understand that:</p>
+          <h2>Wallet seedphrase</h2>
+          <p>You are about to reveal your wallet seedphrase. By revealing this seedphrase you understand that:</p>
           <ul>
             <li>
               <p>
-                Your private key is the only way to recover your funds.
+                Your seedphrase is the only way to recover your funds.
               </p>
             </li>
             <li>
               <p>
-                Do not let anyone see your private key.
+                Do not let anyone see your seedphrase.
               </p>
             </li>
             <li>
               <p>
-                Never share your private key with anyone, including Turnkey.
+                Never share your seedphrase with anyone, including Turnkey.
               </p>
             </li>
           </ul>
@@ -190,7 +167,7 @@ export default function ExportPage() {
             <button
               className={styles.revealButton}
               onClick={() => {
-                exportKey(selectedPrivateKey)
+                exportWallet(selectedWallet)
               }}
             >
               Reveal
@@ -198,7 +175,7 @@ export default function ExportPage() {
           </div>
         </div>
       )}
-      <div style={{ display: showPrivateKey ? "block" : "none" }} id={TurnkeyIframeContainerId}></div>
+      <div style={{ display: showWallet ? "block" : "none" }} id={TurnkeyIframeContainerId}></div>
     </main>
   );
 };

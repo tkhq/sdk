@@ -1,0 +1,147 @@
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../public/fonts/inter/Inter-Regular.woff2?v=3.19")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../../public/fonts/inter/Inter-SemiBold.woff2?v=3.19")
+    format("woff2");
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6rem;
+}
+
+.table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: "Inter";
+  margin-top: 60px;
+}
+
+.tableHeader {
+  background-color: #f9fbff;
+  border: 1px solid #ebedf2;
+  margin: 0;
+}
+
+.tableRow {
+  border: 1px solid #ebedf2;
+  border-top: none;
+}
+
+.tableRow:hover {
+  background-color: #f9fbff;
+}
+
+.tableRowClickable {
+  cursor: pointer;
+}
+
+.tableHeaderCell {
+  padding: 14px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #6c727e;
+  text-align: left;
+  align-items: center;
+}
+
+.cell {
+  padding: 14px;
+}
+
+.cell p {
+    color: #555b64;
+    font-weight: 400;
+    font-size: .875rem;
+    line-height: 1.25rem;
+    margin: 0;
+    padding: 0;
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+}
+
+.addressCell, .idCell {
+  display: flex;
+  gap: 12px;
+  justify-content: baseline;
+  font-family: "iA Writer Mono",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+
+.exportButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f3f6;
+  border: none;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.2s;
+}
+
+.exportButton:hover {
+  background-color: #ebedf2;
+}
+
+.reveal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.revealButton {
+  background-color: #050a0b;
+  border: none;
+  border-radius: 8px;
+  width: 90px;
+  height: 40px;
+  cursor: pointer;
+  outline: none;
+  font-family: "Inter";
+  border: 1px solid #050a0b;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.copyKey {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.copyKey h2 {
+  text-align: center;
+  font-family: "Inter";
+  padding-top: 40px;
+}
+
+.copyKey ul {
+  margin-top: 0;
+}
+
+.copyKey p {
+  font-family: "Inter";
+  font-size: 14px;
+  color: #555b64;
+
+}
+
