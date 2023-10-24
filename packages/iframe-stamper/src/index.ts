@@ -76,7 +76,7 @@ export class IframeStamper {
     let iframe = window.document.createElement("iframe");
     iframe.id = config.iframeElementId;
     iframe.src = config.iframeUrl;
-    if (config.iframeStyle != null) {
+    if (config.iframeStyle != "") {
       iframe.setAttribute("style", config.iframeStyle);
     }
 

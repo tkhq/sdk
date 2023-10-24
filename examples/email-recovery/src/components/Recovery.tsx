@@ -23,6 +23,7 @@ export function Recovery(props: RecoveryProps) {
         iframeUrl: props.iframeUrl,
         iframeContainerId: TurnkeyIframeContainerId,
         iframeElementId: TurnkeyIframeElementId,
+        iframeStyle: "",
       });
       iframeStamper.init().then(() => {
         setIframeStamper(iframeStamper);
