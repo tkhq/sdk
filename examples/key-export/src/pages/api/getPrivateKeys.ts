@@ -16,7 +16,6 @@ type ErrorMessage = {
   message: string;
 };
 
-// This getter _can_ be performed by the parent org
 export default async function getPrivateKeys(
   req: NextApiRequest,
   res: NextApiResponse<GetPrivateKeysResponse | ErrorMessage>

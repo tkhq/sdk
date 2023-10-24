@@ -130,7 +130,7 @@ export default function ExportPage() {
       targetPublicKey: iframeStamper.publicKey(),
     });
     
-    let injected = await iframeStamper.injectExportBundle(
+    let injected = await iframeStamper.injectKeyExportBundle(
       response.data["exportBundle"],
     );
     if (injected !== true) {
