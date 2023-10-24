@@ -32,6 +32,10 @@ export type paths = {
     /** Get details about a User */
     post: operations["PublicApiService_GetUser"];
   };
+  "/public/v1/query/get_wallet": {
+    /** Get details about a Wallet */
+    post: operations["PublicApiService_GetWallet"];
+  };
   "/public/v1/query/list_activities": {
     /** List all Activities within an Organization */
     post: operations["PublicApiService_GetActivities"];
@@ -47,6 +51,14 @@ export type paths = {
   "/public/v1/query/list_users": {
     /** List all Users within an Organization */
     post: operations["PublicApiService_GetUsers"];
+  };
+  "/public/v1/query/list_wallet_accounts": {
+    /** List all Accounts wirhin a Wallet */
+    post: operations["PublicApiService_GetWalletAccounts"];
+  };
+  "/public/v1/query/list_wallets": {
+    /** List all Wallets within an Organization */
+    post: operations["PublicApiService_GetWallets"];
   };
   "/public/v1/query/whoami": {
     /** Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN users. */
@@ -1158,6 +1170,34 @@ export type definitions = {
     /** @description A list of Users. */
     users: definitions["v1User"][];
   };
+  v1GetWalletAccountsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given Wallet. */
+    walletId: string;
+  };
+  v1GetWalletAccountsResponse: {
+    /** @description A list of Accounts generated from a Wallet that share a common seed */
+    accounts: definitions["v1WalletAccount"][];
+  };
+  v1GetWalletRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given Wallet. */
+    walletId: string;
+  };
+  v1GetWalletResponse: {
+    /** @description A collection of deterministically generated cryptographic public / private key pairs that share a common seed */
+    wallet: definitions["v1Wallet"];
+  };
+  v1GetWalletsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+  };
+  v1GetWalletsResponse: {
+    /** @description A list of Wallets. */
+    wallets: definitions["v1Wallet"][];
+  };
   v1GetWhoamiRequest: {
     /** @description Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons. */
     organizationId: string;
@@ -1817,6 +1857,24 @@ export type definitions = {
     /** @description True when a given Wallet is exported, false otherwise. */
     exported: boolean;
   };
+  v1WalletAccount: {
+    /** @description The Organization the Account belongs to. */
+    organizationId: string;
+    /** @description The Wallet the Account was derived from. */
+    walletId: string;
+    /** @description Cryptographic curve used to generate the Account. */
+    curve: definitions["immutablecommonv1Curve"];
+    /** @description Path format used to generate the Account. */
+    pathFormat: definitions["v1PathFormat"];
+    /** @description Path used to generate the Account. */
+    path: string;
+    /** @description Address format used to generate the Acccount. */
+    addressFormat: definitions["immutablecommonv1AddressFormat"];
+    /** @description Address generated using the Wallet seed and Account parameters. */
+    address: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
   v1WalletAccountParams: {
     /** @description Cryptographic curve used to generate a wallet Account. */
     curve: definitions["immutablecommonv1Curve"];
@@ -1977,6 +2035,24 @@ export type operations = {
       };
     };
   };
+  /** Get details about a Wallet */
+  PublicApiService_GetWallet: {
+    parameters: {
+      body: {
+        body: definitions["v1GetWalletRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetWalletResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** List all Activities within an Organization */
   PublicApiService_GetActivities: {
     parameters: {
@@ -2042,6 +2118,42 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetUsersResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List all Accounts wirhin a Wallet */
+  PublicApiService_GetWalletAccounts: {
+    parameters: {
+      body: {
+        body: definitions["v1GetWalletAccountsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetWalletAccountsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List all Wallets within an Organization */
+  PublicApiService_GetWallets: {
+    parameters: {
+      body: {
+        body: definitions["v1GetWalletsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetWalletsResponse"];
       };
       /** An unexpected error response. */
       default: {
