@@ -13,9 +13,13 @@ const TurnkeyIframeElementId = "turnkey-iframe-element-id";
 
 export default function ExportPage() {
   const [privateKeys, setPrivateKeys] = useState<TPrivateKey[]>([]);
-  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(null);
+  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
+    null
+  );
   const [showPrivateKey, setShowPrivateKey] = useState<boolean>(false);
-  const [selectedPrivateKey, setSelectedPrivateKey] = useState<string | null>(null);
+  const [selectedPrivateKey, setSelectedPrivateKey] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     const instantiateIframeStamper = async () => {
@@ -23,7 +27,7 @@ export default function ExportPage() {
         iframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
         iframeContainerId: TurnkeyIframeContainerId,
         iframeElementId: TurnkeyIframeElementId,
-        iframeStyle: "border: none; width: 600px; height: 200px;"
+        iframeStyle: "border: none; width: 600px; height: 200px;",
       });
 
       await stamper.init();
@@ -44,7 +48,7 @@ export default function ExportPage() {
   }, []);
 
   const getPrivateKeys = async () => {
-    const organizationId =  process.env.NEXT_PUBLIC_ORGANIZATION_ID!;
+    const organizationId = process.env.NEXT_PUBLIC_ORGANIZATION_ID!;
     const res = await axios.post("/api/getPrivateKeys", { organizationId });
 
     setPrivateKeys(res.data.privateKeys);
@@ -52,7 +56,13 @@ export default function ExportPage() {
 
   const ExportIcon: React.FC = () => (
     <svg viewBox="0 0 24 24" fill="none" width="12" height="12">
-      <path d="M12 2L12 16M12 16L16 12M12 16L8 12M2 20H22" stroke="#3f464b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M12 2L12 16M12 16L16 12M12 16L8 12M2 20H22"
+        stroke="#3f464b"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 
@@ -68,7 +78,7 @@ export default function ExportPage() {
         assertNever(curve);
       }
     }
-  }
+  };
 
   const PrivateKeysTable = (
     <div>
@@ -90,7 +100,7 @@ export default function ExportPage() {
                   <button
                     className={styles.exportButton}
                     onClick={() => {
-                      setSelectedPrivateKey(val.privateKeyId)
+                      setSelectedPrivateKey(val.privateKeyId);
                     }}
                   >
                     <ExportIcon />
@@ -100,9 +110,7 @@ export default function ExportPage() {
                   <p>{val.privateKeyName}</p>
                 </td>
                 <td className={styles.cell}>
-                  <p className={styles.idCell}>
-                    {val.privateKeyId}
-                  </p>
+                  <p className={styles.idCell}>{val.privateKeyId}</p>
                 </td>
                 <td className={styles.cell}>
                   <p>{formatCurve(val.curve!)}</p>
@@ -110,7 +118,8 @@ export default function ExportPage() {
                 <td className={styles.cell}>
                   <p className={styles.addressCell}>
                     {val.addresses[0].address!}
-                  </p></td>
+                  </p>
+                </td>
               </tr>
             );
           })}
@@ -128,9 +137,9 @@ export default function ExportPage() {
       privateKeyId: keyId,
       targetPublicKey: iframeStamper.publicKey(),
     });
-    
+
     let injected = await iframeStamper.injectKeyExportBundle(
-      response.data["exportBundle"],
+      response.data["exportBundle"]
     );
     if (injected !== true) {
       throw new Error("unexpected error while injecting export bundle");
@@ -138,7 +147,6 @@ export default function ExportPage() {
 
     setShowPrivateKey(true);
   };
- 
 
   return (
     <main className={styles.main}>
@@ -158,27 +166,22 @@ export default function ExportPage() {
       </a>
 
       {!iframeStamper && <p>Loading...</p>}
-      {iframeStamper &&
-        iframeStamper.publicKey() &&
-        privateKeys.length > 0 && (
-        <div>
-          {PrivateKeysTable}
-        </div>
+      {iframeStamper && iframeStamper.publicKey() && privateKeys.length > 0 && (
+        <div>{PrivateKeysTable}</div>
       )}
       {selectedPrivateKey && (
         <div className={styles.copyKey}>
           <h2>Private key</h2>
-          <p>You are about to reveal your private key. By revealing this private key you understand that:</p>
+          <p>
+            You are about to reveal your private key. By revealing this private
+            key you understand that:
+          </p>
           <ul>
             <li>
-              <p>
-                Your private key is the only way to recover your funds.
-              </p>
+              <p>Your private key is the only way to recover your funds.</p>
             </li>
             <li>
-              <p>
-                Do not let anyone see your private key.
-              </p>
+              <p>Do not let anyone see your private key.</p>
             </li>
             <li>
               <p>
@@ -190,7 +193,7 @@ export default function ExportPage() {
             <button
               className={styles.revealButton}
               onClick={() => {
-                exportKey(selectedPrivateKey)
+                exportKey(selectedPrivateKey);
               }}
             >
               Reveal
@@ -198,11 +201,13 @@ export default function ExportPage() {
           </div>
         </div>
       )}
-      <div style={{ display: showPrivateKey ? "block" : "none" }} id={TurnkeyIframeContainerId}></div>
+      <div
+        style={{ display: showPrivateKey ? "block" : "none" }}
+        id={TurnkeyIframeContainerId}
+      ></div>
     </main>
   );
-};
+}
 function assertNever(curve: string) {
   throw new Error("Function not implemented.");
 }
-

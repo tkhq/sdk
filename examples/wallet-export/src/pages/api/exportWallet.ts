@@ -50,7 +50,8 @@ export default async function exportWallet(
       throw new Error("Expected a non-null wallet ID!");
     }
 
-    const exportBundle = completedActivity.result.exportWalletResult?.exportBundle;
+    const exportBundle =
+      completedActivity.result.exportWalletResult?.exportBundle;
     if (!exportBundle) {
       throw new Error("Expected a non-null export bundle!");
     }

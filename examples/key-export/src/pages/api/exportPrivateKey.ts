@@ -45,12 +45,14 @@ export default async function exportPrivateKey(
       },
     });
 
-    const privateKeyId = completedActivity.result.exportPrivateKeyResult?.privateKeyId;
+    const privateKeyId =
+      completedActivity.result.exportPrivateKeyResult?.privateKeyId;
     if (!privateKeyId) {
       throw new Error("Expected a non-null private key ID!");
     }
 
-    const exportBundle = completedActivity.result.exportPrivateKeyResult?.exportBundle;
+    const exportBundle =
+      completedActivity.result.exportPrivateKeyResult?.exportBundle;
     if (!exportBundle) {
       throw new Error("Expected a non-null export bundle!");
     }

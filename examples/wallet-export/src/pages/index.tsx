@@ -13,7 +13,9 @@ const TurnkeyIframeElementId = "turnkey-iframe-element-id";
 
 export default function ExportPage() {
   const [wallets, setWallets] = useState<TWallet[]>([]);
-  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(null);
+  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
+    null
+  );
   const [showWallet, setShowWallet] = useState<boolean>(false);
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
 
@@ -23,7 +25,7 @@ export default function ExportPage() {
         iframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
         iframeContainerId: TurnkeyIframeContainerId,
         iframeElementId: TurnkeyIframeElementId,
-        iframeStyle: "border: none; width: 600px; height: 600px;"
+        iframeStyle: "border: none; width: 600px; height: 600px;",
       });
 
       await stamper.init();
@@ -44,7 +46,7 @@ export default function ExportPage() {
   }, []);
 
   const getWallets = async () => {
-    const organizationId =  process.env.NEXT_PUBLIC_ORGANIZATION_ID!;
+    const organizationId = process.env.NEXT_PUBLIC_ORGANIZATION_ID!;
     const res = await axios.post("/api/getWallets", { organizationId });
 
     setWallets(res.data.wallets);
@@ -52,7 +54,13 @@ export default function ExportPage() {
 
   const ExportIcon: React.FC = () => (
     <svg viewBox="0 0 24 24" fill="none" width="12" height="12">
-      <path d="M12 2L12 16M12 16L16 12M12 16L8 12M2 20H22" stroke="#3f464b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M12 2L12 16M12 16L16 12M12 16L8 12M2 20H22"
+        stroke="#3f464b"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 
@@ -74,7 +82,7 @@ export default function ExportPage() {
                   <button
                     className={styles.exportButton}
                     onClick={() => {
-                      setSelectedWallet(val.walletId)
+                      setSelectedWallet(val.walletId);
                     }}
                   >
                     <ExportIcon />
@@ -84,9 +92,7 @@ export default function ExportPage() {
                   <p>{val.walletName}</p>
                 </td>
                 <td className={styles.cell}>
-                  <p className={styles.idCell}>
-                    {val.walletId}
-                  </p>
+                  <p className={styles.idCell}>{val.walletId}</p>
                 </td>
               </tr>
             );
@@ -105,9 +111,9 @@ export default function ExportPage() {
       walletId: walletId,
       targetPublicKey: iframeStamper.publicKey(),
     });
-    
+
     let injected = await iframeStamper.injectWalletExportBundle(
-      response.data["exportBundle"],
+      response.data["exportBundle"]
     );
     if (injected !== true) {
       throw new Error("unexpected error while injecting export bundle");
@@ -115,7 +121,6 @@ export default function ExportPage() {
 
     setShowWallet(true);
   };
- 
 
   return (
     <main className={styles.main}>
@@ -135,39 +140,32 @@ export default function ExportPage() {
       </a>
 
       {!iframeStamper && <p>Loading...</p>}
-      {iframeStamper &&
-        iframeStamper.publicKey() &&
-        wallets.length > 0 && (
-        <div>
-          {WalletsTable}
-        </div>
+      {iframeStamper && iframeStamper.publicKey() && wallets.length > 0 && (
+        <div>{WalletsTable}</div>
       )}
       {selectedWallet && (
         <div className={styles.copyKey}>
           <h2>Wallet seedphrase</h2>
-          <p>You are about to reveal your wallet seedphrase. By revealing this seedphrase you understand that:</p>
+          <p>
+            You are about to reveal your wallet seedphrase. By revealing this
+            seedphrase you understand that:
+          </p>
           <ul>
             <li>
-              <p>
-                Your seedphrase is the only way to recover your funds.
-              </p>
+              <p>Your seedphrase is the only way to recover your funds.</p>
             </li>
             <li>
-              <p>
-                Do not let anyone see your seedphrase.
-              </p>
+              <p>Do not let anyone see your seedphrase.</p>
             </li>
             <li>
-              <p>
-                Never share your seedphrase with anyone, including Turnkey.
-              </p>
+              <p>Never share your seedphrase with anyone, including Turnkey.</p>
             </li>
           </ul>
           <div className={styles.reveal}>
             <button
               className={styles.revealButton}
               onClick={() => {
-                exportWallet(selectedWallet)
+                exportWallet(selectedWallet);
               }}
             >
               Reveal
@@ -175,11 +173,13 @@ export default function ExportPage() {
           </div>
         </div>
       )}
-      <div style={{ display: showWallet ? "block" : "none" }} id={TurnkeyIframeContainerId}></div>
+      <div
+        style={{ display: showWallet ? "block" : "none" }}
+        id={TurnkeyIframeContainerId}
+      ></div>
     </main>
   );
-};
+}
 function assertNever(curve: string) {
   throw new Error("Function not implemented.");
 }
-

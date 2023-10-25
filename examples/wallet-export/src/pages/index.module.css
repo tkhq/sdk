@@ -65,24 +65,26 @@
 }
 
 .cell p {
-    color: #555b64;
-    font-weight: 400;
-    font-size: .875rem;
-    line-height: 1.25rem;
-    margin: 0;
-    padding: 0;
-    display: block;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
+  color: #555b64;
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  margin: 0;
+  padding: 0;
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
 }
 
-.addressCell, .idCell {
+.addressCell,
+.idCell {
   display: flex;
   gap: 12px;
   justify-content: baseline;
-  font-family: "iA Writer Mono",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  font-family: "iA Writer Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo,
+    Consolas, "Liberation Mono", monospace;
 }
 
 .exportButton {
@@ -142,6 +144,4 @@
   font-family: "Inter";
   font-size: 14px;
   color: #555b64;
-
 }
-
