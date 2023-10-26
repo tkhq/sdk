@@ -292,6 +292,38 @@
         "tags": ["Users"]
       }
     },
+    "/public/v1/query/get_wallet": {
+      "post": {
+        "summary": "Get Wallet",
+        "description": "Get details about a Wallet",
+        "operationId": "PublicApiService_GetWallet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
+      }
+    },
     "/public/v1/query/list_activities": {
       "post": {
         "summary": "List Activities",
@@ -418,6 +450,70 @@
           }
         ],
         "tags": ["Users"]
+      }
+    },
+    "/public/v1/query/list_wallet_accounts": {
+      "post": {
+        "summary": "List Wallets Accounts",
+        "description": "List all Accounts wirhin a Wallet",
+        "operationId": "PublicApiService_GetWalletAccounts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletAccountsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletAccountsRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
+      }
+    },
+    "/public/v1/query/list_wallets": {
+      "post": {
+        "summary": "List Wallets",
+        "description": "List all Wallets within an Organization",
+        "operationId": "PublicApiService_GetWallets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletsRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
       }
     },
     "/public/v1/query/whoami": {
@@ -1286,8 +1382,8 @@
     },
     "/public/v1/submit/update_allowed_origins": {
       "post": {
-        "summary": "Update Allowable Origins",
-        "description": "Update the allowable origins for credentials and requests",
+        "summary": "Update Allowed Origins",
+        "description": "Update the origins WebAuthN credentials are allowed to sign requests from. Setting this on a Parent-Organization applies to all Sub-Organizations.",
         "operationId": "PublicApiService_UpdateAllowedOrigins",
         "responses": {
           "200": {
@@ -3866,6 +3962,82 @@
       },
       "required": ["users"]
     },
+    "v1GetWalletAccountsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "walletId": {
+          "type": "string",
+          "description": "Unique identifier for a given Wallet."
+        }
+      },
+      "required": ["organizationId", "walletId"]
+    },
+    "v1GetWalletAccountsResponse": {
+      "type": "object",
+      "properties": {
+        "accounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1WalletAccount"
+          },
+          "description": "A list of Accounts generated from a Wallet that share a common seed"
+        }
+      },
+      "required": ["accounts"]
+    },
+    "v1GetWalletRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "walletId": {
+          "type": "string",
+          "description": "Unique identifier for a given Wallet."
+        }
+      },
+      "required": ["organizationId", "walletId"]
+    },
+    "v1GetWalletResponse": {
+      "type": "object",
+      "properties": {
+        "wallet": {
+          "$ref": "#/definitions/v1Wallet",
+          "description": "A collection of deterministically generated cryptographic public / private key pairs that share a common seed"
+        }
+      },
+      "required": ["wallet"]
+    },
+    "v1GetWalletsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetWalletsResponse": {
+      "type": "object",
+      "properties": {
+        "wallets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Wallet"
+          },
+          "description": "A list of Wallets."
+        }
+      },
+      "required": ["wallets"]
+    },
     "v1GetWhoamiRequest": {
       "type": "object",
       "properties": {
@@ -5664,6 +5836,56 @@
         "createdAt",
         "updatedAt",
         "exported"
+      ]
+    },
+    "v1WalletAccount": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "The Organization the Account belongs to."
+        },
+        "walletId": {
+          "type": "string",
+          "description": "The Wallet the Account was derived from."
+        },
+        "curve": {
+          "$ref": "#/definitions/immutablecommonv1Curve",
+          "description": "Cryptographic curve used to generate the Account."
+        },
+        "pathFormat": {
+          "$ref": "#/definitions/v1PathFormat",
+          "description": "Path format used to generate the Account."
+        },
+        "path": {
+          "type": "string",
+          "description": "Path used to generate the Account."
+        },
+        "addressFormat": {
+          "$ref": "#/definitions/immutablecommonv1AddressFormat",
+          "description": "Address format used to generate the Acccount."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address generated using the Wallet seed and Account parameters."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "organizationId",
+        "walletId",
+        "curve",
+        "pathFormat",
+        "path",
+        "addressFormat",
+        "address",
+        "createdAt",
+        "updatedAt"
       ]
     },
     "v1WalletAccountParams": {

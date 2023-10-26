@@ -1,5 +1,13 @@
 # @turnkey/http
 
+## 2.1.0
+
+### Minor Changes
+
+- bb6ea0b: Update generated files
+  - new query endpoints to retrieve wallets (`/public/v1/query/list_wallets`)
+  - new query endpoint to retrieve wallet accounts (`/public/v1/query/list_wallet_accounts`)
+
 ## 2.0.0
 
 ### Major Changes
