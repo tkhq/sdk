@@ -342,6 +342,52 @@ export const signGetUser = (
   });
 
 /**
+ * `POST /public/v1/query/get_wallet`
+ */
+export type TGetWalletResponse =
+  operations["PublicApiService_GetWallet"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_wallet`
+ */
+export type TGetWalletInput = { body: TGetWalletBody };
+
+/**
+ * `POST /public/v1/query/get_wallet`
+ */
+export type TGetWalletBody =
+  operations["PublicApiService_GetWallet"]["parameters"]["body"]["body"];
+
+/**
+ * Get Wallet
+ *
+ * Get details about a Wallet
+ *
+ * `POST /public/v1/query/get_wallet`
+ */
+export const getWallet = (input: TGetWalletInput) =>
+  request<TGetWalletResponse, TGetWalletBody, never, never, never>({
+    uri: "/public/v1/query/get_wallet",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetWallet` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetWallet}
+ */
+export const signGetWallet = (
+  input: TGetWalletInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TGetWalletBody, never, never>({
+    uri: "/public/v1/query/get_wallet",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_activities`
  */
 export type TGetActivitiesResponse =
@@ -521,6 +567,104 @@ export const signGetUsers = (
 ) =>
   signedRequest<TGetUsersBody, never, never>({
     uri: "/public/v1/query/list_users",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_wallet_accounts`
+ */
+export type TGetWalletAccountsResponse =
+  operations["PublicApiService_GetWalletAccounts"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_wallet_accounts`
+ */
+export type TGetWalletAccountsInput = { body: TGetWalletAccountsBody };
+
+/**
+ * `POST /public/v1/query/list_wallet_accounts`
+ */
+export type TGetWalletAccountsBody =
+  operations["PublicApiService_GetWalletAccounts"]["parameters"]["body"]["body"];
+
+/**
+ * List Wallets Accounts
+ *
+ * List all Accounts wirhin a Wallet
+ *
+ * `POST /public/v1/query/list_wallet_accounts`
+ */
+export const getWalletAccounts = (input: TGetWalletAccountsInput) =>
+  request<
+    TGetWalletAccountsResponse,
+    TGetWalletAccountsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_wallet_accounts",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetWalletAccounts` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetWalletAccounts}
+ */
+export const signGetWalletAccounts = (
+  input: TGetWalletAccountsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TGetWalletAccountsBody, never, never>({
+    uri: "/public/v1/query/list_wallet_accounts",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_wallets`
+ */
+export type TGetWalletsResponse =
+  operations["PublicApiService_GetWallets"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_wallets`
+ */
+export type TGetWalletsInput = { body: TGetWalletsBody };
+
+/**
+ * `POST /public/v1/query/list_wallets`
+ */
+export type TGetWalletsBody =
+  operations["PublicApiService_GetWallets"]["parameters"]["body"]["body"];
+
+/**
+ * List Wallets
+ *
+ * List all Wallets within an Organization
+ *
+ * `POST /public/v1/query/list_wallets`
+ */
+export const getWallets = (input: TGetWalletsInput) =>
+  request<TGetWalletsResponse, TGetWalletsBody, never, never, never>({
+    uri: "/public/v1/query/list_wallets",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetWallets` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetWallets}
+ */
+export const signGetWallets = (
+  input: TGetWalletsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TGetWalletsBody, never, never>({
+    uri: "/public/v1/query/list_wallets",
     body: input.body,
     options,
   });
@@ -1869,9 +2013,9 @@ export type TUpdateAllowedOriginsBody =
   operations["PublicApiService_UpdateAllowedOrigins"]["parameters"]["body"]["body"];
 
 /**
- * Update Allowable Origins
+ * Update Allowed Origins
  *
- * Update the allowable origins for credentials and requests
+ * Update the origins WebAuthN credentials are allowed to sign requests from. Setting this on a Parent-Organization applies to all Sub-Organizations.
  *
  * `POST /public/v1/submit/update_allowed_origins`
  */
