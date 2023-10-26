@@ -7,7 +7,6 @@ test("throws when instantiated outside of a browser environment", async function
       iframeUrl: "https://recovery.tkhqlabs.xyz",
       iframeContainerId: "my-container-id",
       iframeElementId: "my-iframe-id",
-      iframeStyle: "",
     });
   }).toThrow("Cannot initialize iframe in non-browser environment");
 });

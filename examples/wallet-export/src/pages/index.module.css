@@ -161,3 +161,9 @@
   font-size: 14px;
   color: #555b64;
 }
+
+.walletIframe iframe {
+  border: none;
+  width: 600px;
+  height: 600px;
+}

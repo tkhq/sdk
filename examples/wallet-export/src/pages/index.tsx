@@ -27,7 +27,6 @@ export default function ExportPage() {
         iframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
         iframeContainerId: TurnkeyIframeContainerId,
         iframeElementId: TurnkeyIframeElementId,
-        iframeStyle: "border: none; width: 600px; height: 600px;",
       });
       iframeStamper.init().then(() => {
         setIframeStamper(iframeStamper);
@@ -130,6 +129,7 @@ export default function ExportPage() {
       <div
         style={{ display: showWallet ? "block" : "none" }}
         id={TurnkeyIframeContainerId}
+        className={styles.walletIframe}
       />
     </main>
   );

@@ -19,7 +19,6 @@ const iframeStamper = new IframeStamper({
   iframeUrl: process.env.IFRAME_URL!,
   iframeContainerId: TurnkeyIframeContainerId,
   iframeElementId: TurnkeyIframeElementId,
-  iframeStyle: "",
 });
 
 // This inserts the iframe in the DOM and returns the public key
@@ -48,7 +47,6 @@ const iframeStamper = new IframeStamper({
   iframeUrl: process.env.IFRAME_URL!,
   iframeContainerId: TurnkeyIframeContainerId,
   iframeElementId: TurnkeyIframeElementId,
-  iframeStyle: "border: none; width: 600px; height: 600px;",
 });
 
 // This inserts the iframe in the DOM and returns the public key
