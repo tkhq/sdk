@@ -1,6 +1,6 @@
-# Example: `key-export`
+# Example: `wallet-export`
 
-This example shows a private key export flow. It contains a NextJS app with:
+This example shows a wallet export flow. It contains a NextJS app with:
 
 - a frontend application
 - a backend application

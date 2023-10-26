@@ -78,6 +78,22 @@
   margin-inline-end: 0px;
 }
 
+.noWallets {
+  width: 100%;
+  text-align: center;
+}
+
+.exportCol {
+  width: 55px;
+}
+.walletNameCol {
+  width: 150px;
+}
+
+.walletIdCol {
+  width: 350px;
+}
+
 .addressCell,
 .idCell {
   display: flex;

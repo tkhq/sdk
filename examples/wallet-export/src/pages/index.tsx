@@ -5,6 +5,7 @@ import { IframeStamper } from "@turnkey/iframe-stamper";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { WalletsTable } from "@/components/WalletsTable";
 
 type TWallet = TurnkeyApiTypes["v1Wallet"];
 
@@ -19,32 +20,34 @@ export default function ExportPage() {
   const [showWallet, setShowWallet] = useState<boolean>(false);
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
 
+  // Initialize the iframeStamper
   useEffect(() => {
-    const instantiateIframeStamper = async () => {
-      const stamper = new IframeStamper({
+    if (!iframeStamper) {
+      const iframeStamper = new IframeStamper({
         iframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
         iframeContainerId: TurnkeyIframeContainerId,
         iframeElementId: TurnkeyIframeElementId,
         iframeStyle: "border: none; width: 600px; height: 600px;",
       });
-
-      await stamper.init();
-      setIframeStamper(stamper);
-    };
-
-    if (!iframeStamper) {
-      instantiateIframeStamper();
+      iframeStamper.init().then(() => {
+        setIframeStamper(iframeStamper);
+      });
     }
 
     return () => {
-      iframeStamper?.clear();
+      if (iframeStamper) {
+        iframeStamper.clear();
+        setIframeStamper(null);
+      }
     };
   }, [iframeStamper]);
 
+  // Get wallets
   useEffect(() => {
     getWallets();
   }, []);
 
+  // Get the organization's wallets
   const getWallets = async () => {
     const organizationId = process.env.NEXT_PUBLIC_ORGANIZATION_ID!;
     const res = await axios.post("/api/getWallets", { organizationId });
@@ -52,56 +55,7 @@ export default function ExportPage() {
     setWallets(res.data.wallets);
   };
 
-  const ExportIcon: React.FC = () => (
-    <svg viewBox="0 0 24 24" fill="none" width="12" height="12">
-      <path
-        d="M12 2L12 16M12 16L16 12M12 16L8 12M2 20H22"
-        stroke="#3f464b"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-
-  const WalletsTable = (
-    <div>
-      <table className={styles.table}>
-        <thead className={styles.tableHeader}>
-          <tr>
-            <th className={styles.tableHeaderCell}></th>
-            <th className={styles.tableHeaderCell}>Wallet name</th>
-            <th className={styles.tableHeaderCell}>Wallet ID</th>
-          </tr>
-        </thead>
-        <tbody>
-          {wallets.map((val, key) => {
-            return (
-              <tr className={styles.tableRow} key={key}>
-                <td className={styles.cell}>
-                  <button
-                    className={styles.exportButton}
-                    onClick={() => {
-                      setSelectedWallet(val.walletId);
-                    }}
-                  >
-                    <ExportIcon />
-                  </button>
-                </td>
-                <td className={styles.cell}>
-                  <p>{val.walletName}</p>
-                </td>
-                <td className={styles.cell}>
-                  <p className={styles.idCell}>{val.walletId}</p>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
-
+  // Export the selected wallet and set the iframe to be visible
   const exportWallet = async (walletId: string) => {
     if (iframeStamper === null) {
       throw new Error("cannot export wallet without an iframe");
@@ -140,8 +94,8 @@ export default function ExportPage() {
       </a>
 
       {!iframeStamper && <p>Loading...</p>}
-      {iframeStamper && iframeStamper.publicKey() && wallets.length > 0 && (
-        <div>{WalletsTable}</div>
+      {iframeStamper && iframeStamper.publicKey() && (
+        <WalletsTable wallets={wallets} setSelectedWallet={setSelectedWallet} />
       )}
       {selectedWallet && (
         <div className={styles.copyKey}>
@@ -176,10 +130,7 @@ export default function ExportPage() {
       <div
         style={{ display: showWallet ? "block" : "none" }}
         id={TurnkeyIframeContainerId}
-      ></div>
+      />
     </main>
   );
-}
-function assertNever(curve: string) {
-  throw new Error("Function not implemented.");
 }

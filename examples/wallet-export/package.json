@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/example-key-export",
+  "name": "@turnkey/example-wallet-export",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,13 +10,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@turnkey/http": "workspace:*",
     "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/http": "workspace:*",
     "@turnkey/iframe-stamper": "workspace:*",
     "@types/node": "20.3.1",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
     "axios": "^1.4.0",
+    "classnames": "^2.3.2",
     "encoding": "^0.1.13",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
