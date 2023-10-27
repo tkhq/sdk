@@ -11,6 +11,12 @@ export enum IframeEventType {
   // Event sent by the parent to inject a recovery bundle into the iframe.
   // Value: the bundle to inject
   InjectRecoveryBundle = "INJECT_RECOVERY_BUNDLE",
+  // Event sent by the parent to inject a private key export bundle into the iframe.
+  // Value: the bundle to inject
+  InjectKeyExportBundle = "INJECT_KEY_EXPORT_BUNDLE",
+  // Event sent by the parent to inject a wallet export bundle into the iframe.
+  // Value: the bundle to inject
+  InjectWalletExportBundle = "INJECT_WALLET_EXPORT_BUNDLE",
   // Event sent by the iframe to its parent when `InjectBundle` is successful
   // Value: true (boolean)
   BundleInjected = "BUNDLE_INJECTED",
@@ -69,8 +75,8 @@ export class IframeStamper {
     let iframe = window.document.createElement("iframe");
     iframe.id = config.iframeElementId;
     iframe.src = config.iframeUrl;
-    this.iframe = iframe;
 
+    this.iframe = iframe;
     const iframeUrl = new URL(config.iframeUrl);
     this.iframeOrigin = iframeUrl.origin;
 
@@ -126,6 +132,72 @@ export class IframeStamper {
     this.iframe.contentWindow?.postMessage(
       {
         type: IframeEventType.InjectRecoveryBundle,
+        value: bundle,
+      },
+      "*"
+    );
+
+    return new Promise((resolve, _reject) => {
+      window.addEventListener(
+        "message",
+        (event) => {
+          if (event.origin !== this.iframeOrigin) {
+            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
+            // Instead of erroring out we simply return. Not our event!
+            return;
+          }
+          if (event.data?.type === IframeEventType.BundleInjected) {
+            resolve(event.data["value"]);
+          }
+        },
+        false
+      );
+    });
+  }
+
+  /**
+   * Function to inject an export bundle into the iframe
+   * The bundle should be encrypted to the iframe's initial public key
+   * Encryption should be performed with HPKE (RFC 9180).
+   * This is used during export flows.
+   */
+  async injectKeyExportBundle(bundle: string): Promise<boolean> {
+    this.iframe.contentWindow?.postMessage(
+      {
+        type: IframeEventType.InjectKeyExportBundle,
+        value: bundle,
+      },
+      "*"
+    );
+
+    return new Promise((resolve, _reject) => {
+      window.addEventListener(
+        "message",
+        (event) => {
+          if (event.origin !== this.iframeOrigin) {
+            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
+            // Instead of erroring out we simply return. Not our event!
+            return;
+          }
+          if (event.data?.type === IframeEventType.BundleInjected) {
+            resolve(event.data["value"]);
+          }
+        },
+        false
+      );
+    });
+  }
+
+  /**
+   * Function to inject an export bundle into the iframe
+   * The bundle should be encrypted to the iframe's initial public key
+   * Encryption should be performed with HPKE (RFC 9180).
+   * This is used during export flows.
+   */
+  async injectWalletExportBundle(bundle: string): Promise<boolean> {
+    this.iframe.contentWindow?.postMessage(
+      {
+        type: IframeEventType.InjectWalletExportBundle,
         value: bundle,
       },
       "*"
