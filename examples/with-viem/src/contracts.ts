@@ -12,7 +12,7 @@ import {
 } from "viem";
 import { goerli } from "viem/chains";
 import { print } from "./util";
-import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
+import { createNewWallet } from "./createNewWallet";
 import WETH_TOKEN_ABI from "./weth-contract-abi.json";
 const WETH_TOKEN_ADDRESS_GOERLI = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
 
@@ -20,9 +20,9 @@ const WETH_TOKEN_ADDRESS_GOERLI = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 async function main() {
-  if (!process.env.PRIVATE_KEY_ID) {
-    // If you don't specify a `PRIVATE_KEY_ID`, we'll create one for you via calling the Turnkey API.
-    await createNewEthereumPrivateKey();
+  if (!process.env.SIGN_WITH) {
+    // If you don't specify a `SIGN_WITH`, we'll create a new wallet for you via calling the Turnkey API.
+    await createNewWallet();
     return;
   }
 
@@ -39,7 +39,7 @@ async function main() {
   const turnkeyAccount = await createAccount({
     client: turnkeyClient,
     organizationId: process.env.ORGANIZATION_ID!,
-    privateKeyId: process.env.PRIVATE_KEY_ID!,
+    signWith: process.env.SIGN_WITH!,
   });
 
   const client = createWalletClient({
