@@ -91,7 +91,7 @@ describe("TurnkeyAccount", () => {
     turnkeyAccount = await createAccount({
       client: turnkeyClient,
       organizationId,
-      privateKeyId,
+      signWith: privateKeyId,
     });
 
     walletClient = createTestClient({

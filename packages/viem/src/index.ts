@@ -1,6 +1,6 @@
 import { hashTypedData, serializeTransaction, signatureToHex } from "viem";
 import { toAccount } from "viem/accounts";
-import { hashMessage } from "viem";
+import { hashMessage, isAddress } from "viem";
 import type {
   Hex,
   HashTypedDataParameters,
@@ -16,20 +16,30 @@ import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 export async function createAccount(input: {
   client: TurnkeyClient;
   organizationId: string;
-  privateKeyId: string;
-  // Ethereum address to use for this account.
+  // This can be a wallet account address, private key address, or private key ID.
+  signWith: string;
+  // Ethereum address to use for this account, in the case that a private key ID is used to sign.
   // If left undefined, `createAccount` will fetch it from the Turnkey API.
   // We recommend setting this if you're using a passkey client, so that your users are not prompted for a passkey signature just to fetch their address.
   // You may leave this undefined if using an API key client.
   ethereumAddress?: string;
 }): Promise<LocalAccount> {
-  const { client, organizationId, privateKeyId } = input;
+  const { client, organizationId, signWith } = input;
   let { ethereumAddress } = input;
 
-  // Fetch the address if we don't have it
-  if (ethereumAddress === undefined) {
+  if (!signWith) {
+    throw new TurnkeyActivityError({
+      message: `Missing signWith parameter`,
+    });
+  }
+
+  if (isAddress(signWith)) {
+    // override provided `ethereumAddress`
+    ethereumAddress = signWith;
+  } else if (!ethereumAddress) {
+    // we have a private key ID, but not an ethereumAddress
     const data = await client.getPrivateKey({
-      privateKeyId: privateKeyId,
+      privateKeyId: signWith,
       organizationId: organizationId,
     });
 
@@ -39,7 +49,7 @@ export async function createAccount(input: {
 
     if (typeof ethereumAddress !== "string" || !ethereumAddress) {
       throw new TurnkeyActivityError({
-        message: `Unable to find Ethereum address for key ${privateKeyId} under organization ${organizationId}`,
+        message: `Unable to find Ethereum address for key ${signWith} under organization ${organizationId}`,
       });
     }
   }
@@ -51,7 +61,7 @@ export async function createAccount(input: {
     }: {
       message: SignableMessage;
     }): Promise<Hex> {
-      return signMessage(client, message, organizationId, privateKeyId);
+      return signMessage(client, message, organizationId, signWith);
     },
     signTransaction: function <
       TTransactionSerializable extends TransactionSerializable
@@ -70,13 +80,13 @@ export async function createAccount(input: {
         transaction,
         serializer,
         organizationId,
-        privateKeyId
+        signWith
       );
     },
     signTypedData: function (
       typedData: TypedData | { [key: string]: unknown }
     ): Promise<Hex> {
-      return signTypedData(client, typedData, organizationId, privateKeyId);
+      return signTypedData(client, typedData, organizationId, signWith);
     },
   });
 }
@@ -186,14 +196,14 @@ async function signMessage(
   client: TurnkeyClient,
   message: SignableMessage,
   organizationId: string,
-  privateKeyId: string
+  signWith: string
 ): Promise<Hex> {
   const hashedMessage = hashMessage(message);
   const signedMessage = await signMessageWithErrorWrapping(
     client,
     hashedMessage,
     organizationId,
-    privateKeyId
+    signWith
   );
   return `${signedMessage}` as Hex;
 }
@@ -205,7 +215,7 @@ async function signTransaction<
   transaction: TTransactionSerializable,
   serializer: SerializeTransactionFn<TTransactionSerializable>,
   organizationId: string,
-  privateKeyId: string
+  signWith: string
 ): Promise<Hex> {
   const serializedTx = serializer(transaction);
   const nonHexPrefixedSerializedTx = serializedTx.replace(/^0x/, "");
@@ -213,7 +223,7 @@ async function signTransaction<
     client,
     nonHexPrefixedSerializedTx,
     organizationId,
-    privateKeyId
+    signWith
   );
 }
 
@@ -221,7 +231,7 @@ async function signTypedData(
   client: TurnkeyClient,
   data: TypedData | { [key: string]: unknown },
   organizationId: string,
-  privateKeyId: string
+  signWith: string
 ): Promise<Hex> {
   const hashToSign = hashTypedData(data as HashTypedDataParameters);
 
@@ -229,7 +239,7 @@ async function signTypedData(
     client,
     hashToSign,
     organizationId,
-    privateKeyId
+    signWith
   );
 }
 
@@ -237,7 +247,7 @@ async function signTransactionWithErrorWrapping(
   client: TurnkeyClient,
   unsignedTransaction: string,
   organizationId: string,
-  privateKeyId: string
+  signWith: string
 ): Promise<Hex> {
   let signedTx: string;
   try {
@@ -245,7 +255,7 @@ async function signTransactionWithErrorWrapping(
       client,
       unsignedTransaction,
       organizationId,
-      privateKeyId
+      signWith
     );
   } catch (error) {
     if (error instanceof TurnkeyActivityError) {
@@ -265,13 +275,13 @@ async function signTransactionImpl(
   client: TurnkeyClient,
   unsignedTransaction: string,
   organizationId: string,
-  privateKeyId: string
+  signWith: string
 ): Promise<string> {
   const { activity } = await client.signTransaction({
     type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
     organizationId: organizationId,
     parameters: {
-      signWith: privateKeyId,
+      signWith,
       type: "TRANSACTION_TYPE_ETHEREUM",
       unsignedTransaction: unsignedTransaction,
     },
@@ -298,7 +308,7 @@ async function signMessageWithErrorWrapping(
   client: TurnkeyClient,
   message: string,
   organizationId: string,
-  privateKeyId: string
+  signWith: string
 ): Promise<Hex> {
   let signedMessage: string;
   try {
@@ -306,7 +316,7 @@ async function signMessageWithErrorWrapping(
       client,
       message,
       organizationId,
-      privateKeyId
+      signWith
     );
   } catch (error) {
     if (error instanceof TurnkeyActivityError) {
@@ -326,13 +336,13 @@ async function signMessageImpl(
   client: TurnkeyClient,
   message: string,
   organizationId: string,
-  privateKeyId: string
+  signWith: string
 ): Promise<string> {
   const { activity } = await client.signRawPayload({
     type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
     organizationId: organizationId,
     parameters: {
-      signWith: privateKeyId,
+      signWith,
       payload: message,
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
       hashFunction: "HASH_FUNCTION_NO_OP",
