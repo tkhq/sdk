@@ -41,7 +41,7 @@ async function main() {
   const turnkeySigner = new TurnkeySigner({
     client: turnkeyClient,
     organizationId: "...",
-    privateKeyId: "...",
+    signWith: "...",
   });
 
   // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
