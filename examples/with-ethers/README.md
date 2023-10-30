@@ -2,6 +2,8 @@
 
 This example shows how to construct and broadcast a transaction using [`Ethers`](https://docs.ethers.org/v5/api/signer/) with Turnkey.
 
+If you want to see a demo with passkeys, head to the example [`with-ethers-and-passkeys`](../with-ethers-and-passkeys/) to see a NextJS app using passkeys.
+
 ## Getting started
 
 ### 1/ Cloning the example

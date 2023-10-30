@@ -5,7 +5,7 @@
   "scripts": {
     "start": "pnpm -w run build-all && tsx src/index.ts",
     "start-advanced": "pnpm -w run build-all && tsx src/advanced.ts",
-    "start-legacy-sepolia": "pnpm -w run build-all && tsx src/legacySepolia.ts",
+    "start-sepolia-legacy": "pnpm -w run build-all && tsx src/sepoliaLegacyTx.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },

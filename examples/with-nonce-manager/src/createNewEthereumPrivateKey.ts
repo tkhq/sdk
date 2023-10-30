@@ -3,6 +3,7 @@ import { createActivityPoller } from "@turnkey/http/dist/async";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";
+import { refineNonNull } from "./util";
 
 export async function createNewEthereumPrivateKey() {
   const turnkeyClient = new TurnkeyClient(
@@ -11,10 +12,6 @@ export async function createNewEthereumPrivateKey() {
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
     })
-  );
-
-  console.log(
-    "`process.env.PRIVATE_KEY_ID` not found; creating a new Ethereum private key on Turnkey...\n"
   );
 
   const activityPoller = createActivityPoller({
@@ -69,15 +66,4 @@ export async function createNewEthereumPrivateKey() {
       cause: error as Error,
     });
   }
-}
-
-export function refineNonNull<T>(
-  input: T | null | undefined,
-  errorMessage?: string
-): T {
-  if (input == null) {
-    throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
-  }
-
-  return input;
 }

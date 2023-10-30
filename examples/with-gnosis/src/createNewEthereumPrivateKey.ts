@@ -3,6 +3,7 @@ import { createActivityPoller } from "@turnkey/http/dist/async";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";
+import { refineNonNull } from "./util";
 
 export async function createNewEthereumPrivateKey() {
   const turnkeyClient = new TurnkeyClient(
@@ -69,15 +70,4 @@ export async function createNewEthereumPrivateKey() {
       cause: error as Error,
     });
   }
-}
-
-export function refineNonNull<T>(
-  input: T | null | undefined,
-  errorMessage?: string
-): T {
-  if (input == null) {
-    throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
-  }
-
-  return input;
 }

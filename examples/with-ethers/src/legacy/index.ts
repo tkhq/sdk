@@ -8,16 +8,16 @@ import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { createNewWallet } from "./createNewWallet";
-import { print, assertEqual } from "./util";
-import WETH_TOKEN_ABI from "./weth-contract-abi.json";
+import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
+import { print, assertEqual } from "../util";
+import WETH_TOKEN_ABI from "../weth-contract-abi.json";
 
 const WETH_TOKEN_ADDRESS_GOERLI = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
 
 async function main() {
-  if (!process.env.SIGN_WITH) {
-    // If you don't specify a `SIGN_WITH`, we'll create a new wallet for you via calling the Turnkey API.
-    await createNewWallet();
+  if (!process.env.PRIVATE_KEY_ID) {
+    // If you don't specify a `PRIVATE_KEY_ID`, we'll create one for you via calling the Turnkey API.
+    await createNewEthereumPrivateKey();
     return;
   }
 
@@ -31,11 +31,11 @@ async function main() {
     })
   );
 
-  // Initialize a Turnkey Signer
+  // Initialize a Turnkey Signer with a private key ID
   const turnkeySigner = new TurnkeySigner({
     client: turnkeyClient,
     organizationId: process.env.ORGANIZATION_ID!,
-    signWith: process.env.SIGN_WITH!,
+    signWith: process.env.PRIVATE_KEY_ID!,
   });
 
   // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
