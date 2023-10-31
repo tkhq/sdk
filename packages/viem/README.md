@@ -40,7 +40,7 @@ async function main() {
   const turnkeyAccount = await createAccount({
     client: httpClient,
     organizationId: "...",
-    privateKeyId: "...",
+    signWith: "...",
     // optional; will be fetched from Turnkey if not provided
     ethereumAddress: "...",
   });

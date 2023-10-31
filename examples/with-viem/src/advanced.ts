@@ -15,15 +15,15 @@ import {
 } from "viem";
 import { sepolia } from "viem/chains";
 import { print, assertEqual } from "./util";
-import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
+import { createNewWallet } from "./createNewWallet";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 async function main() {
-  if (!process.env.PRIVATE_KEY_ID) {
-    // If you don't specify a `PRIVATE_KEY_ID`, we'll create one for you via calling the Turnkey API.
-    await createNewEthereumPrivateKey();
+  if (!process.env.SIGN_WITH) {
+    // If you don't specify a `SIGN_WITH`, we'll create a new wallet for you via calling the Turnkey API.
+    await createNewWallet();
     return;
   }
 
@@ -40,7 +40,7 @@ async function main() {
   const turnkeyAccount = await createAccount({
     client: turnkeyClient,
     organizationId: process.env.ORGANIZATION_ID!,
-    privateKeyId: process.env.PRIVATE_KEY_ID!,
+    signWith: process.env.SIGN_WITH!,
   });
 
   const client = createWalletClient({

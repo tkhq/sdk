@@ -6,16 +6,16 @@ import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createWalletClient, http, recoverMessageAddress } from "viem";
 import { sepolia } from "viem/chains";
-import { print, assertEqual } from "./util";
-import { createNewWallet } from "./createNewWallet";
+import { print, assertEqual } from "../util";
+import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 async function main() {
-  if (!process.env.SIGN_WITH) {
-    // If you don't specify a `SIGN_WITH`, we'll create a new wallet for you via calling the Turnkey API.
-    await createNewWallet();
+  if (!process.env.PRIVATE_KEY_ID) {
+    // If you don't specify a `PRIVATE_KEY_ID`, we'll create one for you via calling the Turnkey API.
+    await createNewEthereumPrivateKey();
     return;
   }
 
@@ -32,7 +32,7 @@ async function main() {
   const turnkeyAccount = await createAccount({
     client: turnkeyClient,
     organizationId: process.env.ORGANIZATION_ID!,
-    signWith: process.env.SIGN_WITH!,
+    signWith: process.env.PRIVATE_KEY_ID!,
   });
 
   const client = createWalletClient({

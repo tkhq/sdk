@@ -2,7 +2,7 @@
 
 This example shows how to construct and sign a transaction using Turnkey's [`@turnkey/viem`](https://www.npmjs.com/package/@turnkey/viem) signer, **using API keys**.
 
-If you want to see a demo with passkeys, head to the example [`with-viem-and-passkeys`](../with-viem-and-passkeys/) to see a NextJS app using passkeys.
+If you want to see a demo with passkeys, head to the example [`with-viem-and-passkeys`](https://github.com/tkhq/demo-viem-passkeys) to see a NextJS app using passkeys.
 
 ## Getting started
 
@@ -39,7 +39,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `BASE_URL`
 - `ORGANIZATION_ID`
-- `PRIVATE_KEY_ID`
+- `SIGN_WITH`
 
 ### 3/ Running the scripts
 

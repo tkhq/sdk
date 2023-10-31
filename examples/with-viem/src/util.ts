@@ -7,3 +7,14 @@ export function assertEqual<T>(left: T, right: T) {
     throw new Error(`${JSON.stringify(left)} !== ${JSON.stringify(right)}`);
   }
 }
+
+export function refineNonNull<T>(
+  input: T | null | undefined,
+  errorMessage?: string
+): T {
+  if (input == null) {
+    throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
+  }
+
+  return input;
+}
