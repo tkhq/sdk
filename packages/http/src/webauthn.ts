@@ -11,7 +11,7 @@ type TAttestation = definitions["v1Attestation"];
 // eslint-disable-next-line no-undef -- false negative
 type ExternalAuthenticatorTransports = AuthenticatorTransport | "hybrid";
 type InternalAuthenticatorTransports =
-  definitions["externaldatav1AuthenticatorTransport"];
+  definitions["v1AuthenticatorTransport"];
 
 const defaultTimeout = 5 * 60 * 1000; // five minutes
 const defaultUserVerification = "preferred";
