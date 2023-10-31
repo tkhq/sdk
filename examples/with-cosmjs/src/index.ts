@@ -7,16 +7,16 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { toHex } from "@cosmjs/encoding";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { TurnkeyDirectWallet } from "@turnkey/cosmjs";
-import { createNewCosmosPrivateKey } from "./createNewCosmosPrivateKey";
-import { print, refineNonNull } from "./shared";
+import { createNewWallet } from "./createNewWallet";
+import { print, refineNonNull } from "./util";
 
 // https://docs.celestia.org/nodes/arabica-devnet/#rpc-endpoints
 const ENDPOINT = "https://rpc-arabica-9.consensus.celestia-arabica.com";
 
 async function main() {
-  if (!process.env.PRIVATE_KEY_ID) {
-    // If you don't specify a `PRIVATE_KEY_ID`, we'll create one for you via calling the Turnkey API.
-    await createNewCosmosPrivateKey();
+  if (!process.env.SIGN_WITH) {
+    // If you don't specify a `SIGN_WITH`, we'll create a new wallet for you via calling the Turnkey API.
+    await createNewWallet();
     return;
   }
 

@@ -3,7 +3,7 @@ import {
   rawSecp256k1PubkeyToRawAddress,
 } from "@cosmjs/amino";
 import { ExtendedSecp256k1Signature, Secp256k1 } from "@cosmjs/crypto";
-import { fromHex, toBech32, toHex } from "@cosmjs/encoding";
+import { fromBech32, fromHex, toBech32, toHex } from "@cosmjs/encoding";
 import {
   makeSignBytes,
   type AccountData,
@@ -36,9 +36,16 @@ type TConfig = {
    */
   organizationId: string;
   /**
-   * Turnkey private key ID
+   * Turnkey wallet account address, private key address, or private key ID
    */
-  privateKeyId: string;
+  signWith: string;
+  /**
+   * A public key corresponding to a Turnkey wallet account address or private key.
+   * If left undefined, it will be fetched from the Turnkey API.
+   * We recommend setting this if you're using a passkey client, so that your users are not prompted for a passkey signature any time their public key is needed.
+   * You may leave this undefined if using an API key client.
+   */
+  pubKey?: string;
 };
 
 const DEFAULT_PREFIX = "cosmos";
@@ -51,13 +58,15 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
     prefix?: string | undefined;
   }): Promise<TurnkeyDirectWallet> {
     const { config, prefix } = input;
-    const { privateKeyId, apiPublicKey, apiPrivateKey, baseUrl } = config;
+    const { apiPublicKey, apiPrivateKey, baseUrl, pubKey, signWith } = config;
 
     httpInit({
       apiPublicKey: apiPublicKey,
       apiPrivateKey: apiPrivateKey,
       baseUrl: baseUrl,
     });
+
+    if 
 
     const { compressedPublicKey } = await fetchCompressedPublicKey({
       privateKeyId,
@@ -66,35 +75,39 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
 
     return new TurnkeyDirectWallet({
       config,
-      compressedPublicKey,
+      signWith,
       prefix,
     });
   }
 
   public readonly prefix: string;
   public readonly organizationId: string;
-  public readonly privateKeyId: string;
+  public readonly signWith: string;
 
-  private readonly compressedPublicKey: Uint8Array;
+  // private readonly compressedPublicKey: Uint8Array;
 
   private constructor(input: {
     config: TConfig;
+    signWith: string;
     prefix?: string | undefined;
-    compressedPublicKey: Uint8Array;
+    // compressedPublicKey: Uint8Array;
   }) {
-    const { compressedPublicKey, prefix, config } = input;
-    const { organizationId, privateKeyId } = config;
+    const { config } = input;
+    const { organizationId, signWith } = config;
 
     this.prefix = prefix ?? DEFAULT_PREFIX;
-    this.compressedPublicKey = compressedPublicKey;
+    // this.compressedPublicKey = compressedPublicKey;
     this.organizationId = organizationId;
-    this.privateKeyId = privateKeyId;
+    this.signWith = signWith;
   }
 
   private get address(): string {
+    // fetch from Turnkey API
+    const compressedPublicKey = "";
+
     return toBech32(
       this.prefix,
-      rawSecp256k1PubkeyToRawAddress(this.compressedPublicKey)
+      rawSecp256k1PubkeyToRawAddress(compressedPublicKey)
     );
   }
 
@@ -145,7 +158,7 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
         organizationId: this.organizationId,
         timestampMs: String(Date.now()),
         parameters: {
-          signWith: this.privateKeyId,
+          signWith: this.signWith,
           payload: toHex(message),
           encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
           hashFunction: "HASH_FUNCTION_SHA256",

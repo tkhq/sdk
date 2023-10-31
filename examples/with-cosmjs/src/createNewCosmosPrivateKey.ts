@@ -2,7 +2,7 @@ import { TurnkeyClient, TurnkeyActivityError } from "@turnkey/http";
 import { createActivityPoller } from "@turnkey/http/dist/async";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import * as crypto from "crypto";
-import { refineNonNull } from "./shared";
+import { refineNonNull } from "./util";
 
 export async function createNewCosmosPrivateKey() {
   const turnkeyClient = new TurnkeyClient(
@@ -11,10 +11,6 @@ export async function createNewCosmosPrivateKey() {
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
     })
-  );
-
-  console.log(
-    "`process.env.PRIVATE_KEY_ID` not found; creating a new Cosmos private key on Turnkey...\n"
   );
 
   const activityPoller = createActivityPoller({
