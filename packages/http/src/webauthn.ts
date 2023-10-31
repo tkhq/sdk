@@ -10,8 +10,7 @@ type TAttestation = definitions["v1Attestation"];
 /* hybrid added to spec, but not in polyfill enum for some reason: https://github.com/github/webauthn-json/issues/67 */
 // eslint-disable-next-line no-undef -- false negative
 type ExternalAuthenticatorTransports = AuthenticatorTransport | "hybrid";
-type InternalAuthenticatorTransports =
-  definitions["v1AuthenticatorTransport"];
+type InternalAuthenticatorTransports = definitions["v1AuthenticatorTransport"];
 
 const defaultTimeout = 5 * 60 * 1000; // five minutes
 const defaultUserVerification = "preferred";
