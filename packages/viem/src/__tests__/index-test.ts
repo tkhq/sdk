@@ -127,10 +127,6 @@ describe("TurnkeyAccount", () => {
       testCase("it is connected to the right address", async () => {
         const addresses = await walletClient.getAddresses();
 
-        console.log("addresses", addresses);
-        console.log("tk account address", turnkeyAccount.address);
-        console.log("signing config", signingConfig);
-
         expect(turnkeyAccount.address).toEqual(
           signingConfig.expectedEthAddress
         );
