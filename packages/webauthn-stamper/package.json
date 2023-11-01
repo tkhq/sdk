@@ -2,6 +2,15 @@
   "name": "@turnkey/webauthn-stamper",
   "version": "0.2.0",
   "main": "./dist/index.js",
+  "module": "./dist/esm/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/esm/index.js"
+    }
+  },
   "types": "./dist/index.d.ts",
   "license": "Apache-2.0",
   "description": "Webauthn stamper for @turnkey/http",
@@ -32,8 +41,9 @@
   },
   "scripts": {
     "prepublishOnly": "pnpm -w run clean-all && pnpm -w run build-all",
-    "build": "tsc",
+    "build": "tsc -b ./tsconfig.esm.json ./tsconfig.json",
     "clean": "rimraf ./dist ./.cache",
+    "pack": "npm pack && mv *.tgz /Users/jessecollier/git/test-app-1/",
     "test": "jest",
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
