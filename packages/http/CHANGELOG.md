@@ -21,7 +21,7 @@
 - If you have policies authorizing `ACTIVITY_TYPE_SIGN_RAW_PAYLOAD` or `ACTIVITY_TYPE_SIGN_TRANSACTION` specifically, they will need to be updated to authorize `ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2` and `ACTIVITY_TYPE_SIGN_TRANSACTION_V2` (or better yet, update your policies to allow all signing actions categorically using policy resources and actions. See https://docs.turnkey.com/managing-policies/examples)
 - `createSubOrganization` now uses `ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4` under the hood, which utilizes wallets. The shape of the request has been updated to include the following parameter, `wallet`. Here's an example:
 
-```json
+```js
 {
   ...
   wallet: {
