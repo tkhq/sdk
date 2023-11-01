@@ -42,13 +42,13 @@ export async function createNewWallet() {
           {
             curve: "CURVE_SECP256K1",
             pathFormat: "PATH_FORMAT_BIP32",
-            path: "m/44'/60'/0'/0/1",
+            path: "m/44'/60'/1'/0/0",
             addressFormat: "ADDRESS_FORMAT_ETHEREUM",
           },
           {
             curve: "CURVE_SECP256K1",
             pathFormat: "PATH_FORMAT_BIP32",
-            path: "m/44'/60'/0'/0/2",
+            path: "m/44'/60'/2'/0/0",
             addressFormat: "ADDRESS_FORMAT_ETHEREUM",
           },
         ],
