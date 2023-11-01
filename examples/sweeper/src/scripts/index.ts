@@ -18,8 +18,8 @@ import {
 import prompts from "prompts";
 
 async function main() {
-  if (!process.env.PRIVATE_KEY_ID) {
-    console.log("Missing PRIVATE_KEY_ID");
+  if (!process.env.SIGN_WITH) {
+    console.log("Missing SIGN_WITH env var");
     return;
   }
 

@@ -19,16 +19,16 @@ type TConfig = {
    */
   organizationId: string;
   /**
-   * Turnkey private key ID
+   * Turnkey wallet account address, private key address, or private key ID
    */
-  privateKeyId: string;
+  signWith: string;
 };
 
 export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
   private readonly client: TurnkeyClient;
 
   public readonly organizationId: string;
-  public readonly privateKeyId: string;
+  public readonly signWith: string;
 
   constructor(config: TConfig, provider?: ethers.providers.Provider) {
     super();
@@ -37,7 +37,7 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
     this.client = config.client;
 
     this.organizationId = config.organizationId;
-    this.privateKeyId = config.privateKeyId;
+    this.signWith = config.signWith;
   }
 
   connect(provider: ethers.providers.Provider): TurnkeySigner {
@@ -45,29 +45,44 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
       {
         client: this.client,
         organizationId: this.organizationId,
-        privateKeyId: this.privateKeyId,
+        signWith: this.signWith,
       },
       provider
     );
   }
 
+  // If the configured `signWith` is an Ethereum address, use it.
+  // Otherwise, if it's a Turnkey Private Key ID, fetch the corresponding
+  // private key's address.
   async getAddress(): Promise<string> {
-    const data = await this.client.getPrivateKey({
-      privateKeyId: this.privateKeyId,
-      organizationId: this.organizationId,
-    });
+    let ethereumAddress;
 
-    const maybeAddress = data.privateKey.addresses.find(
-      (item) => item.format === "ADDRESS_FORMAT_ETHEREUM"
-    )?.address;
-
-    if (typeof maybeAddress !== "string" || !maybeAddress) {
+    if (!this.signWith) {
       throw new TurnkeyActivityError({
-        message: `Unable to find Ethereum address for key ${this.privateKeyId} under organization ${this.organizationId}`,
+        message: `Missing signWith parameter`,
       });
     }
 
-    return maybeAddress;
+    if (ethers.utils.isAddress(this.signWith)) {
+      ethereumAddress = this.signWith;
+    } else if (!ethereumAddress) {
+      const data = await this.client.getPrivateKey({
+        privateKeyId: this.signWith,
+        organizationId: this.organizationId,
+      });
+
+      ethereumAddress = data.privateKey.addresses.find(
+        (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM"
+      )?.address;
+
+      if (typeof ethereumAddress !== "string" || !ethereumAddress) {
+        throw new TurnkeyActivityError({
+          message: `Unable to find Ethereum address for key ${this.signWith} under organization ${this.organizationId}`,
+        });
+      }
+    }
+
+    return ethereumAddress;
   }
 
   private async _signTransactionImpl(message: string): Promise<string> {
@@ -75,7 +90,7 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
       type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       organizationId: this.organizationId,
       parameters: {
-        signWith: this.privateKeyId,
+        signWith: this.signWith,
         type: "TRANSACTION_TYPE_ETHEREUM",
         unsignedTransaction: message,
       },
@@ -184,7 +199,7 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
       organizationId: this.organizationId,
       parameters: {
-        signWith: this.privateKeyId,
+        signWith: this.signWith,
         payload: message,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NO_OP",

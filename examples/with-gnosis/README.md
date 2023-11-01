@@ -23,7 +23,7 @@ The first step is to set up your Turnkey organization and account. By following 
 
 - A public/private API key pair for Turnkey
 - An organization ID
-- Three (crypto) private key IDs
+- Three wallet account addresses, private key addresses, or private keys
 
 Once you've gathered these values, add them to a new `.env.local` file. Notice that your private key should be securely managed and **_never_** be committed to git.
 
@@ -37,8 +37,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `BASE_URL`
 - `ORGANIZATION_ID`
-- `PRIVATE_KEY_ID_1` -- if you leave it blank, we'll create one for you via calling the Turnkey API
-- ... any additional private keys you may need for your Safe
+- `SIGN_WITH_1 / 2 / 3` -- 3 Turnkey wallet account addresses, private key addresses, or private key IDs. If you leave any of these blank, we'll create a wallet with 3 wallet accounts for you.
 - `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
 ### 3/ Running the scripts

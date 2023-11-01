@@ -15,13 +15,14 @@ import Safe, {
 } from "@safe-global/safe-core-sdk";
 import type { SafeTransactionDataPartial } from "@safe-global/safe-core-sdk-types";
 import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
+import { print } from "./util";
 
 async function main() {
   if (
     !(
-      process.env.PRIVATE_KEY_ID_1 &&
-      process.env.PRIVATE_KEY_ID_2 &&
-      process.env.PRIVATE_KEY_ID_3
+      process.env.SIGN_WITH_1 &&
+      process.env.SIGN_WITH_2 &&
+      process.env.SIGN_WITH_3
     )
   ) {
     // You're missing a private key ID. We'll create one for you via calling the Turnkey API.
@@ -44,19 +45,19 @@ async function main() {
   const turnkeySigner1 = new TurnkeySigner({
     client: turnkeyClient,
     organizationId: process.env.ORGANIZATION_ID!,
-    privateKeyId: process.env.PRIVATE_KEY_ID_1!,
+    signWith: process.env.SIGN_WITH_1!,
   });
 
   const turnkeySigner2 = new TurnkeySigner({
     client: turnkeyClient,
     organizationId: process.env.ORGANIZATION_ID!,
-    privateKeyId: process.env.PRIVATE_KEY_ID_2!,
+    signWith: process.env.SIGN_WITH_2!,
   });
 
   const turnkeySigner3 = new TurnkeySigner({
     client: turnkeyClient,
     organizationId: process.env.ORGANIZATION_ID!,
-    privateKeyId: process.env.PRIVATE_KEY_ID_3!,
+    signWith: process.env.SIGN_WITH_3!,
   });
 
   // Bring your own provider (for the sake of this demo, we recommend using Sepolia + Infura)
@@ -206,7 +207,3 @@ main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
-
-function print(header: string, body: string): void {
-  console.log(`${header}\n\t${body}\n`);
-}

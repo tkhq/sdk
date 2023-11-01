@@ -34,7 +34,7 @@ export function getProvider(
 // (https://docs.ethers.org/v5/api/providers/)
 export function getTurnkeySigner(
   provider: ethers.providers.Provider,
-  privateKeyId: string
+  signWith: string
 ): TurnkeySigner {
   const turnkeyClient = new TurnkeyClient(
     {
@@ -50,7 +50,7 @@ export function getTurnkeySigner(
   const turnkeySigner = new TurnkeySigner({
     client: turnkeyClient,
     organizationId: process.env.ORGANIZATION_ID!,
-    privateKeyId,
+    signWith,
   });
 
   return turnkeySigner.connect(provider);

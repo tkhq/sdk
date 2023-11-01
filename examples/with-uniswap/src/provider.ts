@@ -49,7 +49,7 @@ export function getTurnkeySigner(
   const turnkeySigner = new TurnkeySigner({
     client: turnkeyClient,
     organizationId: process.env.ORGANIZATION_ID!,
-    privateKeyId: process.env.PRIVATE_KEY_ID!,
+    signWith: process.env.SIGN_WITH!,
   });
 
   return turnkeySigner.connect(provider);

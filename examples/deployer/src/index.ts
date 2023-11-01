@@ -8,13 +8,14 @@ import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
+import { createNewWallet } from "./createNewWallet";
 import compile from "./compile";
+import { print } from "./util";
 
 async function main() {
-  if (!process.env.PRIVATE_KEY_ID) {
-    // If you don't specify a `PRIVATE_KEY_ID`, we'll create one for you via calling the Turnkey API.
-    await createNewEthereumPrivateKey();
+  if (!process.env.SIGN_WITH) {
+    // If you don't specify a `SIGN_WITH`, we'll create a new wallet for you via calling the Turnkey API.
+    await createNewWallet();
     return;
   }
 
@@ -32,7 +33,7 @@ async function main() {
   const turnkeySigner = new TurnkeySigner({
     client: turnkeyClient,
     organizationId: process.env.ORGANIZATION_ID!,
-    privateKeyId: process.env.PRIVATE_KEY_ID!,
+    signWith: process.env.SIGN_WITH!,
   });
 
   // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
@@ -86,7 +87,3 @@ main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
-
-function print(header: string, body: string): void {
-  console.log(`${header}\n\t${body}\n`);
-}

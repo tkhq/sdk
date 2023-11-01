@@ -2,6 +2,8 @@
 
 This example shows how to construct and broadcast a transaction using [`Ethers`](https://docs.ethers.org/v5/api/signer/) with Turnkey.
 
+If you want to see a demo with passkeys, head to the example [`with-ethers-and-passkeys`](../with-ethers-and-passkeys/) to see a NextJS app using passkeys.
+
 ## Getting started
 
 ### 1/ Cloning the example
@@ -23,7 +25,7 @@ The first step is to set up your Turnkey organization and account. By following 
 
 - A public/private API key pair for Turnkey
 - An organization ID
-- A (crypto) private key ID (optional)
+- A Turnkey wallet account (address), private key address, or a private key ID
 
 Once you've gathered these values, add them to a new `.env.local` file. Notice that your private key should be securely managed and **_never_** be committed to git.
 
@@ -37,10 +39,12 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `BASE_URL`
 - `ORGANIZATION_ID`
-- `PRIVATE_KEY_ID` -- if you leave it blank, we'll create one for you via calling the Turnkey API
+- `SIGN_WITH` -- a Turnkey wallet account address, private key address, or private key ID. If you leave this blank, we'll create a wallet for you.
 - `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
 ### 3/ Running the scripts
+
+Note: there are multiple scripts included. See `package.json` for all of them. The following is the default:
 
 ```bash
 $ pnpm start
