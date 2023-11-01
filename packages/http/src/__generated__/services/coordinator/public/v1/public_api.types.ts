@@ -207,54 +207,15 @@ export type definitions = {
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
   };
-  /** @enum {string} */
-  externaldatav1AccessType:
-    | "ACCESS_TYPE_WEB"
-    | "ACCESS_TYPE_API"
-    | "ACCESS_TYPE_ALL";
   externaldatav1Address: {
-    format?: definitions["externaldatav1AddressFormat"];
+    format?: definitions["v1AddressFormat"];
     address?: string;
   };
-  /** @enum {string} */
-  externaldatav1AddressFormat:
-    | "ADDRESS_FORMAT_UNCOMPRESSED"
-    | "ADDRESS_FORMAT_COMPRESSED"
-    | "ADDRESS_FORMAT_ETHEREUM";
-  /** @enum {string} */
-  externaldatav1AuthenticatorTransport:
-    | "AUTHENTICATOR_TRANSPORT_BLE"
-    | "AUTHENTICATOR_TRANSPORT_INTERNAL"
-    | "AUTHENTICATOR_TRANSPORT_NFC"
-    | "AUTHENTICATOR_TRANSPORT_USB"
-    | "AUTHENTICATOR_TRANSPORT_HYBRID";
   externaldatav1Credential: {
     /** @description The public component of a cryptographic key pair used to sign messages and transactions. */
     publicKey: string;
-    type: definitions["externaldatav1CredentialType"];
+    type: definitions["v1CredentialType"];
   };
-  /** @enum {string} */
-  externaldatav1CredentialType:
-    | "CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"
-    | "CREDENTIAL_TYPE_API_KEY_P256"
-    | "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256";
-  /** @enum {string} */
-  externaldatav1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
-  /** @enum {string} */
-  externaldatav1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
-  /** @enum {string} */
-  externaldatav1Operator:
-    | "OPERATOR_EQUAL"
-    | "OPERATOR_MORE_THAN"
-    | "OPERATOR_MORE_THAN_OR_EQUAL"
-    | "OPERATOR_LESS_THAN"
-    | "OPERATOR_LESS_THAN_OR_EQUAL"
-    | "OPERATOR_CONTAINS"
-    | "OPERATOR_NOT_EQUAL"
-    | "OPERATOR_IN"
-    | "OPERATOR_NOT_IN"
-    | "OPERATOR_CONTAINS_ONE"
-    | "OPERATOR_CONTAINS_ALL";
   externaldatav1Quorum: {
     /**
      * Format: int32
@@ -264,29 +225,14 @@ export type definitions = {
     /** @description Unique identifiers of quorum set members. */
     userIds: string[];
   };
-  externaldatav1Selector: {
-    /** @description The resource being referenced within a policy (e.g., user.tags or activities.type). */
-    subject: string;
-    /** @description Logical operators like OPERATOR_CONTAINS or OPERATOR_EQUAL. */
-    operator: definitions["externaldatav1Operator"];
-    /** @description The specific parameter from the subject being referenced, like a specific user ID. */
-    targets: string[];
-  };
   externaldatav1Timestamp: {
     seconds: string;
     nanos: string;
   };
-  /** @enum {string} */
-  immutableactivityv1AccessType:
-    | "ACCESS_TYPE_WEB"
-    | "ACCESS_TYPE_API"
-    | "ACCESS_TYPE_ALL";
   immutableactivityv1Address: {
-    format?: definitions["immutablecommonv1AddressFormat"];
+    format?: definitions["v1AddressFormat"];
     address?: string;
   };
-  /** @enum {string} */
-  immutableactivityv1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
   /** @enum {string} */
   immutableactivityv1HashFunction:
     | "HASH_FUNCTION_NO_OP"
@@ -294,43 +240,9 @@ export type definitions = {
     | "HASH_FUNCTION_KECCAK256"
     | "HASH_FUNCTION_NOT_APPLICABLE";
   /** @enum {string} */
-  immutableactivityv1Operator:
-    | "OPERATOR_EQUAL"
-    | "OPERATOR_MORE_THAN"
-    | "OPERATOR_MORE_THAN_OR_EQUAL"
-    | "OPERATOR_LESS_THAN"
-    | "OPERATOR_LESS_THAN_OR_EQUAL"
-    | "OPERATOR_CONTAINS"
-    | "OPERATOR_NOT_EQUAL"
-    | "OPERATOR_IN"
-    | "OPERATOR_NOT_IN"
-    | "OPERATOR_CONTAINS_ONE"
-    | "OPERATOR_CONTAINS_ALL";
-  /** @enum {string} */
   immutableactivityv1PayloadEncoding:
     | "PAYLOAD_ENCODING_HEXADECIMAL"
     | "PAYLOAD_ENCODING_TEXT_UTF8";
-  immutableactivityv1Selector: {
-    subject?: string;
-    operator?: definitions["immutableactivityv1Operator"];
-    target?: string;
-  };
-  /** @enum {string} */
-  immutablecommonv1AddressFormat:
-    | "ADDRESS_FORMAT_UNCOMPRESSED"
-    | "ADDRESS_FORMAT_COMPRESSED"
-    | "ADDRESS_FORMAT_ETHEREUM"
-    | "ADDRESS_FORMAT_SOLANA"
-    | "ADDRESS_FORMAT_COSMOS";
-  /** @enum {string} */
-  immutablecommonv1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
-  /** @enum {string} */
-  immutablewebauthnv1AuthenticatorTransport:
-    | "AUTHENTICATOR_TRANSPORT_BLE"
-    | "AUTHENTICATOR_TRANSPORT_INTERNAL"
-    | "AUTHENTICATOR_TRANSPORT_NFC"
-    | "AUTHENTICATOR_TRANSPORT_USB"
-    | "AUTHENTICATOR_TRANSPORT_HYBRID";
   protobufAny: {
     "@type"?: string;
   } & { [key: string]: unknown };
@@ -362,6 +274,8 @@ export type definitions = {
     /** @description Unique identifier for a given User. */
     userId: string;
   };
+  /** @enum {string} */
+  v1AccessType: "ACCESS_TYPE_WEB" | "ACCESS_TYPE_API" | "ACCESS_TYPE_ALL";
   v1ActivateBillingTierIntent: {
     /** @description The product that the customer wants to subscribe to. */
     productId: string;
@@ -461,6 +375,13 @@ export type definitions = {
     | "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"
     | "ACTIVITY_TYPE_EXPORT_WALLET"
     | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4";
+  /** @enum {string} */
+  v1AddressFormat:
+    | "ADDRESS_FORMAT_UNCOMPRESSED"
+    | "ADDRESS_FORMAT_COMPRESSED"
+    | "ADDRESS_FORMAT_ETHEREUM"
+    | "ADDRESS_FORMAT_SOLANA"
+    | "ADDRESS_FORMAT_COSMOS";
   v1ApiKey: {
     /** @description A User credential that can be used to authenticate to Turnkey. */
     credential: definitions["externaldatav1Credential"];
@@ -508,11 +429,11 @@ export type definitions = {
     /** @description A base64 url encoded payload containing authenticator data and any attestation the webauthn provider chooses. */
     attestationObject: string;
     /** @description The type of authenticator transports. */
-    transports: definitions["immutablewebauthnv1AuthenticatorTransport"][];
+    transports: definitions["v1AuthenticatorTransport"][];
   };
   v1Authenticator: {
     /** @description Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
-    transports: definitions["externaldatav1AuthenticatorTransport"][];
+    transports: definitions["v1AuthenticatorTransport"][];
     attestationType: string;
     /** @description Identifier indicating the type of the Security Key. */
     aaguid: string;
@@ -532,7 +453,7 @@ export type definitions = {
   v1AuthenticatorAttestationResponse: {
     clientDataJson: string;
     attestationObject: string;
-    transports?: definitions["immutablewebauthnv1AuthenticatorTransport"][];
+    transports?: definitions["v1AuthenticatorTransport"][];
     /** @enum {string} */
     authenticatorAttachment?: "cross-platform" | "platform" | null;
   };
@@ -553,6 +474,13 @@ export type definitions = {
     /** @description The attestation that proves custody of the authenticator and provides metadata about it. */
     attestation: definitions["v1Attestation"];
   };
+  /** @enum {string} */
+  v1AuthenticatorTransport:
+    | "AUTHENTICATOR_TRANSPORT_BLE"
+    | "AUTHENTICATOR_TRANSPORT_INTERNAL"
+    | "AUTHENTICATOR_TRANSPORT_NFC"
+    | "AUTHENTICATOR_TRANSPORT_USB"
+    | "AUTHENTICATOR_TRANSPORT_HYBRID";
   v1CreateApiKeysIntent: {
     /** @description A list of API Keys. */
     apiKeys: definitions["v1ApiKeyParams"][];
@@ -659,9 +587,9 @@ export type definitions = {
     /** @description Human-readable name for a Policy. */
     policyName: string;
     /** @description A list of simple functions each including a subject, target and boolean. See Policy Engine Language section for additional details. */
-    selectors: definitions["immutableactivityv1Selector"][];
+    selectors: definitions["v1Selector"][];
     /** @description The instruction to DENY or ALLOW a particular activity following policy selector(s). */
-    effect: definitions["immutableactivityv1Effect"];
+    effect: definitions["v1Effect"];
     notes?: string;
   };
   v1CreatePolicyIntentV2: {
@@ -670,14 +598,14 @@ export type definitions = {
     /** @description A list of simple functions each including a subject, target and boolean. See Policy Engine Language section for additional details. */
     selectors: definitions["v1SelectorV2"][];
     /** @description Whether to ALLOW or DENY requests that match the condition and consensus requirements. */
-    effect: definitions["immutableactivityv1Effect"];
+    effect: definitions["v1Effect"];
     notes?: string;
   };
   v1CreatePolicyIntentV3: {
     /** @description Human-readable name for a Policy. */
     policyName: string;
     /** @description The instruction to DENY or ALLOW an activity. */
-    effect: definitions["immutableactivityv1Effect"];
+    effect: definitions["v1Effect"];
     /** @description The condition expression that triggers the Effect */
     condition?: string;
     /** @description The consensus expression that triggers the Effect */
@@ -894,6 +822,13 @@ export type definitions = {
   v1CredPropsAuthenticationExtensionsClientOutputs: {
     rk: boolean;
   };
+  /** @enum {string} */
+  v1CredentialType:
+    | "CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"
+    | "CREDENTIAL_TYPE_API_KEY_P256"
+    | "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256";
+  /** @enum {string} */
+  v1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
   v1DeleteApiKeysIntent: {
     /** @description Unique identifier for a given User. */
     userId: string;
@@ -1018,6 +953,8 @@ export type definitions = {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
   };
+  /** @enum {string} */
+  v1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
   v1ExportPrivateKeyIntent: {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
@@ -1298,7 +1235,7 @@ export type definitions = {
     /** @description A list of tags assigned to the Invitation recipient. */
     receiverUserTags: string[];
     /** @description The User's permissible access method(s). */
-    accessType: definitions["externaldatav1AccessType"];
+    accessType: definitions["v1AccessType"];
     /** @description The current processing status of a specified Invitation. */
     status: definitions["v1InvitationStatus"];
     createdAt: definitions["externaldatav1Timestamp"];
@@ -1314,7 +1251,7 @@ export type definitions = {
     /** @description A list of tags assigned to the Invitation recipient. */
     receiverUserTags: string[];
     /** @description The User's permissible access method(s). */
-    accessType: definitions["immutableactivityv1AccessType"];
+    accessType: definitions["v1AccessType"];
     /** @description Unique identifier for the Sender of an Invitation. */
     senderUserId: string;
   };
@@ -1337,6 +1274,19 @@ export type definitions = {
   v1NOOPCodegenAnchorResponse: {
     stamp: definitions["v1WebAuthnStamp"];
   };
+  /** @enum {string} */
+  v1Operator:
+    | "OPERATOR_EQUAL"
+    | "OPERATOR_MORE_THAN"
+    | "OPERATOR_MORE_THAN_OR_EQUAL"
+    | "OPERATOR_LESS_THAN"
+    | "OPERATOR_LESS_THAN_OR_EQUAL"
+    | "OPERATOR_CONTAINS"
+    | "OPERATOR_NOT_EQUAL"
+    | "OPERATOR_IN"
+    | "OPERATOR_NOT_IN"
+    | "OPERATOR_CONTAINS_ONE"
+    | "OPERATOR_CONTAINS_ALL";
   v1OrganizationData: {
     organizationId?: string;
     name?: string;
@@ -1367,9 +1317,7 @@ export type definitions = {
     /** @description Human-readable name for a Policy. */
     policyName: string;
     /** @description The instruction to DENY or ALLOW a particular activity following policy selector(s). */
-    effect: definitions["externaldatav1Effect"];
-    /** @description A list of simple functions each including a subject, target and boolean. See Policy Engine Language section for additional details. */
-    selectors: definitions["externaldatav1Selector"][];
+    effect: definitions["v1Effect"];
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
     /** @description Human-readable notes added by a User to describe a particular policy. */
@@ -1387,7 +1335,7 @@ export type definitions = {
     /** @description Human-readable name for a Private Key. */
     privateKeyName: string;
     /** @description Cryptographic Curve used to generate a given Private Key. */
-    curve: definitions["externaldatav1Curve"];
+    curve: definitions["v1Curve"];
     /** @description Derived cryptocurrency addresses for a given Private Key. */
     addresses: definitions["externaldatav1Address"][];
     /** @description A list of Private Key Tag IDs. */
@@ -1401,11 +1349,11 @@ export type definitions = {
     /** @description Human-readable name for a Private Key. */
     privateKeyName: string;
     /** @description Cryptographic Curve used to generate a given Private Key. */
-    curve: definitions["immutablecommonv1Curve"];
+    curve: definitions["v1Curve"];
     /** @description A list of Private Key Tag IDs. */
     privateKeyTags: string[];
     /** @description Cryptocurrency-specific formats for a derived address (e.g., Ethereum). */
-    addressFormats: definitions["immutablecommonv1AddressFormat"][];
+    addressFormats: definitions["v1AddressFormat"][];
   };
   v1PrivateKeyResult: {
     privateKeyId?: string;
@@ -1525,9 +1473,14 @@ export type definitions = {
     /** @description A list of Authenticator parameters. */
     authenticators: definitions["v1AuthenticatorParamsV2"][];
   };
+  v1Selector: {
+    subject?: string;
+    operator?: definitions["v1Operator"];
+    target?: string;
+  };
   v1SelectorV2: {
     subject?: string;
-    operator?: definitions["immutableactivityv1Operator"];
+    operator?: definitions["v1Operator"];
     targets?: string[];
   };
   v1SetOrganizationFeatureIntent: {
@@ -1671,7 +1624,7 @@ export type definitions = {
     /** @description Human-readable name for a Policy. */
     policyName?: string;
     /** @description The instruction to DENY or ALLOW an activity (optional). */
-    policyEffect?: definitions["immutableactivityv1Effect"];
+    policyEffect?: definitions["v1Effect"];
     /** @description The condition expression that triggers the Effect (optional). */
     policyCondition?: string;
     /** @description The consensus expression that triggers the Effect (optional). */
@@ -1788,7 +1741,7 @@ export type definitions = {
     /** @description The user's email address. */
     userEmail?: string;
     /** @description The User's permissible access method(s). */
-    accessType: definitions["externaldatav1AccessType"];
+    accessType: definitions["v1AccessType"];
     /** @description A list of Authenticator parameters. */
     authenticators: definitions["v1Authenticator"][];
     /** @description A list of API Key parameters. */
@@ -1804,7 +1757,7 @@ export type definitions = {
     /** @description The user's email address. */
     userEmail?: string;
     /** @description The User's permissible access method(s). */
-    accessType: definitions["immutableactivityv1AccessType"];
+    accessType: definitions["v1AccessType"];
     /** @description A list of API Key parameters. */
     apiKeys: definitions["v1ApiKeyParams"][];
     /** @description A list of Authenticator parameters. */
@@ -1818,7 +1771,7 @@ export type definitions = {
     /** @description The user's email address. */
     userEmail?: string;
     /** @description The User's permissible access method(s). */
-    accessType: definitions["immutableactivityv1AccessType"];
+    accessType: definitions["v1AccessType"];
     /** @description A list of API Key parameters. */
     apiKeys: definitions["v1ApiKeyParams"][];
     /** @description A list of Authenticator parameters. */
@@ -1863,13 +1816,13 @@ export type definitions = {
     /** @description The Wallet the Account was derived from. */
     walletId: string;
     /** @description Cryptographic curve used to generate the Account. */
-    curve: definitions["immutablecommonv1Curve"];
+    curve: definitions["v1Curve"];
     /** @description Path format used to generate the Account. */
     pathFormat: definitions["v1PathFormat"];
     /** @description Path used to generate the Account. */
     path: string;
     /** @description Address format used to generate the Acccount. */
-    addressFormat: definitions["immutablecommonv1AddressFormat"];
+    addressFormat: definitions["v1AddressFormat"];
     /** @description Address generated using the Wallet seed and Account parameters. */
     address: string;
     createdAt: definitions["externaldatav1Timestamp"];
@@ -1877,13 +1830,13 @@ export type definitions = {
   };
   v1WalletAccountParams: {
     /** @description Cryptographic curve used to generate a wallet Account. */
-    curve: definitions["immutablecommonv1Curve"];
+    curve: definitions["v1Curve"];
     /** @description Path format used to generate a wallet Account. */
     pathFormat: definitions["v1PathFormat"];
     /** @description Path used to generate a wallet Account. */
     path: string;
     /** @description Address format used to generate a wallet Acccount. */
-    addressFormat: definitions["immutablecommonv1AddressFormat"];
+    addressFormat: definitions["v1AddressFormat"];
   };
   v1WalletParams: {
     /** @description Human-readable name for a Wallet. */
