@@ -1,5 +1,37 @@
 # @turnkey/viem
 
+## 0.3.0
+
+### Minor Changes
+
+- cf8631a: Update interface to support `signWith`
+
+This change supports signing with wallet account addresses, private key addresses, or private key IDs. See below for an example:
+
+```js
+const httpClient = new TurnkeyClient(
+  {
+    baseUrl: "https://api.turnkey.com",
+  },
+  // This uses API key credentials.
+  // If you're using passkeys, use `@turnkey/webauthn-stamper` to collect webauthn signatures:
+  // new WebauthnStamper({...options...})
+  new ApiKeyStamper({
+    apiPublicKey: "...",
+    apiPrivateKey: "...",
+  })
+);
+
+// Create the Viem custom account
+const turnkeyAccount = await createAccount({
+  client: httpClient,
+  organizationId: "...",
+  signWith: "...",
+  // optional; will be fetched from Turnkey if not provided
+  ethereumAddress: "...",
+});
+```
+
 ## 0.2.7
 
 ### Patch Changes
