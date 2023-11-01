@@ -1,5 +1,35 @@
 # @turnkey/ethers
 
+## 0.18.0
+
+### Minor Changes
+
+- cf8631a: Update interface to support `signWith`
+
+This change supports signing with wallet account addresses, private key addresses, or private key IDs. See below for an example:
+
+```js
+const turnkeyClient = new TurnkeyClient(
+  {
+    baseUrl: "https://api.turnkey.com",
+  },
+  // This uses API key credentials.
+  // If you're using passkeys, use `@turnkey/webauthn-stamper` to collect webauthn signatures:
+  // new WebauthnStamper({...options...})
+  new ApiKeyStamper({
+    apiPublicKey: "...",
+    apiPrivateKey: "...",
+  })
+);
+
+// Initialize a Turnkey Signer
+const turnkeySigner = new TurnkeySigner({
+  client: turnkeyClient,
+  organizationId: "...",
+  signWith: "...",
+});
+```
+
 ## 0.17.4
 
 ### Patch Changes
