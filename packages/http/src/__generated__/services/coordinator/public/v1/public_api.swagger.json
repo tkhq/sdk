@@ -1682,19 +1682,6 @@
         }
       }
     },
-    "immutableactivityv1HashFunction": {
-      "type": "string",
-      "enum": [
-        "HASH_FUNCTION_NO_OP",
-        "HASH_FUNCTION_SHA256",
-        "HASH_FUNCTION_KECCAK256",
-        "HASH_FUNCTION_NOT_APPLICABLE"
-      ]
-    },
-    "immutableactivityv1PayloadEncoding": {
-      "type": "string",
-      "enum": ["PAYLOAD_ENCODING_HEXADECIMAL", "PAYLOAD_ENCODING_TEXT_UTF8"]
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -3973,6 +3960,15 @@
       },
       "required": ["organizationId", "organizationName", "userId", "username"]
     },
+    "v1HashFunction": {
+      "type": "string",
+      "enum": [
+        "HASH_FUNCTION_NO_OP",
+        "HASH_FUNCTION_SHA256",
+        "HASH_FUNCTION_KECCAK256",
+        "HASH_FUNCTION_NOT_APPLICABLE"
+      ]
+    },
     "v1InitUserEmailRecoveryIntent": {
       "type": "object",
       "properties": {
@@ -4420,6 +4416,10 @@
     "v1PathFormat": {
       "type": "string",
       "enum": ["PATH_FORMAT_BIP32"]
+    },
+    "v1PayloadEncoding": {
+      "type": "string",
+      "enum": ["PAYLOAD_ENCODING_HEXADECIMAL", "PAYLOAD_ENCODING_TEXT_UTF8"]
     },
     "v1Policy": {
       "type": "object",
@@ -5051,11 +5051,11 @@
           "description": "Raw unsigned payload to be signed."
         },
         "encoding": {
-          "$ref": "#/definitions/immutableactivityv1PayloadEncoding",
+          "$ref": "#/definitions/v1PayloadEncoding",
           "description": "Encoding of the `payload` string. Turnkey uses this information to convert `payload` into bytes with the correct decoder (e.g. hex, utf8)."
         },
         "hashFunction": {
-          "$ref": "#/definitions/immutableactivityv1HashFunction",
+          "$ref": "#/definitions/v1HashFunction",
           "description": "Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032."
         }
       },
@@ -5073,11 +5073,11 @@
           "description": "Raw unsigned payload to be signed."
         },
         "encoding": {
-          "$ref": "#/definitions/immutableactivityv1PayloadEncoding",
+          "$ref": "#/definitions/v1PayloadEncoding",
           "description": "Encoding of the `payload` string. Turnkey uses this information to convert `payload` into bytes with the correct decoder (e.g. hex, utf8)."
         },
         "hashFunction": {
-          "$ref": "#/definitions/immutableactivityv1HashFunction",
+          "$ref": "#/definitions/v1HashFunction",
           "description": "Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032."
         }
       },

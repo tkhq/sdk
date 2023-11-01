@@ -233,16 +233,6 @@ export type definitions = {
     format?: definitions["v1AddressFormat"];
     address?: string;
   };
-  /** @enum {string} */
-  immutableactivityv1HashFunction:
-    | "HASH_FUNCTION_NO_OP"
-    | "HASH_FUNCTION_SHA256"
-    | "HASH_FUNCTION_KECCAK256"
-    | "HASH_FUNCTION_NOT_APPLICABLE";
-  /** @enum {string} */
-  immutableactivityv1PayloadEncoding:
-    | "PAYLOAD_ENCODING_HEXADECIMAL"
-    | "PAYLOAD_ENCODING_TEXT_UTF8";
   protobufAny: {
     "@type"?: string;
   } & { [key: string]: unknown };
@@ -1149,6 +1139,12 @@ export type definitions = {
     /** @description Human-readable name for a User. */
     username: string;
   };
+  /** @enum {string} */
+  v1HashFunction:
+    | "HASH_FUNCTION_NO_OP"
+    | "HASH_FUNCTION_SHA256"
+    | "HASH_FUNCTION_KECCAK256"
+    | "HASH_FUNCTION_NOT_APPLICABLE";
   v1InitUserEmailRecoveryIntent: {
     /** @description Email of the user starting recovery */
     email: string;
@@ -1311,6 +1307,10 @@ export type definitions = {
   };
   /** @enum {string} */
   v1PathFormat: "PATH_FORMAT_BIP32";
+  /** @enum {string} */
+  v1PayloadEncoding:
+    | "PAYLOAD_ENCODING_HEXADECIMAL"
+    | "PAYLOAD_ENCODING_TEXT_UTF8";
   v1Policy: {
     /** @description Unique identifier for a given Policy. */
     policyId: string;
@@ -1538,9 +1538,9 @@ export type definitions = {
     /** @description Raw unsigned payload to be signed. */
     payload: string;
     /** @description Encoding of the `payload` string. Turnkey uses this information to convert `payload` into bytes with the correct decoder (e.g. hex, utf8). */
-    encoding: definitions["immutableactivityv1PayloadEncoding"];
+    encoding: definitions["v1PayloadEncoding"];
     /** @description Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032. */
-    hashFunction: definitions["immutableactivityv1HashFunction"];
+    hashFunction: definitions["v1HashFunction"];
   };
   v1SignRawPayloadIntentV2: {
     /** @description A Wallet account address, Private Key address, or Private Key identifier. */
@@ -1548,9 +1548,9 @@ export type definitions = {
     /** @description Raw unsigned payload to be signed. */
     payload: string;
     /** @description Encoding of the `payload` string. Turnkey uses this information to convert `payload` into bytes with the correct decoder (e.g. hex, utf8). */
-    encoding: definitions["immutableactivityv1PayloadEncoding"];
+    encoding: definitions["v1PayloadEncoding"];
     /** @description Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032. */
-    hashFunction: definitions["immutableactivityv1HashFunction"];
+    hashFunction: definitions["v1HashFunction"];
   };
   v1SignRawPayloadRequest: {
     /** @enum {string} */
