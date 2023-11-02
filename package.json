@@ -16,7 +16,7 @@
   },
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=16.0.0",
+    "node": "^18.0.0",
     "npm": "^8.0.0",
     "pnpm": "^8.0.0"
   },
@@ -33,7 +33,7 @@
     "tsx": "^3.12.7",
     "typescript": "^5.1.4"
   },
-  "packageManager": "pnpm@8.4.0",
+  "packageManager": "pnpm@8.10.2",
   "pnpm": {
     "overrides": {
       "@confio/ics23@0.6.8>protobufjs": ">=7.2.4",
