@@ -1,5 +1,15 @@
 # @turnkey/http
 
+## 2.2.0
+
+### Minor Changes
+
+- Add ESM to package dist (#155)
+
+### Patch Changes
+
+- ed50a0f: simplify types
+
 ## 2.1.0
 
 ### Minor Changes

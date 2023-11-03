@@ -1,5 +1,13 @@
 # @turnkey/cosmjs
 
+## 0.4.12
+
+### Patch Changes
+
+- Updated dependencies [ed50a0f]
+- Updated dependencies
+  - @turnkey/http@2.2.0
+
 ## 0.4.11
 
 ### Patch Changes
