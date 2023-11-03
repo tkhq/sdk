@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- Add ESM to package dist (#155)
+- Add ESM to package dist (#154)
 
 ### Patch Changes
 
