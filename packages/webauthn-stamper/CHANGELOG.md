@@ -1,5 +1,11 @@
 # @turnkey/webauthn-stamper
 
+## 0.3.0
+
+### Minor Changes
+
+- Add support for ESM (#154)
+
 ## 0.2.0
 
 ### Minor Changes
