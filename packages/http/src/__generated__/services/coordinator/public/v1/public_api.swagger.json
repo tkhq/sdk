@@ -388,6 +388,38 @@
         "tags": ["Policies"]
       }
     },
+    "/public/v1/query/list_private_key_tags": {
+      "post": {
+        "summary": "List Private Key Tags",
+        "description": "List all Private Key Tags within an Organization",
+        "operationId": "PublicApiService_ListPrivateKeyTags",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListPrivateKeyTagsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListPrivateKeyTagsRequest"
+            }
+          }
+        ],
+        "tags": ["Private Key Tags"]
+      }
+    },
     "/public/v1/query/list_private_keys": {
       "post": {
         "summary": "List Private Keys",
@@ -418,6 +450,38 @@
           }
         ],
         "tags": ["Private Keys"]
+      }
+    },
+    "/public/v1/query/list_user_tags": {
+      "post": {
+        "summary": "List User Tags",
+        "description": "List all User Tags within an Organization",
+        "operationId": "PublicApiService_ListUserTags",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListUserTagsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListUserTagsRequest"
+            }
+          }
+        ],
+        "tags": ["User Tags"]
       }
     },
     "/public/v1/query/list_users": {
@@ -1378,38 +1442,6 @@
           }
         ],
         "tags": ["Signers"]
-      }
-    },
-    "/public/v1/submit/update_allowed_origins": {
-      "post": {
-        "summary": "Update Allowed Origins",
-        "description": "Update the origins WebAuthN credentials are allowed to sign requests from. Setting this on a Parent-Organization applies to all Sub-Organizations.",
-        "operationId": "PublicApiService_UpdateAllowedOrigins",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1UpdateAllowedOriginsRequest"
-            }
-          }
-        ],
-        "tags": ["Features"]
       }
     },
     "/public/v1/submit/update_policy": {
@@ -3578,7 +3610,10 @@
     },
     "v1FeatureName": {
       "type": "string",
-      "enum": ["FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY"]
+      "enum": [
+        "FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY",
+        "FEATURE_NAME_WEBAUTHN_ORIGINS"
+      ]
     },
     "v1GetActivitiesRequest": {
       "type": "object",
@@ -4281,6 +4316,54 @@
         "INVITATION_STATUS_REVOKED"
       ]
     },
+    "v1ListPrivateKeyTagsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1ListPrivateKeyTagsResponse": {
+      "type": "object",
+      "properties": {
+        "privateKeyTags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/datav1Tag"
+          },
+          "description": "A list of Private Key Tags"
+        }
+      },
+      "required": ["privateKeyTags"]
+    },
+    "v1ListUserTagsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1ListUserTagsResponse": {
+      "type": "object",
+      "properties": {
+        "userTags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/datav1Tag"
+          },
+          "description": "A list of User Tags"
+        }
+      },
+      "required": ["userTags"]
+    },
     "v1MnemonicLanguage": {
       "type": "string",
       "enum": [
@@ -4364,21 +4447,8 @@
             "$ref": "#/definitions/datav1Tag"
           }
         },
-        "disabledPrivateKeys": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1PrivateKey"
-          }
-        },
         "rootQuorum": {
           "$ref": "#/definitions/externaldatav1Quorum"
-        },
-        "allowedOrigins": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         },
         "features": {
           "type": "array",
@@ -5221,27 +5291,6 @@
       },
       "required": ["allowedOrigins"]
     },
-    "v1UpdateAllowedOriginsRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1UpdateAllowedOriginsIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
     "v1UpdateAllowedOriginsResult": {
       "type": "object"
     },
@@ -5537,10 +5586,6 @@
           "type": "string",
           "description": "The user's email address."
         },
-        "accessType": {
-          "$ref": "#/definitions/v1AccessType",
-          "description": "The User's permissible access method(s)."
-        },
         "authenticators": {
           "type": "array",
           "items": {
@@ -5574,7 +5619,6 @@
       "required": [
         "userId",
         "userName",
-        "accessType",
         "authenticators",
         "apiKeys",
         "userTags",
@@ -5640,10 +5684,6 @@
           "type": "string",
           "description": "The user's email address."
         },
-        "accessType": {
-          "$ref": "#/definitions/v1AccessType",
-          "description": "The User's permissible access method(s)."
-        },
         "apiKeys": {
           "type": "array",
           "items": {
@@ -5668,13 +5708,7 @@
           "description": "A list of User Tag IDs."
         }
       },
-      "required": [
-        "userName",
-        "accessType",
-        "apiKeys",
-        "authenticators",
-        "userTags"
-      ]
+      "required": ["userName", "apiKeys", "authenticators", "userTags"]
     },
     "v1Vote": {
       "type": "object",

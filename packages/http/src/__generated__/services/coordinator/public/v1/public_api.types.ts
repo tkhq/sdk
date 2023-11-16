@@ -44,9 +44,17 @@ export type paths = {
     /** List all Policies within an Organization */
     post: operations["PublicApiService_GetPolicies"];
   };
+  "/public/v1/query/list_private_key_tags": {
+    /** List all Private Key Tags within an Organization */
+    post: operations["PublicApiService_ListPrivateKeyTags"];
+  };
   "/public/v1/query/list_private_keys": {
     /** List all Private Keys within an Organization */
     post: operations["PublicApiService_GetPrivateKeys"];
+  };
+  "/public/v1/query/list_user_tags": {
+    /** List all User Tags within an Organization */
+    post: operations["PublicApiService_ListUserTags"];
   };
   "/public/v1/query/list_users": {
     /** List all Users within an Organization */
@@ -167,10 +175,6 @@ export type paths = {
   "/public/v1/submit/sign_transaction": {
     /** Sign a transaction */
     post: operations["PublicApiService_SignTransaction"];
-  };
-  "/public/v1/submit/update_allowed_origins": {
-    /** Update the origins WebAuthN credentials are allowed to sign requests from. Setting this on a Parent-Organization applies to all Sub-Organizations. */
-    post: operations["PublicApiService_UpdateAllowedOrigins"];
   };
   "/public/v1/submit/update_policy": {
     /** Update an existing Policy */
@@ -994,7 +998,9 @@ export type definitions = {
     value?: string;
   };
   /** @enum {string} */
-  v1FeatureName: "FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY";
+  v1FeatureName:
+    | "FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY"
+    | "FEATURE_NAME_WEBAUTHN_ORIGINS";
   v1GetActivitiesRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -1256,6 +1262,22 @@ export type definitions = {
     | "INVITATION_STATUS_CREATED"
     | "INVITATION_STATUS_ACCEPTED"
     | "INVITATION_STATUS_REVOKED";
+  v1ListPrivateKeyTagsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+  };
+  v1ListPrivateKeyTagsResponse: {
+    /** @description A list of Private Key Tags */
+    privateKeyTags: definitions["datav1Tag"][];
+  };
+  v1ListUserTagsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+  };
+  v1ListUserTagsResponse: {
+    /** @description A list of User Tags */
+    userTags: definitions["datav1Tag"][];
+  };
   /** @enum {string} */
   v1MnemonicLanguage:
     | "MNEMONIC_LANGUAGE_ENGLISH"
@@ -1291,9 +1313,7 @@ export type definitions = {
     privateKeys?: definitions["v1PrivateKey"][];
     invitations?: definitions["v1Invitation"][];
     tags?: definitions["datav1Tag"][];
-    disabledPrivateKeys?: definitions["v1PrivateKey"][];
     rootQuorum?: definitions["externaldatav1Quorum"];
-    allowedOrigins?: string[];
     features?: definitions["v1Feature"][];
     wallets?: definitions["v1Wallet"][];
   };
@@ -1608,15 +1628,6 @@ export type definitions = {
     /** @description Additional origins requests are allowed from besides Turnkey origins */
     allowedOrigins: string[];
   };
-  v1UpdateAllowedOriginsRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1UpdateAllowedOriginsIntent"];
-  };
   v1UpdateAllowedOriginsResult: { [key: string]: unknown };
   v1UpdatePolicyIntent: {
     /** @description Unique identifier for a given Policy. */
@@ -1740,8 +1751,6 @@ export type definitions = {
     userName: string;
     /** @description The user's email address. */
     userEmail?: string;
-    /** @description The User's permissible access method(s). */
-    accessType: definitions["v1AccessType"];
     /** @description A list of Authenticator parameters. */
     authenticators: definitions["v1Authenticator"][];
     /** @description A list of API Key parameters. */
@@ -1770,8 +1779,6 @@ export type definitions = {
     userName: string;
     /** @description The user's email address. */
     userEmail?: string;
-    /** @description The User's permissible access method(s). */
-    accessType: definitions["v1AccessType"];
     /** @description A list of API Key parameters. */
     apiKeys: definitions["v1ApiKeyParams"][];
     /** @description A list of Authenticator parameters. */
@@ -2042,6 +2049,24 @@ export type operations = {
       };
     };
   };
+  /** List all Private Key Tags within an Organization */
+  PublicApiService_ListPrivateKeyTags: {
+    parameters: {
+      body: {
+        body: definitions["v1ListPrivateKeyTagsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListPrivateKeyTagsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** List all Private Keys within an Organization */
   PublicApiService_GetPrivateKeys: {
     parameters: {
@@ -2053,6 +2078,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetPrivateKeysResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List all User Tags within an Organization */
+  PublicApiService_ListUserTags: {
+    parameters: {
+      body: {
+        body: definitions["v1ListUserTagsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListUserTagsResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -2587,24 +2630,6 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1SignTransactionRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Update the origins WebAuthN credentials are allowed to sign requests from. Setting this on a Parent-Organization applies to all Sub-Organizations. */
-  PublicApiService_UpdateAllowedOrigins: {
-    parameters: {
-      body: {
-        body: definitions["v1UpdateAllowedOriginsRequest"];
       };
     };
     responses: {
