@@ -480,6 +480,58 @@ export const signGetPolicies = (
   });
 
 /**
+ * `POST /public/v1/query/list_private_key_tags`
+ */
+export type TListPrivateKeyTagsResponse =
+  operations["PublicApiService_ListPrivateKeyTags"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_private_key_tags`
+ */
+export type TListPrivateKeyTagsInput = { body: TListPrivateKeyTagsBody };
+
+/**
+ * `POST /public/v1/query/list_private_key_tags`
+ */
+export type TListPrivateKeyTagsBody =
+  operations["PublicApiService_ListPrivateKeyTags"]["parameters"]["body"]["body"];
+
+/**
+ * List Private Key Tags
+ *
+ * List all Private Key Tags within an Organization
+ *
+ * `POST /public/v1/query/list_private_key_tags`
+ */
+export const listPrivateKeyTags = (input: TListPrivateKeyTagsInput) =>
+  request<
+    TListPrivateKeyTagsResponse,
+    TListPrivateKeyTagsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_private_key_tags",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListPrivateKeyTags` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListPrivateKeyTags}
+ */
+export const signListPrivateKeyTags = (
+  input: TListPrivateKeyTagsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TListPrivateKeyTagsBody, never, never>({
+    uri: "/public/v1/query/list_private_key_tags",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_private_keys`
  */
 export type TGetPrivateKeysResponse =
@@ -521,6 +573,52 @@ export const signGetPrivateKeys = (
 ) =>
   signedRequest<TGetPrivateKeysBody, never, never>({
     uri: "/public/v1/query/list_private_keys",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_user_tags`
+ */
+export type TListUserTagsResponse =
+  operations["PublicApiService_ListUserTags"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_user_tags`
+ */
+export type TListUserTagsInput = { body: TListUserTagsBody };
+
+/**
+ * `POST /public/v1/query/list_user_tags`
+ */
+export type TListUserTagsBody =
+  operations["PublicApiService_ListUserTags"]["parameters"]["body"]["body"];
+
+/**
+ * List User Tags
+ *
+ * List all User Tags within an Organization
+ *
+ * `POST /public/v1/query/list_user_tags`
+ */
+export const listUserTags = (input: TListUserTagsInput) =>
+  request<TListUserTagsResponse, TListUserTagsBody, never, never, never>({
+    uri: "/public/v1/query/list_user_tags",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListUserTags` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListUserTags}
+ */
+export const signListUserTags = (
+  input: TListUserTagsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TListUserTagsBody, never, never>({
+    uri: "/public/v1/query/list_user_tags",
     body: input.body,
     options,
   });
@@ -1991,58 +2089,6 @@ export const signSignTransaction = (
 ) =>
   signedRequest<TSignTransactionBody, never, never>({
     uri: "/public/v1/submit/sign_transaction",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/submit/update_allowed_origins`
- */
-export type TUpdateAllowedOriginsResponse =
-  operations["PublicApiService_UpdateAllowedOrigins"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/submit/update_allowed_origins`
- */
-export type TUpdateAllowedOriginsInput = { body: TUpdateAllowedOriginsBody };
-
-/**
- * `POST /public/v1/submit/update_allowed_origins`
- */
-export type TUpdateAllowedOriginsBody =
-  operations["PublicApiService_UpdateAllowedOrigins"]["parameters"]["body"]["body"];
-
-/**
- * Update Allowed Origins
- *
- * Update the origins WebAuthN credentials are allowed to sign requests from. Setting this on a Parent-Organization applies to all Sub-Organizations.
- *
- * `POST /public/v1/submit/update_allowed_origins`
- */
-export const updateAllowedOrigins = (input: TUpdateAllowedOriginsInput) =>
-  request<
-    TUpdateAllowedOriginsResponse,
-    TUpdateAllowedOriginsBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/submit/update_allowed_origins",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `UpdateAllowedOrigins` request, ready to be POSTed to Turnkey.
- *
- * See {@link UpdateAllowedOrigins}
- */
-export const signUpdateAllowedOrigins = (
-  input: TUpdateAllowedOriginsInput,
-  options?: TurnkeyCredentialRequestOptions
-) =>
-  signedRequest<TUpdateAllowedOriginsBody, never, never>({
-    uri: "/public/v1/submit/update_allowed_origins",
     body: input.body,
     options,
   });

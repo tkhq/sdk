@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.3.0
+
+### Minor Changes
+
+- Sync protos from latest public endpoints
+
 ## 2.2.0
 
 ### Minor Changes

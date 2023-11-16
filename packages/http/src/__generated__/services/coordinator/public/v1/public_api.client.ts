@@ -40,8 +40,16 @@ import type {
   TGetPoliciesResponse,
 } from "./public_api.fetcher";
 import type {
+  TListPrivateKeyTagsBody,
+  TListPrivateKeyTagsResponse,
+} from "./public_api.fetcher";
+import type {
   TGetPrivateKeysBody,
   TGetPrivateKeysResponse,
+} from "./public_api.fetcher";
+import type {
+  TListUserTagsBody,
+  TListUserTagsResponse,
 } from "./public_api.fetcher";
 import type { TGetUsersBody, TGetUsersResponse } from "./public_api.fetcher";
 import type {
@@ -156,10 +164,6 @@ import type {
 import type {
   TSignTransactionBody,
   TSignTransactionResponse,
-} from "./public_api.fetcher";
-import type {
-  TUpdateAllowedOriginsBody,
-  TUpdateAllowedOriginsResponse,
 } from "./public_api.fetcher";
 import type {
   TUpdatePolicyBody,
@@ -525,6 +529,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * List all Private Key Tags within an Organization
+   *
+   * Sign the provided `TListPrivateKeyTagsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_private_key_tags).
+   *
+   * See also {@link stampListPrivateKeyTags}.
+   */
+  listPrivateKeyTags = async (
+    input: TListPrivateKeyTagsBody
+  ): Promise<TListPrivateKeyTagsResponse> => {
+    return this.request("/public/v1/query/list_private_key_tags", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListPrivateKeyTagsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListPrivateKeyTags}.
+   */
+  stampListPrivateKeyTags = async (
+    input: TListPrivateKeyTagsBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_private_key_tags";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * List all Private Keys within an Organization
    *
    * Sign the provided `TGetPrivateKeysBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_private_keys).
@@ -546,6 +582,37 @@ export class TurnkeyClient {
     input: TGetPrivateKeysBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_private_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List all User Tags within an Organization
+   *
+   * Sign the provided `TListUserTagsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_user_tags).
+   *
+   * See also {@link stampListUserTags}.
+   */
+  listUserTags = async (
+    input: TListUserTagsBody
+  ): Promise<TListUserTagsResponse> => {
+    return this.request("/public/v1/query/list_user_tags", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListUserTagsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListUserTags}.
+   */
+  stampListUserTags = async (
+    input: TListUserTagsBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/list_user_tags";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1477,38 +1544,6 @@ export class TurnkeyClient {
     input: TSignTransactionBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/sign_transaction";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Update the origins WebAuthN credentials are allowed to sign requests from. Setting this on a Parent-Organization applies to all Sub-Organizations.
-   *
-   * Sign the provided `TUpdateAllowedOriginsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_allowed_origins).
-   *
-   * See also {@link stampUpdateAllowedOrigins}.
-   */
-  updateAllowedOrigins = async (
-    input: TUpdateAllowedOriginsBody
-  ): Promise<TUpdateAllowedOriginsResponse> => {
-    return this.request("/public/v1/submit/update_allowed_origins", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TUpdateAllowedOriginsBody` by using the client's `stamp` function.
-   *
-   * See also {@link UpdateAllowedOrigins}.
-   */
-  stampUpdateAllowedOrigins = async (
-    input: TUpdateAllowedOriginsBody
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/submit/update_allowed_origins";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
