@@ -8,14 +8,14 @@ import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { ethers } from "ethers";
 import prompts from "prompts";
-import { findPrivateKeys, isKeyOfObject, fromReadableAmount } from "./utils";
+import { isKeyOfObject, fromReadableAmount } from "./utils";
 import {
   createPrivateKey,
   createPrivateKeyTag,
   createUser,
   createUserTag,
   createPolicy,
-  getOrganization,
+  getPrivateKeysForTag,
 } from "./requests";
 import { getProvider, getTurnkeySigner } from "./provider";
 import { sendEth, sendToken, unwrapWeth, wrapEth } from "./send";
@@ -194,10 +194,8 @@ async function setup(_options: any) {
 
   // SENDING
   // first, get long term storage address(es)
-  const organization = await getOrganization(turnkeyClient);
-  const longTermStoragePrivateKey = findPrivateKeys(
-    organization,
-    "long-term-storage"
+  const longTermStoragePrivateKey = (
+    await getPrivateKeysForTag(turnkeyClient, "long-term-storage")
   )[0];
   const longTermStorageAddress = longTermStoragePrivateKey?.addresses.find(
     (address: any) => {
@@ -270,10 +268,10 @@ async function trade(options: { [key: string]: string }) {
 }
 
 async function wrapUnwrapImpl(baseAsset: string, baseAmount: string) {
-  const organization = await getOrganization(turnkeyClient);
-
   // find "trading" private key
-  const tradingPrivateKey = findPrivateKeys(organization, "trading")[0];
+  const tradingPrivateKey = (
+    await getPrivateKeysForTag(turnkeyClient, "trading")
+  )[0];
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
     provider,
@@ -336,10 +334,10 @@ async function tradeImpl(
   quoteAsset: string,
   baseAmount: string
 ) {
-  const organization = await getOrganization(turnkeyClient);
-
   // find "trading" private key
-  const tradingPrivateKey = findPrivateKeys(organization, "trading")[0];
+  const tradingPrivateKey = (
+    await getPrivateKeysForTag(turnkeyClient, "trading")
+  )[0];
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
     provider,
@@ -508,15 +506,14 @@ async function sweep(options: any) {
 
 // sweep one asset at a time, and only to long term storage
 async function sweepImpl(asset: string, destination: string, amount: string) {
-  const organization = await getOrganization(turnkeyClient);
-
   // find trading private keys
-  const tradingPrivateKey = findPrivateKeys(organization, "trading")[0]!;
+  const tradingPrivateKey = (
+    await getPrivateKeysForTag(turnkeyClient, "trading")
+  )[0]!;
 
   // find long term storage private key
-  const longTermStoragePrivateKey = findPrivateKeys(
-    organization,
-    "long-term-storage"
+  const longTermStoragePrivateKey = (
+    await getPrivateKeysForTag(turnkeyClient, "long-term-storage")
   )[0];
 
   // send from trading address to long term storage

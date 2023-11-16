@@ -1,4 +1,3 @@
-import type { TurnkeyApiTypes } from "@turnkey/http";
 import { BigNumber, ethers } from "ethers";
 
 // Environment
@@ -9,25 +8,6 @@ export enum Environment {
 }
 
 const MAX_DECIMALS = 4;
-
-export function findPrivateKeys(
-  organization: TurnkeyApiTypes["v1OrganizationData"],
-  tagName: string
-): TurnkeyApiTypes["v1PrivateKey"][] {
-  const tag = organization.tags?.find((tag: any) => {
-    const isPrivateKeyTag = tag.tagType === "TAG_TYPE_PRIVATE_KEY";
-    const isMatchingTag = tag.tagName === tagName;
-    return isPrivateKeyTag && isMatchingTag;
-  });
-
-  const privateKeys = organization.privateKeys?.filter(
-    (privateKey: TurnkeyApiTypes["v1PrivateKey"]) => {
-      return privateKey.privateKeyTags.includes(tag!.tagId);
-    }
-  );
-
-  return privateKeys || [];
-}
 
 // fromReadableAmount converts whole amounts to atomic amounts
 export function fromReadableAmount(

@@ -7,7 +7,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { ethers } from "ethers";
-import { findPrivateKeys, isKeyOfObject } from "./utils";
+import { isKeyOfObject } from "./utils";
 import {
   createPrivateKey,
   createPrivateKeyTag,
@@ -16,7 +16,7 @@ import {
   createPolicy,
   getActivities,
   getActivity,
-  getOrganization,
+  getPrivateKeysForTag,
   createActivityApproval,
   createActivityRejection,
 } from "./requests";
@@ -202,17 +202,15 @@ async function fund(options: any) {
 }
 
 async function fundImpl() {
-  const organization = await getOrganization(turnkeyClient);
-
   // find "Distribution" private key
-  const distributionPrivateKey = findPrivateKeys(
-    organization,
+  const distributionPrivateKeys = await getPrivateKeysForTag(
+    turnkeyClient,
     "distribution"
-  )[0];
+  );
 
   // find "Short Term Storage" private keys
-  const shortTermStoragePrivateKeys = findPrivateKeys(
-    organization,
+  const shortTermStoragePrivateKeys = await getPrivateKeysForTag(
+    turnkeyClient,
     "short-term-storage"
   );
 
@@ -220,10 +218,10 @@ async function fundImpl() {
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
     provider,
-    distributionPrivateKey!.privateKeyId
+    distributionPrivateKeys[0]!.privateKeyId
   );
 
-  for (const pk of shortTermStoragePrivateKeys!) {
+  for (const pk of shortTermStoragePrivateKeys) {
     const ethAddress = pk.addresses.find((address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
     });
@@ -256,29 +254,29 @@ async function sweep(options: any) {
 }
 
 async function sweepImpl() {
-  const organization = await getOrganization(turnkeyClient);
-
   // find long term storage private key
-  const longTermStoragePrivateKey = findPrivateKeys(
-    organization,
+  const longTermStoragePrivateKeys = await getPrivateKeysForTag(
+    turnkeyClient,
     "long-term-storage"
-  )[0];
+  );
 
   // find short term storage private keys
-  const shortTermStoragePrivateKeys = findPrivateKeys(
-    organization,
+  const shortTermStoragePrivateKeys = await getPrivateKeysForTag(
+    turnkeyClient,
     "short-term-storage"
   );
 
   // send from short to long term storage
-  const ethAddress = longTermStoragePrivateKey?.addresses.find(
+  const ethAddress = longTermStoragePrivateKeys[0]!.addresses.find(
     (address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
     }
   );
   if (!ethAddress || !ethAddress.address) {
     throw new Error(
-      `couldn't lookup ETH address for private key: ${longTermStoragePrivateKey?.privateKeyId}`
+      `couldn't lookup ETH address for private key: ${
+        longTermStoragePrivateKeys[0]!.privateKeyId
+      }`
     );
   }
 
@@ -337,33 +335,35 @@ async function recycle(options: any) {
 }
 
 async function recycleImpl() {
-  const organization = await getOrganization(turnkeyClient);
-
   // find "Long Term Storage" private key
-  const longTermStoragePrivateKey = findPrivateKeys(
-    organization,
+  const longTermStoragePrivateKeys = await getPrivateKeysForTag(
+    turnkeyClient,
     "long-term-storage"
-  )[0];
+  );
 
   // find "Distribution" private key
-  const distributionPrivateKey = findPrivateKeys(
-    organization,
+  const distributionPrivateKeys = await getPrivateKeysForTag(
+    turnkeyClient,
     "distribution"
-  )[0];
+  );
 
   // send from "Long Term Storage" to "Distribution"
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
     provider,
-    longTermStoragePrivateKey!.privateKeyId
+    longTermStoragePrivateKeys[0]!.privateKeyId
   );
 
-  const ethAddress = distributionPrivateKey?.addresses.find((address: any) => {
-    return address.format == "ADDRESS_FORMAT_ETHEREUM";
-  });
+  const ethAddress = distributionPrivateKeys[0]!.addresses.find(
+    (address: any) => {
+      return address.format == "ADDRESS_FORMAT_ETHEREUM";
+    }
+  );
   if (!ethAddress || !ethAddress.address) {
     throw new Error(
-      `couldn't lookup ETH address for private key: ${distributionPrivateKey?.privateKeyId}`
+      `couldn't lookup ETH address for private key: ${
+        distributionPrivateKeys[0]!.privateKeyId
+      }`
     );
   }
 
@@ -412,13 +412,11 @@ function pollAndBroadcast(options: any) {
 }
 
 async function pollAndBroadcastImpl() {
-  const organization = await getOrganization(turnkeyClient);
-
   // find "Long Term Storage" private key
-  const longTermStoragePrivateKey = findPrivateKeys(
-    organization,
+  const longTermStoragePrivateKeys = await getPrivateKeysForTag(
+    turnkeyClient,
     "long-term-storage"
-  )[0];
+  );
   const activities = await getActivities(turnkeyClient, ACTIVITIES_LIMIT);
 
   const relevantActivities = activities.filter((activity) => {
@@ -426,7 +424,7 @@ async function pollAndBroadcastImpl() {
       activity.type === "ACTIVITY_TYPE_SIGN_TRANSACTION" &&
       activity.status === "ACTIVITY_STATUS_COMPLETED" &&
       activity.intent.signTransactionIntent?.privateKeyId ===
-        longTermStoragePrivateKey.privateKeyId
+        longTermStoragePrivateKeys[0]!.privateKeyId
     );
   });
 
