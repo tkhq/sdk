@@ -1,5 +1,5 @@
 import type { TurnkeyClient } from "@turnkey/http";
-import  { createActivityPoller } from "@turnkey/http";
+import { createActivityPoller } from "@turnkey/http";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
