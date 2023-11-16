@@ -1,5 +1,5 @@
 import { TurnkeyClient } from "@turnkey/http";
-import { createActivityPoller } from "@turnkey/http/dist/async";
+import { createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";

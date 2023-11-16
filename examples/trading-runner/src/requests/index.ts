@@ -1,5 +1,5 @@
 // queries
-export { default as getOrganization } from "./getOrganization";
+export { default as getPrivateKeysForTag } from "./getPrivateKeysForTag";
 
 // mutations
 export { default as createUser } from "./createUser";

@@ -9,20 +9,6 @@ export enum Environment {
 
 const MAX_DECIMALS = 4;
 
-export function findPrivateKeys(organization: any, tagName: string) {
-  const tag = organization.tags?.find((tag: any) => {
-    const isPrivateKeyTag = tag.tagType === "TAG_TYPE_PRIVATE_KEY";
-    const isMatchingTag = tag.tagName === tagName;
-    return isPrivateKeyTag && isMatchingTag;
-  });
-
-  const privateKeys = organization.privateKeys?.filter((privateKey: any) => {
-    return privateKey.privateKeyTags.includes(tag!.tagId);
-  });
-
-  return privateKeys;
-}
-
 // fromReadableAmount converts whole amounts to atomic amounts
 export function fromReadableAmount(
   amount: number,
