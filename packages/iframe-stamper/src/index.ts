@@ -26,6 +26,9 @@ export enum IframeEventType {
   // Event sent by the iframe to communicate the result of a stamp operation.
   // Value: signed payload
   Stamp = "STAMP",
+  // Event sent by the iframe to communicate an error
+  // Value: serialized error
+  Error = "ERROR",
 }
 
 type TStamp = {
@@ -129,15 +132,15 @@ export class IframeStamper {
    * This is used during recovery flows.
    */
   async injectRecoveryBundle(bundle: string): Promise<boolean> {
-    this.iframe.contentWindow?.postMessage(
-      {
-        type: IframeEventType.InjectRecoveryBundle,
-        value: bundle,
-      },
-      "*"
-    );
+    return new Promise((resolve, reject) => {
+      this.iframe.contentWindow?.postMessage(
+        {
+          type: IframeEventType.InjectRecoveryBundle,
+          value: bundle,
+        },
+        "*"
+      );
 
-    return new Promise((resolve, _reject) => {
       window.addEventListener(
         "message",
         (event) => {
@@ -148,6 +151,9 @@ export class IframeStamper {
           }
           if (event.data?.type === IframeEventType.BundleInjected) {
             resolve(event.data["value"]);
+          }
+          if (event.data?.type === IframeEventType.Error) {
+            reject(event.data["value"]);
           }
         },
         false
@@ -170,7 +176,7 @@ export class IframeStamper {
       "*"
     );
 
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve, reject) => {
       window.addEventListener(
         "message",
         (event) => {
@@ -181,6 +187,9 @@ export class IframeStamper {
           }
           if (event.data?.type === IframeEventType.BundleInjected) {
             resolve(event.data["value"]);
+          }
+          if (event.data?.type === IframeEventType.Error) {
+            reject(event.data["value"]);
           }
         },
         false
@@ -203,7 +212,7 @@ export class IframeStamper {
       "*"
     );
 
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve, reject) => {
       window.addEventListener(
         "message",
         (event) => {
@@ -214,6 +223,9 @@ export class IframeStamper {
           }
           if (event.data?.type === IframeEventType.BundleInjected) {
             resolve(event.data["value"]);
+          }
+          if (event.data?.type === IframeEventType.Error) {
+            reject(event.data["value"]);
           }
         },
         false
@@ -241,7 +253,7 @@ export class IframeStamper {
       "*"
     );
 
-    return new Promise(function (resolve, _reject) {
+    return new Promise(function (resolve, reject) {
       window.addEventListener(
         "message",
         (event) => {
@@ -255,6 +267,9 @@ export class IframeStamper {
               stampHeaderName: stampHeaderName,
               stampHeaderValue: event.data["value"],
             });
+          }
+          if (event.data?.type === IframeEventType.Error) {
+            reject(event.data["value"]);
           }
         },
         false

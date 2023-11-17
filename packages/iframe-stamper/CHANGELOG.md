@@ -1,4 +1,10 @@
-# @turnkey/webauthn-stamper
+# @turnkey/iframe-stamper
+
+## 0.2.1
+
+### Patch Changes
+
+- Catch and bubble up errors in the underlying iframe by listening to `ERROR` events (#165)
 
 ## 0.2.0
 

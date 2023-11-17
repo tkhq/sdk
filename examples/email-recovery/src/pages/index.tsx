@@ -86,11 +86,13 @@ export default function RecoveryPage() {
       throw new Error("initRecoveryResponse is null");
     }
 
-    let injected = await iframeStamper.injectRecoveryBundle(
-      data.recoveryBundle
-    );
-    if (injected !== true) {
-      throw new Error("unexpected error while injecting recovery bundle");
+    try {
+      await iframeStamper.injectRecoveryBundle(data.recoveryBundle);
+    } catch (e) {
+      const msg = `error while injecting bundle: ${e}`;
+      console.error(msg);
+      alert(msg);
+      return;
     }
 
     const challenge = generateRandomBuffer();
