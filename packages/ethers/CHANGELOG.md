@@ -1,5 +1,13 @@
 # @turnkey/ethers
 
+## 0.18.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/api-key-stamper@0.3.0
+  - @turnkey/http@2.3.1
+
 ## 0.18.2
 
 ### Patch Changes

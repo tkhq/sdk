@@ -1,5 +1,11 @@
 # @turnkey/cosmjs
 
+## 0.4.14
+
+### Patch Changes
+
+- @turnkey/http@2.3.1
+
 ## 0.4.13
 
 ### Patch Changes
