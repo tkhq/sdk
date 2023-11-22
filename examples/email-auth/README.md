@@ -6,7 +6,7 @@ This example shows a complete email auth flow. It contains a NextJS app with:
 - a backend application
 
 The overall flow for email auth is outlined below:
-![Email auth flow diagram](./auth.png)
+![Email auth flow diagram](./email_auth_steps.png)
 
 This example contains an example auth page as well as a stub API endpoint for "your business" (where the email is resolved into an organization ID). The creation of the hidden iframe is abstracted by our `@turnkey/iframe-stamper` package. For more information on email auth, [check out our documentation](https://docs.turnkey.com/getting-started/email-auth).
 
@@ -44,7 +44,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
-- `NEXT_PUBLIC_RECOVERY_IFRAME_URL`
+- `NEXT_PUBLIC_AUTH_IFRAME_URL`
 
 ### 3/ Running the app
 

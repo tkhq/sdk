@@ -54,15 +54,12 @@ const base64UrlEncode = (challenge: ArrayBuffer): string => {
 };
 
 export default function AuthPage() {
-  const [authResponse, setAuthResponse] =
-    useState<AuthResponse | null>(null);
+  const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
     null
   );
-  const {
-    register: authFormRegister,
-    handleSubmit: authFormSubmit,
-  } = useForm<AuthFormData>();
+  const { register: authFormRegister, handleSubmit: authFormSubmit } =
+    useForm<AuthFormData>();
   const {
     register: injectCredentialsFormRegister,
     handleSubmit: injectCredentialsFormSubmit,
@@ -131,10 +128,8 @@ export default function AuthPage() {
     const walletId = refineNonNull(wallet.walletId);
     const address = refineNonNull(wallet.addresses[0]);
 
-    // // Instead of simply alerting, redirect the user to your app's login page.
-    alert(
-      `SUCCESS! Wallet and new address created: ${address} `
-    );
+    // Instead of simply alerting, redirect the user to your app's login page.
+    alert(`SUCCESS! Wallet and new address created: ${address} `);
   };
 
   return (
@@ -162,64 +157,57 @@ export default function AuthPage() {
 
       {!iframeStamper && <p>Loading...</p>}
 
-      {iframeStamper &&
-        iframeStamper.publicKey() &&
-        authResponse === null && (
-          <form
-            className={styles.form}
-            onSubmit={authFormSubmit(auth)}
-          >
-            <label className={styles.label}>
-              Email
-              <input
-                className={styles.input}
-                {...authFormRegister("email")}
-                placeholder="Email"
-              />
-            </label>
-            <label className={styles.label}>
-              Encryption Target from iframe:
-              <br />
-              <code title={iframeStamper.publicKey()!}>
-                {iframeStamper.publicKey()!.substring(0, 30)}...
-              </code>
-            </label>
-
+      {iframeStamper && iframeStamper.publicKey() && authResponse === null && (
+        <form className={styles.form} onSubmit={authFormSubmit(auth)}>
+          <label className={styles.label}>
+            Email
             <input
-              className={styles.button}
-              type="submit"
-              value="Auth"
+              className={styles.input}
+              {...authFormRegister("email")}
+              placeholder="Email"
             />
-          </form>
-        )}
+          </label>
+          <label className={styles.label}>
+            Encryption Target from iframe:
+            <br />
+            <code title={iframeStamper.publicKey()!}>
+              {iframeStamper.publicKey()!.substring(0, 30)}...
+            </code>
+          </label>
 
-      {iframeStamper &&
-        iframeStamper.publicKey() &&
-        authResponse !== null && (
-          <form
-            className={styles.form}
-            onSubmit={injectCredentialsFormSubmit(injectCredentials)}
-          >
-            <label className={styles.label}>
-              Auth Bundle
-              <input
-                className={styles.input}
-                {...injectCredentialsFormRegister("authBundle")}
-                placeholder="Paste your auth bundle here"
-              />
-            </label>
-            <label className={styles.label}>
-              New wallet name
-              <input
-                className={styles.input}
-                {...injectCredentialsFormRegister("walletName")}
-                placeholder="Wallet name"
-              />
-            </label>
+          <input className={styles.button} type="submit" value="Auth" />
+        </form>
+      )}
 
-            <input className={styles.button} type="submit" value="Create Wallet" />
-          </form>
-        )}
+      {iframeStamper && iframeStamper.publicKey() && authResponse !== null && (
+        <form
+          className={styles.form}
+          onSubmit={injectCredentialsFormSubmit(injectCredentials)}
+        >
+          <label className={styles.label}>
+            Auth Bundle
+            <input
+              className={styles.input}
+              {...injectCredentialsFormRegister("authBundle")}
+              placeholder="Paste your auth bundle here"
+            />
+          </label>
+          <label className={styles.label}>
+            New wallet name
+            <input
+              className={styles.input}
+              {...injectCredentialsFormRegister("walletName")}
+              placeholder="Wallet name"
+            />
+          </label>
+
+          <input
+            className={styles.button}
+            type="submit"
+            value="Create Wallet"
+          />
+        </form>
+      )}
     </main>
   );
 }

@@ -138,7 +138,7 @@ export class IframeStamper {
     return new Promise((resolve, reject) => {
       this.iframe.contentWindow?.postMessage(
         {
-          type: IframeEventType.InjectAuthBundle,
+          type: IframeEventType.InjectRecoveryBundle,
           value: bundle,
         },
         "*"
