@@ -4,7 +4,7 @@
   "description": "Public monorepo for Turnkey SDK & API",
   "scripts": {
     "changeset": "changeset",
-    "build-all": "pnpm run --r --filter \"./packages/**\" build",
+    "build-all": "tsc --build tsconfig.mono.json",
     "build:watch": "tsc --build tsconfig.mono.json --watch",
     "csb:install": "corepack enable && pnpm install -r",
     "csb:build": "pnpm run build-all",
