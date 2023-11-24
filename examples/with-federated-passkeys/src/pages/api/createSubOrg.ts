@@ -5,6 +5,7 @@ import {
   createActivityPoller,
 } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { CreateSubOrgResponse, TFormattedWallet } from "@/app/types";
 
 type TAttestation = TurnkeyApiTypes["v1Attestation"];
 
@@ -12,12 +13,6 @@ type CreateSubOrgRequest = {
   subOrgName: string;
   challenge: string;
   attestation: TAttestation;
-};
-
-type CreateSubOrgResponse = {
-  subOrgId: string;
-  privateKeyId: string;
-  privateKeyAddress: string;
 };
 
 type ErrorMessage = {
@@ -81,20 +76,25 @@ export default async function createUser(
     });
 
     const subOrgId = refineNonNull(
-      completedActivity.result.createSubOrganizationResultV3?.subOrganizationId
+      completedActivity.result.createSubOrganizationResultV4?.subOrganizationId
     );
-    const privateKeys = refineNonNull(
-      completedActivity.result.createSubOrganizationResultV3?.privateKeys
+    const wallet = refineNonNull(
+      completedActivity.result.createSubOrganizationResultV4?.wallet
     );
-    const privateKeyId = refineNonNull(privateKeys?.[0]?.privateKeyId);
-    const privateKeyAddress = refineNonNull(
-      privateKeys?.[0]?.addresses?.[0]?.address
-    );
+    const walletAddress = wallet.addresses?.[0];
 
     res.status(200).json({
-      subOrgId,
-      privateKeyId,
-      privateKeyAddress,
+      subOrgId: subOrgId,
+      wallet: {
+        id: wallet.walletId,
+        name: walletName,
+        accounts: [
+          {
+            address: walletAddress,
+            path: "m/44'/60'/0'/0/0",
+          },
+        ],
+      },
     });
   } catch (e) {
     console.error(e);
