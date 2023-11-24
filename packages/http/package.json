@@ -2,13 +2,13 @@
   "name": "@turnkey/http",
   "version": "2.3.1",
   "main": "./dist/index.js",
-  "module": "./dist/esm/index.js",
+  "module": "./dist/index.mjs",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/esm/index.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.js",
-      "default": "./dist/esm/index.js"
+      "default": "./dist/index.mjs"
     }
   },
   "types": "./dist/index.d.ts",
@@ -39,7 +39,7 @@
   },
   "scripts": {
     "prepublishOnly": "pnpm -w run clean-all && pnpm -w run build-all",
-    "build": "tsc -b ./tsconfig.esm.json ./tsconfig.json",
+    "build": "rollup -c",
     "clean": "rimraf ./dist ./.cache",
     "pack": "npm pack && mv *.tgz /Users/jessecollier/git/test-app-1/",
     "test": "jest",
