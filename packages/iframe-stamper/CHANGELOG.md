@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 0.3.0
+
+### Minor Changes
+
+- Use rollup to build ESM and CommonJS, fix ESM support (#174)
+
 ## 0.2.1
 
 ### Patch Changes
