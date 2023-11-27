@@ -75,7 +75,7 @@ export default function Home() {
   const turnkeyClient = new TurnkeyClient(
     { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
     new WebauthnStamper({
-      rpId: "372b-68-203-12-187.ngrok-free.app",
+      rpId: process.env.NEXT_PUBLIC_RPID!,
     })
   );
 
@@ -154,7 +154,6 @@ export default function Home() {
   };
 
   const walletTable = (
-    <div className={styles.baseTable}>
       <table className={styles.table}>
         <tbody>
           <tr>
@@ -171,7 +170,6 @@ export default function Home() {
           })}
         </tbody>
       </table>
-    </div>
   );
 
   const login = async () => {
@@ -188,7 +186,7 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <a href="https://turnkey.com" target="_blank" rel="noopener noreferrer">
+      <a href="https://turnkey.com" className={styles.logo} target="_blank" rel="noopener noreferrer">
         <Image
           src="/logo.svg"
           alt="Turnkey Logo"

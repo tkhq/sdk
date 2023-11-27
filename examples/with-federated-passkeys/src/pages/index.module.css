@@ -17,12 +17,15 @@
 }
 
 .main {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6rem;
-  gap: 60px;
+  max-width: 800px;
+  margin: auto;
+  font-family: "Inter";
+}
+
+.logo {
+  display: block;
+  margin: 24px auto;
+  width: 100px;
 }
 
 .input {
@@ -76,16 +79,8 @@
   gap: 10px;
 }
 
-.baseTable {
-  font-family: "Inter";
-  width: 75%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .table {
-  width: 100%;
+  word-break:break-all;
 }
 
 .td {
@@ -98,4 +93,5 @@
 
 .th {
   border-bottom: 1px solid #4d4d4d;
+  padding: 10px;
 }
