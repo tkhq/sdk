@@ -86,28 +86,34 @@ export default function Home() {
     if (wallet === null) {
       throw new Error("wallet not found");
     }
+    
+    try {
+      const signedRequest = await turnkeyClient.stampCreateWalletAccounts({
+        type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
+        organizationId: subOrgId,
+        timestampMs: String(Date.now()),
+        parameters: {
+          walletId: wallet.id,
+          accounts: [
+            {
+              path: data.path,
+              pathFormat: "PATH_FORMAT_BIP32",
+              curve: "CURVE_SECP256K1",
+              addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+            },
+          ],
+        },
+      });
 
-    const signedRequest = await turnkeyClient.stampCreateWalletAccounts({
-      type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
-      organizationId: subOrgId,
-      timestampMs: String(Date.now()),
-      parameters: {
-        walletId: wallet.id,
-        accounts: [
-          {
-            path: data.path,
-            pathFormat: "PATH_FORMAT_BIP32",
-            curve: "CURVE_SECP256K1",
-            addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-          },
-        ],
-      },
-    });
-
-    await axios.post("/api/proxyRequest", signedRequest);
-    await sleep(1000); // alternative would be to poll the activity itself repeatedly
-    await getWallet(subOrgId);
-    alert(`Hooray! New address at path "${data.path}" created.`);
+      await axios.post("/api/proxyRequest", signedRequest);
+      await sleep(1000); // alternative would be to poll the activity itself repeatedly
+      await getWallet(subOrgId);
+      alert(`Hooray! New address at path "${data.path}" created.`);
+    } catch (e: any) {
+      const message = `caught error: ${e.toString()}`;
+      console.error(message);
+      alert(message)
+    }
   };
 
   const createSubOrg = async (data: subOrgFormData) => {
