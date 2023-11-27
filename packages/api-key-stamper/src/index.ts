@@ -25,7 +25,7 @@ export const signWithApiKey = async (input: {
     const fn = await import("./nodecrypto").then((m) => m.signWithApiKey);
     return fn(input);
   }
-}
+};
 
 /**
  * Stamper to use with `@turnkey/http`'s `TurnkeyClient`
