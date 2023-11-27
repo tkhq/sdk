@@ -2,13 +2,13 @@
   "name": "@turnkey/viem",
   "version": "0.3.4",
   "main": "./dist/index.js",
-  "module": "./dist/esm/index.js",
+  "module": "./dist/index.mjs",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/esm/index.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.js",
-      "default": "./dist/esm/index.js"
+      "default": "./dist/index.mjs"
     }
   },
   "types": "./dist/index.d.ts",
