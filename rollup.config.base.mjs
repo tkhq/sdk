@@ -29,6 +29,7 @@ const getFormatConfig = (format) => {
       }),
       nodeExternals({
         packagePath: pkgPath,
+        builtinsPrefix: 'ignore',
       }),
     ],
   }
