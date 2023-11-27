@@ -1,5 +1,11 @@
 # @turnkey/webauthn-stamper
 
+## 0.4.0
+
+### Minor Changes
+
+- Use rollup to build ESM and CommonJS, fix ESM support (#174)
+
 ## 0.3.0
 
 ### Minor Changes

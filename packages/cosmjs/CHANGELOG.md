@@ -1,5 +1,16 @@
 # @turnkey/cosmjs
 
+## 0.5.0
+
+### Minor Changes
+
+- Use rollup to build ESM and CommonJS, fix ESM support (#174)
+
+### Patch Changes
+
+- Updated dependencies [fc5b291]
+  - @turnkey/http@2.4.0
+
 ## 0.4.14
 
 ### Patch Changes

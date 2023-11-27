@@ -1,5 +1,17 @@
 # @turnkey/viem
 
+## 0.4.0
+
+### Minor Changes
+
+- Use rollup to build ESM and CommonJS, fix ESM support (#174)
+
+### Patch Changes
+
+- Updated dependencies [fc5b291]
+  - @turnkey/api-key-stamper@0.3.0
+  - @turnkey/http@2.4.0
+
 ## 0.3.4
 
 ### Patch Changes

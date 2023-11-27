@@ -1,5 +1,17 @@
 # @turnkey/http
 
+## 2.4.0
+
+### Minor Changes
+
+- Use rollup to build ESM and CommonJS, fix ESM support (#174)
+
+### Patch Changes
+
+- Updated dependencies [fc5b291]
+  - @turnkey/api-key-stamper@0.3.0
+  - @turnkey/webauthn-stamper@0.4.0
+
 ## 2.3.1
 
 ### Patch Changes
