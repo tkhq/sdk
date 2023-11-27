@@ -13,18 +13,19 @@ export type TApiKeyStamperConfig = {
 /**
  * Signature function abstracting the differences between NodeJS and web environments for signing with API keys.
  */
-let signWithApiKey: (input: {
+export const signWithApiKey = async (input: {
   content: string;
   publicKey: string;
   privateKey: string;
-}) => string;
-
-if (typeof globalThis?.crypto?.subtle !== "undefined") {
-  signWithApiKey = require("./webcrypto").signWithApiKey;
-} else {
-  signWithApiKey = require("./nodecrypto").signWithApiKey;
-}
-export { signWithApiKey };
+}): Promise<string> => {
+  if (typeof globalThis?.crypto?.subtle !== "undefined") {
+    const fn = await import("./webcrypto").then((m) => m.signWithApiKey);
+    return fn(input);
+  } else {
+    const fn = await import("./nodecrypto").then((m) => m.signWithApiKey);
+    return fn(input);
+  }
+};
 
 /**
  * Stamper to use with `@turnkey/http`'s `TurnkeyClient`
