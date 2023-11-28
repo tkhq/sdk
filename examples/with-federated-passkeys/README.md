@@ -36,6 +36,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
+- `NEXT_PUBLIC_RPID` should be `localhost` unless you're accessing this demo through your own domain
 
 ### 3/ Running the app
 
