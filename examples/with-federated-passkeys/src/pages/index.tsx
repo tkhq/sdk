@@ -5,19 +5,21 @@ import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
+import { CreateSubOrgResponse, TFormattedWallet } from "@/app/types";
+import { getNextPath } from "@/app/util";
 
 type subOrgFormData = {
   subOrgName: string;
 };
 
-type privateKeyFormData = {
-  privateKeyName: string;
+type walletAccountFormData = {
+  path: string;
 };
 
-type privateKeyResult = {
-  privateKeyId: string;
-  privateKeyName: string;
-  privateKeyAddress: string;
+type walletResult = {
+  walletId: string;
+  walletName: string;
+  accounts: string;
 };
 
 // All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
@@ -54,18 +56,17 @@ function sleep(ms: number): Promise<void> {
 
 export default function Home() {
   const [subOrgId, setSubOrgId] = React.useState<string | null>(null);
-  const [privateKeys, setPrivateKeys] = React.useState<privateKeyResult[]>([]);
+  const [wallet, setWallet] = React.useState<TFormattedWallet | null>(null);
   const { register: subOrgFormRegister, handleSubmit: subOrgFormSubmit } =
     useForm<subOrgFormData>();
   const {
-    register: privateKeyFormRegister,
-    handleSubmit: privateKeyFormSubmit,
-  } = useForm<privateKeyFormData>();
+    register: createWalletAccountFormRegister,
+    handleSubmit: createWalletAccountFormSubmit,
+  } = useForm<walletAccountFormData>();
 
-  const getPrivateKeys = async (organizationId: string) => {
-    const res = await axios.post("/api/getPrivateKeys", { organizationId });
-
-    setPrivateKeys(res.data.privateKeys);
+  const getWallet = async (organizationId: string) => {
+    const res = await axios.post("/api/getWallet", { organizationId });
+    setWallet(res.data);
   };
 
   const { register: _loginFormRegister, handleSubmit: loginFormSubmit } =
@@ -74,35 +75,45 @@ export default function Home() {
   const turnkeyClient = new TurnkeyClient(
     { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
     new WebauthnStamper({
-      rpId: "localhost",
+      rpId: process.env.NEXT_PUBLIC_RPID!,
     })
   );
 
-  const createPrivateKey = async (data: privateKeyFormData) => {
-    if (!subOrgId) {
+  const createWalletAccount = async (data: walletAccountFormData) => {
+    if (subOrgId === null) {
       throw new Error("sub-org id not found");
     }
+    if (wallet === null) {
+      throw new Error("wallet not found");
+    }
 
-    const signedRequest = await turnkeyClient.stampCreatePrivateKeys({
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
-      organizationId: subOrgId,
-      timestampMs: String(Date.now()),
-      parameters: {
-        privateKeys: [
-          {
-            privateKeyName: data.privateKeyName,
-            curve: "CURVE_SECP256K1",
-            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-            privateKeyTags: [],
-          },
-        ],
-      },
-    });
+    try {
+      const signedRequest = await turnkeyClient.stampCreateWalletAccounts({
+        type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
+        organizationId: subOrgId,
+        timestampMs: String(Date.now()),
+        parameters: {
+          walletId: wallet.id,
+          accounts: [
+            {
+              path: data.path,
+              pathFormat: "PATH_FORMAT_BIP32",
+              curve: "CURVE_SECP256K1",
+              addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+            },
+          ],
+        },
+      });
 
-    await axios.post("/api/proxyRequest", signedRequest);
-    await sleep(1000); // alternative would be to poll the activity itself repeatedly
-    await getPrivateKeys(subOrgId);
-    alert(`Hooray! Key "${data.privateKeyName}" created.`);
+      await axios.post("/api/proxyRequest", signedRequest);
+      await sleep(1000); // alternative would be to poll the activity itself repeatedly
+      await getWallet(subOrgId);
+      alert(`Hooray! New address at path "${data.path}" created.`);
+    } catch (e: any) {
+      const message = `caught error: ${e.toString()}`;
+      console.error(message);
+      alert(message);
+    }
   };
 
   const createSubOrg = async (data: subOrgFormData) => {
@@ -119,7 +130,7 @@ export default function Home() {
           userVerification: "preferred",
         },
         rp: {
-          id: "localhost",
+          id: process.env.NEXT_PUBLIC_RPID!,
           name: "Turnkey Federated Passkey Demo",
         },
         challenge,
@@ -147,43 +158,30 @@ export default function Home() {
       challenge: base64UrlEncode(challenge),
     });
 
-    setSubOrgId(res.data.subOrgId);
-    setPrivateKeys([
-      ...privateKeys,
-      {
-        privateKeyId: res.data.privateKeyId,
-        privateKeyName: res.data.privateKeyName,
-        privateKeyAddress: res.data.privateKeyAddress,
-      },
-    ]);
+    const subOrgResponse = res.data as CreateSubOrgResponse;
+
+    setSubOrgId(subOrgResponse.subOrgId);
+    setWallet(subOrgResponse.wallet);
   };
 
-  const privateKeysTable = (
-    <div className={styles.baseTable}>
-      <table className={styles.table}>
-        <tbody>
-          <tr>
-            <th className={styles.th}>Name</th>
-            <th className={styles.th}>Address</th>
-          </tr>
-          {privateKeys.map((val, key) => {
-            return (
-              <tr key={key}>
-                <td className={styles.td}>{val.privateKeyName}</td>
-                <td className={styles.td}>{val.privateKeyAddress}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+  const walletTable = (
+    <table className={styles.table}>
+      <tbody>
+        <tr>
+          <th className={styles.th}>Address</th>
+          <th className={styles.th}>Path</th>
+        </tr>
+        {wallet?.accounts.map((account, key) => {
+          return (
+            <tr key={key}>
+              <td className={styles.td}>{account.address}</td>
+              <td className={styles.td}>{account.path}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
   );
-
-  const privateKeyElements = privateKeys.map((pk) => (
-    <li key={pk.privateKeyId} className={styles.prompt}>
-      {pk.privateKeyAddress}
-    </li>
-  ));
 
   const login = async () => {
     // We use the parent org ID, which we know at all times,
@@ -194,13 +192,17 @@ export default function Home() {
     // have a DB. Note that we are able to perform this lookup by using the
     // credential ID from the users WebAuthn stamp.
     setSubOrgId(res.organizationId);
-
-    await getPrivateKeys(res.organizationId);
+    await getWallet(res.organizationId);
   };
 
   return (
     <main className={styles.main}>
-      <a href="https://turnkey.com" target="_blank" rel="noopener noreferrer">
+      <a
+        href="https://turnkey.com"
+        className={styles.logo}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <Image
           src="/logo.svg"
           alt="Turnkey Logo"
@@ -212,9 +214,7 @@ export default function Home() {
       </a>
       {!subOrgId && (
         <div className={styles.base}>
-          <h2 className={styles.prompt}>
-            First, create your sub-organization:
-          </h2>
+          <h2 className={styles.prompt}>Create your sub-organization:</h2>
           <form
             className={styles.form}
             onSubmit={subOrgFormSubmit(createSubOrg)}
@@ -247,46 +247,42 @@ export default function Home() {
           </form>
         </div>
       )}
-      {subOrgId && privateKeys.length === 1 && (
-        <div className={styles.base}>
-          <h2 className={styles.prompt}>
-            🚀🥳🎉 Hooray! Here's your first private key address:
-          </h2>
-          {privateKeyElements}
-        </div>
-      )}
-      {subOrgId && privateKeys.length > 1 && (
-        <div className={styles.base}>
-          <h2 className={styles.prompt}>
-            🚀🥳🎉 Hooray! Here are your private keys:
-          </h2>
-          {privateKeysTable}
-        </div>
-      )}
-      {subOrgId && (
-        <div className={styles.base}>
-          <h2 className={styles.prompt}>
-            👀 Want more? Create another using your passkey{" "}
-          </h2>
-          <form
-            className={styles.form}
-            onSubmit={privateKeyFormSubmit(createPrivateKey)}
-          >
-            <label className={styles.label}>
-              Name
+      {subOrgId && wallet !== null && (
+        <>
+          <div className={styles.base}>
+            <h2 className={styles.prompt}>
+              🚀 🥳 🎉 <br />
+              Success! Your wallet:
+            </h2>
+            {walletTable}
+          </div>
+          <div className={styles.base}>
+            <h2 className={styles.prompt}>
+              👀 👀 👀
+              <br />
+              Want more addresses? <br />
+              Create another one using your passkey{" "}
+            </h2>
+            <form
+              className={styles.form}
+              onSubmit={createWalletAccountFormSubmit(createWalletAccount)}
+            >
+              <label className={styles.label}>
+                Path
+                <input
+                  className={styles.input}
+                  {...createWalletAccountFormRegister("path")}
+                  defaultValue={getNextPath(wallet)}
+                />
+              </label>
               <input
-                className={styles.input}
-                {...privateKeyFormRegister("privateKeyName")}
-                placeholder="Private Key Name"
+                className={styles.button}
+                type="submit"
+                value="Create new address"
               />
-            </label>
-            <input
-              className={styles.button}
-              type="submit"
-              value="Create new private key"
-            />
-          </form>
-        </div>
+            </form>
+          </div>
+        </>
       )}
     </main>
   );

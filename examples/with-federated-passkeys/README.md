@@ -36,6 +36,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
+- `NEXT_PUBLIC_RPID` should be `localhost` unless you're accessing this demo through your own domain
 
 ### 3/ Running the app
 
@@ -44,3 +45,12 @@ $ pnpm run dev
 ```
 
 This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to create a sub-organization and private key for the newly created sub-organization.
+
+### Testing passkey prompts on real mobile devices
+
+The easiest way to test this demo on mobile is through ngrok:
+
+- Install by following the instruction here: https://dashboard.ngrok.com/get-started/setup
+- Open a new tunnel to port 3000: `ngrok http 3000`
+- Update `NEXT_PUBLIC_RPID` to the ngrok domain (e.g. `372b-68-203-12-187.ngrok-free.app`)
+- Now visit the ngrok URL on your mobile device

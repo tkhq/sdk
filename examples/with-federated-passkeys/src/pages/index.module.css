@@ -17,12 +17,15 @@
 }
 
 .main {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6rem;
-  gap: 60px;
+  max-width: 800px;
+  margin: auto;
+  font-family: "Inter";
+}
+
+.logo {
+  display: block;
+  margin: 24px auto;
+  width: 100px;
 }
 
 .input {
@@ -42,6 +45,7 @@
 
 .prompt {
   font-family: "Inter";
+  text-align: center;
 }
 
 .base {
@@ -75,23 +79,19 @@
   gap: 10px;
 }
 
-.baseTable {
-  font-family: "Inter";
-  width: 75%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .table {
-  width: 100%;
+  word-break: break-all;
 }
 
 .td {
-  border-spacing: 1px;
+  /* From https://qwtel.com/posts/software/the-monospaced-system-ui-css-font-stack/ */
+  font-family: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
+    "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
+    "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+  padding: 10px;
 }
 
 .th {
-  padding-right: 5vw;
-  border-spacing: 1px;
+  border-bottom: 1px solid #4d4d4d;
+  padding: 10px;
 }

@@ -5,6 +5,7 @@ import {
   createActivityPoller,
 } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { CreateSubOrgResponse, TFormattedWallet } from "@/app/types";
 
 type TAttestation = TurnkeyApiTypes["v1Attestation"];
 
@@ -14,15 +15,17 @@ type CreateSubOrgRequest = {
   attestation: TAttestation;
 };
 
-type CreateSubOrgResponse = {
-  subOrgId: string;
-  privateKeyId: string;
-  privateKeyAddress: string;
-};
-
 type ErrorMessage = {
   message: string;
 };
+
+// Default path for the first Ethereum address in a new HD wallet.
+// See https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki, paths are in the form:
+//     m / purpose' / coin_type' / account' / change / address_index
+// - Purpose is a constant set to 44' following the BIP43 recommendation.
+// - Coin type is set to 60 (ETH) -- see https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+// - Account, Change, and Address Index are set to 0
+const ETHEREUM_WALLET_DEFAULT_PATH = "m/44'/60'/0'/0/0";
 
 export default async function createUser(
   req: NextApiRequest,
@@ -72,7 +75,7 @@ export default async function createUser(
             {
               curve: "CURVE_SECP256K1",
               pathFormat: "PATH_FORMAT_BIP32",
-              path: "m/44'/60'/0'/0/0",
+              path: ETHEREUM_WALLET_DEFAULT_PATH,
               addressFormat: "ADDRESS_FORMAT_ETHEREUM",
             },
           ],
@@ -81,20 +84,25 @@ export default async function createUser(
     });
 
     const subOrgId = refineNonNull(
-      completedActivity.result.createSubOrganizationResultV3?.subOrganizationId
+      completedActivity.result.createSubOrganizationResultV4?.subOrganizationId
     );
-    const privateKeys = refineNonNull(
-      completedActivity.result.createSubOrganizationResultV3?.privateKeys
+    const wallet = refineNonNull(
+      completedActivity.result.createSubOrganizationResultV4?.wallet
     );
-    const privateKeyId = refineNonNull(privateKeys?.[0]?.privateKeyId);
-    const privateKeyAddress = refineNonNull(
-      privateKeys?.[0]?.addresses?.[0]?.address
-    );
+    const walletAddress = wallet.addresses?.[0];
 
     res.status(200).json({
-      subOrgId,
-      privateKeyId,
-      privateKeyAddress,
+      subOrgId: subOrgId,
+      wallet: {
+        id: wallet.walletId,
+        name: walletName,
+        accounts: [
+          {
+            address: walletAddress,
+            path: ETHEREUM_WALLET_DEFAULT_PATH,
+          },
+        ],
+      },
     });
   } catch (e) {
     console.error(e);
