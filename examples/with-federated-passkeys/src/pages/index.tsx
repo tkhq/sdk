@@ -184,15 +184,21 @@ export default function Home() {
   );
 
   const login = async () => {
-    // We use the parent org ID, which we know at all times,
-    const res = await turnkeyClient.getWhoami({
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-    });
-    // to get the sub-org ID, which we don't know at this point because we don't
-    // have a DB. Note that we are able to perform this lookup by using the
-    // credential ID from the users WebAuthn stamp.
-    setSubOrgId(res.organizationId);
-    await getWallet(res.organizationId);
+    // We use the parent org ID, which we know at all times...
+    try {
+      const res = await turnkeyClient.getWhoami({
+        organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      });
+      // ...to get the sub-org ID, which we don't know at this point because we don't
+      // have a DB. Note that we are able to perform this lookup by using the
+      // credential ID from the users WebAuthn stamp.
+      setSubOrgId(res.organizationId);
+      await getWallet(res.organizationId);
+    } catch (e: any) {
+      const message = `Error caught during login: ${e.toString()}`;
+      console.error(message);
+      alert(message);
+    }
   };
 
   return (

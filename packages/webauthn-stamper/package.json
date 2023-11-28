@@ -50,6 +50,7 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "buffer": "^6.0.3"
+    "buffer": "^6.0.3",
+    "@noble/hashes": "^1.3.2"
   }
 }
