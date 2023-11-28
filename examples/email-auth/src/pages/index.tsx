@@ -23,7 +23,6 @@ type AuthResponse = {
 type InjectCredentialsFormData = {
   walletName: string;
   authBundle: string;
-  // authenticatorName: string;
 };
 type AuthFormData = {
   email: string;
@@ -87,7 +86,7 @@ export default function AuthPage() {
     }
 
     try {
-      await iframeStamper.injectAuthBundle(data.authBundle);
+      await iframeStamper.injectCredentialBundle(data.authBundle);
     } catch (e) {
       const msg = `error while injecting bundle: ${e}`;
       console.error(msg);

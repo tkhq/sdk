@@ -25,7 +25,7 @@ const iframeStamper = new IframeStamper({
 const publicKey = await iframeStamper.init();
 
 // Injects a new credential in the iframe
-const injected = await iframeStamper.injectRecoveryBundle(recoveryBundle);
+const injected = await iframeStamper.injectCredentialBundle(recoveryBundle);
 
 // New HTTP client able to sign with the credentials inside of the iframe
 const httpClient = new TurnkeyClient(
@@ -75,7 +75,7 @@ const iframeStamper = new IframeStamper({
 const publicKey = await iframeStamper.init();
 
 // Injects a new credential in the iframe
-const injected = await iframeStamper.injectAuthBundle(authBundle);
+const injected = await iframeStamper.injectCredentialBundle(authBundle);
 
 // New HTTP client able to sign with the credentials inside of the iframe
 const httpClient = new TurnkeyClient(
