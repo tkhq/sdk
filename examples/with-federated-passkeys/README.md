@@ -48,7 +48,8 @@ This command will run a NextJS app on port 3000. If you navigate to http://local
 ### Testing passkey prompts on real mobile devices
 
 The easiest way to test this demo on mobile is through ngrok:
-* Install by following the instruction here: https://dashboard.ngrok.com/get-started/setup
-* Open a new tunnel to port 3000: `ngrok http 3000`
-* Update `NEXT_PUBLIC_RPID` to the ngrok domain (e.g. `372b-68-203-12-187.ngrok-free.app`)
-* Now visit the ngrok URL on your mobile device
+
+- Install by following the instruction here: https://dashboard.ngrok.com/get-started/setup
+- Open a new tunnel to port 3000: `ngrok http 3000`
+- Update `NEXT_PUBLIC_RPID` to the ngrok domain (e.g. `372b-68-203-12-187.ngrok-free.app`)
+- Now visit the ngrok URL on your mobile device

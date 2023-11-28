@@ -86,7 +86,7 @@ export default function Home() {
     if (wallet === null) {
       throw new Error("wallet not found");
     }
-    
+
     try {
       const signedRequest = await turnkeyClient.stampCreateWalletAccounts({
         type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
@@ -112,7 +112,7 @@ export default function Home() {
     } catch (e: any) {
       const message = `caught error: ${e.toString()}`;
       console.error(message);
-      alert(message)
+      alert(message);
     }
   };
 
@@ -165,22 +165,22 @@ export default function Home() {
   };
 
   const walletTable = (
-      <table className={styles.table}>
-        <tbody>
-          <tr>
-            <th className={styles.th}>Address</th>
-            <th className={styles.th}>Path</th>
-          </tr>
-          {wallet?.accounts.map((account, key) => {
-            return (
-              <tr key={key}>
-                <td className={styles.td}>{account.address}</td>
-                <td className={styles.td}>{account.path}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <table className={styles.table}>
+      <tbody>
+        <tr>
+          <th className={styles.th}>Address</th>
+          <th className={styles.th}>Path</th>
+        </tr>
+        {wallet?.accounts.map((account, key) => {
+          return (
+            <tr key={key}>
+              <td className={styles.td}>{account.address}</td>
+              <td className={styles.td}>{account.path}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
   );
 
   const login = async () => {
@@ -197,7 +197,12 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <a href="https://turnkey.com" className={styles.logo} target="_blank" rel="noopener noreferrer">
+      <a
+        href="https://turnkey.com"
+        className={styles.logo}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <Image
           src="/logo.svg"
           alt="Turnkey Logo"
