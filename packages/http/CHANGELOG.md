@@ -1,5 +1,13 @@
 # @turnkey/http
 
+## 2.4.1
+
+### Patch Changes
+
+- Fix universal files to stop using `require`. Use ES6 imports instead (#178)
+- Updated dependencies [f87ced8]
+  - @turnkey/webauthn-stamper@0.4.1
+
 ## 2.4.0
 
 ### Minor Changes
