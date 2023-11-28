@@ -19,6 +19,14 @@ type ErrorMessage = {
   message: string;
 };
 
+// Default path for the first Ethereum address in a new HD wallet.
+// See https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki, paths are in the form:
+//     m / purpose' / coin_type' / account' / change / address_index
+// - Purpose is a constant set to 44' following the BIP43 recommendation.
+// - Coin type is set to 60 (ETH) -- see https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+// - Account, Change, and Address Index are set to 0
+const ETHEREUM_WALLET_DEFAULT_PATH = "m/44'/60'/0'/0/0";
+
 export default async function createUser(
   req: NextApiRequest,
   res: NextApiResponse<CreateSubOrgResponse | ErrorMessage>
@@ -67,7 +75,7 @@ export default async function createUser(
             {
               curve: "CURVE_SECP256K1",
               pathFormat: "PATH_FORMAT_BIP32",
-              path: "m/44'/60'/0'/0/0",
+              path: ETHEREUM_WALLET_DEFAULT_PATH,
               addressFormat: "ADDRESS_FORMAT_ETHEREUM",
             },
           ],
@@ -91,7 +99,7 @@ export default async function createUser(
         accounts: [
           {
             address: walletAddress,
-            path: "m/44'/60'/0'/0/0",
+            path: ETHEREUM_WALLET_DEFAULT_PATH,
           },
         ],
       },
