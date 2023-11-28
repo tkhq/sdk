@@ -1,5 +1,12 @@
 # @turnkey/http
 
+## 2.4.2
+
+### Patch Changes
+
+- Updated dependencies [a03e385]
+  - @turnkey/webauthn-stamper@0.4.2
+
 ## 2.4.1
 
 ### Patch Changes

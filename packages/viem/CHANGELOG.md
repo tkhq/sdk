@@ -1,5 +1,11 @@
 # @turnkey/viem
 
+## 0.4.2
+
+### Patch Changes
+
+- @turnkey/http@2.4.2
+
 ## 0.4.1
 
 ### Patch Changes
