@@ -6,7 +6,7 @@ This package contains functions to stamp a Turnkey request through credentials c
 
 Usage:
 
-Recovery
+Recovery and Auth
 
 ```ts
 import { IframeStamper } from "@turnkey/iframe-stamper";
@@ -25,7 +25,7 @@ const iframeStamper = new IframeStamper({
 const publicKey = await iframeStamper.init();
 
 // Injects a new credential in the iframe
-const injected = await iframeStamper.injectCredentialBundle(recoveryBundle);
+const injected = await iframeStamper.injectCredentialBundle(credentialBundle);
 
 // New HTTP client able to sign with the credentials inside of the iframe
 const httpClient = new TurnkeyClient(
@@ -54,32 +54,4 @@ const publicKey = await iframeStamper.init();
 
 // Injects a new private key in the iframe
 const injected = await iframeStamper.injectKeyExportBundle(exportBundle);
-```
-
-Auth
-
-```ts
-import { IframeStamper } from "@turnkey/iframe-stamper";
-import { TurnkeyClient } from "@turnkey/http";
-
-const TurnkeyIframeContainerId = "turnkey-iframe-container";
-const TurnkeyIframeElementId = "turnkey-iframe";
-
-const iframeStamper = new IframeStamper({
-  iframeUrl: process.env.IFRAME_URL!,
-  iframeContainerId: TurnkeyIframeContainerId,
-  iframeElementId: TurnkeyIframeElementId,
-});
-
-// This inserts the iframe in the DOM and returns the public key
-const publicKey = await iframeStamper.init();
-
-// Injects a new credential in the iframe
-const injected = await iframeStamper.injectCredentialBundle(authBundle);
-
-// New HTTP client able to sign with the credentials inside of the iframe
-const httpClient = new TurnkeyClient(
-  { baseUrl: "https://api.turnkey.com" },
-  iframeStamper
-);
 ```

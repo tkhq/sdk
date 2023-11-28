@@ -124,10 +124,8 @@ export default function AuthPage() {
     });
 
     const wallet = refineNonNull(completedActivity.result.createWalletResult);
-    const walletId = refineNonNull(wallet.walletId);
     const address = refineNonNull(wallet.addresses[0]);
 
-    // Instead of simply alerting, redirect the user to your app's login page.
     alert(`SUCCESS! Wallet and new address created: ${address} `);
   };
 
