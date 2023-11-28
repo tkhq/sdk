@@ -1,5 +1,11 @@
 # @turnkey/webauthn-stamper
 
+## 0.4.2
+
+### Patch Changes
+
+- Make sha256 computation synchronous to resolve ios passkey prompt issues (#179)
+
 ## 0.4.1
 
 ### Patch Changes

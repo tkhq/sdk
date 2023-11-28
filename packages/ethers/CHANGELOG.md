@@ -1,5 +1,11 @@
 # @turnkey/ethers
 
+## 0.19.2
+
+### Patch Changes
+
+- @turnkey/http@2.4.2
+
 ## 0.19.1
 
 ### Patch Changes
