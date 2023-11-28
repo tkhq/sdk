@@ -124,8 +124,13 @@ export default function Home() {
     // https://www.w3.org/TR/webauthn-2/#sctn-sample-registration
     const attestation = await getWebAuthnAttestation({
       publicKey: {
+        authenticatorSelection: {
+          residentKey: "preferred",
+          requireResidentKey: false,
+          userVerification: "preferred",
+        },
         rp: {
-          id: "372b-68-203-12-187.ngrok-free.app",
+          id: process.env.NEXT_PUBLIC_RPID!,
           name: "Turnkey Federated Passkey Demo",
         },
         challenge,
