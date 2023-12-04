@@ -1650,6 +1650,52 @@ export const signDeletePolicy = (
   });
 
 /**
+ * `POST /public/v1/submit/email_auth`
+ */
+export type TEmailAuthResponse =
+  operations["PublicApiService_EmailAuth"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/email_auth`
+ */
+export type TEmailAuthInput = { body: TEmailAuthBody };
+
+/**
+ * `POST /public/v1/submit/email_auth`
+ */
+export type TEmailAuthBody =
+  operations["PublicApiService_EmailAuth"]["parameters"]["body"]["body"];
+
+/**
+ * Email Auth
+ *
+ * Authenticate a user via Email
+ *
+ * `POST /public/v1/submit/email_auth`
+ */
+export const emailAuth = (input: TEmailAuthInput) =>
+  request<TEmailAuthResponse, TEmailAuthBody, never, never, never>({
+    uri: "/public/v1/submit/email_auth",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `EmailAuth` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link EmailAuth}
+ */
+export const signEmailAuth = (
+  input: TEmailAuthInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TEmailAuthBody, never, never>({
+    uri: "/public/v1/submit/email_auth",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/export_private_key`
  */
 export type TExportPrivateKeyResponse =

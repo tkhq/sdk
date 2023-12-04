@@ -129,6 +129,7 @@ import type {
   TDeletePolicyBody,
   TDeletePolicyResponse,
 } from "./public_api.fetcher";
+import type { TEmailAuthBody, TEmailAuthResponse } from "./public_api.fetcher";
 import type {
   TExportPrivateKeyBody,
   TExportPrivateKeyResponse,
@@ -1261,6 +1262,33 @@ export class TurnkeyClient {
     input: TDeletePolicyBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_policy";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Authenticate a user via Email
+   *
+   * Sign the provided `TEmailAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/email_auth).
+   *
+   * See also {@link stampEmailAuth}.
+   */
+  emailAuth = async (input: TEmailAuthBody): Promise<TEmailAuthResponse> => {
+    return this.request("/public/v1/submit/email_auth", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TEmailAuthBody` by using the client's `stamp` function.
+   *
+   * See also {@link EmailAuth}.
+   */
+  stampEmailAuth = async (input: TEmailAuthBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/email_auth";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
