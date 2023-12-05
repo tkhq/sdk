@@ -1,5 +1,14 @@
 # @turnkey/http
 
+## 2.5.0
+
+### Minor Changes
+
+- 464ac0e: Update protos for latest release, which includes:
+
+  - Support optional expirations for API keys, configurable via the `expirationSeconds` parameter.
+  - Support Email Auth. Details to follow ⚡️
+
 ## 2.4.2
 
 ### Patch Changes
