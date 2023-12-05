@@ -6,7 +6,7 @@ This package contains functions to stamp a Turnkey request through credentials c
 
 Usage:
 
-Recovery
+Recovery and Auth
 
 ```ts
 import { IframeStamper } from "@turnkey/iframe-stamper";
@@ -25,7 +25,7 @@ const iframeStamper = new IframeStamper({
 const publicKey = await iframeStamper.init();
 
 // Injects a new credential in the iframe
-const injected = await iframeStamper.injectRecoveryBundle(recoveryBundle);
+const injected = await iframeStamper.injectCredentialBundle(credentialBundle);
 
 // New HTTP client able to sign with the credentials inside of the iframe
 const httpClient = new TurnkeyClient(

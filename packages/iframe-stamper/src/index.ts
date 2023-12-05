@@ -8,9 +8,9 @@ export enum IframeEventType {
   // Event sent by the iframe to its parent to indicate readiness.
   // Value: the iframe public key
   PublicKeyReady = "PUBLIC_KEY_READY",
-  // Event sent by the parent to inject a recovery bundle into the iframe.
+  // Event sent by the parent to inject a credential bundle (for recovery or auth) into the iframe.
   // Value: the bundle to inject
-  InjectRecoveryBundle = "INJECT_RECOVERY_BUNDLE",
+  InjectCredentialBundle = "INJECT_CREDENTIAL_BUNDLE",
   // Event sent by the parent to inject a private key export bundle into the iframe.
   // Value: the bundle to inject
   InjectKeyExportBundle = "INJECT_KEY_EXPORT_BUNDLE",
@@ -129,13 +129,13 @@ export class IframeStamper {
    * Function to inject a new credential into the iframe
    * The bundle should be encrypted to the iframe's initial public key
    * Encryption should be performed with HPKE (RFC 9180).
-   * This is used during recovery flows.
+   * This is used during recovery and auth flows.
    */
-  async injectRecoveryBundle(bundle: string): Promise<boolean> {
+  async injectCredentialBundle(bundle: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       this.iframe.contentWindow?.postMessage(
         {
-          type: IframeEventType.InjectRecoveryBundle,
+          type: IframeEventType.InjectCredentialBundle,
           value: bundle,
         },
         "*"

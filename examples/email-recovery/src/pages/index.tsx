@@ -87,7 +87,7 @@ export default function RecoveryPage() {
     }
 
     try {
-      await iframeStamper.injectRecoveryBundle(data.recoveryBundle);
+      await iframeStamper.injectCredentialBundle(data.recoveryBundle);
     } catch (e) {
       const msg = `error while injecting bundle: ${e}`;
       console.error(msg);
