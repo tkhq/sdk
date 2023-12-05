@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 0.4.0
+
+### Minor Changes
+
+- c98c222: - Add support for auth (e.g. via email), and include recovery under it. Note that the preferred path is now to use `injectCredentialBundle`, as opposed to `injectRecoveryBundle` (deprecated).
+
 ## 0.3.0
 
 ### Minor Changes
