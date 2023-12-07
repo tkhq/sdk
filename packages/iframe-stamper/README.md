@@ -12,6 +12,7 @@ Recovery and Auth
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { TurnkeyClient } from "@turnkey/http";
 
+const TurnkeyIframeContainerId = "turnkey-iframe-container";
 const TurnkeyIframeElementId = "turnkey-iframe";
 
 const iframeStamper = new IframeStamper({
