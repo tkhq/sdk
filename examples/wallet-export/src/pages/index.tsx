@@ -5,41 +5,18 @@ import { IframeStamper } from "@turnkey/iframe-stamper";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Export } from "@/components/Export";
 import { WalletsTable } from "@/components/WalletsTable";
 
 type TWallet = TurnkeyApiTypes["v1Wallet"];
-
-const TurnkeyIframeContainerId = "turnkey-iframe-container-id";
-const TurnkeyIframeElementId = "turnkey-iframe-element-id";
 
 export default function ExportPage() {
   const [wallets, setWallets] = useState<TWallet[]>([]);
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
     null
   );
-  const [showWallet, setShowWallet] = useState<boolean>(false);
+  const [iframeDisplay, setIframeDisplay] = useState<string>("none");
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
-
-  // Initialize the iframeStamper
-  useEffect(() => {
-    if (!iframeStamper) {
-      const iframeStamper = new IframeStamper({
-        iframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
-        iframeContainerId: TurnkeyIframeContainerId,
-        iframeElementId: TurnkeyIframeElementId,
-      });
-      iframeStamper.init().then(() => {
-        setIframeStamper(iframeStamper);
-      });
-    }
-
-    return () => {
-      if (iframeStamper) {
-        iframeStamper.clear();
-        setIframeStamper(null);
-      }
-    };
-  }, [iframeStamper]);
 
   // Get wallets
   useEffect(() => {
@@ -72,7 +49,7 @@ export default function ExportPage() {
       throw new Error("unexpected error while injecting export bundle");
     }
 
-    setShowWallet(true);
+    setIframeDisplay("block");
   };
 
   return (
@@ -126,11 +103,13 @@ export default function ExportPage() {
           </div>
         </div>
       )}
-      <div
-        style={{ display: showWallet ? "block" : "none" }}
-        id={TurnkeyIframeContainerId}
-        className={styles.walletIframe}
-      />
+
+      <Export
+        setIframeStamper={setIframeStamper}
+        iframeUrl={process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!}
+        iframeDisplay={iframeDisplay}
+        turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
+      ></Export>
     </main>
   );
 }

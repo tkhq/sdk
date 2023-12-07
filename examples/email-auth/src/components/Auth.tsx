@@ -18,24 +18,33 @@ export function Auth(props: AuthProps) {
   );
 
   useEffect(() => {
-    if (!iframeStamper) {
-      const iframeStamper = new IframeStamper({
-        iframeUrl: props.iframeUrl,
-        iframeContainerId: TurnkeyIframeContainerId,
-        iframeElementId: TurnkeyIframeElementId,
-      });
-      iframeStamper.init().then(() => {
-        setIframeStamper(iframeStamper);
-        props.setIframeStamper(iframeStamper);
-      });
-    }
-
-    return () => {
-      if (iframeStamper) {
-        iframeStamper.clear();
-        setIframeStamper(null);
+    try {
+      if (!iframeStamper) {
+        const iframeContainer = document.getElementById(TurnkeyIframeContainerId);
+        if (!iframeContainer) {
+          console.error(`Cannot create iframe stamper: no container with ID ${TurnkeyIframeContainerId} exists`);
+          return;
+        }
+        const iframeStamper = new IframeStamper({
+          iframeUrl: props.iframeUrl,
+          iframeContainer,
+          iframeElementId: TurnkeyIframeElementId,
+        });
+        iframeStamper.init().then(() => {
+          setIframeStamper(iframeStamper);
+          props.setIframeStamper(iframeStamper);
+        });
       }
-    };
+
+      return () => {
+        if (iframeStamper) {
+          iframeStamper.clear();
+          setIframeStamper(null);
+        }
+      };
+    } catch (error) {
+      console.error('Error initializing iframe stamper:', error);
+    }
   }, [props, iframeStamper, setIframeStamper]);
 
   return <div style={{ display: "none" }} id={TurnkeyIframeContainerId}></div>;

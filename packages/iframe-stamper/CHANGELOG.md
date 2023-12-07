@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 1.0.0
+
+### Major Changes
+
+- This breaking change uses an HTML element instead of an ID to reference the iframe's container.
+
 ## 0.4.1
 
 ### Patch Changes

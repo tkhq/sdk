@@ -39,7 +39,7 @@ type TStamp = {
 export type TIframeStamperConfig = {
   iframeUrl: string;
   iframeElementId: string;
-  iframeContainerId: string;
+  iframeContainer: HTMLElement;
 };
 
 /**
@@ -67,13 +67,7 @@ export class IframeStamper {
       );
     }
 
-    const container = document.getElementById(config.iframeContainerId);
-    if (!container) {
-      throw new Error(
-        `Cannot create iframe stamper: no container with ID ${config.iframeContainerId} exists in the current document`
-      );
-    }
-    this.container = container;
+    this.container = config.iframeContainer;
 
     let iframe = window.document.createElement("iframe");
     iframe.id = config.iframeElementId;
