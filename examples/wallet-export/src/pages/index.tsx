@@ -74,21 +74,23 @@ export default function ExportPage() {
         <WalletsTable wallets={wallets} setSelectedWallet={setSelectedWallet} />
       )}
       {selectedWallet && (
-        <div className={styles.copyKey}>
-          <h2>Wallet seedphrase</h2>
+        <div className={styles.reveal}>
+          <h2>Before you continue</h2>
           <p>
-            You are about to reveal your wallet seedphrase. By revealing this
-            seedphrase you understand that:
+            By revealing the private key, you understand and agree that:
           </p>
           <ul>
             <li>
-              <p>Your seedphrase is the only way to recover your funds.</p>
+              <p>You should never share your private key with anyone, including the Turnkey team. Turnkey will never ask you for your private key.</p>
             </li>
             <li>
-              <p>Do not let anyone see your seedphrase.</p>
+              <p>You are responsible for the security of this private key and any assets associated with it, and Turnkey cannot help recover it on your behalf. Failure to properly secure your private key may result in total loss of the associated assets.</p>
             </li>
             <li>
-              <p>Never share your seedphrase with anyone, including Turnkey.</p>
+              <p>Turnkey is not responsible for any other wallet you may use with this private key, and Turnkey does not represent that any other software or hardware will be compatible with or protect your private key.</p>
+            </li>
+            <li>
+              <p>You have read and agree to <a href="https://www.turnkey.com/files/terms-of-service.pdf">Turnkey{"\'"}s Terms of Service</a>, including the risks related to exporting your private key disclosed therein.</p>
             </li>
           </ul>
           <div className={styles.reveal}>

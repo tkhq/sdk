@@ -140,30 +140,25 @@
   color: #fff;
 }
 
-.copyKey {
+.reveal {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.copyKey h2 {
+.reveal h2 {
   text-align: center;
   font-family: "Inter";
   padding-top: 40px;
 }
 
-.copyKey ul {
+.reveal ul {
   margin-top: 0;
+  text-align: justify;
 }
 
-.copyKey p {
+.reveal p {
   font-family: "Inter";
   font-size: 14px;
   color: #555b64;
-}
-
-.walletIframe iframe {
-  border: none;
-  width: 600px;
-  height: 600px;
 }
