@@ -26,32 +26,27 @@ export function Export(props: ExportProps) {
         setIframeDisplay("none");
       }
     };
-
   }, [props.iframeDisplay]);
 
   useEffect(() => {
-    try {
-      if (!iframeStamper) {
-        const iframeStamper = new IframeStamper({
-          iframeUrl: props.iframeUrl,
-          iframeContainer: document.getElementById(TurnkeyIframeContainerId),
-          iframeElementId: TurnkeyIframeElementId,
-        });
-        iframeStamper.init().then(() => {
-          setIframeStamper(iframeStamper);
-          props.setIframeStamper(iframeStamper);
-        });
-      }
-
-      return () => {
-        if (iframeStamper) {
-          iframeStamper.clear();
-          setIframeStamper(null);
-        }
-      };
-    } catch (error) {
-      console.error('Error initializing iframe stamper:', error);
+    if (!iframeStamper) {
+      const iframeStamper = new IframeStamper({
+        iframeUrl: props.iframeUrl,
+        iframeContainer: document.getElementById(TurnkeyIframeContainerId),
+        iframeElementId: TurnkeyIframeElementId,
+      });
+      iframeStamper.init().then(() => {
+        setIframeStamper(iframeStamper);
+        props.setIframeStamper(iframeStamper);
+      });
     }
+
+    return () => {
+      if (iframeStamper) {
+        iframeStamper.clear();
+        setIframeStamper(null);
+      }
+    };
   }, [props.setIframeStamper, iframeStamper, setIframeStamper]);
 
   const iframeCss = `

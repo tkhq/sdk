@@ -18,28 +18,24 @@ export function Recovery(props: RecoveryProps) {
   );
 
   useEffect(() => {
-    try {
-      if (!iframeStamper) {
-        const iframeStamper = new IframeStamper({
-          iframeUrl: props.iframeUrl,
-          iframeContainer: document.getElementById(TurnkeyIframeContainerId),
-          iframeElementId: TurnkeyIframeElementId,
-        });
-        iframeStamper.init().then(() => {
-          setIframeStamper(iframeStamper);
-          props.setIframeStamper(iframeStamper);
-        });
-      }
-
-      return () => {
-        if (iframeStamper) {
-          iframeStamper.clear();
-          setIframeStamper(null);
-        }
-      };
-    } catch (error) {
-      console.error('Error initializing iframe stamper:', error);
+    if (!iframeStamper) {
+      const iframeStamper = new IframeStamper({
+        iframeUrl: props.iframeUrl,
+        iframeContainer: document.getElementById(TurnkeyIframeContainerId),
+        iframeElementId: TurnkeyIframeElementId,
+      });
+      iframeStamper.init().then(() => {
+        setIframeStamper(iframeStamper);
+        props.setIframeStamper(iframeStamper);
+      });
     }
+
+    return () => {
+      if (iframeStamper) {
+        iframeStamper.clear();
+        setIframeStamper(null);
+      }
+    };
   }, [props, iframeStamper, setIframeStamper]);
 
   return <div style={{ display: "none" }} id={TurnkeyIframeContainerId}></div>;
