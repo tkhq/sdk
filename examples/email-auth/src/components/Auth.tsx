@@ -21,7 +21,7 @@ export function Auth(props: AuthProps) {
     if (!iframeStamper) {
       const iframeStamper = new IframeStamper({
         iframeUrl: props.iframeUrl,
-        iframeContainerId: TurnkeyIframeContainerId,
+        iframeContainer: document.getElementById(TurnkeyIframeContainerId),
         iframeElementId: TurnkeyIframeElementId,
       });
       iframeStamper.init().then(() => {

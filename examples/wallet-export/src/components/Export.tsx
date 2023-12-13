@@ -3,19 +3,30 @@
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
-interface RecoveryProps {
+interface ExportProps {
   iframeUrl: string;
   turnkeyBaseUrl: string;
+  iframeDisplay: string;
   setIframeStamper: Dispatch<SetStateAction<IframeStamper | null>>;
 }
 
 const TurnkeyIframeContainerId = "turnkey-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-iframe-element-id";
 
-export function Recovery(props: RecoveryProps) {
+export function Export(props: ExportProps) {
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
     null
   );
+  const [iframeDisplay, setIframeDisplay] = useState<string>("none");
+
+  useEffect(() => {
+    setIframeDisplay(props.iframeDisplay);
+    return () => {
+      if (iframeDisplay === "block") {
+        setIframeDisplay("none");
+      }
+    };
+  }, [props.iframeDisplay]);
 
   useEffect(() => {
     if (!iframeStamper) {
@@ -36,7 +47,24 @@ export function Recovery(props: RecoveryProps) {
         setIframeStamper(null);
       }
     };
-  }, [props, iframeStamper, setIframeStamper]);
+  }, [props.setIframeStamper, iframeStamper, setIframeStamper]);
 
-  return <div style={{ display: "none" }} id={TurnkeyIframeContainerId}></div>;
+  const iframeCss = `
+    iframe {
+      box-sizing: border-box;
+      width: 400px;
+      height: 120px;
+      border-radius: 8px;
+      border-width: 1px;
+      border-style: solid;
+      border-color: rgba(216, 219, 227, 1);
+      padding: 20px;
+    }
+    `;
+
+  return (
+    <div style={{ display: iframeDisplay }} id={TurnkeyIframeContainerId}>
+      <style>{iframeCss}</style>
+    </div>
+  );
 }

@@ -5,7 +5,7 @@ test("throws when instantiated outside of a browser environment", async function
   expect(() => {
     new IframeStamper({
       iframeUrl: "https://recovery.tkhqlabs.xyz",
-      iframeContainerId: "my-container-id",
+      iframeContainer: null,
       iframeElementId: "my-iframe-id",
     });
   }).toThrow("Cannot initialize iframe in non-browser environment");

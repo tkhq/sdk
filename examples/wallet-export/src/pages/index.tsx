@@ -5,41 +5,18 @@ import { IframeStamper } from "@turnkey/iframe-stamper";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Export } from "@/components/Export";
 import { WalletsTable } from "@/components/WalletsTable";
 
 type TWallet = TurnkeyApiTypes["v1Wallet"];
-
-const TurnkeyIframeContainerId = "turnkey-iframe-container-id";
-const TurnkeyIframeElementId = "turnkey-iframe-element-id";
 
 export default function ExportPage() {
   const [wallets, setWallets] = useState<TWallet[]>([]);
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
     null
   );
-  const [showWallet, setShowWallet] = useState<boolean>(false);
+  const [iframeDisplay, setIframeDisplay] = useState<string>("none");
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
-
-  // Initialize the iframeStamper
-  useEffect(() => {
-    if (!iframeStamper) {
-      const iframeStamper = new IframeStamper({
-        iframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
-        iframeContainerId: TurnkeyIframeContainerId,
-        iframeElementId: TurnkeyIframeElementId,
-      });
-      iframeStamper.init().then(() => {
-        setIframeStamper(iframeStamper);
-      });
-    }
-
-    return () => {
-      if (iframeStamper) {
-        iframeStamper.clear();
-        setIframeStamper(null);
-      }
-    };
-  }, [iframeStamper]);
 
   // Get wallets
   useEffect(() => {
@@ -72,7 +49,7 @@ export default function ExportPage() {
       throw new Error("unexpected error while injecting export bundle");
     }
 
-    setShowWallet(true);
+    setIframeDisplay("block");
   };
 
   return (
@@ -97,21 +74,42 @@ export default function ExportPage() {
         <WalletsTable wallets={wallets} setSelectedWallet={setSelectedWallet} />
       )}
       {selectedWallet && (
-        <div className={styles.copyKey}>
-          <h2>Wallet seedphrase</h2>
-          <p>
-            You are about to reveal your wallet seedphrase. By revealing this
-            seedphrase you understand that:
-          </p>
+        <div className={styles.reveal}>
+          <h2>Before you continue</h2>
+          <p>By revealing the private key, you understand and agree that:</p>
           <ul>
             <li>
-              <p>Your seedphrase is the only way to recover your funds.</p>
+              <p>
+                You should never share your private key with anyone, including
+                the Turnkey team. Turnkey will never ask you for your private
+                key.
+              </p>
             </li>
             <li>
-              <p>Do not let anyone see your seedphrase.</p>
+              <p>
+                You are responsible for the security of this private key and any
+                assets associated with it, and Turnkey cannot help recover it on
+                your behalf. Failure to properly secure your private key may
+                result in total loss of the associated assets.
+              </p>
             </li>
             <li>
-              <p>Never share your seedphrase with anyone, including Turnkey.</p>
+              <p>
+                Turnkey is not responsible for any other wallet you may use with
+                this private key, and Turnkey does not represent that any other
+                software or hardware will be compatible with or protect your
+                private key.
+              </p>
+            </li>
+            <li>
+              <p>
+                You have read and agree to{" "}
+                <a href="https://www.turnkey.com/files/terms-of-service.pdf">
+                  Turnkey{"'"}s Terms of Service
+                </a>
+                , including the risks related to exporting your private key
+                disclosed therein.
+              </p>
             </li>
           </ul>
           <div className={styles.reveal}>
@@ -126,11 +124,13 @@ export default function ExportPage() {
           </div>
         </div>
       )}
-      <div
-        style={{ display: showWallet ? "block" : "none" }}
-        id={TurnkeyIframeContainerId}
-        className={styles.walletIframe}
-      />
+
+      <Export
+        setIframeStamper={setIframeStamper}
+        iframeUrl={process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!}
+        iframeDisplay={iframeDisplay}
+        turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
+      ></Export>
     </main>
   );
 }
