@@ -32,14 +32,9 @@ export function Export(props: ExportProps) {
   useEffect(() => {
     try {
       if (!iframeStamper) {
-        const iframeContainer = document.getElementById(TurnkeyIframeContainerId);
-        if (!iframeContainer) {
-          console.error(`Cannot create iframe stamper: no container with ID ${TurnkeyIframeContainerId} exists`);
-          return;
-        }
         const iframeStamper = new IframeStamper({
           iframeUrl: props.iframeUrl,
-          iframeContainer,
+          iframeContainer: document.getElementById(TurnkeyIframeContainerId),
           iframeElementId: TurnkeyIframeElementId,
         });
         iframeStamper.init().then(() => {
@@ -61,9 +56,14 @@ export function Export(props: ExportProps) {
 
   const iframeCss = `
     iframe {
+      box-sizing: border-box;
       width: 400px;
-      height: 340px;
-      border: none;
+      height: 120px;
+      border-radius: 8px;
+      border-width: 1px;
+      border-style: solid;
+      border-color: rgba(216, 219, 227, 1);
+      padding: 20px;
     }
     `;
 

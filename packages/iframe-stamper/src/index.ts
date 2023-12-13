@@ -39,7 +39,7 @@ type TStamp = {
 export type TIframeStamperConfig = {
   iframeUrl: string;
   iframeElementId: string;
-  iframeContainer: HTMLElement;
+  iframeContainer: HTMLElement | null | undefined;
 };
 
 /**
@@ -61,13 +61,16 @@ export class IframeStamper {
       throw new Error("Cannot initialize iframe in non-browser environment");
     }
 
-    if (document.getElementById(config.iframeElementId)) {
+    if (!config.iframeContainer) {
+      throw new Error("Iframe container cannot be found");
+    }
+    this.container = config.iframeContainer;
+
+    if (this.container.querySelector(`#${config.iframeElementId}`)) {
       throw new Error(
         `Iframe element with ID ${config.iframeElementId} already exists`
       );
     }
-
-    this.container = config.iframeContainer;
 
     let iframe = window.document.createElement("iframe");
     iframe.id = config.iframeElementId;

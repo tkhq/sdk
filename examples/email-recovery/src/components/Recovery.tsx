@@ -20,14 +20,9 @@ export function Recovery(props: RecoveryProps) {
   useEffect(() => {
     try {
       if (!iframeStamper) {
-        const iframeContainer = document.getElementById(TurnkeyIframeContainerId);
-        if (!iframeContainer) {
-          console.error(`Cannot create iframe stamper: no container with ID ${TurnkeyIframeContainerId} exists`);
-          return;
-        }
         const iframeStamper = new IframeStamper({
           iframeUrl: props.iframeUrl,
-          iframeContainer,
+          iframeContainer: document.getElementById(TurnkeyIframeContainerId),
           iframeElementId: TurnkeyIframeElementId,
         });
         iframeStamper.init().then(() => {
