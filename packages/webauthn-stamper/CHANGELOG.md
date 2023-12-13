@@ -1,5 +1,11 @@
 # @turnkey/webauthn-stamper
 
+## 0.4.3
+
+### Patch Changes
+
+- Upgrade to Node v18 (#184)
+
 ## 0.4.2
 
 ### Patch Changes

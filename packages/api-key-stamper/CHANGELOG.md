@@ -1,5 +1,11 @@
 # @turnkey/api-key-stamper
 
+## 0.3.1
+
+### Patch Changes
+
+- Upgrade to Node v18 (#184)
+
 ## 0.3.0
 
 ### Minor Changes

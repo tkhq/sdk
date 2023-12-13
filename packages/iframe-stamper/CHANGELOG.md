@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 0.4.1
+
+### Patch Changes
+
+- Upgrade to Node v18 (#184)
+
 ## 0.4.0
 
 ### Minor Changes
