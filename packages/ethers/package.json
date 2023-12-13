@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/ethers",
-  "version": "0.19.3",
+  "version": "0.19.4",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -64,6 +64,6 @@
     "hardhat": "^2.12.7"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   }
 }

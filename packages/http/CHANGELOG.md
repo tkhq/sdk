@@ -1,5 +1,14 @@
 # @turnkey/http
 
+## 2.5.1
+
+### Patch Changes
+
+- Upgrade to Node v18 (#184)
+- Updated dependencies
+  - @turnkey/webauthn-stamper@0.4.3
+  - @turnkey/api-key-stamper@0.3.1
+
 ## 2.5.0
 
 ### Minor Changes

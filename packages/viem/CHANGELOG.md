@@ -1,5 +1,14 @@
 # @turnkey/viem
 
+## 0.4.4
+
+### Patch Changes
+
+- Upgrade to Node v18 (#184)
+- Updated dependencies
+  - @turnkey/api-key-stamper@0.3.1
+  - @turnkey/http@2.5.1
+
 ## 0.4.3
 
 ### Patch Changes

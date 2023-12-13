@@ -1,5 +1,13 @@
 # @turnkey/cosmjs
 
+## 0.5.4
+
+### Patch Changes
+
+- Upgrade to Node v18 (#184)
+- Updated dependencies
+  - @turnkey/http@2.5.1
+
 ## 0.5.3
 
 ### Patch Changes

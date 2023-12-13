@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/cosmjs",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -57,6 +57,6 @@
     "cosmjs-types": "^0.8.0"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   }
 }
