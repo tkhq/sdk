@@ -1,11 +1,7 @@
 /// <reference lib="dom" />
 import { fetch as xFetch } from "cross-fetch";
-let fetch: typeof globalThis.fetch;
 
-if (typeof globalThis?.fetch !== "undefined") {
-  fetch = globalThis.fetch;
-} else {
-  fetch = xFetch;
-}
+// This is useful for mocking fetch in tests.
+const fetch = xFetch;
 
 export { fetch };
