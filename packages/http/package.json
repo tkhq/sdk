@@ -38,6 +38,7 @@
     "access": "public"
   },
   "scripts": {
+    "preinstall": "node -p \"'export const VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
     "prepublishOnly": "pnpm -w run clean-all && pnpm -w run build-all",
     "build": "rollup -c",
     "clean": "rimraf ./dist ./.cache",
