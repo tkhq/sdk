@@ -54,6 +54,98 @@ export const signGetActivity = (
   });
 
 /**
+ * `POST /public/v1/query/get_api_key`
+ */
+export type TGetApiKeyResponse =
+  operations["PublicApiService_GetApiKey"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_api_key`
+ */
+export type TGetApiKeyInput = { body: TGetApiKeyBody };
+
+/**
+ * `POST /public/v1/query/get_api_key`
+ */
+export type TGetApiKeyBody =
+  operations["PublicApiService_GetApiKey"]["parameters"]["body"]["body"];
+
+/**
+ * Get API key
+ *
+ * Get details about an API key
+ *
+ * `POST /public/v1/query/get_api_key`
+ */
+export const getApiKey = (input: TGetApiKeyInput) =>
+  request<TGetApiKeyResponse, TGetApiKeyBody, never, never, never>({
+    uri: "/public/v1/query/get_api_key",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetApiKey` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetApiKey}
+ */
+export const signGetApiKey = (
+  input: TGetApiKeyInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TGetApiKeyBody, never, never>({
+    uri: "/public/v1/query/get_api_key",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_api_keys`
+ */
+export type TGetApiKeysResponse =
+  operations["PublicApiService_GetApiKeys"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_api_keys`
+ */
+export type TGetApiKeysInput = { body: TGetApiKeysBody };
+
+/**
+ * `POST /public/v1/query/get_api_keys`
+ */
+export type TGetApiKeysBody =
+  operations["PublicApiService_GetApiKeys"]["parameters"]["body"]["body"];
+
+/**
+ * Get API key
+ *
+ * Get details about API keys for a user
+ *
+ * `POST /public/v1/query/get_api_keys`
+ */
+export const getApiKeys = (input: TGetApiKeysInput) =>
+  request<TGetApiKeysResponse, TGetApiKeysBody, never, never, never>({
+    uri: "/public/v1/query/get_api_keys",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetApiKeys` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetApiKeys}
+ */
+export const signGetApiKeys = (
+  input: TGetApiKeysInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TGetApiKeysBody, never, never>({
+    uri: "/public/v1/query/get_api_keys",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_authenticator`
  */
 export type TGetAuthenticatorResponse =
@@ -1789,6 +1881,58 @@ export const signExportWallet = (
 ) =>
   signedRequest<TExportWalletBody, never, never>({
     uri: "/public/v1/submit/export_wallet",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/export_wallet_account`
+ */
+export type TExportWalletAccountResponse =
+  operations["PublicApiService_ExportWalletAccount"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/export_wallet_account`
+ */
+export type TExportWalletAccountInput = { body: TExportWalletAccountBody };
+
+/**
+ * `POST /public/v1/submit/export_wallet_account`
+ */
+export type TExportWalletAccountBody =
+  operations["PublicApiService_ExportWalletAccount"]["parameters"]["body"]["body"];
+
+/**
+ * Export Wallet Account
+ *
+ * Exports a Wallet Account
+ *
+ * `POST /public/v1/submit/export_wallet_account`
+ */
+export const exportWalletAccount = (input: TExportWalletAccountInput) =>
+  request<
+    TExportWalletAccountResponse,
+    TExportWalletAccountBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/export_wallet_account",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ExportWalletAccount` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ExportWalletAccount}
+ */
+export const signExportWalletAccount = (
+  input: TExportWalletAccountInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TExportWalletAccountBody, never, never>({
+    uri: "/public/v1/submit/export_wallet_account",
     body: input.body,
     options,
   });

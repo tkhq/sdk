@@ -12,6 +12,11 @@ import type {
   TGetActivityBody,
   TGetActivityResponse,
 } from "./public_api.fetcher";
+import type { TGetApiKeyBody, TGetApiKeyResponse } from "./public_api.fetcher";
+import type {
+  TGetApiKeysBody,
+  TGetApiKeysResponse,
+} from "./public_api.fetcher";
 import type {
   TGetAuthenticatorBody,
   TGetAuthenticatorResponse,
@@ -139,6 +144,10 @@ import type {
   TExportWalletResponse,
 } from "./public_api.fetcher";
 import type {
+  TExportWalletAccountBody,
+  TExportWalletAccountResponse,
+} from "./public_api.fetcher";
+import type {
   TInitUserEmailRecoveryBody,
   TInitUserEmailRecoveryResponse,
 } from "./public_api.fetcher";
@@ -253,6 +262,60 @@ export class TurnkeyClient {
     input: TGetActivityBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_activity";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get details about an API key
+   *
+   * Sign the provided `TGetApiKeyBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_api_key).
+   *
+   * See also {@link stampGetApiKey}.
+   */
+  getApiKey = async (input: TGetApiKeyBody): Promise<TGetApiKeyResponse> => {
+    return this.request("/public/v1/query/get_api_key", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetApiKeyBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetApiKey}.
+   */
+  stampGetApiKey = async (input: TGetApiKeyBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/get_api_key";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get details about API keys for a user
+   *
+   * Sign the provided `TGetApiKeysBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_api_keys).
+   *
+   * See also {@link stampGetApiKeys}.
+   */
+  getApiKeys = async (input: TGetApiKeysBody): Promise<TGetApiKeysResponse> => {
+    return this.request("/public/v1/query/get_api_keys", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetApiKeysBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetApiKeys}.
+   */
+  stampGetApiKeys = async (input: TGetApiKeysBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/get_api_keys";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1352,6 +1415,38 @@ export class TurnkeyClient {
     input: TExportWalletBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/export_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Exports a Wallet Account
+   *
+   * Sign the provided `TExportWalletAccountBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/export_wallet_account).
+   *
+   * See also {@link stampExportWalletAccount}.
+   */
+  exportWalletAccount = async (
+    input: TExportWalletAccountBody
+  ): Promise<TExportWalletAccountResponse> => {
+    return this.request("/public/v1/submit/export_wallet_account", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TExportWalletAccountBody` by using the client's `stamp` function.
+   *
+   * See also {@link ExportWalletAccount}.
+   */
+  stampExportWalletAccount = async (
+    input: TExportWalletAccountBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/export_wallet_account";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
