@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.6.1
+
+### Patch Changes
+
+- 52e2389: Revert version export (#186 and #187)
+
 ## 2.6.0
 
 ### Minor Changes

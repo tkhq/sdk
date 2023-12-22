@@ -20,5 +20,3 @@ const PublicApiService = TurnkeyApi;
 export { PublicApiService };
 
 export { sealAndStampRequestBody } from "./base";
-
-export { VERSION } from "./version";
