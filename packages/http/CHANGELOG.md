@@ -1,5 +1,16 @@
 # @turnkey/http
 
+## 2.6.0
+
+### Minor Changes
+
+- 0794f41: Add VERSION constant
+- 7a3c890: Add key export support
+
+### Patch Changes
+
+- 4517e3b: Update version string to include package name
+
 ## 2.5.1
 
 ### Patch Changes
