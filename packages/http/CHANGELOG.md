@@ -1,11 +1,5 @@
 # @turnkey/http
 
-## 2.6.2
-
-### Patch Changes
-
-- bf8ef6f: Export VERSION from turnkey/http
-
 ## 2.6.1
 
 ### Patch Changes

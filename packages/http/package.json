@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/http",
-  "version": "2.6.2",
+  "version": "2.6.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
