@@ -42,6 +42,11 @@ jobs:
       - name: Prettier
         run: pnpm run prettier-all:check
 
+      # This is to catch when someone forgets to run `pnpm run version` after bumping package versions
+      # If this happens this script will run and make git dirty
+      - name: Run version script
+        run: pnpm run version
+
       - name: Ensure git is clean
         run: |
           if [ -z "$( git status --porcelain )" ]; then

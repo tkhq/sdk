@@ -5,6 +5,7 @@
   "scripts": {
     "changeset": "changeset",
     "prebuild-all": "pnpm run -w clean-all",
+    "version": "pnpm run --r --filter \"./packages/**\" version",
     "build-all": "pnpm run --r --filter \"./packages/**\" build",
     "build:watch": "tsc --build tsconfig.mono.json --watch",
     "csb:install": "corepack enable && pnpm install -r",
