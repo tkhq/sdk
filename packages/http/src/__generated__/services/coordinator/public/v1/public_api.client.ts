@@ -8,6 +8,7 @@ import {
   TStamper,
   TurnkeyRequestError,
 } from "../../../../../base";
+import { VERSION } from "../../../../../version";
 import type {
   TGetActivityBody,
   TGetActivityResponse,
@@ -220,6 +221,7 @@ export class TurnkeyClient {
       method: "POST",
       headers: {
         [stamp.stampHeaderName]: stamp.stampHeaderValue,
+        "X-Client-Version": VERSION,
       },
       body: stringifiedBody,
       redirect: "follow",
