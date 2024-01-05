@@ -1,5 +1,12 @@
 # @turnkey/http
 
+## 2.6.2
+
+### Patch Changes
+
+- b45a9ac: Include package version in request headers
+- f9d636c: Export VERSION from turnkey/http
+
 ## 2.6.1
 
 ### Patch Changes
