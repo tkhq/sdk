@@ -59,6 +59,7 @@ export default async function createUser(
         rootUsers: [
           {
             userName: "New user",
+            userEmail: `andrew+${String(Date.now())}@turnkey.com`, // temp
             apiKeys: [],
             authenticators: [
               {
