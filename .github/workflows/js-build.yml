@@ -26,7 +26,7 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck-all
 
-      - name: Test
+      - name: Test (prod)
         run: anvil & pnpm run test-all
         env:
           API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
@@ -38,6 +38,19 @@ jobs:
           EXPECTED_PRIVATE_KEY_ETH_ADDRESS: ${{ secrets.EXPECTED_PRIVATE_KEY_ETH_ADDRESS }}
           EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: ${{ secrets.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS }}
           BANNED_TO_ADDRESS: "0x6F72eDB2429820c2A0606a9FC3cA364f5E9b2375"
+
+      - name: Test (preprod)
+        run: pnpm run test-all # anvil is already running on the port, from the step above
+        env:
+          API_PUBLIC_KEY: ${{ secrets.PREPROD_API_PUBLIC_KEY }}
+          API_PRIVATE_KEY: ${{ secrets.PREPROD_API_PRIVATE_KEY }}
+          BASE_URL: ${{ secrets.PREPROD_BASE_URL }}
+          ORGANIZATION_ID: ${{ secrets.PREPROD_ORGANIZATION_ID }}
+          PRIVATE_KEY_ID: ${{ secrets.PREPROD_PRIVATE_KEY_ID }}
+          EXPECTED_ETH_ADDRESS: ${{ secrets.PREPROD_EXPECTED_ETH_ADDRESS }}
+          EXPECTED_PRIVATE_KEY_ETH_ADDRESS: ${{ secrets.PREPROD_EXPECTED_PRIVATE_KEY_ETH_ADDRESS }}
+          EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: ${{ secrets.PREPROD_EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS }}
+          BANNED_TO_ADDRESS: ${{ secrets.PREPROD_BANNED_TO_ADDRESS }}
 
       - name: Prettier
         run: pnpm run prettier-all:check
