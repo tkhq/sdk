@@ -107,16 +107,15 @@ export function createActivityPoller<
   refreshIntervalMs?: number;
 }): (input: I) => Promise<O["activity"]> {
   const {
-    client,
     requestFn,
     refreshIntervalMs = DEFAULT_REFRESH_INTERVAL_MS,
   } = params;
 
   return async (input: I) => {
-    const initialResponse: TActivityResponse = await requestFn(input);
-    let activity: TActivity = initialResponse.activity;
-
     while (true) {
+      const initialResponse: TActivityResponse = await requestFn(input);
+      const activity: TActivity = initialResponse.activity;
+
       switch (activity.status) {
         case "ACTIVITY_STATUS_COMPLETED": {
           return activity;
@@ -166,13 +165,6 @@ export function createActivityPoller<
       }
 
       await sleep(refreshIntervalMs);
-
-      const pollingResponse: TActivityResponse = await client.getActivity({
-        activityId: activity.id,
-        organizationId: activity.organizationId,
-      });
-
-      activity = pollingResponse.activity;
     }
   };
 }
