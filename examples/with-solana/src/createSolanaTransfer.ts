@@ -46,7 +46,7 @@ export async function createAndSignTransfer(input: {
   const signer = new TurnkeySigner({
     organizationId: turnkeyOrganizationId,
     client,
-  })
+  });
   await signer.addSignature(transferTransaction, turnkeySolAddress);
   return transferTransaction.serialize();
 }

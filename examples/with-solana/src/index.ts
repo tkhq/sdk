@@ -28,10 +28,7 @@ async function main() {
 
   let solAddress = process.env.SOLANA_ADDRESS;
   if (!solAddress) {
-    solAddress = await createNewSolanaWallet(
-      turnkeyClient,
-      organizationId
-    );
+    solAddress = await createNewSolanaWallet(turnkeyClient, organizationId);
     console.log(`\nYour new Solana address: "${solAddress}"`);
   } else {
     console.log(`\nUsing existing Solana address from ENV: "${solAddress}"`);

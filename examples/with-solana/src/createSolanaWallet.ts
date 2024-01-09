@@ -9,9 +9,7 @@ export async function createNewSolanaWallet(
   client: TurnkeyClient,
   turnkeyOrganizationId: string
 ) {
-  console.log(
-    "creating a new Solana wallet in your Turnkey organization...\n"
-  );
+  console.log("creating a new Solana wallet in your Turnkey organization...\n");
 
   const walletName = `Solana Wallet ${crypto.randomBytes(2).toString("hex")}`;
 
@@ -41,13 +39,19 @@ export async function createNewSolanaWallet(
 
     const walletId = completedActivity.result.createWalletResult?.walletId;
     if (!walletId) {
-      console.error("activity doesn't contain a valid wallet ID", completedActivity);
+      console.error(
+        "activity doesn't contain a valid wallet ID",
+        completedActivity
+      );
       process.exit(1);
     }
 
     const address = completedActivity.result.createWalletResult?.addresses[0];
     if (!address) {
-      console.error("activity result doesn't contain a valid address", completedActivity);
+      console.error(
+        "activity result doesn't contain a valid address",
+        completedActivity
+      );
       process.exit(1);
     }
 

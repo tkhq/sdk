@@ -6,7 +6,7 @@
     { "path": "./packages/webauthn-stamper" },
     { "path": "./packages/api-key-stamper" },
     { "path": "./packages/iframe-stamper" },
-    { "path": "./packages/solana" }
+    { "path": "./packages/solana" },
     { "path": "./packages/viem" }
   ],
   "files": []

@@ -1,24 +1,18 @@
 import { PublicKey, type Transaction } from "@solana/web3.js";
-import {
-  TurnkeyActivityError,
-  TurnkeyClient,
-} from "@turnkey/http";
+import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
 
 export class TurnkeySigner {
   public readonly organizationId: string;
   public readonly client: TurnkeyClient;
 
-  constructor(input: {
-    organizationId: string;
-    client: TurnkeyClient;
-  }) {
+  constructor(input: { organizationId: string; client: TurnkeyClient }) {
     this.organizationId = input.organizationId;
     this.client = input.client;
   }
 
   /**
    * This function takes a Solana transaction and adds a signature with Turnkey
-   * 
+   *
    * @param tx Transaction object (native @solana/web3.js type)
    * @param fromAddress Solana address (base58 encoded)
    */
