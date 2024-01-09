@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@turnkey/http": "workspace:*",
+    "@turnkey/solana": "workspace:*",
     "@turnkey/api-key-stamper": "workspace:*",
     "dotenv": "^16.0.3",
     "bs58": "^5.0.0",

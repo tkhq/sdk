@@ -8,8 +8,7 @@ const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { createNewSolanaPrivateKey } from "./createSolanaKey";
-import { deriveSolanaAddress } from "./solanaAddress";
+import { createNewSolanaWallet } from "./createSolanaWallet";
 import * as solanaNetwork from "./solanaNetwork";
 import { createAndSignTransfer } from "./createSolanaTransfer";
 import { input, confirm } from "@inquirer/prompts";
@@ -27,16 +26,16 @@ async function main() {
     })
   );
 
-  let privateKeyId = process.env.PRIVATE_KEY_ID;
-  if (!privateKeyId) {
-    privateKeyId = await createNewSolanaPrivateKey(
+  let solAddress = process.env.SOLANA_ADDRESS;
+  if (!solAddress) {
+    solAddress = await createNewSolanaWallet(
       turnkeyClient,
       organizationId
     );
+    console.log(`\nYour new Solana address: "${solAddress}"`);
+  } else {
+    console.log(`\nUsing existing Solana address from ENV: "${solAddress}"`);
   }
-  const solAddress = await deriveSolanaAddress(turnkeyClient, privateKeyId);
-
-  console.log(`\nYour Solana address: "${solAddress}"`);
 
   let balance = await solanaNetwork.balance(connection, solAddress);
   while (balance === 0) {
@@ -92,7 +91,7 @@ async function main() {
     toAddress: destination,
     amount: Number(amount),
     turnkeyOrganizationId: organizationId,
-    turnkeyPrivateKeyId: privateKeyId,
+    turnkeySolAddress: solAddress,
   });
 
   // Broadcast the signed payload on devnet
