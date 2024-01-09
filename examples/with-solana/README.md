@@ -41,7 +41,7 @@ Now open `.env.local` and add the missing environment variables:
 - `BASE_URL`
 - `ORGANIZATION_ID`
 
-You can also add a Solana address underif you have one already:
+You can specify an existing Turnkey Solana address if you have one already:
 
 ```
 SOLANA_ADDRESS=<your Turnkey Solana address>
