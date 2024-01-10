@@ -1,90 +1,178 @@
 import { fetch } from "../universal";
-import { test, expect, jest } from "@jest/globals";
-import { TurnkeyApi, init } from "../index";
+import { test, expect, jest, beforeEach, describe } from "@jest/globals";
+import { TurnkeyApi, TurnkeyClient, init } from "../index";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { readFixture } from "../__fixtures__/shared";
 
 jest.mock("cross-fetch");
 
-test("requests are stamped after initialization", async () => {
-  const { privateKey, publicKey } = await readFixture();
+describe("Test requests with TurnkeyClient", () => {
+  let turnkeyClient: TurnkeyClient;
 
-  init({
-    apiPublicKey: publicKey,
-    apiPrivateKey: privateKey,
-    baseUrl: "https://mocked.turnkey.com",
+  beforeEach(async () => {
+    jest.resetAllMocks();
+    const { privateKey, publicKey } = await readFixture();
+
+    turnkeyClient = new TurnkeyClient(
+      { baseUrl: "https://mocked.turnkey.com" },
+      new ApiKeyStamper({
+        apiPublicKey: publicKey,
+        apiPrivateKey: privateKey,
+      })
+    );
   });
 
-  const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
+  test("requests are stamped after initialization", async () => {
+    const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
 
-  const response: any = {};
-  response.status = 200;
-  response.ok = true;
-  response.json = async () => ({});
+    const response: any = {};
+    response.status = 200;
+    response.ok = true;
+    response.json = async () => ({});
 
-  mockedFetch.mockReturnValue(Promise.resolve(response));
+    mockedFetch.mockReturnValue(Promise.resolve(response));
 
-  await TurnkeyApi.getWhoami({
-    body: {
+    await turnkeyClient.getWhoami({
       organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
-    },
+    });
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+
+    const stamp = (mockedFetch.mock.lastCall![1]?.headers as any)?.["X-Stamp"];
+    expect(stamp).toBeTruthy();
   });
 
-  expect(fetch).toHaveBeenCalledTimes(1);
+  test("requests return grpc status details as part of their errors", async () => {
+    const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
 
-  const stamp = (mockedFetch.mock.lastCall![1]?.headers as any)?.["X-Stamp"];
-  expect(stamp).toBeTruthy();
+    const response: any = {};
+    response.status = 200;
+    response.ok = false;
+    response.json = async () => ({
+      code: 1,
+      message: "invalid request",
+      details: [
+        {
+          "@type": "type.googleapis.com/google.rpc.BadRequest",
+          fieldViolations: [
+            {
+              field: "privateKeys.0.privateKeyName",
+              description: "This field must be unique.",
+            },
+          ],
+        },
+      ],
+    });
+
+    mockedFetch.mockReturnValue(Promise.resolve(response));
+
+    try {
+      await turnkeyClient.getWhoami({
+        organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
+      });
+    } catch (e: any) {
+      expect(e.message).toEqual(
+        `Turnkey error 1: invalid request (Details: [{\"@type\":\"type.googleapis.com/google.rpc.BadRequest\",\"fieldViolations\":[{\"field\":\"privateKeys.0.privateKeyName\",\"description\":\"This field must be unique.\"}]}])`
+      );
+
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].fieldViolations.length).toEqual(1);
+      expect(e.details[0].fieldViolations[0].field).toEqual(
+        "privateKeys.0.privateKeyName"
+      );
+      expect(e.details[0].fieldViolations[0].description).toEqual(
+        "This field must be unique."
+      );
+    }
+  });
 });
 
-test("requests return grpc status details as part of their errors", async () => {
-  const { privateKey, publicKey } = await readFixture();
-
-  init({
-    apiPublicKey: publicKey,
-    apiPrivateKey: privateKey,
-    baseUrl: "https://mocked.turnkey.com",
+describe("Test requests with deprecated TurnkeyApi", () => {
+  beforeEach(async () => {
+    jest.resetAllMocks();
   });
+  
+  test("requests are stamped after initialization", async () => {
+    const { privateKey, publicKey } = await readFixture();
 
-  const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
+    init({
+      apiPublicKey: publicKey,
+      apiPrivateKey: privateKey,
+      baseUrl: "https://mocked.turnkey.com",
+    });
 
-  const response: any = {};
-  response.status = 200;
-  response.ok = false;
-  response.json = async () => ({
-    code: 1,
-    message: "invalid request",
-    details: [
-      {
-        "@type": "type.googleapis.com/google.rpc.BadRequest",
-        fieldViolations: [
-          {
-            field: "privateKeys.0.privateKeyName",
-            description: "This field must be unique.",
-          },
-        ],
-      },
-    ],
-  });
+    const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
 
-  mockedFetch.mockReturnValue(Promise.resolve(response));
+    const response: any = {};
+    response.status = 200;
+    response.ok = true;
+    response.json = async () => ({});
 
-  try {
+    mockedFetch.mockReturnValue(Promise.resolve(response));
+
     await TurnkeyApi.getWhoami({
       body: {
         organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
       },
     });
-  } catch (e: any) {
-    expect(e.message).toEqual(
-      `Turnkey error 1: invalid request (Details: [{\"@type\":\"type.googleapis.com/google.rpc.BadRequest\",\"fieldViolations\":[{\"field\":\"privateKeys.0.privateKeyName\",\"description\":\"This field must be unique.\"}]}])`
-    );
 
-    expect(e.details.length).toEqual(1);
-    expect(e.details[0].fieldViolations.length).toEqual(1);
-    expect(e.details[0].fieldViolations[0].field).toEqual(
-      "privateKeys.0.privateKeyName"
-    );
-    expect(e.details[0].fieldViolations[0].description).toEqual(
-      "This field must be unique."
-    );
-  }
+    expect(fetch).toHaveBeenCalledTimes(1);
+
+    const stamp = (mockedFetch.mock.lastCall![1]?.headers as any)?.["X-Stamp"];
+    expect(stamp).toBeTruthy();
+  });
+
+  test("requests return grpc status details as part of their errors", async () => {
+    const { privateKey, publicKey } = await readFixture();
+
+    init({
+      apiPublicKey: publicKey,
+      apiPrivateKey: privateKey,
+      baseUrl: "https://mocked.turnkey.com",
+    });
+
+    const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
+
+    const response: any = {};
+    response.status = 200;
+    response.ok = false;
+    response.json = async () => ({
+      code: 1,
+      message: "invalid request",
+      details: [
+        {
+          "@type": "type.googleapis.com/google.rpc.BadRequest",
+          fieldViolations: [
+            {
+              field: "privateKeys.0.privateKeyName",
+              description: "This field must be unique.",
+            },
+          ],
+        },
+      ],
+    });
+
+    mockedFetch.mockReturnValue(Promise.resolve(response));
+
+    try {
+      await TurnkeyApi.getWhoami({
+        body: {
+          organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
+        },
+      });
+    } catch (e: any) {
+      expect(e.message).toEqual(
+        `Turnkey error 1: invalid request (Details: [{\"@type\":\"type.googleapis.com/google.rpc.BadRequest\",\"fieldViolations\":[{\"field\":\"privateKeys.0.privateKeyName\",\"description\":\"This field must be unique.\"}]}])`
+      );
+
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].fieldViolations.length).toEqual(1);
+      expect(e.details[0].fieldViolations[0].field).toEqual(
+        "privateKeys.0.privateKeyName"
+      );
+      expect(e.details[0].fieldViolations[0].description).toEqual(
+        "This field must be unique."
+      );
+    }
+  });
 });

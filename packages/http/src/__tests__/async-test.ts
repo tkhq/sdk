@@ -1,5 +1,5 @@
 import { fetch } from "../universal";
-import { test, expect, jest, beforeEach } from "@jest/globals";
+import { test, expect, jest, beforeEach, describe } from "@jest/globals";
 import {
   TurnkeyApi,
   TurnkeyClient,
@@ -11,7 +11,6 @@ import {
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { readFixture } from "../__fixtures__/shared";
 import type { TActivity } from "../shared";
-import { describe } from "node:test";
 import { TCreatePrivateKeysBody, TCreatePrivateKeysInput } from "../__generated__/services/coordinator/public/v1/public_api.fetcher";
 
 jest.mock("cross-fetch");
