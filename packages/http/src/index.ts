@@ -8,7 +8,7 @@ export { TurnkeyActivityError } from "./shared";
 export type { SignedRequest, TSignedRequest } from "./base";
 export { getWebAuthnAttestation } from "./webauthn";
 
-export { withAsyncPolling, createActivityPoller } from "./async";
+export { withAsyncPolling, createActivityPoller, createIdempotentActivityPoller } from "./async";
 
 export { TurnkeyApi };
 

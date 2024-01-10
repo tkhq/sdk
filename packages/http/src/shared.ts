@@ -6,6 +6,7 @@ export type TActivityId = TActivity["id"];
 export type TActivityStatus = TActivity["status"];
 export type TActivityType = TActivity["type"];
 
+
 export class TurnkeyActivityError extends Error {
   activityId: TActivityId | null;
   activityStatus: TActivityStatus | null;
