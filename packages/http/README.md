@@ -34,10 +34,8 @@ const client = new TurnkeyClient(
 );
 
 // Now you can make authenticated requests!
-const data = await TurnkeyApi.getWhoami({
-  body: {
-    organizationId: "...",
-  },
+const data = await client.getWhoami({
+  organizationId: "<Your organization id>",
 });
 ```
 
