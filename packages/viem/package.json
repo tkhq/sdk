@@ -52,7 +52,7 @@
     "compile:contracts": "hardhat compile"
   },
   "peerDependencies": {
-    "viem": "^2.1.1"
+    "viem": "^1.16.6 || ^2.1.1"
   },
   "dependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
