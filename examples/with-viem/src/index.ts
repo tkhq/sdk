@@ -4,7 +4,12 @@ import * as dotenv from "dotenv";
 import { createAccount } from "@turnkey/viem";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { createWalletClient, http, recoverMessageAddress, type Account } from "viem";
+import {
+  createWalletClient,
+  http,
+  recoverMessageAddress,
+  type Account,
+} from "viem";
 import { sepolia } from "viem/chains";
 import { print, assertEqual } from "./util";
 import { createNewWallet } from "./createNewWallet";
