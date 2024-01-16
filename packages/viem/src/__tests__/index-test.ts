@@ -337,7 +337,7 @@ describe("TurnkeyAccount", () => {
         const contract = getContract({
           address: contractAddress,
           abi,
-          walletClient,
+          client: walletClient,
         });
 
         // Mint
