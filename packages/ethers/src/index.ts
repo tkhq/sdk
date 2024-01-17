@@ -30,7 +30,7 @@ export class TurnkeySigner extends ethers.Signer implements TypedDataSigner {
   public readonly organizationId: string;
   public readonly signWith: string;
 
-  constructor(config: TConfig, provider?: ethers.providers.Provider) {
+  constructor(config: TConfig, provider: ethers.providers.Provider) {
     super();
 
     ethers.utils.defineReadOnly(this, "provider", provider);
