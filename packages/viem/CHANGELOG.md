@@ -1,5 +1,11 @@
 # @turnkey/viem
 
+## 0.4.8
+
+### Patch Changes
+
+- 4794c64: Updated dependencies
+
 ## 0.4.7
 
 ### Patch Changes
