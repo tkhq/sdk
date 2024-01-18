@@ -1,4 +1,6 @@
-require("@nomiclabs/hardhat-ethers");
+require('@typechain/hardhat')
+require("@nomicfoundation/hardhat-ethers");
+require('@nomicfoundation/hardhat-chai-matchers')
 
 /** @type import('hardhat/config').HardhatUserConfig */
 const config = {
@@ -8,6 +10,10 @@ const config = {
     artifacts: "./src/__tests__/contracts/artifacts",
     cache: "./.cache",
   },
+  typechain: {
+    outDir: "./src/__tests__/typechain-types",
+    target: 'ethers-v6',
+  }
 };
 
 module.exports = config;
