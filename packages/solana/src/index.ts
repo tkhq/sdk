@@ -45,8 +45,6 @@ export class TurnkeySigner {
       });
     }
 
-    // TODO: handle other failure types here (500? 400? How is that surfaced?)
-
     const signature = `${result.signRawPayloadResult?.r}${result.signRawPayloadResult?.s}`;
 
     tx.addSignature(fromKey, Buffer.from(signature, "hex"));

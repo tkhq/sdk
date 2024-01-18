@@ -17,16 +17,9 @@ export async function createAndSignTransfer(input: {
   toAddress: string;
   amount: number;
   turnkeyOrganizationId: string;
-  turnkeySolAddress: string;
 }): Promise<Buffer> {
-  const {
-    client,
-    fromAddress,
-    toAddress,
-    amount,
-    turnkeyOrganizationId,
-    turnkeySolAddress,
-  } = input;
+  const { client, fromAddress, toAddress, amount, turnkeyOrganizationId } =
+    input;
   const fromKey = new PublicKey(fromAddress);
   const toKey = new PublicKey(toAddress);
 
@@ -47,6 +40,6 @@ export async function createAndSignTransfer(input: {
     organizationId: turnkeyOrganizationId,
     client,
   });
-  await signer.addSignature(transferTransaction, turnkeySolAddress);
+  await signer.addSignature(transferTransaction, fromAddress);
   return transferTransaction.serialize();
 }

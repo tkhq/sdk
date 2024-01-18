@@ -88,7 +88,6 @@ async function main() {
     toAddress: destination,
     amount: Number(amount),
     turnkeyOrganizationId: organizationId,
-    turnkeySolAddress: solAddress,
   });
 
   // Broadcast the signed payload on devnet
