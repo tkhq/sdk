@@ -39,30 +39,30 @@ async function main() {
 
   // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
   const network = "sepolia";
-  const provider = new ethers.providers.InfuraProvider(network);
+  const provider = new ethers.InfuraProvider(network);
   const connectedSigner = turnkeySigner.connect(provider);
 
-  const chainId = await connectedSigner.getChainId();
+  const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? "58008" // sepolia;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.getBalance();
-  const transactionCount = await connectedSigner.getTransactionCount();
-  const gasPrice = await connectedSigner.getGasPrice();
+  const balance = await connectedSigner.provider?.getBalance(address) ?? 0;
+  const nonce = await connectedSigner.getNonce() ?? 0;
+  const { gasPrice } = await connectedSigner.provider?.getFeeData() ?? {gasPrice: 0};
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);
-  print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
-  print("Transaction count:", `${transactionCount}`);
+  print("Balance:", `${ethers.formatEther(balance)} Ether`);
+  print("Transaction count (nonce):", `${nonce}`);
 
   // 1. Create a legacy, EIP-155 (replay attack-preventing) send transaction
   const transactionAmount = "0.00001";
   const destinationAddress = "0x2Ad9eA1E677949a536A270CEC812D6e868C88108";
   const transactionRequest = {
     chainId: chainId,
-    nonce: transactionCount,
+    nonce,
     to: destinationAddress,
     gasLimit: 21000,
-    gasPrice: gasPrice,
-    value: ethers.utils.parseEther(transactionAmount),
+    gasPrice,
+    value: ethers.parseEther(transactionAmount),
     data: "0x",
     type: 0,
   };
@@ -71,7 +71,7 @@ async function main() {
 
   print("Turnkey-signed transaction:", `${signedTx}`);
 
-  if (balance.isZero()) {
+  if (balance === 0) {
     let warningMessage =
       "The transaction won't be broadcasted because your account balance is zero.\n";
     if (network === "sepolia") {
@@ -86,7 +86,7 @@ async function main() {
   const sentTx = await connectedSigner.sendTransaction(transactionRequest);
 
   print(
-    `Sent ${ethers.utils.formatEther(sentTx.value)} Ether to ${sentTx.to}:`,
+    `Sent ${ethers.formatEther(sentTx.value)} Ether to ${sentTx.to}:`,
     `https://${network}.etherscan.io/tx/${sentTx.hash}`
   );
 
@@ -99,17 +99,17 @@ async function main() {
     );
 
     // Read from contract
-    const wethBalance = await wethContract.balanceOf(address);
+    const wethBalance = await wethContract?.balanceOf?.(address);
 
-    print("WETH Balance:", `${ethers.utils.formatEther(wethBalance)} WETH`);
+    print("WETH Balance:", `${ethers.formatEther(wethBalance)} WETH`);
 
     // 2. Wrap ETH -> WETH
-    const depositTx = await wethContract.deposit({
-      value: ethers.utils.parseEther(transactionAmount),
+    const depositTx = await wethContract?.deposit?.({
+      value: ethers.parseEther(transactionAmount),
     });
 
     print(
-      `Wrapped ${ethers.utils.formatEther(depositTx.value)} ETH:`,
+      `Wrapped ${ethers.formatEther(depositTx.value)} ETH:`,
       `https://${network}.etherscan.io/tx/${depositTx.hash}`
     );
   }

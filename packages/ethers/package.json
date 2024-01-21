@@ -52,13 +52,11 @@
     "ethers": "^6.10.0"
   },
   "dependencies": {
-    "@ethersproject/abstract-signer": "^5.7.0",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*"
   },
   "devDependencies": {
-    "@ethersproject/experimental": "^5.7.0",
-    "@nomicfoundation/hardhat-chai-matchers": "^2.0.3",
+  
     "@nomicfoundation/hardhat-ethers": "3.0.5",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@openzeppelin/contracts": "^4.9.0",

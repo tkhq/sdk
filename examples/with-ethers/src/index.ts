@@ -33,20 +33,20 @@ async function main() {
 
   // Initialize a Turnkey Signer
   const turnkeySigner = new TurnkeySigner({
-    client: turnkeyClient,
-    organizationId: process.env.ORGANIZATION_ID!,
-    signWith: process.env.SIGN_WITH!,
+  client: turnkeyClient,
+  organizationId: process.env.ORGANIZATION_ID!,
+  signWith: process.env.SIGN_WITH!,
   });
 
   // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
   const network = "goerli";
   const provider = new ethers.JsonRpcProvider(`https://${network}.infura.io/v3/${process.env.INFURA_KEY}`);
-  const connectedSigner = turnkeySigner.connect(provider);
-  (await connectedSigner.provider?.getNetwork())?.chainId
-  const chainId = (await connectedSigner.provider?.getNetwork())?.chainId;
+      const connectedSigner = turnkeySigner.connect(provider);
+
+  const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.getBalance();
-  const transactionCount = await connectedSigner.getTransactionCount();
+  const balance = await connectedSigner.provider?.getBalance(address) ?? 0;
+  const transactionCount = await connectedSigner.provider?.getTransactionCount(address);
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);
@@ -69,13 +69,13 @@ async function main() {
     to: destinationAddress,
     value: ethers.parseEther(transactionAmount),
     type: 2,
-  };
+      };
 
   const signedTx = await connectedSigner.signTransaction(transactionRequest);
 
   print("Turnkey-signed transaction:", `${signedTx}`);
 
-  if (balance.isZero()) {
+  if (balance === 0) {
     let warningMessage =
       "The transaction won't be broadcasted because your account balance is zero.\n";
     if (network === "goerli") {
@@ -104,12 +104,12 @@ async function main() {
     );
 
     // Read from contract
-    const wethBalance = await wethContract.balanceOf(address);
+    const wethBalance = await wethContract?.balanceOf?.(address);
 
     print("WETH Balance:", `${ethers.formatEther(wethBalance)} WETH`);
 
     // 3. Wrap ETH -> WETH
-    const depositTx = await wethContract.deposit({
+    const depositTx = await wethContract?.deposit?.({
       value: ethers.parseEther(transactionAmount),
     });
 

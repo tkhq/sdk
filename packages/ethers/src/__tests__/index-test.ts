@@ -1,13 +1,13 @@
-import { Eip1193Bridge } from "@ethersproject/experimental";
 import { setBalance } from "@nomicfoundation/hardhat-network-helpers";
-import { ethers, parseEther, verifyMessage, verifyTypedData, Signer } from "ethers";
+import { parseEther, verifyMessage, verifyTypedData } from "ethers";
 import hre from "hardhat";
 import { test, expect, beforeEach, describe } from "@jest/globals";
 import { TurnkeySigner, TurnkeyActivityError } from "../";
-import Test721 from "./contracts/artifacts/src/__tests__/contracts/source/Test721.sol/Test721.json";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import {  Test721__factory } from './typechain-types'
+import {  Test721__factory as Test721Factory } from './typechain-types'
+import { EthereumProvider } from "hardhat/types";
+
 // @ts-expect-error
 const testCase: typeof test = (...argList) => {
   if (!process.env.BANNED_TO_ADDRESS) {
@@ -22,7 +22,7 @@ describe("TurnkeySigner", () => {
   let connectedSigner: TurnkeySigner;
   let signerWithProvider: TurnkeySigner;
   let chainId: bigint;
-  let eip1193: Eip1193Bridge;
+  let eip1193: EthereumProvider;
 
   const apiPublicKey = assertNonEmptyString(
     process.env.API_PUBLIC_KEY,
@@ -106,8 +106,8 @@ describe("TurnkeySigner", () => {
         );
 
         chainId = (await connectedSigner.provider!.getNetwork()).chainId;
-        
-        eip1193 = new Eip1193Bridge(connectedSigner, provider);
+
+        eip1193 = hre.network.provider
 
         setBalance(
           signingConfig.expectedEthAddress,
@@ -116,14 +116,14 @@ describe("TurnkeySigner", () => {
       });
       
       testCase("basics for connected signer", async () => {
-        // expect(ethers.Signer.isSigner(connectedSigner)).toBe(true);
+        expect(connectedSigner.signMessage).toBeTruthy();
         expect(await connectedSigner.getAddress()).toBe(
           signingConfig.expectedEthAddress
         );
       });
 
       testCase("basics for connected signer via constructor", async () => {
-        // expect(ethers.Signer.isSigner(signerWithProvider)).toBe(true);
+        expect(connectedSigner.signMessage).toBeTruthy();
         expect(await signerWithProvider.getAddress()).toBe(
           signingConfig.expectedEthAddress
         );
@@ -136,8 +136,8 @@ describe("TurnkeySigner", () => {
           chainId,
           nonce: 0,
           gasLimit: 21000,
-          maxFeePerGas: 2e9,
-          maxPriorityFeePerGas: 200e9,
+          maxFeePerGas: 200e9,
+          maxPriorityFeePerGas: 2e9,
           type: 2,
         });
 
@@ -152,8 +152,8 @@ describe("TurnkeySigner", () => {
           chainId,
           nonce: 0,
           gasLimit: 21000,
-          maxFeePerGas: 2e9,
-          maxPriorityFeePerGas: 200e9,
+          maxFeePerGas: 200e9,
+          maxPriorityFeePerGas: 2e9,
           type: 2,
         });
 
@@ -169,8 +169,8 @@ describe("TurnkeySigner", () => {
             chainId,
             nonce: 0,
             gasLimit: 21000,
-            maxFeePerGas: 2e9,
-            maxPriorityFeePerGas: 200e9,
+            maxFeePerGas: 200e9,
+            maxPriorityFeePerGas: 2e9,
             type: 2,
           });
 
@@ -187,7 +187,8 @@ describe("TurnkeySigner", () => {
           to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
           value: parseEther("2"),
           type: 2,
-        });
+                  });
+
         const receipt = await tx.wait();
 
         expect(receipt?.status).toBe(1);
@@ -206,11 +207,12 @@ describe("TurnkeySigner", () => {
               chainId,
               nonce: 0,
               gasLimit: 21000,
-              maxFeePerGas: 2e9,
-              maxPriorityFeePerGas: 200e9,
+              maxFeePerGas: 200e9,
+              maxPriorityFeePerGas: 2e9,
               type: 2,
             });
           } catch (error) {
+
             expect(error).toBeInstanceOf(TurnkeyActivityError);
 
             const { message, cause, activityId, activityStatus, activityType } =
@@ -317,15 +319,13 @@ describe("TurnkeySigner", () => {
 
       // Use `pnpm run compile:contracts` to update the ABI if needed
       testCase("ERC-721", async () => {
-        const { abi, bytecode } = Test721;
-        const factory = new Test721__factory(connectedSigner)
+        const contract = await new Test721Factory(connectedSigner).deploy()
 
-        // Deploy
-        const contract = await factory.deploy();
-        await contract.waitForDeployment();
+        const deploymentAddress = await contract.getAddress();
+        const deploymentTransaction = await contract.deploymentTransaction();
         
-        expect(contract.getAddress()).toMatch(/^0x/);
-        expect(contract.deploymentTransaction()?.from).toEqual(
+        expect(deploymentAddress).toMatch(/^0x/);
+        expect(deploymentTransaction?.from).toEqual(
           signingConfig.expectedEthAddress
         );
 
@@ -333,11 +333,10 @@ describe("TurnkeySigner", () => {
         const mintTx = await contract.safeMint(
           signingConfig.expectedEthAddress
         );
-        await mintTx.wait();
 
         expect(mintTx.hash).toMatch(/^0x/);
         expect(mintTx.from).toEqual(signingConfig.expectedEthAddress);
-        expect(mintTx.to).toEqual(contract.getAddress());
+        expect(mintTx.to).toEqual(deploymentAddress);
 
         // Approve
         const approveTx = await contract.approve(
@@ -348,7 +347,7 @@ describe("TurnkeySigner", () => {
 
         expect(approveTx.hash).toMatch(/^0x/);
         expect(approveTx.from).toEqual(signingConfig.expectedEthAddress);
-        expect(approveTx.to).toEqual(contract.getAddress());
+        expect(approveTx.to).toEqual(deploymentAddress);
       });
     });
   });
