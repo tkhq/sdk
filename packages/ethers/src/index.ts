@@ -1,4 +1,4 @@
-import { Signature, Transaction, TransactionLike, TransactionRequest, hashMessage, resolveProperties, ethers } from "ethers";
+import { Signature, Transaction, TransactionLike, TransactionRequest, hashMessage, resolveProperties, ethers, TransactionResponse } from "ethers";
 import { TurnkeyActivityError, TurnkeyRequestError } from "@turnkey/http";
 import type { TurnkeyClient } from "@turnkey/http";
 import {
@@ -136,6 +136,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   async signTransaction(
     transaction: TransactionRequest
   ): Promise<string> {
+
     const unsignedTx = await resolveProperties(transaction) as TransactionLike<string>;
 
     // Mimic the behavior of ethers' `Wallet`:
@@ -153,12 +154,13 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
       delete unsignedTx.from;
     }
-
+    
     const serializedTx = Transaction.from(unsignedTx).unsignedSerialized
     const nonHexPrefixedSerializedTx = serializedTx.replace(/^0x/, "");
     const signedTx = await this._signTransactionWithErrorWrapping(
       nonHexPrefixedSerializedTx
     );
+
     return `0x${signedTx}`;
   }
 
@@ -257,6 +259,19 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   _signTypedData = this.signTypedData.bind(this);
+
+  override async sendTransaction(tx: TransactionRequest): Promise<TransactionResponse> {
+    // const provider = checkProvider(this, "sendTransaction");
+    if(!this.provider) {
+      throw "No provider found"
+    }
+
+    const populatedTxn = await this.populateTransaction(tx);
+    
+    const signedTxn = await this.signTransaction(populatedTxn);
+
+    return await this.provider.broadcastTransaction(signedTxn);
+  }
 }
 
 export { TurnkeyActivityError, TurnkeyRequestError };

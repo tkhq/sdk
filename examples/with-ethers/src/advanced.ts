@@ -36,7 +36,7 @@ async function main() {
 
   // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
   const network = "goerli";
-  const provider = new ethers.providers.InfuraProvider(network);
+  const provider = new ethers.InfuraProvider(network);
   const connectedSigner = turnkeySigner.connect(provider);
   const address = await connectedSigner.getAddress();
 
@@ -45,19 +45,19 @@ async function main() {
   const baseMessage = "Hello Turnkey";
 
   // 1. Sign a raw hex message
-  const hexMessage = ethers.utils.hexlify(
-    ethers.utils.toUtf8Bytes(baseMessage)
+  const hexMessage = ethers.hexlify(
+    ethers.toUtf8Bytes(baseMessage)
   );
   let signature = await connectedSigner.signMessage(hexMessage);
-  let recoveredAddress = ethers.utils.verifyMessage(hexMessage, signature);
+  let recoveredAddress = ethers.verifyMessage(hexMessage, signature);
 
   print("Turnkey-powered signature - raw hex message:", `${signature}`);
   assertEqual(recoveredAddress, address);
 
   // 2. Sign a raw bytes message
-  const bytesMessage = ethers.utils.toUtf8Bytes(baseMessage);
+  const bytesMessage = ethers.toUtf8Bytes(baseMessage);
   signature = await connectedSigner.signMessage(bytesMessage);
-  recoveredAddress = ethers.utils.verifyMessage(bytesMessage, signature);
+  recoveredAddress = ethers.verifyMessage(bytesMessage, signature);
 
   print("Turnkey-powered signature - raw bytes message:", `${signature}`);
   assertEqual(recoveredAddress, address);
@@ -88,7 +88,7 @@ async function main() {
     typedData.message
   );
 
-  recoveredAddress = ethers.utils.verifyTypedData(
+  recoveredAddress = ethers.verifyTypedData(
     typedData.domain,
     typedData.types,
     typedData.message,
