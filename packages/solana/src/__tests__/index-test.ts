@@ -8,7 +8,9 @@ describe("TurnkeySigner", () => {
   test("can sign a Solana transfer against production", async () => {
     if (!process.env.SOLANA_TEST_ORG_API_PRIVATE_KEY) {
       // This test requires an env var to be set
-      throw new Error("This test requires SOLANA_TEST_ORG_API_PRIVATE_KEY to be set");
+      throw new Error(
+        "This test requires SOLANA_TEST_ORG_API_PRIVATE_KEY to be set"
+      );
     }
 
     const client = new TurnkeyClient(
