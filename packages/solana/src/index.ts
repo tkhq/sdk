@@ -20,13 +20,44 @@ export class TurnkeySigner {
     const fromKey = new PublicKey(fromAddress);
     const messageToSign = tx.serializeMessage();
 
+    const signRawPayloadResult = await this.signRawPayload(
+      messageToSign.toString("hex"),
+      fromAddress
+    );
+
+    const signature = `${signRawPayloadResult.signRawPayloadResult?.r}${signRawPayloadResult.signRawPayloadResult?.s}`;
+
+    tx.addSignature(fromKey, Buffer.from(signature, "hex"));
+  }
+
+  /**
+   * This function takes a message and returns it after being signed with Turnkey
+   *
+   * @param message The message to sign (Uint8Array)
+   * @param fromAddress Solana address (base58 encoded)
+   */
+  public async signMessage(
+    message: Uint8Array,
+    fromAddress: string
+  ): Promise<Uint8Array> {
+    const signRawPayloadResult = await this.signRawPayload(
+      Buffer.from(message).toString("hex"),
+      fromAddress
+    );
+    return Buffer.from(
+      `${signRawPayloadResult.signRawPayloadResult?.r}${signRawPayloadResult.signRawPayloadResult?.s}`,
+      "hex"
+    );
+  }
+
+  private async signRawPayload(payload: string, signWith: string) {
     const response = await this.client.signRawPayload({
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       parameters: {
-        signWith: fromAddress,
-        payload: messageToSign.toString("hex"),
+        signWith,
+        payload,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
         // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
@@ -45,8 +76,6 @@ export class TurnkeySigner {
       });
     }
 
-    const signature = `${result.signRawPayloadResult?.r}${result.signRawPayloadResult?.s}`;
-
-    tx.addSignature(fromKey, Buffer.from(signature, "hex"));
+    return result;
   }
 }
