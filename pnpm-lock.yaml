@@ -513,6 +513,9 @@ importers:
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
+      tweetnacl:
+        specifier: ^1.0.3
+        version: 1.0.3
 
   examples/with-uniswap:
     dependencies:
