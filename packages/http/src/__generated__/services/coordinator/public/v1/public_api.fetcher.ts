@@ -1759,7 +1759,7 @@ export type TEmailAuthBody =
   operations["PublicApiService_EmailAuth"]["parameters"]["body"]["body"];
 
 /**
- * Email Auth
+ * Perform Email Auth
  *
  * Authenticate a user via Email
  *
