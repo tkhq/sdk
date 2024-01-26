@@ -1222,7 +1222,7 @@
     },
     "/public/v1/submit/email_auth": {
       "post": {
-        "summary": "Email Auth",
+        "summary": "Perform Email Auth",
         "description": "Authenticate a user via Email",
         "operationId": "PublicApiService_EmailAuth",
         "responses": {
@@ -1249,7 +1249,7 @@
             }
           }
         ],
-        "tags": ["Email Auth"]
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/export_private_key": {
@@ -6316,7 +6316,7 @@
     },
     {
       "name": "USERS",
-      "tags": ["Users", "User Tags", "User Recovery"]
+      "tags": ["Users", "User Tags", "User Recovery", "User Auth"]
     },
     {
       "name": "CREDENTIALS",
