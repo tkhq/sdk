@@ -5,6 +5,7 @@
     "packages/cosmjs",
     "packages/ethers",
     "packages/http",
+    "packages/solana",
     "packages/viem",
     "packages/webauthn-stamper",
     "packages/api-key-stamper",

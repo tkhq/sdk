@@ -2,10 +2,9 @@
 
 This example walks through the following:
 
-- Creation of a new Turnkey private key
-- Derivation of a new Solana address
+- Creation of a new Turnkey wallet with a new Solana account
 - Monitoring of devnet tokens landing on that address
-- Construction of a transaction sending the funds out
+- Construction of a transaction sending the funds out with the `@turnkey/solana` signer
 
 ## Getting started
 
@@ -24,7 +23,7 @@ $ cd examples/with-solana/
 
 ### 2/ Setting up Turnkey
 
-The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide, you should have:
+The first step is to set up your Turnkey organization. By following the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide, you should have:
 
 - A public/private API key pair for Turnkey
 - An organization ID
@@ -42,13 +41,13 @@ Now open `.env.local` and add the missing environment variables:
 - `BASE_URL`
 - `ORGANIZATION_ID`
 
-You can also add a Turnkey Private Key ID if you have one already:
+You can specify an existing Turnkey Solana address if you have one already:
 
 ```
-PRIVATE_KEY_ID=<your Turnkey Private Key ID>
+SOLANA_ADDRESS=<your Turnkey Solana address>
 ```
 
-This is optional: the script will create a new one if you don't specify one in your `.env.local` file
+Note that this is optional: the script gives you a fresh one if you don't specify one in your `.env.local` file
 
 ### 3/ Running the script
 
@@ -59,30 +58,32 @@ $ pnpm start
 You should see output similar to the following:
 
 ```
-creating a new Solana private key on your Turnkey organization...
+creating a new Solana wallet in your Turnkey organization...
 
-New Solana private key created!
-- Name: Solana Key ff73
-- Private key ID: e082a9c4-046a-422c-9836-1910615d8100
+New Solana wallet created!
+- Name: Solana Wallet 6527
+- Wallet ID: 7f0f7d49-22e3-5b34-8192-db3df83a0759
+- Solana address: G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp
 
-Your Solana address: "6ziT1tk8YhQx8nEiJHAEM5eh9g4DnLwdek7Zfx7KYGAo"
+Your new Solana address: "G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp"
 
-💸 To continue this demo you'll need some devnet funds. You can use:
+💸 Your onchain balance is at 0! To continue this demo you'll need devnet funds! You can use:
 - The faucet in this example: `pnpm run faucet`
-- The official Solana CLI: `solana airdrop 1 6ziT1tk8YhQx8nEiJHAEM5eh9g4DnLwdek7Zfx7KYGAo`
+- The official Solana CLI: `solana airdrop 1 G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp`
 - Any online faucet (e.g. https://faucet.triangleplatform.com/solana/devnet)
 
-To check your balance: https://explorer.solana.com/address/6ziT1tk8YhQx8nEiJHAEM5eh9g4DnLwdek7Zfx7KYGAo?cluster=devnet
+To check your balance: https://explorer.solana.com/address/G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp?cluster=devnet
 
 --------
-? Do you have devnet funds in 6ziT1tk8YhQx8nEiJHAEM5eh9g4DnLwdek7Zfx7KYGAo? (Y/n)Y
+Using existing Solana address from ENV: "G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp"
+? Destination address: tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C
+? Amount (in Lamports) to send to tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C: 100
 
-? Amount (in Lamports) to send to tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C: 6000000
-New signature: dac3995b81a464fdcd5f914f0264695380562f432387e8240422f6e591b4cf5465c12390042889f8d4890242d289b98fd9a29f808cdee11a745c27c497b2fe0d
-(base58: 5NgSjswvnt44URmD5wPqw7yejueo94Ji7DTdPys5BvBwPxftWZGypYtqVbYjT9PtL3gg8ay3WARNwq87kTWzvupY)
+Turnkey-powered signature:
+        4W4X5wVzpPhCHQ8LeR18icfUYs7FdHQ6uTfkQ7E6jciuv9NQ6pZnyYj2veaeZoD5co3nz1gzBdZ2v6c4LXLjiTBm
 
 Transaction broadcast and confirmed! 🎉
-https://explorer.solana.com/tx/5NgSjswvnt44URmD5wPqw7yejueo94Ji7DTdPys5BvBwPxftWZGypYtqVbYjT9PtL3gg8ay3WARNwq87kTWzvupY?cluster=devnet
+        https://explorer.solana.com/tx/3Wr1vmSwqf7jPJXzgqA3fGfELdTfiR8v86sRiTJxNYT4KYEcadQjceFsN8BoHQZqb6mnuqsJsgHdk6i8Sj8YtmVr?cluster=devnet
 ```
 
 Enjoy!

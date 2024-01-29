@@ -104,7 +104,7 @@ async function main() {
   } as const;
 
   const typedData = {
-    account: turnkeyAccount,
+    account: turnkeyAccount as Account,
     domain,
     types,
     primaryType: "Mail",

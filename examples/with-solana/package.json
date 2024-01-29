@@ -9,11 +9,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@turnkey/http": "workspace:*",
-    "@turnkey/api-key-stamper": "workspace:*",
-    "dotenv": "^16.0.3",
-    "bs58": "^5.0.0",
+    "@inquirer/prompts": "^2.1.0",
     "@solana/web3.js": "^1.77.3",
-    "@inquirer/prompts": "^2.1.0"
+    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "@turnkey/solana": "workspace:*",
+    "bs58": "^5.0.0",
+    "dotenv": "^16.0.3",
+    "tweetnacl": "^1.0.3"
   }
 }

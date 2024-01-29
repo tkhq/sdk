@@ -1,18 +1,23 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
+import nacl from "tweetnacl";
+import bs58 from "bs58";
+import { input, confirm } from "@inquirer/prompts";
+
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { TurnkeySigner } from "@turnkey/solana";
 
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { createNewSolanaPrivateKey } from "./createSolanaKey";
-import { deriveSolanaAddress } from "./solanaAddress";
+import { createNewSolanaWallet } from "./createSolanaWallet";
 import * as solanaNetwork from "./solanaNetwork";
 import { createAndSignTransfer } from "./createSolanaTransfer";
-import { input, confirm } from "@inquirer/prompts";
+import { signMessage } from "./signMessage";
+import { print } from "./util";
 
 async function main() {
   const organizationId = process.env.ORGANIZATION_ID!;
@@ -27,33 +32,31 @@ async function main() {
     })
   );
 
-  let privateKeyId = process.env.PRIVATE_KEY_ID;
-  if (!privateKeyId) {
-    privateKeyId = await createNewSolanaPrivateKey(
-      turnkeyClient,
-      organizationId
-    );
-  }
-  const solAddress = await deriveSolanaAddress(turnkeyClient, privateKeyId);
+  const turnkeySigner = new TurnkeySigner({
+    organizationId,
+    client: turnkeyClient,
+  });
 
-  console.log(`\nYour Solana address: "${solAddress}"`);
+  let solAddress = process.env.SOLANA_ADDRESS!;
+  if (!solAddress) {
+    solAddress = await createNewSolanaWallet(turnkeyClient, organizationId);
+    console.log(`\nYour new Solana address: "${solAddress}"`);
+  } else {
+    console.log(`\nUsing existing Solana address from ENV: "${solAddress}"`);
+  }
 
   let balance = await solanaNetwork.balance(connection, solAddress);
   while (balance === 0) {
     console.log(
-      `\n💸 Your onchain balance is at 0! To continue this demo you'll need devnet funds! You can use:`
+      [
+        `\n💸 Your onchain balance is at 0! To continue this demo you'll need devnet funds! You can use:`,
+        `- The faucet in this example: \`pnpm run faucet\``,
+        `- The official Solana CLI: \`solana airdrop 1 ${solAddress}\``,
+        `- Any online faucet (e.g. https://faucet.triangleplatform.com/solana/devnet)`,
+        `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=devnet`,
+        `\n--------`,
+      ].join("\n")
     );
-    console.log(`- The faucet in this example: \`pnpm run faucet\``);
-    console.log(
-      `- The official Solana CLI: \`solana airdrop 1 ${solAddress}\``
-    );
-    console.log(
-      `- Any online faucet (e.g. https://faucet.triangleplatform.com/solana/devnet)`
-    );
-    console.log(
-      `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=devnet`
-    );
-    console.log("\n--------");
     await confirm({ message: "Ready to Continue?" });
     // refresh balance...
     balance = await solanaNetwork.balance(connection, solAddress);
@@ -85,18 +88,45 @@ async function main() {
     },
   });
 
-  // Create a transfer transaction
+  // 1. Sign and verify a message
+  const message = "Hello world!";
+  const messageAsUint8Array = Buffer.from(message);
+
+  const signature = await signMessage({
+    signer: turnkeySigner,
+    fromAddress: solAddress,
+    message,
+  });
+
+  const isValidSignature = nacl.sign.detached.verify(
+    messageAsUint8Array,
+    signature,
+    bs58.decode(solAddress)
+  );
+
+  if (!isValidSignature) {
+    throw new Error("unable to verify signed message");
+  }
+
+  print("\nTurnkey-powered signature:", `${bs58.encode(signature)}`);
+
+  // 2. Create, sign, and verify a transfer transaction
   const signedTransaction = await createAndSignTransfer({
-    client: turnkeyClient,
+    signer: turnkeySigner,
     fromAddress: solAddress,
     toAddress: destination,
     amount: Number(amount),
-    turnkeyOrganizationId: organizationId,
-    turnkeyPrivateKeyId: privateKeyId,
   });
 
-  // Broadcast the signed payload on devnet
+  const verified = signedTransaction.verifySignatures();
+
+  if (!verified) {
+    throw new Error("unable to verify transaction signatures");
+  }
+
+  // 3. Broadcast the signed payload on devnet
   await solanaNetwork.broadcast(connection, signedTransaction);
+
   process.exit(0);
 }
 
