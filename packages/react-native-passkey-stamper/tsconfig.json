@@ -7,7 +7,5 @@
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
-  "references": [
-    { "path": "../http" },
-  ]
+  "references": [{ "path": "../http" }]
 }

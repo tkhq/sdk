@@ -1,8 +1,7 @@
 /// <reference lib="dom" />
-import { Passkey } from 'react-native-passkey';
+import { Passkey } from "react-native-passkey";
 import { sha256 } from "@noble/hashes/sha256";
 import type { TurnkeyApiTypes } from "@turnkey/http";
-
 
 // https://www.w3.org/TR/webauthn-2/#dictionary-credential-descriptor
 // Copied from https://github.com/f-23/react-native-passkey/blob/17184a1b1f6f3ac61e07aa784c9b64efb28b570e/src/Passkey.tsx#L80C1-L85C2
@@ -13,7 +12,8 @@ interface PublicKeyCredentialDescriptor {
   transports?: Array<string>;
 }
 
-export type TurnkeyAuthenticatorParams = TurnkeyApiTypes["v1AuthenticatorParamsV2"]
+export type TurnkeyAuthenticatorParams =
+  TurnkeyApiTypes["v1AuthenticatorParamsV2"];
 
 // Header name for a webauthn stamp
 const stampHeaderName = "X-Stamp-Webauthn";
@@ -25,13 +25,13 @@ export type TPasskeyRegistrationConfig = {
   rpName: string;
   // Properties for passkey display: user name and email will show up in the prompts
   user: {
-    id: string,
-    name: string,
-    displayName: string,
-  }
+    id: string;
+    name: string;
+    displayName: string;
+  };
   // Name of the authenticator (affects Turnkey only, won't be shown on passkey prompts)
   // TODO: document restrictions on character sets
-  authenticatorName: string,
+  authenticatorName: string;
   // Optional challenge. If not provided, a new random challenge will be generated
   challenge?: string;
   // Optional timeout value. Defaults to 5 minutes.
@@ -60,11 +60,13 @@ const defaultUserVerification = "preferred";
 /**
  * Creates a passkey and returns authenticator params
  */
-export async function CreatePasskey(config: TPasskeyRegistrationConfig): Promise<TurnkeyAuthenticatorParams> {
+export async function CreatePasskey(
+  config: TPasskeyRegistrationConfig
+): Promise<TurnkeyAuthenticatorParams> {
   const arr = new Uint8Array(32);
   crypto.getRandomValues(arr);
   // TODO: this is probably not right? Need to find the right way to encode random bytes into a string
-  const challenge = new TextDecoder("utf-8").decode(arr)
+  const challenge = new TextDecoder("utf-8").decode(arr);
 
   const registrationResult = await Passkey.register({
     challenge: challenge,
@@ -84,7 +86,7 @@ export async function CreatePasskey(config: TPasskeyRegistrationConfig): Promise
         type: "public-key",
         alg: -257,
       },
-    ]
+    ],
   });
 
   return {
@@ -95,9 +97,8 @@ export async function CreatePasskey(config: TPasskeyRegistrationConfig): Promise
       clientDataJson: registrationResult.response.clientDataJSON,
       attestationObject: registrationResult.response.attestationObject,
       transports: ["AUTHENTICATOR_TRANSPORT_HYBRID"],
-    }
-  }
-
+    },
+  };
 }
 
 /**
@@ -121,11 +122,11 @@ export class PasskeyStamper {
 
     // TODO: do we want to support extensions?
     const signingOptions = {
-        challenge: challenge,
-        rpId: this.rpId,
-        timeout: this.timeout,
-        allowCredentials: this.allowCredentials,
-        userVerification: this.userVerification,
+      challenge: challenge,
+      rpId: this.rpId,
+      timeout: this.timeout,
+      allowCredentials: this.allowCredentials,
+      userVerification: this.userVerification,
     };
 
     const authenticationResult = await Passkey.authenticate(signingOptions);
@@ -150,5 +151,5 @@ function getChallengeFromPayload(payload: string): string {
   const hashBuffer = sha256(messageBuffer);
   const hexString = Buffer.from(hashBuffer).toString("hex");
   const hexBuffer = Buffer.from(hexString, "utf8");
-  return hexBuffer.toString("base64")
+  return hexBuffer.toString("base64");
 }
