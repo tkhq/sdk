@@ -68,8 +68,8 @@ importers:
         specifier: ^16.0.3
         version: 16.0.3
       ethers:
-        specifier: ^5.7.2
-        version: 5.7.2
+        specifier: ^6.10.0
+        version: 6.10.0
       solc:
         specifier: 0.8.13
         version: 0.8.13
