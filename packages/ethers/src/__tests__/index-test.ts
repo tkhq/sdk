@@ -6,7 +6,7 @@ import { TurnkeySigner, TurnkeyActivityError } from "../";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import {  Test721__factory as Test721Factory } from './typechain-types'
-import { EthereumProvider } from "hardhat/types";
+import type { EthereumProvider } from "hardhat/types";
 
 // @ts-expect-error
 const testCase: typeof test = (...argList) => {

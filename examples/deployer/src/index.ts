@@ -38,8 +38,7 @@ async function main() {
 
   // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
   const network = "goerli";
-  const provider = new ethers.InfuraProvider(network);
-  const connectedSigner = turnkeySigner.connect(provider);
+  const connectedSigner = turnkeySigner.connect(new ethers.InfuraProvider(network));
 
   const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
   const address = await connectedSigner.getAddress();
