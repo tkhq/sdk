@@ -371,10 +371,9 @@ async function recycleImpl() {
   const feeData = new FeeData(originalFeeData?.gasPrice, updatedMaxFeePerGas, updatedMaxPriorityFeePerGas);
   const gasRequired = feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) * TRANSFER_GAS_LIMIT : 0n
 
-
   const recycleAmount = balance - (gasRequired * 2n); // be relatively conservative with sweep amount to prevent overdraft
 
-  if (recycleAmount < 0n) {
+  if (recycleAmount <= 0n) {
     console.log("Insufficient balance for recycle...");
     return;
   }
