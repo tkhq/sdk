@@ -45,12 +45,12 @@ export async function sendEth(
 ) {
   const network = (await connectedSigner.provider?.getNetwork());
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.provider?.getBalance(address) ?? 0;
+  const balance = await connectedSigner.provider?.getBalance(address) ?? 0n;
 
   print("Address:", address);
   print("Balance:", `${ethers.formatEther(balance)} Ether`);
 
-  if (balance === 0) {
+  if (balance === 0n) {
     let warningMessage =
       "The transaction won't be broadcast because your account balance is zero.\n";
     if (network?.name === "sepolia") {
