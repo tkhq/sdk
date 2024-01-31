@@ -8,14 +8,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/ethers": "workspace:*",
     "@turnkey/http": "workspace:*",
-    "@turnkey/api-key-stamper": "workspace:*",
     "@uniswap/sdk-core": "^3.1.1",
     "@uniswap/v3-core": "^1.0.1",
     "@uniswap/v3-sdk": "^3.9.0",
     "dotenv": "^16.0.3",
-    "ethers": "^5.7.2",
+    "ethers": "^6.10.0",
     "hardhat": "^2.12.7",
     "jsbi": "^3.2.5"
   }
