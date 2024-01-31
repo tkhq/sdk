@@ -73,6 +73,8 @@ export type TPasskeyStamperConfig = {
   userVerification?: UserVerificationRequirement;
   // Optional list of credentials to pass. Defaults to empty.
   allowCredentials?: PublicKeyCredentialDescriptor[];
+  // Optional extensions. Defaults to empty.
+  extensions?: Record<string, unknown>;
 };
 
 const defaultTimeout = 5 * 60 * 1000; // five minutes
@@ -140,24 +142,26 @@ export class PasskeyStamper {
   timeout: number;
   userVerification: UserVerificationRequirement;
   allowCredentials: PublicKeyCredentialDescriptor[];
+  extensions: Record<string, unknown>;
 
   constructor(config: TPasskeyStamperConfig) {
     this.rpId = config.rpId;
     this.timeout = config.timeout || defaultTimeout;
     this.userVerification = config.userVerification || defaultUserVerification;
     this.allowCredentials = config.allowCredentials || [];
+    this.extensions = config.extensions || {};
   }
 
   async stamp(payload: string) {
     const challenge = getChallengeFromPayload(payload);
 
-    // TODO: do we want to support extensions?
     const signingOptions = {
       challenge: challenge,
       rpId: this.rpId,
       timeout: this.timeout,
       allowCredentials: this.allowCredentials,
       userVerification: this.userVerification,
+      extensions: this.extensions,
     };
 
     const authenticationResult = await Passkey.authenticate(signingOptions);
