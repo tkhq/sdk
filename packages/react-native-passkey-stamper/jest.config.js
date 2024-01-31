@@ -1,6 +1,6 @@
 /** @type {import("@jest/types").Config.InitialOptions} */
 const config = {
-  preset: 'react-native',
+  preset: "react-native",
   transform: {
     "\\.[jt]sx?$": "@turnkey/jest-config/transformer.js",
   },
