@@ -264,20 +264,6 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
   _signTypedData = this.signTypedData.bind(this);
 
-  override async sendTransaction(
-    tx: TransactionRequest
-  ): Promise<TransactionResponse> {
-    // const provider = checkProvider(this, "sendTransaction");
-    if (!this.provider) {
-      throw "No provider found";
-    }
-
-    const populatedTxn = await this.populateTransaction(tx);
-
-    const signedTxn = await this.signTransaction(populatedTxn);
-
-    return await this.provider.broadcastTransaction(signedTxn);
-  }
 }
 
 export { TurnkeyActivityError, TurnkeyRequestError };
@@ -289,3 +275,4 @@ function assertNonNull<T>(input: T | null | undefined): T {
 
   return input;
 }
+
