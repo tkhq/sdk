@@ -121,8 +121,12 @@ export async function executeTrade(
     to: SWAP_ROUTER_ADDRESS,
     value: methodParameters.value,
     from: address,
-    maxFeePerGas: feeData?.maxFeePerGas ? feeData?.maxFeePerGas *  GAS_MULTIPLIER : DEFAULT_MAX_FEE_PER_GAS,
-    maxPriorityFeePerGas: feeData?.maxPriorityFeePerGas ? feeData?.maxPriorityFeePerGas *  GAS_MULTIPLIER : DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
+    maxFeePerGas: feeData?.maxFeePerGas
+      ? feeData?.maxFeePerGas * GAS_MULTIPLIER
+      : DEFAULT_MAX_FEE_PER_GAS,
+    maxPriorityFeePerGas: feeData?.maxPriorityFeePerGas
+      ? feeData?.maxPriorityFeePerGas * GAS_MULTIPLIER
+      : DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
   };
 
   const swapTx = await connectedSigner.sendTransaction(tx);
@@ -167,7 +171,10 @@ async function getOutputQuote(
     data: calldata,
   });
 
-  return ethers.AbiCoder.defaultAbiCoder().decode(["uint256"], quoteCallReturnData);
+  return ethers.AbiCoder.defaultAbiCoder().decode(
+    ["uint256"],
+    quoteCallReturnData
+  );
 }
 
 export async function getTokenTransferApproval(

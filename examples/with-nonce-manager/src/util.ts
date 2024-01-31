@@ -21,21 +21,27 @@ export async function getUpdatedTransaction(
   const feeData = await provider.getFeeData();
 
   // Custom function to find the maximum of bigint values
-  const maxBigInt = (values: bigint[]): bigint => values.reduce((max: bigint, current: bigint) => current > max ? current : max, 0n);
+  const maxBigInt = (values: bigint[]): bigint =>
+    values.reduce(
+      (max: bigint, current: bigint) => (current > max ? current : max),
+      0n
+    );
 
   const maxFee = maxBigInt([
     BigInt(feeData.maxFeePerGas || 0),
     BigInt(transaction.maxFeePerGas || 0),
-    BigInt(DEFAULT_MAX_FEE_PER_GAS)
+    BigInt(DEFAULT_MAX_FEE_PER_GAS),
   ]);
 
   const maxPriorityFee = maxBigInt([
     BigInt(feeData.maxPriorityFeePerGas || 0),
     BigInt(transaction.maxPriorityFeePerGas || 0),
-    BigInt(DEFAULT_MAX_PRIORITY_FEE_PER_GAS)
+    BigInt(DEFAULT_MAX_PRIORITY_FEE_PER_GAS),
   ]);
 
-  const multiplier = BigInt(Math.round(parseFloat(DEFAULT_GAS_MULTIPLIER.toString()) * 100));
+  const multiplier = BigInt(
+    Math.round(parseFloat(DEFAULT_GAS_MULTIPLIER.toString()) * 100)
+  );
 
   const maxFeeMultiplied = (maxFee * multiplier) / 100n;
   const maxPriorityFeeMultiplied = (maxPriorityFee * multiplier) / 100n;

@@ -56,7 +56,6 @@
     "@turnkey/http": "workspace:*"
   },
   "devDependencies": {
-  
     "@nomicfoundation/hardhat-ethers": "3.0.5",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@openzeppelin/contracts": "^4.9.0",

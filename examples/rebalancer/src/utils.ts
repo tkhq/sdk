@@ -10,10 +10,7 @@ export enum Environment {
 const MAX_DECIMALS = 4;
 
 // fromReadableAmount converts whole amounts to atomic amounts
-export function fromReadableAmount(
-  amount: number,
-  decimals: number
-): bigint {
+export function fromReadableAmount(amount: number, decimals: number): bigint {
   return ethers.parseUnits(amount.toString(), decimals);
 }
 

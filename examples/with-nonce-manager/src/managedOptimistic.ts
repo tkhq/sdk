@@ -6,7 +6,12 @@ import * as fs from "fs";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeySigner } from "@turnkey/ethers";
-import { ethers, type TransactionRequest, type Provider, type Signer } from "ethers";
+import {
+  ethers,
+  type TransactionRequest,
+  type Provider,
+  type Signer,
+} from "ethers";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createNewWallet } from "./createNewWallet";
@@ -22,7 +27,8 @@ const fileName = "txs.json";
 async function initiate(signer: Signer) {
   const network = (await signer.provider?.getNetwork())?.name;
   const address = await signer.getAddress();
-  const transactionCount = await signer.provider?.getTransactionCount(address) ?? 0;
+  const transactionCount =
+    (await signer.provider?.getTransactionCount(address)) ?? 0;
 
   // Create a queue of simple send transactions, and also keep track of these transactions via a map, which is written to a local file.
   // This effectively serves as our state for this example. Then, optimistically broadcast the transactions.
@@ -60,9 +66,7 @@ async function initiate(signer: Signer) {
 function loadTxs(): Map<string, TransactionRequest> {
   const data = fs.readFileSync(fileName, { encoding: "utf8", flag: "r" });
   const parsed = JSON.parse(data);
-  const txMap = new Map<string, TransactionRequest>(
-    Object.entries(parsed)
-  );
+  const txMap = new Map<string, TransactionRequest>(Object.entries(parsed));
 
   console.log(`Successfully loaded transactions from ${fileName}\n`);
 
@@ -76,19 +80,16 @@ function saveTxs(txMap: Map<string, TransactionRequest>) {
   console.log(`Successfully wrote transactions to ${fileName}\n`);
 }
 
-async function monitor(
-  provider: Provider,
-  signer: Signer
-) {
+async function monitor(provider: Provider, signer: Signer) {
   const network = (await signer.provider?.getNetwork())?.name;
   const address = await signer.getAddress();
-  const transactionCount = await signer.provider?.getTransactionCount(address) ?? 0;
+  const transactionCount =
+    (await signer.provider?.getTransactionCount(address)) ?? 0;
   const startTime = Date.now();
   let nonce = transactionCount;
 
   // Load saved transactions from local file and fetch the highest nonce
-  const txMap: Map<string, TransactionRequest> =
-    await loadTxs();
+  const txMap: Map<string, TransactionRequest> = await loadTxs();
   const nonces = [...txMap.keys()].map((v) => parseInt(v));
   const finalExpectedNonce = Math.max(...nonces);
 
@@ -130,7 +131,7 @@ async function monitor(
     }
 
     // Fetch latest nonce
-    nonce = await signer.provider?.getTransactionCount(address) ?? 0;
+    nonce = (await signer.provider?.getTransactionCount(address)) ?? 0;
   }
 
   console.log("All transactions processed!");
@@ -167,8 +168,10 @@ async function main() {
 
   const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.provider?.getBalance(address) ?? 0;
-  const transactionCount = await connectedSigner.provider?.getTransactionCount(address);
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0;
+  const transactionCount = await connectedSigner.provider?.getTransactionCount(
+    address
+  );
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);

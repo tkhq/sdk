@@ -17,9 +17,7 @@ let provider = new ethers.InfuraProvider(
   process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY
 );
 
-export function getProvider(
-  env = Environment.GOERLI
-): Provider {
+export function getProvider(env = Environment.GOERLI): Provider {
   if (env !== Environment.GOERLI) {
     provider = new ethers.InfuraProvider(
       env,
@@ -32,9 +30,7 @@ export function getProvider(
 
 // getTurnkeySigner returns a TurnkeySigner connected to the passed-in Provider
 // (https://docs.ethers.org/v5/api/providers/)
-export function getTurnkeySigner(
-  provider: ethers.Provider
-): TurnkeySigner {
+export function getTurnkeySigner(provider: ethers.Provider): TurnkeySigner {
   const turnkeyClient = new TurnkeyClient(
     {
       baseUrl: process.env.BASE_URL!,

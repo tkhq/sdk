@@ -1,4 +1,13 @@
-import { Signature, Transaction, TransactionLike, TransactionRequest, hashMessage, resolveProperties, ethers, TransactionResponse } from "ethers";
+import {
+  Signature,
+  Transaction,
+  TransactionLike,
+  TransactionRequest,
+  hashMessage,
+  resolveProperties,
+  ethers,
+  TransactionResponse,
+} from "ethers";
 import { TurnkeyActivityError, TurnkeyRequestError } from "@turnkey/http";
 import type { TurnkeyClient } from "@turnkey/http";
 import {
@@ -8,7 +17,7 @@ import {
   AbstractSigner,
   isAddress,
   getAddress,
-  TypedDataEncoder
+  TypedDataEncoder,
 } from "ethers";
 
 type TConfig = {
@@ -133,11 +142,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
     return signedTx;
   }
 
-  async signTransaction(
-    transaction: TransactionRequest
-  ): Promise<string> {
-
-    const unsignedTx = await resolveProperties(transaction) as TransactionLike<string>;
+  async signTransaction(transaction: TransactionRequest): Promise<string> {
+    const unsignedTx = (await resolveProperties(
+      transaction
+    )) as TransactionLike<string>;
 
     // Mimic the behavior of ethers' `Wallet`:
     // - You don't need to pass in `tx.from`
@@ -154,8 +162,8 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
       delete unsignedTx.from;
     }
-    
-    const serializedTx = Transaction.from(unsignedTx).unsignedSerialized
+
+    const serializedTx = Transaction.from(unsignedTx).unsignedSerialized;
     const nonHexPrefixedSerializedTx = serializedTx.replace(/^0x/, "");
     const signedTx = await this._signTransactionWithErrorWrapping(
       nonHexPrefixedSerializedTx
@@ -216,7 +224,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         r: `0x${result.r}`,
         s: `0x${result.s}`,
         v: parseInt(result.v) + 27,
-      }).serialized
+      }).serialized;
 
       // Assemble the hex
       return assertNonNull(assembled);
@@ -247,27 +255,25 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
         return address ?? "";
       }
-    )
+    );
 
     return this._signMessageWithErrorWrapping(
-      TypedDataEncoder.hash(
-        populated.domain,
-        types,
-        populated.value
-      )
+      TypedDataEncoder.hash(populated.domain, types, populated.value)
     );
   }
 
   _signTypedData = this.signTypedData.bind(this);
 
-  override async sendTransaction(tx: TransactionRequest): Promise<TransactionResponse> {
+  override async sendTransaction(
+    tx: TransactionRequest
+  ): Promise<TransactionResponse> {
     // const provider = checkProvider(this, "sendTransaction");
-    if(!this.provider) {
-      throw "No provider found"
+    if (!this.provider) {
+      throw "No provider found";
     }
 
     const populatedTxn = await this.populateTransaction(tx);
-    
+
     const signedTxn = await this.signTransaction(populatedTxn);
 
     return await this.provider.broadcastTransaction(signedTxn);

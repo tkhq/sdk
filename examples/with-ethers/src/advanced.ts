@@ -45,9 +45,7 @@ async function main() {
   const baseMessage = "Hello Turnkey";
 
   // 1. Sign a raw hex message
-  const hexMessage = ethers.hexlify(
-    ethers.toUtf8Bytes(baseMessage)
-  );
+  const hexMessage = ethers.hexlify(ethers.toUtf8Bytes(baseMessage));
   let signature = await connectedSigner.signMessage(hexMessage);
   let recoveredAddress = ethers.verifyMessage(hexMessage, signature);
 

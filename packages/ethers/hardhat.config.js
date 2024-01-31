@@ -1,4 +1,4 @@
-require('@typechain/hardhat')
+require("@typechain/hardhat");
 require("@nomicfoundation/hardhat-ethers");
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -9,13 +9,13 @@ const config = {
     artifacts: "./src/__tests__/contracts/artifacts",
     cache: "./.cache",
   },
-    typechain: {
+  typechain: {
     outDir: "src/__tests__/typechain",
     target: "ethers-v6",
     alwaysGenerateOverloads: false,
     externalArtifacts: [],
     dontOverrideCompile: false,
-  }
+  },
 };
 
 module.exports = config;

@@ -8,7 +8,11 @@ import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import Safe, { EthersAdapter, SafeFactory, SafeAccountConfig } from '@safe-global/protocol-kit'
+import Safe, {
+  EthersAdapter,
+  SafeFactory,
+  SafeAccountConfig,
+} from "@safe-global/protocol-kit";
 import type { SafeTransactionDataPartial } from "@safe-global/safe-core-sdk-types";
 import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
 import { print } from "./util";
@@ -66,8 +70,10 @@ async function main() {
 
   for (let signer of [connectedSigner1, connectedSigner2, connectedSigner3]) {
     const address = await signer.getAddress();
-    const balance = await signer.provider?.getBalance(address) ?? 0;
-    const transactionCount = await signer.provider?.getTransactionCount(address);
+    const balance = (await signer.provider?.getBalance(address)) ?? 0;
+    const transactionCount = await signer.provider?.getTransactionCount(
+      address
+    );
 
     print("Address:", address);
     print("Balance:", `${ethers.formatEther(balance)} ETH`);
