@@ -6,7 +6,6 @@ import {
   hashMessage,
   resolveProperties,
   ethers,
-  TransactionResponse,
 } from "ethers";
 import { TurnkeyActivityError, TurnkeyRequestError } from "@turnkey/http";
 import type { TurnkeyClient } from "@turnkey/http";
@@ -263,6 +262,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   _signTypedData = this.signTypedData.bind(this);
+
 
 }
 
