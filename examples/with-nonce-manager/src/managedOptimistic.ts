@@ -6,7 +6,7 @@ import * as fs from "fs";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeySigner } from "@turnkey/ethers";
-import { ethers } from "ethers";
+import { ethers, type TransactionRequest, type Provider, type Signer } from "ethers";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createNewWallet } from "./createNewWallet";
@@ -19,14 +19,15 @@ import {
 
 const fileName = "txs.json";
 
-async function initiate(signer: ethers.Signer) {
+async function initiate(signer: Signer) {
   const network = (await signer.provider?.getNetwork())?.name;
-  const transactionCount = await signer.getTransactionCount();
+  const address = await signer.getAddress();
+  const transactionCount = await signer.provider?.getTransactionCount(address) ?? 0;
 
   // Create a queue of simple send transactions, and also keep track of these transactions via a map, which is written to a local file.
   // This effectively serves as our state for this example. Then, optimistically broadcast the transactions.
   const txQueue = [];
-  const txMap = new Map<string, ethers.providers.TransactionRequest>();
+  const txMap = new Map<string, TransactionRequest>();
   const numTxs = 3;
 
   for (let i = 0; i < numTxs; i++) {
@@ -35,7 +36,7 @@ async function initiate(signer: ethers.Signer) {
     const nonce = transactionCount + i;
     const transactionRequest = {
       to: destinationAddress,
-      value: ethers.utils.parseEther(transactionAmount),
+      value: ethers.parseEther(transactionAmount),
       type: 2,
       nonce: nonce, // manually specify the nonce
     };
@@ -46,7 +47,7 @@ async function initiate(signer: ethers.Signer) {
     const sendTx = await signer.sendTransaction(transactionRequest);
 
     print(
-      `Sent ${ethers.utils.formatEther(sendTx.value)} Ether to ${
+      `Sent ${ethers.formatEther(sendTx.value)} Ether to ${
         sendTx.to
       } with nonce ${nonce}:`,
       `https://${network}.etherscan.io/tx/${sendTx.hash}`
@@ -56,10 +57,10 @@ async function initiate(signer: ethers.Signer) {
   await saveTxs(txMap);
 }
 
-function loadTxs(): Map<string, ethers.providers.TransactionRequest> {
+function loadTxs(): Map<string, TransactionRequest> {
   const data = fs.readFileSync(fileName, { encoding: "utf8", flag: "r" });
   const parsed = JSON.parse(data);
-  const txMap = new Map<string, ethers.providers.TransactionRequest>(
+  const txMap = new Map<string, TransactionRequest>(
     Object.entries(parsed)
   );
 
@@ -68,7 +69,7 @@ function loadTxs(): Map<string, ethers.providers.TransactionRequest> {
   return txMap;
 }
 
-function saveTxs(txMap: Map<string, ethers.providers.TransactionRequest>) {
+function saveTxs(txMap: Map<string, TransactionRequest>) {
   const json = JSON.stringify(Object.fromEntries(txMap));
 
   fs.writeFileSync(fileName, json);
@@ -76,16 +77,17 @@ function saveTxs(txMap: Map<string, ethers.providers.TransactionRequest>) {
 }
 
 async function monitor(
-  provider: ethers.providers.Provider,
-  signer: ethers.Signer
+  provider: Provider,
+  signer: Signer
 ) {
   const network = (await signer.provider?.getNetwork())?.name;
-  const transactionCount = await signer.getTransactionCount();
+  const address = await signer.getAddress();
+  const transactionCount = await signer.provider?.getTransactionCount(address) ?? 0;
   const startTime = Date.now();
   let nonce = transactionCount;
 
   // Load saved transactions from local file and fetch the highest nonce
-  const txMap: Map<string, ethers.providers.TransactionRequest> =
+  const txMap: Map<string, TransactionRequest> =
     await loadTxs();
   const nonces = [...txMap.keys()].map((v) => parseInt(v));
   const finalExpectedNonce = Math.max(...nonces);
@@ -115,7 +117,7 @@ async function monitor(
         txMap.set(nonce.toString(), updatedTx);
 
         print(
-          `Updated transaction with nonce ${nonce} sent ${ethers.utils.formatEther(
+          `Updated transaction with nonce ${nonce} sent ${ethers.formatEther(
             sendTx.value
           )} Ether to ${sendTx.to}:`,
           `https://${network}.etherscan.io/tx/${sendTx.hash}`
@@ -128,7 +130,7 @@ async function monitor(
     }
 
     // Fetch latest nonce
-    nonce = await signer.getTransactionCount();
+    nonce = await signer.provider?.getTransactionCount(address) ?? 0;
   }
 
   console.log("All transactions processed!");
@@ -160,20 +162,20 @@ async function main() {
 
   // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
   const network = "goerli";
-  const provider = new ethers.providers.InfuraProvider(network);
+  const provider = new ethers.InfuraProvider(network);
   const connectedSigner = turnkeySigner.connect(provider);
 
-  const chainId = await connectedSigner.getChainId();
+  const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.getBalance();
-  const transactionCount = await connectedSigner.getTransactionCount();
+  const balance = await connectedSigner.provider?.getBalance(address) ?? 0;
+  const transactionCount = await connectedSigner.provider?.getTransactionCount(address);
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);
-  print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
+  print("Balance:", `${ethers.formatEther(balance)} Ether`);
   print("Transaction count:", `${transactionCount}`);
 
-  if (balance.isZero()) {
+  if (balance === 0) {
     let warningMessage =
       "The transactions won't be broadcasted because your account balance is zero.\n";
     if (network === "goerli") {
