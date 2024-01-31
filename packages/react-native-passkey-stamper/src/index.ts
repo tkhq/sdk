@@ -1,4 +1,4 @@
-import "./polyfills.ts";
+import "./polyfills";
 // Buffer is available in Node and react-native contexts but needs to be imported
 import { Buffer } from "buffer";
 import { Passkey } from "react-native-passkey";
