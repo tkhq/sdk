@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { FeeData, ethers } from "ethers";
+import { FeeData } from "ethers";
 import { isKeyOfObject } from "./utils";
 import {
   createPrivateKey,
@@ -286,8 +286,8 @@ async function sweepImpl() {
     const address = await connectedSigner.getAddress();
     const originalFeeData = await connectedSigner.provider?.getFeeData();
 
-    const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER : null;
-    const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER : null;
+    const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER : 0n;
+    const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER : 0n;
     const feeData = new FeeData(originalFeeData?.gasPrice, updatedMaxFeePerGas, updatedMaxPriorityFeePerGas);
     const gasRequired = feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) * TRANSFER_GAS_LIMIT : 0n
 
