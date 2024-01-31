@@ -23,8 +23,10 @@ const stampHeaderName = "X-Stamp-Webauthn";
 export type TPasskeyRegistrationConfig = {
   // The RPID ("Relying Party ID") for your app.
   // See https://github.com/f-23/react-native-passkey?tab=readme-ov-file#configuration to set this up.
-  rpId: string;
-  rpName: string;
+  rp: {
+    id: string;
+    name: string;
+  };
   // Properties for passkey display: user name and email will show up in the prompts
   user: {
     id: string;
@@ -40,8 +42,25 @@ export type TPasskeyRegistrationConfig = {
   timeout?: number;
   // Optional override for UV flag. Defaults to "preferred".
   userVerification?: UserVerificationRequirement;
-  // Optional list of credentials to pass. Defaults to empty
-  allowCredentials?: PublicKeyCredentialDescriptor[];
+  // Optional list of credentials to exclude from registration. Defaults to empty
+  excludeCredentials?: PublicKeyCredentialDescriptor[];
+  // Authenticator selection params
+  // Defaults if not passed:
+  // - authenticatorAttachment: undefined
+  //   (users can enroll yubikeys -- aka "cross-platform authenticator" -- or "platform" authenticator like faceID)
+  // - requireResidentKey: true
+  // - residentKey: "required"
+  // - userVerification: "preferred"
+  authenticatorSelection?: {
+    authenticatorAttachment?: string;
+    requireResidentKey?: boolean;
+    residentKey?: string;
+    userVerification?: string;
+  };
+  // Optional attestation param. Defaults to "none"
+  attestation?: string;
+  // Optional extensions. Defaults to empty.
+  extensions?: Record<string, unknown>;
 };
 
 export type TPasskeyStamperConfig = {
@@ -52,7 +71,7 @@ export type TPasskeyStamperConfig = {
   timeout?: number;
   // Optional override for UV flag. Defaults to "preferred".
   userVerification?: UserVerificationRequirement;
-  // Optional list of credentials to pass. Defaults to empty
+  // Optional list of credentials to pass. Defaults to empty.
   allowCredentials?: PublicKeyCredentialDescriptor[];
 };
 
@@ -63,33 +82,41 @@ const defaultUserVerification = "preferred";
  * Creates a passkey and returns authenticator params
  */
 export async function CreatePasskey(
-  config: TPasskeyRegistrationConfig
+  config: TPasskeyRegistrationConfig,
+  options?: {
+    withSecurityKey: boolean;
+  }
 ): Promise<TurnkeyAuthenticatorParams> {
-  const arr = new Uint8Array(32);
-  crypto.getRandomValues(arr);
-  // TODO: this is probably not right? Need to find the right way to encode random bytes into a string
-  const challenge = new TextDecoder("utf-8").decode(arr);
+  const challenge = config.challenge || getRandomChallenge();
 
-  const registrationResult = await Passkey.register({
-    challenge: challenge,
-    rp: {
-      id: config.rpId,
-      name: config.rpName,
+  const registrationResult = await Passkey.register(
+    {
+      challenge: challenge,
+      rp: config.rp,
+      user: config.user,
+      excludeCredentials: config.excludeCredentials || [],
+      authenticatorSelection: config.authenticatorSelection || {
+        requireResidentKey: true,
+        residentKey: "required",
+        userVerification: "preferred",
+      },
+      attestation: config.attestation || "none",
+      extensions: config.extensions || {},
+      // All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
+      // We only support ES256 and RS256, which are listed below
+      pubKeyCredParams: [
+        {
+          type: "public-key",
+          alg: -7,
+        },
+        {
+          type: "public-key",
+          alg: -257,
+        },
+      ],
     },
-    user: config.user,
-    // All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
-    // We only support ES256 and RS256, which are listed below
-    pubKeyCredParams: [
-      {
-        type: "public-key",
-        alg: -7,
-      },
-      {
-        type: "public-key",
-        alg: -257,
-      },
-    ],
-  });
+    options
+  );
 
   return {
     authenticatorName: config.authenticatorName,
@@ -98,6 +125,8 @@ export async function CreatePasskey(
       credentialId: registrationResult.id,
       clientDataJson: registrationResult.response.clientDataJSON,
       attestationObject: registrationResult.response.attestationObject,
+      // TODO: can we infer the transport from the registration result?
+      // In all honesty this isn't critical so we default to "hybrid" because that's the transport used by passkeys.
       transports: ["AUTHENTICATOR_TRANSPORT_HYBRID"],
     },
   };
@@ -153,4 +182,12 @@ function getChallengeFromPayload(payload: string): string {
   const hexString = Buffer.from(hashBuffer).toString("hex");
   const hexBuffer = Buffer.from(hexString, "utf8");
   return hexBuffer.toString("base64");
+}
+
+// Function to return 32 random bytes encoded as hex
+// The return value looks like "5e4c2c235fc876a9bef433506cf596f2f7db19a959e3e30c5a2d965ec149d40f"
+function getRandomChallenge(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Buffer.from(bytes).toString("hex");
 }
