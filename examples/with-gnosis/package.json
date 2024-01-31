@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@safe-global/protocol-kit": "^2.0.0",
-    "@safe-global/safe-core-sdk-types": "^1.9.0",
+    "@safe-global/safe-core-sdk-types": "^3.0.1",
     "@safe-global/safe-ethers-lib": "^1.9.2",
     "@turnkey/api-key-stamper": "workspace:^",
     "@turnkey/ethers": "workspace:*",
