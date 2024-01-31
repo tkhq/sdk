@@ -13,10 +13,7 @@ export enum TransactionState {
 }
 
 // fromReadableAmount converts whole amounts to atomic amounts
-export function fromReadableAmount(
-  amount: number,
-  decimals: number
-): bigint {
+export function fromReadableAmount(amount: number, decimals: number): bigint {
   return parseUnits(amount.toString(), decimals);
 }
 

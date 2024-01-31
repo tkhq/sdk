@@ -33,20 +33,24 @@ async function main() {
 
   // Initialize a Turnkey Signer
   const turnkeySigner = new TurnkeySigner({
-  client: turnkeyClient,
-  organizationId: process.env.ORGANIZATION_ID!,
-  signWith: process.env.SIGN_WITH!,
+    client: turnkeyClient,
+    organizationId: process.env.ORGANIZATION_ID!,
+    signWith: process.env.SIGN_WITH!,
   });
 
   // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
   const network = "goerli";
-  const provider = new ethers.JsonRpcProvider(`https://${network}.infura.io/v3/${process.env.INFURA_KEY}`);
-      const connectedSigner = turnkeySigner.connect(provider);
+  const provider = new ethers.JsonRpcProvider(
+    `https://${network}.infura.io/v3/${process.env.INFURA_KEY}`
+  );
+  const connectedSigner = turnkeySigner.connect(provider);
 
   const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.provider?.getBalance(address) ?? 0;
-  const transactionCount = await connectedSigner.provider?.getTransactionCount(address);
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0;
+  const transactionCount = await connectedSigner.provider?.getTransactionCount(
+    address
+  );
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);
@@ -69,7 +73,7 @@ async function main() {
     to: destinationAddress,
     value: ethers.parseEther(transactionAmount),
     type: 2,
-      };
+  };
 
   const signedTx = await connectedSigner.signTransaction(transactionRequest);
 

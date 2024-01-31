@@ -38,11 +38,13 @@ async function main() {
 
   // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
   const network = "goerli";
-  const connectedSigner = turnkeySigner.connect(new ethers.InfuraProvider(network));
+  const connectedSigner = turnkeySigner.connect(
+    new ethers.InfuraProvider(network)
+  );
 
   const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.provider?.getBalance(address) ?? 0;
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0;
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);
@@ -75,7 +77,6 @@ async function main() {
   print("Contract address", await contract.getAddress());
 
   const deploymentTransaction = await contract.deploymentTransaction();
-
 
   print(
     `Contract has been deployed:`,

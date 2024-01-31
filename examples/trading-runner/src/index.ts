@@ -278,7 +278,7 @@ async function wrapUnwrapImpl(baseAsset: string, baseAmount: string) {
     tradingPrivateKey!.privateKeyId
   );
 
-  const feeData = await connectedSigner.provider?.getFeeData()
+  const feeData = await connectedSigner.provider?.getFeeData();
   const metadata = ASSET_METADATA["WETH"];
   const tokenContract = new ethers.Contract(
     metadata!.token.address,
@@ -352,7 +352,7 @@ async function tradeImpl(
       "For Uniswap v2/v3 trades, native ETH must first be converted to WETH.\n"
     );
 
-    const feeData = await connectedSigner.provider?.getFeeData()
+    const feeData = await connectedSigner.provider?.getFeeData();
     const metadata = ASSET_METADATA["WETH"];
     const tokenContract = new ethers.Contract(
       metadata!.token.address,
@@ -451,7 +451,7 @@ async function tradeImpl(
   if (quoteAsset === "ETH") {
     console.log("Unwrapping WETH...\n");
 
-    const feeData = await connectedSigner.provider?.getFeeData()
+    const feeData = await connectedSigner.provider?.getFeeData();
     const metadata = ASSET_METADATA["WETH"];
     const tokenContract = new ethers.Contract(
       metadata!.token.address,
@@ -543,18 +543,30 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
   );
 
   const originalFeeData = await connectedSigner.provider?.getFeeData();
-  const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER : 0n;
-  const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER : 0n;
+  const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas
+    ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER
+    : 0n;
+  const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas
+    ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER
+    : 0n;
 
-  const feeData = new FeeData(originalFeeData?.gasPrice, updatedMaxFeePerGas, updatedMaxPriorityFeePerGas);
+  const feeData = new FeeData(
+    originalFeeData?.gasPrice,
+    updatedMaxFeePerGas,
+    updatedMaxPriorityFeePerGas
+  );
 
   if (asset === "ETH") {
     const address = await connectedSigner.getAddress();
-    const balance = await connectedSigner.provider?.getBalance(address) ?? 0n;
+    const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
     const sweepAmount = fromReadableAmount(parseFloat(amount), 18) || balance;
-    const gasRequired = feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) * NATIVE_TRANSFER_GAS_LIMIT : 0n
+    const gasRequired =
+      feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas
+        ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) *
+          NATIVE_TRANSFER_GAS_LIMIT
+        : 0n;
 
-    const finalAmount = sweepAmount - (gasRequired * 2n); // be relatively conservative with sweep amount to prevent overdraft
+    const finalAmount = sweepAmount - gasRequired * 2n; // be relatively conservative with sweep amount to prevent overdraft
 
     // make balance check to confirm we can make the trade
     if (finalAmount <= 0n) {

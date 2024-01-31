@@ -25,7 +25,8 @@ export async function broadcastTx(
     ].join("\n")
   );
 
-  const confirmations = await (await provider.getTransaction(txHash))?.confirmations() ?? 0;
+  const confirmations =
+    (await (await provider.getTransaction(txHash))?.confirmations()) ?? 0;
   if (confirmations > 0) {
     console.log(`Transaction ${txHash} has already been broadcasted\n`);
     return;
@@ -49,9 +50,9 @@ export async function sendEth(
   value: bigint,
   precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
-  const network = (await connectedSigner.provider?.getNetwork());
+  const network = await connectedSigner.provider?.getNetwork();
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.provider?.getBalance(address) ?? 0n;
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
 
   if (balance === 0n) {
     let warningMessage =
@@ -64,8 +65,11 @@ export async function sendEth(
     throw new Error(warningMessage);
   }
 
-  const feeData = precalculatedFeeData || await connectedSigner.provider?.getFeeData();
-  const gasRequired = ((feeData?.maxFeePerGas ?? 0n) + (feeData?.maxPriorityFeePerGas ?? 0n)) * NATIVE_TRANSFER_GAS_LIMIT;  
+  const feeData =
+    precalculatedFeeData || (await connectedSigner.provider?.getFeeData());
+  const gasRequired =
+    ((feeData?.maxFeePerGas ?? 0n) + (feeData?.maxPriorityFeePerGas ?? 0n)) *
+    NATIVE_TRANSFER_GAS_LIMIT;
 
   const totalCost = gasRequired + value;
 
@@ -123,9 +127,9 @@ export async function sendToken(
   tokenContract: ethers.Contract,
   precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
-  const network = (await connectedSigner.provider?.getNetwork());
+  const network = await connectedSigner.provider?.getNetwork();
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.provider?.getBalance(address) ?? 0n;
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
 
   if (balance === 0n) {
     let warningMessage =
@@ -138,8 +142,11 @@ export async function sendToken(
     throw new Error(warningMessage);
   }
 
-  const feeData = precalculatedFeeData || await connectedSigner.provider?.getFeeData();
-  const gasRequired = ((feeData?.maxFeePerGas ?? 0n) + (feeData?.maxPriorityFeePerGas ?? 0n)) * ERC20_TRANSFER_GAS_LIMIT;  
+  const feeData =
+    precalculatedFeeData || (await connectedSigner.provider?.getFeeData());
+  const gasRequired =
+    ((feeData?.maxFeePerGas ?? 0n) + (feeData?.maxPriorityFeePerGas ?? 0n)) *
+    ERC20_TRANSFER_GAS_LIMIT;
 
   if (balance < gasRequired) {
     throw new Error(
@@ -148,14 +155,14 @@ export async function sendToken(
   }
 
   // check token balance
-  const tokenBalance: bigint = await tokenContract.balanceOf?.(address) ?? 0n;
+  const tokenBalance: bigint = (await tokenContract.balanceOf?.(address)) ?? 0n;
 
   if (tokenBalance < value) {
     throw new Error(
       `Insufficient funds to perform this trade. Have: ${tokenBalance} ${token.symbol}; Need: ${value} ${token.symbol}.`
     );
   }
-  
+
   if (!tokenContract.transfer?.populateTransaction) {
     throw new Error("Invalid contract call. Exiting...\n");
   }
@@ -203,9 +210,9 @@ export async function wrapEth(
   tokenContract: ethers.Contract,
   precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
-  const network = (await connectedSigner.provider?.getNetwork());
+  const network = await connectedSigner.provider?.getNetwork();
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.provider?.getBalance(address) ?? 0n;
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
 
   if (balance === 0n) {
     let warningMessage =
@@ -218,8 +225,11 @@ export async function wrapEth(
     throw new Error(warningMessage);
   }
 
-  const feeData = precalculatedFeeData || await connectedSigner.provider?.getFeeData();
-  const gasRequired = ((feeData?.maxFeePerGas ?? 0n) + (feeData?.maxPriorityFeePerGas ?? 0n)) * ERC20_TRANSFER_GAS_LIMIT;  
+  const feeData =
+    precalculatedFeeData || (await connectedSigner.provider?.getFeeData());
+  const gasRequired =
+    ((feeData?.maxFeePerGas ?? 0n) + (feeData?.maxPriorityFeePerGas ?? 0n)) *
+    ERC20_TRANSFER_GAS_LIMIT;
   const totalCost = gasRequired + value;
 
   if (balance < totalCost) {
@@ -228,11 +238,7 @@ export async function wrapEth(
         balance.toString(),
         18,
         12
-      )}. Needs ${toReadableAmount(
-        totalCost.toString(),
-        18,
-        12
-      )} ETH.`
+      )}. Needs ${toReadableAmount(totalCost.toString(), 18, 12)} ETH.`
     );
   }
 
@@ -242,11 +248,7 @@ export async function wrapEth(
         balance.toString(),
         18,
         12
-      )} ETH; Need: ${toReadableAmount(
-        totalCost.toString(),
-        18,
-        12
-      )} ETH.`
+      )} ETH; Need: ${toReadableAmount(totalCost.toString(), 18, 12)} ETH.`
     );
   }
 
@@ -290,9 +292,9 @@ export async function unwrapWeth(
   precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
   const provider = connectedSigner.provider!;
-  const network = (await connectedSigner.provider?.getNetwork());
+  const network = await connectedSigner.provider?.getNetwork();
   const address = await connectedSigner.getAddress();
-  const balance = await provider?.getBalance(address) ?? 0n;
+  const balance = (await provider?.getBalance(address)) ?? 0n;
 
   if (balance === 0n) {
     let warningMessage =
@@ -305,9 +307,12 @@ export async function unwrapWeth(
     throw new Error(warningMessage);
   }
 
-  const feeData = precalculatedFeeData || await connectedSigner.provider?.getFeeData();
-  const gasRequired = ((feeData?.maxFeePerGas ?? 0n) + (feeData?.maxPriorityFeePerGas ?? 0n)) * ERC20_TRANSFER_GAS_LIMIT;  
-  const totalCost = gasRequired + value
+  const feeData =
+    precalculatedFeeData || (await connectedSigner.provider?.getFeeData());
+  const gasRequired =
+    ((feeData?.maxFeePerGas ?? 0n) + (feeData?.maxPriorityFeePerGas ?? 0n)) *
+    ERC20_TRANSFER_GAS_LIMIT;
+  const totalCost = gasRequired + value;
 
   if (balance < gasRequired) {
     throw new Error(
@@ -315,11 +320,7 @@ export async function unwrapWeth(
         balance.toString(),
         18,
         12
-      )}. Needs ${toReadableAmount(
-        totalCost.toString(),
-        18,
-        12
-      )} ETH for gas.`
+      )}. Needs ${toReadableAmount(totalCost.toString(), 18, 12)} ETH for gas.`
     );
   }
 

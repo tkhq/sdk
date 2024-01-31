@@ -19,7 +19,8 @@ export async function broadcastTx(
     ].join("\n")
   );
 
-  const confirmations = await (await provider.getTransaction(txHash))?.confirmations() ?? 0;
+  const confirmations =
+    (await (await provider.getTransaction(txHash))?.confirmations()) ?? 0;
   if (confirmations > 0) {
     console.log(`Transaction ${txHash} has already been broadcasted\n`);
     return;
@@ -43,9 +44,9 @@ export async function sendEth(
   value: bigint,
   precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
-  const network = (await connectedSigner.provider?.getNetwork());
+  const network = await connectedSigner.provider?.getNetwork();
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.provider?.getBalance(address) ?? 0n;
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
 
   print("Address:", address);
   print("Balance:", `${ethers.formatEther(balance)} Ether`);
@@ -61,8 +62,11 @@ export async function sendEth(
     throw new Error(warningMessage);
   }
 
-  const feeData = precalculatedFeeData || await connectedSigner.provider?.getFeeData();
-  const gasRequired = ((feeData?.maxFeePerGas ?? 0n) + (feeData?.maxPriorityFeePerGas ?? 0n)) * 21000n;  
+  const feeData =
+    precalculatedFeeData || (await connectedSigner.provider?.getFeeData());
+  const gasRequired =
+    ((feeData?.maxFeePerGas ?? 0n) + (feeData?.maxPriorityFeePerGas ?? 0n)) *
+    21000n;
 
   const totalCost = gasRequired + value;
 
@@ -84,7 +88,7 @@ export async function sendEth(
 
     console.log(`Awaiting confirmation for tx hash ${sentTx.hash}...\n`);
     await connectedSigner.provider?.waitForTransaction(sentTx.hash, 1);
-    const networkName = await connectedSigner.provider?.getNetwork()
+    const networkName = await connectedSigner.provider?.getNetwork();
 
     print(
       `Sent ${toReadableAmount(

@@ -19,8 +19,10 @@ async function main() {
   const network = await provider.getNetwork();
   const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.provider?.getBalance(address) ?? 0;
-  const transactionCount = await connectedSigner.provider?.getTransactionCount(address);
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0;
+  const transactionCount = await connectedSigner.provider?.getTransactionCount(
+    address
+  );
 
   // Print relevant config + address info
   print("Network:", `${network.name} (chain ID ${chainId})`);

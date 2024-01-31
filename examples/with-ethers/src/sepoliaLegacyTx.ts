@@ -42,11 +42,14 @@ async function main() {
   const provider = new ethers.InfuraProvider(network);
   const connectedSigner = turnkeySigner.connect(provider);
 
-  const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? "58008" // sepolia;
+  const chainId =
+    (await connectedSigner.provider?.getNetwork())?.chainId ?? "58008"; // sepolia;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.provider?.getBalance(address) ?? 0;
-  const nonce = await connectedSigner.getNonce() ?? 0;
-  const { gasPrice } = await connectedSigner.provider?.getFeeData() ?? {gasPrice: 0};
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0;
+  const nonce = (await connectedSigner.getNonce()) ?? 0;
+  const { gasPrice } = (await connectedSigner.provider?.getFeeData()) ?? {
+    gasPrice: 0,
+  };
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);

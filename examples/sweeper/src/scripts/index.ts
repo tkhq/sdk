@@ -30,7 +30,7 @@ async function main() {
   const network = await provider.getNetwork();
   const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0n;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.provider?.getBalance(address) ?? 0n;
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
   const destinationAddress = "0x2Ad9eA1E677949a536A270CEC812D6e868C88108";
 
   print("Network:", `${network.name} (chain ID ${chainId})`);
@@ -76,7 +76,7 @@ async function sweepTokens(
 ) {
   for (let t of tokens) {
     let contract = new ethers.Contract(t.address, ERC20_ABI, connectedSigner);
-    let balance: bigint = await contract.balanceOf?.(address) ?? 0n;
+    let balance: bigint = (await contract.balanceOf?.(address)) ?? 0n;
 
     if (balance === 0n) {
       console.warn(`No balance for ${t.symbol}. Skipping...`);
@@ -122,10 +122,12 @@ async function sweepEth(
   destinationAddress: string
 ) {
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.provider?.getBalance(address) ?? 0n;
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
 
   const feeData = await connectedSigner.provider?.getFeeData();
-  const gasRequired = feeData?.maxFeePerGas ? feeData?.maxFeePerGas * 21000n : 0n;
+  const gasRequired = feeData?.maxFeePerGas
+    ? feeData?.maxFeePerGas * 21000n
+    : 0n;
   const value = balance - gasRequired;
 
   if (value <= 0) {

@@ -5,7 +5,7 @@ import { test, expect, beforeEach, describe } from "@jest/globals";
 import { TurnkeySigner, TurnkeyActivityError } from "../";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import {  Test721__factory as Test721Factory } from './typechain-types'
+import { Test721__factory as Test721Factory } from "./typechain-types";
 import type { EthereumProvider } from "hardhat/types";
 
 // @ts-expect-error
@@ -107,14 +107,11 @@ describe("TurnkeySigner", () => {
 
         chainId = (await connectedSigner.provider!.getNetwork()).chainId;
 
-        eip1193 = hre.network.provider
+        eip1193 = hre.network.provider;
 
-        setBalance(
-          signingConfig.expectedEthAddress,
-          parseEther("999999")
-        );
+        setBalance(signingConfig.expectedEthAddress, parseEther("999999"));
       });
-      
+
       testCase("basics for connected signer", async () => {
         expect(connectedSigner.signMessage).toBeTruthy();
         expect(await connectedSigner.getAddress()).toBe(
@@ -187,7 +184,7 @@ describe("TurnkeySigner", () => {
           to: "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
           value: parseEther("2"),
           type: 2,
-                  });
+        });
 
         const receipt = await tx.wait();
 
@@ -212,7 +209,6 @@ describe("TurnkeySigner", () => {
               type: 2,
             });
           } catch (error) {
-
             expect(error).toBeInstanceOf(TurnkeyActivityError);
 
             const { message, cause, activityId, activityStatus, activityType } =
@@ -244,9 +240,9 @@ describe("TurnkeySigner", () => {
         const signMessageSignature = await connectedSigner.signMessage(message);
 
         expect(signMessageSignature).toMatch(/^0x/);
-        expect(
-          verifyMessage(message, signMessageSignature)
-        ).toEqual(signingConfig.expectedEthAddress);
+        expect(verifyMessage(message, signMessageSignature)).toEqual(
+          signingConfig.expectedEthAddress
+        );
       });
 
       testCase("it signs typed data (EIP-712)", async () => {
@@ -319,11 +315,11 @@ describe("TurnkeySigner", () => {
 
       // Use `pnpm run compile:contracts` to update the ABI if needed
       testCase("ERC-721", async () => {
-        const contract = await new Test721Factory(connectedSigner).deploy()
+        const contract = await new Test721Factory(connectedSigner).deploy();
 
         const deploymentAddress = await contract.getAddress();
         const deploymentTransaction = await contract.deploymentTransaction();
-        
+
         expect(deploymentAddress).toMatch(/^0x/);
         expect(deploymentTransaction?.from).toEqual(
           signingConfig.expectedEthAddress

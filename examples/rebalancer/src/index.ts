@@ -282,14 +282,27 @@ async function sweepImpl() {
   for (const pk of shortTermStoragePrivateKeys!) {
     const provider = getProvider();
     const connectedSigner = getTurnkeySigner(provider, pk.privateKeyId);
-    const balance = await connectedSigner.provider?.getBalance(ethAddress.address) ?? 0n;
+    const balance =
+      (await connectedSigner.provider?.getBalance(ethAddress.address)) ?? 0n;
     const address = await connectedSigner.getAddress();
     const originalFeeData = await connectedSigner.provider?.getFeeData();
 
-    const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER : 0n;
-    const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER : 0n;
-    const feeData = new FeeData(originalFeeData?.gasPrice, updatedMaxFeePerGas, updatedMaxPriorityFeePerGas);
-    const gasRequired = feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) * TRANSFER_GAS_LIMIT : 0n
+    const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas
+      ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER
+      : 0n;
+    const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas
+      ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER
+      : 0n;
+    const feeData = new FeeData(
+      originalFeeData?.gasPrice,
+      updatedMaxFeePerGas,
+      updatedMaxPriorityFeePerGas
+    );
+    const gasRequired =
+      feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas
+        ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) *
+          TRANSFER_GAS_LIMIT
+        : 0n;
 
     if (balance < SWEEP_THRESHOLD) {
       console.log(
@@ -298,7 +311,7 @@ async function sweepImpl() {
       continue;
     }
 
-    const sweepAmount = balance - (gasRequired * 2n); // be relatively conservative with sweep amount to prevent overdraft
+    const sweepAmount = balance - gasRequired * 2n; // be relatively conservative with sweep amount to prevent overdraft
 
     if (sweepAmount === 0n) {
       console.log(
@@ -307,12 +320,7 @@ async function sweepImpl() {
       continue;
     }
 
-    await sendEth(
-      connectedSigner,
-      ethAddress.address,
-      sweepAmount,
-      feeData
-    );
+    await sendEth(connectedSigner, ethAddress.address, sweepAmount, feeData);
   }
 }
 
@@ -362,28 +370,36 @@ async function recycleImpl() {
     );
   }
 
-  const balance = await connectedSigner.provider?.getBalance(ethAddress.address) ?? 0n;
+  const balance =
+    (await connectedSigner.provider?.getBalance(ethAddress.address)) ?? 0n;
 
   const originalFeeData = await connectedSigner.provider?.getFeeData();
 
-  const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER : null;
-  const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER : null;
-  const feeData = new FeeData(originalFeeData?.gasPrice, updatedMaxFeePerGas, updatedMaxPriorityFeePerGas);
-  const gasRequired = feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) * TRANSFER_GAS_LIMIT : 0n
+  const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas
+    ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER
+    : null;
+  const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas
+    ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER
+    : null;
+  const feeData = new FeeData(
+    originalFeeData?.gasPrice,
+    updatedMaxFeePerGas,
+    updatedMaxPriorityFeePerGas
+  );
+  const gasRequired =
+    feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas
+      ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) *
+        TRANSFER_GAS_LIMIT
+      : 0n;
 
-  const recycleAmount = balance - (gasRequired * 2n); // be relatively conservative with sweep amount to prevent overdraft
+  const recycleAmount = balance - gasRequired * 2n; // be relatively conservative with sweep amount to prevent overdraft
 
   if (recycleAmount <= 0n) {
     console.log("Insufficient balance for recycle...");
     return;
   }
 
-  await sendEth(
-    connectedSigner,
-    ethAddress.address,
-    recycleAmount,
-    feeData
-  );
+  await sendEth(connectedSigner, ethAddress.address, recycleAmount, feeData);
 }
 
 // two approaches:
