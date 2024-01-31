@@ -1,4 +1,6 @@
-/// <reference lib="dom" />
+import "./polyfills.ts";
+// Buffer is available in Node and react-native contexts but needs to be imported
+import { Buffer } from "buffer";
 import { Passkey } from "react-native-passkey";
 import { sha256 } from "@noble/hashes/sha256";
 import type { TurnkeyApiTypes } from "@turnkey/http";
@@ -147,8 +149,7 @@ export class PasskeyStamper {
 
 // Needs to return a base64-encoded string
 function getChallengeFromPayload(payload: string): string {
-  const messageBuffer = new TextEncoder().encode(payload);
-  const hashBuffer = sha256(messageBuffer);
+  const hashBuffer = sha256(payload);
   const hexString = Buffer.from(hashBuffer).toString("hex");
   const hexBuffer = Buffer.from(hexString, "utf8");
   return hexBuffer.toString("base64");

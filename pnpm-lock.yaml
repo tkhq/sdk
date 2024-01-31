@@ -672,9 +672,15 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
+      react-native-get-random-values:
+        specifier: ^1.10.0
+        version: 1.10.0(react-native@0.73.3)
       react-native-passkey:
         specifier: ^2.1.1
         version: 2.1.1(react-native@0.73.3)(react@18.2.0)
+      text-encoding-polyfill:
+        specifier: ^0.6.7
+        version: 0.6.7
 
   packages/solana:
     dependencies:
@@ -8866,6 +8872,10 @@ packages:
     engines: {node: '> 0.1.90'}
     dev: false
 
+  /fast-base64-decode@1.0.0:
+    resolution: {integrity: sha512-qwaScUgUGBYeDNRnbc/KyllVU88Jk1pRHPStuF/lO7B0/RTRLj7U0lkdTAutlBblY08rwZDff6tNU9cjv6j//Q==}
+    dev: false
+
   /fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
     dev: false
@@ -12029,6 +12039,15 @@ packages:
   /react-is@18.2.0:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
 
+  /react-native-get-random-values@1.10.0(react-native@0.73.3):
+    resolution: {integrity: sha512-gZ1zbXhbb8+Jy9qYTV8c4Nf45/VB4g1jmXuavY5rPfUn7x3ok9Vl3FTl0dnE92Z4FFtfbUNNwtSfcmomdtWg+A==}
+    peerDependencies:
+      react-native: '>=0.56'
+    dependencies:
+      fast-base64-decode: 1.0.0
+      react-native: 0.73.3(@babel/core@7.22.20)(@babel/preset-env@7.20.2)(react@18.2.0)
+    dev: false
+
   /react-native-passkey@2.1.1(react-native@0.73.3)(react@18.2.0):
     resolution: {integrity: sha512-/SBlL+8aJOiAAyO4jmRhJAxo1LklMpjQijLyl1jZlt9bKtRnh4Uz94z7AYouBR2anTB+DaEycLIhunG7h8Xbwg==}
     peerDependencies:
@@ -12967,6 +12986,10 @@ packages:
       '@istanbuljs/schema': 0.1.3
       glob: 7.2.3
       minimatch: 3.1.2
+
+  /text-encoding-polyfill@0.6.7:
+    resolution: {integrity: sha512-/DZ1XJqhbqRkCop6s9ZFu8JrFRwmVuHg4quIRm+ziFkR3N3ec6ck6yBvJ1GYeEQZhLVwRW0rZE+C3SSJpy0RTg==}
+    dev: false
 
   /text-encoding-utf-8@1.0.2:
     resolution: {integrity: sha512-8bw4MY9WjdsD2aMtO0OzOCY3pXGYNx2d2FfHRVUKkiCPDWjKuOlhLVASS+pD7VkLTVjW268LYJHwsnPFlBpbAg==}
