@@ -54,262 +54,484 @@ export class TurnkeySDKClient {
 
 
 	getActivity = async (input: SdkApiTypes.TGetActivityBody): Promise<SdkApiTypes.TGetActivityResponse> => {
-        return this.request("/public/v1/query/get_activity", input);
-      }
+    return this.request("/public/v1/query/get_activity", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getApiKey = async (input: SdkApiTypes.TGetApiKeyBody): Promise<SdkApiTypes.TGetApiKeyResponse> => {
-        return this.request("/public/v1/query/get_api_key", input);
-      }
+    return this.request("/public/v1/query/get_api_key", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getApiKeys = async (input: SdkApiTypes.TGetApiKeysBody): Promise<SdkApiTypes.TGetApiKeysResponse> => {
-        return this.request("/public/v1/query/get_api_keys", input);
-      }
+    return this.request("/public/v1/query/get_api_keys", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getAuthenticator = async (input: SdkApiTypes.TGetAuthenticatorBody): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
-        return this.request("/public/v1/query/get_authenticator", input);
-      }
+    return this.request("/public/v1/query/get_authenticator", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getAuthenticators = async (input: SdkApiTypes.TGetAuthenticatorsBody): Promise<SdkApiTypes.TGetAuthenticatorsResponse> => {
-        return this.request("/public/v1/query/get_authenticators", input);
-      }
+    return this.request("/public/v1/query/get_authenticators", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getOrganization = async (input: SdkApiTypes.TGetOrganizationBody): Promise<SdkApiTypes.TGetOrganizationResponse> => {
-        return this.request("/public/v1/query/get_organization", input);
-      }
+    return this.request("/public/v1/query/get_organization", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getPolicy = async (input: SdkApiTypes.TGetPolicyBody): Promise<SdkApiTypes.TGetPolicyResponse> => {
-        return this.request("/public/v1/query/get_policy", input);
-      }
+    return this.request("/public/v1/query/get_policy", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getPrivateKey = async (input: SdkApiTypes.TGetPrivateKeyBody): Promise<SdkApiTypes.TGetPrivateKeyResponse> => {
-        return this.request("/public/v1/query/get_private_key", input);
-      }
+    return this.request("/public/v1/query/get_private_key", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getUser = async (input: SdkApiTypes.TGetUserBody): Promise<SdkApiTypes.TGetUserResponse> => {
-        return this.request("/public/v1/query/get_user", input);
-      }
+    return this.request("/public/v1/query/get_user", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getWallet = async (input: SdkApiTypes.TGetWalletBody): Promise<SdkApiTypes.TGetWalletResponse> => {
-        return this.request("/public/v1/query/get_wallet", input);
-      }
+    return this.request("/public/v1/query/get_wallet", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getActivities = async (input: SdkApiTypes.TGetActivitiesBody): Promise<SdkApiTypes.TGetActivitiesResponse> => {
-        return this.request("/public/v1/query/list_activities", input);
-      }
+    return this.request("/public/v1/query/list_activities", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getPolicies = async (input: SdkApiTypes.TGetPoliciesBody): Promise<SdkApiTypes.TGetPoliciesResponse> => {
-        return this.request("/public/v1/query/list_policies", input);
-      }
+    return this.request("/public/v1/query/list_policies", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	listPrivateKeyTags = async (input: SdkApiTypes.TListPrivateKeyTagsBody): Promise<SdkApiTypes.TListPrivateKeyTagsResponse> => {
-        return this.request("/public/v1/query/list_private_key_tags", input);
-      }
+    return this.request("/public/v1/query/list_private_key_tags", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getPrivateKeys = async (input: SdkApiTypes.TGetPrivateKeysBody): Promise<SdkApiTypes.TGetPrivateKeysResponse> => {
-        return this.request("/public/v1/query/list_private_keys", input);
-      }
+    return this.request("/public/v1/query/list_private_keys", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	listUserTags = async (input: SdkApiTypes.TListUserTagsBody): Promise<SdkApiTypes.TListUserTagsResponse> => {
-        return this.request("/public/v1/query/list_user_tags", input);
-      }
+    return this.request("/public/v1/query/list_user_tags", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getUsers = async (input: SdkApiTypes.TGetUsersBody): Promise<SdkApiTypes.TGetUsersResponse> => {
-        return this.request("/public/v1/query/list_users", input);
-      }
+    return this.request("/public/v1/query/list_users", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getWalletAccounts = async (input: SdkApiTypes.TGetWalletAccountsBody): Promise<SdkApiTypes.TGetWalletAccountsResponse> => {
-        return this.request("/public/v1/query/list_wallet_accounts", input);
-      }
+    return this.request("/public/v1/query/list_wallet_accounts", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getWallets = async (input: SdkApiTypes.TGetWalletsBody): Promise<SdkApiTypes.TGetWalletsResponse> => {
-        return this.request("/public/v1/query/list_wallets", input);
-      }
+    return this.request("/public/v1/query/list_wallets", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	getWhoami = async (input: SdkApiTypes.TGetWhoamiBody): Promise<SdkApiTypes.TGetWhoamiResponse> => {
-        return this.request("/public/v1/query/whoami", input);
-      }
+    return this.request("/public/v1/query/whoami", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }
 
 
 	approveActivity = async (input: SdkApiTypes.TApproveActivityBody): Promise<SdkApiTypes.TApproveActivityResponse> => {
-        return this.request("/public/v1/submit/approve_activity", input);
-      }
+    return this.request("/public/v1/submit/approve_activity", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_APPROVE_ACTIVITY"
+    });
+  }
 
 
 	createApiKeys = async (input: SdkApiTypes.TCreateApiKeysBody): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
-        return this.request("/public/v1/submit/create_api_keys", input);
-      }
+    return this.request("/public/v1/submit/create_api_keys", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_API_KEYS"
+    });
+  }
 
 
 	createApiOnlyUsers = async (input: SdkApiTypes.TCreateApiOnlyUsersBody): Promise<SdkApiTypes.TCreateApiOnlyUsersResponse> => {
-        return this.request("/public/v1/submit/create_api_only_users", input);
-      }
+    return this.request("/public/v1/submit/create_api_only_users", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS"
+    });
+  }
 
 
 	createAuthenticators = async (input: SdkApiTypes.TCreateAuthenticatorsBody): Promise<SdkApiTypes.TCreateAuthenticatorsResponse> => {
-        return this.request("/public/v1/submit/create_authenticators", input);
-      }
+    return this.request("/public/v1/submit/create_authenticators", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS"
+    });
+  }
 
 
 	createInvitations = async (input: SdkApiTypes.TCreateInvitationsBody): Promise<SdkApiTypes.TCreateInvitationsResponse> => {
-        return this.request("/public/v1/submit/create_invitations", input);
-      }
+    return this.request("/public/v1/submit/create_invitations", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_INVITATIONS"
+    });
+  }
 
 
 	createPolicy = async (input: SdkApiTypes.TCreatePolicyBody): Promise<SdkApiTypes.TCreatePolicyResponse> => {
-        return this.request("/public/v1/submit/create_policy", input);
-      }
+    return this.request("/public/v1/submit/create_policy", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_POLICY"
+    });
+  }
 
 
 	createPrivateKeyTag = async (input: SdkApiTypes.TCreatePrivateKeyTagBody): Promise<SdkApiTypes.TCreatePrivateKeyTagResponse> => {
-        return this.request("/public/v1/submit/create_private_key_tag", input);
-      }
+    return this.request("/public/v1/submit/create_private_key_tag", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"
+    });
+  }
 
 
 	createPrivateKeys = async (input: SdkApiTypes.TCreatePrivateKeysBody): Promise<SdkApiTypes.TCreatePrivateKeysResponse> => {
-        return this.request("/public/v1/submit/create_private_keys", input);
-      }
+    return this.request("/public/v1/submit/create_private_keys", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"
+    });
+  }
 
 
 	createSubOrganization = async (input: SdkApiTypes.TCreateSubOrganizationBody): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
-        return this.request("/public/v1/submit/create_sub_organization", input);
-      }
+    return this.request("/public/v1/submit/create_sub_organization", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"
+    });
+  }
 
 
 	createUserTag = async (input: SdkApiTypes.TCreateUserTagBody): Promise<SdkApiTypes.TCreateUserTagResponse> => {
-        return this.request("/public/v1/submit/create_user_tag", input);
-      }
+    return this.request("/public/v1/submit/create_user_tag", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_USER_TAG"
+    });
+  }
 
 
 	createUsers = async (input: SdkApiTypes.TCreateUsersBody): Promise<SdkApiTypes.TCreateUsersResponse> => {
-        return this.request("/public/v1/submit/create_users", input);
-      }
+    return this.request("/public/v1/submit/create_users", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_USERS"
+    });
+  }
 
 
 	createWallet = async (input: SdkApiTypes.TCreateWalletBody): Promise<SdkApiTypes.TCreateWalletResponse> => {
-        return this.request("/public/v1/submit/create_wallet", input);
-      }
+    return this.request("/public/v1/submit/create_wallet", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_WALLET"
+    });
+  }
 
 
 	createWalletAccounts = async (input: SdkApiTypes.TCreateWalletAccountsBody): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
-        return this.request("/public/v1/submit/create_wallet_accounts", input);
-      }
+    return this.request("/public/v1/submit/create_wallet_accounts", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"
+    });
+  }
 
 
 	deleteApiKeys = async (input: SdkApiTypes.TDeleteApiKeysBody): Promise<SdkApiTypes.TDeleteApiKeysResponse> => {
-        return this.request("/public/v1/submit/delete_api_keys", input);
-      }
+    return this.request("/public/v1/submit/delete_api_keys", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_API_KEYS"
+    });
+  }
 
 
 	deleteAuthenticators = async (input: SdkApiTypes.TDeleteAuthenticatorsBody): Promise<SdkApiTypes.TDeleteAuthenticatorsResponse> => {
-        return this.request("/public/v1/submit/delete_authenticators", input);
-      }
+    return this.request("/public/v1/submit/delete_authenticators", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS"
+    });
+  }
 
 
 	deleteInvitation = async (input: SdkApiTypes.TDeleteInvitationBody): Promise<SdkApiTypes.TDeleteInvitationResponse> => {
-        return this.request("/public/v1/submit/delete_invitation", input);
-      }
+    return this.request("/public/v1/submit/delete_invitation", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_INVITATION"
+    });
+  }
 
 
 	deletePolicy = async (input: SdkApiTypes.TDeletePolicyBody): Promise<SdkApiTypes.TDeletePolicyResponse> => {
-        return this.request("/public/v1/submit/delete_policy", input);
-      }
+    return this.request("/public/v1/submit/delete_policy", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_POLICY"
+    });
+  }
 
 
 	emailAuth = async (input: SdkApiTypes.TEmailAuthBody): Promise<SdkApiTypes.TEmailAuthResponse> => {
-        return this.request("/public/v1/submit/email_auth", input);
-      }
+    return this.request("/public/v1/submit/email_auth", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_EMAIL_AUTH"
+    });
+  }
 
 
 	exportPrivateKey = async (input: SdkApiTypes.TExportPrivateKeyBody): Promise<SdkApiTypes.TExportPrivateKeyResponse> => {
-        return this.request("/public/v1/submit/export_private_key", input);
-      }
+    return this.request("/public/v1/submit/export_private_key", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"
+    });
+  }
 
 
 	exportWallet = async (input: SdkApiTypes.TExportWalletBody): Promise<SdkApiTypes.TExportWalletResponse> => {
-        return this.request("/public/v1/submit/export_wallet", input);
-      }
+    return this.request("/public/v1/submit/export_wallet", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_EXPORT_WALLET"
+    });
+  }
 
 
 	exportWalletAccount = async (input: SdkApiTypes.TExportWalletAccountBody): Promise<SdkApiTypes.TExportWalletAccountResponse> => {
-        return this.request("/public/v1/submit/export_wallet_account", input);
-      }
+    return this.request("/public/v1/submit/export_wallet_account", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"
+    });
+  }
 
 
 	initUserEmailRecovery = async (input: SdkApiTypes.TInitUserEmailRecoveryBody): Promise<SdkApiTypes.TInitUserEmailRecoveryResponse> => {
-        return this.request("/public/v1/submit/init_user_email_recovery", input);
-      }
+    return this.request("/public/v1/submit/init_user_email_recovery", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY"
+    });
+  }
 
 
 	recoverUser = async (input: SdkApiTypes.TRecoverUserBody): Promise<SdkApiTypes.TRecoverUserResponse> => {
-        return this.request("/public/v1/submit/recover_user", input);
-      }
+    return this.request("/public/v1/submit/recover_user", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_RECOVER_USER"
+    });
+  }
 
 
 	rejectActivity = async (input: SdkApiTypes.TRejectActivityBody): Promise<SdkApiTypes.TRejectActivityResponse> => {
-        return this.request("/public/v1/submit/reject_activity", input);
-      }
+    return this.request("/public/v1/submit/reject_activity", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_REJECT_ACTIVITY"
+    });
+  }
 
 
 	removeOrganizationFeature = async (input: SdkApiTypes.TRemoveOrganizationFeatureBody): Promise<SdkApiTypes.TRemoveOrganizationFeatureResponse> => {
-        return this.request("/public/v1/submit/remove_organization_feature", input);
-      }
+    return this.request("/public/v1/submit/remove_organization_feature", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"
+    });
+  }
 
 
 	setOrganizationFeature = async (input: SdkApiTypes.TSetOrganizationFeatureBody): Promise<SdkApiTypes.TSetOrganizationFeatureResponse> => {
-        return this.request("/public/v1/submit/set_organization_feature", input);
-      }
+    return this.request("/public/v1/submit/set_organization_feature", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"
+    });
+  }
 
 
 	signRawPayload = async (input: SdkApiTypes.TSignRawPayloadBody): Promise<SdkApiTypes.TSignRawPayloadResponse> => {
-        return this.request("/public/v1/submit/sign_raw_payload", input);
-      }
+    return this.request("/public/v1/submit/sign_raw_payload", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"
+    });
+  }
 
 
 	signTransaction = async (input: SdkApiTypes.TSignTransactionBody): Promise<SdkApiTypes.TSignTransactionResponse> => {
-        return this.request("/public/v1/submit/sign_transaction", input);
-      }
+    return this.request("/public/v1/submit/sign_transaction", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_SIGN_TRANSACTION"
+    });
+  }
 
 
 	updatePolicy = async (input: SdkApiTypes.TUpdatePolicyBody): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
-        return this.request("/public/v1/submit/update_policy", input);
-      }
+    return this.request("/public/v1/submit/update_policy", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_POLICY"
+    });
+  }
 
 
 	updatePrivateKeyTag = async (input: SdkApiTypes.TUpdatePrivateKeyTagBody): Promise<SdkApiTypes.TUpdatePrivateKeyTagResponse> => {
-        return this.request("/public/v1/submit/update_private_key_tag", input);
-      }
+    return this.request("/public/v1/submit/update_private_key_tag", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"
+    });
+  }
 
 
 	updateRootQuorum = async (input: SdkApiTypes.TUpdateRootQuorumBody): Promise<SdkApiTypes.TUpdateRootQuorumResponse> => {
-        return this.request("/public/v1/submit/update_root_quorum", input);
-      }
+    return this.request("/public/v1/submit/update_root_quorum", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
+    });
+  }
 
 
 	updateUser = async (input: SdkApiTypes.TUpdateUserBody): Promise<SdkApiTypes.TUpdateUserResponse> => {
-        return this.request("/public/v1/submit/update_user", input);
-      }
+    return this.request("/public/v1/submit/update_user", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_USER"
+    });
+  }
 
 
 	updateUserTag = async (input: SdkApiTypes.TUpdateUserTagBody): Promise<SdkApiTypes.TUpdateUserTagResponse> => {
-        return this.request("/public/v1/submit/update_user_tag", input);
-      }
+    return this.request("/public/v1/submit/update_user_tag", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_USER_TAG"
+    });
+  }
 
 }

@@ -4,6 +4,12 @@ export type GrpcStatus = {
   details: unknown[] | null;
 };
 
+export enum MethodType {
+  Get,
+  List,
+  Command
+}
+
 export type TStamp = {
   stampHeaderName: string;
   stampHeaderValue: string;

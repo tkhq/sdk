@@ -54,6 +54,8 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
       operationNameWithoutNamespace.slice(1)
     }`;
 
+    const methodType = methodName.startsWith("get") || methodName.startsWith("list") ? "query" : "command";
+
     const signedRequestGeneratorName = `sign${methodName}`;
     const parameterList = operation["parameters"] ?? [];
 
@@ -78,7 +80,12 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
     const bodyTypeBinding = {
       name: `T${operationNameWithoutNamespace}Body`,
       isBound: parameterList.find((item) => item.in === "body") != null,
-      value: `operations["${operationId}"]["parameters"]["body"]["body"]`
+      value:
+        methodType === "command"
+          ? `operations["${operationId}"]["parameters"]["body"]["body"]["parameters"]`
+          : methodType === "query"
+            ? `Omit<operations["${operationId}"]["parameters"]["body"]["body"], "organizationId">`
+            : `{}`
     };
 
     /** @type {TBinding} */
@@ -212,14 +219,32 @@ export class TurnkeySDKClient {
       operationNameWithoutNamespace.slice(1)
     }`;
 
+    const methodType = methodName.startsWith("get") || methodName.startsWith("list") ? "query" : "command";
+
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
 
-    codeBuffer.push(
+    if (methodType === "query") {
+      codeBuffer.push(
+        `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
+    return this.request("${endpointPath}", {
+      ...input,
+      organizationId: this.organizationId
+    });
+  }`
+      );
+    } else if (methodType === "command") {
+      codeBuffer.push(
       `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
-        return this.request("${endpointPath}", input);
-      }`
-    );
+    return this.request("${endpointPath}", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
+    });
+  }`
+      );
+    }
 
   }
 
