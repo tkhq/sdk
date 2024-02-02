@@ -12,7 +12,7 @@ import {
   TurnkeyActivityError,
   TurnkeyApi,
   TurnkeyApiTypes,
-  TurnkeyClient,
+  // TurnkeyClient,
   TurnkeyRequestError,
   VERSION
 } from "@turnkey/http";
@@ -28,12 +28,16 @@ import {
   WebauthnStamper
 } from "@turnkey/webauthn-stamper";
 
+import {
+  TurnkeySDKClient
+} from "./sdk-client";
+
 // Classes
 export {
   ApiKeyStamper,
   IframeStamper,
   TurnkeyActivityError,
-  TurnkeyClient,
+  TurnkeySDKClient as TurnkeyClient,
   TurnkeyRequestError,
   WebauthnStamper
 }

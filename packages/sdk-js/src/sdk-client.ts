@@ -4,7 +4,7 @@ import { GrpcStatus, THttpConfig, TStamper, TurnkeyRequestError } from "./__type
 
 import { VERSION } from "./__generated__/version";
 
-import * as SdkApiTypes from "./__generated__/sdk_api_types";
+import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
 
 export class TurnkeySDKClient {
@@ -50,7 +50,7 @@ export class TurnkeySDKClient {
     const data = await response.json();
     return data as TResponseType;
   }
-  
+
 
 
 	getActivity = async (input: SdkApiTypes.TGetActivityBody): Promise<SdkApiTypes.TGetActivityResponse> => {
