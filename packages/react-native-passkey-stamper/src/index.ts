@@ -1,23 +1,27 @@
-import "./polyfills";
-// Buffer is available in Node and react-native contexts but needs to be imported
-import { Buffer } from "buffer";
 import { Passkey } from "react-native-passkey";
-import { sha256 } from "@noble/hashes/sha256";
 import type { TurnkeyApiTypes } from "@turnkey/http";
+import { getChallengeFromPayload, getRandomChallenge } from "./util";
 
-// https://www.w3.org/TR/webauthn-2/#dictionary-credential-descriptor
-// Copied from https://github.com/f-23/react-native-passkey/blob/17184a1b1f6f3ac61e07aa784c9b64efb28b570e/src/Passkey.tsx#L80C1-L85C2
-// TODO: can we import this type instead?
+/**
+ * https://www.w3.org/TR/webauthn-2/#dictionary-credential-descriptor
+ * Copied from https://github.com/f-23/react-native-passkey/blob/17184a1b1f6f3ac61e07aa784c9b64efb28b570e/src/Passkey.tsx#L80C1-L85C2
+ * TODO: can we import this type instead?
+ */
 interface PublicKeyCredentialDescriptor {
   type: string;
   id: string;
   transports?: Array<string>;
 }
 
+/**
+ * Authenticator params expected by the Turnkey API (for authenticator, user, or sub-organization creation)
+ */
 export type TurnkeyAuthenticatorParams =
   TurnkeyApiTypes["v1AuthenticatorParamsV2"];
 
-// Header name for a webauthn stamp
+/**
+ * Header name for a webauthn stamp
+ */
 const stampHeaderName = "X-Stamp-Webauthn";
 
 export type TPasskeyRegistrationConfig = {
@@ -81,9 +85,16 @@ const defaultTimeout = 5 * 60 * 1000; // five minutes
 const defaultUserVerification = "preferred";
 
 /**
+ * Re-export of the underlying library's `isSupported` method
+ */
+export function isSupported(): boolean {
+  return Passkey.isSupported();
+}
+
+/**
  * Creates a passkey and returns authenticator params
  */
-export async function CreatePasskey(
+export async function createPasskey(
   config: TPasskeyRegistrationConfig,
   options?: {
     withSecurityKey: boolean;
@@ -178,20 +189,4 @@ export class PasskeyStamper {
       stampHeaderValue: JSON.stringify(stamp),
     };
   }
-}
-
-// Needs to return a base64-encoded string
-function getChallengeFromPayload(payload: string): string {
-  const hashBuffer = sha256(payload);
-  const hexString = Buffer.from(hashBuffer).toString("hex");
-  const hexBuffer = Buffer.from(hexString, "utf8");
-  return hexBuffer.toString("base64");
-}
-
-// Function to return 32 random bytes encoded as hex
-// The return value looks like "5e4c2c235fc876a9bef433506cf596f2f7db19a959e3e30c5a2d965ec149d40f"
-function getRandomChallenge(): string {
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  return Buffer.from(bytes).toString("hex");
 }
