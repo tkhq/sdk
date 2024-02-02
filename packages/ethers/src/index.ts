@@ -6,7 +6,8 @@ import {
   hashMessage,
   resolveProperties,
   ethers,
-} from "ethers";
+  TransactionResponse,
+  } from "ethers";
 import { TurnkeyActivityError, TurnkeyRequestError } from "@turnkey/http";
 import type { TurnkeyClient } from "@turnkey/http";
 import {
@@ -142,10 +143,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   async signTransaction(transaction: TransactionRequest): Promise<string> {
-    const unsignedTx = (await resolveProperties(
+        const unsignedTx = (await resolveProperties(
       transaction
     )) as TransactionLike<string>;
-
+      
     // Mimic the behavior of ethers' `Wallet`:
     // - You don't need to pass in `tx.from`
     // - However if you do provide `tx.from`, verify and drop it before serialization
@@ -263,7 +264,19 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
   _signTypedData = this.signTypedData.bind(this);
 
+  override async sendTransaction(
+    tx: TransactionRequest
+  ): Promise<TransactionResponse> {
+    if (!this.provider) {
+      throw "No provider found";
+    }
 
+    const populatedTxn = await this.populateTransaction(tx);
+
+    const signedTxn = await this.signTransaction(populatedTxn);
+
+    return await this.provider.broadcastTransaction(signedTxn);
+  }
 }
 
 export { TurnkeyActivityError, TurnkeyRequestError };
