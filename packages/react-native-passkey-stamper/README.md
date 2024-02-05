@@ -34,7 +34,7 @@ const authenticatorParams = await createPasskey({
     // displayName should be the same as "name"
     displayName: "Some Name",
   },
-})
+});
 ```
 
 ### Use an existing passkey
