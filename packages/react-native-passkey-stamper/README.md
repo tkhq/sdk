@@ -23,11 +23,11 @@ const authenticatorParams = await createPasskey({
   // Won't be visible to users, this the name of the Turnkey resource
   authenticatorName: "End-User Passkey",
   rp: {
-    id: "your.site.com,
+    id: "your.site.com",
     name: "Your App",
   },
   user: {
-    // IThis ID isn't visible to users
+    // This ID isn't visible to users
     id: String(Date.now()),
     // ...but name and display names are. This is what's shown in the passkey prompt
     name: "Some Name",
@@ -59,4 +59,4 @@ httpClient.signTransaction(...)
 
 ## Demo app
 
-Head over to [this repository](https://github.com/r-n-o/passkeyapp/tree/main) for a fully functional React Native app built with Expo
+Head over to [this repository](https://github.com/r-n-o/passkeyapp/tree/main) for a fully functional React Native app built with Expo.
