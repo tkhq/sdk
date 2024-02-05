@@ -135,9 +135,13 @@ export async function createPasskey(
     authenticatorName: config.authenticatorName,
     challenge: challenge,
     attestation: {
-      credentialId: registrationResult.id,
-      clientDataJson: registrationResult.response.clientDataJSON,
-      attestationObject: registrationResult.response.attestationObject,
+      credentialId: base64Tobase64url(registrationResult.id),
+      clientDataJson: base64Tobase64url(
+        registrationResult.response.clientDataJSON
+      ),
+      attestationObject: base64Tobase64url(
+        registrationResult.response.attestationObject
+      ),
       // TODO: can we infer the transport from the registration result?
       // In all honesty this isn't critical so we default to "hybrid" because that's the transport used by passkeys.
       transports: ["AUTHENTICATOR_TRANSPORT_HYBRID"],
@@ -178,10 +182,14 @@ export class PasskeyStamper {
     const authenticationResult = await Passkey.authenticate(signingOptions);
 
     const stamp = {
-      authenticatorData: authenticationResult.response.authenticatorData,
-      clientDataJson: authenticationResult.response.clientDataJSON,
-      credentialId: authenticationResult.id,
-      signature: authenticationResult.response.signature,
+      authenticatorData: base64Tobase64url(
+        authenticationResult.response.authenticatorData
+      ),
+      clientDataJson: base64Tobase64url(
+        authenticationResult.response.clientDataJSON
+      ),
+      credentialId: base64Tobase64url(authenticationResult.id),
+      signature: base64Tobase64url(authenticationResult.response.signature),
     };
 
     return {
@@ -189,4 +197,11 @@ export class PasskeyStamper {
       stampHeaderValue: JSON.stringify(stamp),
     };
   }
+}
+
+/**
+ * Simple util to convert a base64-encoded string to base64url
+ */
+function base64Tobase64url(s: string): string {
+  return s.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
