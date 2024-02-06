@@ -51,6 +51,6 @@
   },
   "dependencies": {
     "buffer": "^6.0.3",
-    "@noble/hashes": "^1.3.2"
+    "sha256-uint8array": "^0.10.7"
   }
 }

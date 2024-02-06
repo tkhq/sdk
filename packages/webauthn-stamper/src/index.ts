@@ -1,7 +1,6 @@
 /// <reference lib="dom" />
 import { get as webauthnCredentialGet } from "./webauthn-json";
-import { buffer as Buffer } from "./universal";
-import { sha256 } from "@noble/hashes/sha256";
+import { createHash } from "sha256-uint8array";
 
 // Header name for a webauthn stamp
 const stampHeaderName = "X-Stamp-Webauthn";
@@ -69,9 +68,6 @@ export class WebauthnStamper {
 }
 
 function getChallengeFromPayload(payload: string): Uint8Array {
-  const messageBuffer = new TextEncoder().encode(payload);
-  const hashBuffer = sha256(messageBuffer);
-  const hexString = Buffer.from(hashBuffer).toString("hex");
-  const hexBuffer = Buffer.from(hexString, "utf8");
-  return new Uint8Array(hexBuffer);
+  const hexString = createHash().update(payload).digest("hex");
+  return new TextEncoder().encode(hexString);
 }
