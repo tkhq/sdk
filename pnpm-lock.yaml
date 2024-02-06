@@ -732,9 +732,6 @@ importers:
 
   packages/webauthn-stamper:
     dependencies:
-      buffer:
-        specifier: ^6.0.3
-        version: 6.0.3
       sha256-uint8array:
         specifier: ^0.10.7
         version: 0.10.7

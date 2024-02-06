@@ -50,7 +50,6 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "buffer": "^6.0.3",
     "sha256-uint8array": "^0.10.7"
   }
 }
