@@ -11,12 +11,18 @@ export function getChallengeFromPayload(payload: string): string {
 
 // Function to return 32 random bytes encoded as hex
 // (e.g "5e4c2c235fc876a9bef433506cf596f2f7db19a959e3e30c5a2d965ec149d40f")
-// This function doesn't return strong cryptographic randomness (Math.random is a PRNG), but this is good enough for registration challenges.
-// If the challenge was not random at all the risk is that someone can replay a previous signature to register an authenticator they don't own.
-// However:
-// - we are creating a brand new authenticator here, which means keygen is happening right as we call this library (which makes the replay attack hard-to-impossible)
-// - even if a replay attack went through, the authenticator wouldn't be usable given Turnkey has anti-replay in place in activity payloads (timestamp field)
-// Generating challenges with Math.random lets us avoid a dependency on webcrypto/polyfills.
+// ----
+// Important note: this function doesn't return strong cryptographic randomness (Math.random is a PRNG),
+// but this is good enough for registration challenges.
+// If the challenge was not random at all the risk is that someone can replay a previous
+// signature to register an authenticator they don't own. However:
+// - we are creating a brand new authenticator here, which means keygen is happening right as we call this library
+//   (this makes the replay attack hard-to-impossible)
+// - even if a replay attack went through, the authenticator wouldn't be usable given Turnkey has anti-replay in place in activity payloads
+//   (there is a `timestampMs` in activity payloads, see https://docs.turnkey.com/api-introduction#queries-and-submissions)
+// ----
+// As for "why Math.random in the first place?": it lets us avoid a dependency on webcrypto + associated polyfills
+// (in react-native webcrypto isn't available)
 export function getRandomChallenge(): string {
   let randomHexChars: string[] = [];
   const hexChars = [
@@ -42,4 +48,9 @@ export function getRandomChallenge(): string {
     randomHexChars.push(hexChars[Math.floor(Math.random() * 16)]!);
   }
   return randomHexChars.join("");
+}
+
+// Simple util to convert a base64-encoded string to base64url
+export function base64Tobase64url(s: string): string {
+  return s.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }

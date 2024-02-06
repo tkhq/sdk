@@ -7,7 +7,7 @@ This package contains a React Native passkey stamper. It uses [`react-native-pas
 ## Installation
 
 - Install both [`react-native-passkey`](https://www.npmjs.com/package/react-native-passkey) and `@turnkey/react-native-passkey-stamper` (this package) in your React Native project.
-- Set up provisioning correctly to make sure you app is signed (needed for passkey functionality)
+- Set up provisioning correctly to make sure your app is signed (needed for passkey functionality)
 - Serve an `apple-app-site-association` file from your domain to reference your application. See [more details here](https://github.com/f-23/react-native-passkey?tab=readme-ov-file#configuration)
 - Add a new "Associated Domains" capability for web credentials (`webcredentials:your.site.com`)
 
@@ -20,7 +20,7 @@ import { createPasskey } from "@turnkey/react-native-passkey-stamper";
 
 // Returns authenticator params that can be used with sub-org creation, user creation, etc.
 const authenticatorParams = await createPasskey({
-  // Won't be visible to users, this the name of the Turnkey resource
+  // Won't be visible to users, this is the name of the Turnkey resource
   authenticatorName: "End-User Passkey",
   rp: {
     id: "your.site.com",

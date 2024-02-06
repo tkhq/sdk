@@ -1,6 +1,10 @@
 import { Passkey } from "react-native-passkey";
 import type { TurnkeyApiTypes } from "@turnkey/http";
-import { getChallengeFromPayload, getRandomChallenge } from "./util";
+import {
+  base64Tobase64url,
+  getChallengeFromPayload,
+  getRandomChallenge,
+} from "./util";
 
 /**
  * https://www.w3.org/TR/webauthn-2/#dictionary-credential-descriptor
@@ -31,23 +35,30 @@ export type TPasskeyRegistrationConfig = {
     id: string;
     name: string;
   };
+
   // Properties for passkey display: user name and email will show up in the prompts
   user: {
     id: string;
     name: string;
     displayName: string;
   };
+
   // Name of the authenticator (affects Turnkey only, won't be shown on passkey prompts)
   // TODO: document restrictions on character sets
   authenticatorName: string;
+
   // Optional challenge. If not provided, a new random challenge will be generated
   challenge?: string;
+
   // Optional timeout value. Defaults to 5 minutes.
   timeout?: number;
+
   // Optional override for UV flag. Defaults to "preferred".
   userVerification?: UserVerificationRequirement;
+
   // Optional list of credentials to exclude from registration. Defaults to empty
   excludeCredentials?: PublicKeyCredentialDescriptor[];
+
   // Authenticator selection params
   // Defaults if not passed:
   // - authenticatorAttachment: undefined
@@ -61,8 +72,10 @@ export type TPasskeyRegistrationConfig = {
     residentKey?: string;
     userVerification?: string;
   };
+
   // Optional attestation param. Defaults to "none"
   attestation?: string;
+
   // Optional extensions. Defaults to empty.
   extensions?: Record<string, unknown>;
 };
@@ -71,12 +84,16 @@ export type TPasskeyStamperConfig = {
   // The RPID ("Relying Party ID") for your app.
   // See https://github.com/f-23/react-native-passkey?tab=readme-ov-file#configuration to set this up.
   rpId: string;
-  // Optional timeout value. Defaults to 5 minutes.
+
+  // Optional timeout value in milliseconds. Defaults to 5 minutes.
   timeout?: number;
+
   // Optional override for UV flag. Defaults to "preferred".
   userVerification?: UserVerificationRequirement;
+
   // Optional list of credentials to pass. Defaults to empty.
   allowCredentials?: PublicKeyCredentialDescriptor[];
+
   // Optional extensions. Defaults to empty.
   extensions?: Record<string, unknown>;
 };
@@ -197,11 +214,4 @@ export class PasskeyStamper {
       stampHeaderValue: JSON.stringify(stamp),
     };
   }
-}
-
-/**
- * Simple util to convert a base64-encoded string to base64url
- */
-function base64Tobase64url(s: string): string {
-  return s.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
