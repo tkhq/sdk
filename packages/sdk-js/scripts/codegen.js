@@ -23,6 +23,17 @@ function joinPropertyList(input) {
   return input.filter(Boolean).join(",\n");
 }
 
+/**
+ * @param {string} methodName
+ * @returns {string}
+ */
+function methodTypeFromMethodName(methodName) {
+  if (["approveActivity", "rejectActivity"].includes(methodName)) { return "activityDecision"; }
+  if (methodName.startsWith("nOOP")) { return "noop"; }
+  if (methodName.startsWith("get") || methodName.startsWith("list")) { return "query"; }
+  return "command";
+}
+
 // Generators
 const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
   const namespace = swaggerSpec.tags?.find((item) => item.name != null)?.name;
@@ -54,38 +65,46 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
       operationNameWithoutNamespace.slice(1)
     }`;
 
-    const methodType = methodName.startsWith("get") || methodName.startsWith("list") ? "query" : "command";
-
+    const methodType = methodTypeFromMethodName(methodName);
     const signedRequestGeneratorName = `sign${methodName}`;
     const parameterList = operation["parameters"] ?? [];
+
+    let responseValue = "void";
+    if (methodType === "command") {
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${methodName}Result"]`;
+    } else if (["noop", "query"].includes(methodType)) {
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
+    } else if (methodType === "activityDecision") {
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]`;
+    }
 
     /** @type {TBinding} */
     const responseTypeBinding = {
       name: `T${operationNameWithoutNamespace}Response`,
       isBound: true,
-      value:
-        operation.responses["200"] == null
-          ? `void`
-          : `operations["${operationId}"]["responses"]["200"]["schema"]`
+      value: operation.responses["200"] == null ? `void` : responseValue
     };
 
-    /** @type {TBinding} */
-    const queryTypeBinding = {
-      name: `T${operationNameWithoutNamespace}Query`,
-      isBound: parameterList.find((item) => item.in === "query") != null,
-      value: `operations["${operationId}"]["parameters"]["query"]`
-    };
+    let bodyValue = "{}";
+    if (["activityDecision", "command"].includes(methodType)) {
+      bodyValue = `operations["${operationId}"]["parameters"]["body"]["body"]["parameters"]`;
+    } else if (methodType === "query") {
+      bodyValue = `Omit<operations["${operationId}"]["parameters"]["body"]["body"], "organizationId">`;
+    }
 
     /** @type {TBinding} */
     const bodyTypeBinding = {
       name: `T${operationNameWithoutNamespace}Body`,
       isBound: parameterList.find((item) => item.in === "body") != null,
-      value:
-        methodType === "command"
-          ? `operations["${operationId}"]["parameters"]["body"]["body"]["parameters"]`
-          : methodType === "query"
-            ? `Omit<operations["${operationId}"]["parameters"]["body"]["body"], "organizationId">`
-            : `{}`
+      value: bodyValue
+    };
+
+    // What are these used for?
+    /** @type {TBinding} */
+    const queryTypeBinding = {
+      name: `T${operationNameWithoutNamespace}Query`,
+      isBound: parameterList.find((item) => item.in === "query") != null,
+      value: `operations["${operationId}"]["parameters"]["query"]`
     };
 
     /** @type {TBinding} */
@@ -196,6 +215,16 @@ export class TurnkeySDKClient {
     const data = await response.json();
     return data as TResponseType;
   }
+
+  async activityRequest<TBodyType, TResponseType>(
+    url: string,
+    body: TBodyType,
+    methodName: string
+  ): Promise<TResponseType> {
+    const data: TResponseType = await this.request(url, body);
+    return data["activity"]["result"][\`\${methodName}Result\`];
+  }
+
   `);
 
   for (const endpointPath in swaggerSpec.paths) {
@@ -219,8 +248,7 @@ export class TurnkeySDKClient {
       operationNameWithoutNamespace.slice(1)
     }`;
 
-    const methodType = methodName.startsWith("get") || methodName.startsWith("list") ? "query" : "command";
-
+    const methodType = methodTypeFromMethodName(methodName);
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
 
@@ -236,12 +264,13 @@ export class TurnkeySDKClient {
     } else if (methodType === "command") {
       codeBuffer.push(
       `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
-    return this.request("${endpointPath}", {
+    return this.activityRequest("${endpointPath}", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
-    });
+    },
+    "${methodName}");
   }`
       );
     }

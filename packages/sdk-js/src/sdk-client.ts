@@ -4,7 +4,7 @@ import { GrpcStatus, THttpConfig, TStamper, TurnkeyRequestError } from "./__type
 
 import { VERSION } from "./__generated__/version";
 
-import type * as SdkApiTypes from "./__generated__/sdk_api_types";
+import * as SdkApiTypes from "./__generated__/sdk_api_types";
 
 
 export class TurnkeySDKClient {
@@ -51,6 +51,16 @@ export class TurnkeySDKClient {
     return data as TResponseType;
   }
 
+  async activityRequest<TBodyType, TResponseType>(
+    url: string,
+    body: TBodyType,
+    methodName: string
+  ): Promise<TResponseType> {
+    const data: TResponseType = await this.request(url, body);
+    return data["activity"]["result"][`${methodName}Result`];
+  }
+
+  
 
 
 	getActivity = async (input: SdkApiTypes.TGetActivityBody): Promise<SdkApiTypes.TGetActivityResponse> => {
@@ -205,333 +215,344 @@ export class TurnkeySDKClient {
   }
 
 
-	approveActivity = async (input: SdkApiTypes.TApproveActivityBody): Promise<SdkApiTypes.TApproveActivityResponse> => {
-    return this.request("/public/v1/submit/approve_activity", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_APPROVE_ACTIVITY"
-    });
-  }
-
-
 	createApiKeys = async (input: SdkApiTypes.TCreateApiKeysBody): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
-    return this.request("/public/v1/submit/create_api_keys", {
+    return this.activityRequest("/public/v1/submit/create_api_keys", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_API_KEYS"
-    });
+    },
+    "createApiKeys");
   }
 
 
 	createApiOnlyUsers = async (input: SdkApiTypes.TCreateApiOnlyUsersBody): Promise<SdkApiTypes.TCreateApiOnlyUsersResponse> => {
-    return this.request("/public/v1/submit/create_api_only_users", {
+    return this.activityRequest("/public/v1/submit/create_api_only_users", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS"
-    });
+    },
+    "createApiOnlyUsers");
   }
 
 
 	createAuthenticators = async (input: SdkApiTypes.TCreateAuthenticatorsBody): Promise<SdkApiTypes.TCreateAuthenticatorsResponse> => {
-    return this.request("/public/v1/submit/create_authenticators", {
+    return this.activityRequest("/public/v1/submit/create_authenticators", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS"
-    });
+    },
+    "createAuthenticators");
   }
 
 
 	createInvitations = async (input: SdkApiTypes.TCreateInvitationsBody): Promise<SdkApiTypes.TCreateInvitationsResponse> => {
-    return this.request("/public/v1/submit/create_invitations", {
+    return this.activityRequest("/public/v1/submit/create_invitations", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_INVITATIONS"
-    });
+    },
+    "createInvitations");
   }
 
 
 	createPolicy = async (input: SdkApiTypes.TCreatePolicyBody): Promise<SdkApiTypes.TCreatePolicyResponse> => {
-    return this.request("/public/v1/submit/create_policy", {
+    return this.activityRequest("/public/v1/submit/create_policy", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_POLICY"
-    });
+    },
+    "createPolicy");
   }
 
 
 	createPrivateKeyTag = async (input: SdkApiTypes.TCreatePrivateKeyTagBody): Promise<SdkApiTypes.TCreatePrivateKeyTagResponse> => {
-    return this.request("/public/v1/submit/create_private_key_tag", {
+    return this.activityRequest("/public/v1/submit/create_private_key_tag", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"
-    });
+    },
+    "createPrivateKeyTag");
   }
 
 
 	createPrivateKeys = async (input: SdkApiTypes.TCreatePrivateKeysBody): Promise<SdkApiTypes.TCreatePrivateKeysResponse> => {
-    return this.request("/public/v1/submit/create_private_keys", {
+    return this.activityRequest("/public/v1/submit/create_private_keys", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"
-    });
+    },
+    "createPrivateKeys");
   }
 
 
 	createSubOrganization = async (input: SdkApiTypes.TCreateSubOrganizationBody): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
-    return this.request("/public/v1/submit/create_sub_organization", {
+    return this.activityRequest("/public/v1/submit/create_sub_organization", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"
-    });
+    },
+    "createSubOrganization");
   }
 
 
 	createUserTag = async (input: SdkApiTypes.TCreateUserTagBody): Promise<SdkApiTypes.TCreateUserTagResponse> => {
-    return this.request("/public/v1/submit/create_user_tag", {
+    return this.activityRequest("/public/v1/submit/create_user_tag", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_USER_TAG"
-    });
+    },
+    "createUserTag");
   }
 
 
 	createUsers = async (input: SdkApiTypes.TCreateUsersBody): Promise<SdkApiTypes.TCreateUsersResponse> => {
-    return this.request("/public/v1/submit/create_users", {
+    return this.activityRequest("/public/v1/submit/create_users", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_USERS"
-    });
+    },
+    "createUsers");
   }
 
 
 	createWallet = async (input: SdkApiTypes.TCreateWalletBody): Promise<SdkApiTypes.TCreateWalletResponse> => {
-    return this.request("/public/v1/submit/create_wallet", {
+    return this.activityRequest("/public/v1/submit/create_wallet", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_WALLET"
-    });
+    },
+    "createWallet");
   }
 
 
 	createWalletAccounts = async (input: SdkApiTypes.TCreateWalletAccountsBody): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
-    return this.request("/public/v1/submit/create_wallet_accounts", {
+    return this.activityRequest("/public/v1/submit/create_wallet_accounts", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"
-    });
+    },
+    "createWalletAccounts");
   }
 
 
 	deleteApiKeys = async (input: SdkApiTypes.TDeleteApiKeysBody): Promise<SdkApiTypes.TDeleteApiKeysResponse> => {
-    return this.request("/public/v1/submit/delete_api_keys", {
+    return this.activityRequest("/public/v1/submit/delete_api_keys", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_API_KEYS"
-    });
+    },
+    "deleteApiKeys");
   }
 
 
 	deleteAuthenticators = async (input: SdkApiTypes.TDeleteAuthenticatorsBody): Promise<SdkApiTypes.TDeleteAuthenticatorsResponse> => {
-    return this.request("/public/v1/submit/delete_authenticators", {
+    return this.activityRequest("/public/v1/submit/delete_authenticators", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS"
-    });
+    },
+    "deleteAuthenticators");
   }
 
 
 	deleteInvitation = async (input: SdkApiTypes.TDeleteInvitationBody): Promise<SdkApiTypes.TDeleteInvitationResponse> => {
-    return this.request("/public/v1/submit/delete_invitation", {
+    return this.activityRequest("/public/v1/submit/delete_invitation", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_INVITATION"
-    });
+    },
+    "deleteInvitation");
   }
 
 
 	deletePolicy = async (input: SdkApiTypes.TDeletePolicyBody): Promise<SdkApiTypes.TDeletePolicyResponse> => {
-    return this.request("/public/v1/submit/delete_policy", {
+    return this.activityRequest("/public/v1/submit/delete_policy", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_POLICY"
-    });
+    },
+    "deletePolicy");
   }
 
 
 	emailAuth = async (input: SdkApiTypes.TEmailAuthBody): Promise<SdkApiTypes.TEmailAuthResponse> => {
-    return this.request("/public/v1/submit/email_auth", {
+    return this.activityRequest("/public/v1/submit/email_auth", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_EMAIL_AUTH"
-    });
+    },
+    "emailAuth");
   }
 
 
 	exportPrivateKey = async (input: SdkApiTypes.TExportPrivateKeyBody): Promise<SdkApiTypes.TExportPrivateKeyResponse> => {
-    return this.request("/public/v1/submit/export_private_key", {
+    return this.activityRequest("/public/v1/submit/export_private_key", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"
-    });
+    },
+    "exportPrivateKey");
   }
 
 
 	exportWallet = async (input: SdkApiTypes.TExportWalletBody): Promise<SdkApiTypes.TExportWalletResponse> => {
-    return this.request("/public/v1/submit/export_wallet", {
+    return this.activityRequest("/public/v1/submit/export_wallet", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_EXPORT_WALLET"
-    });
+    },
+    "exportWallet");
   }
 
 
 	exportWalletAccount = async (input: SdkApiTypes.TExportWalletAccountBody): Promise<SdkApiTypes.TExportWalletAccountResponse> => {
-    return this.request("/public/v1/submit/export_wallet_account", {
+    return this.activityRequest("/public/v1/submit/export_wallet_account", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"
-    });
+    },
+    "exportWalletAccount");
   }
 
 
 	initUserEmailRecovery = async (input: SdkApiTypes.TInitUserEmailRecoveryBody): Promise<SdkApiTypes.TInitUserEmailRecoveryResponse> => {
-    return this.request("/public/v1/submit/init_user_email_recovery", {
+    return this.activityRequest("/public/v1/submit/init_user_email_recovery", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY"
-    });
+    },
+    "initUserEmailRecovery");
   }
 
 
 	recoverUser = async (input: SdkApiTypes.TRecoverUserBody): Promise<SdkApiTypes.TRecoverUserResponse> => {
-    return this.request("/public/v1/submit/recover_user", {
+    return this.activityRequest("/public/v1/submit/recover_user", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_RECOVER_USER"
-    });
-  }
-
-
-	rejectActivity = async (input: SdkApiTypes.TRejectActivityBody): Promise<SdkApiTypes.TRejectActivityResponse> => {
-    return this.request("/public/v1/submit/reject_activity", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_REJECT_ACTIVITY"
-    });
+    },
+    "recoverUser");
   }
 
 
 	removeOrganizationFeature = async (input: SdkApiTypes.TRemoveOrganizationFeatureBody): Promise<SdkApiTypes.TRemoveOrganizationFeatureResponse> => {
-    return this.request("/public/v1/submit/remove_organization_feature", {
+    return this.activityRequest("/public/v1/submit/remove_organization_feature", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"
-    });
+    },
+    "removeOrganizationFeature");
   }
 
 
 	setOrganizationFeature = async (input: SdkApiTypes.TSetOrganizationFeatureBody): Promise<SdkApiTypes.TSetOrganizationFeatureResponse> => {
-    return this.request("/public/v1/submit/set_organization_feature", {
+    return this.activityRequest("/public/v1/submit/set_organization_feature", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"
-    });
+    },
+    "setOrganizationFeature");
   }
 
 
 	signRawPayload = async (input: SdkApiTypes.TSignRawPayloadBody): Promise<SdkApiTypes.TSignRawPayloadResponse> => {
-    return this.request("/public/v1/submit/sign_raw_payload", {
+    return this.activityRequest("/public/v1/submit/sign_raw_payload", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"
-    });
+    },
+    "signRawPayload");
   }
 
 
 	signTransaction = async (input: SdkApiTypes.TSignTransactionBody): Promise<SdkApiTypes.TSignTransactionResponse> => {
-    return this.request("/public/v1/submit/sign_transaction", {
+    return this.activityRequest("/public/v1/submit/sign_transaction", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_SIGN_TRANSACTION"
-    });
+    },
+    "signTransaction");
   }
 
 
 	updatePolicy = async (input: SdkApiTypes.TUpdatePolicyBody): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
-    return this.request("/public/v1/submit/update_policy", {
+    return this.activityRequest("/public/v1/submit/update_policy", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_POLICY"
-    });
+    },
+    "updatePolicy");
   }
 
 
 	updatePrivateKeyTag = async (input: SdkApiTypes.TUpdatePrivateKeyTagBody): Promise<SdkApiTypes.TUpdatePrivateKeyTagResponse> => {
-    return this.request("/public/v1/submit/update_private_key_tag", {
+    return this.activityRequest("/public/v1/submit/update_private_key_tag", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"
-    });
+    },
+    "updatePrivateKeyTag");
   }
 
 
 	updateRootQuorum = async (input: SdkApiTypes.TUpdateRootQuorumBody): Promise<SdkApiTypes.TUpdateRootQuorumResponse> => {
-    return this.request("/public/v1/submit/update_root_quorum", {
+    return this.activityRequest("/public/v1/submit/update_root_quorum", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
-    });
+    },
+    "updateRootQuorum");
   }
 
 
 	updateUser = async (input: SdkApiTypes.TUpdateUserBody): Promise<SdkApiTypes.TUpdateUserResponse> => {
-    return this.request("/public/v1/submit/update_user", {
+    return this.activityRequest("/public/v1/submit/update_user", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_USER"
-    });
+    },
+    "updateUser");
   }
 
 
 	updateUserTag = async (input: SdkApiTypes.TUpdateUserTagBody): Promise<SdkApiTypes.TUpdateUserTagResponse> => {
-    return this.request("/public/v1/submit/update_user_tag", {
+    return this.activityRequest("/public/v1/submit/update_user_tag", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_USER_TAG"
-    });
+    },
+    "updateUserTag");
   }
 
 }
