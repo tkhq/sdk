@@ -183,7 +183,7 @@ export class TurnkeySDKClient {
     this.stamper = stamper;
   }
 
-  async request<TBodyType, TResponseType>(
+  async query<TBodyType, TResponseType>(
     url: string,
     body: TBodyType
   ): Promise<TResponseType> {
@@ -216,13 +216,44 @@ export class TurnkeySDKClient {
     return data as TResponseType;
   }
 
-  async activityRequest<TBodyType, TResponseType>(
+  async command<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
     methodName: string
   ): Promise<TResponseType> {
-    const data: TResponseType = await this.request(url, body);
-    return data["activity"]["result"][\`\${methodName}Result\`];
+    const POLLING_DURATION = 1000;
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+    const initialData: TResponseType = await this.query<TBodyType, TResponseType>(url, body);
+    const activityId = initialData["activity"]["id"];
+    let activityStatus = initialData["activity"]["status"];
+
+    if (activityStatus !== "ACTIVITY_STATUS_PENDING") {
+      return initialData["activity"]["result"][\`\${methodName}Result\`];
+    }
+
+    const pollStatus = async (): Promise<TResponseType> => {
+      const pollBody = { activityId: activityId };
+      const pollData = await this.getActivity(pollBody);
+      const activityStatus = pollData["activity"]["status"];
+
+      if (activityStatus === "ACTIVITY_STATUS_PENDING") {
+        await delay(POLLING_DURATION);
+        return await pollStatus();
+      } else {
+        return pollData["activity"]["result"][\`\${methodName}Result\`];
+      }
+    }
+
+    return await pollStatus();
+  }
+
+  async activityDecision<TBodyType, TResponseType>(
+    url: string,
+    body: TBodyType
+  ): Promise<TResponseType> {
+    const data: TResponseType = await this.query(url, body);
+    return data["activity"]["result"];
   }
 
   `);
@@ -255,7 +286,7 @@ export class TurnkeySDKClient {
     if (methodType === "query") {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
-    return this.request("${endpointPath}", {
+    return this.query("${endpointPath}", {
       ...input,
       organizationId: this.organizationId
     });
@@ -264,13 +295,24 @@ export class TurnkeySDKClient {
     } else if (methodType === "command") {
       codeBuffer.push(
       `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
-    return this.activityRequest("${endpointPath}", {
+    return this.command("${endpointPath}", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
       type: "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
     },
     "${methodName}");
+  }`
+      );
+    } else if (methodType === "activityDecision") {
+      codeBuffer.push(
+      `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
+    return this.activityDecision("${endpointPath}", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
+    });
   }`
       );
     }

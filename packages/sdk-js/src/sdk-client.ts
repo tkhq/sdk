@@ -18,7 +18,7 @@ export class TurnkeySDKClient {
     this.stamper = stamper;
   }
 
-  async request<TBodyType, TResponseType>(
+  async query<TBodyType, TResponseType>(
     url: string,
     body: TBodyType
   ): Promise<TResponseType> {
@@ -51,20 +51,51 @@ export class TurnkeySDKClient {
     return data as TResponseType;
   }
 
-  async activityRequest<TBodyType, TResponseType>(
+  async command<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
     methodName: string
   ): Promise<TResponseType> {
-    const data: TResponseType = await this.request(url, body);
-    return data["activity"]["result"][`${methodName}Result`];
+    const POLLING_DURATION = 1000;
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+    const initialData: TResponseType = await this.query<TBodyType, TResponseType>(url, body);
+    const activityId = initialData["activity"]["id"];
+    let activityStatus = initialData["activity"]["status"];
+
+    if (activityStatus !== "ACTIVITY_STATUS_PENDING") {
+      return initialData["activity"]["result"][`${methodName}Result`];
+    }
+
+    const pollStatus = async (): Promise<TResponseType> => {
+      const pollBody = { activityId: activityId };
+      const pollData = await this.getActivity(pollBody);
+      const activityStatus = pollData["activity"]["status"];
+
+      if (activityStatus === "ACTIVITY_STATUS_PENDING") {
+        await delay(POLLING_DURATION);
+        return await pollStatus();
+      } else {
+        return pollData["activity"]["result"][`${methodName}Result`];
+      }
+    }
+
+    return await pollStatus();
   }
 
-  
+  async activityDecision<TBodyType, TResponseType>(
+    url: string,
+    body: TBodyType
+  ): Promise<TResponseType> {
+    const data: TResponseType = await this.query(url, body);
+    return data["activity"]["result"];
+  }
+
+
 
 
 	getActivity = async (input: SdkApiTypes.TGetActivityBody): Promise<SdkApiTypes.TGetActivityResponse> => {
-    return this.request("/public/v1/query/get_activity", {
+    return this.query("/public/v1/query/get_activity", {
       ...input,
       organizationId: this.organizationId
     });
@@ -72,7 +103,7 @@ export class TurnkeySDKClient {
 
 
 	getApiKey = async (input: SdkApiTypes.TGetApiKeyBody): Promise<SdkApiTypes.TGetApiKeyResponse> => {
-    return this.request("/public/v1/query/get_api_key", {
+    return this.query("/public/v1/query/get_api_key", {
       ...input,
       organizationId: this.organizationId
     });
@@ -80,7 +111,7 @@ export class TurnkeySDKClient {
 
 
 	getApiKeys = async (input: SdkApiTypes.TGetApiKeysBody): Promise<SdkApiTypes.TGetApiKeysResponse> => {
-    return this.request("/public/v1/query/get_api_keys", {
+    return this.query("/public/v1/query/get_api_keys", {
       ...input,
       organizationId: this.organizationId
     });
@@ -88,7 +119,7 @@ export class TurnkeySDKClient {
 
 
 	getAuthenticator = async (input: SdkApiTypes.TGetAuthenticatorBody): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
-    return this.request("/public/v1/query/get_authenticator", {
+    return this.query("/public/v1/query/get_authenticator", {
       ...input,
       organizationId: this.organizationId
     });
@@ -96,7 +127,7 @@ export class TurnkeySDKClient {
 
 
 	getAuthenticators = async (input: SdkApiTypes.TGetAuthenticatorsBody): Promise<SdkApiTypes.TGetAuthenticatorsResponse> => {
-    return this.request("/public/v1/query/get_authenticators", {
+    return this.query("/public/v1/query/get_authenticators", {
       ...input,
       organizationId: this.organizationId
     });
@@ -104,7 +135,7 @@ export class TurnkeySDKClient {
 
 
 	getOrganization = async (input: SdkApiTypes.TGetOrganizationBody): Promise<SdkApiTypes.TGetOrganizationResponse> => {
-    return this.request("/public/v1/query/get_organization", {
+    return this.query("/public/v1/query/get_organization", {
       ...input,
       organizationId: this.organizationId
     });
@@ -112,7 +143,7 @@ export class TurnkeySDKClient {
 
 
 	getPolicy = async (input: SdkApiTypes.TGetPolicyBody): Promise<SdkApiTypes.TGetPolicyResponse> => {
-    return this.request("/public/v1/query/get_policy", {
+    return this.query("/public/v1/query/get_policy", {
       ...input,
       organizationId: this.organizationId
     });
@@ -120,7 +151,7 @@ export class TurnkeySDKClient {
 
 
 	getPrivateKey = async (input: SdkApiTypes.TGetPrivateKeyBody): Promise<SdkApiTypes.TGetPrivateKeyResponse> => {
-    return this.request("/public/v1/query/get_private_key", {
+    return this.query("/public/v1/query/get_private_key", {
       ...input,
       organizationId: this.organizationId
     });
@@ -128,7 +159,7 @@ export class TurnkeySDKClient {
 
 
 	getUser = async (input: SdkApiTypes.TGetUserBody): Promise<SdkApiTypes.TGetUserResponse> => {
-    return this.request("/public/v1/query/get_user", {
+    return this.query("/public/v1/query/get_user", {
       ...input,
       organizationId: this.organizationId
     });
@@ -136,7 +167,7 @@ export class TurnkeySDKClient {
 
 
 	getWallet = async (input: SdkApiTypes.TGetWalletBody): Promise<SdkApiTypes.TGetWalletResponse> => {
-    return this.request("/public/v1/query/get_wallet", {
+    return this.query("/public/v1/query/get_wallet", {
       ...input,
       organizationId: this.organizationId
     });
@@ -144,7 +175,7 @@ export class TurnkeySDKClient {
 
 
 	getActivities = async (input: SdkApiTypes.TGetActivitiesBody): Promise<SdkApiTypes.TGetActivitiesResponse> => {
-    return this.request("/public/v1/query/list_activities", {
+    return this.query("/public/v1/query/list_activities", {
       ...input,
       organizationId: this.organizationId
     });
@@ -152,7 +183,7 @@ export class TurnkeySDKClient {
 
 
 	getPolicies = async (input: SdkApiTypes.TGetPoliciesBody): Promise<SdkApiTypes.TGetPoliciesResponse> => {
-    return this.request("/public/v1/query/list_policies", {
+    return this.query("/public/v1/query/list_policies", {
       ...input,
       organizationId: this.organizationId
     });
@@ -160,7 +191,7 @@ export class TurnkeySDKClient {
 
 
 	listPrivateKeyTags = async (input: SdkApiTypes.TListPrivateKeyTagsBody): Promise<SdkApiTypes.TListPrivateKeyTagsResponse> => {
-    return this.request("/public/v1/query/list_private_key_tags", {
+    return this.query("/public/v1/query/list_private_key_tags", {
       ...input,
       organizationId: this.organizationId
     });
@@ -168,7 +199,7 @@ export class TurnkeySDKClient {
 
 
 	getPrivateKeys = async (input: SdkApiTypes.TGetPrivateKeysBody): Promise<SdkApiTypes.TGetPrivateKeysResponse> => {
-    return this.request("/public/v1/query/list_private_keys", {
+    return this.query("/public/v1/query/list_private_keys", {
       ...input,
       organizationId: this.organizationId
     });
@@ -176,7 +207,7 @@ export class TurnkeySDKClient {
 
 
 	listUserTags = async (input: SdkApiTypes.TListUserTagsBody): Promise<SdkApiTypes.TListUserTagsResponse> => {
-    return this.request("/public/v1/query/list_user_tags", {
+    return this.query("/public/v1/query/list_user_tags", {
       ...input,
       organizationId: this.organizationId
     });
@@ -184,7 +215,7 @@ export class TurnkeySDKClient {
 
 
 	getUsers = async (input: SdkApiTypes.TGetUsersBody): Promise<SdkApiTypes.TGetUsersResponse> => {
-    return this.request("/public/v1/query/list_users", {
+    return this.query("/public/v1/query/list_users", {
       ...input,
       organizationId: this.organizationId
     });
@@ -192,7 +223,7 @@ export class TurnkeySDKClient {
 
 
 	getWalletAccounts = async (input: SdkApiTypes.TGetWalletAccountsBody): Promise<SdkApiTypes.TGetWalletAccountsResponse> => {
-    return this.request("/public/v1/query/list_wallet_accounts", {
+    return this.query("/public/v1/query/list_wallet_accounts", {
       ...input,
       organizationId: this.organizationId
     });
@@ -200,7 +231,7 @@ export class TurnkeySDKClient {
 
 
 	getWallets = async (input: SdkApiTypes.TGetWalletsBody): Promise<SdkApiTypes.TGetWalletsResponse> => {
-    return this.request("/public/v1/query/list_wallets", {
+    return this.query("/public/v1/query/list_wallets", {
       ...input,
       organizationId: this.organizationId
     });
@@ -208,15 +239,25 @@ export class TurnkeySDKClient {
 
 
 	getWhoami = async (input: SdkApiTypes.TGetWhoamiBody): Promise<SdkApiTypes.TGetWhoamiResponse> => {
-    return this.request("/public/v1/query/whoami", {
+    return this.query("/public/v1/query/whoami", {
       ...input,
       organizationId: this.organizationId
     });
   }
 
 
+	approveActivity = async (input: SdkApiTypes.TApproveActivityBody): Promise<SdkApiTypes.TApproveActivityResponse> => {
+    return this.activityDecision("/public/v1/submit/approve_activity", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_APPROVE_ACTIVITY"
+    });
+  }
+
+
 	createApiKeys = async (input: SdkApiTypes.TCreateApiKeysBody): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
-    return this.activityRequest("/public/v1/submit/create_api_keys", {
+    return this.command("/public/v1/submit/create_api_keys", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -227,7 +268,7 @@ export class TurnkeySDKClient {
 
 
 	createApiOnlyUsers = async (input: SdkApiTypes.TCreateApiOnlyUsersBody): Promise<SdkApiTypes.TCreateApiOnlyUsersResponse> => {
-    return this.activityRequest("/public/v1/submit/create_api_only_users", {
+    return this.command("/public/v1/submit/create_api_only_users", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -238,7 +279,7 @@ export class TurnkeySDKClient {
 
 
 	createAuthenticators = async (input: SdkApiTypes.TCreateAuthenticatorsBody): Promise<SdkApiTypes.TCreateAuthenticatorsResponse> => {
-    return this.activityRequest("/public/v1/submit/create_authenticators", {
+    return this.command("/public/v1/submit/create_authenticators", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -249,7 +290,7 @@ export class TurnkeySDKClient {
 
 
 	createInvitations = async (input: SdkApiTypes.TCreateInvitationsBody): Promise<SdkApiTypes.TCreateInvitationsResponse> => {
-    return this.activityRequest("/public/v1/submit/create_invitations", {
+    return this.command("/public/v1/submit/create_invitations", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -260,7 +301,7 @@ export class TurnkeySDKClient {
 
 
 	createPolicy = async (input: SdkApiTypes.TCreatePolicyBody): Promise<SdkApiTypes.TCreatePolicyResponse> => {
-    return this.activityRequest("/public/v1/submit/create_policy", {
+    return this.command("/public/v1/submit/create_policy", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -271,7 +312,7 @@ export class TurnkeySDKClient {
 
 
 	createPrivateKeyTag = async (input: SdkApiTypes.TCreatePrivateKeyTagBody): Promise<SdkApiTypes.TCreatePrivateKeyTagResponse> => {
-    return this.activityRequest("/public/v1/submit/create_private_key_tag", {
+    return this.command("/public/v1/submit/create_private_key_tag", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -282,7 +323,7 @@ export class TurnkeySDKClient {
 
 
 	createPrivateKeys = async (input: SdkApiTypes.TCreatePrivateKeysBody): Promise<SdkApiTypes.TCreatePrivateKeysResponse> => {
-    return this.activityRequest("/public/v1/submit/create_private_keys", {
+    return this.command("/public/v1/submit/create_private_keys", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -293,7 +334,7 @@ export class TurnkeySDKClient {
 
 
 	createSubOrganization = async (input: SdkApiTypes.TCreateSubOrganizationBody): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
-    return this.activityRequest("/public/v1/submit/create_sub_organization", {
+    return this.command("/public/v1/submit/create_sub_organization", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -304,7 +345,7 @@ export class TurnkeySDKClient {
 
 
 	createUserTag = async (input: SdkApiTypes.TCreateUserTagBody): Promise<SdkApiTypes.TCreateUserTagResponse> => {
-    return this.activityRequest("/public/v1/submit/create_user_tag", {
+    return this.command("/public/v1/submit/create_user_tag", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -315,7 +356,7 @@ export class TurnkeySDKClient {
 
 
 	createUsers = async (input: SdkApiTypes.TCreateUsersBody): Promise<SdkApiTypes.TCreateUsersResponse> => {
-    return this.activityRequest("/public/v1/submit/create_users", {
+    return this.command("/public/v1/submit/create_users", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -326,7 +367,7 @@ export class TurnkeySDKClient {
 
 
 	createWallet = async (input: SdkApiTypes.TCreateWalletBody): Promise<SdkApiTypes.TCreateWalletResponse> => {
-    return this.activityRequest("/public/v1/submit/create_wallet", {
+    return this.command("/public/v1/submit/create_wallet", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -337,7 +378,7 @@ export class TurnkeySDKClient {
 
 
 	createWalletAccounts = async (input: SdkApiTypes.TCreateWalletAccountsBody): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
-    return this.activityRequest("/public/v1/submit/create_wallet_accounts", {
+    return this.command("/public/v1/submit/create_wallet_accounts", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -348,7 +389,7 @@ export class TurnkeySDKClient {
 
 
 	deleteApiKeys = async (input: SdkApiTypes.TDeleteApiKeysBody): Promise<SdkApiTypes.TDeleteApiKeysResponse> => {
-    return this.activityRequest("/public/v1/submit/delete_api_keys", {
+    return this.command("/public/v1/submit/delete_api_keys", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -359,7 +400,7 @@ export class TurnkeySDKClient {
 
 
 	deleteAuthenticators = async (input: SdkApiTypes.TDeleteAuthenticatorsBody): Promise<SdkApiTypes.TDeleteAuthenticatorsResponse> => {
-    return this.activityRequest("/public/v1/submit/delete_authenticators", {
+    return this.command("/public/v1/submit/delete_authenticators", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -370,7 +411,7 @@ export class TurnkeySDKClient {
 
 
 	deleteInvitation = async (input: SdkApiTypes.TDeleteInvitationBody): Promise<SdkApiTypes.TDeleteInvitationResponse> => {
-    return this.activityRequest("/public/v1/submit/delete_invitation", {
+    return this.command("/public/v1/submit/delete_invitation", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -381,7 +422,7 @@ export class TurnkeySDKClient {
 
 
 	deletePolicy = async (input: SdkApiTypes.TDeletePolicyBody): Promise<SdkApiTypes.TDeletePolicyResponse> => {
-    return this.activityRequest("/public/v1/submit/delete_policy", {
+    return this.command("/public/v1/submit/delete_policy", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -392,7 +433,7 @@ export class TurnkeySDKClient {
 
 
 	emailAuth = async (input: SdkApiTypes.TEmailAuthBody): Promise<SdkApiTypes.TEmailAuthResponse> => {
-    return this.activityRequest("/public/v1/submit/email_auth", {
+    return this.command("/public/v1/submit/email_auth", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -403,7 +444,7 @@ export class TurnkeySDKClient {
 
 
 	exportPrivateKey = async (input: SdkApiTypes.TExportPrivateKeyBody): Promise<SdkApiTypes.TExportPrivateKeyResponse> => {
-    return this.activityRequest("/public/v1/submit/export_private_key", {
+    return this.command("/public/v1/submit/export_private_key", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -414,7 +455,7 @@ export class TurnkeySDKClient {
 
 
 	exportWallet = async (input: SdkApiTypes.TExportWalletBody): Promise<SdkApiTypes.TExportWalletResponse> => {
-    return this.activityRequest("/public/v1/submit/export_wallet", {
+    return this.command("/public/v1/submit/export_wallet", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -425,7 +466,7 @@ export class TurnkeySDKClient {
 
 
 	exportWalletAccount = async (input: SdkApiTypes.TExportWalletAccountBody): Promise<SdkApiTypes.TExportWalletAccountResponse> => {
-    return this.activityRequest("/public/v1/submit/export_wallet_account", {
+    return this.command("/public/v1/submit/export_wallet_account", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -436,7 +477,7 @@ export class TurnkeySDKClient {
 
 
 	initUserEmailRecovery = async (input: SdkApiTypes.TInitUserEmailRecoveryBody): Promise<SdkApiTypes.TInitUserEmailRecoveryResponse> => {
-    return this.activityRequest("/public/v1/submit/init_user_email_recovery", {
+    return this.command("/public/v1/submit/init_user_email_recovery", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -447,7 +488,7 @@ export class TurnkeySDKClient {
 
 
 	recoverUser = async (input: SdkApiTypes.TRecoverUserBody): Promise<SdkApiTypes.TRecoverUserResponse> => {
-    return this.activityRequest("/public/v1/submit/recover_user", {
+    return this.command("/public/v1/submit/recover_user", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -457,8 +498,18 @@ export class TurnkeySDKClient {
   }
 
 
+	rejectActivity = async (input: SdkApiTypes.TRejectActivityBody): Promise<SdkApiTypes.TRejectActivityResponse> => {
+    return this.activityDecision("/public/v1/submit/reject_activity", {
+      parameters: {...input},
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      type: "ACTIVITY_TYPE_REJECT_ACTIVITY"
+    });
+  }
+
+
 	removeOrganizationFeature = async (input: SdkApiTypes.TRemoveOrganizationFeatureBody): Promise<SdkApiTypes.TRemoveOrganizationFeatureResponse> => {
-    return this.activityRequest("/public/v1/submit/remove_organization_feature", {
+    return this.command("/public/v1/submit/remove_organization_feature", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -469,7 +520,7 @@ export class TurnkeySDKClient {
 
 
 	setOrganizationFeature = async (input: SdkApiTypes.TSetOrganizationFeatureBody): Promise<SdkApiTypes.TSetOrganizationFeatureResponse> => {
-    return this.activityRequest("/public/v1/submit/set_organization_feature", {
+    return this.command("/public/v1/submit/set_organization_feature", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -480,7 +531,7 @@ export class TurnkeySDKClient {
 
 
 	signRawPayload = async (input: SdkApiTypes.TSignRawPayloadBody): Promise<SdkApiTypes.TSignRawPayloadResponse> => {
-    return this.activityRequest("/public/v1/submit/sign_raw_payload", {
+    return this.command("/public/v1/submit/sign_raw_payload", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -491,7 +542,7 @@ export class TurnkeySDKClient {
 
 
 	signTransaction = async (input: SdkApiTypes.TSignTransactionBody): Promise<SdkApiTypes.TSignTransactionResponse> => {
-    return this.activityRequest("/public/v1/submit/sign_transaction", {
+    return this.command("/public/v1/submit/sign_transaction", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -502,7 +553,7 @@ export class TurnkeySDKClient {
 
 
 	updatePolicy = async (input: SdkApiTypes.TUpdatePolicyBody): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
-    return this.activityRequest("/public/v1/submit/update_policy", {
+    return this.command("/public/v1/submit/update_policy", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -513,7 +564,7 @@ export class TurnkeySDKClient {
 
 
 	updatePrivateKeyTag = async (input: SdkApiTypes.TUpdatePrivateKeyTagBody): Promise<SdkApiTypes.TUpdatePrivateKeyTagResponse> => {
-    return this.activityRequest("/public/v1/submit/update_private_key_tag", {
+    return this.command("/public/v1/submit/update_private_key_tag", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -524,7 +575,7 @@ export class TurnkeySDKClient {
 
 
 	updateRootQuorum = async (input: SdkApiTypes.TUpdateRootQuorumBody): Promise<SdkApiTypes.TUpdateRootQuorumResponse> => {
-    return this.activityRequest("/public/v1/submit/update_root_quorum", {
+    return this.command("/public/v1/submit/update_root_quorum", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -535,7 +586,7 @@ export class TurnkeySDKClient {
 
 
 	updateUser = async (input: SdkApiTypes.TUpdateUserBody): Promise<SdkApiTypes.TUpdateUserResponse> => {
-    return this.activityRequest("/public/v1/submit/update_user", {
+    return this.command("/public/v1/submit/update_user", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
@@ -546,7 +597,7 @@ export class TurnkeySDKClient {
 
 
 	updateUserTag = async (input: SdkApiTypes.TUpdateUserTagBody): Promise<SdkApiTypes.TUpdateUserTagResponse> => {
-    return this.activityRequest("/public/v1/submit/update_user_tag", {
+    return this.command("/public/v1/submit/update_user_tag", {
       parameters: {...input},
       organizationId: this.organizationId,
       timestampMs: String(Date.now()),
