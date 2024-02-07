@@ -6,7 +6,6 @@ import {
   hashMessage,
   resolveProperties,
   ethers,
-  TransactionResponse,
   copyRequest,
   resolveAddress,
 } from "ethers";
