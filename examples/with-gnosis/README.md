@@ -59,9 +59,8 @@ NOTES:
 
 - If the script exits because your account isn't funded, you can request funds via https://sepoliafaucet.com/ or Coinbase Wallet (developer settings).
 - Transactions will all be broadcasted sequentially.
-- For this example, we recommend the usage of Sepolia + Infura specifically: we've experienced more consistent performance for this example on Sepolia, which is not supported by the Alchemy provider in Ethers v5.
-
-See the following for a sample output:
+- For this example, we recommend the usage of Sepolia + Infura specifically: we've experienced more consistent performance for this example on Sepolia.
+  See the following for a sample output:
 
 ```
 Address:
