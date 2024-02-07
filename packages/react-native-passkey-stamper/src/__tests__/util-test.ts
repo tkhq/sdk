@@ -1,8 +1,5 @@
 import { test, expect } from "@jest/globals";
-import {
-  getChallengeFromPayload,
-  getRandomChallenge,
-} from "../util";
+import { getChallengeFromPayload, getRandomChallenge } from "../util";
 
 test("generates correct challenges from payloads", async function () {
   // You can verify that this is the right value with:
