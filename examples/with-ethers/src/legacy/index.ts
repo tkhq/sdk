@@ -38,7 +38,7 @@ async function main() {
     signWith: process.env.PRIVATE_KEY_ID!,
   });
 
-  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
+  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v6/api/providers/)
   const network = "goerli";
   const provider = new ethers.InfuraProvider(network);
   const connectedSigner = turnkeySigner.connect(provider);

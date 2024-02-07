@@ -23,7 +23,7 @@ async function main() {
     return;
   }
 
-  // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
+  // Connect it with a Provider (https://docs.ethers.org/v6/api/providers/)
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(provider);
 

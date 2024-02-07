@@ -29,7 +29,7 @@ export function getProvider(env = Environment.GOERLI): Provider {
 }
 
 // getTurnkeySigner returns a TurnkeySigner connected to the passed-in Provider
-// (https://docs.ethers.org/v5/api/providers/)
+// (https://docs.ethers.org/v6/api/providers/)
 export function getTurnkeySigner(provider: ethers.Provider): TurnkeySigner {
   const turnkeyClient = new TurnkeyClient(
     {

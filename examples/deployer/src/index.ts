@@ -36,7 +36,7 @@ async function main() {
     signWith: process.env.SIGN_WITH!,
   });
 
-  // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
+  // Connect it with a Provider (https://docs.ethers.org/v6/api/providers/)
   const network = "goerli";
   const connectedSigner = turnkeySigner.connect(
     new ethers.InfuraProvider(network)
