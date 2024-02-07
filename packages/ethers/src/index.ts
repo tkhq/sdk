@@ -7,7 +7,9 @@ import {
   resolveProperties,
   ethers,
   TransactionResponse,
-  } from "ethers";
+  copyRequest,
+  resolveAddress,
+} from "ethers";
 import { TurnkeyActivityError, TurnkeyRequestError } from "@turnkey/http";
 import type { TurnkeyClient } from "@turnkey/http";
 import {
@@ -143,31 +145,37 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   async signTransaction(transaction: TransactionRequest): Promise<string> {
-        const unsignedTx = (await resolveProperties(
-      transaction
-    )) as TransactionLike<string>;
-      
+    let { from, to, ...txn } = copyRequest(transaction);
+    ({ to, from } = await resolveProperties({
+      to: transaction.to
+        ? resolveAddress(transaction.to, this.provider)
+        : undefined,
+      from: transaction.from
+        ? resolveAddress(transaction.from, this.provider)
+        : undefined,
+    }));
+
     // Mimic the behavior of ethers' `Wallet`:
     // - You don't need to pass in `tx.from`
     // - However if you do provide `tx.from`, verify and drop it before serialization
     //
     // https://github.com/ethers-io/ethers.js/blob/f97b92bbb1bde22fcc44100af78d7f31602863ab/packages/wallet/src.ts/index.ts#L117-L121
-    if (unsignedTx.from != null) {
+    if (from != null) {
       const selfAddress = await this.getAddress();
-      if (getAddress(unsignedTx.from) !== selfAddress) {
+      if (getAddress(from) !== selfAddress) {
         throw new Error(
-          `Transaction \`tx.from\` address mismatch. Self address: ${selfAddress}; \`tx.from\` address: ${unsignedTx.from}`
+          `Transaction \`tx.from\` address mismatch. Self address: ${selfAddress}; \`tx.from\` address: ${from}`
         );
       }
-
-      delete unsignedTx.from;
     }
+    delete transaction.from;
 
-    const serializedTx = Transaction.from(unsignedTx).unsignedSerialized;
-    const nonHexPrefixedSerializedTx = serializedTx.replace(/^0x/, "");
-    const signedTx = await this._signTransactionWithErrorWrapping(
-      nonHexPrefixedSerializedTx
-    );
+    const tx = Transaction.from(<TransactionLike<string>>{
+      ...txn,
+      ...(to && { to }),
+    });
+    const unsignedTx = tx.unsignedSerialized.substring(2);
+    const signedTx = await this._signTransactionWithErrorWrapping(unsignedTx);
 
     return `0x${signedTx}`;
   }
@@ -263,20 +271,6 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   _signTypedData = this.signTypedData.bind(this);
-
-  override async sendTransaction(
-    tx: TransactionRequest
-  ): Promise<TransactionResponse> {
-    if (!this.provider) {
-      throw "No provider found";
-    }
-
-    const populatedTxn = await this.populateTransaction(tx);
-
-    const signedTxn = await this.signTransaction(populatedTxn);
-
-    return await this.provider.broadcastTransaction(signedTxn);
-  }
 }
 
 export { TurnkeyActivityError, TurnkeyRequestError };
@@ -288,4 +282,3 @@ function assertNonNull<T>(input: T | null | undefined): T {
 
   return input;
 }
-
