@@ -1,7 +1,7 @@
 {
   "references": [
-    { "path": "./internal/encoding" },
     { "path": "./packages/cosmjs" },
+    { "path": "./packages/encoding" },
     { "path": "./packages/ethers" },
     { "path": "./packages/http" },
     { "path": "./packages/webauthn-stamper" },

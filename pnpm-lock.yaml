@@ -574,8 +574,6 @@ importers:
         specifier: ^1.16.6
         version: 1.16.6(typescript@5.1.3)
 
-  internal/encoding: {}
-
   internal/jest-config:
     dependencies:
       '@babel/core':
@@ -602,12 +600,13 @@ importers:
       '@noble/curves':
         specifier: ^1.3.0
         version: 1.3.0
-      '@turnkey/encoding':
-        specifier: workspace:*
-        version: link:../../internal/encoding
       sha256-uint8array:
         specifier: ^0.10.7
         version: 0.10.7
+    devDependencies:
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../encoding
 
   packages/cosmjs:
     dependencies:
@@ -630,6 +629,8 @@ importers:
       cosmjs-types:
         specifier: ^0.8.0
         version: 0.8.0
+
+  packages/encoding: {}
 
   packages/ethers:
     dependencies:
@@ -669,7 +670,7 @@ importers:
         version: link:../api-key-stamper
       '@turnkey/encoding':
         specifier: workspace:*
-        version: link:../../internal/encoding
+        version: link:../encoding
       '@turnkey/webauthn-stamper':
         specifier: workspace:*
         version: link:../webauthn-stamper
@@ -683,7 +684,7 @@ importers:
     dependencies:
       '@turnkey/encoding':
         specifier: workspace:*
-        version: link:../../internal/encoding
+        version: link:../encoding
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
