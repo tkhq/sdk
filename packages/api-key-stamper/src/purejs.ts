@@ -1,5 +1,6 @@
 import { p256 } from "@noble/curves/p256";
 import { createHash } from "sha256-uint8array";
+import { uint8ArrayToHexString } from "@turnkey/encoding";
 
 export const signWithApiKey = async (input: {
   content: string;
@@ -9,7 +10,7 @@ export const signWithApiKey = async (input: {
   const publicKey = p256.getPublicKey(input.privateKey, true);
 
   // Public key in the usual 02 or 03 + 64 hex digits
-  const publicKeyString = Buffer.from(publicKey).toString("hex");
+  const publicKeyString = uint8ArrayToHexString(publicKey);
 
   if (publicKeyString != input.publicKey) {
     throw new Error(
