@@ -1,6 +1,5 @@
 import { test, expect } from "@jest/globals";
 import {
-  base64Tobase64url,
   getChallengeFromPayload,
   getRandomChallenge,
 } from "../util";
@@ -27,11 +26,4 @@ test("generates valid random challenges", async function () {
   const buffer = Buffer.from(challenge, "hex");
   // 64 hex characters should be exactly 32 bytes
   expect(buffer.length).toBe(32);
-});
-
-test("converts base64 to base64url", async function () {
-  expect(
-    // Sample credential ID returned by f-23/react-native-passkey lib
-    base64Tobase64url("XkLQIv/W4UwcSn++zaY9lrAgOj4=")
-  ).toBe("XkLQIv_W4UwcSn--zaY9lrAgOj4");
 });

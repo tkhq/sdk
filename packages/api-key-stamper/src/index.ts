@@ -1,6 +1,5 @@
 /// <reference lib="dom" />
-
-import { stringToBase64urlString } from "./encoding";
+import { stringToBase64urlString } from "@turnkey/encoding";
 
 // Header name for an API key stamp
 const stampHeaderName = "X-Stamp";

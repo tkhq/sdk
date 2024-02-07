@@ -1,7 +1,7 @@
 import { signWithApiKey } from "@turnkey/api-key-stamper";
 import { fetch } from "./universal";
 import { getBrowserConfig, getConfig } from "./config";
-import { stringToBase64urlString } from "./encoding";
+import { stringToBase64urlString } from "@turnkey/encoding";
 import {
   getWebAuthnAssertion,
   TurnkeyCredentialRequestOptions,

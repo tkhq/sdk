@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "@noble/curves": "^1.3.0",
-    "sha256-uint8array": "^0.10.7"
+    "sha256-uint8array": "^0.10.7",
+    "@turnkey/encoding": "workspace:*"
   }
 }

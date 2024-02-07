@@ -1,5 +1,6 @@
 {
   "references": [
+    { "path": "./internal/encoding" },
     { "path": "./packages/cosmjs" },
     { "path": "./packages/ethers" },
     { "path": "./packages/http" },

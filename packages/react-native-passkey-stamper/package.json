@@ -53,6 +53,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@turnkey/encoding": "workspace:*",
     "@turnkey/http": "workspace:*",
     "buffer": "^6.0.3",
     "react-native-passkey": "^2.1.1",
