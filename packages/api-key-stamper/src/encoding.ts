@@ -6,7 +6,6 @@ import { pointDecode } from "./tink/elliptic_curves";
 export function stringToBase64urlString(input: string): string {
   // string to base64 -- we do not rely on the browser's btoa since it's not present in React Native environments
   const base64String = btoa(input);
-
   return base64StringToBase64UrlEncodedString(base64String);
 }
 
