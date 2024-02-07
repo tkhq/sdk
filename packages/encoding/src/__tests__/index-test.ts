@@ -1,5 +1,5 @@
 import { test, expect } from "@jest/globals";
-import { stringToBase64urlString } from "../encoding";
+import { stringToBase64urlString } from "..";
 
 // These test vectors can be verified with NodeJS:
 //   $ node
