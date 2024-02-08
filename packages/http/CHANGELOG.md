@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.7.1
+
+### Patch Changes
+
+- Update to v2024.2.0 API types: `mnemonicLength` is now a number instead of a string
+
 ## 2.7.0
 
 ### Minor Changes
