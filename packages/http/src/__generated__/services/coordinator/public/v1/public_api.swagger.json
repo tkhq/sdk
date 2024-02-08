@@ -24,15 +24,15 @@
     },
     {
       "name": "Wallets",
-      "description": "Wallets contain collections of deterministically generated cryptographic public / private key pairs that share a common seed. Turnkey securely holds the common seed, but only you can access it. In most cases, Wallets should be preferred over Private Keys since they can be represented by a mnemonic phrase, used across a variety of cryptographic curves, and can derive many addresses.\n\nDerived addresses can be used to create digital signatures using the corresponding underlying private key. See [Signers](./api#tag/Signers) for more information"
+      "description": "Wallets contain collections of deterministically generated cryptographic public / private key pairs that share a common seed. Turnkey securely holds the common seed, but only you can access it. In most cases, Wallets should be preferred over Private Keys since they can be represented by a mnemonic phrase, used across a variety of cryptographic curves, and can derive many addresses.\n\nDerived addresses can be used to create digital signatures using the corresponding underlying private key. See [Signing](./api#tag/Signing) for more information"
     },
     {
-      "name": "Signers",
-      "description": "Signers allow you to create digitial signatures. Signatures are used to validate the authenticity and integrity of a digital message. Turnkey makes it easy to produce signatures by allowing you to sign with an address. If Turnkey doesn't yet support an address format you need, you can generate and sign with the public key instead by using the address format `ADDRESS_FORMAT_COMPRESSED`."
+      "name": "Signing",
+      "description": "Signers allow you to create digital signatures. Signatures are used to validate the authenticity and integrity of a digital message. Turnkey makes it easy to produce signatures by allowing you to sign with an address. If Turnkey doesn't yet support an address format you need, you can generate and sign with the public key instead by using the address format `ADDRESS_FORMAT_COMPRESSED`."
     },
     {
       "name": "Private Keys",
-      "description": "Private Keys are cryptographic public / private key pairs that can be used for cryptocurrency needs or more generalized encryption. Turnkey securely holds all private key materials for you, but only you can access them.\n\nThe Private Key ID or any derived address can be used to create digital signatures. See [Signers](./api#tag/Signers) for more information"
+      "description": "Private Keys are cryptographic public / private key pairs that can be used for cryptocurrency needs or more generalized encryption. Turnkey securely holds all private key materials for you, but only you can access them.\n\nThe Private Key ID or any derived address can be used to create digital signatures. See [Signing](./api#tag/Signing) for more information"
     },
     {
       "name": "Private Key Tags",
@@ -1537,7 +1537,7 @@
             }
           }
         ],
-        "tags": ["Signers"]
+        "tags": ["Signing"]
       }
     },
     "/public/v1/submit/sign_transaction": {
@@ -1569,7 +1569,7 @@
             }
           }
         ],
-        "tags": ["Signers"]
+        "tags": ["Signing"]
       }
     },
     "/public/v1/submit/update_policy": {
@@ -3237,8 +3237,8 @@
           "description": "A list of wallet Accounts."
         },
         "mnemonicLength": {
-          "type": "string",
-          "format": "uint64",
+          "type": "integer",
+          "format": "int32",
           "description": "Length of mnemonic to generate the Wallet seed. Defaults to 12. Accepted values: 12, 15, 18, 21, 24."
         }
       },
@@ -6234,8 +6234,8 @@
           "description": "A list of wallet Accounts."
         },
         "mnemonicLength": {
-          "type": "string",
-          "format": "uint64",
+          "type": "integer",
+          "format": "int32",
           "description": "Length of mnemonic to generate the Wallet seed. Defaults to 12. Accepted values: 12, 15, 18, 21, 24."
         }
       },
@@ -6311,8 +6311,8 @@
       "tags": ["Organizations", "Invitations", "Policies", "Features"]
     },
     {
-      "name": "PRIVATE KEYS",
-      "tags": ["Wallets", "Signers", "Private Keys", "Private Key Tags"]
+      "name": "WALLETS AND PRIVATE KEYS",
+      "tags": ["Wallets", "Signing", "Private Keys", "Private Key Tags"]
     },
     {
       "name": "USERS",
