@@ -49,8 +49,3 @@ export function getRandomChallenge(): string {
   }
   return randomHexChars.join("");
 }
-
-// Simple util to convert a base64-encoded string to base64url
-export function base64Tobase64url(s: string): string {
-  return s.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
-}

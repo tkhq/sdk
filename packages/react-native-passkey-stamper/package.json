@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/react-native-passkey-stamper",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -53,6 +53,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@turnkey/encoding": "workspace:*",
     "@turnkey/http": "workspace:*",
     "buffer": "^6.0.3",
     "react-native-passkey": "^2.1.1",
