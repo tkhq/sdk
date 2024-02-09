@@ -6,8 +6,8 @@ Updates @turnkey/ethers package and examples to use ethers v6. Refer to https://
 
 ✨Summary of Changes✨
 
-- `getBalance` iis no longer a method on the signer. It must be obtained via the provider instance.
-  Additionally, it requires that an address to be passed in:
+`getBalance` is no longer a method on the signer. It must be obtained via the provider instance.
+Additionally, it requires an address to be passed in:
 
 ```
 // before
@@ -20,7 +20,7 @@ const address = await connectedSigner.getAddress()
 const balance = await connectedSigner.provider?.getBalance(address)
 ```
 
-- `getChainId` is no longer a method on the signer. It must be obtained via the network object on the provider instance:
+`getChainId` is no longer a method on the signer. It must be obtained via the network object on the provider instance:
 
 ```
 // before
@@ -30,8 +30,8 @@ const chainId = await connectedSigner.getChainId();
 const chainId = (await connectedSigner.provider?.getNetwork())?.chainId;
 ```
 
-- `getTransactionCount` is no longer a method on the signer. It must be obtained via the provider instance.
-  Additionally, it requires that an address to be passed in:
+`getTransactionCount` is no longer a method on the signer. It must be obtained via the provider instance.
+Additionally, it requires an address to be passed in:
 
 ```
 // before
@@ -44,23 +44,23 @@ const address = await connectedSigner.getAddress()
 const transactionCount = await connectedSigner.provider?.getTransactionCount(address);
 ```
 
-- `getFeeData` is no longer a method on the signer. It must be obtained via the provider instance:
+`getFeeData` is no longer a method on the signer. It must be obtained via the provider instance:
 
 ```
-//before
+// before
 const feeData = await connectedSigner.getFeeData();
 
-//after
+// after
 const feeData = await connectedSigner.provider?.getFeeData();
 ```
 
-- BigNumber -> bigint: numerical values such as, chainId, fee data, balance now use new js primitive `bigint` instead of `BigNumber`.
-  For example, when checking if the balance is `0`, `bigint` must now be used for comparison:
+BigNumber -> bigint: numerical values such as, chainId, fee data, balance now use new ES6 primitive `bigint` instead of `BigNumber`.
+For example, when checking if the balance is `0`, `bigint` must now be used for comparison:
 
 ```
 // before
 if (balance.isZero()) {...}
 
-//after
+// after
 if (balance === 0n) {...}
 ```
