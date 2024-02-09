@@ -825,10 +825,10 @@ export type definitions = {
     /** @description A list of wallet Accounts. */
     accounts: definitions["v1WalletAccountParams"][];
     /**
-     * Format: uint64
+     * Format: int32
      * @description Length of mnemonic to generate the Wallet seed. Defaults to 12. Accepted values: 12, 15, 18, 21, 24.
      */
-    mnemonicLength?: string;
+    mnemonicLength?: number;
   };
   v1CreateWalletRequest: {
     /** @enum {string} */
@@ -1967,10 +1967,10 @@ export type definitions = {
     /** @description A list of wallet Accounts. */
     accounts: definitions["v1WalletAccountParams"][];
     /**
-     * Format: uint64
+     * Format: int32
      * @description Length of mnemonic to generate the Wallet seed. Defaults to 12. Accepted values: 12, 15, 18, 21, 24.
      */
-    mnemonicLength?: string;
+    mnemonicLength?: number;
   };
   v1WalletResult: {
     walletId: string;

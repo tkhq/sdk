@@ -595,7 +595,17 @@ importers:
         specifier: ^29.3.1
         version: 29.4.3(@babel/core@7.20.12)
 
-  packages/api-key-stamper: {}
+  packages/api-key-stamper:
+    dependencies:
+      '@noble/curves':
+        specifier: ^1.3.0
+        version: 1.3.0
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../encoding
+      sha256-uint8array:
+        specifier: ^0.10.7
+        version: 0.10.7
 
   packages/cosmjs:
     dependencies:
@@ -618,6 +628,8 @@ importers:
       cosmjs-types:
         specifier: ^0.8.0
         version: 0.8.0
+
+  packages/encoding: {}
 
   packages/ethers:
     dependencies:
@@ -658,6 +670,9 @@ importers:
       '@turnkey/api-key-stamper':
         specifier: workspace:*
         version: link:../api-key-stamper
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../encoding
       '@turnkey/webauthn-stamper':
         specifier: workspace:*
         version: link:../webauthn-stamper
@@ -669,6 +684,9 @@ importers:
 
   packages/react-native-passkey-stamper:
     dependencies:
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../encoding
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
@@ -728,12 +746,9 @@ importers:
 
   packages/webauthn-stamper:
     dependencies:
-      '@noble/hashes':
-        specifier: ^1.3.2
-        version: 1.3.2
-      buffer:
-        specifier: ^6.0.3
-        version: 6.0.3
+      sha256-uint8array:
+        specifier: ^0.10.7
+        version: 0.10.7
 
 packages:
 
@@ -903,7 +918,7 @@ packages:
     dependencies:
       '@babel/compat-data': 7.22.20
       '@babel/helper-validator-option': 7.22.15
-      browserslist: 4.21.10
+      browserslist: 4.22.3
       lru-cache: 5.1.1
       semver: 6.3.1
     dev: false
@@ -6354,7 +6369,7 @@ packages:
     resolution: {integrity: sha512-E4BdfB0HZpb66OPFhIzPApNE2tG75Mc6XKIoeymUkx/IV+USSYuxDX29sjgE/KGNYxggrOf4YuYnRMI6UiPL8w==}
     dependencies:
       '@babel/runtime': 7.23.8
-      '@noble/curves': 1.2.0
+      '@noble/curves': 1.3.0
       '@noble/hashes': 1.3.2
       '@solana/buffer-layout': 4.0.1
       agentkeepalive: 4.5.0
@@ -7612,17 +7627,6 @@ packages:
       inherits: 2.0.4
       safe-buffer: 5.2.1
 
-  /browserslist@4.21.10:
-    resolution: {integrity: sha512-bipEBdZfVH5/pwrvqc+Ub0kUPVfGUhlKxbvfD+z1BDnPEO/X98ruXGA1WP5ASpAFKan7Qr6j736IacbZQuAlKQ==}
-    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
-    hasBin: true
-    dependencies:
-      caniuse-lite: 1.0.30001535
-      electron-to-chromium: 1.4.523
-      node-releases: 2.0.13
-      update-browserslist-db: 1.0.11(browserslist@4.21.10)
-    dev: false
-
   /browserslist@4.21.5:
     resolution: {integrity: sha512-tUkiguQGW7S3IhB7N+c2MV/HZPSCPAAiYBZXLsBhFB/PCy6ZKKsZrmBayHV9fdGV/ARIfJ14NkxKzRDjvp7L6w==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
@@ -8521,10 +8525,6 @@ packages:
 
   /electron-to-chromium@1.4.298:
     resolution: {integrity: sha512-dJZurgxDeaqn90VmS23Xz+QPQQl84BxnlAfwCDFNjfEhqO2yLMDkeaDoJ1yPXAbmiqTi+hd5TpB5zi1N4hwBuQ==}
-
-  /electron-to-chromium@1.4.523:
-    resolution: {integrity: sha512-9AreocSUWnzNtvLcbpng6N+GkXnCcBR80IQkxRC9Dfdyg4gaWNUPBujAHUpKkiUkoSoR9UlhA4zD/IgBklmhzg==}
-    dev: false
 
   /electron-to-chromium@1.4.659:
     resolution: {integrity: sha512-sRJ3nV3HowrYpBtPF9bASQV7OW49IgZC01Xiq43WfSE3RTCkK0/JidoCmR73Hyc1mN+l/H4Yqx0eNiomvExFZg==}
@@ -12207,10 +12207,6 @@ packages:
   /node-releases@2.0.10:
     resolution: {integrity: sha512-5GFldHPXVG/YZmFzJvKK2zDSzPKhEp0+ZR5SVaoSag9fsL5YgHbUHDfnG5494ISANDcK4KwPXAx2xqVEydmd7w==}
 
-  /node-releases@2.0.13:
-    resolution: {integrity: sha512-uYr7J37ae/ORWdZeQ1xxMJe3NtdmqMC/JZK+geofDrkLUApKRHPd18/TxtBOJ4A0/+uUIliorNrfYV6s1b02eQ==}
-    dev: false
-
   /node-releases@2.0.14:
     resolution: {integrity: sha512-y10wOWt8yZpqXmOgRo77WaHEmhYQYGNA6y421PKsKYWEK8aW+cqAphborZDhqfyKrbZEN92CN1X2KbafY2s7Yw==}
     dev: false
@@ -14372,17 +14368,6 @@ packages:
       browserslist: 4.21.5
       escalade: 3.1.1
       picocolors: 1.0.0
-
-  /update-browserslist-db@1.0.11(browserslist@4.21.10):
-    resolution: {integrity: sha512-dCwEFf0/oT85M1fHBg4F0jtLwJrutGoHSQXCh7u4o2t1drG+c0a9Flnqww6XUKSfQMPpJBRjU8d4RXB09qtvaA==}
-    hasBin: true
-    peerDependencies:
-      browserslist: '>= 4.21.0'
-    dependencies:
-      browserslist: 4.21.10
-      escalade: 3.1.1
-      picocolors: 1.0.0
-    dev: false
 
   /update-browserslist-db@1.0.13(browserslist@4.22.3):
     resolution: {integrity: sha512-xebP81SNcPuNpPP3uzeW1NYXxI3rxyJzF3pD6sH4jE7o/IX+WtSpwnVU+qIsDPyk0d3hmFQ7mjqc6AtV604hbg==}

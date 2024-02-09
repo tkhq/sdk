@@ -3,6 +3,7 @@
   "buildCommand": "csb:build",
   "packages": [
     "packages/cosmjs",
+    "packages/encoding",
     "packages/ethers",
     "packages/http",
     "packages/solana",

@@ -1,5 +1,5 @@
 import * as crypto from "crypto";
-import { convertTurnkeyApiKeyToJwk } from "./encoding";
+import { convertTurnkeyApiKeyToJwk } from "./utils";
 
 export const signWithApiKey = async (input: {
   content: string;

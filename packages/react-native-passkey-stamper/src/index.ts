@@ -1,10 +1,7 @@
 import { Passkey } from "react-native-passkey";
 import type { TurnkeyApiTypes } from "@turnkey/http";
-import {
-  base64Tobase64url,
-  getChallengeFromPayload,
-  getRandomChallenge,
-} from "./util";
+import { base64StringToBase64UrlEncodedString as base64Tobase64url } from "@turnkey/encoding";
+import { getChallengeFromPayload, getRandomChallenge } from "./util";
 
 /**
  * https://www.w3.org/TR/webauthn-2/#dictionary-credential-descriptor

@@ -1,5 +1,21 @@
 # @turnkey/http
 
+## 2.7.1
+
+### Patch Changes
+
+- Update to v2024.2.0 API types: `mnemonicLength` is now a number instead of a string
+
+## 2.7.0
+
+### Minor Changes
+
+- Introduce and reference `@turnkey/encoding` to consolidate utility functions
+- Updated dependencies ([c3b423b], [d73725b])
+  - @turnkey/webauthn-stamper@0.5.0
+  - @turnkey/api-key-stamper@0.4.0
+  - @turnkey/encoding@0.1.0
+
 ## 2.6.2
 
 ### Patch Changes
