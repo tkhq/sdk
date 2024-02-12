@@ -35,22 +35,23 @@ async function main() {
     signWith: process.env.SIGN_WITH!,
   });
 
-  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
+  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v6/api/providers/)
   const network = "goerli";
-  const provider = new ethers.providers.InfuraProvider(network);
+  const provider = new ethers.InfuraProvider(network);
   const connectedSigner = turnkeySigner.connect(provider);
 
-  const chainId = await connectedSigner.getChainId();
+  const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0n;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.getBalance();
-  const transactionCount = await connectedSigner.getTransactionCount();
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
+  const transactionCount =
+    (await connectedSigner.provider?.getTransactionCount(address)) ?? 0;
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);
-  print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
+  print("Balance:", `${ethers.formatEther(balance)} Ether`);
   print("Transaction count:", `${transactionCount}`);
 
-  if (balance.isZero()) {
+  if (balance === 0n) {
     let warningMessage =
       "The transactions won't be broadcasted because your account balance is zero.\n";
     if (network === "goerli") {
@@ -68,7 +69,7 @@ async function main() {
     const destinationAddress = "0x2Ad9eA1E677949a536A270CEC812D6e868C88108";
     const transactionRequest = {
       to: destinationAddress,
-      value: ethers.utils.parseEther(transactionAmount),
+      value: ethers.parseEther(transactionAmount),
       type: 2,
       nonce: transactionCount + i, // manually specify the nonce
     };
@@ -76,7 +77,7 @@ async function main() {
     const sendTx = await connectedSigner.sendTransaction(transactionRequest);
 
     print(
-      `Sent ${ethers.utils.formatEther(sendTx.value)} Ether to ${sendTx.to}:`,
+      `Sent ${ethers.formatEther(sendTx.value)} Ether to ${sendTx.to}:`,
       `https://${network}.etherscan.io/tx/${sendTx.hash}`
     );
 

@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { ethers } from "ethers";
+import { FeeData } from "ethers";
 import { isKeyOfObject } from "./utils";
 import {
   createPrivateKey,
@@ -27,8 +27,8 @@ import keys from "./keys";
 const SWEEP_THRESHOLD = 100000000000000; // 0.0001 ETH
 const MIN_INTERVAL_MS = 10000; // 10 seconds
 const MAX_INTERVAL_MS = 60000; // 60 seconds
-const TRANSFER_GAS_LIMIT = 21000;
-const GAS_MULTIPLIER = 2;
+const TRANSFER_GAS_LIMIT = 21000n;
+const GAS_MULTIPLIER = 2n;
 const ACTIVITIES_LIMIT = "100";
 
 // For demonstration purposes, create a globally accessible TurnkeyClient
@@ -232,10 +232,9 @@ async function fundImpl() {
     }
 
     await sendEth(
-      provider,
       connectedSigner,
       ethAddress.address,
-      ethers.BigNumber.from(120000000000000) // 0.00012 ETH
+      120000000000000n // 0.00012 ETH
     );
   }
 }
@@ -283,41 +282,45 @@ async function sweepImpl() {
   for (const pk of shortTermStoragePrivateKeys!) {
     const provider = getProvider();
     const connectedSigner = getTurnkeySigner(provider, pk.privateKeyId);
-    const balance = await connectedSigner.getBalance();
-    const feeData = await connectedSigner.getFeeData();
+    const balance =
+      (await connectedSigner.provider?.getBalance(ethAddress.address)) ?? 0n;
     const address = await connectedSigner.getAddress();
+    const originalFeeData = await connectedSigner.provider?.getFeeData();
 
-    feeData.maxFeePerGas = feeData.maxFeePerGas!.mul(GAS_MULTIPLIER);
-    feeData.maxPriorityFeePerGas =
-      feeData.maxPriorityFeePerGas!.mul(GAS_MULTIPLIER);
-
-    const gasRequired = feeData
-      .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
-      .mul(TRANSFER_GAS_LIMIT); // 21000 is the gas limit for a simple transfer
-
-    if (balance.lt(SWEEP_THRESHOLD)) {
-      console.log(
-        `Address ${address} has an insufficient balance for sweep. Moving on...`
-      );
-      continue;
-    }
-
-    const sweepAmount = balance.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
-
-    if (sweepAmount.lt(0)) {
-      console.log(
-        `Address ${address} has an insufficient balance for sweep. Moving on...`
-      );
-      continue;
-    }
-
-    await sendEth(
-      provider,
-      connectedSigner,
-      ethAddress.address,
-      sweepAmount,
-      feeData
+    const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas
+      ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER
+      : 0n;
+    const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas
+      ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER
+      : 0n;
+    const feeData = new FeeData(
+      originalFeeData?.gasPrice,
+      updatedMaxFeePerGas,
+      updatedMaxPriorityFeePerGas
     );
+    const gasRequired =
+      feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas
+        ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) *
+          TRANSFER_GAS_LIMIT
+        : 0n;
+
+    if (balance < SWEEP_THRESHOLD) {
+      console.log(
+        `Address ${address} has an insufficient balance for sweep. Moving on...`
+      );
+      continue;
+    }
+
+    const sweepAmount = balance - gasRequired * 2n; // be relatively conservative with sweep amount to prevent overdraft
+
+    if (sweepAmount === 0n) {
+      console.log(
+        `Address ${address} has an insufficient balance for sweep. Moving on...`
+      );
+      continue;
+    }
+
+    await sendEth(connectedSigner, ethAddress.address, sweepAmount, feeData);
   }
 }
 
@@ -367,31 +370,36 @@ async function recycleImpl() {
     );
   }
 
-  const balance = await connectedSigner.getBalance();
-  const feeData = await connectedSigner.getFeeData();
+  const balance =
+    (await connectedSigner.provider?.getBalance(ethAddress.address)) ?? 0n;
 
-  feeData.maxFeePerGas = feeData.maxFeePerGas!.mul(GAS_MULTIPLIER);
-  feeData.maxPriorityFeePerGas =
-    feeData.maxPriorityFeePerGas!.mul(GAS_MULTIPLIER);
+  const originalFeeData = await connectedSigner.provider?.getFeeData();
 
-  const gasRequired = feeData
-    .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
-    .mul(TRANSFER_GAS_LIMIT); // 21000 is the gas limit for a simple transfer
+  const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas
+    ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER
+    : null;
+  const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas
+    ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER
+    : null;
+  const feeData = new FeeData(
+    originalFeeData?.gasPrice,
+    updatedMaxFeePerGas,
+    updatedMaxPriorityFeePerGas
+  );
+  const gasRequired =
+    feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas
+      ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) *
+        TRANSFER_GAS_LIMIT
+      : 0n;
 
-  const recycleAmount = balance.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
+  const recycleAmount = balance - gasRequired * 2n; // be relatively conservative with sweep amount to prevent overdraft
 
-  if (recycleAmount.lte(0)) {
+  if (recycleAmount <= 0n) {
     console.log("Insufficient balance for recycle...");
     return;
   }
 
-  await sendEth(
-    provider,
-    connectedSigner,
-    ethAddress.address,
-    recycleAmount,
-    feeData
-  );
+  await sendEth(connectedSigner, ethAddress.address, recycleAmount, feeData);
 }
 
 // two approaches:
