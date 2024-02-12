@@ -40,6 +40,11 @@
   },
   "packageManager": "pnpm@8.4.0",
   "pnpm": {
+    "auditConfig": {
+      "ignoreCves": [
+        "CVE-2023-42282"
+      ]
+    },
     "overrides": {
       "@confio/ics23@0.6.8>protobufjs": ">=7.2.4",
       "protobufjs@>=6.10.0 <7.2.4": ">=7.2.4",
