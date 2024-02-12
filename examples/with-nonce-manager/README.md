@@ -1,6 +1,6 @@
 # Example: `with-nonce-manager`
 
-This example shows how to construct and broadcast a transaction using [`Ethers`](https://docs.ethers.org/v5/api/signer/) with Turnkey.
+This example shows how to construct and broadcast a transaction using [`Ethers`](https://docs.ethers.org/v6/api/providers/#Signer) with Turnkey.
 
 ## Getting started
 

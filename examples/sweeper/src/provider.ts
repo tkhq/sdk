@@ -12,16 +12,14 @@ const DEFAULT_ENV = Environment.GOERLI;
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-let provider = new ethers.providers.InfuraProvider(
+let provider = new ethers.InfuraProvider(
   DEFAULT_ENV,
   process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY
 );
 
-export function getProvider(
-  env = Environment.GOERLI
-): ethers.providers.Provider {
+export function getProvider(env = Environment.GOERLI): ethers.Provider {
   if (env !== Environment.GOERLI) {
-    provider = new ethers.providers.InfuraProvider(
+    provider = new ethers.InfuraProvider(
       env,
       process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY
     );
@@ -31,10 +29,8 @@ export function getProvider(
 }
 
 // getTurnkeySigner returns a TurnkeySigner connected to the passed-in Provider
-// (https://docs.ethers.org/v5/api/providers/)
-export function getTurnkeySigner(
-  provider: ethers.providers.Provider
-): TurnkeySigner {
+// (https://docs.ethers.org/v6/api/providers/)
+export function getTurnkeySigner(provider: ethers.Provider): TurnkeySigner {
   const turnkeyClient = new TurnkeyClient(
     {
       baseUrl: process.env.BASE_URL!,

@@ -23,21 +23,21 @@ async function main() {
     return;
   }
 
-  // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
+  // Connect it with a Provider (https://docs.ethers.org/v6/api/providers/)
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(provider);
 
   const network = await provider.getNetwork();
-  const chainId = await connectedSigner.getChainId();
+  const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0n;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.getBalance();
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
   const destinationAddress = "0x2Ad9eA1E677949a536A270CEC812D6e868C88108";
 
   print("Network:", `${network.name} (chain ID ${chainId})`);
   print("Address:", address);
-  print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
+  print("Balance:", `${ethers.formatEther(balance)} Ether`);
 
-  if (balance.isZero()) {
+  if (balance === 0n) {
     let warningMessage =
       "The transaction won't be broadcasted because your account balance is zero.\n";
     if (network.name === "goerli") {
@@ -76,9 +76,9 @@ async function sweepTokens(
 ) {
   for (let t of tokens) {
     let contract = new ethers.Contract(t.address, ERC20_ABI, connectedSigner);
-    let balance = await contract.balanceOf(address);
+    let balance: bigint = (await contract.balanceOf?.(address)) ?? 0n;
 
-    if (balance == 0) {
+    if (balance === 0n) {
       console.warn(`No balance for ${t.symbol}. Skipping...`);
       continue;
     }
@@ -88,7 +88,7 @@ async function sweepTokens(
         type: "confirm",
         name: "confirmed",
         message: `Please confirm: transfer ${toReadableAmount(
-          balance,
+          balance.toString(),
           t.decimals,
           12
         )} ${t.symbol || "<missing symbol>"} (token address ${
@@ -98,14 +98,14 @@ async function sweepTokens(
     ]);
 
     if (confirmed) {
-      let transferTx = await contract.transfer(destinationAddress, balance);
+      let transferTx = await contract.transfer?.(destinationAddress, balance);
 
       console.log("Awaiting confirmation...");
 
       await connectedSigner.provider?.waitForTransaction(transferTx.hash, 1);
 
       print(
-        `Sent ${toReadableAmount(balance, t.decimals)} ${
+        `Sent ${toReadableAmount(balance.toString(), t.decimals)} ${
           t.symbol || "<missing symbol>"
         } (token address ${t.address}) to ${destinationAddress}:`,
         `https://${network}.etherscan.io/tx/${transferTx.hash}`
@@ -121,12 +121,16 @@ async function sweepEth(
   network: string,
   destinationAddress: string
 ) {
-  const balance = await connectedSigner.getBalance();
-  const feeData = await connectedSigner.getFeeData();
-  const gasRequired = feeData.maxFeePerGas!.mul(21000);
-  const value = balance.sub(gasRequired);
+  const address = await connectedSigner.getAddress();
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
 
-  if (value.lte(0)) {
+  const feeData = await connectedSigner.provider?.getFeeData();
+  const gasRequired = feeData?.maxFeePerGas
+    ? feeData?.maxFeePerGas * 21000n
+    : 0n;
+  const value = balance - gasRequired;
+
+  if (value <= 0) {
     console.warn(`Insufficient ETH balance to sweep. Skipping...`);
     return;
   }
@@ -135,8 +139,8 @@ async function sweepEth(
     to: destinationAddress,
     value: value,
     type: 2,
-    maxFeePerGas: feeData.maxFeePerGas!,
-    maxPriorityFeePerGas: feeData.maxPriorityFeePerGas!,
+    maxFeePerGas: feeData?.maxFeePerGas ?? 0n,
+    maxPriorityFeePerGas: feeData?.maxPriorityFeePerGas ?? 0n,
   };
 
   let { confirmed } = await prompts([
