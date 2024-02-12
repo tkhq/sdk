@@ -1,5 +1,5 @@
 ---
-"@turnkey/ethers": minor
+"@turnkey/ethers": major
 ---
 
 Updates @turnkey/ethers package and examples to use ethers v6. Refer to https://docs.ethers.org/v6/migrating for full migration instructions.
