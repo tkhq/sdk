@@ -1,4 +1,8 @@
-import { PublicKey, type Transaction } from "@solana/web3.js";
+import {
+  PublicKey,
+  type Transaction,
+  VersionedTransaction,
+} from "@solana/web3.js";
 import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
 
 export class TurnkeySigner {
@@ -13,12 +17,21 @@ export class TurnkeySigner {
   /**
    * This function takes a Solana transaction and adds a signature with Turnkey
    *
-   * @param tx Transaction object (native @solana/web3.js type)
+   * @param tx Transaction | VersionedTransaction object (native @solana/web3.js type)
    * @param fromAddress Solana address (base58 encoded)
    */
-  public async addSignature(tx: Transaction, fromAddress: string) {
+  public async addSignature(
+    tx: Transaction | VersionedTransaction,
+    fromAddress: string
+  ) {
     const fromKey = new PublicKey(fromAddress);
-    const messageToSign = tx.serializeMessage();
+
+    let messageToSign: Buffer;
+    if (tx instanceof VersionedTransaction) {
+      messageToSign = Buffer.from(tx.message.serialize());
+    } else {
+      messageToSign = tx.serializeMessage();
+    }
 
     const signRawPayloadResult = await this.signRawPayload(
       messageToSign.toString("hex"),
