@@ -1,5 +1,11 @@
 # @turnkey/solana
 
+## 0.3.0
+
+### Minor Changes
+
+Add support for signing Solana versioned transactions (#216)
+
 ## 0.2.2
 
 ### Patch Changes
