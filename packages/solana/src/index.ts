@@ -1,7 +1,7 @@
 import {
   PublicKey,
   type Transaction,
-  VersionedTransaction,
+  type VersionedTransaction,
 } from "@solana/web3.js";
 import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
 
@@ -27,10 +27,17 @@ export class TurnkeySigner {
     const fromKey = new PublicKey(fromAddress);
 
     let messageToSign: Buffer;
-    if (tx instanceof VersionedTransaction) {
-      messageToSign = Buffer.from(tx.message.serialize());
+
+    // @ts-ignore
+    // type narrowing (e.g. tx instanceof Transaction) does not seem to work here when the package gets compiled
+    // and bundled. Instead, we will check for the existence of a property unique to the Transaction class
+    // to determine whether the caller passed a Transaction or a VersionedTransaction
+    if (typeof tx.serializeMessage === "function") {
+      messageToSign = (tx as Transaction).serializeMessage();
     } else {
-      messageToSign = tx.serializeMessage();
+      messageToSign = Buffer.from(
+        (tx as VersionedTransaction).message.serialize()
+      );
     }
 
     const signRawPayloadResult = await this.signRawPayload(
