@@ -1,5 +1,11 @@
 # @turnkey/solana
 
+## 0.3.1
+
+### Patch Changes
+
+Adjust logic for signing transactions and versioned transactions to avoid typechecks (#218)
+
 ## 0.3.0
 
 ### Minor Changes
