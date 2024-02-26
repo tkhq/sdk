@@ -62,9 +62,10 @@ export class TurnkeySDKClientBase {
     const initialData: TResponseType = await this.query<TBodyType, TResponseType>(url, body);
     const activityId = initialData["activity"]["id"];
     let activityStatus = initialData["activity"]["status"];
+    const activityResultKey = `${methodName}Result`;
 
     if (activityStatus !== "ACTIVITY_STATUS_PENDING") {
-      return initialData["activity"]["result"][`${methodName}Result`];
+      return (initialData["activity"]["result"] as any)[activityResultKey] as TResponseType;
     }
 
     const pollStatus = async (): Promise<TResponseType> => {
@@ -76,7 +77,7 @@ export class TurnkeySDKClientBase {
         await delay(POLLING_DURATION);
         return await pollStatus();
       } else {
-        return pollData["activity"]["result"][`${methodName}Result`];
+        return (pollData["activity"]["result"] as any)[activityResultKey] as TResponseType;
       }
     }
 
@@ -88,10 +89,10 @@ export class TurnkeySDKClientBase {
     body: TBodyType
   ): Promise<TResponseType> {
     const data: TResponseType = await this.query(url, body);
-    return data["activity"]["result"];
+    return data["activity"]["result"] as TResponseType;
   }
 
-  
+
 
 
 	getActivity = async (input: SdkApiTypes.TGetActivityBody, overrideParams?: any): Promise<SdkApiTypes.TGetActivityResponse> => {
