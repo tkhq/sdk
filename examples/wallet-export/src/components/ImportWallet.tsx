@@ -4,11 +4,8 @@ import axios from "axios";
 import { useState } from "react";
 
 import styles from "../pages/index.module.css";
-import { TurnkeyApiTypes } from "@turnkey/http";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { Import } from "@/components/Import";
-
-type TWallet = TurnkeyApiTypes["v1Wallet"];
 
 type ImportWalletProps = {
   userId: string;
@@ -55,6 +52,7 @@ export function ImportWallet(props: ImportWalletProps) {
       encryptedBundle,
     });
 
+    // Get wallets again
     if (response) {
       props.getWallets()
 

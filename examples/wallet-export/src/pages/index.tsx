@@ -1,43 +1,36 @@
 import Image from "next/image";
+import axios from "axios";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 import styles from "./index.module.css";
-import { TurnkeyApiTypes } from "@turnkey/http";
 import { Modal } from "@/components/Modal";
 import { ExportWallet } from "@/components/ExportWallet";
 import { ImportWallet } from "@/components/ImportWallet";
 import { WalletsTable } from "@/components/WalletsTable";
+import { TurnkeyApiTypes } from "@turnkey/http";
 
 type TWallet = TurnkeyApiTypes["v1Wallet"];
 
 export default function ExportPage() {
+  const [userId, setUserId] = useState<string | null>(null);
   const [wallets, setWallets] = useState<TWallet[]>([]);
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
-  // Get wallets
+  // Get current user and wallets
   useEffect(() => {
+    whoami();
     getWallets();
   }, []);
 
-  const openExportModal = (walletId: string) => {
-    setSelectedWallet(walletId)
-    setIsExportModalOpen(true);
-  }
+  // Get the current user
+  const whoami = async () => {
+    const organizationId = process.env.NEXT_PUBLIC_ORGANIZATION_ID!;
+    const res = await axios.post("/api/whoami", { organizationId });
 
-  const closeExportModal = () => {
-    setIsExportModalOpen(false);
-  }
-
-  const openImportModal = () => {
-    setIsImportModalOpen(true);
-  }
-
-  const closeImportModal = () => {
-    setIsImportModalOpen(false);
+    setUserId(res.data.userId);
   }
 
   // Get the organization's wallets
@@ -68,32 +61,32 @@ export default function ExportPage() {
         </a>
       </div>
 
+      {/* Wallets Table and Action Buttons */}
       <div className={styles.buttons}>
         <button
           className={styles.button}
-          onClick={openImportModal}
+          onClick={() => setIsImportModalOpen(true)}
         >
           Import Wallet
         </button>
       </div>
-
-      {/* Wallets Table */}
       <WalletsTable
         wallets={wallets}
-        openExportModal={openExportModal}
+        setSelectedWallet={setSelectedWallet}
+        setIsExportModalOpen={setIsExportModalOpen}
       />
       
       {/* Import Modal */} 
-      <Modal show={isImportModalOpen} onClose={closeImportModal}>
+      <Modal show={isImportModalOpen} onClose={() => setIsImportModalOpen(false)}>
         <ImportWallet
-          userId={process.env.NEXT_PUBLIC_USER_ID!}
+          userId={userId}
           getWallets={getWallets}
         />
       </Modal>
 
       {/* Export Modal */} 
       {selectedWallet && (
-        <Modal show={isExportModalOpen} onClose={closeExportModal}>
+        <Modal show={isExportModalOpen} onClose={() => setIsExportModalOpen(false)}>
           <ExportWallet
             walletId={selectedWallet}
           />
