@@ -3,17 +3,17 @@
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
-interface ExportProps {
+interface ImportProps {
   iframeUrl: string;
   turnkeyBaseUrl: string;
   iframeDisplay: string;
   setIframeStamper: Dispatch<SetStateAction<IframeStamper | null>>;
 }
 
-const TurnkeyIframeContainerId = "turnkey-export-iframe-container-id";
-const TurnkeyIframeElementId = "turnkey-export-iframe-element-id";
+const TurnkeyIframeContainerId = "turnkey-import-iframe-container-id";
+const TurnkeyIframeElementId = "turnkey-import-iframe-element-id";
 
-export function Export(props: ExportProps) {
+export function Import(props: ImportProps) {
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
     null
   );
@@ -35,10 +35,9 @@ export function Export(props: ExportProps) {
         iframeContainer: document.getElementById(TurnkeyIframeContainerId),
         iframeElementId: TurnkeyIframeElementId,
       });
-      iframeStamper.init().then(() => {
-        setIframeStamper(iframeStamper);
-        props.setIframeStamper(iframeStamper);
-      });
+      // todo(olivia): no need to init because there is no public key init for import. improve ux here.
+      setIframeStamper(iframeStamper);
+      props.setIframeStamper(iframeStamper);
     }
 
     return () => {

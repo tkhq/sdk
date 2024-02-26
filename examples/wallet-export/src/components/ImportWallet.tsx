@@ -1,0 +1,95 @@
+"use client";
+
+import axios from "axios";
+import { useEffect, useState } from "react";
+
+import styles from "../pages/index.module.css";
+import { IframeStamper } from "@turnkey/iframe-stamper";
+import { Import } from "@/components/Import";
+
+type ImportWalletProps = {
+  userId: string;
+};
+
+export function ImportWallet(props: ImportWalletProps) {
+  const [iframeDisplay, setIframeDisplay] = useState("none");
+  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
+    null
+  );
+
+  // Init import the wallet
+  const initImportWallet = async () => {
+    if (iframeStamper === null) {
+      throw new Error("cannot init import wallet without an iframe");
+    }
+
+    const response = await axios.post("/api/initImportWallet", {
+      userId: props.userId,
+    });
+
+    const injected = await iframeStamper.injectImportBundle(
+      response.data["importBundle"]
+    );
+    if (injected !== true) {
+      throw new Error("unexpected error while injecting import bundle");
+    }
+
+    setIframeDisplay("block");
+  };
+    
+  // Import the wallet
+  const importWallet = async () => {
+    if (iframeStamper === null) {
+      throw new Error("cannot import wallet without an iframe");
+    }
+
+    const encryptedBundle = await iframeStamper.extractWalletEncryptedBundle();
+
+    const response = await axios.post("/api/importWallet", {
+      userId: props.userId,
+      walletName: "default",
+      encryptedBundle,
+    });
+
+    // todo(olivia): add wallet to set of wallets in wallets
+    console.log(response.data["walletId"])
+
+    setIframeDisplay("none");
+  };
+
+  return (
+    <div className={styles.modalInner}>
+      <div className={styles.modalDetails}>
+        <h2>Secret Recovery Phrase</h2>
+        <div className={styles.modalSpace}>
+          <p>Import an existing wallet with your secret recovery phrase. Only you should know your secret recovery phrase. A secret recovery phrase can 12, 15, 18, 21, or 24 words.</p>
+        </div>
+        <Import
+          setIframeStamper={setIframeStamper}
+          iframeDisplay={iframeDisplay}
+          iframeUrl={process.env.NEXT_PUBLIC_IMPORT_IFRAME_URL!}
+          turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
+        />
+        <div className={styles.modalSpace}>
+          {iframeDisplay == "none" ?
+            <button
+              className={styles.longModalButton}
+              onClick={() => initImportWallet()}
+              >
+              Establish secure channel
+            </button> :
+            <button
+              className={styles.modalButton}
+              onClick={() => importWallet()}
+              >
+              Import
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+

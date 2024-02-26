@@ -2,14 +2,13 @@ import Image from "next/image";
 import styles from "../pages/index.module.css";
 import { TurnkeyApiTypes } from "@turnkey/http";
 import * as React from "react";
-import { Dispatch, SetStateAction } from "react";
 import cx from "classnames";
 
 type TWallet = TurnkeyApiTypes["v1Wallet"];
 
 type WalletsTableProps = {
   wallets: TWallet[];
-  setSelectedWallet: Dispatch<SetStateAction<string | null>>;
+  openExportModal:  (walletId: string) => void;
 };
 
 export function WalletsTable(props: WalletsTableProps) {
@@ -36,7 +35,7 @@ export function WalletsTable(props: WalletsTableProps) {
                     <button
                       className={styles.exportButton}
                       onClick={() => {
-                        props.setSelectedWallet(val.walletId);
+                        props.openExportModal(val.walletId);
                       }}
                     >
                       <Image
