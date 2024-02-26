@@ -23,20 +23,20 @@ export default function ExportPage() {
     getWallets();
   }, []);
 
-  function openExportModal(walletId: string) {
+  const openExportModal = (walletId: string) => {
     setSelectedWallet(walletId)
     setIsExportModalOpen(true);
   }
 
-  function closeExportModal() {
+  const closeExportModal = () => {
     setIsExportModalOpen(false);
   }
 
-  function openImportModal() {
+  const openImportModal = () => {
     setIsImportModalOpen(true);
   }
 
-  function closeImportModal() {
+  const closeImportModal = () => {
     setIsImportModalOpen(false);
   }
 
@@ -47,7 +47,6 @@ export default function ExportPage() {
 
     setWallets(res.data.wallets);
   };
-
   
   return (
     <main className={styles.main}>
@@ -88,6 +87,7 @@ export default function ExportPage() {
       <Modal show={isImportModalOpen} onClose={closeImportModal}>
         <ImportWallet
           userId={process.env.NEXT_PUBLIC_USER_ID!}
+          getWallets={getWallets}
         />
       </Modal>
 

@@ -1,14 +1,18 @@
 "use client";
 
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import styles from "../pages/index.module.css";
+import { TurnkeyApiTypes } from "@turnkey/http";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { Import } from "@/components/Import";
 
+type TWallet = TurnkeyApiTypes["v1Wallet"];
+
 type ImportWalletProps = {
   userId: string;
+  getWallets: () => void;
 };
 
 export function ImportWallet(props: ImportWalletProps) {
@@ -51,10 +55,13 @@ export function ImportWallet(props: ImportWalletProps) {
       encryptedBundle,
     });
 
-    // todo(olivia): add wallet to set of wallets in wallets
-    console.log(response.data["walletId"])
+    if (response) {
+      props.getWallets()
 
-    setIframeDisplay("none");
+      setIframeDisplay("none");
+    } else {
+      throw new Error("failed to import wallet");
+    }
   };
 
   return (
