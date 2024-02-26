@@ -62,27 +62,33 @@ export default function ExportPage() {
       </div>
 
       {/* Wallets Table and Action Buttons */}
-      <div className={styles.buttons}>
-        <button
-          className={styles.button}
-          onClick={() => setIsImportModalOpen(true)}
-        >
-          Import Wallet
-        </button>
-      </div>
-      <WalletsTable
-        wallets={wallets}
-        setSelectedWallet={setSelectedWallet}
-        setIsExportModalOpen={setIsExportModalOpen}
-      />
+      {userId && (
+        <div>
+          <div className={styles.buttons}>
+            <button
+              className={styles.button}
+              onClick={() => setIsImportModalOpen(true)}
+            >
+              Import Wallet
+            </button>
+          </div>
+          <WalletsTable
+            wallets={wallets}
+            setSelectedWallet={setSelectedWallet}
+            setIsExportModalOpen={setIsExportModalOpen}
+          />
+        </div>
+      )}
       
       {/* Import Modal */} 
-      <Modal show={isImportModalOpen} onClose={() => setIsImportModalOpen(false)}>
-        <ImportWallet
-          userId={userId}
-          getWallets={getWallets}
-        />
-      </Modal>
+      {userId && (
+        <Modal show={isImportModalOpen} onClose={() => setIsImportModalOpen(false)}>
+          <ImportWallet
+            userId={userId}
+            getWallets={getWallets}
+          />
+        </Modal>
+      )}
 
       {/* Export Modal */} 
       {selectedWallet && (
