@@ -17,9 +17,18 @@ export enum IframeEventType {
   // Event sent by the parent to inject a wallet export bundle into the iframe.
   // Value: the bundle to inject
   InjectWalletExportBundle = "INJECT_WALLET_EXPORT_BUNDLE",
+  // Event sent by the parent to inject an import bundle into the iframe.
+  // Value: the bundle to inject
+  InjectImportBundle = "INJECT_IMPORT_BUNDLE",
+  // Event sent by the parent to extract an encrypted bundle from the iframe.
+  // Value: the bundle to inject
+  ExtractWalletEncryptedBundle = "EXTRACT_WALLET_ENCRYPTED_BUNDLE",
   // Event sent by the iframe to its parent when `InjectBundle` is successful
   // Value: true (boolean)
   BundleInjected = "BUNDLE_INJECTED",
+  // Event sent by the iframe to its parent when `ExtractEncryptedBundle` is successful
+  // Value: the bundle encrypted in the iframe
+  EncryptedBundleExtracted = "ENCRYPTED_BUNDLE_EXTRACTED",
   // Event sent by the parent page to request a signature
   // Value: payload to sign
   StampRequest = "STAMP_REQUEST",
@@ -219,6 +228,65 @@ export class IframeStamper {
             return;
           }
           if (event.data?.type === IframeEventType.BundleInjected) {
+            resolve(event.data["value"]);
+          }
+          if (event.data?.type === IframeEventType.Error) {
+            reject(event.data["value"]);
+          }
+        },
+        false
+      );
+    });
+  }
+
+  async injectImportBundle(bundle: string): Promise<boolean> {
+    this.iframe.contentWindow?.postMessage(
+      {
+        type: IframeEventType.InjectImportBundle,
+        value: bundle,
+      },
+      "*"
+    );
+
+    return new Promise((resolve, reject) => {
+      window.addEventListener(
+        "message",
+        (event) => {
+          if (event.origin !== this.iframeOrigin) {
+            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
+            // Instead of erroring out we simply return. Not our event!
+            return;
+          }
+          if (event.data?.type === IframeEventType.BundleInjected) {
+            resolve(event.data["value"]);
+          }
+          if (event.data?.type === IframeEventType.Error) {
+            reject(event.data["value"]);
+          }
+        },
+        false
+      );
+    });
+  }
+
+  async extractWalletEncryptedBundle(): Promise<string> {
+    this.iframe.contentWindow?.postMessage(
+      {
+        type: IframeEventType.ExtractWalletEncryptedBundle,
+      },
+      "*"
+    );
+
+    return new Promise((resolve, reject) => {
+      window.addEventListener(
+        "message",
+        (event) => {
+          if (event.origin !== this.iframeOrigin) {
+            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
+            // Instead of erroring out we simply return. Not our event!
+            return;
+          }
+          if (event.data?.type === IframeEventType.EncryptedBundleExtracted) {
             resolve(event.data["value"]);
           }
           if (event.data?.type === IframeEventType.Error) {
