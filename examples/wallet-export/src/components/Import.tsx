@@ -35,9 +35,10 @@ export function Import(props: ImportProps) {
         iframeContainer: document.getElementById(TurnkeyIframeContainerId),
         iframeElementId: TurnkeyIframeElementId,
       });
-      // todo(olivia): no need to init because there is no public key init for import. improve ux here.
-      setIframeStamper(iframeStamper);
-      props.setIframeStamper(iframeStamper);
+      iframeStamper.init().then(() => {
+        setIframeStamper(iframeStamper);
+        props.setIframeStamper(iframeStamper);
+      });
     }
 
     return () => {
