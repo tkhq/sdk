@@ -285,33 +285,41 @@ export class TurnkeySDKClientBase {
 
     if (methodType === "query") {
       codeBuffer.push(
-        `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
+        `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, overrideParams?: any): Promise<SdkApiTypes.${responseType}> => {
     return this.query("${endpointPath}", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }`
       );
     } else if (methodType === "command") {
       codeBuffer.push(
-      `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
+      `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, overrideParams?: any): Promise<SdkApiTypes.${responseType}> => {
     return this.command("${endpointPath}", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
+      },
+      ...overrideParams
     },
     "${methodName}");
   }`
       );
     } else if (methodType === "activityDecision") {
       codeBuffer.push(
-      `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
-    return this.activityDecision("${endpointPath}", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
+      `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, overrideParams?: any): Promise<SdkApiTypes.${responseType}> => {
+    return this.activityDecision("${endpointPath}",
+    {
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
+      }, ...overrideParams
     });
   }`
       );

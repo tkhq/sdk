@@ -9,9 +9,9 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
 
   createNextWalletAccount = async (params: { walletId: string }): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
     const walletAccounts = await this.getWalletAccounts({ walletId: params.walletId });
-    const lastAccount = walletAccounts.accounts[walletAccounts.accounts.length - 1];
+    const lastAccount = walletAccounts.accounts[walletAccounts.accounts.length - 1]!;
     const lastAccountPath = lastAccount.path.split("/");
-    const lastAccountPathIndex = lastAccountPath[3].replace(/[^0-9]/g, '');
+    const lastAccountPathIndex = lastAccountPath[3]!.replace(/[^0-9]/g, '');
     const nextPathIndex = Number(lastAccountPathIndex) + 1;
     lastAccountPath[3] = `${nextPathIndex}'`;
     const nextAccountPath = lastAccountPath.join("/");

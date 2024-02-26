@@ -94,514 +94,651 @@ export class TurnkeySDKClientBase {
   
 
 
-	getActivity = async (input: SdkApiTypes.TGetActivityBody): Promise<SdkApiTypes.TGetActivityResponse> => {
+	getActivity = async (input: SdkApiTypes.TGetActivityBody, overrideParams?: any): Promise<SdkApiTypes.TGetActivityResponse> => {
     return this.query("/public/v1/query/get_activity", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getApiKey = async (input: SdkApiTypes.TGetApiKeyBody): Promise<SdkApiTypes.TGetApiKeyResponse> => {
+	getApiKey = async (input: SdkApiTypes.TGetApiKeyBody, overrideParams?: any): Promise<SdkApiTypes.TGetApiKeyResponse> => {
     return this.query("/public/v1/query/get_api_key", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getApiKeys = async (input: SdkApiTypes.TGetApiKeysBody): Promise<SdkApiTypes.TGetApiKeysResponse> => {
+	getApiKeys = async (input: SdkApiTypes.TGetApiKeysBody, overrideParams?: any): Promise<SdkApiTypes.TGetApiKeysResponse> => {
     return this.query("/public/v1/query/get_api_keys", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getAuthenticator = async (input: SdkApiTypes.TGetAuthenticatorBody): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
+	getAuthenticator = async (input: SdkApiTypes.TGetAuthenticatorBody, overrideParams?: any): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
     return this.query("/public/v1/query/get_authenticator", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getAuthenticators = async (input: SdkApiTypes.TGetAuthenticatorsBody): Promise<SdkApiTypes.TGetAuthenticatorsResponse> => {
+	getAuthenticators = async (input: SdkApiTypes.TGetAuthenticatorsBody, overrideParams?: any): Promise<SdkApiTypes.TGetAuthenticatorsResponse> => {
     return this.query("/public/v1/query/get_authenticators", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getOrganization = async (input: SdkApiTypes.TGetOrganizationBody): Promise<SdkApiTypes.TGetOrganizationResponse> => {
+	getOrganization = async (input: SdkApiTypes.TGetOrganizationBody, overrideParams?: any): Promise<SdkApiTypes.TGetOrganizationResponse> => {
     return this.query("/public/v1/query/get_organization", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getPolicy = async (input: SdkApiTypes.TGetPolicyBody): Promise<SdkApiTypes.TGetPolicyResponse> => {
+	getPolicy = async (input: SdkApiTypes.TGetPolicyBody, overrideParams?: any): Promise<SdkApiTypes.TGetPolicyResponse> => {
     return this.query("/public/v1/query/get_policy", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getPrivateKey = async (input: SdkApiTypes.TGetPrivateKeyBody): Promise<SdkApiTypes.TGetPrivateKeyResponse> => {
+	getPrivateKey = async (input: SdkApiTypes.TGetPrivateKeyBody, overrideParams?: any): Promise<SdkApiTypes.TGetPrivateKeyResponse> => {
     return this.query("/public/v1/query/get_private_key", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getUser = async (input: SdkApiTypes.TGetUserBody): Promise<SdkApiTypes.TGetUserResponse> => {
+	getUser = async (input: SdkApiTypes.TGetUserBody, overrideParams?: any): Promise<SdkApiTypes.TGetUserResponse> => {
     return this.query("/public/v1/query/get_user", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getWallet = async (input: SdkApiTypes.TGetWalletBody): Promise<SdkApiTypes.TGetWalletResponse> => {
+	getWallet = async (input: SdkApiTypes.TGetWalletBody, overrideParams?: any): Promise<SdkApiTypes.TGetWalletResponse> => {
     return this.query("/public/v1/query/get_wallet", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getActivities = async (input: SdkApiTypes.TGetActivitiesBody): Promise<SdkApiTypes.TGetActivitiesResponse> => {
+	getActivities = async (input: SdkApiTypes.TGetActivitiesBody, overrideParams?: any): Promise<SdkApiTypes.TGetActivitiesResponse> => {
     return this.query("/public/v1/query/list_activities", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getPolicies = async (input: SdkApiTypes.TGetPoliciesBody): Promise<SdkApiTypes.TGetPoliciesResponse> => {
+	getPolicies = async (input: SdkApiTypes.TGetPoliciesBody, overrideParams?: any): Promise<SdkApiTypes.TGetPoliciesResponse> => {
     return this.query("/public/v1/query/list_policies", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	listPrivateKeyTags = async (input: SdkApiTypes.TListPrivateKeyTagsBody): Promise<SdkApiTypes.TListPrivateKeyTagsResponse> => {
+	listPrivateKeyTags = async (input: SdkApiTypes.TListPrivateKeyTagsBody, overrideParams?: any): Promise<SdkApiTypes.TListPrivateKeyTagsResponse> => {
     return this.query("/public/v1/query/list_private_key_tags", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getPrivateKeys = async (input: SdkApiTypes.TGetPrivateKeysBody): Promise<SdkApiTypes.TGetPrivateKeysResponse> => {
+	getPrivateKeys = async (input: SdkApiTypes.TGetPrivateKeysBody, overrideParams?: any): Promise<SdkApiTypes.TGetPrivateKeysResponse> => {
     return this.query("/public/v1/query/list_private_keys", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	listUserTags = async (input: SdkApiTypes.TListUserTagsBody): Promise<SdkApiTypes.TListUserTagsResponse> => {
+	listUserTags = async (input: SdkApiTypes.TListUserTagsBody, overrideParams?: any): Promise<SdkApiTypes.TListUserTagsResponse> => {
     return this.query("/public/v1/query/list_user_tags", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getUsers = async (input: SdkApiTypes.TGetUsersBody): Promise<SdkApiTypes.TGetUsersResponse> => {
+	getUsers = async (input: SdkApiTypes.TGetUsersBody, overrideParams?: any): Promise<SdkApiTypes.TGetUsersResponse> => {
     return this.query("/public/v1/query/list_users", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getWalletAccounts = async (input: SdkApiTypes.TGetWalletAccountsBody): Promise<SdkApiTypes.TGetWalletAccountsResponse> => {
+	getWalletAccounts = async (input: SdkApiTypes.TGetWalletAccountsBody, overrideParams?: any): Promise<SdkApiTypes.TGetWalletAccountsResponse> => {
     return this.query("/public/v1/query/list_wallet_accounts", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getWallets = async (input: SdkApiTypes.TGetWalletsBody): Promise<SdkApiTypes.TGetWalletsResponse> => {
+	getWallets = async (input: SdkApiTypes.TGetWalletsBody, overrideParams?: any): Promise<SdkApiTypes.TGetWalletsResponse> => {
     return this.query("/public/v1/query/list_wallets", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	getWhoami = async (input: SdkApiTypes.TGetWhoamiBody): Promise<SdkApiTypes.TGetWhoamiResponse> => {
+	getWhoami = async (input: SdkApiTypes.TGetWhoamiBody, overrideParams?: any): Promise<SdkApiTypes.TGetWhoamiResponse> => {
     return this.query("/public/v1/query/whoami", {
-      ...input,
-      organizationId: this.organizationId
+      ...{
+        ...input,
+        organizationId: this.organizationId
+      }, ...overrideParams
     });
   }
 
 
-	approveActivity = async (input: SdkApiTypes.TApproveActivityBody): Promise<SdkApiTypes.TApproveActivityResponse> => {
-    return this.activityDecision("/public/v1/submit/approve_activity", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_APPROVE_ACTIVITY"
+	approveActivity = async (input: SdkApiTypes.TApproveActivityBody, overrideParams?: any): Promise<SdkApiTypes.TApproveActivityResponse> => {
+    return this.activityDecision("/public/v1/submit/approve_activity",
+    {
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_APPROVE_ACTIVITY"
+      }, ...overrideParams
     });
   }
 
 
-	createApiKeys = async (input: SdkApiTypes.TCreateApiKeysBody): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
+	createApiKeys = async (input: SdkApiTypes.TCreateApiKeysBody, overrideParams?: any): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
     return this.command("/public/v1/submit/create_api_keys", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_API_KEYS"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_API_KEYS"
+      },
+      ...overrideParams
     },
     "createApiKeys");
   }
 
 
-	createApiOnlyUsers = async (input: SdkApiTypes.TCreateApiOnlyUsersBody): Promise<SdkApiTypes.TCreateApiOnlyUsersResponse> => {
+	createApiOnlyUsers = async (input: SdkApiTypes.TCreateApiOnlyUsersBody, overrideParams?: any): Promise<SdkApiTypes.TCreateApiOnlyUsersResponse> => {
     return this.command("/public/v1/submit/create_api_only_users", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS"
+      },
+      ...overrideParams
     },
     "createApiOnlyUsers");
   }
 
 
-	createAuthenticators = async (input: SdkApiTypes.TCreateAuthenticatorsBody): Promise<SdkApiTypes.TCreateAuthenticatorsResponse> => {
+	createAuthenticators = async (input: SdkApiTypes.TCreateAuthenticatorsBody, overrideParams?: any): Promise<SdkApiTypes.TCreateAuthenticatorsResponse> => {
     return this.command("/public/v1/submit/create_authenticators", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS"
+      },
+      ...overrideParams
     },
     "createAuthenticators");
   }
 
 
-	createInvitations = async (input: SdkApiTypes.TCreateInvitationsBody): Promise<SdkApiTypes.TCreateInvitationsResponse> => {
+	createInvitations = async (input: SdkApiTypes.TCreateInvitationsBody, overrideParams?: any): Promise<SdkApiTypes.TCreateInvitationsResponse> => {
     return this.command("/public/v1/submit/create_invitations", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_INVITATIONS"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_INVITATIONS"
+      },
+      ...overrideParams
     },
     "createInvitations");
   }
 
 
-	createPolicy = async (input: SdkApiTypes.TCreatePolicyBody): Promise<SdkApiTypes.TCreatePolicyResponse> => {
+	createPolicy = async (input: SdkApiTypes.TCreatePolicyBody, overrideParams?: any): Promise<SdkApiTypes.TCreatePolicyResponse> => {
     return this.command("/public/v1/submit/create_policy", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_POLICY"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_POLICY"
+      },
+      ...overrideParams
     },
     "createPolicy");
   }
 
 
-	createPrivateKeyTag = async (input: SdkApiTypes.TCreatePrivateKeyTagBody): Promise<SdkApiTypes.TCreatePrivateKeyTagResponse> => {
+	createPrivateKeyTag = async (input: SdkApiTypes.TCreatePrivateKeyTagBody, overrideParams?: any): Promise<SdkApiTypes.TCreatePrivateKeyTagResponse> => {
     return this.command("/public/v1/submit/create_private_key_tag", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"
+      },
+      ...overrideParams
     },
     "createPrivateKeyTag");
   }
 
 
-	createPrivateKeys = async (input: SdkApiTypes.TCreatePrivateKeysBody): Promise<SdkApiTypes.TCreatePrivateKeysResponse> => {
+	createPrivateKeys = async (input: SdkApiTypes.TCreatePrivateKeysBody, overrideParams?: any): Promise<SdkApiTypes.TCreatePrivateKeysResponse> => {
     return this.command("/public/v1/submit/create_private_keys", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"
+      },
+      ...overrideParams
     },
     "createPrivateKeys");
   }
 
 
-	createSubOrganization = async (input: SdkApiTypes.TCreateSubOrganizationBody): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
+	createSubOrganization = async (input: SdkApiTypes.TCreateSubOrganizationBody, overrideParams?: any): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
     return this.command("/public/v1/submit/create_sub_organization", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"
+      },
+      ...overrideParams
     },
     "createSubOrganization");
   }
 
 
-	createUserTag = async (input: SdkApiTypes.TCreateUserTagBody): Promise<SdkApiTypes.TCreateUserTagResponse> => {
+	createUserTag = async (input: SdkApiTypes.TCreateUserTagBody, overrideParams?: any): Promise<SdkApiTypes.TCreateUserTagResponse> => {
     return this.command("/public/v1/submit/create_user_tag", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_USER_TAG"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_USER_TAG"
+      },
+      ...overrideParams
     },
     "createUserTag");
   }
 
 
-	createUsers = async (input: SdkApiTypes.TCreateUsersBody): Promise<SdkApiTypes.TCreateUsersResponse> => {
+	createUsers = async (input: SdkApiTypes.TCreateUsersBody, overrideParams?: any): Promise<SdkApiTypes.TCreateUsersResponse> => {
     return this.command("/public/v1/submit/create_users", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_USERS"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_USERS"
+      },
+      ...overrideParams
     },
     "createUsers");
   }
 
 
-	createWallet = async (input: SdkApiTypes.TCreateWalletBody): Promise<SdkApiTypes.TCreateWalletResponse> => {
+	createWallet = async (input: SdkApiTypes.TCreateWalletBody, overrideParams?: any): Promise<SdkApiTypes.TCreateWalletResponse> => {
     return this.command("/public/v1/submit/create_wallet", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_WALLET"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_WALLET"
+      },
+      ...overrideParams
     },
     "createWallet");
   }
 
 
-	createWalletAccounts = async (input: SdkApiTypes.TCreateWalletAccountsBody): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
+	createWalletAccounts = async (input: SdkApiTypes.TCreateWalletAccountsBody, overrideParams?: any): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
     return this.command("/public/v1/submit/create_wallet_accounts", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"
+      },
+      ...overrideParams
     },
     "createWalletAccounts");
   }
 
 
-	deleteApiKeys = async (input: SdkApiTypes.TDeleteApiKeysBody): Promise<SdkApiTypes.TDeleteApiKeysResponse> => {
+	deleteApiKeys = async (input: SdkApiTypes.TDeleteApiKeysBody, overrideParams?: any): Promise<SdkApiTypes.TDeleteApiKeysResponse> => {
     return this.command("/public/v1/submit/delete_api_keys", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_API_KEYS"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_API_KEYS"
+      },
+      ...overrideParams
     },
     "deleteApiKeys");
   }
 
 
-	deleteAuthenticators = async (input: SdkApiTypes.TDeleteAuthenticatorsBody): Promise<SdkApiTypes.TDeleteAuthenticatorsResponse> => {
+	deleteAuthenticators = async (input: SdkApiTypes.TDeleteAuthenticatorsBody, overrideParams?: any): Promise<SdkApiTypes.TDeleteAuthenticatorsResponse> => {
     return this.command("/public/v1/submit/delete_authenticators", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS"
+      },
+      ...overrideParams
     },
     "deleteAuthenticators");
   }
 
 
-	deleteInvitation = async (input: SdkApiTypes.TDeleteInvitationBody): Promise<SdkApiTypes.TDeleteInvitationResponse> => {
+	deleteInvitation = async (input: SdkApiTypes.TDeleteInvitationBody, overrideParams?: any): Promise<SdkApiTypes.TDeleteInvitationResponse> => {
     return this.command("/public/v1/submit/delete_invitation", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_INVITATION"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_INVITATION"
+      },
+      ...overrideParams
     },
     "deleteInvitation");
   }
 
 
-	deletePolicy = async (input: SdkApiTypes.TDeletePolicyBody): Promise<SdkApiTypes.TDeletePolicyResponse> => {
+	deletePolicy = async (input: SdkApiTypes.TDeletePolicyBody, overrideParams?: any): Promise<SdkApiTypes.TDeletePolicyResponse> => {
     return this.command("/public/v1/submit/delete_policy", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_POLICY"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_POLICY"
+      },
+      ...overrideParams
     },
     "deletePolicy");
   }
 
 
-	emailAuth = async (input: SdkApiTypes.TEmailAuthBody): Promise<SdkApiTypes.TEmailAuthResponse> => {
+	emailAuth = async (input: SdkApiTypes.TEmailAuthBody, overrideParams?: any): Promise<SdkApiTypes.TEmailAuthResponse> => {
     return this.command("/public/v1/submit/email_auth", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_EMAIL_AUTH"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_EMAIL_AUTH"
+      },
+      ...overrideParams
     },
     "emailAuth");
   }
 
 
-	exportPrivateKey = async (input: SdkApiTypes.TExportPrivateKeyBody): Promise<SdkApiTypes.TExportPrivateKeyResponse> => {
+	exportPrivateKey = async (input: SdkApiTypes.TExportPrivateKeyBody, overrideParams?: any): Promise<SdkApiTypes.TExportPrivateKeyResponse> => {
     return this.command("/public/v1/submit/export_private_key", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"
+      },
+      ...overrideParams
     },
     "exportPrivateKey");
   }
 
 
-	exportWallet = async (input: SdkApiTypes.TExportWalletBody): Promise<SdkApiTypes.TExportWalletResponse> => {
+	exportWallet = async (input: SdkApiTypes.TExportWalletBody, overrideParams?: any): Promise<SdkApiTypes.TExportWalletResponse> => {
     return this.command("/public/v1/submit/export_wallet", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_EXPORT_WALLET"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_EXPORT_WALLET"
+      },
+      ...overrideParams
     },
     "exportWallet");
   }
 
 
-	exportWalletAccount = async (input: SdkApiTypes.TExportWalletAccountBody): Promise<SdkApiTypes.TExportWalletAccountResponse> => {
+	exportWalletAccount = async (input: SdkApiTypes.TExportWalletAccountBody, overrideParams?: any): Promise<SdkApiTypes.TExportWalletAccountResponse> => {
     return this.command("/public/v1/submit/export_wallet_account", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"
+      },
+      ...overrideParams
     },
     "exportWalletAccount");
   }
 
 
-	initUserEmailRecovery = async (input: SdkApiTypes.TInitUserEmailRecoveryBody): Promise<SdkApiTypes.TInitUserEmailRecoveryResponse> => {
+	initUserEmailRecovery = async (input: SdkApiTypes.TInitUserEmailRecoveryBody, overrideParams?: any): Promise<SdkApiTypes.TInitUserEmailRecoveryResponse> => {
     return this.command("/public/v1/submit/init_user_email_recovery", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY"
+      },
+      ...overrideParams
     },
     "initUserEmailRecovery");
   }
 
 
-	recoverUser = async (input: SdkApiTypes.TRecoverUserBody): Promise<SdkApiTypes.TRecoverUserResponse> => {
+	recoverUser = async (input: SdkApiTypes.TRecoverUserBody, overrideParams?: any): Promise<SdkApiTypes.TRecoverUserResponse> => {
     return this.command("/public/v1/submit/recover_user", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_RECOVER_USER"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_RECOVER_USER"
+      },
+      ...overrideParams
     },
     "recoverUser");
   }
 
 
-	rejectActivity = async (input: SdkApiTypes.TRejectActivityBody): Promise<SdkApiTypes.TRejectActivityResponse> => {
-    return this.activityDecision("/public/v1/submit/reject_activity", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_REJECT_ACTIVITY"
+	rejectActivity = async (input: SdkApiTypes.TRejectActivityBody, overrideParams?: any): Promise<SdkApiTypes.TRejectActivityResponse> => {
+    return this.activityDecision("/public/v1/submit/reject_activity",
+    {
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_REJECT_ACTIVITY"
+      }, ...overrideParams
     });
   }
 
 
-	removeOrganizationFeature = async (input: SdkApiTypes.TRemoveOrganizationFeatureBody): Promise<SdkApiTypes.TRemoveOrganizationFeatureResponse> => {
+	removeOrganizationFeature = async (input: SdkApiTypes.TRemoveOrganizationFeatureBody, overrideParams?: any): Promise<SdkApiTypes.TRemoveOrganizationFeatureResponse> => {
     return this.command("/public/v1/submit/remove_organization_feature", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"
+      },
+      ...overrideParams
     },
     "removeOrganizationFeature");
   }
 
 
-	setOrganizationFeature = async (input: SdkApiTypes.TSetOrganizationFeatureBody): Promise<SdkApiTypes.TSetOrganizationFeatureResponse> => {
+	setOrganizationFeature = async (input: SdkApiTypes.TSetOrganizationFeatureBody, overrideParams?: any): Promise<SdkApiTypes.TSetOrganizationFeatureResponse> => {
     return this.command("/public/v1/submit/set_organization_feature", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"
+      },
+      ...overrideParams
     },
     "setOrganizationFeature");
   }
 
 
-	signRawPayload = async (input: SdkApiTypes.TSignRawPayloadBody): Promise<SdkApiTypes.TSignRawPayloadResponse> => {
+	signRawPayload = async (input: SdkApiTypes.TSignRawPayloadBody, overrideParams?: any): Promise<SdkApiTypes.TSignRawPayloadResponse> => {
     return this.command("/public/v1/submit/sign_raw_payload", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"
+      },
+      ...overrideParams
     },
     "signRawPayload");
   }
 
 
-	signTransaction = async (input: SdkApiTypes.TSignTransactionBody): Promise<SdkApiTypes.TSignTransactionResponse> => {
+	signTransaction = async (input: SdkApiTypes.TSignTransactionBody, overrideParams?: any): Promise<SdkApiTypes.TSignTransactionResponse> => {
     return this.command("/public/v1/submit/sign_transaction", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_SIGN_TRANSACTION"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_SIGN_TRANSACTION"
+      },
+      ...overrideParams
     },
     "signTransaction");
   }
 
 
-	updatePolicy = async (input: SdkApiTypes.TUpdatePolicyBody): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
+	updatePolicy = async (input: SdkApiTypes.TUpdatePolicyBody, overrideParams?: any): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
     return this.command("/public/v1/submit/update_policy", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_POLICY"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_POLICY"
+      },
+      ...overrideParams
     },
     "updatePolicy");
   }
 
 
-	updatePrivateKeyTag = async (input: SdkApiTypes.TUpdatePrivateKeyTagBody): Promise<SdkApiTypes.TUpdatePrivateKeyTagResponse> => {
+	updatePrivateKeyTag = async (input: SdkApiTypes.TUpdatePrivateKeyTagBody, overrideParams?: any): Promise<SdkApiTypes.TUpdatePrivateKeyTagResponse> => {
     return this.command("/public/v1/submit/update_private_key_tag", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"
+      },
+      ...overrideParams
     },
     "updatePrivateKeyTag");
   }
 
 
-	updateRootQuorum = async (input: SdkApiTypes.TUpdateRootQuorumBody): Promise<SdkApiTypes.TUpdateRootQuorumResponse> => {
+	updateRootQuorum = async (input: SdkApiTypes.TUpdateRootQuorumBody, overrideParams?: any): Promise<SdkApiTypes.TUpdateRootQuorumResponse> => {
     return this.command("/public/v1/submit/update_root_quorum", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
+      },
+      ...overrideParams
     },
     "updateRootQuorum");
   }
 
 
-	updateUser = async (input: SdkApiTypes.TUpdateUserBody): Promise<SdkApiTypes.TUpdateUserResponse> => {
+	updateUser = async (input: SdkApiTypes.TUpdateUserBody, overrideParams?: any): Promise<SdkApiTypes.TUpdateUserResponse> => {
     return this.command("/public/v1/submit/update_user", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_USER"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_USER"
+      },
+      ...overrideParams
     },
     "updateUser");
   }
 
 
-	updateUserTag = async (input: SdkApiTypes.TUpdateUserTagBody): Promise<SdkApiTypes.TUpdateUserTagResponse> => {
+	updateUserTag = async (input: SdkApiTypes.TUpdateUserTagBody, overrideParams?: any): Promise<SdkApiTypes.TUpdateUserTagResponse> => {
     return this.command("/public/v1/submit/update_user_tag", {
-      parameters: {...input},
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_USER_TAG"
+      ...{
+        parameters: {...input},
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_USER_TAG"
+      },
+      ...overrideParams
     },
     "updateUserTag");
   }
