@@ -3,7 +3,7 @@ import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 type ImportWalletRequest = {
-  userId: string;
+  userId: string,
   walletName: string;
   encryptedBundle: string;
 };

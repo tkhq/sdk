@@ -37,14 +37,14 @@ export function ImportWallet(props: ImportWalletProps) {
 
     setIframeDisplay("block");
   };
-
+    
   // Import the wallet
   const importWallet = async () => {
     if (iframeStamper === null) {
       throw new Error("cannot import wallet without an iframe");
     }
 
-    const encryptedBundle = await iframeStamper.extractEncryptedBundle();
+    const encryptedBundle = await iframeStamper.extractWalletEncryptedBundle();
 
     const response = await axios.post("/api/importWallet", {
       userId: props.userId,
@@ -54,7 +54,7 @@ export function ImportWallet(props: ImportWalletProps) {
 
     // Get wallets again
     if (response) {
-      props.getWallets();
+      props.getWallets()
 
       setIframeDisplay("none");
     } else {
@@ -67,11 +67,7 @@ export function ImportWallet(props: ImportWalletProps) {
       <div className={styles.modalDetails}>
         <h2>Secret Recovery Phrase</h2>
         <div className={styles.modalSpace}>
-          <p>
-            Import an existing wallet with your secret recovery phrase. Only you
-            should know your secret recovery phrase. A secret recovery phrase
-            can 12, 15, 18, 21, or 24 words.
-          </p>
+          <p>Import an existing wallet with your secret recovery phrase. Only you should know your secret recovery phrase. A secret recovery phrase can 12, 15, 18, 21, or 24 words.</p>
         </div>
         <Import
           setIframeStamper={setIframeStamper}
@@ -80,23 +76,25 @@ export function ImportWallet(props: ImportWalletProps) {
           turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
         />
         <div className={styles.modalSpace}>
-          {iframeDisplay == "none" ? (
+          {iframeDisplay == "none" ?
             <button
               className={styles.longModalButton}
               onClick={() => initImportWallet()}
-            >
+              >
               Establish secure channel
-            </button>
-          ) : (
+            </button> :
             <button
               className={styles.modalButton}
               onClick={() => importWallet()}
-            >
+              >
               Import
             </button>
-          )}
+          }
         </div>
       </div>
     </div>
   );
 }
+
+
+

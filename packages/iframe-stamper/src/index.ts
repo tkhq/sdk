@@ -21,7 +21,8 @@ export enum IframeEventType {
   // Value: the bundle to inject
   InjectImportBundle = "INJECT_IMPORT_BUNDLE",
   // Event sent by the parent to extract an encrypted bundle from the iframe.
-  ExtractEncryptedBundle = "EXTRACT_ENCRYPTED_BUNDLE",
+  // Value: the bundle to inject
+  ExtractWalletEncryptedBundle = "EXTRACT_WALLET_ENCRYPTED_BUNDLE",
   // Event sent by the iframe to its parent when `InjectBundle` is successful
   // Value: true (boolean)
   BundleInjected = "BUNDLE_INJECTED",
@@ -268,10 +269,10 @@ export class IframeStamper {
     });
   }
 
-  async extractEncryptedBundle(): Promise<string> {
+  async extractWalletEncryptedBundle(): Promise<string> {
     this.iframe.contentWindow?.postMessage(
       {
-        type: IframeEventType.ExtractEncryptedBundle,
+        type: IframeEventType.ExtractWalletEncryptedBundle,
       },
       "*"
     );
