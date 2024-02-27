@@ -41,3 +41,10 @@ export class TurnkeyRequestError extends Error {
     this.code = input.code;
   }
 }
+
+export interface ActivityResponse {
+  activity: {
+    id: string;
+    status: string;
+  }
+}

@@ -69,13 +69,22 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
     const signedRequestGeneratorName = `sign${methodName}`;
     const parameterList = operation["parameters"] ?? [];
 
+    // let responseValue = "void";
+    // if (methodType === "command") {
+    //   responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${methodName}Result"]`;
+    // } else if (["noop", "query"].includes(methodType)) {
+    //   responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
+    // } else if (methodType === "activityDecision") {
+    //   responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]`;
+    // }
+
     let responseValue = "void";
     if (methodType === "command") {
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${methodName}Result"]`;
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
     } else if (["noop", "query"].includes(methodType)) {
       responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
     } else if (methodType === "activityDecision") {
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]`;
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
     }
 
     /** @type {TBinding} */
@@ -160,7 +169,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   const imports = [];
 
   imports.push(
-    'import { GrpcStatus, THttpConfig, TStamper, TurnkeyRequestError } from "./__types__/base";'
+    'import { GrpcStatus, THttpConfig, TStamper, TurnkeyRequestError, ActivityResponse } from "./__types__/base";'
   )
 
   imports.push(
@@ -168,7 +177,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   )
 
   imports.push(
-    'import * as SdkApiTypes from "./__generated__/sdk_api_types";'
+    'import type * as SdkApiTypes from "./__generated__/sdk_api_types";'
   )
 
   codeBuffer.push(`
@@ -218,30 +227,31 @@ export class TurnkeySDKClientBase {
 
   async command<TBodyType, TResponseType>(
     url: string,
-    body: TBodyType,
-    methodName: string
+    body: TBodyType
   ): Promise<TResponseType> {
     const POLLING_DURATION = 1000;
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-    const initialData: TResponseType = await this.query<TBodyType, TResponseType>(url, body);
+    const initialData = await this.query<TBodyType, TResponseType>(url, body) as ActivityResponse;
     const activityId = initialData["activity"]["id"];
     let activityStatus = initialData["activity"]["status"];
 
     if (activityStatus !== "ACTIVITY_STATUS_PENDING") {
-      return initialData["activity"]["result"][\`\${methodName}Result\`];
+      return initialData as TResponseType;
+      // return initialData["activity"]["result"][\`\${methodName}Result\`];
     }
 
     const pollStatus = async (): Promise<TResponseType> => {
       const pollBody = { activityId: activityId };
-      const pollData = await this.getActivity(pollBody);
+      const pollData = await this.getActivity(pollBody) as ActivityResponse;
       const activityStatus = pollData["activity"]["status"];
 
       if (activityStatus === "ACTIVITY_STATUS_PENDING") {
         await delay(POLLING_DURATION);
         return await pollStatus();
       } else {
-        return pollData["activity"]["result"][\`\${methodName}Result\`];
+        return pollData as TResponseType;
+        // return pollData["activity"]["result"][\`\${methodName}Result\`];
       }
     }
 
@@ -253,7 +263,8 @@ export class TurnkeySDKClientBase {
     body: TBodyType
   ): Promise<TResponseType> {
     const data: TResponseType = await this.query(url, body);
-    return data["activity"]["result"];
+    return data;
+    // return data["activity"]["result"];
   }
 
   `);
@@ -305,8 +316,7 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
       },
       ...overrideParams
-    },
-    "${methodName}");
+    });
   }`
       );
     } else if (methodType === "activityDecision") {
