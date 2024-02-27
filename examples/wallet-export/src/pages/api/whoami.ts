@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
-
 type GetWhoamiRequest = {
   organizationId: string;
 };

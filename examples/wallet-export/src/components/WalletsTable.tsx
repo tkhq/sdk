@@ -10,16 +10,15 @@ type TWallet = TurnkeyApiTypes["v1Wallet"];
 
 type WalletsTableProps = {
   wallets: TWallet[];
-  setSelectedWallet:  Dispatch<SetStateAction<string | null>>;
-  setIsExportModalOpen:  Dispatch<SetStateAction<boolean>>;
+  setSelectedWallet: Dispatch<SetStateAction<string | null>>;
+  setIsExportModalOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export function WalletsTable(props: WalletsTableProps) {
-
   const openExportModal = (walletId: string) => {
-    props.setSelectedWallet(walletId)
+    props.setSelectedWallet(walletId);
     props.setIsExportModalOpen(true);
-  }
+  };
 
   return (
     <div>

@@ -31,7 +31,7 @@ export default function ExportPage() {
     const res = await axios.post("/api/whoami", { organizationId });
 
     setUserId(res.data.userId);
-  }
+  };
 
   // Get the organization's wallets
   const getWallets = async () => {
@@ -40,7 +40,7 @@ export default function ExportPage() {
 
     setWallets(res.data.wallets);
   };
-  
+
   return (
     <main className={styles.main}>
       {/* Header */}
@@ -79,23 +79,24 @@ export default function ExportPage() {
           />
         </div>
       )}
-      
-      {/* Import Modal */} 
+
+      {/* Import Modal */}
       {userId && (
-        <Modal show={isImportModalOpen} onClose={() => setIsImportModalOpen(false)}>
-          <ImportWallet
-            userId={userId}
-            getWallets={getWallets}
-          />
+        <Modal
+          show={isImportModalOpen}
+          onClose={() => setIsImportModalOpen(false)}
+        >
+          <ImportWallet userId={userId} getWallets={getWallets} />
         </Modal>
       )}
 
-      {/* Export Modal */} 
+      {/* Export Modal */}
       {selectedWallet && (
-        <Modal show={isExportModalOpen} onClose={() => setIsExportModalOpen(false)}>
-          <ExportWallet
-            walletId={selectedWallet}
-          />
+        <Modal
+          show={isExportModalOpen}
+          onClose={() => setIsExportModalOpen(false)}
+        >
+          <ExportWallet walletId={selectedWallet} />
         </Modal>
       )}
     </main>

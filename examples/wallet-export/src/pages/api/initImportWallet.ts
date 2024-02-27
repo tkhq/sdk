@@ -3,7 +3,7 @@ import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 type InitImportWalletRequest = {
-  userId: string,
+  userId: string;
 };
 
 type InitImportWalletResponse = {
@@ -42,7 +42,8 @@ export default async function initImportWallet(
       },
     });
 
-    const importBundle = completedActivity.result.initImportWalletResult?.importBundle;
+    const importBundle =
+      completedActivity.result.initImportWalletResult?.importBundle;
     if (!importBundle) {
       throw new Error("Expected a non-null import bundle!");
     }
