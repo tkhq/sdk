@@ -20,7 +20,9 @@ export function ImportWallet(props: ImportWalletProps) {
   const [walletName, setWalletName] = useState("");
 
   // Handler function to update the state based on input changes
-  const handleWalletNameChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+  const handleWalletNameChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
     setWalletName(event.target.value);
   };
 
@@ -46,7 +48,7 @@ export function ImportWallet(props: ImportWalletProps) {
 
   // Import the wallet
   const importWallet = async () => {
-    if (walletName.trim() === '') {
+    if (walletName.trim() === "") {
       throw new Error("wallet name is required");
     }
 
@@ -56,7 +58,7 @@ export function ImportWallet(props: ImportWalletProps) {
 
     const encryptedBundle = await iframeStamper.extractWalletEncryptedBundle();
 
-    if (encryptedBundle.trim() === '') {
+    if (encryptedBundle.trim() === "") {
       throw new Error("encrypted bundle is empty");
     }
 
@@ -90,15 +92,15 @@ export function ImportWallet(props: ImportWalletProps) {
         {iframeDisplay != "none" && (
           <div className={styles.name}>
             <label className={styles.label}>
-            Wallet Name
-            <input
-              className={styles.input}
-              type="text"
-              value={walletName}
-              onChange={handleWalletNameChange}
-              placeholder="Name your wallet (required)"
-            />
-          </label>
+              Wallet Name
+              <input
+                className={styles.input}
+                type="text"
+                value={walletName}
+                onChange={handleWalletNameChange}
+                placeholder="Name your wallet (required)"
+              />
+            </label>
           </div>
         )}
         <Import
