@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/example-wallet-export",
+  "name": "@turnkey/example-wallet-import-export",
   "version": "0.1.0",
   "private": true,
   "scripts": {

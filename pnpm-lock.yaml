@@ -274,7 +274,7 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
 
-  examples/wallet-export:
+  examples/wallet-import-export:
     dependencies:
       '@turnkey/api-key-stamper':
         specifier: workspace:*

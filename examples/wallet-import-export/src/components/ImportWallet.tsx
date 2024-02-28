@@ -48,7 +48,7 @@ export function ImportWallet(props: ImportWalletProps) {
 
     const response = await axios.post("/api/importWallet", {
       userId: props.userId,
-      walletName: "default",
+      walletName: "wallet " + Math.floor(Math.random() *  (100 - 1) + 1),
       encryptedBundle,
     });
 
@@ -65,12 +65,12 @@ export function ImportWallet(props: ImportWalletProps) {
   return (
     <div className={styles.modalInner}>
       <div className={styles.modalDetails}>
-        <h2>Secret Recovery Phrase</h2>
+        <h2>Enter Secret Recovery Phrase</h2>
         <div className={styles.modalSpace}>
           <p>
             Import an existing wallet with your secret recovery phrase. Only you
             should know your secret recovery phrase. A secret recovery phrase
-            can 12, 15, 18, 21, or 24 words.
+            can be 12, 15, 18, 21, or 24 words.
           </p>
         </div>
         <Import
