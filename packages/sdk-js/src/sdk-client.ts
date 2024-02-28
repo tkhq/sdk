@@ -1,5 +1,5 @@
 import type { THttpConfig, TStamper } from "./__types__/base";
-import { TurnkeySDKClientBase } from "./sdk-client-base";
+import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
 export class TurnkeySDKClient extends TurnkeySDKClientBase {
