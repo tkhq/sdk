@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 1.1.0
+
+### Minor Changes
+
+- 46a7d90: Add injectImportBundle and extractWalletEncryptedBundle to support wallet import.
+
 ## 1.0.0
 
 ### Major Changes
