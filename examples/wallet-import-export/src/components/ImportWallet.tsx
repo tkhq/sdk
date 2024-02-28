@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 
 import styles from "../pages/index.module.css";
 import { IframeStamper } from "@turnkey/iframe-stamper";
@@ -17,6 +17,12 @@ export function ImportWallet(props: ImportWalletProps) {
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
     null
   );
+  const [walletName, setWalletName] = useState("");
+
+  // Handler function to update the state based on input changes
+  const handleWalletNameChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+    setWalletName(event.target.value);
+  };
 
   // Init import the wallet
   const initImportWallet = async () => {
@@ -40,15 +46,23 @@ export function ImportWallet(props: ImportWalletProps) {
 
   // Import the wallet
   const importWallet = async () => {
+    if (walletName.trim() === '') {
+      throw new Error("wallet name is required");
+    }
+
     if (iframeStamper === null) {
       throw new Error("cannot import wallet without an iframe");
     }
 
     const encryptedBundle = await iframeStamper.extractWalletEncryptedBundle();
 
+    if (encryptedBundle.trim() === '') {
+      throw new Error("encrypted bundle is empty");
+    }
+
     const response = await axios.post("/api/importWallet", {
       userId: props.userId,
-      walletName: "wallet " + Math.floor(Math.random() *  (100 - 1) + 1),
+      walletName,
       encryptedBundle,
     });
 
@@ -73,6 +87,20 @@ export function ImportWallet(props: ImportWalletProps) {
             can be 12, 15, 18, 21, or 24 words.
           </p>
         </div>
+        {iframeDisplay != "none" && (
+          <div className={styles.name}>
+            <label className={styles.label}>
+            Wallet Name
+            <input
+              className={styles.input}
+              type="text"
+              value={walletName}
+              onChange={handleWalletNameChange}
+              placeholder="Name your wallet (required)"
+            />
+          </label>
+          </div>
+        )}
         <Import
           setIframeStamper={setIframeStamper}
           iframeDisplay={iframeDisplay}
