@@ -18,6 +18,7 @@ export function ImportWallet(props: ImportWalletProps) {
     null
   );
   const [walletName, setWalletName] = useState("");
+  const [stage, setStage] = useState("init");
 
   // Handler function to update the state based on input changes
   const handleWalletNameChange = (event: {
@@ -29,7 +30,8 @@ export function ImportWallet(props: ImportWalletProps) {
   // Init import the wallet
   const initImportWallet = async () => {
     if (iframeStamper === null) {
-      throw new Error("cannot init import wallet without an iframe");
+      alert("Cannot init import wallet without an iframe.");
+      return;
     }
 
     const response = await axios.post("/api/initImportWallet", {
@@ -40,26 +42,31 @@ export function ImportWallet(props: ImportWalletProps) {
       response.data["importBundle"]
     );
     if (injected !== true) {
-      throw new Error("unexpected error while injecting import bundle");
+      alert("Unexpected error while injecting import bundle.");
+      return;
     }
 
+    setStage("import");
     setIframeDisplay("block");
   };
 
   // Import the wallet
   const importWallet = async () => {
     if (walletName.trim() === "") {
-      throw new Error("wallet name is required");
+      alert("Wallet name is required.");
+      return;
     }
 
     if (iframeStamper === null) {
-      throw new Error("cannot import wallet without an iframe");
+      alert("Cannot import wallet without an iframe.");
+      return;
     }
 
     const encryptedBundle = await iframeStamper.extractWalletEncryptedBundle();
 
     if (encryptedBundle.trim() === "") {
-      throw new Error("encrypted bundle is empty");
+      alert("Encrypted bundle is empty.");
+      return;
     }
 
     const response = await axios.post("/api/importWallet", {
@@ -72,9 +79,10 @@ export function ImportWallet(props: ImportWalletProps) {
     if (response) {
       props.getWallets();
 
+      setStage("success");
       setIframeDisplay("none");
     } else {
-      throw new Error("failed to import wallet");
+      alert("Failed to import wallet! Please try again.");
     }
   };
 
@@ -82,14 +90,16 @@ export function ImportWallet(props: ImportWalletProps) {
     <div className={styles.modalInner}>
       <div className={styles.modalDetails}>
         <h2>Enter Secret Recovery Phrase</h2>
-        <div className={styles.modalSpace}>
-          <p>
-            Import an existing wallet with your secret recovery phrase. Only you
-            should know your secret recovery phrase. A secret recovery phrase
-            can be 12, 15, 18, 21, or 24 words.
-          </p>
-        </div>
-        {iframeDisplay != "none" && (
+        {(stage === "init" || stage === "import") && (
+          <div className={styles.modalSpace}>
+            <p>
+              Import an existing wallet with your secret recovery phrase. Only
+              you should know your secret recovery phrase. A secret recovery
+              phrase can be 12, 15, 18, 21, or 24 words.
+            </p>
+          </div>
+        )}
+        {stage === "import" && (
           <div className={styles.name}>
             <label className={styles.label}>
               Wallet Name
@@ -110,21 +120,28 @@ export function ImportWallet(props: ImportWalletProps) {
           turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
         />
         <div className={styles.modalSpace}>
-          {iframeDisplay == "none" ? (
+          {stage === "init" ? (
             <button
               className={styles.longModalButton}
               onClick={() => initImportWallet()}
             >
               Establish secure channel
             </button>
-          ) : (
+          ) : stage === "import" ? (
             <button
               className={styles.modalButton}
               onClick={() => importWallet()}
             >
               Import
             </button>
-          )}
+          ) : stage === "success" ? (
+            <div className={styles.modalSpace}>
+              <p>
+                Successfully imported wallet <b>{walletName}</b>! Close this
+                modal to view or export this new wallet.
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

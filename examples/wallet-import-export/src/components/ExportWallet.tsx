@@ -16,6 +16,7 @@ export function ExportWallet(props: ExportWalletProps) {
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
     null
   );
+  const [stage, setStage] = useState("export");
 
   useEffect(() => {
     setIframeDisplay("none");
@@ -24,7 +25,8 @@ export function ExportWallet(props: ExportWalletProps) {
   // Export the selected wallet and set the iframe to be visible
   const exportWallet = async () => {
     if (iframeStamper === null) {
-      throw new Error("cannot export wallet without an iframe");
+      alert("Cannot export wallet without an iframe.");
+      return;
     }
 
     const response = await axios.post("/api/exportWallet", {
@@ -36,16 +38,18 @@ export function ExportWallet(props: ExportWalletProps) {
       response.data["exportBundle"]
     );
     if (injected !== true) {
-      throw new Error("unexpected error while injecting export bundle");
+      alert("Unexpected error while injecting export bundle.");
+      return;
     }
 
+    setStage("success");
     setIframeDisplay("block");
   };
 
   return (
     <div className={styles.modalInner}>
       <div className={styles.modalDetails}>
-        {iframeDisplay != "block" && (
+        {stage === "export" && (
           <div>
             <h2>Before you continue</h2>
             <p>By revealing the private key, you understand and agree that:</p>
