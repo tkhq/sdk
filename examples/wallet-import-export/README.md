@@ -1,11 +1,11 @@
-# Example: `wallet-export`
+# Example: `wallet-import-export`
 
-This example shows a wallet export flow. It contains a NextJS app with:
+This example shows how to import, export, and get wallets. It contains a NextJS app with:
 
 - a frontend application
 - a backend application
 
-This example includes API stubs to get your wallets and export your wallet as a mnemonic. The creation of the iframe is abstracted by our `@turnkey/iframe-stamper` package.
+This example includes API stubs to get whomai and your wallets as well as import and export your wallet using a mnemonic phrase. The creation of the iframe is abstracted by our `@turnkey/iframe-stamper` package.
 
 ## Getting started
 
@@ -19,7 +19,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/wallet-export/
+$ cd examples/wallet-import-export/
 ```
 
 ### 2/ Setting up Turnkey
@@ -42,6 +42,7 @@ Now open `.env.local` and add the missing environment variables:
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
 - `NEXT_PUBLIC_EXPORT_IFRAME_URL`
+- `NEXT_PUBLIC_IMPORT_IFRAME_URL`
 
 ### 3/ Running the app
 

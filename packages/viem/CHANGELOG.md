@@ -1,5 +1,12 @@
 # @turnkey/viem
 
+## 0.4.11
+
+### Patch Changes
+
+- Updated dependencies [46a7d90]
+  - @turnkey/http@2.8.0
+
 ## 0.4.10
 
 ### Patch Changes

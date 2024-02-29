@@ -516,6 +516,38 @@
         "tags": ["Private Keys"]
       }
     },
+    "/public/v1/query/list_suborgs": {
+      "post": {
+        "summary": "Get Suborgs",
+        "description": "Get all suborg IDs associated given a parent org ID and an optional filter.",
+        "operationId": "PublicApiService_GetSubOrgIds",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSubOrgIdsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetSubOrgIdsRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"]
+      }
+    },
     "/public/v1/query/list_user_tags": {
       "post": {
         "summary": "List User Tags",
@@ -1220,6 +1252,102 @@
         "tags": ["Policies"]
       }
     },
+    "/public/v1/submit/delete_private_key_tags": {
+      "post": {
+        "summary": "Delete Private Key Tags",
+        "description": "Delete Private Key Tags within an Organization",
+        "operationId": "PublicApiService_DeletePrivateKeyTags",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeletePrivateKeyTagsRequest"
+            }
+          }
+        ],
+        "tags": ["Private Key Tags"]
+      }
+    },
+    "/public/v1/submit/delete_user_tags": {
+      "post": {
+        "summary": "Delete User Tags",
+        "description": "Delete User Tags within an Organization",
+        "operationId": "PublicApiService_DeleteUserTags",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteUserTagsRequest"
+            }
+          }
+        ],
+        "tags": ["User Tags"]
+      }
+    },
+    "/public/v1/submit/delete_users": {
+      "post": {
+        "summary": "Delete Users",
+        "description": "Delete Users within an Organization",
+        "operationId": "PublicApiService_DeleteUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteUsersRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
     "/public/v1/submit/email_auth": {
       "post": {
         "summary": "Perform Email Auth",
@@ -1342,6 +1470,70 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1ExportWalletAccountRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
+      }
+    },
+    "/public/v1/submit/import_wallet": {
+      "post": {
+        "summary": "Import Wallet",
+        "description": "Imports a wallet",
+        "operationId": "PublicApiService_ImportWallet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ImportWalletRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
+      }
+    },
+    "/public/v1/submit/init_import_wallet": {
+      "post": {
+        "summary": "Init Import Wallet",
+        "description": "Initializes a new wallet import",
+        "operationId": "PublicApiService_InitImportWallet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1InitImportWalletRequest"
             }
           }
         ],
@@ -2091,7 +2283,9 @@
         "ACTIVITY_TYPE_EXPORT_WALLET",
         "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4",
         "ACTIVITY_TYPE_EMAIL_AUTH",
-        "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"
+        "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT",
+        "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
+        "ACTIVITY_TYPE_IMPORT_WALLET"
       ]
     },
     "v1AddressFormat": {
@@ -2101,7 +2295,8 @@
         "ADDRESS_FORMAT_COMPRESSED",
         "ADDRESS_FORMAT_ETHEREUM",
         "ADDRESS_FORMAT_SOLANA",
-        "ADDRESS_FORMAT_COSMOS"
+        "ADDRESS_FORMAT_COSMOS",
+        "ADDRESS_FORMAT_TRON"
       ]
     },
     "v1ApiKey": {
@@ -3270,7 +3465,7 @@
       "properties": {
         "walletId": {
           "type": "string",
-          "description": "A list of Wallet IDs."
+          "description": "Unique identifier for a Wallet."
         },
         "addresses": {
           "type": "array",
@@ -3540,6 +3735,27 @@
       },
       "required": ["privateKeyTagIds"]
     },
+    "v1DeletePrivateKeyTagsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeletePrivateKeyTagsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
     "v1DeletePrivateKeyTagsResult": {
       "type": "object",
       "properties": {
@@ -3573,6 +3789,27 @@
       },
       "required": ["userTagIds"]
     },
+    "v1DeleteUserTagsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_USER_TAGS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteUserTagsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
     "v1DeleteUserTagsResult": {
       "type": "object",
       "properties": {
@@ -3605,6 +3842,27 @@
         }
       },
       "required": ["userIds"]
+    },
+    "v1DeleteUsersRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_USERS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteUsersIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1DeleteUsersResult": {
       "type": "object",
@@ -3663,7 +3921,7 @@
           "description": "Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used."
         },
         "emailCustomization": {
-          "$ref": "#/definitions/v1EmailCustomization",
+          "$ref": "#/definitions/v1EmailCustomizationParams",
           "description": "Optional parameters for customizing emails. If not provided, use defaults."
         }
       },
@@ -3704,20 +3962,28 @@
       },
       "required": ["userId", "apiKeyId"]
     },
-    "v1EmailCustomization": {
+    "v1EmailCustomizationParams": {
       "type": "object",
       "properties": {
-        "subject": {
-          "type": "string"
+        "appName": {
+          "type": "string",
+          "description": "The name of the application."
         },
-        "body": {
-          "type": "string"
+        "logoUrl": {
+          "type": "string",
+          "description": "A URL pointing to a logo. Note this logo will be resized to fit into 340px x 124px."
         },
-        "styling": {
-          "type": "string"
+        "magicLinkTemplate": {
+          "type": "string",
+          "description": "A template for the URL to be used in a magic link button, e.g. `https://dapp.xyz/%s`. The auth bundle will be interpolated into the `%s`."
         },
-        "urlPrefix": {
-          "type": "string"
+        "templateVariables": {
+          "type": "string",
+          "description": "JSON object containing key/value pairs to be used with custom templates."
+        },
+        "templateId": {
+          "type": "string",
+          "description": "Unique identifier for a given Email Template. If not specified, the default is the most recent Email Template."
         }
       }
     },
@@ -4168,6 +4434,37 @@
       },
       "required": ["privateKeys"]
     },
+    "v1GetSubOrgIdsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for the parent Organization. This is used to find sub-organizations within it."
+        },
+        "filterType": {
+          "type": "string",
+          "description": "Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL' or 'PUBLIC_KEY'"
+        },
+        "filterValue": {
+          "type": "string",
+          "description": "The value of the filter to apply for the specified type. For example, a specific email or name string."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetSubOrgIdsResponse": {
+      "type": "object",
+      "properties": {
+        "organizationIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of unique identifiers for the matching sub-organizations."
+        }
+      },
+      "required": ["organizationIds"]
+    },
     "v1GetUserRequest": {
       "type": "object",
       "properties": {
@@ -4332,6 +4629,111 @@
         "HASH_FUNCTION_KECCAK256",
         "HASH_FUNCTION_NOT_APPLICABLE"
       ]
+    },
+    "v1ImportWalletIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the User importing a Wallet."
+        },
+        "walletName": {
+          "type": "string",
+          "description": "Human-readable name for a Wallet."
+        },
+        "encryptedBundle": {
+          "type": "string",
+          "description": "Bundle containing a wallet mnemonic encrypted to the enclave's target public key."
+        },
+        "accounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1WalletAccountParams"
+          },
+          "description": "A list of wallet Accounts."
+        }
+      },
+      "required": ["userId", "walletName", "encryptedBundle", "accounts"]
+    },
+    "v1ImportWalletRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_IMPORT_WALLET"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1ImportWalletIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1ImportWalletResult": {
+      "type": "object",
+      "properties": {
+        "walletId": {
+          "type": "string",
+          "description": "Unique identifier for a Wallet."
+        },
+        "addresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of account addresses."
+        }
+      },
+      "required": ["walletId", "addresses"]
+    },
+    "v1InitImportWalletIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the User importing a Wallet."
+        }
+      },
+      "required": ["userId"]
+    },
+    "v1InitImportWalletRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_INIT_IMPORT_WALLET"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1InitImportWalletIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1InitImportWalletResult": {
+      "type": "object",
+      "properties": {
+        "importBundle": {
+          "type": "string",
+          "description": "Import bundle containing a public key and signature to use for importing client data."
+        }
+      },
+      "required": ["importBundle"]
     },
     "v1InitUserEmailRecoveryIntent": {
       "type": "object",
@@ -4555,6 +4957,12 @@
         },
         "exportWalletAccountIntent": {
           "$ref": "#/definitions/v1ExportWalletAccountIntent"
+        },
+        "initImportWalletIntent": {
+          "$ref": "#/definitions/v1InitImportWalletIntent"
+        },
+        "importWalletIntent": {
+          "$ref": "#/definitions/v1ImportWalletIntent"
         }
       },
       "required": ["createOrganizationIntent"]
@@ -5268,6 +5676,12 @@
         },
         "exportWalletAccountResult": {
           "$ref": "#/definitions/v1ExportWalletAccountResult"
+        },
+        "initImportWalletResult": {
+          "$ref": "#/definitions/v1InitImportWalletResult"
+        },
+        "importWalletResult": {
+          "$ref": "#/definitions/v1ImportWalletResult"
         }
       }
     },
@@ -6131,6 +6545,10 @@
         "exported": {
           "type": "boolean",
           "description": "True when a given Wallet is exported, false otherwise."
+        },
+        "imported": {
+          "type": "boolean",
+          "description": "True when a given Wallet is imported, false otherwise."
         }
       },
       "required": [
@@ -6138,7 +6556,8 @@
         "walletName",
         "createdAt",
         "updatedAt",
-        "exported"
+        "exported",
+        "imported"
       ]
     },
     "v1WalletAccount": {

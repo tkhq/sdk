@@ -54,6 +54,10 @@ import type {
   TGetPrivateKeysResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetSubOrgIdsBody,
+  TGetSubOrgIdsResponse,
+} from "./public_api.fetcher";
+import type {
   TListUserTagsBody,
   TListUserTagsResponse,
 } from "./public_api.fetcher";
@@ -135,6 +139,18 @@ import type {
   TDeletePolicyBody,
   TDeletePolicyResponse,
 } from "./public_api.fetcher";
+import type {
+  TDeletePrivateKeyTagsBody,
+  TDeletePrivateKeyTagsResponse,
+} from "./public_api.fetcher";
+import type {
+  TDeleteUserTagsBody,
+  TDeleteUserTagsResponse,
+} from "./public_api.fetcher";
+import type {
+  TDeleteUsersBody,
+  TDeleteUsersResponse,
+} from "./public_api.fetcher";
 import type { TEmailAuthBody, TEmailAuthResponse } from "./public_api.fetcher";
 import type {
   TExportPrivateKeyBody,
@@ -147,6 +163,14 @@ import type {
 import type {
   TExportWalletAccountBody,
   TExportWalletAccountResponse,
+} from "./public_api.fetcher";
+import type {
+  TImportWalletBody,
+  TImportWalletResponse,
+} from "./public_api.fetcher";
+import type {
+  TInitImportWalletBody,
+  TInitImportWalletResponse,
 } from "./public_api.fetcher";
 import type {
   TInitUserEmailRecoveryBody,
@@ -648,6 +672,37 @@ export class TurnkeyClient {
     input: TGetPrivateKeysBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_private_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get all suborg IDs associated given a parent org ID and an optional filter.
+   *
+   * Sign the provided `TGetSubOrgIdsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_suborgs).
+   *
+   * See also {@link stampGetSubOrgIds}.
+   */
+  getSubOrgIds = async (
+    input: TGetSubOrgIdsBody
+  ): Promise<TGetSubOrgIdsResponse> => {
+    return this.request("/public/v1/query/list_suborgs", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetSubOrgIdsBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetSubOrgIds}.
+   */
+  stampGetSubOrgIds = async (
+    input: TGetSubOrgIdsBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/list_suborgs";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1337,6 +1392,100 @@ export class TurnkeyClient {
   };
 
   /**
+   * Delete Private Key Tags within an Organization
+   *
+   * Sign the provided `TDeletePrivateKeyTagsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_private_key_tags).
+   *
+   * See also {@link stampDeletePrivateKeyTags}.
+   */
+  deletePrivateKeyTags = async (
+    input: TDeletePrivateKeyTagsBody
+  ): Promise<TDeletePrivateKeyTagsResponse> => {
+    return this.request("/public/v1/submit/delete_private_key_tags", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeletePrivateKeyTagsBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeletePrivateKeyTags}.
+   */
+  stampDeletePrivateKeyTags = async (
+    input: TDeletePrivateKeyTagsBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_private_key_tags";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Delete User Tags within an Organization
+   *
+   * Sign the provided `TDeleteUserTagsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_user_tags).
+   *
+   * See also {@link stampDeleteUserTags}.
+   */
+  deleteUserTags = async (
+    input: TDeleteUserTagsBody
+  ): Promise<TDeleteUserTagsResponse> => {
+    return this.request("/public/v1/submit/delete_user_tags", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteUserTagsBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteUserTags}.
+   */
+  stampDeleteUserTags = async (
+    input: TDeleteUserTagsBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_user_tags";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Delete Users within an Organization
+   *
+   * Sign the provided `TDeleteUsersBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_users).
+   *
+   * See also {@link stampDeleteUsers}.
+   */
+  deleteUsers = async (
+    input: TDeleteUsersBody
+  ): Promise<TDeleteUsersResponse> => {
+    return this.request("/public/v1/submit/delete_users", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteUsersBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteUsers}.
+   */
+  stampDeleteUsers = async (
+    input: TDeleteUsersBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_users";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Authenticate a user via Email
    *
    * Sign the provided `TEmailAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/email_auth).
@@ -1449,6 +1598,69 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/export_wallet_account";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Imports a wallet
+   *
+   * Sign the provided `TImportWalletBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/import_wallet).
+   *
+   * See also {@link stampImportWallet}.
+   */
+  importWallet = async (
+    input: TImportWalletBody
+  ): Promise<TImportWalletResponse> => {
+    return this.request("/public/v1/submit/import_wallet", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TImportWalletBody` by using the client's `stamp` function.
+   *
+   * See also {@link ImportWallet}.
+   */
+  stampImportWallet = async (
+    input: TImportWalletBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/import_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Initializes a new wallet import
+   *
+   * Sign the provided `TInitImportWalletBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_import_wallet).
+   *
+   * See also {@link stampInitImportWallet}.
+   */
+  initImportWallet = async (
+    input: TInitImportWalletBody
+  ): Promise<TInitImportWalletResponse> => {
+    return this.request("/public/v1/submit/init_import_wallet", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TInitImportWalletBody` by using the client's `stamp` function.
+   *
+   * See also {@link InitImportWallet}.
+   */
+  stampInitImportWallet = async (
+    input: TInitImportWalletBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/init_import_wallet";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.8.0
+
+### Minor Changes
+
+- 46a7d90: Update to v2024.2.1 API: add activities to initialize wallet import, import wallet, delete users, delete private key tags, delete user tags, and list sub-organizations
+
 ## 2.7.1
 
 ### Patch Changes

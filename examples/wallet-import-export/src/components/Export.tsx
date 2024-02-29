@@ -10,8 +10,8 @@ interface ExportProps {
   setIframeStamper: Dispatch<SetStateAction<IframeStamper | null>>;
 }
 
-const TurnkeyIframeContainerId = "turnkey-iframe-container-id";
-const TurnkeyIframeElementId = "turnkey-iframe-element-id";
+const TurnkeyIframeContainerId = "turnkey-export-iframe-container-id";
+const TurnkeyIframeElementId = "turnkey-export-iframe-element-id";
 
 export function Export(props: ExportProps) {
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(

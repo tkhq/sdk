@@ -670,6 +670,52 @@ export const signGetPrivateKeys = (
   });
 
 /**
+ * `POST /public/v1/query/list_suborgs`
+ */
+export type TGetSubOrgIdsResponse =
+  operations["PublicApiService_GetSubOrgIds"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_suborgs`
+ */
+export type TGetSubOrgIdsInput = { body: TGetSubOrgIdsBody };
+
+/**
+ * `POST /public/v1/query/list_suborgs`
+ */
+export type TGetSubOrgIdsBody =
+  operations["PublicApiService_GetSubOrgIds"]["parameters"]["body"]["body"];
+
+/**
+ * Get Suborgs
+ *
+ * Get all suborg IDs associated given a parent org ID and an optional filter.
+ *
+ * `POST /public/v1/query/list_suborgs`
+ */
+export const getSubOrgIds = (input: TGetSubOrgIdsInput) =>
+  request<TGetSubOrgIdsResponse, TGetSubOrgIdsBody, never, never, never>({
+    uri: "/public/v1/query/list_suborgs",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetSubOrgIds` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetSubOrgIds}
+ */
+export const signGetSubOrgIds = (
+  input: TGetSubOrgIdsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TGetSubOrgIdsBody, never, never>({
+    uri: "/public/v1/query/list_suborgs",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_user_tags`
  */
 export type TListUserTagsResponse =
@@ -1742,6 +1788,150 @@ export const signDeletePolicy = (
   });
 
 /**
+ * `POST /public/v1/submit/delete_private_key_tags`
+ */
+export type TDeletePrivateKeyTagsResponse =
+  operations["PublicApiService_DeletePrivateKeyTags"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_private_key_tags`
+ */
+export type TDeletePrivateKeyTagsInput = { body: TDeletePrivateKeyTagsBody };
+
+/**
+ * `POST /public/v1/submit/delete_private_key_tags`
+ */
+export type TDeletePrivateKeyTagsBody =
+  operations["PublicApiService_DeletePrivateKeyTags"]["parameters"]["body"]["body"];
+
+/**
+ * Delete Private Key Tags
+ *
+ * Delete Private Key Tags within an Organization
+ *
+ * `POST /public/v1/submit/delete_private_key_tags`
+ */
+export const deletePrivateKeyTags = (input: TDeletePrivateKeyTagsInput) =>
+  request<
+    TDeletePrivateKeyTagsResponse,
+    TDeletePrivateKeyTagsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_private_key_tags",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeletePrivateKeyTags` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeletePrivateKeyTags}
+ */
+export const signDeletePrivateKeyTags = (
+  input: TDeletePrivateKeyTagsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TDeletePrivateKeyTagsBody, never, never>({
+    uri: "/public/v1/submit/delete_private_key_tags",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_user_tags`
+ */
+export type TDeleteUserTagsResponse =
+  operations["PublicApiService_DeleteUserTags"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_user_tags`
+ */
+export type TDeleteUserTagsInput = { body: TDeleteUserTagsBody };
+
+/**
+ * `POST /public/v1/submit/delete_user_tags`
+ */
+export type TDeleteUserTagsBody =
+  operations["PublicApiService_DeleteUserTags"]["parameters"]["body"]["body"];
+
+/**
+ * Delete User Tags
+ *
+ * Delete User Tags within an Organization
+ *
+ * `POST /public/v1/submit/delete_user_tags`
+ */
+export const deleteUserTags = (input: TDeleteUserTagsInput) =>
+  request<TDeleteUserTagsResponse, TDeleteUserTagsBody, never, never, never>({
+    uri: "/public/v1/submit/delete_user_tags",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteUserTags` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteUserTags}
+ */
+export const signDeleteUserTags = (
+  input: TDeleteUserTagsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TDeleteUserTagsBody, never, never>({
+    uri: "/public/v1/submit/delete_user_tags",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_users`
+ */
+export type TDeleteUsersResponse =
+  operations["PublicApiService_DeleteUsers"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_users`
+ */
+export type TDeleteUsersInput = { body: TDeleteUsersBody };
+
+/**
+ * `POST /public/v1/submit/delete_users`
+ */
+export type TDeleteUsersBody =
+  operations["PublicApiService_DeleteUsers"]["parameters"]["body"]["body"];
+
+/**
+ * Delete Users
+ *
+ * Delete Users within an Organization
+ *
+ * `POST /public/v1/submit/delete_users`
+ */
+export const deleteUsers = (input: TDeleteUsersInput) =>
+  request<TDeleteUsersResponse, TDeleteUsersBody, never, never, never>({
+    uri: "/public/v1/submit/delete_users",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteUsers` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteUsers}
+ */
+export const signDeleteUsers = (
+  input: TDeleteUsersInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TDeleteUsersBody, never, never>({
+    uri: "/public/v1/submit/delete_users",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/email_auth`
  */
 export type TEmailAuthResponse =
@@ -1933,6 +2123,104 @@ export const signExportWalletAccount = (
 ) =>
   signedRequest<TExportWalletAccountBody, never, never>({
     uri: "/public/v1/submit/export_wallet_account",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/import_wallet`
+ */
+export type TImportWalletResponse =
+  operations["PublicApiService_ImportWallet"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/import_wallet`
+ */
+export type TImportWalletInput = { body: TImportWalletBody };
+
+/**
+ * `POST /public/v1/submit/import_wallet`
+ */
+export type TImportWalletBody =
+  operations["PublicApiService_ImportWallet"]["parameters"]["body"]["body"];
+
+/**
+ * Import Wallet
+ *
+ * Imports a wallet
+ *
+ * `POST /public/v1/submit/import_wallet`
+ */
+export const importWallet = (input: TImportWalletInput) =>
+  request<TImportWalletResponse, TImportWalletBody, never, never, never>({
+    uri: "/public/v1/submit/import_wallet",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ImportWallet` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ImportWallet}
+ */
+export const signImportWallet = (
+  input: TImportWalletInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TImportWalletBody, never, never>({
+    uri: "/public/v1/submit/import_wallet",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/init_import_wallet`
+ */
+export type TInitImportWalletResponse =
+  operations["PublicApiService_InitImportWallet"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/init_import_wallet`
+ */
+export type TInitImportWalletInput = { body: TInitImportWalletBody };
+
+/**
+ * `POST /public/v1/submit/init_import_wallet`
+ */
+export type TInitImportWalletBody =
+  operations["PublicApiService_InitImportWallet"]["parameters"]["body"]["body"];
+
+/**
+ * Init Import Wallet
+ *
+ * Initializes a new wallet import
+ *
+ * `POST /public/v1/submit/init_import_wallet`
+ */
+export const initImportWallet = (input: TInitImportWalletInput) =>
+  request<
+    TInitImportWalletResponse,
+    TInitImportWalletBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/init_import_wallet",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `InitImportWallet` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link InitImportWallet}
+ */
+export const signInitImportWallet = (
+  input: TInitImportWalletInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TInitImportWalletBody, never, never>({
+    uri: "/public/v1/submit/init_import_wallet",
     body: input.body,
     options,
   });

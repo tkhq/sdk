@@ -1,18 +1,25 @@
 import Image from "next/image";
-import styles from "../pages/index.module.css";
-import { TurnkeyApiTypes } from "@turnkey/http";
 import * as React from "react";
 import { Dispatch, SetStateAction } from "react";
 import cx from "classnames";
+
+import styles from "../pages/index.module.css";
+import { TurnkeyApiTypes } from "@turnkey/http";
 
 type TWallet = TurnkeyApiTypes["v1Wallet"];
 
 type WalletsTableProps = {
   wallets: TWallet[];
   setSelectedWallet: Dispatch<SetStateAction<string | null>>;
+  setIsExportModalOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export function WalletsTable(props: WalletsTableProps) {
+  const openExportModal = (walletId: string) => {
+    props.setSelectedWallet(walletId);
+    props.setIsExportModalOpen(true);
+  };
+
   return (
     <div>
       <table className={styles.table}>
@@ -36,7 +43,7 @@ export function WalletsTable(props: WalletsTableProps) {
                     <button
                       className={styles.exportButton}
                       onClick={() => {
-                        props.setSelectedWallet(val.walletId);
+                        openExportModal(val.walletId);
                       }}
                     >
                       <Image

@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/example-wallet-export",
+  "name": "@turnkey/example-wallet-import-export",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
