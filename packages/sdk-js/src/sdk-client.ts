@@ -1,10 +1,10 @@
-import type { THttpConfig, TStamper } from "./__types__/base";
+import type { TurnkeySDKClientConfig } from "./__types__/base";
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
 export class TurnkeySDKClient extends TurnkeySDKClientBase {
-  constructor(organizationId: string, httpConfig: THttpConfig, stamper: TStamper) {
-    super(organizationId, httpConfig, stamper);
+  constructor(config: TurnkeySDKClientConfig) {
+    super(config);
   }
 
   createNextWalletAccount = async (params: { walletId: string }): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {

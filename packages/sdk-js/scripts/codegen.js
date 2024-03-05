@@ -169,7 +169,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   const imports = [];
 
   imports.push(
-    'import { GrpcStatus, THttpConfig, TStamper, TurnkeyRequestError, ActivityResponse } from "../__types__/base";'
+    'import { GrpcStatus, TurnkeyRequestError, ActivityResponse, TurnkeySDKClientConfig } from "../__types__/base";'
   )
 
   imports.push(
@@ -182,23 +182,19 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
 
   codeBuffer.push(`
 export class TurnkeySDKClientBase {
-  organizationId: string;
-  stamper: TStamper;
-  httpConfig: THttpConfig;
+  config: TurnkeySDKClientConfig;
 
-  constructor(organizationId: string, httpConfig: THttpConfig, stamper: TStamper) {
-    this.organizationId = organizationId;
-    this.httpConfig = httpConfig;
-    this.stamper = stamper;
+  constructor(config: TurnkeySDKClientConfig) {
+    this.config = config;
   }
 
-  async query<TBodyType, TResponseType>(
+  async request<TBodyType, TResponseType>(
     url: string,
     body: TBodyType
   ): Promise<TResponseType> {
-    const fullUrl = this.httpConfig.baseUrl + url;
+    const fullUrl = this.config.apiBaseUrl + url;
     const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.stamper.stamp(stringifiedBody);
+    const stamp = await this.config.stamper.stamp(stringifiedBody);
 
     const response = await fetch(fullUrl, {
       method: "POST",
@@ -229,10 +225,10 @@ export class TurnkeySDKClientBase {
     url: string,
     body: TBodyType
   ): Promise<TResponseType> {
-    const POLLING_DURATION = 1000;
+    const POLLING_DURATION = this.config.activityPoller?.duration || 1000;
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-    const initialData = await this.query<TBodyType, TResponseType>(url, body) as ActivityResponse;
+    const initialData = await this.request<TBodyType, TResponseType>(url, body) as ActivityResponse;
     const activityId = initialData["activity"]["id"];
     let activityStatus = initialData["activity"]["status"];
 
@@ -262,7 +258,7 @@ export class TurnkeySDKClientBase {
     url: string,
     body: TBodyType
   ): Promise<TResponseType> {
-    const data: TResponseType = await this.query(url, body);
+    const data: TResponseType = await this.request(url, body);
     return data;
     // return data["activity"]["result"];
   }
@@ -297,10 +293,10 @@ export class TurnkeySDKClientBase {
     if (methodType === "query") {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, overrideParams?: any): Promise<SdkApiTypes.${responseType}> => {
-    return this.query("${endpointPath}", {
+    return this.request("${endpointPath}", {
       ...{
         ...input,
-        organizationId: this.organizationId
+        organizationId: this.config.organizationId
       }, ...overrideParams
     });
   }`
@@ -311,7 +307,7 @@ export class TurnkeySDKClientBase {
     return this.command("${endpointPath}", {
       ...{
         parameters: {...input},
-        organizationId: this.organizationId,
+        organizationId: this.config.organizationId,
         timestampMs: String(Date.now()),
         type: "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
       },
@@ -326,7 +322,7 @@ export class TurnkeySDKClientBase {
     {
       ...{
         parameters: {...input},
-        organizationId: this.organizationId,
+        organizationId: this.config.organizationId,
         timestampMs: String(Date.now()),
         type: "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
       }, ...overrideParams

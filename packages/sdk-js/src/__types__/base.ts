@@ -48,3 +48,13 @@ export interface ActivityResponse {
     status: string;
   }
 }
+
+export interface TurnkeySDKClientConfig {
+  stamper: TStamper;
+  apiBaseUrl: string;
+  organizationId: string;
+  activityPoller?: {
+    duration: number;
+    timeout: number;
+  }
+}
