@@ -12,9 +12,7 @@ import {
   TurnkeyActivityError,
   TurnkeyApi,
   TurnkeyApiTypes,
-  // TurnkeyClient,
   TurnkeyRequestError,
-  VERSION
 } from "@turnkey/http";
 
 import {
@@ -32,6 +30,10 @@ import {
   TurnkeySDKClient
 } from "./sdk-client";
 
+import type {
+  TurnkeySDKClientConfig
+} from "./__types__/base";
+
 // Classes
 export {
   ApiKeyStamper,
@@ -48,6 +50,7 @@ export type {
   TIframeStamperConfig,
   TSignedRequest,
   TurnkeyApiTypes,
+  TurnkeySDKClientConfig,
   TWebauthnStamperConfig
 }
 
@@ -62,11 +65,6 @@ export {
 // Enums
 export {
   IframeEventType
-}
-
-// Constants
-export {
-  VERSION
 }
 
 // ???

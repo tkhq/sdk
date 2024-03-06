@@ -60,6 +60,10 @@ export type paths = {
     /** List all Private Keys within an Organization */
     post: operations["PublicApiService_GetPrivateKeys"];
   };
+  "/public/v1/query/list_suborgs": {
+    /** Get all suborg IDs associated given a parent org ID and an optional filter. */
+    post: operations["PublicApiService_GetSubOrgIds"];
+  };
   "/public/v1/query/list_user_tags": {
     /** List all User Tags within an Organization */
     post: operations["PublicApiService_ListUserTags"];
@@ -148,6 +152,18 @@ export type paths = {
     /** Delete an existing Policy */
     post: operations["PublicApiService_DeletePolicy"];
   };
+  "/public/v1/submit/delete_private_key_tags": {
+    /** Delete Private Key Tags within an Organization */
+    post: operations["PublicApiService_DeletePrivateKeyTags"];
+  };
+  "/public/v1/submit/delete_user_tags": {
+    /** Delete User Tags within an Organization */
+    post: operations["PublicApiService_DeleteUserTags"];
+  };
+  "/public/v1/submit/delete_users": {
+    /** Delete Users within an Organization */
+    post: operations["PublicApiService_DeleteUsers"];
+  };
   "/public/v1/submit/email_auth": {
     /** Authenticate a user via Email */
     post: operations["PublicApiService_EmailAuth"];
@@ -163,6 +179,18 @@ export type paths = {
   "/public/v1/submit/export_wallet_account": {
     /** Exports a Wallet Account */
     post: operations["PublicApiService_ExportWalletAccount"];
+  };
+  "/public/v1/submit/import_wallet": {
+    /** Imports a wallet */
+    post: operations["PublicApiService_ImportWallet"];
+  };
+  "/public/v1/submit/init_import_private_key": {
+    /** Initializes a new private key import */
+    post: operations["PublicApiService_InitImportPrivateKey"];
+  };
+  "/public/v1/submit/init_import_wallet": {
+    /** Initializes a new wallet import */
+    post: operations["PublicApiService_InitImportWallet"];
   };
   "/public/v1/submit/init_user_email_recovery": {
     /** Initializes a new email recovery */
@@ -386,14 +414,18 @@ export type definitions = {
     | "ACTIVITY_TYPE_EXPORT_WALLET"
     | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4"
     | "ACTIVITY_TYPE_EMAIL_AUTH"
-    | "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT";
+    | "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"
+    | "ACTIVITY_TYPE_INIT_IMPORT_WALLET"
+    | "ACTIVITY_TYPE_IMPORT_WALLET"
+    | "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
     | "ADDRESS_FORMAT_COMPRESSED"
     | "ADDRESS_FORMAT_ETHEREUM"
     | "ADDRESS_FORMAT_SOLANA"
-    | "ADDRESS_FORMAT_COSMOS";
+    | "ADDRESS_FORMAT_COSMOS"
+    | "ADDRESS_FORMAT_TRON";
   v1ApiKey: {
     /** @description A User credential that can be used to authenticate to Turnkey. */
     credential: definitions["externaldatav1Credential"];
@@ -748,15 +780,18 @@ export type definitions = {
   };
   v1CreateSubOrganizationResult: {
     subOrganizationId: string;
+    rootUserIds?: string[];
   };
   v1CreateSubOrganizationResultV3: {
     subOrganizationId: string;
     /** @description A list of Private Key IDs and addresses. */
     privateKeys: definitions["v1PrivateKeyResult"][];
+    rootUserIds?: string[];
   };
   v1CreateSubOrganizationResultV4: {
     subOrganizationId: string;
     wallet?: definitions["v1WalletResult"];
+    rootUserIds?: string[];
   };
   v1CreateUserTagIntent: {
     /** @description Human-readable name for a User Tag. */
@@ -825,10 +860,10 @@ export type definitions = {
     /** @description A list of wallet Accounts. */
     accounts: definitions["v1WalletAccountParams"][];
     /**
-     * Format: uint64
+     * Format: int32
      * @description Length of mnemonic to generate the Wallet seed. Defaults to 12. Accepted values: 12, 15, 18, 21, 24.
      */
-    mnemonicLength?: string;
+    mnemonicLength?: number;
   };
   v1CreateWalletRequest: {
     /** @enum {string} */
@@ -840,7 +875,7 @@ export type definitions = {
     parameters: definitions["v1CreateWalletIntent"];
   };
   v1CreateWalletResult: {
-    /** @description A list of Wallet IDs. */
+    /** @description Unique identifier for a Wallet. */
     walletId: string;
     /** @description A list of account addresses. */
     addresses: string[];
@@ -947,6 +982,15 @@ export type definitions = {
     /** @description A list of Private Key Tag IDs. */
     privateKeyTagIds: string[];
   };
+  v1DeletePrivateKeyTagsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeletePrivateKeyTagsIntent"];
+  };
   v1DeletePrivateKeyTagsResult: {
     /** @description A list of Private Key Tag IDs. */
     privateKeyTagIds: string[];
@@ -957,6 +1001,15 @@ export type definitions = {
     /** @description A list of User Tag IDs. */
     userTagIds: string[];
   };
+  v1DeleteUserTagsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_USER_TAGS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteUserTagsIntent"];
+  };
   v1DeleteUserTagsResult: {
     /** @description A list of User Tag IDs. */
     userTagIds: string[];
@@ -966,6 +1019,15 @@ export type definitions = {
   v1DeleteUsersIntent: {
     /** @description A list of User IDs. */
     userIds: string[];
+  };
+  v1DeleteUsersRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_USERS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteUsersIntent"];
   };
   v1DeleteUsersResult: {
     /** @description A list of User IDs. */
@@ -990,8 +1052,8 @@ export type definitions = {
     apiKeyName?: string;
     /** @description Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used. */
     expirationSeconds?: string;
-    /** @description Optional parameters for customizing emails. If not provided, use defaults. */
-    emailCustomization?: definitions["v1EmailCustomization"];
+    /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
+    emailCustomization?: definitions["v1EmailCustomizationParams"];
   };
   v1EmailAuthRequest: {
     /** @enum {string} */
@@ -1008,11 +1070,17 @@ export type definitions = {
     /** @description Unique identifier for the created API key. */
     apiKeyId: string;
   };
-  v1EmailCustomization: {
-    subject?: string;
-    body?: string;
-    styling?: string;
-    urlPrefix?: string;
+  v1EmailCustomizationParams: {
+    /** @description The name of the application. */
+    appName?: string;
+    /** @description A URL pointing to a logo. Note this logo will be resized to fit into 340px x 124px. */
+    logoUrl?: string;
+    /** @description A template for the URL to be used in a magic link button, e.g. `https://dapp.xyz/%s`. The auth bundle will be interpolated into the `%s`. */
+    magicLinkTemplate?: string;
+    /** @description JSON object containing key/value pairs to be used with custom templates. */
+    templateVariables?: string;
+    /** @description Unique identifier for a given Email Template. If not specified, the default is the most recent Email Template. */
+    templateId?: string;
   };
   v1ExportPrivateKeyIntent: {
     /** @description Unique identifier for a given Private Key. */
@@ -1088,7 +1156,8 @@ export type definitions = {
     | "FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY"
     | "FEATURE_NAME_WEBAUTHN_ORIGINS"
     | "FEATURE_NAME_EMAIL_AUTH"
-    | "FEATURE_NAME_EMAIL_RECOVERY";
+    | "FEATURE_NAME_EMAIL_RECOVERY"
+    | "FEATURE_NAME_WEBHOOK";
   v1GetActivitiesRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -1193,6 +1262,18 @@ export type definitions = {
     /** @description A list of Private Keys. */
     privateKeys: definitions["v1PrivateKey"][];
   };
+  v1GetSubOrgIdsRequest: {
+    /** @description Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
+    organizationId: string;
+    /** @description Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL' or 'PUBLIC_KEY' */
+    filterType?: string;
+    /** @description The value of the filter to apply for the specified type. For example, a specific email or name string. */
+    filterValue?: string;
+  };
+  v1GetSubOrgIdsResponse: {
+    /** @description List of unique identifiers for the matching sub-organizations. */
+    organizationIds: string[];
+  };
   v1GetUserRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -1259,6 +1340,65 @@ export type definitions = {
     | "HASH_FUNCTION_SHA256"
     | "HASH_FUNCTION_KECCAK256"
     | "HASH_FUNCTION_NOT_APPLICABLE";
+  v1ImportWalletIntent: {
+    /** @description The ID of the User importing a Wallet. */
+    userId: string;
+    /** @description Human-readable name for a Wallet. */
+    walletName: string;
+    /** @description Bundle containing a wallet mnemonic encrypted to the enclave's target public key. */
+    encryptedBundle: string;
+    /** @description A list of wallet Accounts. */
+    accounts: definitions["v1WalletAccountParams"][];
+  };
+  v1ImportWalletRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_IMPORT_WALLET";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1ImportWalletIntent"];
+  };
+  v1ImportWalletResult: {
+    /** @description Unique identifier for a Wallet. */
+    walletId: string;
+    /** @description A list of account addresses. */
+    addresses: string[];
+  };
+  v1InitImportPrivateKeyIntent: {
+    /** @description The ID of the User importing a Private Key. */
+    userId: string;
+  };
+  v1InitImportPrivateKeyRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1InitImportPrivateKeyIntent"];
+  };
+  v1InitImportPrivateKeyResult: {
+    /** @description Import bundle containing a public key and signature to use for importing client data. */
+    importBundle: string;
+  };
+  v1InitImportWalletIntent: {
+    /** @description The ID of the User importing a Wallet. */
+    userId: string;
+  };
+  v1InitImportWalletRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1InitImportWalletIntent"];
+  };
+  v1InitImportWalletResult: {
+    /** @description Import bundle containing a public key and signature to use for importing client data. */
+    importBundle: string;
+  };
   v1InitUserEmailRecoveryIntent: {
     /** @description Email of the user starting recovery */
     email: string;
@@ -1266,6 +1406,8 @@ export type definitions = {
     targetPublicKey: string;
     /** @description Expiration window (in seconds) indicating how long the recovery credential is valid. If not provided, a default of 15 minutes will be used. */
     expirationSeconds?: string;
+    /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
+    emailCustomization?: definitions["v1EmailCustomizationParams"];
   };
   v1InitUserEmailRecoveryRequest: {
     /** @enum {string} */
@@ -1338,6 +1480,9 @@ export type definitions = {
     createSubOrganizationIntentV4?: definitions["v1CreateSubOrganizationIntentV4"];
     emailAuthIntent?: definitions["v1EmailAuthIntent"];
     exportWalletAccountIntent?: definitions["v1ExportWalletAccountIntent"];
+    initImportWalletIntent?: definitions["v1InitImportWalletIntent"];
+    importWalletIntent?: definitions["v1ImportWalletIntent"];
+    initImportPrivateKeyIntent?: definitions["v1InitImportPrivateKeyIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1476,6 +1621,8 @@ export type definitions = {
     updatedAt: definitions["externaldatav1Timestamp"];
     /** @description True when a given Private Key is exported, false otherwise. */
     exported: boolean;
+    /** @description True when a given Private Key is imported, false otherwise. */
+    imported: boolean;
   };
   v1PrivateKeyParams: {
     /** @description Human-readable name for a Private Key. */
@@ -1596,6 +1743,9 @@ export type definitions = {
     createSubOrganizationResultV4?: definitions["v1CreateSubOrganizationResultV4"];
     emailAuthResult?: definitions["v1EmailAuthResult"];
     exportWalletAccountResult?: definitions["v1ExportWalletAccountResult"];
+    initImportWalletResult?: definitions["v1InitImportWalletResult"];
+    importWalletResult?: definitions["v1ImportWalletResult"];
+    initImportPrivateKeyResult?: definitions["v1InitImportPrivateKeyResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -1930,6 +2080,8 @@ export type definitions = {
     updatedAt: definitions["externaldatav1Timestamp"];
     /** @description True when a given Wallet is exported, false otherwise. */
     exported: boolean;
+    /** @description True when a given Wallet is imported, false otherwise. */
+    imported: boolean;
   };
   v1WalletAccount: {
     /** @description The Organization the Account belongs to. */
@@ -1967,10 +2119,10 @@ export type definitions = {
     /** @description A list of wallet Accounts. */
     accounts: definitions["v1WalletAccountParams"][];
     /**
-     * Format: uint64
+     * Format: int32
      * @description Length of mnemonic to generate the Wallet seed. Defaults to 12. Accepted values: 12, 15, 18, 21, 24.
      */
-    mnemonicLength?: string;
+    mnemonicLength?: number;
   };
   v1WalletResult: {
     walletId: string;
@@ -2235,6 +2387,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetPrivateKeysResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get all suborg IDs associated given a parent org ID and an optional filter. */
+  PublicApiService_GetSubOrgIds: {
+    parameters: {
+      body: {
+        body: definitions["v1GetSubOrgIdsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetSubOrgIdsResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -2638,6 +2808,60 @@ export type operations = {
       };
     };
   };
+  /** Delete Private Key Tags within an Organization */
+  PublicApiService_DeletePrivateKeyTags: {
+    parameters: {
+      body: {
+        body: definitions["v1DeletePrivateKeyTagsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Delete User Tags within an Organization */
+  PublicApiService_DeleteUserTags: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteUserTagsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Delete Users within an Organization */
+  PublicApiService_DeleteUsers: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteUsersRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Authenticate a user via Email */
   PublicApiService_EmailAuth: {
     parameters: {
@@ -2697,6 +2921,60 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1ExportWalletAccountRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Imports a wallet */
+  PublicApiService_ImportWallet: {
+    parameters: {
+      body: {
+        body: definitions["v1ImportWalletRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Initializes a new private key import */
+  PublicApiService_InitImportPrivateKey: {
+    parameters: {
+      body: {
+        body: definitions["v1InitImportPrivateKeyRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Initializes a new wallet import */
+  PublicApiService_InitImportWallet: {
+    parameters: {
+      body: {
+        body: definitions["v1InitImportWalletRequest"];
       };
     };
     responses: {

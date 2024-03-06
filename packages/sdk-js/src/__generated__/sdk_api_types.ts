@@ -86,6 +86,12 @@ export type TGetPrivateKeysInput = { body: TGetPrivateKeysBody };
 
 export type TGetPrivateKeysBody = Omit<operations["PublicApiService_GetPrivateKeys"]["parameters"]["body"]["body"], "organizationId">;
 
+export type TGetSubOrgIdsResponse = operations["PublicApiService_GetSubOrgIds"]["responses"]["200"]["schema"];
+
+export type TGetSubOrgIdsInput = { body: TGetSubOrgIdsBody };
+
+export type TGetSubOrgIdsBody = Omit<operations["PublicApiService_GetSubOrgIds"]["parameters"]["body"]["body"], "organizationId">;
+
 export type TListUserTagsResponse = operations["PublicApiService_ListUserTags"]["responses"]["200"]["schema"];
 
 export type TListUserTagsInput = { body: TListUserTagsBody };
@@ -218,6 +224,24 @@ export type TDeletePolicyInput = { body: TDeletePolicyBody };
 
 export type TDeletePolicyBody = operations["PublicApiService_DeletePolicy"]["parameters"]["body"]["body"]["parameters"];
 
+export type TDeletePrivateKeyTagsResponse = operations["PublicApiService_DeletePrivateKeyTags"]["responses"]["200"]["schema"];
+
+export type TDeletePrivateKeyTagsInput = { body: TDeletePrivateKeyTagsBody };
+
+export type TDeletePrivateKeyTagsBody = operations["PublicApiService_DeletePrivateKeyTags"]["parameters"]["body"]["body"]["parameters"];
+
+export type TDeleteUserTagsResponse = operations["PublicApiService_DeleteUserTags"]["responses"]["200"]["schema"];
+
+export type TDeleteUserTagsInput = { body: TDeleteUserTagsBody };
+
+export type TDeleteUserTagsBody = operations["PublicApiService_DeleteUserTags"]["parameters"]["body"]["body"]["parameters"];
+
+export type TDeleteUsersResponse = operations["PublicApiService_DeleteUsers"]["responses"]["200"]["schema"];
+
+export type TDeleteUsersInput = { body: TDeleteUsersBody };
+
+export type TDeleteUsersBody = operations["PublicApiService_DeleteUsers"]["parameters"]["body"]["body"]["parameters"];
+
 export type TEmailAuthResponse = operations["PublicApiService_EmailAuth"]["responses"]["200"]["schema"];
 
 export type TEmailAuthInput = { body: TEmailAuthBody };
@@ -241,6 +265,24 @@ export type TExportWalletAccountResponse = operations["PublicApiService_ExportWa
 export type TExportWalletAccountInput = { body: TExportWalletAccountBody };
 
 export type TExportWalletAccountBody = operations["PublicApiService_ExportWalletAccount"]["parameters"]["body"]["body"]["parameters"];
+
+export type TImportWalletResponse = operations["PublicApiService_ImportWallet"]["responses"]["200"]["schema"];
+
+export type TImportWalletInput = { body: TImportWalletBody };
+
+export type TImportWalletBody = operations["PublicApiService_ImportWallet"]["parameters"]["body"]["body"]["parameters"];
+
+export type TInitImportPrivateKeyResponse = operations["PublicApiService_InitImportPrivateKey"]["responses"]["200"]["schema"];
+
+export type TInitImportPrivateKeyInput = { body: TInitImportPrivateKeyBody };
+
+export type TInitImportPrivateKeyBody = operations["PublicApiService_InitImportPrivateKey"]["parameters"]["body"]["body"]["parameters"];
+
+export type TInitImportWalletResponse = operations["PublicApiService_InitImportWallet"]["responses"]["200"]["schema"];
+
+export type TInitImportWalletInput = { body: TInitImportWalletBody };
+
+export type TInitImportWalletBody = operations["PublicApiService_InitImportWallet"]["parameters"]["body"]["body"]["parameters"];
 
 export type TInitUserEmailRecoveryResponse = operations["PublicApiService_InitUserEmailRecovery"]["responses"]["200"]["schema"];
 

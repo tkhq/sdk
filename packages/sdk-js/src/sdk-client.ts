@@ -7,6 +7,7 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
     super(config);
   }
 
+  // PLACEHOLDER EXAMPLE: EXTENDING THE BASE CLIENT
   createNextWalletAccount = async (params: { walletId: string }): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
     const walletAccounts = await this.getWalletAccounts({ walletId: params.walletId });
     const lastAccount = walletAccounts.accounts[walletAccounts.accounts.length - 1]!;

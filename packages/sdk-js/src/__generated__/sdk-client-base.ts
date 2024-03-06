@@ -2,7 +2,7 @@
 
 import { GrpcStatus, TurnkeyRequestError, ActivityResponse, TurnkeySDKClientConfig } from "../__types__/base";
 
-import { VERSION } from "../__inputs__/version";
+import { VERSION } from "../__generated__/version";
 
 import type * as SdkApiTypes from "./sdk_api_types";
 
@@ -51,7 +51,7 @@ export class TurnkeySDKClientBase {
     url: string,
     body: TBodyType
   ): Promise<TResponseType> {
-    const POLLING_DURATION = this.config.activityPoller?.duration || 1000;
+    const POLLING_DURATION = 1000;
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
     const initialData = await this.request<TBodyType, TResponseType>(url, body) as ActivityResponse;
@@ -89,7 +89,7 @@ export class TurnkeySDKClientBase {
     // return data["activity"]["result"];
   }
 
-
+  
 
 
 	getActivity = async (input: SdkApiTypes.TGetActivityBody, overrideParams?: any): Promise<SdkApiTypes.TGetActivityResponse> => {
@@ -224,6 +224,16 @@ export class TurnkeySDKClientBase {
 
 	getPrivateKeys = async (input: SdkApiTypes.TGetPrivateKeysBody, overrideParams?: any): Promise<SdkApiTypes.TGetPrivateKeysResponse> => {
     return this.request("/public/v1/query/list_private_keys", {
+      ...{
+        ...input,
+        organizationId: this.config.organizationId
+      }, ...overrideParams
+    });
+  }
+
+
+	getSubOrgIds = async (input: SdkApiTypes.TGetSubOrgIdsBody, overrideParams?: any): Promise<SdkApiTypes.TGetSubOrgIdsResponse> => {
+    return this.request("/public/v1/query/list_suborgs", {
       ...{
         ...input,
         organizationId: this.config.organizationId
@@ -503,6 +513,45 @@ export class TurnkeySDKClientBase {
   }
 
 
+	deletePrivateKeyTags = async (input: SdkApiTypes.TDeletePrivateKeyTagsBody, overrideParams?: any): Promise<SdkApiTypes.TDeletePrivateKeyTagsResponse> => {
+    return this.command("/public/v1/submit/delete_private_key_tags", {
+      ...{
+        parameters: {...input},
+        organizationId: this.config.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"
+      },
+      ...overrideParams
+    });
+  }
+
+
+	deleteUserTags = async (input: SdkApiTypes.TDeleteUserTagsBody, overrideParams?: any): Promise<SdkApiTypes.TDeleteUserTagsResponse> => {
+    return this.command("/public/v1/submit/delete_user_tags", {
+      ...{
+        parameters: {...input},
+        organizationId: this.config.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_USER_TAGS"
+      },
+      ...overrideParams
+    });
+  }
+
+
+	deleteUsers = async (input: SdkApiTypes.TDeleteUsersBody, overrideParams?: any): Promise<SdkApiTypes.TDeleteUsersResponse> => {
+    return this.command("/public/v1/submit/delete_users", {
+      ...{
+        parameters: {...input},
+        organizationId: this.config.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_USERS"
+      },
+      ...overrideParams
+    });
+  }
+
+
 	emailAuth = async (input: SdkApiTypes.TEmailAuthBody, overrideParams?: any): Promise<SdkApiTypes.TEmailAuthResponse> => {
     return this.command("/public/v1/submit/email_auth", {
       ...{
@@ -549,6 +598,45 @@ export class TurnkeySDKClientBase {
         organizationId: this.config.organizationId,
         timestampMs: String(Date.now()),
         type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"
+      },
+      ...overrideParams
+    });
+  }
+
+
+	importWallet = async (input: SdkApiTypes.TImportWalletBody, overrideParams?: any): Promise<SdkApiTypes.TImportWalletResponse> => {
+    return this.command("/public/v1/submit/import_wallet", {
+      ...{
+        parameters: {...input},
+        organizationId: this.config.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_IMPORT_WALLET"
+      },
+      ...overrideParams
+    });
+  }
+
+
+	initImportPrivateKey = async (input: SdkApiTypes.TInitImportPrivateKeyBody, overrideParams?: any): Promise<SdkApiTypes.TInitImportPrivateKeyResponse> => {
+    return this.command("/public/v1/submit/init_import_private_key", {
+      ...{
+        parameters: {...input},
+        organizationId: this.config.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"
+      },
+      ...overrideParams
+    });
+  }
+
+
+	initImportWallet = async (input: SdkApiTypes.TInitImportWalletBody, overrideParams?: any): Promise<SdkApiTypes.TInitImportWalletResponse> => {
+    return this.command("/public/v1/submit/init_import_wallet", {
+      ...{
+        parameters: {...input},
+        organizationId: this.config.organizationId,
+        timestampMs: String(Date.now()),
+        type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET"
       },
       ...overrideParams
     });
