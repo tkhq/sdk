@@ -219,7 +219,7 @@ export class TurnkeySDKClientBase {
     url: string,
     body: TBodyType
   ): Promise<TResponseType> {
-    const POLLING_DURATION = 1000;
+    const POLLING_DURATION = this.config.activityPoller?.duration ?? 1000;
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
     const initialData = await this.request<TBodyType, TResponseType>(url, body) as ActivityResponse;
@@ -228,7 +228,7 @@ export class TurnkeySDKClientBase {
 
     if (activityStatus !== "ACTIVITY_STATUS_PENDING") {
       return initialData as TResponseType;
-      // return initialData["activity"]["result"][\`\${methodName}Result\`];
+      // TODO: return initialData["activity"]["result"][\`\${methodName}Result\`];
     }
 
     const pollStatus = async (): Promise<TResponseType> => {
@@ -241,7 +241,7 @@ export class TurnkeySDKClientBase {
         return await pollStatus();
       } else {
         return pollData as TResponseType;
-        // return pollData["activity"]["result"][\`\${methodName}Result\`];
+        // TODO: return pollData["activity"]["result"][\`\${methodName}Result\`];
       }
     }
 
@@ -254,7 +254,7 @@ export class TurnkeySDKClientBase {
   ): Promise<TResponseType> {
     const data: TResponseType = await this.request(url, body);
     return data;
-    // return data["activity"]["result"];
+    // TODO: return data["activity"]["result"];
   }
 
   `);
