@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.9.0
+
+### Minor Changes
+
+- 83b62b5: Sync types for latest release
+
 ## 2.8.0
 
 ### Minor Changes
