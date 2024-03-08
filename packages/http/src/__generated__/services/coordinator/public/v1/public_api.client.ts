@@ -165,8 +165,16 @@ import type {
   TExportWalletAccountResponse,
 } from "./public_api.fetcher";
 import type {
+  TImportPrivateKeyBody,
+  TImportPrivateKeyResponse,
+} from "./public_api.fetcher";
+import type {
   TImportWalletBody,
   TImportWalletResponse,
+} from "./public_api.fetcher";
+import type {
+  TInitImportPrivateKeyBody,
+  TInitImportPrivateKeyResponse,
 } from "./public_api.fetcher";
 import type {
   TInitImportWalletBody,
@@ -1608,6 +1616,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Imports a private key
+   *
+   * Sign the provided `TImportPrivateKeyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/import_private_key).
+   *
+   * See also {@link stampImportPrivateKey}.
+   */
+  importPrivateKey = async (
+    input: TImportPrivateKeyBody
+  ): Promise<TImportPrivateKeyResponse> => {
+    return this.request("/public/v1/submit/import_private_key", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TImportPrivateKeyBody` by using the client's `stamp` function.
+   *
+   * See also {@link ImportPrivateKey}.
+   */
+  stampImportPrivateKey = async (
+    input: TImportPrivateKeyBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/import_private_key";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Imports a wallet
    *
    * Sign the provided `TImportWalletBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/import_wallet).
@@ -1629,6 +1669,38 @@ export class TurnkeyClient {
     input: TImportWalletBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/import_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Initializes a new private key import
+   *
+   * Sign the provided `TInitImportPrivateKeyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_import_private_key).
+   *
+   * See also {@link stampInitImportPrivateKey}.
+   */
+  initImportPrivateKey = async (
+    input: TInitImportPrivateKeyBody
+  ): Promise<TInitImportPrivateKeyResponse> => {
+    return this.request("/public/v1/submit/init_import_private_key", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TInitImportPrivateKeyBody` by using the client's `stamp` function.
+   *
+   * See also {@link InitImportPrivateKey}.
+   */
+  stampInitImportPrivateKey = async (
+    input: TInitImportPrivateKeyBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/init_import_private_key";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

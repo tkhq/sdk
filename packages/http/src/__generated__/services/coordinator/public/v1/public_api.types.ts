@@ -180,9 +180,17 @@ export type paths = {
     /** Exports a Wallet Account */
     post: operations["PublicApiService_ExportWalletAccount"];
   };
+  "/public/v1/submit/import_private_key": {
+    /** Imports a private key */
+    post: operations["PublicApiService_ImportPrivateKey"];
+  };
   "/public/v1/submit/import_wallet": {
     /** Imports a wallet */
     post: operations["PublicApiService_ImportWallet"];
+  };
+  "/public/v1/submit/init_import_private_key": {
+    /** Initializes a new private key import */
+    post: operations["PublicApiService_InitImportPrivateKey"];
   };
   "/public/v1/submit/init_import_wallet": {
     /** Initializes a new wallet import */
@@ -412,7 +420,9 @@ export type definitions = {
     | "ACTIVITY_TYPE_EMAIL_AUTH"
     | "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"
     | "ACTIVITY_TYPE_INIT_IMPORT_WALLET"
-    | "ACTIVITY_TYPE_IMPORT_WALLET";
+    | "ACTIVITY_TYPE_IMPORT_WALLET"
+    | "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"
+    | "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -775,15 +785,18 @@ export type definitions = {
   };
   v1CreateSubOrganizationResult: {
     subOrganizationId: string;
+    rootUserIds?: string[];
   };
   v1CreateSubOrganizationResultV3: {
     subOrganizationId: string;
     /** @description A list of Private Key IDs and addresses. */
     privateKeys: definitions["v1PrivateKeyResult"][];
+    rootUserIds?: string[];
   };
   v1CreateSubOrganizationResultV4: {
     subOrganizationId: string;
     wallet?: definitions["v1WalletResult"];
+    rootUserIds?: string[];
   };
   v1CreateUserTagIntent: {
     /** @description Human-readable name for a User Tag. */
@@ -1044,7 +1057,7 @@ export type definitions = {
     apiKeyName?: string;
     /** @description Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used. */
     expirationSeconds?: string;
-    /** @description Optional parameters for customizing emails. If not provided, use defaults. */
+    /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
     emailCustomization?: definitions["v1EmailCustomizationParams"];
   };
   v1EmailAuthRequest: {
@@ -1148,7 +1161,8 @@ export type definitions = {
     | "FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY"
     | "FEATURE_NAME_WEBAUTHN_ORIGINS"
     | "FEATURE_NAME_EMAIL_AUTH"
-    | "FEATURE_NAME_EMAIL_RECOVERY";
+    | "FEATURE_NAME_EMAIL_RECOVERY"
+    | "FEATURE_NAME_WEBHOOK";
   v1GetActivitiesRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -1331,6 +1345,33 @@ export type definitions = {
     | "HASH_FUNCTION_SHA256"
     | "HASH_FUNCTION_KECCAK256"
     | "HASH_FUNCTION_NOT_APPLICABLE";
+  v1ImportPrivateKeyIntent: {
+    /** @description The ID of the User importing a Private Key. */
+    userId: string;
+    /** @description Human-readable name for a Private Key. */
+    privateKeyName: string;
+    /** @description Bundle containing a raw private key encrypted to the enclave's target public key. */
+    encryptedBundle: string;
+    /** @description Cryptographic Curve used to generate a given Private Key. */
+    curve: definitions["v1Curve"];
+    /** @description Cryptocurrency-specific formats for a derived address (e.g., Ethereum). */
+    addressFormats: definitions["v1AddressFormat"][];
+  };
+  v1ImportPrivateKeyRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1ImportPrivateKeyIntent"];
+  };
+  v1ImportPrivateKeyResult: {
+    /** @description Unique identifier for a Private Key. */
+    privateKeyId: string;
+    /** @description A list of addresses. */
+    addresses: definitions["immutableactivityv1Address"][];
+  };
   v1ImportWalletIntent: {
     /** @description The ID of the User importing a Wallet. */
     userId: string;
@@ -1356,6 +1397,23 @@ export type definitions = {
     /** @description A list of account addresses. */
     addresses: string[];
   };
+  v1InitImportPrivateKeyIntent: {
+    /** @description The ID of the User importing a Private Key. */
+    userId: string;
+  };
+  v1InitImportPrivateKeyRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1InitImportPrivateKeyIntent"];
+  };
+  v1InitImportPrivateKeyResult: {
+    /** @description Import bundle containing a public key and signature to use for importing client data. */
+    importBundle: string;
+  };
   v1InitImportWalletIntent: {
     /** @description The ID of the User importing a Wallet. */
     userId: string;
@@ -1380,6 +1438,8 @@ export type definitions = {
     targetPublicKey: string;
     /** @description Expiration window (in seconds) indicating how long the recovery credential is valid. If not provided, a default of 15 minutes will be used. */
     expirationSeconds?: string;
+    /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
+    emailCustomization?: definitions["v1EmailCustomizationParams"];
   };
   v1InitUserEmailRecoveryRequest: {
     /** @enum {string} */
@@ -1454,6 +1514,8 @@ export type definitions = {
     exportWalletAccountIntent?: definitions["v1ExportWalletAccountIntent"];
     initImportWalletIntent?: definitions["v1InitImportWalletIntent"];
     importWalletIntent?: definitions["v1ImportWalletIntent"];
+    initImportPrivateKeyIntent?: definitions["v1InitImportPrivateKeyIntent"];
+    importPrivateKeyIntent?: definitions["v1ImportPrivateKeyIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1592,6 +1654,8 @@ export type definitions = {
     updatedAt: definitions["externaldatav1Timestamp"];
     /** @description True when a given Private Key is exported, false otherwise. */
     exported: boolean;
+    /** @description True when a given Private Key is imported, false otherwise. */
+    imported: boolean;
   };
   v1PrivateKeyParams: {
     /** @description Human-readable name for a Private Key. */
@@ -1714,6 +1778,8 @@ export type definitions = {
     exportWalletAccountResult?: definitions["v1ExportWalletAccountResult"];
     initImportWalletResult?: definitions["v1InitImportWalletResult"];
     importWalletResult?: definitions["v1ImportWalletResult"];
+    initImportPrivateKeyResult?: definitions["v1InitImportPrivateKeyResult"];
+    importPrivateKeyResult?: definitions["v1ImportPrivateKeyResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -2902,11 +2968,47 @@ export type operations = {
       };
     };
   };
+  /** Imports a private key */
+  PublicApiService_ImportPrivateKey: {
+    parameters: {
+      body: {
+        body: definitions["v1ImportPrivateKeyRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Imports a wallet */
   PublicApiService_ImportWallet: {
     parameters: {
       body: {
         body: definitions["v1ImportWalletRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Initializes a new private key import */
+  PublicApiService_InitImportPrivateKey: {
+    parameters: {
+      body: {
+        body: definitions["v1InitImportPrivateKeyRequest"];
       };
     };
     responses: {

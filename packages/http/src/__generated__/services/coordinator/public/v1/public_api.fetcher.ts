@@ -2128,6 +2128,58 @@ export const signExportWalletAccount = (
   });
 
 /**
+ * `POST /public/v1/submit/import_private_key`
+ */
+export type TImportPrivateKeyResponse =
+  operations["PublicApiService_ImportPrivateKey"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/import_private_key`
+ */
+export type TImportPrivateKeyInput = { body: TImportPrivateKeyBody };
+
+/**
+ * `POST /public/v1/submit/import_private_key`
+ */
+export type TImportPrivateKeyBody =
+  operations["PublicApiService_ImportPrivateKey"]["parameters"]["body"]["body"];
+
+/**
+ * Import Private Key
+ *
+ * Imports a private key
+ *
+ * `POST /public/v1/submit/import_private_key`
+ */
+export const importPrivateKey = (input: TImportPrivateKeyInput) =>
+  request<
+    TImportPrivateKeyResponse,
+    TImportPrivateKeyBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/import_private_key",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ImportPrivateKey` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ImportPrivateKey}
+ */
+export const signImportPrivateKey = (
+  input: TImportPrivateKeyInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TImportPrivateKeyBody, never, never>({
+    uri: "/public/v1/submit/import_private_key",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/import_wallet`
  */
 export type TImportWalletResponse =
@@ -2169,6 +2221,58 @@ export const signImportWallet = (
 ) =>
   signedRequest<TImportWalletBody, never, never>({
     uri: "/public/v1/submit/import_wallet",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/init_import_private_key`
+ */
+export type TInitImportPrivateKeyResponse =
+  operations["PublicApiService_InitImportPrivateKey"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/init_import_private_key`
+ */
+export type TInitImportPrivateKeyInput = { body: TInitImportPrivateKeyBody };
+
+/**
+ * `POST /public/v1/submit/init_import_private_key`
+ */
+export type TInitImportPrivateKeyBody =
+  operations["PublicApiService_InitImportPrivateKey"]["parameters"]["body"]["body"];
+
+/**
+ * Init Import Private Key
+ *
+ * Initializes a new private key import
+ *
+ * `POST /public/v1/submit/init_import_private_key`
+ */
+export const initImportPrivateKey = (input: TInitImportPrivateKeyInput) =>
+  request<
+    TInitImportPrivateKeyResponse,
+    TInitImportPrivateKeyBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/init_import_private_key",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `InitImportPrivateKey` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link InitImportPrivateKey}
+ */
+export const signInitImportPrivateKey = (
+  input: TInitImportPrivateKeyInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TInitImportPrivateKeyBody, never, never>({
+    uri: "/public/v1/submit/init_import_private_key",
     body: input.body,
     options,
   });
