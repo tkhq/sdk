@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/react-native-passkey-stamper",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {

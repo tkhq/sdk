@@ -1,5 +1,12 @@
 # @turnkey/solana
 
+## 0.3.3
+
+### Patch Changes
+
+- Updated dependencies [83b62b5]
+  - @turnkey/http@2.9.0
+
 ## 0.3.2
 
 ### Patch Changes
