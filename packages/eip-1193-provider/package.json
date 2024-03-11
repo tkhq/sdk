@@ -1,0 +1,58 @@
+{
+  "name": "@turnkey/eip-1193-provider",
+  "version": "0.0.1",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "license": "Apache-2.0",
+  "description": "EIP-1193 Provider for Turnkey.",
+  "scripts": {
+    "prepublishOnly": "pnpm -w run clean-all && pnpm -w run build-all",
+    "build": "rollup -c",
+    "clean": "rimraf ./dist ./.cache",
+    "test": "jest",
+    "typecheck": "tsc -p tsconfig.typecheck.json"
+  },
+  "keywords": [
+    "Turnkey",
+    "EIP-1193",
+    "Ethereum",
+    "Ethereum Provider"
+  ],
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.com/"
+  },
+  "homepage": "https://github.com/tkhq/sdk",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tkhq/sdk.git",
+    "directory": "eip-1193-provider"
+  },
+  "files": [
+    "dist/",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@turnkey/api-key-stamper": "workspace:^",
+    "@turnkey/http": "workspace:^",
+    "@turnkey/webauthn-stamper": "workspace:^",
+    "@types/react-dom": "^18.2.21",
+    "react-dom": "^18.2.0",
+    "viem": "^2.7.19"
+  }
+}
