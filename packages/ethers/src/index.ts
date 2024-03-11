@@ -8,9 +8,9 @@ import {
   ethers,
   copyRequest,
   resolveAddress,
-} from "ethers";
-import { TurnkeyActivityError, TurnkeyRequestError } from "@turnkey/http";
-import type { TurnkeyClient } from "@turnkey/http";
+} from 'ethers';
+import { TurnkeyActivityError, TurnkeyRequestError } from '@turnkey/http';
+import type { TurnkeyClient } from '@turnkey/http';
 import {
   type TypedDataDomain,
   type TypedDataField,
@@ -19,7 +19,7 @@ import {
   isAddress,
   getAddress,
   TypedDataEncoder,
-} from "ethers";
+} from 'ethers';
 
 type TConfig = {
   /**
@@ -82,10 +82,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       });
 
       ethereumAddress = data.privateKey.addresses.find(
-        (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM"
+        (item: any) => item.format === 'ADDRESS_FORMAT_ETHEREUM'
       )?.address;
 
-      if (typeof ethereumAddress !== "string" || !ethereumAddress) {
+      if (typeof ethereumAddress !== 'string' || !ethereumAddress) {
         throw new TurnkeyActivityError({
           message: `Unable to find Ethereum address for key ${this.signWith} under organization ${this.organizationId}`,
         });
@@ -97,11 +97,11 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
   private async _signTransactionImpl(message: string): Promise<string> {
     const { activity } = await this.client.signTransaction({
-      type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
+      type: 'ACTIVITY_TYPE_SIGN_TRANSACTION_V2',
       organizationId: this.organizationId,
       parameters: {
         signWith: this.signWith,
-        type: "TRANSACTION_TYPE_ETHEREUM",
+        type: 'TRANSACTION_TYPE_ETHEREUM',
         unsignedTransaction: message,
       },
       timestampMs: String(Date.now()), // millisecond timestamp
@@ -109,7 +109,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
     const { id, status, type } = activity;
 
-    if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
+    if (activity.status === 'ACTIVITY_STATUS_COMPLETED') {
       return assertNonNull(
         activity?.result?.signTransactionResult?.signedTransaction
       );
@@ -173,6 +173,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       ...txn,
       ...(to && { to }),
     });
+    console.log('signTransaction', tx.from);
     const unsignedTx = tx.unsignedSerialized.substring(2);
     const signedTx = await this._signTransactionWithErrorWrapping(unsignedTx);
 
@@ -211,20 +212,20 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
   async _signMessageImpl(message: string): Promise<string> {
     const { activity } = await this.client.signRawPayload({
-      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
+      type: 'ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2',
       organizationId: this.organizationId,
       parameters: {
         signWith: this.signWith,
         payload: message,
-        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-        hashFunction: "HASH_FUNCTION_NO_OP",
+        encoding: 'PAYLOAD_ENCODING_HEXADECIMAL',
+        hashFunction: 'HASH_FUNCTION_NO_OP',
       },
       timestampMs: String(Date.now()), // millisecond timestamp
     });
 
     const { id, status, type } = activity;
 
-    if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
+    if (activity.status === 'ACTIVITY_STATUS_COMPLETED') {
       let result = assertNonNull(activity?.result?.signRawPayloadResult);
 
       let assembled = Signature.from({
@@ -260,7 +261,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         const address = await this.provider?.resolveName(name);
         assertNonNull(address);
 
-        return address ?? "";
+        return address ?? '';
       }
     );
 
