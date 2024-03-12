@@ -48,7 +48,8 @@
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/iframe-stamper": "workspace:*",
-    "@turnkey/webauthn-stamper": "workspace:*"
+    "@turnkey/webauthn-stamper": "workspace:*",
+    "buffer": "^6.0.3"
   },
   "devDependencies": {
     "glob": "^8.0.3"

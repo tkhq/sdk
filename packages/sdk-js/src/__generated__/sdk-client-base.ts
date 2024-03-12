@@ -337,7 +337,7 @@ export class TurnkeySDKClientBase {
         parameters: {...input},
         organizationId: this.config.organizationId,
         timestampMs: String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS"
+        type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"
       },
       ...overrideParams
     });
@@ -389,7 +389,7 @@ export class TurnkeySDKClientBase {
         parameters: {...input},
         organizationId: this.config.organizationId,
         timestampMs: String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"
+        type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"
       },
       ...overrideParams
     });
@@ -402,7 +402,7 @@ export class TurnkeySDKClientBase {
         parameters: {...input},
         organizationId: this.config.organizationId,
         timestampMs: String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"
+        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4"
       },
       ...overrideParams
     });
@@ -428,7 +428,7 @@ export class TurnkeySDKClientBase {
         parameters: {...input},
         organizationId: this.config.organizationId,
         timestampMs: String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_USERS"
+        type: "ACTIVITY_TYPE_CREATE_USERS_V2"
       },
       ...overrideParams
     });
@@ -714,7 +714,7 @@ export class TurnkeySDKClientBase {
         parameters: {...input},
         organizationId: this.config.organizationId,
         timestampMs: String(Date.now()),
-        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"
+        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"
       },
       ...overrideParams
     });
@@ -727,7 +727,7 @@ export class TurnkeySDKClientBase {
         parameters: {...input},
         organizationId: this.config.organizationId,
         timestampMs: String(Date.now()),
-        type: "ACTIVITY_TYPE_SIGN_TRANSACTION"
+        type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2"
       },
       ...overrideParams
     });

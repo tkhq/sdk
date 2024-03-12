@@ -676,6 +676,9 @@ importers:
       '@turnkey/webauthn-stamper':
         specifier: workspace:*
         version: link:../webauthn-stamper
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
     devDependencies:
       glob:
         specifier: ^8.0.3
