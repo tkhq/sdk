@@ -3,17 +3,16 @@ import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
 import { generateRandomBuffer, base64UrlEncode } from "./utils";
-import type { User } from "./models";
+import type { User, SubOrganization } from "./models";
 import { getWebAuthnAttestation } from "@turnkey/http";
+import { StorageKeys, getStorageValue, removeStorageValue, setStorageValue } from "./storage";
 
 export class TurnkeySDKClient extends TurnkeySDKClientBase {
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
   }
 
-  // Users
-  // {email: string}
-  createUserWithPasskey = async (email: string): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
+  createUserAccount = async (email: string): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
     const challenge = generateRandomBuffer();
     const authenticatorUserId = generateRandomBuffer();
 
@@ -71,14 +70,43 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
     return subOrganizationResult;
   }
 
-  loginUserWithPasskey = async (userId: string): Promise<User> => {
-    // var signedRequest;
-    // try {
-    //   signedRequest = await this.stampGetWhoamiI
-    // }
+  loginUser = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
+    const whoamiResult = await this.getWhoami({});
+    const currentUser: User = {
+      userId: whoamiResult.userId,
+      username: whoamiResult.username
+    }
+    const currentSubOrganization: SubOrganization = {
+      organizationId: whoamiResult.organizationId,
+      organizationName: whoamiResult.organizationName
+    }
+    await setStorageValue(StorageKeys.CurrentUser, currentUser);
+    await setStorageValue(StorageKeys.CurrentSubOrganization, currentSubOrganization);
+    return whoamiResult;
+  }
 
-    return {
-      userId: userId
+  logoutUser = async (): Promise<boolean> => {
+    await removeStorageValue(StorageKeys.CurrentUser);
+    await removeStorageValue(StorageKeys.CurrentSubOrganization);
+    return true;
+  }
+
+  // Storage Values
+  getCurrentUser = async (): Promise<User | undefined> => {
+    return await getStorageValue(StorageKeys.CurrentUser);
+  }
+
+  getCurrentSubOrganization = async (): Promise<SubOrganization | undefined> => {
+    return await getStorageValue(StorageKeys.CurrentSubOrganization)
+  }
+
+  // Test Get User WalletsX
+  getWalletsX = async (): Promise<SdkApiTypes.TGetWalletsResponse> => {
+    const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
+    if (currentSubOrganization) {
+      return await this.getWallets({}, {organizationId: currentSubOrganization.organizationId});
+    } else {
+      return await this.getWallets({});
     }
   }
 
