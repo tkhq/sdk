@@ -12,6 +12,51 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
     super(config);
   }
 
+  // Wallet Helpers
+  createWalletWithAccount = async (params: { walletName: string, chain: string; }): Promise<SdkApiTypes.TCreateWalletResponse> => {
+    if (params.chain === "ethereum") {
+      return await this.createWallet({
+        walletName: params.walletName,
+        accounts: [{
+          curve: "CURVE_SECP256K1",
+          pathFormat: "PATH_FORMAT_BIP32",
+          path: "m/44'/60'/0'/0/0",
+          addressFormat: "ADDRESS_FORMAT_ETHEREUM"
+        }]
+      })
+    } else {
+      return await this.createWallet({
+        walletName: params.walletName,
+        accounts: [{
+          curve: "CURVE_SECP256K1",
+          pathFormat: "PATH_FORMAT_BIP32",
+          path: "m/44'/60'/0'/0/0",
+          addressFormat: "ADDRESS_FORMAT_ETHEREUM"
+        }]
+      })
+    }
+  }
+
+  createNextWalletAccount = async (params: { walletId: string }): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
+    const walletAccounts = await this.getWalletAccounts({ walletId: params.walletId });
+    const lastAccount = walletAccounts.accounts[walletAccounts.accounts.length - 1]!;
+    const lastAccountPath = lastAccount.path.split("/");
+    const lastAccountPathIndex = lastAccountPath[3]!.replace(/[^0-9]/g, '');
+    const nextPathIndex = Number(lastAccountPathIndex) + 1;
+    lastAccountPath[3] = `${nextPathIndex}'`;
+    const nextAccountPath = lastAccountPath.join("/");
+    return this.createWalletAccounts({
+      walletId: params.walletId,
+      accounts: [{
+        curve: lastAccount.curve,
+        pathFormat: lastAccount.pathFormat,
+        addressFormat: lastAccount.addressFormat,
+        path: nextAccountPath
+      }]
+    })
+  }
+
+  // User Auth
   createUserAccount = async (email: string): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
     const challenge = generateRandomBuffer();
     const authenticatorUserId = generateRandomBuffer();
@@ -98,16 +143,6 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
 
   getCurrentSubOrganization = async (): Promise<SubOrganization | undefined> => {
     return await getStorageValue(StorageKeys.CurrentSubOrganization)
-  }
-
-  // Test Get User WalletsX
-  getWalletsX = async (): Promise<SdkApiTypes.TGetWalletsResponse> => {
-    const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
-    if (currentSubOrganization) {
-      return await this.getWallets({}, {organizationId: currentSubOrganization.organizationId});
-    } else {
-      return await this.getWallets({});
-    }
   }
 
 }
