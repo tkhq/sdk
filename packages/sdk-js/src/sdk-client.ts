@@ -16,6 +16,7 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
   // RPC URL to Send Transactions?
 
   // Transaction Helpers
+  // User
   signTransactionObject = async (params: { signWith: string, tx: EthereumTransaction }): Promise<SdkApiTypes.TSignTransactionResponse> => {
     const encodedTransaction = FeeMarketEIP1559Transaction.fromTxData(params.tx);
     const formattedEncodedTransaction = bytesToHex(encodedTransaction.getMessageToSign()).slice(2);
@@ -28,6 +29,7 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
   }
 
   // Wallet Helpers
+  // User
   createWalletWithAccount = async (params: { walletName: string, chain: string; }): Promise<SdkApiTypes.TCreateWalletResponse> => {
     if (params.chain === "ethereum") {
       return await this.createWallet({
@@ -52,6 +54,7 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
     }
   }
 
+  // User
   createNextWalletAccount = async (params: { walletId: string }): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
     const walletAccounts = await this.getWalletAccounts({ walletId: params.walletId });
     const lastAccount = walletAccounts.accounts[walletAccounts.accounts.length - 1]!;
@@ -72,6 +75,7 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
   }
 
   // User Auth
+  // API
   createUserAccount = async (email: string): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
     const challenge = generateRandomBuffer();
     const authenticatorUserId = generateRandomBuffer();
@@ -130,6 +134,7 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
     return subOrganizationResult;
   }
 
+  // User
   loginUser = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
     const whoamiResult = await this.getWhoami({});
     const currentUser: User = {
@@ -145,6 +150,7 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
     return whoamiResult;
   }
 
+  // API
   logoutUser = async (): Promise<boolean> => {
     await removeStorageValue(StorageKeys.CurrentUser);
     await removeStorageValue(StorageKeys.CurrentSubOrganization);
@@ -152,10 +158,12 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
   }
 
   // Storage Values
+  // API
   getCurrentUser = async (): Promise<User | undefined> => {
     return await getStorageValue(StorageKeys.CurrentUser);
   }
 
+  // API
   getCurrentSubOrganization = async (): Promise<SubOrganization | undefined> => {
     return await getStorageValue(StorageKeys.CurrentSubOrganization)
   }
