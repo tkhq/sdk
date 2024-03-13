@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.9.1
+
+### Patch Changes
+
+- Update generated files to latest release: optional pagination options were added to list sub-organization and list wallet account endpoints.
+
 ## 2.9.0
 
 ### Minor Changes

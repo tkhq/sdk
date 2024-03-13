@@ -679,7 +679,7 @@
     "/public/v1/query/whoami": {
       "post": {
         "summary": "Who am I?",
-        "description": "Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN users.",
+        "description": "Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users.",
         "operationId": "PublicApiService_GetWhoami",
         "responses": {
           "200": {
@@ -4533,6 +4533,10 @@
         "filterValue": {
           "type": "string",
           "description": "The value of the filter to apply for the specified type. For example, a specific email or name string."
+        },
+        "paginationOptions": {
+          "$ref": "#/definitions/v1Pagination",
+          "description": "Parameters used for cursor-based pagination."
         }
       },
       "required": ["organizationId"]
@@ -4608,6 +4612,10 @@
         "walletId": {
           "type": "string",
           "description": "Unique identifier for a given Wallet."
+        },
+        "paginationOptions": {
+          "$ref": "#/definitions/v1Pagination",
+          "description": "Parameters used for cursor-based pagination."
         }
       },
       "required": ["organizationId", "walletId"]
