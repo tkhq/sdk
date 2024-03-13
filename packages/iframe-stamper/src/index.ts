@@ -190,7 +190,11 @@ export class IframeStamper {
    * The public key of the exported private key. Required when the key format is SOLANA.
    * This is used during the private key export flow.
    */
-  async injectKeyExportBundle(bundle: string, keyFormat?: KeyFormat, publicKey?: string): Promise<boolean> {
+  async injectKeyExportBundle(
+    bundle: string,
+    keyFormat?: KeyFormat,
+    publicKey?: string
+  ): Promise<boolean> {
     this.iframe.contentWindow?.postMessage(
       {
         type: IframeEventType.InjectKeyExportBundle,
