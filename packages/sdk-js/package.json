@@ -50,9 +50,11 @@
     "@turnkey/http": "workspace:*",
     "@turnkey/iframe-stamper": "workspace:*",
     "@turnkey/webauthn-stamper": "workspace:*",
-    "buffer": "^6.0.3"
+    "buffer": "^6.0.3",
+    "elliptic": "^6.5.5"
   },
   "devDependencies": {
+    "@types/elliptic": "^6.4.18",
     "glob": "^8.0.3"
   },
   "engines": {

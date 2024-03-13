@@ -3,10 +3,12 @@ import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
 import { generateRandomBuffer, base64UrlEncode, bytesToHex } from "./utils";
-import type { User, SubOrganization } from "./models";
+import type { User, SubOrganization, UserSigningSession } from "./models";
 import { getWebAuthnAttestation } from "@turnkey/http";
 import { StorageKeys, getStorageValue, removeStorageValue, setStorageValue } from "./storage";
+
 import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
+import elliptic from 'elliptic';
 
 export class TurnkeySDKClient extends TurnkeySDKClientBase {
   constructor(config: TurnkeySDKClientConfig) {
@@ -16,7 +18,7 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
   // RPC URL to Send Transactions?
 
   // Transaction Helpers
-  // User
+  // UserConfirmation
   signTransactionObject = async (params: { signWith: string, tx: EthereumTransaction }): Promise<SdkApiTypes.TSignTransactionResponse> => {
     const encodedTransaction = FeeMarketEIP1559Transaction.fromTxData(params.tx);
     const formattedEncodedTransaction = bytesToHex(encodedTransaction.getMessageToSign()).slice(2);
@@ -29,7 +31,7 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
   }
 
   // Wallet Helpers
-  // User
+  // UserConfirmation
   createWalletWithAccount = async (params: { walletName: string, chain: string; }): Promise<SdkApiTypes.TCreateWalletResponse> => {
     if (params.chain === "ethereum") {
       return await this.createWallet({
@@ -54,7 +56,7 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
     }
   }
 
-  // User
+  // UserConfirmation
   createNextWalletAccount = async (params: { walletId: string }): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
     const walletAccounts = await this.getWalletAccounts({ walletId: params.walletId });
     const lastAccount = walletAccounts.accounts[walletAccounts.accounts.length - 1]!;
@@ -134,8 +136,8 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
     return subOrganizationResult;
   }
 
-  // User
-  loginUser = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
+  // UserConfirmation
+  login = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
     const whoamiResult = await this.getWhoami({});
     const currentUser: User = {
       userId: whoamiResult.userId,
@@ -166,6 +168,40 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
   // API
   getCurrentSubOrganization = async (): Promise<SubOrganization | undefined> => {
     return await getStorageValue(StorageKeys.CurrentSubOrganization)
+  }
+
+  // Session Keys
+  // API
+  isSigningSessionActive = async (): Promise<boolean> => {
+    return false;
+  }
+
+  // UserConfirmation
+  createSigningSessionKey = async (params: { duration: number }): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
+    const currentUser = await this.getCurrentUser();
+    const ec = new elliptic.ec("p256");
+    const keyPair = ec.genKeyPair();
+
+    const signingSession: UserSigningSession = {
+      publicKey: keyPair.getPublic(true, 'hex'),
+      privateKey: keyPair.getPrivate('hex'),
+      expiration: (Date.now() + params.duration)
+    }
+
+    const response = await this.createApiKeys({
+      apiKeys: [{
+        apiKeyName: "Temporary Signing Session Key",
+        publicKey: signingSession.publicKey,
+        expirationSeconds: `${params.duration}`
+      }],
+      userId: currentUser!.userId
+    })
+
+    if (response) {
+      setStorageValue(StorageKeys.CurrentUserSigningSession, signingSession);
+    }
+
+    return response;
   }
 
 }
