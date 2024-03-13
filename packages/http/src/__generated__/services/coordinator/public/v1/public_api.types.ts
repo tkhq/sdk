@@ -81,7 +81,7 @@ export type paths = {
     post: operations["PublicApiService_GetWallets"];
   };
   "/public/v1/query/whoami": {
-    /** Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN users. */
+    /** Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users. */
     post: operations["PublicApiService_GetWhoami"];
   };
   "/public/v1/submit/approve_activity": {
@@ -1274,6 +1274,8 @@ export type definitions = {
     filterType?: string;
     /** @description The value of the filter to apply for the specified type. For example, a specific email or name string. */
     filterValue?: string;
+    /** @description Parameters used for cursor-based pagination. */
+    paginationOptions?: definitions["v1Pagination"];
   };
   v1GetSubOrgIdsResponse: {
     /** @description List of unique identifiers for the matching sub-organizations. */
@@ -1302,6 +1304,8 @@ export type definitions = {
     organizationId: string;
     /** @description Unique identifier for a given Wallet. */
     walletId: string;
+    /** @description Parameters used for cursor-based pagination. */
+    paginationOptions?: definitions["v1Pagination"];
   };
   v1GetWalletAccountsResponse: {
     /** @description A list of Accounts generated from a Wallet that share a common seed */
@@ -2518,7 +2522,7 @@ export type operations = {
       };
     };
   };
-  /** Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN users. */
+  /** Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users. */
   PublicApiService_GetWhoami: {
     parameters: {
       body: {
