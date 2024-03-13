@@ -58,3 +58,14 @@ export interface TurnkeySDKClientConfig {
     timeout: number;
   }
 }
+
+export type EthereumTransaction = {
+  chainId: number;
+  nonce: number;
+  gasLimit: string;
+  maxPriorityFeePerGas: string;
+  maxFeePerGas: string;
+  to: string;
+  value: string;
+  data: string;
+};

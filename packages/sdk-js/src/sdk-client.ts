@@ -1,15 +1,30 @@
-import type { TurnkeySDKClientConfig } from "./__types__/base";
+import type { EthereumTransaction, TurnkeySDKClientConfig } from "./__types__/base";
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
-import { generateRandomBuffer, base64UrlEncode } from "./utils";
+import { generateRandomBuffer, base64UrlEncode, bytesToHex } from "./utils";
 import type { User, SubOrganization } from "./models";
 import { getWebAuthnAttestation } from "@turnkey/http";
 import { StorageKeys, getStorageValue, removeStorageValue, setStorageValue } from "./storage";
+import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 
 export class TurnkeySDKClient extends TurnkeySDKClientBase {
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
+  }
+
+  // RPC URL to Send Transactions?
+
+  // Transaction Helpers
+  signTransactionObject = async (params: { signWith: string, tx: EthereumTransaction }): Promise<SdkApiTypes.TSignTransactionResponse> => {
+    const encodedTransaction = FeeMarketEIP1559Transaction.fromTxData(params.tx);
+    const formattedEncodedTransaction = bytesToHex(encodedTransaction.getMessageToSign()).slice(2);
+
+    return await this.signTransaction({
+      signWith: params.signWith,
+      unsignedTransaction: formattedEncodedTransaction,
+      type: "TRANSACTION_TYPE_ETHEREUM"
+    })
   }
 
   // Wallet Helpers

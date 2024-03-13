@@ -13,3 +13,14 @@ export const base64UrlEncode = (challenge: ArrayBuffer): string => {
     .replace(/\//g, "_")
     .replace(/=/g, "");
 };
+
+const hexByByte = Array.from({ length: 256 }, (_, i) => i.toString(16).padStart(2, '0'))
+
+export const bytesToHex = (bytes: Uint8Array): string => {
+  let hex = '0x'
+  if (bytes === undefined || bytes.length === 0) return hex
+  for (const byte of bytes) {
+    hex += hexByByte[byte]
+  }
+  return hex
+}
