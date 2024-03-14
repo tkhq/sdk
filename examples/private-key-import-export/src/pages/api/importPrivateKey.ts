@@ -37,6 +37,8 @@ export default async function importPrivateKey(
       requestFn: turnkeyClient.importPrivateKey,
     });
 
+    console.log("here: " + request);
+
     const completedActivity = await activityPoller({
       type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
       timestampMs: String(Date.now()),

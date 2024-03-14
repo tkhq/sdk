@@ -7,7 +7,7 @@ import styles from "./index.module.css";
 import { Modal } from "@/components/Modal";
 import { ExportPrivateKey } from "@/components/ExportPrivateKey";
 import { ImportPrivateKey } from "@/components/ImportPrivateKey";
-import { PrivateKeysTable } from "@/components/WalletsTable";
+import { PrivateKeysTable } from "@/components/PrivateKeysTable";
 import { TurnkeyApiTypes } from "@turnkey/http";
 
 type TPrivateKey = TurnkeyApiTypes["v1PrivateKey"];
@@ -15,7 +15,7 @@ type TPrivateKey = TurnkeyApiTypes["v1PrivateKey"];
 export default function ExportPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [privateKeys, setPrivateKeys] = useState<TPrivateKey[]>([]);
-  const [selectedPrivateKey, setSelectedPrivateKey] = useState<string | null>(null);
+  const [selectedPrivateKey, setSelectedPrivateKey] = useState<TPrivateKey | null>(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
@@ -30,6 +30,7 @@ export default function ExportPage() {
     const organizationId = process.env.NEXT_PUBLIC_ORGANIZATION_ID!;
     const res = await axios.post("/api/whoami", { organizationId });
 
+    console.log(res.data.userId);
     setUserId(res.data.userId);
   };
 
@@ -96,7 +97,8 @@ export default function ExportPage() {
           show={isExportModalOpen}
           onClose={() => setIsExportModalOpen(false)}
         >
-          <ExportPrivateKey privateKeyId={selectedPrivateKey} />
+          <ExportPrivateKey
+            privateKey={selectedPrivateKey} />
         </Modal>
       )}
     </main>

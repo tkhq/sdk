@@ -10,13 +10,13 @@ type TPrivateKey = TurnkeyApiTypes["v1PrivateKey"];
 
 type PrivateKeysTableProps = {
   privateKeys: TPrivateKey[];
-  setSelectedPrivateKey: Dispatch<SetStateAction<string | null>>;
+  setSelectedPrivateKey: Dispatch<SetStateAction<TPrivateKey | null>>;
   setIsExportModalOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export function PrivateKeysTable(props: PrivateKeysTableProps) {
-  const openExportModal = (privateKeyId: string) => {
-    props.setSelectedPrivateKey(privateKeyId);
+  const openExportModal = (privateKey: TPrivateKey) => {
+    props.setSelectedPrivateKey(privateKey);
     props.setIsExportModalOpen(true);
   };
 
@@ -28,6 +28,9 @@ export function PrivateKeysTable(props: PrivateKeysTableProps) {
             <th className={cx(styles.tableHeaderCell, styles.exportCol)}></th>
             <th className={cx(styles.tableHeaderCell, styles.walletNameCol)}>
               Wallet name
+            </th>
+            <th className={cx(styles.tableHeaderCell, styles.walletNameCol)}>
+              Curve
             </th>
             <th className={cx(styles.tableHeaderCell, styles.walletIdCol)}>
               Wallet ID
@@ -43,7 +46,7 @@ export function PrivateKeysTable(props: PrivateKeysTableProps) {
                     <button
                       className={styles.exportButton}
                       onClick={() => {
-                        openExportModal(val.privateKeyId);
+                        openExportModal(val);
                       }}
                     >
                       <Image
@@ -57,6 +60,9 @@ export function PrivateKeysTable(props: PrivateKeysTableProps) {
                   </td>
                   <td className={styles.cell}>
                     <p>{val.privateKeyName}</p>
+                  </td>
+                  <td className={styles.cell}>
+                    <p>{val.curve.replace("CURVE_", " ")}</p>
                   </td>
                   <td className={styles.cell}>
                     <p className={styles.idCell}>{val.privateKeyId}</p>

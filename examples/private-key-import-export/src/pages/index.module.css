@@ -91,7 +91,7 @@
   width: 55px;
 }
 .walletNameCol {
-  width: 250px;
+  width: 110px;
 }
 
 .walletIdCol {
@@ -253,7 +253,7 @@
   border-width: 0;
 }
 
-.input {
+.input, .select {
   width: 240px;
   margin: 0;
   margin-left: 10px;
@@ -268,8 +268,12 @@
 .label {
   font-family: "Inter";
   text-align: center;
+  display: block;
+  margin-bottom: 20px;
 }
 
-.name {
+.fields {
   margin-bottom: 20px;
+  display: block;
+
 }

@@ -18,13 +18,20 @@ export function ImportPrivateKey(props: ImportPrivateKeyProps) {
     null
   );
   const [privateKeytName, setPrivateKeyName] = useState("");
+  const [keyFormat, setKeyFormat] = useState<KeyFormat | undefined>(undefined);
   const [stage, setStage] = useState("init");
 
-  // Handler function to update the state based on input changes
   const handlePrivateKeyNameChange = (event: {
     target: { value: SetStateAction<string> };
   }) => {
     setPrivateKeyName(event.target.value);
+  };
+
+  const handleKeyFormatChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
+    const keyFormat: KeyFormat = event.target.value as KeyFormat;
+    setKeyFormat(keyFormat);
   };
 
   // Init import the private key
@@ -62,21 +69,26 @@ export function ImportPrivateKey(props: ImportPrivateKeyProps) {
       return;
     }
 
-    const encryptedBundle = await iframeStamper.extractKeyEncryptedBundle(KeyFormat.Hexadecimal);
+    const encryptedBundle = await iframeStamper.extractKeyEncryptedBundle(keyFormat);
 
     if (encryptedBundle.trim() === "") {
       alert("Encrypted bundle is empty.");
       return;
     }
 
+    var curve = "CURVE_SECP256K1";
+    var addressFormats = ["ADDRESS_FORMAT_ETHEREUM"];
+    if (keyFormat === KeyFormat.Solana) {
+      curve = "CURVE_ED25519";
+      addressFormats = ["ADDRESS_FORMAT_SOLANA"];
+    }
+
     const response = await axios.post("/api/importPrivateKey", {
       userId: props.userId,
-      privateKeyname: privateKeytName,
+      privateKeyName: privateKeytName.trim(),
       encryptedBundle,
-      // curve: "CURVE_ED25519",
-      // address_formats: ["ADDRESS_FORMAT_SOLANA"]
-      curve: "CURVE_SECP256K1",
-      address_formats: ["ADDRESS_FORMAT_ETHEREUM"]
+      curve,
+      addressFormats,
     });
 
     // Get private keys again
@@ -102,9 +114,9 @@ export function ImportPrivateKey(props: ImportPrivateKeyProps) {
           </div>
         )}
         {stage === "import" && (
-          <div className={styles.name}>
+          <div className={styles.fields}>
             <label className={styles.label}>
-              Private Key Name
+              Key Name
               <input
                 className={styles.input}
                 type="text"
@@ -112,6 +124,17 @@ export function ImportPrivateKey(props: ImportPrivateKeyProps) {
                 onChange={handlePrivateKeyNameChange}
                 placeholder="Name your private key (required)"
               />
+            </label>
+            <label className={styles.label}>
+              Key Format
+              <select
+                className={styles.input}
+                onChange={handleKeyFormatChange}
+                placeholder="Name your private key (required)"
+              >
+                <option value="HEXADECIMAL">Hexadecimal (Default)</option>
+                <option value="SOLANA">Solana</option>
+              </select>
             </label>
           </div>
         )}
