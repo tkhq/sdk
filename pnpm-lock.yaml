@@ -639,13 +639,13 @@ importers:
   packages/eip-1193-provider:
     dependencies:
       '@turnkey/api-key-stamper':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../api-key-stamper
       '@turnkey/http':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../http
       '@turnkey/webauthn-stamper':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../webauthn-stamper
       '@types/react-dom':
         specifier: ^18.2.21

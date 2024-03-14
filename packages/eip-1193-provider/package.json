@@ -48,9 +48,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@turnkey/api-key-stamper": "workspace:^",
-    "@turnkey/http": "workspace:^",
-    "@turnkey/webauthn-stamper": "workspace:^",
+    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "@turnkey/webauthn-stamper": "workspace:*",
     "@types/react-dom": "^18.2.21",
     "react-dom": "^18.2.0",
     "viem": "^2.7.19"
