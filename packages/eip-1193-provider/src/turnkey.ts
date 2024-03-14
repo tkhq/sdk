@@ -18,18 +18,3 @@ export const createAPIKeyStamper = (options?: TApiKeyStamperConfig) => {
     apiPrivateKey,
   });
 };
-
-// export const createWebauthnStamper = async (
-//   options?: TWebauthnStamperConfig
-// ) => {
-//   const { WebauthnStamper } = await import('@turnkey/webauthn-stamper');
-//   const rpId = options?.rpId || process.env.NEXT_PUBLIC_TURNKEY_RPID;
-//   if (!rpId) {
-//     throw 'Error must provide rpId or define TURNKEY_RPID in your .env file';
-//   }
-
-//   return new WebauthnStamper({
-//     ...options,
-//     rpId,
-//   });
-// };
