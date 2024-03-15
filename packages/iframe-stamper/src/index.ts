@@ -193,14 +193,12 @@ export class IframeStamper {
   async injectKeyExportBundle(
     bundle: string,
     keyFormat?: KeyFormat,
-    publicKey?: string
   ): Promise<boolean> {
     this.iframe.contentWindow?.postMessage(
       {
         type: IframeEventType.InjectKeyExportBundle,
         value: bundle,
         keyFormat: keyFormat,
-        publicKey: publicKey,
       },
       "*"
     );

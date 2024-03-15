@@ -38,17 +38,14 @@ export function ExportPrivateKey(props: ExportPrivateKeyProps) {
     });
 
     var keyFormat = KeyFormat.Hexadecimal;
-    var publicKey = undefined;
-    if (props.privateKey.addresses.find(a => a.format === "ADDRESS_FORMAT_SOLANA")) {
+    if (props.privateKey.addresses.find((a: { format: string; }) => a.format === "ADDRESS_FORMAT_SOLANA")) {
       keyFormat = KeyFormat.Solana;
-      publicKey = props.privateKey.publicKey;
     }
 
 
     let injected = await iframeStamper.injectKeyExportBundle(
       response.data["exportBundle"],
       keyFormat,
-      publicKey
     );
     if (injected !== true) {
       alert("Unexpected error while injecting export bundle.");
