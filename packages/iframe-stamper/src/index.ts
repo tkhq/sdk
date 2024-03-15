@@ -191,7 +191,7 @@ export class IframeStamper {
    */
   async injectKeyExportBundle(
     bundle: string,
-    keyFormat?: KeyFormat,
+    keyFormat?: KeyFormat
   ): Promise<boolean> {
     this.iframe.contentWindow?.postMessage(
       {
