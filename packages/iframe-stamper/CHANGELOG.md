@@ -1,5 +1,12 @@
 # @turnkey/iframe-stamper
 
+## 1.2.0
+
+### Minor Changes
+
+- 0281b88: Remove optional publicKey parameter from injectKeyExportBundle.
+- 0e3584a: Add optional keyFormat and publicKey parameters to injectKeyExportBundle. Add extractKeyEncryptedBundle.
+
 ## 1.1.0
 
 ### Minor Changes
