@@ -187,20 +187,17 @@ export class IframeStamper {
    * The bundle should be encrypted to the iframe's initial public key
    * Encryption should be performed with HPKE (RFC 9180).
    * The key format to encode the private key in after it's exported and decrypted: HEXADECIMAL or SOLANA. Defaults to HEXADECIMAL.
-   * The public key of the exported private key. Required when the key format is SOLANA.
    * This is used during the private key export flow.
    */
   async injectKeyExportBundle(
     bundle: string,
-    keyFormat?: KeyFormat,
-    publicKey?: string
+    keyFormat?: KeyFormat
   ): Promise<boolean> {
     this.iframe.contentWindow?.postMessage(
       {
         type: IframeEventType.InjectKeyExportBundle,
         value: bundle,
         keyFormat: keyFormat,
-        publicKey: publicKey,
       },
       "*"
     );
