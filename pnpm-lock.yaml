@@ -656,6 +656,10 @@ importers:
       viem:
         specifier: ^2.7.19
         version: 2.7.19(typescript@5.1.5)
+    devDependencies:
+      tsx:
+        specifier: ^3.12.7
+        version: 3.12.7
 
   packages/encoding: {}
 

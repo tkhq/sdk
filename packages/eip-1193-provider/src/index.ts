@@ -1,27 +1,32 @@
 import {
-  EIP1193Provider,
-  EIP1193RequestFn,
-  EIP1474Methods,
+  type Address,
+  type EIP1193Provider,
   ProviderRpcError,
   RpcRequestError,
-  WalletRpcSchema,
-  signatureToHex,
+  type WalletRpcSchema,
+  type TypedDataDefinition,
+  type AddEthereumChainParameter,
+  Chain,
 } from 'viem';
-import { getHttpRpcClient, pad } from 'viem/utils';
+import { getHttpRpcClient, hashTypedData } from 'viem/utils';
+import viemChains from 'viem/chains';
 import EventEmitter from 'events';
 import { preprocessTransaction } from './utils';
-import type { TurnkeyEIP1193ProviderOptions } from './types';
-import type { definitions } from '@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.types';
 import type {
-  TSignRawPayloadResponse,
-  TSignTransactionResponse,
-} from '@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher';
+  TurnkeyEIP1193Provider,
+  TurnkeyEIP1193ProviderOptions,
+} from './types';
+import type { TSignTransactionResponse } from '@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher';
+import { signMessage, unwrapActivityResult } from './turnkey';
+import packageJson from '../package.json';
 
 export { createAPIKeyStamper } from './turnkey';
 
-export interface TurnkeyEIP1193Provider extends EIP1193Provider {
-  connect: () => void;
-}
+type ProviderChain = Omit<Chain, 'nativeCurrency'> & {
+  nativeCurrency?: Chain['nativeCurrency'];
+};
+
+let internalChains: Record<string, ProviderChain>[] = [];
 
 /**** NOTES:
  * - Definition of connected:
@@ -32,7 +37,6 @@ export interface TurnkeyEIP1193Provider extends EIP1193Provider {
  *   - If the walletId, organizationId are found then we need to call /public/v1/query/whoami
  *   to ensure that the organizationId aligns with the users
  */
-
 export const createEIP1193Provider = async (
   options: TurnkeyEIP1193ProviderOptions
 ) => {
@@ -55,12 +59,15 @@ export const createEIP1193Provider = async (
     isConnected = connected;
   };
 
-  const request: EIP1193RequestFn<EIP1474Methods> = async ({
+  const request: TurnkeyEIP1193Provider['request'] = async ({
     method,
     params,
   }) => {
     try {
       switch (method) {
+        case 'web3_clientVersion': {
+          return `TurnkeyEIP1193Provider/v${packageJson.version}`;
+        }
         /**
          * Requests that the user provide an Ethereum address to be identified by.
          * This method is specified by [EIP-1102](https://eips.ethereum.org/EIPS/eip-1102)
@@ -86,32 +93,12 @@ export const createEIP1193Provider = async (
         case 'eth_sign': {
           const [signWith, message] =
             params as WalletRpcSchema[6]['Parameters'];
-          const activityResponse = await turnkeyClient.signRawPayload({
-            type: 'ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2',
+
+          return await signMessage({
             organizationId,
-            parameters: {
-              signWith,
-              payload: pad(message),
-              encoding: 'PAYLOAD_ENCODING_HEXADECIMAL',
-              hashFunction: 'HASH_FUNCTION_NO_OP',
-            },
-            timestampMs: String(Date.now()), // millisecond timestamp
-          });
-
-          const { signRawPayloadResult: signature } =
-            unwrapActivityResult<TSignRawPayloadResponse>(activityResponse, {
-              errorMessage: 'Error signing transaction',
-            });
-
-          if (!signature) {
-            // @todo update error message
-            throw 'Error signing transaction';
-          }
-
-          return signatureToHex({
-            r: `0x${signature.r}`,
-            s: `0x${signature.s}`,
-            v: BigInt(signature.v) + 27n,
+            message,
+            signWith,
+            client: turnkeyClient,
           });
         }
         case 'eth_signTransaction': {
@@ -127,59 +114,133 @@ export const createEIP1193Provider = async (
             },
             timestampMs: String(Date.now()),
           });
-          const { signTransactionResult: signedTransaction } =
+          const { signTransactionResult } =
             unwrapActivityResult<TSignTransactionResponse>(activityResponse, {
               errorMessage: 'Error signing transaction',
             });
-          return `0x${signedTransaction}`;
+          return `0x${signTransactionResult?.signedTransaction}`;
         }
 
-        case 'eth_signTypedData_v4':
-          // const [address, message] = params as WalletRpcSchema[8]['Parameters'];
-          // Logic to handle eth_signTypedData_v4
-          return '0x...'; // Placeholder return
+        case 'eth_signTypedData_v4': {
+          const [signWith, typedData] = params as [
+            Address,
+            TypedDataDefinition
+          ];
 
-        case 'wallet_addEthereumChain':
-          // Brainstorming here:
-          // The Turnkey API doesn't have a straight forward notion of `chain`
-          // But we can use the addressFormat to determine if we are on:
-          // Solana, Cosmos, Ethereum, Bitcoin
-          // When adding a chain the steps are outlined as follows:
-          // - If the targetChain is the same as the current chain, return
-          // - Get the current
-          // - If the chain to add is an evm chain then (I think) we don't need to create a
-          //   new wallet if the currently connected wallet
-          // params:
-          /*
-            {
-              chainId,
-              chainName: chain.name,
+          const message = hashTypedData(typedData);
+
+          return signMessage({
+            organizationId,
+            message,
+            signWith,
+            client: turnkeyClient,
+          });
+        }
+        case 'wallet_addEthereumChain': {
+          const [chain] = params as [AddEthereumChainParameter];
+          const chainId = parseInt(chain.chainId, 16);
+          const matchingChain = Object.values(viemChains).find(
+            (c) => c.id === chainId
+          );
+          if (!matchingChain) {
+            const newChain: ProviderChain = {
+              id: chainId,
+              name: chain.chainName,
               nativeCurrency: chain.nativeCurrency,
-              rpcUrls: [chain.rpcUrls.default?.http[0] ?? ''],
-              ...(blockExplorerUrl
-                ? { blockExplorerUrl: [blockExplorerUrl] }
-                : {}),
-            },
-          */
-          return null; // Placeholder return
+              rpcUrls: { default: chain.rpcUrls[0], http: chain.rpcUrls },
+              blockExplorers: chain.blockExplorerUrls
+                ? {
+                    default: {
+                      name: 'Default Explorer',
+                      url: chain.blockExplorerUrls[0],
+                    },
+                  }
+                : undefined,
+            };
+            internalChains.push(newCHain);
+          }
+          // Ensure the chain ID is a 0x-prefixed hexadecimal string and can be parsed to an integer
+          if (
+            !/^0x[0-9a-fA-F]+$/.test(chainId) ||
+            isNaN(parseInt(chainId, 16))
+          ) {
+            throw new ProviderRpcError(new Error('Invalid chain ID format'), {
+              code: 4903,
+              shortMessage: 'Invalid chain ID format',
+            });
+          }
 
-        case 'wallet_getPermissions':
-          // Logic to handle wallet_getPermissions
-          return []; // Placeholder return
+          // Prevent adding the same chain ID multiple times
+          if (addedChains.includes(chainId)) {
+            throw new ProviderRpcError(new Error('Chain ID already added'), {
+              code: 4904,
+              shortMessage: 'Chain ID already added',
+            });
+          }
 
-        case 'wallet_requestPermissions':
-          // Logic to handle wallet_requestPermissions
-          return []; // Placeholder return
+          const chainParameters = internalChains[chainId];
+          if (!chainParameters) {
+            throw new ProviderRpcError(new Error('Chain not supported'), {
+              code: 4902,
+              shortMessage: 'Chain not supported',
+            });
+          }
 
+          // Verify the specified chain ID matches the return value of eth_chainId from the endpoint
+          const rpcChainId = await getRpcChainId(chainParameters.rpcUrls[0]);
+          if (chainId.toLowerCase() !== rpcChainId.toLowerCase()) {
+            throw new ProviderRpcError(
+              new Error('Chain ID does not match the RPC endpoint'),
+              {
+                code: 4905,
+                shortMessage: 'Chain ID mismatch',
+              }
+            );
+          }
+
+          // Logic to handle adding the Ethereum chain
+          // Placeholder for actual implementation
+          internalChains.push(chainId); // Track added chain IDs to prevent duplicates
+          return chainParameters;
+        }
         case 'wallet_switchEthereumChain':
           // Logic to handle wallet_switchEthereumChain
           return null; // Placeholder return
 
-        case 'wallet_watchAsset':
-          // Logic to handle wallet_watchAsset
-          return true; // Placeholder return
-
-        default:
+        case 'eth_subscribe':
+        case 'eth_unsubscribe':
+        case 'eth_blobBaseFee':
+        case 'eth_blockNumber':
+        case 'eth_call':
+        case 'eth_coinbase':
+        case 'eth_estimateGas':
+        case 'eth_feeHistory':
+        case 'eth_gasPrice':
+        case 'eth_getBalance':
+        case 'eth_getBlockByHash':
+        case 'eth_getBlockByNumber':
+        case 'eth_getBlockReceipts':
+        case 'eth_getBlockTransactionCountByHash':
+        case 'eth_getBlockTransactionCountByNumber':
+        case 'eth_getCode':
+        case 'eth_getFilterChanges':
+        case 'eth_getFilterLogs':
+        case 'eth_getLogs':
+        case 'eth_getProof':
+        case 'eth_getStorageAt':
+        case 'eth_getTransactionByBlockHashAndIndex':
+        case 'eth_getTransactionByBlockNumberAndIndex':
+        case 'eth_getTransactionByHash':
+        case 'eth_getTransactionCount':
+        case 'eth_getTransactionReceipt':
+        case 'eth_getUncleCountByBlockHash':
+        case 'eth_getUncleCountByBlockNumber':
+        case 'eth_maxPriorityFeePerGas':
+        case 'eth_newBlockFilter':
+        case 'eth_newFilter':
+        case 'eth_newPendingTransactionFilter':
+        case 'eth_syncing':
+        case 'eth_uninstallFilter':
           const rpcClient = getHttpRpcClient(rpcUrl);
 
           let response = await rpcClient.request({
@@ -197,6 +258,11 @@ export const createEIP1193Provider = async (
             });
           }
           return response.result;
+        default:
+          throw new ProviderRpcError(new Error('Method not supported'), {
+            code: 4200,
+            shortMessage: 'Method not supported',
+          });
       }
     } catch (error: any) {
       // @todo handle errors related to public provider or turnkey api connectivity
@@ -225,29 +291,5 @@ export const createEIP1193Provider = async (
     on: eventEmitter.on,
     removeListener: eventEmitter.removeListener,
     request,
-    connect: () => {},
-  } satisfies TurnkeyEIP1193Provider;
+  } satisfies EIP1193Provider;
 };
-
-function unwrapActivityResult<T extends definitions['v1ActivityResponse']>(
-  activityResponse: T,
-  { errorMessage }: { errorMessage: string }
-): T['activity']['result'] {
-  const { activity } = activityResponse;
-
-  switch (activity.status) {
-    case 'ACTIVITY_STATUS_CONSENSUS_NEEDED': {
-      throw 'Consensus needed';
-    }
-    case 'ACTIVITY_STATUS_COMPLETED': {
-      const result = activity.result;
-      if (result === undefined) {
-        throw 'Activity result is undefined';
-      }
-      return result;
-    }
-    default: {
-      throw errorMessage;
-    }
-  }
-}
