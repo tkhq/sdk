@@ -6,27 +6,28 @@ import {
   type WalletRpcSchema,
   type TypedDataDefinition,
   type AddEthereumChainParameter,
-  Chain,
+  MethodNotSupportedRpcError,
+  ProviderDisconnectedError,
+  ChainDisconnectedError,
 } from 'viem';
 import { getHttpRpcClient, hashTypedData } from 'viem/utils';
-import viemChains from 'viem/chains';
+
 import EventEmitter from 'events';
-import { preprocessTransaction } from './utils';
+import { preprocessTransaction, validateChain } from './utils';
 import type {
+  ConnectInfo,
   TurnkeyEIP1193Provider,
   TurnkeyEIP1193ProviderOptions,
 } from './types';
 import type { TSignTransactionResponse } from '@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher';
-import { signMessage, unwrapActivityResult } from './turnkey';
+import {
+  signMessage,
+  turnkeyIsDisconnected,
+  unwrapActivityResult,
+} from './turnkey';
 import packageJson from '../package.json';
-
-export { createAPIKeyStamper } from './turnkey';
-
-type ProviderChain = Omit<Chain, 'nativeCurrency'> & {
-  nativeCurrency?: Chain['nativeCurrency'];
-};
-
-let internalChains: Record<string, ProviderChain>[] = [];
+import { TurnkeyRequestError } from '@turnkey/http';
+import { ChainIdMismatchError, UnrecognizedChainError } from './errors';
 
 /**** NOTES:
  * - Definition of connected:
@@ -40,24 +41,66 @@ let internalChains: Record<string, ProviderChain>[] = [];
 export const createEIP1193Provider = async (
   options: TurnkeyEIP1193ProviderOptions
 ) => {
-  const { turnkeyClient, organizationId, walletId, rpcUrl } = options;
+  const { turnkeyClient, organizationId, walletId, chains } = options;
 
   // Used for public RPC requests
   let id = 0;
-  let isConnected = false;
+
+  // `activeChain` holds the current Ethereum chain that the provider is operating on to.
+  // It is set when the provider successfully switches to a new chain via `wallet_switchEthereumChain`
+  // or adds a new chain with `wallet_addEthereumChain`. This variable is crucial for ensuring that
+  // the provider operates with the correct chain context, including chain ID and RPC URLs.
+  let activeChain: AddEthereumChainParameter;
+
+  let addedChains: (AddEthereumChainParameter & { connected: boolean })[] = [];
+
+  const accounts: Set<Address> = new Set();
+
+  // Initialize eventEmitter with a Proxy directly
   const eventEmitter = new EventEmitter();
 
-  const setConnected = (connected: boolean) => {
-    // Going from a connected state to a disconnected state; emit disconnected
-    if (isConnected && !connected) {
-      eventEmitter.emit('disconnected');
-      // Going from a disconnected state to a connected state; emit connected
-    } else if (!isConnected && connected) {
-      eventEmitter.emit('connected');
+  // `isInitialized` indicates that the provider is setup and ready to use.
+  // Used to skip setting connected for the initial RPC requests.
+  let isInitialized = false;
+
+  let lastEmittedEvent: 'connect' | 'disconnect';
+  function setConnected(connected: true, data: ConnectInfo): void;
+  function setConnected(connected: false, data: ProviderRpcError): void;
+  function setConnected(
+    connected: boolean,
+    data: ConnectInfo | ProviderRpcError
+  ) {
+    if (!isInitialized) return;
+
+    // Find the currently selected chain and update its connected status
+    addedChains = addedChains.map((chain) =>
+      chain.chainId === activeChain.chainId ? { ...chain, connected } : chain
+    );
+    if (connected && lastEmittedEvent !== 'connect' && isInitialized) {
+      // Emit 'connect' event when the provider becomes connected as per EIP-1193
+      // See https://eips.ethereum.org/EIPS/eip-1193#connect
+      eventEmitter.emit('connect', data);
+      lastEmittedEvent = 'connect';
+    } else if (
+      addedChains.every(({ connected }) => !connected) &&
+      lastEmittedEvent !== 'disconnect'
+    ) {
+      // Emit 'disconnect' event when disconnected from all chains
+      // See https://eips.ethereum.org/EIPS/eip-1193#disconnect
+      const providerDisconnectedError = new ProviderDisconnectedError(
+        data as ProviderRpcError
+      );
+      eventEmitter.emit('disconnect', providerDisconnectedError);
+      // Reset 'connect' emitted flag on disconnect
+      lastEmittedEvent = 'disconnect';
+      throw providerDisconnectedError;
+    } else if (!connected) {
+      // Provider is disconnected from currentChain but connected to at least 1 other chain
+      // Provider is still considered 'connected' & we don't emit unless all chains disconnected
+      // See https://eips.ethereum.org/EIPS/eip-1193#provider-errors
+      throw new ChainDisconnectedError(data as ProviderRpcError);
     }
-    // Indicates no transition took place so no event is emitted
-    isConnected = connected;
-  };
+  }
 
   const request: TurnkeyEIP1193Provider['request'] = async ({
     method,
@@ -68,38 +111,48 @@ export const createEIP1193Provider = async (
         case 'web3_clientVersion': {
           return `TurnkeyEIP1193Provider/v${packageJson.version}`;
         }
+
         /**
          * Requests that the user provide an Ethereum address to be identified by.
          * This method is specified by [EIP-1102](https://eips.ethereum.org/EIPS/eip-1102)
+         * This method must be called first to establish the connectivity of the client.
          * @returns {Promise<Address[]>} An array of addresses after user authorization.
          */
-        case 'eth_requestAccounts':
-        // For now this will return the same response as the `eth_accounts`
-        // Later, we could add a way for developers to surface a UI for user to select their accounts
+        case 'eth_requestAccounts': {
+          // Note: In the future we should add a way for developers to surface a UI
+          // for user to select their accounts. For now it just returns all accounts
+          // for the provided walletId
+          const walletAccounts = await turnkeyClient.getWalletAccounts({
+            organizationId,
+            walletId,
+          });
+          walletAccounts.accounts.map(({ address }) => {
+            accounts.add(address as Address);
+          });
+          setConnected(true, { chainId: activeChain.chainId });
+          return [...accounts];
+        }
 
         /**
          * Returns a list of addresses owned by the user.
          * @returns {Promise<Address[]>} An array of addresses owned by the user.
          */
         case 'eth_accounts':
-          return await turnkeyClient
-            .getWalletAccounts({
-              organizationId,
-              walletId,
-            })
-            .then(({ accounts }) => accounts.map(({ address }) => address));
-
+          setConnected(true, { chainId: activeChain.chainId });
+          return [...accounts];
         case 'personal_sign':
         case 'eth_sign': {
           const [signWith, message] =
             params as WalletRpcSchema[6]['Parameters'];
 
-          return await signMessage({
+          const signedMessage = await signMessage({
             organizationId,
             message,
             signWith,
             client: turnkeyClient,
           });
+          setConnected(true, { chainId: activeChain.chainId });
+          return signedMessage;
         }
         case 'eth_signTransaction': {
           const [transaction] = params as WalletRpcSchema[7]['Parameters'];
@@ -118,9 +171,9 @@ export const createEIP1193Provider = async (
             unwrapActivityResult<TSignTransactionResponse>(activityResponse, {
               errorMessage: 'Error signing transaction',
             });
+          setConnected(true, { chainId: activeChain.chainId });
           return `0x${signTransactionResult?.signedTransaction}`;
         }
-
         case 'eth_signTypedData_v4': {
           const [signWith, typedData] = params as [
             Address,
@@ -128,85 +181,55 @@ export const createEIP1193Provider = async (
           ];
 
           const message = hashTypedData(typedData);
-
-          return signMessage({
+          const signedMessage = signMessage({
             organizationId,
             message,
             signWith,
             client: turnkeyClient,
           });
+          setConnected(true, { chainId: activeChain.chainId });
+          return signedMessage;
         }
         case 'wallet_addEthereumChain': {
           const [chain] = params as [AddEthereumChainParameter];
-          const chainId = parseInt(chain.chainId, 16);
-          const matchingChain = Object.values(viemChains).find(
-            (c) => c.id === chainId
-          );
-          if (!matchingChain) {
-            const newChain: ProviderChain = {
-              id: chainId,
-              name: chain.chainName,
-              nativeCurrency: chain.nativeCurrency,
-              rpcUrls: { default: chain.rpcUrls[0], http: chain.rpcUrls },
-              blockExplorers: chain.blockExplorerUrls
-                ? {
-                    default: {
-                      name: 'Default Explorer',
-                      url: chain.blockExplorerUrls[0],
-                    },
-                  }
-                : undefined,
-            };
-            internalChains.push(newCHain);
-          }
-          // Ensure the chain ID is a 0x-prefixed hexadecimal string and can be parsed to an integer
-          if (
-            !/^0x[0-9a-fA-F]+$/.test(chainId) ||
-            isNaN(parseInt(chainId, 16))
-          ) {
-            throw new ProviderRpcError(new Error('Invalid chain ID format'), {
-              code: 4903,
-              shortMessage: 'Invalid chain ID format',
-            });
-          }
 
-          // Prevent adding the same chain ID multiple times
-          if (addedChains.includes(chainId)) {
-            throw new ProviderRpcError(new Error('Chain ID already added'), {
-              code: 4904,
-              shortMessage: 'Chain ID already added',
-            });
-          }
+          // Validate the to be added
+          validateChain(chain, addedChains);
 
-          const chainParameters = internalChains[chainId];
-          if (!chainParameters) {
-            throw new ProviderRpcError(new Error('Chain not supported'), {
-              code: 4902,
-              shortMessage: 'Chain not supported',
-            });
-          }
+          // Store the current connected chain for potential rollback
+          const previousActiveChain = activeChain;
+
+          // Update the connected chain to the new chain
+          activeChain = chain;
 
           // Verify the specified chain ID matches the return value of eth_chainId from the endpoint
-          const rpcChainId = await getRpcChainId(chainParameters.rpcUrls[0]);
-          if (chainId.toLowerCase() !== rpcChainId.toLowerCase()) {
-            throw new ProviderRpcError(
-              new Error('Chain ID does not match the RPC endpoint'),
-              {
-                code: 4905,
-                shortMessage: 'Chain ID mismatch',
-              }
-            );
+          const rpcChainId = await request({ method: 'eth_chainId' });
+
+          if (activeChain.chainId !== rpcChainId) {
+            activeChain = previousActiveChain; // Revert to the previous connected chain
+            throw new ChainIdMismatchError();
           }
 
-          // Logic to handle adding the Ethereum chain
-          // Placeholder for actual implementation
-          internalChains.push(chainId); // Track added chain IDs to prevent duplicates
-          return chainParameters;
-        }
-        case 'wallet_switchEthereumChain':
-          // Logic to handle wallet_switchEthereumChain
-          return null; // Placeholder return
+          addedChains.push({ ...chain, connected: true });
 
+          return null;
+        }
+
+        case 'wallet_switchEthereumChain': {
+          const [targetChainId] = params as [string];
+          const targetChain = addedChains.find(
+            (chain) => chain.chainId === targetChainId
+          );
+
+          if (!targetChain) {
+            throw new UnrecognizedChainError(targetChainId);
+          }
+
+          activeChain = targetChain;
+          eventEmitter.emit('chainChanged', { chainId: activeChain.chainId });
+          return null;
+        }
+        case 'eth_chainId':
         case 'eth_subscribe':
         case 'eth_unsubscribe':
         case 'eth_blobBaseFee':
@@ -241,55 +264,63 @@ export const createEIP1193Provider = async (
         case 'eth_newPendingTransactionFilter':
         case 'eth_syncing':
         case 'eth_uninstallFilter':
-          const rpcClient = getHttpRpcClient(rpcUrl);
+          const {
+            rpcUrls: [rpcUrl],
+          } = activeChain;
+          if (rpcUrl) {
+            const rpcClient = getHttpRpcClient(rpcUrl);
 
-          let response = await rpcClient.request({
-            body: {
-              method,
-              params,
-              id: id++,
-            },
-          });
-          if (response.error) {
-            throw new RpcRequestError({
-              body: { method, params },
-              error: response.error,
-              url: rpcUrl,
+            let response = await rpcClient.request({
+              body: {
+                method,
+                params,
+                id: id++,
+              },
             });
+
+            if (response.error) {
+              throw new RpcRequestError({
+                body: { method, params },
+                error: response.error,
+                url: rpcUrl,
+              });
+            }
+
+            // Set connected status upon successful Ethereum RPC request
+            setConnected(true, { chainId: activeChain.chainId });
+            return response.result;
           }
-          return response.result;
         default:
-          throw new ProviderRpcError(new Error('Method not supported'), {
-            code: 4200,
-            shortMessage: 'Method not supported',
-          });
+          throw new MethodNotSupportedRpcError(
+            new Error(`Invalid method: ${method}`)
+          );
       }
     } catch (error: any) {
-      // @todo handle errors related to public provider or turnkey api connectivity
-      // Emit disconnected if...
-      // - Wrong chain rpc url
-      // - Wrong turnkeyclient api url
-      // - public provider can't connect for some reason
-      //    (although public provider should throw that on it on I think?)
-
-      // @todo make sure this complies with provider errors in all cases
-      throw new ProviderRpcError(new Error(error.message), {
-        code: error.code,
-        shortMessage: error.message,
-      });
+      if (
+        (error.name === 'HttpRequestError' &&
+          error.details === 'fetch failed') ||
+        (error instanceof TurnkeyRequestError && turnkeyIsDisconnected(error))
+      ) {
+        setConnected(false, error);
+      }
+      throw error;
     }
   };
 
-  // Establishes the connectivity of the provider
-  // TODO: Maybe add polling here (make it optional)
-  // Poll for blocknumber and balance and cache it
-  // request({ method: 'eth_blockNumber' }).then(() => {
-  //   setConnected(true);
-  // });
+  if (Array.isArray(chains) && chains.length > 0) {
+    for (const chain of chains) {
+      await request({
+        method: 'wallet_addEthereumChain',
+        params: [chain],
+      });
+    }
+  }
+
+  isInitialized = true;
 
   return {
-    on: eventEmitter.on,
-    removeListener: eventEmitter.removeListener,
+    on: eventEmitter.on.bind(eventEmitter),
+    removeListener: eventEmitter.removeListener.bind(eventEmitter),
     request,
   } satisfies EIP1193Provider;
 };
