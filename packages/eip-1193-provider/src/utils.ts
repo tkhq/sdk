@@ -5,7 +5,7 @@ import {
   TransactionSerializable,
   serializeTransaction,
 } from 'viem';
-import { PROVIDER_ERROR_CODE } from './constants';
+
 import type { WalletAddEthereumChain } from './types';
 import {
   BlockExplorerUrlError,
