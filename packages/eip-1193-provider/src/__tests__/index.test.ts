@@ -32,6 +32,7 @@ declare global {
       ORG_ID: UUID;
       TURNKEY_API_PUBLIC_KEY: string;
       TURNKEY_API_PRIVATE_KEY: string;
+      PUBLIC_RPC_URL: string;
     }
   }
 }
@@ -42,8 +43,7 @@ const TURNKEY_API_PUBLIC_KEY = process.env.TURNKEY_API_PUBLIC_KEY ?? '';
 const TURNKEY_API_PRIVATE_KEY = process.env.TURNKEY_API_PRIVATE_KEY ?? '';
 const EXPECTED_WALLET_ADDRESS: Address =
   '0xb9d2e69E033b3cFBa1877b86041958778E1ae919';
-const RPC_URL =
-  'https://eth-sepolia.g.alchemy.com/v2/DYNrPz1DRjRgsF2l4RWjZSCmmNDapDy_';
+const RPC_URL = process.env.PUBLIC_RPC_URL;
 const RECEIVER_ADDRESS: Address = '0x6f85Eb534E14D605d4e82bF97ddF59c18F686699';
 
 describe('Test Turnkey EIP-1193 Provider', () => {
