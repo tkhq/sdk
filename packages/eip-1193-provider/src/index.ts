@@ -263,6 +263,7 @@ export const createEIP1193Provider = async (
         case 'eth_newFilter':
         case 'eth_newPendingTransactionFilter':
         case 'eth_syncing':
+        // @ts-expect-error fall through expected
         case 'eth_uninstallFilter':
           const {
             rpcUrls: [rpcUrl],

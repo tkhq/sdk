@@ -14,7 +14,6 @@ import {
   verifyTypedData,
   type EIP1474Methods,
   toHex,
-  HttpRequestError,
   ProviderDisconnectedError,
   MethodNotSupportedRpcError,
 } from 'viem';
@@ -46,7 +45,6 @@ const EXPECTED_WALLET_ADDRESS: Address =
 const RPC_URL =
   'https://eth-sepolia.g.alchemy.com/v2/DYNrPz1DRjRgsF2l4RWjZSCmmNDapDy_';
 const RECEIVER_ADDRESS: Address = '0x6f85Eb534E14D605d4e82bF97ddF59c18F686699';
-const TEST_TIMEOUT = 10_000;
 
 describe('Test Turnkey EIP-1193 Provider', () => {
   let turnkeyClient: TurnkeyClient;
@@ -108,9 +106,7 @@ describe('Test Turnkey EIP-1193 Provider', () => {
       chain.rpcUrls[0] = 'https://invalid.rpc.url';
 
       // Attempt to make a request which should fail due to the invalid RPC URL
-      await provider
-        .request({ method: 'eth_blockNumber' })
-        .catch((error) => {});
+      await provider.request({ method: 'eth_blockNumber' }).catch(() => {});
     });
 
     it('should not emit connected if already connected', async () => {
@@ -145,15 +141,11 @@ describe('Test Turnkey EIP-1193 Provider', () => {
       chain.rpcUrls[0] = 'https://invalid.rpc.url';
 
       // First call to simulate initial connectivity loss
-      await provider
-        .request({ method: 'eth_blockNumber' })
-        .catch((error) => {});
+      await provider.request({ method: 'eth_blockNumber' }).catch(() => {});
 
       // Second call to simulate subsequent check while already disconnected
       // First call to simulate initial connectivity loss
-      await provider
-        .request({ method: 'eth_blockNumber' })
-        .catch((error) => {});
+      await provider.request({ method: 'eth_blockNumber' }).catch(() => {});
 
       // The disconnected event should not be called again since it's already disconnected
       expect(onDisconnected).toHaveBeenCalledTimes(1);
