@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.10.0
+
+### Minor Changes
+
+- 7a9ce7a: Sync 2024.3.16
+
 ## 2.9.1
 
 ### Patch Changes
