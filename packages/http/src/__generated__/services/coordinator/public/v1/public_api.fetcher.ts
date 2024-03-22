@@ -1200,6 +1200,52 @@ export const signCreateInvitations = (
   });
 
 /**
+ * `POST /public/v1/submit/create_policies`
+ */
+export type TCreatePoliciesResponse =
+  operations["PublicApiService_CreatePolicies"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_policies`
+ */
+export type TCreatePoliciesInput = { body: TCreatePoliciesBody };
+
+/**
+ * `POST /public/v1/submit/create_policies`
+ */
+export type TCreatePoliciesBody =
+  operations["PublicApiService_CreatePolicies"]["parameters"]["body"]["body"];
+
+/**
+ * Create Policies
+ *
+ * Create new Policies
+ *
+ * `POST /public/v1/submit/create_policies`
+ */
+export const createPolicies = (input: TCreatePoliciesInput) =>
+  request<TCreatePoliciesResponse, TCreatePoliciesBody, never, never, never>({
+    uri: "/public/v1/submit/create_policies",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreatePolicies` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreatePolicies}
+ */
+export const signCreatePolicies = (
+  input: TCreatePoliciesInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TCreatePoliciesBody, never, never>({
+    uri: "/public/v1/submit/create_policies",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/create_policy`
  */
 export type TCreatePolicyResponse =
@@ -2625,6 +2671,52 @@ export const signSignRawPayload = (
 ) =>
   signedRequest<TSignRawPayloadBody, never, never>({
     uri: "/public/v1/submit/sign_raw_payload",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/sign_raw_payloads`
+ */
+export type TSignRawPayloadsResponse =
+  operations["PublicApiService_SignRawPayloads"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/sign_raw_payloads`
+ */
+export type TSignRawPayloadsInput = { body: TSignRawPayloadsBody };
+
+/**
+ * `POST /public/v1/submit/sign_raw_payloads`
+ */
+export type TSignRawPayloadsBody =
+  operations["PublicApiService_SignRawPayloads"]["parameters"]["body"]["body"];
+
+/**
+ * Sign Raw Payloads
+ *
+ * Sign multiple raw payloads with the same signing parameters
+ *
+ * `POST /public/v1/submit/sign_raw_payloads`
+ */
+export const signRawPayloads = (input: TSignRawPayloadsInput) =>
+  request<TSignRawPayloadsResponse, TSignRawPayloadsBody, never, never, never>({
+    uri: "/public/v1/submit/sign_raw_payloads",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `SignRawPayloads` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link SignRawPayloads}
+ */
+export const signSignRawPayloads = (
+  input: TSignRawPayloadsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TSignRawPayloadsBody, never, never>({
+    uri: "/public/v1/submit/sign_raw_payloads",
     body: input.body,
     options,
   });
