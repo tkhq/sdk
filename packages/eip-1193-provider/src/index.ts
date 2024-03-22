@@ -25,7 +25,7 @@ import {
   turnkeyIsDisconnected,
   unwrapActivityResult,
 } from './turnkey';
-import packageJson from '../package.json';
+
 import { TurnkeyRequestError } from '@turnkey/http';
 import { ChainIdMismatchError, UnrecognizedChainError } from './errors';
 
@@ -109,7 +109,7 @@ export const createEIP1193Provider = async (
     try {
       switch (method) {
         case 'web3_clientVersion': {
-          return `TurnkeyEIP1193Provider/v${packageJson.version}`;
+          return `TurnkeyEIP1193Provider/v[VI]{version}[/VI]`;
         }
 
         /**

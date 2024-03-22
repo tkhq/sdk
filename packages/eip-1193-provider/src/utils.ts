@@ -94,7 +94,6 @@ export function validateChain(
   addedChains: AddEthereumChainParameter[]
 ) {
   const { rpcUrls, blockExplorerUrls, chainId, nativeCurrency } = chain;
-  const code = PROVIDER_ERROR_CODE.ADD_ETHEREUM_CHAIN;
 
   if (addedChains.some((c) => c.chainId === chainId)) {
     throw new ChainIdAlreadyAddedError();

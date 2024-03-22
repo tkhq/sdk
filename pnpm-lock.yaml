@@ -657,6 +657,9 @@ importers:
         specifier: ^2.7.19
         version: 2.7.19(typescript@5.1.5)
     devDependencies:
+      rollup-plugin-version-injector:
+        specifier: ^1.3.3
+        version: 1.3.3
       tsx:
         specifier: ^3.12.7
         version: 3.12.7
@@ -8342,6 +8345,10 @@ packages:
       assert-plus: 1.0.0
     dev: true
 
+  /dateformat@4.6.3:
+    resolution: {integrity: sha512-2P0p0pFGzHS5EMnhdxQi7aJN+iMheud0UhG4dlE1DLAlvL8JHjJJTX/CSm4JXwV0Ka5nGk3zC5mcb5bUQUxxMA==}
+    dev: true
+
   /dayjs@1.11.10:
     resolution: {integrity: sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==}
     dev: false
@@ -13347,6 +13354,14 @@ packages:
       rollup: ^3.0.0 || ^4.0.0
     dependencies:
       rollup: 4.5.2
+    dev: true
+
+  /rollup-plugin-version-injector@1.3.3:
+    resolution: {integrity: sha512-+Rrf0xIFHkwFGuMfphVlAOtd9FlhHFh3vrDwamJ6+YR3IxebRHGVT879qwWzZ1CpWMCLlngb2MmHW5wC5EJqvg==}
+    dependencies:
+      chalk: 4.1.2
+      dateformat: 4.6.3
+      lodash: 4.17.21
     dev: true
 
   /rollup@4.5.2:
