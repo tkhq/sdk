@@ -92,6 +92,10 @@ import type {
   TCreateInvitationsResponse,
 } from "./public_api.fetcher";
 import type {
+  TCreatePoliciesBody,
+  TCreatePoliciesResponse,
+} from "./public_api.fetcher";
+import type {
   TCreatePolicyBody,
   TCreatePolicyResponse,
 } from "./public_api.fetcher";
@@ -203,6 +207,10 @@ import type {
 import type {
   TSignRawPayloadBody,
   TSignRawPayloadResponse,
+} from "./public_api.fetcher";
+import type {
+  TSignRawPayloadsBody,
+  TSignRawPayloadsResponse,
 } from "./public_api.fetcher";
 import type {
   TSignTransactionBody,
@@ -1013,6 +1021,37 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_invitations";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Create new Policies
+   *
+   * Sign the provided `TCreatePoliciesBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_policies).
+   *
+   * See also {@link stampCreatePolicies}.
+   */
+  createPolicies = async (
+    input: TCreatePoliciesBody
+  ): Promise<TCreatePoliciesResponse> => {
+    return this.request("/public/v1/submit/create_policies", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreatePoliciesBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreatePolicies}.
+   */
+  stampCreatePolicies = async (
+    input: TCreatePoliciesBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/create_policies";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1922,6 +1961,37 @@ export class TurnkeyClient {
     input: TSignRawPayloadBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/sign_raw_payload";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Sign multiple raw payloads with the same signing parameters
+   *
+   * Sign the provided `TSignRawPayloadsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sign_raw_payloads).
+   *
+   * See also {@link stampSignRawPayloads}.
+   */
+  signRawPayloads = async (
+    input: TSignRawPayloadsBody
+  ): Promise<TSignRawPayloadsResponse> => {
+    return this.request("/public/v1/submit/sign_raw_payloads", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TSignRawPayloadsBody` by using the client's `stamp` function.
+   *
+   * See also {@link SignRawPayloads}.
+   */
+  stampSignRawPayloads = async (
+    input: TSignRawPayloadsBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/sign_raw_payloads";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

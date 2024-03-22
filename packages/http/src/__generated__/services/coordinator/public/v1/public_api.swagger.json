@@ -868,6 +868,38 @@
         "tags": ["Invitations"]
       }
     },
+    "/public/v1/submit/create_policies": {
+      "post": {
+        "summary": "Create Policies",
+        "description": "Create new Policies",
+        "operationId": "PublicApiService_CreatePolicies",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreatePoliciesRequest"
+            }
+          }
+        ],
+        "tags": ["Policies"]
+      }
+    },
     "/public/v1/submit/create_policy": {
       "post": {
         "summary": "Create Policy",
@@ -1796,6 +1828,38 @@
         "tags": ["Signing"]
       }
     },
+    "/public/v1/submit/sign_raw_payloads": {
+      "post": {
+        "summary": "Sign Raw Payloads",
+        "description": "Sign multiple raw payloads with the same signing parameters",
+        "operationId": "PublicApiService_SignRawPayloads",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SignRawPayloadsRequest"
+            }
+          }
+        ],
+        "tags": ["Signing"]
+      }
+    },
     "/public/v1/submit/sign_transaction": {
       "post": {
         "summary": "Sign Transaction",
@@ -2351,7 +2415,9 @@
         "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
         "ACTIVITY_TYPE_IMPORT_WALLET",
         "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY",
-        "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"
+        "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
+        "ACTIVITY_TYPE_CREATE_POLICIES",
+        "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"
       ]
     },
     "v1AddressFormat": {
@@ -2908,6 +2974,54 @@
         }
       },
       "required": ["organizationId"]
+    },
+    "v1CreatePoliciesIntent": {
+      "type": "object",
+      "properties": {
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1CreatePolicyIntentV3"
+          },
+          "description": "An array of policy intents to be created."
+        }
+      },
+      "required": ["policies"]
+    },
+    "v1CreatePoliciesRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_POLICIES"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreatePoliciesIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreatePoliciesResult": {
+      "type": "object",
+      "properties": {
+        "policyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of unique identifiers for the created policies."
+        }
+      },
+      "required": ["policyIds"]
     },
     "v1CreatePolicyIntent": {
       "type": "object",
@@ -4055,7 +4169,7 @@
         },
         "logoUrl": {
           "type": "string",
-          "description": "A URL pointing to a logo. Note this logo will be resized to fit into 340px x 124px."
+          "description": "A URL pointing to a logo in PNG format. Note this logo will be resized to fit into 340px x 124px."
         },
         "magicLinkTemplate": {
           "type": "string",
@@ -5181,6 +5295,12 @@
         },
         "importPrivateKeyIntent": {
           "$ref": "#/definitions/v1ImportPrivateKeyIntent"
+        },
+        "createPoliciesIntent": {
+          "$ref": "#/definitions/v1CreatePoliciesIntent"
+        },
+        "signRawPayloadsIntent": {
+          "$ref": "#/definitions/v1SignRawPayloadsIntent"
         }
       },
       "required": ["createOrganizationIntent"]
@@ -5911,6 +6031,12 @@
         },
         "importPrivateKeyResult": {
           "$ref": "#/definitions/v1ImportPrivateKeyResult"
+        },
+        "createPoliciesResult": {
+          "$ref": "#/definitions/v1CreatePoliciesResult"
+        },
+        "signRawPayloadsResult": {
+          "$ref": "#/definitions/v1SignRawPayloadsResult"
         }
       }
     },
@@ -6179,6 +6305,64 @@
         }
       },
       "required": ["r", "s", "v"]
+    },
+    "v1SignRawPayloadsIntent": {
+      "type": "object",
+      "properties": {
+        "signWith": {
+          "type": "string",
+          "description": "A Wallet account address, Private Key address, or Private Key identifier."
+        },
+        "payloads": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "An array of raw unsigned payloads to be signed."
+        },
+        "encoding": {
+          "$ref": "#/definitions/v1PayloadEncoding",
+          "description": "Encoding of the `payload` string. Turnkey uses this information to convert `payload` into bytes with the correct decoder (e.g. hex, utf8)."
+        },
+        "hashFunction": {
+          "$ref": "#/definitions/v1HashFunction",
+          "description": "Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032."
+        }
+      },
+      "required": ["signWith", "payloads", "encoding", "hashFunction"]
+    },
+    "v1SignRawPayloadsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1SignRawPayloadsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1SignRawPayloadsResult": {
+      "type": "object",
+      "properties": {
+        "signatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SignRawPayloadResult"
+          }
+        }
+      }
     },
     "v1SignTransactionIntent": {
       "type": "object",
@@ -6825,10 +7009,6 @@
         },
         "updatedAt": {
           "$ref": "#/definitions/externaldatav1Timestamp"
-        },
-        "exported": {
-          "type": "boolean",
-          "description": "True when a given Account is exported, false otherwise."
         }
       },
       "required": [
@@ -6840,8 +7020,7 @@
         "addressFormat",
         "address",
         "createdAt",
-        "updatedAt",
-        "exported"
+        "updatedAt"
       ]
     },
     "v1WalletAccountParams": {

@@ -104,6 +104,10 @@ export type paths = {
     /** Create Invitations to join an existing Organization */
     post: operations["PublicApiService_CreateInvitations"];
   };
+  "/public/v1/submit/create_policies": {
+    /** Create new Policies */
+    post: operations["PublicApiService_CreatePolicies"];
+  };
   "/public/v1/submit/create_policy": {
     /** Create a new Policy */
     post: operations["PublicApiService_CreatePolicy"];
@@ -219,6 +223,10 @@ export type paths = {
   "/public/v1/submit/sign_raw_payload": {
     /** Sign a raw payload */
     post: operations["PublicApiService_SignRawPayload"];
+  };
+  "/public/v1/submit/sign_raw_payloads": {
+    /** Sign multiple raw payloads with the same signing parameters */
+    post: operations["PublicApiService_SignRawPayloads"];
   };
   "/public/v1/submit/sign_transaction": {
     /** Sign a transaction */
@@ -422,7 +430,9 @@ export type definitions = {
     | "ACTIVITY_TYPE_INIT_IMPORT_WALLET"
     | "ACTIVITY_TYPE_IMPORT_WALLET"
     | "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"
-    | "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY";
+    | "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"
+    | "ACTIVITY_TYPE_CREATE_POLICIES"
+    | "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -638,6 +648,23 @@ export type definitions = {
   v1CreateOrganizationResult: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
+  };
+  v1CreatePoliciesIntent: {
+    /** @description An array of policy intents to be created. */
+    policies: definitions["v1CreatePolicyIntentV3"][];
+  };
+  v1CreatePoliciesRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_POLICIES";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreatePoliciesIntent"];
+  };
+  v1CreatePoliciesResult: {
+    /** @description A list of unique identifiers for the created policies. */
+    policyIds: string[];
   };
   v1CreatePolicyIntent: {
     /** @description Human-readable name for a Policy. */
@@ -1078,7 +1105,7 @@ export type definitions = {
   v1EmailCustomizationParams: {
     /** @description The name of the application. */
     appName?: string;
-    /** @description A URL pointing to a logo. Note this logo will be resized to fit into 340px x 124px. */
+    /** @description A URL pointing to a logo in PNG format. Note this logo will be resized to fit into 340px x 124px. */
     logoUrl?: string;
     /** @description A template for the URL to be used in a magic link button, e.g. `https://dapp.xyz/%s`. The auth bundle will be interpolated into the `%s`. */
     magicLinkTemplate?: string;
@@ -1520,6 +1547,8 @@ export type definitions = {
     importWalletIntent?: definitions["v1ImportWalletIntent"];
     initImportPrivateKeyIntent?: definitions["v1InitImportPrivateKeyIntent"];
     importPrivateKeyIntent?: definitions["v1ImportPrivateKeyIntent"];
+    createPoliciesIntent?: definitions["v1CreatePoliciesIntent"];
+    signRawPayloadsIntent?: definitions["v1SignRawPayloadsIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1784,6 +1813,8 @@ export type definitions = {
     importWalletResult?: definitions["v1ImportWalletResult"];
     initImportPrivateKeyResult?: definitions["v1InitImportPrivateKeyResult"];
     importPrivateKeyResult?: definitions["v1ImportPrivateKeyResult"];
+    createPoliciesResult?: definitions["v1CreatePoliciesResult"];
+    signRawPayloadsResult?: definitions["v1SignRawPayloadsResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -1890,6 +1921,28 @@ export type definitions = {
     s: string;
     /** @description Component of an ECSDA signature. */
     v: string;
+  };
+  v1SignRawPayloadsIntent: {
+    /** @description A Wallet account address, Private Key address, or Private Key identifier. */
+    signWith: string;
+    /** @description An array of raw unsigned payloads to be signed. */
+    payloads: string[];
+    /** @description Encoding of the `payload` string. Turnkey uses this information to convert `payload` into bytes with the correct decoder (e.g. hex, utf8). */
+    encoding: definitions["v1PayloadEncoding"];
+    /** @description Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032. */
+    hashFunction: definitions["v1HashFunction"];
+  };
+  v1SignRawPayloadsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1SignRawPayloadsIntent"];
+  };
+  v1SignRawPayloadsResult: {
+    signatures?: definitions["v1SignRawPayloadResult"][];
   };
   v1SignTransactionIntent: {
     /** @description Unique identifier for a given Private Key. */
@@ -2138,8 +2191,6 @@ export type definitions = {
     address: string;
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
-    /** @description True when a given Account is exported, false otherwise. */
-    exported: boolean;
   };
   v1WalletAccountParams: {
     /** @description Cryptographic curve used to generate a wallet Account. */
@@ -2617,6 +2668,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreateInvitationsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create new Policies */
+  PublicApiService_CreatePolicies: {
+    parameters: {
+      body: {
+        body: definitions["v1CreatePoliciesRequest"];
       };
     };
     responses: {
@@ -3139,6 +3208,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1SignRawPayloadRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Sign multiple raw payloads with the same signing parameters */
+  PublicApiService_SignRawPayloads: {
+    parameters: {
+      body: {
+        body: definitions["v1SignRawPayloadsRequest"];
       };
     };
     responses: {
