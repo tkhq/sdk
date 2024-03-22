@@ -1,7 +1,3 @@
-import {
-  ApiKeyStamper,
-  type TApiKeyStamperConfig,
-} from '@turnkey/api-key-stamper';
 import type { TurnkeyClient } from '@turnkey/http';
 import type { TSignRawPayloadResponse } from '@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher';
 import type { definitions } from '@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.types';
