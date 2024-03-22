@@ -1,7 +1,9 @@
 import type { TurnkeyClient } from '@turnkey/http';
 import type { UUID } from 'crypto';
 import type {
+  AddEthereumChainParameter,
   Address,
+  Chain,
   EIP1193Provider,
   EIP1193RequestFn,
   EIP1474Methods,
@@ -10,11 +12,10 @@ import type {
 } from 'viem';
 
 export type TurnkeyEIP1193ProviderOptions = {
-  rpcUrl: string;
   walletId: UUID;
   organizationId: UUID;
-  chainId?: number;
   turnkeyClient: TurnkeyClient;
+  chains: AddEthereumChainParameter[];
 };
 
 export type TurnkeyEIP1193Provider = Omit<EIP1193Provider, 'request'> & {
@@ -29,3 +30,21 @@ export type TurnkeyEIP1193Provider = Omit<EIP1193Provider, 'request'> & {
     ]
   >;
 };
+
+export type ProviderChain = Omit<Chain, 'nativeCurrency'> & {
+  nativeCurrency?: Chain['nativeCurrency'] | undefined;
+};
+
+export type HTTPSUrl = `https://${string}`;
+
+export type WalletAddEthereumChain = Omit<
+  AddEthereumChainParameter,
+  'rpcUrls' | 'blockExplorerUrls'
+> & {
+  rpcUrls: [string, ...string[]];
+  blockExplorerUrls: [HTTPSUrl, ...HTTPSUrl[]] | null;
+};
+
+export interface ConnectInfo {
+  chainId: string;
+}

@@ -7,22 +7,7 @@ import type { TSignRawPayloadResponse } from '@turnkey/http/src/__generated__/se
 import type { definitions } from '@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.types';
 import { signatureToHex } from 'viem';
 import { pad } from 'viem/utils';
-
-export const createAPIKeyStamper = (options?: TApiKeyStamperConfig) => {
-  const apiPublicKey =
-    options?.apiPublicKey || process.env.TURNKEY_API_PUBLIC_KEY;
-  const apiPrivateKey =
-    options?.apiPrivateKey || process.env.TURNKEY_API_PRIVATE_KEY;
-
-  if (!(apiPublicKey && apiPrivateKey)) {
-    throw 'Error must provide public and private api key or define API_PUBLIC_KEY API_PRIVATE_KEY in your .env file';
-  }
-
-  return new ApiKeyStamper({
-    apiPublicKey,
-    apiPrivateKey,
-  });
-};
+import { TURNKEY_ERROR_CODE } from './constants';
 
 export function unwrapActivityResult<
   T extends definitions['v1ActivityResponse']
@@ -88,3 +73,20 @@ export async function signMessage({
     v: BigInt(signature.v) + 27n,
   });
 }
+
+/**
+ * Checks if the error code corresponds to a disconnected state.
+ *
+ * Determines if provided error code is one of the known
+ * error codes that signify a disconnected state, specifically if the wallet
+ * or organization was not found.
+ *
+ * @param {Object} error - The error object containing the error code.
+ * @param {number} error.code - The error code to check against known disconnected state codes.
+ * @returns {boolean} - Returns true if the error code is for a disconnected state, otherwise false.
+ */
+export const turnkeyIsDisconnected = (error: { code: number }) => {
+  const { WALLET_NOT_FOUND, ORG_NOT_FOUND } = TURNKEY_ERROR_CODE;
+
+  return [WALLET_NOT_FOUND, ORG_NOT_FOUND].includes(error.code);
+};
