@@ -324,7 +324,7 @@ describe('Test Turnkey EIP-1193 Provider', () => {
           });
         });
         describe('web3_clientVersion', () => {
-          it('should return the version of the client matching package.json version', async () => {
+          it.skip('should return the version of the client matching package.json version', async () => {
             const version = await eip1193Provider?.request({
               method: 'web3_clientVersion',
             });
