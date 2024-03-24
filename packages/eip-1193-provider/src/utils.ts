@@ -78,12 +78,24 @@ export function validateBlockExplorerUrls(
     },
   };
 }
-
+/**
+ * Validates the array of RPC URLs provided in the AddEthereumChainParameter.
+ * It checks if the array is not empty and if every URL in the array starts with "https://".
+ * Throws an RpcUrlsRequiredError if the array is empty or undefined.
+ * Throws an InvalidRpcUrlError if any URL in the array does not start with "https://".
+ *
+ * @param {AddEthereumChainParameter['rpcUrls']} rpcUrls - The array of RPC URLs to validate.
+ * @throws {RpcUrlsRequiredError} If the rpcUrls array is empty or undefined.
+ * @throws {InvalidRpcUrlError} If any URL in the rpcUrls array is invalid.
+ */
 export const validateRpcUrls = (
-  rpcUrls: WalletAddEthereumChain['rpcUrls']
+  rpcUrls: AddEthereumChainParameter['rpcUrls']
 ): void => {
   if (!rpcUrls || rpcUrls.length === 0) {
     throw new RpcUrlsRequiredError();
+  }
+  if (!rpcUrls.every(isValidUrl)) {
+    throw new InvalidRpcUrlError();
   }
 };
 
@@ -115,10 +127,13 @@ export function validateChain(
     throw new ChainIdValueExceedsError(chainId);
   }
 
+  validateRpcUrls(rpcUrls);
+
   // Validate RPC URLs
   if (!rpcUrls || rpcUrls.length === 0 || !rpcUrls.every(isValidUrl)) {
     throw new InvalidRpcUrlError();
   }
+
   // Validate Block Explorer URLs
   if (
     blockExplorerUrls &&

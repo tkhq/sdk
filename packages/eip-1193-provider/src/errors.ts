@@ -1,4 +1,4 @@
-import { ProviderRpcError } from 'viem'; // Assuming 'viem' is where ProviderRpcError is exported from
+import { ProviderRpcError } from 'viem';
 import { PROVIDER_ERROR_CODE, PROVIDER_ERROR_MESSAGE } from './constants';
 
 class UnrecognizedChainError extends ProviderRpcError {
