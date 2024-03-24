@@ -29,20 +29,21 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       WALLET_ID: UUID;
-      ORG_ID: UUID;
+      ORGANIZATION_ID: UUID;
       TURNKEY_API_PUBLIC_KEY: string;
       TURNKEY_API_PRIVATE_KEY: string;
       PUBLIC_RPC_URL: string;
+      EXPECTED_WALLET_ADDRESS: Address;
     }
   }
 }
 
-const ORG_ID = process.env.ORG_ID;
+const ORG_ID = process.env.ORGANIZATION_ID;
 const WALLET_ID = process.env.WALLET_ID;
-const TURNKEY_API_PUBLIC_KEY = process.env.TURNKEY_API_PUBLIC_KEY ?? '';
-const TURNKEY_API_PRIVATE_KEY = process.env.TURNKEY_API_PRIVATE_KEY ?? '';
+const TURNKEY_API_PUBLIC_KEY = process.env.API_PUBLIC_KEY ?? '';
+const TURNKEY_API_PRIVATE_KEY = process.env.API_PRIVATE_KEY ?? '';
 const EXPECTED_WALLET_ADDRESS: Address =
-  '0xb9d2e69E033b3cFBa1877b86041958778E1ae919';
+  process.env.EXPECTED_WALLET_ADDRESS ?? '';
 const RPC_URL = process.env.PUBLIC_RPC_URL;
 const RECEIVER_ADDRESS: Address = '0x6f85Eb534E14D605d4e82bF97ddF59c18F686699';
 
@@ -144,7 +145,6 @@ describe('Test Turnkey EIP-1193 Provider', () => {
       await provider.request({ method: 'eth_blockNumber' }).catch(() => {});
 
       // Second call to simulate subsequent check while already disconnected
-      // First call to simulate initial connectivity loss
       await provider.request({ method: 'eth_blockNumber' }).catch(() => {});
 
       // The disconnected event should not be called again since it's already disconnected
@@ -324,12 +324,12 @@ describe('Test Turnkey EIP-1193 Provider', () => {
           });
         });
         describe('web3_clientVersion', () => {
-          it.skip('should return the version of the client matching package.json version', async () => {
+          it('should return the version of the client matching package.json version', async () => {
+            const pkg = await import('./../../package.json');
             const version = await eip1193Provider?.request({
               method: 'web3_clientVersion',
             });
-            const packageJson = require('../../package.json');
-            const expectedVersion = `TurnkeyEIP1193Provider/v${packageJson.version}`;
+            const expectedVersion = `${pkg.name}@${pkg.version}`;
             expect(version).toBeDefined();
             expect(version).toBe(expectedVersion);
           });

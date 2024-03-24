@@ -28,16 +28,8 @@ import {
 
 import { TurnkeyRequestError } from '@turnkey/http';
 import { ChainIdMismatchError, UnrecognizedChainError } from './errors';
+import { VERSION } from './version';
 
-/**** NOTES:
- * - Definition of connected:
- *    - the walletId, organizationId of the user is known
- * - Try and pull the walletId, organizationId local storage
- *   - If walletId, organizationId are not found then we need to sign{in|up} the user
- *      -
- *   - If the walletId, organizationId are found then we need to call /public/v1/query/whoami
- *   to ensure that the organizationId aligns with the users
- */
 export const createEIP1193Provider = async (
   options: TurnkeyEIP1193ProviderOptions
 ) => {
@@ -109,7 +101,7 @@ export const createEIP1193Provider = async (
     try {
       switch (method) {
         case 'web3_clientVersion': {
-          return `TurnkeyEIP1193Provider/v[VI]{version}[/VI]`;
+          return VERSION;
         }
 
         /**
