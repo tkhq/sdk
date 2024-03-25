@@ -4,9 +4,9 @@ import {
   RpcTransactionRequest,
   TransactionSerializable,
   serializeTransaction,
-} from 'viem';
+} from "viem";
 
-import type { WalletAddEthereumChain } from './types';
+import type { WalletAddEthereumChain } from "./types";
 import {
   BlockExplorerUrlError,
   RpcUrlsRequiredError,
@@ -16,7 +16,7 @@ import {
   InvalidRpcUrlError,
   NativeCurrencySymbolLengthError,
   NativeCurrencySymbolMismatchError,
-} from './errors';
+} from "./errors";
 
 export function preprocessTransaction({
   from,
@@ -30,15 +30,15 @@ export function preprocessTransaction({
   ): T => (value !== undefined ? converter(value) : defaultValue);
 
   const typeMapping: { [key: string]: string } = {
-    '0x0': '',
-    '0x1': 'eip2930',
-    '0x2': 'eip1559',
+    "0x0": "",
+    "0x1": "eip2930",
+    "0x2": "eip1559",
   };
   const processedTransaction: TransactionSerializable = {
     ...transaction,
     // @ts-ignore
     chainId: parseInt(transaction.chainId, 16),
-    type: typeMapping[transaction.type ?? ''] ?? 'eip1559',
+    type: typeMapping[transaction.type ?? ""] ?? "eip1559",
     maxPriorityFeePerGas: convertValue(
       transaction.maxPriorityFeePerGas,
       BigInt,
@@ -57,13 +57,13 @@ export function preprocessTransaction({
   };
   const serializedTransaction = serializeTransaction(processedTransaction);
 
-  return serializedTransaction.replace(/^0x/, '');
+  return serializedTransaction.replace(/^0x/, "");
 }
 
 export function validateBlockExplorerUrls(
-  blockExplorerUrls: WalletAddEthereumChain['blockExplorerUrls'],
+  blockExplorerUrls: WalletAddEthereumChain["blockExplorerUrls"],
   chainName: string
-): Chain['blockExplorers'] {
+): Chain["blockExplorers"] {
   // Check if blockExplorerUrls is null or an array with at least one valid HTTPS URL
   if (blockExplorerUrls === null) return undefined;
 
@@ -92,7 +92,7 @@ export function validateBlockExplorerUrls(
  * @throws {InvalidRpcUrlError} If any URL in the rpcUrls array is invalid.
  */
 export const validateRpcUrls = (
-  rpcUrls: AddEthereumChainParameter['rpcUrls']
+  rpcUrls: AddEthereumChainParameter["rpcUrls"]
 ): void => {
   if (!rpcUrls || rpcUrls.length === 0) {
     throw new RpcUrlsRequiredError();
@@ -114,7 +114,7 @@ export function validateChain(
     throw new ChainIdAlreadyAddedError();
   }
 
-  let decimalChainId: Chain['id'];
+  let decimalChainId: Chain["id"];
   try {
     decimalChainId = parseInt(chainId, 16);
     // Ensure the chain ID is a 0x-prefixed hexadecimal string and can be parsed to an integer

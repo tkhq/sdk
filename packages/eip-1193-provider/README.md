@@ -25,29 +25,29 @@ yarn add @turnkey/eip-1193-provider @turnkey/http @turnkey/webauthn-stamper
 To set up the Turnkey EIP-1193 Provider, you need to initialize it with your configuration, which includes setting up the Turnkey client with your base URL and stamper.
 
 ```ts
-import { WebauthnStamper } from '@turnkey/webauthn-stamper';
-import { TurnkeyClient } from '@turnkey/http';
+import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import { TurnkeyClient } from "@turnkey/http";
 
 const stamper = new WebauthnStamper({
-  rpId: 'example.com',
+  rpId: "example.com",
 });
 
 // Initialize the Turnkey HTTP client
 const turnkeyClient = new TurnkeyClient(
-  { baseUrl: 'https://api.turnkey.com' },
+  { baseUrl: "https://api.turnkey.com" },
   stamper
 );
 
 // Initialize the EIP-1193 Provider with your configuration
 const provider = await createEIP1193Provider({
-  walletId: 'your-wallet-id',
-  organizationId: 'your-organization-id',
+  walletId: "your-wallet-id",
+  organizationId: "your-organization-id",
   turnkeyClient,
   chains: [
     {
-      chainName: 'Ethereum Mainnet',
-      chainId: '0x1',
-      rpcUrls: ['https://mainnet.infura.io/v3/your-infura-project-id'],
+      chainName: "Ethereum Mainnet",
+      chainId: "0x1",
+      rpcUrls: ["https://mainnet.infura.io/v3/your-infura-project-id"],
     },
     // Add more chains as needed
   ],
@@ -61,7 +61,7 @@ const provider = await createEIP1193Provider({
 Requests the user to provide an Ethereum address for identification, as specified by [EIP-1102](https://eips.ethereum.org/EIPS/eip-1102). This method initiates connectivity with the client and will prompt for passkey authentication.
 
 ```javascript
-const accounts = await provider.request({ method: 'eth_requestAccounts' });
+const accounts = await provider.request({ method: "eth_requestAccounts" });
 // Logs the array accounts associated with the provided walletId & organization
 console.log(accounts);
 ```
