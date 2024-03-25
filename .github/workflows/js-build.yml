@@ -40,6 +40,7 @@ jobs:
           BANNED_TO_ADDRESS: "0x6F72eDB2429820c2A0606a9FC3cA364f5E9b2375"
           SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
           PUBLIC_RPC_URL: ${{ secrets.PUBLIC_RPC_URL }}
+          WALLET_ID: ${{ secrets.WALLET_ID }}
 
       - name: Test (preprod)
         run: pnpm run test-all # anvil is already running on the port, from the step above
@@ -55,6 +56,7 @@ jobs:
           BANNED_TO_ADDRESS: ${{ secrets.PREPROD_BANNED_TO_ADDRESS }}
           SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
           PUBLIC_RPC_URL: ${{ secrets.PUBLIC_RPC_URL }}
+          WALLET_ID: ${{ secrets.PREPROD_WALLET_ID }}
 
       - name: Prettier
         run: pnpm run prettier-all:check
