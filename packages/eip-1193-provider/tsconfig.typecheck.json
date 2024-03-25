@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "./.cache/.typecheck.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json", "./package.json"]
+}
