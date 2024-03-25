@@ -27,11 +27,14 @@ import {
 } from "@turnkey/webauthn-stamper";
 
 import {
-  TurnkeySDKClient
+  TurnkeyLocalClient,
+  TurnkeySDKClient,
+  TurnkeySDKRoot
 } from "./sdk-client";
 
 import type {
-  TurnkeySDKClientConfig
+  TurnkeySDKClientConfig,
+  TurnkeySDKRootConfig
 } from "./__types__/base";
 
 // Classes
@@ -39,7 +42,9 @@ export {
   ApiKeyStamper,
   IframeStamper,
   TurnkeyActivityError,
+  TurnkeyLocalClient,
   TurnkeySDKClient as TurnkeyClient,
+  TurnkeySDKRoot,
   TurnkeyRequestError,
   WebauthnStamper
 }
@@ -51,6 +56,7 @@ export type {
   TSignedRequest,
   TurnkeyApiTypes,
   TurnkeySDKClientConfig,
+  TurnkeySDKRootConfig,
   TWebauthnStamperConfig
 }
 

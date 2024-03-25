@@ -59,6 +59,19 @@ export interface TurnkeySDKClientConfig {
   }
 }
 
+export interface TurnkeySDKRootConfig {
+  apiBaseUrl: string;
+  apiPrivateKey: string;
+  apiPublicKey: string;
+  rootOrganizationId: string;
+  rpId: string;
+  iframeUrl: string;
+  activityPoller?: {
+    duration: number;
+    timeout: number;
+  }
+}
+
 export type EthereumTransaction = {
   chainId: number;
   nonce: number;

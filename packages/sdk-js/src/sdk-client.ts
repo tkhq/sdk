@@ -1,4 +1,4 @@
-import type { EthereumTransaction, TurnkeySDKClientConfig } from "./__types__/base";
+import type { EthereumTransaction, TurnkeySDKClientConfig, TurnkeySDKRootConfig } from "./__types__/base";
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
@@ -10,15 +10,102 @@ import { StorageKeys, getStorageValue, removeStorageValue, setStorageValue } fro
 import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 import elliptic from 'elliptic';
 
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+
+export class TurnkeySDKRoot {
+  config: TurnkeySDKRootConfig;
+
+  constructor(config: TurnkeySDKRootConfig) {
+    this.config = config;
+  }
+
+  api = (): TurnkeySDKClient => {
+    const apiKeyStamper = new ApiKeyStamper({
+      apiPublicKey: this.config.apiPublicKey,
+      apiPrivateKey: this.config.apiPrivateKey
+    });
+
+    return new TurnkeySDKClient({
+      stamper: apiKeyStamper,
+      apiBaseUrl: this.config.apiBaseUrl,
+      organizationId: this.config.rootOrganizationId
+    })
+  }
+
+  userPasskey = (): TurnkeySDKClient => {
+    const webauthnStamper = new WebauthnStamper({
+      rpId: this.config.rpId
+    });
+
+    return new TurnkeySDKClient({
+      stamper: webauthnStamper,
+      apiBaseUrl: this.config.apiBaseUrl,
+      organizationId: this.config.rootOrganizationId
+    });
+  }
+
+  email = (): TurnkeySDKClient => {
+    const webauthnStamper = new WebauthnStamper({
+      rpId: this.config.rpId
+    });
+
+    return new TurnkeySDKClient({
+      stamper: webauthnStamper,
+      apiBaseUrl: this.config.apiBaseUrl,
+      organizationId: this.config.rootOrganizationId
+    });
+  }
+
+  session = (): TurnkeySDKClient => {
+    const sessionStamper = new ApiKeyStamper({
+      apiPublicKey: "0380faf5d7da3cfe4e61ad4d631418cf446f1a700a7e0e481ac232125109b22bb9",
+      apiPrivateKey: "584cd7ec333dc2b6f629faadcfbc87c64d8f42d9aae0c91d0114aa41606faba2"
+    });
+
+    return new TurnkeySDKClient({
+      stamper: sessionStamper,
+      apiBaseUrl: this.config.apiBaseUrl,
+      organizationId: this.config.rootOrganizationId
+    })
+  }
+
+  local = (): TurnkeyLocalClient => {
+    return new TurnkeyLocalClient();
+  }
+}
+
+export class TurnkeyLocalClient {
+  getCurrentSubOrganization = async (): Promise<SubOrganization | undefined> => {
+    return await getStorageValue(StorageKeys.CurrentSubOrganization)
+  }
+
+  getCurrentUser = async (): Promise<User | undefined> => {
+    return await getStorageValue(StorageKeys.CurrentUser);
+  }
+
+  isSigningSessionActive = async (): Promise<boolean> => {
+    return false;
+  }
+
+  logoutUser = async (): Promise<boolean> => {
+    await removeStorageValue(StorageKeys.CurrentUser);
+    await removeStorageValue(StorageKeys.CurrentSubOrganization);
+    return true;
+  }
+}
+
 export class TurnkeySDKClient extends TurnkeySDKClientBase {
+  localClient: TurnkeyLocalClient;
+
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
+    this.localClient = new TurnkeyLocalClient();
   }
 
   // RPC URL to Send Transactions?
 
   // Transaction Helpers
-  // UserConfirmation
   signTransactionObject = async (params: { signWith: string, tx: EthereumTransaction }): Promise<SdkApiTypes.TSignTransactionResponse> => {
     const encodedTransaction = FeeMarketEIP1559Transaction.fromTxData(params.tx);
     const formattedEncodedTransaction = bytesToHex(encodedTransaction.getMessageToSign()).slice(2);
@@ -31,7 +118,6 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
   }
 
   // Wallet Helpers
-  // UserConfirmation
   createWalletWithAccount = async (params: { walletName: string, chain: string; }): Promise<SdkApiTypes.TCreateWalletResponse> => {
     if (params.chain === "ethereum") {
       return await this.createWallet({
@@ -137,48 +223,8 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
   }
 
   // UserConfirmation
-  login = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
-    const whoamiResult = await this.getWhoami({});
-    const currentUser: User = {
-      userId: whoamiResult.userId,
-      username: whoamiResult.username
-    }
-    const currentSubOrganization: SubOrganization = {
-      organizationId: whoamiResult.organizationId,
-      organizationName: whoamiResult.organizationName
-    }
-    await setStorageValue(StorageKeys.CurrentUser, currentUser);
-    await setStorageValue(StorageKeys.CurrentSubOrganization, currentSubOrganization);
-    return whoamiResult;
-  }
-
-  // API
-  logoutUser = async (): Promise<boolean> => {
-    await removeStorageValue(StorageKeys.CurrentUser);
-    await removeStorageValue(StorageKeys.CurrentSubOrganization);
-    return true;
-  }
-
-  // Storage Values
-  // API
-  getCurrentUser = async (): Promise<User | undefined> => {
-    return await getStorageValue(StorageKeys.CurrentUser);
-  }
-
-  // API
-  getCurrentSubOrganization = async (): Promise<SubOrganization | undefined> => {
-    return await getStorageValue(StorageKeys.CurrentSubOrganization)
-  }
-
-  // Session Keys
-  // API
-  isSigningSessionActive = async (): Promise<boolean> => {
-    return false;
-  }
-
-  // UserConfirmation
   createSigningSessionKey = async (params: { duration: number }): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
-    const currentUser = await this.getCurrentUser();
+    const currentUser = await this.localClient.getCurrentUser();
     const ec = new elliptic.ec("p256");
     const keyPair = ec.genKeyPair();
 
@@ -202,6 +248,21 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
     }
 
     return response;
+  }
+
+  login = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
+    const whoamiResult = await this.getWhoami({});
+    const currentUser: User = {
+      userId: whoamiResult.userId,
+      username: whoamiResult.username
+    }
+    const currentSubOrganization: SubOrganization = {
+      organizationId: whoamiResult.organizationId,
+      organizationName: whoamiResult.organizationName
+    }
+    await setStorageValue(StorageKeys.CurrentUser, currentUser);
+    await setStorageValue(StorageKeys.CurrentSubOrganization, currentSubOrganization);
+    return whoamiResult;
   }
 
 }
