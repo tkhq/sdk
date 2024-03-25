@@ -36,6 +36,8 @@ export function preprocessTransaction({
   };
   const processedTransaction: TransactionSerializable = {
     ...transaction,
+    // @ts-ignore
+    chainId: parseInt(transaction.chainId, 16),
     type: typeMapping[transaction.type ?? ''] ?? 'eip1559',
     maxPriorityFeePerGas: convertValue(
       transaction.maxPriorityFeePerGas,
@@ -78,6 +80,7 @@ export function validateBlockExplorerUrls(
     },
   };
 }
+
 /**
  * Validates the array of RPC URLs provided in the AddEthereumChainParameter.
  * It checks if the array is not empty and if every URL in the array starts with "https://".

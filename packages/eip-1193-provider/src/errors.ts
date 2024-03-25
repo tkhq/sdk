@@ -1,9 +1,10 @@
 import { ProviderRpcError } from 'viem';
 import { PROVIDER_ERROR_CODE, PROVIDER_ERROR_MESSAGE } from './constants';
 
+// https://docs.metamask.io/wallet/reference/wallet_switchethereumchain/
 class UnrecognizedChainError extends ProviderRpcError {
   constructor(chainId: string) {
-    const errorMessage = `${PROVIDER_ERROR_MESSAGE.UNRECOGNIZED_CHAIN_ID} Received chainId: ${chainId}`;
+    const errorMessage = `${PROVIDER_ERROR_MESSAGE.UNRECOGNIZED_CHAIN_ID}${chainId}`;
     super(new Error(errorMessage), {
       code: 4902,
       shortMessage: 'Unrecognized chain ID',
@@ -31,7 +32,7 @@ class BlockExplorerUrlError extends ProviderRpcError {
 
 class RpcUrlsRequiredError extends ProviderRpcError {
   constructor() {
-    super(new Error('rpcUrls field is required and cannot be empty'), {
+    super(new Error(PROVIDER_ERROR_MESSAGE.RPC_URLS_REQUIRED), {
       code: -32602,
       shortMessage: 'rpcUrls field is required and cannot be empty',
     });
