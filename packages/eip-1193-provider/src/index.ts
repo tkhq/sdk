@@ -10,7 +10,7 @@ import {
   ProviderDisconnectedError,
   ChainDisconnectedError,
 } from 'viem';
-import { getHttpRpcClient, hashTypedData } from 'viem/utils';
+import { getAddress, getHttpRpcClient, hashTypedData } from 'viem/utils';
 
 import EventEmitter from 'events';
 import { preprocessTransaction, validateChain } from './utils';
@@ -146,26 +146,6 @@ export const createEIP1193Provider = async (
           setConnected(true, { chainId: activeChain.chainId });
           return signedMessage;
         }
-        case 'eth_signTransaction': {
-          const [transaction] = params as WalletRpcSchema[7]['Parameters'];
-          const unsignedTransaction = preprocessTransaction(transaction);
-          const activityResponse = await turnkeyClient.signTransaction({
-            type: 'ACTIVITY_TYPE_SIGN_TRANSACTION_V2',
-            organizationId: organizationId,
-            parameters: {
-              signWith: transaction.from,
-              type: 'TRANSACTION_TYPE_ETHEREUM',
-              unsignedTransaction,
-            },
-            timestampMs: String(Date.now()),
-          });
-          const { signTransactionResult } =
-            unwrapActivityResult<TSignTransactionResponse>(activityResponse, {
-              errorMessage: 'Error signing transaction',
-            });
-          setConnected(true, { chainId: activeChain.chainId });
-          return `0x${signTransactionResult?.signedTransaction}`;
-        }
         case 'eth_signTypedData_v4': {
           const [signWith, typedData] = params as [
             Address,
@@ -181,6 +161,26 @@ export const createEIP1193Provider = async (
           });
           setConnected(true, { chainId: activeChain.chainId });
           return signedMessage;
+        }
+        case 'eth_signTransaction': {
+          const [transaction] = params as WalletRpcSchema[7]['Parameters'];
+          const unsignedTransaction = preprocessTransaction({ ...transaction });
+          const activityResponse = await turnkeyClient.signTransaction({
+            type: 'ACTIVITY_TYPE_SIGN_TRANSACTION_V2',
+            organizationId: organizationId,
+            parameters: {
+              signWith: getAddress(transaction.from),
+              type: 'TRANSACTION_TYPE_ETHEREUM',
+              unsignedTransaction,
+            },
+            timestampMs: String(Date.now()),
+          });
+          const { signTransactionResult } =
+            unwrapActivityResult<TSignTransactionResponse>(activityResponse, {
+              errorMessage: 'Error signing transaction',
+            });
+          setConnected(true, { chainId: activeChain.chainId });
+          return `0x${signTransactionResult?.signedTransaction}`;
         }
         case 'wallet_addEthereumChain': {
           const [chain] = params as [AddEthereumChainParameter];
@@ -221,6 +221,20 @@ export const createEIP1193Provider = async (
           eventEmitter.emit('chainChanged', { chainId: activeChain.chainId });
           return null;
         }
+        // @ts-expect-error fall through expected
+        case 'eth_sendTransaction': {
+          const [transaction] = params as WalletRpcSchema[7]['Parameters'];
+          const signedTransaction = await request({
+            method: 'eth_signTransaction',
+            params: [transaction],
+          });
+
+          // Change the method to 'eth_sendRawTransaction' and pass the signed transaction
+          method = 'eth_sendRawTransaction';
+          params = [signedTransaction];
+          // Fall through to 'eth_sendRawTransaction' case
+        }
+        case 'eth_sendRawTransaction':
         case 'eth_chainId':
         case 'eth_subscribe':
         case 'eth_unsubscribe':

@@ -326,6 +326,52 @@ describe('Test Turnkey EIP-1193 Provider', () => {
             expect(signature).toMatch(/^0x[a-fA-F0-9]+$/);
           });
         });
+        describe('eth_sendTransaction', () => {
+          it.skip('should sign and send a transaction', async () => {
+            const from = expectedWalletAddress;
+            const to = RECEIVER_ADDRESS;
+            const value = numberToHex(parseEther('0.001'));
+            const chainId = numberToHex(sepolia.id);
+            // You might need to dynamically calculate the nonce for the account
+            const nonce = await eip1193Provider.request({
+              method: 'eth_getTransactionCount',
+              params: [from, 'latest'],
+            });
+            const gas = numberToHex(21000n);
+            const maxFeePerGas = numberToHex(parseGwei('20'));
+            const maxPriorityFeePerGas = numberToHex(parseGwei('2'));
+            const transactionType = '0x2';
+
+            const transactionHash = await eip1193Provider.request({
+              method: 'eth_sendTransaction',
+              params: [
+                {
+                  from,
+                  to,
+                  value,
+                  chainId,
+                  nonce,
+                  gas,
+                  maxFeePerGas,
+                  maxPriorityFeePerGas,
+                  type: transactionType,
+                },
+              ],
+            });
+
+            expect(transactionHash).toBeDefined();
+            expect(transactionHash).toMatch(/^0x[a-fA-F0-9]+$/);
+
+            // Optionally, you can wait for the transaction to be mined and then perform assertions on the receipt
+            const receipt = await eip1193Provider.request({
+              method: 'eth_getTransactionReceipt',
+              params: [transactionHash],
+            });
+
+            expect(receipt).toBeDefined();
+            expect(receipt?.status).toBe('0x1'); // Success status
+          });
+        });
         describe('eth_getBlockByNumber', () => {
           it('should get blocknumber using the underlying RPC provider', async () => {
             const blockNumber = await eip1193Provider?.request({
