@@ -4,6 +4,7 @@ import type { definitions } from '@turnkey/http/src/__generated__/services/coord
 import { signatureToHex } from 'viem';
 import { pad } from 'viem/utils';
 import { TURNKEY_ERROR_CODE } from './constants';
+import type { TWebauthnStamperConfig } from '@turnkey/webauthn-stamper';
 
 export function unwrapActivityResult<
   T extends definitions['v1ActivityResponse']
