@@ -20,50 +20,50 @@ export class TurnkeySDKRoot {
     this.config = config;
   }
 
-  api = (): TurnkeySDKClient => {
+  api = (): TurnkeySDKServerClient => {
     const apiKeyStamper = new ApiKeyStamper({
       apiPublicKey: this.config.apiPublicKey,
       apiPrivateKey: this.config.apiPrivateKey
     });
 
-    return new TurnkeySDKClient({
+    return new TurnkeySDKServerClient({
       stamper: apiKeyStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.rootOrganizationId
     })
   }
 
-  userPasskey = (): TurnkeySDKClient => {
+  userPasskey = (): TurnkeySDKBrowserClient => {
     const webauthnStamper = new WebauthnStamper({
       rpId: this.config.rpId
     });
 
-    return new TurnkeySDKClient({
+    return new TurnkeySDKBrowserClient({
       stamper: webauthnStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.rootOrganizationId
     });
   }
 
-  email = (): TurnkeySDKClient => {
+  email = (): TurnkeySDKBrowserClient => {
     const webauthnStamper = new WebauthnStamper({
       rpId: this.config.rpId
     });
 
-    return new TurnkeySDKClient({
+    return new TurnkeySDKBrowserClient({
       stamper: webauthnStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.rootOrganizationId
     });
   }
 
-  session = (): TurnkeySDKClient => {
+  session = (): TurnkeySDKBrowserClient => {
     const sessionStamper = new ApiKeyStamper({
       apiPublicKey: "0380faf5d7da3cfe4e61ad4d631418cf446f1a700a7e0e481ac232125109b22bb9",
       apiPrivateKey: "584cd7ec333dc2b6f629faadcfbc87c64d8f42d9aae0c91d0114aa41606faba2"
     });
 
-    return new TurnkeySDKClient({
+    return new TurnkeySDKBrowserClient({
       stamper: sessionStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.rootOrganizationId
@@ -96,11 +96,8 @@ export class TurnkeyLocalClient {
 }
 
 export class TurnkeySDKClient extends TurnkeySDKClientBase {
-  localClient: TurnkeyLocalClient;
-
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
-    this.localClient = new TurnkeyLocalClient();
   }
 
   // RPC URL to Send Transactions?
@@ -221,8 +218,31 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
 
     return subOrganizationResult;
   }
+}
 
-  // UserConfirmation
+export class TurnkeySDKBrowserClient extends TurnkeySDKClient {
+  localClient: TurnkeyLocalClient;
+
+  constructor(config: TurnkeySDKClientConfig) {
+    super(config);
+    this.localClient = new TurnkeyLocalClient();
+  }
+
+  login = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
+    const whoamiResult = await this.getWhoami({});
+    const currentUser: User = {
+      userId: whoamiResult.userId,
+      username: whoamiResult.username
+    }
+    const currentSubOrganization: SubOrganization = {
+      organizationId: whoamiResult.organizationId,
+      organizationName: whoamiResult.organizationName
+    }
+    await setStorageValue(StorageKeys.CurrentUser, currentUser);
+    await setStorageValue(StorageKeys.CurrentSubOrganization, currentSubOrganization);
+    return whoamiResult;
+  }
+
   createSigningSessionKey = async (params: { duration: number }): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
     const currentUser = await this.localClient.getCurrentUser();
     const ec = new elliptic.ec("p256");
@@ -249,20 +269,10 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
 
     return response;
   }
+}
 
-  login = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
-    const whoamiResult = await this.getWhoami({});
-    const currentUser: User = {
-      userId: whoamiResult.userId,
-      username: whoamiResult.username
-    }
-    const currentSubOrganization: SubOrganization = {
-      organizationId: whoamiResult.organizationId,
-      organizationName: whoamiResult.organizationName
-    }
-    await setStorageValue(StorageKeys.CurrentUser, currentUser);
-    await setStorageValue(StorageKeys.CurrentSubOrganization, currentSubOrganization);
-    return whoamiResult;
+export class TurnkeySDKServerClient extends TurnkeySDKClient {
+  constructor(config: TurnkeySDKClientConfig) {
+    super(config);
   }
-
 }

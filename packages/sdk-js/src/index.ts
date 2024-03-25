@@ -28,6 +28,8 @@ import {
 
 import {
   TurnkeyLocalClient,
+  TurnkeySDKBrowserClient,
+  TurnkeySDKServerClient,
   TurnkeySDKClient,
   TurnkeySDKRoot
 } from "./sdk-client";
@@ -43,6 +45,8 @@ export {
   IframeStamper,
   TurnkeyActivityError,
   TurnkeyLocalClient,
+  TurnkeySDKBrowserClient,
+  TurnkeySDKServerClient,
   TurnkeySDKClient as TurnkeyClient,
   TurnkeySDKRoot,
   TurnkeyRequestError,
