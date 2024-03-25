@@ -33,45 +33,58 @@ declare global {
       TURNKEY_API_PUBLIC_KEY: string;
       TURNKEY_API_PRIVATE_KEY: string;
       PUBLIC_RPC_URL: string;
-      EXPECTED_WALLET_ADDRESS: Address;
+      EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: Address;
     }
   }
 }
 
-const ORG_ID = process.env.ORGANIZATION_ID;
-const WALLET_ID = process.env.WALLET_ID;
-const TURNKEY_API_PUBLIC_KEY = process.env.API_PUBLIC_KEY ?? '';
-const TURNKEY_API_PRIVATE_KEY = process.env.API_PRIVATE_KEY ?? '';
-const EXPECTED_WALLET_ADDRESS: Address =
-  process.env.EXPECTED_WALLET_ADDRESS ?? '';
-const RPC_URL = process.env.PUBLIC_RPC_URL;
+const {
+  ORGANIZATION_ID,
+  API_PUBLIC_KEY,
+  API_PRIVATE_KEY,
+  BASE_URL,
+  EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS,
+  WALLET_ID,
+  PUBLIC_RPC_URL,
+} = process.env;
+
 const RECEIVER_ADDRESS: Address = '0x6f85Eb534E14D605d4e82bF97ddF59c18F686699';
 
 describe('Test Turnkey EIP-1193 Provider', () => {
   let turnkeyClient: TurnkeyClient;
   let eip1193Provider: TurnkeyEIP1193Provider;
 
+  const apiPublicKey = API_PUBLIC_KEY ?? '';
+  const apiPrivateKey = API_PRIVATE_KEY ?? '';
+  const baseUrl = BASE_URL ?? '';
+  const expectedWalletAddress = EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS;
+  const walletId: UUID = WALLET_ID;
+  const organizationId = ORGANIZATION_ID;
+
   beforeEach(async () => {
     turnkeyClient = new TurnkeyClient(
-      { baseUrl: 'https://api.turnkey.com' },
+      { baseUrl },
       new ApiKeyStamper({
-        apiPublicKey: TURNKEY_API_PUBLIC_KEY,
-        apiPrivateKey: TURNKEY_API_PRIVATE_KEY,
+        apiPublicKey,
+        apiPrivateKey,
       })
     );
   });
+
   let defaultChain = {
     chainName: sepolia.name,
     chainId: toHex(sepolia.id),
-    rpcUrls: [RPC_URL],
+    rpcUrls: [PUBLIC_RPC_URL],
   };
+
   const getEIP1193Provider = (chain = defaultChain) =>
     createEIP1193Provider({
-      walletId: WALLET_ID,
-      organizationId: ORG_ID,
+      walletId,
+      organizationId,
       turnkeyClient,
       chains: [chain],
     });
+
   describe('Connectivity Logic', () => {
     it('should emit connected when successfully connected', async () => {
       const provider = await getEIP1193Provider();
@@ -91,7 +104,7 @@ describe('Test Turnkey EIP-1193 Provider', () => {
       const chain = {
         chainName: sepolia.name,
         chainId: toHex(sepolia.id),
-        rpcUrls: [RPC_URL],
+        rpcUrls: [PUBLIC_RPC_URL],
       };
       // Create an EIP1193 provider instance configured for the specified chain
       const provider = await getEIP1193Provider(chain);
@@ -126,7 +139,7 @@ describe('Test Turnkey EIP-1193 Provider', () => {
       const chain = {
         chainName: sepolia.name,
         chainId: toHex(sepolia.id),
-        rpcUrls: [RPC_URL],
+        rpcUrls: [PUBLIC_RPC_URL],
       };
       // Create an EIP1193 provider instance configured for the specified chain
       const provider = await getEIP1193Provider(chain);
@@ -159,14 +172,14 @@ describe('Test Turnkey EIP-1193 Provider', () => {
   describe('Test EIP-1193 Provider Methods', () => {
     beforeEach(async () => {
       eip1193Provider = await createEIP1193Provider({
-        walletId: WALLET_ID,
-        organizationId: ORG_ID,
+        walletId,
+        organizationId,
         turnkeyClient,
         chains: [
           {
             chainName: sepolia.name,
             chainId: toHex(sepolia.id),
-            rpcUrls: [RPC_URL],
+            rpcUrls: [PUBLIC_RPC_URL],
           },
         ],
       });
@@ -180,7 +193,7 @@ describe('Test Turnkey EIP-1193 Provider', () => {
             });
             expect(Array.isArray(accounts)).toBeTruthy();
             expect(accounts).toHaveLength(1);
-            expect(accounts).toContain(EXPECTED_WALLET_ADDRESS);
+            expect(accounts).toContain(expectedWalletAddress);
           });
         });
         describe('eth_accounts', () => {
@@ -202,13 +215,13 @@ describe('Test Turnkey EIP-1193 Provider', () => {
             expect(accounts).not.toBeUndefined();
             expect(Array.isArray(accounts)).toBeTruthy();
             expect(accounts.length).toBeGreaterThan(0);
-            expect(accounts).toContain(EXPECTED_WALLET_ADDRESS);
+            expect(accounts).toContain(expectedWalletAddress);
           });
         });
         describe('eth_sign/person_sign', () => {
           it('should sign a message', async () => {
             const messageDigest = stringToHex('A man, a plan, a canal, Panama');
-            const signerAddress = EXPECTED_WALLET_ADDRESS;
+            const signerAddress = expectedWalletAddress;
             const signature = await eip1193Provider?.request({
               method: 'personal_sign',
               params: [signerAddress, messageDigest],
@@ -225,7 +238,7 @@ describe('Test Turnkey EIP-1193 Provider', () => {
         });
         describe('eth_signTypedData_v4', () => {
           it('should sign typed data according to EIP-712', async () => {
-            const address = EXPECTED_WALLET_ADDRESS;
+            const address = expectedWalletAddress;
             // Test typed data signing (EIP-712)
             // All properties on a domain are optional
             const domain = {
@@ -269,11 +282,11 @@ describe('Test Turnkey EIP-1193 Provider', () => {
 
             const signature = await eip1193Provider?.request({
               method: 'eth_signTypedData_v4',
-              params: [EXPECTED_WALLET_ADDRESS, typedData],
+              params: [expectedWalletAddress, typedData],
             });
 
             const valid = await verifyTypedData({
-              address: EXPECTED_WALLET_ADDRESS,
+              address: expectedWalletAddress,
               domain,
               types,
               primaryType,
@@ -289,7 +302,7 @@ describe('Test Turnkey EIP-1193 Provider', () => {
         });
         describe('eth_signTransaction', () => {
           it('should sign a transaction', async () => {
-            const from = EXPECTED_WALLET_ADDRESS;
+            const from = expectedWalletAddress;
             const to = RECEIVER_ADDRESS;
 
             const signature = await eip1193Provider?.request({
