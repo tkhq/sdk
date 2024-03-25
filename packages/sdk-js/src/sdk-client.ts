@@ -12,6 +12,7 @@ import elliptic from 'elliptic';
 
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import { IframeStamper } from "@turnkey/iframe-stamper";
 
 export class TurnkeySDKRoot {
   config: TurnkeySDKRootConfig;
@@ -45,13 +46,19 @@ export class TurnkeySDKRoot {
     });
   }
 
-  email = (): TurnkeySDKBrowserClient => {
-    const webauthnStamper = new WebauthnStamper({
-      rpId: this.config.rpId
+  email = async (iframeContainer: HTMLElement | null | undefined): Promise<TurnkeySDKBrowserClient> => {
+    const TurnkeyIframeElementId = "turnkey-auth-iframe-element-id";
+
+    const iframeStamper = new IframeStamper({
+      iframeUrl: this.config.iframeUrl,
+      iframeElementId: TurnkeyIframeElementId,
+      iframeContainer: iframeContainer
     });
 
+    await iframeStamper.init();
+
     return new TurnkeySDKBrowserClient({
-      stamper: webauthnStamper,
+      stamper: iframeStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.rootOrganizationId
     });
