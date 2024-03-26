@@ -176,14 +176,14 @@ async function main() {
     )?.data ?? ""
   );
 
-  // Obtain *offchain* signature from signer 2 using standard raw message signing, and attach it to the safeTransaction
-  txHash = await safeSdk2.getTransactionHash(safeTransaction);
-  let signTransactionHashResponse = await safeSdk2.signTransactionHash(txHash);
+  // Approve safe transaction *offchain* with Signer 2
+  safeTransaction = await safeSdk2.signTransaction(safeTransaction);
   print(
-    `Signed transaction hash offchain using signer 2. Signature:`,
-    signTransactionHashResponse.data
+    `Signed transaction offchain using signer 2. Signature:`,
+    safeTransaction.signatures.get(
+      (await connectedSigner2.getAddress()).toLowerCase()
+    )?.data ?? ""
   );
-  safeTransaction.addSignature(signTransactionHashResponse);
 
   // Obtain *onchain* signature from signer 3.
   // This is technically redundant given this signer will go on to execute the transaction,
