@@ -1,6 +1,7 @@
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { IframeStamper } from "@turnkey/iframe-stamper";
+import { getWebAuthnAttestation } from "@turnkey/http";
 
 import type {
   TurnkeySDKClientConfig,
@@ -14,6 +15,7 @@ import elliptic from 'elliptic';
 
 import type { User, SubOrganization, UserSigningSession } from "./models";
 import { StorageKeys, getStorageValue, removeStorageValue, setStorageValue } from "./storage";
+import { generateRandomBuffer, base64UrlEncode } from "./utils";
 
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
@@ -69,7 +71,9 @@ export class TurnkeyBrowserSDK {
     return new TurnkeyLocalClient();
   }
 
-  apiProxy = (): void => {}
+  apiProxy = (): TurnkeyAPIProxyClient => {
+    return new TurnkeyAPIProxyClient();
+  }
 }
 
 export class TurnkeyLocalClient {
@@ -140,6 +144,45 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
     }
 
     return response;
+  }
+
+}
+
+export class TurnkeyAPIProxyClient {
+
+  createUserAccount = async (email: string, params?: Record<any, any>): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
+    const challenge = generateRandomBuffer();
+    const encodedChallenge = base64UrlEncode(challenge);
+    const authenticatorUserId = generateRandomBuffer();
+
+    const attestation = await getWebAuthnAttestation({
+      publicKey: {
+        rp: {
+          id: "localhost",
+          name: "Demo Passkey Wallet"
+        },
+        challenge,
+        pubKeyCredParams: [
+          {
+            type: "public-key",
+            alg: -7
+          }
+        ],
+        user: {
+          id: authenticatorUserId,
+          name: email,
+          displayName: email
+        },
+        authenticatorSelection: {
+          requireResidentKey: true,
+          residentKey: "required",
+          userVerification: "preferred"
+        }
+      }
+    })
+
+    // API Proxy Call
+    // email, encodedChallenge, attestation
   }
 
 }
