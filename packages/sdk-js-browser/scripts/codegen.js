@@ -301,7 +301,7 @@ export class TurnkeySDKClientBase {
     if (methodType === "query") {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, overrideParams?: any): Promise<SdkApiTypes.${responseType}> => {
-    const currentSubOrganization = this.config.environment === "browser" ? await getStorageValue(StorageKeys.CurrentSubOrganization) : undefined;
+    const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.request("${endpointPath}", {
       ...{
         ...input,
@@ -315,7 +315,7 @@ export class TurnkeySDKClientBase {
       const versionedActivityType = VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
       codeBuffer.push(
       `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, overrideParams?: any): Promise<SdkApiTypes.${responseType}> => {
-    const currentSubOrganization = this.config.environment === "browser" ? await getStorageValue(StorageKeys.CurrentSubOrganization) : undefined;
+    const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.command("${endpointPath}", {
       ...{
         parameters: {...input},
@@ -330,7 +330,7 @@ export class TurnkeySDKClientBase {
     } else if (methodType === "activityDecision") {
       codeBuffer.push(
       `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, overrideParams?: any): Promise<SdkApiTypes.${responseType}> => {
-    const currentSubOrganization = this.config.environment === "browser" ? await getStorageValue(StorageKeys.CurrentSubOrganization) : undefined;
+    const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.activityDecision("${endpointPath}",
       {
         ...{

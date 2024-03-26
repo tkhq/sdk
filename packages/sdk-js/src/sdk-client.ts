@@ -1,4 +1,9 @@
-import type { EthereumTransaction, TurnkeySDKClientConfig, TurnkeySDKRootConfig } from "./__types__/base";
+import type {
+  EthereumTransaction,
+  TurnkeySDKClientConfig,
+  TurnkeyServerSDKConfig,
+  TurnkeyClientSDKConfig
+} from "./__types__/base";
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
@@ -14,10 +19,10 @@ import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 
-export class TurnkeySDKRoot {
-  config: TurnkeySDKRootConfig;
+export class TurnkeyServerRoot {
+  config: TurnkeyServerSDKConfig;
 
-  constructor(config: TurnkeySDKRootConfig) {
+  constructor(config: TurnkeyServerSDKConfig) {
     this.config = config;
   }
 
@@ -31,7 +36,25 @@ export class TurnkeySDKRoot {
       stamper: apiKeyStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.rootOrganizationId
-    })
+    });
+  }
+
+  apiProxy = async (methodName: string, args: any[]): Promise<any> => {
+    const apiClient = this.api();
+    const method = apiClient[methodName];
+    if (typeof method === 'function') {
+      return await method(...args);
+    } else {
+      throw new Error(`Method ${methodName} does not exist on TurnkeySDKServerClient`);
+    }
+  }
+}
+
+export class TurnkeyClientRoot {
+  config: TurnkeyClientSDKConfig;
+
+  constructor(config: TurnkeyClientSDKConfig) {
+    this.config = config;
   }
 
   userPasskey = (): TurnkeySDKBrowserClient => {
@@ -80,6 +103,10 @@ export class TurnkeySDKRoot {
   local = (): TurnkeyLocalClient => {
     return new TurnkeyLocalClient();
   }
+
+  apiProxy = (): void => {
+  }
+
 }
 
 export class TurnkeyLocalClient {
@@ -107,9 +134,6 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
     super(config);
   }
 
-  // RPC URL to Send Transactions?
-
-  // Transaction Helpers
   signTransactionObject = async (params: { signWith: string, tx: EthereumTransaction }): Promise<SdkApiTypes.TSignTransactionResponse> => {
     const encodedTransaction = FeeMarketEIP1559Transaction.fromTxData(params.tx);
     const formattedEncodedTransaction = bytesToHex(encodedTransaction.getMessageToSign()).slice(2);
@@ -121,7 +145,6 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
     })
   }
 
-  // Wallet Helpers
   createWalletWithAccount = async (params: { walletName: string, chain: string; }): Promise<SdkApiTypes.TCreateWalletResponse> => {
     if (params.chain === "ethereum") {
       return await this.createWallet({
@@ -146,7 +169,6 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
     }
   }
 
-  // UserConfirmation
   createNextWalletAccount = async (params: { walletId: string }): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
     const walletAccounts = await this.getWalletAccounts({ walletId: params.walletId });
     const lastAccount = walletAccounts.accounts[walletAccounts.accounts.length - 1]!;
@@ -166,8 +188,6 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
     })
   }
 
-  // User Auth
-  // API
   createUserAccount = async (email: string): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
     const challenge = generateRandomBuffer();
     const authenticatorUserId = generateRandomBuffer();
@@ -225,13 +245,87 @@ export class TurnkeySDKClient extends TurnkeySDKClientBase {
 
     return subOrganizationResult;
   }
+
+  createSharedUserAccount = async (email: string): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
+    const challenge = generateRandomBuffer();
+    const authenticatorUserId = generateRandomBuffer();
+
+    const attestation = await getWebAuthnAttestation({
+      publicKey: {
+        rp: {
+          id: "localhost",
+          name: "Demo Passkey Wallet"
+        },
+        challenge,
+        pubKeyCredParams: [
+          {
+            type: "public-key",
+            alg: -7
+          }
+        ],
+        user: {
+          id: authenticatorUserId,
+          name: email,
+          displayName: email
+        },
+        authenticatorSelection: {
+          requireResidentKey: true,
+          residentKey: "required",
+          userVerification: "preferred"
+        }
+      }
+    })
+
+    const subOrganizationResult = this.createSubOrganization({
+      subOrganizationName: email,
+      rootUsers: [
+        {
+          userName: email,
+          apiKeys: [],
+          authenticators: [{
+            authenticatorName: "test-passkey-1",
+            challenge: base64UrlEncode(challenge),
+            attestation: attestation
+          }]
+        },
+        {
+          userName: "Admin",
+          apiKeys: [
+            {
+              apiKeyName: "Root Organization",
+              publicKey: "0373ea78c3903e056d3221eefea307c0408a9dc7ab8b2079a9ce1a42223c6fff78"
+            }
+          ],
+          authenticators: []
+        }
+      ],
+      rootQuorumThreshold: 1,
+      wallet: {
+        walletName: "Test Wallet 1",
+        accounts: [
+          {
+            curve: "CURVE_SECP256K1",
+            pathFormat: "PATH_FORMAT_BIP32",
+            path: "m/44'/60'/0'/0/0",
+            addressFormat: "ADDRESS_FORMAT_ETHEREUM"
+          }
+        ]
+      }
+    })
+
+    return subOrganizationResult;
+  }
 }
 
 export class TurnkeySDKBrowserClient extends TurnkeySDKClient {
   localClient: TurnkeyLocalClient;
 
-  constructor(config: TurnkeySDKClientConfig) {
-    super(config);
+  constructor(config: Omit<TurnkeySDKClientConfig, "environment">) {
+    const environmentConfig: TurnkeySDKClientConfig = {
+      ...config,
+      environment: "browser"
+    }
+    super(environmentConfig);
     this.localClient = new TurnkeyLocalClient();
   }
 
@@ -279,7 +373,13 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClient {
 }
 
 export class TurnkeySDKServerClient extends TurnkeySDKClient {
-  constructor(config: TurnkeySDKClientConfig) {
-    super(config);
+  constructor(config: Omit<TurnkeySDKClientConfig, "environment">) {
+    const environmentConfig: TurnkeySDKClientConfig = {
+      ...config,
+      environment: "server"
+    }
+    super(environmentConfig);
   }
+
+  [methodName: string]: any;
 }

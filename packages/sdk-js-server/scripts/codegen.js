@@ -184,10 +184,6 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     'import type * as SdkApiTypes from "./sdk_api_types";'
   )
 
-  imports.push(
-    'import { StorageKeys, getStorageValue } from "../storage";'
-  )
-
   codeBuffer.push(`
 export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;
@@ -301,11 +297,10 @@ export class TurnkeySDKClientBase {
     if (methodType === "query") {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, overrideParams?: any): Promise<SdkApiTypes.${responseType}> => {
-    const currentSubOrganization = this.config.environment === "browser" ? await getStorageValue(StorageKeys.CurrentSubOrganization) : undefined;
     return this.request("${endpointPath}", {
       ...{
         ...input,
-        organizationId: currentSubOrganization?.organizationId ?? this.config.organizationId
+        organizationId: this.config.organizationId
       }, ...overrideParams
     });
   }`
@@ -315,11 +310,10 @@ export class TurnkeySDKClientBase {
       const versionedActivityType = VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
       codeBuffer.push(
       `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, overrideParams?: any): Promise<SdkApiTypes.${responseType}> => {
-    const currentSubOrganization = this.config.environment === "browser" ? await getStorageValue(StorageKeys.CurrentSubOrganization) : undefined;
     return this.command("${endpointPath}", {
       ...{
         parameters: {...input},
-        organizationId: currentSubOrganization?.organizationId ?? this.config.organizationId,
+        organizationId: this.config.organizationId,
         timestampMs: String(Date.now()),
         type: "${versionedActivityType ?? unversionedActivityType}"
       },
@@ -330,12 +324,11 @@ export class TurnkeySDKClientBase {
     } else if (methodType === "activityDecision") {
       codeBuffer.push(
       `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, overrideParams?: any): Promise<SdkApiTypes.${responseType}> => {
-    const currentSubOrganization = this.config.environment === "browser" ? await getStorageValue(StorageKeys.CurrentSubOrganization) : undefined;
     return this.activityDecision("${endpointPath}",
       {
         ...{
           parameters: {...input},
-          organizationId: currentSubOrganization?.organizationId ?? this.config.organizationId,
+          organizationId: this.config.organizationId,
           timestampMs: String(Date.now()),
           type: "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
         }, ...overrideParams

@@ -49,23 +49,7 @@ export interface ActivityResponse {
   }
 }
 
-export interface TurnkeyServerSDKConfig {
-  apiBaseUrl: string;
-  apiPrivateKey: string;
-  apiPublicKey: string;
-  rootOrganizationId: string;
-}
-
-export interface TurnkeyClientSDKConfig {
-  apiBaseUrl: string;
-  apiProxyUrl: string;
-  iframeUrl: string;
-  rootOrganizationId: string;
-  rpId: string;
-}
-
 export interface TurnkeySDKClientConfig {
-  environment: "browser" | "server";
   stamper: TStamper;
   apiBaseUrl: string;
   organizationId: string;
@@ -75,13 +59,9 @@ export interface TurnkeySDKClientConfig {
   }
 }
 
-export type EthereumTransaction = {
-  chainId: number;
-  nonce: number;
-  gasLimit: string;
-  maxPriorityFeePerGas: string;
-  maxFeePerGas: string;
-  to: string;
-  value: string;
-  data: string;
-};
+export interface TurnkeySDKServerConfig {
+  apiBaseUrl: string;
+  apiPrivateKey: string;
+  apiPublicKey: string;
+  rootOrganizationId: string;
+}
