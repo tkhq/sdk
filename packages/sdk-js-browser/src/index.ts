@@ -37,6 +37,8 @@ import type {
   TurnkeySDKBrowserConfig
 } from "./__types__/base";
 
+import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
+
 // Classes
 export {
   ApiKeyStamper,
@@ -55,6 +57,7 @@ export type {
   TIframeStamperConfig,
   TSignedRequest,
   TurnkeyApiTypes,
+  TurnkeySDKApiTypes,
   TurnkeySDKClientConfig,
   TurnkeySDKBrowserConfig,
   TWebauthnStamperConfig

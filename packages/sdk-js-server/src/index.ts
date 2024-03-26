@@ -25,6 +25,8 @@ import type {
   TurnkeySDKServerConfig
 } from "./__types__/base";
 
+import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
+
 // Classes
 export {
   ApiKeyStamper,
@@ -39,6 +41,7 @@ export type {
   TApiKeyStamperConfig,
   TSignedRequest,
   TurnkeyApiTypes,
+  TurnkeySDKApiTypes,
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig
 }

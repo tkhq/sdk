@@ -3,10 +3,15 @@ import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
+import { VERSION } from "./__generated__/version";
+
 import type {
+  GrpcStatus,
   TurnkeySDKClientConfig,
   TurnkeySDKBrowserConfig
 } from "./__types__/base";
+
+import { TurnkeyRequestError } from "./__types__/base";
 
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
@@ -72,7 +77,7 @@ export class TurnkeyBrowserSDK {
   }
 
   apiProxy = (): TurnkeyAPIProxyClient => {
-    return new TurnkeyAPIProxyClient();
+    return new TurnkeyAPIProxyClient(this.config.apiProxyUrl);
   }
 }
 
@@ -149,8 +154,46 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
 }
 
 export class TurnkeyAPIProxyClient {
+  apiProxyUrl: string;
 
-  createUserAccount = async (email: string, params?: Record<any, any>): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
+  constructor(apiProxyUrl: string) {
+    this.apiProxyUrl = apiProxyUrl;
+  }
+
+  request = async<TResponseType>(
+    methodName: string,
+    params: any[]
+  ): Promise<TResponseType> => {
+    const stringifiedBody = JSON.stringify({
+      methodName: methodName,
+      params: params
+    });
+    const response = await fetch(this.apiProxyUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Client-Version": VERSION
+      },
+      body: stringifiedBody,
+      redirect: "follow"
+    });
+
+    if (!response.ok) {
+      let res: GrpcStatus;
+      try {
+        res = await response.json();
+      } catch (_) {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+
+      throw new TurnkeyRequestError(res);
+    }
+
+    const data = await response.json();
+    return data as TResponseType;
+  }
+
+  createUserAccount = async (email: string): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
     const challenge = generateRandomBuffer();
     const encodedChallenge = base64UrlEncode(challenge);
     const authenticatorUserId = generateRandomBuffer();
@@ -181,8 +224,7 @@ export class TurnkeyAPIProxyClient {
       }
     })
 
-    // API Proxy Call
-    // email, encodedChallenge, attestation
+    return await this.request("createUserAccount", [email, encodedChallenge, attestation]);
   }
 
 }

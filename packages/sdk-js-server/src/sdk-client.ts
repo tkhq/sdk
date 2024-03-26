@@ -28,11 +28,11 @@ export class TurnkeyServerSDK {
     });
   }
 
-  apiProxy = async (methodName: string, args: any[]): Promise<any> => {
+  apiProxy = async (methodName: string, params: any[]): Promise<any> => {
     const apiClient = this.api();
     const method = apiClient[methodName];
     if (typeof method === 'function') {
-      return await method(...args);
+      return await method(...params);
     } else {
       throw new Error(`Method: ${methodName} does not exist on TurnkeySDKClient`);
     }
@@ -46,17 +46,17 @@ export class TurnkeySDKServerClient extends TurnkeySDKClientBase {
 
   [methodName: string]: any;
 
-  createUserAccount = async (params: Record<any, any>): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
+  createUserAccount = async (email: string, encodedChallenge: string, attestation: any): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
 
     const subOrganizationResult = await this.createSubOrganization({
-      subOrganizationName: params.email,
+      subOrganizationName: email,
       rootUsers: [{
-        userName: params.email,
+        userName: email,
         apiKeys: [],
         authenticators: [{
           authenticatorName: "test-passkey-1",
-          challenge: params.encodedChallenge,
-          attestation: params.attestation
+          challenge: encodedChallenge,
+          attestation: attestation
         }]
       }],
       rootQuorumThreshold: 1,
@@ -75,4 +75,5 @@ export class TurnkeySDKServerClient extends TurnkeySDKClientBase {
 
     return subOrganizationResult;
   }
+
 }
