@@ -109,6 +109,49 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
     this.localClient = new TurnkeyLocalClient();
   }
 
+  createWalletWithAccount = async (params: {walletName: string, accountChain: string}): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
+    if (params.accountChain === 'ethereum') {
+      return await this.createWallet({
+        walletName: params.walletName,
+        accounts: [{
+          curve: "CURVE_SECP256K1",
+          pathFormat: "PATH_FORMAT_BIP32",
+          path: "m/44'/60'/0'/0/0",
+          addressFormat: "ADDRESS_FORMAT_ETHEREUM"
+        }]
+      })
+    } else {
+      return await this.createWallet({
+        walletName: params.walletName,
+        accounts: [{
+          curve: "CURVE_SECP256K1",
+          pathFormat: "PATH_FORMAT_BIP32",
+          path: "m/44'/60'/0'/0/0",
+          addressFormat: "ADDRESS_FORMAT_ETHEREUM"
+        }]
+      })
+    }
+  }
+
+  createNextWalletAccount = async (params: { walletId: string }): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
+    const walletAccounts = await this.getWalletAccounts({ walletId: params.walletId });
+    const lastAccount = walletAccounts.accounts[walletAccounts.accounts.length - 1]!;
+    const lastAccountPath = lastAccount.path.split("/");
+    const lastAccountPathIndex = lastAccountPath[3]!.replace(/[^0-9]/g, '');
+    const nextPathIndex = Number(lastAccountPathIndex) + 1;
+    lastAccountPath[3] = `${nextPathIndex}'`;
+    const nextAccountPath = lastAccountPath.join("/");
+    return await this.createWalletAccounts({
+      walletId: params.walletId,
+      accounts: [{
+        curve: lastAccount.curve,
+        pathFormat: lastAccount.pathFormat,
+        addressFormat: lastAccount.addressFormat,
+        path: nextAccountPath
+      }]
+    })
+  }
+
   login = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
     const whoamiResult = await this.getWhoami({});
     const currentUser: User = {
