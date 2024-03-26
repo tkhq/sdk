@@ -4,17 +4,26 @@
   "private": true,
   "scripts": {
     "start": "pnpm -w run build-all && tsx src/index.ts",
-    "clean": "rimraf ./dist ./.cache",
-    "typecheck": "tsc --noEmit"
+    "clean": "rimraf ./dist ./.cache"
   },
   "dependencies": {
     "@safe-global/protocol-kit": "^3.0.1",
-    "@safe-global/safe-core-sdk-types": "^3.0.1",
+    "@safe-global/safe-core-sdk-types": "^4.0.1",
     "@safe-global/safe-ethers-lib": "^1.9.2",
     "@turnkey/api-key-stamper": "workspace:^",
     "@turnkey/ethers": "workspace:*",
     "@turnkey/http": "workspace:*",
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0"
+  },
+  "devDependencies": {
+    "@typechain/web3-v1": ">=6.0.7"
+  },
+  "overrides": {
+    "@safe-global/protocol-kit": {
+      "web3": ">=4.2.1",
+      "web3-core": ">=4.2.1",
+      "web3-utils": ">=4.2.1"
+    }
   }
 }

@@ -2,6 +2,10 @@
 
 This example shows how to create new Ethereum addresses via Turnkey, configure a 3/3 Gnosis safe, and create, sign, and execute a transaction from it.
 
+## NOTE:
+
+The typescript check has been removed from this example temporarily. This is due to a patch requiring `web3, web3-core, web3-util >= 4.2.1`. However, the latest version of Protocol Kit (`@safe-global/protocol-kit`) is 3.0.1, which has nested dependencies that expect `EventLog`, which no longer exists in `web3-core`.
+
 ## Getting started
 
 ### 1/ Cloning the example
