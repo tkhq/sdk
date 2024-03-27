@@ -52,7 +52,7 @@ const {
 } = process.env;
 
 const RECEIVER_ADDRESS: Address = "0x6f85Eb534E14D605d4e82bF97ddF59c18F686699";
-const ANVIL_RPC_URL = "http://localhost:8545";
+const ANVIL_RPC_URL = "http://127.0.0.1:8545";
 
 describe("Test Turnkey EIP-1193 Provider", () => {
   let turnkeyClient: TurnkeyClient;
