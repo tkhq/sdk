@@ -18,10 +18,12 @@ import {
   NativeCurrencySymbolMismatchError,
 } from "./errors";
 
-export function preprocessTransaction({
+const DEV_ENVS = ["test", "development"];
+
+export const preprocessTransaction = ({
   from,
   ...transaction
-}: RpcTransactionRequest) {
+}: RpcTransactionRequest) => {
   // Helper function to handle undefined values and conversion
   const convertValue = <T>(
     value: string | number | undefined,
@@ -58,17 +60,24 @@ export function preprocessTransaction({
   const serializedTransaction = serializeTransaction(processedTransaction);
 
   return serializedTransaction.replace(/^0x/, "");
-}
+};
 
-export function validateBlockExplorerUrls(
+export const isValidUrl = (url: string) => {
+  // Allow http URLs in non-production environments, https URLs in production
+  const protocolRegex = DEV_ENVS.includes(process.env.NODE_ENV ?? "")
+    ? /^https?:\/\//
+    : /^https:\/\//;
+  return protocolRegex.test(url);
+};
+
+export const validateBlockExplorerUrls = (
   blockExplorerUrls: WalletAddEthereumChain["blockExplorerUrls"],
   chainName: string
-): Chain["blockExplorers"] {
+): Chain["blockExplorers"] => {
   // Check if blockExplorerUrls is null or an array with at least one valid HTTPS URL
   if (blockExplorerUrls === null) return undefined;
 
   // Validate that each URL in the array starts with "https://"
-  const isValidUrl = (url: string) => /^https:\/\//.test(url);
   if (!blockExplorerUrls.every(isValidUrl)) {
     throw new BlockExplorerUrlError();
   }
@@ -79,7 +88,7 @@ export function validateBlockExplorerUrls(
       url: blockExplorerUrls[0],
     },
   };
-}
+};
 
 /**
  * Validates the array of RPC URLs provided in the AddEthereumChainParameter.
@@ -102,12 +111,10 @@ export const validateRpcUrls = (
   }
 };
 
-const isValidUrl = (url: string) => /^https:\/\//.test(url);
-
-export function validateChain(
+export const validateChain = (
   chain: AddEthereumChainParameter,
   addedChains: AddEthereumChainParameter[]
-) {
+) => {
   const { rpcUrls, blockExplorerUrls, chainId, nativeCurrency } = chain;
 
   if (addedChains.some((c) => c.chainId === chainId)) {
@@ -165,4 +172,4 @@ export function validateChain(
   ) {
     throw new NativeCurrencySymbolMismatchError(nativeCurrency.symbol);
   }
-}
+};

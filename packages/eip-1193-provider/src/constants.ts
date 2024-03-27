@@ -13,7 +13,8 @@ export const PROVIDER_ERROR_MESSAGE = {
     "rpcUrls field is required and must contain at least one valid HTTP/HTTPS URL",
   UNRECOGNIZED_CHAIN_ID:
     "Unrecognized chain ID. Try adding the chain using wallet_addEthereumChain first. Received: ",
-  CHAIN_ID_RPC_MISMATCH: "Chain ID does not match the RPC endpoint",
+  CHAIN_ID_RPC_MISMATCH:
+    "Chain ID does not match the RPC endpoint. Provider Chain ID: ",
   PROVIDER_DISCONNECTED: "Provider is disconnected from chain.",
   RPC_URLS_REQUIRED: "rpcUrls field is required and cannot be empty",
 };

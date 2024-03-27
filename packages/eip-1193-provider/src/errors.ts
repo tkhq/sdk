@@ -1,4 +1,4 @@
-import { ProviderRpcError } from "viem";
+import { Hex, ProviderRpcError, hexToNumber } from "viem";
 import { PROVIDER_ERROR_CODE, PROVIDER_ERROR_MESSAGE } from "./constants";
 
 // https://docs.metamask.io/wallet/reference/wallet_switchethereumchain/
@@ -13,11 +13,18 @@ class UnrecognizedChainError extends ProviderRpcError {
 }
 
 class ChainIdMismatchError extends ProviderRpcError {
-  constructor() {
-    super(new Error(PROVIDER_ERROR_MESSAGE.CHAIN_ID_RPC_MISMATCH), {
-      code: 4905,
-      shortMessage: "Chain ID mismatch",
-    });
+  constructor(providerChainId: Hex, rpcChainId: Hex) {
+    super(
+      new Error(
+        `${PROVIDER_ERROR_MESSAGE.CHAIN_ID_RPC_MISMATCH}${hexToNumber(
+          providerChainId
+        )} RPC Chain ID: ${hexToNumber(rpcChainId)}`
+      ),
+      {
+        code: 4905,
+        shortMessage: "Chain ID mismatch",
+      }
+    );
   }
 }
 

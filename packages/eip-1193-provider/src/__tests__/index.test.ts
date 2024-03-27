@@ -13,17 +13,20 @@ import {
   stringToHex,
   verifyTypedData,
   type EIP1474Methods,
-  toHex,
   ProviderDisconnectedError,
   MethodNotSupportedRpcError,
 } from "viem";
 import { sepolia } from "viem/chains";
 import { beforeEach, describe, it, expect, jest } from "@jest/globals";
-import { createEIP1193Provider } from "../";
 import { TurnkeyClient } from "@turnkey/http";
 import type { UUID } from "crypto";
 import type { TurnkeyEIP1193Provider } from "../types";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import hre from "hardhat";
+
+import { createEIP1193Provider } from "../";
+import type { AddEthereumChainParameter } from "viem";
+import { getHttpRpcClient } from "viem/utils";
 
 declare global {
   namespace NodeJS {
@@ -49,6 +52,7 @@ const {
 } = process.env;
 
 const RECEIVER_ADDRESS: Address = "0x6f85Eb534E14D605d4e82bF97ddF59c18F686699";
+const ANVIL_RPC_URL = "http://localhost:8545";
 
 describe("Test Turnkey EIP-1193 Provider", () => {
   let turnkeyClient: TurnkeyClient;
@@ -71,13 +75,15 @@ describe("Test Turnkey EIP-1193 Provider", () => {
     );
   });
 
-  let defaultChain = {
+  const defaultChain = {
     chainName: sepolia.name,
-    chainId: toHex(sepolia.id),
+    chainId: numberToHex(sepolia.id),
     rpcUrls: [PUBLIC_RPC_URL],
   };
 
-  const getEIP1193Provider = (chain = defaultChain) =>
+  const getEIP1193Provider = (
+    chain: AddEthereumChainParameter = defaultChain
+  ) =>
     createEIP1193Provider({
       walletId,
       organizationId,
@@ -103,7 +109,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
       // Define a chain configuration with a valid RPC URL initially
       const chain = {
         chainName: sepolia.name,
-        chainId: toHex(sepolia.id),
+        chainId: numberToHex(sepolia.id),
         rpcUrls: [PUBLIC_RPC_URL],
       };
       // Create an EIP1193 provider instance configured for the specified chain
@@ -138,7 +144,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
     it("should not emit disconnected if already disconnected", async () => {
       const chain = {
         chainName: sepolia.name,
-        chainId: toHex(sepolia.id),
+        chainId: numberToHex(sepolia.id),
         rpcUrls: [PUBLIC_RPC_URL],
       };
       // Create an EIP1193 provider instance configured for the specified chain
@@ -178,7 +184,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
         chains: [
           {
             chainName: sepolia.name,
-            chainId: toHex(sepolia.id),
+            chainId: numberToHex(sepolia.id),
             rpcUrls: [PUBLIC_RPC_URL],
           },
         ],
@@ -327,13 +333,36 @@ describe("Test Turnkey EIP-1193 Provider", () => {
           });
         });
         describe("eth_sendTransaction", () => {
-          it.skip("should sign and send a transaction", async () => {
+          it("should sign and send a transaction", async () => {
+            const hardhatChainId = numberToHex(hre.network.config.chainId ?? 0);
+            const anvil = {
+              chainName: hre.network.name,
+              chainId: hardhatChainId,
+              rpcUrls: [ANVIL_RPC_URL],
+            };
+
+            const provider = await createEIP1193Provider({
+              walletId,
+              organizationId,
+              turnkeyClient,
+              chains: [anvil],
+            });
+
+            // Set the balance on the anvil test net
+            await getHttpRpcClient(ANVIL_RPC_URL).request({
+              body: {
+                method: "hardhat_setBalance",
+                params: [expectedWalletAddress, numberToHex(parseEther("100"))],
+                id: 0,
+              },
+            });
+
             const from = expectedWalletAddress;
             const to = RECEIVER_ADDRESS;
             const value = numberToHex(parseEther("0.001"));
-            const chainId = numberToHex(sepolia.id);
-            // You might need to dynamically calculate the nonce for the account
-            const nonce = await eip1193Provider.request({
+            const chainId = hardhatChainId;
+
+            const nonce = await provider.request({
               method: "eth_getTransactionCount",
               params: [from, "latest"],
             });
@@ -342,7 +371,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             const maxPriorityFeePerGas = numberToHex(parseGwei("2"));
             const transactionType = "0x2";
 
-            const transactionHash = await eip1193Provider.request({
+            const transactionHash = await provider.request({
               method: "eth_sendTransaction",
               params: [
                 {
@@ -363,7 +392,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             expect(transactionHash).toMatch(/^0x[a-fA-F0-9]+$/);
 
             // Optionally, you can wait for the transaction to be mined and then perform assertions on the receipt
-            const receipt = await eip1193Provider.request({
+            const receipt = await provider.request({
               method: "eth_getTransactionReceipt",
               params: [transactionHash],
             });

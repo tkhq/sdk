@@ -9,6 +9,7 @@ import {
   MethodNotSupportedRpcError,
   ProviderDisconnectedError,
   ChainDisconnectedError,
+  Hex,
 } from "viem";
 import { getAddress, getHttpRpcClient, hashTypedData } from "viem/utils";
 
@@ -198,8 +199,9 @@ export const createEIP1193Provider = async (
           const rpcChainId = await request({ method: "eth_chainId" });
 
           if (activeChain.chainId !== rpcChainId) {
-            activeChain = previousActiveChain; // Revert to the previous connected chain
-            throw new ChainIdMismatchError();
+            // Revert to the previous connected chain or to undefined if no other chain connected
+            activeChain = previousActiveChain;
+            throw new ChainIdMismatchError(chain.chainId as Hex, rpcChainId);
           }
 
           addedChains.push({ ...chain, connected: true });
