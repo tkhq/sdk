@@ -2,6 +2,10 @@
 
 This example shows how to create new Ethereum addresses via Turnkey, configure a 3/3 Gnosis safe, and create, sign, and execute a transaction from it.
 
+## NOTE:
+
+The typescript check has been removed from this example temporarily. This is due to a patch requiring `web3, web3-core, web3-util >= 4.2.1`. However, the latest version of Protocol Kit (`@safe-global/protocol-kit`) is 3.0.1, which has nested dependencies that expect `EventLog`, which no longer exists in `web3-core`.
+
 ## Getting started
 
 ### 1/ Cloning the example
@@ -59,6 +63,7 @@ NOTES:
 
 - If the script exits because your account isn't funded, you can request funds via https://sepoliafaucet.com/ or Coinbase Wallet (developer settings).
 - Transactions will all be broadcasted sequentially.
+- If you try to run the script multiple times, you may run into a `CREATE2` issue. This is due to deployed Safe contract addresses being deterministic. In such cases, consider connecting to an existing Safe via `const safeSdk: Safe = await Safe.create({ ethAdapter: ethAdapterOwner1, safeAddress })`.
 - For this example, we recommend the usage of Sepolia + Infura specifically: we've experienced more consistent performance for this example on Sepolia.
   See the following for a sample output:
 
