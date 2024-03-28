@@ -3,6 +3,7 @@
   "buildCommand": "csb:build",
   "packages": [
     "packages/cosmjs",
+    "packages/eip-1193-provider",
     "packages/encoding",
     "packages/ethers",
     "packages/http",

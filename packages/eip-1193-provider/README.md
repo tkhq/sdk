@@ -44,7 +44,7 @@ const { organizationId } = await turnkeyClient.getWhoami({
 });
 
 // Get the user wallets associated with their sub-organization
-const { wallets } = await tk.getWallets({
+const { wallets } = await turnkeyClient.getWallets({
   organizationId,
 });
 
@@ -113,8 +113,8 @@ pnpm test
 
 ## Contributing
 
-We welcome contributions to improve the `Turnkey EIP-1193 Provider`. Please follow the project's [contribution guidelines](../../CONTRIBUTING.md).
+We welcome contributions to improve the `Turnkey EIP-1193 Provider`. Please follow the project's [contribution guidelines](https://github.com/tkhq/sdk/blob/ad9071716919d062ba67fd623a01cbd4523ed444/CONTRIBUTING.md).
 
 ## License
 
-This project is licensed under [LICENSE](../../LICENSE), with detailed information available in the repository.
+This project is licensed under [LICENSE](./LICENSE), with detailed information available in the repository.
