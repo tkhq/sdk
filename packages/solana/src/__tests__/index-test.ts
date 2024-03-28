@@ -198,8 +198,8 @@ describe("TurnkeySigner", () => {
       // Ensure it's a simple, native transfer
       expect(tx.instructions.length).toEqual(1);
 
-      const programId = tx.instructions[0].programId;
-      const data = tx.instructions[0].data;
+      const programId = tx.instructions[0]!.programId!;
+      const data = tx.instructions[0]!.data!;
 
       expect(programId).toEqual(SystemProgram.programId);
       expect(data[0]).toEqual(2);
@@ -292,10 +292,11 @@ describe("TurnkeySigner", () => {
       // Ensure it's a simple, native transfer
       expect(tx.message.compiledInstructions.length).toEqual(1);
 
-      const programIdIndex = tx.message.compiledInstructions[0].programIdIndex;
+      const programIdIndex =
+        tx.message.compiledInstructions[0]!.programIdIndex!;
       const keys = tx.message.getAccountKeys();
       const programId = keys.staticAccountKeys[programIdIndex];
-      const data = tx.message.compiledInstructions[0].data;
+      const data = tx.message.compiledInstructions[0]!.data!;
 
       expect(programId).toEqual(SystemProgram.programId);
       expect(data[0]).toEqual(2);

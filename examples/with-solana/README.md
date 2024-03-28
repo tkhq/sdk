@@ -86,4 +86,34 @@ Transaction broadcast and confirmed! 🎉
         https://explorer.solana.com/tx/3Wr1vmSwqf7jPJXzgqA3fGfELdTfiR8v86sRiTJxNYT4KYEcadQjceFsN8BoHQZqb6mnuqsJsgHdk6i8Sj8YtmVr?cluster=devnet
 ```
 
+### 4/ Running the advanced script (multiple transactions)
+
+```bash
+$ pnpm advanced
+```
+
+The output will resemble the following:
+
+```
+Using existing Solana address from ENV: "G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp"
+? Number of transactions: 3
+? 1. Destination address: tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C
+? 1. Amount (in Lamports) to send to tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C: 111
+
+? 2. Destination address: tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C
+? 2. Amount (in Lamports) to send to tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C: 222
+
+? 3. Destination address: tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C
+? 3. Amount (in Lamports) to send to tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C: 333
+
+Transaction broadcast and confirmed! 🎉
+        https://explorer.solana.com/tx/4takozf5EcfzhPwxNfUxgY8wSUmhj7uLfzoQUJSND13wK4P2yQEZSfhEdHELyRZ1ZrPFcHBSAscQBtfwcY6FvB5t?cluster=devnet
+
+Transaction broadcast and confirmed! 🎉
+        https://explorer.solana.com/tx/4wjQuxEKRw5Pq3TKWj7cTqg12FryhGsBN4zUrz49vDeRQnkAVGKnZFEP5ka8Zs2RxrdNyRACBCBjs63fKnQGoGve?cluster=devnet
+
+Transaction broadcast and confirmed! 🎉
+        https://explorer.solana.com/tx/32jEdshTKFh14xrdkgVBp3TXcdXsswshtt2GozLtz7bauYeuwfDfChrHW9G5GDU5H7Q8FxpjKpokAoH39jiGUDAC?cluster=devnet
+```
+
 Enjoy!

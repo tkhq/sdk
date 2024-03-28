@@ -71,14 +71,16 @@ async function main() {
 
   for (let i = 0; i < numTxs; i++) {
     const destination = await input({
-      message: `${i+1}. Destination address:`,
+      message: `${i + 1}. Destination address:`,
       default: TURNKEY_WAR_CHEST,
     });
 
     // Amount defaults to current balance - (5000 * numTxs)
     // Any other amount is possible, so long as a sufficient balance remains for fees.
     const amount = await input({
-      message: `${i+1}. Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
+      message: `${
+        i + 1
+      }. Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
       default: `${balance - 5000 * numTxs}`,
       validate: function (str) {
         var n = Math.floor(Number(str));
@@ -113,8 +115,6 @@ async function main() {
     transferTransaction.feePayer = fromKey;
 
     unsignedTxs.push(transferTransaction);
-
-    console.log("\n");
   }
 
   // 2. Create, sign, and verify multiple transfer transaction
@@ -130,7 +130,7 @@ async function main() {
     if (!verified) {
       throw new Error("unable to verify transaction signatures");
     }
-    
+
     // 3. Broadcast the signed payload on devnet
     await solanaNetwork.broadcast(connection, signedTransactions[i]!);
   }
