@@ -30,7 +30,6 @@ import { TurnkeyClient } from "@turnkey/http";
 import type { UUID } from "crypto";
 import type { TurnkeyEIP1193Provider } from "../types";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import hre from "hardhat";
 
 import { createEIP1193Provider } from "../";
 import type { AddEthereumChainParameter } from "viem";
