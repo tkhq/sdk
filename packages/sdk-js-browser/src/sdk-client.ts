@@ -29,7 +29,7 @@ export class TurnkeyBrowserSDK {
     this.config = config;
   }
 
-  userPasskey = (): TurnkeySDKBrowserClient => {
+  passkeySign = (): TurnkeySDKBrowserClient => {
     const webauthnStamper = new WebauthnStamper({
       rpId: this.config.rpId
     });
@@ -41,7 +41,7 @@ export class TurnkeyBrowserSDK {
     });
   }
 
-  email = async (iframeContainer: HTMLElement | null | undefined): Promise<TurnkeySDKBrowserClient> => {
+  emailSign = async (iframeContainer: HTMLElement | null | undefined): Promise<TurnkeySDKBrowserClient> => {
     const TurnkeyIframeElementId = "turnkey-auth-iframe-element-id";
 
     const iframeStamper = new IframeStamper({
@@ -59,7 +59,7 @@ export class TurnkeyBrowserSDK {
     });
   }
 
-  session = (): TurnkeySDKBrowserClient => {
+  sessionSign = (): TurnkeySDKBrowserClient => {
     const sessionStamper = new ApiKeyStamper({
       apiPublicKey: "0380faf5d7da3cfe4e61ad4d631418cf446f1a700a7e0e481ac232125109b22bb9",
       apiPrivateKey: "584cd7ec333dc2b6f629faadcfbc87c64d8f42d9aae0c91d0114aa41606faba2"
@@ -76,12 +76,82 @@ export class TurnkeyBrowserSDK {
     return new TurnkeyLocalClient();
   }
 
-  apiProxy = (): TurnkeyAPIProxyClient => {
-    return new TurnkeyAPIProxyClient(this.config.apiProxyUrl);
+  serverSign = async<TResponseType> (methodName: string, params: any[]): Promise<TResponseType> => {
+    if (!this.config.apiProxyUrl) {
+      throw new Error('could not find configured apiProxyUrl');
+    }
+
+    const stringifiedBody = JSON.stringify({
+      methodName: methodName,
+      params: params
+    });
+
+    const response = await fetch(this.config.apiProxyUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Client-Version": VERSION
+      },
+      body: stringifiedBody,
+      redirect: "follow"
+    });
+
+    if (!response.ok) {
+      let res: GrpcStatus;
+      try {
+        res = await response.json();
+      } catch (_) {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+
+      throw new TurnkeyRequestError(res);
+    }
+
+    const data = await response.json();
+    return data as TResponseType;
   }
 }
 
 export class TurnkeyLocalClient {
+
+  createUserPasskey = async (config: Record<any, any> = {}) => {
+    const challenge = generateRandomBuffer();
+    const encodedChallenge = base64UrlEncode(challenge);
+    const authenticatorUserId = generateRandomBuffer();
+
+    const webauthnConfig: CredentialCreationOptions = {
+      publicKey: {
+        rp: {
+          id: config.publicKey?.rp?.id ?? "",
+          name: config.publicKey?.rp?.name ?? ""
+        },
+        challenge: config.publicKey?.challenge ?? challenge,
+        pubKeyCredParams: config.publicKey?.pubKeyCredParams ?? [
+          {
+            type: "public-key",
+            alg: -7
+          }
+        ],
+        user: {
+          id: config.publicKey?.user?.id ?? authenticatorUserId,
+          name: config.publicKey?.user?.name ?? "",
+          displayName: config.publicKey?.user?.displayName ?? ""
+        },
+        authenticatorSelection: {
+          requireResidentKey: config.publicKey?.authenticatorSelection?.requireResidentKey ?? true,
+          residentKey: config.publicKey?.authenticatorSelection?.residentKey ?? "required",
+          userVerification: config.publicKey?.authenticatorSelection?.userVerification ?? "preferred"
+        }
+      }
+    }
+
+    const attestation = await getWebAuthnAttestation(webauthnConfig)
+    return {
+      encodedChallenge: config.publicKey?.challenge ? base64UrlEncode(config.publicKey?.challenge): encodedChallenge,
+      attestation: attestation
+    }
+  }
+
   getCurrentSubOrganization = async (): Promise<SubOrganization | undefined> => {
     return await getStorageValue(StorageKeys.CurrentSubOrganization)
   }
@@ -192,82 +262,6 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
     }
 
     return response;
-  }
-
-}
-
-export class TurnkeyAPIProxyClient {
-  apiProxyUrl: string;
-
-  constructor(apiProxyUrl: string) {
-    this.apiProxyUrl = apiProxyUrl;
-  }
-
-  request = async<TResponseType>(
-    methodName: string,
-    params: any[]
-  ): Promise<TResponseType> => {
-    const stringifiedBody = JSON.stringify({
-      methodName: methodName,
-      params: params
-    });
-    const response = await fetch(this.apiProxyUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Client-Version": VERSION
-      },
-      body: stringifiedBody,
-      redirect: "follow"
-    });
-
-    if (!response.ok) {
-      let res: GrpcStatus;
-      try {
-        res = await response.json();
-      } catch (_) {
-        throw new Error(`${response.status} ${response.statusText}`);
-      }
-
-      throw new TurnkeyRequestError(res);
-    }
-
-    const data = await response.json();
-    return data as TResponseType;
-  }
-
-  createUserAccount = async (email: string): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
-    const challenge = generateRandomBuffer();
-    const encodedChallenge = base64UrlEncode(challenge);
-    const authenticatorUserId = generateRandomBuffer();
-
-    const attestation = await getWebAuthnAttestation({
-      publicKey: {
-        rp: {
-          id: "localhost",
-          name: "Demo Passkey Wallet"
-        },
-        challenge,
-        pubKeyCredParams: [
-          {
-            type: "public-key",
-            alg: -7
-          }
-        ],
-        user: {
-          id: authenticatorUserId,
-          name: email,
-          displayName: email
-        },
-        authenticatorSelection: {
-          requireResidentKey: true,
-          residentKey: "required",
-          userVerification: "preferred"
-        }
-      }
-    })
-
-    return await this.request("createUserAccount", [email, encodedChallenge, attestation]);
   }
 
 }
