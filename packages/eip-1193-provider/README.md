@@ -38,17 +38,32 @@ const turnkeyClient = new TurnkeyClient(
   stamper
 );
 
+// Get the organizationId of the sub-organization connected to the users account
+const { organizationId } = await turnkeyClient.getWhoami({
+  organizationId: process.env.ORGANIZATION_ID,
+});
+
+// Get the user wallets associated with their sub-organization
+const { wallets } = await tk.getWallets({
+  organizationId,
+});
+
+// Get the walletId to connect to the provider
+const walletId = wallets[0].walletId;
+
+const chain = {
+  chainName: "Ethereum Mainnet",
+  chainId: "0x1",
+  rpcUrls: ["https://mainnet.infura.io/v3/your-infura-project-id"],
+};
+
 // Initialize the EIP-1193 Provider with your configuration
 const provider = await createEIP1193Provider({
-  walletId: "your-wallet-id",
-  organizationId: "your-organization-id",
+  walletId,
+  organizationId,
   turnkeyClient,
   chains: [
-    {
-      chainName: "Ethereum Mainnet",
-      chainId: "0x1",
-      rpcUrls: ["https://mainnet.infura.io/v3/your-infura-project-id"],
-    },
+    chain,
     // Add more chains as needed
   ],
 });

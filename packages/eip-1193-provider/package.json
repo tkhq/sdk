@@ -50,11 +50,13 @@
     "access": "public"
   },
   "dependencies": {
-    "@turnkey/http": "workspace:*",
     "viem": "^2.7.19"
   },
   "devDependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
     "hardhat": "^2.22.2"
+  },
+  "peerDependencies": {
+    "@turnkey/http": "workspace:*"
   }
 }
