@@ -130,3 +130,6 @@ typechain-types/
 test-results/
 playwright-report/
 playwright/.cache/
+
+# Has its own prettier config
+with-eip-1193-provider/

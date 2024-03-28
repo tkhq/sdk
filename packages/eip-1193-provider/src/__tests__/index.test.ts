@@ -16,8 +16,16 @@ import {
   ProviderDisconnectedError,
   MethodNotSupportedRpcError,
 } from "viem";
-import { sepolia } from "viem/chains";
-import { beforeEach, describe, it, expect, jest } from "@jest/globals";
+import { foundry } from "viem/chains";
+import {
+  beforeAll,
+  beforeEach,
+  afterEach,
+  describe,
+  it,
+  expect,
+  jest,
+} from "@jest/globals";
 import { TurnkeyClient } from "@turnkey/http";
 import type { UUID } from "crypto";
 import type { TurnkeyEIP1193Provider } from "../types";
@@ -26,7 +34,7 @@ import hre from "hardhat";
 
 import { createEIP1193Provider } from "../";
 import type { AddEthereumChainParameter } from "viem";
-import { getHttpRpcClient } from "viem/utils";
+import { formatEther, getHttpRpcClient } from "viem/utils";
 
 declare global {
   namespace NodeJS {
@@ -35,7 +43,6 @@ declare global {
       ORGANIZATION_ID: UUID;
       TURNKEY_API_PUBLIC_KEY: string;
       TURNKEY_API_PRIVATE_KEY: string;
-      PUBLIC_RPC_URL: string;
       EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: Address;
     }
   }
@@ -48,11 +55,45 @@ const {
   BASE_URL,
   EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS,
   WALLET_ID,
-  PUBLIC_RPC_URL,
 } = process.env;
 
 const RECEIVER_ADDRESS: Address = "0x6f85Eb534E14D605d4e82bF97ddF59c18F686699";
 const ANVIL_RPC_URL = "http://127.0.0.1:8545";
+const EXPECTED_ADDRESS_DEFAULT_BALANCE_ETH = "100"; //ETH
+const anvilPublicClient = getHttpRpcClient(ANVIL_RPC_URL);
+
+const anvil = {
+  /**
+   * Sets the balance of an address on the anvil test net
+   * @param address - the target address to set the balance; default EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS
+   * @param balance (ETH) - the balance to set in ETH; default 100ETH
+   */
+  async setBalance(
+    address: Address = EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS,
+    balance: string = EXPECTED_ADDRESS_DEFAULT_BALANCE_ETH
+  ) {
+    await anvilPublicClient.request({
+      body: {
+        method: "hardhat_setBalance",
+        params: [address, numberToHex(parseEther(balance))],
+        id: 0,
+      },
+    });
+  },
+  /**
+   * Resets the `address` nonce to 0
+   * @param address - the address to reset; default EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS
+   */
+  async resetNonce(address: Address = EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS) {
+    await anvilPublicClient.request({
+      body: {
+        method: "hardhat_setNonce",
+        params: [address, "0x0"],
+        id: 0,
+      },
+    });
+  },
+};
 
 describe("Test Turnkey EIP-1193 Provider", () => {
   let turnkeyClient: TurnkeyClient;
@@ -64,6 +105,17 @@ describe("Test Turnkey EIP-1193 Provider", () => {
   const expectedWalletAddress = EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS;
   const walletId: UUID = WALLET_ID;
   const organizationId = ORGANIZATION_ID;
+  const foundryChain = {
+    chainName: foundry.name,
+    chainId: numberToHex(foundry.id),
+    rpcUrls: [ANVIL_RPC_URL],
+  };
+
+  beforeAll(() => {
+    // Sets the initial balance
+    // Balance is reset after each test
+    anvil.setBalance();
+  });
 
   beforeEach(async () => {
     turnkeyClient = new TurnkeyClient(
@@ -73,16 +125,22 @@ describe("Test Turnkey EIP-1193 Provider", () => {
         apiPrivateKey,
       })
     );
+    eip1193Provider = await createEIP1193Provider({
+      walletId,
+      organizationId,
+      turnkeyClient,
+      chains: [foundryChain],
+    });
   });
 
-  const defaultChain = {
-    chainName: sepolia.name,
-    chainId: numberToHex(sepolia.id),
-    rpcUrls: [PUBLIC_RPC_URL],
-  };
+  afterEach(() => {
+    // Reset the nonce and balance of the expected address
+    anvil.setBalance();
+    anvil.resetNonce();
+  });
 
   const getEIP1193Provider = (
-    chain: AddEthereumChainParameter = defaultChain
+    chain: AddEthereumChainParameter = foundryChain
   ) =>
     createEIP1193Provider({
       walletId,
@@ -96,7 +154,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
       const provider = await getEIP1193Provider();
       const onConnected = jest.fn();
       provider.on("connect", (connectionInfo) => {
-        expect(connectionInfo.chainId).toEqual(defaultChain.chainId);
+        expect(connectionInfo.chainId).toEqual(foundryChain.chainId);
         onConnected();
       });
 
@@ -107,11 +165,8 @@ describe("Test Turnkey EIP-1193 Provider", () => {
 
     it("should emit disconnected when connectivity is lost", async () => {
       // Define a chain configuration with a valid RPC URL initially
-      const chain = {
-        chainName: sepolia.name,
-        chainId: numberToHex(sepolia.id),
-        rpcUrls: [PUBLIC_RPC_URL],
-      };
+      // Performs a deep clone since we need to modify the rpcUrls
+      const chain = JSON.parse(JSON.stringify(foundryChain));
       // Create an EIP1193 provider instance configured for the specified chain
       const provider = await getEIP1193Provider(chain);
 
@@ -142,19 +197,18 @@ describe("Test Turnkey EIP-1193 Provider", () => {
     });
 
     it("should not emit disconnected if already disconnected", async () => {
-      const chain = {
-        chainName: sepolia.name,
-        chainId: numberToHex(sepolia.id),
-        rpcUrls: [PUBLIC_RPC_URL],
-      };
+      // Define a chain configuration with a valid RPC URL initially
+      // Performs a deep clone since we need to modify the rpcUrls
+      const chain = JSON.parse(JSON.stringify(foundryChain));
+
       // Create an EIP1193 provider instance configured for the specified chain
       const provider = await getEIP1193Provider(chain);
 
       // Setup a mock function to track the 'disconnect' event
       const onDisconnected = jest.fn();
       provider.on("disconnect", (error) => {
-        expect(error).toBeInstanceOf(ProviderDisconnectedError); // Assert that the error is an instance of ProviderDisconnectedError
-        onDisconnected(); // Record the disconnect event occurrence
+        expect(error).toBeInstanceOf(ProviderDisconnectedError);
+        onDisconnected();
       });
 
       // Change the RPC URL to an invalid one to simulate connectivity loss
@@ -176,20 +230,6 @@ describe("Test Turnkey EIP-1193 Provider", () => {
   // as well as public RPC methods like retrieving the current block number and chain ID.
   // Additionally, it tests for the proper handling of unsupported methods, ensuring they throw the expected errors.
   describe("Test EIP-1193 Provider Methods", () => {
-    beforeEach(async () => {
-      eip1193Provider = await createEIP1193Provider({
-        walletId,
-        organizationId,
-        turnkeyClient,
-        chains: [
-          {
-            chainName: sepolia.name,
-            chainId: numberToHex(sepolia.id),
-            rpcUrls: [PUBLIC_RPC_URL],
-          },
-        ],
-      });
-    });
     describe("Supported Methods", () => {
       describe("EIP-1193 Wallet Methods", () => {
         describe("eth_requestAccounts", () => {
@@ -318,7 +358,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
                   from,
                   to,
                   value: numberToHex(parseEther("0.001")),
-                  chainId: numberToHex(sepolia.id),
+                  chainId: numberToHex(foundry.id),
                   nonce: numberToHex(0),
                   gas: numberToHex(21000n),
                   maxFeePerGas: numberToHex(parseGwei("20")),
@@ -334,35 +374,11 @@ describe("Test Turnkey EIP-1193 Provider", () => {
         });
         describe("eth_sendTransaction", () => {
           it("should sign and send a transaction", async () => {
-            const hardhatChainId = numberToHex(hre.network.config.chainId ?? 0);
-            const anvil = {
-              chainName: hre.network.name,
-              chainId: hardhatChainId,
-              rpcUrls: [ANVIL_RPC_URL],
-            };
-
-            const provider = await createEIP1193Provider({
-              walletId,
-              organizationId,
-              turnkeyClient,
-              chains: [anvil],
-            });
-
-            // Set the balance on the anvil test net
-            await getHttpRpcClient(ANVIL_RPC_URL).request({
-              body: {
-                method: "hardhat_setBalance",
-                params: [expectedWalletAddress, numberToHex(parseEther("100"))],
-                id: 0,
-              },
-            });
-
             const from = expectedWalletAddress;
             const to = RECEIVER_ADDRESS;
             const value = numberToHex(parseEther("0.001"));
-            const chainId = hardhatChainId;
-
-            const nonce = await provider.request({
+            const chainId = numberToHex(foundry.id);
+            const nonce = await eip1193Provider.request({
               method: "eth_getTransactionCount",
               params: [from, "latest"],
             });
@@ -371,7 +387,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             const maxPriorityFeePerGas = numberToHex(parseGwei("2"));
             const transactionType = "0x2";
 
-            const transactionHash = await provider.request({
+            const transactionHash = await eip1193Provider.request({
               method: "eth_sendTransaction",
               params: [
                 {
@@ -392,23 +408,13 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             expect(transactionHash).toMatch(/^0x[a-fA-F0-9]+$/);
 
             // Optionally, you can wait for the transaction to be mined and then perform assertions on the receipt
-            const receipt = await provider.request({
+            const receipt = await eip1193Provider.request({
               method: "eth_getTransactionReceipt",
               params: [transactionHash],
             });
 
             expect(receipt).toBeDefined();
             expect(receipt?.status).toBe("0x1"); // Success status
-          });
-        });
-        describe("eth_getBlockByNumber", () => {
-          it("should get blocknumber using the underlying RPC provider", async () => {
-            const blockNumber = await eip1193Provider?.request({
-              method: "eth_blockNumber",
-            });
-            expect(blockNumber).not.toBeUndefined();
-            expect(blockNumber).not.toBe("");
-            expect(blockNumber).toMatch(/^0x.*$/);
           });
         });
         describe("web3_clientVersion", () => {
@@ -432,7 +438,30 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             });
             expect(chainId).not.toBeUndefined();
             expect(chainId).toMatch(/^0x.*$/);
-            expect(parseInt(chainId!, 16)).toBe(sepolia.id);
+            expect(parseInt(chainId!, 16)).toBe(foundry.id);
+          });
+        });
+        describe("eth_getBalance", () => {
+          it("should get the correct chain id using the underlying RPC provider", async () => {
+            const balance = await eip1193Provider?.request({
+              method: "eth_getBalance",
+              params: [expectedWalletAddress, "latest"],
+            });
+            expect(balance).not.toBeUndefined();
+            expect(balance).toMatch(/^0x.*$/);
+            expect(formatEther(BigInt(balance))).toBe(
+              EXPECTED_ADDRESS_DEFAULT_BALANCE_ETH
+            );
+          });
+        });
+        describe("eth_getBlockByNumber", () => {
+          it("should get blocknumber using the underlying RPC provider", async () => {
+            const blockNumber = await eip1193Provider?.request({
+              method: "eth_blockNumber",
+            });
+            expect(blockNumber).not.toBeUndefined();
+            expect(blockNumber).not.toBe("");
+            expect(blockNumber).toMatch(/^0x.*$/);
           });
         });
       });

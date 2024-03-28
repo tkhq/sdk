@@ -76,10 +76,30 @@ The following methods also prompt for passkey authentication:
 - `eth_signTypedData_v4`: Signs typed data according to EIP-712 with the specified account.
 - `eth_sendTransaction`: Submits a transaction to the network for execution.
 
+## Testing (Local)
+
+1. Copy `.env.example` to `.env.local`
+
+```bash
+cp .env.example .env
+```
+
+2. Start the Anvil node in one shell:
+
+```
+pnpm anvil
+```
+
+3. Run the tests in a new shell:
+
+```
+pnpm test
+```
+
 ## Contributing
 
-We welcome contributions to improve the `Turnkey EIP-1193 Provider`. Please follow the project's contribution guidelines.
+We welcome contributions to improve the `Turnkey EIP-1193 Provider`. Please follow the project's [contribution guidelines](../../CONTRIBUTING.md).
 
 ## License
 
-This project is licensed under [LICENSE], with detailed information available in the repository.
+This project is licensed under [LICENSE](../../LICENSE), with detailed information available in the repository.
