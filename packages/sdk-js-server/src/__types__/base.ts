@@ -65,3 +65,23 @@ export interface TurnkeySDKServerConfig {
   apiPublicKey: string;
   rootOrganizationId: string;
 }
+
+export interface TurnkeyProxyHandlerConfig {
+  allowedMethods?: string[];
+}
+
+export interface NextApiRequest {
+  body: any;
+  query: { [key: string]: string };
+}
+
+export interface NextApiResponse<T = any> {
+  status: (statusCode: number) => NextApiResponse<T>;
+  json: (data: T) => void;
+  send: (data: any) => void;
+}
+
+export type NextApiHandler = (
+  req: NextApiRequest,
+  res: NextApiResponse
+) => void | Promise<void>;

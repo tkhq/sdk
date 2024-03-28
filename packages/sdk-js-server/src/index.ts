@@ -22,7 +22,8 @@ import {
 
 import type {
   TurnkeySDKClientConfig,
-  TurnkeySDKServerConfig
+  TurnkeySDKServerConfig,
+  TurnkeyProxyHandlerConfig
 } from "./__types__/base";
 
 import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
@@ -43,7 +44,8 @@ export type {
   TurnkeyApiTypes,
   TurnkeySDKApiTypes,
   TurnkeySDKClientConfig,
-  TurnkeySDKServerConfig
+  TurnkeySDKServerConfig,
+  TurnkeyProxyHandlerConfig
 }
 
 // Functions
