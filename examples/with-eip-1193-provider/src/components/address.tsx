@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from './ui/button';
-import { Icons } from './ui/icons';
-import { truncate } from '@/lib/utils';
+import { useState } from "react";
+import { Button } from "./ui/button";
+import { Icons } from "./ui/icons";
+import { truncate } from "@/lib/utils";
 
 interface AddressProps {
   address: string;
@@ -26,7 +26,7 @@ const Address: React.FC<AddressProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
     } catch (err) {
-      console.error('Failed to copy: ', err);
+      console.error("Failed to copy: ", err);
     }
   };
 

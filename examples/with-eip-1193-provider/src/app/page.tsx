@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Connect } from '@/components/connect';
-import { Dashboard } from '@/components/dashboard';
-import { TurnkeyEIP1193Provider } from '@turnkey/eip-1193-provider';
-import { Address } from 'viem';
-import Image from 'next/image';
-import { UUID } from 'crypto';
-import { Auth } from '@/components/auth';
+import React, { useState } from "react";
+import { Connect } from "@/components/connect";
+import { Dashboard } from "@/components/dashboard";
+import { TurnkeyEIP1193Provider } from "@turnkey/eip-1193-provider";
+import { Address } from "viem";
+import Image from "next/image";
+import { UUID } from "crypto";
+import { Auth } from "@/components/auth";
 
 type ConnectedAccount = {
   walletId: string;
@@ -31,8 +31,8 @@ export default function Home() {
     if (params.provider) {
       // If provider is emitted (SignUp action), go straight to the dashboard
       setConnectedAccount({
-        walletId: '',
-        account: '' as Address,
+        walletId: "",
+        account: "" as Address,
         provider: params.provider,
       });
     } else if (params.organizationId) {

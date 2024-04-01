@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
   parseEther,
   Address as AddressType,
@@ -10,10 +10,10 @@ import {
   Hex,
   numberToHex,
   parseGwei,
-} from 'viem';
+} from "viem";
 
-import { TurnkeyEIP1193Provider } from '@turnkey/eip-1193-provider';
-import Address from './address';
+import { TurnkeyEIP1193Provider } from "@turnkey/eip-1193-provider";
+import Address from "./address";
 import {
   Card,
   CardContent,
@@ -21,7 +21,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -30,11 +30,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { sepolia } from 'viem/chains';
-import { toast } from 'sonner';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { sepolia } from "viem/chains";
+import { toast } from "sonner";
 // import { ToastAction } from '@/components/ui/toast';
 
 type DashboardProps = {
@@ -43,20 +43,20 @@ type DashboardProps = {
 
 export function Dashboard({ provider }: DashboardProps) {
   const [balance, setBalance] = useState<bigint | null>(null);
-  const [selectedAccount, setSelectedAccount] = useState<AddressType | ''>('');
-  const [sendToAddress, setSendToAddress] = useState<AddressType | ''>('');
-  const [sendAmount, setSendAmount] = useState('');
+  const [selectedAccount, setSelectedAccount] = useState<AddressType | "">("");
+  const [sendToAddress, setSendToAddress] = useState<AddressType | "">("");
+  const [sendAmount, setSendAmount] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchAccountAndBalance = async () => {
       if (provider) {
-        const accounts = await provider.request({ method: 'eth_accounts' });
+        const accounts = await provider.request({ method: "eth_accounts" });
         setSelectedAccount(accounts[0]);
 
         const balanceInWei = await provider.request({
-          method: 'eth_getBalance',
-          params: [accounts[0], 'latest'],
+          method: "eth_getBalance",
+          params: [accounts[0], "latest"],
         });
         const balanceInEther = BigInt(balanceInWei);
         setBalance(balanceInEther);
@@ -70,13 +70,13 @@ export function Dashboard({ provider }: DashboardProps) {
     if (provider && selectedAccount && sendToAddress && sendAmount) {
       const chainId = numberToHex(sepolia.id);
       const nonce = await provider.request({
-        method: 'eth_getTransactionCount',
-        params: [selectedAccount, 'latest'],
+        method: "eth_getTransactionCount",
+        params: [selectedAccount, "latest"],
       });
       const gas = numberToHex(21000);
-      const maxFeePerGas = numberToHex(parseGwei('20'));
-      const maxPriorityFeePerGas = numberToHex(parseGwei('2'));
-      const transactionType = '0x2';
+      const maxFeePerGas = numberToHex(parseGwei("20"));
+      const maxPriorityFeePerGas = numberToHex(parseGwei("2"));
+      const transactionType = "0x2";
       const amountInWei = parseEther(sendAmount);
       const transaction = {
         from: selectedAccount,
@@ -92,24 +92,24 @@ export function Dashboard({ provider }: DashboardProps) {
 
       try {
         const txHash = await provider.request({
-          method: 'eth_sendTransaction',
+          method: "eth_sendTransaction",
           params: [transaction],
         });
         setDialogOpen(false);
-        toast('Transaction sent! 🎉', {
-          description: 'View your transaction on Etherscan.',
+        toast("Transaction sent! 🎉", {
+          description: "View your transaction on Etherscan.",
           action: {
-            label: 'View',
+            label: "View",
             onClick: () => {
               window.open(
                 `https://sepolia.etherscan.io/tx/${txHash}`,
-                '_blank'
+                "_blank"
               );
             },
           },
         });
       } catch (error: any) {
-        toast('Error sending transaction', {
+        toast("Error sending transaction", {
           description: error.message,
         });
       }
@@ -121,7 +121,7 @@ export function Dashboard({ provider }: DashboardProps) {
       <Card className="w-full flex flex-col items-center">
         <CardHeader className="items-center">
           <CardTitle>
-            <Address address={selectedAccount ?? ''} />
+            <Address address={selectedAccount ?? ""} />
           </CardTitle>
           <CardDescription>
             {balance !== null && `Balance: ${formatEther(balance)} ETH`}

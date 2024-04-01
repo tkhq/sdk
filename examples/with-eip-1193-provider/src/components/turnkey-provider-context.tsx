@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   TurnkeyEIP1193Provider,
   createEIP1193Provider,
-} from '@turnkey/eip-1193-provider';
-import { WebauthnStamper } from '@turnkey/webauthn-stamper';
-import { TurnkeyClient } from '@turnkey/http';
-import { numberToHex } from 'viem';
-import { sepolia } from 'viem/chains';
+} from "@turnkey/eip-1193-provider";
+import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import { TurnkeyClient } from "@turnkey/http";
+import { numberToHex } from "viem";
+import { sepolia } from "viem/chains";
 
 type TurnkeyProviderContextType = {
   turnkeyProvider: TurnkeyEIP1193Provider | null;
@@ -29,20 +29,20 @@ export const TurnkeyProviderProvider: React.FC<{
 
   useEffect(() => {
     const initializeProvider = async () => {
-      const storedData = localStorage.getItem('turnkeyProviderData');
+      const storedData = localStorage.getItem("turnkeyProviderData");
       if (storedData) {
         const { walletId, organizationId } = JSON.parse(storedData);
         const stamper = new WebauthnStamper({
-          rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RPID ?? '',
+          rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RPID ?? "",
         });
         const client = new TurnkeyClient(
-          { baseUrl: process.env.NEXT_PUBLIC_BASE_URL ?? '' },
+          { baseUrl: process.env.NEXT_PUBLIC_BASE_URL ?? "" },
           stamper
         );
         const chain = {
           chainName: sepolia.name,
           chainId: numberToHex(sepolia.id),
-          rpcUrls: [process.env.NEXT_PUBLIC_RPC_URL ?? ''],
+          rpcUrls: [process.env.NEXT_PUBLIC_RPC_URL ?? ""],
         };
         const provider = await createEIP1193Provider({
           walletId,
@@ -70,7 +70,7 @@ export const useTurnkeyProvider = () => {
   const context = useContext(TurnkeyProviderContext);
   if (!context) {
     throw new Error(
-      'useTurnkeyProvider must be used within a TurnkeyProviderProvider'
+      "useTurnkeyProvider must be used within a TurnkeyProviderProvider"
     );
   }
   return context;

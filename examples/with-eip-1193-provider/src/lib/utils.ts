@@ -1,7 +1,7 @@
-import { TurnkeyClient } from '@turnkey/http';
-import { WebauthnStamper } from '@turnkey/webauthn-stamper';
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { TurnkeyClient } from "@turnkey/http";
+import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -15,10 +15,10 @@ export const generateRandomBuffer = (): ArrayBuffer => {
 
 export const base64UrlEncode = (challenge: ArrayBuffer): string =>
   Buffer.from(challenge)
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
 
 const defaultLengths = {
   prefixLength: 8,
@@ -43,9 +43,9 @@ export const truncate = (
 
 export const getTurnkeyClient = () => {
   return new TurnkeyClient(
-    { baseUrl: process.env.NEXT_PUBLIC_BASE_URL ?? '' },
+    { baseUrl: process.env.NEXT_PUBLIC_BASE_URL ?? "" },
     new WebauthnStamper({
-      rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RPID ?? '',
+      rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RPID ?? "",
     })
   );
 };

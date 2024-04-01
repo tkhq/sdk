@@ -2,7 +2,7 @@
 // The enum only supports one value, "public-key"
 // https://www.w3.org/TR/webauthn-2/#enumdef-publickeycredentialtype
 // @todo - link to code where this is used?
-export const PUBKEY_CRED_TYPE = 'public-key';
+export const PUBKEY_CRED_TYPE = "public-key";
 
 // All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
 // We only support ES256

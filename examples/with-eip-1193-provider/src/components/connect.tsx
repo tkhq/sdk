@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { WebauthnStamper } from '@turnkey/webauthn-stamper';
-import { TurnkeyClient, type TurnkeyApiTypes } from '@turnkey/http';
+import React, { useState, useEffect } from "react";
+import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import { TurnkeyClient, type TurnkeyApiTypes } from "@turnkey/http";
 import {
   createEIP1193Provider,
   TurnkeyEIP1193Provider,
-} from '@turnkey/eip-1193-provider';
-import { UUID } from 'crypto';
-import { Button } from '@/components/ui/button';
-import { numberToHex, Address } from 'viem';
-import { sepolia } from 'viem/chains';
+} from "@turnkey/eip-1193-provider";
+import { UUID } from "crypto";
+import { Button } from "@/components/ui/button";
+import { numberToHex, Address } from "viem";
+import { sepolia } from "viem/chains";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { truncate } from '@/lib/utils';
+} from "@/components/ui/select";
+import { truncate } from "@/lib/utils";
 
 type ConnectProps = {
   organizationId: UUID;
@@ -29,27 +29,27 @@ type ConnectProps = {
   }) => void;
 };
 
-type Step = 'connectWallet' | 'connectAccount' | 'confirm';
+type Step = "connectWallet" | "connectAccount" | "confirm";
 
 export function Connect({ organizationId, onAccountConnected }: ConnectProps) {
   const [turnkeyClient, setTurnkeyClient] = useState<TurnkeyClient | null>(
     null
   );
 
-  const [wallets, setWallets] = useState<TurnkeyApiTypes['v1Wallet'][]>([]);
+  const [wallets, setWallets] = useState<TurnkeyApiTypes["v1Wallet"][]>([]);
   const [selectedWalletId, setSelectedWalletId] = useState<UUID | null>(null);
   const [accounts, setAccounts] = useState<Address[]>([]);
   const [selectedAccount, setSelectedAccount] = useState<Address | null>(null);
   const [turnkeyProvider, setTurnkeyProvider] =
     useState<TurnkeyEIP1193Provider | null>(null);
-  const [step, setStep] = useState<Step>('connectWallet');
+  const [step, setStep] = useState<Step>("connectWallet");
 
   useEffect(() => {
     const initializeClient = async () => {
       const client = new TurnkeyClient(
-        { baseUrl: process.env.NEXT_PUBLIC_BASE_URL ?? '' },
+        { baseUrl: process.env.NEXT_PUBLIC_BASE_URL ?? "" },
         new WebauthnStamper({
-          rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RPID ?? '',
+          rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RPID ?? "",
         })
       );
 
@@ -64,9 +64,9 @@ export function Connect({ organizationId, onAccountConnected }: ConnectProps) {
       try {
         const { wallets } = await turnkeyClient.getWallets({ organizationId });
         setWallets(wallets);
-        setStep('connectAccount');
+        setStep("connectAccount");
       } catch (error) {
-        console.error('Failed to get wallets:', error);
+        console.error("Failed to get wallets:", error);
       }
     }
   };
@@ -75,7 +75,7 @@ export function Connect({ organizationId, onAccountConnected }: ConnectProps) {
     const chain = {
       chainName: sepolia.name,
       chainId: numberToHex(sepolia.id),
-      rpcUrls: [process.env.NEXT_PUBLIC_RPC_URL ?? ''],
+      rpcUrls: [process.env.NEXT_PUBLIC_RPC_URL ?? ""],
     };
 
     const provider = await createEIP1193Provider({
@@ -92,11 +92,11 @@ export function Connect({ organizationId, onAccountConnected }: ConnectProps) {
     if (selectedWalletId) {
       const provider = await initializeProvider(selectedWalletId);
       const accounts = await provider.request({
-        method: 'eth_requestAccounts',
+        method: "eth_requestAccounts",
       });
       setAccounts(accounts);
       setTurnkeyProvider(provider);
-      setStep('confirm');
+      setStep("confirm");
     }
   };
 
@@ -117,15 +117,15 @@ export function Connect({ organizationId, onAccountConnected }: ConnectProps) {
   const stepConfig: Record<Step, { buttonText: string; onClick: () => void }> =
     {
       connectWallet: {
-        buttonText: 'Get Wallets',
+        buttonText: "Get Wallets",
         onClick: fetchWallets,
       },
       connectAccount: {
-        buttonText: 'Connect Account',
+        buttonText: "Connect Account",
         onClick: requestAccounts,
       },
       confirm: {
-        buttonText: 'Confirm',
+        buttonText: "Confirm",
         onClick: handleConfirm,
       },
     };
@@ -141,7 +141,7 @@ export function Connect({ organizationId, onAccountConnected }: ConnectProps) {
             <SelectTrigger className="w-full">
               <SelectValue
                 placeholder={
-                  selectedWalletId ? 'Select an account' : 'Select a wallet'
+                  selectedWalletId ? "Select an account" : "Select a wallet"
                 }
               />
             </SelectTrigger>
@@ -162,7 +162,7 @@ export function Connect({ organizationId, onAccountConnected }: ConnectProps) {
                 <SelectTrigger className="w-full">
                   <SelectValue
                     placeholder={
-                      selectedAccount ? selectedAccount : 'Select an account'
+                      selectedAccount ? selectedAccount : "Select an account"
                     }
                   />
                 </SelectTrigger>

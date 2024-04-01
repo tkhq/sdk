@@ -1,16 +1,16 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { Toaster } from '@/components/ui/sonner';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
-import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeProvider } from "@/components/theme-provider";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Turnkey EIP-1193 Provider App',
+  title: "Turnkey EIP-1193 Provider App",
   description:
-    'Example showcasing how to use the @turnkey/eip-1193-provider package.',
+    "Example showcasing how to use the @turnkey/eip-1193-provider package.",
 };
 
 export default function RootLayout({

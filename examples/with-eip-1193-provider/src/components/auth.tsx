@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { UUID } from 'crypto';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { UUID } from "crypto";
 import {
   TurnkeyEIP1193Provider,
   createEIP1193Provider,
-} from '@turnkey/eip-1193-provider';
-import { signUp } from '@/lib/turnkey';
-import { Email } from '@/lib/types';
-import { getTurnkeyClient } from '@/lib/utils';
-import { sepolia } from 'viem/chains';
-import { numberToHex } from 'viem';
-import { Input } from '@/components/ui/input';
+} from "@turnkey/eip-1193-provider";
+import { signUp } from "@/lib/turnkey";
+import { Email } from "@/lib/types";
+import { getTurnkeyClient } from "@/lib/utils";
+import { sepolia } from "viem/chains";
+import { numberToHex } from "viem";
+import { Input } from "@/components/ui/input";
 
 type AuthProps = {
   onAuth: (params: {
@@ -23,11 +23,11 @@ type AuthProps = {
 
 const { NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_ORGANIZATION_ID } = process.env;
 
-const rpcUrl = NEXT_PUBLIC_RPC_URL ?? '';
-const parentOrgId = NEXT_PUBLIC_ORGANIZATION_ID ?? '';
+const rpcUrl = NEXT_PUBLIC_RPC_URL ?? "";
+const parentOrgId = NEXT_PUBLIC_ORGANIZATION_ID ?? "";
 
 export function Auth({ onAuth }: AuthProps) {
-  const [email, setEmail] = useState<Email | ''>('');
+  const [email, setEmail] = useState<Email | "">("");
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value as Email);
@@ -38,7 +38,7 @@ export function Auth({ onAuth }: AuthProps) {
     console.log({ parentOrgId });
     // Call getWhoami and emit the organizationId
     const { organizationId } = (await turnkeyClient.getWhoami({
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID ?? '',
+      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID ?? "",
     })) as { organizationId: UUID };
     onAuth({ organizationId });
   };
