@@ -254,7 +254,7 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
     const signingSession: SigningSession = {
       publicKey: keyPair.getPublic(true, 'hex'),
       privateKey: keyPair.getPrivate('hex'),
-      expiration: (Date.now() + params.duration)
+      expiration: (Date.now() + (params.duration * 1000))
     }
 
     const response = await this.createApiKeys({
