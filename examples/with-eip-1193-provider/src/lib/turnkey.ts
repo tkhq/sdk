@@ -5,11 +5,11 @@ import {
   type TApiKeyStamperConfig,
 } from "@turnkey/api-key-stamper";
 import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
-import { Attestation, Email, PassKeyRegistrationResult } from "./types";
+import type { Attestation, Email, PassKeyRegistrationResult } from "./types";
 
 import { ETHEREUM_WALLET_DEFAULT_PATH } from "./constants";
-import { UUID } from "crypto";
-import { Address } from "viem";
+import type { UUID } from "crypto";
+import type { Address } from "viem";
 
 const {
   TURNKEY_API_PUBLIC_KEY,
@@ -36,7 +36,7 @@ export const createUserSubOrg = async (
   turnkeyClient: TurnkeyClient,
   {
     email,
-    // if challenge and attestation are provided we are creating a custodial wallet using the users provided authenticator
+    // if challenge and attestation are provided we are creating a non-custodial wallet using the users provided authenticator
     challenge,
     attestation,
   }: {

@@ -181,6 +181,8 @@ describe("Test Turnkey EIP-1193 Provider", () => {
 
       // Attempt to make a request which should fail due to the invalid RPC URL
       await provider.request({ method: "eth_blockNumber" }).catch(() => {});
+
+      expect(onDisconnected).toHaveBeenCalledTimes(1);
     });
 
     it("should not emit connected if already connected", async () => {

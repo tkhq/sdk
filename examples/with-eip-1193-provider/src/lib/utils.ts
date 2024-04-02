@@ -94,3 +94,22 @@ export const registerPassKey = async (
 
   return { challenge: base64UrlEncode(challenge), attestation };
 };
+
+export const estimateFees = async () => {
+  const { createPublicClient, http, numberToHex } = await import("viem");
+  const { mainnet } = await import("viem/chains");
+
+  const publicClient = createPublicClient({
+    chain: mainnet,
+    transport: http(process.env.NEXT_PUBLIC_RPC_URL),
+  });
+
+  const { maxFeePerGas, maxPriorityFeePerGas } =
+    await publicClient.estimateFeesPerGas();
+  return maxFeePerGas && maxPriorityFeePerGas
+    ? {
+        maxFeePerGas: numberToHex(maxFeePerGas * BigInt(2)),
+        maxPriorityFeePerGas: numberToHex(maxPriorityFeePerGas * BigInt(2)),
+      }
+    : {};
+};

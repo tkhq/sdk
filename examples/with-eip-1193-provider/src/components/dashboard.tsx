@@ -34,6 +34,7 @@ import { sepolia } from "viem/chains";
 import { toast } from "sonner";
 import { Icons } from "./ui/icons";
 import { Bell, Dot } from "lucide-react";
+import { estimateFees } from "@/lib/utils";
 // import { ToastAction } from '@/components/ui/toast';
 
 type DashboardProps = {
@@ -95,9 +96,10 @@ export function Dashboard({ provider }: DashboardProps) {
         method: "eth_getTransactionCount",
         params: [selectedAccount, "latest"],
       });
+
+      const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFees();
+
       const gas = numberToHex(21000);
-      const maxFeePerGas = numberToHex(parseGwei("20"));
-      const maxPriorityFeePerGas = numberToHex(parseGwei("2"));
       const transactionType = "0x2";
       const amountInWei = parseEther(sendAmount);
       const transaction = {
