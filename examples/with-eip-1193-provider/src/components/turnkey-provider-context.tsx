@@ -33,16 +33,16 @@ export const TurnkeyProviderProvider: React.FC<{
       if (storedData) {
         const { walletId, organizationId } = JSON.parse(storedData);
         const stamper = new WebauthnStamper({
-          rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RPID ?? "",
+          rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RPID!,
         });
         const client = new TurnkeyClient(
-          { baseUrl: process.env.NEXT_PUBLIC_BASE_URL ?? "" },
+          { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
           stamper
         );
         const chain = {
           chainName: sepolia.name,
           chainId: numberToHex(sepolia.id),
-          rpcUrls: [process.env.NEXT_PUBLIC_RPC_URL ?? ""],
+          rpcUrls: [process.env.NEXT_PUBLIC_RPC_URL!],
         };
         const provider = await createEIP1193Provider({
           walletId,

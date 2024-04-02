@@ -7,12 +7,7 @@ import {
 import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
 import { Attestation, Email, PassKeyRegistrationResult } from "./types";
 
-import { generateRandomBuffer, base64UrlEncode } from "./utils";
-import {
-  ETHEREUM_WALLET_DEFAULT_PATH,
-  PUBKEY_CRED_TYPE,
-  ALG_ES256,
-} from "./constants";
+import { ETHEREUM_WALLET_DEFAULT_PATH } from "./constants";
 import { UUID } from "crypto";
 import { Address } from "viem";
 
@@ -20,51 +15,8 @@ const {
   TURNKEY_API_PUBLIC_KEY,
   TURNKEY_API_PRIVATE_KEY,
   NEXT_PUBLIC_ORGANIZATION_ID,
-  NEXT_PUBLIC_TURNKEY_RPID,
+  NEXT_PUBLIC_BASE_URL,
 } = process.env;
-
-export const registerPassKey = async (
-  email: Email
-): Promise<PassKeyRegistrationResult> => {
-  if (!NEXT_PUBLIC_TURNKEY_RPID) {
-    throw "Error must define NEXT_PUBLIC_TURNKEY_RPID in your .env file";
-  }
-
-  // @todo - Add error handling
-  const { getWebAuthnAttestation } = await import("@turnkey/http");
-  const challenge = generateRandomBuffer();
-  const authenticatorUserId = generateRandomBuffer();
-  const user = email.split("@")[0];
-  // An example of possible options can be found here:
-  // https://www.w3.org/TR/webauthn-2/#sctn-sample-registration
-  const attestation = await getWebAuthnAttestation({
-    publicKey: {
-      rp: {
-        id: NEXT_PUBLIC_TURNKEY_RPID,
-        name: "Tunkey Demo Wallet",
-      },
-      challenge,
-      pubKeyCredParams: [
-        {
-          type: PUBKEY_CRED_TYPE,
-          alg: ALG_ES256,
-        },
-      ],
-      user: {
-        id: authenticatorUserId,
-        name: user,
-        displayName: user,
-      },
-      authenticatorSelection: {
-        requireResidentKey: true,
-        residentKey: "required",
-        userVerification: "preferred",
-      },
-    },
-  });
-
-  return { challenge: base64UrlEncode(challenge), attestation };
-};
 
 export const createAPIKeyStamper = (options?: TApiKeyStamperConfig) => {
   const apiPublicKey = options?.apiPublicKey || TURNKEY_API_PUBLIC_KEY;
@@ -118,7 +70,7 @@ export const createUserSubOrg = async (
           apiKeys: [
             {
               apiKeyName: "turnkey-demo",
-              publicKey: TURNKEY_API_PUBLIC_KEY ?? "",
+              publicKey: TURNKEY_API_PUBLIC_KEY!,
             },
           ],
         };
@@ -150,18 +102,22 @@ export const createUserSubOrg = async (
       },
     },
   }).catch((error) => {
-    console.log({ error, ...error });
+    console.error(error);
   });
 
   return completedActivity?.result.createSubOrganizationResultV4;
 };
 
-export const signUp = async (email: Email) => {
-  const passKeyRegistrationResult = await registerPassKey(email);
-
+export const signUp = async (
+  email: Email,
+  passKeyRegistrationResult: PassKeyRegistrationResult
+) => {
   const client = new TurnkeyClient(
-    { baseUrl: process.env.NEXT_PUBLIC_BASE_URL ?? "" },
-    createAPIKeyStamper()
+    { baseUrl: NEXT_PUBLIC_BASE_URL! },
+    new ApiKeyStamper({
+      apiPublicKey: TURNKEY_API_PUBLIC_KEY!,
+      apiPrivateKey: TURNKEY_API_PRIVATE_KEY!,
+    })
   );
 
   // Create a new user sub org with email
@@ -172,5 +128,6 @@ export const signUp = async (email: Email) => {
   return {
     subOrganizationId: subOrganizationId as UUID,
     walletId: wallet?.walletId as UUID,
+    accounts: wallet?.addresses as Address[],
   };
 };

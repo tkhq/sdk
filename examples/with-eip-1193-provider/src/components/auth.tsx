@@ -9,22 +9,21 @@ import {
 } from "@turnkey/eip-1193-provider";
 import { signUp } from "@/lib/turnkey";
 import { Email } from "@/lib/types";
-import { getTurnkeyClient } from "@/lib/utils";
+import { getTurnkeyClient, registerPassKey } from "@/lib/utils";
 import { sepolia } from "viem/chains";
-import { numberToHex } from "viem";
+import { Address, numberToHex } from "viem";
 import { Input } from "@/components/ui/input";
 
 type AuthProps = {
   onAuth: (params: {
     organizationId?: UUID;
+    accounts?: Address[];
     provider?: TurnkeyEIP1193Provider;
   }) => void;
 };
 
-const { NEXT_PUBLIC_RPC_URL, NEXT_PUBLIC_ORGANIZATION_ID } = process.env;
-
-const rpcUrl = NEXT_PUBLIC_RPC_URL ?? "";
-const parentOrgId = NEXT_PUBLIC_ORGANIZATION_ID ?? "";
+const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL!;
+const parentOrgId = process.env.NEXT_PUBLIC_ORGANIZATION_ID!;
 
 export function Auth({ onAuth }: AuthProps) {
   const [email, setEmail] = useState<Email | "">("");
@@ -35,17 +34,21 @@ export function Auth({ onAuth }: AuthProps) {
 
   const handleLogin = async () => {
     const turnkeyClient = getTurnkeyClient();
-    console.log({ parentOrgId });
     // Call getWhoami and emit the organizationId
     const { organizationId } = (await turnkeyClient.getWhoami({
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID ?? "",
+      organizationId: parentOrgId,
     })) as { organizationId: UUID };
     onAuth({ organizationId });
   };
 
   const handleSignUp = async () => {
     if (email) {
-      const { subOrganizationId, walletId } = await signUp(email);
+      const registerPasskeyResult = await registerPassKey(email);
+
+      const { subOrganizationId, walletId, accounts } = await signUp(
+        email,
+        registerPasskeyResult
+      );
 
       if (walletId && subOrganizationId) {
         const turnkeyClient = getTurnkeyClient();
@@ -61,7 +64,7 @@ export function Auth({ onAuth }: AuthProps) {
           turnkeyClient,
           chains: [chain],
         });
-        onAuth({ provider });
+        onAuth({ provider, accounts, organizationId: subOrganizationId });
       }
     }
   };

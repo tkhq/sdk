@@ -47,9 +47,9 @@ export function Connect({ organizationId, onAccountConnected }: ConnectProps) {
   useEffect(() => {
     const initializeClient = async () => {
       const client = new TurnkeyClient(
-        { baseUrl: process.env.NEXT_PUBLIC_BASE_URL ?? "" },
+        { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
         new WebauthnStamper({
-          rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RPID ?? "",
+          rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RPID!,
         })
       );
 
@@ -75,7 +75,7 @@ export function Connect({ organizationId, onAccountConnected }: ConnectProps) {
     const chain = {
       chainName: sepolia.name,
       chainId: numberToHex(sepolia.id),
-      rpcUrls: [process.env.NEXT_PUBLIC_RPC_URL ?? ""],
+      rpcUrls: [process.env.NEXT_PUBLIC_RPC_URL!],
     };
 
     const provider = await createEIP1193Provider({
