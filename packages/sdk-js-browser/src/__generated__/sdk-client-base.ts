@@ -112,7 +112,7 @@ export class TurnkeySDKClientBase {
   }
 
 
-	getApiKeys = async (input: SdkApiTypes.TGetApiKeysBody): Promise<SdkApiTypes.TGetApiKeysResponse> => {
+	getApiKeys = async (input: SdkApiTypes.TGetApiKeysBody = {}): Promise<SdkApiTypes.TGetApiKeysResponse> => {
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.request("/public/v1/query/get_api_keys", {
       ...input,
@@ -139,7 +139,7 @@ export class TurnkeySDKClientBase {
   }
 
 
-	getOrganization = async (input: SdkApiTypes.TGetOrganizationBody): Promise<SdkApiTypes.TGetOrganizationResponse> => {
+	getOrganization = async (input: SdkApiTypes.TGetOrganizationBody = {}): Promise<SdkApiTypes.TGetOrganizationResponse> => {
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.request("/public/v1/query/get_organization", {
       ...input,
@@ -184,7 +184,7 @@ export class TurnkeySDKClientBase {
   }
 
 
-	getActivities = async (input: SdkApiTypes.TGetActivitiesBody): Promise<SdkApiTypes.TGetActivitiesResponse> => {
+	getActivities = async (input: SdkApiTypes.TGetActivitiesBody = {}): Promise<SdkApiTypes.TGetActivitiesResponse> => {
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.request("/public/v1/query/list_activities", {
       ...input,
@@ -193,7 +193,7 @@ export class TurnkeySDKClientBase {
   }
 
 
-	getPolicies = async (input: SdkApiTypes.TGetPoliciesBody): Promise<SdkApiTypes.TGetPoliciesResponse> => {
+	getPolicies = async (input: SdkApiTypes.TGetPoliciesBody = {}): Promise<SdkApiTypes.TGetPoliciesResponse> => {
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.request("/public/v1/query/list_policies", {
       ...input,
@@ -211,7 +211,7 @@ export class TurnkeySDKClientBase {
   }
 
 
-	getPrivateKeys = async (input: SdkApiTypes.TGetPrivateKeysBody): Promise<SdkApiTypes.TGetPrivateKeysResponse> => {
+	getPrivateKeys = async (input: SdkApiTypes.TGetPrivateKeysBody = {}): Promise<SdkApiTypes.TGetPrivateKeysResponse> => {
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.request("/public/v1/query/list_private_keys", {
       ...input,
@@ -220,7 +220,7 @@ export class TurnkeySDKClientBase {
   }
 
 
-	getSubOrgIds = async (input: SdkApiTypes.TGetSubOrgIdsBody): Promise<SdkApiTypes.TGetSubOrgIdsResponse> => {
+	getSubOrgIds = async (input: SdkApiTypes.TGetSubOrgIdsBody = {}): Promise<SdkApiTypes.TGetSubOrgIdsResponse> => {
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.request("/public/v1/query/list_suborgs", {
       ...input,
@@ -229,7 +229,7 @@ export class TurnkeySDKClientBase {
   }
 
 
-	listUserTags = async (input: SdkApiTypes.TListUserTagsBody): Promise<SdkApiTypes.TListUserTagsResponse> => {
+	listUserTags = async (input: SdkApiTypes.TListUserTagsBody = {}): Promise<SdkApiTypes.TListUserTagsResponse> => {
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.request("/public/v1/query/list_user_tags", {
       ...input,
@@ -238,7 +238,7 @@ export class TurnkeySDKClientBase {
   }
 
 
-	getUsers = async (input: SdkApiTypes.TGetUsersBody): Promise<SdkApiTypes.TGetUsersResponse> => {
+	getUsers = async (input: SdkApiTypes.TGetUsersBody = {}): Promise<SdkApiTypes.TGetUsersResponse> => {
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.request("/public/v1/query/list_users", {
       ...input,
@@ -256,7 +256,7 @@ export class TurnkeySDKClientBase {
   }
 
 
-	getWallets = async (input: SdkApiTypes.TGetWalletsBody): Promise<SdkApiTypes.TGetWalletsResponse> => {
+	getWallets = async (input: SdkApiTypes.TGetWalletsBody = {}): Promise<SdkApiTypes.TGetWalletsResponse> => {
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.request("/public/v1/query/list_wallets", {
       ...input,
@@ -265,7 +265,7 @@ export class TurnkeySDKClientBase {
   }
 
 
-	getWhoami = async (input: SdkApiTypes.TGetWhoamiBody): Promise<SdkApiTypes.TGetWhoamiResponse> => {
+	getWhoami = async (input: SdkApiTypes.TGetWhoamiBody = {}): Promise<SdkApiTypes.TGetWhoamiResponse> => {
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.request("/public/v1/query/whoami", {
       ...input,

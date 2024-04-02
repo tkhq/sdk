@@ -18,6 +18,20 @@ const VERSIONED_ACTIVITY_TYPES = {
   "ACTIVITY_TYPE_SIGN_TRANSACTION": "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
 }
 
+const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
+  "getActivities",
+  "getApiKeys",
+  "getOrganization",
+  "getPolicies",
+  "getPrivateKeys",
+  "getSubOrgIds",
+  "getUsers",
+  "getWallets",
+  "getWhoami",
+  "listPrivateKeys",
+  "listUserTags"
+]
+
 // Helper Functions
 /**
  * @param {Array<string | null>} input
@@ -300,7 +314,7 @@ export class TurnkeySDKClientBase {
 
     if (methodType === "query") {
       codeBuffer.push(
-        `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
+        `\n\t${methodName} = async (input: SdkApiTypes.${inputType}${METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName) ? ' = {}' : ''}): Promise<SdkApiTypes.${responseType}> => {
     return this.request("${endpointPath}", {
       ...input,
       organizationId: input.organizationId ?? this.config.organizationId
