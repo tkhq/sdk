@@ -25,20 +25,23 @@ import { generateRandomBuffer, base64UrlEncode } from "./utils";
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
 
+  passkeySign: TurnkeySDKBrowserClient;
+  local: TurnkeyLocalClient;
+
   constructor(config: TurnkeySDKBrowserConfig) {
     this.config = config;
-  }
 
-  passkeySign = (): TurnkeySDKBrowserClient => {
     const webauthnStamper = new WebauthnStamper({
       rpId: this.config.rpId
     });
 
-    return new TurnkeySDKBrowserClient({
+    this.passkeySign = new TurnkeySDKBrowserClient({
       stamper: webauthnStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.rootOrganizationId
     });
+
+    this.local = new TurnkeyLocalClient();
   }
 
   emailSign = async (iframeContainer: HTMLElement | null | undefined): Promise<TurnkeySDKBrowserClient> => {
@@ -70,10 +73,6 @@ export class TurnkeyBrowserSDK {
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.rootOrganizationId
     })
-  }
-
-  local = (): TurnkeyLocalClient => {
-    return new TurnkeyLocalClient();
   }
 
   serverSign = async<TResponseType> (methodName: string, params: any[]): Promise<TResponseType> => {

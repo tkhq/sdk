@@ -49,6 +49,16 @@ export interface ActivityResponse {
   }
 }
 
+export type queryOverrideParams = {
+  organizationId?: string;
+}
+
+export type commandOverrideParams = {
+  organizationId?: string;
+  timestampMs?: string;
+  type?: string;
+}
+
 export interface TurnkeySDKClientConfig {
   stamper: TStamper;
   apiBaseUrl: string;

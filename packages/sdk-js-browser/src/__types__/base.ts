@@ -66,3 +66,13 @@ export interface TurnkeySDKBrowserConfig {
   rootOrganizationId: string;
   rpId: string;
 }
+
+export type queryOverrideParams = {
+  organizationId?: string;
+}
+
+export type commandOverrideParams = {
+  organizationId?: string;
+  timestampMs?: string;
+  type?: string;
+}

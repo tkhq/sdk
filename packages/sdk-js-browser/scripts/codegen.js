@@ -52,6 +52,10 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
     'import type { operations } from "../__inputs__/public_api.types";'
   )
 
+  imports.push(
+    'import type { queryOverrideParams, commandOverrideParams } from "../__types__/base";'
+  )
+
   for (const endpointPath in swaggerSpec.paths) {
     const methodMap = swaggerSpec.paths[endpointPath];
     const operation = methodMap.post;
@@ -100,9 +104,9 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
 
     let bodyValue = "{}";
     if (["activityDecision", "command"].includes(methodType)) {
-      bodyValue = `operations["${operationId}"]["parameters"]["body"]["body"]["parameters"]`;
+      bodyValue = `operations["${operationId}"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams`;
     } else if (methodType === "query") {
-      bodyValue = `Omit<operations["${operationId}"]["parameters"]["body"]["body"], "organizationId">`;
+      bodyValue = `Omit<operations["${operationId}"]["parameters"]["body"]["body"], "organizationId"> & queryOverrideParams`;
     }
 
     /** @type {TBinding} */
@@ -300,13 +304,11 @@ export class TurnkeySDKClientBase {
 
     if (methodType === "query") {
       codeBuffer.push(
-        `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, overrideParams?: any): Promise<SdkApiTypes.${responseType}> => {
+        `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.request("${endpointPath}", {
-      ...{
-        ...input,
-        organizationId: currentSubOrganization?.organizationId ?? this.config.organizationId
-      }, ...overrideParams
+      ...input,
+      organizationId: input.organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId)
     });
   }`
       );
@@ -314,31 +316,27 @@ export class TurnkeySDKClientBase {
       const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}`;
       const versionedActivityType = VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
       codeBuffer.push(
-      `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, overrideParams?: any): Promise<SdkApiTypes.${responseType}> => {
+      `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
+    const { organizationId, timestampMs, type, ...rest } = input;
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.command("${endpointPath}", {
-      ...{
-        parameters: {...input},
-        organizationId: currentSubOrganization?.organizationId ?? this.config.organizationId,
-        timestampMs: String(Date.now()),
-        type: "${versionedActivityType ?? unversionedActivityType}"
-      },
-      ...overrideParams
+      parameters: rest,
+      organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: type ?? "${versionedActivityType ?? unversionedActivityType}"
     });
   }`
       );
     } else if (methodType === "activityDecision") {
       codeBuffer.push(
-      `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, overrideParams?: any): Promise<SdkApiTypes.${responseType}> => {
+      `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
+    const { organizationId, timestampMs, type, ...rest } = input;
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
-    return this.activityDecision("${endpointPath}",
-      {
-        ...{
-          parameters: {...input},
-          organizationId: currentSubOrganization?.organizationId ?? this.config.organizationId,
-          timestampMs: String(Date.now()),
-          type: "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
-        }, ...overrideParams
+    return this.activityDecision("${endpointPath}", {
+        parameters: rest,
+        organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: type ?? "ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}"
       });
   }`
       );
