@@ -18,7 +18,7 @@ import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
 import elliptic from 'elliptic';
 
-import type { User, SubOrganization, UserSigningSession } from "./models";
+import type { User, SubOrganization, SigningSession } from "./models";
 import { StorageKeys, getStorageValue, removeStorageValue, setStorageValue } from "./storage";
 import { generateRandomBuffer, base64UrlEncode } from "./utils";
 
@@ -62,10 +62,11 @@ export class TurnkeyBrowserSDK {
     });
   }
 
-  sessionSign = (): TurnkeySDKBrowserClient => {
+  sessionSign = async (): Promise<TurnkeySDKBrowserClient> => {
+    const signingSession: SigningSession | undefined = await this.local.getCurrentSigningSession();
     const sessionStamper = new ApiKeyStamper({
-      apiPublicKey: "0380faf5d7da3cfe4e61ad4d631418cf446f1a700a7e0e481ac232125109b22bb9",
-      apiPrivateKey: "584cd7ec333dc2b6f629faadcfbc87c64d8f42d9aae0c91d0114aa41606faba2"
+      apiPublicKey: signingSession!.publicKey,
+      apiPrivateKey: signingSession!.privateKey
     });
 
     return new TurnkeySDKBrowserClient({
@@ -152,15 +153,24 @@ export class TurnkeyLocalClient {
   }
 
   getCurrentSubOrganization = async (): Promise<SubOrganization | undefined> => {
-    return await getStorageValue(StorageKeys.CurrentSubOrganization)
+    return await getStorageValue(StorageKeys.CurrentSubOrganization);
   }
 
   getCurrentUser = async (): Promise<User | undefined> => {
     return await getStorageValue(StorageKeys.CurrentUser);
   }
 
+  getCurrentSigningSession = async (): Promise<SigningSession | undefined> => {
+    return await getStorageValue(StorageKeys.CurrentSigningSession);
+  }
+
   isSigningSessionActive = async (): Promise<boolean> => {
-    return false;
+    const signingSession: SigningSession | undefined = await this.getCurrentSigningSession();
+    if (signingSession && signingSession.expiration > Date.now()) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   logoutUser = async (): Promise<boolean> => {
@@ -241,7 +251,7 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
     const ec = new elliptic.ec("p256");
     const keyPair = ec.genKeyPair();
 
-    const signingSession: UserSigningSession = {
+    const signingSession: SigningSession = {
       publicKey: keyPair.getPublic(true, 'hex'),
       privateKey: keyPair.getPrivate('hex'),
       expiration: (Date.now() + params.duration)
@@ -257,7 +267,7 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
     })
 
     if (response) {
-      setStorageValue(StorageKeys.CurrentUserSigningSession, signingSession);
+      setStorageValue(StorageKeys.CurrentSigningSession, signingSession);
     }
 
     return response;

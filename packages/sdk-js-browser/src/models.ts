@@ -8,7 +8,7 @@ export interface SubOrganization {
   organizationName: string;
 }
 
-export interface UserSigningSession {
+export interface SigningSession {
   publicKey: string;
   privateKey: string;
   expiration: number;
