@@ -44,7 +44,7 @@ export class TurnkeyBrowserSDK {
     this.local = new TurnkeyLocalClient();
   }
 
-  emailSign = async (iframeContainer: HTMLElement | null | undefined): Promise<TurnkeySDKBrowserClient> => {
+  iframeSign = async (iframeContainer: HTMLElement | null | undefined): Promise<TurnkeySDKBrowserClient> => {
     const TurnkeyIframeElementId = "turnkey-auth-iframe-element-id";
 
     const iframeStamper = new IframeStamper({
@@ -222,7 +222,7 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
   }
 
   login = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
-    const whoamiResult = await this.getWhoami({});
+    const whoamiResult = await this.getWhoami();
     const currentUser: User = {
       userId: whoamiResult.userId,
       username: whoamiResult.username

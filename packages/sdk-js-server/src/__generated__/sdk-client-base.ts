@@ -89,7 +89,7 @@ export class TurnkeySDKClientBase {
     // TODO: return data["activity"]["result"];
   }
 
-  
+
 
 
 	getActivity = async (input: SdkApiTypes.TGetActivityBody): Promise<SdkApiTypes.TGetActivityResponse> => {

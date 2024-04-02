@@ -12,9 +12,29 @@ import type { Request, Response, RequestHandler } from "express";
 import type { NextApiRequest, NextApiResponse, NextApiHandler } from "./__types__/base";
 
 const API_PROXY_ALLOWED_METHODS = [
-  "createSubOrganization",
+  "getActivity",
+  "getApiKey",
+  "getApiKeys",
+  "getAuthenticator",
+  "getAuthenticators",
+  "getOrganization",
+  "getPolicy",
+  "getPrivateKey",
+  "getUser",
+  "getWallet",
+  "getActivities",
+  "getPolicies",
+  "listPrivateKeyTags",
+  "getPrivateKeys",
+  "getSubOrgIds",
+  "listUserTags",
+  "getUsers",
   "getWalletAccounts",
-  "getWallets"
+  "getWallets",
+  "getWhoami",
+  "createSubOrganization",
+  "emailAuth",
+  "initUserEmailRecovery"
 ];
 
 export class TurnkeyServerSDK {
