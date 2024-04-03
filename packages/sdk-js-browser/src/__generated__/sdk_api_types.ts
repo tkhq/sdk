@@ -154,6 +154,12 @@ export type TCreateInvitationsInput = { body: TCreateInvitationsBody };
 
 export type TCreateInvitationsBody = operations["PublicApiService_CreateInvitations"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
+export type TCreatePoliciesResponse = operations["PublicApiService_CreatePolicies"]["responses"]["200"]["schema"];
+
+export type TCreatePoliciesInput = { body: TCreatePoliciesBody };
+
+export type TCreatePoliciesBody = operations["PublicApiService_CreatePolicies"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
+
 export type TCreatePolicyResponse = operations["PublicApiService_CreatePolicy"]["responses"]["200"]["schema"];
 
 export type TCreatePolicyInput = { body: TCreatePolicyBody };
@@ -268,6 +274,12 @@ export type TExportWalletAccountInput = { body: TExportWalletAccountBody };
 
 export type TExportWalletAccountBody = operations["PublicApiService_ExportWalletAccount"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
+export type TImportPrivateKeyResponse = operations["PublicApiService_ImportPrivateKey"]["responses"]["200"]["schema"];
+
+export type TImportPrivateKeyInput = { body: TImportPrivateKeyBody };
+
+export type TImportPrivateKeyBody = operations["PublicApiService_ImportPrivateKey"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
+
 export type TImportWalletResponse = operations["PublicApiService_ImportWallet"]["responses"]["200"]["schema"];
 
 export type TImportWalletInput = { body: TImportWalletBody };
@@ -321,6 +333,12 @@ export type TSignRawPayloadResponse = operations["PublicApiService_SignRawPayloa
 export type TSignRawPayloadInput = { body: TSignRawPayloadBody };
 
 export type TSignRawPayloadBody = operations["PublicApiService_SignRawPayload"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
+
+export type TSignRawPayloadsResponse = operations["PublicApiService_SignRawPayloads"]["responses"]["200"]["schema"];
+
+export type TSignRawPayloadsInput = { body: TSignRawPayloadsBody };
+
+export type TSignRawPayloadsBody = operations["PublicApiService_SignRawPayloads"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
 export type TSignTransactionResponse = operations["PublicApiService_SignTransaction"]["responses"]["200"]["schema"];
 

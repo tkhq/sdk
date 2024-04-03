@@ -91,7 +91,7 @@ export class TurnkeySDKClientBase {
     // TODO: return data["activity"]["result"];
   }
 
-
+  
 
 
 	getActivity = async (input: SdkApiTypes.TGetActivityBody): Promise<SdkApiTypes.TGetActivityResponse> => {
@@ -334,6 +334,18 @@ export class TurnkeySDKClientBase {
   }
 
 
+	createPolicies = async (input: SdkApiTypes.TCreatePoliciesBody): Promise<SdkApiTypes.TCreatePoliciesResponse> => {
+    const { organizationId, timestampMs, type, ...rest } = input;
+    const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
+    return this.command("/public/v1/submit/create_policies", {
+      parameters: rest,
+      organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: type ?? "ACTIVITY_TYPE_CREATE_POLICIES"
+    });
+  }
+
+
 	createPolicy = async (input: SdkApiTypes.TCreatePolicyBody): Promise<SdkApiTypes.TCreatePolicyResponse> => {
     const { organizationId, timestampMs, type, ...rest } = input;
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
@@ -562,6 +574,18 @@ export class TurnkeySDKClientBase {
   }
 
 
+	importPrivateKey = async (input: SdkApiTypes.TImportPrivateKeyBody): Promise<SdkApiTypes.TImportPrivateKeyResponse> => {
+    const { organizationId, timestampMs, type, ...rest } = input;
+    const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
+    return this.command("/public/v1/submit/import_private_key", {
+      parameters: rest,
+      organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: type ?? "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"
+    });
+  }
+
+
 	importWallet = async (input: SdkApiTypes.TImportWalletBody): Promise<SdkApiTypes.TImportWalletResponse> => {
     const { organizationId, timestampMs, type, ...rest } = input;
     const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
@@ -666,6 +690,18 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"
+    });
+  }
+
+
+	signRawPayloads = async (input: SdkApiTypes.TSignRawPayloadsBody): Promise<SdkApiTypes.TSignRawPayloadsResponse> => {
+    const { organizationId, timestampMs, type, ...rest } = input;
+    const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
+    return this.command("/public/v1/submit/sign_raw_payloads", {
+      parameters: rest,
+      organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: type ?? "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"
     });
   }
 

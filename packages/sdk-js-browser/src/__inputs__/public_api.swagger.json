@@ -679,7 +679,7 @@
     "/public/v1/query/whoami": {
       "post": {
         "summary": "Who am I?",
-        "description": "Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN users.",
+        "description": "Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users.",
         "operationId": "PublicApiService_GetWhoami",
         "responses": {
           "200": {
@@ -866,6 +866,38 @@
           }
         ],
         "tags": ["Invitations"]
+      }
+    },
+    "/public/v1/submit/create_policies": {
+      "post": {
+        "summary": "Create Policies",
+        "description": "Create new Policies",
+        "operationId": "PublicApiService_CreatePolicies",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreatePoliciesRequest"
+            }
+          }
+        ],
+        "tags": ["Policies"]
       }
     },
     "/public/v1/submit/create_policy": {
@@ -1476,6 +1508,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/submit/import_private_key": {
+      "post": {
+        "summary": "Import Private Key",
+        "description": "Imports a private key",
+        "operationId": "PublicApiService_ImportPrivateKey",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ImportPrivateKeyRequest"
+            }
+          }
+        ],
+        "tags": ["Private Keys"]
+      }
+    },
     "/public/v1/submit/import_wallet": {
       "post": {
         "summary": "Import Wallet",
@@ -1758,6 +1822,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1SignRawPayloadRequest"
+            }
+          }
+        ],
+        "tags": ["Signing"]
+      }
+    },
+    "/public/v1/submit/sign_raw_payloads": {
+      "post": {
+        "summary": "Sign Raw Payloads",
+        "description": "Sign multiple raw payloads with the same signing parameters",
+        "operationId": "PublicApiService_SignRawPayloads",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SignRawPayloadsRequest"
             }
           }
         ],
@@ -2318,7 +2414,10 @@
         "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT",
         "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
         "ACTIVITY_TYPE_IMPORT_WALLET",
-        "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"
+        "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY",
+        "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
+        "ACTIVITY_TYPE_CREATE_POLICIES",
+        "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"
       ]
     },
     "v1AddressFormat": {
@@ -2875,6 +2974,54 @@
         }
       },
       "required": ["organizationId"]
+    },
+    "v1CreatePoliciesIntent": {
+      "type": "object",
+      "properties": {
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1CreatePolicyIntentV3"
+          },
+          "description": "An array of policy intents to be created."
+        }
+      },
+      "required": ["policies"]
+    },
+    "v1CreatePoliciesRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_POLICIES"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreatePoliciesIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreatePoliciesResult": {
+      "type": "object",
+      "properties": {
+        "policyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of unique identifiers for the created policies."
+        }
+      },
+      "required": ["policyIds"]
     },
     "v1CreatePolicyIntent": {
       "type": "object",
@@ -4022,7 +4169,7 @@
         },
         "logoUrl": {
           "type": "string",
-          "description": "A URL pointing to a logo. Note this logo will be resized to fit into 340px x 124px."
+          "description": "A URL pointing to a logo in PNG format. Note this logo will be resized to fit into 340px x 124px."
         },
         "magicLinkTemplate": {
           "type": "string",
@@ -4500,6 +4647,10 @@
         "filterValue": {
           "type": "string",
           "description": "The value of the filter to apply for the specified type. For example, a specific email or name string."
+        },
+        "paginationOptions": {
+          "$ref": "#/definitions/v1Pagination",
+          "description": "Parameters used for cursor-based pagination."
         }
       },
       "required": ["organizationId"]
@@ -4575,6 +4726,10 @@
         "walletId": {
           "type": "string",
           "description": "Unique identifier for a given Wallet."
+        },
+        "paginationOptions": {
+          "$ref": "#/definitions/v1Pagination",
+          "description": "Parameters used for cursor-based pagination."
         }
       },
       "required": ["organizationId", "walletId"]
@@ -4681,6 +4836,80 @@
         "HASH_FUNCTION_KECCAK256",
         "HASH_FUNCTION_NOT_APPLICABLE"
       ]
+    },
+    "v1ImportPrivateKeyIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the User importing a Private Key."
+        },
+        "privateKeyName": {
+          "type": "string",
+          "description": "Human-readable name for a Private Key."
+        },
+        "encryptedBundle": {
+          "type": "string",
+          "description": "Bundle containing a raw private key encrypted to the enclave's target public key."
+        },
+        "curve": {
+          "$ref": "#/definitions/v1Curve",
+          "description": "Cryptographic Curve used to generate a given Private Key."
+        },
+        "addressFormats": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1AddressFormat"
+          },
+          "description": "Cryptocurrency-specific formats for a derived address (e.g., Ethereum)."
+        }
+      },
+      "required": [
+        "userId",
+        "privateKeyName",
+        "encryptedBundle",
+        "curve",
+        "addressFormats"
+      ]
+    },
+    "v1ImportPrivateKeyRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1ImportPrivateKeyIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1ImportPrivateKeyResult": {
+      "type": "object",
+      "properties": {
+        "privateKeyId": {
+          "type": "string",
+          "description": "Unique identifier for a Private Key."
+        },
+        "addresses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/immutableactivityv1Address"
+          },
+          "description": "A list of addresses."
+        }
+      },
+      "required": ["privateKeyId", "addresses"]
     },
     "v1ImportWalletIntent": {
       "type": "object",
@@ -5063,6 +5292,15 @@
         },
         "initImportPrivateKeyIntent": {
           "$ref": "#/definitions/v1InitImportPrivateKeyIntent"
+        },
+        "importPrivateKeyIntent": {
+          "$ref": "#/definitions/v1ImportPrivateKeyIntent"
+        },
+        "createPoliciesIntent": {
+          "$ref": "#/definitions/v1CreatePoliciesIntent"
+        },
+        "signRawPayloadsIntent": {
+          "$ref": "#/definitions/v1SignRawPayloadsIntent"
         }
       },
       "required": ["createOrganizationIntent"]
@@ -5790,6 +6028,15 @@
         },
         "initImportPrivateKeyResult": {
           "$ref": "#/definitions/v1InitImportPrivateKeyResult"
+        },
+        "importPrivateKeyResult": {
+          "$ref": "#/definitions/v1ImportPrivateKeyResult"
+        },
+        "createPoliciesResult": {
+          "$ref": "#/definitions/v1CreatePoliciesResult"
+        },
+        "signRawPayloadsResult": {
+          "$ref": "#/definitions/v1SignRawPayloadsResult"
         }
       }
     },
@@ -6058,6 +6305,64 @@
         }
       },
       "required": ["r", "s", "v"]
+    },
+    "v1SignRawPayloadsIntent": {
+      "type": "object",
+      "properties": {
+        "signWith": {
+          "type": "string",
+          "description": "A Wallet account address, Private Key address, or Private Key identifier."
+        },
+        "payloads": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "An array of raw unsigned payloads to be signed."
+        },
+        "encoding": {
+          "$ref": "#/definitions/v1PayloadEncoding",
+          "description": "Encoding of the `payload` string. Turnkey uses this information to convert `payload` into bytes with the correct decoder (e.g. hex, utf8)."
+        },
+        "hashFunction": {
+          "$ref": "#/definitions/v1HashFunction",
+          "description": "Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032."
+        }
+      },
+      "required": ["signWith", "payloads", "encoding", "hashFunction"]
+    },
+    "v1SignRawPayloadsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1SignRawPayloadsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1SignRawPayloadsResult": {
+      "type": "object",
+      "properties": {
+        "signatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SignRawPayloadResult"
+          }
+        }
+      }
     },
     "v1SignTransactionIntent": {
       "type": "object",
@@ -6704,10 +7009,6 @@
         },
         "updatedAt": {
           "$ref": "#/definitions/externaldatav1Timestamp"
-        },
-        "exported": {
-          "type": "boolean",
-          "description": "True when a given Account is exported, false otherwise."
         }
       },
       "required": [
@@ -6719,8 +7020,7 @@
         "addressFormat",
         "address",
         "createdAt",
-        "updatedAt",
-        "exported"
+        "updatedAt"
       ]
     },
     "v1WalletAccountParams": {
