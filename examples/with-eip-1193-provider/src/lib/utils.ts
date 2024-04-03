@@ -4,6 +4,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { PUBKEY_CRED_TYPE, ALG_ES256 } from "./constants";
 import { Email, PassKeyRegistrationResult } from "./types";
+import type { Chain } from "viem";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -95,12 +96,11 @@ export const registerPassKey = async (
   return { challenge: base64UrlEncode(challenge), attestation };
 };
 
-export const estimateFees = async () => {
+export const estimateFees = async (chain: Chain) => {
   const { createPublicClient, http, numberToHex } = await import("viem");
-  const { mainnet } = await import("viem/chains");
 
   const publicClient = createPublicClient({
-    chain: mainnet,
+    chain,
     transport: http(process.env.NEXT_PUBLIC_RPC_URL),
   });
 

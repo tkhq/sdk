@@ -9,7 +9,6 @@ import {
   getAddress,
   Hex,
   numberToHex,
-  parseGwei,
 } from "viem";
 
 import { TurnkeyEIP1193Provider } from "@turnkey/eip-1193-provider";
@@ -33,9 +32,7 @@ import { Label } from "@/components/ui/label";
 import { sepolia } from "viem/chains";
 import { toast } from "sonner";
 import { Icons } from "./ui/icons";
-import { Bell, Dot } from "lucide-react";
 import { estimateFees } from "@/lib/utils";
-// import { ToastAction } from '@/components/ui/toast';
 
 type DashboardProps = {
   provider: TurnkeyEIP1193Provider;
@@ -97,7 +94,9 @@ export function Dashboard({ provider }: DashboardProps) {
         params: [selectedAccount, "latest"],
       });
 
-      const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFees();
+      const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFees(
+        sepolia
+      );
 
       const gas = numberToHex(21000);
       const transactionType = "0x2";
