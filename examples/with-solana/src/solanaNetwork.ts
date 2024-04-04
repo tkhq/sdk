@@ -3,7 +3,12 @@ import {
   sendAndConfirmRawTransaction,
   PublicKey,
   LAMPORTS_PER_SOL,
+  TransactionConfirmationStrategy,
+  Transaction,
 } from "@solana/web3.js";
+import bs58 from "bs58";
+
+import { print } from "./util";
 
 export function connect(endpoint?: string): Connection {
   if (endpoint === undefined) {
@@ -26,34 +31,39 @@ export async function dropTokens(
   solanaAddress: string
 ) {
   const publicKey = new PublicKey(solanaAddress);
-  console.log(`${publicKey.toBuffer.toString()}`);
+
   console.log(`Dropping 1 SOL into ${solanaAddress}...`);
 
   const airdropSignature = await connection.requestAirdrop(
     publicKey,
     LAMPORTS_PER_SOL
   );
+  const confirmationStrategy = await getConfirmationStrategy(airdropSignature);
 
-  // TODO: this is flagged as deprecated. Replace?
-  await connection.confirmTransaction(airdropSignature);
-  console.log(`Success! ✅`);
-  console.log(
+  await connection.confirmTransaction(confirmationStrategy);
+
+  print(
+    "\nSuccess! ✅",
     `Explorer link: https://explorer.solana.com/address/${solanaAddress}?cluster=devnet`
   );
 }
 
 export async function broadcast(
   connection: Connection,
-  rawTransaction: Buffer
+  signedTransaction: Transaction
 ) {
-  // TODO: this API is deprecated. What's the alternative?
+  const confirmationStrategy = await getConfirmationStrategy(
+    bs58.encode(signedTransaction.signature!)
+  );
   const transactionHash = await sendAndConfirmRawTransaction(
     connection,
-    rawTransaction,
+    signedTransaction.serialize(),
+    confirmationStrategy,
     { commitment: "confirmed" }
   );
-  console.log(
-    `\nTransaction broadcast and confirmed! 🎉 \nhttps://explorer.solana.com/tx/${transactionHash}?cluster=devnet`
+  print(
+    "Transaction broadcast and confirmed! 🎉",
+    `https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`
   );
 }
 
@@ -64,4 +74,20 @@ export async function recentBlockhash(): Promise<string> {
   );
   const blockhash = await connection.getLatestBlockhash();
   return blockhash.blockhash;
+}
+
+export async function getConfirmationStrategy(
+  signature: string
+): Promise<TransactionConfirmationStrategy> {
+  const connection = new Connection(
+    "https://api.devnet.solana.com",
+    "confirmed"
+  );
+  const latestBlockHash = await connection.getLatestBlockhash();
+
+  return {
+    blockhash: latestBlockHash.blockhash,
+    lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+    signature,
+  };
 }

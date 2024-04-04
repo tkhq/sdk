@@ -1,6 +1,6 @@
 import typescript from "@rollup/plugin-typescript";
 import nodeExternals from "rollup-plugin-node-externals";
-import path from 'node:path';
+import path from "node:path";
 
 const getFormatConfig = (format) => {
   const pkgPath = path.join(process.cwd(), "package.json");

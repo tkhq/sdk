@@ -36,20 +36,21 @@ async function main() {
     signWith: process.env.SIGN_WITH!,
   });
 
-  // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
+  // Connect it with a Provider (https://docs.ethers.org/v6/api/providers/)
   const network = "goerli";
-  const provider = new ethers.providers.InfuraProvider(network);
-  const connectedSigner = turnkeySigner.connect(provider);
+  const connectedSigner = turnkeySigner.connect(
+    new ethers.InfuraProvider(network)
+  );
 
-  const chainId = await connectedSigner.getChainId();
+  const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
   const address = await connectedSigner.getAddress();
-  const balance = await connectedSigner.getBalance();
+  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0;
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);
-  print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
+  print("Balance:", `${ethers.formatEther(balance)} Ether`);
 
-  if (balance.isZero()) {
+  if (balance === 0) {
     let warningMessage =
       "The transaction won't be broadcasted because your account balance is zero.\n";
     if (network === "goerli") {
@@ -73,13 +74,13 @@ async function main() {
   const contract = await factory.deploy();
 
   // The address is available immediately, but the contract is NOT deployed yet
-  print("Contract address", contract.address);
+  print("Contract address", await contract.getAddress());
 
-  await contract.deployTransaction.wait();
+  const deploymentTransaction = await contract.deploymentTransaction();
 
   print(
     `Contract has been deployed:`,
-    `https://${network}.etherscan.io/tx/${contract.deployTransaction.hash}`
+    `https://${network}.etherscan.io/tx/${deploymentTransaction?.hash}`
   );
 }
 

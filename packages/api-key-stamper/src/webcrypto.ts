@@ -1,5 +1,6 @@
 /// <reference lib="dom" />
-import { uint8ArrayToHexString, convertTurnkeyApiKeyToJwk } from "./encoding";
+import { convertTurnkeyApiKeyToJwk } from "./utils";
+import { uint8ArrayToHexString } from "@turnkey/encoding";
 
 export const signWithApiKey = async (input: {
   content: string;

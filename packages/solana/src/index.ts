@@ -1,4 +1,8 @@
-import { PublicKey, type Transaction } from "@solana/web3.js";
+import {
+  PublicKey,
+  type Transaction,
+  type VersionedTransaction,
+} from "@solana/web3.js";
 import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
 
 export class TurnkeySigner {
@@ -13,12 +17,28 @@ export class TurnkeySigner {
   /**
    * This function takes a Solana transaction and adds a signature with Turnkey
    *
-   * @param tx Transaction object (native @solana/web3.js type)
+   * @param tx Transaction | VersionedTransaction object (native @solana/web3.js type)
    * @param fromAddress Solana address (base58 encoded)
    */
-  public async addSignature(tx: Transaction, fromAddress: string) {
+  public async addSignature(
+    tx: Transaction | VersionedTransaction,
+    fromAddress: string
+  ) {
     const fromKey = new PublicKey(fromAddress);
-    const messageToSign = tx.serializeMessage();
+
+    let messageToSign: Buffer;
+
+    // @ts-ignore
+    // type narrowing (e.g. tx instanceof Transaction) does not seem to work here when the package gets compiled
+    // and bundled. Instead, we will check for the existence of a property unique to the Transaction class
+    // to determine whether the caller passed a Transaction or a VersionedTransaction
+    if (typeof tx.serializeMessage === "function") {
+      messageToSign = (tx as Transaction).serializeMessage();
+    } else {
+      messageToSign = Buffer.from(
+        (tx as VersionedTransaction).message.serialize()
+      );
+    }
 
     const signRawPayloadResult = await this.signRawPayload(
       messageToSign.toString("hex"),

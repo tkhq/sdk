@@ -1,5 +1,12 @@
 # @turnkey/webauthn-stamper
 
+## 0.5.0
+
+### Minor Changes
+
+- Remove dependency on `noble/hashes` and `Buffer` in favor of a minimal sha256 lib
+- Introduce `@turnkey/encoding` to consolidate utility functions
+
 ## 0.4.3
 
 ### Patch Changes

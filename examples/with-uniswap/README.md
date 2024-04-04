@@ -38,6 +38,7 @@ Now open `.env.local` and add the missing environment variables:
 - `BASE_URL`
 - `ORGANIZATION_ID`
 - `SIGN_WITH` -- a Turnkey wallet account address, private key address, or private key ID. If you leave this blank, we'll create a wallet for you.
+- `PRIVATE_KEY_ID` -- if you leave it blank, we'll create one for you via calling the Turnkey API
 - `INFURA_KEY` (replace it with your own if you don't want to use the community key)
 
 ### 3/ Running the script

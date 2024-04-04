@@ -670,6 +670,52 @@ export const signGetPrivateKeys = (
   });
 
 /**
+ * `POST /public/v1/query/list_suborgs`
+ */
+export type TGetSubOrgIdsResponse =
+  operations["PublicApiService_GetSubOrgIds"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_suborgs`
+ */
+export type TGetSubOrgIdsInput = { body: TGetSubOrgIdsBody };
+
+/**
+ * `POST /public/v1/query/list_suborgs`
+ */
+export type TGetSubOrgIdsBody =
+  operations["PublicApiService_GetSubOrgIds"]["parameters"]["body"]["body"];
+
+/**
+ * Get Suborgs
+ *
+ * Get all suborg IDs associated given a parent org ID and an optional filter.
+ *
+ * `POST /public/v1/query/list_suborgs`
+ */
+export const getSubOrgIds = (input: TGetSubOrgIdsInput) =>
+  request<TGetSubOrgIdsResponse, TGetSubOrgIdsBody, never, never, never>({
+    uri: "/public/v1/query/list_suborgs",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetSubOrgIds` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetSubOrgIds}
+ */
+export const signGetSubOrgIds = (
+  input: TGetSubOrgIdsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TGetSubOrgIdsBody, never, never>({
+    uri: "/public/v1/query/list_suborgs",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_user_tags`
  */
 export type TListUserTagsResponse =
@@ -879,7 +925,7 @@ export type TGetWhoamiBody =
 /**
  * Who am I?
  *
- * Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN users.
+ * Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users.
  *
  * `POST /public/v1/query/whoami`
  */
@@ -1149,6 +1195,52 @@ export const signCreateInvitations = (
 ) =>
   signedRequest<TCreateInvitationsBody, never, never>({
     uri: "/public/v1/submit/create_invitations",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/create_policies`
+ */
+export type TCreatePoliciesResponse =
+  operations["PublicApiService_CreatePolicies"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_policies`
+ */
+export type TCreatePoliciesInput = { body: TCreatePoliciesBody };
+
+/**
+ * `POST /public/v1/submit/create_policies`
+ */
+export type TCreatePoliciesBody =
+  operations["PublicApiService_CreatePolicies"]["parameters"]["body"]["body"];
+
+/**
+ * Create Policies
+ *
+ * Create new Policies
+ *
+ * `POST /public/v1/submit/create_policies`
+ */
+export const createPolicies = (input: TCreatePoliciesInput) =>
+  request<TCreatePoliciesResponse, TCreatePoliciesBody, never, never, never>({
+    uri: "/public/v1/submit/create_policies",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreatePolicies` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreatePolicies}
+ */
+export const signCreatePolicies = (
+  input: TCreatePoliciesInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TCreatePoliciesBody, never, never>({
+    uri: "/public/v1/submit/create_policies",
     body: input.body,
     options,
   });
@@ -1742,6 +1834,150 @@ export const signDeletePolicy = (
   });
 
 /**
+ * `POST /public/v1/submit/delete_private_key_tags`
+ */
+export type TDeletePrivateKeyTagsResponse =
+  operations["PublicApiService_DeletePrivateKeyTags"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_private_key_tags`
+ */
+export type TDeletePrivateKeyTagsInput = { body: TDeletePrivateKeyTagsBody };
+
+/**
+ * `POST /public/v1/submit/delete_private_key_tags`
+ */
+export type TDeletePrivateKeyTagsBody =
+  operations["PublicApiService_DeletePrivateKeyTags"]["parameters"]["body"]["body"];
+
+/**
+ * Delete Private Key Tags
+ *
+ * Delete Private Key Tags within an Organization
+ *
+ * `POST /public/v1/submit/delete_private_key_tags`
+ */
+export const deletePrivateKeyTags = (input: TDeletePrivateKeyTagsInput) =>
+  request<
+    TDeletePrivateKeyTagsResponse,
+    TDeletePrivateKeyTagsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_private_key_tags",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeletePrivateKeyTags` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeletePrivateKeyTags}
+ */
+export const signDeletePrivateKeyTags = (
+  input: TDeletePrivateKeyTagsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TDeletePrivateKeyTagsBody, never, never>({
+    uri: "/public/v1/submit/delete_private_key_tags",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_user_tags`
+ */
+export type TDeleteUserTagsResponse =
+  operations["PublicApiService_DeleteUserTags"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_user_tags`
+ */
+export type TDeleteUserTagsInput = { body: TDeleteUserTagsBody };
+
+/**
+ * `POST /public/v1/submit/delete_user_tags`
+ */
+export type TDeleteUserTagsBody =
+  operations["PublicApiService_DeleteUserTags"]["parameters"]["body"]["body"];
+
+/**
+ * Delete User Tags
+ *
+ * Delete User Tags within an Organization
+ *
+ * `POST /public/v1/submit/delete_user_tags`
+ */
+export const deleteUserTags = (input: TDeleteUserTagsInput) =>
+  request<TDeleteUserTagsResponse, TDeleteUserTagsBody, never, never, never>({
+    uri: "/public/v1/submit/delete_user_tags",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteUserTags` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteUserTags}
+ */
+export const signDeleteUserTags = (
+  input: TDeleteUserTagsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TDeleteUserTagsBody, never, never>({
+    uri: "/public/v1/submit/delete_user_tags",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_users`
+ */
+export type TDeleteUsersResponse =
+  operations["PublicApiService_DeleteUsers"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_users`
+ */
+export type TDeleteUsersInput = { body: TDeleteUsersBody };
+
+/**
+ * `POST /public/v1/submit/delete_users`
+ */
+export type TDeleteUsersBody =
+  operations["PublicApiService_DeleteUsers"]["parameters"]["body"]["body"];
+
+/**
+ * Delete Users
+ *
+ * Delete Users within an Organization
+ *
+ * `POST /public/v1/submit/delete_users`
+ */
+export const deleteUsers = (input: TDeleteUsersInput) =>
+  request<TDeleteUsersResponse, TDeleteUsersBody, never, never, never>({
+    uri: "/public/v1/submit/delete_users",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteUsers` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteUsers}
+ */
+export const signDeleteUsers = (
+  input: TDeleteUsersInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TDeleteUsersBody, never, never>({
+    uri: "/public/v1/submit/delete_users",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/email_auth`
  */
 export type TEmailAuthResponse =
@@ -1759,7 +1995,7 @@ export type TEmailAuthBody =
   operations["PublicApiService_EmailAuth"]["parameters"]["body"]["body"];
 
 /**
- * Email Auth
+ * Perform Email Auth
  *
  * Authenticate a user via Email
  *
@@ -1933,6 +2169,208 @@ export const signExportWalletAccount = (
 ) =>
   signedRequest<TExportWalletAccountBody, never, never>({
     uri: "/public/v1/submit/export_wallet_account",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/import_private_key`
+ */
+export type TImportPrivateKeyResponse =
+  operations["PublicApiService_ImportPrivateKey"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/import_private_key`
+ */
+export type TImportPrivateKeyInput = { body: TImportPrivateKeyBody };
+
+/**
+ * `POST /public/v1/submit/import_private_key`
+ */
+export type TImportPrivateKeyBody =
+  operations["PublicApiService_ImportPrivateKey"]["parameters"]["body"]["body"];
+
+/**
+ * Import Private Key
+ *
+ * Imports a private key
+ *
+ * `POST /public/v1/submit/import_private_key`
+ */
+export const importPrivateKey = (input: TImportPrivateKeyInput) =>
+  request<
+    TImportPrivateKeyResponse,
+    TImportPrivateKeyBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/import_private_key",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ImportPrivateKey` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ImportPrivateKey}
+ */
+export const signImportPrivateKey = (
+  input: TImportPrivateKeyInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TImportPrivateKeyBody, never, never>({
+    uri: "/public/v1/submit/import_private_key",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/import_wallet`
+ */
+export type TImportWalletResponse =
+  operations["PublicApiService_ImportWallet"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/import_wallet`
+ */
+export type TImportWalletInput = { body: TImportWalletBody };
+
+/**
+ * `POST /public/v1/submit/import_wallet`
+ */
+export type TImportWalletBody =
+  operations["PublicApiService_ImportWallet"]["parameters"]["body"]["body"];
+
+/**
+ * Import Wallet
+ *
+ * Imports a wallet
+ *
+ * `POST /public/v1/submit/import_wallet`
+ */
+export const importWallet = (input: TImportWalletInput) =>
+  request<TImportWalletResponse, TImportWalletBody, never, never, never>({
+    uri: "/public/v1/submit/import_wallet",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ImportWallet` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ImportWallet}
+ */
+export const signImportWallet = (
+  input: TImportWalletInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TImportWalletBody, never, never>({
+    uri: "/public/v1/submit/import_wallet",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/init_import_private_key`
+ */
+export type TInitImportPrivateKeyResponse =
+  operations["PublicApiService_InitImportPrivateKey"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/init_import_private_key`
+ */
+export type TInitImportPrivateKeyInput = { body: TInitImportPrivateKeyBody };
+
+/**
+ * `POST /public/v1/submit/init_import_private_key`
+ */
+export type TInitImportPrivateKeyBody =
+  operations["PublicApiService_InitImportPrivateKey"]["parameters"]["body"]["body"];
+
+/**
+ * Init Import Private Key
+ *
+ * Initializes a new private key import
+ *
+ * `POST /public/v1/submit/init_import_private_key`
+ */
+export const initImportPrivateKey = (input: TInitImportPrivateKeyInput) =>
+  request<
+    TInitImportPrivateKeyResponse,
+    TInitImportPrivateKeyBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/init_import_private_key",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `InitImportPrivateKey` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link InitImportPrivateKey}
+ */
+export const signInitImportPrivateKey = (
+  input: TInitImportPrivateKeyInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TInitImportPrivateKeyBody, never, never>({
+    uri: "/public/v1/submit/init_import_private_key",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/init_import_wallet`
+ */
+export type TInitImportWalletResponse =
+  operations["PublicApiService_InitImportWallet"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/init_import_wallet`
+ */
+export type TInitImportWalletInput = { body: TInitImportWalletBody };
+
+/**
+ * `POST /public/v1/submit/init_import_wallet`
+ */
+export type TInitImportWalletBody =
+  operations["PublicApiService_InitImportWallet"]["parameters"]["body"]["body"];
+
+/**
+ * Init Import Wallet
+ *
+ * Initializes a new wallet import
+ *
+ * `POST /public/v1/submit/init_import_wallet`
+ */
+export const initImportWallet = (input: TInitImportWalletInput) =>
+  request<
+    TInitImportWalletResponse,
+    TInitImportWalletBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/init_import_wallet",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `InitImportWallet` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link InitImportWallet}
+ */
+export const signInitImportWallet = (
+  input: TInitImportWalletInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TInitImportWalletBody, never, never>({
+    uri: "/public/v1/submit/init_import_wallet",
     body: input.body,
     options,
   });
@@ -2233,6 +2671,52 @@ export const signSignRawPayload = (
 ) =>
   signedRequest<TSignRawPayloadBody, never, never>({
     uri: "/public/v1/submit/sign_raw_payload",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/sign_raw_payloads`
+ */
+export type TSignRawPayloadsResponse =
+  operations["PublicApiService_SignRawPayloads"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/sign_raw_payloads`
+ */
+export type TSignRawPayloadsInput = { body: TSignRawPayloadsBody };
+
+/**
+ * `POST /public/v1/submit/sign_raw_payloads`
+ */
+export type TSignRawPayloadsBody =
+  operations["PublicApiService_SignRawPayloads"]["parameters"]["body"]["body"];
+
+/**
+ * Sign Raw Payloads
+ *
+ * Sign multiple raw payloads with the same signing parameters
+ *
+ * `POST /public/v1/submit/sign_raw_payloads`
+ */
+export const signRawPayloads = (input: TSignRawPayloadsInput) =>
+  request<TSignRawPayloadsResponse, TSignRawPayloadsBody, never, never, never>({
+    uri: "/public/v1/submit/sign_raw_payloads",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `SignRawPayloads` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link SignRawPayloads}
+ */
+export const signSignRawPayloads = (
+  input: TSignRawPayloadsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TSignRawPayloadsBody, never, never>({
+    uri: "/public/v1/submit/sign_raw_payloads",
     body: input.body,
     options,
   });

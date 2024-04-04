@@ -1,5 +1,45 @@
 # @turnkey/http
 
+## 2.10.0
+
+### Minor Changes
+
+- 7a9ce7a: Sync 2024.3.16
+
+## 2.9.1
+
+### Patch Changes
+
+- Update generated files to latest release: optional pagination options were added to list sub-organization and list wallet account endpoints.
+
+## 2.9.0
+
+### Minor Changes
+
+- 83b62b5: Sync types for latest release
+
+## 2.8.0
+
+### Minor Changes
+
+- 46a7d90: Update to v2024.2.1 API: add activities to initialize wallet import, import wallet, delete users, delete private key tags, delete user tags, and list sub-organizations
+
+## 2.7.1
+
+### Patch Changes
+
+- Update to v2024.2.0 API types: `mnemonicLength` is now a number instead of a string
+
+## 2.7.0
+
+### Minor Changes
+
+- Introduce and reference `@turnkey/encoding` to consolidate utility functions
+- Updated dependencies ([c3b423b], [d73725b])
+  - @turnkey/webauthn-stamper@0.5.0
+  - @turnkey/api-key-stamper@0.4.0
+  - @turnkey/encoding@0.1.0
+
 ## 2.6.2
 
 ### Patch Changes

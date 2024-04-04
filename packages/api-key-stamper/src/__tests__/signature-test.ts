@@ -4,6 +4,7 @@ import { signWithApiKey as signUniversal } from "../index";
 import { assertValidSignature } from "./shared";
 import { signWithApiKey as signNode } from "../nodecrypto";
 import { signWithApiKey as signWeb } from "../webcrypto";
+import { signWithApiKey as signPureJS } from "../purejs";
 
 import { readFixture } from "../__fixtures__/shared";
 import { generateKeyPairWithOpenSsl } from "./shared";
@@ -16,6 +17,7 @@ beforeAll(() => {
 test.each([
   { impl: signNode, name: "sign (node crypto)" },
   { impl: signWeb, name: "sign (WebCrypto)" },
+  { impl: signPureJS, name: "sign (PureJS)" },
   { impl: signUniversal, name: "sign (universal)" },
 ])("sign with Turnkey fixture: $name", async ({ impl: sign }) => {
   const { privateKey, publicKey, pemPublicKey } = await readFixture();

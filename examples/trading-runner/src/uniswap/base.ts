@@ -32,7 +32,7 @@ export async function prepareV3Trade(
   connectedSigner: TurnkeySigner,
   inputToken: Token,
   outputToken: Token,
-  inputAmount: ethers.BigNumber
+  inputAmount: bigint
 ): Promise<TokenTrade> {
   const address = await connectedSigner.getAddress();
 
@@ -42,7 +42,7 @@ export async function prepareV3Trade(
     connectedSigner
   );
 
-  const tokenBalance = await tokenContract.balanceOf(address);
+  const tokenBalance = await tokenContract.balanceOf?.(address);
   if (tokenBalance < inputAmount) {
     throw new Error(
       `Insufficient funds to perform this trade. Have: ${tokenBalance} ${inputToken.symbol}; Need: ${inputAmount} ${inputToken.symbol}.`
@@ -93,8 +93,8 @@ export async function executeTrade(
   connectedSigner: TurnkeySigner,
   trade: TokenTrade,
   inputToken: Token,
-  inputAmount: ethers.BigNumber
-): Promise<ethers.providers.TransactionReceipt> {
+  inputAmount: bigint
+): Promise<ethers.TransactionReceipt | null> {
   const provider = connectedSigner.provider!;
   const address = await connectedSigner.getAddress();
 
@@ -121,11 +121,12 @@ export async function executeTrade(
     to: SWAP_ROUTER_ADDRESS,
     value: methodParameters.value,
     from: address,
-    maxFeePerGas:
-      feeData.maxFeePerGas?.mul(GAS_MULTIPLIER) || DEFAULT_MAX_FEE_PER_GAS,
-    maxPriorityFeePerGas:
-      feeData.maxPriorityFeePerGas?.mul(GAS_MULTIPLIER) ||
-      DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
+    maxFeePerGas: feeData?.maxFeePerGas
+      ? feeData?.maxFeePerGas * GAS_MULTIPLIER
+      : DEFAULT_MAX_FEE_PER_GAS,
+    maxPriorityFeePerGas: feeData?.maxPriorityFeePerGas
+      ? feeData?.maxPriorityFeePerGas * GAS_MULTIPLIER
+      : DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
   };
 
   const swapTx = await connectedSigner.sendTransaction(tx);
@@ -148,7 +149,7 @@ async function getOutputQuote(
   connectedSigner: TurnkeySigner,
   route: Route<Currency, Currency>,
   inputToken: Token,
-  inputAmount: ethers.BigNumber
+  inputAmount: bigint
 ) {
   const provider = connectedSigner.provider!;
 
@@ -170,13 +171,16 @@ async function getOutputQuote(
     data: calldata,
   });
 
-  return ethers.utils.defaultAbiCoder.decode(["uint256"], quoteCallReturnData);
+  return ethers.AbiCoder.defaultAbiCoder().decode(
+    ["uint256"],
+    quoteCallReturnData
+  );
 }
 
 export async function getTokenTransferApproval(
   connectedSigner: TurnkeySigner,
   token: Token,
-  amount: ethers.BigNumber
+  amount: bigint
 ): Promise<boolean> {
   const address = await connectedSigner.getAddress();
   if (!connectedSigner || !address) {
@@ -192,9 +196,9 @@ export async function getTokenTransferApproval(
     );
 
     // Verify that `approve` is an available method on the contract
-    if (!tokenContract.populateTransaction.approve) return false;
+    if (!tokenContract.approve?.populateTransaction) return false;
 
-    const transaction = await tokenContract.populateTransaction.approve(
+    const transaction = await tokenContract.approve?.populateTransaction(
       SWAP_ROUTER_ADDRESS,
       amount.toString() // double check this
     );
