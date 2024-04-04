@@ -36,3 +36,15 @@ export async function createAndSignTransfer(input: {
 
   return transferTransaction;
 }
+
+export async function signTransfers(input: {
+  signer: TurnkeySigner;
+  fromAddress: string;
+  unsignedTxs: Transaction[];
+}): Promise<Transaction[]> {
+  const { signer, fromAddress, unsignedTxs } = input;
+
+  const signedTxs = await signer.signAllTransactions(unsignedTxs, fromAddress);
+
+  return signedTxs as Transaction[];
+}

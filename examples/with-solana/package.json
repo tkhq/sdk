@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "pnpm -w run build-all && tsx src/index.ts",
+    "advanced": "pnpm -w run build-all && tsx src/advanced.ts",
     "faucet": "pnpm -w run build-all && tsx src/faucet.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"

@@ -15,6 +15,37 @@ export class TurnkeySigner {
   }
 
   /**
+   * This function takes an array of Solana transactions and adds a signature with Turnkey to each of them
+   *
+   * @param txs array of Transaction | VersionedTransaction (native @solana/web3.js type)
+   * @param fromAddress Solana address (base58 encoded)
+   */
+  public async signAllTransactions(
+    txs: (Transaction | VersionedTransaction)[],
+    fromAddress: string
+  ): Promise<(Transaction | VersionedTransaction)[]> {
+    const fromKey = new PublicKey(fromAddress);
+
+    let messages = txs.map((tx) => this.getMessageToSign(tx).toString("hex"));
+
+    const signRawPayloadsResult = await this.signRawPayloads(
+      messages,
+      fromAddress
+    );
+
+    const signatures =
+      signRawPayloadsResult.signRawPayloadsResult?.signatures?.map(
+        (sig) => `${sig?.r}${sig?.s}`
+      );
+
+    for (let i in txs) {
+      txs[i]?.addSignature(fromKey, Buffer.from(signatures![i]!, "hex"));
+    }
+
+    return txs;
+  }
+
+  /**
    * This function takes a Solana transaction and adds a signature with Turnkey
    *
    * @param tx Transaction | VersionedTransaction object (native @solana/web3.js type)
@@ -26,19 +57,7 @@ export class TurnkeySigner {
   ) {
     const fromKey = new PublicKey(fromAddress);
 
-    let messageToSign: Buffer;
-
-    // @ts-ignore
-    // type narrowing (e.g. tx instanceof Transaction) does not seem to work here when the package gets compiled
-    // and bundled. Instead, we will check for the existence of a property unique to the Transaction class
-    // to determine whether the caller passed a Transaction or a VersionedTransaction
-    if (typeof tx.serializeMessage === "function") {
-      messageToSign = (tx as Transaction).serializeMessage();
-    } else {
-      messageToSign = Buffer.from(
-        (tx as VersionedTransaction).message.serialize()
-      );
-    }
+    let messageToSign: Buffer = this.getMessageToSign(tx);
 
     const signRawPayloadResult = await this.signRawPayload(
       messageToSign.toString("hex"),
@@ -97,5 +116,52 @@ export class TurnkeySigner {
     }
 
     return result;
+  }
+
+  private async signRawPayloads(payloads: string[], signWith: string) {
+    const response = await this.client.signRawPayloads({
+      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
+      organizationId: this.organizationId,
+      timestampMs: String(Date.now()),
+      parameters: {
+        signWith,
+        payloads,
+        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+        // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
+        // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
+        hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+      },
+    });
+
+    const { id, status, type, result } = response.activity;
+
+    if (status !== "ACTIVITY_STATUS_COMPLETED") {
+      throw new TurnkeyActivityError({
+        message: `Expected COMPLETED status, got ${status}`,
+        activityId: id,
+        activityStatus: status,
+        activityType: type,
+      });
+    }
+
+    return result;
+  }
+
+  private getMessageToSign(tx: Transaction | VersionedTransaction): Buffer {
+    let messageToSign: Buffer;
+
+    // @ts-ignore
+    // type narrowing (e.g. tx instanceof Transaction) does not seem to work here when the package gets compiled
+    // and bundled. Instead, we will check for the existence of a property unique to the Transaction class
+    // to determine whether the caller passed a Transaction or a VersionedTransaction
+    if (typeof tx.serializeMessage === "function") {
+      messageToSign = (tx as Transaction).serializeMessage();
+    } else {
+      messageToSign = Buffer.from(
+        (tx as VersionedTransaction).message.serialize()
+      );
+    }
+
+    return messageToSign;
   }
 }
