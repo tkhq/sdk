@@ -51,7 +51,8 @@ export class TurnkeySDKClientBase {
 
   async command<TBodyType, TResponseType>(
     url: string,
-    body: TBodyType
+    body: TBodyType,
+    resultKey: string
   ): Promise<TResponseType> {
     const POLLING_DURATION = this.config.activityPoller?.duration ?? 1000;
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -61,8 +62,7 @@ export class TurnkeySDKClientBase {
     let activityStatus = initialData["activity"]["status"];
 
     if (activityStatus !== "ACTIVITY_STATUS_PENDING") {
-      return initialData as TResponseType;
-      // TODO: return initialData["activity"]["result"][`${methodName}Result`];
+      return initialData["activity"]["result"][`${resultKey}`] as TResponseType;
     }
 
     const pollStatus = async (): Promise<TResponseType> => {
@@ -74,8 +74,7 @@ export class TurnkeySDKClientBase {
         await delay(POLLING_DURATION);
         return await pollStatus();
       } else {
-        return pollData as TResponseType;
-        // TODO: return pollData["activity"]["result"][`${methodName}Result`];
+        return pollData["activity"]["result"][`${resultKey}`] as TResponseType;
       }
     }
 
@@ -86,9 +85,8 @@ export class TurnkeySDKClientBase {
     url: string,
     body: TBodyType
   ): Promise<TResponseType> {
-    const data: TResponseType = await this.request(url, body);
-    return data;
-    // TODO: return data["activity"]["result"];
+    const data = await this.request(url, body) as ActivityResponse;
+    return data["activity"]["result"] as TResponseType;
   }
 
   
@@ -294,7 +292,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_CREATE_API_KEYS"
-    });
+    }, "createApiKeysResult");
   }
 
 
@@ -306,7 +304,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_CREATE_API_ONLY_USERS"
-    });
+    }, "createApiOnlyUsersResult");
   }
 
 
@@ -318,7 +316,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"
-    });
+    }, "createAuthenticatorsResultV2");
   }
 
 
@@ -330,7 +328,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_CREATE_INVITATIONS"
-    });
+    }, "createInvitationsResult");
   }
 
 
@@ -342,7 +340,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_CREATE_POLICIES"
-    });
+    }, "createPoliciesResult");
   }
 
 
@@ -354,7 +352,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_CREATE_POLICY_V3"
-    });
+    }, "createPolicyResultV3");
   }
 
 
@@ -366,7 +364,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"
-    });
+    }, "createPrivateKeyTagResult");
   }
 
 
@@ -378,7 +376,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"
-    });
+    }, "createPrivateKeysResultV2");
   }
 
 
@@ -390,7 +388,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4"
-    });
+    }, "createSubOrganizationResultV4");
   }
 
 
@@ -402,7 +400,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_CREATE_USER_TAG"
-    });
+    }, "createUserTagResult");
   }
 
 
@@ -414,7 +412,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_CREATE_USERS_V2"
-    });
+    }, "createUsersResultV2");
   }
 
 
@@ -426,7 +424,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_CREATE_WALLET"
-    });
+    }, "createWalletResult");
   }
 
 
@@ -438,7 +436,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"
-    });
+    }, "createWalletAccountsResult");
   }
 
 
@@ -450,7 +448,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_DELETE_API_KEYS"
-    });
+    }, "deleteApiKeysResult");
   }
 
 
@@ -462,7 +460,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_DELETE_AUTHENTICATORS"
-    });
+    }, "deleteAuthenticatorsResult");
   }
 
 
@@ -474,7 +472,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_DELETE_INVITATION"
-    });
+    }, "deleteInvitationResult");
   }
 
 
@@ -486,7 +484,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_DELETE_POLICY"
-    });
+    }, "deletePolicyResult");
   }
 
 
@@ -498,7 +496,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"
-    });
+    }, "deletePrivateKeyTagsResult");
   }
 
 
@@ -510,7 +508,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_DELETE_USER_TAGS"
-    });
+    }, "deleteUserTagsResult");
   }
 
 
@@ -522,7 +520,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_DELETE_USERS"
-    });
+    }, "deleteUsersResult");
   }
 
 
@@ -534,7 +532,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_EMAIL_AUTH"
-    });
+    }, "emailAuthResult");
   }
 
 
@@ -546,7 +544,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"
-    });
+    }, "exportPrivateKeyResult");
   }
 
 
@@ -558,7 +556,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_EXPORT_WALLET"
-    });
+    }, "exportWalletResult");
   }
 
 
@@ -570,7 +568,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"
-    });
+    }, "exportWalletAccountResult");
   }
 
 
@@ -582,7 +580,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"
-    });
+    }, "importPrivateKeyResult");
   }
 
 
@@ -594,7 +592,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_IMPORT_WALLET"
-    });
+    }, "importWalletResult");
   }
 
 
@@ -606,7 +604,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"
-    });
+    }, "initImportPrivateKeyResult");
   }
 
 
@@ -618,7 +616,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_INIT_IMPORT_WALLET"
-    });
+    }, "initImportWalletResult");
   }
 
 
@@ -630,7 +628,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY"
-    });
+    }, "initUserEmailRecoveryResult");
   }
 
 
@@ -642,7 +640,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_RECOVER_USER"
-    });
+    }, "recoverUserResult");
   }
 
 
@@ -666,7 +664,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"
-    });
+    }, "removeOrganizationFeatureResult");
   }
 
 
@@ -678,7 +676,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"
-    });
+    }, "setOrganizationFeatureResult");
   }
 
 
@@ -690,7 +688,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"
-    });
+    }, "signRawPayloadResultV2");
   }
 
 
@@ -702,7 +700,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"
-    });
+    }, "signRawPayloadsResult");
   }
 
 
@@ -714,7 +712,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_SIGN_TRANSACTION_V2"
-    });
+    }, "signTransactionResultV2");
   }
 
 
@@ -726,7 +724,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_UPDATE_POLICY"
-    });
+    }, "updatePolicyResult");
   }
 
 
@@ -738,7 +736,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"
-    });
+    }, "updatePrivateKeyTagResult");
   }
 
 
@@ -750,7 +748,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
-    });
+    }, "updateRootQuorumResult");
   }
 
 
@@ -762,7 +760,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_UPDATE_USER"
-    });
+    }, "updateUserResult");
   }
 
 
@@ -774,7 +772,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "ACTIVITY_TYPE_UPDATE_USER_TAG"
-    });
+    }, "updateUserTagResult");
   }
 
 }

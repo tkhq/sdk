@@ -46,6 +46,7 @@ export interface ActivityResponse {
   activity: {
     id: string;
     status: string;
+    result: Record<string, any>;
   }
 }
 

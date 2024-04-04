@@ -91,22 +91,13 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
     const signedRequestGeneratorName = `sign${methodName}`;
     const parameterList = operation["parameters"] ?? [];
 
-    // let responseValue = "void";
-    // if (methodType === "command") {
-    //   responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${methodName}Result"]`;
-    // } else if (["noop", "query"].includes(methodType)) {
-    //   responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
-    // } else if (methodType === "activityDecision") {
-    //   responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]`;
-    // }
-
     let responseValue = "void";
     if (methodType === "command") {
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${methodName}Result"]`;
     } else if (["noop", "query"].includes(methodType)) {
       responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
     } else if (methodType === "activityDecision") {
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]`;
     }
 
     /** @type {TBinding} */
@@ -249,7 +240,8 @@ export class TurnkeySDKClientBase {
 
   async command<TBodyType, TResponseType>(
     url: string,
-    body: TBodyType
+    body: TBodyType,
+    resultKey: string
   ): Promise<TResponseType> {
     const POLLING_DURATION = this.config.activityPoller?.duration ?? 1000;
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -259,8 +251,7 @@ export class TurnkeySDKClientBase {
     let activityStatus = initialData["activity"]["status"];
 
     if (activityStatus !== "ACTIVITY_STATUS_PENDING") {
-      return initialData as TResponseType;
-      // TODO: return initialData["activity"]["result"][\`\${methodName}Result\`];
+      return initialData["activity"]["result"][\`\${resultKey}\`] as TResponseType;
     }
 
     const pollStatus = async (): Promise<TResponseType> => {
@@ -272,8 +263,7 @@ export class TurnkeySDKClientBase {
         await delay(POLLING_DURATION);
         return await pollStatus();
       } else {
-        return pollData as TResponseType;
-        // TODO: return pollData["activity"]["result"][\`\${methodName}Result\`];
+        return pollData["activity"]["result"][\`\${resultKey}\`] as TResponseType;
       }
     }
 
@@ -284,9 +274,8 @@ export class TurnkeySDKClientBase {
     url: string,
     body: TBodyType
   ): Promise<TResponseType> {
-    const data: TResponseType = await this.request(url, body);
-    return data;
-    // TODO: return data["activity"]["result"];
+    const data = await this.request(url, body) as ActivityResponse;
+    return data["activity"]["result"] as TResponseType;
   }
 
   `);
@@ -329,6 +318,7 @@ export class TurnkeySDKClientBase {
     } else if (methodType === "command") {
       const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}`;
       const versionedActivityType = VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
+      const versionSuffix = versionedActivityType ? versionedActivityType.match(/_(V\d+)$/) : "";
       codeBuffer.push(
       `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, type, ...rest } = input;
@@ -338,7 +328,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: type ?? "${versionedActivityType ?? unversionedActivityType}"
-    });
+    }, "${methodName}Result${versionSuffix ? versionSuffix[1] : ""}");
   }`
       );
     } else if (methodType === "activityDecision") {
