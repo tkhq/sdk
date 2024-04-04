@@ -92,5 +92,5 @@ See [`createNewEthereumPrivateKey.ts`](/examples/with-ethers/src/createNewEthere
 
 ## See also
 
-- [`@turnkey/ethers`](https://www.npmjs.com/package/@turnkey/ethers): Turnkey Signer for [`Ethers`](https://docs.ethers.org/v5/api/signer/)
+- [`@turnkey/ethers`](https://www.npmjs.com/package/@turnkey/ethers): Turnkey Signer for [`Ethers`](https://docs.ethers.org/v6/api/providers/#Signer)
 - [`@turnkey/viem`](https://www.npmjs.com/package/@turnkey/viem): Turnkey Custom Account for [`Viem`](https://viem.sh/docs/accounts/custom.html)

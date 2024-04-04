@@ -11,8 +11,8 @@ interface PoolInfo {
   token1: string;
   fee: number;
   tickSpacing: number;
-  sqrtPriceX96: ethers.BigNumber;
-  liquidity: ethers.BigNumber;
+  sqrtPriceX96: bigint;
+  liquidity: bigint;
   tick: number;
 }
 
@@ -34,12 +34,12 @@ export async function getV3PoolInfo(): Promise<PoolInfo> {
 
   const [token0, token1, fee, tickSpacing, liquidity, slot0] =
     await Promise.all([
-      poolContract.token0(),
-      poolContract.token1(),
-      poolContract.fee(),
-      poolContract.tickSpacing(),
-      poolContract.liquidity(),
-      poolContract.slot0(),
+      poolContract.token0?.(),
+      poolContract.token1?.(),
+      poolContract.fee?.(),
+      poolContract.tickSpacing?.(),
+      poolContract.liquidity?.(),
+      poolContract.slot0?.(),
     ]);
 
   return {

@@ -3,6 +3,8 @@
   "buildCommand": "csb:build",
   "packages": [
     "packages/cosmjs",
+    "packages/eip-1193-provider",
+    "packages/encoding",
     "packages/ethers",
     "packages/http",
     "packages/sdk-js",
@@ -10,7 +12,8 @@
     "packages/viem",
     "packages/webauthn-stamper",
     "packages/api-key-stamper",
-    "packages/iframe-stamper"
+    "packages/iframe-stamper",
+    "packages/react-native-passkey-stamper"
   ],
   "sandboxes": [],
   "node": "18"

@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { ethers } from "ethers";
+import { FeeData, ethers } from "ethers";
 import prompts from "prompts";
 import { isKeyOfObject, fromReadableAmount } from "./utils";
 import {
@@ -278,7 +278,7 @@ async function wrapUnwrapImpl(baseAsset: string, baseAmount: string) {
     tradingPrivateKey!.privateKeyId
   );
 
-  const feeData = await connectedSigner.getFeeData();
+  const feeData = await connectedSigner.provider?.getFeeData();
   const metadata = ASSET_METADATA["WETH"];
   const tokenContract = new ethers.Contract(
     metadata!.token.address,
@@ -352,7 +352,7 @@ async function tradeImpl(
       "For Uniswap v2/v3 trades, native ETH must first be converted to WETH.\n"
     );
 
-    const feeData = await connectedSigner.getFeeData();
+    const feeData = await connectedSigner.provider?.getFeeData();
     const metadata = ASSET_METADATA["WETH"];
     const tokenContract = new ethers.Contract(
       metadata!.token.address,
@@ -398,7 +398,7 @@ async function tradeImpl(
     connectedSigner
   );
 
-  const tokenBalance = await tokenContract.balanceOf(
+  const tokenBalance = await tokenContract.balanceOf?.(
     tradingPrivateKey?.addresses[0]?.address
   );
 
@@ -451,7 +451,7 @@ async function tradeImpl(
   if (quoteAsset === "ETH") {
     console.log("Unwrapping WETH...\n");
 
-    const feeData = await connectedSigner.getFeeData();
+    const feeData = await connectedSigner.provider?.getFeeData();
     const metadata = ASSET_METADATA["WETH"];
     const tokenContract = new ethers.Contract(
       metadata!.token.address,
@@ -541,23 +541,35 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
     provider,
     tradingPrivateKey.privateKeyId
   );
-  const feeData = await connectedSigner.getFeeData();
 
-  feeData.maxFeePerGas = feeData.maxFeePerGas!.mul(GAS_MULTIPLIER);
-  feeData.maxPriorityFeePerGas =
-    feeData.maxPriorityFeePerGas!.mul(GAS_MULTIPLIER);
+  const originalFeeData = await connectedSigner.provider?.getFeeData();
+  const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas
+    ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER
+    : 0n;
+  const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas
+    ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER
+    : 0n;
+
+  const feeData = new FeeData(
+    originalFeeData?.gasPrice,
+    updatedMaxFeePerGas,
+    updatedMaxPriorityFeePerGas
+  );
 
   if (asset === "ETH") {
-    const balance = await connectedSigner.getBalance();
+    const address = await connectedSigner.getAddress();
+    const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
     const sweepAmount = fromReadableAmount(parseFloat(amount), 18) || balance;
-    const gasRequired = feeData
-      .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
-      .mul(NATIVE_TRANSFER_GAS_LIMIT);
+    const gasRequired =
+      feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas
+        ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) *
+          NATIVE_TRANSFER_GAS_LIMIT
+        : 0n;
 
-    const finalAmount = sweepAmount.sub(gasRequired.mul(2)); // be relatively conservative with sweep amount to prevent overdraft
+    const finalAmount = sweepAmount - gasRequired * 2n; // be relatively conservative with sweep amount to prevent overdraft
 
     // make balance check to confirm we can make the trade
-    if (finalAmount.lte(0)) {
+    if (finalAmount <= 0n) {
       throw new Error(`Insufficient funds to sweep ${sweepAmount} ETH.`);
     }
 
@@ -576,7 +588,7 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
       process.exit();
     }
 
-    await sendEth(provider, connectedSigner, destination, finalAmount, feeData);
+    await sendEth(connectedSigner, destination, finalAmount, feeData);
   } else {
     const metadata = ASSET_METADATA[asset];
     const tokenContract = new ethers.Contract(
@@ -584,7 +596,7 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
       metadata!.abi,
       connectedSigner
     );
-    const tokenBalance = await tokenContract.balanceOf(
+    const tokenBalance = await tokenContract.balanceOf?.(
       tradingPrivateKey?.addresses[0]?.address
     );
     const sweepAmount = amount
@@ -632,7 +644,6 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
     }
 
     await sendToken(
-      provider,
       connectedSigner,
       destination,
       sweepAmount,

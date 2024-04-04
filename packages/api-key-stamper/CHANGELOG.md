@@ -1,5 +1,12 @@
 # @turnkey/api-key-stamper
 
+## 0.4.0
+
+### Minor Changes
+
+- New PureJS implementation for `@turnkey/api-key-stamper`` to support React Native
+- Introduce a dependency on `@turnkey/encoding` to consolidate utility functions
+
 ## 0.3.1
 
 ### Patch Changes

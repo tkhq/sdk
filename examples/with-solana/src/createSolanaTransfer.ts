@@ -1,25 +1,21 @@
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
-import type { TurnkeyClient } from "@turnkey/http";
 import { recentBlockhash } from "./solanaNetwork";
-import { TurnkeySigner } from "@turnkey/solana";
+import type { TurnkeySigner } from "@turnkey/solana";
 
 /**
  * Creates a Solana transfer and signs it with Turnkey.
+ * @param signer
  * @param fromAddress
  * @param toAddress
  * @param amount amount to send in LAMPORTS (one SOL = 1000000000 LAMPS)
- * @param TurnkeyOrganizationId
- * @param TurnkeyPrivateKeyId
  */
 export async function createAndSignTransfer(input: {
-  client: TurnkeyClient;
+  signer: TurnkeySigner;
   fromAddress: string;
   toAddress: string;
   amount: number;
-  turnkeyOrganizationId: string;
-}): Promise<Buffer> {
-  const { client, fromAddress, toAddress, amount, turnkeyOrganizationId } =
-    input;
+}): Promise<Transaction> {
+  const { signer, fromAddress, toAddress, amount } = input;
   const fromKey = new PublicKey(fromAddress);
   const toKey = new PublicKey(toAddress);
 
@@ -36,10 +32,7 @@ export async function createAndSignTransfer(input: {
   // Set the signer
   transferTransaction.feePayer = fromKey;
 
-  const signer = new TurnkeySigner({
-    organizationId: turnkeyOrganizationId,
-    client,
-  });
   await signer.addSignature(transferTransaction, fromAddress);
-  return transferTransaction.serialize();
+
+  return transferTransaction;
 }

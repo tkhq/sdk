@@ -61,28 +61,29 @@ You should see output similar to the following:
 creating a new Solana wallet in your Turnkey organization...
 
 New Solana wallet created!
-- Name: Solana Wallet 9dab
-- Wallet ID: 28da5d1a-4d8d-57db-926a-ca36e1c31f63
-- Solana address: ARWHYAx8aiNrMkNfCMJxA7FpBBxRdrRbi7Biuzcssxjs
+- Name: Solana Wallet 6527
+- Wallet ID: 7f0f7d49-22e3-5b34-8192-db3df83a0759
+- Solana address: G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp
 
-Your new Solana address: "ARWHYAx8aiNrMkNfCMJxA7FpBBxRdrRbi7Biuzcssxjs"
+Your new Solana address: "G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp"
 
 💸 Your onchain balance is at 0! To continue this demo you'll need devnet funds! You can use:
 - The faucet in this example: `pnpm run faucet`
-- The official Solana CLI: `solana airdrop 1 ARWHYAx8aiNrMkNfCMJxA7FpBBxRdrRbi7Biuzcssxjs`
+- The official Solana CLI: `solana airdrop 1 G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp`
 - Any online faucet (e.g. https://faucet.triangleplatform.com/solana/devnet)
 
-To check your balance: https://explorer.solana.com/address/ARWHYAx8aiNrMkNfCMJxA7FpBBxRdrRbi7Biuzcssxjs?cluster=devnet
+To check your balance: https://explorer.solana.com/address/G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp?cluster=devnet
 
 --------
-? Do you have devnet funds in ARWHYAx8aiNrMkNfCMJxA7FpBBxRdrRbi7Biuzcssxjs? (Y/n)Y
+Using existing Solana address from ENV: "G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp"
+? Destination address: tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C
+? Amount (in Lamports) to send to tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C: 100
 
-? Amount (in Lamports) to send to tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C: 6000000
-New signature: dac3995b81a464fdcd5f914f0264695380562f432387e8240422f6e591b4cf5465c12390042889f8d4890242d289b98fd9a29f808cdee11a745c27c497b2fe0d
-(base58: 5NgSjswvnt44URmD5wPqw7yejueo94Ji7DTdPys5BvBwPxftWZGypYtqVbYjT9PtL3gg8ay3WARNwq87kTWzvupY)
+Turnkey-powered signature:
+        4W4X5wVzpPhCHQ8LeR18icfUYs7FdHQ6uTfkQ7E6jciuv9NQ6pZnyYj2veaeZoD5co3nz1gzBdZ2v6c4LXLjiTBm
 
 Transaction broadcast and confirmed! 🎉
-https://explorer.solana.com/tx/5NgSjswvnt44URmD5wPqw7yejueo94Ji7DTdPys5BvBwPxftWZGypYtqVbYjT9PtL3gg8ay3WARNwq87kTWzvupY?cluster=devnet
+        https://explorer.solana.com/tx/3Wr1vmSwqf7jPJXzgqA3fGfELdTfiR8v86sRiTJxNYT4KYEcadQjceFsN8BoHQZqb6mnuqsJsgHdk6i8Sj8YtmVr?cluster=devnet
 ```
 
 Enjoy!
