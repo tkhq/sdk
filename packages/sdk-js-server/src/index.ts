@@ -25,6 +25,8 @@ import type {
 
 import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
 
+import { fetch } from "./universal";
+
 // Classes
 export {
   ApiKeyStamper,
@@ -47,6 +49,7 @@ export type {
 
 // Functions
 export {
+  fetch,
   createActivityPoller,
   getWebAuthnAttestation,
   sealAndStampRequestBody,
