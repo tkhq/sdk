@@ -1,10 +1,4 @@
 import {
-  ApiKeyStamper,
-  signWithApiKey,
-  TApiKeyStamperConfig,
-} from "@turnkey/api-key-stamper";
-
-import {
   createActivityPoller,
   getWebAuthnAttestation,
   sealAndStampRequestBody,
@@ -14,6 +8,13 @@ import {
   TurnkeyApiTypes,
   TurnkeyRequestError,
 } from "@turnkey/http";
+
+import {
+  ApiKeyStamper,
+  signWithApiKey,
+  TApiKeyStamperConfig,
+} from "@turnkey/api-key-stamper";
+
 
 import {
   IframeEventType,

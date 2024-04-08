@@ -296,7 +296,7 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
     const response = await this.createApiKeys({
       apiKeys: [
         {
-          apiKeyName: "Short-lived Signing Session Key",
+          apiKeyName: `Short-lived Signing Session Key ${Date.now()}`,
           publicKey: signingSession.publicKey,
           expirationSeconds: `${params.duration}`,
         },
