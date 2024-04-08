@@ -74,5 +74,5 @@ export {
 // Enums
 export { IframeEventType };
 
-// ???
+// Base Turnkey API
 export { TurnkeyApi };

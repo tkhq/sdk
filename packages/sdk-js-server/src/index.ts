@@ -53,5 +53,5 @@ export {
   signWithApiKey,
 };
 
-// ???
+// Base Turnkey API
 export { TurnkeyApi };

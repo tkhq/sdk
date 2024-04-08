@@ -26,6 +26,7 @@ import {
   setStorageValue,
 } from "./storage";
 import { generateRandomBuffer, base64UrlEncode } from "./utils";
+import { DEFAULT_ETHEREUM_WALLET_ACCOUNT, DEFAULT_SOLANA_WALLET_ACCOUNT } from "./constants";
 
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
@@ -124,6 +125,7 @@ export class TurnkeyBrowserSDK {
 }
 
 export class TurnkeyLocalClient {
+  // TODO: define config type
   createUserPasskey = async (config: Record<any, any> = {}) => {
     const challenge = generateRandomBuffer();
     const encodedChallenge = base64UrlEncode(challenge);
@@ -161,6 +163,7 @@ export class TurnkeyLocalClient {
     };
 
     const attestation = await getWebAuthnAttestation(webauthnConfig);
+
     return {
       encodedChallenge: config.publicKey?.challenge
         ? base64UrlEncode(config.publicKey?.challenge)
@@ -186,16 +189,18 @@ export class TurnkeyLocalClient {
   isSigningSessionActive = async (): Promise<boolean> => {
     const signingSession: SigningSession | undefined =
       await this.getCurrentSigningSession();
+
     if (signingSession && signingSession.expiration > Date.now()) {
       return true;
-    } else {
-      return false;
     }
+
+    return false;
   };
 
   logoutUser = async (): Promise<boolean> => {
     await removeStorageValue(StorageKeys.CurrentUser);
     await removeStorageValue(StorageKeys.CurrentSubOrganization);
+
     return true;
   };
 }
@@ -212,30 +217,19 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
     walletName: string;
     accountChain: string;
   }): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
-    if (params.accountChain === "ethereum") {
-      return await this.createWallet({
-        walletName: params.walletName,
-        accounts: [
-          {
-            curve: "CURVE_SECP256K1",
-            pathFormat: "PATH_FORMAT_BIP32",
-            path: "m/44'/60'/0'/0/0",
-            addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-          },
-        ],
-      });
-    } else {
-      return await this.createWallet({
-        walletName: params.walletName,
-        accounts: [
-          {
-            curve: "CURVE_SECP256K1",
-            pathFormat: "PATH_FORMAT_BIP32",
-            path: "m/44'/60'/0'/0/0",
-            addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-          },
-        ],
-      });
+    switch (params.accountChain) {
+      case "solana": {
+        return await this.createWallet({
+          walletName: params.walletName,
+          accounts: [DEFAULT_SOLANA_WALLET_ACCOUNT],
+        });
+      }
+      default: {
+        return await this.createWallet({
+          walletName: params.walletName,
+          accounts: [DEFAULT_ETHEREUM_WALLET_ACCOUNT],
+        });
+      }
     }
   };
 
@@ -252,6 +246,7 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
     const nextPathIndex = Number(lastAccountPathIndex) + 1;
     lastAccountPath[3] = `${nextPathIndex}'`;
     const nextAccountPath = lastAccountPath.join("/");
+
     return await this.createWalletAccounts({
       walletId: params.walletId,
       accounts: [
@@ -275,11 +270,13 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
       organizationId: whoamiResult.organizationId,
       organizationName: whoamiResult.organizationName,
     };
+
     await setStorageValue(StorageKeys.CurrentUser, currentUser);
     await setStorageValue(
       StorageKeys.CurrentSubOrganization,
       currentSubOrganization
     );
+
     return whoamiResult;
   };
 
@@ -299,7 +296,7 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
     const response = await this.createApiKeys({
       apiKeys: [
         {
-          apiKeyName: "Temporary Signing Session Key",
+          apiKeyName: "Short-lived Signing Session Key",
           publicKey: signingSession.publicKey,
           expirationSeconds: `${params.duration}`,
         },

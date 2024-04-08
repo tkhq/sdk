@@ -15,7 +15,7 @@ import type {
   NextApiHandler,
 } from "./__types__/base";
 
-const API_PROXY_ALLOWED_METHODS = [
+const DEFAULT_API_PROXY_ALLOWED_METHODS = [
   "getActivity",
   "getApiKey",
   "getApiKeys",
@@ -74,7 +74,7 @@ export class TurnkeyServerSDK {
   };
 
   expressProxyHandler = (config: TurnkeyProxyHandlerConfig): RequestHandler => {
-    const allowedMethods = config.allowedMethods ?? API_PROXY_ALLOWED_METHODS;
+    const allowedMethods = config.allowedMethods ?? DEFAULT_API_PROXY_ALLOWED_METHODS;
 
     return async (request: Request, response: Response): Promise<void> => {
       const { methodName, params } = request.body;
@@ -102,7 +102,7 @@ export class TurnkeyServerSDK {
   };
 
   nextProxyHandler = (config: TurnkeyProxyHandlerConfig): NextApiHandler => {
-    const allowedMethods = config.allowedMethods ?? API_PROXY_ALLOWED_METHODS;
+    const allowedMethods = config.allowedMethods ?? DEFAULT_API_PROXY_ALLOWED_METHODS;
 
     return async (
       request: NextApiRequest,
