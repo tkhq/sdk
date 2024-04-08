@@ -15,15 +15,12 @@ import {
   TurnkeyRequestError,
 } from "@turnkey/http";
 
-import {
-  TurnkeyServerSDK,
-  TurnkeySDKServerClient
-} from "./sdk-client";
+import { TurnkeyServerSDK, TurnkeySDKServerClient } from "./sdk-client";
 
 import type {
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
-  TurnkeyProxyHandlerConfig
+  TurnkeyProxyHandlerConfig,
 } from "./__types__/base";
 
 import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
@@ -35,7 +32,7 @@ export {
   TurnkeyServerSDK,
   TurnkeySDKServerClient,
   TurnkeyRequestError,
-}
+};
 
 // Types
 export type {
@@ -45,18 +42,16 @@ export type {
   TurnkeySDKApiTypes,
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
-  TurnkeyProxyHandlerConfig
-}
+  TurnkeyProxyHandlerConfig,
+};
 
 // Functions
 export {
   createActivityPoller,
   getWebAuthnAttestation,
   sealAndStampRequestBody,
-  signWithApiKey
-}
+  signWithApiKey,
+};
 
 // ???
-export {
-  TurnkeyApi,
-}
+export { TurnkeyApi };

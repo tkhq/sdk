@@ -7,13 +7,13 @@ export type GrpcStatus = {
 export enum MethodType {
   Get,
   List,
-  Command
+  Command,
 }
 
 export type TStamp = {
   stampHeaderName: string;
   stampHeaderValue: string;
-}
+};
 
 export interface TStamper {
   stamp: (input: string) => Promise<TStamp>;
@@ -21,7 +21,7 @@ export interface TStamper {
 
 export type THttpConfig = {
   baseUrl: string;
-}
+};
 
 export class TurnkeyRequestError extends Error {
   details: any[] | null;
@@ -47,7 +47,7 @@ export interface ActivityResponse {
     id: string;
     status: string;
     result: Record<string, any>;
-  }
+  };
 }
 
 export interface TurnkeySDKClientConfig {
@@ -57,7 +57,7 @@ export interface TurnkeySDKClientConfig {
   activityPoller?: {
     duration: number;
     timeout: number;
-  }
+  };
 }
 
 export interface TurnkeySDKBrowserConfig {
@@ -70,10 +70,10 @@ export interface TurnkeySDKBrowserConfig {
 
 export type queryOverrideParams = {
   organizationId?: string;
-}
+};
 
 export type commandOverrideParams = {
   organizationId?: string;
   timestampMs?: string;
   type?: string;
-}
+};

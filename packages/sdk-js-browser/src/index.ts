@@ -18,23 +18,23 @@ import {
 import {
   IframeEventType,
   IframeStamper,
-  TIframeStamperConfig
+  TIframeStamperConfig,
 } from "@turnkey/iframe-stamper";
 
 import {
   TWebauthnStamperConfig,
-  WebauthnStamper
+  WebauthnStamper,
 } from "@turnkey/webauthn-stamper";
 
 import {
   TurnkeyBrowserSDK,
   TurnkeySDKBrowserClient,
-  TurnkeyLocalClient
+  TurnkeyLocalClient,
 } from "./sdk-client";
 
 import type {
   TurnkeySDKClientConfig,
-  TurnkeySDKBrowserConfig
+  TurnkeySDKBrowserConfig,
 } from "./__types__/base";
 
 import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
@@ -48,8 +48,8 @@ export {
   TurnkeySDKBrowserClient,
   TurnkeyLocalClient,
   TurnkeyRequestError,
-  WebauthnStamper
-}
+  WebauthnStamper,
+};
 
 // Types
 export type {
@@ -60,23 +60,19 @@ export type {
   TurnkeySDKApiTypes,
   TurnkeySDKClientConfig,
   TurnkeySDKBrowserConfig,
-  TWebauthnStamperConfig
-}
+  TWebauthnStamperConfig,
+};
 
 // Functions
 export {
   createActivityPoller,
   getWebAuthnAttestation,
   sealAndStampRequestBody,
-  signWithApiKey
-}
+  signWithApiKey,
+};
 
 // Enums
-export {
-  IframeEventType
-}
+export { IframeEventType };
 
 // ???
-export {
-  TurnkeyApi,
-}
+export { TurnkeyApi };
