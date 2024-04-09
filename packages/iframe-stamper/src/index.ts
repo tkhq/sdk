@@ -191,13 +191,15 @@ export class IframeStamper {
    */
   async injectKeyExportBundle(
     bundle: string,
-    keyFormat?: KeyFormat
+    organizationId: string,
+    keyFormat?: KeyFormat,
   ): Promise<boolean> {
     this.iframe.contentWindow?.postMessage(
       {
         type: IframeEventType.InjectKeyExportBundle,
         value: bundle,
-        keyFormat: keyFormat,
+        keyFormat,
+        organizationId,
       },
       "*"
     );
@@ -229,11 +231,12 @@ export class IframeStamper {
    * Encryption should be performed with HPKE (RFC 9180).
    * This is used during the wallet export flow.
    */
-  async injectWalletExportBundle(bundle: string): Promise<boolean> {
+  async injectWalletExportBundle(bundle: string, organizationId: string): Promise<boolean> {
     this.iframe.contentWindow?.postMessage(
       {
         type: IframeEventType.InjectWalletExportBundle,
         value: bundle,
+        organizationId,
       },
       "*"
     );
@@ -263,11 +266,13 @@ export class IframeStamper {
    * Function to inject an import bundle into the iframe
    * This is used to initiate either the wallet import flow or the private key import flow.
    */
-  async injectImportBundle(bundle: string): Promise<boolean> {
+  async injectImportBundle(bundle: string, organizationId: string, userId: string): Promise<boolean> {
     this.iframe.contentWindow?.postMessage(
       {
         type: IframeEventType.InjectImportBundle,
         value: bundle,
+        organizationId,
+        userId
       },
       "*"
     );
