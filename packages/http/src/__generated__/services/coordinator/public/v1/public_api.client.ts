@@ -70,6 +70,7 @@ import type {
   TGetWalletsBody,
   TGetWalletsResponse,
 } from "./public_api.fetcher";
+import type { TLoginBody, TLoginResponse } from "./public_api.fetcher";
 import type { TGetWhoamiBody, TGetWhoamiResponse } from "./public_api.fetcher";
 import type {
   TApproveActivityBody,
@@ -836,6 +837,33 @@ export class TurnkeyClient {
    */
   stampGetWallets = async (input: TGetWalletsBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_wallets";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Log in to the system and retrieve basic user and organization information.
+   *
+   * Sign the provided `TLoginBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/login).
+   *
+   * See also {@link stampLogin}.
+   */
+  login = async (input: TLoginBody): Promise<TLoginResponse> => {
+    return this.request("/public/v1/query/login", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TLoginBody` by using the client's `stamp` function.
+   *
+   * See also {@link Login}.
+   */
+  stampLogin = async (input: TLoginBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/login";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

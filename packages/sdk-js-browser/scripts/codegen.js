@@ -38,6 +38,7 @@ const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "getUsers",
   "getWallets",
   "getWhoami",
+  "getLoginSession",
   "listPrivateKeys",
   "listUserTags",
 ];

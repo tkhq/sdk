@@ -80,6 +80,10 @@ export type paths = {
     /** List all Wallets within an Organization */
     post: operations["PublicApiService_GetWallets"];
   };
+  "/public/v1/query/login_session": {
+    /** Get login session and retrieve basic user and organization information. */
+    post: operations["PublicApiService_GetLoginSession"];
+  };
   "/public/v1/query/whoami": {
     /** Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users. */
     post: operations["PublicApiService_GetWhoami"];
@@ -1249,6 +1253,20 @@ export type definitions = {
   v1GetAuthenticatorsResponse: {
     /** @description A list of authenticators. */
     authenticators: definitions["v1Authenticator"][];
+  };
+  v1GetLoginSessionRequest: {
+    /** @description Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons. */
+    organizationId: string;
+  };
+  v1GetLoginSessionResponse: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Human-readable name for an Organization. */
+    organizationName: string;
+    /** @description Unique identifier for a given User. */
+    userId: string;
+    /** @description Human-readable name for a User. */
+    username: string;
   };
   v1GetOrganizationRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -2566,6 +2584,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetWalletsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get login session and retrieve basic user and organization information. */
+  PublicApiService_GetLoginSession: {
+    parameters: {
+      body: {
+        body: definitions["v1GetLoginSessionRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetLoginSessionResponse"];
       };
       /** An unexpected error response. */
       default: {

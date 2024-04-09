@@ -906,6 +906,52 @@ export const signGetWallets = (
   });
 
 /**
+ * `POST /public/v1/query/login`
+ */
+export type TLoginResponse =
+  operations["PublicApiService_Login"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/login`
+ */
+export type TLoginInput = { body: TLoginBody };
+
+/**
+ * `POST /public/v1/query/login`
+ */
+export type TLoginBody =
+  operations["PublicApiService_Login"]["parameters"]["body"]["body"];
+
+/**
+ * Login
+ *
+ * Log in to the system and retrieve basic user and organization information.
+ *
+ * `POST /public/v1/query/login`
+ */
+export const login = (input: TLoginInput) =>
+  request<TLoginResponse, TLoginBody, never, never, never>({
+    uri: "/public/v1/query/login",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `Login` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link Login}
+ */
+export const signLogin = (
+  input: TLoginInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TLoginBody, never, never>({
+    uri: "/public/v1/query/login",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/whoami`
  */
 export type TGetWhoamiResponse =

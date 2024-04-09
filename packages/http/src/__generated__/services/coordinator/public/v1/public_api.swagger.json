@@ -676,6 +676,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/query/login": {
+      "post": {
+        "summary": "Login",
+        "description": "Log in to the system and retrieve basic user and organization information.",
+        "operationId": "PublicApiService_Login",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1LoginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1LoginRequest"
+            }
+          }
+        ],
+        "tags": ["Sessions"]
+      }
+    },
     "/public/v1/query/whoami": {
       "post": {
         "summary": "Who am I?",
@@ -5448,6 +5480,38 @@
         }
       },
       "required": ["userTags"]
+    },
+    "v1LoginRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1LoginResponse": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "organizationName": {
+          "type": "string",
+          "description": "Human-readable name for an Organization."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User."
+        },
+        "username": {
+          "type": "string",
+          "description": "Human-readable name for a User."
+        }
+      },
+      "required": ["organizationId", "organizationName", "userId", "username"]
     },
     "v1MnemonicLanguage": {
       "type": "string",
