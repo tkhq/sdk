@@ -26,7 +26,6 @@ export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
 
   passkeySign: TurnkeySDKBrowserClient;
-  local: TurnkeyLocalClient;
 
   constructor(config: TurnkeySDKBrowserConfig) {
     this.config = config;
@@ -40,8 +39,6 @@ export class TurnkeyBrowserSDK {
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.rootOrganizationId
     });
-
-    this.local = new TurnkeyLocalClient();
   }
 
   iframeSign = async (iframeContainer: HTMLElement | null | undefined): Promise<TurnkeySDKBrowserClient> => {
@@ -63,7 +60,7 @@ export class TurnkeyBrowserSDK {
   }
 
   sessionSign = async (): Promise<TurnkeySDKBrowserClient> => {
-    const signingSession: SigningSession | undefined = await this.local.getCurrentSigningSession();
+    const signingSession: SigningSession | undefined = await getStorageValue(StorageKeys.CurrentSigningSession);
     const sessionStamper = new ApiKeyStamper({
       apiPublicKey: signingSession!.publicKey,
       apiPrivateKey: signingSession!.privateKey
@@ -112,8 +109,13 @@ export class TurnkeyBrowserSDK {
   }
 }
 
-export class TurnkeyLocalClient {
+export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
 
+  constructor(config: TurnkeySDKClientConfig) {
+    super(config);
+  }
+
+  // Local
   createUserPasskey = async (config: Record<any, any> = {}) => {
     const challenge = generateRandomBuffer();
     const encodedChallenge = base64UrlEncode(challenge);
@@ -178,16 +180,8 @@ export class TurnkeyLocalClient {
     await removeStorageValue(StorageKeys.CurrentSubOrganization);
     return true;
   }
-}
 
-export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
-  localClient: TurnkeyLocalClient;
-
-  constructor(config: TurnkeySDKClientConfig) {
-    super(config);
-    this.localClient = new TurnkeyLocalClient();
-  }
-
+  // Other
   createWalletWithAccount = async (params: {walletName: string, accountChain: string}): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
     if (params.accountChain === 'ethereum') {
       return await this.createWallet({
@@ -247,7 +241,7 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
   }
 
   createSigningSessionKey = async (params: { duration: number }): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
-    const currentUser = await this.localClient.getCurrentUser();
+    const currentUser = await this.getCurrentUser();
     const ec = new elliptic.ec("p256");
     const keyPair = ec.genKeyPair();
 
