@@ -32,6 +32,11 @@ import {
   TurnkeySDKBrowserClient
 } from "./sdk-client";
 
+import {
+  defaultEthereumAccountAtIndex,
+  DEFAULT_ETHEREUM_ACCOUNTS
+} from "./turnkey-helpers";
+
 import type {
   TurnkeySDKClientConfig,
   TurnkeySDKBrowserConfig,
@@ -65,10 +70,16 @@ export type {
 // Functions
 export {
   createActivityPoller,
+  defaultEthereumAccountAtIndex,
   getWebAuthnAttestation,
   sealAndStampRequestBody,
   signWithApiKey,
 };
+
+// Constants
+export {
+  DEFAULT_ETHEREUM_ACCOUNTS
+}
 
 // Enums
 export { IframeEventType };
