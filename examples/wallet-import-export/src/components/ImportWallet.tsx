@@ -8,7 +8,7 @@ import { IframeStamper } from "@turnkey/iframe-stamper";
 import { Import } from "@/components/Import";
 
 type ImportWalletProps = {
-  organizationId: string,
+  organizationId: string;
   userId: string;
   getWallets: () => void;
 };
@@ -42,7 +42,7 @@ export function ImportWallet(props: ImportWalletProps) {
     const injected = await iframeStamper.injectImportBundle(
       response.data["importBundle"],
       props.organizationId,
-      props.userId,
+      props.userId
     );
     if (injected !== true) {
       alert("Unexpected error while injecting import bundle.");
