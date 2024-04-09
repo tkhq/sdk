@@ -8,6 +8,7 @@ import { IframeStamper } from "@turnkey/iframe-stamper";
 import { Export } from "@/components/Export";
 
 type ExportWalletProps = {
+  organizationId: string,
   walletId: string;
 };
 
@@ -35,7 +36,8 @@ export function ExportWallet(props: ExportWalletProps) {
     });
 
     let injected = await iframeStamper.injectWalletExportBundle(
-      response.data["exportBundle"]
+      response.data["exportBundle"],
+      props.organizationId,
     );
     if (injected !== true) {
       alert("Unexpected error while injecting export bundle.");
