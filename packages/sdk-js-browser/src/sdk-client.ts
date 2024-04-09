@@ -107,13 +107,6 @@ export class TurnkeyBrowserSDK {
     const data = await response.json();
     return data as TResponseType;
   }
-}
-
-export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
-
-  constructor(config: TurnkeySDKClientConfig) {
-    super(config);
-  }
 
   // Local
   createUserPasskey = async (config: Record<any, any> = {}) => {
@@ -181,6 +174,14 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
     return true;
   }
 
+}
+
+export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
+
+  constructor(config: TurnkeySDKClientConfig) {
+    super(config);
+  }
+
   // Other
   createWalletWithAccount = async (params: {walletName: string, accountChain: string}): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
     if (params.accountChain === 'ethereum') {
@@ -241,7 +242,7 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
   }
 
   createSigningSessionKey = async (params: { duration: number }): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
-    const currentUser = await this.getCurrentUser();
+    const currentUser = await getStorageValue(StorageKeys.CurrentUser);
     const ec = new elliptic.ec("p256");
     const keyPair = ec.genKeyPair();
 
