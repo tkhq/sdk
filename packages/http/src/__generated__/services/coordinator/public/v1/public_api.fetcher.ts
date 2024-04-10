@@ -906,47 +906,47 @@ export const signGetWallets = (
   });
 
 /**
- * `POST /public/v1/query/login`
+ * `POST /public/v1/query/login_session`
  */
-export type TLoginResponse =
-  operations["PublicApiService_Login"]["responses"]["200"]["schema"];
+export type TGetLoginSessionResponse =
+  operations["PublicApiService_GetLoginSession"]["responses"]["200"]["schema"];
 
 /**
- * `POST /public/v1/query/login`
+ * `POST /public/v1/query/login_session`
  */
-export type TLoginInput = { body: TLoginBody };
+export type TGetLoginSessionInput = { body: TGetLoginSessionBody };
 
 /**
- * `POST /public/v1/query/login`
+ * `POST /public/v1/query/login_session`
  */
-export type TLoginBody =
-  operations["PublicApiService_Login"]["parameters"]["body"]["body"];
+export type TGetLoginSessionBody =
+  operations["PublicApiService_GetLoginSession"]["parameters"]["body"]["body"];
 
 /**
- * Login
+ * Get Login Session
  *
- * Log in to the system and retrieve basic user and organization information.
+ * Get login session and retrieve basic user and organization information.
  *
- * `POST /public/v1/query/login`
+ * `POST /public/v1/query/login_session`
  */
-export const login = (input: TLoginInput) =>
-  request<TLoginResponse, TLoginBody, never, never, never>({
-    uri: "/public/v1/query/login",
+export const getLoginSession = (input: TGetLoginSessionInput) =>
+  request<TGetLoginSessionResponse, TGetLoginSessionBody, never, never, never>({
+    uri: "/public/v1/query/login_session",
     method: "POST",
     body: input.body,
   });
 
 /**
- * Request a WebAuthn assertion and return a signed `Login` request, ready to be POSTed to Turnkey.
+ * Request a WebAuthn assertion and return a signed `GetLoginSession` request, ready to be POSTed to Turnkey.
  *
- * See {@link Login}
+ * See {@link GetLoginSession}
  */
-export const signLogin = (
-  input: TLoginInput,
+export const signGetLoginSession = (
+  input: TGetLoginSessionInput,
   options?: TurnkeyCredentialRequestOptions
 ) =>
-  signedRequest<TLoginBody, never, never>({
-    uri: "/public/v1/query/login",
+  signedRequest<TGetLoginSessionBody, never, never>({
+    uri: "/public/v1/query/login_session",
     body: input.body,
     options,
   });

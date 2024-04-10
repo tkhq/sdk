@@ -1267,6 +1267,13 @@ export type definitions = {
     userId: string;
     /** @description Human-readable name for a User. */
     username: string;
+    /** @description Session ID and verifier separated by a colon. */
+    session: string;
+    /**
+     * Format: uint64
+     * @description Expiry time for the read only session.
+     */
+    sessionExpiry: string;
   };
   v1GetOrganizationRequest: {
     /** @description Unique identifier for a given Organization. */

@@ -4577,9 +4577,25 @@
         "username": {
           "type": "string",
           "description": "Human-readable name for a User."
+        },
+        "session": {
+          "type": "string",
+          "description": "Session ID and verifier separated by a colon."
+        },
+        "sessionExpiry": {
+          "type": "string",
+          "format": "uint64",
+          "description": "Expiry time for the read only session."
         }
       },
-      "required": ["organizationId", "organizationName", "userId", "username"]
+      "required": [
+        "organizationId",
+        "organizationName",
+        "userId",
+        "username",
+        "session",
+        "sessionExpiry"
+      ]
     },
     "v1GetOrganizationRequest": {
       "type": "object",

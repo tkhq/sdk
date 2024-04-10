@@ -676,16 +676,16 @@
         "tags": ["Wallets"]
       }
     },
-    "/public/v1/query/login": {
+    "/public/v1/query/login_session": {
       "post": {
-        "summary": "Login",
-        "description": "Log in to the system and retrieve basic user and organization information.",
-        "operationId": "PublicApiService_Login",
+        "summary": "Get Login Session",
+        "description": "Get login session and retrieve basic user and organization information.",
+        "operationId": "PublicApiService_GetLoginSession",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1LoginResponse"
+              "$ref": "#/definitions/v1GetLoginSessionResponse"
             }
           },
           "default": {
@@ -701,7 +701,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1LoginRequest"
+              "$ref": "#/definitions/v1GetLoginSessionRequest"
             }
           }
         ],
@@ -4549,6 +4549,54 @@
       },
       "required": ["authenticators"]
     },
+    "v1GetLoginSessionRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetLoginSessionResponse": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "organizationName": {
+          "type": "string",
+          "description": "Human-readable name for an Organization."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User."
+        },
+        "username": {
+          "type": "string",
+          "description": "Human-readable name for a User."
+        },
+        "session": {
+          "type": "string",
+          "description": "Session ID and verifier separated by a colon."
+        },
+        "sessionExpiry": {
+          "type": "string",
+          "format": "uint64",
+          "description": "Expiry time for the read only session."
+        }
+      },
+      "required": [
+        "organizationId",
+        "organizationName",
+        "userId",
+        "username",
+        "session",
+        "sessionExpiry"
+      ]
+    },
     "v1GetOrganizationRequest": {
       "type": "object",
       "properties": {
@@ -5480,38 +5528,6 @@
         }
       },
       "required": ["userTags"]
-    },
-    "v1LoginRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons."
-        }
-      },
-      "required": ["organizationId"]
-    },
-    "v1LoginResponse": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "organizationName": {
-          "type": "string",
-          "description": "Human-readable name for an Organization."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Unique identifier for a given User."
-        },
-        "username": {
-          "type": "string",
-          "description": "Human-readable name for a User."
-        }
-      },
-      "required": ["organizationId", "organizationName", "userId", "username"]
     },
     "v1MnemonicLanguage": {
       "type": "string",

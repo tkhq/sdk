@@ -26,11 +26,13 @@ import {
   setStorageValue,
 } from "./storage";
 import { generateRandomBuffer, base64UrlEncode } from "./utils";
-import { DEFAULT_ETHEREUM_WALLET_ACCOUNT, DEFAULT_SOLANA_WALLET_ACCOUNT } from "./constants";
+import {
+  DEFAULT_ETHEREUM_WALLET_ACCOUNT,
+  DEFAULT_SOLANA_WALLET_ACCOUNT,
+} from "./constants";
 
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
-
   passkeySign: TurnkeySDKBrowserClient;
 
   constructor(config: TurnkeySDKBrowserConfig) {
@@ -46,6 +48,25 @@ export class TurnkeyBrowserSDK {
       organizationId: this.config.rootOrganizationId,
     });
   }
+
+  currentUserSession = async (): Promise<
+    TurnkeySDKBrowserClient | undefined
+  > => {
+    const currentUser = await this.getCurrentUser();
+    if (!currentUser?.readOnlySession) {
+      return;
+    }
+    if (currentUser?.readOnlySession?.sessionExpiry > Date.now() / 1000) {
+      return new TurnkeySDKBrowserClient({
+        readOnlySession: currentUser?.readOnlySession?.session!,
+        apiBaseUrl: this.config.apiBaseUrl,
+        organizationId: this.config.rootOrganizationId,
+      });
+    } else {
+      this.logoutUser();
+    }
+    return;
+  };
 
   iframeSign = async (
     iframeContainer: HTMLElement | null | undefined
@@ -169,7 +190,8 @@ export class TurnkeyBrowserSDK {
   getCurrentSubOrganization = async (): Promise<
     SubOrganization | undefined
   > => {
-    return await getStorageValue(StorageKeys.CurrentSubOrganization);
+    const currentUser = await this.getCurrentUser();
+    return currentUser?.organization;
   };
 
   getCurrentUser = async (): Promise<User | undefined> => {
@@ -194,7 +216,6 @@ export class TurnkeyBrowserSDK {
   logoutUser = async (): Promise<boolean> => {
     await removeStorageValue(StorageKeys.CurrentUser);
     await removeStorageValue(StorageKeys.CurrentSubOrganization);
-
     return true;
   }
 
@@ -254,23 +275,23 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
   };
 
   login = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
-    const whoamiResult = await this.getWhoami();
+    const loginSessionResult = await this.getLoginSession();
+    const org = {
+      organizationId: loginSessionResult.organizationId,
+      organizationName: loginSessionResult.organizationName,
+    };
     const currentUser: User = {
-      userId: whoamiResult.userId,
-      username: whoamiResult.username,
+      userId: loginSessionResult.userId,
+      username: loginSessionResult.username,
+      organization: org,
+      readOnlySession: {
+        session: loginSessionResult.session,
+        sessionExpiry: Number(loginSessionResult.sessionExpiry),
+      },
     };
-    const currentSubOrganization: SubOrganization = {
-      organizationId: whoamiResult.organizationId,
-      organizationName: whoamiResult.organizationName,
-    };
-
     await setStorageValue(StorageKeys.CurrentUser, currentUser);
-    await setStorageValue(
-      StorageKeys.CurrentSubOrganization,
-      currentSubOrganization
-    );
-
-    return whoamiResult;
+    await setStorageValue(StorageKeys.CurrentSubOrganization, org);
+    return loginSessionResult;
   };
 
   createSigningSessionKey = async (params: {

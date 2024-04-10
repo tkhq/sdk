@@ -70,7 +70,10 @@ import type {
   TGetWalletsBody,
   TGetWalletsResponse,
 } from "./public_api.fetcher";
-import type { TLoginBody, TLoginResponse } from "./public_api.fetcher";
+import type {
+  TGetLoginSessionBody,
+  TGetLoginSessionResponse,
+} from "./public_api.fetcher";
 import type { TGetWhoamiBody, TGetWhoamiResponse } from "./public_api.fetcher";
 import type {
   TApproveActivityBody,
@@ -847,23 +850,27 @@ export class TurnkeyClient {
   };
 
   /**
-   * Log in to the system and retrieve basic user and organization information.
+   * Get login session and retrieve basic user and organization information.
    *
-   * Sign the provided `TLoginBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/login).
+   * Sign the provided `TGetLoginSessionBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/login_session).
    *
-   * See also {@link stampLogin}.
+   * See also {@link stampGetLoginSession}.
    */
-  login = async (input: TLoginBody): Promise<TLoginResponse> => {
-    return this.request("/public/v1/query/login", input);
+  getLoginSession = async (
+    input: TGetLoginSessionBody
+  ): Promise<TGetLoginSessionResponse> => {
+    return this.request("/public/v1/query/login_session", input);
   };
 
   /**
-   * Produce a `SignedRequest` from `TLoginBody` by using the client's `stamp` function.
+   * Produce a `SignedRequest` from `TGetLoginSessionBody` by using the client's `stamp` function.
    *
-   * See also {@link Login}.
+   * See also {@link GetLoginSession}.
    */
-  stampLogin = async (input: TLoginBody): Promise<TSignedRequest> => {
-    const fullUrl = this.config.baseUrl + "/public/v1/query/login";
+  stampGetLoginSession = async (
+    input: TGetLoginSessionBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/login_session";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
