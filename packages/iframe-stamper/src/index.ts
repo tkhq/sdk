@@ -29,12 +29,18 @@ export enum IframeEventType {
   // Value: none
   // Key Format (optional): the key format to decode the private key in before it's encrypted for import: HEXADECIMAL or SOLANA. Defaults to HEXADECIMAL.
   ExtractKeyEncryptedBundle = "EXTRACT_KEY_ENCRYPTED_BUNDLE",
+  // Event sent by the parent to apply settings on the iframe.
+  // Value: the settings to apply in JSON string format.
+  ApplySettings = "APPLY_SETTINGS",
   // Event sent by the iframe to its parent when `InjectBundle` is successful
   // Value: true (boolean)
   BundleInjected = "BUNDLE_INJECTED",
   // Event sent by the iframe to its parent when `ExtractEncryptedBundle` is successful
   // Value: the bundle encrypted in the iframe
   EncryptedBundleExtracted = "ENCRYPTED_BUNDLE_EXTRACTED",
+  // Event sent by the iframe to its parent when `ApplySettings` is successful
+  // Value: true (boolean)
+  SettingsApplied = "SETTINGS_APPLIED",
   // Event sent by the parent page to request a signature
   // Value: payload to sign
   StampRequest = "STAMP_REQUEST",
@@ -366,6 +372,40 @@ export class IframeStamper {
             return;
           }
           if (event.data?.type === IframeEventType.EncryptedBundleExtracted) {
+            resolve(event.data["value"]);
+          }
+          if (event.data?.type === IframeEventType.Error) {
+            reject(event.data["value"]);
+          }
+        },
+        false
+      );
+    });
+  }
+
+  /**
+   * Function to apply settings on allowed parameters in the iframe
+   * This is used to style the HTML element used for plaintext in wallet and private key import.
+   */
+  async applySettings(settings: string): Promise<boolean> {
+    this.iframe.contentWindow?.postMessage(
+      {
+        type: IframeEventType.ApplySettings,
+        value: settings,
+      },
+      "*"
+    );
+
+    return new Promise((resolve, reject) => {
+      window.addEventListener(
+        "message",
+        (event) => {
+          if (event.origin !== this.iframeOrigin) {
+            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
+            // Instead of erroring out we simply return. Not our event!
+            return;
+          }
+          if (event.data?.type === IframeEventType.SettingsApplied) {
             resolve(event.data["value"]);
           }
           if (event.data?.type === IframeEventType.Error) {
