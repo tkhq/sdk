@@ -54,11 +54,7 @@ export function Import(props: ImportProps) {
       box-sizing: border-box;
       width: 400px;
       height: 120px;
-      border-radius: 8px;
-      border-width: 1px;
-      border-style: solid;
-      border-color: rgba(216, 219, 227, 1);
-      padding: 20px;
+      border: none;
     }
     `;
 

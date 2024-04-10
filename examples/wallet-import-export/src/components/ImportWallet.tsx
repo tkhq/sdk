@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useState, useEffect } from "react";
 
 import styles from "../pages/index.module.css";
 import { IframeStamper } from "@turnkey/iframe-stamper";
@@ -49,6 +49,14 @@ export function ImportWallet(props: ImportWalletProps) {
       return;
     }
 
+    const settingsApplied = await iframeStamper.applySettings(
+      "{\"styles\": {\"padding\": \"20px\", \"borderRadius\": \"8px\", \"borderWidth\": \"1px\", \"borderStyle\": \"solid\", \"borderColor\": \"rgba(216, 219, 227, 1)\", \"fontFamily\": \"monospace\", \"width\": \"340px\", \"height\": \"80px\" }}"
+    );
+    
+    if (settingsApplied !== true) {
+      alert("Unexpected error while applying settings.");
+      return;
+    }
     setStage("import");
     setIframeDisplay("block");
   };
