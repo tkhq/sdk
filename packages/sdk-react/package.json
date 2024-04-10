@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/sdk-js-browser",
+  "name": "@turnkey/sdk-react",
   "version": "0.0.1-alpha",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -13,7 +13,7 @@
   },
   "types": "./dist/index.d.ts",
   "license": "Apache-2.0",
-  "description": "Javascript Browser SDK",
+  "description": "React SDK",
   "keywords": [
     "Turnkey"
   ],
@@ -28,7 +28,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/tkhq/sdk.git",
-    "directory": "packages/sdk-js-browser"
+    "directory": "packages/sdk-react"
   },
   "files": [
     "dist/",
@@ -38,23 +38,20 @@
     "access": "public"
   },
   "scripts": {
-    "version": "node -p \"'export const VERSION = ' + JSON.stringify(require('./package.json').name + '@' + require('./package.json').version) + ';'\" > src/__generated__/version.ts",
     "build": "rollup -c",
     "clean": "rimraf ./dist ./.cache",
     "test": "jest",
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "dependencies": {
-    "@turnkey/api-key-stamper": "workspace:*",
-    "@turnkey/http": "workspace:*",
-    "@turnkey/iframe-stamper": "workspace:*",
-    "@turnkey/webauthn-stamper": "workspace:*",
-    "buffer": "^6.0.3",
-    "elliptic": "^6.5.5"
+    "@turnkey/sdk-js-browser": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
   },
   "devDependencies": {
-    "@types/elliptic": "^6.4.18",
-    "glob": "^8.0.3"
+    "@types/react": "^18.2.75",
+    "react": "^18.2.0"
   },
   "engines": {
     "node": ">=18.0.0"
