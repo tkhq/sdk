@@ -29,8 +29,7 @@ import {
 
 import {
   TurnkeyBrowserSDK,
-  TurnkeySDKBrowserClient,
-  TurnkeyLocalClient,
+  TurnkeySDKBrowserClient
 } from "./sdk-client";
 
 import type {
@@ -47,7 +46,6 @@ export {
   TurnkeyActivityError,
   TurnkeyBrowserSDK,
   TurnkeySDKBrowserClient,
-  TurnkeyLocalClient,
   TurnkeyRequestError,
   WebauthnStamper,
 };
