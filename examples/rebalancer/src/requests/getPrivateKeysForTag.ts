@@ -1,4 +1,4 @@
-import type { TurnkeyClient, TurnkeyApiTypes } from "@turnkey/http";
+import type { TurnkeyServerSDK, TurnkeyApiTypes } from "@turnkey/sdk-js-server";
 
 /**
  * Get a list of private keys for a given tag
@@ -7,10 +7,10 @@ import type { TurnkeyClient, TurnkeyApiTypes } from "@turnkey/http";
  * @returns a list of private keys matching the passed in tag
  */
 export default async function getPrivateKeysForTag(
-  turnkeyClient: TurnkeyClient,
+  turnkeyClient: TurnkeyServerSDK,
   tagName: string
 ): Promise<TurnkeyApiTypes["v1PrivateKey"][]> {
-  const response = await turnkeyClient.listPrivateKeyTags({
+  const response = await turnkeyClient.api().listPrivateKeyTags({
     organizationId: process.env.ORGANIZATION_ID!,
   });
 
@@ -28,7 +28,7 @@ export default async function getPrivateKeysForTag(
     );
   }
 
-  const privateKeysResponse = await turnkeyClient.getPrivateKeys({
+  const privateKeysResponse = await turnkeyClient.api().getPrivateKeys({
     organizationId: process.env.ORGANIZATION_ID!,
   });
 

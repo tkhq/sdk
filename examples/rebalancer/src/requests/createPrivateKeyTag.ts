@@ -1,31 +1,20 @@
-import type { TurnkeyClient } from "@turnkey/http";
-import { createActivityPoller } from "@turnkey/http";
+import type { TurnkeyServerSDK } from "@turnkey/sdk-js-server";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
 export default async function createPrivateKeyTag(
-  turnkeyClient: TurnkeyClient,
+  turnkeyClient: TurnkeyServerSDK,
   privateKeyTagName: string,
   privateKeyIds: string[]
 ): Promise<string> {
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createPrivateKeyTag,
-  });
-
   try {
-    const activity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
-      organizationId: process.env.ORGANIZATION_ID!,
-      parameters: {
-        privateKeyTagName,
-        privateKeyIds,
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
+    const activity = await turnkeyClient.api().createPrivateKeyTag({
+      privateKeyTagName,
+      privateKeyIds,
     });
 
     const privateKeyTagId = refineNonNull(
-      activity.result.createPrivateKeyTagResult?.privateKeyTagId
+      activity?.privateKeyTagId
     );
 
     // Success!

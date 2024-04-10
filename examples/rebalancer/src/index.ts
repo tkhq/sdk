@@ -4,8 +4,8 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { TurnkeyServerSDK } from "@turnkey/sdk-js-server";
+// import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { FeeData } from "ethers";
 import { isKeyOfObject } from "./utils";
 import {
@@ -32,13 +32,12 @@ const GAS_MULTIPLIER = 2n;
 const ACTIVITIES_LIMIT = "100";
 
 // For demonstration purposes, create a globally accessible TurnkeyClient
-const turnkeyClient = new TurnkeyClient(
-  { baseUrl: process.env.BASE_URL! },
-  new ApiKeyStamper({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-  })
-);
+const turnkeyClient = new TurnkeyServerSDK({
+  apiBaseUrl: process.env.BASE_URL!,
+  apiPrivateKey: process.env.API_PRIVATE_KEY!,
+  apiPublicKey: process.env.API_PUBLIC_KEY!,
+  rootOrganizationId: process.env.ORGANIZATION_ID!,
+});
 
 async function main() {
   const args = process.argv.slice(2);
