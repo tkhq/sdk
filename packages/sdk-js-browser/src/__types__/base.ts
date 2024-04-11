@@ -50,6 +50,11 @@ export interface ActivityResponse {
   };
 }
 
+export interface ActivityMetadata {
+  id: string;
+  status: string;
+}
+
 export interface TurnkeySDKClientConfig {
   stamper: TStamper;
   apiBaseUrl: string;
@@ -64,7 +69,7 @@ export interface TurnkeySDKBrowserConfig {
   apiBaseUrl: string;
   apiProxyUrl: string;
   iframeUrl: string;
-  rootOrganizationId: string;
+  defaultOrganizationId: string;
   rpId: string;
 }
 
@@ -75,5 +80,4 @@ export type queryOverrideParams = {
 export type commandOverrideParams = {
   organizationId?: string;
   timestampMs?: string;
-  type?: string;
 };

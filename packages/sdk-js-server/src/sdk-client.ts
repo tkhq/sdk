@@ -57,7 +57,7 @@ export class TurnkeyServerSDK {
     return new TurnkeySDKServerClient({
       stamper: apiKeyStamper,
       apiBaseUrl: this.config.apiBaseUrl,
-      organizationId: this.config.rootOrganizationId,
+      organizationId: this.config.defaultOrganizationId,
     });
   };
 

@@ -50,6 +50,11 @@ export interface ActivityResponse {
   };
 }
 
+export interface ActivityMetadata {
+  id: string;
+  status: string;
+}
+
 export type queryOverrideParams = {
   organizationId?: string;
 };
@@ -57,7 +62,6 @@ export type queryOverrideParams = {
 export type commandOverrideParams = {
   organizationId?: string;
   timestampMs?: string;
-  type?: string;
 };
 
 export interface TurnkeySDKClientConfig {
@@ -74,7 +78,7 @@ export interface TurnkeySDKServerConfig {
   apiBaseUrl: string;
   apiPrivateKey: string;
   apiPublicKey: string;
-  rootOrganizationId: string;
+  defaultOrganizationId: string;
 }
 
 export interface TurnkeyProxyHandlerConfig {

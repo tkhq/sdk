@@ -83,7 +83,7 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
   );
 
   imports.push(
-    'import type { queryOverrideParams, commandOverrideParams } from "../__types__/base";'
+    'import type { queryOverrideParams, commandOverrideParams, ActivityMetadata } from "../__types__/base";'
   );
 
   for (const endpointPath in swaggerSpec.paths) {
@@ -109,11 +109,11 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
 
     let responseValue = "void";
     if (methodType === "command") {
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${methodName}Result"]`;
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${methodName}Result"] & ActivityMetadata`;
     } else if (["noop", "query"].includes(methodType)) {
       responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
     } else if (methodType === "activityDecision") {
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]`;
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"] & ActivityMetadata`;
     }
 
     /** @type {TBinding} */
@@ -260,7 +260,13 @@ export class TurnkeySDKClientBase {
     let activityStatus = initialData["activity"]["status"];
 
     if (activityStatus !== "ACTIVITY_STATUS_PENDING") {
-      return initialData["activity"]["result"][\`\${resultKey}\`] as TResponseType;
+      return {
+        ...initialData["activity"]["result"][\`\${resultKey}\`],
+        activity: {
+          id: activityId,
+          status: activityStatus
+        }
+      } as TResponseType;
     }
 
     const pollStatus = async (): Promise<TResponseType> => {
@@ -272,7 +278,13 @@ export class TurnkeySDKClientBase {
         await delay(POLLING_DURATION);
         return await pollStatus();
       } else {
-        return pollData["activity"]["result"][\`\${resultKey}\`] as TResponseType;
+        return {
+          ...pollData["activity"]["result"][\`\${resultKey}\`],
+          activity: {
+            id: activityId,
+            status: activityStatus
+          }
+        } as TResponseType;
       }
     }
 
@@ -284,7 +296,15 @@ export class TurnkeySDKClientBase {
     body: TBodyType
   ): Promise<TResponseType> {
     const data = await this.request(url, body) as ActivityResponse;
-    return data["activity"]["result"] as TResponseType;
+    const activityId = data["activity"]["id"];
+    const activityStatus = data["activity"]["status"];
+    return {
+      ...data["activity"]["result"],
+      activity: {
+        id: activityId,
+        status: activityStatus
+      }
+    } as TResponseType;
   }
 
   `);
@@ -338,25 +358,25 @@ export class TurnkeySDKClientBase {
         : "";
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
-    const { organizationId, timestampMs, type, ...rest } = input;
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command("${endpointPath}", {
       parameters: rest,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: type ?? "${versionedActivityType ?? unversionedActivityType}"
+      type: "${versionedActivityType ?? unversionedActivityType}"
     }, "${methodName}Result${versionSuffix ? versionSuffix[1] : ""}");
   }`
       );
     } else if (methodType === "activityDecision") {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
-    const { organizationId, timestampMs, type, ...rest } = input;
+    const { organizationId, timestampMs, ...rest } = input;
     return this.activityDecision("${endpointPath}",
       {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: type ?? "ACTIVITY_TYPE_${operationNameWithoutNamespace
+        type: "ACTIVITY_TYPE_${operationNameWithoutNamespace
           .replace(/([a-z])([A-Z])/g, "$1_$2")
           .toUpperCase()}"
       });
