@@ -293,18 +293,19 @@ async function signTransactionImpl(
 
     const { id, status, type } = activity;
 
-    if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
-      return assertNonNull(
-        activity?.result?.signTransactionResult?.signedTransaction
-      );
+    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+      throw new TurnkeyActivityError({
+        message: `Invalid activity status: ${activity.status}`,
+        activityId: id,
+        activityStatus: status,
+        activityType: type,
+      });
     }
+    
+    return assertNonNull(
+      activity?.result?.signTransactionResult?.signedTransaction
+    );
 
-    throw new TurnkeyActivityError({
-      message: `Invalid activity status: ${activity.status}`,
-      activityId: id,
-      activityStatus: status,
-      activityType: type,
-    });
   } else {
     // Want to get additional activity details here
     const activity = await client.signTransaction({
@@ -313,9 +314,7 @@ async function signTransactionImpl(
       unsignedTransaction: unsignedTransaction,
     });
 
-    return assertNonNull(
-      activity?.signedTransaction
-    );
+    return assertNonNull(activity?.signedTransaction);
   }
 }
 
@@ -353,6 +352,8 @@ async function signMessageImpl(
   organizationId: string,
   signWith: string
 ): Promise<string> {
+  let result;
+
   if (client instanceof TurnkeyClient) {
     const { activity } = await client.signRawPayload({
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
@@ -368,44 +369,35 @@ async function signMessageImpl(
 
     const { id, status, type } = activity;
 
-    if (status === "ACTIVITY_STATUS_COMPLETED") {
-      let result = assertNonNull(activity?.result?.signRawPayloadResult);
-
-      let assembled = signatureToHex({
-        r: `0x${result.r}`,
-        s: `0x${result.s}`,
-        v: result.v === "00" ? 27n : 28n,
+    if (status !== "ACTIVITY_STATUS_COMPLETED") {
+      throw new TurnkeyActivityError({
+        message: `Invalid activity status: ${activity.status}`,
+        activityId: id,
+        activityStatus: status,
+        activityType: type,
       });
-
-      // Assemble the hex
-      return assertNonNull(assembled);
     }
 
-    throw new TurnkeyActivityError({
-      message: `Invalid activity status: ${activity.status}`,
-      activityId: id,
-      activityStatus: status,
-      activityType: type,
-    });
+    result = assertNonNull(activity?.result?.signRawPayloadResult);
   } else {
-    // Want to get ID and status back as well in the result
+    // Want to get ID and status back as well in the result (we won't get an error)
     // Maybe do a try/catch?
-    const result = await client.signRawPayload({
+    result = await client.signRawPayload({
       signWith,
       payload: message,
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
       hashFunction: "HASH_FUNCTION_NO_OP",
     });
-
-    let assembled = signatureToHex({
-      r: `0x${result?.r}`,
-      s: `0x${result?.s}`,
-      v: result?.v === "00" ? 27n : 28n,
-    });
-
-    // Assemble the hex
-    return assertNonNull(assembled);
   }
+
+  let assembled = signatureToHex({
+    r: `0x${result!.r}`,
+    s: `0x${result!.s}`,
+    v: result!.v === "00" ? 27n : 28n,
+  });
+
+  // Assemble the hex
+  return assertNonNull(assembled);
 }
 
 function assertNonNull<T>(input: T | null | undefined): T {

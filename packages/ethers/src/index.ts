@@ -225,6 +225,8 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   async _signMessageImpl(message: string): Promise<string> {
+    let result;
+
     if (this.client instanceof TurnkeyClient) {
       const { activity } = await this.client.signRawPayload({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
@@ -240,42 +242,33 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
       const { id, status, type } = activity;
 
-      if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
-        let result = assertNonNull(activity?.result?.signRawPayloadResult);
-
-        let assembled = Signature.from({
-          r: `0x${result.r}`,
-          s: `0x${result.s}`,
-          v: parseInt(result.v) + 27,
-        }).serialized;
-
-        // Assemble the hex
-        return assertNonNull(assembled);
+      if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+        throw new TurnkeyActivityError({
+          message: `Invalid activity status: ${activity.status}`,
+          activityId: id,
+          activityStatus: status,
+          activityType: type,
+        });
       }
 
-      throw new TurnkeyActivityError({
-        message: `Invalid activity status: ${activity.status}`,
-        activityId: id,
-        activityStatus: status,
-        activityType: type,
-      });
+      result = assertNonNull(activity?.result?.signRawPayloadResult);
     } else {
-      const result = await this.client.signRawPayload({
+      result = await this.client.signRawPayload({
         signWith: this.signWith,
         payload: message,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NO_OP",
       });
-
-      let assembled = Signature.from({
-        r: `0x${result!.r}`,
-        s: `0x${result!.s}`,
-        v: parseInt(result!.v) + 27,
-      }).serialized;
-
-      // Assemble the hex
-      return assertNonNull(assembled);
     }
+
+    let assembled = Signature.from({
+      r: `0x${result!.r}`,
+      s: `0x${result!.s}`,
+      v: parseInt(result!.v) + 27,
+    }).serialized;
+
+    // Assemble the hex
+    return assertNonNull(assembled);
   }
 
   async signTypedData(
