@@ -43,7 +43,7 @@ export class TurnkeyBrowserSDK {
     this.passkeySign = new TurnkeySDKBrowserClient({
       stamper: webauthnStamper,
       apiBaseUrl: this.config.apiBaseUrl,
-      organizationId: this.config.rootOrganizationId,
+      organizationId: this.config.defaultOrganizationId,
     });
   }
 
@@ -63,7 +63,7 @@ export class TurnkeyBrowserSDK {
     return new TurnkeySDKBrowserClient({
       stamper: iframeStamper,
       apiBaseUrl: this.config.apiBaseUrl,
-      organizationId: this.config.rootOrganizationId,
+      organizationId: this.config.defaultOrganizationId,
     });
   };
 
@@ -77,7 +77,7 @@ export class TurnkeyBrowserSDK {
     return new TurnkeySDKBrowserClient({
       stamper: sessionStamper,
       apiBaseUrl: this.config.apiBaseUrl,
-      organizationId: this.config.rootOrganizationId,
+      organizationId: this.config.defaultOrganizationId,
     });
   };
 

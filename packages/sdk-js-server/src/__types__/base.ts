@@ -74,7 +74,7 @@ export interface TurnkeySDKServerConfig {
   apiBaseUrl: string;
   apiPrivateKey: string;
   apiPublicKey: string;
-  rootOrganizationId: string;
+  defaultOrganizationId: string;
 }
 
 export interface TurnkeyProxyHandlerConfig {

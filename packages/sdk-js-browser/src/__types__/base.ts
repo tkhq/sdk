@@ -64,7 +64,7 @@ export interface TurnkeySDKBrowserConfig {
   apiBaseUrl: string;
   apiProxyUrl: string;
   iframeUrl: string;
-  rootOrganizationId: string;
+  defaultOrganizationId: string;
   rpId: string;
 }
 
