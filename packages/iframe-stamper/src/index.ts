@@ -72,6 +72,34 @@ export type TIframeStamperConfig = {
   iframeContainer: HTMLElement | null | undefined;
 };
 
+export type TIframeStyles = {
+  padding?: string;
+  margin?: string;
+  borderWidth?: string;
+  borderStyle?: string;
+  borderColor?: string;
+  borderRadius?: string;
+  fontSize?: string;
+  fontWeight?: string;
+  fontFamily?: string;
+  color?: string;
+  backgroundColor?: string;
+  width?: string;
+  height?: string;
+  maxWidth?: string;
+  maxHeight?: string;
+  lineHeight?: string;
+  boxShadow?: string;
+  textAlign?: string;
+  overflowWrap?: string;
+  wordWrap?: string;
+  resize?: string;
+};
+
+export type TIframeSettings = {
+  styles?: TIframeStyles;
+};
+
 /**
  * Stamper to use with `@turnkey/http`'s `TurnkeyClient`
  * Creating a stamper inserts an iframe in the current page.
@@ -387,11 +415,12 @@ export class IframeStamper {
    * Function to apply settings on allowed parameters in the iframe
    * This is used to style the HTML element used for plaintext in wallet and private key import.
    */
-  async applySettings(settings: string): Promise<boolean> {
+  async applySettings(settings: TIframeSettings): Promise<boolean> {
+    const settingsStr = JSON.stringify(settings)
     this.iframe.contentWindow?.postMessage(
       {
         type: IframeEventType.ApplySettings,
-        value: settings,
+        value: settingsStr,
       },
       "*"
     );
