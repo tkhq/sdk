@@ -416,7 +416,7 @@ export class IframeStamper {
    * This is used to style the HTML element used for plaintext in wallet and private key import.
    */
   async applySettings(settings: TIframeSettings): Promise<boolean> {
-    const settingsStr = JSON.stringify(settings)
+    const settingsStr = JSON.stringify(settings);
     this.iframe.contentWindow?.postMessage(
       {
         type: IframeEventType.ApplySettings,
