@@ -79,5 +79,4 @@ export type queryOverrideParams = {
 export type commandOverrideParams = {
   organizationId?: string;
   timestampMs?: string;
-  type?: string;
 };

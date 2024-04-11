@@ -339,25 +339,25 @@ export class TurnkeySDKClientBase {
         : "";
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
-    const { organizationId, timestampMs, type, ...rest } = input;
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command("${endpointPath}", {
       parameters: rest,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: type ?? "${versionedActivityType ?? unversionedActivityType}"
+      type: "${versionedActivityType ?? unversionedActivityType}"
     }, "${methodName}Result${versionSuffix ? versionSuffix[1] : ""}");
   }`
       );
     } else if (methodType === "activityDecision") {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
-    const { organizationId, timestampMs, type, ...rest } = input;
+    const { organizationId, timestampMs, ...rest } = input;
     return this.activityDecision("${endpointPath}",
       {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: type ?? "ACTIVITY_TYPE_${operationNameWithoutNamespace
+        type: "ACTIVITY_TYPE_${operationNameWithoutNamespace
           .replace(/([a-z])([A-Z])/g, "$1_$2")
           .toUpperCase()}"
       });
