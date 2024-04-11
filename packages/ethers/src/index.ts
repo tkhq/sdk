@@ -10,7 +10,9 @@ import {
   resolveAddress,
 } from "ethers";
 import { TurnkeyActivityError, TurnkeyRequestError } from "@turnkey/http";
-import type { TurnkeyClient } from "@turnkey/http";
+import { TurnkeyClient } from "@turnkey/http";
+import type { TurnkeySDKBrowserClient } from "@turnkey/sdk-js-browser";
+import type { TurnkeySDKServerClient } from "@turnkey/sdk-js-server";
 import {
   type TypedDataDomain,
   type TypedDataField,
@@ -25,7 +27,7 @@ type TConfig = {
   /**
    * Turnkey client
    */
-  client: TurnkeyClient;
+  client: TurnkeyClient | TurnkeySDKBrowserClient | TurnkeySDKServerClient;
   /**
    * Turnkey organization ID
    */
@@ -37,7 +39,10 @@ type TConfig = {
 };
 
 export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
-  private readonly client: TurnkeyClient;
+  private readonly client:
+    | TurnkeyClient
+    | TurnkeySDKBrowserClient
+    | TurnkeySDKServerClient;
 
   public readonly organizationId: string;
   public readonly signWith: string;
@@ -96,31 +101,41 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   private async _signTransactionImpl(message: string): Promise<string> {
-    const { activity } = await this.client.signTransaction({
-      type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
-      organizationId: this.organizationId,
-      parameters: {
+    if (this.client instanceof TurnkeyClient) {
+      const { activity } = await this.client.signTransaction({
+        type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
+        organizationId: this.organizationId,
+        parameters: {
+          signWith: this.signWith,
+          type: "TRANSACTION_TYPE_ETHEREUM",
+          unsignedTransaction: message,
+        },
+        timestampMs: String(Date.now()), // millisecond timestamp
+      });
+
+      const { id, status, type } = activity;
+
+      if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
+        return assertNonNull(
+          activity?.result?.signTransactionResult?.signedTransaction
+        );
+      }
+
+      throw new TurnkeyActivityError({
+        message: `Invalid activity status: ${activity.status}`,
+        activityId: id,
+        activityStatus: status,
+        activityType: type,
+      });
+    } else {
+      const activity = await this.client.signTransaction({
         signWith: this.signWith,
         type: "TRANSACTION_TYPE_ETHEREUM",
         unsignedTransaction: message,
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
-    });
+      });
 
-    const { id, status, type } = activity;
-
-    if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
-      return assertNonNull(
-        activity?.result?.signTransactionResult?.signedTransaction
-      );
+      return assertNonNull(activity?.signedTransaction);
     }
-
-    throw new TurnkeyActivityError({
-      message: `Invalid activity status: ${activity.status}`,
-      activityId: id,
-      activityStatus: status,
-      activityType: type,
-    });
   }
 
   private async _signTransactionWithErrorWrapping(
@@ -210,39 +225,57 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   async _signMessageImpl(message: string): Promise<string> {
-    const { activity } = await this.client.signRawPayload({
-      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
-      organizationId: this.organizationId,
-      parameters: {
+    if (this.client instanceof TurnkeyClient) {
+      const { activity } = await this.client.signRawPayload({
+        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
+        organizationId: this.organizationId,
+        parameters: {
+          signWith: this.signWith,
+          payload: message,
+          encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+          hashFunction: "HASH_FUNCTION_NO_OP",
+        },
+        timestampMs: String(Date.now()), // millisecond timestamp
+      });
+
+      const { id, status, type } = activity;
+
+      if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
+        let result = assertNonNull(activity?.result?.signRawPayloadResult);
+
+        let assembled = Signature.from({
+          r: `0x${result.r}`,
+          s: `0x${result.s}`,
+          v: parseInt(result.v) + 27,
+        }).serialized;
+
+        // Assemble the hex
+        return assertNonNull(assembled);
+      }
+
+      throw new TurnkeyActivityError({
+        message: `Invalid activity status: ${activity.status}`,
+        activityId: id,
+        activityStatus: status,
+        activityType: type,
+      });
+    } else {
+      const result = await this.client.signRawPayload({
         signWith: this.signWith,
         payload: message,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NO_OP",
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
-    });
-
-    const { id, status, type } = activity;
-
-    if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
-      let result = assertNonNull(activity?.result?.signRawPayloadResult);
+      });
 
       let assembled = Signature.from({
-        r: `0x${result.r}`,
-        s: `0x${result.s}`,
-        v: parseInt(result.v) + 27,
+        r: `0x${result!.r}`,
+        s: `0x${result!.s}`,
+        v: parseInt(result!.v) + 27,
       }).serialized;
 
       // Assemble the hex
       return assertNonNull(assembled);
     }
-
-    throw new TurnkeyActivityError({
-      message: `Invalid activity status: ${activity.status}`,
-      activityId: id,
-      activityStatus: status,
-      activityType: type,
-    });
   }
 
   async signTypedData(

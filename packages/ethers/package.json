@@ -53,7 +53,9 @@
   },
   "dependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
-    "@turnkey/http": "workspace:*"
+    "@turnkey/http": "workspace:*",
+    "@turnkey/sdk-js-browser": "workspace:*",
+    "@turnkey/sdk-js-server": "workspace:*"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "3.0.5",

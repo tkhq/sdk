@@ -762,6 +762,12 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
+      '@turnkey/sdk-js-browser':
+        specifier: workspace:*
+        version: link:../sdk-js-browser
+      '@turnkey/sdk-js-server':
+        specifier: workspace:*
+        version: link:../sdk-js-server
     devDependencies:
       '@nomicfoundation/hardhat-ethers':
         specifier: 3.0.5
