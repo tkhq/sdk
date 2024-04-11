@@ -83,7 +83,7 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
   );
 
   imports.push(
-    'import type { queryOverrideParams, commandOverrideParams } from "../__types__/base";'
+    'import type { queryOverrideParams, commandOverrideParams, ActivityId } from "../__types__/base";'
   );
 
   for (const endpointPath in swaggerSpec.paths) {
@@ -109,11 +109,11 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
 
     let responseValue = "void";
     if (methodType === "command") {
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${methodName}Result"]`;
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${methodName}Result"] & ActivityId`;
     } else if (["noop", "query"].includes(methodType)) {
       responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
     } else if (methodType === "activityDecision") {
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]`;
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"] & ActivityId`;
     }
 
     /** @type {TBinding} */
@@ -260,7 +260,7 @@ export class TurnkeySDKClientBase {
     let activityStatus = initialData["activity"]["status"];
 
     if (activityStatus !== "ACTIVITY_STATUS_PENDING") {
-      return initialData["activity"]["result"][\`\${resultKey}\`] as TResponseType;
+      return { ...initialData["activity"]["result"][\`\${resultKey}\`], activityId } as TResponseType;
     }
 
     const pollStatus = async (): Promise<TResponseType> => {
@@ -272,7 +272,7 @@ export class TurnkeySDKClientBase {
         await delay(POLLING_DURATION);
         return await pollStatus();
       } else {
-        return pollData["activity"]["result"][\`\${resultKey}\`] as TResponseType;
+        return { ...pollData["activity"]["result"][\`\${resultKey}\`], activityId } as TResponseType;
       }
     }
 
@@ -284,7 +284,8 @@ export class TurnkeySDKClientBase {
     body: TBodyType
   ): Promise<TResponseType> {
     const data = await this.request(url, body) as ActivityResponse;
-    return data["activity"]["result"] as TResponseType;
+    const activityId = data["activity"]["id"];
+    return { ...data["activity"]["result"], activityId } as TResponseType;
   }
 
   `);

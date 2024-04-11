@@ -50,6 +50,10 @@ export interface ActivityResponse {
   };
 }
 
+export interface ActivityId {
+  activityId: string;
+}
+
 export type queryOverrideParams = {
   organizationId?: string;
 };

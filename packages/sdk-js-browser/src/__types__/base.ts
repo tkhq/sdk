@@ -50,6 +50,10 @@ export interface ActivityResponse {
   };
 }
 
+export interface ActivityId {
+  activityId: string;
+}
+
 export interface TurnkeySDKClientConfig {
   stamper: TStamper;
   apiBaseUrl: string;
