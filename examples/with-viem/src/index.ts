@@ -2,8 +2,7 @@ import * as path from "path";
 import * as dotenv from "dotenv";
 
 import { createAccount } from "@turnkey/viem";
-import { TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { TurnkeyServerSDK } from "@turnkey/sdk-js-server";
 import {
   createWalletClient,
   http,
@@ -24,18 +23,15 @@ async function main() {
     return;
   }
 
-  const turnkeyClient = new TurnkeyClient(
-    {
-      baseUrl: process.env.BASE_URL!,
-    },
-    new ApiKeyStamper({
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
-  );
+  const turnkeyClient = new TurnkeyServerSDK({
+    apiBaseUrl: process.env.BASE_URL!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    rootOrganizationId: process.env.ORGANIZATION_ID!,
+  });
 
   const turnkeyAccount = await createAccount({
-    client: turnkeyClient,
+    client: turnkeyClient.api(),
     organizationId: process.env.ORGANIZATION_ID!,
     signWith: process.env.SIGN_WITH!,
   });

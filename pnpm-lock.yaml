@@ -469,6 +469,9 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
+      '@turnkey/sdk-js-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-js-server
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
@@ -665,6 +668,9 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
+      '@turnkey/sdk-js-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-js-server
       '@turnkey/viem':
         specifier: workspace:*
         version: link:../../packages/viem

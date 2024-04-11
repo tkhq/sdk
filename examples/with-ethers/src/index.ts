@@ -6,8 +6,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
-import { TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { TurnkeyServerSDK } from "@turnkey/sdk-js-server";
 import { createNewWallet } from "./createNewWallet";
 import { print, assertEqual } from "./util";
 import WETH_TOKEN_ABI from "./weth-contract-abi.json";
@@ -21,19 +20,16 @@ async function main() {
     return;
   }
 
-  const turnkeyClient = new TurnkeyClient(
-    {
-      baseUrl: process.env.BASE_URL!,
-    },
-    new ApiKeyStamper({
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
-  );
+  const turnkeyClient = new TurnkeyServerSDK({
+    apiBaseUrl: process.env.BASE_URL!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    rootOrganizationId: process.env.ORGANIZATION_ID!,
+  });
 
   // Initialize a Turnkey Signer
   const turnkeySigner = new TurnkeySigner({
-    client: turnkeyClient,
+    client: turnkeyClient.api(),
     organizationId: process.env.ORGANIZATION_ID!,
     signWith: process.env.SIGN_WITH!,
   });
