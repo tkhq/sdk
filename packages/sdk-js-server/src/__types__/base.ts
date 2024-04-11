@@ -50,8 +50,9 @@ export interface ActivityResponse {
   };
 }
 
-export interface ActivityId {
-  activityId: string;
+export interface ActivityMetadata {
+  id: string;
+  status: string;
 }
 
 export type queryOverrideParams = {
