@@ -86,7 +86,11 @@ export default function ExportPage() {
           show={isImportModalOpen}
           onClose={() => setIsImportModalOpen(false)}
         >
-          <ImportWallet userId={userId} getWallets={getWallets} />
+          <ImportWallet
+            organizationId={process.env.NEXT_PUBLIC_ORGANIZATION_ID!}
+            userId={userId}
+            getWallets={getWallets}
+          />
         </Modal>
       )}
 
@@ -96,7 +100,10 @@ export default function ExportPage() {
           show={isExportModalOpen}
           onClose={() => setIsExportModalOpen(false)}
         >
-          <ExportWallet walletId={selectedWallet} />
+          <ExportWallet
+            organizationId={process.env.NEXT_PUBLIC_ORGANIZATION_ID!}
+            walletId={selectedWallet}
+          />
         </Modal>
       )}
     </main>

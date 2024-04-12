@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@turnkey/solana?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/solana)
 
-Experimental [Turnkey](https://turnkey.com) Solana signer for [`@solana/web3js`](https://solana-labs.github.io/solana-web3.js/):
+[Turnkey](https://turnkey.com) Solana signer for [`@solana/web3js`](https://solana-labs.github.io/solana-web3.js/):
 
 If you need a lower-level, fully typed HTTP client for interacting with Turnkey API, check out [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http).
 
