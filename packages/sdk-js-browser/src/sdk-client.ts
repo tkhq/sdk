@@ -31,29 +31,44 @@ import { DEFAULT_ETHEREUM_WALLET_ACCOUNT, DEFAULT_SOLANA_WALLET_ACCOUNT } from "
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
 
-  passkeySign: TurnkeySDKBrowserClient;
-
   constructor(config: TurnkeySDKBrowserConfig) {
     this.config = config;
+  }
+
+  passkeySigner = async (
+    rpId?: string
+  ): Promise<TurnkeySDKBrowserClient> => {
+    const targetRpId = rpId ?? (this.config.rpId ?? window.location.hostname);
+
+    if (!targetRpId) {
+      throw new Error('Tried to initialize a passkey signer with no rpId defined');
+    }
 
     const webauthnStamper = new WebauthnStamper({
-      rpId: this.config.rpId,
+      rpId: targetRpId,
     });
 
-    this.passkeySign = new TurnkeySDKBrowserClient({
+    return new TurnkeySDKBrowserClient({
       stamper: webauthnStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
     });
   }
 
-  iframeSign = async (
-    iframeContainer: HTMLElement | null | undefined
+  iframeSigner = async (
+    iframeContainer: HTMLElement | null | undefined,
+    iframeUrl?: string
   ): Promise<TurnkeySDKBrowserClient> => {
+    const targetIframeUrl = iframeUrl ?? this.config.iframeUrl;
+
+    if (!targetIframeUrl) {
+      throw new Error('Tried to initialize iframeSigner with no iframeUrl defined');
+    }
+
     const TurnkeyIframeElementId = "turnkey-auth-iframe-element-id";
 
     const iframeStamper = new IframeStamper({
-      iframeUrl: this.config.iframeUrl,
+      iframeUrl: targetIframeUrl,
       iframeElementId: TurnkeyIframeElementId,
       iframeContainer: iframeContainer,
     });
@@ -67,7 +82,7 @@ export class TurnkeyBrowserSDK {
     });
   };
 
-  sessionSign = async (): Promise<TurnkeySDKBrowserClient> => {
+  sessionSigner = async (): Promise<TurnkeySDKBrowserClient> => {
     const signingSession: SigningSession | undefined = await getStorageValue(StorageKeys.CurrentSigningSession);
     const sessionStamper = new ApiKeyStamper({
       apiPublicKey: signingSession!.publicKey,
@@ -83,10 +98,15 @@ export class TurnkeyBrowserSDK {
 
   serverSign = async <TResponseType>(
     methodName: string,
-    params: any[]
+    params: any[],
+    serverSignUrl?: string
   ): Promise<TResponseType> => {
-    if (!this.config.apiProxyUrl) {
-      throw new Error("could not find configured apiProxyUrl");
+
+    const targetServerSignUrl = serverSignUrl ?? this.config.serverSignUrl;
+
+
+    if (!targetServerSignUrl) {
+      throw new Error("Tried to call serverSign with no serverSignUrl defined");
     }
 
     const stringifiedBody = JSON.stringify({
@@ -94,7 +114,7 @@ export class TurnkeyBrowserSDK {
       params: params,
     });
 
-    const response = await fetch(this.config.apiProxyUrl, {
+    const response = await fetch(targetServerSignUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

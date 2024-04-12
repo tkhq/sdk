@@ -35,7 +35,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({ config, childr
         iframeInit.current = true;
         const newTurnkeyClient = new TurnkeyBrowserSDK(config);
         setTurnkeyClient(newTurnkeyClient);
-        const newIframeClient = await newTurnkeyClient.iframeSign(document.getElementById(TurnkeyIframeContainerId));
+        const newIframeClient = await newTurnkeyClient.iframeSigner(document.getElementById(TurnkeyIframeContainerId));
         setIframeClient(newIframeClient);
       }
     })();

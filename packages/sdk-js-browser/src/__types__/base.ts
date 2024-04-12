@@ -67,10 +67,10 @@ export interface TurnkeySDKClientConfig {
 
 export interface TurnkeySDKBrowserConfig {
   apiBaseUrl: string;
-  apiProxyUrl: string;
-  iframeUrl: string;
+  iframeUrl?: string;
   defaultOrganizationId: string;
-  rpId: string;
+  rpId?: string;
+  serverSignUrl?: string;
 }
 
 export type queryOverrideParams = {
