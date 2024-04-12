@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "pnpm -w run build-all",
-    "cli": "pnpm build && tsx src/index.ts",
+    "cli": "tsx src/index.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },

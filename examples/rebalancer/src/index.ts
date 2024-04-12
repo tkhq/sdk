@@ -265,12 +265,12 @@ async function sweepImpl() {
   );
 
   // send from short to long term storage
-  const ethAddress = longTermStoragePrivateKeys[0]!.addresses.find(
+  const longTermStorageAddress = longTermStoragePrivateKeys[0]!.addresses.find(
     (address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
     }
   );
-  if (!ethAddress || !ethAddress.address) {
+  if (!longTermStorageAddress || !longTermStorageAddress.address) {
     throw new Error(
       `couldn't lookup ETH address for private key: ${
         longTermStoragePrivateKeys[0]!.privateKeyId
@@ -281,9 +281,9 @@ async function sweepImpl() {
   for (const pk of shortTermStoragePrivateKeys!) {
     const provider = getProvider();
     const connectedSigner = getTurnkeySigner(provider, pk.privateKeyId);
-    const balance =
-      (await connectedSigner.provider?.getBalance(ethAddress.address)) ?? 0n;
     const address = await connectedSigner.getAddress();
+    const balance =
+      (await connectedSigner.provider?.getBalance(address)) ?? 0n;
     const originalFeeData = await connectedSigner.provider?.getFeeData();
 
     const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas
@@ -319,7 +319,7 @@ async function sweepImpl() {
       continue;
     }
 
-    await sendEth(connectedSigner, ethAddress.address, sweepAmount, feeData);
+    await sendEth(connectedSigner, longTermStorageAddress.address, sweepAmount, feeData);
   }
 }
 
@@ -356,12 +356,14 @@ async function recycleImpl() {
     longTermStoragePrivateKeys[0]!.privateKeyId
   );
 
-  const ethAddress = distributionPrivateKeys[0]!.addresses.find(
+  const longTermStorageAddress = await connectedSigner.getAddress();
+
+  const distributionAddress = distributionPrivateKeys[0]!.addresses.find(
     (address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
     }
   );
-  if (!ethAddress || !ethAddress.address) {
+  if (!distributionAddress || !distributionAddress.address) {
     throw new Error(
       `couldn't lookup ETH address for private key: ${
         distributionPrivateKeys[0]!.privateKeyId
@@ -370,7 +372,7 @@ async function recycleImpl() {
   }
 
   const balance =
-    (await connectedSigner.provider?.getBalance(ethAddress.address)) ?? 0n;
+    (await connectedSigner.provider?.getBalance(longTermStorageAddress)) ?? 0n;
 
   const originalFeeData = await connectedSigner.provider?.getFeeData();
 
@@ -398,7 +400,7 @@ async function recycleImpl() {
     return;
   }
 
-  await sendEth(connectedSigner, ethAddress.address, recycleAmount, feeData);
+  await sendEth(connectedSigner, distributionAddress.address, recycleAmount, feeData);
 }
 
 // two approaches:

@@ -14,9 +14,12 @@ export default async function approveActivity(
 
     const result = refineNonNull(activity);
 
+    console.log('result', result);
+
     // Success!
     console.log(
-      [`✅ Approved activity!`, `- Activity ID: ${result?.id}`, ``].join("\n")
+      // TODO: consider altering this shape
+      [`✅ Approved activity!`, `- Activity ID: ${result.id}`, ``].join("\n")
     );
 
     return activityId;
