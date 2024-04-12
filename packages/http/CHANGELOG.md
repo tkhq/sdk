@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.7.2
+
+### Patch Changes
+
+- Sync protos
+
 ## 2.7.1
 
 ### Patch Changes
