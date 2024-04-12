@@ -155,6 +155,7 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
     } else if (["noop", "query"].includes(methodType)) {
       responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
     } else if (methodType === "activityDecision") {
+      // TODO: consider reshaping this response
       responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"] & ActivityMetadata`;
     }
 
@@ -342,10 +343,8 @@ export class TurnkeySDKClientBase {
     const activityStatus = data["activity"]["status"];
     return {
       ...data["activity"]["result"],
-      activity: {
-        id: activityId,
-        status: activityStatus
-      }
+      id: activityId,
+      status: activityStatus
     } as TResponseType;
   }
 

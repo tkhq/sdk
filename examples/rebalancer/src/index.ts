@@ -5,7 +5,6 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeyServerSDK } from "@turnkey/sdk-js-server";
-// import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { FeeData } from "ethers";
 import { isKeyOfObject } from "./utils";
 import {

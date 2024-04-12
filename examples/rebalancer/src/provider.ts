@@ -45,6 +45,7 @@ export function getTurnkeySigner(
   );
 
   // Initialize a Turnkey Signer
+  // TODO: Update this once @turnkey/ethers supports sdk-js-server types
   const turnkeySigner = new TurnkeySigner({
     client: turnkeyClient,
     organizationId: process.env.ORGANIZATION_ID!,
