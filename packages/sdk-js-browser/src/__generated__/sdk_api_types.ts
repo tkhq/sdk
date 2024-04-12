@@ -172,13 +172,13 @@ export type TCreatePrivateKeyTagInput = { body: TCreatePrivateKeyTagBody };
 
 export type TCreatePrivateKeyTagBody = operations["PublicApiService_CreatePrivateKeyTag"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
-export type TCreatePrivateKeysResponse = operations["PublicApiService_CreatePrivateKeys"]["responses"]["200"]["schema"]["activity"]["result"]["createPrivateKeysResult"] & ActivityMetadata;
+export type TCreatePrivateKeysResponse = operations["PublicApiService_CreatePrivateKeys"]["responses"]["200"]["schema"]["activity"]["result"]["createPrivateKeysResultV2"] & ActivityMetadata;
 
 export type TCreatePrivateKeysInput = { body: TCreatePrivateKeysBody };
 
 export type TCreatePrivateKeysBody = operations["PublicApiService_CreatePrivateKeys"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
-export type TCreateSubOrganizationResponse = operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResult"] & ActivityMetadata;
+export type TCreateSubOrganizationResponse = operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV4"] & ActivityMetadata;
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
 
