@@ -22,7 +22,7 @@ export default async function createPrivateKey(
     });
 
     const privateKeys = refineNonNull(
-      activity?.privateKeyIds
+      activity?.privateKeys
     );
     const privateKeyId = refineNonNull(privateKeys?.[0]?.privateKeyId);
     const address = refineNonNull(privateKeys?.[0]?.addresses?.[0]?.address);
