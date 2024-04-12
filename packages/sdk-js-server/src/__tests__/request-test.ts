@@ -13,7 +13,7 @@ test("requests are stamped after client creation", async () => {
     apiBaseUrl: "https://mocked.turnkey.com",
     apiPrivateKey: privateKey,
     apiPublicKey: publicKey,
-    rootOrganizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
+    defaultOrganizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
@@ -42,7 +42,7 @@ test("requests return grpc status details as part of their errors", async () => 
     apiBaseUrl: "https://mocked.turnkey.com",
     apiPrivateKey: privateKey,
     apiPublicKey: publicKey,
-    rootOrganizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
+    defaultOrganizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
   });
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
