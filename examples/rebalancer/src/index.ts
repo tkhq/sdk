@@ -36,7 +36,7 @@ const turnkeyClient = new TurnkeyServerSDK({
   apiBaseUrl: process.env.BASE_URL!,
   apiPrivateKey: process.env.API_PRIVATE_KEY!,
   apiPublicKey: process.env.API_PUBLIC_KEY!,
-  rootOrganizationId: process.env.ORGANIZATION_ID!,
+  defaultOrganizationId: process.env.ORGANIZATION_ID!,
 });
 
 async function main() {

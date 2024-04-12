@@ -15,7 +15,6 @@ export default async function approveActivity(
     const result = refineNonNull(activity);
 
     // Success!
-    // TODO: update once new codegen is in
     console.log(
       [`✅ Approved activity!`, `- Activity ID: ${result?.id}`, ``].join("\n")
     );

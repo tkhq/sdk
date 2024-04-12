@@ -15,7 +15,6 @@ export default async function rejectActivity(
     const result = refineNonNull(activity);
 
     // Success!
-    // TODO: update once new codegen is in
     console.log(
       [`❌ Rejected activity!`, `- Activity ID: ${result.id}`, ``].join("\n")
     );
