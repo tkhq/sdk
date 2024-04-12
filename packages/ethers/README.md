@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@turnkey/ethers?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/ethers)
 
-[Turnkey](https://turnkey.com) Signer for [`Ethers`](https://docs.ethers.org/v6/api/providers/#Signer).
+[Turnkey](https://turnkey.com) Signer for [`Ethers`](https://docs.ethers.org/v5/api/signer/).
 
 If you need a lower-level, fully typed HTTP client for interacting with Turnkey API, check out [`@turnkey/http`](/packages/http/).
 
@@ -44,7 +44,7 @@ async function main() {
     signWith: "...",
   });
 
-  // Connect it with a Provider (https://docs.ethers.org/v6/api/providers/)
+  // Connect it with a Provider (https://docs.ethers.org/v5/api/providers/)
   const connectedSigner = turnkeySigner.connect(provider);
 
   const chainId = await connectedSigner.getChainId();
