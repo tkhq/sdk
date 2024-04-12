@@ -55,13 +55,13 @@ export class TurnkeySDKClientBase {
     const POLLING_DURATION = this.config.activityPoller?.duration ?? 1000;
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-    const initialData = await this.request<TBodyType, TResponseType>(url, body) as ActivityResponse;
-    const activityId = initialData["activity"]["id"];
-    let activityStatus = initialData["activity"]["status"];
+    const responseData = await this.request<TBodyType, TResponseType>(url, body) as ActivityResponse;
+    const activityId = responseData["activity"]["id"];
+    const activityStatus = responseData["activity"]["status"];
 
     if (activityStatus !== "ACTIVITY_STATUS_PENDING") {
       return {
-        ...initialData["activity"]["result"][`${resultKey}`],
+        ...responseData["activity"]["result"][`${resultKey}`],
         activity: {
           id: activityId,
           status: activityStatus
