@@ -1,5 +1,11 @@
 # @turnkey/ethers
 
+## 0.19.11
+
+### Patch Changes
+
+- Sync protos
+
 ## 0.19.10
 
 ### Patch Changes
