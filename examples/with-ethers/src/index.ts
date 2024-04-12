@@ -38,29 +38,25 @@ async function main() {
     signWith: process.env.SIGN_WITH!,
   });
 
-  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v6/api/providers/)
+  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v5/api/providers/)
   const network = "goerli";
-  const provider = new ethers.JsonRpcProvider(
-    `https://${network}.infura.io/v3/${process.env.INFURA_KEY}`
-  );
+  const provider = new ethers.providers.InfuraProvider(network);
   const connectedSigner = turnkeySigner.connect(provider);
 
-  const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
+  const chainId = await connectedSigner.getChainId();
   const address = await connectedSigner.getAddress();
-  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0;
-  const transactionCount = await connectedSigner.provider?.getTransactionCount(
-    address
-  );
+  const balance = await connectedSigner.getBalance();
+  const transactionCount = await connectedSigner.getTransactionCount();
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);
-  print("Balance:", `${ethers.formatEther(balance)} Ether`);
+  print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
   print("Transaction count:", `${transactionCount}`);
 
   // 1. Sign a raw payload (`eth_sign` style)
   const message = "Hello Turnkey";
   const signature = await connectedSigner.signMessage(message);
-  const recoveredAddress = ethers.verifyMessage(message, signature);
+  const recoveredAddress = ethers.utils.verifyMessage(message, signature);
 
   print("Turnkey-powered signature:", `${signature}`);
   print("Recovered address:", `${recoveredAddress}`);
@@ -71,7 +67,7 @@ async function main() {
   const destinationAddress = "0x2Ad9eA1E677949a536A270CEC812D6e868C88108";
   const transactionRequest = {
     to: destinationAddress,
-    value: ethers.parseEther(transactionAmount),
+    value: ethers.utils.parseEther(transactionAmount),
     type: 2,
   };
 
@@ -79,7 +75,7 @@ async function main() {
 
   print("Turnkey-signed transaction:", `${signedTx}`);
 
-  if (balance === 0) {
+  if (balance.isZero()) {
     let warningMessage =
       "The transaction won't be broadcasted because your account balance is zero.\n";
     if (network === "goerli") {
@@ -95,7 +91,7 @@ async function main() {
   const sentTx = await connectedSigner.sendTransaction(transactionRequest);
 
   print(
-    `Sent ${ethers.formatEther(sentTx.value)} Ether to ${sentTx.to}:`,
+    `Sent ${ethers.utils.formatEther(sentTx.value)} Ether to ${sentTx.to}:`,
     `https://${network}.etherscan.io/tx/${sentTx.hash}`
   );
 
@@ -108,17 +104,17 @@ async function main() {
     );
 
     // Read from contract
-    const wethBalance = await wethContract?.balanceOf?.(address);
+    const wethBalance = await wethContract.balanceOf(address);
 
-    print("WETH Balance:", `${ethers.formatEther(wethBalance)} WETH`);
+    print("WETH Balance:", `${ethers.utils.formatEther(wethBalance)} WETH`);
 
     // 3. Wrap ETH -> WETH
-    const depositTx = await wethContract?.deposit?.({
-      value: ethers.parseEther(transactionAmount),
+    const depositTx = await wethContract.deposit({
+      value: ethers.utils.parseEther(transactionAmount),
     });
 
     print(
-      `Wrapped ${ethers.formatEther(depositTx.value)} ETH:`,
+      `Wrapped ${ethers.utils.formatEther(depositTx.value)} ETH:`,
       `https://${network}.etherscan.io/tx/${depositTx.hash}`
     );
   }

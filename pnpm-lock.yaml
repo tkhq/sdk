@@ -470,8 +470,8 @@ importers:
         specifier: ^16.0.3
         version: 16.0.3
       ethers:
-        specifier: ^6.10.0
-        version: 6.10.0
+        specifier: ^5.7.2
+        version: 5.7.2
 
   examples/with-federated-passkeys:
     dependencies:

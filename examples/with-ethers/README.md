@@ -1,6 +1,6 @@
 # Example: `with-ethers`
 
-This example shows how to construct and broadcast a transaction using [`Ethers`](https://docs.ethers.org/v6/api/providers/#Signer) with Turnkey.
+This example shows how to construct and broadcast a transaction using [`Ethers`](https://docs.ethers.org/v5/api/signer/) with Turnkey.
 
 If you want to see a demo with passkeys, head to the example [`with-ethers-and-passkeys`](../with-ethers-and-passkeys/) to see a NextJS app using passkeys.
 
@@ -105,7 +105,7 @@ This script will do the following:
 1. send ETH (via type 0, EIP-155-compliant legacy transaction)
 2. deposit ETH into the WETH contract (aka wrapping)
 
-Note that these transactions will all be broadcasted sequentially.
+Note that these transactions will all be broadcasted sequentially. Additionally, Ethers v5 is only compatible with the Sepolia network if paired with Infura (Ethers v5 does not supported Alchemy with Sepolia at this time).
 
 The script constructs a transaction via Turnkey and broadcasts via Infura. If the script exits because your account isn't funded, you can request funds on https://sepoliafaucet.com/ or via Coinbase Wallet.
 
