@@ -2,12 +2,12 @@ import { ethers } from "ethers";
 import { toReadableAmount, print } from "./utils";
 
 export async function broadcastTx(
-  provider: ethers.Provider,
+  provider: ethers.providers.Provider,
   signedTx: string,
   activityId: string
 ) {
   const network = await provider.getNetwork();
-  const txHash = ethers.keccak256(signedTx);
+  const txHash = ethers.utils.keccak256(signedTx);
 
   console.log(
     [
@@ -19,14 +19,13 @@ export async function broadcastTx(
     ].join("\n")
   );
 
-  const confirmations =
-    (await (await provider.getTransaction(txHash))?.confirmations()) ?? 0;
-  if (confirmations > 0) {
+  const transaction = await provider.getTransaction(txHash);
+  if (transaction?.confirmations > 0) {
     console.log(`Transaction ${txHash} has already been broadcasted\n`);
     return;
   }
 
-  const { hash } = await provider.broadcastTransaction(signedTx);
+  const { hash } = await provider.sendTransaction(signedTx);
 
   console.log(`Awaiting confirmation for transaction hash ${hash}...\n`);
 
@@ -39,22 +38,23 @@ export async function broadcastTx(
 }
 
 export async function sendEth(
+  provider: ethers.providers.Provider,
   connectedSigner: ethers.Signer,
   destinationAddress: string,
-  value: bigint,
-  precalculatedFeeData: ethers.FeeData | undefined = undefined
+  value: ethers.BigNumber,
+  precalculatedFeeData: ethers.providers.FeeData | undefined = undefined
 ) {
-  const network = await connectedSigner.provider?.getNetwork();
+  const network = await provider.getNetwork();
+  const balance = await connectedSigner.getBalance();
   const address = await connectedSigner.getAddress();
-  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
 
   print("Address:", address);
-  print("Balance:", `${ethers.formatEther(balance)} Ether`);
+  print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
 
-  if (balance === 0n) {
+  if (balance.isZero()) {
     let warningMessage =
       "The transaction won't be broadcast because your account balance is zero.\n";
-    if (network?.name === "sepolia") {
+    if (network.name === "sepolia") {
       warningMessage +=
         "Use https://sepoliafaucet.com/ to request funds on Sepolia, then run the script again.\n";
     }
@@ -62,15 +62,13 @@ export async function sendEth(
     throw new Error(warningMessage);
   }
 
-  const feeData =
-    precalculatedFeeData || (await connectedSigner.provider?.getFeeData());
-  const gasRequired =
-    ((feeData?.maxFeePerGas ?? 0n) + (feeData?.maxPriorityFeePerGas ?? 0n)) *
-    21000n;
+  const feeData = precalculatedFeeData || (await connectedSigner.getFeeData());
+  const gasRequired = feeData
+    .maxFeePerGas!.add(feeData.maxPriorityFeePerGas!)
+    .mul(21000);
+  const totalCost = gasRequired.add(value);
 
-  const totalCost = gasRequired + value;
-
-  if (balance < totalCost) {
+  if (balance.lt(totalCost)) {
     console.error(`Insufficient ETH balance of ${balance}. Needs ${totalCost}`);
   }
 
@@ -78,8 +76,8 @@ export async function sendEth(
     to: destinationAddress,
     value,
     type: 2,
-    maxFeePerGas: feeData?.maxFeePerGas || 0n,
-    maxPriorityFeePerGas: feeData?.maxPriorityFeePerGas || 0n,
+    maxFeePerGas: feeData.maxFeePerGas!,
+    maxPriorityFeePerGas: feeData.maxPriorityFeePerGas!,
   };
 
   let sentTx;
@@ -88,7 +86,6 @@ export async function sendEth(
 
     console.log(`Awaiting confirmation for tx hash ${sentTx.hash}...\n`);
     await connectedSigner.provider?.waitForTransaction(sentTx.hash, 1);
-    const networkName = await connectedSigner.provider?.getNetwork();
 
     print(
       `Sent ${toReadableAmount(
@@ -96,7 +93,7 @@ export async function sendEth(
         18,
         12
       )} ETH to ${destinationAddress}:`,
-      `https://${networkName}.etherscan.io/tx/${sentTx.hash}`
+      `https://${network.name}.etherscan.io/tx/${sentTx.hash}`
     );
   } catch (error: any) {
     if (error.toString().includes("ACTIVITY_STATUS_CONSENSUS_NEEDED")) {

@@ -1,6 +1,6 @@
 # Example: `deployer`
 
-This example shows how to deploy a smart contract using [`Ethers`](https://docs.ethers.org/v6/api/providers/#Signer) with Turnkey.
+This example shows how to deploy a smart contract using [`Ethers`](https://docs.ethers.org/v5/api/signer/) with Turnkey.
 
 ## Getting started
 

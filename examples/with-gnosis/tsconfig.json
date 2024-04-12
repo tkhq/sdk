@@ -2,9 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
-    "noUnusedLocals": false,
-    "noUnusedParameters": false
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
 }
