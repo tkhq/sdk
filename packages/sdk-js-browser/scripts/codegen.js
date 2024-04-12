@@ -65,7 +65,46 @@ function methodTypeFromMethodName(methodName) {
   if (methodName.startsWith("get") || methodName.startsWith("list")) {
     return "query";
   }
+  // Rename to submit?
   return "command";
+}
+
+// Helper that takes in swagger definitions and returns a map containing the latest version of a field.
+// The intent is to consolidate a field with multiple versions (e.g. v1CreateSubOrganizationResult, v1CreateSubOrganizationResultV2...)
+// in order to get just the latest (v1CreateSubOrganizationResultV4).
+function extractLatestVersions(definitions) {
+  const latestVersions = {};
+
+  // Regex to separate the version prefix, base activity details, and (optional) activity version
+  const keyVersionRegex = /^(v\d+)([A-Z][a-z]+(?:[A-Z][a-z]+)*)(V\d+)?$/; 
+
+  Object.keys(definitions).forEach((key) => {
+    const match = key.match(keyVersionRegex);
+    if (match) {
+      const fullName = match[0];
+      const _defaultPrefix = match[1]; // This is simply the namespace prefix; every field has this "v1"
+      const baseName = match[2]; // Field without any version-related prefixes or suffixes
+      const versionSuffix = match[3]; // Version (optional)
+      const formattedKeyName =
+        baseName.charAt(0).toLowerCase() +
+        baseName.slice(1) +
+        (versionSuffix || ""); // Reconstruct the original key with version
+
+      // Determine if this version is newer or if no version was previously stored
+      if (
+        !latestVersions[baseName] ||
+        versionSuffix > (latestVersions[baseName].versionSuffix || "")
+      ) {
+        latestVersions[baseName] = {
+          fullName,
+          formattedKeyName,
+          versionSuffix,
+        };
+      }
+    }
+  });
+
+  return latestVersions;
 }
 
 // Generators
@@ -86,6 +125,8 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
     'import type { queryOverrideParams, commandOverrideParams, ActivityMetadata } from "../__types__/base";'
   );
 
+  const latestVersions = extractLatestVersions(swaggerSpec.definitions);
+
   for (const endpointPath in swaggerSpec.paths) {
     const methodMap = swaggerSpec.paths[endpointPath];
     const operation = methodMap.post;
@@ -96,20 +137,21 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
       ""
     );
 
-    const isEndpointDeprecated = Boolean(operation.deprecated);
-
     const methodName = `${
       operationNameWithoutNamespace.charAt(0).toLowerCase() +
       operationNameWithoutNamespace.slice(1)
     }`;
 
     const methodType = methodTypeFromMethodName(methodName);
-    const signedRequestGeneratorName = `sign${methodName}`;
+
     const parameterList = operation["parameters"] ?? [];
 
     let responseValue = "void";
     if (methodType === "command") {
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${methodName}Result"] & ActivityMetadata`;
+      const resultKey = operationNameWithoutNamespace + "Result";
+      const versionedMethodName = latestVersions[resultKey].formattedKeyName;
+
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${versionedMethodName}"] & ActivityMetadata`;
     } else if (["noop", "query"].includes(methodType)) {
       responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
     } else if (methodType === "activityDecision") {
@@ -206,8 +248,6 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
 
   imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
 
-  imports.push('import { StorageKeys, getStorageValue } from "../storage";');
-
   codeBuffer.push(`
 export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;
@@ -257,13 +297,13 @@ export class TurnkeySDKClientBase {
     const POLLING_DURATION = this.config.activityPoller?.duration ?? 1000;
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-    const initialData = await this.request<TBodyType, TResponseType>(url, body) as ActivityResponse;
-    const activityId = initialData["activity"]["id"];
-    let activityStatus = initialData["activity"]["status"];
+    const responseData = await this.request<TBodyType, TResponseType>(url, body) as ActivityResponse;
+    const activityId = responseData["activity"]["id"];
+    const activityStatus = responseData["activity"]["status"];
 
     if (activityStatus !== "ACTIVITY_STATUS_PENDING") {
       return {
-        ...initialData["activity"]["result"][\`\${resultKey}\`],
+        ...responseData["activity"]["result"][\`\${resultKey}\`],
         activity: {
           id: activityId,
           status: activityStatus
@@ -325,8 +365,6 @@ export class TurnkeySDKClientBase {
       continue;
     }
 
-    const isEndpointDeprecated = Boolean(operation.deprecated);
-
     const methodName = `${
       operationNameWithoutNamespace.charAt(0).toLowerCase() +
       operationNameWithoutNamespace.slice(1)
@@ -343,10 +381,9 @@ export class TurnkeySDKClientBase {
             ? " = {}"
             : ""
         }): Promise<SdkApiTypes.${responseType}> => {
-    const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.request("${endpointPath}", {
       ...input,
-      organizationId: input.organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId)
+      organizationId: input.organizationId ?? this.config.organizationId
     });
   }`
       );
@@ -362,10 +399,9 @@ export class TurnkeySDKClientBase {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
     return this.command("${endpointPath}", {
       parameters: rest,
-      organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
+      organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "${versionedActivityType ?? unversionedActivityType}"
     }, "${methodName}Result${versionSuffix ? versionSuffix[1] : ""}");
@@ -375,10 +411,10 @@ export class TurnkeySDKClientBase {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const currentSubOrganization = await getStorageValue(StorageKeys.CurrentSubOrganization);
-    return this.activityDecision("${endpointPath}", {
+    return this.activityDecision("${endpointPath}",
+      {
         parameters: rest,
-        organizationId: organizationId ?? (currentSubOrganization?.organizationId ?? this.config.organizationId),
+        organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_${operationNameWithoutNamespace
           .replace(/([a-z])([A-Z])/g, "$1_$2")
