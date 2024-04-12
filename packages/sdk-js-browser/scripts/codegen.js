@@ -63,7 +63,11 @@ function methodTypeFromMethodName(methodName) {
   if (methodName.startsWith("nOOP")) {
     return "noop";
   }
-  if (methodName.startsWith("get") || methodName.startsWith("list")) {
+  if (
+    methodName.startsWith("get") ||
+    methodName.startsWith("list") ||
+    methodName == "createLoginSession"
+  ) {
     return "query";
   }
   return "command";

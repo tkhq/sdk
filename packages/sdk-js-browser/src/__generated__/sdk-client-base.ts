@@ -389,21 +389,6 @@ export class TurnkeySDKClientBase {
     });
   };
 
-  getLoginSession = async (
-    input: SdkApiTypes.TGetLoginSessionBody = {}
-  ): Promise<SdkApiTypes.TGetLoginSessionResponse> => {
-    const currentSubOrganization = await getStorageValue(
-      StorageKeys.CurrentSubOrganization
-    );
-    return this.request("/public/v1/query/login_session", {
-      ...input,
-      organizationId:
-        input.organizationId ??
-        currentSubOrganization?.organizationId ??
-        this.config.organizationId,
-    });
-  };
-
   getWhoami = async (
     input: SdkApiTypes.TGetWhoamiBody = {}
   ): Promise<SdkApiTypes.TGetWhoamiResponse> => {
@@ -523,6 +508,21 @@ export class TurnkeySDKClientBase {
       },
       "createInvitationsResult"
     );
+  };
+
+  createLoginSession = async (
+    input: SdkApiTypes.TCreateLoginSessionBody
+  ): Promise<SdkApiTypes.TCreateLoginSessionResponse> => {
+    const currentSubOrganization = await getStorageValue(
+      StorageKeys.CurrentSubOrganization
+    );
+    return this.request("/public/v1/submit/create_login_session", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        currentSubOrganization?.organizationId ??
+        this.config.organizationId,
+    });
   };
 
   createPolicies = async (

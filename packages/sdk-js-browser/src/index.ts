@@ -15,7 +15,6 @@ import {
   TApiKeyStamperConfig,
 } from "@turnkey/api-key-stamper";
 
-
 import {
   IframeEventType,
   IframeStamper,
@@ -27,10 +26,7 @@ import {
   WebauthnStamper,
 } from "@turnkey/webauthn-stamper";
 
-import {
-  TurnkeyBrowserSDK,
-  TurnkeySDKBrowserClient
-} from "./sdk-client";
+import { TurnkeyBrowserSDK, TurnkeySDKBrowserClient } from "./sdk-client";
 
 import type {
   TurnkeySDKClientConfig,

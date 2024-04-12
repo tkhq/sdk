@@ -56,7 +56,7 @@ export class TurnkeyBrowserSDK {
     if (!currentUser?.readOnlySession) {
       return;
     }
-    if (currentUser?.readOnlySession?.sessionExpiry > Date.now() / 1000) {
+    if (currentUser?.readOnlySession?.sessionExpiry > Date.now()) {
       return new TurnkeySDKBrowserClient({
         readOnlySession: currentUser?.readOnlySession?.session!,
         apiBaseUrl: this.config.apiBaseUrl,
@@ -89,7 +89,9 @@ export class TurnkeyBrowserSDK {
   };
 
   sessionSign = async (): Promise<TurnkeySDKBrowserClient> => {
-    const signingSession: SigningSession | undefined = await getStorageValue(StorageKeys.CurrentSigningSession);
+    const signingSession: SigningSession | undefined = await getStorageValue(
+      StorageKeys.CurrentSigningSession
+    );
     const sessionStamper = new ApiKeyStamper({
       apiPublicKey: signingSession!.publicKey,
       apiPrivateKey: signingSession!.privateKey,
@@ -138,7 +140,7 @@ export class TurnkeyBrowserSDK {
 
     const data = await response.json();
     return data as TResponseType;
-  }
+  };
 
   // Local
   createUserPasskey = async (config: Record<any, any> = {}) => {
@@ -217,12 +219,10 @@ export class TurnkeyBrowserSDK {
     await removeStorageValue(StorageKeys.CurrentUser);
     await removeStorageValue(StorageKeys.CurrentSubOrganization);
     return true;
-  }
-
+  };
 }
 
 export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
-
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
   }
@@ -275,7 +275,10 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
   };
 
   login = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
-    const loginSessionResult = await this.getLoginSession();
+    const currentTime = new Date().getTime().toString();
+    const loginSessionResult = await this.createLoginSession({
+      timestampMs: currentTime,
+    });
     const org = {
       organizationId: loginSessionResult.organizationId,
       organizationName: loginSessionResult.organizationName,

@@ -216,17 +216,6 @@ export type TGetWalletsBody = Omit<
 > &
   queryOverrideParams;
 
-export type TGetLoginSessionResponse =
-  operations["PublicApiService_GetLoginSession"]["responses"]["200"]["schema"];
-
-export type TGetLoginSessionInput = { body: TGetLoginSessionBody };
-
-export type TGetLoginSessionBody = Omit<
-  operations["PublicApiService_GetLoginSession"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
 export type TGetWhoamiResponse =
   operations["PublicApiService_GetWhoami"]["responses"]["200"]["schema"];
 
@@ -282,6 +271,17 @@ export type TCreateInvitationsInput = { body: TCreateInvitationsBody };
 export type TCreateInvitationsBody =
   operations["PublicApiService_CreateInvitations"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
+
+export type TCreateLoginSessionResponse =
+  operations["PublicApiService_CreateLoginSession"]["responses"]["200"]["schema"];
+
+export type TCreateLoginSessionInput = { body: TCreateLoginSessionBody };
+
+export type TCreateLoginSessionBody = Omit<
+  operations["PublicApiService_CreateLoginSession"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
 
 export type TCreatePoliciesResponse =
   operations["PublicApiService_CreatePolicies"]["responses"]["200"]["schema"]["activity"]["result"]["createPoliciesResult"];

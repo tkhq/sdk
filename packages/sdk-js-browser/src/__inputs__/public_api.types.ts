@@ -80,10 +80,6 @@ export type paths = {
     /** List all Wallets within an Organization */
     post: operations["PublicApiService_GetWallets"];
   };
-  "/public/v1/query/login_session": {
-    /** Get login session and retrieve basic user and organization information. */
-    post: operations["PublicApiService_GetLoginSession"];
-  };
   "/public/v1/query/whoami": {
     /** Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users. */
     post: operations["PublicApiService_GetWhoami"];
@@ -107,6 +103,10 @@ export type paths = {
   "/public/v1/submit/create_invitations": {
     /** Create Invitations to join an existing Organization */
     post: operations["PublicApiService_CreateInvitations"];
+  };
+  "/public/v1/submit/create_login_session": {
+    /** Create a login session and retrieve basic user and organization information. */
+    post: operations["PublicApiService_CreateLoginSession"];
   };
   "/public/v1/submit/create_policies": {
     /** Create new Policies */
@@ -628,6 +628,29 @@ export type definitions = {
   v1CreateInvitationsResult: {
     /** @description A list of Invitation IDs */
     invitationIds: string[];
+  };
+  v1CreateLoginSessionRequest: {
+    /** @description Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons. */
+    organizationId: string;
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+  };
+  v1CreateLoginSessionResponse: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Human-readable name for an Organization. */
+    organizationName: string;
+    /** @description Unique identifier for a given User. */
+    userId: string;
+    /** @description Human-readable name for a User. */
+    username: string;
+    /** @description Unique key associated with the session */
+    session: string;
+    /**
+     * Format: uint64
+     * @description UTC timestamp Expiry time for the read only session in milliseconds.
+     */
+    sessionExpiry: string;
   };
   v1CreateOrganizationIntent: {
     /** @description Human-readable name for an Organization. */
@@ -1253,27 +1276,6 @@ export type definitions = {
   v1GetAuthenticatorsResponse: {
     /** @description A list of authenticators. */
     authenticators: definitions["v1Authenticator"][];
-  };
-  v1GetLoginSessionRequest: {
-    /** @description Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons. */
-    organizationId: string;
-  };
-  v1GetLoginSessionResponse: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    /** @description Human-readable name for an Organization. */
-    organizationName: string;
-    /** @description Unique identifier for a given User. */
-    userId: string;
-    /** @description Human-readable name for a User. */
-    username: string;
-    /** @description Session ID and verifier separated by a colon. */
-    session: string;
-    /**
-     * Format: uint64
-     * @description Expiry time for the read only session.
-     */
-    sessionExpiry: string;
   };
   v1GetOrganizationRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -2598,24 +2600,6 @@ export type operations = {
       };
     };
   };
-  /** Get login session and retrieve basic user and organization information. */
-  PublicApiService_GetLoginSession: {
-    parameters: {
-      body: {
-        body: definitions["v1GetLoginSessionRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetLoginSessionResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
   /** Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users. */
   PublicApiService_GetWhoami: {
     parameters: {
@@ -2717,6 +2701,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create a login session and retrieve basic user and organization information. */
+  PublicApiService_CreateLoginSession: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateLoginSessionRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1CreateLoginSessionResponse"];
       };
       /** An unexpected error response. */
       default: {
