@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
-    "hardhat": "^2.22.2"
+    "hardhat": "^2.19.4"
   },
   "peerDependencies": {
     "@turnkey/http": "workspace:*"

@@ -19,9 +19,9 @@ export const DEFAULT_MAX_PRIORITY_FEE_PER_GAS = 10000000000; // 10 gwei
 export const DEFAULT_TOKEN_APPROVAL_AMOUNT = 1000; // whole units
 export const DEFAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000); // 50 bips, or 0.50%
 export const FEE_AMOUNT = FeeAmount.MEDIUM;
-export const NATIVE_TRANSFER_GAS_LIMIT = 21000n;
-export const ERC20_TRANSFER_GAS_LIMIT = 200000n; // conservatively high
-export const GAS_MULTIPLIER = 2n;
+export const NATIVE_TRANSFER_GAS_LIMIT = 21000;
+export const ERC20_TRANSFER_GAS_LIMIT = 200000; // conservatively high
+export const GAS_MULTIPLIER = 2;
 
 // Contract Addresses
 

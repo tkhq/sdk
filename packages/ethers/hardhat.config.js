@@ -1,5 +1,4 @@
-require("@typechain/hardhat");
-require("@nomicfoundation/hardhat-ethers");
+require("@nomiclabs/hardhat-ethers");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 const config = {
@@ -8,13 +7,6 @@ const config = {
     sources: "./src/__tests__/contracts/source",
     artifacts: "./src/__tests__/contracts/artifacts",
     cache: "./.cache",
-  },
-  typechain: {
-    outDir: "src/__tests__/typechain",
-    target: "ethers-v6",
-    alwaysGenerateOverloads: false,
-    externalArtifacts: [],
-    dontOverrideCompile: false,
   },
 };
 

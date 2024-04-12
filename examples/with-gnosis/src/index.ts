@@ -8,11 +8,11 @@ import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import EthersAdapter from "@safe-global/safe-ethers-lib";
 import Safe, {
-  EthersAdapter,
   SafeFactory,
   SafeAccountConfig,
-} from "@safe-global/protocol-kit";
+} from "@safe-global/safe-core-sdk";
 import type { SafeTransactionDataPartial } from "@safe-global/safe-core-sdk-types";
 import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
 import { print } from "./util";
@@ -62,7 +62,7 @@ async function main() {
 
   // Bring your own provider (for the sake of this demo, we recommend using Sepolia + Infura)
   const network = "sepolia";
-  const provider = new ethers.InfuraProvider(network);
+  const provider = new ethers.providers.InfuraProvider(network);
 
   const connectedSigner1 = turnkeySigner1.connect(provider);
   const connectedSigner2 = turnkeySigner2.connect(provider);
@@ -70,16 +70,14 @@ async function main() {
 
   for (let signer of [connectedSigner1, connectedSigner2, connectedSigner3]) {
     const address = await signer.getAddress();
-    const balance = (await signer.provider?.getBalance(address)) ?? 0;
-    const transactionCount = await signer.provider?.getTransactionCount(
-      address
-    );
+    const balance = await signer.getBalance();
+    const transactionCount = await signer.getTransactionCount();
 
     print("Address:", address);
-    print("Balance:", `${ethers.formatEther(balance)} ETH`);
+    print("Balance:", `${ethers.utils.formatEther(balance)} ETH`);
     print("Transaction count:", `${transactionCount}`);
 
-    if (balance === 0) {
+    if (balance.isZero()) {
       let warningMessage = `The transaction won't be broadcasted because the balance for address ${address} is zero.\n`;
       if (network === "sepolia") {
         warningMessage +=
@@ -110,7 +108,7 @@ async function main() {
   const destinationAddress = "0x2Ad9eA1E677949a536A270CEC812D6e868C88108";
   const safeTransactionData: SafeTransactionDataPartial = {
     to: destinationAddress,
-    value: ethers.parseEther(transactionAmount).toString(),
+    value: ethers.utils.parseEther(transactionAmount).toString(),
     data: "0x",
   };
 
@@ -129,7 +127,7 @@ async function main() {
   };
 
   const safeSdk1: Safe = await safeFactory.deploySafe({ safeAccountConfig });
-  const safeAddress = await safeSdk1.getAddress();
+  const safeAddress = safeSdk1.getAddress();
   print("New Gnosis Safe Address:", safeAddress);
 
   // Have other signers connect to deployed Safe
@@ -147,12 +145,12 @@ async function main() {
   // Fund the safe using signer 1
   const fundingRequest = {
     to: safeAddress,
-    value: ethers.parseEther(transactionAmount),
+    value: ethers.utils.parseEther(transactionAmount),
     type: 2,
   };
   const sentTx = await connectedSigner1.sendTransaction(fundingRequest);
   print(
-    `Funding the safe: sent ${ethers.formatEther(sentTx.value)} ETH to ${
+    `Funding the safe: sent ${ethers.utils.formatEther(sentTx.value)} ETH to ${
       sentTx.to
     }:`,
     `https://${network}.etherscan.io/tx/${sentTx.hash}`
@@ -160,7 +158,7 @@ async function main() {
 
   // Create Safe transaction using signer 1
   let safeTransaction = await safeSdk1.createTransaction({
-    transactions: [safeTransactionData],
+    safeTransactionData,
   });
 
   // Obtain *offchain* signature from signer 1 using EIP-712
@@ -176,14 +174,14 @@ async function main() {
     )?.data ?? ""
   );
 
-  // Approve safe transaction *offchain* with Signer 2
-  safeTransaction = await safeSdk2.signTransaction(safeTransaction);
+  // Obtain *offchain* signature from signer 2 using standard raw message signing, and attach it to the safeTransaction
+  txHash = await safeSdk2.getTransactionHash(safeTransaction);
+  let signTransactionHashResponse = await safeSdk2.signTransactionHash(txHash);
   print(
-    `Signed transaction offchain using signer 2. Signature:`,
-    safeTransaction.signatures.get(
-      (await connectedSigner2.getAddress()).toLowerCase()
-    )?.data ?? ""
+    `Signed transaction hash offchain using signer 2. Signature:`,
+    signTransactionHashResponse.data
   );
+  safeTransaction.addSignature(signTransactionHashResponse);
 
   // Obtain *onchain* signature from signer 3.
   // This is technically redundant given this signer will go on to execute the transaction,

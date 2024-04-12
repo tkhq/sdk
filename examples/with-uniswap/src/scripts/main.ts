@@ -17,17 +17,15 @@ async function main() {
   );
 
   const network = await provider.getNetwork();
-  const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
+  const chainId = await connectedSigner.getChainId();
   const address = await connectedSigner.getAddress();
-  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0;
-  const transactionCount = await connectedSigner.provider?.getTransactionCount(
-    address
-  );
+  const balance = await connectedSigner.getBalance();
+  const transactionCount = await connectedSigner.getTransactionCount();
 
   // Print relevant config + address info
   print("Network:", `${network.name} (chain ID ${chainId})`);
   print("Address:", address);
-  print("Balance:", `${ethers.formatEther(balance)} Ether`);
+  print("Balance:", `${ethers.utils.formatEther(balance)} Ether`);
   print("Transaction count:", `${transactionCount}`);
 
   if (network.name === "goerli") {
