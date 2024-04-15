@@ -20,6 +20,6 @@
     "**/__fixtures__/**/*"
   ],
   "references": [
-    { "path": "../sdk-js-browser" }
+    { "path": "../sdk-browser" }
   ]
 }

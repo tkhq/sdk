@@ -3,7 +3,7 @@ import {
   TurnkeyBrowserSDK,
   TurnkeySDKBrowserClient,
   TurnkeySDKBrowserConfig
-} from '@turnkey/sdk-js-browser';
+} from '@turnkey/sdk-browser';
 
 interface TurnkeyClientType {
   turnkeyClient: TurnkeyBrowserSDK | undefined;
