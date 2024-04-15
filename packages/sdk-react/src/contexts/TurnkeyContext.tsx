@@ -1,19 +1,20 @@
 import { ReactNode, createContext, useState, useEffect, useRef } from 'react';
-
 import {
   TurnkeyBrowserSDK,
   TurnkeySDKBrowserClient,
   TurnkeySDKBrowserConfig
 } from '@turnkey/sdk-js-browser';
 
-export interface TurnkeyClientType {
+interface TurnkeyClientType {
   turnkeyClient: TurnkeyBrowserSDK | undefined;
-  iframeClient: TurnkeySDKBrowserClient | undefined;
+  iframeSigner: TurnkeySDKBrowserClient | undefined;
+  passkeySigner: TurnkeySDKBrowserClient | undefined;
 }
 
 export const TurnkeyContext = createContext<TurnkeyClientType> ({
   turnkeyClient: undefined,
-  iframeClient: undefined
+  passkeySigner: undefined,
+  iframeSigner: undefined
 });
 
 interface TurnkeyProviderProps {
@@ -23,7 +24,8 @@ interface TurnkeyProviderProps {
 
 export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({ config, children }) => {
   const [turnkeyClient, setTurnkeyClient] = useState<TurnkeyBrowserSDK | undefined>(undefined);
-  const [iframeClient, setIframeClient] = useState<TurnkeySDKBrowserClient | undefined>(undefined);
+  const [passkeySigner, setPasskeySigner] = useState<TurnkeySDKBrowserClient | undefined>(undefined);
+  const [iframeSigner, setIframeSigner] = useState<TurnkeySDKBrowserClient | undefined>(undefined);
   const iframeInit = useRef<boolean>(false);
 
   const TurnkeyIframeContainerId = "turnkey-auth-iframe-container-id";
@@ -35,15 +37,20 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({ config, childr
         iframeInit.current = true;
         const newTurnkeyClient = new TurnkeyBrowserSDK(config);
         setTurnkeyClient(newTurnkeyClient);
-        const newIframeClient = await newTurnkeyClient.iframeSigner(document.getElementById(TurnkeyIframeContainerId));
-        setIframeClient(newIframeClient);
+        setPasskeySigner(await newTurnkeyClient.passkeySigner());
+        const iframeClient = await newTurnkeyClient.iframeSigner(document.getElementById(TurnkeyIframeContainerId));
+        setIframeSigner(iframeClient);
       }
     })();
 
   }, []);
 
   return (
-    <TurnkeyContext.Provider value={{ turnkeyClient, iframeClient }}>
+    <TurnkeyContext.Provider value={{
+      turnkeyClient,
+      passkeySigner,
+      iframeSigner
+    }}>
       {children}
       <div className='' id={TurnkeyIframeContainerId} style={{display: "none"}} />
     </TurnkeyContext.Provider>
