@@ -852,7 +852,7 @@ importers:
         specifier: ^8.0.3
         version: 8.1.0
 
-  packages/sdk-node:
+  packages/sdk-server:
     dependencies:
       '@turnkey/api-key-stamper':
         specifier: workspace:*

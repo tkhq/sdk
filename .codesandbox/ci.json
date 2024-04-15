@@ -8,7 +8,7 @@
     "packages/ethers",
     "packages/http",
     "packages/sdk-browser",
-    "packages/sdk-node",
+    "packages/sdk-server",
     "packages/solana",
     "packages/viem",
     "packages/webauthn-stamper",
