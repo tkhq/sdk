@@ -824,7 +824,7 @@ importers:
         specifier: ^0.10.7
         version: 0.10.7
 
-  packages/sdk-js-browser:
+  packages/sdk-browser:
     dependencies:
       '@turnkey/api-key-stamper':
         specifier: workspace:*
@@ -852,7 +852,7 @@ importers:
         specifier: ^8.0.3
         version: 8.1.0
 
-  packages/sdk-js-server:
+  packages/sdk-node:
     dependencies:
       '@turnkey/api-key-stamper':
         specifier: workspace:*
@@ -882,9 +882,9 @@ importers:
 
   packages/sdk-react:
     dependencies:
-      '@turnkey/sdk-js-browser':
+      '@turnkey/sdk-browser':
         specifier: workspace:*
-        version: link:../sdk-js-browser
+        version: link:../sdk-browser
     devDependencies:
       '@types/react':
         specifier: ^18.2.75
