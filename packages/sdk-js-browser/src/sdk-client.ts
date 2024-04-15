@@ -276,25 +276,25 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
 
   login = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
     const currentTime = new Date().getTime().toString();
-    const loginSessionResult = await this.createLoginSession({
+    const readOnlySessionResult = await this.createReadOnlySession({
       timestampMs: currentTime,
     });
     const org = {
-      organizationId: loginSessionResult.organizationId,
-      organizationName: loginSessionResult.organizationName,
+      organizationId: readOnlySessionResult!.organizationId,
+      organizationName: readOnlySessionResult!.organizationName,
     };
     const currentUser: User = {
-      userId: loginSessionResult.userId,
-      username: loginSessionResult.username,
+      userId: readOnlySessionResult!.userId,
+      username: readOnlySessionResult!.username,
       organization: org,
       readOnlySession: {
-        session: loginSessionResult.session,
-        sessionExpiry: Number(loginSessionResult.sessionExpiry),
+        session: readOnlySessionResult!.session,
+        sessionExpiry: Number(readOnlySessionResult!.sessionExpiry),
       },
     };
     await setStorageValue(StorageKeys.CurrentUser, currentUser);
     await setStorageValue(StorageKeys.CurrentSubOrganization, org);
-    return loginSessionResult;
+    return readOnlySessionResult!;
   };
 
   createSigningSessionKey = async (params: {

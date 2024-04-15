@@ -65,8 +65,7 @@ function methodTypeFromMethodName(methodName) {
   }
   if (
     methodName.startsWith("get") ||
-    methodName.startsWith("list") ||
-    methodName == "createLoginSession"
+    methodName.startsWith("list") 
   ) {
     return "query";
   }

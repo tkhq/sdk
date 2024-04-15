@@ -70,10 +70,6 @@ import type {
   TGetWalletsBody,
   TGetWalletsResponse,
 } from "./public_api.fetcher";
-import type {
-  TGetLoginSessionBody,
-  TGetLoginSessionResponse,
-} from "./public_api.fetcher";
 import type { TGetWhoamiBody, TGetWhoamiResponse } from "./public_api.fetcher";
 import type {
   TApproveActivityBody,
@@ -110,6 +106,10 @@ import type {
 import type {
   TCreatePrivateKeysBody,
   TCreatePrivateKeysResponse,
+} from "./public_api.fetcher";
+import type {
+  TCreateReadOnlySessionBody,
+  TCreateReadOnlySessionResponse,
 } from "./public_api.fetcher";
 import type {
   TCreateSubOrganizationBody,
@@ -850,37 +850,6 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get login session and retrieve basic user and organization information.
-   *
-   * Sign the provided `TGetLoginSessionBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/login_session).
-   *
-   * See also {@link stampGetLoginSession}.
-   */
-  getLoginSession = async (
-    input: TGetLoginSessionBody
-  ): Promise<TGetLoginSessionResponse> => {
-    return this.request("/public/v1/query/login_session", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TGetLoginSessionBody` by using the client's `stamp` function.
-   *
-   * See also {@link GetLoginSession}.
-   */
-  stampGetLoginSession = async (
-    input: TGetLoginSessionBody
-  ): Promise<TSignedRequest> => {
-    const fullUrl = this.config.baseUrl + "/public/v1/query/login_session";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
    * Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users.
    *
    * Sign the provided `TGetWhoamiBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/whoami).
@@ -1182,6 +1151,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_private_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Create a read only session for a user (default 1 hour session)
+   *
+   * Sign the provided `TCreateReadOnlySessionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_read_only_session).
+   *
+   * See also {@link stampCreateReadOnlySession}.
+   */
+  createReadOnlySession = async (
+    input: TCreateReadOnlySessionBody
+  ): Promise<TCreateReadOnlySessionResponse> => {
+    return this.request("/public/v1/submit/create_read_only_session", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateReadOnlySessionBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateReadOnlySession}.
+   */
+  stampCreateReadOnlySession = async (
+    input: TCreateReadOnlySessionBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_read_only_session";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

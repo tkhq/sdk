@@ -676,38 +676,6 @@
         "tags": ["Wallets"]
       }
     },
-    "/public/v1/query/login_session": {
-      "post": {
-        "summary": "Get Login Session",
-        "description": "Get login session and retrieve basic user and organization information.",
-        "operationId": "PublicApiService_GetLoginSession",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetLoginSessionResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetLoginSessionRequest"
-            }
-          }
-        ],
-        "tags": ["Sessions"]
-      }
-    },
     "/public/v1/query/whoami": {
       "post": {
         "summary": "Who am I?",
@@ -1026,6 +994,38 @@
           }
         ],
         "tags": ["Private Keys"]
+      }
+    },
+    "/public/v1/submit/create_read_only_session": {
+      "post": {
+        "summary": "Create read only sessions",
+        "description": "Create a read only session for a user (default 1 hour session)",
+        "operationId": "PublicApiService_CreateReadOnlySession",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateReadOnlySessionRequest"
+            }
+          }
+        ],
+        "tags": ["Sessions"]
       }
     },
     "/public/v1/submit/create_sub_organization": {
@@ -2449,7 +2449,8 @@
         "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY",
         "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
         "ACTIVITY_TYPE_CREATE_POLICIES",
-        "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"
+        "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
+        "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"
       ]
     },
     "v1AddressFormat": {
@@ -3291,6 +3292,68 @@
         }
       },
       "required": ["privateKeys"]
+    },
+    "v1CreateReadOnlySessionIntent": {
+      "type": "object"
+    },
+    "v1CreateReadOnlySessionRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateReadOnlySessionIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateReadOnlySessionResult": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "organizationName": {
+          "type": "string",
+          "description": "Human-readable name for an Organization."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User."
+        },
+        "username": {
+          "type": "string",
+          "description": "Human-readable name for a User."
+        },
+        "session": {
+          "type": "string",
+          "description": "String representing a read only session"
+        },
+        "sessionExpiry": {
+          "type": "string",
+          "format": "uint64",
+          "description": "UTC timestamp in seconds representing the expiry time for the read only session."
+        }
+      },
+      "required": [
+        "organizationId",
+        "organizationName",
+        "userId",
+        "username",
+        "session",
+        "sessionExpiry"
+      ]
     },
     "v1CreateSubOrganizationIntent": {
       "type": "object",
@@ -4549,54 +4612,6 @@
       },
       "required": ["authenticators"]
     },
-    "v1GetLoginSessionRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons."
-        }
-      },
-      "required": ["organizationId"]
-    },
-    "v1GetLoginSessionResponse": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "organizationName": {
-          "type": "string",
-          "description": "Human-readable name for an Organization."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Unique identifier for a given User."
-        },
-        "username": {
-          "type": "string",
-          "description": "Human-readable name for a User."
-        },
-        "session": {
-          "type": "string",
-          "description": "Session ID and verifier separated by a colon."
-        },
-        "sessionExpiry": {
-          "type": "string",
-          "format": "uint64",
-          "description": "Expiry time for the read only session."
-        }
-      },
-      "required": [
-        "organizationId",
-        "organizationName",
-        "userId",
-        "username",
-        "session",
-        "sessionExpiry"
-      ]
-    },
     "v1GetOrganizationRequest": {
       "type": "object",
       "properties": {
@@ -5381,6 +5396,9 @@
         },
         "signRawPayloadsIntent": {
           "$ref": "#/definitions/v1SignRawPayloadsIntent"
+        },
+        "createReadOnlySessionIntent": {
+          "$ref": "#/definitions/v1CreateReadOnlySessionIntent"
         }
       },
       "required": ["createOrganizationIntent"]
@@ -6117,6 +6135,9 @@
         },
         "signRawPayloadsResult": {
           "$ref": "#/definitions/v1SignRawPayloadsResult"
+        },
+        "createReadOnlySessionResult": {
+          "$ref": "#/definitions/v1CreateReadOnlySessionResult"
         }
       }
     },

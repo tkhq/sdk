@@ -104,10 +104,6 @@ export type paths = {
     /** Create Invitations to join an existing Organization */
     post: operations["PublicApiService_CreateInvitations"];
   };
-  "/public/v1/submit/create_login_session": {
-    /** Create a login session and retrieve basic user and organization information. */
-    post: operations["PublicApiService_CreateLoginSession"];
-  };
   "/public/v1/submit/create_policies": {
     /** Create new Policies */
     post: operations["PublicApiService_CreatePolicies"];
@@ -123,6 +119,10 @@ export type paths = {
   "/public/v1/submit/create_private_keys": {
     /** Create new Private Keys */
     post: operations["PublicApiService_CreatePrivateKeys"];
+  };
+  "/public/v1/submit/create_read_only_session": {
+    /** Create a read only session for a user (default 1 hour session) */
+    post: operations["PublicApiService_CreateReadOnlySession"];
   };
   "/public/v1/submit/create_sub_organization": {
     /** Create a new Sub-Organization */
@@ -436,7 +436,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"
     | "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"
     | "ACTIVITY_TYPE_CREATE_POLICIES"
-    | "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS";
+    | "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"
+    | "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -629,29 +630,6 @@ export type definitions = {
     /** @description A list of Invitation IDs */
     invitationIds: string[];
   };
-  v1CreateLoginSessionRequest: {
-    /** @description Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons. */
-    organizationId: string;
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-  };
-  v1CreateLoginSessionResponse: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    /** @description Human-readable name for an Organization. */
-    organizationName: string;
-    /** @description Unique identifier for a given User. */
-    userId: string;
-    /** @description Human-readable name for a User. */
-    username: string;
-    /** @description Unique key associated with the session */
-    session: string;
-    /**
-     * Format: uint64
-     * @description UTC timestamp Expiry time for the read only session in milliseconds.
-     */
-    sessionExpiry: string;
-  };
   v1CreateOrganizationIntent: {
     /** @description Human-readable name for an Organization. */
     organizationName: string;
@@ -780,6 +758,33 @@ export type definitions = {
   v1CreatePrivateKeysResultV2: {
     /** @description A list of Private Key IDs and addresses. */
     privateKeys: definitions["v1PrivateKeyResult"][];
+  };
+  v1CreateReadOnlySessionIntent: { [key: string]: unknown };
+  v1CreateReadOnlySessionRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateReadOnlySessionIntent"];
+  };
+  v1CreateReadOnlySessionResult: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Human-readable name for an Organization. */
+    organizationName: string;
+    /** @description Unique identifier for a given User. */
+    userId: string;
+    /** @description Human-readable name for a User. */
+    username: string;
+    /** @description String representing a read only session */
+    session: string;
+    /**
+     * Format: uint64
+     * @description UTC timestamp in seconds representing the expiry time for the read only session.
+     */
+    sessionExpiry: string;
   };
   v1CreateSubOrganizationIntent: {
     /** @description Name for this sub-organization */
@@ -1576,6 +1581,7 @@ export type definitions = {
     importPrivateKeyIntent?: definitions["v1ImportPrivateKeyIntent"];
     createPoliciesIntent?: definitions["v1CreatePoliciesIntent"];
     signRawPayloadsIntent?: definitions["v1SignRawPayloadsIntent"];
+    createReadOnlySessionIntent?: definitions["v1CreateReadOnlySessionIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1842,6 +1848,7 @@ export type definitions = {
     importPrivateKeyResult?: definitions["v1ImportPrivateKeyResult"];
     createPoliciesResult?: definitions["v1CreatePoliciesResult"];
     signRawPayloadsResult?: definitions["v1SignRawPayloadsResult"];
+    createReadOnlySessionResult?: definitions["v1CreateReadOnlySessionResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -2708,24 +2715,6 @@ export type operations = {
       };
     };
   };
-  /** Create a login session and retrieve basic user and organization information. */
-  PublicApiService_CreateLoginSession: {
-    parameters: {
-      body: {
-        body: definitions["v1CreateLoginSessionRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1CreateLoginSessionResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
   /** Create new Policies */
   PublicApiService_CreatePolicies: {
     parameters: {
@@ -2785,6 +2774,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreatePrivateKeysRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create a read only session for a user (default 1 hour session) */
+  PublicApiService_CreateReadOnlySession: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateReadOnlySessionRequest"];
       };
     };
     responses: {
