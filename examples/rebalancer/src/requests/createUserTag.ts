@@ -1,31 +1,20 @@
-import type { TurnkeyClient } from "@turnkey/http";
-import { createActivityPoller } from "@turnkey/http";
+import type { TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
 export default async function createUserTag(
-  turnkeyClient: TurnkeyClient,
+  turnkeyClient: TurnkeyServerSDK,
   userTagName: string,
   userIds: string[]
 ): Promise<string> {
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createUserTag,
-  });
-
   try {
-    const activity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_USER_TAG",
-      organizationId: process.env.ORGANIZATION_ID!,
-      parameters: {
-        userTagName,
-        userIds,
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
+    const activity = await turnkeyClient.api().createUserTag({
+      userTagName,
+      userIds,
     });
-
+    
     const userTagId = refineNonNull(
-      activity.result.createUserTagResult?.userTagId
+      activity?.userTagId
     );
 
     // Success!

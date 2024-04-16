@@ -88,7 +88,7 @@ export async function sendEth(
 
     console.log(`Awaiting confirmation for tx hash ${sentTx.hash}...\n`);
     await connectedSigner.provider?.waitForTransaction(sentTx.hash, 1);
-    const networkName = await connectedSigner.provider?.getNetwork();
+    const network = await connectedSigner.provider?.getNetwork();
 
     print(
       `Sent ${toReadableAmount(
@@ -96,7 +96,7 @@ export async function sendEth(
         18,
         12
       )} ETH to ${destinationAddress}:`,
-      `https://${networkName}.etherscan.io/tx/${sentTx.hash}`
+      `https://${network?.name}.etherscan.io/tx/${sentTx.hash}`
     );
   } catch (error: any) {
     if (error.toString().includes("ACTIVITY_STATUS_CONSENSUS_NEEDED")) {

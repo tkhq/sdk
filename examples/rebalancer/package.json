@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "pnpm -w run build-all",
-    "cli": "pnpm build && tsx src/index.ts",
+    "cli": "tsx src/index.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -12,6 +12,7 @@
     "@turnkey/api-key-stamper": "workspace:^",
     "@turnkey/ethers": "workspace:*",
     "@turnkey/http": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0"
   }

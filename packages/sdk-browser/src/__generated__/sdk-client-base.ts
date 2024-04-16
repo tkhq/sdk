@@ -318,7 +318,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"
-    }, "createAuthenticatorsResultV2");
+    }, "createAuthenticatorsResult");
   }
 
 
@@ -351,7 +351,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_POLICY_V3"
-    }, "createPolicyResultV3");
+    }, "createPolicyResult");
   }
 
 
@@ -417,7 +417,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_USERS_V2"
-    }, "createUsersResultV2");
+    }, "createUsersResult");
   }
 
 
@@ -671,7 +671,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"
-    }, "signRawPayloadResultV2");
+    }, "signRawPayloadResult");
   }
 
 
@@ -693,7 +693,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2"
-    }, "signTransactionResultV2");
+    }, "signTransactionResult");
   }
 
 

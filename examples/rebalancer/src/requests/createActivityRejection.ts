@@ -1,33 +1,22 @@
-import type { TurnkeyClient } from "@turnkey/http";
-import { createActivityPoller } from "@turnkey/http";
+import type { TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
 export default async function rejectActivity(
-  turnkeyClient: TurnkeyClient,
+  turnkeyClient: TurnkeyServerSDK,
   activityId: string,
   activityFingerprint: string
 ): Promise<string> {
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.rejectActivity,
-  });
-
   try {
-    const activity = await activityPoller({
-      type: "ACTIVITY_TYPE_REJECT_ACTIVITY",
-      organizationId: process.env.ORGANIZATION_ID!,
-      parameters: {
-        fingerprint: activityFingerprint,
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
+    const response = await turnkeyClient.api().rejectActivity({
+      fingerprint: activityFingerprint,
     });
 
-    const result = refineNonNull(activity);
+    const result = refineNonNull(response);
 
     // Success!
     console.log(
-      [`❌ Rejected activity!`, `- Activity ID: ${result.id}`, ``].join("\n")
+      [`❌ Rejected activity!`, `- Activity ID: ${result.activity.id}`, ``].join("\n")
     );
 
     return activityId;

@@ -76,7 +76,7 @@ function extractLatestVersions(definitions) {
   const latestVersions = {};
 
   // Regex to separate the version prefix, base activity details, and (optional) activity version
-  const keyVersionRegex = /^(v\d+)([A-Z][a-z]+(?:[A-Z][a-z]+)*)(V\d+)?$/; 
+  const keyVersionRegex = /^(v\d+)([A-Z][a-z]+(?:[A-Z][a-z]+)*)(V\d+)?$/;
 
   Object.keys(definitions).forEach((key) => {
     const match = key.match(keyVersionRegex);
@@ -358,6 +358,8 @@ export class TurnkeySDKClientBase {
 
   `);
 
+  const latestVersions = extractLatestVersions(swaggerSpec.definitions);
+
   for (const endpointPath in swaggerSpec.paths) {
     const methodMap = swaggerSpec.paths[endpointPath];
     const operation = methodMap.post;
@@ -400,9 +402,10 @@ export class TurnkeySDKClientBase {
         .toUpperCase()}`;
       const versionedActivityType =
         VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
-      const versionSuffix = versionedActivityType
-        ? versionedActivityType.match(/_(V\d+)$/)
-        : "";
+
+      const resultKey = operationNameWithoutNamespace + "Result";
+      const versionedMethodName = latestVersions[resultKey].formattedKeyName;
+
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, ...rest } = input;
@@ -411,7 +414,7 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "${versionedActivityType ?? unversionedActivityType}"
-    }, "${methodName}Result${versionSuffix ? versionSuffix[1] : ""}");
+    }, "${versionedMethodName}");
   }`
       );
     } else if (methodType === "activityDecision") {

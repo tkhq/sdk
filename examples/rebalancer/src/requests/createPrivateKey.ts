@@ -1,39 +1,28 @@
-import type { TurnkeyClient } from "@turnkey/http";
-import { createActivityPoller } from "@turnkey/http";
+import type { TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
 export default async function createPrivateKey(
-  turnkeyClient: TurnkeyClient,
+  turnkeyClient: TurnkeyServerSDK,
   privateKeyName: string,
   privateKeyTags: string[]
 ): Promise<string> {
   console.log("creating a new Ethereum private key on Turnkey...\n");
 
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createPrivateKeys,
-  });
-
   try {
-    const activity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
-      organizationId: process.env.ORGANIZATION_ID!,
-      parameters: {
-        privateKeys: [
-          {
-            privateKeyName,
-            privateKeyTags,
-            curve: "CURVE_SECP256K1",
-            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-          },
-        ],
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
+    const activity = await turnkeyClient.api().createPrivateKeys({
+      privateKeys: [
+        {
+          privateKeyName,
+          privateKeyTags,
+          curve: "CURVE_SECP256K1",
+          addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
+        },
+      ],
     });
 
     const privateKeys = refineNonNull(
-      activity.result.createPrivateKeysResultV2?.privateKeys
+      activity?.privateKeys
     );
     const privateKeyId = refineNonNull(privateKeys?.[0]?.privateKeyId);
     const address = refineNonNull(privateKeys?.[0]?.addresses?.[0]?.address);
