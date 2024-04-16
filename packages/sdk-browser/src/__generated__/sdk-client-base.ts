@@ -20,14 +20,21 @@ export class TurnkeySDKClientBase {
   ): Promise<TResponseType> {
     const fullUrl = this.config.apiBaseUrl + url;
     const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.config.stamper.stamp(stringifiedBody);
+    var headers: Record<string, string> = {
+      "X-Client-Version": VERSION
+    }
+    if (this.config.stamper) {
+      const stamp = await this.config.stamper.stamp(stringifiedBody);
+      headers[stamp.stampHeaderName] = stamp.stampHeaderValue
+    }
+    
+    if (this.config.readOnlySession){
+      headers["X-Session"] = this.config.readOnlySession
+    }
 
     const response = await fetch(fullUrl, {
       method: "POST",
-      headers: {
-        [stamp.stampHeaderName]: stamp.stampHeaderValue,
-        "X-Client-Version": VERSION
-      },
+      headers: headers,
       body: stringifiedBody,
       redirect: "follow"
     });
@@ -367,6 +374,17 @@ export class TurnkeySDKClientBase {
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"
     }, "createPrivateKeysResultV2");
+  }
+
+
+	createReadOnlySession = async (input: SdkApiTypes.TCreateReadOnlySessionBody): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command("/public/v1/submit/create_read_only_session", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"
+    }, "createReadOnlySessionResult");
   }
 
 

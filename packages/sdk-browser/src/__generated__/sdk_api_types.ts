@@ -178,6 +178,12 @@ export type TCreatePrivateKeysInput = { body: TCreatePrivateKeysBody };
 
 export type TCreatePrivateKeysBody = operations["PublicApiService_CreatePrivateKeys"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
+export type TCreateReadOnlySessionResponse = operations["PublicApiService_CreateReadOnlySession"]["responses"]["200"]["schema"]["activity"]["result"]["createReadOnlySessionResult"] & ActivityMetadata;
+
+export type TCreateReadOnlySessionInput = { body: TCreateReadOnlySessionBody };
+
+export type TCreateReadOnlySessionBody = operations["PublicApiService_CreateReadOnlySession"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
+
 export type TCreateSubOrganizationResponse = operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV4"] & ActivityMetadata;
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };

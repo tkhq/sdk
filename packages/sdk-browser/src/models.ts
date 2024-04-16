@@ -1,6 +1,13 @@
 export interface User {
   userId: string;
   username: string;
+  organization: SubOrganization;
+  readOnlySession?: ReadOnlySession;
+}
+
+export interface ReadOnlySession {
+  session: string;
+  sessionExpiry: number;
 }
 
 export interface SubOrganization {

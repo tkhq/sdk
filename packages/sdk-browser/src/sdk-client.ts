@@ -35,6 +35,24 @@ export class TurnkeyBrowserSDK {
     this.config = config;
   }
 
+  currentUserSession = async (): Promise<
+  TurnkeySDKBrowserClient | undefined
+> => {
+  const currentUser = await this.getCurrentUser();
+  if (!currentUser?.readOnlySession) {
+    return;
+  }
+  if (currentUser?.readOnlySession?.sessionExpiry > Date.now()) {
+    return new TurnkeySDKBrowserClient({
+      readOnlySession: currentUser?.readOnlySession?.session!,
+      apiBaseUrl: this.config.apiBaseUrl,
+      organizationId: this.config.defaultOrganizationId,
+    });
+  } else {
+    this.logoutUser();
+  }
+  return;
+};
   passkeySigner = async (
     rpId?: string
   ): Promise<TurnkeySDKBrowserClient> => {
@@ -189,7 +207,8 @@ export class TurnkeyBrowserSDK {
   getCurrentSubOrganization = async (): Promise<
     SubOrganization | undefined
   > => {
-    return await getStorageValue(StorageKeys.CurrentSubOrganization);
+    const currentUser = await this.getCurrentUser();
+    return currentUser?.organization;
   };
 
   getCurrentUser = async (): Promise<User | undefined> => {
@@ -274,23 +293,23 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
   };
 
   login = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
-    const whoamiResult = await this.getWhoami();
+    const readOnlySessionResult = await this.createReadOnlySession({});
+    const org = {
+      organizationId: readOnlySessionResult!.organizationId,
+      organizationName: readOnlySessionResult!.organizationName,
+    };
     const currentUser: User = {
-      userId: whoamiResult.userId,
-      username: whoamiResult.username,
+      userId: readOnlySessionResult!.userId,
+      username: readOnlySessionResult!.username,
+      organization: org,
+      readOnlySession: {
+        session: readOnlySessionResult!.session,
+        sessionExpiry: Number(readOnlySessionResult!.sessionExpiry),
+      },
     };
-    const currentSubOrganization: SubOrganization = {
-      organizationId: whoamiResult.organizationId,
-      organizationName: whoamiResult.organizationName,
-    };
-
     await setStorageValue(StorageKeys.CurrentUser, currentUser);
-    await setStorageValue(
-      StorageKeys.CurrentSubOrganization,
-      currentSubOrganization
-    );
-
-    return whoamiResult;
+    await setStorageValue(StorageKeys.CurrentSubOrganization, org);
+    return readOnlySessionResult!;
   };
 
   createSigningSessionKey = async (params: {

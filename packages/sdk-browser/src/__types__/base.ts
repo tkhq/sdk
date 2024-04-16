@@ -55,8 +55,7 @@ export interface ActivityMetadata {
   status: string;
 }
 
-export interface TurnkeySDKClientConfig {
-  stamper: TStamper;
+interface BaseSDKClientConfig {
   apiBaseUrl: string;
   organizationId: string;
   activityPoller?: {
@@ -64,6 +63,20 @@ export interface TurnkeySDKClientConfig {
     timeout: number;
   };
 }
+
+interface SDKClientConfigWithStamper extends BaseSDKClientConfig {
+  stamper: TStamper;
+  readOnlySession?: never;
+}
+
+interface SDKClientConfigWithReadOnlySession extends BaseSDKClientConfig {
+  stamper?: never;
+  readOnlySession: string;
+}
+
+export type TurnkeySDKClientConfig =
+  | SDKClientConfigWithStamper
+  | SDKClientConfigWithReadOnlySession;
 
 export interface TurnkeySDKBrowserConfig {
   apiBaseUrl: string;
