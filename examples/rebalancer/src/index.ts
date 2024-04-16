@@ -4,8 +4,7 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { FeeData } from "ethers";
 import { isKeyOfObject } from "./utils";
 import {
@@ -32,13 +31,12 @@ const GAS_MULTIPLIER = 2n;
 const ACTIVITIES_LIMIT = "100";
 
 // For demonstration purposes, create a globally accessible TurnkeyClient
-const turnkeyClient = new TurnkeyClient(
-  { baseUrl: process.env.BASE_URL! },
-  new ApiKeyStamper({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-  })
-);
+const turnkeyClient = new TurnkeyServerSDK({
+  apiBaseUrl: process.env.BASE_URL!,
+  apiPrivateKey: process.env.API_PRIVATE_KEY!,
+  apiPublicKey: process.env.API_PUBLIC_KEY!,
+  defaultOrganizationId: process.env.ORGANIZATION_ID!,
+});
 
 async function main() {
   const args = process.argv.slice(2);
@@ -266,12 +264,12 @@ async function sweepImpl() {
   );
 
   // send from short to long term storage
-  const ethAddress = longTermStoragePrivateKeys[0]!.addresses.find(
+  const longTermStorageAddress = longTermStoragePrivateKeys[0]!.addresses.find(
     (address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
     }
   );
-  if (!ethAddress || !ethAddress.address) {
+  if (!longTermStorageAddress || !longTermStorageAddress.address) {
     throw new Error(
       `couldn't lookup ETH address for private key: ${
         longTermStoragePrivateKeys[0]!.privateKeyId
@@ -282,9 +280,8 @@ async function sweepImpl() {
   for (const pk of shortTermStoragePrivateKeys!) {
     const provider = getProvider();
     const connectedSigner = getTurnkeySigner(provider, pk.privateKeyId);
-    const balance =
-      (await connectedSigner.provider?.getBalance(ethAddress.address)) ?? 0n;
     const address = await connectedSigner.getAddress();
+    const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
     const originalFeeData = await connectedSigner.provider?.getFeeData();
 
     const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas
@@ -320,7 +317,12 @@ async function sweepImpl() {
       continue;
     }
 
-    await sendEth(connectedSigner, ethAddress.address, sweepAmount, feeData);
+    await sendEth(
+      connectedSigner,
+      longTermStorageAddress.address,
+      sweepAmount,
+      feeData
+    );
   }
 }
 
@@ -357,12 +359,14 @@ async function recycleImpl() {
     longTermStoragePrivateKeys[0]!.privateKeyId
   );
 
-  const ethAddress = distributionPrivateKeys[0]!.addresses.find(
+  const longTermStorageAddress = await connectedSigner.getAddress();
+
+  const distributionAddress = distributionPrivateKeys[0]!.addresses.find(
     (address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
     }
   );
-  if (!ethAddress || !ethAddress.address) {
+  if (!distributionAddress || !distributionAddress.address) {
     throw new Error(
       `couldn't lookup ETH address for private key: ${
         distributionPrivateKeys[0]!.privateKeyId
@@ -371,7 +375,7 @@ async function recycleImpl() {
   }
 
   const balance =
-    (await connectedSigner.provider?.getBalance(ethAddress.address)) ?? 0n;
+    (await connectedSigner.provider?.getBalance(longTermStorageAddress)) ?? 0n;
 
   const originalFeeData = await connectedSigner.provider?.getFeeData();
 
@@ -399,7 +403,12 @@ async function recycleImpl() {
     return;
   }
 
-  await sendEth(connectedSigner, ethAddress.address, recycleAmount, feeData);
+  await sendEth(
+    connectedSigner,
+    distributionAddress.address,
+    recycleAmount,
+    feeData
+  );
 }
 
 // two approaches:

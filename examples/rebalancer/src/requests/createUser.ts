@@ -1,44 +1,31 @@
-import type { TurnkeyClient } from "@turnkey/http";
-import { createActivityPoller } from "@turnkey/http";
+import type { TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
 export default async function createUser(
-  turnkeyClient: TurnkeyClient,
+  turnkeyClient: TurnkeyServerSDK,
   userName: string,
   userTags: string[],
   apiKeyName: string,
   publicKey: string
 ): Promise<string> {
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createApiOnlyUsers,
-  });
-
   try {
-    const activity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
-      organizationId: process.env.ORGANIZATION_ID!,
-      parameters: {
-        apiOnlyUsers: [
-          {
-            userName,
-            userTags,
-            apiKeys: [
-              {
-                apiKeyName,
-                publicKey,
-              },
-            ],
-          },
-        ],
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
+    const activity = await turnkeyClient.api().createApiOnlyUsers({
+      apiOnlyUsers: [
+        {
+          userName,
+          userTags,
+          apiKeys: [
+            {
+              apiKeyName,
+              publicKey,
+            },
+          ],
+        },
+      ],
     });
 
-    const userId = refineNonNull(
-      activity.result.createApiOnlyUsersResult?.userIds?.[0]
-    );
+    const userId = refineNonNull(activity?.userIds?.[0]);
 
     // Success!
     console.log(

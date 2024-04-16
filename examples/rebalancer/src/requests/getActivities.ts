@@ -1,11 +1,11 @@
-import type { TurnkeyClient, TurnkeyApiTypes } from "@turnkey/http";
+import type { TurnkeyServerSDK, TurnkeyApiTypes } from "@turnkey/sdk-server";
 import { refineNonNull } from "./utils";
 
 export default async function getActivities(
-  turnkeyClient: TurnkeyClient,
+  turnkeyClient: TurnkeyServerSDK,
   limit: string
 ): Promise<TurnkeyApiTypes["v1GetActivitiesResponse"]["activities"]> {
-  const response = await turnkeyClient.getActivities({
+  const response = await turnkeyClient.api().getActivities({
     organizationId: process.env.ORGANIZATION_ID!,
     paginationOptions: {
       limit: limit,

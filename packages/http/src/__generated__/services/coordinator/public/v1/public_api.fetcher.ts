@@ -1396,6 +1396,58 @@ export const signCreatePrivateKeys = (
   });
 
 /**
+ * `POST /public/v1/submit/create_read_only_session`
+ */
+export type TCreateReadOnlySessionResponse =
+  operations["PublicApiService_CreateReadOnlySession"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_read_only_session`
+ */
+export type TCreateReadOnlySessionInput = { body: TCreateReadOnlySessionBody };
+
+/**
+ * `POST /public/v1/submit/create_read_only_session`
+ */
+export type TCreateReadOnlySessionBody =
+  operations["PublicApiService_CreateReadOnlySession"]["parameters"]["body"]["body"];
+
+/**
+ * Create Read Only Session
+ *
+ * Create a read only session for a user (valid for 1 hour)
+ *
+ * `POST /public/v1/submit/create_read_only_session`
+ */
+export const createReadOnlySession = (input: TCreateReadOnlySessionInput) =>
+  request<
+    TCreateReadOnlySessionResponse,
+    TCreateReadOnlySessionBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_read_only_session",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateReadOnlySession` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateReadOnlySession}
+ */
+export const signCreateReadOnlySession = (
+  input: TCreateReadOnlySessionInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TCreateReadOnlySessionBody, never, never>({
+    uri: "/public/v1/submit/create_read_only_session",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/create_sub_organization`
  */
 export type TCreateSubOrganizationResponse =

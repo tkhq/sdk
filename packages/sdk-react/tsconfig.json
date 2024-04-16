@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    "lib": ["dom", "esnext"],
+    "jsx": "react-jsx",
+    "esModuleInterop": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "src/**/*.json"
+  ],
+  "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
+  "references": [{ "path": "../sdk-browser" }]
+}

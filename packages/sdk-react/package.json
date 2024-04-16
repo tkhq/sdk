@@ -1,0 +1,58 @@
+{
+  "name": "@turnkey/sdk-react",
+  "version": "0.0.1-alpha",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "license": "Apache-2.0",
+  "description": "React SDK",
+  "keywords": [
+    "Turnkey"
+  ],
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.com"
+  },
+  "homepage": "https://github.com/tkhq/sdk",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tkhq/sdk.git",
+    "directory": "packages/sdk-react"
+  },
+  "files": [
+    "dist/",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc -p tsconfig.typecheck.json"
+  },
+  "dependencies": {
+    "@turnkey/sdk-browser": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.75",
+    "react": "^18.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
