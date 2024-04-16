@@ -262,14 +262,21 @@ export class TurnkeySDKClientBase {
   ): Promise<TResponseType> {
     const fullUrl = this.config.apiBaseUrl + url;
     const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.config.stamper.stamp(stringifiedBody);
+    var headers: Record<string, string> = {
+      "X-Client-Version": VERSION
+    }
+    if (this.config.stamper) {
+      const stamp = await this.config.stamper.stamp(stringifiedBody);
+      headers[stamp.stampHeaderName] = stamp.stampHeaderValue
+    }
+    
+    if (this.config.readOnlySession){
+      headers["X-Session"] = this.config.readOnlySession
+    }
 
     const response = await fetch(fullUrl, {
       method: "POST",
-      headers: {
-        [stamp.stampHeaderName]: stamp.stampHeaderValue,
-        "X-Client-Version": VERSION
-      },
+      headers: headers,
       body: stringifiedBody,
       redirect: "follow"
     });

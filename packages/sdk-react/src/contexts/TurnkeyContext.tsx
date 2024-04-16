@@ -5,7 +5,7 @@ import {
   TurnkeySDKBrowserConfig
 } from '@turnkey/sdk-browser';
 
-interface TurnkeyClientType {
+export interface TurnkeyClientType {
   turnkeyClient: TurnkeyBrowserSDK | undefined;
   iframeSigner: TurnkeySDKBrowserClient | undefined;
   passkeySigner: TurnkeySDKBrowserClient | undefined;

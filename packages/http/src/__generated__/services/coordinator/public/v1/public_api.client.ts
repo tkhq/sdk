@@ -108,6 +108,10 @@ import type {
   TCreatePrivateKeysResponse,
 } from "./public_api.fetcher";
 import type {
+  TCreateReadOnlySessionBody,
+  TCreateReadOnlySessionResponse,
+} from "./public_api.fetcher";
+import type {
   TCreateSubOrganizationBody,
   TCreateSubOrganizationResponse,
 } from "./public_api.fetcher";
@@ -1147,6 +1151,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_private_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Create a read only session for a user (valid for 1 hour)
+   *
+   * Sign the provided `TCreateReadOnlySessionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_read_only_session).
+   *
+   * See also {@link stampCreateReadOnlySession}.
+   */
+  createReadOnlySession = async (
+    input: TCreateReadOnlySessionBody
+  ): Promise<TCreateReadOnlySessionResponse> => {
+    return this.request("/public/v1/submit/create_read_only_session", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateReadOnlySessionBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateReadOnlySession}.
+   */
+  stampCreateReadOnlySession = async (
+    input: TCreateReadOnlySessionBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_read_only_session";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

@@ -370,6 +370,17 @@ export class TurnkeySDKClientBase {
   }
 
 
+	createReadOnlySession = async (input: SdkApiTypes.TCreateReadOnlySessionBody): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command("/public/v1/submit/create_read_only_session", {
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"
+    }, "createReadOnlySessionResult");
+  }
+
+
 	createSubOrganization = async (input: SdkApiTypes.TCreateSubOrganizationBody): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command("/public/v1/submit/create_sub_organization", {
