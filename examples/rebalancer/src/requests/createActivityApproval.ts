@@ -8,16 +8,15 @@ export default async function approveActivity(
   activityFingerprint: string
 ): Promise<string> {
   try {
-    const activity = await turnkeyClient.api().approveActivity({
+    const response = await turnkeyClient.api().approveActivity({
       fingerprint: activityFingerprint,
     });
 
-    const result = refineNonNull(activity);
+    const result = refineNonNull(response);
 
     // Success!
     console.log(
-      // TODO: consider altering this shape
-      [`✅ Approved activity!`, `- Activity ID: ${result.id}`, ``].join("\n")
+      [`✅ Approved activity!`, `- Activity ID: ${result.activity.id}`, ``].join("\n")
     );
 
     return activityId;

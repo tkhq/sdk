@@ -100,8 +100,10 @@ export class TurnkeySDKClientBase {
     const activityStatus = data["activity"]["status"];
     return {
       ...data["activity"]["result"],
-      id: activityId,
-      status: activityStatus
+      activity: {
+        id: activityId,
+        status: activityStatus
+      }
     } as TResponseType;
   }
 

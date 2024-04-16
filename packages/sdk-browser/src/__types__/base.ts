@@ -51,8 +51,10 @@ export interface ActivityResponse {
 }
 
 export interface ActivityMetadata {
-  id: string;
-  status: string;
+  activity: {
+    id: string;
+    status: string;
+  };
 }
 
 export interface TurnkeySDKClientConfig {
