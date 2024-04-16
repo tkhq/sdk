@@ -20,7 +20,7 @@ import {
 } from "@turnkey/sdk-browser";
 
 // This config contains parameters including base URLs, iframe URLs, org ID, and rp ID (relying party ID for WebAuthn)
-import turnkeyConfig from './turnkey.json';
+import turnkeyConfig from "./turnkey.json";
 
 // Use the config to instantiate a Turnkey Client
 const turnkeyClient = new TurnkeyBrowserSDK(turnkeyConfig);

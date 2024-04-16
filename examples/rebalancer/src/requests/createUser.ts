@@ -23,11 +23,9 @@ export default async function createUser(
           ],
         },
       ],
-    })
+    });
 
-    const userId = refineNonNull(
-      activity?.userIds?.[0]
-    );
+    const userId = refineNonNull(activity?.userIds?.[0]);
 
     // Success!
     console.log(

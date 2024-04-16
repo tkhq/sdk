@@ -15,7 +15,6 @@ import {
   TApiKeyStamperConfig,
 } from "@turnkey/api-key-stamper";
 
-
 import {
   IframeEventType,
   IframeStamper,
@@ -27,14 +26,11 @@ import {
   WebauthnStamper,
 } from "@turnkey/webauthn-stamper";
 
-import {
-  TurnkeyBrowserSDK,
-  TurnkeySDKBrowserClient
-} from "./sdk-client";
+import { TurnkeyBrowserSDK, TurnkeySDKBrowserClient } from "./sdk-client";
 
 import {
   defaultEthereumAccountAtIndex,
-  DEFAULT_ETHEREUM_ACCOUNTS
+  DEFAULT_ETHEREUM_ACCOUNTS,
 } from "./turnkey-helpers";
 
 import type {
@@ -77,9 +73,7 @@ export {
 };
 
 // Constants
-export {
-  DEFAULT_ETHEREUM_ACCOUNTS
-}
+export { DEFAULT_ETHEREUM_ACCOUNTS };
 
 // Enums
 export { IframeEventType };

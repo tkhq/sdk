@@ -12,10 +12,8 @@ export default async function createUserTag(
       userTagName,
       userIds,
     });
-    
-    const userTagId = refineNonNull(
-      activity?.userTagId
-    );
+
+    const userTagId = refineNonNull(activity?.userTagId);
 
     // Success!
     console.log(

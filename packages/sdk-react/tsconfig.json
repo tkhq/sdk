@@ -15,11 +15,6 @@
     "src/**/*.jsx",
     "src/**/*.json"
   ],
-  "exclude": [
-    "**/__tests__/**/*",
-    "**/__fixtures__/**/*"
-  ],
-  "references": [
-    { "path": "../sdk-browser" }
-  ]
+  "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
+  "references": [{ "path": "../sdk-browser" }]
 }

@@ -1,5 +1,5 @@
-import { useContext } from 'react';
-import { TurnkeyContext } from '../contexts/TurnkeyContext';
+import { useContext } from "react";
+import { TurnkeyContext } from "../contexts/TurnkeyContext";
 
 export const useTurnkey = () => {
   const context = useContext(TurnkeyContext);
@@ -7,4 +7,4 @@ export const useTurnkey = () => {
     throw new Error("useTurnkey must be used within a TurnkeyProvider");
   }
   return context;
-}
+};

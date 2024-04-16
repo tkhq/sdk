@@ -26,7 +26,10 @@ import {
   setStorageValue,
 } from "./storage";
 import { generateRandomBuffer, base64UrlEncode } from "./utils";
-import { DEFAULT_ETHEREUM_WALLET_ACCOUNT, DEFAULT_SOLANA_WALLET_ACCOUNT } from "./constants";
+import {
+  DEFAULT_ETHEREUM_WALLET_ACCOUNT,
+  DEFAULT_SOLANA_WALLET_ACCOUNT,
+} from "./constants";
 
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
@@ -36,30 +39,30 @@ export class TurnkeyBrowserSDK {
   }
 
   currentUserSession = async (): Promise<
-  TurnkeySDKBrowserClient | undefined
-> => {
-  const currentUser = await this.getCurrentUser();
-  if (!currentUser?.readOnlySession) {
+    TurnkeySDKBrowserClient | undefined
+  > => {
+    const currentUser = await this.getCurrentUser();
+    if (!currentUser?.readOnlySession) {
+      return;
+    }
+    if (currentUser?.readOnlySession?.sessionExpiry > Date.now()) {
+      return new TurnkeySDKBrowserClient({
+        readOnlySession: currentUser?.readOnlySession?.session!,
+        apiBaseUrl: this.config.apiBaseUrl,
+        organizationId: this.config.defaultOrganizationId,
+      });
+    } else {
+      this.logoutUser();
+    }
     return;
-  }
-  if (currentUser?.readOnlySession?.sessionExpiry > Date.now()) {
-    return new TurnkeySDKBrowserClient({
-      readOnlySession: currentUser?.readOnlySession?.session!,
-      apiBaseUrl: this.config.apiBaseUrl,
-      organizationId: this.config.defaultOrganizationId,
-    });
-  } else {
-    this.logoutUser();
-  }
-  return;
-};
-  passkeySigner = async (
-    rpId?: string
-  ): Promise<TurnkeySDKBrowserClient> => {
-    const targetRpId = rpId ?? (this.config.rpId ?? window.location.hostname);
+  };
+  passkeySigner = async (rpId?: string): Promise<TurnkeySDKBrowserClient> => {
+    const targetRpId = rpId ?? this.config.rpId ?? window.location.hostname;
 
     if (!targetRpId) {
-      throw new Error('Tried to initialize a passkey signer with no rpId defined');
+      throw new Error(
+        "Tried to initialize a passkey signer with no rpId defined"
+      );
     }
 
     const webauthnStamper = new WebauthnStamper({
@@ -71,7 +74,7 @@ export class TurnkeyBrowserSDK {
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
     });
-  }
+  };
 
   iframeSigner = async (
     iframeContainer: HTMLElement | null | undefined,
@@ -80,7 +83,9 @@ export class TurnkeyBrowserSDK {
     const targetIframeUrl = iframeUrl ?? this.config.iframeUrl;
 
     if (!targetIframeUrl) {
-      throw new Error('Tried to initialize iframeSigner with no iframeUrl defined');
+      throw new Error(
+        "Tried to initialize iframeSigner with no iframeUrl defined"
+      );
     }
 
     const TurnkeyIframeElementId = "turnkey-auth-iframe-element-id";
@@ -101,7 +106,9 @@ export class TurnkeyBrowserSDK {
   };
 
   sessionSigner = async (): Promise<TurnkeySDKBrowserClient> => {
-    const signingSession: SigningSession | undefined = await getStorageValue(StorageKeys.CurrentSigningSession);
+    const signingSession: SigningSession | undefined = await getStorageValue(
+      StorageKeys.CurrentSigningSession
+    );
     const sessionStamper = new ApiKeyStamper({
       apiPublicKey: signingSession!.publicKey,
       apiPrivateKey: signingSession!.privateKey,
@@ -119,9 +126,7 @@ export class TurnkeyBrowserSDK {
     params: any[],
     serverSignUrl?: string
   ): Promise<TResponseType> => {
-
     const targetServerSignUrl = serverSignUrl ?? this.config.serverSignUrl;
-
 
     if (!targetServerSignUrl) {
       throw new Error("Tried to call serverSign with no serverSignUrl defined");
@@ -155,7 +160,7 @@ export class TurnkeyBrowserSDK {
 
     const data = await response.json();
     return data as TResponseType;
-  }
+  };
 
   // Local
   createUserPasskey = async (config: Record<any, any> = {}) => {
@@ -235,12 +240,10 @@ export class TurnkeyBrowserSDK {
     await removeStorageValue(StorageKeys.CurrentSubOrganization);
 
     return true;
-  }
-
+  };
 }
 
 export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
-
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
   }

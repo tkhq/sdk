@@ -11,16 +11,14 @@ export default async function createPolicy(
 ): Promise<string> {
   try {
     const activity = await turnkeyClient.api().createPolicy({
-        policyName,
-        condition,
-        consensus,
-        effect,
-        notes: "",
+      policyName,
+      condition,
+      consensus,
+      effect,
+      notes: "",
     });
 
-    const policyId = refineNonNull(
-      activity?.policyId
-    );
+    const policyId = refineNonNull(activity?.policyId);
 
     // Success!
     console.log(

@@ -281,8 +281,7 @@ async function sweepImpl() {
     const provider = getProvider();
     const connectedSigner = getTurnkeySigner(provider, pk.privateKeyId);
     const address = await connectedSigner.getAddress();
-    const balance =
-      (await connectedSigner.provider?.getBalance(address)) ?? 0n;
+    const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
     const originalFeeData = await connectedSigner.provider?.getFeeData();
 
     const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas
@@ -318,7 +317,12 @@ async function sweepImpl() {
       continue;
     }
 
-    await sendEth(connectedSigner, longTermStorageAddress.address, sweepAmount, feeData);
+    await sendEth(
+      connectedSigner,
+      longTermStorageAddress.address,
+      sweepAmount,
+      feeData
+    );
   }
 }
 
@@ -399,7 +403,12 @@ async function recycleImpl() {
     return;
   }
 
-  await sendEth(connectedSigner, distributionAddress.address, recycleAmount, feeData);
+  await sendEth(
+    connectedSigner,
+    distributionAddress.address,
+    recycleAmount,
+    feeData
+  );
 }
 
 // two approaches:

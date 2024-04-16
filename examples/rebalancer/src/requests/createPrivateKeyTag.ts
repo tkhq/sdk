@@ -13,9 +13,7 @@ export default async function createPrivateKeyTag(
       privateKeyIds,
     });
 
-    const privateKeyTagId = refineNonNull(
-      activity?.privateKeyTagId
-    );
+    const privateKeyTagId = refineNonNull(activity?.privateKeyTagId);
 
     // Success!
     console.log(

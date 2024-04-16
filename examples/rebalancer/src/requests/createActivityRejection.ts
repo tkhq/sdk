@@ -16,7 +16,11 @@ export default async function rejectActivity(
 
     // Success!
     console.log(
-      [`❌ Rejected activity!`, `- Activity ID: ${result.activity.id}`, ``].join("\n")
+      [
+        `❌ Rejected activity!`,
+        `- Activity ID: ${result.activity.id}`,
+        ``,
+      ].join("\n")
     );
 
     return activityId;

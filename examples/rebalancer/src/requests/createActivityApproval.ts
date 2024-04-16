@@ -16,7 +16,11 @@ export default async function approveActivity(
 
     // Success!
     console.log(
-      [`✅ Approved activity!`, `- Activity ID: ${result.activity.id}`, ``].join("\n")
+      [
+        `✅ Approved activity!`,
+        `- Activity ID: ${result.activity.id}`,
+        ``,
+      ].join("\n")
     );
 
     return activityId;
