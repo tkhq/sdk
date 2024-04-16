@@ -17,6 +17,11 @@ import {
 
 import { TurnkeyServerSDK, TurnkeySDKServerClient } from "./sdk-client";
 
+import {
+  defaultEthereumAccountAtIndex,
+  DEFAULT_ETHEREUM_ACCOUNTS,
+} from "./turnkey-helpers";
+
 import type {
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
@@ -51,10 +56,14 @@ export type {
 export {
   fetch,
   createActivityPoller,
+  defaultEthereumAccountAtIndex,
   getWebAuthnAttestation,
   sealAndStampRequestBody,
   signWithApiKey,
 };
+
+// Constants
+export { DEFAULT_ETHEREUM_ACCOUNTS };
 
 // Base Turnkey API
 export { TurnkeyApi };
