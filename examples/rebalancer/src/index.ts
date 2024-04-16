@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TurnkeyServerSDK } from "@turnkey/sdk-js-server";
+import { TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { FeeData } from "ethers";
 import { isKeyOfObject } from "./utils";
 import {

@@ -1,4 +1,4 @@
-import type { TurnkeyServerSDK, TurnkeyApiTypes } from "@turnkey/sdk-js-server";
+import type { TurnkeyServerSDK, TurnkeyApiTypes } from "@turnkey/sdk-server";
 
 /**
  * Get a list of private keys for a given tag
