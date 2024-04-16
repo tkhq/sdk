@@ -9,6 +9,7 @@
     "packages/http",
     "packages/sdk-browser",
     "packages/sdk-server",
+    "packages/sdk-react",
     "packages/solana",
     "packages/viem",
     "packages/webauthn-stamper",
