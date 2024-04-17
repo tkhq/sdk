@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useState, useEffect } from "react";
 
 import styles from "../pages/index.module.css";
 import { IframeStamper } from "@turnkey/iframe-stamper";
