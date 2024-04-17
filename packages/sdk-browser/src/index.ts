@@ -26,7 +26,7 @@ import {
   WebauthnStamper,
 } from "@turnkey/webauthn-stamper";
 
-import { TurnkeyBrowserSDK, TurnkeySDKBrowserClient } from "./sdk-client";
+import { TurnkeyBrowserSDK, TurnkeySDKBrowserClient, TurnkeySDKIframeClient } from "./sdk-client";
 
 import {
   defaultEthereumAccountAtIndex,
@@ -47,6 +47,7 @@ export {
   TurnkeyActivityError,
   TurnkeyBrowserSDK,
   TurnkeySDKBrowserClient,
+  TurnkeySDKIframeClient,
   TurnkeyRequestError,
   WebauthnStamper,
 };

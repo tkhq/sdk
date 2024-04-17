@@ -56,6 +56,7 @@ export class TurnkeyBrowserSDK {
     }
     return;
   };
+
   passkeySigner = async (rpId?: string): Promise<TurnkeySDKBrowserClient> => {
     const targetRpId = rpId ?? this.config.rpId ?? window.location.hostname;
 
@@ -79,7 +80,7 @@ export class TurnkeyBrowserSDK {
   iframeSigner = async (
     iframeContainer: HTMLElement | null | undefined,
     iframeUrl?: string
-  ): Promise<TurnkeySDKBrowserClient> => {
+  ): Promise<TurnkeySDKIframeClient> => {
     const targetIframeUrl = iframeUrl ?? this.config.iframeUrl;
 
     if (!targetIframeUrl) {
@@ -98,7 +99,7 @@ export class TurnkeyBrowserSDK {
 
     await iframeStamper.init();
 
-    return new TurnkeySDKBrowserClient({
+    return new TurnkeySDKIframeClient({
       stamper: iframeStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
@@ -345,4 +346,19 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
 
     return response;
   };
+}
+
+export class TurnkeySDKIframeClient extends TurnkeySDKBrowserClient {
+  iframePublicKey: string | null;
+
+  constructor(config: TurnkeySDKClientConfig) {
+    super(config);
+    this.iframePublicKey = (config.stamper as IframeStamper).iframePublicKey;
+  }
+
+  injectCredentialBundle  = async (credentialBundle: string): Promise<boolean> => {
+    const stamper = this.config.stamper as IframeStamper;
+    return await stamper.injectCredentialBundle(credentialBundle);
+  }
+
 }

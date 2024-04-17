@@ -2,12 +2,13 @@ import { ReactNode, createContext, useState, useEffect, useRef } from "react";
 import {
   TurnkeyBrowserSDK,
   TurnkeySDKBrowserClient,
+  TurnkeySDKIframeClient,
   TurnkeySDKBrowserConfig,
 } from "@turnkey/sdk-browser";
 
 export interface TurnkeyClientType {
   turnkeyClient: TurnkeyBrowserSDK | undefined;
-  iframeSigner: TurnkeySDKBrowserClient | undefined;
+  iframeSigner: TurnkeySDKIframeClient | undefined;
   passkeySigner: TurnkeySDKBrowserClient | undefined;
 }
 
@@ -26,15 +27,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   config,
   children,
 }) => {
-  const [turnkeyClient, setTurnkeyClient] = useState<
-    TurnkeyBrowserSDK | undefined
-  >(undefined);
-  const [passkeySigner, setPasskeySigner] = useState<
-    TurnkeySDKBrowserClient | undefined
-  >(undefined);
-  const [iframeSigner, setIframeSigner] = useState<
-    TurnkeySDKBrowserClient | undefined
-  >(undefined);
+  const [turnkeyClient, setTurnkeyClient] = useState<TurnkeyBrowserSDK | undefined>(undefined);
+  const [passkeySigner, setPasskeySigner] = useState<TurnkeySDKBrowserClient | undefined>(undefined);
+  const [iframeSigner, setIframeSigner] = useState<TurnkeySDKIframeClient | undefined>(undefined);
   const iframeInit = useRef<boolean>(false);
 
   const TurnkeyIframeContainerId = "turnkey-auth-iframe-container-id";
@@ -46,9 +41,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const newTurnkeyClient = new TurnkeyBrowserSDK(config);
         setTurnkeyClient(newTurnkeyClient);
         setPasskeySigner(await newTurnkeyClient.passkeySigner());
-        const iframeClient = await newTurnkeyClient.iframeSigner(
-          document.getElementById(TurnkeyIframeContainerId)
-        );
+        const iframeClient = await newTurnkeyClient.iframeSigner(document.getElementById(TurnkeyIframeContainerId));
         setIframeSigner(iframeClient);
       }
     })();
