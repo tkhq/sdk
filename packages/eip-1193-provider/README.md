@@ -1,5 +1,6 @@
 # Turnkey EIP-1193 Provider
 
+
 The `@turnkey/eip-1193-provider` package delivers a Turnkey-compatible Ethereum provider that adheres to the EIP-1193 standards. It's built to integrate seamlessly with a broad spectrum of EVM-compatible chains, offering capabilities like account management, transaction signing, and blockchain interaction. This initial setup is intended for use in conjunction with the [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http) and [`@turnkey/webauthn-stamper`](https://www.npmjs.com/package/@turnkey/webauthn-stamper) package, for initial authentication.
 
 ## Installation
