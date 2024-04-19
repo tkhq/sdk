@@ -26,10 +26,6 @@ import {
   setStorageValue,
 } from "./storage";
 import { generateRandomBuffer, base64UrlEncode } from "./utils";
-import {
-  DEFAULT_ETHEREUM_WALLET_ACCOUNT,
-  DEFAULT_SOLANA_WALLET_ACCOUNT,
-} from "./constants";
 
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
@@ -56,6 +52,7 @@ export class TurnkeyBrowserSDK {
     }
     return;
   };
+
   passkeySigner = async (rpId?: string): Promise<TurnkeySDKBrowserClient> => {
     const targetRpId = rpId ?? this.config.rpId ?? window.location.hostname;
 
@@ -237,7 +234,6 @@ export class TurnkeyBrowserSDK {
 
   logoutUser = async (): Promise<boolean> => {
     await removeStorageValue(StorageKeys.CurrentUser);
-    await removeStorageValue(StorageKeys.CurrentSubOrganization);
 
     return true;
   };
@@ -247,26 +243,6 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
   }
-
-  createWalletWithAccount = async (params: {
-    walletName: string;
-    accountChain: string;
-  }): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
-    switch (params.accountChain) {
-      case "solana": {
-        return await this.createWallet({
-          walletName: params.walletName,
-          accounts: [DEFAULT_SOLANA_WALLET_ACCOUNT],
-        });
-      }
-      default: {
-        return await this.createWallet({
-          walletName: params.walletName,
-          accounts: [DEFAULT_ETHEREUM_WALLET_ACCOUNT],
-        });
-      }
-    }
-  };
 
   createNextWalletAccount = async (params: {
     walletId: string;
@@ -311,7 +287,6 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
       },
     };
     await setStorageValue(StorageKeys.CurrentUser, currentUser);
-    await setStorageValue(StorageKeys.CurrentSubOrganization, org);
     return readOnlySessionResult!;
   };
 

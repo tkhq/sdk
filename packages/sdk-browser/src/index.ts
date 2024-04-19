@@ -31,6 +31,8 @@ import { TurnkeyBrowserSDK, TurnkeySDKBrowserClient } from "./sdk-client";
 import {
   defaultEthereumAccountAtIndex,
   DEFAULT_ETHEREUM_ACCOUNTS,
+  defaultSolanaAccountAtIndex,
+  DEFAULT_SOLANA_ACCOUNTS,
 } from "./turnkey-helpers";
 
 import type {
@@ -67,13 +69,14 @@ export type {
 export {
   createActivityPoller,
   defaultEthereumAccountAtIndex,
+  defaultSolanaAccountAtIndex,
   getWebAuthnAttestation,
   sealAndStampRequestBody,
   signWithApiKey,
 };
 
 // Constants
-export { DEFAULT_ETHEREUM_ACCOUNTS };
+export { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS };
 
 // Enums
 export { IframeEventType };

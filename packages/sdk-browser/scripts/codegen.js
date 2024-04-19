@@ -248,6 +248,8 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
 
   imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
 
+  imports.push('import { StorageKeys, getStorageValue } from "../storage";');
+
   codeBuffer.push(`
 export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;
@@ -269,7 +271,7 @@ export class TurnkeySDKClientBase {
       const stamp = await this.config.stamper.stamp(stringifiedBody);
       headers[stamp.stampHeaderName] = stamp.stampHeaderValue
     }
-    
+
     if (this.config.readOnlySession){
       headers["X-Session"] = this.config.readOnlySession
     }
@@ -409,9 +411,10 @@ export class TurnkeySDKClientBase {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, ...rest } = input;
+    const currentUser = await getStorageValue(StorageKeys.CurrentUser);
     return this.command("${endpointPath}", {
       parameters: rest,
-      organizationId: organizationId ?? this.config.organizationId,
+      organizationId: organizationId ?? (currentUser?.organization?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: "${versionedActivityType ?? unversionedActivityType}"
     }, "${versionedMethodName}");
@@ -421,10 +424,11 @@ export class TurnkeySDKClientBase {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, ...rest } = input;
+    const currentUser = await getStorageValue(StorageKeys.CurrentUser);
     return this.activityDecision("${endpointPath}",
       {
         parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
+        organizationId: organizationId ?? (currentUser?.organization?.organizationId ?? this.config.organizationId),
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_${operationNameWithoutNamespace
           .replace(/([a-z])([A-Z])/g, "$1_$2")
