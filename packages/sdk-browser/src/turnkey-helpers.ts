@@ -35,7 +35,7 @@ export const defaultSolanaAccountAtIndex = (
     curve: "CURVE_ED25519",
     addressFormat: "ADDRESS_FORMAT_SOLANA",
   };
-}
+};
 
 export const DEFAULT_SOLANA_ACCOUNTS: WalletAccount[] = [
   defaultSolanaAccountAtIndex(0),
