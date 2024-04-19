@@ -356,9 +356,10 @@ export class TurnkeySDKIframeClient extends TurnkeySDKBrowserClient {
     this.iframePublicKey = (config.stamper as IframeStamper).iframePublicKey;
   }
 
-  injectCredentialBundle = async (credentialBundle: string): Promise<boolean> => {
+  injectCredentialBundle = async (
+    credentialBundle: string
+  ): Promise<boolean> => {
     const stamper = this.config.stamper as IframeStamper;
     return await stamper.injectCredentialBundle(credentialBundle);
-  }
-
+  };
 }
