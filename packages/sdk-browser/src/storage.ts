@@ -1,13 +1,11 @@
-import type { User, SigningSession, SubOrganization } from "./models";
+import type { User, SigningSession } from "./models";
 
 export enum StorageKeys {
-  CurrentSubOrganization = "@turnkey/current_sub_organization",
   CurrentUser = "@turnkey/current_user",
   CurrentSigningSession = "@turnkey/current_signing_session",
 }
 
 interface StorageValue {
-  [StorageKeys.CurrentSubOrganization]: SubOrganization;
   [StorageKeys.CurrentUser]: User;
   [StorageKeys.CurrentSigningSession]: SigningSession;
 }
@@ -19,7 +17,6 @@ enum StorageLocation {
 }
 
 const STORAGE_VALUE_LOCATIONS: Record<StorageKeys, StorageLocation> = {
-  [StorageKeys.CurrentSubOrganization]: StorageLocation.Local,
   [StorageKeys.CurrentUser]: StorageLocation.Local,
   [StorageKeys.CurrentSigningSession]: StorageLocation.Secure,
 };
