@@ -926,6 +926,12 @@ importers:
         specifier: ^1.0.3
         version: 1.0.3
 
+  packages/utils:
+    dependencies:
+      '@hpke/core':
+        specifier: ^1.2.7
+        version: 1.2.7
+
   packages/viem:
     dependencies:
       '@turnkey/api-key-stamper':
@@ -4553,6 +4559,11 @@ packages:
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
     dependencies:
       '@hapi/hoek': 9.3.0
+    dev: false
+
+  /@hpke/core@1.2.7:
+    resolution: {integrity: sha512-wEbNmyZ2qtFSNnnhkZV/vJi7BnMKYDjQNxiaktJP68rfVTVcgRnsO6o4+59kzX2OrgEbEKWSp7mNSUJeJU5ncQ==}
+    engines: {node: '>=16.0.0'}
     dev: false
 
   /@humanwhocodes/config-array@0.11.10:
