@@ -15,7 +15,11 @@ import {
   TurnkeyRequestError,
 } from "@turnkey/http";
 
-import { TurnkeyServerSDK, TurnkeySDKServerClient } from "./sdk-client";
+import {
+  TurnkeyServerSDK,
+  TurnkeyServerClient,
+  TurnkeyApiClient,
+} from "./sdk-client";
 
 import {
   defaultEthereumAccountAtIndex,
@@ -36,8 +40,9 @@ import { fetch } from "./universal";
 export {
   ApiKeyStamper,
   TurnkeyActivityError,
-  TurnkeyServerSDK,
-  TurnkeySDKServerClient,
+  TurnkeyApiClient,
+  TurnkeyServerSDK as Turnkey,
+  TurnkeyServerClient,
   TurnkeyRequestError,
 };
 

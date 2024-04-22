@@ -1,21 +1,21 @@
 import { ReactNode, createContext, useState, useEffect, useRef } from "react";
 import {
-  TurnkeyBrowserSDK,
-  TurnkeySDKBrowserClient,
-  TurnkeySDKIframeClient,
+  Turnkey,
+  TurnkeyIframeClient,
+  TurnkeyPasskeyClient,
   TurnkeySDKBrowserConfig,
 } from "@turnkey/sdk-browser";
 
 export interface TurnkeyClientType {
-  turnkeyClient: TurnkeyBrowserSDK | undefined;
-  iframeSigner: TurnkeySDKIframeClient | undefined;
-  passkeySigner: TurnkeySDKBrowserClient | undefined;
+  turnkey: Turnkey | undefined;
+  iframeClient: TurnkeyIframeClient | undefined;
+  passkeyClient: TurnkeyPasskeyClient | undefined;
 }
 
 export const TurnkeyContext = createContext<TurnkeyClientType>({
-  turnkeyClient: undefined,
-  passkeySigner: undefined,
-  iframeSigner: undefined,
+  turnkey: undefined,
+  passkeyClient: undefined,
+  iframeClient: undefined,
 });
 
 interface TurnkeyProviderProps {
@@ -27,14 +27,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   config,
   children,
 }) => {
-  const [turnkeyClient, setTurnkeyClient] = useState<
-    TurnkeyBrowserSDK | undefined
+  const [turnkey, setTurnkey] = useState<Turnkey | undefined>(undefined);
+  const [passkeyClient, setPasskeyClient] = useState<
+    TurnkeyPasskeyClient | undefined
   >(undefined);
-  const [passkeySigner, setPasskeySigner] = useState<
-    TurnkeySDKBrowserClient | undefined
-  >(undefined);
-  const [iframeSigner, setIframeSigner] = useState<
-    TurnkeySDKIframeClient | undefined
+  const [iframeClient, setIframeClient] = useState<
+    TurnkeyIframeClient | undefined
   >(undefined);
   const iframeInit = useRef<boolean>(false);
 
@@ -44,13 +42,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     (async () => {
       if (!iframeInit.current) {
         iframeInit.current = true;
-        const newTurnkeyClient = new TurnkeyBrowserSDK(config);
-        setTurnkeyClient(newTurnkeyClient);
-        setPasskeySigner(await newTurnkeyClient.passkeySigner());
-        const iframeClient = await newTurnkeyClient.iframeSigner(
+        const newTurnkey = new Turnkey(config);
+        setTurnkey(newTurnkey);
+        setPasskeyClient(newTurnkey.passkeyClient());
+        const newIframeClient = await newTurnkey.iframeClient(
           document.getElementById(TurnkeyIframeContainerId)
         );
-        setIframeSigner(iframeClient);
+        setIframeClient(newIframeClient);
       }
     })();
   }, []);
@@ -58,9 +56,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   return (
     <TurnkeyContext.Provider
       value={{
-        turnkeyClient,
-        passkeySigner,
-        iframeSigner,
+        turnkey,
+        passkeyClient,
+        iframeClient,
       }}
     >
       {children}

@@ -102,3 +102,8 @@ export type NextApiHandler = (
   req: NextApiRequest,
   res: NextApiResponse
 ) => void | Promise<void>;
+
+export interface ApiCredentials {
+  apiPublicKey: string;
+  apiPrivateKey: string;
+}
