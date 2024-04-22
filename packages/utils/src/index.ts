@@ -125,13 +125,11 @@ export const modSqrt = (a: bigint, p: bigint): bigint => {
 
     throw new Error("unsupported modulus value");
 
-    // Helper function to test if a specific bit is set
     function testBit(n: bigint, i: number): boolean {
         const mask = BigInt(1) << BigInt(i);
         return (n & mask) !== BigInt(0);
     }
 
-    // Helper function for modular exponentiation
     function modPow(base: bigint, exponent: bigint, modulus: bigint): bigint {
         let result = BigInt(1);
         let b = base % modulus;
