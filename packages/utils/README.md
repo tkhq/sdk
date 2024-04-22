@@ -1,3 +1,3 @@
 # @turnkey/utils
 
-This package consolidates some common crpytographic utilities used across our applications, particularly primatives related to encoding/decoding.
+This package consolidates some common cryptographic utilities used across our applications, particularly primitives related to encoding/decoding.
