@@ -248,6 +248,8 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
 
   imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
 
+  imports.push('import { fetch } from "../universal";');
+
   codeBuffer.push(`
 export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;

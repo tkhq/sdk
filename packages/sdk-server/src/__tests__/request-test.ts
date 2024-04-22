@@ -1,8 +1,7 @@
-import { test, expect, jest } from "@jest/globals";
-
-import { readFixture } from "../__fixtures__/shared";
-import { TurnkeyServerSDK } from "../index";
 import { fetch } from "../universal";
+import { test, expect, jest } from "@jest/globals";
+import { TurnkeyServerSDK } from "../index";
+import { readFixture } from "../__fixtures__/shared";
 
 jest.mock("cross-fetch");
 
