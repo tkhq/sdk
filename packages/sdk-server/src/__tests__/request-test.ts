@@ -1,7 +1,7 @@
 import { test, expect, jest } from "@jest/globals";
 
 import { readFixture } from "../__fixtures__/shared";
-import { TurnkeyServerSDK } from "../index";
+import { Turnkey } from "../index";
 import { fetch } from "../universal";
 
 jest.mock("cross-fetch");
@@ -9,7 +9,7 @@ jest.mock("cross-fetch");
 test("requests are stamped after client creation", async () => {
   const { privateKey, publicKey } = await readFixture();
 
-  const turnkeyServerClient = new TurnkeyServerSDK({
+  const turnkeyServerClient = new Turnkey({
     apiBaseUrl: "https://mocked.turnkey.com",
     apiPrivateKey: privateKey,
     apiPublicKey: publicKey,
@@ -38,7 +38,7 @@ test("requests are stamped after client creation", async () => {
 test("requests return grpc status details as part of their errors", async () => {
   const { privateKey, publicKey } = await readFixture();
 
-  const turnkeyServerClient = new TurnkeyServerSDK({
+  const turnkeyServerClient = new Turnkey({
     apiBaseUrl: "https://mocked.turnkey.com",
     apiPrivateKey: privateKey,
     apiPublicKey: publicKey,
