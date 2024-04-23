@@ -1,9 +1,9 @@
-import type { TurnkeyServerSDK } from "@turnkey/sdk-server";
+import type { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
 export default async function createPolicy(
-  turnkeyClient: TurnkeyServerSDK,
+  turnkeyClient: Turnkey,
   policyName: string,
   effect: "EFFECT_ALLOW" | "EFFECT_DENY",
   consensus: string,

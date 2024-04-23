@@ -1,8 +1,8 @@
-import type { TurnkeyServerSDK, TurnkeyApiTypes } from "@turnkey/sdk-server";
+import type { Turnkey, TurnkeyApiTypes } from "@turnkey/sdk-server";
 import { refineNonNull } from "./utils";
 
 export default async function getActivity(
-  turnkeyClient: TurnkeyServerSDK,
+  turnkeyClient: Turnkey,
   activityId: string
 ): Promise<TurnkeyApiTypes["v1ActivityResponse"]["activity"]> {
   const response = await turnkeyClient.api().getActivity({
