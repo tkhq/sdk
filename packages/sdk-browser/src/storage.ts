@@ -43,7 +43,6 @@ export const setStorageValue = async <K extends StorageKeys>(
   const storageLocation: StorageLocation = STORAGE_VALUE_LOCATIONS[storageKey];
   const browserStorageLocation: Storage = STORAGE_LOCATIONS[storageLocation];
   browserStorageLocation.setItem(storageKey, JSON.stringify(storageValue));
-  // eventEmitter.emit('storageChange', { storageKey, storageValue });
 };
 
 export const removeStorageValue = async <K extends StorageKeys>(
@@ -52,5 +51,4 @@ export const removeStorageValue = async <K extends StorageKeys>(
   const storageLocation: StorageLocation = STORAGE_VALUE_LOCATIONS[storageKey];
   const browserStorageLocation: Storage = STORAGE_LOCATIONS[storageLocation];
   browserStorageLocation.removeItem(storageKey);
-  // eventEmitter.emit('storageChange', { storageKey, storageValue: undefined });
 };
