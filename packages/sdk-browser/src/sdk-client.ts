@@ -43,7 +43,7 @@ export class TurnkeyBrowserSDK {
       return new TurnkeyBrowserClient({
         readOnlySession: currentUser?.readOnlySession?.session!,
         apiBaseUrl: this.config.apiBaseUrl,
-        organizationId: this.config.defaultOrganizationId,
+        organizationId: currentUser?.organization?.organizationId ?? this.config.defaultOrganizationId,
       });
     } else {
       this.logoutUser();
