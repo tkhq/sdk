@@ -250,6 +250,8 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
 
   imports.push('import { StorageKeys, getStorageValue } from "../storage";');
 
+  imports.push('import { fetch } from "../universal";');
+
   codeBuffer.push(`
 export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;
