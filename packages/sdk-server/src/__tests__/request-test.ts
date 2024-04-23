@@ -68,7 +68,7 @@ test("requests return grpc status details as part of their errors", async () => 
   mockedFetch.mockReturnValue(Promise.resolve(response));
 
   try {
-    // Arbitrary request URL
+    // Arbitrary request
     await turnkeyServerClient.api().getWhoami({
       organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
     });
