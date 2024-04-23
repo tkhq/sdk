@@ -11,6 +11,8 @@ import { VERSION } from "../__generated__/version";
 
 import type * as SdkApiTypes from "./sdk_api_types";
 
+import { fetch } from "../universal";
+
 export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;
 
