@@ -28,8 +28,9 @@ import {
 
 import {
   TurnkeyBrowserSDK,
-  TurnkeySDKBrowserClient,
-  TurnkeySDKIframeClient,
+  TurnkeyBrowserClient,
+  TurnkeyIframeClient,
+  TurnkeyPasskeyClient,
 } from "./sdk-client";
 
 import {
@@ -51,9 +52,10 @@ export {
   ApiKeyStamper,
   IframeStamper,
   TurnkeyActivityError,
-  TurnkeyBrowserSDK,
-  TurnkeySDKBrowserClient,
-  TurnkeySDKIframeClient,
+  TurnkeyBrowserSDK as Turnkey,
+  TurnkeyBrowserClient,
+  TurnkeyIframeClient,
+  TurnkeyPasskeyClient,
   TurnkeyRequestError,
   WebauthnStamper,
 };

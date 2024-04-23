@@ -1,9 +1,9 @@
-import type { TurnkeyServerSDK } from "@turnkey/sdk-server";
+import type { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import { refineNonNull } from "./utils";
 
 export default async function createPrivateKey(
-  turnkeyClient: TurnkeyServerSDK,
+  turnkeyClient: Turnkey,
   privateKeyName: string,
   privateKeyTags: string[]
 ): Promise<string> {

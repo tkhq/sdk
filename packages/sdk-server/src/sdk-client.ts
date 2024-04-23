@@ -1,6 +1,7 @@
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 import type {
+  ApiCredentials,
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
   TurnkeyProxyHandlerConfig,
@@ -28,13 +29,13 @@ export class TurnkeyServerSDK {
     this.config = config;
   }
 
-  api = (): TurnkeySDKServerClient => {
+  api = (apiCredentials?: ApiCredentials): TurnkeyApiClient => {
     const apiKeyStamper = new ApiKeyStamper({
-      apiPublicKey: this.config.apiPublicKey,
-      apiPrivateKey: this.config.apiPrivateKey,
+      apiPublicKey: apiCredentials?.apiPublicKey ?? this.config.apiPublicKey,
+      apiPrivateKey: apiCredentials?.apiPrivateKey ?? this.config.apiPrivateKey,
     });
 
-    return new TurnkeySDKServerClient({
+    return new TurnkeyApiClient({
       stamper: apiKeyStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
@@ -115,10 +116,16 @@ export class TurnkeyServerSDK {
   };
 }
 
-export class TurnkeySDKServerClient extends TurnkeySDKClientBase {
+export class TurnkeyServerClient extends TurnkeySDKClientBase {
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
   }
 
   [methodName: string]: any;
+}
+
+export class TurnkeyApiClient extends TurnkeyServerClient {
+  constructor(config: TurnkeySDKClientConfig) {
+    super(config);
+  }
 }

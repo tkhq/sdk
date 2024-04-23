@@ -34,15 +34,13 @@ export class TurnkeyBrowserSDK {
     this.config = config;
   }
 
-  currentUserSession = async (): Promise<
-    TurnkeySDKBrowserClient | undefined
-  > => {
+  currentUserSession = async (): Promise<TurnkeyBrowserClient | undefined> => {
     const currentUser = await this.getCurrentUser();
     if (!currentUser?.readOnlySession) {
       return;
     }
     if (currentUser?.readOnlySession?.sessionExpiry > Date.now()) {
-      return new TurnkeySDKBrowserClient({
+      return new TurnkeyBrowserClient({
         readOnlySession: currentUser?.readOnlySession?.session!,
         apiBaseUrl: this.config.apiBaseUrl,
         organizationId: this.config.defaultOrganizationId,
@@ -53,12 +51,12 @@ export class TurnkeyBrowserSDK {
     return;
   };
 
-  passkeySigner = async (rpId?: string): Promise<TurnkeySDKBrowserClient> => {
+  passkeyClient = (rpId?: string): TurnkeyPasskeyClient => {
     const targetRpId = rpId ?? this.config.rpId ?? window.location.hostname;
 
     if (!targetRpId) {
       throw new Error(
-        "Tried to initialize a passkey signer with no rpId defined"
+        "Tried to initialize a passkey client with no rpId defined"
       );
     }
 
@@ -66,17 +64,17 @@ export class TurnkeyBrowserSDK {
       rpId: targetRpId,
     });
 
-    return new TurnkeySDKBrowserClient({
+    return new TurnkeyPasskeyClient({
       stamper: webauthnStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
     });
   };
 
-  iframeSigner = async (
+  iframeClient = async (
     iframeContainer: HTMLElement | null | undefined,
     iframeUrl?: string
-  ): Promise<TurnkeySDKIframeClient> => {
+  ): Promise<TurnkeyIframeClient> => {
     const targetIframeUrl = iframeUrl ?? this.config.iframeUrl;
 
     if (!targetIframeUrl) {
@@ -95,14 +93,14 @@ export class TurnkeyBrowserSDK {
 
     await iframeStamper.init();
 
-    return new TurnkeySDKIframeClient({
+    return new TurnkeyIframeClient({
       stamper: iframeStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
     });
   };
 
-  sessionSigner = async (): Promise<TurnkeySDKBrowserClient> => {
+  sessionSigner = async (): Promise<TurnkeyBrowserClient> => {
     const signingSession: SigningSession | undefined = await getStorageValue(
       StorageKeys.CurrentSigningSession
     );
@@ -111,7 +109,7 @@ export class TurnkeyBrowserSDK {
       apiPrivateKey: signingSession!.privateKey,
     });
 
-    return new TurnkeySDKBrowserClient({
+    return new TurnkeyBrowserClient({
       stamper: sessionStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
@@ -160,52 +158,6 @@ export class TurnkeyBrowserSDK {
   };
 
   // Local
-  createUserPasskey = async (config: Record<any, any> = {}) => {
-    const challenge = generateRandomBuffer();
-    const encodedChallenge = base64UrlEncode(challenge);
-    const authenticatorUserId = generateRandomBuffer();
-
-    const webauthnConfig: CredentialCreationOptions = {
-      publicKey: {
-        rp: {
-          id: config.publicKey?.rp?.id ?? "",
-          name: config.publicKey?.rp?.name ?? "",
-        },
-        challenge: config.publicKey?.challenge ?? challenge,
-        pubKeyCredParams: config.publicKey?.pubKeyCredParams ?? [
-          {
-            type: "public-key",
-            alg: -7,
-          },
-        ],
-        user: {
-          id: config.publicKey?.user?.id ?? authenticatorUserId,
-          name: config.publicKey?.user?.name ?? "",
-          displayName: config.publicKey?.user?.displayName ?? "",
-        },
-        authenticatorSelection: {
-          requireResidentKey:
-            config.publicKey?.authenticatorSelection?.requireResidentKey ??
-            true,
-          residentKey:
-            config.publicKey?.authenticatorSelection?.residentKey ?? "required",
-          userVerification:
-            config.publicKey?.authenticatorSelection?.userVerification ??
-            "preferred",
-        },
-      },
-    };
-
-    const attestation = await getWebAuthnAttestation(webauthnConfig);
-
-    return {
-      encodedChallenge: config.publicKey?.challenge
-        ? base64UrlEncode(config.publicKey?.challenge)
-        : encodedChallenge,
-      attestation: attestation,
-    };
-  };
-
   getCurrentSubOrganization = async (): Promise<
     SubOrganization | undefined
   > => {
@@ -239,7 +191,7 @@ export class TurnkeyBrowserSDK {
   };
 }
 
-export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
+export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
   }
@@ -322,7 +274,62 @@ export class TurnkeySDKBrowserClient extends TurnkeySDKClientBase {
   };
 }
 
-export class TurnkeySDKIframeClient extends TurnkeySDKBrowserClient {
+export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
+  rpId: string;
+
+  constructor(config: TurnkeySDKClientConfig) {
+    super(config);
+    this.rpId = (config.stamper as WebauthnStamper)!.rpId;
+  }
+
+  createUserPasskey = async (config: Record<any, any> = {}) => {
+    const challenge = generateRandomBuffer();
+    const encodedChallenge = base64UrlEncode(challenge);
+    const authenticatorUserId = generateRandomBuffer();
+
+    const webauthnConfig: CredentialCreationOptions = {
+      publicKey: {
+        rp: {
+          id: config.publicKey?.rp?.id ?? this.rpId,
+          name: config.publicKey?.rp?.name ?? "",
+        },
+        challenge: config.publicKey?.challenge ?? challenge,
+        pubKeyCredParams: config.publicKey?.pubKeyCredParams ?? [
+          {
+            type: "public-key",
+            alg: -7,
+          },
+        ],
+        user: {
+          id: config.publicKey?.user?.id ?? authenticatorUserId,
+          name: config.publicKey?.user?.name ?? "",
+          displayName: config.publicKey?.user?.displayName ?? "",
+        },
+        authenticatorSelection: {
+          requireResidentKey:
+            config.publicKey?.authenticatorSelection?.requireResidentKey ??
+            true,
+          residentKey:
+            config.publicKey?.authenticatorSelection?.residentKey ?? "required",
+          userVerification:
+            config.publicKey?.authenticatorSelection?.userVerification ??
+            "preferred",
+        },
+      },
+    };
+
+    const attestation = await getWebAuthnAttestation(webauthnConfig);
+
+    return {
+      encodedChallenge: config.publicKey?.challenge
+        ? base64UrlEncode(config.publicKey?.challenge)
+        : encodedChallenge,
+      attestation: attestation,
+    };
+  };
+}
+
+export class TurnkeyIframeClient extends TurnkeyBrowserClient {
   iframePublicKey: string | null;
 
   constructor(config: TurnkeySDKClientConfig) {
