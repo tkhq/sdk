@@ -56,7 +56,7 @@ async function main() {
   const txHash = await client.sendTransaction(transactionRequest);
 
   print("Source address", client.account.address);
-  print("Transaction", `https://sepolia.etherscan.io/tx/${txHash}`);
+  print("Transaction sent", `https://sepolia.etherscan.io/tx/${txHash}`);
 
   // 2. Sign a simple message
   let address = client.account.address;
