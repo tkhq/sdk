@@ -58,7 +58,7 @@ This script will do the following:
 
 Note that these transactions will all be broadcasted sequentially.
 
-The script constructs a transaction via Turnkey and broadcasts via Infura. If the script exits because your account isn't funded, you can request funds on https://goerlifaucet.com/ or https://faucet.paradigm.xyz/.
+The script constructs a transaction via Turnkey and broadcasts via Infura. If the script exits because your account isn't funded, you can request funds on https://sepoliafaucet.com/ or https://faucet.paradigm.xyz/.
 
 Visit the Etherscan link to view your transaction; you have successfully sent your first transaction with Turnkey!
 
@@ -66,7 +66,7 @@ See the following for a sample output:
 
 ```
 Network:
-	goerli (chain ID 5)
+	sepolia (chain ID 11155111)
 
 Address:
 	0x064c0CfDD7C485Eba21988Ded4dbCD9358556842
@@ -87,13 +87,13 @@ Turnkey-signed transaction:
 	0x02f8668080808080942ad9ea1e677949a536a270cec812d6e868c881088609184e72a00080c001a09881f59e48500ef8960ae1cb94e0c862e7d613f961c250b6f07b546a1b058b1da06ba1871d7aed5eb8ea8cb211a0e3e22a1c6b54b34b4376d0ef5b1daef4100c8f
 
 Sent 0.00001 Ether to 0x2Ad9eA1E677949a536A270CEC812D6e868C88108:
-	https://goerli.etherscan.io/tx/0xe034bdc597766719aef04b1d08998e606e85da1dd73e52fad8586a7d79d659e0
+	https://sepolia.etherscan.io/tx/0xe034bdc597766719aef04b1d08998e606e85da1dd73e52fad8586a7d79d659e0
 
 WETH Balance:
 	0.00007 WETH
 
 Wrapped 0.00001 ETH:
-	https://goerli.etherscan.io/tx/0x7f98c1b2c7ff7f8ab876b27fdcd794653d8b7f728dbeec3b1d403789c38bcb71
+	https://sepolia.etherscan.io/tx/0x7f98c1b2c7ff7f8ab876b27fdcd794653d8b7f728dbeec3b1d403789c38bcb71
 ```
 
 ```bash

@@ -3,9 +3,9 @@
   "version": "0.1.3",
   "private": true,
   "scripts": {
-    "start": "pnpm -w run build-all && tsx src/index.ts",
-    "start-advanced": "pnpm -w run build-all && tsx src/advanced.ts",
-    "start-sepolia-legacy": "pnpm -w run build-all && tsx src/sepoliaLegacyTx.ts",
+    "start": "tsx src/index.ts",
+    "start-advanced": "tsx src/advanced.ts",
+    "start-sepolia-legacy": "tsx src/sepoliaLegacyTx.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -13,6 +13,7 @@
     "@turnkey/ethers": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0"
   }

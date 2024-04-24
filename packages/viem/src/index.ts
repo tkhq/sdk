@@ -12,9 +12,11 @@ import type {
 } from "viem";
 import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
+import type { TurnkeyServerClient } from "@turnkey/sdk-server";
 
 export async function createAccount(input: {
-  client: TurnkeyClient;
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
   organizationId: string;
   // This can be a wallet account address, private key address, or private key ID.
   signWith: string;
@@ -193,7 +195,7 @@ export async function createApiKeyAccount(
 }
 
 async function signMessage(
-  client: TurnkeyClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   message: SignableMessage,
   organizationId: string,
   signWith: string
@@ -211,7 +213,7 @@ async function signMessage(
 async function signTransaction<
   TTransactionSerializable extends TransactionSerializable
 >(
-  client: TurnkeyClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   transaction: TTransactionSerializable,
   serializer: SerializeTransactionFn<TTransactionSerializable>,
   organizationId: string,
@@ -228,7 +230,7 @@ async function signTransaction<
 }
 
 async function signTypedData(
-  client: TurnkeyClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   data: TypedData | { [key: string]: unknown },
   organizationId: string,
   signWith: string
@@ -244,7 +246,7 @@ async function signTypedData(
 }
 
 async function signTransactionWithErrorWrapping(
-  client: TurnkeyClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   unsignedTransaction: string,
   organizationId: string,
   signWith: string
@@ -272,40 +274,51 @@ async function signTransactionWithErrorWrapping(
 }
 
 async function signTransactionImpl(
-  client: TurnkeyClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   unsignedTransaction: string,
   organizationId: string,
   signWith: string
 ): Promise<string> {
-  const { activity } = await client.signTransaction({
-    type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
-    organizationId: organizationId,
-    parameters: {
-      signWith,
-      type: "TRANSACTION_TYPE_ETHEREUM",
-      unsignedTransaction: unsignedTransaction,
-    },
-    timestampMs: String(Date.now()), // millisecond timestamp
-  });
+  if (client instanceof TurnkeyClient) {
+    const { activity } = await client.signTransaction({
+      type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
+      organizationId: organizationId,
+      parameters: {
+        signWith,
+        type: "TRANSACTION_TYPE_ETHEREUM",
+        unsignedTransaction: unsignedTransaction,
+      },
+      timestampMs: String(Date.now()), // millisecond timestamp
+    });
 
-  const { id, status, type } = activity;
+    const { id, status, type } = activity;
 
-  if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
+    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+      throw new TurnkeyActivityError({
+        message: `Invalid activity status: ${activity.status}`,
+        activityId: id,
+        activityStatus: status,
+        activityType: type,
+      });
+    }
+
     return assertNonNull(
       activity?.result?.signTransactionResult?.signedTransaction
     );
-  }
+  } else {
+    // Want to get additional activity details here
+    const activity = await client.signTransaction({
+      signWith,
+      type: "TRANSACTION_TYPE_ETHEREUM",
+      unsignedTransaction: unsignedTransaction,
+    });
 
-  throw new TurnkeyActivityError({
-    message: `Invalid activity status: ${activity.status}`,
-    activityId: id,
-    activityStatus: status,
-    activityType: type,
-  });
+    return assertNonNull(activity?.signedTransaction);
+  }
 }
 
 async function signMessageWithErrorWrapping(
-  client: TurnkeyClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   message: string,
   organizationId: string,
   signWith: string
@@ -333,44 +346,57 @@ async function signMessageWithErrorWrapping(
 }
 
 async function signMessageImpl(
-  client: TurnkeyClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   message: string,
   organizationId: string,
   signWith: string
 ): Promise<string> {
-  const { activity } = await client.signRawPayload({
-    type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
-    organizationId: organizationId,
-    parameters: {
+  let result;
+
+  if (client instanceof TurnkeyClient) {
+    const { activity } = await client.signRawPayload({
+      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
+      organizationId: organizationId,
+      parameters: {
+        signWith,
+        payload: message,
+        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+        hashFunction: "HASH_FUNCTION_NO_OP",
+      },
+      timestampMs: String(Date.now()), // millisecond timestamp
+    });
+
+    const { id, status, type } = activity;
+
+    if (status !== "ACTIVITY_STATUS_COMPLETED") {
+      throw new TurnkeyActivityError({
+        message: `Invalid activity status: ${activity.status}`,
+        activityId: id,
+        activityStatus: status,
+        activityType: type,
+      });
+    }
+
+    result = assertNonNull(activity?.result?.signRawPayloadResult);
+  } else {
+    // Want to get ID and status back as well in the result (we won't get an error)
+    // Maybe do a try/catch?
+    result = await client.signRawPayload({
       signWith,
       payload: message,
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
       hashFunction: "HASH_FUNCTION_NO_OP",
-    },
-    timestampMs: String(Date.now()), // millisecond timestamp
-  });
-
-  const { id, status, type } = activity;
-
-  if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
-    let result = assertNonNull(activity?.result?.signRawPayloadResult);
-
-    let assembled = signatureToHex({
-      r: `0x${result.r}`,
-      s: `0x${result.s}`,
-      v: result.v === "00" ? 27n : 28n,
     });
-
-    // Assemble the hex
-    return assertNonNull(assembled);
   }
 
-  throw new TurnkeyActivityError({
-    message: `Invalid activity status: ${activity.status}`,
-    activityId: id,
-    activityStatus: status,
-    activityType: type,
+  let assembled = signatureToHex({
+    r: `0x${result!.r}`,
+    s: `0x${result!.s}`,
+    v: result!.v === "00" ? 27n : 28n,
   });
+
+  // Assemble the hex
+  return assertNonNull(assembled);
 }
 
 function assertNonNull<T>(input: T | null | undefined): T {

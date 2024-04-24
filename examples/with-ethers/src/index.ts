@@ -6,13 +6,12 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
-import { TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createNewWallet } from "./createNewWallet";
 import { print, assertEqual } from "./util";
 import WETH_TOKEN_ABI from "./weth-contract-abi.json";
 
-const WETH_TOKEN_ADDRESS_GOERLI = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
+const WETH_TOKEN_ADDRESS_SEPOLIA = "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9";
 
 async function main() {
   if (!process.env.SIGN_WITH) {
@@ -21,25 +20,22 @@ async function main() {
     return;
   }
 
-  const turnkeyClient = new TurnkeyClient(
-    {
-      baseUrl: process.env.BASE_URL!,
-    },
-    new ApiKeyStamper({
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
-  );
+  const turnkeyClient = new TurnkeyServerSDK({
+    apiBaseUrl: process.env.BASE_URL!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    defaultOrganizationId: process.env.ORGANIZATION_ID!,
+  });
 
   // Initialize a Turnkey Signer
   const turnkeySigner = new TurnkeySigner({
-    client: turnkeyClient,
+    client: turnkeyClient.api(),
     organizationId: process.env.ORGANIZATION_ID!,
     signWith: process.env.SIGN_WITH!,
   });
 
   // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v6/api/providers/)
-  const network = "goerli";
+  const network = "sepolia";
   const provider = new ethers.JsonRpcProvider(
     `https://${network}.infura.io/v3/${process.env.INFURA_KEY}`
   );
@@ -82,9 +78,9 @@ async function main() {
   if (balance === 0) {
     let warningMessage =
       "The transaction won't be broadcasted because your account balance is zero.\n";
-    if (network === "goerli") {
+    if (network === "sepolia") {
       warningMessage +=
-        "Use https://goerlifaucet.com/ to request funds on Goerli, then run the script again.\n";
+        "Use https://sepoliafaucet.com/ to request funds on Sepolia, then run the script again.\n";
     }
 
     console.warn(warningMessage);
@@ -99,10 +95,10 @@ async function main() {
     `https://${network}.etherscan.io/tx/${sentTx.hash}`
   );
 
-  if (network === "goerli") {
-    // https://goerli.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6
+  if (network === "sepolia") {
+    // https://sepolia.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6
     const wethContract = new ethers.Contract(
-      WETH_TOKEN_ADDRESS_GOERLI,
+      WETH_TOKEN_ADDRESS_SEPOLIA,
       WETH_TOKEN_ABI,
       connectedSigner
     );

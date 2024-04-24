@@ -49,7 +49,8 @@
     "@turnkey/iframe-stamper": "workspace:*",
     "@turnkey/webauthn-stamper": "workspace:*",
     "buffer": "^6.0.3",
-    "elliptic": "^6.5.5"
+    "elliptic": "^6.5.5",
+    "cross-fetch": "^3.1.5"
   },
   "devDependencies": {
     "@types/elliptic": "^6.4.18",

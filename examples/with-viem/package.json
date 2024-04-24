@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "pnpm -w run build-all && tsx src/index.ts",
-    "start-advanced": "pnpm -w run build-all && tsx src/advanced.ts",
-    "start-contracts": "pnpm -w run build-all && tsx src/contracts.ts",
-    "start-legacy": "pnpm -w run build-all && tsx src/legacy/index.ts",
+    "start": "tsx src/index.ts",
+    "start-advanced": "tsx src/advanced.ts",
+    "start-contracts": "tsx src/contracts.ts",
+    "start-legacy": "tsx src/legacy/index.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -16,6 +16,7 @@
   "dependencies": {
     "@turnkey/http": "workspace:*",
     "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
     "@turnkey/viem": "workspace:*",
     "dotenv": "^16.0.3",
     "fetch": "^1.1.0",
