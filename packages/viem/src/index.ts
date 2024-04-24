@@ -12,11 +12,11 @@ import type {
 } from "viem";
 import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import type { TurnkeySDKBrowserClient } from "@turnkey/sdk-js-browser";
-import type { TurnkeySDKServerClient } from "@turnkey/sdk-js-server";
+import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
+import type { TurnkeyServerClient } from "@turnkey/sdk-server";
 
 export async function createAccount(input: {
-  client: TurnkeyClient | TurnkeySDKBrowserClient | TurnkeySDKServerClient;
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
   organizationId: string;
   // This can be a wallet account address, private key address, or private key ID.
   signWith: string;
@@ -195,7 +195,7 @@ export async function createApiKeyAccount(
 }
 
 async function signMessage(
-  client: TurnkeyClient | TurnkeySDKBrowserClient | TurnkeySDKServerClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   message: SignableMessage,
   organizationId: string,
   signWith: string
@@ -213,7 +213,7 @@ async function signMessage(
 async function signTransaction<
   TTransactionSerializable extends TransactionSerializable
 >(
-  client: TurnkeyClient | TurnkeySDKBrowserClient | TurnkeySDKServerClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   transaction: TTransactionSerializable,
   serializer: SerializeTransactionFn<TTransactionSerializable>,
   organizationId: string,
@@ -230,7 +230,7 @@ async function signTransaction<
 }
 
 async function signTypedData(
-  client: TurnkeyClient | TurnkeySDKBrowserClient | TurnkeySDKServerClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   data: TypedData | { [key: string]: unknown },
   organizationId: string,
   signWith: string
@@ -246,7 +246,7 @@ async function signTypedData(
 }
 
 async function signTransactionWithErrorWrapping(
-  client: TurnkeyClient | TurnkeySDKBrowserClient | TurnkeySDKServerClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   unsignedTransaction: string,
   organizationId: string,
   signWith: string
@@ -274,7 +274,7 @@ async function signTransactionWithErrorWrapping(
 }
 
 async function signTransactionImpl(
-  client: TurnkeyClient | TurnkeySDKBrowserClient | TurnkeySDKServerClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   unsignedTransaction: string,
   organizationId: string,
   signWith: string
@@ -301,11 +301,10 @@ async function signTransactionImpl(
         activityType: type,
       });
     }
-    
+
     return assertNonNull(
       activity?.result?.signTransactionResult?.signedTransaction
     );
-
   } else {
     // Want to get additional activity details here
     const activity = await client.signTransaction({
@@ -319,7 +318,7 @@ async function signTransactionImpl(
 }
 
 async function signMessageWithErrorWrapping(
-  client: TurnkeyClient | TurnkeySDKBrowserClient | TurnkeySDKServerClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   message: string,
   organizationId: string,
   signWith: string
@@ -347,7 +346,7 @@ async function signMessageWithErrorWrapping(
 }
 
 async function signMessageImpl(
-  client: TurnkeyClient | TurnkeySDKBrowserClient | TurnkeySDKServerClient,
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   message: string,
   organizationId: string,
   signWith: string

@@ -11,8 +11,8 @@ import {
 } from "ethers";
 import { TurnkeyActivityError, TurnkeyRequestError } from "@turnkey/http";
 import { TurnkeyClient } from "@turnkey/http";
-import type { TurnkeySDKBrowserClient } from "@turnkey/sdk-js-browser";
-import type { TurnkeySDKServerClient } from "@turnkey/sdk-js-server";
+import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
+import type { TurnkeyServerClient } from "@turnkey/sdk-server";
 import {
   type TypedDataDomain,
   type TypedDataField,
@@ -27,7 +27,7 @@ type TConfig = {
   /**
    * Turnkey client
    */
-  client: TurnkeyClient | TurnkeySDKBrowserClient | TurnkeySDKServerClient;
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
   /**
    * Turnkey organization ID
    */
@@ -41,8 +41,8 @@ type TConfig = {
 export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   private readonly client:
     | TurnkeyClient
-    | TurnkeySDKBrowserClient
-    | TurnkeySDKServerClient;
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient;
 
   public readonly organizationId: string;
   public readonly signWith: string;
