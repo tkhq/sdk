@@ -1,13 +1,11 @@
-import type { User, SigningSession } from "./models";
+import type { User } from "./models";
 
 export enum StorageKeys {
   CurrentUser = "@turnkey/current_user",
-  CurrentSigningSession = "@turnkey/current_signing_session",
 }
 
 interface StorageValue {
   [StorageKeys.CurrentUser]: User;
-  [StorageKeys.CurrentSigningSession]: SigningSession;
 }
 
 enum StorageLocation {
@@ -18,7 +16,6 @@ enum StorageLocation {
 
 const STORAGE_VALUE_LOCATIONS: Record<StorageKeys, StorageLocation> = {
   [StorageKeys.CurrentUser]: StorageLocation.Local,
-  [StorageKeys.CurrentSigningSession]: StorageLocation.Secure,
 };
 
 const STORAGE_LOCATIONS = {
