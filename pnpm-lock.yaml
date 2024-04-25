@@ -800,6 +800,12 @@ importers:
         specifier: ^8.3.2
         version: 8.3.2(typescript@5.1.5)
 
+  packages/frame-utils:
+    dependencies:
+      '@hpke/core':
+        specifier: ^1.2.7
+        version: 1.2.7
+
   packages/http:
     dependencies:
       '@turnkey/api-key-stamper':
@@ -925,12 +931,6 @@ importers:
       tweetnacl:
         specifier: ^1.0.3
         version: 1.0.3
-
-  packages/utils:
-    dependencies:
-      '@hpke/core':
-        specifier: ^1.2.7
-        version: 1.2.7
 
   packages/viem:
     dependencies:
