@@ -1,7 +1,6 @@
 import Image from "next/image";
 import styles from "./index.module.css";
-import { getWebAuthnAttestation, TurnkeyClient } from "@turnkey/http";
-import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import { Turnkey as TurnkeyBrowserSDK, getWebAuthnAttestation } from "@turnkey/sdk-browser";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
@@ -72,12 +71,18 @@ export default function Home() {
   const { register: _loginFormRegister, handleSubmit: loginFormSubmit } =
     useForm();
 
-  const turnkeyClient = new TurnkeyClient(
-    { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
-    new WebauthnStamper({
-      rpId: process.env.NEXT_PUBLIC_RPID!,
-    })
-  );
+  // const turnkeyClient = new TurnkeyClient(
+  //   { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
+  //   new WebauthnStamper({
+  //     rpId: process.env.NEXT_PUBLIC_RPID!,
+  //   })
+  // );
+
+  const turnkeyClient = new TurnkeyBrowserSDK({
+    apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+    rpId: process.env.NEXT_PUBLIC_BASE_URL!,
+    defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+  });
 
   const createWalletAccount = async (data: walletAccountFormData) => {
     if (subOrgId === null) {
@@ -88,11 +93,9 @@ export default function Home() {
     }
 
     try {
-      const signedRequest = await turnkeyClient.stampCreateWalletAccounts({
-        type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
-        organizationId: subOrgId,
-        timestampMs: String(Date.now()),
-        parameters: {
+      const signedRequest = await turnkeyClient
+        .passkeyClient()
+        .createWalletAccounts({
           walletId: wallet.id,
           accounts: [
             {
@@ -102,11 +105,10 @@ export default function Home() {
               addressFormat: "ADDRESS_FORMAT_ETHEREUM",
             },
           ],
-        },
-      });
+        });
 
       await axios.post("/api/proxyRequest", signedRequest);
-      await sleep(1000); // alternative would be to poll the activity itself repeatedly
+      await sleep(1000); // activity submission should be synchronous, but wait just in case
       await getWallet(subOrgId);
       alert(`Hooray! New address at path "${data.path}" created.`);
     } catch (e: any) {
@@ -186,7 +188,7 @@ export default function Home() {
   const login = async () => {
     // We use the parent org ID, which we know at all times...
     try {
-      const res = await turnkeyClient.getWhoami({
+      const res = await turnkeyClient.passkeyClient().getWhoami({
         organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       });
       // ...to get the sub-org ID, which we don't know at this point because we don't
@@ -244,7 +246,10 @@ export default function Home() {
           <h2 className={styles.prompt}>
             OR already created a sub-org? Login!
           </h2>
-          <form className={styles.form} onSubmit={loginFormSubmit(login)}>
+          <form
+            className={styles.form}
+            onSubmit={loginFormSubmit(login)}
+          >
             <input
               className={styles.button}
               type="submit"
