@@ -41,7 +41,8 @@
     "version": "node -p \"'export const VERSION = ' + JSON.stringify(require('./package.json').name + '@' + require('./package.json').version) + ';'\" > src/__generated__/version.ts",
     "build": "rollup -c",
     "clean": "rimraf ./dist ./.cache",
-    "typecheck": "tsc -p tsconfig.typecheck.json"
+    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "test": "jest"
   },
   "dependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
@@ -49,11 +50,14 @@
     "@turnkey/iframe-stamper": "workspace:*",
     "@turnkey/webauthn-stamper": "workspace:*",
     "buffer": "^6.0.3",
+    "cross-fetch": "^3.1.5",
     "elliptic": "^6.5.5"
   },
   "devDependencies": {
     "@types/elliptic": "^6.4.18",
-    "glob": "^8.0.3"
+    "glob": "^8.0.3",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-localstorage-mock": "^2.4.26"
   },
   "engines": {
     "node": ">=18.0.0"
