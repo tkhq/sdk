@@ -1,5 +1,7 @@
 import * as hpke from '@hpke/core';
 import { subtle, webcrypto} from 'crypto';
+import { base64urlEncode } from './encoding';
+import { P256Generator } from './p256';
 
 
 // Key material utilities
@@ -15,14 +17,27 @@ export const generateTargetKey = async (): Promise<webcrypto.JsonWebKey> => {
 };
 
 export const importCredential = async (privateKeyBytes: Uint8Array): Promise<webcrypto.CryptoKey> => {
-    const privateKey = await subtle.importKey(
-        'raw',
-        privateKeyBytes,
-        { name: 'ECDSA', namedCurve: 'P-256' },
-        true,
-        ['sign']
-    );
-    return privateKey;
+        var privateKeyHexString = uint8arrayToHexString(privateKeyBytes);
+        var privateKey = BigInt('0x' + privateKeyHexString);
+        var publicKeyPoint = P256Generator.multiply(privateKey);
+
+        return await subtle.importKey(
+          "jwk",
+          {
+            kty: "EC",
+            crv: "P-256",
+            d: bigIntToBase64Url(privateKey),
+            x: bigIntToBase64Url(publicKeyPoint.x.num),
+            y: bigIntToBase64Url(publicKeyPoint.y.num),
+            ext: true,
+          },
+          {
+            name: "ECDSA",
+            namedCurve: "P-256",
+          },
+          true,
+          ["sign"]
+        )
 };
 
 export const p256JWKPrivateToPublic = async (privateJwk: webcrypto.JsonWebKey): Promise<Uint8Array> => {
@@ -203,6 +218,16 @@ const uint8arrayFromHexString = (hexString: string): Uint8Array => {
     return new Uint8Array(hexString.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)));
 };
 
+
+const bigIntToBase64Url = (num:bigint) => {
+    var hexString = num.toString(16);
+    // Add an extra 0 to the start of the string to get a valid hex string (even length)
+    // (e.g. 0x0123 instead of 0x123)
+    var hexString = hexString.padStart(Math.ceil(hexString.length/2)*2, '0')
+    var buffer = uint8arrayFromHexString(hexString);
+    return base64urlEncode(buffer)
+}
+
 const bigIntToHex = (num: bigint): string => {
     return num.toString(16);
 };
@@ -211,6 +236,8 @@ const additionalAssociatedData = (encappedKeyBuf: ArrayBuffer, receiverPubBuf: A
     return new Uint8Array([...new Uint8Array(encappedKeyBuf), ...new Uint8Array(receiverPubBuf)]);
 };
 
+
+      
 const modSqrt = (a: bigint, p: bigint): bigint => {
   if (p <= BigInt(0)) {
       throw new Error("p must be positive");
