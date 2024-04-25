@@ -1,9 +1,14 @@
 import Image from "next/image";
 import styles from "./index.module.css";
-import { Turnkey as TurnkeyBrowserSDK, getWebAuthnAttestation } from "@turnkey/sdk-browser";
+import {
+  Turnkey as TurnkeyBrowserSDK,
+  TurnkeyPasskeyClient,
+  getWebAuthnAttestation,
+} from "@turnkey/sdk-browser";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
+import { useTurnkey } from "@turnkey/sdk-react";
 import { CreateSubOrgResponse, TFormattedWallet } from "@/app/types";
 import { getNextPath } from "@/app/util";
 
@@ -54,6 +59,9 @@ function sleep(ms: number): Promise<void> {
 }
 
 export default function Home() {
+  // TODO: useTurnkey
+  // const { turnkey, passkeyClient, iframeClient } = useTurnkey();
+
   const [subOrgId, setSubOrgId] = React.useState<string | null>(null);
   const [wallet, setWallet] = React.useState<TFormattedWallet | null>(null);
   const { register: subOrgFormRegister, handleSubmit: subOrgFormSubmit } =
@@ -71,16 +79,9 @@ export default function Home() {
   const { register: _loginFormRegister, handleSubmit: loginFormSubmit } =
     useForm();
 
-  // const turnkeyClient = new TurnkeyClient(
-  //   { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
-  //   new WebauthnStamper({
-  //     rpId: process.env.NEXT_PUBLIC_RPID!,
-  //   })
-  // );
-
   const turnkeyClient = new TurnkeyBrowserSDK({
     apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-    rpId: process.env.NEXT_PUBLIC_BASE_URL!,
+    rpId: process.env.NEXT_PUBLIC_RPID!,
     defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
   });
 
@@ -93,9 +94,10 @@ export default function Home() {
     }
 
     try {
-      const signedRequest = await turnkeyClient
+      const walletAccountsResult = await turnkeyClient
         .passkeyClient()
         .createWalletAccounts({
+          organizationId: subOrgId,
           walletId: wallet.id,
           accounts: [
             {
@@ -107,10 +109,10 @@ export default function Home() {
           ],
         });
 
-      await axios.post("/api/proxyRequest", signedRequest);
-      await sleep(1000); // activity submission should be synchronous, but wait just in case
       await getWallet(subOrgId);
-      alert(`Hooray! New address at path "${data.path}" created.`);
+      alert(
+        `Hooray! New address at path "${data.path}" created. Resulting address: ${walletAccountsResult.addresses[0]}`
+      );
     } catch (e: any) {
       const message = `caught error: ${e.toString()}`;
       console.error(message);
@@ -191,6 +193,7 @@ export default function Home() {
       const res = await turnkeyClient.passkeyClient().getWhoami({
         organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       });
+
       // ...to get the sub-org ID, which we don't know at this point because we don't
       // have a DB. Note that we are able to perform this lookup by using the
       // credential ID from the users WebAuthn stamp.
@@ -246,10 +249,7 @@ export default function Home() {
           <h2 className={styles.prompt}>
             OR already created a sub-org? Login!
           </h2>
-          <form
-            className={styles.form}
-            onSubmit={loginFormSubmit(login)}
-          >
+          <form className={styles.form} onSubmit={loginFormSubmit(login)}>
             <input
               className={styles.button}
               type="submit"

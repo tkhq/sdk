@@ -1,5 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Turnkey as TurnkeyServerSDK, TurnkeyApiTypes } from "@turnkey/sdk-server";
+import {
+  Turnkey as TurnkeyServerSDK,
+  TurnkeyApiTypes,
+} from "@turnkey/sdk-server";
 import { GetWalletRequest, TFormattedWallet } from "@/app/types";
 
 type TWalletAccount = TurnkeyApiTypes["v1WalletAccount"];
