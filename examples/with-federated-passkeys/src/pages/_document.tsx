@@ -5,7 +5,11 @@ class FederatedPasskeysDemo extends Document {
     return (
       <Html>
         <Head>
-          <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+          <link
+            rel="icon"
+            type="image/svg+xml"
+            href="/favicon.svg"
+          />
         </Head>
         <body>
           <Main />
