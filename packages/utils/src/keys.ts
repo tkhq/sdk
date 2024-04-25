@@ -109,6 +109,33 @@ export const convertEcdsaIeee1363ToDer = (ieee: Uint8Array): Uint8Array => {
     return der;
 }
 
+export const hpkeEncrypt = async ({
+    plaintextBuf,
+    recipientPubJwk,
+}: {
+    plaintextBuf: ArrayBuffer,
+    recipientPubJwk: webcrypto.JsonWebKey,
+}): Promise<{ ciphertextBuf: ArrayBuffer, encappedKeyBuf: ArrayBuffer }> => {
+    const kemContext = new hpke.DhkemP256HkdfSha256();
+    const recipientPub = await kemContext.importKey("jwk", recipientPubJwk, true);
+
+    const suite = new hpke.CipherSuite({
+        kem: kemContext,
+        kdf: new hpke.HkdfSha256(),
+        aead: new hpke.Aes256Gcm(),
+    });
+
+    const senderCtx = await suite.createSenderContext({
+        recipientPublicKey: recipientPub,
+        info: new TextEncoder().encode("turnkey_hpke"),
+    });
+
+    const ciphertextBuf = await senderCtx.seal(plaintextBuf);
+    const encappedKeyBuf = senderCtx.enc;
+
+    return { ciphertextBuf, encappedKeyBuf };
+};
+
 export const hpkeDecrypt = async ({
     ciphertextBuf,
     encappedKeyBuf,
