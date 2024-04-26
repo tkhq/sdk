@@ -1,4 +1,5 @@
 import type { User } from "./models";
+import WindowWrapper from "./__polyfills__/window";
 
 export enum StorageKeys {
   CurrentUser = "@turnkey/current_user",
@@ -19,9 +20,9 @@ const STORAGE_VALUE_LOCATIONS: Record<StorageKeys, StorageLocation> = {
 };
 
 const STORAGE_LOCATIONS = {
-  [StorageLocation.Local]: localStorage,
-  [StorageLocation.Secure]: localStorage,
-  [StorageLocation.Session]: localStorage,
+  [StorageLocation.Local]: WindowWrapper.localStorage,
+  [StorageLocation.Secure]: WindowWrapper.localStorage,
+  [StorageLocation.Session]: WindowWrapper.localStorage,
 };
 
 export const getStorageValue = async <K extends StorageKeys>(
