@@ -1,5 +1,11 @@
 # @turnkey/viem
 
+## 0.4.15
+
+### Patch Changes
+
+- a6502e6: Add support for new Turnkey Client types
+
 ## 0.4.14
 
 ### Patch Changes
