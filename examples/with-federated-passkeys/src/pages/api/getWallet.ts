@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { TurnkeyApiTypes, TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import {
+  Turnkey as TurnkeyServerSDK,
+  TurnkeyApiTypes
+} from "@turnkey/sdk-server";
 import { GetWalletRequest, TFormattedWallet } from "@/app/types";
 
 type TWalletAccount = TurnkeyApiTypes["v1WalletAccount"];
@@ -16,21 +18,20 @@ export default async function getWallet(
 ) {
   const getWalletRequest = req.body as GetWalletRequest;
 
-  const turnkeyClient = new TurnkeyClient(
-    { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
-    new ApiKeyStamper({
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
-  );
+  const turnkeyClient = new TurnkeyServerSDK({
+    apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!
+  });
 
   const organizationId = getWalletRequest.organizationId;
 
   try {
-    const walletsResponse = await turnkeyClient.getWallets({
+    const walletsResponse = await turnkeyClient.api().getWallets({
       organizationId,
     });
-    const accountsResponse = await turnkeyClient.getWalletAccounts({
+    const accountsResponse = await turnkeyClient.api().getWalletAccounts({
       organizationId: organizationId,
       walletId: walletsResponse.wallets[0].walletId,
     });

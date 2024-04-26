@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { TurnkeyApiTypes, TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import {
+  Turnkey as TurnkeyServerSDK,
+  TurnkeyApiTypes
+} from "@turnkey/sdk-server";
 
 type TActivityResponse = TurnkeyApiTypes["v1ActivityResponse"];
 
@@ -20,18 +22,17 @@ export default async function getActivity(
 ) {
   const getActivityRequest = req.body as GetActivityRequest;
 
-  const turnkeyClient = new TurnkeyClient(
-    { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
-    new ApiKeyStamper({
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
-  );
+  const turnkeyClient = new TurnkeyServerSDK({
+    apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!
+  });
 
   const { organizationId, activityId } = getActivityRequest;
 
   try {
-    const activityResponse = await turnkeyClient.getActivity({
+    const activityResponse = await turnkeyClient.api().getActivity({
       organizationId,
       activityId,
     });

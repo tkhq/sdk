@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useState, useEffect, useRef } from "react";
-import {
+import type {
   Turnkey,
   TurnkeyIframeClient,
   TurnkeyPasskeyClient,
@@ -36,21 +36,30 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   >(undefined);
   const iframeInit = useRef<boolean>(false);
 
+  const isBrowser = typeof window !== 'undefined';
   const TurnkeyIframeContainerId = "turnkey-auth-iframe-container-id";
 
   useEffect(() => {
-    (async () => {
-      if (!iframeInit.current) {
-        iframeInit.current = true;
-        const newTurnkey = new Turnkey(config);
-        setTurnkey(newTurnkey);
-        setPasskeyClient(newTurnkey.passkeyClient());
-        const newIframeClient = await newTurnkey.iframeClient(
-          document.getElementById(TurnkeyIframeContainerId)
-        );
-        setIframeClient(newIframeClient);
-      }
-    })();
+    if (!isBrowser) {
+      console.log("CALLED IN SERVER ENVIRONMENT");
+      return;
+    } else {
+      console.log("CALLED IN BROWSER ENVIRONMENT");
+      // console.log(Turnkey);
+    }
+
+    // (async () => {
+    //   if (!iframeInit.current) {
+    //     iframeInit.current = true;
+    //     const newTurnkey = new Turnkey(config);
+    //     setTurnkey(newTurnkey);
+    //     setPasskeyClient(newTurnkey.passkeyClient());
+    //     const newIframeClient = await newTurnkey.iframeClient(
+    //       document.getElementById(TurnkeyIframeContainerId)
+    //     );
+    //     setIframeClient(newIframeClient);
+    //   }
+    // })();
   }, []);
 
   return (
@@ -62,11 +71,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       }}
     >
       {children}
-      <div
-        className=""
-        id={TurnkeyIframeContainerId}
-        style={{ display: "none" }}
-      />
+      {isBrowser && <div id={TurnkeyIframeContainerId} style={{ display: "none" }} />}
     </TurnkeyContext.Provider>
   );
 };
