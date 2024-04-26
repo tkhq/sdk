@@ -52,7 +52,8 @@ export class TurnkeyBrowserSDK {
   };
 
   passkeyClient = (rpId?: string): TurnkeyPasskeyClient => {
-    const targetRpId = rpId ?? this.config.rpId ?? WindowWrapper.location.hostname;
+    const targetRpId =
+      rpId ?? this.config.rpId ?? WindowWrapper.location.hostname;
 
     if (!targetRpId) {
       throw new Error(
