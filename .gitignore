@@ -126,3 +126,5 @@ playwright/.cache/
 
 # Rollup
 .rollup.cache/
+
+turnkey.json
