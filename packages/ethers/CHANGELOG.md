@@ -1,5 +1,11 @@
 # @turnkey/ethers
 
+## 1.0.5
+
+### Patch Changes
+
+- a6502e6: Add support for new Turnkey Client types
+
 ## 1.0.4
 
 ### Patch Changes
