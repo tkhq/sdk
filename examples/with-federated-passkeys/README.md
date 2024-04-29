@@ -34,9 +34,11 @@ Now open `.env.local` and add the missing environment variables:
 
 - `API_PUBLIC_KEY`
 - `API_PRIVATE_KEY`
-- `NEXT_PUBLIC_ORGANIZATION_ID`
+- `NEXT_PUBLIC_ORGANIZATION_ID` (the parent organization, under which end-user sub-organizations will be created)
 - `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
+- `NEXT_PUBLIC_IFRAME_URL` (iframe URL; not required for this example)
 - `NEXT_PUBLIC_RPID` should be `localhost` unless you're accessing this demo through your own domain
+- `NEXT_PUBLIC_SERVER_SIGN_URL` (backend through which API requests should be proxied, if necessary)
 
 ### 3/ Running the app
 

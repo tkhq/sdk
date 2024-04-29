@@ -84,7 +84,7 @@ export class TurnkeyBrowserSDK {
       );
     }
 
-    const TurnkeyIframeElementId = "turnkey-auth-iframe-element-id";
+    const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
 
     const iframeStamper = new IframeStamper({
       iframeUrl: targetIframeUrl,

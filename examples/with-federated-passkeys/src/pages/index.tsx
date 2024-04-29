@@ -69,7 +69,8 @@ export default function Home() {
   };
 
   const createSubOrg = async (data: subOrgFormData) => {
-    const { encodedChallenge: challenge, attestation } = await passkeyClient!.createUserPasskey();
+    const { encodedChallenge: challenge, attestation } =
+      await passkeyClient!.createUserPasskey();
 
     const res = await axios.post("/api/createSubOrg", {
       subOrgName: data.subOrgName,
@@ -157,10 +158,7 @@ export default function Home() {
           <h2 className={styles.prompt}>
             OR already created a sub-org? Login!
           </h2>
-          <form
-            className={styles.form}
-            onSubmit={loginFormSubmit(login)}
-          >
+          <form className={styles.form} onSubmit={loginFormSubmit(login)}>
             <input
               className={styles.button}
               type="submit"
