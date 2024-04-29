@@ -199,6 +199,14 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     const encodedChallenge = base64UrlEncode(challenge);
     const authenticatorUserId = generateRandomBuffer();
 
+    // WebAuthn credential options options can be found here:
+    // https://www.w3.org/TR/webauthn-2/#sctn-sample-registration
+    //
+    // All pubkey algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
+    // Turnkey only supports ES256 (-7) and RS256 (-257)
+    //
+    // The pubkey type only supports one value, "public-key"
+    // See https://www.w3.org/TR/webauthn-2/#enumdef-publickeycredentialtype for more details
     const webauthnConfig: CredentialCreationOptions = {
       publicKey: {
         rp: {
@@ -214,8 +222,8 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
         ],
         user: {
           id: config.publicKey?.user?.id ?? authenticatorUserId,
-          name: config.publicKey?.user?.name ?? "",
-          displayName: config.publicKey?.user?.displayName ?? "",
+          name: config.publicKey?.user?.name ?? "Default User",
+          displayName: config.publicKey?.user?.displayName ?? "Default User",
         },
         authenticatorSelection: {
           requireResidentKey:

@@ -1,10 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import {
+  Turnkey as TurnkeyServerSDK,
   TurnkeyApiTypes,
-  TurnkeyClient,
-  createActivityPoller,
-} from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+} from "@turnkey/sdk-server";
 import { CreateSubOrgResponse, TFormattedWallet } from "@/app/types";
 
 type TAttestation = TurnkeyApiTypes["v1Attestation"];
@@ -33,62 +31,47 @@ export default async function createUser(
 ) {
   const createSubOrgRequest = req.body as CreateSubOrgRequest;
 
-  const turnkeyClient = new TurnkeyClient(
-    { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
-    new ApiKeyStamper({
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
-  );
-
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createSubOrganization,
+  const turnkeyClient = new TurnkeyServerSDK({
+    apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
   });
 
   try {
     const walletName = `Default Wallet`;
 
-    const completedActivity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4",
-      timestampMs: String(Date.now()),
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-      parameters: {
-        subOrganizationName: createSubOrgRequest.subOrgName,
-        rootQuorumThreshold: 1,
-        rootUsers: [
-          {
-            userName: "New user",
-            apiKeys: [],
-            authenticators: [
-              {
-                authenticatorName: "Passkey",
-                challenge: createSubOrgRequest.challenge,
-                attestation: createSubOrgRequest.attestation,
-              },
-            ],
-          },
-        ],
-        wallet: {
-          walletName,
-          accounts: [
+    const completedActivity = await turnkeyClient.api().createSubOrganization({
+      subOrganizationName: createSubOrgRequest.subOrgName,
+      rootQuorumThreshold: 1,
+      rootUsers: [
+        {
+          userName: "New user",
+          apiKeys: [],
+          authenticators: [
             {
-              curve: "CURVE_SECP256K1",
-              pathFormat: "PATH_FORMAT_BIP32",
-              path: ETHEREUM_WALLET_DEFAULT_PATH,
-              addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+              authenticatorName: "Passkey",
+              challenge: createSubOrgRequest.challenge,
+              attestation: createSubOrgRequest.attestation,
             },
           ],
         },
+      ],
+      wallet: {
+        walletName,
+        accounts: [
+          {
+            curve: "CURVE_SECP256K1",
+            pathFormat: "PATH_FORMAT_BIP32",
+            path: ETHEREUM_WALLET_DEFAULT_PATH,
+            addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+          },
+        ],
       },
     });
 
-    const subOrgId = refineNonNull(
-      completedActivity.result.createSubOrganizationResultV4?.subOrganizationId
-    );
-    const wallet = refineNonNull(
-      completedActivity.result.createSubOrganizationResultV4?.wallet
-    );
+    const subOrgId = refineNonNull(completedActivity?.subOrganizationId);
+    const wallet = refineNonNull(completedActivity?.wallet);
     const walletAddress = wallet.addresses?.[0];
 
     res.status(200).json({

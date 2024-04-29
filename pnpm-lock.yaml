@@ -487,6 +487,15 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
+      '@turnkey/sdk-browser':
+        specifier: workspace:*
+        version: link:../../packages/sdk-browser
+      '@turnkey/sdk-react':
+        specifier: workspace:*
+        version: link:../../packages/sdk-react
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
       '@turnkey/webauthn-stamper':
         specifier: workspace:*
         version: link:../../packages/webauthn-stamper
@@ -494,8 +503,8 @@ importers:
         specifier: 20.3.1
         version: 20.3.1
       '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
+        specifier: ^18.2.25
+        version: 18.2.75
       '@types/react-dom':
         specifier: 18.2.6
         version: 18.2.6
@@ -7794,7 +7803,6 @@ packages:
     dependencies:
       '@types/prop-types': 15.7.5
       csstype: 3.1.2
-    dev: true
 
   /@types/readable-stream@2.3.15:
     resolution: {integrity: sha512-oM5JSKQCcICF1wvGgmecmHldZ48OZamtMxcGGVICOJA8o8cahXC1zEVAif8iwoc5j8etxFaRFnf095+CDsuoFQ==}
