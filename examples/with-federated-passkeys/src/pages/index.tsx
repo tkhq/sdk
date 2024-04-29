@@ -1,10 +1,5 @@
 import Image from "next/image";
 import styles from "./index.module.css";
-import {
-  Turnkey as TurnkeyBrowserSDK,
-  TurnkeyPasskeyClient,
-  getWebAuthnAttestation,
-} from "@turnkey/sdk-browser";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
@@ -20,52 +15,8 @@ type walletAccountFormData = {
   path: string;
 };
 
-type walletResult = {
-  walletId: string;
-  walletName: string;
-  accounts: string;
-};
-
-// All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
-// We only support ES256 and RS256, which are listed here
-const es256 = -7;
-const rs256 = -257;
-
-// This constant designates the type of credential we want to create.
-// The enum only supports one value, "public-key"
-// https://www.w3.org/TR/webauthn-2/#enumdef-publickeycredentialtype
-const publicKey = "public-key";
-
-const generateRandomBuffer = (): ArrayBuffer => {
-  const arr = new Uint8Array(32);
-  crypto.getRandomValues(arr);
-  return arr.buffer;
-};
-
-const base64UrlEncode = (challenge: ArrayBuffer): string => {
-  return Buffer.from(challenge)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
-};
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, ms);
-  });
-}
-
 export default function Home() {
-  // TODO: useTurnkey
-  // const { turnkey, passkeyClient, iframeClient } = useTurnkey();
-
-  // console.log({
-  //   turnkey,
-  //   passkeyClient,
-  // })
+  const { turnkey, passkeyClient } = useTurnkey();
 
   const [subOrgId, setSubOrgId] = React.useState<string | null>(null);
   const [wallet, setWallet] = React.useState<TFormattedWallet | null>(null);
@@ -84,12 +35,6 @@ export default function Home() {
   const { register: _loginFormRegister, handleSubmit: loginFormSubmit } =
     useForm();
 
-  const turnkeyClient = new TurnkeyBrowserSDK({
-    apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-    rpId: process.env.NEXT_PUBLIC_RPID!,
-    defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-  });
-
   const createWalletAccount = async (data: walletAccountFormData) => {
     if (subOrgId === null) {
       throw new Error("sub-org id not found");
@@ -99,20 +44,18 @@ export default function Home() {
     }
 
     try {
-      const walletAccountsResult = await turnkeyClient
-        .passkeyClient()
-        .createWalletAccounts({
-          organizationId: subOrgId,
-          walletId: wallet.id,
-          accounts: [
-            {
-              path: data.path,
-              pathFormat: "PATH_FORMAT_BIP32",
-              curve: "CURVE_SECP256K1",
-              addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-            },
-          ],
-        });
+      const walletAccountsResult = await passkeyClient!.createWalletAccounts({
+        organizationId: subOrgId,
+        walletId: wallet.id,
+        accounts: [
+          {
+            path: data.path,
+            pathFormat: "PATH_FORMAT_BIP32",
+            curve: "CURVE_SECP256K1",
+            addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+          },
+        ],
+      });
 
       await getWallet(subOrgId);
       alert(
@@ -126,45 +69,12 @@ export default function Home() {
   };
 
   const createSubOrg = async (data: subOrgFormData) => {
-    const challenge = generateRandomBuffer();
-    const authenticatorUserId = generateRandomBuffer();
-
-    // An example of possible options can be found here:
-    // https://www.w3.org/TR/webauthn-2/#sctn-sample-registration
-    const attestation = await getWebAuthnAttestation({
-      publicKey: {
-        authenticatorSelection: {
-          residentKey: "preferred",
-          requireResidentKey: false,
-          userVerification: "preferred",
-        },
-        rp: {
-          id: process.env.NEXT_PUBLIC_RPID!,
-          name: "Turnkey Federated Passkey Demo",
-        },
-        challenge,
-        pubKeyCredParams: [
-          {
-            type: publicKey,
-            alg: es256,
-          },
-          {
-            type: publicKey,
-            alg: rs256,
-          },
-        ],
-        user: {
-          id: authenticatorUserId,
-          name: data.subOrgName,
-          displayName: data.subOrgName,
-        },
-      },
-    });
+    const { encodedChallenge: challenge, attestation } = await passkeyClient!.createUserPasskey();
 
     const res = await axios.post("/api/createSubOrg", {
       subOrgName: data.subOrgName,
       attestation,
-      challenge: base64UrlEncode(challenge),
+      challenge,
     });
 
     const subOrgResponse = res.data as CreateSubOrgResponse;
@@ -193,15 +103,8 @@ export default function Home() {
   );
 
   const login = async () => {
-    // We use the parent org ID, which we know at all times...
     try {
-      const res = await turnkeyClient.passkeyClient().getWhoami({
-        organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-      });
-
-      // ...to get the sub-org ID, which we don't know at this point because we don't
-      // have a DB. Note that we are able to perform this lookup by using the
-      // credential ID from the users WebAuthn stamp.
+      const res = await passkeyClient!.login();
       setSubOrgId(res.organizationId);
       await getWallet(res.organizationId);
     } catch (e: any) {
