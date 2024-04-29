@@ -60,12 +60,12 @@ function sleep(ms: number): Promise<void> {
 
 export default function Home() {
   // TODO: useTurnkey
-  const { turnkey, passkeyClient, iframeClient } = useTurnkey();
+  // const { turnkey, passkeyClient, iframeClient } = useTurnkey();
 
-  console.log({
-    turnkey,
-    passkeyClient,
-  })
+  // console.log({
+  //   turnkey,
+  //   passkeyClient,
+  // })
 
   const [subOrgId, setSubOrgId] = React.useState<string | null>(null);
   const [wallet, setWallet] = React.useState<TFormattedWallet | null>(null);
@@ -84,11 +84,11 @@ export default function Home() {
   const { register: _loginFormRegister, handleSubmit: loginFormSubmit } =
     useForm();
 
-  // const turnkeyClient = new TurnkeyBrowserSDK({
-  //   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-  //   rpId: process.env.NEXT_PUBLIC_RPID!,
-  //   defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-  // });
+  const turnkeyClient = new TurnkeyBrowserSDK({
+    apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+    rpId: process.env.NEXT_PUBLIC_RPID!,
+    defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+  });
 
   const createWalletAccount = async (data: walletAccountFormData) => {
     if (subOrgId === null) {
@@ -99,7 +99,8 @@ export default function Home() {
     }
 
     try {
-      const walletAccountsResult = await passkeyClient!
+      const walletAccountsResult = await turnkeyClient
+        .passkeyClient()
         .createWalletAccounts({
           organizationId: subOrgId,
           walletId: wallet.id,
@@ -194,7 +195,7 @@ export default function Home() {
   const login = async () => {
     // We use the parent org ID, which we know at all times...
     try {
-      const res = await passkeyClient!.getWhoami({
+      const res = await turnkeyClient.passkeyClient().getWhoami({
         organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       });
 
@@ -253,7 +254,10 @@ export default function Home() {
           <h2 className={styles.prompt}>
             OR already created a sub-org? Login!
           </h2>
-          <form className={styles.form} onSubmit={loginFormSubmit(login)}>
+          <form
+            className={styles.form}
+            onSubmit={loginFormSubmit(login)}
+          >
             <input
               className={styles.button}
               type="submit"
