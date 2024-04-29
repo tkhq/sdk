@@ -3,6 +3,7 @@ import { IframeStamper } from "@turnkey/iframe-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
 import { VERSION } from "./__generated__/version";
+import WindowWrapper from "./__polyfills__/window";
 
 import type {
   GrpcStatus,
@@ -51,7 +52,8 @@ export class TurnkeyBrowserSDK {
   };
 
   passkeyClient = (rpId?: string): TurnkeyPasskeyClient => {
-    const targetRpId = rpId ?? this.config.rpId ?? window.location.hostname;
+    const targetRpId =
+      rpId ?? this.config.rpId ?? WindowWrapper.location.hostname;
 
     if (!targetRpId) {
       throw new Error(
