@@ -36,7 +36,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   >(undefined);
   const iframeInit = useRef<boolean>(false);
 
-  const TurnkeyIframeContainerId = "turnkey-auth-iframe-container-id";
+  const TurnkeyIframeContainerId = "turnkey-default-iframe-container-id";
 
   useEffect(() => {
     (async () => {
