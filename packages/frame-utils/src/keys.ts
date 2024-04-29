@@ -1,14 +1,14 @@
 import * as hpke from "@hpke/core";
 import { base64urlEncode } from "./encoding";
 import { P256Generator } from "./p256";
-import { subtle, JsonWebKey, KeyPair, JwkKeyData } from './subtle';
+import { subtle, JsonWebKey, JwkKeyData } from './subtle';
 
 // Key material utilities
 
 //exported
 export const generateTargetKey = async (): Promise<JsonWebKey> => {
   const keyPair = await subtle.generateKey(
-    { name: "ECDH", namedCurve: "P-256" },
+    { namedCurve: "P-256" },
     true,
     ["deriveKey", "deriveBits"]
   );
@@ -17,7 +17,7 @@ export const generateTargetKey = async (): Promise<JsonWebKey> => {
 
 export const importCredential = async (
   privateKeyBytes: Uint8Array
-): Promise<KeyPair> => {
+): Promise<any> => {
   var privateKeyHexString = uint8arrayToHexString(privateKeyBytes);
   var privateKey = BigInt("0x" + privateKeyHexString);
   var publicKeyPoint = P256Generator.multiply(privateKey);
@@ -33,7 +33,6 @@ export const importCredential = async (
       ext: true,
     },
     {
-      name: "ECDSA",
       namedCurve: "P-256",
     },
     true,
@@ -61,7 +60,7 @@ export const p256JWKPrivateToPublic = async (
   const publicKey = await subtle.importKey(
     "jwk",
     keyData,
-    { name: "ECDSA", namedCurve: "P-256" },
+    { namedCurve: "P-256" },
     true,
     ["verify"]
   );
