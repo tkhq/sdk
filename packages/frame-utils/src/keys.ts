@@ -1,18 +1,19 @@
 import * as hpke from "@hpke/core";
+// import { subtle, webcrypto } from "crypto";
 import { base64urlEncode } from "./encoding";
 import { P256Generator } from "./p256";
-import { subtle, JsonWebKey, JwkKeyData } from './subtle';
-
+import type { JsonWebKey} from './subtle';
+import 'isomorphic-webcrypto';
 // Key material utilities
 
 //exported
-export const generateTargetKey = async (): Promise<JsonWebKey> => {
-  const keyPair = await subtle.generateKey(
-    { namedCurve: "P-256" },
-    true,
-    ["deriveKey", "deriveBits"]
+export const generateTargetKey = async (): Promise<any> => {
+  const keyPair = await crypto.subtle.generateKey(
+      { name: 'ECDH', namedCurve: 'P-256' },
+      true,
+      ['deriveKey', 'deriveBits']
   );
-  return subtle.exportKey("jwk", keyPair) as JsonWebKey;
+  return crypto.subtle.exportKey("jwk", keyPair.privateKey);
 };
 
 export const importCredential = async (
@@ -22,7 +23,7 @@ export const importCredential = async (
   var privateKey = BigInt("0x" + privateKeyHexString);
   var publicKeyPoint = P256Generator.multiply(privateKey);
 
-  return await subtle.importKey(
+  return await crypto.subtle.importKey(
     "jwk",
     {
       kty: "EC",
@@ -33,6 +34,7 @@ export const importCredential = async (
       ext: true,
     },
     {
+      name: "ECDSA",
       namedCurve: "P-256",
     },
     true,
@@ -40,35 +42,20 @@ export const importCredential = async (
   );
 };
 
-export const p256JWKPrivateToPublic = async (
-  privateJwk: JsonWebKey
-): Promise<Uint8Array> => {
-  if (!privateJwk.d) {
-      throw new Error("Private key data 'd' is missing.");
-  }
-
-  // Assuming importKey expects JwkKeyData, create a compatible object
-  const keyData: JwkKeyData = {
-    kty: privateJwk.kty!,
-    crv: privateJwk.crv,
-    d: privateJwk.d,
-    x: privateJwk.x!,
-    y: privateJwk.y!,
-    ext: privateJwk.ext
-  };
-
-  const publicKey = await subtle.importKey(
-    "jwk",
-    keyData,
-    { namedCurve: "P-256" },
+export const p256JWKPrivateToPublic = async (privateJwk: JsonWebKey): Promise<Uint8Array> => {
+  // Import the private key correctly with its usages set properly
+  const privateKey = await crypto.subtle.importKey(
+    'jwk',
+    privateJwk,
+    { name: 'ECDSA', namedCurve: 'P-256' },
     true,
-    ["verify"]
+    ['verify']
   );
-  
-  const buffer = await subtle.exportKey("raw", publicKey); 
-  return new Uint8Array(buffer as Uint8Array);
-};
 
+  // Export the public key from the private key
+  const publicKey = await crypto.subtle.exportKey('spki', privateKey);
+  return new Uint8Array(publicKey);
+};
 export const compressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
   const len = rawPublicKey.byteLength;
 

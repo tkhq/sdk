@@ -6,7 +6,7 @@ import {
   uncompressRawPublicKey,
   convertEcdsaIeee1363ToDer,
 } from "../keys.ts";
-import { subtle } from "crypto";
+import 'isomorphic-webcrypto';
 import { test, expect, describe } from "@jest/globals";
 
 describe("Crypto Utility Functions", () => {
@@ -23,12 +23,12 @@ describe("Crypto Utility Functions", () => {
   // Test importCredential
   test("importCredential imports a valid ECDSA private key", async () => {
     // Generate a key for testing
-    const keyPair = await subtle.generateKey(
+    const keyPair = await crypto.subtle.generateKey(
       { name: "ECDSA", namedCurve: "P-256" },
       true,
       ["sign"]
     );
-    const exportedKey = await subtle.exportKey("pkcs8", keyPair.privateKey);
+    const exportedKey = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
     const cryptoKey = await importCredential(new Uint8Array(exportedKey));
     expect(cryptoKey).toBeDefined();
   });
