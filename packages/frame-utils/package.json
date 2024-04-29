@@ -41,6 +41,11 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@hpke/core": "^1.2.7"
+    "@hpke/core": "^1.2.7",
+    "elliptic": "^6.5.5",
+    "js-sha256": "^0.11.0"
+  },
+  "devDependencies": {
+    "@types/elliptic": "^6.4.18"
   }
 }

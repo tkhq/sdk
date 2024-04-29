@@ -1,23 +1,23 @@
 import * as hpke from "@hpke/core";
-import { subtle, webcrypto } from "crypto";
 import { base64urlEncode } from "./encoding";
 import { P256Generator } from "./p256";
+import { subtle, JsonWebKey, KeyPair, JwkKeyData } from './subtle';
 
 // Key material utilities
 
 //exported
-export const generateTargetKey = async (): Promise<webcrypto.JsonWebKey> => {
+export const generateTargetKey = async (): Promise<JsonWebKey> => {
   const keyPair = await subtle.generateKey(
     { name: "ECDH", namedCurve: "P-256" },
     true,
     ["deriveKey", "deriveBits"]
   );
-  return subtle.exportKey("jwk", keyPair.privateKey);
+  return subtle.exportKey("jwk", keyPair) as JsonWebKey;
 };
 
 export const importCredential = async (
   privateKeyBytes: Uint8Array
-): Promise<webcrypto.CryptoKey> => {
+): Promise<KeyPair> => {
   var privateKeyHexString = uint8arrayToHexString(privateKeyBytes);
   var privateKey = BigInt("0x" + privateKeyHexString);
   var publicKeyPoint = P256Generator.multiply(privateKey);
@@ -42,23 +42,32 @@ export const importCredential = async (
 };
 
 export const p256JWKPrivateToPublic = async (
-  privateJwk: webcrypto.JsonWebKey
+  privateJwk: JsonWebKey
 ): Promise<Uint8Array> => {
-  // make a copy so we don't modify the underlying object
-  const jwkPrivateCopy = { ...privateJwk };
-  // change jwk so it will be imported as a public key
-  delete jwkPrivateCopy.d;
-  jwkPrivateCopy.key_ops = ["verify"];
+  if (!privateJwk.d) {
+      throw new Error("Private key data 'd' is missing.");
+  }
 
-  var publicKey = await subtle.importKey(
+  // Assuming importKey expects JwkKeyData, create a compatible object
+  const keyData: JwkKeyData = {
+    kty: privateJwk.kty!,
+    crv: privateJwk.crv,
+    d: privateJwk.d,
+    x: privateJwk.x!,
+    y: privateJwk.y!,
+    ext: privateJwk.ext
+  };
+
+  const publicKey = await subtle.importKey(
     "jwk",
-    jwkPrivateCopy,
+    keyData,
     { name: "ECDSA", namedCurve: "P-256" },
     true,
     ["verify"]
   );
-  var buffer = await subtle.exportKey("raw", publicKey);
-  return new Uint8Array(buffer);
+  
+  const buffer = await subtle.exportKey("raw", publicKey); 
+  return new Uint8Array(buffer as Uint8Array);
 };
 
 export const compressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
@@ -263,3 +272,5 @@ const modSqrt = (x: bigint, p: bigint): bigint => {
   }
   throw new Error("unsupported modulus value");
 };
+
+

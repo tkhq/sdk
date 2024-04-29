@@ -805,6 +805,16 @@ importers:
       '@hpke/core':
         specifier: ^1.2.7
         version: 1.2.7
+      elliptic:
+        specifier: ^6.5.5
+        version: 6.5.5
+      js-sha256:
+        specifier: ^0.11.0
+        version: 0.11.0
+    devDependencies:
+      '@types/elliptic':
+        specifier: ^6.4.18
+        version: 6.4.18
 
   packages/http:
     dependencies:
@@ -3852,7 +3862,7 @@ packages:
       '@cosmjs/utils': 0.31.0
       '@noble/hashes': 1.3.2
       bn.js: 5.2.1
-      elliptic: 6.5.4
+      elliptic: 6.5.5
       libsodium-wrappers-sumo: 0.7.11
     dev: false
 
@@ -13160,6 +13170,10 @@ packages:
   /js-sdsl@4.4.2:
     resolution: {integrity: sha512-dwXFwByc/ajSV6m5bcKAPwe4yDDF6D614pxmIi5odytzxRlwqF6nwoiCek80Ixc7Cvma5awClxrzFtxCQvcM8w==}
     dev: true
+
+  /js-sha256@0.11.0:
+    resolution: {integrity: sha512-6xNlKayMZvds9h1Y1VWc0fQHQ82BxTXizWPEtEeGvmOUYpBRy4gbWroHLpzowe6xiQhHpelCQiE7HEdznyBL9Q==}
+    dev: false
 
   /js-sha3@0.5.7:
     resolution: {integrity: sha512-GII20kjaPX0zJ8wzkTbNDYMY7msuZcTWk8S5UOh6806Jq/wz1J8/bnr8uGU0DAUmYDjj2Mr4X1cW8v/GLYnR+g==}

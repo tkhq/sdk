@@ -1,3 +1,5 @@
+import { sha256 } from 'js-sha256';
+
 // Encoding utilities
 
 // exported
@@ -75,11 +77,10 @@ export const base58checkDecode = (input: string): Uint8Array => {
 };
 
 // internal
-const doubleSha256 = (input: number[]): Uint8Array => {
-  const crypto = require("crypto");
-  const hash1 = crypto
-    .createHash("sha256")
-    .update(new Uint8Array(input))
-    .digest();
-  return crypto.createHash("sha256").update(hash1).digest();
+const doubleSha256 = (input: number[] | Uint8Array): Uint8Array => {
+  const firstPass = sha256.create();
+  firstPass.update(input);
+  const secondPass = sha256.create();
+  secondPass.update(firstPass.digest());
+  return new Uint8Array(secondPass.digest());
 };
