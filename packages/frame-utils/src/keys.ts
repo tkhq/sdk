@@ -1,9 +1,6 @@
-import * as hpke from "@hpke/core";
-// import { subtle, webcrypto } from "crypto";
 import { base64urlEncode } from "./encoding";
 import { P256Generator } from "./p256";
-import type { JsonWebKey} from './subtle';
-import 'isomorphic-webcrypto';
+import 'isomorphic-webcrypto'
 // Key material utilities
 
 //exported
@@ -42,20 +39,18 @@ export const importCredential = async (
   );
 };
 
-export const p256JWKPrivateToPublic = async (privateJwk: JsonWebKey): Promise<Uint8Array> => {
-  // Import the private key correctly with its usages set properly
-  const privateKey = await crypto.subtle.importKey(
-    'jwk',
-    privateJwk,
-    { name: 'ECDSA', namedCurve: 'P-256' },
-    true,
-    ['verify']
+export const p256JWKPrivateToPublic = async (privateJwk: any): Promise<Uint8Array> => {
+  const publicKey = await crypto.subtle.importKey(
+      'jwk',
+      privateJwk,
+      { name: 'ECDSA', namedCurve: 'P-256' },
+      true,
+      ['verify']
   );
-
-  // Export the public key from the private key
-  const publicKey = await crypto.subtle.exportKey('spki', privateKey);
-  return new Uint8Array(publicKey);
+  const rawPublicKey = await crypto.subtle.exportKey('spki', publicKey);
+  return new Uint8Array(rawPublicKey);
 };
+
 export const compressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
   const len = rawPublicKey.byteLength;
 
@@ -152,37 +147,68 @@ export const hpkeDecrypt = async ({
   encappedKeyBuf: ArrayBuffer;
   receiverPrivJwk: any;
 }): Promise<any> => {
-  const kemContext = new hpke.DhkemP256HkdfSha256();
-  const receiverPriv = await kemContext.importKey(
-    "jwk",
-    receiverPrivJwk,
-    false
+  try {
+     // Import the receiver's private key for ECDH
+     const receiverPrivKey = await crypto.subtle.importKey(
+      "jwk",
+      receiverPrivJwk,
+      { name: "ECDH", namedCurve: "P-256" },
+      false, // Keys are generally not extractable when used for these operations
+      ["deriveBits"]
   );
 
-  const suite = new hpke.CipherSuite({
-    kem: kemContext,
-    kdf: new hpke.HkdfSha256(),
-    aead: new hpke.Aes256Gcm(),
-  });
+      const receiverPubBuf = await p256JWKPrivateToPublic(receiverPrivJwk);
 
-  const recipientCtx = await suite.createRecipientContext({
-    recipientKey: receiverPriv,
-    enc: encappedKeyBuf,
-    info: new TextEncoder().encode("turnkey_hpke"),
-  });
+      // Compute AAD
+      const aad = additionalAssociatedData(encappedKeyBuf, receiverPubBuf);
+  // Perform ECDH to get the shared secret
+  const sharedSecret = await crypto.subtle.deriveBits(
+      {
+          name: "ECDH",
+          public: await crypto.subtle.importKey(
+              "raw",
+              encappedKeyBuf,
+              { name: "ECDH", namedCurve: "P-256" },
+              true,
+              []
+          )
+      },
+      receiverPrivKey,
+      256
+  );
 
-  const receiverPubBuf = await p256JWKPrivateToPublic(receiverPrivJwk);
-  const aad = additionalAssociatedData(encappedKeyBuf, receiverPubBuf);
+  // Use HKDF to derive the AES-GCM key
+  const aesKey = await crypto.subtle.deriveKey(
+      {
+          name: "HKDF",
+          hash: "SHA-256",
+          salt: new Uint8Array([]),
+          info: new TextEncoder().encode("HPKE Info") 
+      },
+      await crypto.subtle.importKey("raw", sharedSecret, { name: "HKDF" }, false, ["deriveKey"]),
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["decrypt"]
+  );
 
-  let res;
-  try {
-    res = await recipientCtx.open(ciphertextBuf, aad);
-  } catch (e) {
-    throw new Error("decryption failed: " + e);
-  }
+  // Decrypt the ciphertext, ensuring `aad` is passed
+  const decryptedData = await crypto.subtle.decrypt(
+      {
+          name: "AES-GCM",
+          iv: new Uint8Array(12), 
+          additionalData: aad,
+          tagLength: 128 // Length of GCM authentication tag
+      },
+      aesKey,
+      ciphertextBuf
+  );
 
-  return res;
-};
+  return new Uint8Array(decryptedData);
+} catch (e) {
+  console.error("Decryption failed:", e);
+  throw new Error("Decryption failed: " + e);
+}
+}
 
 // internal
 const testBit = (n: bigint, i: number) => {

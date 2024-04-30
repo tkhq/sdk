@@ -41,10 +41,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@hpke/core": "^1.2.7",
     "isomorphic-webcrypto": "^2.3.8",
     "js-sha256": "^0.11.0"
-  },
-  "devDependencies": {
   }
 }

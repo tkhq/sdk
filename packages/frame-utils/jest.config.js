@@ -1,6 +1,6 @@
 /** @type {import("@jest/types").Config.InitialOptions} */
 const config = {
-  setupFiles: ["<rootDir>/testSetup.js"],
+  setupFiles: ["<rootDir>/src/__tests__/testSetup.js"],
   transform: {
     "\\.[jt]sx?$": "@turnkey/jest-config/transformer.js",
   },
