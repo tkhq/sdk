@@ -41,7 +41,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "isomorphic-webcrypto": "^2.3.8",
-    "js-sha256": "^0.11.0"
+    "js-sha256": "^0.11.0",
+    "react-native-quick-crypto": "^0.6.1"
   }
 }

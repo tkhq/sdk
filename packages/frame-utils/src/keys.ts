@@ -1,16 +1,16 @@
 import { base64urlEncode } from "./encoding";
 import { P256Generator } from "./p256";
-import 'isomorphic-webcrypto'
+import Crypto from 'react-native-quick-crypto'
 // Key material utilities
 
 //exported
 export const generateTargetKey = async (): Promise<any> => {
-  const keyPair = await crypto.subtle.generateKey(
+  const keyPair = await Crypto.webcrypto.subtle.generateKey(
       { name: 'ECDH', namedCurve: 'P-256' },
       true,
       ['deriveKey', 'deriveBits']
   );
-  return crypto.subtle.exportKey("jwk", keyPair.privateKey);
+  return Crypto.webcrypto.subtle.exportKey("jwk", keyPair.privateKey);
 };
 
 export const importCredential = async (
@@ -20,7 +20,7 @@ export const importCredential = async (
   var privateKey = BigInt("0x" + privateKeyHexString);
   var publicKeyPoint = P256Generator.multiply(privateKey);
 
-  return await crypto.subtle.importKey(
+  return await Crypto.webcrypto.importKey(
     "jwk",
     {
       kty: "EC",
@@ -40,14 +40,14 @@ export const importCredential = async (
 };
 
 export const p256JWKPrivateToPublic = async (privateJwk: any): Promise<Uint8Array> => {
-  const publicKey = await crypto.subtle.importKey(
+  const publicKey = await Crypto.webcrypto.importKey(
       'jwk',
       privateJwk,
       { name: 'ECDSA', namedCurve: 'P-256' },
       true,
       ['verify']
   );
-  const rawPublicKey = await crypto.subtle.exportKey('spki', publicKey);
+  const rawPublicKey = await Crypto.webcrypto.exportKey('raw', publicKey);
   return new Uint8Array(rawPublicKey);
 };
 
@@ -149,7 +149,7 @@ export const hpkeDecrypt = async ({
 }): Promise<any> => {
   try {
      // Import the receiver's private key for ECDH
-     const receiverPrivKey = await crypto.subtle.importKey(
+     const receiverPrivKey = await Crypto.webcrypto.subtle.importKey(
       "jwk",
       receiverPrivJwk,
       { name: "ECDH", namedCurve: "P-256" },
@@ -162,10 +162,10 @@ export const hpkeDecrypt = async ({
       // Compute AAD
       const aad = additionalAssociatedData(encappedKeyBuf, receiverPubBuf);
   // Perform ECDH to get the shared secret
-  const sharedSecret = await crypto.subtle.deriveBits(
+  const sharedSecret = await Crypto.webcrypto.subtle.deriveBits(
       {
           name: "ECDH",
-          public: await crypto.subtle.importKey(
+          public: await Crypto.webcrypto.subtle.importKey(
               "raw",
               encappedKeyBuf,
               { name: "ECDH", namedCurve: "P-256" },
@@ -178,21 +178,21 @@ export const hpkeDecrypt = async ({
   );
 
   // Use HKDF to derive the AES-GCM key
-  const aesKey = await crypto.subtle.deriveKey(
+  const aesKey = await Crypto.webcrypto.subtle.deriveKey(
       {
           name: "HKDF",
           hash: "SHA-256",
           salt: new Uint8Array([]),
           info: new TextEncoder().encode("HPKE Info") 
       },
-      await crypto.subtle.importKey("raw", sharedSecret, { name: "HKDF" }, false, ["deriveKey"]),
+      await Crypto.webcrypto.subtle.importKey("raw", sharedSecret, { name: "HKDF" }, false, ["deriveKey"]),
       { name: "AES-GCM", length: 256 },
       false,
       ["decrypt"]
   );
 
   // Decrypt the ciphertext, ensuring `aad` is passed
-  const decryptedData = await crypto.subtle.decrypt(
+  const decryptedData = await Crypto.webcrypto.subtle.decrypt(
       {
           name: "AES-GCM",
           iv: new Uint8Array(12), 
