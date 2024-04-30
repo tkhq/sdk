@@ -31,7 +31,7 @@ async function main() {
   });
 
   const turnkeyAccount = await createAccount({
-    client: turnkeyClient.api(),
+    client: turnkeyClient.apiClient(),
     organizationId: process.env.ORGANIZATION_ID!,
     signWith: process.env.SIGN_WITH!,
   });

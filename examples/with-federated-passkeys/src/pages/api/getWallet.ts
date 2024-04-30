@@ -28,10 +28,10 @@ export default async function getWallet(
   const organizationId = getWalletRequest.organizationId;
 
   try {
-    const walletsResponse = await turnkeyClient.api().getWallets({
+    const walletsResponse = await turnkeyClient.apiClient().getWallets({
       organizationId,
     });
-    const accountsResponse = await turnkeyClient.api().getWalletAccounts({
+    const accountsResponse = await turnkeyClient.apiClient().getWalletAccounts({
       organizationId: organizationId,
       walletId: walletsResponse.wallets[0].walletId,
     });

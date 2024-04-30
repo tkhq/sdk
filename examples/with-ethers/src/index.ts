@@ -29,7 +29,7 @@ async function main() {
 
   // Initialize a Turnkey Signer
   const turnkeySigner = new TurnkeySigner({
-    client: turnkeyClient.api(),
+    client: turnkeyClient.apiClient(),
     organizationId: process.env.ORGANIZATION_ID!,
     signWith: process.env.SIGN_WITH!,
   });

@@ -8,7 +8,7 @@ export default async function createUserTag(
   userIds: string[]
 ): Promise<string> {
   try {
-    const activity = await turnkeyClient.api().createUserTag({
+    const activity = await turnkeyClient.apiClient().createUserTag({
       userTagName,
       userIds,
     });
