@@ -42,6 +42,6 @@
   },
   "dependencies": {
     "js-sha256": "^0.11.0",
-    "react-native-quick-crypto": "^0.6.1"
+    "react-native": "0.73.6"
   }
 }

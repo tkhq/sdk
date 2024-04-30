@@ -7,7 +7,7 @@ import {
   convertEcdsaIeee1363ToDer,
 } from "../keys.ts";
 import { test, expect, describe } from "@jest/globals";
-import Crypto from 'react-native-quick-crypto'
+import {crypto} from '../crypto'
 
 describe("Crypto Utility Functions", () => {
   // Test generateTargetKey
@@ -23,12 +23,12 @@ describe("Crypto Utility Functions", () => {
   // Test importCredential
   test("importCredential imports a valid ECDSA private key", async () => {
     // Generate a key for testing
-    const keyPair = await Crypto.webcrypto.subtle.generateKey(
+    const keyPair = await crypto.subtle.generateKey(
       { name: "ECDSA", namedCurve: "P-256" },
       true,
       ["sign"]
     );
-    const exportedKey = await Crypto.webcrypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+    const exportedKey = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
     const cryptoKey = await importCredential(new Uint8Array(exportedKey));
     expect(cryptoKey).toBeDefined();
   });
