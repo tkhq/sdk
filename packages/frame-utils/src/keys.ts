@@ -1,9 +1,8 @@
 import { base64urlEncode } from "./encoding";
 import { P256Generator } from "./p256";
 // import {crypto, JsonWebKey,CryptoKey} from './crypto'
+import Crypto from "react-native-quick-crypto";
 import { p256 } from "@noble/curves/p256";
-import Crypto from 'react-native-quick-crypto';
-
 
 // Key material utilities
 
@@ -16,28 +15,27 @@ export const generateTargetKey = async (): Promise<any> => {
     const publicKey = p256.getPublicKey(privateKey, true);
 
     // Convert the private key to hexadecimal string
-    const privateKeyHex = Buffer.from(privateKey).toString('hex');
+    const privateKeyHex = Buffer.from(privateKey).toString("hex");
 
     // Extract x-coordinate from the public key
-    const publicKeyHex = Buffer.from(publicKey).toString('hex');
+    const publicKeyHex = Buffer.from(publicKey).toString("hex");
     const xCoordinate = publicKeyHex.slice(2, 66); // Skip the prefix byte (0x04)
 
     // JWK format for EC private key
     const privateKeyJWK = {
-      kty: 'EC',
-      crv: 'P-256',
+      kty: "EC",
+      crv: "P-256",
       x: xCoordinate,
-      y: publicKeyHex.slice(66),   // Start from the y-coordinate
+      y: publicKeyHex.slice(66), // Start from the y-coordinate
       d: privateKeyHex,
     };
 
     return privateKeyJWK;
   } catch (error) {
-    console.error('Error generating or exporting key:', error);
+    console.error("Error generating or exporting key:", error);
     throw error;
   }
 };
-
 
 export const importCredential = async (
   privateKeyBytes: Uint8Array
@@ -65,15 +63,17 @@ export const importCredential = async (
   );
 };
 
-export const p256JWKPrivateToPublic = async (privateJwk: any): Promise<Uint8Array> => {
+export const p256JWKPrivateToPublic = async (
+  privateJwk: any
+): Promise<Uint8Array> => {
   const publicKey = await Crypto.subtle.importKey(
-      'jwk',
-      privateJwk,
-      { name: 'ECDSA', namedCurve: 'P-256' },
-      true,
-      ['verify']
+    "jwk",
+    privateJwk,
+    { name: "ECDSA", namedCurve: "P-256" },
+    true,
+    ["verify"]
   );
-  const rawPublicKey = await Crypto.subtle.exportKey('raw', publicKey);
+  const rawPublicKey = await Crypto.subtle.exportKey("raw", publicKey);
   return new Uint8Array(rawPublicKey);
 };
 
@@ -179,7 +179,7 @@ export const convertEcdsaIeee1363ToDer = (ieee: Uint8Array): Uint8Array => {
 //       "jwk",
 //       receiverPrivJwk,
 //       { name: "ECDH", namedCurve: "P-256" },
-//       false, 
+//       false,
 //       ["deriveKey"]
 //     );
 
@@ -202,7 +202,7 @@ export const convertEcdsaIeee1363ToDer = (ieee: Uint8Array): Uint8Array => {
 //     const sharedSecret = await crypto.subtle.deriveKey(
 //       { name: "ECDH", public: publicCryptoKey as CryptoKey},
 //       receiverPrivKey as CryptoKey,
-//       { name: "HKDF" }, 
+//       { name: "HKDF" },
 //       false,
 //       ["encrypt", "decrypt"]
 //     );
@@ -211,11 +211,11 @@ export const convertEcdsaIeee1363ToDer = (ieee: Uint8Array): Uint8Array => {
 //     const sharedSecretKey = await crypto.subtle.importKey(
 //       "raw",
 //       new Uint8Array(await crypto.subtle.exportKey("raw", sharedSecret)),
-//       { name: "HKDF" }, 
+//       { name: "HKDF" },
 //       false,
 //       ["deriveKey"]
 //     );
-    
+
 //     // Derive the AES-GCM key from the shared secret using HKDF
 //     const aesKey = await crypto.subtle.deriveKey(
 //       {
@@ -233,7 +233,7 @@ export const convertEcdsaIeee1363ToDer = (ieee: Uint8Array): Uint8Array => {
 //     const decryptedData = await crypto.subtle.decrypt(
 //       {
 //         name: "AES-GCM",
-//         iv: new Uint8Array(12), 
+//         iv: new Uint8Array(12),
 //         tagLength: 128
 //       },
 //       aesKey,
@@ -322,5 +322,3 @@ const modSqrt = (x: bigint, p: bigint): bigint => {
   }
   throw new Error("unsupported modulus value");
 };
-
-
