@@ -40,6 +40,9 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "browser": {
+    "crypto": false
+  },
   "dependencies": {
     "@babel/core": "^7.20.0",
     "@babel/preset-env": "^7.20.0",
