@@ -42,7 +42,7 @@ export class TurnkeyServerSDK {
     });
   };
 
-  apiProxyClient = async (methodName: string, params: any[]): Promise<any> => {
+  apiProxy = async (methodName: string, params: any[]): Promise<any> => {
     const apiClient = this.apiClient();
     const method = apiClient[methodName];
     if (typeof method === "function") {
@@ -66,7 +66,7 @@ export class TurnkeyServerSDK {
 
       try {
         if (allowedMethods.includes(methodName)) {
-          const result = await this.apiProxyClient(methodName, params);
+          const result = await this.apiProxy(methodName, params);
           response.json(result);
         } else {
           response.status(401).send("Unauthorized proxy method");
@@ -98,7 +98,7 @@ export class TurnkeyServerSDK {
 
       try {
         if (allowedMethods.includes(methodName)) {
-          const result = await this.apiProxyClient(methodName, params);
+          const result = await this.apiProxy(methodName, params);
           response.json(result);
         } else {
           response.status(401).send("Unauthorized proxy method");
