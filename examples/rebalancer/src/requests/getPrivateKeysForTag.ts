@@ -10,7 +10,7 @@ export default async function getPrivateKeysForTag(
   turnkeyClient: Turnkey,
   tagName: string
 ): Promise<TurnkeyApiTypes["v1PrivateKey"][]> {
-  const response = await turnkeyClient.api().listPrivateKeyTags({
+  const response = await turnkeyClient.apiClient().listPrivateKeyTags({
     organizationId: process.env.ORGANIZATION_ID!,
   });
 
@@ -28,7 +28,7 @@ export default async function getPrivateKeysForTag(
     );
   }
 
-  const privateKeysResponse = await turnkeyClient.api().getPrivateKeys({
+  const privateKeysResponse = await turnkeyClient.apiClient().getPrivateKeys({
     organizationId: process.env.ORGANIZATION_ID!,
   });
 

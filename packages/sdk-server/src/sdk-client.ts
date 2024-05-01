@@ -29,7 +29,7 @@ export class TurnkeyServerSDK {
     this.config = config;
   }
 
-  api = (apiCredentials?: ApiCredentials): TurnkeyApiClient => {
+  apiClient = (apiCredentials?: ApiCredentials): TurnkeyApiClient => {
     const apiKeyStamper = new ApiKeyStamper({
       apiPublicKey: apiCredentials?.apiPublicKey ?? this.config.apiPublicKey,
       apiPrivateKey: apiCredentials?.apiPrivateKey ?? this.config.apiPrivateKey,
@@ -43,7 +43,7 @@ export class TurnkeyServerSDK {
   };
 
   apiProxy = async (methodName: string, params: any[]): Promise<any> => {
-    const apiClient = this.api();
+    const apiClient = this.apiClient();
     const method = apiClient[methodName];
     if (typeof method === "function") {
       return await method(...params);

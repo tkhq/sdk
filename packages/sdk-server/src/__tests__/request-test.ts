@@ -25,7 +25,7 @@ test("requests are stamped after client creation", async () => {
 
   mockedFetch.mockReturnValue(Promise.resolve(response));
 
-  await turnkeyServerClient.api().getWhoami({
+  await turnkeyServerClient.apiClient().getWhoami({
     organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
   });
 
@@ -70,7 +70,7 @@ test("requests return grpc status details as part of their errors", async () => 
 
   try {
     // Arbitrary request URL
-    await turnkeyServerClient.api().getWhoami({
+    await turnkeyServerClient.apiClient().getWhoami({
       organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
     });
   } catch (e: any) {

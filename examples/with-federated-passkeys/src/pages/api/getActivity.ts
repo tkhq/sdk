@@ -32,7 +32,7 @@ export default async function getActivity(
   const { organizationId, activityId } = getActivityRequest;
 
   try {
-    const activityResponse = await turnkeyClient.api().getActivity({
+    const activityResponse = await turnkeyClient.apiClient().getActivity({
       organizationId,
       activityId,
     });

@@ -8,7 +8,7 @@ export default async function rejectActivity(
   activityFingerprint: string
 ): Promise<string> {
   try {
-    const response = await turnkeyClient.api().rejectActivity({
+    const response = await turnkeyClient.apiClient().rejectActivity({
       fingerprint: activityFingerprint,
     });
 

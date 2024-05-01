@@ -8,7 +8,7 @@ export default async function createPrivateKeyTag(
   privateKeyIds: string[]
 ): Promise<string> {
   try {
-    const activity = await turnkeyClient.api().createPrivateKeyTag({
+    const activity = await turnkeyClient.apiClient().createPrivateKeyTag({
       privateKeyTagName,
       privateKeyIds,
     });

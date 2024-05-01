@@ -41,34 +41,36 @@ export default async function createUser(
   try {
     const walletName = `Default Wallet`;
 
-    const completedActivity = await turnkeyClient.api().createSubOrganization({
-      subOrganizationName: createSubOrgRequest.subOrgName,
-      rootQuorumThreshold: 1,
-      rootUsers: [
-        {
-          userName: "New user",
-          apiKeys: [],
-          authenticators: [
+    const completedActivity = await turnkeyClient
+      .apiClient()
+      .createSubOrganization({
+        subOrganizationName: createSubOrgRequest.subOrgName,
+        rootQuorumThreshold: 1,
+        rootUsers: [
+          {
+            userName: "New user",
+            apiKeys: [],
+            authenticators: [
+              {
+                authenticatorName: "Passkey",
+                challenge: createSubOrgRequest.challenge,
+                attestation: createSubOrgRequest.attestation,
+              },
+            ],
+          },
+        ],
+        wallet: {
+          walletName,
+          accounts: [
             {
-              authenticatorName: "Passkey",
-              challenge: createSubOrgRequest.challenge,
-              attestation: createSubOrgRequest.attestation,
+              curve: "CURVE_SECP256K1",
+              pathFormat: "PATH_FORMAT_BIP32",
+              path: ETHEREUM_WALLET_DEFAULT_PATH,
+              addressFormat: "ADDRESS_FORMAT_ETHEREUM",
             },
           ],
         },
-      ],
-      wallet: {
-        walletName,
-        accounts: [
-          {
-            curve: "CURVE_SECP256K1",
-            pathFormat: "PATH_FORMAT_BIP32",
-            path: ETHEREUM_WALLET_DEFAULT_PATH,
-            addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-          },
-        ],
-      },
-    });
+      });
 
     const subOrgId = refineNonNull(completedActivity?.subOrganizationId);
     const wallet = refineNonNull(completedActivity?.wallet);
