@@ -8,6 +8,9 @@ import { P256Generator } from "./p256";
 
 //exported
 export const generateTargetKey = async (): Promise<any> => {
+  console.log("frame utils crypto", Crypto);
+  console.log("frame utils crypto subtle", Crypto.subtle);
+
   try {
     // Generate a random private key
     const privateKey = p256.utils.randomPrivateKey();
