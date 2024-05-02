@@ -8,7 +8,7 @@ This example shows a complete email recovery flow. It contains a NextJS app with
 The overall flow for email recovery is outlined below:
 ![Email recovery flow diagram](./email_recovery_steps.png)
 
-This example contains an example recovery page as well as a stub API endpoint for "your business" (where the email is resolved into an organization ID). The creation of the hidden iframe is abstracted by our `@turnkey/iframe-stamper` package. For more information on email recovery, [check out our documentation](https://docs.turnkey.com/getting-started/email-recovery).
+This example contains an example recovery page as well as a stub API endpoint for "your business" (where the email is resolved into an organization ID). The creation of the hidden iframe is abstracted by our `@turnkey/iframe-stamper` package. For more information on email recovery, [check out our documentation](https://docs.turnkey.com/features/email-recovery).
 
 ## Getting started
 

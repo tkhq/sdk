@@ -170,7 +170,7 @@
 }
 ```
 
-See https://docs.turnkey.com/getting-started/sub-organizations for more details.
+See https://docs.turnkey.com/concepts/sub-organizations for more details.
 
 ## 1.3.0
 
