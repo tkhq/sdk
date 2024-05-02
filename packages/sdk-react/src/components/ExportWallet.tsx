@@ -3,25 +3,21 @@ import { useTurnkey } from "../hooks/useTurnkey";
 import type { TurnkeyIframeClient } from "@turnkey/sdk-browser";
 
 type ExportWalletProps = {
-  wallet: {
-    walletName: string;
-    walletId: string;
-  },
-  walletAccount: {
-    address: string;
-  },
   onCancel?: () => void
 }
 
 export const ExportWallet: React.FC<ExportWalletProps> = ({
-  wallet,
-  walletAccount,
   onCancel = () => undefined
 }) => {
   const { turnkey, passkeyClient } = useTurnkey();
   const [iframeClient, setIframeClient] = useState<TurnkeyIframeClient | undefined>(undefined);
   const [iframeStyle, setIframeStyle] = useState<Record<any, any>>({ display: "none" });
   const iframeInit = useRef<boolean>(false);
+
+  const [wallets, setWallets] = useState<any[]>([]);
+  const [selectedWallet, setSelectedWallet] = useState<any>(undefined);
+  const [walletAccounts, setWalletAccounts] = useState<any>([]);
+  const [selectedWalletAccount, setSelectedWalletAccount] = useState<any>(undefined);
 
   const TurnkeyExportIframeContainerId = "turnkey-export-iframe-container-id";
 
@@ -41,10 +37,44 @@ export const ExportWallet: React.FC<ExportWalletProps> = ({
     })();
   }, []);
 
+  useEffect(() => {
+    if (turnkey) {
+      (async () => {
+        const currentUserSession = await turnkey.currentUserSession();
+        if (currentUserSession) {
+          const walletsResponse = await currentUserSession.getWallets();
+          if (walletsResponse) {
+            setWallets(walletsResponse.wallets);
+            setSelectedWallet(walletsResponse.wallets[0]);
+          }
+        }
+      })();
+    }
+  }, [turnkey]);
+
+  useEffect(() => {
+    if (turnkey) {
+      (async () => {
+        const currentUserSession = await turnkey.currentUserSession();
+        if (currentUserSession) {
+          if (selectedWallet) {
+            const walletAccountsResponse = await currentUserSession.getWalletAccounts({
+              walletId: selectedWallet.walletId
+            });
+            if (walletAccountsResponse) {
+              setWalletAccounts(walletAccountsResponse.accounts);
+              setSelectedWalletAccount(walletAccountsResponse.accounts[0]);
+            }
+          }
+        }
+      })();
+    }
+  }, [selectedWallet]);
+
   const exportWallet = async () => {
     const currentUser = await turnkey?.getCurrentUser();
     const exportResponse = await passkeyClient?.exportWallet({
-      walletId: wallet.walletId,
+      walletId: selectedWallet.walletId,
       targetPublicKey: `${iframeClient?.iframePublicKey}`
     });
     if (exportResponse?.exportBundle) {
@@ -70,7 +100,7 @@ export const ExportWallet: React.FC<ExportWalletProps> = ({
   const exportWalletAccount = async () => {
     const currentUser = await turnkey?.getCurrentUser();
     const exportResponse = await passkeyClient?.exportWalletAccount({
-      address: walletAccount.address,
+      address: selectedWalletAccount.address,
       targetPublicKey: `${iframeClient?.iframePublicKey}`
     });
     if (exportResponse?.exportBundle) {
@@ -96,8 +126,37 @@ export const ExportWallet: React.FC<ExportWalletProps> = ({
   return (
     <div className="export-container">
       <p className="title-text">Export</p>
-      <p className="subtitle-text">{`Wallet Name: ${wallet.walletName}`}</p>
-      <p className="subtitle-text">{`Account Address: ${walletAccount.address}`}</p>
+
+      <div className="select-section-container">
+        <div className="select-section wallet-select-section">
+          <p className="label">Select Wallet:</p>
+          <select
+            className="wallets-select"
+            value={selectedWallet?.walletId}
+            onChange={(e) => setSelectedWallet(wallets.find((x: any) => x.walletId === e.target.value))}>
+            {wallets?.map((wallet: any, index: number) => (
+              <option key={index} value={wallet.walletId}>
+                {wallet.walletName}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="select-section wallet-account-select-section">
+          <p className="label">Select Wallet Account:</p>
+          <select
+            className="wallet-accounts-select"
+            value={selectedWalletAccount?.address}
+            onChange={(e) => setSelectedWalletAccount(walletAccounts.find((x: any) => x.address === e.target.value))}>
+            {walletAccounts?.map((walletAccount: any, index: number) => (
+              <option key={index} value={walletAccount.address}>
+                {walletAccount.address}
+              </option>
+            ))}
+          </select>
+        </div>
+
+      </div>
 
       <div className="action-buttons">
         <div
