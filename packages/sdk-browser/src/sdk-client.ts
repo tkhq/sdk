@@ -9,6 +9,7 @@ import type {
   GrpcStatus,
   TurnkeySDKClientConfig,
   TurnkeySDKBrowserConfig,
+  IframeClientParams,
 } from "./__types__/base";
 
 import { TurnkeyRequestError } from "./__types__/base";
@@ -73,23 +74,21 @@ export class TurnkeyBrowserSDK {
   };
 
   iframeClient = async (
-    iframeContainer: HTMLElement | null | undefined,
-    iframeUrl?: string
+    params: IframeClientParams
   ): Promise<TurnkeyIframeClient> => {
-    const targetIframeUrl = iframeUrl ?? this.config.iframeUrl;
-
-    if (!targetIframeUrl) {
+    if (!params.iframeUrl) {
       throw new Error(
-        "Tried to initialize iframeSigner with no iframeUrl defined"
+        "Tried to initialize iframeClient with no iframeUrl defined"
       );
     }
 
-    const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
+    const TurnkeyIframeElementId =
+      params.iframeElementId ?? "turnkey-default-iframe-element-id";
 
     const iframeStamper = new IframeStamper({
-      iframeUrl: targetIframeUrl,
+      iframeContainer: params.iframeContainer,
+      iframeUrl: params.iframeUrl,
       iframeElementId: TurnkeyIframeElementId,
-      iframeContainer: iframeContainer,
     });
 
     await iframeStamper.init();
@@ -262,5 +261,41 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
   ): Promise<boolean> => {
     const stamper = this.config.stamper as IframeStamper;
     return await stamper.injectCredentialBundle(credentialBundle);
+  };
+
+  injectWalletExportBundle = async (
+    credentialBundle: string,
+    organizationId: string
+  ): Promise<boolean> => {
+    const stamper = this.config.stamper as IframeStamper;
+    return await stamper.injectWalletExportBundle(
+      credentialBundle,
+      organizationId
+    );
+  };
+
+  injectKeyExportBundle = async (
+    credentialBundle: string,
+    organizationId: string
+  ): Promise<boolean> => {
+    const stamper = this.config.stamper as IframeStamper;
+    return await stamper.injectKeyExportBundle(
+      credentialBundle,
+      organizationId
+    );
+  };
+
+  injectImportBundle = async (
+    bundle: string,
+    organizationId: string,
+    userId: string
+  ): Promise<boolean> => {
+    const stamper = this.config.stamper as IframeStamper;
+    return await stamper.injectImportBundle(bundle, organizationId, userId);
+  };
+
+  extractWalletEncryptedBundle = async (): Promise<string> => {
+    const stamper = this.config.stamper as IframeStamper;
+    return await stamper.extractWalletEncryptedBundle();
   };
 }
