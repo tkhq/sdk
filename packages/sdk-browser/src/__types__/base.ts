@@ -82,7 +82,6 @@ export type TurnkeySDKClientConfig =
 
 export interface TurnkeySDKBrowserConfig {
   apiBaseUrl: string;
-  iframeUrl?: string;
   defaultOrganizationId: string;
   rpId?: string;
   serverSignUrl?: string;
