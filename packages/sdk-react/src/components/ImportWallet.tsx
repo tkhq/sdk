@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useTurnkey } from "../hooks/useTurnkey";
-import { DEFAULT_ETHEREUM_ACCOUNTS } from "@turnkey/sdk-browser";
 import type { TurnkeyIframeClient } from "@turnkey/sdk-browser";
 
 type ImportWalletProps = {
   onCancel?: () => void;
   onWalletImportSuccess?: () => void;
+  onWalletAccountImportSuccess?: () => void;
 }
 
 export const ImportWallet: React.FC<ImportWalletProps> = ({
   onCancel = () => undefined,
-  onWalletImportSuccess = () => undefined
+  onWalletImportSuccess = () => undefined,
+  onWalletAccountImportSuccess = () => undefined
 }) => {
   const { turnkey, passkeyClient } = useTurnkey();
   const [iframeClient, setIframeClient] = useState<TurnkeyIframeClient | undefined>(undefined);
@@ -18,7 +19,7 @@ export const ImportWallet: React.FC<ImportWalletProps> = ({
   const iframeInit = useRef<boolean>(false);
 
   const [initImportWalletComplete, setInitImportWalletComplete] = useState<boolean>(false);
-  const [_initImportWalletAccountComplete, _setInitImportWalletAccountComplete] = useState<boolean>(false);
+  const [initImportWalletAccountComplete, setInitImportWalletAccountComplete] = useState<boolean>(false);
 
   const [newWalletName, setNewWalletName] = useState<string>('');
 
@@ -84,7 +85,7 @@ export const ImportWallet: React.FC<ImportWalletProps> = ({
         userId: `${currentUser?.userId}`,
         walletName: newWalletName,
         encryptedBundle,
-        accounts: DEFAULT_ETHEREUM_ACCOUNTS
+        accounts: []
       });
 
       if (importResponse) {
@@ -92,6 +93,10 @@ export const ImportWallet: React.FC<ImportWalletProps> = ({
       }
 
     }
+
+  }
+
+  const initImportWalletAccount = async () => {
 
   }
 

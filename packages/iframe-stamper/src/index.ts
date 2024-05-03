@@ -233,10 +233,6 @@ export class IframeStamper {
     organizationId: string,
     keyFormat?: KeyFormat
   ): Promise<boolean> {
-    console.log(`Calling inject key export bundle`);
-    console.log(`BUNDLE: ${bundle}`);
-    console.log(`ORGANIZATION ID: ${organizationId}`);
-    console.log(`KEY FORMAT: ${keyFormat}`);
     this.iframe.contentWindow?.postMessage(
       {
         type: IframeEventType.InjectKeyExportBundle,
