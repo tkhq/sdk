@@ -4,7 +4,7 @@ import { p256 } from "@noble/curves/p256";
 import * as hkdf from '@noble/hashes/hkdf'
 import { sha256 } from '@noble/hashes/sha256';
 import { gcm } from '@noble/ciphers/aes';
-import bs58check = require("bs58check");
+import * as bs58check from 'bs58check'
 
 import { AES_KEY_INFO, HPKE_VERSION, IV_INFO, LABEL_EAE_PRK, LABEL_SECRET, LABEL_SHARED_SECRET, SUITE_ID_1, SUITE_ID_2 } from './constants';
 
@@ -45,19 +45,19 @@ import { AES_KEY_INFO, HPKE_VERSION, IV_INFO, LABEL_EAE_PRK, LABEL_SECRET, LABEL
   }
 
 
-  var uint8arrayFromHexString = function(hexString:any) {
+  const uint8arrayFromHexString = (hexString:any) => {
     var hexRegex = /^[0-9A-Fa-f]+$/;
     if (!hexString || hexString.length % 2 != 0 || !hexRegex.test(hexString)) {
       throw new Error('cannot create uint8array from invalid hex string: "' + hexString + '"');
     }
-    return new Uint8Array(hexString.match(/../g).map(h=>parseInt(h,16)));
+    return new Uint8Array(hexString.match(/../g).map((h: string)=>parseInt(h,16)));
   }
-  var uint8arrayToHexString = function(buffer:any) {
+  const uint8arrayToHexString = (buffer:any) => {
     return [...buffer]
         .map(x => x.toString(16).padStart(2, '0'))
         .join('');
   }
-  var bigIntToHex = function(num:any, length:any) {
+  const bigIntToHex = (num:any, length:any) => {
     var hexString = num.toString(16);
     if (hexString.length > length) {
       throw new Error("number cannot fit in a hex string of " + length + " characters");
@@ -70,8 +70,7 @@ import { AES_KEY_INFO, HPKE_VERSION, IV_INFO, LABEL_EAE_PRK, LABEL_SECRET, LABEL
        * @param {Uint8Array} rawPublicKey
        * @return {Uint8Array} the uncompressed bytes
        */
-      var uncompressRawPublicKey = function(rawPublicKey:any) {
-        const len = rawPublicKey.byteLength
+      const uncompressRawPublicKey = (rawPublicKey:any)=> {
 
         // point[0] must be 2 (false) or 3 (true).
         // this maps to the initial "02" or "03" prefix
@@ -275,7 +274,7 @@ export const base64StringToBase64UrlEncodedString = (input: string): string => {
   return input.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
-export const decodeBundle = async (credentialBundle, embeddedKey) => {
+export const decodeBundle = async (credentialBundle:any, embeddedKey:any) => {
     try {
 
       if (
@@ -305,5 +304,6 @@ export const decodeBundle = async (credentialBundle, embeddedKey) => {
     return decryptedData
     } catch (error) {
       console.error('Error injecting bundle:', error);
+      return null
     }
   }
