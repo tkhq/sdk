@@ -82,7 +82,6 @@ export type TurnkeySDKClientConfig =
 
 export interface TurnkeySDKBrowserConfig {
   apiBaseUrl: string;
-  iframeUrl?: string;
   defaultOrganizationId: string;
   rpId?: string;
   serverSignUrl?: string;
@@ -96,3 +95,9 @@ export type commandOverrideParams = {
   organizationId?: string;
   timestampMs?: string;
 };
+
+export interface IframeClientParams {
+  iframeContainer: HTMLElement | null | undefined;
+  iframeUrl: string;
+  iframeElementId?: string;
+}
