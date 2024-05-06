@@ -767,7 +767,11 @@ importers:
         specifier: ^2.22.2
         version: 2.22.2(typescript@5.1.5)
 
-  packages/encoding: {}
+  packages/encoding:
+    dependencies:
+      '@noble/curves':
+        specifier: ^1.3.0
+        version: 1.3.0
 
   packages/ethers:
     dependencies:

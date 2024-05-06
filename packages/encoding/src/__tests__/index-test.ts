@@ -1,5 +1,6 @@
+import { p256 } from "@noble/curves/p256";
 import { test, expect } from "@jest/globals";
-import { stringToBase64urlString } from "..";
+import { stringToBase64urlString, p256Keygen, uint8ArrayToHexString } from "..";
 
 // These test vectors can be verified with NodeJS:
 //   $ node
@@ -26,4 +27,13 @@ test("stringToBase64urlString", async function () {
   ).toBe(
     "eyJwdWJsaWNLZXkiOiIwMmY3MzlmOGM3N2IzMmY0ZDVmMTMyNjU4NjFmZWJkNzZlN2E5YzYxYTExNDBkMjk2YjhjMTYzMDI1MDg4NzAzMTYiLCJzaWduYXR1cmUiOiIzMDQ0MDIyMDJhOTJjMjRlNGI0ZGUzY2RiNWMwNWEyYjFmNDIyNjRiYTgxMzljZjY2YjJkMWVjZjBhMDk5ODdhYjlhMmZlY2IwMjIwM2JmZDkxZDhjNWU4N2Y3OGRhOGI1Y2Y1ZGRiMjdjOTZjYjAwYjg0ODc5N2QwZmM3M2JmMzcxODkyYzQyM2Y4MSIsInNjaGVtZSI6IlNJR05BVFVSRV9TQ0hFTUVfVEtfQVBJX1AyNTYifQ"
   );
+});
+
+test("p256Keygen", async function () {
+  const keygen = await p256Keygen();
+
+  const publicKey = p256.getPublicKey(keygen.privateKey, true);
+  const publicKeyString = uint8ArrayToHexString(publicKey);
+
+  expect(publicKeyString).toBe(keygen.publicKey);
 });
