@@ -1,5 +1,16 @@
 # @turnkey/sdk-react
 
+## 0.2.0
+
+### Minor Changes
+
+- updated syntax
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/sdk-browser@0.2.0
+
 ## 0.1.0
 
 ### Minor Changes

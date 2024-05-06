@@ -1,5 +1,15 @@
 # @turnkey/sdk-server
 
+## 0.2.0
+
+### Minor Changes
+
+- updated syntax
+
+### Patch Changes
+
+- e4d2a84: Update client name
+
 ## 0.1.0
 
 ### Minor Changes
