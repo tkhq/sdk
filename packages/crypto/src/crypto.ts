@@ -1,8 +1,8 @@
-import { btoa, atob } from "react-native-quick-base64";
 import { p256 } from "@noble/curves/p256";
 import * as hkdf from "@noble/hashes/hkdf";
 import { sha256 } from "@noble/hashes/sha256";
 import { gcm } from "@noble/ciphers/aes";
+import {uint8ArrayToHexString} from "@turnkey/encoding"
 import * as bs58check from "bs58check";
 
 import {
@@ -29,6 +29,21 @@ interface KeyPair {
 }
 
 /**
+ * Get PublicKey function
+ * Derives public key from Uint8Array private key
+ *
+ * @param {Uint8Array} privateKey - The Uint8Array representation of a private key
+ * @param {boolean} isCompressed - true by default, specifies whether to return a compressed or uncompressed public key
+ * @returns {Promise<Uint8Array>} - The public key in Uin8Array representation.
+ */
+
+export const getPublicKey = (
+  privateKey: Uint8Array,
+  isCompressed: boolean = true
+): Uint8Array => {
+  return p256.getPublicKey(privateKey, isCompressed);
+};
+/**
  * HPKE Decrypt Function
  * Decrypts data using Hybrid Public Key Encryption (HPKE) approach.
  *
@@ -43,14 +58,11 @@ export const hpkeDecrypt = async ({
   try {
     let ikm: Uint8Array;
     let info: Uint8Array;
-    const receiverPubBuf = await p256.getPublicKey(
-      base64urlDecode(receiverPriv),
-      false
-    );
+    const receiverPubBuf = getPublicKey(uint8arrayFromHexString(receiverPriv), false);
     const aad = additionalAssociatedData(encappedKeyBuf, receiverPubBuf);
     const kemContext = getKemContext(
       encappedKeyBuf,
-      uint8arrayToHexString(receiverPubBuf)
+      uint8ArrayToHexString(receiverPubBuf)
     );
 
     // Step 1: Generate Shared Secret
@@ -83,27 +95,6 @@ export const hpkeDecrypt = async ({
 };
 
 /**
- * Convert a string to a base64url-encoded string.
- *
- * @param {string} input - The input string to encode.
- * @returns {string} - The base64url-encoded string.
- */
-export const stringToBase64urlString = (input: string): string => {
-  const base64String = btoa(input);
-  return base64StringToBase64UrlEncodedString(base64String);
-};
-
-/**
- * Convert a base64 string to a base64url-encoded string.
- *
- * @param {string} input - The base64 string to convert.
- * @returns {string} - The base64url-encoded string.
- */
-export const base64StringToBase64UrlEncodedString = (input: string): string => {
-  return input.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
-};
-
-/**
  * Decrypt an encrypted credential bundle.
  *
  * @param {string} credentialBundle - The encrypted credential bundle.
@@ -115,22 +106,7 @@ export const decryptBundle = async (
   embeddedKey: string
 ): Promise<Uint8Array | null> => {
   try {
-    let bundleBytes: Uint8Array;
-
-    // Decode using either Base58Check or Base64URL
-    if (
-      credentialBundle.indexOf("-") === -1 &&
-      credentialBundle.indexOf("_") === -1 &&
-      credentialBundle.indexOf("O") === -1 &&
-      credentialBundle.indexOf("I") === -1 &&
-      credentialBundle.indexOf("l") === -1 &&
-      credentialBundle.indexOf("0") === -1
-    ) {
-      bundleBytes = bs58check.decode(credentialBundle);
-    } else {
-      bundleBytes = base64urlDecode(credentialBundle);
-    }
-
+    const bundleBytes = bs58check.decode(credentialBundle)
     if (bundleBytes.byteLength <= 33) {
       throw new Error(
         `Bundle size ${bundleBytes.byteLength} is too low. Expecting a compressed public key (33 bytes) and an encrypted credential.`
@@ -153,65 +129,21 @@ export const decryptBundle = async (
   }
 };
 
-/**
- * Encode a Uint8Array to a base64url-encoded string.
- *
- * @param {Uint8Array} data - The data to encode.
- * @returns {string} - The base64url-encoded string.
- */
-export const base64urlEncode = (data: Uint8Array): string => {
-  let binary = "";
-  data.forEach((byte) => (binary += String.fromCharCode(byte)));
-  const base64String = btoa(binary);
-  return base64String
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-};
 
 /**
- * Decode a base64url-encoded string to a Uint8Array.
- *
- * @param {string} base64url - The base64url-encoded string to decode.
- * @returns {Uint8Array} - The decoded data.
- */
-export const base64urlDecode = (base64url: string): Uint8Array => {
-  const base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
-  const padding = base64.length % 4 === 0 ? "" : "===".slice(0, 4 - (base64.length % 4));
-  const binaryString = atob(base64 + padding);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes;
-};
-
-/**
- * Generate a target key pair using P-256.
- *
- * @returns {Promise<KeyPair>} - The generated key pair.
- */
-export const generateTargetKey = async (): Promise<KeyPair> => {
-  const privateKey = randomBytes(32);
-  const publicKey = p256.getPublicKey(privateKey, false);
-  return { privateKey: base64urlEncode(privateKey), publicKey };
-};
-
-/**
- * Generate a P-256 key pair.
+ * Generate a P-256 key pair. Contains the hexed privateKey, publicKey, and Uncompressed publicKey
  *
  * @returns {Promise<KeyPair>} - The generated key pair.
  */
 export const generateP256KeyPair = async (): Promise<KeyPair> => {
   const privateKey = randomBytes(32);
-  const publicKey = p256.getPublicKey(privateKey, true);
-  const publicKeyUncompressed = uint8arrayToHexString(
+  const publicKey = getPublicKey(privateKey, true);
+  const publicKeyUncompressed = uint8ArrayToHexString(
     uncompressRawPublicKey(publicKey)
   );
   return {
-    privateKey: uint8arrayToHexString(privateKey),
-    publicKey: uint8arrayToHexString(privateKey),
+    privateKey: uint8ArrayToHexString(privateKey),
+    publicKey: uint8ArrayToHexString(privateKey),
     publicKeyUncompressed,
   };
 };
@@ -235,36 +167,28 @@ export const uint8arrayFromHexString = (hexString: string): Uint8Array => {
 };
 
 /**
- * Convert a Uint8Array to a hexadecimal string.
- *  @param {any} array - A Uint8Array (type is any to overcome a typescript error)
- */
-export const uint8arrayToHexString = (array: any) => {
-  return [...array].map((x) => x.toString(16).padStart(2, "0")).join("");
-};
-
-/**
  * Build labeled Initial Key Material (IKM).
  *
  * @param {Uint8Array} label - The label to use.
  * @param {Uint8Array} ikm - The input key material.
- * @param {Uint8Array} suite_id - The suite identifier.
+ * @param {Uint8Array} suiteId - The suite identifier.
  * @returns {Uint8Array} - The labeled IKM.
  */
 const buildLabeledIkm = (
   label: Uint8Array,
   ikm: Uint8Array,
-  suite_id: Uint8Array
+  suiteId: Uint8Array
 ): Uint8Array => {
   const combinedLength =
-    HPKE_VERSION.length + suite_id.length + label.length + ikm.length;
+    HPKE_VERSION.length + suiteId.length + label.length + ikm.length;
   const ret = new Uint8Array(combinedLength);
   let offset = 0;
 
   ret.set(HPKE_VERSION, offset);
   offset += HPKE_VERSION.length;
 
-  ret.set(suite_id, offset);
-  offset += suite_id.length;
+  ret.set(suiteId, offset);
+  offset += suiteId.length;
 
   ret.set(label, offset);
   offset += label.length;
@@ -292,7 +216,7 @@ const buildLabeledInfo = (
   const ret = new Uint8Array(
     9 + suite_id.byteLength + label.byteLength + info.byteLength
   );
-  ret.set(new Uint8Array([0, len]), 0);
+  ret.set(new Uint8Array([0, len]), 0); // this isn’t an error, we’re starting at index 2 because the first two bytes should be 0. See <https://github.com/dajiaji/hpke-js/blob/1e7fb1372fbcdb6d06bf2f4fa27ff676329d633e/src/kdfs/hkdf.ts#L41> for reference.
   ret.set(HPKE_VERSION, 2);
   ret.set(suite_id, 9);
   ret.set(label, 9 + suite_id.byteLength);
@@ -317,11 +241,11 @@ const bigIntToHex = (num: bigint, length: number): string => {
  * Uncompress a raw public key.
  */
 
-const uncompressRawPublicKey = (rawPublicKey: Uint8Array):Uint8Array =>{ 
+const uncompressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
   // point[0] must be 2 (false) or 3 (true).
   // this maps to the initial "02" or "03" prefix
   const lsb = rawPublicKey[0] === 3;
-  const x = BigInt("0x" + uint8arrayToHexString(rawPublicKey.subarray(1)));
+  const x = BigInt("0x" + uint8ArrayToHexString(rawPublicKey.subarray(1)));
 
   // https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf (Appendix D).
   const p = BigInt(
@@ -405,22 +329,17 @@ const testBit = (n: bigint, i: number): boolean => {
  */
 const randomBytes = (length: number): Uint8Array => {
   const array = new Uint8Array(length);
-  for (let i = 0; i < length; i++) {
-    array[i] = Math.floor(Math.random() * 256);
-  }
-  return array;
+  return crypto.getRandomValues(array);
 };
 
 /**
  * Create additional associated data (AAD) for AES-GCM decryption.
  */
 const additionalAssociatedData = (
-  senderPubBuf: ArrayBuffer,
-  receiverPubBuf: ArrayBuffer
+  senderPubBuf: Uint8Array,
+  receiverPubBuf: Uint8Array
 ): Uint8Array => {
-  const s = Array.from(new Uint8Array(senderPubBuf));
-  const r = Array.from(new Uint8Array(receiverPubBuf));
-  return new Uint8Array([...s, ...r]);
+  return new Uint8Array([...(Array.from(senderPubBuf)), ...(Array.from(receiverPubBuf))]);
 };
 
 /**
@@ -445,7 +364,7 @@ const deriveDh = async (
   receiverPriv: string
 ): Promise<Uint8Array> => {
   const dh = p256.getSharedSecret(
-    base64urlDecode(receiverPriv),
+    uint8arrayFromHexString(receiverPriv),
     encappedKeyBuf
   );
   return dh.slice(1);

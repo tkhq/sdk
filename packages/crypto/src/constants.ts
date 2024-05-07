@@ -1,13 +1,8 @@
 export const SUITE_ID_1 = new Uint8Array([75, 69, 77, 0, 16]);
 export const SUITE_ID_2 = new Uint8Array([72, 80, 75, 69, 0, 16, 0, 1, 0, 2]);
 export const HPKE_VERSION = new Uint8Array([72, 80, 75, 69, 45, 118, 49]);
-// b"secret"
 export const LABEL_SECRET = new Uint8Array([115, 101, 99, 114, 101, 116]);
-// b"HPKE"
-// b"eae_prk"
 export const LABEL_EAE_PRK = new Uint8Array([101, 97, 101, 95, 112, 114, 107]);
-// b"shared_secret"
-// deno-fmt-ignore
 export const LABEL_SHARED_SECRET = new Uint8Array([
   115, 104, 97, 114, 101, 100, 95, 115, 101, 99, 114, 101, 116,
 ]);
