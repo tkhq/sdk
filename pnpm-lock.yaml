@@ -762,9 +762,6 @@ importers:
       '@noble/hashes':
         specifier: ^1.4.0
         version: 1.4.0
-      '@react-native/js-polyfills':
-        specifier: ^0.74.83
-        version: 0.74.83
       bs58check:
         specifier: ^3.0.1
         version: 3.0.1

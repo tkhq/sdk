@@ -162,7 +162,8 @@ export const decryptBundle = async (
 export const base64urlEncode = (data: Uint8Array): string => {
   let binary = "";
   data.forEach((byte) => (binary += String.fromCharCode(byte)));
-  return btoa(binary)
+  const base64String = btoa(binary);
+  return base64String
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "");
@@ -175,11 +176,13 @@ export const base64urlEncode = (data: Uint8Array): string => {
  * @returns {Uint8Array} - The decoded data.
  */
 export const base64urlDecode = (base64url: string): Uint8Array => {
-  const binary_string = atob(base64url.replace(/\-/g, "+").replace(/_/g, "/"));
-  const len = binary_string.length;
+  const base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
+  const padding = base64.length % 4 === 0 ? "" : "===".slice(0, 4 - (base64.length % 4));
+  const binaryString = atob(base64 + padding);
+  const len = binaryString.length;
   const bytes = new Uint8Array(len);
   for (let i = 0; i < len; i++) {
-    bytes[i] = binary_string.charCodeAt(i);
+    bytes[i] = binaryString.charCodeAt(i);
   }
   return bytes;
 };
@@ -314,7 +317,7 @@ const bigIntToHex = (num: bigint, length: number): string => {
  * Uncompress a raw public key.
  */
 
-const uncompressRawPublicKey = (rawPublicKey: Uint8Array) => {
+const uncompressRawPublicKey = (rawPublicKey: Uint8Array):Uint8Array =>{ 
   // point[0] must be 2 (false) or 3 (true).
   // this maps to the initial "02" or "03" prefix
   const lsb = rawPublicKey[0] === 3;
@@ -325,7 +328,7 @@ const uncompressRawPublicKey = (rawPublicKey: Uint8Array) => {
     "115792089210356248762697446949407573530086143415290314195533631308867097853951"
   );
   const b = BigInt(
-    "0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b"
+    "0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b "
   );
   const a = p - BigInt(3);
 
