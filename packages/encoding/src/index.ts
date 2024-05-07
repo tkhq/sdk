@@ -18,6 +18,17 @@ export function uint8ArrayToHexString(input: Uint8Array): string {
   );
 }
 
+export const uint8ArrayFromHexString = (hexString: string): Uint8Array => {
+  const hexRegex = /^[0-9A-Fa-f]+$/;
+  if (!hexString || hexString.length % 2 != 0 || !hexRegex.test(hexString)) {
+    throw new Error(
+      `cannot create uint8array from invalid hex string: "${hexString}"`
+    );
+  }
+  return new Uint8Array(
+    hexString!.match(/../g)!.map((h: string) => parseInt(h, 16))
+  );
+};
 // Polyfill btoa with a pure JS implementation. This is adapted from the following:
 // https://github.com/jsdom/abab/blob/80874ae1fe1cde2e587bb6e51b6d7c9b42ca1d34/lib/btoa.js
 function btoa(s: string): string {
