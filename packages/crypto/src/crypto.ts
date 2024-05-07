@@ -2,7 +2,7 @@ import { p256 } from "@noble/curves/p256";
 import * as hkdf from "@noble/hashes/hkdf";
 import { sha256 } from "@noble/hashes/sha256";
 import { gcm } from "@noble/ciphers/aes";
-import {uint8ArrayToHexString} from "@turnkey/encoding"
+import { uint8ArrayToHexString } from "@turnkey/encoding";
 import * as bs58check from "bs58check";
 
 import {
@@ -30,35 +30,39 @@ interface KeyPair {
 
 /**
  * Get PublicKey function
- * Derives public key from Uint8Array private key
+ * Derives public key from Uint8Array or hexstring private key
  *
- * @param {Uint8Array} privateKey - The Uint8Array representation of a private key
+ * @param {Uint8Array | string} privateKey - The Uint8Array or hexstring representation of a compressed private key
  * @param {boolean} isCompressed - true by default, specifies whether to return a compressed or uncompressed public key
- * @returns {Promise<Uint8Array>} - The public key in Uin8Array representation.
+ * @returns {<Uint8Array>} - The public key in Uin8Array representation.
  */
 
 export const getPublicKey = (
-  privateKey: Uint8Array,
+  privateKey: Uint8Array | string,
   isCompressed: boolean = true
 ): Uint8Array => {
   return p256.getPublicKey(privateKey, isCompressed);
 };
+
 /**
  * HPKE Decrypt Function
- * Decrypts data using Hybrid Public Key Encryption (HPKE) approach.
+ * Decrypts data using Hybrid Public Key Encryption (HPKE) standard https://datatracker.ietf.org/doc/rfc9180/.
  *
  * @param {HPKEDecyptParams} params - The decryption parameters including ciphertext, encapsulated key, and receiver private key.
- * @returns {Promise<Uint8Array>} - The decrypted data.
+ * @returns {Uint8Array} - The decrypted data.
  */
-export const hpkeDecrypt = async ({
+export const hpkeDecrypt = ({
   ciphertextBuf,
   encappedKeyBuf,
   receiverPriv,
-}: HPKEDecyptParams): Promise<Uint8Array> => {
+}: HPKEDecyptParams): Uint8Array => {
   try {
     let ikm: Uint8Array;
     let info: Uint8Array;
-    const receiverPubBuf = getPublicKey(uint8arrayFromHexString(receiverPriv), false);
+    const receiverPubBuf = getPublicKey(
+      uint8ArrayFromHexString(receiverPriv),
+      false
+    );
     const aad = additionalAssociatedData(encappedKeyBuf, receiverPubBuf);
     const kemContext = getKemContext(
       encappedKeyBuf,
@@ -66,27 +70,22 @@ export const hpkeDecrypt = async ({
     );
 
     // Step 1: Generate Shared Secret
-    const dh = await deriveDh(encappedKeyBuf, receiverPriv);
-    ikm = buildLabeledIkm(LABEL_EAE_PRK, dh, SUITE_ID_1);
+    const ss = deriveSS(encappedKeyBuf, receiverPriv);
+    ikm = buildLabeledIkm(LABEL_EAE_PRK, ss, SUITE_ID_1);
     info = buildLabeledInfo(LABEL_SHARED_SECRET, kemContext, SUITE_ID_1, 32);
-    const sharedSecret = await extractAndExpand(
-      new Uint8Array([]),
-      ikm,
-      info,
-      32
-    );
+    const sharedSecret = extractAndExpand(new Uint8Array([]), ikm, info, 32);
 
     // Step 2: Get AES Key
     ikm = buildLabeledIkm(LABEL_SECRET, new Uint8Array([]), SUITE_ID_2);
     info = AES_KEY_INFO;
-    const key = await extractAndExpand(sharedSecret, ikm, info, 32);
+    const key = extractAndExpand(sharedSecret, ikm, info, 32);
 
     // Step 3: Get IV
     info = IV_INFO;
-    const iv = await extractAndExpand(sharedSecret, ikm, info, 12);
+    const iv = extractAndExpand(sharedSecret, ikm, info, 12);
 
     // Step 4: Decrypt
-    const decryptedData = await aesGcmDecrypt(ciphertextBuf, key, iv, aad);
+    const decryptedData = aesGcmDecrypt(ciphertextBuf, key, iv, aad);
     return decryptedData;
   } catch (error) {
     console.error("Decryption Error:", error);
@@ -99,14 +98,15 @@ export const hpkeDecrypt = async ({
  *
  * @param {string} credentialBundle - The encrypted credential bundle.
  * @param {string} embeddedKey - The private key for decryption.
- * @returns {Promise<Uint8Array | null>} - The decrypted data or null if decryption fails.
+ * @returns {Uint8Array} - The decrypted data or null if decryption fails.
+ * @throws {Error} - If unable to decrypt the credential bundle
  */
-export const decryptBundle = async (
+export const decryptBundle = (
   credentialBundle: string,
   embeddedKey: string
-): Promise<Uint8Array | null> => {
+): Uint8Array => {
   try {
-    const bundleBytes = bs58check.decode(credentialBundle)
+    const bundleBytes = bs58check.decode(credentialBundle);
     if (bundleBytes.byteLength <= 33) {
       throw new Error(
         `Bundle size ${bundleBytes.byteLength} is too low. Expecting a compressed public key (33 bytes) and an encrypted credential.`
@@ -116,7 +116,7 @@ export const decryptBundle = async (
     const compressedEncappedKeyBuf = bundleBytes.slice(0, 33);
     const ciphertextBuf = bundleBytes.slice(33);
     const encappedKeyBuf = uncompressRawPublicKey(compressedEncappedKeyBuf);
-    const decryptedData = await hpkeDecrypt({
+    const decryptedData = hpkeDecrypt({
       ciphertextBuf,
       encappedKeyBuf,
       receiverPriv: embeddedKey,
@@ -124,18 +124,16 @@ export const decryptBundle = async (
 
     return decryptedData;
   } catch (error) {
-    console.error("Error injecting bundle:", error);
-    return null;
+    throw new Error(`"Error injecting bundle:", ${error}`);
   }
 };
-
 
 /**
  * Generate a P-256 key pair. Contains the hexed privateKey, publicKey, and Uncompressed publicKey
  *
- * @returns {Promise<KeyPair>} - The generated key pair.
+ * @returns {<KeyPair>} - The generated key pair.
  */
-export const generateP256KeyPair = async (): Promise<KeyPair> => {
+export const generateP256KeyPair = (): KeyPair => {
   const privateKey = randomBytes(32);
   const publicKey = getPublicKey(privateKey, true);
   const publicKeyUncompressed = uint8ArrayToHexString(
@@ -147,14 +145,14 @@ export const generateP256KeyPair = async (): Promise<KeyPair> => {
     publicKeyUncompressed,
   };
 };
-/**
+/** TODO: move this to @turnkey/encoding
  * Convert a hexadecimal string to a Uint8Array.
  *
  * @param {string} hexString - The hexadecimal string.
  * @returns {Uint8Array} - The Uint8Array representation.
  * @throws {Error} - If the hexadecimal string is invalid.
  */
-export const uint8arrayFromHexString = (hexString: string): Uint8Array => {
+export const uint8ArrayFromHexString = (hexString: string): Uint8Array => {
   const hexRegex = /^[0-9A-Fa-f]+$/;
   if (!hexString || hexString.length % 2 != 0 || !hexRegex.test(hexString)) {
     throw new Error(
@@ -272,7 +270,7 @@ const uncompressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
   }
 
   var uncompressedHexString = "04" + bigIntToHex(x, 64) + bigIntToHex(y, 64);
-  return uint8arrayFromHexString(uncompressedHexString);
+  return uint8ArrayFromHexString(uncompressedHexString);
 };
 /**
  * Compute the modular square root using the Tonelli-Shanks algorithm.
@@ -339,35 +337,38 @@ const additionalAssociatedData = (
   senderPubBuf: Uint8Array,
   receiverPubBuf: Uint8Array
 ): Uint8Array => {
-  return new Uint8Array([...(Array.from(senderPubBuf)), ...(Array.from(receiverPubBuf))]);
+  return new Uint8Array([
+    ...Array.from(senderPubBuf),
+    ...Array.from(receiverPubBuf),
+  ]);
 };
 
 /**
  * Perform HKDF extract and expand operations.
  */
-const extractAndExpand = async (
+const extractAndExpand = (
   sharedSecret: Uint8Array,
   ikm: Uint8Array,
   info: Uint8Array,
   len: number
-): Promise<Uint8Array> => {
+): Uint8Array => {
   const prk = hkdf.extract(sha256, ikm, sharedSecret);
   const resp = hkdf.expand(sha256, prk, info, len);
   return new Uint8Array(resp);
 };
 
 /**
- * Derive the Diffie-Hellman (DH) shared secret using ECDH.
+ * Derive the Diffie-Hellman shared secret using ECDH.
  */
-const deriveDh = async (
+const deriveSS = (
   encappedKeyBuf: Uint8Array,
   receiverPriv: string
-): Promise<Uint8Array> => {
-  const dh = p256.getSharedSecret(
-    uint8arrayFromHexString(receiverPriv),
+): Uint8Array => {
+  const ss = p256.getSharedSecret(
+    uint8ArrayFromHexString(receiverPriv),
     encappedKeyBuf
   );
-  return dh.slice(1);
+  return ss.slice(1);
 };
 
 /**
@@ -392,7 +393,7 @@ const getKemContext = (
   publicKey: string
 ): Uint8Array => {
   const encappedKeyArray = new Uint8Array(encappedKeyBuf);
-  const publicKeyArray = uint8arrayFromHexString(publicKey);
+  const publicKeyArray = uint8ArrayFromHexString(publicKey);
 
   const kemContext = new Uint8Array(
     encappedKeyArray.length + publicKeyArray.length
