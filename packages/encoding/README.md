@@ -1,5 +1,3 @@
 # @turnkey/encoding
 
-This is an internal package, not meant for public consumption.
-
-Temporary workaround until we can bring this as a proper internal package. See https://github.com/lmc-eu/spirit-design-system/issues/1238 for a great outline of the problem and potential ways forward.
+This is a package containing decoding and encoding functions. This is used by other Turnkey packages. Feel free to import exported functions into your own apps, but be aware that there may be significant interface changes in the future.
