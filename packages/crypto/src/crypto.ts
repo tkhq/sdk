@@ -2,7 +2,10 @@ import { p256 } from "@noble/curves/p256";
 import * as hkdf from "@noble/hashes/hkdf";
 import { sha256 } from "@noble/hashes/sha256";
 import { gcm } from "@noble/ciphers/aes";
-import { uint8ArrayToHexString } from "@turnkey/encoding";
+import {
+  uint8ArrayToHexString,
+  uint8ArrayFromHexString,
+} from "@turnkey/encoding";
 import * as bs58check from "bs58check";
 
 import {
@@ -36,7 +39,6 @@ interface KeyPair {
  * @param {boolean} isCompressed - true by default, specifies whether to return a compressed or uncompressed public key
  * @returns {<Uint8Array>} - The public key in Uin8Array representation.
  */
-
 export const getPublicKey = (
   privateKey: Uint8Array | string,
   isCompressed: boolean = true
@@ -88,8 +90,7 @@ export const hpkeDecrypt = ({
     const decryptedData = aesGcmDecrypt(ciphertextBuf, key, iv, aad);
     return decryptedData;
   } catch (error) {
-    console.error("Decryption Error:", error);
-    throw error;
+    throw new Error(`Unable to perform hpkeDecrypt: ${error} `);
   }
 };
 
@@ -144,24 +145,6 @@ export const generateP256KeyPair = (): KeyPair => {
     publicKey: uint8ArrayToHexString(privateKey),
     publicKeyUncompressed,
   };
-};
-/** TODO: move this to @turnkey/encoding
- * Convert a hexadecimal string to a Uint8Array.
- *
- * @param {string} hexString - The hexadecimal string.
- * @returns {Uint8Array} - The Uint8Array representation.
- * @throws {Error} - If the hexadecimal string is invalid.
- */
-export const uint8ArrayFromHexString = (hexString: string): Uint8Array => {
-  const hexRegex = /^[0-9A-Fa-f]+$/;
-  if (!hexString || hexString.length % 2 != 0 || !hexRegex.test(hexString)) {
-    throw new Error(
-      `cannot create uint8array from invalid hex string: "${hexString}"`
-    );
-  }
-  return new Uint8Array(
-    hexString!.match(/../g)!.map((h: string) => parseInt(h, 16))
-  );
 };
 
 /**
@@ -327,6 +310,7 @@ const testBit = (n: bigint, i: number): boolean => {
  */
 const randomBytes = (length: number): Uint8Array => {
   const array = new Uint8Array(length);
+  // @ts-ignore
   return crypto.getRandomValues(array);
 };
 

@@ -763,8 +763,8 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       '@turnkey/encoding':
-        specifier: workspace:^
-        version: link:../encoding
+        specifier: ^0.2.0
+        version: 0.2.0
       bs58check:
         specifier: ^3.0.1
         version: 3.0.1
@@ -8157,6 +8157,11 @@ packages:
   /@tsconfig/node16-strictest@1.0.4:
     resolution: {integrity: sha512-kp6/DuAoKzHVv5U+p0uOesYbjrEvrYVNdQMl163a+yXXUv9twabvkCGEn3pmVxKXB45JU5MPGolDDWnONZL5ZQ==}
     dev: true
+
+  /@turnkey/encoding@0.2.0:
+    resolution: {integrity: sha512-SD6rW9udj/+3YpgidY9UzZW4Zt+l2WW5mLc1VDoyFEwoa3P/Eb/1v3yVqhioc/F3SHQdfkZ85CLyc2QceJgj4w==}
+    engines: {node: '>=18.0.0'}
+    dev: false
 
   /@typechain/ethers-v6@0.5.1(ethers@6.10.0)(typechain@8.3.2)(typescript@5.1.5):
     resolution: {integrity: sha512-F+GklO8jBWlsaVV+9oHaPh5NJdd6rAKN4tklGfInX1Q7h0xPgVLP39Jl3eCulPB5qexI71ZFHwbljx4ZXNfouA==}
