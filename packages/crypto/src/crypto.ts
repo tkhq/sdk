@@ -19,7 +19,7 @@ import {
   SUITE_ID_2,
 } from "./constants";
 
-interface HPKEDecyptParams {
+interface HpkeDecryptParams {
   ciphertextBuf: Uint8Array;
   encappedKeyBuf: Uint8Array;
   receiverPriv: string;
@@ -27,8 +27,8 @@ interface HPKEDecyptParams {
 
 interface KeyPair {
   privateKey: string;
-  publicKey: Uint8Array | string;
-  publicKeyUncompressed?: string;
+  publicKey: string;
+  publicKeyUncompressed: string;
 }
 
 /**
@@ -50,14 +50,14 @@ export const getPublicKey = (
  * HPKE Decrypt Function
  * Decrypts data using Hybrid Public Key Encryption (HPKE) standard https://datatracker.ietf.org/doc/rfc9180/.
  *
- * @param {HPKEDecyptParams} params - The decryption parameters including ciphertext, encapsulated key, and receiver private key.
+ * @param {HpkeDecryptParams} params - The decryption parameters including ciphertext, encapsulated key, and receiver private key.
  * @returns {Uint8Array} - The decrypted data.
  */
 export const hpkeDecrypt = ({
   ciphertextBuf,
   encappedKeyBuf,
   receiverPriv,
-}: HPKEDecyptParams): Uint8Array => {
+}: HpkeDecryptParams): Uint8Array => {
   try {
     let ikm: Uint8Array;
     let info: Uint8Array;
@@ -184,24 +184,25 @@ const buildLabeledIkm = (
  *
  * @param {Uint8Array} label - The label to use.
  * @param {Uint8Array} info - Additional information.
- * @param {Uint8Array} suite_id - The suite identifier.
+ * @param {Uint8Array} suiteId - The suite identifier.
  * @param {number} len - The output length.
  * @returns {Uint8Array} - The labeled info.
  */
 const buildLabeledInfo = (
   label: Uint8Array,
   info: Uint8Array,
-  suite_id: Uint8Array,
+  suiteId: Uint8Array,
   len: number
 ): Uint8Array => {
+  const suiteIdStartIndex = 9; // first two are reserved for length bytes (unused in this case), the next 7 are for the HPKE_VERSION, then the suiteId starts at 9
   const ret = new Uint8Array(
-    9 + suite_id.byteLength + label.byteLength + info.byteLength
+    suiteIdStartIndex + suiteId.byteLength + label.byteLength + info.byteLength
   );
   ret.set(new Uint8Array([0, len]), 0); // this isn’t an error, we’re starting at index 2 because the first two bytes should be 0. See <https://github.com/dajiaji/hpke-js/blob/1e7fb1372fbcdb6d06bf2f4fa27ff676329d633e/src/kdfs/hkdf.ts#L41> for reference.
   ret.set(HPKE_VERSION, 2);
-  ret.set(suite_id, 9);
-  ret.set(label, 9 + suite_id.byteLength);
-  ret.set(info, 9 + suite_id.byteLength + label.byteLength);
+  ret.set(suiteId, suiteIdStartIndex);
+  ret.set(label, suiteIdStartIndex + suiteId.byteLength);
+  ret.set(info, suiteIdStartIndex + suiteId.byteLength + label.byteLength);
   return ret;
 };
 
@@ -221,7 +222,6 @@ const bigIntToHex = (num: bigint, length: number): string => {
 /**
  * Uncompress a raw public key.
  */
-
 const uncompressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
   // point[0] must be 2 (false) or 3 (true).
   // this maps to the initial "02" or "03" prefix
@@ -255,10 +255,10 @@ const uncompressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
   var uncompressedHexString = "04" + bigIntToHex(x, 64) + bigIntToHex(y, 64);
   return uint8ArrayFromHexString(uncompressedHexString);
 };
+
 /**
  * Compute the modular square root using the Tonelli-Shanks algorithm.
  */
-
 const modSqrt = (x: bigint, p: bigint): bigint => {
   if (p <= BigInt(0)) {
     throw new Error("p must be positive");
@@ -365,8 +365,8 @@ const aesGcmDecrypt = (
   aad?: Uint8Array
 ): Uint8Array => {
   const aes = gcm(key, iv, aad);
-  const data_ = aes.decrypt(encryptedData);
-  return data_;
+  const data = aes.decrypt(encryptedData);
+  return data;
 };
 
 /**
