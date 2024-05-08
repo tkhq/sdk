@@ -1,5 +1,14 @@
 # @turnkey/sdk-browser
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [5d0bfde]
+- Updated dependencies [2f2d09a]
+- Updated dependencies [976663e]
+  - @turnkey/iframe-stamper@2.0.0
+
 ## 0.2.0
 
 ### Minor Changes

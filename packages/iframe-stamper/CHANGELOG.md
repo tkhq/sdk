@@ -1,5 +1,19 @@
 # @turnkey/iframe-stamper
 
+## 2.0.0
+
+### Major Changes
+
+- 5d0bfde: Include organizationId and userId in injected import and export bundles.
+
+### Minor Changes
+
+- 2f2d09a: Add applySettings.
+
+### Patch Changes
+
+- 976663e: Add `sandbox` attribute to iframe element
+
 ## 1.2.0
 
 ### Minor Changes
