@@ -15,6 +15,7 @@
     "packages/webauthn-stamper",
     "packages/api-key-stamper",
     "packages/iframe-stamper",
+    "packages/crypto",
     "packages/react-native-passkey-stamper"
   ],
   "sandboxes": [],
