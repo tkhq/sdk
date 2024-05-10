@@ -886,6 +886,9 @@ importers:
       '@turnkey/api-key-stamper':
         specifier: workspace:*
         version: link:../api-key-stamper
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../crypto
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http

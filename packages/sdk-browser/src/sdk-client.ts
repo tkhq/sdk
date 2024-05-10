@@ -1,5 +1,6 @@
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { IframeStamper } from "@turnkey/iframe-stamper";
+import { generateP256KeyPair, getPublicKey } from "@turnkey/crypto";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
 import { VERSION } from "./__generated__/version";
@@ -245,6 +246,76 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
         : encodedChallenge,
       attestation: attestation,
     };
+  };
+
+  // Create a temporary "passkey session" by leveraging the Auth iframe and some cryptography.
+  // 1. Stand up iframe (auth.turnkey.com) and get target embedded key
+  // 2. Create a new P256 keypair (using @turnkey/crypto)
+  // 3. Encrypt private key (from step 2) to public key (from step 1)
+  // 4. Return public key (from step 2) and encrypted private key (from step 3)
+  // 5. Make `createApiKeys` activity (using the public key) to create a temporary API session key.
+  //
+  // Params: target embedded key (iframe), session duration
+  // Returns: public key, encrypted API private key (which can always be decrypted by the iframe) --> base58 encoded (CompressedEncappedPublicKey||Ciphertext)
+  createPasskeySession = async (
+    targetEmbeddedKey: string,
+    expirationSeconds: number
+  ) => {
+    // const encoder = new TextEncoder();
+
+    // const { privateKey, publicKey } = generateP256KeyPair();
+
+    // Generate ECDH key pair
+    const { publicKey, privateKey } = await crypto.subtle.generateKey(
+      {
+        name: "ECDH",
+        namedCurve: "P-256",
+      },
+      true,
+      ["deriveKey"]
+    );
+
+    // Derive a shared secret
+    const derivedKey = await window.crypto.subtle.deriveKey(
+      {
+        name: "ECDH",
+        public: publicKey,
+      },
+      privateKey,
+      {
+        name: "AES-GCM",
+        length: 256,
+      },
+      true,
+      ["encrypt", "decrypt"]
+    );
+
+    // Export the private key in PKCS#8 format
+    const exportedPrivateKey = await window.crypto.subtle.exportKey(
+      "pkcs8",
+      privateKey
+  );
+
+    console.log({
+      publicKey,
+      privateKey,
+      derivedKey,
+    });
+
+    // Encrypt a message
+    // const message = encoder.encode(publicKey);
+    const message = exportedPrivateKey;
+    const iv = window.crypto.getRandomValues(new Uint8Array(12)); // Initialization vector; this probably shouldn't be random? We'll see
+    const ciphertext = await window.crypto.subtle.encrypt(
+      {
+        name: "AES-GCM",
+        iv: iv,
+      },
+      derivedKey,
+      message
+    );
+
+    console.log("encrypted plaintext", ciphertext);
   };
 }
 
