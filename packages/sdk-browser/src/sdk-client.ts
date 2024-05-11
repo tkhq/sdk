@@ -1,6 +1,11 @@
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { IframeStamper } from "@turnkey/iframe-stamper";
-import { generateP256KeyPair, getPublicKey } from "@turnkey/crypto";
+import bs58check from "bs58check";
+import { AeadId, CipherSuite, KdfId, KemId } from "hpke-js";
+import {
+  uint8ArrayToHexString,
+  uint8ArrayFromHexString,
+} from "@turnkey/encoding";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
 import { VERSION } from "./__generated__/version";
@@ -258,66 +263,152 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
   // Params: target embedded key (iframe), session duration
   // Returns: public key, encrypted API private key (which can always be decrypted by the iframe) --> base58 encoded (CompressedEncappedPublicKey||Ciphertext)
   createPasskeySession = async (
-    targetEmbeddedKey: string,
-    expirationSeconds: number
+    userId: string,
+    targetEmbeddedKey: string, // this is what we're going to encrypt the private key to
+    expirationSeconds: string
   ) => {
-    // const encoder = new TextEncoder();
+    // If local storage contains the encrypted key, then use it. OR just create a new session each time.
 
-    // const { privateKey, publicKey } = generateP256KeyPair();
+    const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
+    userId = userId ?? localStorageUser?.userId;
 
-    // Generate ECDH key pair
-    const { publicKey, privateKey } = await crypto.subtle.generateKey(
+     // Step 2: create api key (to later encrypt)
+     const p256key = await crypto.subtle.generateKey(
       {
         name: "ECDH",
         namedCurve: "P-256",
       },
       true,
-      ["deriveKey"]
+      ["deriveKey"] // no more derive bits
     );
 
-    // Derive a shared secret
-    const derivedKey = await window.crypto.subtle.deriveKey(
-      {
-        name: "ECDH",
-        public: publicKey,
-      },
-      privateKey,
-      {
-        name: "AES-GCM",
-        length: 256,
-      },
-      true,
-      ["encrypt", "decrypt"]
-    );
-
-    // Export the private key in PKCS#8 format
-    const exportedPrivateKey = await window.crypto.subtle.exportKey(
+    // Next, get private key into an encrypt-able state
+    const exportedPrivateKey = await crypto.subtle.exportKey(
       "pkcs8",
-      privateKey
-  );
+      p256key.privateKey
+    );
 
-    console.log({
-      publicKey,
-      privateKey,
-      derivedKey,
+    const exportedPublicKey = await crypto.subtle.exportKey(
+      "raw",
+      p256key.publicKey,
+    );
+    console.log("exported public key", exportedPublicKey);
+  
+    const compressedPublicKey = compressPubKey(new Uint8Array(exportedPublicKey));
+    console.log("compressed public key", compressedPublicKey);
+
+    // now create it using turnkey API
+    const createApiKeysResult = await this.createApiKeys({
+      apiKeys: [{
+        apiKeyName: "Session Key",
+        publicKey: uint8ArrayToHexString(compressedPublicKey),
+        expirationSeconds,
+      }],
+      userId,
+    });
+    console.log('create api keys result', createApiKeysResult);
+
+    const suite = new CipherSuite({
+      kem: KemId.DhkemP256HkdfSha256,
+      kdf: KdfId.HkdfSha256,
+      aead: AeadId.Aes256Gcm,
     });
 
-    // Encrypt a message
-    // const message = encoder.encode(publicKey);
-    const message = exportedPrivateKey;
-    const iv = window.crypto.getRandomValues(new Uint8Array(12)); // Initialization vector; this probably shouldn't be random? We'll see
-    const ciphertext = await window.crypto.subtle.encrypt(
+    const TURNKEY_HPKE_INFO = new TextEncoder().encode("turnkey_hpke");
+
+    // Step 3: import the target embedded key (from the iframe) and derive a shared key using it and the host key
+    const targetKeyBytes = uint8ArrayFromHexString(targetEmbeddedKey);
+    const targetKey = await crypto.subtle.importKey(
+      "raw", // Assuming the key is in compressed format
+      targetKeyBytes,
       {
-        name: "AES-GCM",
-        iv: iv,
+        name: "ECDH",
+        namedCurve: "P-256",
       },
-      derivedKey,
-      message
+      true,
+      []
     );
 
-    console.log("encrypted plaintext", ciphertext);
+    // A sender encrypts a message with the recipient public key.
+    const sender = await suite.createSenderContext({
+      recipientPublicKey: targetKey,
+      info: TURNKEY_HPKE_INFO,
+    });
+
+    // This is in a "processed" format; we need to manipulate to get the raw 32-byte private key
+    const privateKeyBytes = new Uint8Array(exportedPrivateKey);
+    console.log("private key bytes:", privateKeyBytes);
+
+    // Convert exported private key to Uint8Array
+    const rawPrivateKeyBytesPKCS8 = new Uint8Array(exportedPrivateKey);
+
+    // PKCS#8 private key is structured with the key data at a specific position
+    // The actual key starts at byte 36 and is 32 bytes long
+    const rawTurnkeyApiPrivateKey = rawPrivateKeyBytesPKCS8.slice(36, 36 + 32);
+    console.log("raw private key", rawTurnkeyApiPrivateKey);
+
+    // Step 5: perform encryption
+    const ciphertext = await sender.seal(
+      rawTurnkeyApiPrivateKey,
+      additionalAssociatedData(new Uint8Array(sender.enc), targetKeyBytes)
+    );
+    const ciphertextUint8Array = new Uint8Array(ciphertext);
+    console.log("ciphertext uint8array", ciphertextUint8Array);
+
+    // Step 6: assemble bundle
+    const encappedKey = new Uint8Array(sender.enc);
+    const compressedEncappedKey = compressPubKey(encappedKey);
+    const result = new Uint8Array(
+      compressedEncappedKey.length + ciphertextUint8Array.length
+    );
+    result.set(compressedEncappedKey);
+    result.set(ciphertextUint8Array, compressedEncappedKey.length);
+    console.log("raw result", result);
+
+    // The equivalent of the email auth bundle. Can store in local storage
+    const base58encodedBundle = bs58check.encode(result);
+    console.log("resulting bundle", base58encodedBundle);
+
+    // Store auth bundle in local storage
+    await setStorageValue(StorageKeys.AuthBundle, base58encodedBundle);
+
+    return base58encodedBundle;
   };
 }
+
+/**
+ * Create additional associated data (AAD) for AES-GCM decryption.
+ */
+const additionalAssociatedData = (
+  senderPubBuf: Uint8Array,
+  receiverPubBuf: Uint8Array,
+): Uint8Array => {
+  return new Uint8Array([
+    ...Array.from(senderPubBuf),
+    ...Array.from(receiverPubBuf),
+  ]);
+};
+
+export const compressPubKey = (publicKey: Uint8Array): Uint8Array => {
+  // The first byte of a "raw" public key indicates whether it is compressed or uncompressed
+  // 0x04 indicates that the key is uncompressed
+  if (publicKey[0] !== 0x04) {
+    throw new Error("unexpected pubkey format");
+  }
+
+  // Compress the public key:
+  // We keep the x-coordinate and determine the parity of the y-coordinate
+  const x = publicKey.slice(1, 1 + 32); // The x-coordinate
+  const y = publicKey.slice(33, 33 + 32); // The y-coordinate
+  const yIsEven = y[31]! % 2 === 0;
+
+  // Compressed form: 0x02 or 0x03 (based on y's parity) followed by x
+  const compressedKey = new Uint8Array(33);
+  compressedKey[0] = yIsEven ? 0x02 : 0x03; // Set the first byte depending on the parity of y
+  compressedKey.set(x, 1); // Set the x-coordinate
+
+  return compressedKey;
+};
 
 export class TurnkeyIframeClient extends TurnkeyBrowserClient {
   iframePublicKey: string | null;
