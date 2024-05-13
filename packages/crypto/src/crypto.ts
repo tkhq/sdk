@@ -36,9 +36,9 @@ interface KeyPair {
  * Get PublicKey function
  * Derives public key from Uint8Array or hexstring private key
  *
- * @param {Uint8Array | string} privateKey - The Uint8Array or hexstring representation of a compressed private key
- * @param {boolean} isCompressed - true by default, specifies whether to return a compressed or uncompressed public key
- * @returns {<Uint8Array>} - The public key in Uin8Array representation.
+ * @param {Uint8Array | string} privateKey - The Uint8Array or hexstring representation of a compressed private key.
+ * @param {boolean} isCompressed - Specifies whether to return a compressed or uncompressed public key. Defaults to true.
+ * @returns {Uint8Array} - The public key in Uin8Array representation.
  */
 export const getPublicKey = (
   privateKey: Uint8Array | string,
@@ -133,7 +133,7 @@ export const decryptBundle = (
 /**
  * Generate a P-256 key pair. Contains the hexed privateKey, publicKey, and Uncompressed publicKey
  *
- * @returns {<KeyPair>} - The generated key pair.
+ * @returns {KeyPair} - The generated key pair.
  */
 export const generateP256KeyPair = (): KeyPair => {
   const privateKey = randomBytes(32);
@@ -150,6 +150,10 @@ export const generateP256KeyPair = (): KeyPair => {
 
 /**
  * Create additional associated data (AAD) for AES-GCM decryption.
+ * 
+ * @param {Uint8Array} senderPubBuf
+ * @param {Uint8Array} receiverPubBuf
+ * @return {Uint8Array} - The resulting concatenation of sender and receiver pubkeys.
  */
 export const buildAdditionalAssociatedData = (
   senderPubBuf: Uint8Array,
@@ -163,9 +167,9 @@ export const buildAdditionalAssociatedData = (
 
 /**
  * Accepts a private key Uint8Array in the PKCS8 format, and returns the encapsulated private key.
- * PKCS#8 private key is structured with the key data at a specific position.
- * The actual key starts at byte 36 and is 32 bytes long
- * @param {Uint8Array} privateKey
+ * 
+ * @param {Uint8Array} privateKey - A PKCS#8 private key structured with the key data at a specific position. The actual key starts at byte 36 and is 32 bytes long.
+ * @return {Uint8Array} - The private key.
  */
 export const extractPrivateKeyFromPKCS8Bytes = (
   privateKey: Uint8Array
@@ -174,8 +178,10 @@ export const extractPrivateKeyFromPKCS8Bytes = (
 };
 
 /**
- * Accepts a public key Uint8Array, and returns a Uint8Array with the compressed version of the public key
- * @param {Uint8Array} rawPublicKey
+ * Accepts a public key Uint8Array, and returns a Uint8Array with the compressed version of the public key.
+ * 
+ * @param {Uint8Array} rawPublicKey - The raw public key.
+ * @return {Uint8Array} – The compressed public key.
  */
 export const compressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
   const len = rawPublicKey.byteLength;
@@ -194,8 +200,8 @@ export const compressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
 
 /**
  * Accepts a public key array buffer, and returns a buffer with the uncompressed version of the public key
- * @param {Uint8Array} rawPublicKey
- * @return {Uint8Array} the uncompressed bytes
+ * @param {Uint8Array} rawPublicKey - The public key.
+ * @return {Uint8Array} - The uncompressed public key.
  */
 const uncompressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
   // point[0] must be 2 (false) or 3 (true).
