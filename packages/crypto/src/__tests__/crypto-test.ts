@@ -46,8 +46,10 @@ describe("Turnkey Crypto Primitives", () => {
       "308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b020101042001d95d256f744b2a855fe2036ec1074c726445f1382f53580a17ce3296cc2deca1440342000440fa0a112351e0f5cdcc3edad914e7e3b911d3e83874d4ef55ff5639f4a3633e65087a8499c46a77f8e68c937203d85e6d38ade95d755a6cf88fa101091d5983";
     const expectedRawPrivateKeyHex =
       "01d95d256f744b2a855fe2036ec1074c726445f1382f53580a17ce3296cc2dec";
-    expect(extractPrivateKeyFromPKCS8Bytes(uint8ArrayFromHexString(pkcs8PrivateKeyHex))).toEqual(
-      uint8ArrayFromHexString(expectedRawPrivateKeyHex)
-    );
+    expect(
+      extractPrivateKeyFromPKCS8Bytes(
+        uint8ArrayFromHexString(pkcs8PrivateKeyHex)
+      )
+    ).toEqual(uint8ArrayFromHexString(expectedRawPrivateKeyHex));
   });
 });

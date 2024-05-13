@@ -150,7 +150,7 @@ export const generateP256KeyPair = (): KeyPair => {
 
 /**
  * Create additional associated data (AAD) for AES-GCM decryption.
- * 
+ *
  * @param {Uint8Array} senderPubBuf
  * @param {Uint8Array} receiverPubBuf
  * @return {Uint8Array} - The resulting concatenation of sender and receiver pubkeys.
@@ -167,7 +167,7 @@ export const buildAdditionalAssociatedData = (
 
 /**
  * Accepts a private key Uint8Array in the PKCS8 format, and returns the encapsulated private key.
- * 
+ *
  * @param {Uint8Array} privateKey - A PKCS#8 private key structured with the key data at a specific position. The actual key starts at byte 36 and is 32 bytes long.
  * @return {Uint8Array} - The private key.
  */
@@ -179,7 +179,7 @@ export const extractPrivateKeyFromPKCS8Bytes = (
 
 /**
  * Accepts a public key Uint8Array, and returns a Uint8Array with the compressed version of the public key.
- * 
+ *
  * @param {Uint8Array} rawPublicKey - The raw public key.
  * @return {Uint8Array} – The compressed public key.
  */
