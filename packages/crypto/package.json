@@ -41,19 +41,19 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@noble/ciphers": "^0.5.3",
-    "@noble/curves": "^1.4.0",
-    "@noble/hashes": "^1.4.0",
-    "@turnkey/encoding": "^0.2.0",
-    "bs58check": "^3.0.1",
-    "react-native": "^0.74.0",
-    "react-native-get-random-values": "^1.11.0",
-    "react-native-quick-base64": "^2.1.2",
+    "@noble/ciphers": "0.5.3",
+    "@noble/curves": "1.4.0",
+    "@noble/hashes": "1.4.0",
+    "@turnkey/encoding": "workspace:*",
+    "bs58check": "3.0.1",
+    "react-native": "0.74.0",
+    "react-native-get-random-values": "1.11.0",
+    "react-native-quick-base64": "2.1.2",
     "typescript": "5.0.4"
   },
   "devDependencies": {
-    "crypto": "^1.0.1",
-    "jest": "^29.7.0",
-    "@turnkey/encoding": "^0.2.0"
+    "crypto": "1.0.1",
+    "jest": "29.7.0",
+    "@turnkey/encoding": "workspace:*"
   }
 }
