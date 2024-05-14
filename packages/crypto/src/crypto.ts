@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 import { p256 } from "@noble/curves/p256";
 import * as hkdf from "@noble/hashes/hkdf";
 import { sha256 } from "@noble/hashes/sha256";
@@ -6,8 +7,9 @@ import {
   uint8ArrayToHexString,
   uint8ArrayFromHexString,
 } from "@turnkey/encoding";
-import * as bs58check from "bs58check";
+import bs58check from "bs58check";
 
+import { modSqrt, testBit } from "./math";
 import {
   AES_KEY_INFO,
   HPKE_VERSION,
@@ -35,9 +37,9 @@ interface KeyPair {
  * Get PublicKey function
  * Derives public key from Uint8Array or hexstring private key
  *
- * @param {Uint8Array | string} privateKey - The Uint8Array or hexstring representation of a compressed private key
- * @param {boolean} isCompressed - true by default, specifies whether to return a compressed or uncompressed public key
- * @returns {<Uint8Array>} - The public key in Uin8Array representation.
+ * @param {Uint8Array | string} privateKey - The Uint8Array or hexstring representation of a compressed private key.
+ * @param {boolean} isCompressed - Specifies whether to return a compressed or uncompressed public key. Defaults to true.
+ * @returns {Uint8Array} - The public key in Uin8Array representation.
  */
 export const getPublicKey = (
   privateKey: Uint8Array | string,
@@ -65,7 +67,7 @@ export const hpkeDecrypt = ({
       uint8ArrayFromHexString(receiverPriv),
       false
     );
-    const aad = additionalAssociatedData(encappedKeyBuf, receiverPubBuf);
+    const aad = buildAdditionalAssociatedData(encappedKeyBuf, receiverPubBuf);
     const kemContext = getKemContext(
       encappedKeyBuf,
       uint8ArrayToHexString(receiverPubBuf)
@@ -132,7 +134,7 @@ export const decryptBundle = (
 /**
  * Generate a P-256 key pair. Contains the hexed privateKey, publicKey, and Uncompressed publicKey
  *
- * @returns {<KeyPair>} - The generated key pair.
+ * @returns {KeyPair} - The generated key pair.
  */
 export const generateP256KeyPair = (): KeyPair => {
   const privateKey = randomBytes(32);
@@ -145,6 +147,103 @@ export const generateP256KeyPair = (): KeyPair => {
     publicKey: uint8ArrayToHexString(privateKey),
     publicKeyUncompressed,
   };
+};
+
+/**
+ * Create additional associated data (AAD) for AES-GCM decryption.
+ *
+ * @param {Uint8Array} senderPubBuf
+ * @param {Uint8Array} receiverPubBuf
+ * @return {Uint8Array} - The resulting concatenation of sender and receiver pubkeys.
+ */
+export const buildAdditionalAssociatedData = (
+  senderPubBuf: Uint8Array,
+  receiverPubBuf: Uint8Array
+): Uint8Array => {
+  return new Uint8Array([
+    ...Array.from(senderPubBuf),
+    ...Array.from(receiverPubBuf),
+  ]);
+};
+
+/**
+ * Accepts a private key Uint8Array in the PKCS8 format, and returns the encapsulated private key.
+ *
+ * @param {Uint8Array} privateKey - A PKCS#8 private key structured with the key data at a specific position. The actual key starts at byte 36 and is 32 bytes long.
+ * @return {Uint8Array} - The private key.
+ */
+export const extractPrivateKeyFromPKCS8Bytes = (
+  privateKey: Uint8Array
+): Uint8Array => {
+  return privateKey.slice(36, 36 + 32);
+};
+
+/**
+ * Accepts a public key Uint8Array, and returns a Uint8Array with the compressed version of the public key.
+ *
+ * @param {Uint8Array} rawPublicKey - The raw public key.
+ * @return {Uint8Array} – The compressed public key.
+ */
+export const compressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
+  const len = rawPublicKey.byteLength;
+
+  // Drop the y coordinate
+  // Uncompressed key is in the form 0x04||x||y
+  // `len >>> 1` is a more concise way to write `floor(len/2)`
+  var compressedBytes = rawPublicKey.slice(0, (1 + len) >>> 1);
+
+  // Encode the parity of `y` in first bit
+  // `BYTE & 0x01` tests for parity and returns 0x00 when even, or 0x01 when odd
+  // Then `0x02 | <parity test result>` yields either 0x02 (even case) or 0x03 (odd).
+  compressedBytes[0] = 0x02 | (rawPublicKey[len - 1]! & 0x01);
+  return compressedBytes;
+};
+
+/**
+ * Accepts a public key array buffer, and returns a buffer with the uncompressed version of the public key
+ * @param {Uint8Array} rawPublicKey - The public key.
+ * @return {Uint8Array} - The uncompressed public key.
+ */
+const uncompressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
+  // point[0] must be 2 (false) or 3 (true).
+  // this maps to the initial "02" or "03" prefix
+  const lsb = rawPublicKey[0] === 3;
+  const x = BigInt("0x" + uint8ArrayToHexString(rawPublicKey.subarray(1)));
+
+  // https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf (Appendix D).
+  const p = BigInt(
+    "115792089210356248762697446949407573530086143415290314195533631308867097853951"
+  );
+  const b = BigInt(
+    "0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b "
+  );
+  const a = p - BigInt(3);
+
+  // Now compute y based on x
+  const rhs = ((x * x + a) * x + b) % p;
+  let y = modSqrt(rhs, p);
+  if (lsb !== testBit(y, 0)) {
+    y = (p - y) % p;
+  }
+
+  if (x < BigInt(0) || x >= p) {
+    throw new Error("x is out of range");
+  }
+
+  if (y < BigInt(0) || y >= p) {
+    throw new Error("y is out of range");
+  }
+
+  var uncompressedHexString = "04" + bigIntToHex(x, 64) + bigIntToHex(y, 64);
+  return uint8ArrayFromHexString(uncompressedHexString);
+};
+
+/**
+ * Generate a random Uint8Array of a specific length. Note that this ultimately depends on the crypto implementation.
+ */
+const randomBytes = (length: number): Uint8Array => {
+  const array = new Uint8Array(length);
+  return crypto.getRandomValues(array);
 };
 
 /**
@@ -207,127 +306,6 @@ const buildLabeledInfo = (
 };
 
 /**
- * Convert a BigInt to a hexadecimal string of a specific length.
- */
-const bigIntToHex = (num: bigint, length: number): string => {
-  const hexString = num.toString(16);
-  if (hexString.length > length) {
-    throw new Error(
-      `number cannot fit in a hex string of ${length} characters`
-    );
-  }
-  return hexString.padStart(length, "0");
-};
-
-/**
- * Uncompress a raw public key.
- */
-const uncompressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
-  // point[0] must be 2 (false) or 3 (true).
-  // this maps to the initial "02" or "03" prefix
-  const lsb = rawPublicKey[0] === 3;
-  const x = BigInt("0x" + uint8ArrayToHexString(rawPublicKey.subarray(1)));
-
-  // https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf (Appendix D).
-  const p = BigInt(
-    "115792089210356248762697446949407573530086143415290314195533631308867097853951"
-  );
-  const b = BigInt(
-    "0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b "
-  );
-  const a = p - BigInt(3);
-
-  // Now compute y based on x
-  const rhs = ((x * x + a) * x + b) % p;
-  let y = modSqrt(rhs, p);
-  if (lsb !== testBit(y, 0)) {
-    y = (p - y) % p;
-  }
-
-  if (x < BigInt(0) || x >= p) {
-    throw new Error("x is out of range");
-  }
-
-  if (y < BigInt(0) || y >= p) {
-    throw new Error("y is out of range");
-  }
-
-  var uncompressedHexString = "04" + bigIntToHex(x, 64) + bigIntToHex(y, 64);
-  return uint8ArrayFromHexString(uncompressedHexString);
-};
-
-/**
- * Compute the modular square root using the Tonelli-Shanks algorithm.
- */
-const modSqrt = (x: bigint, p: bigint): bigint => {
-  if (p <= BigInt(0)) {
-    throw new Error("p must be positive");
-  }
-  const base = x % p;
-
-  // Check if p % 4 == 3 (applies to NIST curves P-256, P-384, and P-521)
-  if (testBit(p, 0) && testBit(p, 1)) {
-    const q = (p + BigInt(1)) >> BigInt(2);
-    const squareRoot = modPow(base, q, p);
-    if ((squareRoot * squareRoot) % p !== base) {
-      throw new Error("could not find a modular square root");
-    }
-    return squareRoot;
-  }
-
-  // Other elliptic curve types not supported
-  throw new Error("unsupported modulus value");
-};
-
-/**
- * Compute the modular exponentiation.
- */
-const modPow = (b: bigint, exp: bigint, p: bigint): bigint => {
-  if (exp === BigInt(0)) {
-    return BigInt(1);
-  }
-  let result = b;
-  const exponentBitString = exp.toString(2);
-  for (let i = 1; i < exponentBitString.length; ++i) {
-    result = (result * result) % p;
-    if (exponentBitString[i] === "1") {
-      result = (result * b) % p;
-    }
-  }
-  return result;
-};
-
-/**
- * Test if a specific bit is set.
- */
-const testBit = (n: bigint, i: number): boolean => {
-  const m = BigInt(1) << BigInt(i);
-  return (n & m) !== BigInt(0);
-};
-
-/**
- * Generate a random Uint8Array of a specific length.
- */
-const randomBytes = (length: number): Uint8Array => {
-  const array = new Uint8Array(length);
-  // @ts-ignore
-  return crypto.getRandomValues(array);
-};
-
-/**
- * Create additional associated data (AAD) for AES-GCM decryption.
- */
-const additionalAssociatedData = (
-  senderPubBuf: Uint8Array,
-  receiverPubBuf: Uint8Array
-): Uint8Array => {
-  return new Uint8Array([
-    ...Array.from(senderPubBuf),
-    ...Array.from(receiverPubBuf),
-  ]);
-};
-
-/**
  * Perform HKDF extract and expand operations.
  */
 const extractAndExpand = (
@@ -386,4 +364,17 @@ const getKemContext = (
   kemContext.set(publicKeyArray, encappedKeyArray.length);
 
   return kemContext;
+};
+
+/**
+ * Convert a BigInt to a hexadecimal string of a specific length.
+ */
+const bigIntToHex = (num: bigint, length: number): string => {
+  const hexString = num.toString(16);
+  if (hexString.length > length) {
+    throw new Error(
+      `number cannot fit in a hex string of ${length} characters`
+    );
+  }
+  return hexString.padStart(length, "0");
 };
