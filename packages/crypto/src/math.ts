@@ -30,15 +30,6 @@ export const testBit = (n: bigint, i: number): boolean => {
 };
 
 /**
- * Generate a random Uint8Array of a specific length.
- */
-export const randomBytes = (length: number): Uint8Array => {
-  const array = new Uint8Array(length);
-  // @ts-ignore
-  return crypto.getRandomValues(array);
-};
-
-/**
  * Compute the modular exponentiation.
  */
 const modPow = (b: bigint, exp: bigint, p: bigint): bigint => {

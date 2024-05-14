@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 import { p256 } from "@noble/curves/p256";
 import * as hkdf from "@noble/hashes/hkdf";
 import { sha256 } from "@noble/hashes/sha256";
@@ -6,9 +7,9 @@ import {
   uint8ArrayToHexString,
   uint8ArrayFromHexString,
 } from "@turnkey/encoding";
-import * as bs58check from "bs58check";
+import bs58check from "bs58check";
 
-import { modSqrt, testBit, randomBytes } from "./math";
+import { modSqrt, testBit } from "./math";
 import {
   AES_KEY_INFO,
   HPKE_VERSION,
@@ -235,6 +236,14 @@ const uncompressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
 
   var uncompressedHexString = "04" + bigIntToHex(x, 64) + bigIntToHex(y, 64);
   return uint8ArrayFromHexString(uncompressedHexString);
+};
+
+/**
+ * Generate a random Uint8Array of a specific length. Note that this ultimately depends on the crypto implementation.
+ */
+const randomBytes = (length: number): Uint8Array => {
+  const array = new Uint8Array(length);
+  return crypto.getRandomValues(array);
 };
 
 /**
