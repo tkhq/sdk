@@ -165,7 +165,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
     super(config);
   }
 
-  login = async (): Promise<SdkApiTypes.TGetWhoamiResponse> => {
+  login = async (): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
     const readOnlySessionResult = await this.createReadOnlySession({});
     const org = {
       organizationId: readOnlySessionResult!.organizationId,
