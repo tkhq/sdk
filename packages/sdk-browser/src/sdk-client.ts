@@ -2,11 +2,13 @@ import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import bs58check from "bs58check";
 import { AeadId, CipherSuite, KdfId, KemId } from "hpke-js";
-import {
-  uint8ArrayToHexString,
-  uint8ArrayFromHexString,
-} from "@turnkey/encoding";
+import { uint8ArrayFromHexString } from "@turnkey/encoding";
 import { getWebAuthnAttestation } from "@turnkey/http";
+import {
+  generateP256KeyPair,
+  buildAdditionalAssociatedData,
+  compressRawPublicKey,
+} from "@turnkey/crypto";
 
 import { VERSION } from "./__generated__/version";
 import WindowWrapper from "./__polyfills__/window";
@@ -147,7 +149,7 @@ export class TurnkeyBrowserSDK {
     return data as TResponseType;
   };
 
-  // Local
+  // Local Storage
   getCurrentSubOrganization = async (): Promise<
     SubOrganization | undefined
   > => {
@@ -163,6 +165,10 @@ export class TurnkeyBrowserSDK {
     await removeStorageValue(StorageKeys.CurrentUser);
 
     return true;
+  };
+
+  getAuthBundle = async (): Promise<string | undefined> => {
+    return await getStorageValue(StorageKeys.AuthBundle);
   };
 }
 
@@ -254,66 +260,38 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
   };
 
   createPasskeySession = async (
-    userId: string, // should be inferrable
+    userId: string,
     targetEmbeddedKey: string,
     expirationSeconds?: string
   ) => {
     const TURNKEY_HPKE_INFO = new TextEncoder().encode("turnkey_hpke");
 
-    // If local storage contains the encrypted key, then use it. OR just create a new session each time.
-
     const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
     userId = userId ?? localStorageUser?.userId;
 
-     // Step 1: create api key (to later encrypt)
-     const p256key = await crypto.subtle.generateKey(
-      {
-        name: "ECDH",
-        namedCurve: "P-256",
-      },
-      true,
-      ["deriveKey"] // no more derive bits
-    );
+    // 1: create api key (to later encrypt)
+    const p256key = generateP256KeyPair();
 
-    // Step 2: get private key into an encrypt-able state
-    const exportedPrivateKey = await crypto.subtle.exportKey(
-      "pkcs8",
-      p256key.privateKey
-    );
-
-    // This is in a "processed" format; we need to manipulate to get the raw 32-byte private key
-    // Convert exported private key to Uint8Array
-    const rawPrivateKeyBytesPKCS8 = new Uint8Array(exportedPrivateKey);
-
-    // PKCS#8 private key is structured with the key data at a specific position
-    // The actual key starts at byte 36 and is 32 bytes long
-    const rawTurnkeyApiPrivateKey = rawPrivateKeyBytesPKCS8.slice(36, 36 + 32);
-
-    const exportedPublicKey = await crypto.subtle.exportKey(
-      "raw",
-      p256key.publicKey,
-    );
-  
-    const compressedPublicKey = compressPubKey(new Uint8Array(exportedPublicKey));
-
-    // Step 3: add API key to Turnkey User
+    // 2: add API key to Turnkey User
     await this.createApiKeys({
-      apiKeys: [{
-        apiKeyName: "Session Key",
-        publicKey: uint8ArrayToHexString(compressedPublicKey),
-        expirationSeconds: expirationSeconds ?? "900", // default to 15 minutes
-      }],
       userId,
+      apiKeys: [
+        {
+          apiKeyName: `Session Key ${String(Date.now())}`,
+          publicKey: p256key.publicKey,
+          expirationSeconds: expirationSeconds ?? "900", // default to 15 minutes
+        },
+      ],
     });
 
-    // Step 4: set up encryption
+    // 3: set up encryption
     const suite = new CipherSuite({
       kem: KemId.DhkemP256HkdfSha256,
       kdf: KdfId.HkdfSha256,
       aead: AeadId.Aes256Gcm,
     });
 
-    // Step 5: import the target embedded key (from the iframe)
+    // 4: import the target embedded key (passed in from the iframe)
     const targetKeyBytes = uint8ArrayFromHexString(targetEmbeddedKey);
     const targetKey = await crypto.subtle.importKey(
       "raw",
@@ -326,70 +304,34 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
       []
     );
 
-    // Step 6: sender encrypts a message with the recipient public key.
+    // 5: sender encrypts a message with the recipient public key
     const sender = await suite.createSenderContext({
       recipientPublicKey: targetKey,
       info: TURNKEY_HPKE_INFO,
     });
     const ciphertext = await sender.seal(
-      rawTurnkeyApiPrivateKey,
-      additionalAssociatedData(new Uint8Array(sender.enc), targetKeyBytes)
+      uint8ArrayFromHexString(p256key.privateKey),
+      buildAdditionalAssociatedData(new Uint8Array(sender.enc), targetKeyBytes)
     );
     const ciphertextUint8Array = new Uint8Array(ciphertext);
 
-    // Step 7: assemble bundle
+    // 6: assemble bundle
     const encappedKey = new Uint8Array(sender.enc);
-    const compressedEncappedKey = compressPubKey(encappedKey);
+    const compressedEncappedKey = compressRawPublicKey(encappedKey);
     const result = new Uint8Array(
       compressedEncappedKey.length + ciphertextUint8Array.length
     );
     result.set(compressedEncappedKey);
     result.set(ciphertextUint8Array, compressedEncappedKey.length);
 
-    // The equivalent of the email auth bundle. Can store in local storage
     const base58encodedBundle = bs58check.encode(result);
 
-    // Store auth bundle in local storage
+    // 7: store auth bundle in local storage
     await setStorageValue(StorageKeys.AuthBundle, base58encodedBundle);
 
     return base58encodedBundle;
   };
 }
-
-// NOTE: the below can be moved to utility packages
-/**
- * Create additional associated data (AAD) for AES-GCM decryption.
- */
-const additionalAssociatedData = (
-  senderPubBuf: Uint8Array,
-  receiverPubBuf: Uint8Array,
-): Uint8Array => {
-  return new Uint8Array([
-    ...Array.from(senderPubBuf),
-    ...Array.from(receiverPubBuf),
-  ]);
-};
-
-export const compressPubKey = (publicKey: Uint8Array): Uint8Array => {
-  // The first byte of a "raw" public key indicates whether it is compressed or uncompressed
-  // 0x04 indicates that the key is uncompressed
-  if (publicKey[0] !== 0x04) {
-    throw new Error("unexpected pubkey format");
-  }
-
-  // Compress the public key:
-  // We keep the x-coordinate and determine the parity of the y-coordinate
-  const x = publicKey.slice(1, 1 + 32); // The x-coordinate
-  const y = publicKey.slice(33, 33 + 32); // The y-coordinate
-  const yIsEven = y[31]! % 2 === 0;
-
-  // Compressed form: 0x02 or 0x03 (based on y's parity) followed by x
-  const compressedKey = new Uint8Array(33);
-  compressedKey[0] = yIsEven ? 0x02 : 0x03; // Set the first byte depending on the parity of y
-  compressedKey.set(x, 1); // Set the x-coordinate
-
-  return compressedKey;
-};
 
 export class TurnkeyIframeClient extends TurnkeyBrowserClient {
   iframePublicKey: string | null;

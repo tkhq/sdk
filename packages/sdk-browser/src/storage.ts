@@ -3,7 +3,7 @@ import WindowWrapper from "./__polyfills__/window";
 
 export enum StorageKeys {
   CurrentUser = "@turnkey/current_user",
-  AuthBundle = "@turnkey/auth_bundle"
+  AuthBundle = "@turnkey/auth_bundle",
 }
 
 interface StorageValue {
