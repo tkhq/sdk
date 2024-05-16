@@ -8,6 +8,7 @@ import {
   generateP256KeyPair,
   decryptBundle,
   extractPrivateKeyFromPKCS8Bytes,
+  compressRawPublicKey,
 } from "../crypto";
 
 // Mock data for testing
@@ -33,6 +34,15 @@ describe("Turnkey Crypto Primitives", () => {
     expect(keyPair.privateKey).toBeTruthy();
     expect(keyPair.publicKey).toBeTruthy();
     expect(keyPair.publicKeyUncompressed).toBeTruthy();
+    expect(keyPair.privateKey).not.toEqual(keyPair.publicKey);
+    expect(keyPair.publicKey).not.toEqual(keyPair.publicKeyUncompressed);
+  });
+
+  test("compressRawPublicKey - returns a valid value", () => {
+    const { publicKey, publicKeyUncompressed } = generateP256KeyPair();
+    expect(
+      compressRawPublicKey(uint8ArrayFromHexString(publicKeyUncompressed))
+    ).toEqual(uint8ArrayFromHexString(publicKey));
   });
 
   test("decryptBundle - successfully decrypts a credential bundle", () => {
