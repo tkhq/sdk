@@ -144,7 +144,7 @@ export const generateP256KeyPair = (): KeyPair => {
   );
   return {
     privateKey: uint8ArrayToHexString(privateKey),
-    publicKey: uint8ArrayToHexString(privateKey),
+    publicKey: uint8ArrayToHexString(publicKey),
     publicKeyUncompressed,
   };
 };
