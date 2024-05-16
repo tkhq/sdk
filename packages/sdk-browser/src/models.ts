@@ -14,3 +14,8 @@ export interface SubOrganization {
   organizationId: string;
   organizationName: string;
 }
+
+export type EmbeddedAPIKey = {
+  authBundle: string;
+  publicKey: string;
+};

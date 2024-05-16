@@ -25,7 +25,7 @@ import { TurnkeyRequestError } from "./__types__/base";
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
-import type { User, SubOrganization } from "./models";
+import type { User, SubOrganization, EmbeddedAPIKey } from "./models";
 import {
   StorageKeys,
   getStorageValue,
@@ -195,6 +195,64 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
     await setStorageValue(StorageKeys.CurrentUser, currentUser);
     return readOnlySessionResult!;
   };
+
+  // createEmbeddedAPIKey creates an embedded API key encrypted to a target key (typically embedded within an iframe).
+  // This returns a bundle that can be decrypted by that target key, as well as the public key of the newly created API key.
+  createEmbeddedAPIKey = async (
+    targetPublicKey: string
+  ): Promise<EmbeddedAPIKey> => {
+    const TURNKEY_HPKE_INFO = new TextEncoder().encode("turnkey_hpke");
+
+    // 1: create new API key (to be encrypted to the targetPublicKey)
+    const p256key = generateP256KeyPair();
+
+    // 2: set up encryption
+    const suite = new CipherSuite({
+      kem: KemId.DhkemP256HkdfSha256,
+      kdf: KdfId.HkdfSha256,
+      aead: AeadId.Aes256Gcm,
+    });
+
+    // 3: import the targetPublicKey (i.e. passed in from the iframe)
+    const targetKeyBytes = uint8ArrayFromHexString(targetPublicKey);
+    const targetKey = await crypto.subtle.importKey(
+      "raw",
+      targetKeyBytes,
+      {
+        name: "ECDH",
+        namedCurve: "P-256",
+      },
+      true,
+      []
+    );
+
+    // 4: sender encrypts a message to the target key
+    const sender = await suite.createSenderContext({
+      recipientPublicKey: targetKey,
+      info: TURNKEY_HPKE_INFO,
+    });
+    const ciphertext = await sender.seal(
+      uint8ArrayFromHexString(p256key.privateKey),
+      buildAdditionalAssociatedData(new Uint8Array(sender.enc), targetKeyBytes)
+    );
+    const ciphertextUint8Array = new Uint8Array(ciphertext);
+
+    // 5: assemble bundle
+    const encappedKey = new Uint8Array(sender.enc);
+    const compressedEncappedKey = compressRawPublicKey(encappedKey);
+    const result = new Uint8Array(
+      compressedEncappedKey.length + ciphertextUint8Array.length
+    );
+    result.set(compressedEncappedKey);
+    result.set(ciphertextUint8Array, compressedEncappedKey.length);
+
+    const base58encodedBundle = bs58check.encode(result);
+
+    return {
+      authBundle: base58encodedBundle,
+      publicKey: p256key.publicKey,
+    };
+  };
 }
 
 export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
@@ -259,77 +317,36 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     };
   };
 
+  // createPasskeySession creates a session authenticated by passkey, via an embedded API key,
+  // and stores + returns the resulting auth bundle that contains the encrypted API key.
   createPasskeySession = async (
     userId: string,
     targetEmbeddedKey: string,
     expirationSeconds?: string
-  ) => {
-    const TURNKEY_HPKE_INFO = new TextEncoder().encode("turnkey_hpke");
-
+  ): Promise<string> => {
     const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
     userId = userId ?? localStorageUser?.userId;
 
-    // 1: create api key (to later encrypt)
-    const p256key = generateP256KeyPair();
+    const { authBundle, publicKey } = await this.createEmbeddedAPIKey(
+      targetEmbeddedKey
+    );
 
-    // 2: add API key to Turnkey User
+    // add API key to Turnkey User
     await this.createApiKeys({
       userId,
       apiKeys: [
         {
           apiKeyName: `Session Key ${String(Date.now())}`,
-          publicKey: p256key.publicKey,
+          publicKey,
           expirationSeconds: expirationSeconds ?? "900", // default to 15 minutes
         },
       ],
     });
 
-    // 3: set up encryption
-    const suite = new CipherSuite({
-      kem: KemId.DhkemP256HkdfSha256,
-      kdf: KdfId.HkdfSha256,
-      aead: AeadId.Aes256Gcm,
-    });
+    // store auth bundle in local storage
+    await setStorageValue(StorageKeys.AuthBundle, authBundle);
 
-    // 4: import the target embedded key (passed in from the iframe)
-    const targetKeyBytes = uint8ArrayFromHexString(targetEmbeddedKey);
-    const targetKey = await crypto.subtle.importKey(
-      "raw",
-      targetKeyBytes,
-      {
-        name: "ECDH",
-        namedCurve: "P-256",
-      },
-      true,
-      []
-    );
-
-    // 5: sender encrypts a message with the recipient public key
-    const sender = await suite.createSenderContext({
-      recipientPublicKey: targetKey,
-      info: TURNKEY_HPKE_INFO,
-    });
-    const ciphertext = await sender.seal(
-      uint8ArrayFromHexString(p256key.privateKey),
-      buildAdditionalAssociatedData(new Uint8Array(sender.enc), targetKeyBytes)
-    );
-    const ciphertextUint8Array = new Uint8Array(ciphertext);
-
-    // 6: assemble bundle
-    const encappedKey = new Uint8Array(sender.enc);
-    const compressedEncappedKey = compressRawPublicKey(encappedKey);
-    const result = new Uint8Array(
-      compressedEncappedKey.length + ciphertextUint8Array.length
-    );
-    result.set(compressedEncappedKey);
-    result.set(ciphertextUint8Array, compressedEncappedKey.length);
-
-    const base58encodedBundle = bs58check.encode(result);
-
-    // 7: store auth bundle in local storage
-    await setStorageValue(StorageKeys.AuthBundle, base58encodedBundle);
-
-    return base58encodedBundle;
+    return authBundle;
   };
 }
 
