@@ -36,7 +36,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   >(undefined);
   const iframeInit = useRef<boolean>(false);
 
-  const TurnkeyIframeContainerId = "turnkey-default-iframe-container-id";
+  const TurnkeyAuthIframeContainerId = "turnkey-auth-iframe-container-id";
+  const TurnkeyAuthIframeElementId = "turnkey-auth-iframe-element-id";
 
   useEffect(() => {
     (async () => {
@@ -46,8 +47,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         setTurnkey(newTurnkey);
         setPasskeyClient(newTurnkey.passkeyClient());
         const newAuthIframeClient = await newTurnkey.iframeClient({
-          iframeContainer: document.getElementById(TurnkeyIframeContainerId),
+          iframeContainer: document.getElementById(
+            TurnkeyAuthIframeContainerId
+          ),
           iframeUrl: "https://auth.turnkey.com",
+          iframeElementId: TurnkeyAuthIframeElementId,
         });
         setAuthIframeClient(newAuthIframeClient);
       }
@@ -65,7 +69,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       {children}
       <div
         className=""
-        id={TurnkeyIframeContainerId}
+        id={TurnkeyAuthIframeContainerId}
         style={{ display: "none" }}
       />
     </TurnkeyContext.Provider>
