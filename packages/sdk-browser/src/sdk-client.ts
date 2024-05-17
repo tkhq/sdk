@@ -298,4 +298,9 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
     const stamper = this.config.stamper as IframeStamper;
     return await stamper.extractWalletEncryptedBundle();
   };
+
+  extractKeyEncryptedBundle = async (): Promise<string> => {
+    const stamper = this.config.stamper as IframeStamper;
+    return await stamper.extractKeyEncryptedBundle();
+  };
 }
