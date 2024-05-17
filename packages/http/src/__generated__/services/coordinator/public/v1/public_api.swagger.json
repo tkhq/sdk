@@ -2346,6 +2346,10 @@
         },
         "updatedAt": {
           "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "failure": {
+          "$ref": "#/definitions/rpcStatus",
+          "description": "Failure reason of the intended action."
         }
       },
       "required": [
@@ -5400,8 +5404,7 @@
         "createReadOnlySessionIntent": {
           "$ref": "#/definitions/v1CreateReadOnlySessionIntent"
         }
-      },
-      "required": ["createOrganizationIntent"]
+      }
     },
     "v1Invitation": {
       "type": "object",
