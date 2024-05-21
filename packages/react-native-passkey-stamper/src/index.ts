@@ -184,6 +184,8 @@ export class PasskeyStamper {
   async stamp(payload: string) {
     const challenge = getChallengeFromPayload(payload);
 
+    console.log("challenge", challenge);
+
     const signingOptions = {
       challenge: challenge,
       rpId: this.rpId,
@@ -193,7 +195,11 @@ export class PasskeyStamper {
       extensions: this.extensions,
     };
 
+    console.log("signingOptions", signingOptions);
+
     const authenticationResult = await Passkey.authenticate(signingOptions);
+
+    console.log("authenticationResult", authenticationResult);
 
     const stamp = {
       authenticatorData: base64Tobase64url(
@@ -205,6 +211,8 @@ export class PasskeyStamper {
       credentialId: base64Tobase64url(authenticationResult.id),
       signature: base64Tobase64url(authenticationResult.response.signature),
     };
+
+    console.log("stamp", stamp);
 
     return {
       stampHeaderName: stampHeaderName,
