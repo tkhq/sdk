@@ -359,6 +359,8 @@ export type definitions = {
     canReject: boolean;
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
+    /** @description Failure reason of the intended action. */
+    failure?: definitions["rpcStatus"];
   };
   v1ActivityResponse: {
     /** @description An action that can that can be taken within the Turnkey infrastructure. */
@@ -1518,7 +1520,7 @@ export type definitions = {
     userId: string;
   };
   v1Intent: {
-    createOrganizationIntent: definitions["v1CreateOrganizationIntent"];
+    createOrganizationIntent?: definitions["v1CreateOrganizationIntent"];
     createAuthenticatorsIntent?: definitions["v1CreateAuthenticatorsIntent"];
     createUsersIntent?: definitions["v1CreateUsersIntent"];
     createPrivateKeysIntent?: definitions["v1CreatePrivateKeysIntent"];
