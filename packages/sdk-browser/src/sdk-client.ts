@@ -24,7 +24,11 @@ import {
   removeStorageValue,
   setStorageValue,
 } from "./storage";
-import { generateRandomBuffer, base64UrlEncode } from "./utils";
+import {
+  generateRandomBuffer,
+  base64UrlEncode,
+  createEmbeddedAPIKey,
+} from "./utils";
 
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
@@ -141,7 +145,7 @@ export class TurnkeyBrowserSDK {
     return data as TResponseType;
   };
 
-  // Local
+  // Local Storage
   getCurrentSubOrganization = async (): Promise<
     SubOrganization | undefined
   > => {
@@ -157,6 +161,10 @@ export class TurnkeyBrowserSDK {
     await removeStorageValue(StorageKeys.CurrentUser);
 
     return true;
+  };
+
+  getAuthBundle = async (): Promise<string | undefined> => {
+    return await getStorageValue(StorageKeys.AuthBundle);
   };
 }
 
@@ -245,6 +253,38 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
         : encodedChallenge,
       attestation: attestation,
     };
+  };
+
+  // createPasskeySession creates a session authenticated by passkey, via an embedded API key,
+  // and stores + returns the resulting auth bundle that contains the encrypted API key.
+  createPasskeySession = async (
+    userId: string,
+    targetEmbeddedKey: string,
+    expirationSeconds?: string
+  ): Promise<string> => {
+    const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
+    userId = userId ?? localStorageUser?.userId;
+
+    const { authBundle, publicKey } = await createEmbeddedAPIKey(
+      targetEmbeddedKey
+    );
+
+    // add API key to Turnkey User
+    await this.createApiKeys({
+      userId,
+      apiKeys: [
+        {
+          apiKeyName: `Session Key ${String(Date.now())}`,
+          publicKey,
+          expirationSeconds: expirationSeconds ?? "900", // default to 15 minutes
+        },
+      ],
+    });
+
+    // store auth bundle in local storage
+    await setStorageValue(StorageKeys.AuthBundle, authBundle);
+
+    return authBundle;
   };
 }
 
