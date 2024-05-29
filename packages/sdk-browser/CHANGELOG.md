@@ -1,5 +1,11 @@
 # @turnkey/sdk-browser
 
+## 0.3.0
+
+### Minor Changes
+
+- d409d81: Add support for Passkey Sessions
+
 ## 0.2.1
 
 ### Patch Changes
