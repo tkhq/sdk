@@ -27,6 +27,12 @@ interface HpkeDecryptParams {
   receiverPriv: string;
 }
 
+interface HpkeEncryptParams {
+  plainText: string;
+  encappedKeyBuf: Uint8Array;
+  senderPriv: string;
+}
+
 interface KeyPair {
   privateKey: string;
   publicKey: string;
@@ -46,6 +52,73 @@ export const getPublicKey = (
   isCompressed: boolean = true
 ): Uint8Array => {
   return p256.getPublicKey(privateKey, isCompressed);
+};
+
+/**
+ * HPKE Decrypt Function
+ * Decrypts data using Hybrid Public Key Encryption (HPKE) standard https://datatracker.ietf.org/doc/rfc9180/.
+ *
+ * @param {HpkeEncryptParams} params - The encryption parameters including plain text, encapsulated key, and sender private key.
+ * @returns {Uint8Array} - The encrypted data.
+ */
+
+export const hpkeEncrypt = ({
+  plainText,
+  encappedKeyBuf,
+  senderPriv,
+}: HpkeEncryptParams): Uint8Array => {
+  try {
+    const senderPubBuf = getPublicKey(
+      uint8ArrayFromHexString(senderPriv),
+      false
+    );
+    const aad = buildAdditionalAssociatedData(senderPubBuf, encappedKeyBuf);
+    // Step 1: Convert the plain text string to a Uint8Array
+    const plaintextBuf = new TextEncoder().encode(plainText);
+
+    // Step 2: Derive the shared secret using the sender's private key and the encapsulated public key
+    const ss = deriveSS(encappedKeyBuf, senderPriv);
+
+    // Step 3: Generate the KEM context
+    const kemContext = getKemContext(
+      senderPubBuf,
+      uint8ArrayToHexString(encappedKeyBuf)
+    );
+
+    // Step 4: Build the HKDF inputs for key derivation
+    let ikm = buildLabeledIkm(LABEL_EAE_PRK, ss, SUITE_ID_1);
+    let info = buildLabeledInfo(
+      LABEL_SHARED_SECRET,
+      kemContext,
+      SUITE_ID_1,
+      32
+    );
+    const sharedSecret = extractAndExpand(new Uint8Array([]), ikm, info, 32);
+
+    // Step 5: Derive the AES encryption key
+    ikm = buildLabeledIkm(LABEL_SECRET, new Uint8Array([]), SUITE_ID_2);
+    info = AES_KEY_INFO;
+    const key = extractAndExpand(sharedSecret, ikm, info, 32);
+
+    // Step 6: Derive the initialization vector
+    info = IV_INFO;
+    const iv = extractAndExpand(sharedSecret, ikm, info, 12);
+
+    // Step 7: Encrypt the data using AES-GCM
+    const encryptedData = aesGcmEncrypt(plaintextBuf, key, iv, aad);
+
+    // Step 8: Concatenate the encapsulated key and the encrypted data for output
+    const compressedSenderBuf = compressRawPublicKey(senderPubBuf);
+    const result = new Uint8Array(
+      compressedSenderBuf.length + encryptedData.length
+    );
+    result.set(compressedSenderBuf, 0);
+    result.set(encryptedData, compressedSenderBuf.length);
+
+    return result;
+  } catch (error) {
+    throw new Error(`Unable to perform hpkeEncrypt: ${error}`);
+  }
 };
 
 /**
@@ -204,7 +277,9 @@ export const compressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
  * @param {Uint8Array} rawPublicKey - The public key.
  * @return {Uint8Array} - The uncompressed public key.
  */
-const uncompressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
+export const uncompressRawPublicKey = (
+  rawPublicKey: Uint8Array
+): Uint8Array => {
   // point[0] must be 2 (false) or 3 (true).
   // this maps to the initial "02" or "03" prefix
   const lsb = rawPublicKey[0] === 3;
@@ -322,15 +397,26 @@ const extractAndExpand = (
 /**
  * Derive the Diffie-Hellman shared secret using ECDH.
  */
-const deriveSS = (
-  encappedKeyBuf: Uint8Array,
-  receiverPriv: string
-): Uint8Array => {
+const deriveSS = (encappedKeyBuf: Uint8Array, priv: string): Uint8Array => {
   const ss = p256.getSharedSecret(
-    uint8ArrayFromHexString(receiverPriv),
+    uint8ArrayFromHexString(priv),
     encappedKeyBuf
   );
   return ss.slice(1);
+};
+
+/**
+ * Encrypt data using AES-GCM.
+ */
+const aesGcmEncrypt = (
+  plaintextData: Uint8Array,
+  key: Uint8Array,
+  iv: Uint8Array,
+  aad?: Uint8Array
+): Uint8Array => {
+  const aes = gcm(key, iv, aad);
+  const data = aes.encrypt(plaintextData);
+  return data;
 };
 
 /**
