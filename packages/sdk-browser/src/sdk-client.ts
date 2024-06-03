@@ -27,7 +27,6 @@ import {
 import {
   generateRandomBuffer,
   base64UrlEncode,
-  createEmbeddedAPIKey,
 } from "./utils";
 
 export class TurnkeyBrowserSDK {
@@ -257,35 +256,35 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
 
   // createPasskeySession creates a session authenticated by passkey, via an embedded API key,
   // and stores + returns the resulting auth bundle that contains the encrypted API key.
-  createPasskeySession = async (
-    userId: string,
-    targetEmbeddedKey: string,
-    expirationSeconds?: string
-  ): Promise<string> => {
-    const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
-    userId = userId ?? localStorageUser?.userId;
+  // createPasskeySession = async (
+  //   userId: string,
+  //   targetEmbeddedKey: string,
+  //   expirationSeconds?: string
+  // ): Promise<string> => {
+  //   const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
+  //   userId = userId ?? localStorageUser?.userId;
 
-    const { authBundle, publicKey } = await createEmbeddedAPIKey(
-      targetEmbeddedKey
-    );
+  //   const { authBundle, publicKey } = await createEmbeddedAPIKey(
+  //     targetEmbeddedKey
+  //   );
 
-    // add API key to Turnkey User
-    await this.createApiKeys({
-      userId,
-      apiKeys: [
-        {
-          apiKeyName: `Session Key ${String(Date.now())}`,
-          publicKey,
-          expirationSeconds: expirationSeconds ?? "900", // default to 15 minutes
-        },
-      ],
-    });
+  //   // add API key to Turnkey User
+  //   await this.createApiKeys({
+  //     userId,
+  //     apiKeys: [
+  //       {
+  //         apiKeyName: `Session Key ${String(Date.now())}`,
+  //         publicKey,
+  //         expirationSeconds: expirationSeconds ?? "900", // default to 15 minutes
+  //       },
+  //     ],
+  //   });
 
-    // store auth bundle in local storage
-    await setStorageValue(StorageKeys.AuthBundle, authBundle);
+  //   // store auth bundle in local storage
+  //   await setStorageValue(StorageKeys.AuthBundle, authBundle);
 
-    return authBundle;
-  };
+  //   return authBundle;
+  // };
 }
 
 export class TurnkeyIframeClient extends TurnkeyBrowserClient {

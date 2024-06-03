@@ -890,8 +890,8 @@ importers:
         specifier: workspace:*
         version: link:../crypto
       '@turnkey/encoding':
-        specifier: workspace:*
-        version: link:../encoding
+        specifier: file:../encoding
+        version: file:packages/encoding
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
@@ -927,8 +927,8 @@ importers:
   packages/sdk-react:
     dependencies:
       '@turnkey/sdk-browser':
-        specifier: workspace:*
-        version: link:../sdk-browser
+        specifier: file:../sdk-browser
+        version: file:packages/sdk-browser
     devDependencies:
       '@types/react':
         specifier: ^18.2.75
@@ -18176,6 +18176,34 @@ packages:
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+
+  file:packages/encoding:
+    resolution: {directory: packages/encoding, type: directory}
+    name: '@turnkey/encoding'
+    version: 0.2.0
+    engines: {node: '>=18.0.0'}
+    dev: false
+
+  file:packages/sdk-browser:
+    resolution: {directory: packages/sdk-browser, type: directory}
+    name: '@turnkey/sdk-browser'
+    version: 0.2.1
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      '@turnkey/api-key-stamper': link:packages/api-key-stamper
+      '@turnkey/crypto': link:packages/crypto
+      '@turnkey/encoding': file:packages/encoding
+      '@turnkey/http': link:packages/http
+      '@turnkey/iframe-stamper': link:packages/iframe-stamper
+      '@turnkey/webauthn-stamper': link:packages/webauthn-stamper
+      bs58check: 3.0.1
+      buffer: 6.0.3
+      cross-fetch: 3.1.5
+      elliptic: 6.5.5
+      hpke-js: 1.2.7
+    transitivePeerDependencies:
+      - encoding
+    dev: false
 
 settings:
   autoInstallPeers: true

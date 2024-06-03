@@ -46,7 +46,7 @@
   "dependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/crypto": "workspace:*",
-    "@turnkey/encoding": "workspace:*",
+    "@turnkey/encoding": "file:../encoding",
     "@turnkey/http": "workspace:*",
     "@turnkey/iframe-stamper": "workspace:*",
     "@turnkey/webauthn-stamper": "workspace:*",

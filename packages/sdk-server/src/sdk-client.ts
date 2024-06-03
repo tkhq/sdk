@@ -18,6 +18,7 @@ import type {
 
 const DEFAULT_API_PROXY_ALLOWED_METHODS = [
   "createSubOrganization",
+  "oauth",
   "emailAuth",
   "initUserEmailRecovery",
 ];
