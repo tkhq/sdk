@@ -159,6 +159,7 @@ export class TurnkeyBrowserSDK {
 
   logoutUser = async (): Promise<boolean> => {
     await removeStorageValue(StorageKeys.CurrentUser);
+    await removeStorageValue(StorageKeys.AuthBundle);
 
     return true;
   };
