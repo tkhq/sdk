@@ -64,6 +64,15 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
           currentClient = authIframeClient;
         }
+      } else {
+        const currentUser = await turnkey?.getCurrentUser();
+        await authIframeClient?.getWhoami({
+          organizationId:
+            currentUser?.organization.organizationId ??
+            turnkey?.config.defaultOrganizationId!,
+        });
+
+        currentClient = authIframeClient;
       }
     } catch (err: any) {
       console.error("Failed to use iframe client", err);

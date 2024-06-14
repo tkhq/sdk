@@ -17,7 +17,7 @@ import { TurnkeyRequestError } from "./__types__/base";
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
-import type { User, SubOrganization } from "./models";
+import type { User, SubOrganization, SigningSession } from "./models";
 import {
   StorageKeys,
   getStorageValue,
@@ -160,6 +160,7 @@ export class TurnkeyBrowserSDK {
   logoutUser = async (): Promise<boolean> => {
     await removeStorageValue(StorageKeys.CurrentUser);
     await removeStorageValue(StorageKeys.AuthBundle);
+    await removeStorageValue(StorageKeys.SigningSession);
 
     return true;
   };
@@ -167,6 +168,20 @@ export class TurnkeyBrowserSDK {
   getAuthBundle = async (): Promise<string | undefined> => {
     return await getStorageValue(StorageKeys.AuthBundle);
   };
+
+  getSigningSession = async (): Promise<SigningSession | undefined> => {
+    const signingSession: SigningSession | undefined = await getStorageValue(StorageKeys.SigningSession);
+    if (signingSession) {
+      if (signingSession.expirationTimestamp > Date.now()) {
+        return signingSession;
+      } else {
+        await removeStorageValue(StorageKeys.SigningSession);
+        return undefined;
+      }
+    } else {
+      return undefined;
+    }
+  }
 }
 
 export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
@@ -262,7 +277,8 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     userId: string,
     targetEmbeddedKey: string,
     expirationSeconds?: string
-  ): Promise<string> => {
+  ): Promise<SigningSession> => {
+    const DEFAULT_SESSION_EXPIRATION = "900"; // default to 15 minutes
     const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
     userId = userId ?? localStorageUser?.userId;
 
@@ -277,15 +293,24 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
         {
           apiKeyName: `Session Key ${String(Date.now())}`,
           publicKey,
-          expirationSeconds: expirationSeconds ?? "900", // default to 15 minutes
+          expirationSeconds: expirationSeconds ?? DEFAULT_SESSION_EXPIRATION,
         },
       ],
     });
 
+    const signingSession = {
+      authBundle: authBundle,
+      expirationTimestamp: (Date.now() + (Number(expirationSeconds) * 1000))
+    }
+
     // store auth bundle in local storage
     await setStorageValue(StorageKeys.AuthBundle, authBundle);
+    await setStorageValue(StorageKeys.SigningSession, {
+      authBundle: authBundle,
+      expirationTimestamp: (Date.now() + (Number(expirationSeconds) * 1000))
+    })
 
-    return authBundle;
+    return signingSession;
   };
 }
 
