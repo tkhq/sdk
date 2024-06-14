@@ -23,7 +23,7 @@
     "pnpm": "^8.0.0"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.26.0",
+    "@changesets/cli": "^2.27.5",
     "@jest/globals": "^29.3.1",
     "@jest/types": "^29.3.1",
     "@rollup/plugin-typescript": "^11.1.5",
@@ -52,7 +52,8 @@
       "follow-redirects": ">=1.15.4",
       "web3": ">=4.2.1",
       "web3-core": ">=4.2.1",
-      "web3-utils": ">=4.2.1"
+      "web3-utils": ">=4.2.1",
+      "braces": ">=3.0.3"
     }
   }
 }
