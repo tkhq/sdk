@@ -55,8 +55,8 @@ export const getPublicKey = (
 };
 
 /**
- * HPKE Decrypt Function
- * Decrypts data using Hybrid Public Key Encryption (HPKE) standard https://datatracker.ietf.org/doc/rfc9180/.
+ * HPKE Encrypt Function
+ * Encrypts data using Hybrid Public Key Encryption (HPKE) standard https://datatracker.ietf.org/doc/rfc9180/.
  *
  * @param {HpkeEncryptParams} params - The encryption parameters including plain text, encapsulated key, and sender private key.
  * @returns {Uint8Array} - The encrypted data.
