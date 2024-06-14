@@ -194,7 +194,7 @@ export async function createApiKeyAccount(
   });
 }
 
-async function signMessage(
+export async function signMessage(
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   message: SignableMessage,
   organizationId: string,
@@ -210,7 +210,7 @@ async function signMessage(
   return `${signedMessage}` as Hex;
 }
 
-async function signTransaction<
+export async function signTransaction<
   TTransactionSerializable extends TransactionSerializable
 >(
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
@@ -229,7 +229,7 @@ async function signTransaction<
   );
 }
 
-async function signTypedData(
+export async function signTypedData(
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   data: TypedData | { [key: string]: unknown },
   organizationId: string,
