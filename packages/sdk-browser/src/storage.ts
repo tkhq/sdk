@@ -3,13 +3,11 @@ import WindowWrapper from "./__polyfills__/window";
 
 export enum StorageKeys {
   CurrentUser = "@turnkey/current_user",
-  AuthBundle = "@turnkey/auth_bundle",
   SigningSession = "@turnkey/signing_session"
 }
 
 interface StorageValue {
   [StorageKeys.CurrentUser]: User;
-  [StorageKeys.AuthBundle]: string;
   [StorageKeys.SigningSession]: SigningSession;
 }
 
@@ -21,7 +19,6 @@ enum StorageLocation {
 
 const STORAGE_VALUE_LOCATIONS: Record<StorageKeys, StorageLocation> = {
   [StorageKeys.CurrentUser]: StorageLocation.Local,
-  [StorageKeys.AuthBundle]: StorageLocation.Secure,
   [StorageKeys.SigningSession]: StorageLocation.Secure
 };
 

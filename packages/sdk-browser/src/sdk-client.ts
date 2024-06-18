@@ -159,28 +159,21 @@ export class TurnkeyBrowserSDK {
 
   logoutUser = async (): Promise<boolean> => {
     await removeStorageValue(StorageKeys.CurrentUser);
-    await removeStorageValue(StorageKeys.AuthBundle);
     await removeStorageValue(StorageKeys.SigningSession);
 
     return true;
   };
 
-  getAuthBundle = async (): Promise<string | undefined> => {
-    return await getStorageValue(StorageKeys.AuthBundle);
-  };
-
   getSigningSession = async (): Promise<SigningSession | undefined> => {
     const signingSession: SigningSession | undefined = await getStorageValue(StorageKeys.SigningSession);
     if (signingSession) {
-      if (signingSession.expirationTimestamp > Date.now()) {
+      if (signingSession.sessionExpiry > Date.now()) {
         return signingSession;
       } else {
         await removeStorageValue(StorageKeys.SigningSession);
-        return undefined;
       }
-    } else {
-      return undefined;
     }
+    return undefined;
   }
 }
 
@@ -300,14 +293,13 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
 
     const signingSession = {
       authBundle: authBundle,
-      expirationTimestamp: (Date.now() + (Number(expirationSeconds) * 1000))
+      sessionExpiry: (Date.now() + (Number(expirationSeconds) * 1000))
     }
 
     // store auth bundle in local storage
-    await setStorageValue(StorageKeys.AuthBundle, authBundle);
     await setStorageValue(StorageKeys.SigningSession, {
       authBundle: authBundle,
-      expirationTimestamp: (Date.now() + (Number(expirationSeconds) * 1000))
+      sessionExpiry: (Date.now() + (Number(expirationSeconds) * 1000))
     })
 
     return signingSession;

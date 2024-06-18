@@ -46,37 +46,35 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const getActiveClient = async () => {
     let currentClient: TurnkeyBrowserClient | undefined = passkeyClient;
+    const currentUser = await turnkey?.getCurrentUser();
 
     try {
-      const authBundle = await turnkey?.getAuthBundle();
+      // check if the iframeClient is active
+      await authIframeClient?.getWhoami({
+        organizationId:
+          currentUser?.organization.organizationId ??
+          turnkey?.config.defaultOrganizationId!,
+      });
+      currentClient = authIframeClient;
+    } catch (error: any) {
+      try {
+        // if not, check if there's a signingSession in localStorage, and try to initialize an iframeClient with it
+        const signingSession = await turnkey?.getSigningSession();
 
-      if (authBundle) {
-        const injected = await authIframeClient?.injectCredentialBundle(
-          authBundle
-        );
-        if (injected) {
-          const currentUser = await turnkey?.getCurrentUser();
-          await authIframeClient?.getWhoami({
-            organizationId:
-              currentUser?.organization.organizationId ??
-              turnkey?.config.defaultOrganizationId!,
-          });
-
-          currentClient = authIframeClient;
+        if (signingSession) {
+          const injected = await authIframeClient?.injectCredentialBundle(signingSession.authBundle);
+          if (injected) {
+            await authIframeClient?.getWhoami({
+              organizationId:
+                currentUser?.organization.organizationId ??
+                turnkey?.config.defaultOrganizationId!,
+            });
+            currentClient = authIframeClient;
+          }
         }
-      } else {
-        const currentUser = await turnkey?.getCurrentUser();
-        await authIframeClient?.getWhoami({
-          organizationId:
-            currentUser?.organization.organizationId ??
-            turnkey?.config.defaultOrganizationId!,
-        });
-
-        currentClient = authIframeClient;
+      } catch (error: any) {
+        // default to using the passkeyClient
       }
-    } catch (err: any) {
-      console.error("Failed to use iframe client", err);
-      console.log("Defaulting to passkey client");
     }
 
     return currentClient;

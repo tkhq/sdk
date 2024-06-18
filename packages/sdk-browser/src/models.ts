@@ -22,5 +22,5 @@ export type EmbeddedAPIKey = {
 
 export interface SigningSession {
   authBundle: string;
-  expirationTimestamp: number;
+  sessionExpiry: number;
 }
