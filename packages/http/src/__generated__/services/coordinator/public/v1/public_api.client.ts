@@ -27,6 +27,10 @@ import type {
   TGetAuthenticatorsResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetOauthProvidersBody,
+  TGetOauthProvidersResponse,
+} from "./public_api.fetcher";
+import type {
   TGetOrganizationBody,
   TGetOrganizationResponse,
 } from "./public_api.fetcher";
@@ -92,6 +96,10 @@ import type {
   TCreateInvitationsResponse,
 } from "./public_api.fetcher";
 import type {
+  TCreateOauthProvidersBody,
+  TCreateOauthProvidersResponse,
+} from "./public_api.fetcher";
+import type {
   TCreatePoliciesBody,
   TCreatePoliciesResponse,
 } from "./public_api.fetcher";
@@ -144,6 +152,10 @@ import type {
   TDeleteInvitationResponse,
 } from "./public_api.fetcher";
 import type {
+  TDeleteOauthProvidersBody,
+  TDeleteOauthProvidersResponse,
+} from "./public_api.fetcher";
+import type {
   TDeletePolicyBody,
   TDeletePolicyResponse,
 } from "./public_api.fetcher";
@@ -192,6 +204,7 @@ import type {
   TInitUserEmailRecoveryBody,
   TInitUserEmailRecoveryResponse,
 } from "./public_api.fetcher";
+import type { TOauthBody, TOauthResponse } from "./public_api.fetcher";
 import type {
   TRecoverUserBody,
   TRecoverUserResponse,
@@ -424,6 +437,38 @@ export class TurnkeyClient {
     input: TGetAuthenticatorsBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_authenticators";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get details about Oauth providers for a user
+   *
+   * Sign the provided `TGetOauthProvidersBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_oauth_providers).
+   *
+   * See also {@link stampGetOauthProviders}.
+   */
+  getOauthProviders = async (
+    input: TGetOauthProvidersBody
+  ): Promise<TGetOauthProvidersResponse> => {
+    return this.request("/public/v1/query/get_oauth_providers", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetOauthProvidersBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetOauthProviders}.
+   */
+  stampGetOauthProviders = async (
+    input: TGetOauthProvidersBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_oauth_providers";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1035,6 +1080,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Creates Oauth providers for a specified user - BETA
+   *
+   * Sign the provided `TCreateOauthProvidersBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_oauth_providers).
+   *
+   * See also {@link stampCreateOauthProviders}.
+   */
+  createOauthProviders = async (
+    input: TCreateOauthProvidersBody
+  ): Promise<TCreateOauthProvidersResponse> => {
+    return this.request("/public/v1/submit/create_oauth_providers", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateOauthProvidersBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateOauthProviders}.
+   */
+  stampCreateOauthProviders = async (
+    input: TCreateOauthProvidersBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_oauth_providers";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Create new Policies
    *
    * Sign the provided `TCreatePoliciesBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_policies).
@@ -1444,6 +1521,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Removes Oauth providers for a specified user - BETA
+   *
+   * Sign the provided `TDeleteOauthProvidersBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_oauth_providers).
+   *
+   * See also {@link stampDeleteOauthProviders}.
+   */
+  deleteOauthProviders = async (
+    input: TDeleteOauthProvidersBody
+  ): Promise<TDeleteOauthProvidersResponse> => {
+    return this.request("/public/v1/submit/delete_oauth_providers", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteOauthProvidersBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteOauthProviders}.
+   */
+  stampDeleteOauthProviders = async (
+    input: TDeleteOauthProvidersBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_oauth_providers";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Delete an existing Policy
    *
    * Sign the provided `TDeletePolicyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_policy).
@@ -1840,6 +1949,33 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/init_user_email_recovery";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Authenticate a user with an Oidc token (Oauth) - BETA
+   *
+   * Sign the provided `TOauthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/oauth).
+   *
+   * See also {@link stampOauth}.
+   */
+  oauth = async (input: TOauthBody): Promise<TOauthResponse> => {
+    return this.request("/public/v1/submit/oauth", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TOauthBody` by using the client's `stamp` function.
+   *
+   * See also {@link Oauth}.
+   */
+  stampOauth = async (input: TOauthBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/oauth";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

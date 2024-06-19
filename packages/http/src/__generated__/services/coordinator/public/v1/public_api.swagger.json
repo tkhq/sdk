@@ -12,7 +12,7 @@
     },
     {
       "name": "Organizations",
-      "description": "An Organization is the highest level of hierarchy in Turnkey. It can contain many Users, Private Keys, and Policies managed by a Root Quorum. The Root Quorum consists of a set of Users with a consensus threshold. This consensus threshold must be reached by Quorum members in order for any actions to take place.\n\nSee [Root Quorum](../managing-users/root-quorum) for more information"
+      "description": "An Organization is the highest level of hierarchy in Turnkey. It can contain many Users, Private Keys, and Policies managed by a Root Quorum. The Root Quorum consists of a set of Users with a consensus threshold. This consensus threshold must be reached by Quorum members in order for any actions to take place.\n\nSee [Root Quorum](../concepts/users/root-quorum) for more information"
     },
     {
       "name": "Invitations",
@@ -226,6 +226,38 @@
           }
         ],
         "tags": ["Authenticators"]
+      }
+    },
+    "/public/v1/query/get_oauth_providers": {
+      "post": {
+        "summary": "Get Oauth providers",
+        "description": "Get details about Oauth providers for a user",
+        "operationId": "PublicApiService_GetOauthProviders",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetOauthProvidersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetOauthProvidersRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
       }
     },
     "/public/v1/query/get_organization": {
@@ -868,6 +900,38 @@
         "tags": ["Invitations"]
       }
     },
+    "/public/v1/submit/create_oauth_providers": {
+      "post": {
+        "summary": "Create Oauth Providers",
+        "description": "Creates Oauth providers for a specified user - BETA",
+        "operationId": "PublicApiService_CreateOauthProviders",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateOauthProvidersRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
     "/public/v1/submit/create_policies": {
       "post": {
         "summary": "Create Policies",
@@ -1284,6 +1348,38 @@
         "tags": ["Invitations"]
       }
     },
+    "/public/v1/submit/delete_oauth_providers": {
+      "post": {
+        "summary": "Delete Oauth Providers",
+        "description": "Removes Oauth providers for a specified user - BETA",
+        "operationId": "PublicApiService_DeleteOauthProviders",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteOauthProvidersRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
     "/public/v1/submit/delete_policy": {
       "post": {
         "summary": "Delete Policy",
@@ -1698,6 +1794,38 @@
           }
         ],
         "tags": ["User Recovery"]
+      }
+    },
+    "/public/v1/submit/oauth": {
+      "post": {
+        "summary": "Oauth",
+        "description": "Authenticate a user with an Oidc token (Oauth) - BETA",
+        "operationId": "PublicApiService_Oauth",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1OauthRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
       }
     },
     "/public/v1/submit/recover_user": {
@@ -2454,7 +2582,11 @@
         "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
         "ACTIVITY_TYPE_CREATE_POLICIES",
         "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
-        "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"
+        "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION",
+        "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
+        "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS",
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5",
+        "ACTIVITY_TYPE_OAUTH"
       ]
     },
     "v1AddressFormat": {
@@ -2957,6 +3089,58 @@
         }
       },
       "required": ["invitationIds"]
+    },
+    "v1CreateOauthProvidersIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the User to add an Oauth provider to"
+        },
+        "oauthProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OauthProviderParams"
+          },
+          "description": "A list of Oauth providers."
+        }
+      },
+      "required": ["userId", "oauthProviders"]
+    },
+    "v1CreateOauthProvidersRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateOauthProvidersIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateOauthProvidersResult": {
+      "type": "object",
+      "properties": {
+        "providerIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of unique identifiers for Oauth Providers"
+        }
+      },
+      "required": ["providerIds"]
     },
     "v1CreateOrganizationIntent": {
       "type": "object",
@@ -3467,12 +3651,47 @@
       },
       "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
     },
+    "v1CreateSubOrganizationIntentV5": {
+      "type": "object",
+      "properties": {
+        "subOrganizationName": {
+          "type": "string",
+          "description": "Name for this sub-organization"
+        },
+        "rootUsers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RootUserParamsV2"
+          },
+          "description": "Root users to create within this sub-organization"
+        },
+        "rootQuorumThreshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users"
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1WalletParams",
+          "description": "The wallet to create for the sub-organization"
+        },
+        "disableEmailRecovery": {
+          "type": "boolean",
+          "description": "Disable email recovery for the sub-organization"
+        },
+        "disableEmailAuth": {
+          "type": "boolean",
+          "description": "Disable email auth for the sub-organization"
+        }
+      },
+      "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
+    },
     "v1CreateSubOrganizationRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4"]
+          "enum": ["ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5"]
         },
         "timestampMs": {
           "type": "string",
@@ -3483,7 +3702,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1CreateSubOrganizationIntentV4"
+          "$ref": "#/definitions/v1CreateSubOrganizationIntentV5"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -3527,6 +3746,24 @@
       "required": ["subOrganizationId", "privateKeys"]
     },
     "v1CreateSubOrganizationResultV4": {
+      "type": "object",
+      "properties": {
+        "subOrganizationId": {
+          "type": "string"
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1WalletResult"
+        },
+        "rootUserIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["subOrganizationId"]
+    },
+    "v1CreateSubOrganizationResultV5": {
       "type": "object",
       "properties": {
         "subOrganizationId": {
@@ -3937,6 +4174,57 @@
         }
       },
       "required": ["invitationId"]
+    },
+    "v1DeleteOauthProvidersIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the User to remove an Oauth provider from"
+        },
+        "providerIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Unique identifier for a given Provider."
+        }
+      },
+      "required": ["userId", "providerIds"]
+    },
+    "v1DeleteOauthProvidersRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteOauthProvidersIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteOauthProvidersResult": {
+      "type": "object",
+      "properties": {
+        "providerIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of unique identifiers for Oauth Providers"
+        }
+      },
+      "required": ["providerIds"]
     },
     "v1DeleteOrganizationIntent": {
       "type": "object",
@@ -4616,6 +4904,34 @@
       },
       "required": ["authenticators"]
     },
+    "v1GetOauthProvidersRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetOauthProvidersResponse": {
+      "type": "object",
+      "properties": {
+        "oauthProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OauthProvider"
+          },
+          "description": "A list of Oauth Providers"
+        }
+      },
+      "required": ["oauthProviders"]
+    },
     "v1GetOrganizationRequest": {
       "type": "object",
       "properties": {
@@ -4741,7 +5057,7 @@
         },
         "filterType": {
           "type": "string",
-          "description": "Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL' or 'PUBLIC_KEY'"
+          "description": "Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'OIDC_TOKEN' or 'PUBLIC_KEY'"
         },
         "filterValue": {
           "type": "string",
@@ -5403,6 +5719,18 @@
         },
         "createReadOnlySessionIntent": {
           "$ref": "#/definitions/v1CreateReadOnlySessionIntent"
+        },
+        "createOauthProvidersIntent": {
+          "$ref": "#/definitions/v1CreateOauthProvidersIntent"
+        },
+        "deleteOauthProvidersIntent": {
+          "$ref": "#/definitions/v1DeleteOauthProvidersIntent"
+        },
+        "createSubOrganizationIntentV5": {
+          "$ref": "#/definitions/v1CreateSubOrganizationIntentV5"
+        },
+        "oauthIntent": {
+          "$ref": "#/definitions/v1OauthIntent"
         }
       }
     },
@@ -5572,6 +5900,125 @@
         }
       },
       "required": ["stamp"]
+    },
+    "v1OauthIntent": {
+      "type": "object",
+      "properties": {
+        "oidcToken": {
+          "type": "string",
+          "description": "Base64 encoded OIDC token"
+        },
+        "targetPublicKey": {
+          "type": "string",
+          "description": "Client-side public key generated by the user, to which the oauth bundle (credentials) will be encrypted."
+        },
+        "apiKeyName": {
+          "type": "string",
+          "description": "Optional human-readable name for an API Key. If none provided, default to Oauth - \u003cTimestamp\u003e"
+        },
+        "expirationSeconds": {
+          "type": "string",
+          "description": "Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used."
+        }
+      },
+      "required": ["oidcToken", "targetPublicKey"]
+    },
+    "v1OauthProvider": {
+      "type": "object",
+      "properties": {
+        "providerId": {
+          "type": "string",
+          "description": "Unique identifier for an OAuth Provider"
+        },
+        "providerName": {
+          "type": "string",
+          "description": "Human-readable name to identify a Provider."
+        },
+        "jwksUri": {
+          "type": "string",
+          "description": "The URL at which to fetch the OIDC token signers"
+        },
+        "audience": {
+          "type": "string",
+          "description": "Expected audience ('aud' attribute of the signed token) which represents the app ID"
+        },
+        "subject": {
+          "type": "string",
+          "description": "Expected subject ('sub' attribute of the signed token) which represents the user ID"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "providerId",
+        "providerName",
+        "jwksUri",
+        "audience",
+        "subject",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "v1OauthProviderParams": {
+      "type": "object",
+      "properties": {
+        "providerName": {
+          "type": "string",
+          "description": "Human-readable name to identify a Provider."
+        },
+        "jwksUri": {
+          "type": "string",
+          "description": "The URL at which to fetch the OIDC token signers"
+        },
+        "oidcToken": {
+          "type": "string",
+          "description": "Base64 encoded OIDC token"
+        }
+      },
+      "required": ["providerName", "jwksUri", "oidcToken"]
+    },
+    "v1OauthRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_OAUTH"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1OauthIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1OauthResult": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for the authenticating User."
+        },
+        "apiKeyId": {
+          "type": "string",
+          "description": "Unique identifier for the created API key."
+        },
+        "credentialBundle": {
+          "type": "string",
+          "description": "HPKE encrypted credential bundle"
+        }
+      },
+      "required": ["userId", "apiKeyId", "credentialBundle"]
     },
     "v1Operator": {
       "type": "string",
@@ -6141,6 +6588,18 @@
         },
         "createReadOnlySessionResult": {
           "$ref": "#/definitions/v1CreateReadOnlySessionResult"
+        },
+        "createOauthProvidersResult": {
+          "$ref": "#/definitions/v1CreateOauthProvidersResult"
+        },
+        "deleteOauthProvidersResult": {
+          "$ref": "#/definitions/v1DeleteOauthProvidersResult"
+        },
+        "createSubOrganizationResultV5": {
+          "$ref": "#/definitions/v1CreateSubOrganizationResultV5"
+        },
+        "oauthResult": {
+          "$ref": "#/definitions/v1OauthResult"
         }
       }
     },
@@ -6173,6 +6632,44 @@
         }
       },
       "required": ["userName", "apiKeys", "authenticators"]
+    },
+    "v1RootUserParamsV2": {
+      "type": "object",
+      "properties": {
+        "userName": {
+          "type": "string",
+          "description": "Human-readable name for a User."
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "The user's email address."
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ApiKeyParams"
+          },
+          "description": "A list of API Key parameters."
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
+          },
+          "description": "A list of Authenticator parameters."
+        },
+        "oauthProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OauthProviderParams"
+          },
+          "description": "A list of Oauth providers."
+        }
+      },
+      "required": ["userName", "apiKeys", "authenticators", "oauthProviders"]
     },
     "v1Selector": {
       "type": "object",
@@ -6885,6 +7382,14 @@
           },
           "description": "A list of User Tag IDs."
         },
+        "oauthProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OauthProvider"
+          },
+          "description": "A list of Oauth Providers."
+        },
         "createdAt": {
           "$ref": "#/definitions/externaldatav1Timestamp"
         },
@@ -6898,6 +7403,7 @@
         "authenticators",
         "apiKeys",
         "userTags",
+        "oauthProviders",
         "createdAt",
         "updatedAt"
       ]

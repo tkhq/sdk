@@ -250,6 +250,58 @@ export const signGetAuthenticators = (
   });
 
 /**
+ * `POST /public/v1/query/get_oauth_providers`
+ */
+export type TGetOauthProvidersResponse =
+  operations["PublicApiService_GetOauthProviders"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_oauth_providers`
+ */
+export type TGetOauthProvidersInput = { body: TGetOauthProvidersBody };
+
+/**
+ * `POST /public/v1/query/get_oauth_providers`
+ */
+export type TGetOauthProvidersBody =
+  operations["PublicApiService_GetOauthProviders"]["parameters"]["body"]["body"];
+
+/**
+ * Get Oauth providers
+ *
+ * Get details about Oauth providers for a user
+ *
+ * `POST /public/v1/query/get_oauth_providers`
+ */
+export const getOauthProviders = (input: TGetOauthProvidersInput) =>
+  request<
+    TGetOauthProvidersResponse,
+    TGetOauthProvidersBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_oauth_providers",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetOauthProviders` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetOauthProviders}
+ */
+export const signGetOauthProviders = (
+  input: TGetOauthProvidersInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TGetOauthProvidersBody, never, never>({
+    uri: "/public/v1/query/get_oauth_providers",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_organization`
  */
 export type TGetOrganizationResponse =
@@ -1200,6 +1252,58 @@ export const signCreateInvitations = (
   });
 
 /**
+ * `POST /public/v1/submit/create_oauth_providers`
+ */
+export type TCreateOauthProvidersResponse =
+  operations["PublicApiService_CreateOauthProviders"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_oauth_providers`
+ */
+export type TCreateOauthProvidersInput = { body: TCreateOauthProvidersBody };
+
+/**
+ * `POST /public/v1/submit/create_oauth_providers`
+ */
+export type TCreateOauthProvidersBody =
+  operations["PublicApiService_CreateOauthProviders"]["parameters"]["body"]["body"];
+
+/**
+ * Create Oauth Providers
+ *
+ * Creates Oauth providers for a specified user - BETA
+ *
+ * `POST /public/v1/submit/create_oauth_providers`
+ */
+export const createOauthProviders = (input: TCreateOauthProvidersInput) =>
+  request<
+    TCreateOauthProvidersResponse,
+    TCreateOauthProvidersBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_oauth_providers",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateOauthProviders` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateOauthProviders}
+ */
+export const signCreateOauthProviders = (
+  input: TCreateOauthProvidersInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TCreateOauthProvidersBody, never, never>({
+    uri: "/public/v1/submit/create_oauth_providers",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/create_policies`
  */
 export type TCreatePoliciesResponse =
@@ -1840,6 +1944,58 @@ export const signDeleteInvitation = (
   });
 
 /**
+ * `POST /public/v1/submit/delete_oauth_providers`
+ */
+export type TDeleteOauthProvidersResponse =
+  operations["PublicApiService_DeleteOauthProviders"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_oauth_providers`
+ */
+export type TDeleteOauthProvidersInput = { body: TDeleteOauthProvidersBody };
+
+/**
+ * `POST /public/v1/submit/delete_oauth_providers`
+ */
+export type TDeleteOauthProvidersBody =
+  operations["PublicApiService_DeleteOauthProviders"]["parameters"]["body"]["body"];
+
+/**
+ * Delete Oauth Providers
+ *
+ * Removes Oauth providers for a specified user - BETA
+ *
+ * `POST /public/v1/submit/delete_oauth_providers`
+ */
+export const deleteOauthProviders = (input: TDeleteOauthProvidersInput) =>
+  request<
+    TDeleteOauthProvidersResponse,
+    TDeleteOauthProvidersBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_oauth_providers",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteOauthProviders` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteOauthProviders}
+ */
+export const signDeleteOauthProviders = (
+  input: TDeleteOauthProvidersInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TDeleteOauthProvidersBody, never, never>({
+    uri: "/public/v1/submit/delete_oauth_providers",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/delete_policy`
  */
 export type TDeletePolicyResponse =
@@ -2475,6 +2631,52 @@ export const signInitUserEmailRecovery = (
 ) =>
   signedRequest<TInitUserEmailRecoveryBody, never, never>({
     uri: "/public/v1/submit/init_user_email_recovery",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/oauth`
+ */
+export type TOauthResponse =
+  operations["PublicApiService_Oauth"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/oauth`
+ */
+export type TOauthInput = { body: TOauthBody };
+
+/**
+ * `POST /public/v1/submit/oauth`
+ */
+export type TOauthBody =
+  operations["PublicApiService_Oauth"]["parameters"]["body"]["body"];
+
+/**
+ * Oauth
+ *
+ * Authenticate a user with an Oidc token (Oauth) - BETA
+ *
+ * `POST /public/v1/submit/oauth`
+ */
+export const oauth = (input: TOauthInput) =>
+  request<TOauthResponse, TOauthBody, never, never, never>({
+    uri: "/public/v1/submit/oauth",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `Oauth` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link Oauth}
+ */
+export const signOauth = (
+  input: TOauthInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TOauthBody, never, never>({
+    uri: "/public/v1/submit/oauth",
     body: input.body,
     options,
   });
