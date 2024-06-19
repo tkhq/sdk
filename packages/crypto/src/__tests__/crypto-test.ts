@@ -30,13 +30,14 @@ describe("HPKE Encryption and Decryption", () => {
       uint8ArrayFromHexString(receiverKeyPair.publicKey)
     );
 
+    const textEncoder = new TextEncoder();
     // Mock plaintext
     const plaintext = "Hello, this is a secure message!";
-
+    const plainTextBuf = textEncoder.encode(plaintext);
     // Encrypt
     const encryptedData = hpkeEncrypt({
-      plainText: plaintext,
-      encappedKeyBuf: receiverPublicKeyUncompressed,
+      plainTextBuf: plainTextBuf,
+      targetKeyBuf: receiverPublicKeyUncompressed,
       senderPriv: senderKeyPair.privateKey,
     });
 

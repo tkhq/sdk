@@ -28,8 +28,8 @@ interface HpkeDecryptParams {
 }
 
 interface HpkeEncryptParams {
-  plainText: string;
-  encappedKeyBuf: Uint8Array;
+  plainTextBuf: Uint8Array;
+  targetKeyBuf: Uint8Array;
   senderPriv: string;
 }
 
@@ -63,8 +63,8 @@ export const getPublicKey = (
  */
 
 export const hpkeEncrypt = ({
-  plainText,
-  encappedKeyBuf,
+  plainTextBuf,
+  targetKeyBuf,
   senderPriv,
 }: HpkeEncryptParams): Uint8Array => {
   try {
@@ -72,20 +72,18 @@ export const hpkeEncrypt = ({
       uint8ArrayFromHexString(senderPriv),
       false
     );
-    const aad = buildAdditionalAssociatedData(senderPubBuf, encappedKeyBuf);
-    // Step 1: Convert the plain text string to a Uint8Array
-    const plaintextBuf = new TextEncoder().encode(plainText);
+    const aad = buildAdditionalAssociatedData(senderPubBuf, targetKeyBuf); // Eventually we want users to be able to pass in aad as optional
 
-    // Step 2: Derive the shared secret using the sender's private key and the encapsulated public key
-    const ss = deriveSS(encappedKeyBuf, senderPriv);
+    // Step 1: Generate Shared Secret
+    const ss = deriveSS(targetKeyBuf, senderPriv);
 
-    // Step 3: Generate the KEM context
+    // Step 2: Generate the KEM context
     const kemContext = getKemContext(
       senderPubBuf,
-      uint8ArrayToHexString(encappedKeyBuf)
+      uint8ArrayToHexString(targetKeyBuf)
     );
 
-    // Step 4: Build the HKDF inputs for key derivation
+    // Step 3: Build the HKDF inputs for key derivation
     let ikm = buildLabeledIkm(LABEL_EAE_PRK, ss, SUITE_ID_1);
     let info = buildLabeledInfo(
       LABEL_SHARED_SECRET,
@@ -95,19 +93,19 @@ export const hpkeEncrypt = ({
     );
     const sharedSecret = extractAndExpand(new Uint8Array([]), ikm, info, 32);
 
-    // Step 5: Derive the AES encryption key
+    // Step 4: Derive the AES key
     ikm = buildLabeledIkm(LABEL_SECRET, new Uint8Array([]), SUITE_ID_2);
     info = AES_KEY_INFO;
     const key = extractAndExpand(sharedSecret, ikm, info, 32);
 
-    // Step 6: Derive the initialization vector
+    // Step 5: Derive the initialization vector
     info = IV_INFO;
     const iv = extractAndExpand(sharedSecret, ikm, info, 12);
 
-    // Step 7: Encrypt the data using AES-GCM
-    const encryptedData = aesGcmEncrypt(plaintextBuf, key, iv, aad);
+    // Step 6: Encrypt the data using AES-GCM
+    const encryptedData = aesGcmEncrypt(plainTextBuf, key, iv, aad);
 
-    // Step 8: Concatenate the encapsulated key and the encrypted data for output
+    // Step 7: Concatenate the encapsulated key and the encrypted data for output
     const compressedSenderBuf = compressRawPublicKey(senderPubBuf);
     const result = new Uint8Array(
       compressedSenderBuf.length + encryptedData.length
@@ -140,28 +138,32 @@ export const hpkeDecrypt = ({
       uint8ArrayFromHexString(receiverPriv),
       false
     );
-    const aad = buildAdditionalAssociatedData(encappedKeyBuf, receiverPubBuf);
+    const aad = buildAdditionalAssociatedData(encappedKeyBuf, receiverPubBuf); // Eventually we want users to be able to pass in aad as optional
+
+    // Step 1: Generate Shared Secret
+    const ss = deriveSS(encappedKeyBuf, receiverPriv);
+
+    // Step 2: Generate the KEM context
     const kemContext = getKemContext(
       encappedKeyBuf,
       uint8ArrayToHexString(receiverPubBuf)
     );
 
-    // Step 1: Generate Shared Secret
-    const ss = deriveSS(encappedKeyBuf, receiverPriv);
+    // Step 3: Build the HKDF inputs for key derivation
     ikm = buildLabeledIkm(LABEL_EAE_PRK, ss, SUITE_ID_1);
     info = buildLabeledInfo(LABEL_SHARED_SECRET, kemContext, SUITE_ID_1, 32);
     const sharedSecret = extractAndExpand(new Uint8Array([]), ikm, info, 32);
 
-    // Step 2: Get AES Key
+    // Step 4: Derive the AES key
     ikm = buildLabeledIkm(LABEL_SECRET, new Uint8Array([]), SUITE_ID_2);
     info = AES_KEY_INFO;
     const key = extractAndExpand(sharedSecret, ikm, info, 32);
 
-    // Step 3: Get IV
+    // Step 5: Derive the initialization vector
     info = IV_INFO;
     const iv = extractAndExpand(sharedSecret, ikm, info, 12);
 
-    // Step 4: Decrypt
+    // Step 6: Decrypt the data using AES-GCM
     const decryptedData = aesGcmDecrypt(ciphertextBuf, key, iv, aad);
     return decryptedData;
   } catch (error) {
