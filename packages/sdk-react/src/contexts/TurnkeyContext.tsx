@@ -58,11 +58,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       currentClient = authIframeClient;
     } catch (error: any) {
       try {
-        // if not, check if there's a signingSession in localStorage, and try to initialize an iframeClient with it
-        const signingSession = await turnkey?.getSigningSession();
+        // if not, check if there's a readWriteSession in localStorage, and try to initialize an iframeClient with it
+        const readWriteSession = await turnkey?.getReadWriteSession();
 
-        if (signingSession) {
-          const injected = await authIframeClient?.injectCredentialBundle(signingSession.authBundle);
+        if (readWriteSession) {
+          const injected = await authIframeClient?.injectCredentialBundle(readWriteSession.authBundle);
           if (injected) {
             await authIframeClient?.getWhoami({
               organizationId:

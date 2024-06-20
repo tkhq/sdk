@@ -17,7 +17,7 @@ import { TurnkeyRequestError } from "./__types__/base";
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
-import type { User, SubOrganization, SigningSession } from "./models";
+import type { User, SubOrganization, ReadWriteSession } from "./models";
 import {
   StorageKeys,
   getStorageValue,
@@ -159,18 +159,18 @@ export class TurnkeyBrowserSDK {
 
   logoutUser = async (): Promise<boolean> => {
     await removeStorageValue(StorageKeys.CurrentUser);
-    await removeStorageValue(StorageKeys.SigningSession);
+    await removeStorageValue(StorageKeys.ReadWriteSession);
 
     return true;
   };
 
-  getSigningSession = async (): Promise<SigningSession | undefined> => {
-    const signingSession: SigningSession | undefined = await getStorageValue(StorageKeys.SigningSession);
-    if (signingSession) {
-      if (signingSession.sessionExpiry > Date.now()) {
-        return signingSession;
+  getReadWriteSession = async (): Promise<ReadWriteSession | undefined> => {
+    const readWriteSession: ReadWriteSession | undefined = await getStorageValue(StorageKeys.ReadWriteSession);
+    if (readWriteSession) {
+      if (readWriteSession.sessionExpiry > Date.now()) {
+        return readWriteSession;
       } else {
-        await removeStorageValue(StorageKeys.SigningSession);
+        await removeStorageValue(StorageKeys.ReadWriteSession);
       }
     }
     return undefined;
@@ -270,7 +270,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     userId: string,
     targetEmbeddedKey: string,
     expirationSeconds?: string
-  ): Promise<SigningSession> => {
+  ): Promise<ReadWriteSession> => {
     const DEFAULT_SESSION_EXPIRATION = "900"; // default to 15 minutes
     const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
     userId = userId ?? localStorageUser?.userId;
@@ -291,18 +291,18 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
       ],
     });
 
-    const signingSession = {
+    const readWriteSession = {
       authBundle: authBundle,
       sessionExpiry: (Date.now() + (Number(expirationSeconds) * 1000))
     }
 
     // store auth bundle in local storage
-    await setStorageValue(StorageKeys.SigningSession, {
+    await setStorageValue(StorageKeys.ReadWriteSession, {
       authBundle: authBundle,
       sessionExpiry: (Date.now() + (Number(expirationSeconds) * 1000))
     })
 
-    return signingSession;
+    return readWriteSession;
   };
 }
 

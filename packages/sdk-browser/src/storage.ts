@@ -1,14 +1,14 @@
-import type { User, SigningSession } from "./models";
+import type { User, ReadWriteSession } from "./models";
 import WindowWrapper from "./__polyfills__/window";
 
 export enum StorageKeys {
   CurrentUser = "@turnkey/current_user",
-  SigningSession = "@turnkey/signing_session"
+  ReadWriteSession = "@turnkey/read_write_session"
 }
 
 interface StorageValue {
   [StorageKeys.CurrentUser]: User;
-  [StorageKeys.SigningSession]: SigningSession;
+  [StorageKeys.ReadWriteSession]: ReadWriteSession;
 }
 
 enum StorageLocation {
@@ -19,7 +19,7 @@ enum StorageLocation {
 
 const STORAGE_VALUE_LOCATIONS: Record<StorageKeys, StorageLocation> = {
   [StorageKeys.CurrentUser]: StorageLocation.Local,
-  [StorageKeys.SigningSession]: StorageLocation.Secure
+  [StorageKeys.ReadWriteSession]: StorageLocation.Secure
 };
 
 const STORAGE_LOCATIONS = {
