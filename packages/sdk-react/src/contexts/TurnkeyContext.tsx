@@ -62,7 +62,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const readWriteSession = await turnkey?.getReadWriteSession();
 
         if (readWriteSession) {
-          const injected = await authIframeClient?.injectCredentialBundle(readWriteSession.authBundle);
+          const injected = await authIframeClient?.injectCredentialBundle(
+            readWriteSession.authBundle
+          );
           if (injected) {
             await authIframeClient?.getWhoami({
               organizationId:

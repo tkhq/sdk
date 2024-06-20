@@ -148,7 +148,7 @@ export class TurnkeyBrowserSDK {
   // Local Storage
   getAuthBundle = async (): Promise<string | undefined> => {
     return await getStorageValue(StorageKeys.AuthBundle);
-  } // LEGACY
+  }; // LEGACY
 
   getCurrentSubOrganization = async (): Promise<
     SubOrganization | undefined
@@ -170,7 +170,8 @@ export class TurnkeyBrowserSDK {
   };
 
   getReadWriteSession = async (): Promise<ReadWriteSession | undefined> => {
-    const readWriteSession: ReadWriteSession | undefined = await getStorageValue(StorageKeys.ReadWriteSession);
+    const readWriteSession: ReadWriteSession | undefined =
+      await getStorageValue(StorageKeys.ReadWriteSession);
     if (readWriteSession) {
       if (readWriteSession.sessionExpiry > Date.now()) {
         return readWriteSession;
@@ -179,7 +180,7 @@ export class TurnkeyBrowserSDK {
       }
     }
     return undefined;
-  }
+  };
 }
 
 export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
@@ -298,14 +299,14 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
 
     const readWriteSession = {
       authBundle: authBundle,
-      sessionExpiry: (Date.now() + (Number(expirationSeconds) * 1000))
-    }
+      sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
+    };
 
     // store auth bundle in local storage
     await setStorageValue(StorageKeys.ReadWriteSession, {
       authBundle: authBundle,
-      sessionExpiry: (Date.now() + (Number(expirationSeconds) * 1000))
-    })
+      sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
+    });
 
     return readWriteSession;
   };
