@@ -10,6 +10,11 @@ export interface ReadOnlySession {
   sessionExpiry: number;
 }
 
+export interface ReadWriteSession {
+  authBundle: string;
+  sessionExpiry: number;
+}
+
 export interface SubOrganization {
   organizationId: string;
   organizationName: string;

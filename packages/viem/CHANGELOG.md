@@ -1,5 +1,13 @@
 # @turnkey/viem
 
+## 0.4.20
+
+### Patch Changes
+
+- d59e1b6: Add export of turnkey viem account functions
+- Updated dependencies [e4b29da]
+  - @turnkey/sdk-browser@0.4.0
+
 ## 0.4.19
 
 ### Patch Changes

@@ -46,28 +46,37 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const getActiveClient = async () => {
     let currentClient: TurnkeyBrowserClient | undefined = passkeyClient;
+    const currentUser = await turnkey?.getCurrentUser();
 
     try {
-      const authBundle = await turnkey?.getAuthBundle();
+      // check if the iframeClient is active
+      await authIframeClient?.getWhoami({
+        organizationId:
+          currentUser?.organization.organizationId ??
+          turnkey?.config.defaultOrganizationId!,
+      });
+      currentClient = authIframeClient;
+    } catch (error: any) {
+      try {
+        // if not, check if there's a readWriteSession in localStorage, and try to initialize an iframeClient with it
+        const readWriteSession = await turnkey?.getReadWriteSession();
 
-      if (authBundle) {
-        const injected = await authIframeClient?.injectCredentialBundle(
-          authBundle
-        );
-        if (injected) {
-          const currentUser = await turnkey?.getCurrentUser();
-          await authIframeClient?.getWhoami({
-            organizationId:
-              currentUser?.organization.organizationId ??
-              turnkey?.config.defaultOrganizationId!,
-          });
-
-          currentClient = authIframeClient;
+        if (readWriteSession) {
+          const injected = await authIframeClient?.injectCredentialBundle(
+            readWriteSession.authBundle
+          );
+          if (injected) {
+            await authIframeClient?.getWhoami({
+              organizationId:
+                currentUser?.organization.organizationId ??
+                turnkey?.config.defaultOrganizationId!,
+            });
+            currentClient = authIframeClient;
+          }
         }
+      } catch (error: any) {
+        // default to using the passkeyClient
       }
-    } catch (err: any) {
-      console.error("Failed to use iframe client", err);
-      console.log("Defaulting to passkey client");
     }
 
     return currentClient;

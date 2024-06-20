@@ -1,5 +1,16 @@
 # @turnkey/sdk-react
 
+## 0.4.0
+
+### Minor Changes
+
+- e4b29da: Deprecate the `getAuthBundle()` path for passkey sessions and replace it with `getReadWriteSession()` to store authBundles with their expirationTimestamps so applications can better manually manage active writing sessions
+
+### Patch Changes
+
+- Updated dependencies [e4b29da]
+  - @turnkey/sdk-browser@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes
