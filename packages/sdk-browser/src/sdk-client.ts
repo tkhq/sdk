@@ -17,7 +17,7 @@ import { TurnkeyRequestError } from "./__types__/base";
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
-import type { User, SubOrganization } from "./models";
+import type { User, SubOrganization, ReadWriteSession } from "./models";
 import {
   StorageKeys,
   getStorageValue,
@@ -146,6 +146,10 @@ export class TurnkeyBrowserSDK {
   };
 
   // Local Storage
+  getAuthBundle = async (): Promise<string | undefined> => {
+    return await getStorageValue(StorageKeys.AuthBundle);
+  } // LEGACY
+
   getCurrentSubOrganization = async (): Promise<
     SubOrganization | undefined
   > => {
@@ -158,15 +162,24 @@ export class TurnkeyBrowserSDK {
   };
 
   logoutUser = async (): Promise<boolean> => {
+    await removeStorageValue(StorageKeys.AuthBundle); // LEGACY
     await removeStorageValue(StorageKeys.CurrentUser);
-    await removeStorageValue(StorageKeys.AuthBundle);
+    await removeStorageValue(StorageKeys.ReadWriteSession);
 
     return true;
   };
 
-  getAuthBundle = async (): Promise<string | undefined> => {
-    return await getStorageValue(StorageKeys.AuthBundle);
-  };
+  getReadWriteSession = async (): Promise<ReadWriteSession | undefined> => {
+    const readWriteSession: ReadWriteSession | undefined = await getStorageValue(StorageKeys.ReadWriteSession);
+    if (readWriteSession) {
+      if (readWriteSession.sessionExpiry > Date.now()) {
+        return readWriteSession;
+      } else {
+        await removeStorageValue(StorageKeys.ReadWriteSession);
+      }
+    }
+    return undefined;
+  }
 }
 
 export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
@@ -262,7 +275,8 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     userId: string,
     targetEmbeddedKey: string,
     expirationSeconds?: string
-  ): Promise<string> => {
+  ): Promise<ReadWriteSession> => {
+    const DEFAULT_SESSION_EXPIRATION = "900"; // default to 15 minutes
     const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
     userId = userId ?? localStorageUser?.userId;
 
@@ -277,15 +291,23 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
         {
           apiKeyName: `Session Key ${String(Date.now())}`,
           publicKey,
-          expirationSeconds: expirationSeconds ?? "900", // default to 15 minutes
+          expirationSeconds: expirationSeconds ?? DEFAULT_SESSION_EXPIRATION,
         },
       ],
     });
 
-    // store auth bundle in local storage
-    await setStorageValue(StorageKeys.AuthBundle, authBundle);
+    const readWriteSession = {
+      authBundle: authBundle,
+      sessionExpiry: (Date.now() + (Number(expirationSeconds) * 1000))
+    }
 
-    return authBundle;
+    // store auth bundle in local storage
+    await setStorageValue(StorageKeys.ReadWriteSession, {
+      authBundle: authBundle,
+      sessionExpiry: (Date.now() + (Number(expirationSeconds) * 1000))
+    })
+
+    return readWriteSession;
   };
 }
 
