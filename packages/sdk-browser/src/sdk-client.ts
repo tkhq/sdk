@@ -146,6 +146,10 @@ export class TurnkeyBrowserSDK {
   };
 
   // Local Storage
+  getAuthBundle = async (): Promise<string | undefined> => {
+    return await getStorageValue(StorageKeys.AuthBundle);
+  } // LEGACY
+
   getCurrentSubOrganization = async (): Promise<
     SubOrganization | undefined
   > => {
@@ -158,6 +162,7 @@ export class TurnkeyBrowserSDK {
   };
 
   logoutUser = async (): Promise<boolean> => {
+    await removeStorageValue(StorageKeys.AuthBundle); // LEGACY
     await removeStorageValue(StorageKeys.CurrentUser);
     await removeStorageValue(StorageKeys.ReadWriteSession);
 
