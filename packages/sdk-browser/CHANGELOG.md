@@ -1,5 +1,12 @@
 # @turnkey/sdk-browser
 
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/crypto@0.2.0
+
 ## 0.4.0
 
 ### Minor Changes

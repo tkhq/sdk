@@ -1,5 +1,11 @@
 # @turnkey/viem
 
+## 0.4.21
+
+### Patch Changes
+
+- @turnkey/sdk-browser@0.4.1
+
 ## 0.4.20
 
 ### Patch Changes
