@@ -8,7 +8,10 @@ import {
   generateP256KeyPair,
   decryptBundle,
   extractPrivateKeyFromPKCS8Bytes,
+  uncompressRawPublicKey,
   compressRawPublicKey,
+  hpkeDecrypt,
+  hpkeEncrypt,
 } from "../crypto";
 
 // Mock data for testing
@@ -18,6 +21,44 @@ const mockPrivateKey =
   "20fa65df11f24833790ae283fc9a0c215eecbbc589549767977994dc69d05a56";
 const mockCredentialBundle =
   "w99a5xV6A75TfoAUkZn869fVyDYvgVsKrawMALZXmrauZd8hEv66EkPU1Z42CUaHESQjcA5bqd8dynTGBMLWB9ewtXWPEVbZvocB4Tw2K1vQVp7uwjf";
+
+describe("HPKE Encryption and Decryption", () => {
+  test("hpkeEncrypt and hpkeDecrypt - end-to-end encryption and decryption", () => {
+    const senderKeyPair = generateP256KeyPair();
+    const receiverKeyPair = generateP256KeyPair();
+    const receiverPublicKeyUncompressed = uncompressRawPublicKey(
+      uint8ArrayFromHexString(receiverKeyPair.publicKey)
+    );
+
+    const textEncoder = new TextEncoder();
+    // Mock plaintext
+    const plainText = "Hello, this is a secure message!";
+    const plainTextBuf = textEncoder.encode(plainText);
+    // Encrypt
+    const encryptedData = hpkeEncrypt({
+      plainTextBuf: plainTextBuf,
+      targetKeyBuf: receiverPublicKeyUncompressed,
+      senderPriv: senderKeyPair.privateKey,
+    });
+
+    // Extract the encapsulated key buffer and the ciphertext
+    const encappedKeyBuf = encryptedData.slice(0, 33);
+    const ciphertextBuf = encryptedData.slice(33);
+
+    // Decrypt
+    const decryptedData = hpkeDecrypt({
+      ciphertextBuf,
+      encappedKeyBuf: uncompressRawPublicKey(encappedKeyBuf),
+      receiverPriv: receiverKeyPair.privateKey,
+    });
+
+    // Convert decrypted data back to string
+    const decryptedText = new TextDecoder().decode(decryptedData);
+
+    // Expect the decrypted text to equal the original plaintext
+    expect(decryptedText).toEqual(plainText);
+  });
+});
 
 describe("Turnkey Crypto Primitives", () => {
   test("getPublicKey - returns the correct public key", () => {
