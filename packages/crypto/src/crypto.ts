@@ -411,13 +411,13 @@ const deriveSS = (encappedKeyBuf: Uint8Array, priv: string): Uint8Array => {
  * Encrypt data using AES-GCM.
  */
 const aesGcmEncrypt = (
-  plaintextData: Uint8Array,
+  plainTextData: Uint8Array,
   key: Uint8Array,
   iv: Uint8Array,
   aad?: Uint8Array
 ): Uint8Array => {
   const aes = gcm(key, iv, aad);
-  const data = aes.encrypt(plaintextData);
+  const data = aes.encrypt(plainTextData);
   return data;
 };
 

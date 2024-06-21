@@ -16,9 +16,10 @@ const receiverPublicKeyUncompressed = uncompressRawPublicKey(
   uint8ArrayFromHexString(receiverKeyPair.publicKey),
 );
 
-const plaintext = "Hello, this is a secure message!";
+const plainText = "Hello, this is a secure message!";
+const plainTextBuf = textEncoder.encode(plainText);
 const encryptedData = hpkeEncrypt({
-  plainText: plaintext,
+  plainTextBuf: plainTextBuf,
   encappedKeyBuf: receiverPublicKeyUncompressed,
   senderPriv: senderKeyPair.privateKey,
 });

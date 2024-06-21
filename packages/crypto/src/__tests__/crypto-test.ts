@@ -32,8 +32,8 @@ describe("HPKE Encryption and Decryption", () => {
 
     const textEncoder = new TextEncoder();
     // Mock plaintext
-    const plaintext = "Hello, this is a secure message!";
-    const plainTextBuf = textEncoder.encode(plaintext);
+    const plainText = "Hello, this is a secure message!";
+    const plainTextBuf = textEncoder.encode(plainText);
     // Encrypt
     const encryptedData = hpkeEncrypt({
       plainTextBuf: plainTextBuf,
@@ -56,7 +56,7 @@ describe("HPKE Encryption and Decryption", () => {
     const decryptedText = new TextDecoder().decode(decryptedData);
 
     // Expect the decrypted text to equal the original plaintext
-    expect(decryptedText).toEqual(plaintext);
+    expect(decryptedText).toEqual(plainText);
   });
 });
 
