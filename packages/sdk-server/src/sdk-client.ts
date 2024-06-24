@@ -17,6 +17,7 @@ import type {
 } from "./__types__/base";
 
 const DEFAULT_API_PROXY_ALLOWED_METHODS = [
+  "oauth",
   "createSubOrganization",
   "emailAuth",
   "initUserEmailRecovery",

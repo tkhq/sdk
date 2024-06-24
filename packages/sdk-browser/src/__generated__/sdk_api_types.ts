@@ -63,6 +63,17 @@ export type TGetAuthenticatorsBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetOauthProvidersResponse =
+  operations["PublicApiService_GetOauthProviders"]["responses"]["200"]["schema"];
+
+export type TGetOauthProvidersInput = { body: TGetOauthProvidersBody };
+
+export type TGetOauthProvidersBody = Omit<
+  operations["PublicApiService_GetOauthProviders"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetOrganizationResponse =
   operations["PublicApiService_GetOrganization"]["responses"]["200"]["schema"];
 
@@ -278,6 +289,16 @@ export type TCreateInvitationsBody =
   operations["PublicApiService_CreateInvitations"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateOauthProvidersResponse =
+  operations["PublicApiService_CreateOauthProviders"]["responses"]["200"]["schema"]["activity"]["result"]["createOauthProvidersResult"] &
+    ActivityMetadata;
+
+export type TCreateOauthProvidersInput = { body: TCreateOauthProvidersBody };
+
+export type TCreateOauthProvidersBody =
+  operations["PublicApiService_CreateOauthProviders"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreatePoliciesResponse =
   operations["PublicApiService_CreatePolicies"]["responses"]["200"]["schema"]["activity"]["result"]["createPoliciesResult"] &
     ActivityMetadata;
@@ -329,7 +350,7 @@ export type TCreateReadOnlySessionBody =
     commandOverrideParams;
 
 export type TCreateSubOrganizationResponse =
-  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV4"] &
+  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV5"] &
     ActivityMetadata;
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
@@ -406,6 +427,16 @@ export type TDeleteInvitationInput = { body: TDeleteInvitationBody };
 
 export type TDeleteInvitationBody =
   operations["PublicApiService_DeleteInvitation"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TDeleteOauthProvidersResponse =
+  operations["PublicApiService_DeleteOauthProviders"]["responses"]["200"]["schema"]["activity"]["result"]["deleteOauthProvidersResult"] &
+    ActivityMetadata;
+
+export type TDeleteOauthProvidersInput = { body: TDeleteOauthProvidersBody };
+
+export type TDeleteOauthProvidersBody =
+  operations["PublicApiService_DeleteOauthProviders"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TDeletePolicyResponse =
@@ -536,6 +567,16 @@ export type TInitUserEmailRecoveryInput = { body: TInitUserEmailRecoveryBody };
 
 export type TInitUserEmailRecoveryBody =
   operations["PublicApiService_InitUserEmailRecovery"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TOauthResponse =
+  operations["PublicApiService_Oauth"]["responses"]["200"]["schema"]["activity"]["result"]["oauthResult"] &
+    ActivityMetadata;
+
+export type TOauthInput = { body: TOauthBody };
+
+export type TOauthBody =
+  operations["PublicApiService_Oauth"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TRecoverUserResponse =

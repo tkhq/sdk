@@ -3,7 +3,7 @@ import {
   Turnkey as TurnkeyServerSDK,
   TurnkeyApiTypes,
 } from "@turnkey/sdk-server";
-import { CreateSubOrgResponse, TFormattedWallet } from "@/app/types";
+import { CreateSubOrgResponse } from "@/app/types";
 
 type TAttestation = TurnkeyApiTypes["v1Attestation"];
 
@@ -57,6 +57,7 @@ export default async function createUser(
                 attestation: createSubOrgRequest.attestation,
               },
             ],
+            oauthProviders: [],
           },
         ],
         wallet: {

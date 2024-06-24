@@ -169,6 +169,15 @@ export class TurnkeySDKClientBase {
     });
   };
 
+  getOauthProviders = async (
+    input: SdkApiTypes.TGetOauthProvidersBody
+  ): Promise<SdkApiTypes.TGetOauthProvidersResponse> => {
+    return this.request("/public/v1/query/get_oauth_providers", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
   getOrganization = async (
     input: SdkApiTypes.TGetOrganizationBody = {}
   ): Promise<SdkApiTypes.TGetOrganizationResponse> => {
@@ -400,6 +409,26 @@ export class TurnkeySDKClientBase {
     );
   };
 
+  createOauthProviders = async (
+    input: SdkApiTypes.TCreateOauthProvidersBody
+  ): Promise<SdkApiTypes.TCreateOauthProvidersResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const currentUser = await getStorageValue(StorageKeys.CurrentUser);
+    return this.command(
+      "/public/v1/submit/create_oauth_providers",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          currentUser?.organization?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
+      },
+      "createOauthProvidersResult"
+    );
+  };
+
   createPolicies = async (
     input: SdkApiTypes.TCreatePoliciesBody
   ): Promise<SdkApiTypes.TCreatePoliciesResponse> => {
@@ -514,9 +543,9 @@ export class TurnkeySDKClientBase {
           currentUser?.organization?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4",
+        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5",
       },
-      "createSubOrganizationResultV4"
+      "createSubOrganizationResultV5"
     );
   };
 
@@ -657,6 +686,26 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_INVITATION",
       },
       "deleteInvitationResult"
+    );
+  };
+
+  deleteOauthProviders = async (
+    input: SdkApiTypes.TDeleteOauthProvidersBody
+  ): Promise<SdkApiTypes.TDeleteOauthProvidersResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const currentUser = await getStorageValue(StorageKeys.CurrentUser);
+    return this.command(
+      "/public/v1/submit/delete_oauth_providers",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          currentUser?.organization?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS",
+      },
+      "deleteOauthProvidersResult"
     );
   };
 
@@ -917,6 +966,26 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
       },
       "initUserEmailRecoveryResult"
+    );
+  };
+
+  oauth = async (
+    input: SdkApiTypes.TOauthBody
+  ): Promise<SdkApiTypes.TOauthResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const currentUser = await getStorageValue(StorageKeys.CurrentUser);
+    return this.command(
+      "/public/v1/submit/oauth",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          currentUser?.organization?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_OAUTH",
+      },
+      "oauthResult"
     );
   };
 

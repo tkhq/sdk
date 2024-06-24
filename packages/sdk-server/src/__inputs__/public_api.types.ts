@@ -24,6 +24,10 @@ export type paths = {
     /** Get details about authenticators for a user */
     post: operations["PublicApiService_GetAuthenticators"];
   };
+  "/public/v1/query/get_oauth_providers": {
+    /** Get details about Oauth providers for a user */
+    post: operations["PublicApiService_GetOauthProviders"];
+  };
   "/public/v1/query/get_organization": {
     /** Get details about an Organization */
     post: operations["PublicApiService_GetOrganization"];
@@ -104,6 +108,10 @@ export type paths = {
     /** Create Invitations to join an existing Organization */
     post: operations["PublicApiService_CreateInvitations"];
   };
+  "/public/v1/submit/create_oauth_providers": {
+    /** Creates Oauth providers for a specified user - BETA */
+    post: operations["PublicApiService_CreateOauthProviders"];
+  };
   "/public/v1/submit/create_policies": {
     /** Create new Policies */
     post: operations["PublicApiService_CreatePolicies"];
@@ -156,6 +164,10 @@ export type paths = {
     /** Delete an existing Invitation */
     post: operations["PublicApiService_DeleteInvitation"];
   };
+  "/public/v1/submit/delete_oauth_providers": {
+    /** Removes Oauth providers for a specified user - BETA */
+    post: operations["PublicApiService_DeleteOauthProviders"];
+  };
   "/public/v1/submit/delete_policy": {
     /** Delete an existing Policy */
     post: operations["PublicApiService_DeletePolicy"];
@@ -207,6 +219,10 @@ export type paths = {
   "/public/v1/submit/init_user_email_recovery": {
     /** Initializes a new email recovery */
     post: operations["PublicApiService_InitUserEmailRecovery"];
+  };
+  "/public/v1/submit/oauth": {
+    /** Authenticate a user with an Oidc token (Oauth) - BETA */
+    post: operations["PublicApiService_Oauth"];
   };
   "/public/v1/submit/recover_user": {
     /** Completes the process of recovering a user by adding an authenticator */
@@ -359,6 +375,8 @@ export type definitions = {
     canReject: boolean;
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
+    /** @description Failure reason of the intended action. */
+    failure?: definitions["rpcStatus"];
   };
   v1ActivityResponse: {
     /** @description An action that can that can be taken within the Turnkey infrastructure. */
@@ -437,7 +455,11 @@ export type definitions = {
     | "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"
     | "ACTIVITY_TYPE_CREATE_POLICIES"
     | "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"
-    | "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION";
+    | "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"
+    | "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS"
+    | "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS"
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5"
+    | "ACTIVITY_TYPE_OAUTH";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -629,6 +651,25 @@ export type definitions = {
   v1CreateInvitationsResult: {
     /** @description A list of Invitation IDs */
     invitationIds: string[];
+  };
+  v1CreateOauthProvidersIntent: {
+    /** @description The ID of the User to add an Oauth provider to */
+    userId: string;
+    /** @description A list of Oauth providers. */
+    oauthProviders: definitions["v1OauthProviderParams"][];
+  };
+  v1CreateOauthProvidersRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateOauthProvidersIntent"];
+  };
+  v1CreateOauthProvidersResult: {
+    /** @description A list of unique identifiers for Oauth Providers */
+    providerIds: string[];
   };
   v1CreateOrganizationIntent: {
     /** @description Human-readable name for an Organization. */
@@ -833,14 +874,31 @@ export type definitions = {
     /** @description Disable email auth for the sub-organization */
     disableEmailAuth?: boolean;
   };
+  v1CreateSubOrganizationIntentV5: {
+    /** @description Name for this sub-organization */
+    subOrganizationName: string;
+    /** @description Root users to create within this sub-organization */
+    rootUsers: definitions["v1RootUserParamsV2"][];
+    /**
+     * Format: int32
+     * @description The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users
+     */
+    rootQuorumThreshold: number;
+    /** @description The wallet to create for the sub-organization */
+    wallet?: definitions["v1WalletParams"];
+    /** @description Disable email recovery for the sub-organization */
+    disableEmailRecovery?: boolean;
+    /** @description Disable email auth for the sub-organization */
+    disableEmailAuth?: boolean;
+  };
   v1CreateSubOrganizationRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4";
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1CreateSubOrganizationIntentV4"];
+    parameters: definitions["v1CreateSubOrganizationIntentV5"];
   };
   v1CreateSubOrganizationResult: {
     subOrganizationId: string;
@@ -853,6 +911,11 @@ export type definitions = {
     rootUserIds?: string[];
   };
   v1CreateSubOrganizationResultV4: {
+    subOrganizationId: string;
+    wallet?: definitions["v1WalletResult"];
+    rootUserIds?: string[];
+  };
+  v1CreateSubOrganizationResultV5: {
     subOrganizationId: string;
     wallet?: definitions["v1WalletResult"];
     rootUserIds?: string[];
@@ -1008,6 +1071,25 @@ export type definitions = {
   v1DeleteInvitationResult: {
     /** @description Unique identifier for a given Invitation. */
     invitationId: string;
+  };
+  v1DeleteOauthProvidersIntent: {
+    /** @description The ID of the User to remove an Oauth provider from */
+    userId: string;
+    /** @description Unique identifier for a given Provider. */
+    providerIds: string[];
+  };
+  v1DeleteOauthProvidersRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteOauthProvidersIntent"];
+  };
+  v1DeleteOauthProvidersResult: {
+    /** @description A list of unique identifiers for Oauth Providers */
+    providerIds: string[];
   };
   v1DeleteOrganizationIntent: {
     /** @description Unique identifier for a given Organization. */
@@ -1282,6 +1364,16 @@ export type definitions = {
     /** @description A list of authenticators. */
     authenticators: definitions["v1Authenticator"][];
   };
+  v1GetOauthProvidersRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given User. */
+    userId?: string;
+  };
+  v1GetOauthProvidersResponse: {
+    /** @description A list of Oauth Providers */
+    oauthProviders: definitions["v1OauthProvider"][];
+  };
   v1GetOrganizationRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -1329,7 +1421,7 @@ export type definitions = {
   v1GetSubOrgIdsRequest: {
     /** @description Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
     organizationId: string;
-    /** @description Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL' or 'PUBLIC_KEY' */
+    /** @description Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'OIDC_TOKEN' or 'PUBLIC_KEY' */
     filterType?: string;
     /** @description The value of the filter to apply for the specified type. For example, a specific email or name string. */
     filterValue?: string;
@@ -1518,7 +1610,7 @@ export type definitions = {
     userId: string;
   };
   v1Intent: {
-    createOrganizationIntent: definitions["v1CreateOrganizationIntent"];
+    createOrganizationIntent?: definitions["v1CreateOrganizationIntent"];
     createAuthenticatorsIntent?: definitions["v1CreateAuthenticatorsIntent"];
     createUsersIntent?: definitions["v1CreateUsersIntent"];
     createPrivateKeysIntent?: definitions["v1CreatePrivateKeysIntent"];
@@ -1582,6 +1674,10 @@ export type definitions = {
     createPoliciesIntent?: definitions["v1CreatePoliciesIntent"];
     signRawPayloadsIntent?: definitions["v1SignRawPayloadsIntent"];
     createReadOnlySessionIntent?: definitions["v1CreateReadOnlySessionIntent"];
+    createOauthProvidersIntent?: definitions["v1CreateOauthProvidersIntent"];
+    deleteOauthProvidersIntent?: definitions["v1DeleteOauthProvidersIntent"];
+    createSubOrganizationIntentV5?: definitions["v1CreateSubOrganizationIntentV5"];
+    oauthIntent?: definitions["v1OauthIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -1647,6 +1743,55 @@ export type definitions = {
     | "MNEMONIC_LANGUAGE_SPANISH";
   v1NOOPCodegenAnchorResponse: {
     stamp: definitions["v1WebAuthnStamp"];
+  };
+  v1OauthIntent: {
+    /** @description Base64 encoded OIDC token */
+    oidcToken: string;
+    /** @description Client-side public key generated by the user, to which the oauth bundle (credentials) will be encrypted. */
+    targetPublicKey: string;
+    /** @description Optional human-readable name for an API Key. If none provided, default to Oauth - <Timestamp> */
+    apiKeyName?: string;
+    /** @description Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used. */
+    expirationSeconds?: string;
+  };
+  v1OauthProvider: {
+    /** @description Unique identifier for an OAuth Provider */
+    providerId: string;
+    /** @description Human-readable name to identify a Provider. */
+    providerName: string;
+    /** @description The URL at which to fetch the OIDC token signers */
+    jwksUri: string;
+    /** @description Expected audience ('aud' attribute of the signed token) which represents the app ID */
+    audience: string;
+    /** @description Expected subject ('sub' attribute of the signed token) which represents the user ID */
+    subject: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1OauthProviderParams: {
+    /** @description Human-readable name to identify a Provider. */
+    providerName: string;
+    /** @description The URL at which to fetch the OIDC token signers */
+    jwksUri: string;
+    /** @description Base64 encoded OIDC token */
+    oidcToken: string;
+  };
+  v1OauthRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_OAUTH";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1OauthIntent"];
+  };
+  v1OauthResult: {
+    /** @description Unique identifier for the authenticating User. */
+    userId: string;
+    /** @description Unique identifier for the created API key. */
+    apiKeyId: string;
+    /** @description HPKE encrypted credential bundle */
+    credentialBundle: string;
   };
   /** @enum {string} */
   v1Operator:
@@ -1849,6 +1994,10 @@ export type definitions = {
     createPoliciesResult?: definitions["v1CreatePoliciesResult"];
     signRawPayloadsResult?: definitions["v1SignRawPayloadsResult"];
     createReadOnlySessionResult?: definitions["v1CreateReadOnlySessionResult"];
+    createOauthProvidersResult?: definitions["v1CreateOauthProvidersResult"];
+    deleteOauthProvidersResult?: definitions["v1DeleteOauthProvidersResult"];
+    createSubOrganizationResultV5?: definitions["v1CreateSubOrganizationResultV5"];
+    oauthResult?: definitions["v1OauthResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -1859,6 +2008,18 @@ export type definitions = {
     apiKeys: definitions["v1ApiKeyParams"][];
     /** @description A list of Authenticator parameters. */
     authenticators: definitions["v1AuthenticatorParamsV2"][];
+  };
+  v1RootUserParamsV2: {
+    /** @description Human-readable name for a User. */
+    userName: string;
+    /** @description The user's email address. */
+    userEmail?: string;
+    /** @description A list of API Key parameters. */
+    apiKeys: definitions["v1ApiKeyParams"][];
+    /** @description A list of Authenticator parameters. */
+    authenticators: definitions["v1AuthenticatorParamsV2"][];
+    /** @description A list of Oauth providers. */
+    oauthProviders: definitions["v1OauthProviderParams"][];
   };
   v1Selector: {
     subject?: string;
@@ -2146,6 +2307,8 @@ export type definitions = {
     apiKeys: definitions["v1ApiKey"][];
     /** @description A list of User Tag IDs. */
     userTags: string[];
+    /** @description A list of Oauth Providers. */
+    oauthProviders: definitions["v1OauthProvider"][];
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
   };
@@ -2348,6 +2511,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetAuthenticatorsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get details about Oauth providers for a user */
+  PublicApiService_GetOauthProviders: {
+    parameters: {
+      body: {
+        body: definitions["v1GetOauthProvidersRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetOauthProvidersResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -2715,6 +2896,24 @@ export type operations = {
       };
     };
   };
+  /** Creates Oauth providers for a specified user - BETA */
+  PublicApiService_CreateOauthProviders: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateOauthProvidersRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Create new Policies */
   PublicApiService_CreatePolicies: {
     parameters: {
@@ -2949,6 +3148,24 @@ export type operations = {
       };
     };
   };
+  /** Removes Oauth providers for a specified user - BETA */
+  PublicApiService_DeleteOauthProviders: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteOauthProvidersRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Delete an existing Policy */
   PublicApiService_DeletePolicy: {
     parameters: {
@@ -3170,6 +3387,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1InitUserEmailRecoveryRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Authenticate a user with an Oidc token (Oauth) - BETA */
+  PublicApiService_Oauth: {
+    parameters: {
+      body: {
+        body: definitions["v1OauthRequest"];
       };
     };
     responses: {
