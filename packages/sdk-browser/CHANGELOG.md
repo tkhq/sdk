@@ -1,5 +1,11 @@
 # @turnkey/sdk-browser
 
+## 1.0.0
+
+### Major Changes
+
+- Stable Release: Add Oauth integration. New suborg creation version will now require an oauthProviders field under root users.
+
 ## 0.4.1
 
 ### Patch Changes
