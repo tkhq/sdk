@@ -1,5 +1,11 @@
 # @turnkey/sdk-server
 
+## 1.0.0
+
+### Major Changes
+
+- Stable Release: Add Oauth integration. New suborg creation version will now require an oauthProviders field under root users.
+
 ## 0.2.0
 
 ### Minor Changes
