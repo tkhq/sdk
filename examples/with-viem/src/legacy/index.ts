@@ -78,7 +78,10 @@ async function main() {
   assertEqual(address, recoveredAddress);
 
   // 3. Sign and broadcast tx separately
-  const preparedTransaction = await client.prepareTransactionRequest({ ...transactionRequest, type: "eip1559" });
+  const preparedTransaction = await client.prepareTransactionRequest({
+    ...transactionRequest,
+    type: "eip1559",
+  });
   const signedTransaction = await client.signTransaction(preparedTransaction);
 
   txHash = await client.sendRawTransaction({
