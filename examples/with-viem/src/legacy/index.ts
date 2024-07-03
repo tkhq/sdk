@@ -18,7 +18,7 @@ import { createNewEthereumPrivateKey } from "./createNewEthereumPrivateKey";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 async function main() {
-  if (!process.env.PRIVATE_KEY_ID) {
+  if (!process.env.SIGN_WITH) {
     // If you don't specify a `PRIVATE_KEY_ID`, we'll create one for you via calling the Turnkey API.
     await createNewEthereumPrivateKey();
     return;
@@ -37,7 +37,7 @@ async function main() {
   const turnkeyAccount = await createAccount({
     client: turnkeyClient,
     organizationId: process.env.ORGANIZATION_ID!,
-    signWith: process.env.PRIVATE_KEY_ID!,
+    signWith: process.env.SIGN_WITH!,
   });
 
   const client = createWalletClient({
@@ -57,7 +57,7 @@ async function main() {
     value: 1000000000000000n,
   };
 
-  const txHash = await client.sendTransaction(transactionRequest);
+  let txHash = await client.sendTransaction(transactionRequest);
 
   print("Source address", client.account.address);
   print("Transaction", `https://sepolia.etherscan.io/tx/${txHash}`);
@@ -76,6 +76,20 @@ async function main() {
   print("Turnkey-powered signature:", `${signature}`);
   print("Recovered address:", `${recoveredAddress}`);
   assertEqual(address, recoveredAddress);
+
+  // 3. Sign and broadcast tx separately
+  const preparedTransaction = await client.prepareTransactionRequest({
+    ...transactionRequest,
+    type: "eip1559",
+  });
+  const signedTransaction = await client.signTransaction(preparedTransaction);
+
+  txHash = await client.sendRawTransaction({
+    serializedTransaction: signedTransaction,
+  });
+
+  print("Signed transaction", signedTransaction);
+  print("Broadcasted transaction", `https://sepolia.etherscan.io/tx/${txHash}`);
 }
 
 main().catch((error) => {
