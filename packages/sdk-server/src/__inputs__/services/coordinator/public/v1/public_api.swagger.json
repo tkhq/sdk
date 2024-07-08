@@ -164,6 +164,38 @@
         "tags": ["API keys"]
       }
     },
+    "/public/v1/query/get_attestation": {
+      "post": {
+        "summary": "Attestation",
+        "description": "Get the attestation document corresponding to an enclave.",
+        "operationId": "PublicApiService_GetAttestationDocument",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAttestationDocumentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetAttestationDocumentRequest"
+            }
+          }
+        ],
+        "tags": ["Attestation"]
+      }
+    },
     "/public/v1/query/get_authenticator": {
       "post": {
         "summary": "Get Authenticator",
@@ -1086,6 +1118,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1CreateReadOnlySessionRequest"
+            }
+          }
+        ],
+        "tags": ["Sessions"]
+      }
+    },
+    "/public/v1/submit/create_read_write_session": {
+      "post": {
+        "summary": "Create Read Write Session",
+        "description": "Create a read write session for a user",
+        "operationId": "PublicApiService_CreateReadWriteSession",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateReadWriteSessionRequest"
             }
           }
         ],
@@ -2586,7 +2650,9 @@
         "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
         "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS",
         "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5",
-        "ACTIVITY_TYPE_OAUTH"
+        "ACTIVITY_TYPE_OAUTH",
+        "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
+        "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION"
       ]
     },
     "v1AddressFormat": {
@@ -2635,6 +2701,10 @@
         "updatedAt"
       ]
     },
+    "v1ApiKeyCurve": {
+      "type": "string",
+      "enum": ["API_KEY_CURVE_P256", "API_KEY_CURVE_SECP256K1"]
+    },
     "v1ApiKeyParams": {
       "type": "object",
       "properties": {
@@ -2652,6 +2722,28 @@
         }
       },
       "required": ["apiKeyName", "publicKey"]
+    },
+    "v1ApiKeyParamsV2": {
+      "type": "object",
+      "properties": {
+        "apiKeyName": {
+          "type": "string",
+          "description": "Human-readable name for an API Key."
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "The public component of a cryptographic key pair used to sign messages and transactions."
+        },
+        "curveType": {
+          "$ref": "#/definitions/v1ApiKeyCurve",
+          "description": "The curve type to be used for processing API key signatures."
+        },
+        "expirationSeconds": {
+          "type": "string",
+          "description": "Optional window (in seconds) indicating how long the API Key should last."
+        }
+      },
+      "required": ["apiKeyName", "publicKey", "curveType"]
     },
     "v1ApiOnlyUserParams": {
       "type": "object",
@@ -2890,12 +2982,30 @@
       },
       "required": ["apiKeys", "userId"]
     },
+    "v1CreateApiKeysIntentV2": {
+      "type": "object",
+      "properties": {
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ApiKeyParamsV2"
+          },
+          "description": "A list of API Keys."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User."
+        }
+      },
+      "required": ["apiKeys", "userId"]
+    },
     "v1CreateApiKeysRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_API_KEYS"]
+          "enum": ["ACTIVITY_TYPE_CREATE_API_KEYS_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -2906,7 +3016,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1CreateApiKeysIntent"
+          "$ref": "#/definitions/v1CreateApiKeysIntentV2"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -3543,6 +3653,86 @@
         "sessionExpiry"
       ]
     },
+    "v1CreateReadWriteSessionIntent": {
+      "type": "object",
+      "properties": {
+        "targetPublicKey": {
+          "type": "string",
+          "description": "Client-side public key generated by the user, to which the read write session bundle (credentials) will be encrypted."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email of the user to create a read write session for"
+        },
+        "apiKeyName": {
+          "type": "string",
+          "description": "Optional human-readable name for an API Key. If none provided, default to Read Write Session - \u003cTimestamp\u003e"
+        },
+        "expirationSeconds": {
+          "type": "string",
+          "description": "Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used."
+        }
+      },
+      "required": ["targetPublicKey", "email"]
+    },
+    "v1CreateReadWriteSessionRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateReadWriteSessionIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateReadWriteSessionResult": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization. If the request is being made by a user and their Sub-Organization ID is unknown, this can be the Parent Organization ID. However, using the Sub-Organization ID is preferred due to performance reasons."
+        },
+        "organizationName": {
+          "type": "string",
+          "description": "Human-readable name for an Organization."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User."
+        },
+        "username": {
+          "type": "string",
+          "description": "Human-readable name for a User."
+        },
+        "apiKeyId": {
+          "type": "string",
+          "description": "Unique identifier for the created API key."
+        },
+        "credentialBundle": {
+          "type": "string",
+          "description": "HPKE encrypted credential bundle"
+        }
+      },
+      "required": [
+        "organizationId",
+        "organizationName",
+        "userId",
+        "username",
+        "apiKeyId",
+        "credentialBundle"
+      ]
+    },
     "v1CreateSubOrganizationIntent": {
       "type": "object",
       "properties": {
@@ -4025,7 +4215,8 @@
       "enum": [
         "CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR",
         "CREDENTIAL_TYPE_API_KEY_P256",
-        "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"
+        "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256",
+        "CREDENTIAL_TYPE_API_KEY_SECP256K1"
       ]
     },
     "v1Curve": {
@@ -4851,6 +5042,31 @@
         }
       },
       "required": ["apiKeys"]
+    },
+    "v1GetAttestationDocumentRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "enclaveType": {
+          "type": "string",
+          "description": "The enclave type, one of: ump, notarizer, signer, evm-parser"
+        }
+      },
+      "required": ["organizationId", "enclaveType"]
+    },
+    "v1GetAttestationDocumentResponse": {
+      "type": "object",
+      "properties": {
+        "attestationDocument": {
+          "type": "string",
+          "format": "byte",
+          "description": "Raw (CBOR-encoded) attestation document"
+        }
+      },
+      "required": ["attestationDocument"]
     },
     "v1GetAuthenticatorRequest": {
       "type": "object",
@@ -5731,6 +5947,12 @@
         },
         "oauthIntent": {
           "$ref": "#/definitions/v1OauthIntent"
+        },
+        "createApiKeysIntentV2": {
+          "$ref": "#/definitions/v1CreateApiKeysIntentV2"
+        },
+        "createReadWriteSessionIntent": {
+          "$ref": "#/definitions/v1CreateReadWriteSessionIntent"
         }
       }
     },
@@ -6600,6 +6822,9 @@
         },
         "oauthResult": {
           "$ref": "#/definitions/v1OauthResult"
+        },
+        "createReadWriteSessionResult": {
+          "$ref": "#/definitions/v1CreateReadWriteSessionResult"
         }
       }
     },
