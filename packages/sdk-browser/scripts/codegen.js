@@ -3,7 +3,7 @@ const path = require("path");
 
 const SOURCE_DIRECTORY = path.resolve(__dirname, "../src");
 const PUBLIC_API_SWAGGER_PATH = path.resolve(
-  `${SOURCE_DIRECTORY}/__inputs__/services/coordinator/public/v1`,
+  `${SOURCE_DIRECTORY}/__inputs__`,
   "public_api.swagger.json"
 );
 const TARGET_API_TYPES_PATH = path.resolve(
