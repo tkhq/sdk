@@ -335,7 +335,7 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_API_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
       },
       "createApiKeysResult"
     );
