@@ -146,6 +146,60 @@ export const signGetApiKeys = (
   });
 
 /**
+ * `POST /public/v1/query/get_attestation`
+ */
+export type TGetAttestationDocumentResponse =
+  operations["PublicApiService_GetAttestationDocument"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_attestation`
+ */
+export type TGetAttestationDocumentInput = {
+  body: TGetAttestationDocumentBody;
+};
+
+/**
+ * `POST /public/v1/query/get_attestation`
+ */
+export type TGetAttestationDocumentBody =
+  operations["PublicApiService_GetAttestationDocument"]["parameters"]["body"]["body"];
+
+/**
+ * Attestation
+ *
+ * Get the attestation document corresponding to an enclave.
+ *
+ * `POST /public/v1/query/get_attestation`
+ */
+export const getAttestationDocument = (input: TGetAttestationDocumentInput) =>
+  request<
+    TGetAttestationDocumentResponse,
+    TGetAttestationDocumentBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_attestation",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetAttestationDocument` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetAttestationDocument}
+ */
+export const signGetAttestationDocument = (
+  input: TGetAttestationDocumentInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TGetAttestationDocumentBody, never, never>({
+    uri: "/public/v1/query/get_attestation",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_authenticator`
  */
 export type TGetAuthenticatorResponse =
@@ -1547,6 +1601,60 @@ export const signCreateReadOnlySession = (
 ) =>
   signedRequest<TCreateReadOnlySessionBody, never, never>({
     uri: "/public/v1/submit/create_read_only_session",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/create_read_write_session`
+ */
+export type TCreateReadWriteSessionResponse =
+  operations["PublicApiService_CreateReadWriteSession"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_read_write_session`
+ */
+export type TCreateReadWriteSessionInput = {
+  body: TCreateReadWriteSessionBody;
+};
+
+/**
+ * `POST /public/v1/submit/create_read_write_session`
+ */
+export type TCreateReadWriteSessionBody =
+  operations["PublicApiService_CreateReadWriteSession"]["parameters"]["body"]["body"];
+
+/**
+ * Create Read Write Session
+ *
+ * Create a read write session for a user
+ *
+ * `POST /public/v1/submit/create_read_write_session`
+ */
+export const createReadWriteSession = (input: TCreateReadWriteSessionInput) =>
+  request<
+    TCreateReadWriteSessionResponse,
+    TCreateReadWriteSessionBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_read_write_session",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateReadWriteSession` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateReadWriteSession}
+ */
+export const signCreateReadWriteSession = (
+  input: TCreateReadWriteSessionInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TCreateReadWriteSessionBody, never, never>({
+    uri: "/public/v1/submit/create_read_write_session",
     body: input.body,
     options,
   });

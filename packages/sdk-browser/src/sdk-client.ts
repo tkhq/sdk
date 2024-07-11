@@ -275,7 +275,8 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
   createPasskeySession = async (
     userId: string,
     targetEmbeddedKey: string,
-    expirationSeconds?: string
+    expirationSeconds?: string,
+    curveType?: "API_KEY_CURVE_P256" | "API_KEY_CURVE_SECP256K1"
   ): Promise<ReadWriteSession> => {
     const DEFAULT_SESSION_EXPIRATION = "900"; // default to 15 minutes
     const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
@@ -293,6 +294,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
           apiKeyName: `Session Key ${String(Date.now())}`,
           publicKey,
           expirationSeconds: expirationSeconds ?? DEFAULT_SESSION_EXPIRATION,
+          curveType: curveType ?? "API_KEY_CURVE_P256",
         },
       ],
     });

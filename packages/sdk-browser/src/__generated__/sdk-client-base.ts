@@ -151,6 +151,15 @@ export class TurnkeySDKClientBase {
     });
   };
 
+  getAttestationDocument = async (
+    input: SdkApiTypes.TGetAttestationDocumentBody
+  ): Promise<SdkApiTypes.TGetAttestationDocumentResponse> => {
+    return this.request("/public/v1/query/get_attestation", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
   getAuthenticator = async (
     input: SdkApiTypes.TGetAuthenticatorBody
   ): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
@@ -343,7 +352,7 @@ export class TurnkeySDKClientBase {
           currentUser?.organization?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_API_KEYS",
+        type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
       },
       "createApiKeysResult"
     );
@@ -526,6 +535,26 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION",
       },
       "createReadOnlySessionResult"
+    );
+  };
+
+  createReadWriteSession = async (
+    input: SdkApiTypes.TCreateReadWriteSessionBody
+  ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const currentUser = await getStorageValue(StorageKeys.CurrentUser);
+    return this.command(
+      "/public/v1/submit/create_read_write_session",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          currentUser?.organization?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION",
+      },
+      "createReadWriteSessionResult"
     );
   };
 
