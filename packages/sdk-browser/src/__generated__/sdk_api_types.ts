@@ -41,6 +41,19 @@ export type TGetApiKeysBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetAttestationDocumentResponse =
+  operations["PublicApiService_GetAttestationDocument"]["responses"]["200"]["schema"];
+
+export type TGetAttestationDocumentInput = {
+  body: TGetAttestationDocumentBody;
+};
+
+export type TGetAttestationDocumentBody = Omit<
+  operations["PublicApiService_GetAttestationDocument"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetAuthenticatorResponse =
   operations["PublicApiService_GetAuthenticator"]["responses"]["200"]["schema"];
 
@@ -347,6 +360,18 @@ export type TCreateReadOnlySessionInput = { body: TCreateReadOnlySessionBody };
 
 export type TCreateReadOnlySessionBody =
   operations["PublicApiService_CreateReadOnlySession"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateReadWriteSessionResponse =
+  operations["PublicApiService_CreateReadWriteSession"]["responses"]["200"]["schema"]["activity"]["result"]["createReadWriteSessionResult"] &
+    ActivityMetadata;
+
+export type TCreateReadWriteSessionInput = {
+  body: TCreateReadWriteSessionBody;
+};
+
+export type TCreateReadWriteSessionBody =
+  operations["PublicApiService_CreateReadWriteSession"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TCreateSubOrganizationResponse =

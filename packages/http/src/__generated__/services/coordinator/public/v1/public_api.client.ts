@@ -19,6 +19,10 @@ import type {
   TGetApiKeysResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetAttestationDocumentBody,
+  TGetAttestationDocumentResponse,
+} from "./public_api.fetcher";
+import type {
   TGetAuthenticatorBody,
   TGetAuthenticatorResponse,
 } from "./public_api.fetcher";
@@ -118,6 +122,10 @@ import type {
 import type {
   TCreateReadOnlySessionBody,
   TCreateReadOnlySessionResponse,
+} from "./public_api.fetcher";
+import type {
+  TCreateReadWriteSessionBody,
+  TCreateReadWriteSessionResponse,
 } from "./public_api.fetcher";
 import type {
   TCreateSubOrganizationBody,
@@ -375,6 +383,37 @@ export class TurnkeyClient {
    */
   stampGetApiKeys = async (input: TGetApiKeysBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_api_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get the attestation document corresponding to an enclave.
+   *
+   * Sign the provided `TGetAttestationDocumentBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_attestation).
+   *
+   * See also {@link stampGetAttestationDocument}.
+   */
+  getAttestationDocument = async (
+    input: TGetAttestationDocumentBody
+  ): Promise<TGetAttestationDocumentResponse> => {
+    return this.request("/public/v1/query/get_attestation", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetAttestationDocumentBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetAttestationDocument}.
+   */
+  stampGetAttestationDocument = async (
+    input: TGetAttestationDocumentBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/get_attestation";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1260,6 +1299,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_read_only_session";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Create a read write session for a user
+   *
+   * Sign the provided `TCreateReadWriteSessionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_read_write_session).
+   *
+   * See also {@link stampCreateReadWriteSession}.
+   */
+  createReadWriteSession = async (
+    input: TCreateReadWriteSessionBody
+  ): Promise<TCreateReadWriteSessionResponse> => {
+    return this.request("/public/v1/submit/create_read_write_session", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateReadWriteSessionBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateReadWriteSession}.
+   */
+  stampCreateReadWriteSession = async (
+    input: TCreateReadWriteSessionBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_read_write_session";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
