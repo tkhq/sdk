@@ -6,6 +6,7 @@ type AuthRequest = {
   suborgID: string;
   email: string;
   targetPublicKey: string;
+  invalidateExisting: boolean;
 };
 
 /**
@@ -51,6 +52,7 @@ export default async function auth(
       parameters: {
         email: request.email,
         targetPublicKey: request.targetPublicKey,
+        invalidateExisting: request.invalidateExisting,
       },
     });
 

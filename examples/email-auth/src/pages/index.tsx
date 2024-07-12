@@ -27,6 +27,7 @@ type InjectCredentialsFormData = {
 type AuthFormData = {
   email: string;
   suborgID: string;
+  invalidateExisting: boolean;
 };
 
 export default function AuthPage() {
@@ -50,6 +51,7 @@ export default function AuthPage() {
       suborgID: data.suborgID,
       email: data.email,
       targetPublicKey: iframeStamper.publicKey(),
+      invalidateExisting: data.invalidateExisting,
     });
 
     setAuthResponse(response.data);
@@ -156,6 +158,14 @@ export default function AuthPage() {
               className={styles.input}
               {...authFormRegister("suborgID")}
               placeholder="Suborg ID"
+            />
+          </label>
+          <label>
+            Invalidate previously issued email authentication token(s)?
+            <input
+              className={styles.input_checkbox}
+              {...authFormRegister("invalidateExisting")}
+              type="checkbox"
             />
           </label>
           <label className={styles.label}>
