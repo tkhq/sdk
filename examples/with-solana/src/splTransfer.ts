@@ -4,42 +4,30 @@ import * as path from "path";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { input, confirm } from "@inquirer/prompts";
-import {
-  PublicKey,
-  SystemProgram,
-  Transaction,
-  Keypair,
-} from "@solana/web3.js";
-// import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { confirm } from "@inquirer/prompts";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import {
   getAccount,
-  createMint,
-  getOrCreateAssociatedTokenAccount,
   createMintToCheckedInstruction,
   createTransferCheckedInstruction,
-  createInitializeMintInstruction,
-  mintTo,
-  getMint,
-  createTransferInstruction,
-  getMinimumBalanceForRentExemptMint,
-  createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddress,
-  MINT_SIZE,
-  TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { TurnkeySigner } from "@turnkey/solana";
 
-import { createNewSolanaWallet } from "./createSolanaWallet";
-import * as solanaNetwork from "./solanaNetwork";
-// import { signTransfers } from "./createSolanaTransfer";
-
-const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
+import {
+  createNewSolanaWallet,
+  createToken,
+  createTokenAccount,
+  solanaNetwork,
+  TURNKEY_WAR_CHEST,
+} from "./utils";
 
 async function main() {
+  const turnkeyWarchest = new PublicKey(TURNKEY_WAR_CHEST);
+
   const organizationId = process.env.ORGANIZATION_ID!;
 
   const connection = solanaNetwork.connect();
@@ -84,130 +72,55 @@ async function main() {
     balance = await solanaNetwork.balance(connection, solAddress);
   }
 
-  // 2) compose by yourself
-  const mint = Keypair.generate();
-  console.log(`mint: ${mint.publicKey.toBase58()}`);
-
-  const alice = Keypair.generate();
-  console.log(`another party: ${alice.publicKey.toBase58()}`);
-
-  let tx = new Transaction().add(
-    // create mint account
-    SystemProgram.createAccount({
-      fromPubkey: fromKey,
-      newAccountPubkey: mint.publicKey,
-      space: MINT_SIZE,
-      lamports: await getMinimumBalanceForRentExemptMint(connection),
-      programId: TOKEN_PROGRAM_ID,
-    }),
-    // init mint account
-    createInitializeMintInstruction(
-      mint.publicKey, // mint pubkey
-      8, // decimals
-      fromKey, // mint authority
-      fromKey // freeze authority (you can use `null` to disable it. when you disable it, you can't turn it on again)
-    )
+  // Create SPL token
+  const { mintAuthority } = await createToken(
+    turnkeySigner,
+    connection,
+    solAddress
   );
-
-  // Get a recent block hash
-  tx.recentBlockhash = await solanaNetwork.recentBlockhash();
-  // Set the signer
-  tx.feePayer = fromKey;
-
-  tx.partialSign(mint);
-
-  console.log("Transaction", tx);
-
-  const _signedTransaction = await turnkeySigner.addSignature(tx, solAddress);
-  await solanaNetwork.broadcast(connection, tx);
-
-  let mintAccount = await getMint(connection, mint.publicKey);
-  console.log("Mint Account", mintAccount);
 
   // Now mint
   // calculate ATA
   let ata = await getAssociatedTokenAddress(
-    mint.publicKey, // mint
+    mintAuthority.publicKey, // mint
     fromKey // owner
   );
   console.log(`ATA: ${ata.toBase58()}`);
 
-  // calculate ATA for alice as well
-  let ataAlice = await getAssociatedTokenAddress(
-    mint.publicKey, // mint
-    alice.publicKey // owner
+  // calculate ATA for warchest as well
+  let ataWarchest = await getAssociatedTokenAddress(
+    mintAuthority.publicKey, // mint
+    turnkeyWarchest // owner
   );
-  console.log(`ATA Alice: ${ataAlice.toBase58()}`);
+  console.log(`ATA Warchest: ${ataWarchest.toBase58()}`);
 
-  // For Alice
-  const createTokenAccountTxAlice = new Transaction().add(
-    createAssociatedTokenAccountInstruction(
-      fromKey, // payer
-      ataAlice, // ata
-      alice.publicKey, // owner
-      mint.publicKey // mint
-    )
-  );
-
-  // Get a recent block hash
-  createTokenAccountTxAlice.recentBlockhash =
-    await solanaNetwork.recentBlockhash();
-  // Set the signer
-  createTokenAccountTxAlice.feePayer = fromKey;
-
-  const _signedCreateTokenAccountTxAlice = await turnkeySigner.addSignature(
-    createTokenAccountTxAlice,
-    solAddress
+  // For warchest
+  await createTokenAccount(
+    turnkeySigner,
+    connection,
+    solAddress,
+    ataWarchest,
+    mintAuthority
   );
 
-  // Takes care of broadcasting
-  //   const broadcastedCreateTokenAccountTxAlice = await connection.sendTransaction(
-  //     createTokenAccountTxAlice,
-  //     [alice]
-  //   );
-  await solanaNetwork.broadcast(connection, createTokenAccountTxAlice);
-  console.log(
-    "Broadcasted token account creation",
-    // broadcastedCreateTokenAccountTxAlice
+  const tokenAccountWarchest = await getAccount(connection, ataWarchest);
+  console.log("Token account created for Warchest");
+
+  // For self
+  await createTokenAccount(
+    turnkeySigner,
+    connection,
+    solAddress,
+    ata,
+    mintAuthority
   );
-
-  const tokenAccountAlice = await getAccount(connection, ataAlice);
-  console.log("Token account Alice", tokenAccountAlice);
-
-  // if your wallet is off-curve, you should use
-  // let ata = await getAssociatedTokenAddress(
-  //   mintPubkey, // mint
-  //   alice.publicKey // owner
-  //   true, // allowOwnerOffCurve
-  // );
-
-  const createTokenAccountTx = new Transaction().add(
-    createAssociatedTokenAccountInstruction(
-      fromKey, // payer
-      ata, // ata
-      fromKey, // owner
-      mint.publicKey // mint
-    )
-  );
-
-  // Get a recent block hash
-  createTokenAccountTx.recentBlockhash = await solanaNetwork.recentBlockhash();
-  // Set the signer
-  createTokenAccountTx.feePayer = fromKey;
-
-  const _signedCreateTokenAccountTx = await turnkeySigner.addSignature(
-    createTokenAccountTx,
-    solAddress
-  );
-
-  await solanaNetwork.broadcast(connection, createTokenAccountTx);
 
   const tokenAccount = await getAccount(connection, ata);
-  console.log("Token account", tokenAccount);
+  console.log("Token account created for self");
 
   const mintTx = new Transaction().add(
     createMintToCheckedInstruction(
-      mint.publicKey, // mint
+      mintAuthority.publicKey, // mint
       tokenAccount.address, // receiver (should be a token account)
       fromKey, // mint authority
       1e8, // amount. if your decimals is 8, you mint 10^8 for 1 token.
@@ -228,8 +141,8 @@ async function main() {
   let transferTx = new Transaction().add(
     createTransferCheckedInstruction(
       tokenAccount.address, // from (should be a token account)
-      mint.publicKey, // mint
-      tokenAccountAlice.address, // to (should be a token account)
+      mintAuthority.publicKey, // mint
+      tokenAccountWarchest.address, // to (should be a token account)
       fromKey, // from's owner
       1e4, // amount, if your deciamls is 8, send 10^8 for 1 token
       8 // decimals
@@ -253,10 +166,10 @@ async function main() {
   );
   console.log("Token amount", tokenAmount);
 
-  const tokenAmountAlice = await connection.getTokenAccountBalance(
-    tokenAccountAlice.address
+  const tokenAmountWarchest = await connection.getTokenAccountBalance(
+    ataWarchest
   );
-  console.log("Token amount Alice", tokenAmountAlice);
+  console.log("Token amount warchest", tokenAmountWarchest);
 
   // ideally, send back to TURNKEY_WAR_CHEST
 
