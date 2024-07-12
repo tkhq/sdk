@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.11.0
+
+### Minor Changes
+
+- Update to use new endpoints. Including CREATE_READ_WRITE_SESSION which allows one shot passkey sessions (returns org information and a credential bundle) and CREATE_API_KEYS_V2 which allows a curve type to be passed (SECP256K1 or P256)
+
 ## 2.10.0
 
 ### Minor Changes
