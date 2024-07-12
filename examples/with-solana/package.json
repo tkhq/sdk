@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "pnpm -w run build-all && tsx src/index.ts",
-    "advanced": "pnpm -w run build-all && tsx src/advanced.ts",
-    "faucet": "pnpm -w run build-all && tsx src/faucet.ts",
+    "start": "pnpm tsx src/index.ts",
+    "advanced": "pnpm tsx src/advanced.ts",
+    "token-transfer": "pnpm tsx src/tokenTransfer.ts",
+    "faucet": "pnpm tsx src/faucet.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },

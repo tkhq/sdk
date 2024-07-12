@@ -5,33 +5,27 @@ import * as path from "path";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { confirm } from "@inquirer/prompts";
-import { PublicKey, Transaction } from "@solana/web3.js";
-import {
-  getAccount,
-  createMintToCheckedInstruction,
-  createTransferCheckedInstruction,
-  getAssociatedTokenAddress,
-} from "@solana/spl-token";
+import { PublicKey } from "@solana/web3.js";
+import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { TurnkeySigner } from "@turnkey/solana";
 
 import {
+  createMint,
   createNewSolanaWallet,
   createToken,
   createTokenAccount,
+  createTokenTransfer,
   solanaNetwork,
   TURNKEY_WAR_CHEST,
 } from "./utils";
 
 async function main() {
   const turnkeyWarchest = new PublicKey(TURNKEY_WAR_CHEST);
-
   const organizationId = process.env.ORGANIZATION_ID!;
-
   const connection = solanaNetwork.connect();
-
   const turnkeyClient = new TurnkeyClient(
     { baseUrl: process.env.BASE_URL! },
     new ApiKeyStamper({
@@ -79,20 +73,16 @@ async function main() {
     solAddress
   );
 
-  // Now mint
-  // calculate ATA
-  let ata = await getAssociatedTokenAddress(
+  // Create token accounts
+  const ataPrimary = await getAssociatedTokenAddress(
     mintAuthority.publicKey, // mint
     fromKey // owner
   );
-  console.log(`ATA: ${ata.toBase58()}`);
 
-  // calculate ATA for warchest as well
-  let ataWarchest = await getAssociatedTokenAddress(
+  const ataWarchest = await getAssociatedTokenAddress(
     mintAuthority.publicKey, // mint
     turnkeyWarchest // owner
   );
-  console.log(`ATA Warchest: ${ataWarchest.toBase58()}`);
 
   // For warchest
   await createTokenAccount(
@@ -100,78 +90,53 @@ async function main() {
     connection,
     solAddress,
     ataWarchest,
+    turnkeyWarchest,
     mintAuthority
   );
 
   const tokenAccountWarchest = await getAccount(connection, ataWarchest);
-  console.log("Token account created for Warchest");
 
   // For self
   await createTokenAccount(
     turnkeySigner,
     connection,
     solAddress,
-    ata,
+    ataPrimary,
+    fromKey,
     mintAuthority
   );
 
-  const tokenAccount = await getAccount(connection, ata);
-  console.log("Token account created for self");
+  const tokenAccount = await getAccount(connection, ataPrimary);
 
-  const mintTx = new Transaction().add(
-    createMintToCheckedInstruction(
-      mintAuthority.publicKey, // mint
-      tokenAccount.address, // receiver (should be a token account)
-      fromKey, // mint authority
-      1e8, // amount. if your decimals is 8, you mint 10^8 for 1 token.
-      8 // decimals
-      // [signer1, signer2 ...], // only multisig account will use
-    )
+  // Mint token
+  await createMint(
+    turnkeySigner,
+    connection,
+    solAddress,
+    tokenAccount.address,
+    mintAuthority.publicKey
   );
 
-  // Get a recent block hash
-  mintTx.recentBlockhash = await solanaNetwork.recentBlockhash();
-  // Set the signer
-  mintTx.feePayer = fromKey;
-
-  const _signedMintTx = await turnkeySigner.addSignature(mintTx, solAddress);
-
-  await solanaNetwork.broadcast(connection, mintTx);
-
-  let transferTx = new Transaction().add(
-    createTransferCheckedInstruction(
-      tokenAccount.address, // from (should be a token account)
-      mintAuthority.publicKey, // mint
-      tokenAccountWarchest.address, // to (should be a token account)
-      fromKey, // from's owner
-      1e4, // amount, if your deciamls is 8, send 10^8 for 1 token
-      8 // decimals
-    )
+  // Transfer token from primary to Warchest
+  await createTokenTransfer(
+    turnkeySigner,
+    connection,
+    solAddress,
+    tokenAccount.address,
+    mintAuthority.publicKey,
+    tokenAccountWarchest.address
   );
 
-  // Get a recent block hash
-  transferTx.recentBlockhash = await solanaNetwork.recentBlockhash();
-  // Set the signer
-  transferTx.feePayer = fromKey;
+  const tokenBalance = await connection.getTokenAccountBalance(ataPrimary);
+  console.log("Token balance for user:", tokenBalance.value.uiAmountString);
 
-  const _signedTransferTx = await turnkeySigner.addSignature(
-    transferTx,
-    solAddress
-  );
-
-  await solanaNetwork.broadcast(connection, transferTx);
-
-  const tokenAmount = await connection.getTokenAccountBalance(
-    tokenAccount.address
-  );
-  console.log("Token amount", tokenAmount);
-
-  const tokenAmountWarchest = await connection.getTokenAccountBalance(
+  const tokenBalanceWarchest = await connection.getTokenAccountBalance(
     ataWarchest
   );
-  console.log("Token amount warchest", tokenAmountWarchest);
-
-  // ideally, send back to TURNKEY_WAR_CHEST
+  console.log(
+    "Token balance for warchest:",
+    tokenBalanceWarchest.value.uiAmountString
+  );
 
   process.exit(0);
 }

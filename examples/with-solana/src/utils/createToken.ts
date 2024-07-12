@@ -14,7 +14,7 @@ import {
 } from "@solana/spl-token";
 import type { TurnkeySigner } from "@turnkey/solana";
 
-import { solanaNetwork } from "./";
+import { solanaNetwork } from ".";
 
 export async function createToken(
   turnkeySigner: TurnkeySigner,
@@ -25,7 +25,6 @@ export async function createToken(
 
   // Create a brand new SPL token using a separate mint authority
   const mintAuthority = Keypair.generate();
-  console.log(`mintAuthority: ${mintAuthority.publicKey.toBase58()}`);
 
   let tx = new Transaction().add(
     // create mint account
@@ -49,14 +48,14 @@ export async function createToken(
   tx.recentBlockhash = await solanaNetwork.recentBlockhash();
   // Set the signer
   tx.feePayer = fromKey;
-
   tx.partialSign(mintAuthority);
 
   await turnkeySigner.addSignature(tx, solAddress);
-  await solanaNetwork.broadcast(connection, tx);
 
-  let mintAccount = await getMint(connection, mintAuthority.publicKey);
-  console.log("Mint Account", mintAccount);
+  console.log("Broadcasting token creation transaction...");
+
+  await solanaNetwork.broadcast(connection, tx);
+  await getMint(connection, mintAuthority.publicKey);
 
   return {
     mintAuthority,

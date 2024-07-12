@@ -2,24 +2,24 @@ import { PublicKey, Transaction, Keypair, Connection } from "@solana/web3.js";
 import { createAssociatedTokenAccountInstruction } from "@solana/spl-token";
 import type { TurnkeySigner } from "@turnkey/solana";
 
-import { solanaNetwork, TURNKEY_WAR_CHEST } from "./";
+import { solanaNetwork } from ".";
 
 export async function createTokenAccount(
   turnkeySigner: TurnkeySigner,
   connection: Connection,
   solAddress: string,
   ata: PublicKey,
+  owner: PublicKey,
   mintAuthority: Keypair
 ): Promise<any> {
   const fromKey = new PublicKey(solAddress);
-  const turnkeyWarchest = new PublicKey(TURNKEY_WAR_CHEST);
 
   // For warchest
   const createTokenAccountTx = new Transaction().add(
     createAssociatedTokenAccountInstruction(
       fromKey, // payer
       ata, // ata
-      turnkeyWarchest, // owner
+      owner, // owner
       mintAuthority.publicKey // mint
     )
   );
@@ -30,6 +30,8 @@ export async function createTokenAccount(
   createTokenAccountTx.feePayer = fromKey;
 
   await turnkeySigner.addSignature(createTokenAccountTx, solAddress);
+
+  console.log("Broadcasting token account creation transaction...");
 
   await solanaNetwork.broadcast(connection, createTokenAccountTx);
 }

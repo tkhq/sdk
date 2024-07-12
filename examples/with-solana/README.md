@@ -5,6 +5,7 @@ This example walks through the following:
 - Creation of a new Turnkey wallet with a new Solana account
 - Monitoring of devnet tokens landing on that address
 - Construction of a transaction sending the funds out with the `@turnkey/solana` signer
+- Creating, minting, and transferring a SPL token using Turnkey
 
 ## Getting started
 
@@ -114,6 +115,40 @@ Transaction broadcast and confirmed! 🎉
 
 Transaction broadcast and confirmed! 🎉
         https://explorer.solana.com/tx/32jEdshTKFh14xrdkgVBp3TXcdXsswshtt2GozLtz7bauYeuwfDfChrHW9G5GDU5H7Q8FxpjKpokAoH39jiGUDAC?cluster=devnet
+```
+
+### 5/ Running the SPL token script (create, mint, transfer)
+
+```bash
+$ pnpm token-transfer
+```
+
+The output will resemble the following:
+
+```
+Using existing Solana address from ENV: "G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp"
+Broadcasting token creation transaction...
+Transaction broadcast and confirmed! 🎉
+        https://explorer.solana.com/tx/5Ed39grpEMRQDxs1JLCq1U4P12zfohtqBwWLkKiHtU3e9avsG2hHnrTNmc7EiAhhAQFNkN3dbAEoPqpdxgvqKDhY?cluster=devnet
+
+Broadcasting token account creation transaction...
+Transaction broadcast and confirmed! 🎉
+        https://explorer.solana.com/tx/64VTfNsRbfN6bvRMkyg8YNpARfN15pgCCHWMiTXwJ8obfhoCh8LzdcSJZ3RaYWPdZSyhzcuMuBEH6dwEVTykSN9m?cluster=devnet
+
+Broadcasting token account creation transaction...
+Transaction broadcast and confirmed! 🎉
+        https://explorer.solana.com/tx/3oDJT16zPsT13abdpY4wHYDB8H7c3siALTgsNU1FT8FdXJUM1a1TLYGtvpugA22oPc9oAugVUJ9GkXazBTDa4ozQ?cluster=devnet
+
+Broadcasting mint transaction...
+Transaction broadcast and confirmed! 🎉
+        https://explorer.solana.com/tx/3EMEqrJb6jdcHcdBtd5Ye25ZDRrqJ65fbVyqa7DZ3J83dNL5jHfurQDNBZSmmkQdChymhUSdtkVSwThn6avBuN7L?cluster=devnet
+
+Broadcasting token transfer transaction...
+Transaction broadcast and confirmed! 🎉
+        https://explorer.solana.com/tx/38UkmrZztX4DB1mCi1i3GfYHjUFz3iB1S9dwexVBEzSvgEshEV3aUxrmNjWzToYjjKXnKDBv1tRWXpK1JhU3MFoB?cluster=devnet
+
+Token balance for user: 0.9999
+Token balance for warchest: 0.0001
 ```
 
 Enjoy!
