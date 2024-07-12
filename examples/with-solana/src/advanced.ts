@@ -6,14 +6,6 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { input, confirm } from "@inquirer/prompts";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
-// import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import {
-  createMint,
-  getOrCreateAssociatedTokenAccount,
-  mintTo,
-  createTransferInstruction,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
 
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
@@ -50,8 +42,6 @@ async function main() {
   } else {
     console.log(`\nUsing existing Solana address from ENV: "${solAddress}"`);
   }
-
-  const fromKey = new PublicKey(solAddress);
 
   let balance = await solanaNetwork.balance(connection, solAddress);
   while (balance === 0) {
@@ -108,6 +98,7 @@ async function main() {
       },
     });
 
+    const fromKey = new PublicKey(solAddress);
     const toKey = new PublicKey(destination);
 
     const transferTransaction = new Transaction().add(
@@ -126,7 +117,7 @@ async function main() {
     unsignedTxs.push(transferTransaction);
   }
 
-  // 2. Create, sign, and verify multiple transfer transactions
+  // 2. Create, sign, and verify multiple transfer transaction
   const signedTransactions = await signTransfers({
     signer: turnkeySigner,
     fromAddress: solAddress,
@@ -140,89 +131,11 @@ async function main() {
       throw new Error("unable to verify transaction signatures");
     }
 
-    // 3. Broadcast each signed payload on devnet
+    // 3. Broadcast the signed payload on devnet
     await solanaNetwork.broadcast(connection, signedTransactions[i]!);
   }
 
-  // 4. Create, sign, and verify a SPL token transfer
-  // Create new token mint
-  const mint = await createMint(
-    connection,
-    turnkeySigner,
-    fromKey,
-    null,
-    9,
-  );
- 
-  // Get the token account of the fromWallet Solana address, if it does not exist, create it
-  const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
-    connection,
-    fromWallet,
-    mint,
-    fromWallet.publicKey,
-  );
- 
-  //get the token account of the toWallet Solana address, if it does not exist, create it
-  const toTokenAccount = await getOrCreateAssociatedTokenAccount(
-    connection,
-    fromWallet,
-    mint,
-    toWallet.publicKey,
-  );
- 
-  // Minting 1 new token to the "fromTokenAccount" account we just returned/created
-  await mintTo(
-    connection,
-    fromWallet,
-    mint,
-    fromTokenAccount.address,
-    fromWallet.publicKey,
-    1000000000, // it's 1 token, but in lamports
-    [],
-  );
- 
-  // Add token transfer instructions to transaction
-  const transaction = new Transaction().add(
-    createTransferInstruction(
-      fromTokenAccount.address,
-      toTokenAccount.address,
-      fromWallet.publicKey,
-      1,
-    ),
-  );
- 
-  // Sign transaction, broadcast, and confirm
-  await sendAndConfirmTransaction(connection, transaction, [fromWallet]);
-
   process.exit(0);
-}
-
-async function createMint(
-  connection: Connection,
-  payer: Signer,
-  mintAuthority: PublicKey,
-  freezeAuthority: PublicKey | null,
-  decimals: number,
-  keypair = Keypair.generate(),
-  confirmOptions?: ConfirmOptions,
-  programId = TOKEN_PROGRAM_ID
-): Promise<PublicKey> {
-  const lamports = await getMinimumBalanceForRentExemptMint(connection);
-
-  const transaction = new Transaction().add(
-      SystemProgram.createAccount({
-          fromPubkey: payer.publicKey,
-          newAccountPubkey: keypair.publicKey,
-          space: MINT_SIZE,
-          lamports,
-          programId,
-      }),
-      createInitializeMint2Instruction(keypair.publicKey, decimals, mintAuthority, freezeAuthority, programId)
-  );
-
-  await sendAndConfirmTransaction(connection, transaction, [payer, keypair], confirmOptions);
-
-  return keypair.publicKey;
 }
 
 main().catch((error) => {
