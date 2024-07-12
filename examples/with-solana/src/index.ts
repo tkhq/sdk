@@ -13,11 +13,13 @@ const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { createNewSolanaWallet } from "./createSolanaWallet";
-import * as solanaNetwork from "./solanaNetwork";
-import { createAndSignTransfer } from "./createSolanaTransfer";
-import { signMessage } from "./signMessage";
-import { print } from "./util";
+import {
+  createNewSolanaWallet,
+  solanaNetwork,
+  createAndSignTransfer,
+  signMessage,
+  print,
+} from "./utils";
 
 async function main() {
   const organizationId = process.env.ORGANIZATION_ID!;

@@ -11,9 +11,7 @@ import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { TurnkeySigner } from "@turnkey/solana";
 
-import { createNewSolanaWallet } from "./createSolanaWallet";
-import * as solanaNetwork from "./solanaNetwork";
-import { signTransfers } from "./createSolanaTransfer";
+import { createNewSolanaWallet, solanaNetwork, signTransfers } from "./utils";
 
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
