@@ -402,6 +402,60 @@ export const signGetOrganization = (
   });
 
 /**
+ * `POST /public/v1/query/get_organization_configs`
+ */
+export type TGetOrganizationConfigsResponse =
+  operations["PublicApiService_GetOrganizationConfigs"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_organization_configs`
+ */
+export type TGetOrganizationConfigsInput = {
+  body: TGetOrganizationConfigsBody;
+};
+
+/**
+ * `POST /public/v1/query/get_organization_configs`
+ */
+export type TGetOrganizationConfigsBody =
+  operations["PublicApiService_GetOrganizationConfigs"]["parameters"]["body"]["body"];
+
+/**
+ * Get Configs
+ *
+ * Get quorum settings and features for an organization
+ *
+ * `POST /public/v1/query/get_organization_configs`
+ */
+export const getOrganizationConfigs = (input: TGetOrganizationConfigsInput) =>
+  request<
+    TGetOrganizationConfigsResponse,
+    TGetOrganizationConfigsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_organization_configs",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetOrganizationConfigs` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetOrganizationConfigs}
+ */
+export const signGetOrganizationConfigs = (
+  input: TGetOrganizationConfigsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TGetOrganizationConfigsBody, never, never>({
+    uri: "/public/v1/query/get_organization_configs",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_policy`
  */
 export type TGetPolicyResponse =

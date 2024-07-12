@@ -196,6 +196,38 @@
         "tags": ["Attestation"]
       }
     },
+    "/public/v1/query/get_attestation": {
+      "post": {
+        "summary": "Attestation",
+        "description": "Get the attestation document corresponding to an enclave.",
+        "operationId": "PublicApiService_GetAttestationDocument",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAttestationDocumentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetAttestationDocumentRequest"
+            }
+          }
+        ],
+        "tags": ["Attestation"]
+      }
+    },
     "/public/v1/query/get_authenticator": {
       "post": {
         "summary": "Get Authenticator",
@@ -318,6 +350,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1GetOrganizationRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"]
+      }
+    },
+    "/public/v1/query/get_organization_configs": {
+      "post": {
+        "summary": "Get Configs",
+        "description": "Get quorum settings and features for an organization",
+        "operationId": "PublicApiService_GetOrganizationConfigs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetOrganizationConfigsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetOrganizationConfigsRequest"
             }
           }
         ],
@@ -2964,6 +3028,21 @@
         "AUTHENTICATOR_TRANSPORT_HYBRID"
       ]
     },
+    "v1Config": {
+      "type": "object",
+      "properties": {
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Feature"
+          }
+        },
+        "quorum": {
+          "$ref": "#/definitions/externaldatav1Quorum"
+        }
+      }
+    },
     "v1CreateApiKeysIntent": {
       "type": "object",
       "properties": {
@@ -4215,8 +4294,7 @@
       "enum": [
         "CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR",
         "CREDENTIAL_TYPE_API_KEY_P256",
-        "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256",
-        "CREDENTIAL_TYPE_API_KEY_SECP256K1"
+        "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"
       ]
     },
     "v1Curve": {
@@ -4699,6 +4777,10 @@
         "emailCustomization": {
           "$ref": "#/definitions/v1EmailCustomizationParams",
           "description": "Optional parameters for customizing emails. If not provided, the default email will be used."
+        },
+        "invalidateExisting": {
+          "type": "boolean",
+          "description": "Invalidate all other previously generated Email Auth API keys"
         }
       },
       "required": ["email", "targetPublicKey"]
@@ -5147,6 +5229,26 @@
         }
       },
       "required": ["oauthProviders"]
+    },
+    "v1GetOrganizationConfigsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetOrganizationConfigsResponse": {
+      "type": "object",
+      "properties": {
+        "configs": {
+          "$ref": "#/definitions/v1Config",
+          "description": "Organization configs including quorum settings and organization features"
+        }
+      },
+      "required": ["configs"]
     },
     "v1GetOrganizationRequest": {
       "type": "object",

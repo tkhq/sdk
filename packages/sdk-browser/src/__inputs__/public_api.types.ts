@@ -36,6 +36,10 @@ export type paths = {
     /** Get details about an Organization */
     post: operations["PublicApiService_GetOrganization"];
   };
+  "/public/v1/query/get_organization_configs": {
+    /** Get quorum settings and features for an organization */
+    post: operations["PublicApiService_GetOrganizationConfigs"];
+  };
   "/public/v1/query/get_policy": {
     /** Get details about a Policy */
     post: operations["PublicApiService_GetPolicy"];
@@ -596,6 +600,10 @@ export type definitions = {
     | "AUTHENTICATOR_TRANSPORT_NFC"
     | "AUTHENTICATOR_TRANSPORT_USB"
     | "AUTHENTICATOR_TRANSPORT_HYBRID";
+  v1Config: {
+    features?: definitions["v1Feature"][];
+    quorum?: definitions["externaldatav1Quorum"];
+  };
   v1CreateApiKeysIntent: {
     /** @description A list of API Keys. */
     apiKeys: definitions["v1ApiKeyParams"][];
@@ -1076,7 +1084,8 @@ export type definitions = {
     | "CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"
     | "CREDENTIAL_TYPE_API_KEY_P256"
     | "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"
-    | "CREDENTIAL_TYPE_API_KEY_SECP256K1";
+    | "CREDENTIAL_TYPE_API_KEY_SECP256K1"
+    | "CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256";
   /** @enum {string} */
   v1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
   v1DeleteApiKeysIntent: {
@@ -1262,6 +1271,8 @@ export type definitions = {
     expirationSeconds?: string;
     /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
     emailCustomization?: definitions["v1EmailCustomizationParams"];
+    /** @description Invalidate all other previously generated Email Auth API keys */
+    invalidateExisting?: boolean;
   };
   v1EmailAuthRequest: {
     /** @enum {string} */
@@ -1448,6 +1459,14 @@ export type definitions = {
   v1GetOauthProvidersResponse: {
     /** @description A list of Oauth Providers */
     oauthProviders: definitions["v1OauthProvider"][];
+  };
+  v1GetOrganizationConfigsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+  };
+  v1GetOrganizationConfigsResponse: {
+    /** @description Organization configs including quorum settings and organization features */
+    configs: definitions["v1Config"];
   };
   v1GetOrganizationRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -2643,6 +2662,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetOrganizationResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get quorum settings and features for an organization */
+  PublicApiService_GetOrganizationConfigs: {
+    parameters: {
+      body: {
+        body: definitions["v1GetOrganizationConfigsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetOrganizationConfigsResponse"];
       };
       /** An unexpected error response. */
       default: {
