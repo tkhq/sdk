@@ -37,6 +37,11 @@
   font-family: "Inter";
 }
 
+.input_checkbox {
+  display: block;
+  margin: 0 auto;
+}
+
 .label {
   font-family: "Inter";
   display: block;
