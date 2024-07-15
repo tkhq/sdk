@@ -8,7 +8,7 @@ import {
 } from "@solana/web3.js";
 import bs58 from "bs58";
 
-import { print } from "./util";
+import { print } from "./print";
 
 export function connect(endpoint?: string): Connection {
   if (endpoint === undefined) {
