@@ -196,38 +196,6 @@
         "tags": ["Attestation"]
       }
     },
-    "/public/v1/query/get_attestation": {
-      "post": {
-        "summary": "Attestation",
-        "description": "Get the attestation document corresponding to an enclave.",
-        "operationId": "PublicApiService_GetAttestationDocument",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetAttestationDocumentResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetAttestationDocumentRequest"
-            }
-          }
-        ],
-        "tags": ["Attestation"]
-      }
-    },
     "/public/v1/query/get_authenticator": {
       "post": {
         "summary": "Get Authenticator",
@@ -4294,7 +4262,9 @@
       "enum": [
         "CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR",
         "CREDENTIAL_TYPE_API_KEY_P256",
-        "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"
+        "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256",
+        "CREDENTIAL_TYPE_API_KEY_SECP256K1",
+        "CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"
       ]
     },
     "v1Curve": {
