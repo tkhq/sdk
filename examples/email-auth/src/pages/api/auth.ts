@@ -3,6 +3,7 @@ import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 type AuthRequest = {
+  suborgID: string;
   email: string;
   targetPublicKey: string;
 };
@@ -45,7 +46,7 @@ export default async function auth(
       timestampMs: String(Date.now()),
       // This is simple in the case of a single organization.
       // If you use sub-organizations for each user, this needs to be replaced by the user's specific sub-organization.
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      organizationId: request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       parameters: {
         email: request.email,
         targetPublicKey: request.targetPublicKey,

@@ -26,30 +26,7 @@ type InjectCredentialsFormData = {
 };
 type AuthFormData = {
   email: string;
-};
-
-// All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
-// We only support ES256 and RS256, which are listed here
-const es256 = -7;
-const rs256 = -257;
-
-// This constant designates the type of credential we want to create.
-// The enum only supports one value, "public-key"
-// https://www.w3.org/TR/webauthn-2/#enumdef-publickeycredentialtype
-const publicKey = "public-key";
-
-const generateRandomBuffer = (): ArrayBuffer => {
-  const arr = new Uint8Array(32);
-  crypto.getRandomValues(arr);
-  return arr.buffer;
-};
-
-const base64UrlEncode = (challenge: ArrayBuffer): string => {
-  return Buffer.from(challenge)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
+  suborgID: string;
 };
 
 export default function AuthPage() {
@@ -70,6 +47,7 @@ export default function AuthPage() {
     }
 
     const response = await axios.post("/api/auth", {
+      suborgID: data.suborgID,
       email: data.email,
       targetPublicKey: iframeStamper.publicKey(),
     });
@@ -101,6 +79,13 @@ export default function AuthPage() {
       iframeStamper
     );
 
+    // get whoami for suborg
+    const whoamiResponse = await client.getWhoami({
+      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+    });
+
+    const orgID = whoamiResponse.organizationId;
+
     const activityPoller = createActivityPoller({
       client,
       requestFn: client.createWallet,
@@ -109,7 +94,7 @@ export default function AuthPage() {
     const completedActivity = await activityPoller({
       type: "ACTIVITY_TYPE_CREATE_WALLET",
       timestampMs: String(Date.now()),
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      organizationId: orgID,
       parameters: {
         walletName: data.walletName,
         accounts: [
@@ -155,13 +140,24 @@ export default function AuthPage() {
       {!iframeStamper && <p>Loading...</p>}
 
       {iframeStamper && iframeStamper.publicKey() && authResponse === null && (
-        <form className={styles.form} onSubmit={authFormSubmit(auth)}>
+        <form
+          className={styles.form}
+          onSubmit={authFormSubmit(auth)}
+        >
           <label className={styles.label}>
             Email
             <input
               className={styles.input}
               {...authFormRegister("email")}
               placeholder="Email"
+            />
+          </label>
+          <label className={styles.label}>
+            Suborg ID
+            <input
+              className={styles.input}
+              {...authFormRegister("suborgID")}
+              placeholder="Suborg ID"
             />
           </label>
           <label className={styles.label}>
@@ -172,7 +168,11 @@ export default function AuthPage() {
             </code>
           </label>
 
-          <input className={styles.button} type="submit" value="Auth" />
+          <input
+            className={styles.button}
+            type="submit"
+            value="Auth"
+          />
         </form>
       )}
 
