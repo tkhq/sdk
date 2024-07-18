@@ -8,6 +8,7 @@ import { CreateSubOrgResponse, TFormattedWallet } from "@/app/types";
 import { getNextPath } from "@/app/util";
 
 type subOrgFormData = {
+  userEmail: string;
   subOrgName: string;
 };
 
@@ -73,6 +74,7 @@ export default function Home() {
       await passkeyClient!.createUserPasskey();
 
     const res = await axios.post("/api/createSubOrg", {
+      userEmail: data.userEmail,
       subOrgName: data.subOrgName,
       attestation,
       challenge,
@@ -145,6 +147,14 @@ export default function Home() {
                 className={styles.input}
                 {...subOrgFormRegister("subOrgName")}
                 placeholder="Sub-Organization Name"
+              />
+            </label>
+            <label className={styles.label}>
+              Email
+              <input
+                className={styles.input}
+                {...subOrgFormRegister("userEmail")}
+                placeholder="User Email"
               />
             </label>
             <input
