@@ -46,7 +46,8 @@ export default async function auth(
       timestampMs: String(Date.now()),
       // This is simple in the case of a single organization.
       // If you use sub-organizations for each user, this needs to be replaced by the user's specific sub-organization.
-      organizationId: request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      organizationId:
+        request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       parameters: {
         email: request.email,
         targetPublicKey: request.targetPublicKey,

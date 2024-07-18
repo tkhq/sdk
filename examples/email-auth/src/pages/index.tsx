@@ -140,10 +140,7 @@ export default function AuthPage() {
       {!iframeStamper && <p>Loading...</p>}
 
       {iframeStamper && iframeStamper.publicKey() && authResponse === null && (
-        <form
-          className={styles.form}
-          onSubmit={authFormSubmit(auth)}
-        >
+        <form className={styles.form} onSubmit={authFormSubmit(auth)}>
           <label className={styles.label}>
             Email
             <input
@@ -153,7 +150,8 @@ export default function AuthPage() {
             />
           </label>
           <label className={styles.label}>
-            Suborg ID
+            Suborg ID (Optional — if not provided, attempt for standalone parent
+            org)
             <input
               className={styles.input}
               {...authFormRegister("suborgID")}
@@ -168,11 +166,7 @@ export default function AuthPage() {
             </code>
           </label>
 
-          <input
-            className={styles.button}
-            type="submit"
-            value="Auth"
-          />
+          <input className={styles.button} type="submit" value="Auth" />
         </form>
       )}
 

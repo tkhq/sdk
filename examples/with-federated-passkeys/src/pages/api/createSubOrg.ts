@@ -8,6 +8,7 @@ import { CreateSubOrgResponse } from "@/app/types";
 type TAttestation = TurnkeyApiTypes["v1Attestation"];
 
 type CreateSubOrgRequest = {
+  userEmail: string;
   subOrgName: string;
   challenge: string;
   attestation: TAttestation;
@@ -49,6 +50,7 @@ export default async function createUser(
         rootUsers: [
           {
             userName: "New user",
+            userEmail: createSubOrgRequest.userEmail,
             apiKeys: [],
             authenticators: [
               {
