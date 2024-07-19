@@ -1,5 +1,12 @@
 # @turnkey/react-native-passkey-stamper
 
+## 0.2.7
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@2.12.0
+
 ## 0.2.6
 
 ### Patch Changes

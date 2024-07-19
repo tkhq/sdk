@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.12.0
+
+### Minor Changes
+
+- Add Email Auth V2 - Optional invalidate exisiting Email Authentication API keys
+
 ## 2.11.0
 
 ### Minor Changes
