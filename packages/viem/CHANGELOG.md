@@ -1,5 +1,14 @@
 # @turnkey/viem
 
+## 0.4.24
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@2.12.0
+  - @turnkey/sdk-browser@1.2.0
+  - @turnkey/sdk-server@1.2.0
+
 ## 0.4.23
 
 ### Patch Changes
