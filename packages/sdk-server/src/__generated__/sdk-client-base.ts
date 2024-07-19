@@ -728,7 +728,7 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EMAIL_AUTH",
+        type: "ACTIVITY_TYPE_EMAIL_AUTH_V2",
       },
       "emailAuthResult"
     );
