@@ -43,7 +43,7 @@ export default async function auth(
     });
 
     const completedActivity = await activityPoller({
-      type: "ACTIVITY_TYPE_EMAIL_AUTH",
+      type: "ACTIVITY_TYPE_EMAIL_AUTH_V2",
       timestampMs: String(Date.now()),
       // This is simple in the case of a single organization.
       // If you use sub-organizations for each user, this needs to be replaced by the user's specific sub-organization.

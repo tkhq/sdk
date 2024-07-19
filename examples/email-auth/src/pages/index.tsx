@@ -160,7 +160,7 @@ export default function AuthPage() {
               placeholder="Suborg ID"
             />
           </label>
-          <label>
+          <label className={styles.label}>
             Invalidate previously issued email authentication token(s)?
             <input
               className={styles.input_checkbox}
