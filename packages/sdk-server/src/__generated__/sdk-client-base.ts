@@ -187,6 +187,15 @@ export class TurnkeySDKClientBase {
     });
   };
 
+  getOrganizationConfigs = async (
+    input: SdkApiTypes.TGetOrganizationConfigsBody
+  ): Promise<SdkApiTypes.TGetOrganizationConfigsResponse> => {
+    return this.request("/public/v1/query/get_organization_configs", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
   getPolicy = async (
     input: SdkApiTypes.TGetPolicyBody
   ): Promise<SdkApiTypes.TGetPolicyResponse> => {
@@ -719,7 +728,7 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EMAIL_AUTH",
+        type: "ACTIVITY_TYPE_EMAIL_AUTH_V2",
       },
       "emailAuthResult"
     );

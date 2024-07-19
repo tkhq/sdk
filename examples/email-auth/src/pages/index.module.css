@@ -35,6 +35,12 @@
   border-style: solid;
   border-color: rgba(216, 219, 227, 1);
   font-family: "Inter";
+  margin: 0 auto;
+}
+
+.input_checkbox {
+  display: block;
+  margin: 0 auto;
 }
 
 .label {

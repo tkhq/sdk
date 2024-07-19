@@ -38,6 +38,10 @@ import type {
   TGetOrganizationBody,
   TGetOrganizationResponse,
 } from "./public_api.fetcher";
+import type {
+  TGetOrganizationConfigsBody,
+  TGetOrganizationConfigsResponse,
+} from "./public_api.fetcher";
 import type { TGetPolicyBody, TGetPolicyResponse } from "./public_api.fetcher";
 import type {
   TGetPrivateKeyBody,
@@ -539,6 +543,38 @@ export class TurnkeyClient {
     input: TGetOrganizationBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_organization";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get quorum settings and features for an organization
+   *
+   * Sign the provided `TGetOrganizationConfigsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_organization_configs).
+   *
+   * See also {@link stampGetOrganizationConfigs}.
+   */
+  getOrganizationConfigs = async (
+    input: TGetOrganizationConfigsBody
+  ): Promise<TGetOrganizationConfigsResponse> => {
+    return this.request("/public/v1/query/get_organization_configs", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetOrganizationConfigsBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetOrganizationConfigs}.
+   */
+  stampGetOrganizationConfigs = async (
+    input: TGetOrganizationConfigsBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_organization_configs";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

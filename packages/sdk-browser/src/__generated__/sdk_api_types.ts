@@ -98,6 +98,19 @@ export type TGetOrganizationBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetOrganizationConfigsResponse =
+  operations["PublicApiService_GetOrganizationConfigs"]["responses"]["200"]["schema"];
+
+export type TGetOrganizationConfigsInput = {
+  body: TGetOrganizationConfigsBody;
+};
+
+export type TGetOrganizationConfigsBody = Omit<
+  operations["PublicApiService_GetOrganizationConfigs"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetPolicyResponse =
   operations["PublicApiService_GetPolicy"]["responses"]["200"]["schema"];
 
