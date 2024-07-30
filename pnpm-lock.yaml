@@ -738,13 +738,22 @@ importers:
         specifier: ^0.11.0
         version: 0.11.0(typescript@5.1.5)(zod@3.23.8)
       '@turnkey/api-key-stamper':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/api-key-stamper
-      '@turnkey/http':
-        specifier: ^2.12.0
-        version: link:../../packages/http
-      '@turnkey/webauthn-stamper':
+      '@turnkey/encoding':
         specifier: workspace:^
+        version: link:../../packages/encoding
+      '@turnkey/http':
+        specifier: ^2.10.0
+        version: link:../../packages/http
+      '@turnkey/solana':
+        specifier: ^0.3.7
+        version: link:../../packages/solana
+      '@turnkey/viem':
+        specifier: ^0.4.24
+        version: link:../../packages/viem
+      '@turnkey/webauthn-stamper':
+        specifier: workspace:*
         version: link:../../packages/webauthn-stamper
       bs58:
         specifier: ^5.0.0

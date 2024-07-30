@@ -18,12 +18,16 @@ const TurnkeyContext = createContext<{
   walletClient: TurnkeyClient | null;
   createSubOrg: (email: Email, chainType?: ChainType) => Promise<void>;
   addWalletAuthenticator: (email: Email) => Promise<void>;
+  setWallet: (wallet: WalletInterface | null) => void; // Added setWallet type
+  signInWithWallet: (email: Email) => Promise<void>;
 }>({
   client: null,
   passkeyClient: null,
   walletClient: null,
   createSubOrg: async () => {}, // Provide a default no-op function or suitable default
   addWalletAuthenticator: async () => {}, // Provide a default no-op function or suitable default
+  setWallet: () => {}, // Provide a default no-op function
+  signInWithWallet: async () => {}, // Provide a default no-op function
 });
 
 export const useTurnkey = () => useContext(TurnkeyContext);
@@ -39,7 +43,7 @@ const clientConfig = {
 export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   children,
 }) => {
-  const { signMessage } = useWallet();
+  const { signMessage, publicKey } = useWallet();
   const [wallet, setWallet] = useState<WalletInterface | null>(null);
   const [client, setClient] = useState<TurnkeyClient | null>(null);
   const [passkeyClient, setPasskeyClient] = useState<TurnkeyClient | null>(
@@ -91,10 +95,33 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   }
 
   async function addWalletAuthenticator(email: Email) {
-    const message = new TextEncoder().encode(
-      'Please sign this message to add a wallet authenticator'
-    );
-    const signature = await signMessage?.(message);
+    // const message = new TextEncoder().encode(
+    //   'Please sign this message to add a wallet authenticator'
+    // );
+    // const signature = await signMessage?.(message);
+    if (publicKey) {
+      const decodedPublicKey = Buffer.from(publicKey?.toBuffer()).toString(
+        'hex'
+      );
+      const res = await passkeyClient?.createApiKeys({
+        type: 'ACTIVITY_TYPE_CREATE_API_KEYS_V2',
+        timestampMs: new Date().getTime().toString(),
+        organizationId: 'f45c3014-e68c-40e2-a9a3-f4a36d5a0251',
+        parameters: {
+          apiKeys: [
+            {
+              apiKeyName: 'wallet-authenticator',
+              publicKey: decodedPublicKey,
+              //@ts-ignore
+              curveType: 'API_KEY_CURVE_ED25519',
+            },
+          ],
+          userId: 'ac81ee4d-0a57-443b-a582-33cd2d7dd1ae',
+        },
+      });
+      console.log({ res });
+    }
+
     // console.log(signature);
     // if (signature) {
     //   const result = nacl.sign.detached.verify(
@@ -105,18 +132,17 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     //   console.log(result);
     // }
     // use the passkey client to authenticate the add new authenticator request
-    // passkeyClient?.createApiKeys({
-    //   type: 'ACTIVITY_TYPE_CREATE_API_KEYS_V2',
-    //   timestampMs: new Date().getTime().toString(),
-    //   organizationId: env.NEXT_PUBLIC_ORGANIZATION_ID,
-    //   parameters: {
-    //     apiKeys: [],
-    //     userId: email,
-    //   },
-    // });
   }
 
-  function signInWithWallet(email: Email) {}
+  async function signInWithWallet(email: Email) {
+    if (walletClient) {
+      const wallets = await walletClient?.getWallets({
+        organizationId: 'f45c3014-e68c-40e2-a9a3-f4a36d5a0251',
+      });
+      console.log({ wallets });
+    }
+    return Promise.resolve();
+  }
 
   return (
     <TurnkeyContext.Provider
@@ -126,6 +152,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         walletClient,
         createSubOrg,
         addWalletAuthenticator,
+        setWallet,
+        signInWithWallet,
       }}
     >
       {children}

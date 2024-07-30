@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import Account from './account';
 import WalletSelector from './wallet-selector';
 import { WalletName } from '@solana/wallet-adapter-base';
+import { useTurnkey } from './turnkey-provider';
 
 export function ConnectWallet() {
   const { connection } = useConnection();
@@ -21,7 +22,10 @@ export function ConnectWallet() {
     connect: connectSolana,
     wallet,
     connected,
+    signMessage,
   } = useWallet();
+
+  const { setWallet } = useTurnkey();
 
   const [balance, setBalance] = useState<number | null>(null);
   const [userWalletAddress, setUserWalletAddress] = useState<string>('');
@@ -57,8 +61,20 @@ export function ConnectWallet() {
   useEffect(() => {
     if (publicKey) {
       setUserWalletAddress(publicKey.toBase58()!);
+
+      if (signMessage) {
+        setWallet({
+          signMessage: async (message) => {
+            const signedMessage = await signMessage(Buffer.from(message));
+            return Buffer.from(signedMessage).toString('hex');
+          },
+          recoverPublicKey: () =>
+            Buffer.from(publicKey?.toBuffer()).toString('hex'),
+          type: 'solana',
+        });
+      }
     }
-  }, [publicKey]);
+  }, [publicKey, signMessage]);
 
   // useEffect(() => {
   //   console.log({ wallet, connected, publicKey, connecting });
