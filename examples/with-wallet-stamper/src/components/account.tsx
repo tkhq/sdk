@@ -2,7 +2,6 @@
 
 import { Gem, LogOut } from 'lucide-react';
 
-import { ConnectWallet } from './connect-wallet';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 

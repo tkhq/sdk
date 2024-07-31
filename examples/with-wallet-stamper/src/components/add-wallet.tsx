@@ -7,11 +7,6 @@ import { Button } from './ui/button';
 import { Email } from '@/lib/turnkey';
 import { Input } from './ui/input';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey } from '@solana/web3.js';
-import { toHex } from 'viem';
-import * as ed from '@noble/ed25519';
-import bs58check from 'bs58check';
-import bs58 from 'bs58';
 
 const AddWalletAuth: React.FC = () => {
   const { connected, publicKey, signMessage } = useWallet();

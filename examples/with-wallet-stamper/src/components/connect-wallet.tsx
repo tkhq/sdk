@@ -43,7 +43,7 @@ export function ConnectWallet() {
       (updatedAccountInfo) => {
         setBalance(updatedAccountInfo.lamports / LAMPORTS_PER_SOL);
       },
-      'confirmed'
+      { commitment: 'confirmed' }
     );
 
     connection.getAccountInfo(publicKey).then((info) => {

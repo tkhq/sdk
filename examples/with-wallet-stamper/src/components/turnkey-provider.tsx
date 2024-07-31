@@ -1,15 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-import { type TurnkeyClient, createActivityPoller } from '@turnkey/http';
-import { ETHEREUM_WALLET_DEFAULT_PATH } from '@/lib/constants';
-import { signMessage } from '@/lib/ethereum';
-import { TStamper, WalletInterface, WalletStamper } from '@/lib/stamper';
+import { type TurnkeyClient } from '@turnkey/http';
+
+import {
+  TStamper,
+  WalletInterface,
+  WalletStamper,
+} from '@turnkey/wallet-stamper';
 import { createWebauthnStamper, Email, registerPassKey } from '@/lib/turnkey';
 import { createUserSubOrg } from '@/lib/server';
 import { ChainType } from '@/lib/types';
-import { env } from '@/env.mjs';
 import { useWallet } from '@solana/wallet-adapter-react';
-import nacl from 'tweetnacl';
 
 // Context for the TurnkeyClient
 const TurnkeyContext = createContext<{

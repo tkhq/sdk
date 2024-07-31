@@ -1,14 +1,9 @@
 import { TurnkeyClient, createActivityPoller } from '@turnkey/http';
-import {
-  ALG_ES256,
-  ETHEREUM_WALLET_DEFAULT_PATH,
-  PUBKEY_CRED_TYPE,
-} from './constants';
-import { signMessage } from './ethereum';
-import { WalletStamper } from './stamper';
+import { ALG_ES256, PUBKEY_CRED_TYPE } from './constants';
+
 import { TWebauthnStamperConfig } from '@turnkey/webauthn-stamper';
 import { base64UrlEncode, generateRandomBuffer } from './utils';
-import { Attestation, PassKeyRegistrationResult } from './types';
+import { PassKeyRegistrationResult } from './types';
 import { env } from '@/env.mjs';
 
 const { NEXT_PUBLIC_TURNKEY_RPID } = env;

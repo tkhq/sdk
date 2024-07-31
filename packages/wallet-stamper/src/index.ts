@@ -24,6 +24,7 @@ interface EvmWalletInterface extends BaseWalletInterface {
 }
 
 export type WalletInterface = SolanaWalletInterface | EvmWalletInterface;
+
 export class WalletStamper implements TStamper {
   private wallet: WalletInterface;
 
