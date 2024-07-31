@@ -294,7 +294,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
           apiKeyName: `Session Key ${String(Date.now())}`,
           publicKey,
           expirationSeconds: expirationSeconds ?? DEFAULT_SESSION_EXPIRATION, // default to 15 minutes
-          curveType: 'API_KEY_CURVE_P256',
+          curveType: curveType ?? 'API_KEY_CURVE_P256',
         },
       ],
     });

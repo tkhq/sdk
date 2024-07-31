@@ -47,11 +47,13 @@ export const createUserSubOrg = async ({
   challenge,
   attestation,
   chainType,
+  publicKey,
 }: {
   email: Email;
-  challenge: string;
-  attestation: Attestation;
+  challenge?: string;
+  attestation?: Attestation;
   chainType: ChainType;
+  publicKey?: string;
 }): Promise<{
   organizationId?: string;
   subOrganizationId?: string;
@@ -59,7 +61,7 @@ export const createUserSubOrg = async ({
   address?: string;
 }> => {
   const stamper = await createAPIKeyStamper();
-  console.log({ NEXT_PUBLIC_BASE_URL });
+
   const client = new TurnkeyClient(
     {
       baseUrl: NEXT_PUBLIC_BASE_URL,
@@ -81,6 +83,27 @@ export const createUserSubOrg = async ({
   const accountConfig =
     chainType === ChainType.EVM ? ACCOUNT_CONFIG_EVM : ACCOUNT_CONFIG_SOLANA;
 
+  const authenticators =
+    challenge && attestation
+      ? [
+          {
+            authenticatorName: 'Passkey',
+            challenge,
+            attestation,
+          },
+        ]
+      : [];
+
+  const apiKeys = publicKey
+    ? [
+        {
+          apiKeyName: 'Public Key',
+          publicKey,
+          curveType: 'API_KEY_CURVE_ED25519',
+        },
+      ]
+    : [];
+
   const completedActivity = await activityPoller({
     type: 'ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5',
     timestampMs,
@@ -93,14 +116,8 @@ export const createUserSubOrg = async ({
           userName,
           userEmail: email,
           oauthProviders: [],
-          authenticators: [
-            {
-              authenticatorName: 'Passkey',
-              challenge,
-              attestation,
-            },
-          ],
-          apiKeys: [],
+          authenticators,
+          apiKeys,
         },
       ],
       wallet: {
