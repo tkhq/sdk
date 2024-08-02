@@ -17,7 +17,12 @@ import { TurnkeyRequestError } from "./__types__/base";
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
-import type { User, SubOrganization, ReadWriteSession } from "./models";
+import type {
+  User,
+  SubOrganization,
+  ReadWriteSession,
+  Passkey,
+} from "./models";
 import {
   StorageKeys,
   getStorageValue,
@@ -30,31 +35,14 @@ import {
   createEmbeddedAPIKey,
 } from "./utils";
 
+const DEFAULT_SESSION_EXPIRATION = "900"; // default to 15 minutes
+
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
 
   constructor(config: TurnkeySDKBrowserConfig) {
     this.config = config;
   }
-
-  currentUserSession = async (): Promise<TurnkeyBrowserClient | undefined> => {
-    const currentUser = await this.getCurrentUser();
-    if (!currentUser?.readOnlySession) {
-      return;
-    }
-    if (currentUser?.readOnlySession?.sessionExpiry > Date.now()) {
-      return new TurnkeyBrowserClient({
-        readOnlySession: currentUser?.readOnlySession?.session!,
-        apiBaseUrl: this.config.apiBaseUrl,
-        organizationId:
-          currentUser?.organization?.organizationId ??
-          this.config.defaultOrganizationId,
-      });
-    } else {
-      this.logoutUser();
-    }
-    return;
-  };
 
   passkeyClient = (rpId?: string): TurnkeyPasskeyClient => {
     const targetRpId =
@@ -145,33 +133,41 @@ export class TurnkeyBrowserSDK {
     return data as TResponseType;
   };
 
-  // Local Storage
-  getAuthBundle = async (): Promise<string | undefined> => {
-    return await getStorageValue(StorageKeys.AuthBundle);
-  }; // LEGACY
-
-  getCurrentSubOrganization = async (): Promise<
-    SubOrganization | undefined
-  > => {
+  /**
+   * If there is a valid, current user session, this will return a read-enabled TurnkeyBrowserClient that can make read requests to Turnkey without additional authentication. This is powered by a session header resulting from a prior successful `login` call.
+   *
+   * @returns {Promise<TurnkeyBrowserClient | undefined>}
+   */
+  currentUserSession = async (): Promise<TurnkeyBrowserClient | undefined> => {
     const currentUser = await this.getCurrentUser();
-    return currentUser?.organization;
+    if (!currentUser?.readOnlySession) {
+      return;
+    }
+
+    if (currentUser?.readOnlySession?.sessionExpiry > Date.now()) {
+      return new TurnkeyBrowserClient({
+        readOnlySession: currentUser?.readOnlySession?.session!,
+        apiBaseUrl: this.config.apiBaseUrl,
+        organizationId:
+          currentUser?.organization?.organizationId ??
+          this.config.defaultOrganizationId,
+      });
+    } else {
+      this.logoutUser();
+    }
+
+    return;
   };
 
-  getCurrentUser = async (): Promise<User | undefined> => {
-    return await getStorageValue(StorageKeys.CurrentUser);
-  };
-
-  logoutUser = async (): Promise<boolean> => {
-    await removeStorageValue(StorageKeys.AuthBundle); // LEGACY
-    await removeStorageValue(StorageKeys.CurrentUser);
-    await removeStorageValue(StorageKeys.ReadWriteSession);
-
-    return true;
-  };
-
+  /**
+   * If there is a valid, current read-session, this will return an auth bundle and its expiration. This auth bundle can be used in conjunction with an iframeStamper to create a read + write session.
+   *
+   * @returns {Promise<ReadWriteSession | undefined>}
+   */
   getReadWriteSession = async (): Promise<ReadWriteSession | undefined> => {
     const readWriteSession: ReadWriteSession | undefined =
       await getStorageValue(StorageKeys.ReadWriteSession);
+
     if (readWriteSession) {
       if (readWriteSession.sessionExpiry > Date.now()) {
         return readWriteSession;
@@ -179,7 +175,51 @@ export class TurnkeyBrowserSDK {
         await removeStorageValue(StorageKeys.ReadWriteSession);
       }
     }
-    return undefined;
+
+    return;
+  };
+
+  /**
+   * Fetches an auth bundle stored in local storage.
+   *
+   * @returns {Promise<string | undefined>}
+   */
+  getAuthBundle = async (): Promise<string | undefined> => {
+    return await getStorageValue(StorageKeys.AuthBundle); // DEPRECATED
+  };
+
+  /**
+   * Fetches the current user's organization details.
+   *
+   * @returns {Promise<SubOrganization | undefined>}
+   */
+  getCurrentSubOrganization = async (): Promise<
+    SubOrganization | undefined
+  > => {
+    const currentUser = await this.getCurrentUser();
+    return currentUser?.organization;
+  };
+
+  /**
+   * Fetches the currently active user.
+   *
+   * @returns {Promise<User | undefined>}
+   */
+  getCurrentUser = async (): Promise<User | undefined> => {
+    return await getStorageValue(StorageKeys.CurrentUser);
+  };
+
+  /**
+   * Clears out all data pertaining to a user session.
+   *
+   * @returns {Promise<boolean>}
+   */
+  logoutUser = async (): Promise<boolean> => {
+    await removeStorageValue(StorageKeys.AuthBundle); // DEPRECATED
+    await removeStorageValue(StorageKeys.CurrentUser);
+    await removeStorageValue(StorageKeys.ReadWriteSession);
+
+    return true;
   };
 }
 
@@ -198,6 +238,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
       organizationId: readOnlySessionResult!.organizationId,
       organizationName: readOnlySessionResult!.organizationName,
     };
+
     const currentUser: User = {
       userId: readOnlySessionResult!.userId,
       username: readOnlySessionResult!.username,
@@ -207,8 +248,38 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
         sessionExpiry: Number(readOnlySessionResult!.sessionExpiry),
       },
     };
+
     await setStorageValue(StorageKeys.CurrentUser, currentUser);
+
     return readOnlySessionResult!;
+  };
+
+  /**
+   * Creates a read-write session. This method infers the current user's organization ID. To be used in conjunction with an `iframeStamper`: the resulting session's credential bundle can be injected into an iframeStamper to create a session that enables both read and write requests.
+   *
+   * @param email
+   * @param targetEmbeddedKey
+   * @param expirationSeconds
+   * @returns {Promise<SdkApiTypes.TCreateReadWriteSessionResponse>}
+   */
+  loginWithReadWriteSession = async (
+    targetEmbeddedKey: string,
+    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION,
+    userId?: string,
+  ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
+    const readWriteSessionResult = await this.createReadWriteSession({
+      userId: userId,
+      targetPublicKey: targetEmbeddedKey,
+      expirationSeconds,
+    });
+
+    // store auth bundle in local storage
+    await setStorageValue(StorageKeys.ReadWriteSession, {
+      authBundle: readWriteSessionResult!.credentialBundle,
+      sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
+    });
+
+    return readWriteSessionResult;
   };
 }
 
@@ -220,7 +291,14 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     this.rpId = (config.stamper as WebauthnStamper)!.rpId;
   }
 
-  createUserPasskey = async (config: Record<any, any> = {}) => {
+  /**
+   * Create a passkey for an end-user, taking care of various lower-level details.
+   *
+   * @returns {Promise<Passkey>}
+   */
+  createUserPasskey = async (
+    config: Record<any, any> = {}
+  ): Promise<Passkey> => {
     const challenge = generateRandomBuffer();
     const encodedChallenge = base64UrlEncode(challenge);
     const authenticatorUserId = generateRandomBuffer();
@@ -274,19 +352,24 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
       encodedChallenge: config.publicKey?.challenge
         ? base64UrlEncode(config.publicKey?.challenge)
         : encodedChallenge,
-      attestation: attestation,
+      attestation,
     };
   };
 
-  // createPasskeySession creates a session authenticated by passkey, via an embedded API key,
-  // and stores + returns the resulting auth bundle that contains the encrypted API key.
+  /**
+   * Uses passkey authentication to create a read-write session, via an embedded API key, and stores + returns the resulting auth bundle that contains the encrypted API key. This auth bundle (also referred to as a credential bundle) can be injected into an iframeStamper, resulting in a touch-free authenticator. Unlike `loginWithReadWriteSession`, this method assumes the end-user's organization ID (i.e. the sub-organization ID) is already known.
+   *
+   * @param userId
+   * @param targetEmbeddedKey
+   * @param expirationSeconds
+   * @param curveType
+   * @returns {Promise<ReadWriteSession>}
+   */
   createPasskeySession = async (
     userId: string,
     targetEmbeddedKey: string,
-    expirationSeconds?: string,
-    curveType?: "API_KEY_CURVE_P256" | "API_KEY_CURVE_SECP256K1"
+    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION
   ): Promise<ReadWriteSession> => {
-    const DEFAULT_SESSION_EXPIRATION = "900"; // default to 15 minutes
     const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
     userId = userId ?? localStorageUser?.userId;
 
@@ -301,8 +384,8 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
         {
           apiKeyName: `Session Key ${String(Date.now())}`,
           publicKey,
-          expirationSeconds: expirationSeconds ?? DEFAULT_SESSION_EXPIRATION,
-          curveType: curveType ?? "API_KEY_CURVE_P256",
+          expirationSeconds,
+          curveType: "API_KEY_CURVE_P256",
         },
       ],
     });
@@ -313,10 +396,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     };
 
     // store auth bundle in local storage
-    await setStorageValue(StorageKeys.ReadWriteSession, {
-      authBundle: authBundle,
-      sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
-    });
+    await setStorageValue(StorageKeys.ReadWriteSession, readWriteSession);
 
     return readWriteSession;
   };
