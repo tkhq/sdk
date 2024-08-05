@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.12.1
+
+### Patch Changes
+
+- f17a229: Update to oauth related endpoints to drop jwks uri from oauth providers
+
 ## 2.12.0
 
 ### Minor Changes
