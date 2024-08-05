@@ -499,7 +499,10 @@ export type definitions = {
     expirationSeconds?: string;
   };
   /** @enum {string} */
-  v1ApiKeyCurve: "API_KEY_CURVE_P256" | "API_KEY_CURVE_SECP256K1";
+  v1ApiKeyCurve:
+    | "API_KEY_CURVE_P256"
+    | "API_KEY_CURVE_SECP256K1"
+    | "API_KEY_CURVE_ED25519";
   v1ApiKeyParams: {
     /** @description Human-readable name for an API Key. */
     apiKeyName: string;
@@ -1086,7 +1089,8 @@ export type definitions = {
     | "CREDENTIAL_TYPE_API_KEY_P256"
     | "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"
     | "CREDENTIAL_TYPE_API_KEY_SECP256K1"
-    | "CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256";
+    | "CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"
+    | "CREDENTIAL_TYPE_API_KEY_ED25519";
   /** @enum {string} */
   v1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
   v1DeleteApiKeysIntent: {
@@ -1871,8 +1875,8 @@ export type definitions = {
     providerId: string;
     /** @description Human-readable name to identify a Provider. */
     providerName: string;
-    /** @description The URL at which to fetch the OIDC token signers */
-    jwksUri: string;
+    /** @description The issuer of the token, typically a URL indicating the authentication server, e.g https://accounts.google.com */
+    issuer: string;
     /** @description Expected audience ('aud' attribute of the signed token) which represents the app ID */
     audience: string;
     /** @description Expected subject ('sub' attribute of the signed token) which represents the user ID */
@@ -1883,8 +1887,6 @@ export type definitions = {
   v1OauthProviderParams: {
     /** @description Human-readable name to identify a Provider. */
     providerName: string;
-    /** @description The URL at which to fetch the OIDC token signers */
-    jwksUri: string;
     /** @description Base64 encoded OIDC token */
     oidcToken: string;
   };

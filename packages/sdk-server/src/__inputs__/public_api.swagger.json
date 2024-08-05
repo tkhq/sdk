@@ -2736,7 +2736,11 @@
     },
     "v1ApiKeyCurve": {
       "type": "string",
-      "enum": ["API_KEY_CURVE_P256", "API_KEY_CURVE_SECP256K1"]
+      "enum": [
+        "API_KEY_CURVE_P256",
+        "API_KEY_CURVE_SECP256K1",
+        "API_KEY_CURVE_ED25519"
+      ]
     },
     "v1ApiKeyParams": {
       "type": "object",
@@ -4265,7 +4269,8 @@
         "CREDENTIAL_TYPE_API_KEY_P256",
         "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256",
         "CREDENTIAL_TYPE_API_KEY_SECP256K1",
-        "CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"
+        "CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256",
+        "CREDENTIAL_TYPE_API_KEY_ED25519"
       ]
     },
     "v1Curve": {
@@ -6262,9 +6267,9 @@
           "type": "string",
           "description": "Human-readable name to identify a Provider."
         },
-        "jwksUri": {
+        "issuer": {
           "type": "string",
-          "description": "The URL at which to fetch the OIDC token signers"
+          "description": "The issuer of the token, typically a URL indicating the authentication server, e.g https://accounts.google.com"
         },
         "audience": {
           "type": "string",
@@ -6284,7 +6289,7 @@
       "required": [
         "providerId",
         "providerName",
-        "jwksUri",
+        "issuer",
         "audience",
         "subject",
         "createdAt",
@@ -6298,16 +6303,12 @@
           "type": "string",
           "description": "Human-readable name to identify a Provider."
         },
-        "jwksUri": {
-          "type": "string",
-          "description": "The URL at which to fetch the OIDC token signers"
-        },
         "oidcToken": {
           "type": "string",
           "description": "Base64 encoded OIDC token"
         }
       },
-      "required": ["providerName", "jwksUri", "oidcToken"]
+      "required": ["providerName", "oidcToken"]
     },
     "v1OauthRequest": {
       "type": "object",
