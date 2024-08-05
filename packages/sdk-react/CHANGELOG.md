@@ -1,5 +1,13 @@
 # @turnkey/sdk-react
 
+## 1.0.3
+
+### Patch Changes
+
+- f17a229: Update to oauth related endpoints to drop jwks uri from oauth providers
+- Updated dependencies [f17a229]
+  - @turnkey/sdk-browser@1.2.1
+
 ## 1.0.2
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @turnkey/sdk-server
 
+## 1.2.1
+
+### Patch Changes
+
+- f17a229: Update to oauth related endpoints to drop jwks uri from oauth providers
+- Updated dependencies [f17a229]
+  - @turnkey/http@2.12.1
+
 ## 1.2.0
 
 ### Minor Changes
