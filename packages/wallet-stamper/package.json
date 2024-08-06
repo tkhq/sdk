@@ -49,5 +49,14 @@
   },
   "dependencies": {
     "@turnkey/encoding": "workspace:*"
+  },
+  "devDependencies": {
+    "@solana/web3.js": "^1.88.1",
+    "@turnkey/api-key-stamper": "workspace:^",
+    "@turnkey/http": "workspace:^",
+    "dotenv": "^16.0.3",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
+    "viem": "^2.18.8"
   }
 }

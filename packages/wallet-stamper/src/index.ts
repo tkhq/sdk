@@ -1,33 +1,15 @@
 import { stringToBase64urlString } from '@turnkey/encoding';
+import { WalletStamperError } from './errors';
+import type { TStamper, WalletInterface, TStamp } from './types';
+import {
+  SIGNATURE_SCHEME_TK_API_SECP256K1,
+  SIGNATURE_SCHEME_TK_API_ED25519,
+  WALLET_TYPE_SOLANA,
+  WALLET_TYPE_EVM,
+  STAMP_HEADER_NAME,
+} from './constants';
 
-export type TStamp = {
-  stampHeaderName: string;
-  stampHeaderValue: string;
-};
-
-export interface TStamper {
-  stamp: (input: string) => Promise<TStamp>;
-}
-
-// Base interface for wallet functionalities common across different blockchain technologies.
-export interface BaseWalletInterface {
-  signMessage: (message: string) => Promise<string>;
-}
-
-// Solana wallets can directly access the public key without needing a signed message.
-export interface SolanaWalletInterface extends BaseWalletInterface {
-  recoverPublicKey: () => string; // Direct public key recovery without parameters.
-  type: 'solana';
-}
-
-// EVM wallets require a signed message to derive the public key, reflecting their security model.
-export interface EvmWalletInterface extends BaseWalletInterface {
-  recoverPublicKey: (signature: string, message: string) => string; // Public key recovery from signature and message.
-  type: 'evm';
-}
-
-// Union type for wallet interfaces, supporting both Solana and EVM wallets.
-export type WalletInterface = SolanaWalletInterface | EvmWalletInterface;
+export { WALLET_TYPE_EVM, WALLET_TYPE_SOLANA, STAMP_HEADER_NAME };
 
 // WalletStamper class implements the TStamper interface to use wallet's signature and public key
 // to authenticate requests to Turnkey.
@@ -38,21 +20,29 @@ export class WalletStamper implements TStamper {
     this.wallet = wallet;
   }
 
-  async stamp(input: string): Promise<TStamp> {
-    const signature = await this.wallet.signMessage(input);
-    console.log({ signature, input }); // Logging the signature and input for debugging purposes.
+  async stamp(payload: string): Promise<TStamp> {
+    let signature: string;
+    try {
+      signature = await this.wallet.signMessage(payload);
+    } catch (error) {
+      throw new WalletStamperError('Failed to sign the message', error);
+    }
 
     // Determine the signature scheme based on the wallet type.
     const scheme =
-      this.wallet.type === 'evm'
-        ? 'SIGNATURE_SCHEME_TK_API_P256'
-        : 'SIGNATURE_SCHEME_TK_API_ED25519';
+      this.wallet.type === WALLET_TYPE_SOLANA
+        ? SIGNATURE_SCHEME_TK_API_ED25519
+        : SIGNATURE_SCHEME_TK_API_SECP256K1;
 
-    // Recover the public key using the appropriate method based on the wallet type.
-    const publicKey =
-      this.wallet.type === 'evm'
-        ? this.wallet.recoverPublicKey(signature, input)
-        : this.wallet.recoverPublicKey();
+    let publicKey: string;
+    try {
+      publicKey =
+        this.wallet.type === WALLET_TYPE_SOLANA
+          ? this.wallet.recoverPublicKey()
+          : await this.wallet.recoverPublicKey(payload, signature);
+    } catch (error) {
+      throw new WalletStamperError('Failed to recover public key', error);
+    }
 
     const stamp = {
       publicKey,
@@ -62,7 +52,7 @@ export class WalletStamper implements TStamper {
 
     // Return the stamp as a base64url encoded JSON string in the header format.
     return {
-      stampHeaderName: 'X-Stamp',
+      stampHeaderName: STAMP_HEADER_NAME,
       stampHeaderValue: stringToBase64urlString(JSON.stringify(stamp)),
     };
   }
