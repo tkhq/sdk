@@ -1,5 +1,11 @@
 import { pointDecode } from "./tink/elliptic_curves";
-import { stringToBase64urlString, base64urlToBuffer, uint8ArrayToHexString } from "@turnkey/encoding";
+import {
+  stringToBase64urlString,
+  base64urlToBuffer,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
+
+const DEFAULT_JWK_MEMBER_BYTE_LENGTH = 32;
 
 export function convertTurnkeyApiKeyToJwk(input: {
   uncompressedPrivateKeyHex: string;
@@ -17,10 +23,16 @@ export function convertTurnkeyApiKeyToJwk(input: {
 
   // Manipulate x and y
   const decodedX = base64urlToBuffer(jwkCopy.x!);
-  const paddedX = hexStringToBase64urlString(uint8ArrayToHexString(new Uint8Array(decodedX)));
-  
+  const paddedX = hexStringToBase64urlString(
+    uint8ArrayToHexString(new Uint8Array(decodedX)),
+    DEFAULT_JWK_MEMBER_BYTE_LENGTH
+  );
+
   const decodedY = base64urlToBuffer(jwkCopy.y!);
-  const paddedY = hexStringToBase64urlString(uint8ArrayToHexString(new Uint8Array(decodedY)));
+  const paddedY = hexStringToBase64urlString(
+    uint8ArrayToHexString(new Uint8Array(decodedY)),
+    DEFAULT_JWK_MEMBER_BYTE_LENGTH
+  );
 
   jwkCopy.x = paddedX;
   jwkCopy.y = paddedY;

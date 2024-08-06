@@ -7,9 +7,7 @@ export function stringToBase64urlString(input: string): string {
   return base64StringToBase64UrlEncodedString(base64String);
 }
 
-export function base64urlToBuffer(
-  baseurl64String: string
-): ArrayBuffer {
+export function base64urlToBuffer(baseurl64String: string): ArrayBuffer {
   // Base64url to Base64
   const padding = "==".slice(0, (4 - (baseurl64String.length % 4)) % 4);
   const base64String =
@@ -24,7 +22,7 @@ export function base64urlToBuffer(
   for (let i = 0; i < str.length; i++) {
     byteView[i] = str.charCodeAt(i);
   }
-  return buffer;
+  return byteView;
 }
 
 export function bufferToBase64url(buffer: ArrayBuffer): string {
@@ -46,7 +44,6 @@ export function bufferToBase64url(buffer: ArrayBuffer): string {
     .replace(/=/g, "");
   return base64urlString;
 }
-
 
 export function base64StringToBase64UrlEncodedString(input: string): string {
   return input.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
