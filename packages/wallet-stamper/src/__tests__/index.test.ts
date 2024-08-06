@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-const { ORGANIZATION_ID, BASE_URL, USER_ID } = process.env;
+const { ORGANIZATION_ID, BASE_URL } = process.env;
 
 // Wrap the existing function in a Jest test block
 describe('Wallet stamper tests', () => {
