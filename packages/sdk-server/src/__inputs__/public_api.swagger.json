@@ -2685,8 +2685,7 @@
         "ACTIVITY_TYPE_OAUTH",
         "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
         "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION",
-        "ACTIVITY_TYPE_EMAIL_AUTH_V2",
-        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6"
+        "ACTIVITY_TYPE_EMAIL_AUTH_V2"
       ]
     },
     "v1AddressFormat": {
@@ -3929,47 +3928,12 @@
       },
       "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
     },
-    "v1CreateSubOrganizationIntentV6": {
-      "type": "object",
-      "properties": {
-        "subOrganizationName": {
-          "type": "string",
-          "description": "Name for this sub-organization"
-        },
-        "rootUsers": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1RootUserParamsV3"
-          },
-          "description": "Root users to create within this sub-organization"
-        },
-        "rootQuorumThreshold": {
-          "type": "integer",
-          "format": "int32",
-          "description": "The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users"
-        },
-        "wallet": {
-          "$ref": "#/definitions/v1WalletParams",
-          "description": "The wallet to create for the sub-organization"
-        },
-        "disableEmailRecovery": {
-          "type": "boolean",
-          "description": "Disable email recovery for the sub-organization"
-        },
-        "disableEmailAuth": {
-          "type": "boolean",
-          "description": "Disable email auth for the sub-organization"
-        }
-      },
-      "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
-    },
     "v1CreateSubOrganizationRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6"]
+          "enum": ["ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5"]
         },
         "timestampMs": {
           "type": "string",
@@ -3980,7 +3944,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1CreateSubOrganizationIntentV6"
+          "$ref": "#/definitions/v1CreateSubOrganizationIntentV5"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -4042,24 +4006,6 @@
       "required": ["subOrganizationId"]
     },
     "v1CreateSubOrganizationResultV5": {
-      "type": "object",
-      "properties": {
-        "subOrganizationId": {
-          "type": "string"
-        },
-        "wallet": {
-          "$ref": "#/definitions/v1WalletResult"
-        },
-        "rootUserIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "required": ["subOrganizationId"]
-    },
-    "v1CreateSubOrganizationResultV6": {
       "type": "object",
       "properties": {
         "subOrganizationId": {
@@ -6118,9 +6064,6 @@
         },
         "emailAuthIntentV2": {
           "$ref": "#/definitions/v1EmailAuthIntentV2"
-        },
-        "createSubOrganizationIntentV6": {
-          "$ref": "#/definitions/v1CreateSubOrganizationIntentV6"
         }
       }
     },
@@ -6989,9 +6932,6 @@
         },
         "createReadWriteSessionResult": {
           "$ref": "#/definitions/v1CreateReadWriteSessionResult"
-        },
-        "createSubOrganizationResultV6": {
-          "$ref": "#/definitions/v1CreateSubOrganizationResultV6"
         }
       }
     },
@@ -7041,44 +6981,6 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/v1ApiKeyParams"
-          },
-          "description": "A list of API Key parameters."
-        },
-        "authenticators": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1AuthenticatorParamsV2"
-          },
-          "description": "A list of Authenticator parameters."
-        },
-        "oauthProviders": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1OauthProviderParams"
-          },
-          "description": "A list of Oauth providers."
-        }
-      },
-      "required": ["userName", "apiKeys", "authenticators", "oauthProviders"]
-    },
-    "v1RootUserParamsV3": {
-      "type": "object",
-      "properties": {
-        "userName": {
-          "type": "string",
-          "description": "Human-readable name for a User."
-        },
-        "userEmail": {
-          "type": "string",
-          "description": "The user's email address."
-        },
-        "apiKeys": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1ApiKeyParamsV2"
           },
           "description": "A list of API Key parameters."
         },

@@ -214,7 +214,7 @@ export type TCreateReadWriteSessionInput = { body: TCreateReadWriteSessionBody }
 
 export type TCreateReadWriteSessionBody = operations["PublicApiService_CreateReadWriteSession"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
-export type TCreateSubOrganizationResponse = operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV6"] & ActivityMetadata;
+export type TCreateSubOrganizationResponse = operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV5"] & ActivityMetadata;
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
 

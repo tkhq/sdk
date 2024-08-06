@@ -474,8 +474,7 @@ export type definitions = {
     | "ACTIVITY_TYPE_OAUTH"
     | "ACTIVITY_TYPE_CREATE_API_KEYS_V2"
     | "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION"
-    | "ACTIVITY_TYPE_EMAIL_AUTH_V2"
-    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6";
+    | "ACTIVITY_TYPE_EMAIL_AUTH_V2";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -965,31 +964,14 @@ export type definitions = {
     /** @description Disable email auth for the sub-organization */
     disableEmailAuth?: boolean;
   };
-  v1CreateSubOrganizationIntentV6: {
-    /** @description Name for this sub-organization */
-    subOrganizationName: string;
-    /** @description Root users to create within this sub-organization */
-    rootUsers: definitions["v1RootUserParamsV3"][];
-    /**
-     * Format: int32
-     * @description The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users
-     */
-    rootQuorumThreshold: number;
-    /** @description The wallet to create for the sub-organization */
-    wallet?: definitions["v1WalletParams"];
-    /** @description Disable email recovery for the sub-organization */
-    disableEmailRecovery?: boolean;
-    /** @description Disable email auth for the sub-organization */
-    disableEmailAuth?: boolean;
-  };
   v1CreateSubOrganizationRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6";
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1CreateSubOrganizationIntentV6"];
+    parameters: definitions["v1CreateSubOrganizationIntentV5"];
   };
   v1CreateSubOrganizationResult: {
     subOrganizationId: string;
@@ -1007,11 +989,6 @@ export type definitions = {
     rootUserIds?: string[];
   };
   v1CreateSubOrganizationResultV5: {
-    subOrganizationId: string;
-    wallet?: definitions["v1WalletResult"];
-    rootUserIds?: string[];
-  };
-  v1CreateSubOrganizationResultV6: {
     subOrganizationId: string;
     wallet?: definitions["v1WalletResult"];
     rootUserIds?: string[];
@@ -1817,7 +1794,6 @@ export type definitions = {
     createApiKeysIntentV2?: definitions["v1CreateApiKeysIntentV2"];
     createReadWriteSessionIntent?: definitions["v1CreateReadWriteSessionIntent"];
     emailAuthIntentV2?: definitions["v1EmailAuthIntentV2"];
-    createSubOrganizationIntentV6?: definitions["v1CreateSubOrganizationIntentV6"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2137,7 +2113,6 @@ export type definitions = {
     createSubOrganizationResultV5?: definitions["v1CreateSubOrganizationResultV5"];
     oauthResult?: definitions["v1OauthResult"];
     createReadWriteSessionResult?: definitions["v1CreateReadWriteSessionResult"];
-    createSubOrganizationResultV6?: definitions["v1CreateSubOrganizationResultV6"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -2156,18 +2131,6 @@ export type definitions = {
     userEmail?: string;
     /** @description A list of API Key parameters. */
     apiKeys: definitions["v1ApiKeyParams"][];
-    /** @description A list of Authenticator parameters. */
-    authenticators: definitions["v1AuthenticatorParamsV2"][];
-    /** @description A list of Oauth providers. */
-    oauthProviders: definitions["v1OauthProviderParams"][];
-  };
-  v1RootUserParamsV3: {
-    /** @description Human-readable name for a User. */
-    userName: string;
-    /** @description The user's email address. */
-    userEmail?: string;
-    /** @description A list of API Key parameters. */
-    apiKeys: definitions["v1ApiKeyParamsV2"][];
     /** @description A list of Authenticator parameters. */
     authenticators: definitions["v1AuthenticatorParamsV2"][];
     /** @description A list of Oauth providers. */
