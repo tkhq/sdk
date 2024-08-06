@@ -1,34 +1,34 @@
-import { WebauthnStamper } from '@turnkey/webauthn-stamper';
-import { IframeStamper } from '@turnkey/iframe-stamper';
-import { getWebAuthnAttestation } from '@turnkey/http';
+import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import { IframeStamper } from "@turnkey/iframe-stamper";
+import { getWebAuthnAttestation } from "@turnkey/http";
 
-import { VERSION } from './__generated__/version';
-import WindowWrapper from './__polyfills__/window';
+import { VERSION } from "./__generated__/version";
+import WindowWrapper from "./__polyfills__/window";
 
 import type {
   GrpcStatus,
   TurnkeySDKClientConfig,
   TurnkeySDKBrowserConfig,
   IframeClientParams,
-} from './__types__/base';
+} from "./__types__/base";
 
-import { TurnkeyRequestError } from './__types__/base';
+import { TurnkeyRequestError } from "./__types__/base";
 
-import { TurnkeySDKClientBase } from './__generated__/sdk-client-base';
-import type * as SdkApiTypes from './__generated__/sdk_api_types';
+import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
+import type * as SdkApiTypes from "./__generated__/sdk_api_types";
 
-import type { User, SubOrganization, ReadWriteSession } from './models';
+import type { User, SubOrganization, ReadWriteSession } from "./models";
 import {
   StorageKeys,
   getStorageValue,
   removeStorageValue,
   setStorageValue,
-} from './storage';
+} from "./storage";
 import {
   generateRandomBuffer,
   base64UrlEncode,
   createEmbeddedAPIKey,
-} from './utils';
+} from "./utils";
 
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
@@ -62,7 +62,7 @@ export class TurnkeyBrowserSDK {
 
     if (!targetRpId) {
       throw new Error(
-        'Tried to initialize a passkey client with no rpId defined'
+        "Tried to initialize a passkey client with no rpId defined"
       );
     }
 
@@ -82,12 +82,12 @@ export class TurnkeyBrowserSDK {
   ): Promise<TurnkeyIframeClient> => {
     if (!params.iframeUrl) {
       throw new Error(
-        'Tried to initialize iframeClient with no iframeUrl defined'
+        "Tried to initialize iframeClient with no iframeUrl defined"
       );
     }
 
     const TurnkeyIframeElementId =
-      params.iframeElementId ?? 'turnkey-default-iframe-element-id';
+      params.iframeElementId ?? "turnkey-default-iframe-element-id";
 
     const iframeStamper = new IframeStamper({
       iframeContainer: params.iframeContainer,
@@ -112,7 +112,7 @@ export class TurnkeyBrowserSDK {
     const targetServerSignUrl = serverSignUrl ?? this.config.serverSignUrl;
 
     if (!targetServerSignUrl) {
-      throw new Error('Tried to call serverSign with no serverSignUrl defined');
+      throw new Error("Tried to call serverSign with no serverSignUrl defined");
     }
 
     const stringifiedBody = JSON.stringify({
@@ -121,13 +121,13 @@ export class TurnkeyBrowserSDK {
     });
 
     const response = await fetch(targetServerSignUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'X-Client-Version': VERSION,
+        "Content-Type": "application/json",
+        "X-Client-Version": VERSION,
       },
       body: stringifiedBody,
-      redirect: 'follow',
+      redirect: "follow",
     });
 
     if (!response.ok) {
@@ -233,29 +233,29 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
       publicKey: {
         rp: {
           id: config.publicKey?.rp?.id ?? this.rpId,
-          name: config.publicKey?.rp?.name ?? '',
+          name: config.publicKey?.rp?.name ?? "",
         },
         challenge: config.publicKey?.challenge ?? challenge,
         pubKeyCredParams: config.publicKey?.pubKeyCredParams ?? [
           {
-            type: 'public-key',
+            type: "public-key",
             alg: -7,
           },
         ],
         user: {
           id: config.publicKey?.user?.id ?? authenticatorUserId,
-          name: config.publicKey?.user?.name ?? 'Default User',
-          displayName: config.publicKey?.user?.displayName ?? 'Default User',
+          name: config.publicKey?.user?.name ?? "Default User",
+          displayName: config.publicKey?.user?.displayName ?? "Default User",
         },
         authenticatorSelection: {
           requireResidentKey:
             config.publicKey?.authenticatorSelection?.requireResidentKey ??
             true,
           residentKey:
-            config.publicKey?.authenticatorSelection?.residentKey ?? 'required',
+            config.publicKey?.authenticatorSelection?.residentKey ?? "required",
           userVerification:
             config.publicKey?.authenticatorSelection?.userVerification ??
-            'preferred',
+            "preferred",
         },
       },
     };
@@ -276,9 +276,9 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     userId: string,
     targetEmbeddedKey: string,
     expirationSeconds?: string,
-    curveType?: 'API_KEY_CURVE_P256' | 'API_KEY_CURVE_SECP256K1'
+    curveType?: "API_KEY_CURVE_P256" | "API_KEY_CURVE_SECP256K1"
   ): Promise<ReadWriteSession> => {
-    const DEFAULT_SESSION_EXPIRATION = '900'; // default to 15 minutes
+    const DEFAULT_SESSION_EXPIRATION = "900"; // default to 15 minutes
     const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
     userId = userId ?? localStorageUser?.userId;
 
@@ -293,8 +293,8 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
         {
           apiKeyName: `Session Key ${String(Date.now())}`,
           publicKey,
-          expirationSeconds: expirationSeconds ?? DEFAULT_SESSION_EXPIRATION, // default to 15 minutes
-          curveType: curveType ?? 'API_KEY_CURVE_P256',
+          expirationSeconds: expirationSeconds ?? DEFAULT_SESSION_EXPIRATION,
+          curveType: curveType ?? "API_KEY_CURVE_P256",
         },
       ],
     });
