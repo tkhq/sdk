@@ -23,7 +23,7 @@ const { ORGANIZATION_ID, BASE_URL, USER_ID } = process.env;
 
 // Wrap the existing function in a Jest test block
 describe('Wallet stamper tests', () => {
-  it.only('Should list wallets using wallet to stamp the request', async () => {
+  it('Should list wallets using wallet to stamp the request', async () => {
     const mockWallet = new MockSolanaWallet();
     const walletStamper = new WalletStamper(mockWallet);
 

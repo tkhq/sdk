@@ -8,7 +8,7 @@ import { verifyMessage } from 'viem';
 import { MockSolanaWallet, MockEvmWallet } from './wallet-interfaces';
 import { ETHEREUM_PUBLIC_KEY, SOLANA_PUBLIC_KEY_DECODED } from './constants';
 
-test.skip('Solana wallet stamping', async function () {
+test('Solana wallet stamping', async function () {
   const solanaWallet = new MockSolanaWallet();
   const stamper = new WalletStamper(solanaWallet);
   const messageToSign = 'hello from TKHQ!';
@@ -26,13 +26,13 @@ test.skip('Solana wallet stamping', async function () {
   expect(
     nacl.sign.detached.verify(
       decodeUTF8(messageToSign),
-      Buffer.from(decodedStamp['signature'], 'base64'),
+      Buffer.from(decodedStamp['signature'], 'hex'),
       solanaWallet.keypair.publicKey.toBytes()
     )
   ).toBe(true);
 });
 
-test.skip('EVM wallet stamping', async function () {
+test('EVM wallet stamping', async function () {
   const evmWallet = new MockEvmWallet();
   const stamper = new WalletStamper(evmWallet);
   const messageToSign = 'hello from TKHQ!';
@@ -45,7 +45,7 @@ test.skip('EVM wallet stamping', async function () {
   );
 
   expect(decodedStamp['publicKey']).toBe(ETHEREUM_PUBLIC_KEY);
-  expect(decodedStamp['scheme']).toBe('SIGNATURE_SCHEME_TK_API_P256');
+  expect(decodedStamp['scheme']).toBe('SIGNATURE_SCHEME_TK_API_SECP256K1');
   const valid = await verifyMessage({
     address: evmWallet.account.address,
     message: messageToSign,

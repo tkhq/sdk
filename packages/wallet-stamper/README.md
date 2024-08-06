@@ -14,6 +14,63 @@ npm install @turnkey/wallet-stamper @turnkey/http
 
 ## Usage
 
+### Prerequisites
+
+#### Add Wallet Public Key as Authenticator
+
+To use the wallet stamper, you must add the user's wallet public key as an API key authenticator.
+This can be achieved either by creating a sub-organization activity or by generating a new API key and passing in the wallet's public key.
+
+The API key stamper is necessary because we need to use the parent organization's API key to add the authenticator initially.
+Once this is done, the wallet can stamp activity requests independently without needing the parent organization's API private and public keys.
+
+Below are the steps to add a Solana public key as a wallet authenticator:
+
+```typescript
+const apiKeyStamper = new ApiKeyStamper({
+  apiPublicKey: process.env.API_PUBLIC_KEY ?? '',
+  apiPrivateKey: process.env.API_PRIVATE_KEY ?? '',
+});
+
+const client = new TurnkeyClient({ baseUrl: BASE_URL }, apiKeyStamper);
+
+const activityPoller = createActivityPoller({
+  client,
+  requestFn: client.createApiKeys,
+});
+
+// See "Example: Signing with a Solana Wallet" below for how to implement the SolanaWallet interface
+const mockWallet = new MockSolanaWallet();
+
+// This is the public key of the wallet that will be added as an API key and used to stamp future requests
+const publicKey = mockWallet.recoverPublicKey();
+
+// The userId of the user that we will add the wallet public key as an authenticator
+const userId = 'f4a5e6b4-3b9c-4f69-b7f6-9c2f456a4d23';
+
+// We set the curve type to 'API_KEY_CURVE_ED25519' for solana wallets
+// If using an EVM wallet, set the curve type to 'API_KEY_CURVE_SECP256K1'
+const curveType = 'API_KEY_CURVE_ED25519';
+
+const result = activityPoller({
+  type: 'ACTIVITY_TYPE_CREATE_API_KEYS_V2',
+  timestampMs: new Date().getTime().toString(),
+  organizationId: 'acd0bc97-2af5-475b-bc34-0fa7ca3bdc75',
+  parameters: {
+    apiKeys: [
+      {
+        apiKeyName: 'test-wallet-stamper',
+        publicKey,
+        curveType: 'API_KEY_CURVE_ED25519',
+      },
+    ],
+    userId,
+  },
+});
+```
+
+#### Using the Wallet Stamper
+
 To use the `@turnkey/wallet-stamper` package, follow these steps:
 
 1. **Choose Your Wallet Type**: Decide whether you will use an EVM-based wallet (e.g., Ethereum) or a Solana-based wallet.
@@ -24,7 +81,7 @@ To use the `@turnkey/wallet-stamper` package, follow these steps:
 
 4. **Instantiate the TurnkeyClient**: Create an instance of the `TurnkeyClient` with the `WalletStamper` instance.
 
-5. **Stamp Requests**: Use the `stampRequest` method to stamp your requests with the wallet, using the users wallet to sign the request.
+5. **Stamp Requests**: Now when making request using the TurnkeyClient, the wallet stamper will automatically stamp the request with the user's wallet public key and signature.
 
 ### Example: Signing with a Solana Wallet
 
