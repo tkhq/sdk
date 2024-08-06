@@ -3,9 +3,11 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { type TurnkeyClient } from '@turnkey/http';
 
 import {
+  SolanaWalletInterface,
   TStamper,
   WalletInterface,
   WalletStamper,
+  EvmWalletInterface, // Import EthereumWalletInterface
 } from '@turnkey/wallet-stamper';
 import { createWebauthnStamper, Email, registerPassKey } from '@/lib/turnkey';
 import { createUserSubOrg } from '@/lib/server';
@@ -78,7 +80,14 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     email: Email,
     chainType: ChainType = ChainType.SOLANA
   ) {
-    console.log('Create suborg is called from turnkey-provider');
+    if (chainType === ChainType.SOLANA) {
+      const solanaWallet = wallet as SolanaWalletInterface;
+      solanaWallet.recoverPublicKey();
+    } else if (chainType === ChainType.EVM) {
+      const evmWallet = wallet as EvmWalletInterface;
+      // Additional Ethereum-specific logic here
+    }
+
     const { challenge, attestation } = await registerPassKey(email);
 
     const res = await createUserSubOrg({
