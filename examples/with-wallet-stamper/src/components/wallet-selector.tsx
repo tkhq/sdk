@@ -1,16 +1,16 @@
-'use client';
+"use client";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Wallet } from '@solana/wallet-adapter-react';
-import { WalletName } from '@solana/wallet-adapter-base';
-import Image from 'next/image';
-import { useEffect } from 'react';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Wallet } from "@solana/wallet-adapter-react";
+import { WalletName } from "@solana/wallet-adapter-base";
+import Image from "next/image";
+import { useEffect } from "react";
 
 interface WalletSelectorProps {
   wallets: Wallet[];
@@ -26,7 +26,7 @@ export default function WalletSelector({
   setOpen,
 }: WalletSelectorProps) {
   useEffect(() => {
-    console.log('open changed:', open);
+    console.log("open changed:", open);
   }, [open]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>

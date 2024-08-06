@@ -4,7 +4,7 @@
  * @property {string} stampHeaderValue - The value of the stamp header.
  */
 export type TStamp = {
-  stampHeaderName: 'X-Stamp';
+  stampHeaderName: "X-Stamp";
   stampHeaderValue: string;
 };
 
@@ -34,7 +34,7 @@ export interface BaseWalletInterface {
  */
 export interface SolanaWalletInterface extends BaseWalletInterface {
   recoverPublicKey: () => string;
-  type: 'solana';
+  type: "solana";
 }
 
 /**
@@ -46,7 +46,7 @@ export interface SolanaWalletInterface extends BaseWalletInterface {
  */
 export interface EvmWalletInterface extends BaseWalletInterface {
   recoverPublicKey: (message: string, signature: string) => Promise<string>;
-  type: 'evm';
+  type: "evm";
 }
 
 /**

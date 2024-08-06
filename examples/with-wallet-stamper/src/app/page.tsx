@@ -1,7 +1,7 @@
-import AddWalletAuth from '@/components/add-wallet';
-import { ConnectWallet } from '@/components/connect-wallet';
-import SignUp from '@/components/sign-up';
-import Image from 'next/image';
+import AddWalletAuth from "@/components/add-wallet";
+import { ConnectWallet } from "@/components/connect-wallet";
+import SignUp from "@/components/sign-up";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -17,7 +17,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            By{' '}
+            By{" "}
             <Image
               src="/vercel.svg"
               alt="Vercel Logo"

@@ -3,9 +3,9 @@ import {
   custom,
   Hex,
   recoverPublicKey as recoverPublicKeyViem,
-} from 'viem';
-import { mainnet } from 'viem/chains';
-import 'viem/window';
+} from "viem";
+import { mainnet } from "viem/chains";
+import "viem/window";
 
 const client = createWalletClient({
   chain: mainnet,
@@ -16,11 +16,11 @@ export const signMessage = async (message: Hex) => {
   // // Retrieve Account from an EIP-1193 Provider.
   const [account] =
     (await window.ethereum?.request({
-      method: 'eth_requestAccounts',
+      method: "eth_requestAccounts",
     })) || [];
 
   if (!account) {
-    throw new Error('No account found');
+    throw new Error("No account found");
   }
 
   const signature = await client.signMessage({

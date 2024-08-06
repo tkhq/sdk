@@ -1,10 +1,10 @@
-import { TurnkeyClient, createActivityPoller } from '@turnkey/http';
-import { ALG_ES256, PUBKEY_CRED_TYPE } from './constants';
+import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
+import { ALG_ES256, PUBKEY_CRED_TYPE } from "./constants";
 
-import { TWebauthnStamperConfig } from '@turnkey/webauthn-stamper';
-import { base64UrlEncode, generateRandomBuffer } from './utils';
-import { PassKeyRegistrationResult } from './types';
-import { env } from '@/env.mjs';
+import { TWebauthnStamperConfig } from "@turnkey/webauthn-stamper";
+import { base64UrlEncode, generateRandomBuffer } from "./utils";
+import { PassKeyRegistrationResult } from "./types";
+import { env } from "@/env.mjs";
 
 const { NEXT_PUBLIC_TURNKEY_RPID } = env;
 
@@ -13,10 +13,10 @@ export type Email = `${string}@${string}.${string}`;
 export const createWebauthnStamper = async (
   options?: TWebauthnStamperConfig
 ) => {
-  const { WebauthnStamper } = await import('@turnkey/webauthn-stamper');
+  const { WebauthnStamper } = await import("@turnkey/webauthn-stamper");
   const rpId = options?.rpId || NEXT_PUBLIC_TURNKEY_RPID;
   if (!rpId) {
-    throw 'Error must provide rpId or define TURNKEY_RPID in your .env file';
+    throw "Error must provide rpId or define TURNKEY_RPID in your .env file";
   }
 
   return new WebauthnStamper({
@@ -28,7 +28,7 @@ export const createWebauthnStamper = async (
 export const registerPassKey = async (
   email: Email
 ): Promise<PassKeyRegistrationResult> => {
-  const { getWebAuthnAttestation } = await import('@turnkey/http');
+  const { getWebAuthnAttestation } = await import("@turnkey/http");
   const challenge = generateRandomBuffer();
   const authenticatorUserId = generateRandomBuffer();
 
@@ -38,7 +38,7 @@ export const registerPassKey = async (
     publicKey: {
       rp: {
         id: NEXT_PUBLIC_TURNKEY_RPID,
-        name: 'Tunkey Demo Wallet',
+        name: "Tunkey Demo Wallet",
       },
       challenge,
       pubKeyCredParams: [
@@ -49,13 +49,13 @@ export const registerPassKey = async (
       ],
       user: {
         id: authenticatorUserId,
-        name: email.split('@')[0],
-        displayName: email.split('@')[0],
+        name: email.split("@")[0],
+        displayName: email.split("@")[0],
       },
       authenticatorSelection: {
         requireResidentKey: true,
-        residentKey: 'required',
-        userVerification: 'preferred',
+        residentKey: "required",
+        userVerification: "preferred",
       },
     },
   });

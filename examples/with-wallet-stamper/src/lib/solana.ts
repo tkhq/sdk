@@ -3,15 +3,15 @@ import {
   SystemProgram,
   Transaction,
   Connection,
-} from '@solana/web3.js';
-import { TurnkeyClient } from '@turnkey/http';
+} from "@solana/web3.js";
+import { TurnkeyClient } from "@turnkey/http";
 
-import { TurnkeySigner } from '@turnkey/solana';
+import { TurnkeySigner } from "@turnkey/solana";
 
 export async function recentBlockhash(): Promise<string> {
   const connection = new Connection(
-    'https://api.devnet.solana.com',
-    'confirmed'
+    "https://api.devnet.solana.com",
+    "confirmed"
   );
   const blockhash = await connection.getLatestBlockhash();
   return blockhash.blockhash;

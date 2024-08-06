@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
-import { type TurnkeyClient } from '@turnkey/http';
+import { type TurnkeyClient } from "@turnkey/http";
 
 import {
   SolanaWalletInterface,
@@ -8,11 +8,11 @@ import {
   WalletInterface,
   WalletStamper,
   EvmWalletInterface, // Import EthereumWalletInterface
-} from '@turnkey/wallet-stamper';
-import { createWebauthnStamper, Email, registerPassKey } from '@/lib/turnkey';
-import { createUserSubOrg } from '@/lib/server';
-import { ChainType } from '@/lib/types';
-import { useWallet } from '@solana/wallet-adapter-react';
+} from "@turnkey/wallet-stamper";
+import { createWebauthnStamper, Email, registerPassKey } from "@/lib/turnkey";
+import { createUserSubOrg } from "@/lib/server";
+import { ChainType } from "@/lib/types";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 // Context for the TurnkeyClient
 const TurnkeyContext = createContext<{
@@ -55,7 +55,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const [walletClient, setWalletClient] = useState<TurnkeyClient | null>(null);
 
   const createTurnkeyClient = async (stamper: TStamper) => {
-    const { TurnkeyClient } = await import('@turnkey/http');
+    const { TurnkeyClient } = await import("@turnkey/http");
 
     return new TurnkeyClient(clientConfig, stamper);
   };
@@ -69,7 +69,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   useEffect(() => {
     const initPasskeyClient = async () => {
       const webauthnStamper = await createWebauthnStamper({
-        rpId: 'localhost',
+        rpId: "localhost",
       });
       createTurnkeyClient(webauthnStamper).then(setPasskeyClient);
     };
@@ -97,7 +97,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       chainType,
     });
 
-    console.log('Response from createUserSubOrg:', res);
+    console.log("Response from createUserSubOrg:", res);
   }
 
   function signIn(email: Email) {
@@ -111,22 +111,22 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     // const signature = await signMessage?.(message);
     if (publicKey) {
       const decodedPublicKey = Buffer.from(publicKey?.toBuffer()).toString(
-        'hex'
+        "hex"
       );
       const res = await passkeyClient?.createApiKeys({
-        type: 'ACTIVITY_TYPE_CREATE_API_KEYS_V2',
+        type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
         timestampMs: new Date().getTime().toString(),
-        organizationId: 'f45c3014-e68c-40e2-a9a3-f4a36d5a0251',
+        organizationId: "f45c3014-e68c-40e2-a9a3-f4a36d5a0251",
         parameters: {
           apiKeys: [
             {
-              apiKeyName: 'wallet-authenticator',
+              apiKeyName: "wallet-authenticator",
               publicKey: decodedPublicKey,
               //@ts-ignore
-              curveType: 'API_KEY_CURVE_ED25519',
+              curveType: "API_KEY_CURVE_ED25519",
             },
           ],
-          userId: 'ac81ee4d-0a57-443b-a582-33cd2d7dd1ae',
+          userId: "ac81ee4d-0a57-443b-a582-33cd2d7dd1ae",
         },
       });
       console.log({ res });
@@ -147,7 +147,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   async function signInWithWallet(email: Email) {
     if (walletClient) {
       const wallets = await walletClient?.getWallets({
-        organizationId: 'f45c3014-e68c-40e2-a9a3-f4a36d5a0251',
+        organizationId: "f45c3014-e68c-40e2-a9a3-f4a36d5a0251",
       });
       console.log({ wallets });
     }

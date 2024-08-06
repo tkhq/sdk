@@ -1,16 +1,16 @@
-'use server';
+"use server";
 
-import { createActivityPoller, TurnkeyClient } from '@turnkey/http';
+import { createActivityPoller, TurnkeyClient } from "@turnkey/http";
 import {
   ApiKeyStamper,
   type TApiKeyStamperConfig,
-} from '@turnkey/api-key-stamper';
+} from "@turnkey/api-key-stamper";
 
-import { env } from '@/env.mjs';
+import { env } from "@/env.mjs";
 
-import { Email } from './turnkey';
-import { Attestation, ChainType } from './types';
-import { ACCOUNT_CONFIG_EVM, ACCOUNT_CONFIG_SOLANA } from './constants';
+import { Email } from "./turnkey";
+import { Attestation, ChainType } from "./types";
+import { ACCOUNT_CONFIG_EVM, ACCOUNT_CONFIG_SOLANA } from "./constants";
 
 const {
   TURNKEY_API_PUBLIC_KEY,
@@ -24,7 +24,7 @@ export const createAPIKeyStamper = (options?: TApiKeyStamperConfig) => {
   const apiPrivateKey = options?.apiPrivateKey || TURNKEY_API_PRIVATE_KEY;
 
   if (!(apiPublicKey && apiPrivateKey)) {
-    throw 'Error must provide `apiPublicKey` and `apiPrivateKey` or define `TURNKEY_API_PUBLIC_KEY` and `TURNKEY_API_PRIVATE_KEY` in your .env file';
+    throw "Error must provide `apiPublicKey` and `apiPrivateKey` or define `TURNKEY_API_PUBLIC_KEY` and `TURNKEY_API_PRIVATE_KEY` in your .env file";
   }
 
   return new ApiKeyStamper({
@@ -78,7 +78,7 @@ export const createUserSubOrg = async ({
   console.log({ organizationId });
   const timestampMs = String(Date.now());
 
-  const userName = email.split('@')[0];
+  const userName = email.split("@")[0];
 
   const accountConfig =
     chainType === ChainType.EVM ? ACCOUNT_CONFIG_EVM : ACCOUNT_CONFIG_SOLANA;
@@ -87,7 +87,7 @@ export const createUserSubOrg = async ({
     challenge && attestation
       ? [
           {
-            authenticatorName: 'Passkey',
+            authenticatorName: "Passkey",
             challenge,
             attestation,
           },
@@ -97,15 +97,15 @@ export const createUserSubOrg = async ({
   const apiKeys = publicKey
     ? [
         {
-          apiKeyName: 'Public Key',
+          apiKeyName: "Public Key",
           publicKey,
-          curveType: 'API_KEY_CURVE_ED25519',
+          curveType: "API_KEY_CURVE_ED25519",
         },
       ]
     : [];
 
   const completedActivity = await activityPoller({
-    type: 'ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5',
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5",
     timestampMs,
     organizationId,
     parameters: {

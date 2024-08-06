@@ -28,8 +28,8 @@ Below are the steps to add a Solana public key as a wallet authenticator:
 
 ```typescript
 const apiKeyStamper = new ApiKeyStamper({
-  apiPublicKey: process.env.API_PUBLIC_KEY ?? '',
-  apiPrivateKey: process.env.API_PRIVATE_KEY ?? '',
+  apiPublicKey: process.env.API_PUBLIC_KEY ?? "",
+  apiPrivateKey: process.env.API_PRIVATE_KEY ?? "",
 });
 
 const client = new TurnkeyClient({ baseUrl: BASE_URL }, apiKeyStamper);
@@ -46,22 +46,22 @@ const mockWallet = new MockSolanaWallet();
 const publicKey = mockWallet.recoverPublicKey();
 
 // The userId of the user that we will add the wallet public key as an authenticator
-const userId = 'f4a5e6b4-3b9c-4f69-b7f6-9c2f456a4d23';
+const userId = "f4a5e6b4-3b9c-4f69-b7f6-9c2f456a4d23";
 
 // We set the curve type to 'API_KEY_CURVE_ED25519' for solana wallets
 // If using an EVM wallet, set the curve type to 'API_KEY_CURVE_SECP256K1'
-const curveType = 'API_KEY_CURVE_ED25519';
+const curveType = "API_KEY_CURVE_ED25519";
 
 const result = activityPoller({
-  type: 'ACTIVITY_TYPE_CREATE_API_KEYS_V2',
+  type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
   timestampMs: new Date().getTime().toString(),
-  organizationId: 'acd0bc97-2af5-475b-bc34-0fa7ca3bdc75',
+  organizationId: "acd0bc97-2af5-475b-bc34-0fa7ca3bdc75",
   parameters: {
     apiKeys: [
       {
-        apiKeyName: 'test-wallet-stamper',
+        apiKeyName: "test-wallet-stamper",
         publicKey,
-        curveType: 'API_KEY_CURVE_ED25519',
+        curveType: "API_KEY_CURVE_ED25519",
       },
     ],
     userId,
@@ -89,20 +89,20 @@ In this example, we are using a local Solana wallet.
 For information on using an injected Solana wallet such as Solflare, please refer to the [`with-wallet-stamper`](../../examples/with-wallet-stamper) example.
 
 ```typescript
-import { Keypair } from '@solana/web3.js';
-import { decodeUTF8 } from 'tweetnacl-util';
-import nacl from 'tweetnacl';
-import { TurnkeyClient } from '@turnkey/http';
-import { WalletStamper, SolanaWalletInterface } from '@turnkey/wallet-stamper';
+import { Keypair } from "@solana/web3.js";
+import { decodeUTF8 } from "tweetnacl-util";
+import nacl from "tweetnacl";
+import { TurnkeyClient } from "@turnkey/http";
+import { WalletStamper, SolanaWalletInterface } from "@turnkey/wallet-stamper";
 
 class SolanaWallet implements SolanaWalletInterface {
   keypair = Keypair.fromSecretKey(SOLANA_PRIVATE_KEY);
-  type = 'solana' as const;
+  type = "solana" as const;
 
   async signMessage(message: string): Promise<string> {
     const messageBytes = decodeUTF8(message);
     const signature = nacl.sign.detached(messageBytes, this.keypair.secretKey);
-    return Buffer.from(signature).toString('hex');
+    return Buffer.from(signature).toString("hex");
   }
 
   recoverPublicKey(): string {
@@ -110,7 +110,7 @@ class SolanaWallet implements SolanaWalletInterface {
     // into the ed25519 decoded public key
     const ed25519PublicKey = Buffer.from(
       this.keypair.publicKey.toBuffer()
-    ).toString('hex');
+    ).toString("hex");
     return ed25519PublicKey;
   }
 }
@@ -141,14 +141,14 @@ import {
   custom,
   recoverPublicKey,
   hashMessage,
-} from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
-import { mainnet } from 'viem/chains';
+} from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { mainnet } from "viem/chains";
 
-import { WalletStamper, EvmWalletInterface } from '@turnkey/wallet-stamper';
+import { WalletStamper, EvmWalletInterface } from "@turnkey/wallet-stamper";
 export class EthereumWallet implements EvmWalletInterface {
   account = privateKeyToAccount(ETHEREUM_PRIVATE_KEY);
-  type = 'evm' as const;
+  type = "evm" as const;
 
   async signMessage(message: string): Promise<string> {
     // Create a new wallet client with a JSON-RPC account from the injected provider

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button } from './button'; // Importing the Button component
+import React from "react";
+import { Button } from "./button"; // Importing the Button component
 import {
   Select,
   SelectContent,
@@ -8,8 +8,8 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from './select'; // Assuming you have a Select component
-import { ChainType } from '@/lib/types';
+} from "./select"; // Assuming you have a Select component
+import { ChainType } from "@/lib/types";
 
 interface InsetSelectButtonProps<T> {
   children: React.ReactNode;

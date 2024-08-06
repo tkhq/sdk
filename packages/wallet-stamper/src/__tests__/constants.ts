@@ -1,8 +1,8 @@
 // Constants for Ethereum keys
 export const ETHEREUM_PUBLIC_KEY =
-  '0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5';
+  "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5";
 export const ETHEREUM_PRIVATE_KEY =
-  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
+  "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 
 export const SOLANA_PRIVATE_KEY = Uint8Array.from([
   54, 134, 140, 93, 245, 84, 88, 28, 70, 88, 146, 41, 96, 249, 255, 68, 174,
@@ -11,6 +11,6 @@ export const SOLANA_PRIVATE_KEY = Uint8Array.from([
   107, 252, 123, 4, 83, 165, 63, 176, 151, 221, 105, 250, 100, 229,
 ]);
 
-export const SOLANA_PUBLIC_KEY = '6iFmi3WEaTEvduaf4gGK13Wy6GvtWv5PYYjvj13ZMitt';
+export const SOLANA_PUBLIC_KEY = "6iFmi3WEaTEvduaf4gGK13Wy6GvtWv5PYYjvj13ZMitt";
 export const SOLANA_PUBLIC_KEY_DECODED =
-  '54dbf3006616c1afaec1ebceaa22a488b1856bfc7b0453a53fb097dd69fa64e5';
+  "54dbf3006616c1afaec1ebceaa22a488b1856bfc7b0453a53fb097dd69fa64e5";

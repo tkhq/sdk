@@ -1,13 +1,13 @@
-import { stringToBase64urlString } from '@turnkey/encoding';
-import { WalletStamperError } from './errors';
-import type { TStamper, WalletInterface, TStamp } from './types';
+import { stringToBase64urlString } from "@turnkey/encoding";
+import { WalletStamperError } from "./errors";
+import type { TStamper, WalletInterface, TStamp } from "./types";
 import {
   SIGNATURE_SCHEME_TK_API_SECP256K1,
   SIGNATURE_SCHEME_TK_API_ED25519,
   WALLET_TYPE_SOLANA,
   WALLET_TYPE_EVM,
   STAMP_HEADER_NAME,
-} from './constants';
+} from "./constants";
 
 export { WALLET_TYPE_EVM, WALLET_TYPE_SOLANA, STAMP_HEADER_NAME };
 
@@ -25,7 +25,7 @@ export class WalletStamper implements TStamper {
     try {
       signature = await this.wallet.signMessage(payload);
     } catch (error) {
-      throw new WalletStamperError('Failed to sign the message', error);
+      throw new WalletStamperError("Failed to sign the message", error);
     }
 
     // Determine the signature scheme based on the wallet type.
@@ -41,7 +41,7 @@ export class WalletStamper implements TStamper {
           ? this.wallet.recoverPublicKey()
           : await this.wallet.recoverPublicKey(payload, signature);
     } catch (error) {
-      throw new WalletStamperError('Failed to recover public key', error);
+      throw new WalletStamperError("Failed to recover public key", error);
     }
 
     const stamp = {

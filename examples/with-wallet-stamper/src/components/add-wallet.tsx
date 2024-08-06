@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-import { useTurnkey } from './turnkey-provider'; // Import useTurnkey from turnkey-provider
-import { Button } from './ui/button';
-import { Email } from '@/lib/turnkey';
-import { Input } from './ui/input';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useTurnkey } from "./turnkey-provider"; // Import useTurnkey from turnkey-provider
+import { Button } from "./ui/button";
+import { Email } from "@/lib/turnkey";
+import { Input } from "./ui/input";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 const AddWalletAuth: React.FC = () => {
   const { connected, publicKey, signMessage } = useWallet();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const { addWalletAuthenticator, signInWithWallet } = useTurnkey();
 
   if (!connected) {
@@ -40,11 +40,11 @@ const AddWalletAuth: React.FC = () => {
     // }
     if (email) {
       try {
-        console.log('Attempting to add wallet authenticator for:', email);
+        console.log("Attempting to add wallet authenticator for:", email);
         await addWalletAuthenticator(email as Email);
-        console.log('Wallet authenticator added successfully');
+        console.log("Wallet authenticator added successfully");
       } catch (error) {
-        console.error('Failed to add wallet authenticator:', error);
+        console.error("Failed to add wallet authenticator:", error);
       }
     }
   };

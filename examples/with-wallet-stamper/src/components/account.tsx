@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Gem, LogOut } from 'lucide-react';
+import { Gem, LogOut } from "lucide-react";
 
-import { Button } from './ui/button';
-import { Card } from './ui/card';
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
 
 interface AccountProps {
   address: string | null;
