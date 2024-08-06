@@ -14,7 +14,6 @@ declare global {
     interface ProcessEnv {
       ORGANIZATION_ID: UUID;
       BASE_URL: string;
-      USER_ID: UUID;
     }
   }
 }
@@ -29,12 +28,11 @@ describe('Wallet stamper tests', () => {
 
     const client = new TurnkeyClient({ baseUrl: BASE_URL }, walletStamper);
 
-    const { user } =
-      (await client.getUser({
+    const { wallets } =
+      (await client.getWallets({
         organizationId: ORGANIZATION_ID,
-        userId: USER_ID,
       })) ?? {};
 
-    expect(user?.userId).toBe(USER_ID);
+    expect(wallets?.length).toBeGreaterThan(0);
   });
 });
