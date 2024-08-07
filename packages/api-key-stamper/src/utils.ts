@@ -19,7 +19,10 @@ export function convertTurnkeyApiKeyToJwk(input: {
   const jwkCopy = { ...jwk };
 
   // Ensure that each of the constituent parts are sufficiently padded
-  jwkCopy.d = hexStringToBase64urlString(uncompressedPrivateKeyHex);
+  const paddedD = hexStringToBase64urlString(
+    uncompressedPrivateKeyHex,
+    DEFAULT_JWK_MEMBER_BYTE_LENGTH
+  );
 
   // Manipulate x and y
   const decodedX = base64urlToBuffer(jwkCopy.x!);
@@ -34,6 +37,7 @@ export function convertTurnkeyApiKeyToJwk(input: {
     DEFAULT_JWK_MEMBER_BYTE_LENGTH
   );
 
+  jwkCopy.d = paddedD;
   jwkCopy.x = paddedX;
   jwkCopy.y = paddedY;
 
