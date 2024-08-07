@@ -53,11 +53,6 @@ export function ConnectWallet() {
     });
   }, [publicKey, connection]);
 
-  // useEffect(() => {
-  //   console.log({ publicKey, connected });
-  //   setUserWalletAddress(publicKey?.toBase58()!);
-  // }, [publicKey, connected]);
-
   useEffect(() => {
     if (publicKey) {
       setUserWalletAddress(publicKey.toBase58()!);
@@ -75,15 +70,6 @@ export function ConnectWallet() {
       }
     }
   }, [publicKey, signMessage]);
-
-  // useEffect(() => {
-  //   console.log({ wallet, connected, publicKey, connecting });
-  //   // setUserWalletAddress(wallet?.adapter.publicKey?.toBase58()!);
-  // }, [wallet, connected, select, publicKey, connecting, connected]);
-
-  // useEffect(() => {
-  //   console.log({ connecting });
-  // }, [connecting]);
 
   const connect = async () => {
     setShowWalletSelector(true);

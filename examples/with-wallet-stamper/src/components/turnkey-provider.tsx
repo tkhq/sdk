@@ -7,7 +7,7 @@ import {
   TStamper,
   WalletInterface,
   WalletStamper,
-  EvmWalletInterface, // Import EthereumWalletInterface
+  EvmWalletInterface,
 } from "@turnkey/wallet-stamper";
 import { createWebauthnStamper, Email, registerPassKey } from "@/lib/turnkey";
 import { createUserSubOrg } from "@/lib/server";
@@ -21,16 +21,16 @@ const TurnkeyContext = createContext<{
   walletClient: TurnkeyClient | null;
   createSubOrg: (email: Email, chainType?: ChainType) => Promise<void>;
   addWalletAuthenticator: (email: Email) => Promise<void>;
-  setWallet: (wallet: WalletInterface | null) => void; // Added setWallet type
+  setWallet: (wallet: WalletInterface | null) => void;
   signInWithWallet: (email: Email) => Promise<void>;
 }>({
   client: null,
   passkeyClient: null,
   walletClient: null,
-  createSubOrg: async () => {}, // Provide a default no-op function or suitable default
-  addWalletAuthenticator: async () => {}, // Provide a default no-op function or suitable default
-  setWallet: () => {}, // Provide a default no-op function
-  signInWithWallet: async () => {}, // Provide a default no-op function
+  createSubOrg: async () => {},
+  addWalletAuthenticator: async () => {},
+  setWallet: () => {},
+  signInWithWallet: async () => {},
 });
 
 export const useTurnkey = () => useContext(TurnkeyContext);
@@ -71,7 +71,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       const webauthnStamper = await createWebauthnStamper({
         rpId: "localhost",
       });
-      createTurnkeyClient(webauthnStamper).then(setPasskeyClient);
+      createTurnkeyClient(webauthnStamper as TStamper).then(setPasskeyClient);
     };
     initPasskeyClient();
   }, []);
@@ -85,7 +85,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       solanaWallet.recoverPublicKey();
     } else if (chainType === ChainType.EVM) {
       const evmWallet = wallet as EvmWalletInterface;
-      // Additional Ethereum-specific logic here
     }
 
     const { challenge, attestation } = await registerPassKey(email);
@@ -100,15 +99,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     console.log("Response from createUserSubOrg:", res);
   }
 
-  function signIn(email: Email) {
-    // list suborgs filter by email
-  }
-
   async function addWalletAuthenticator(email: Email) {
-    // const message = new TextEncoder().encode(
-    //   'Please sign this message to add a wallet authenticator'
-    // );
-    // const signature = await signMessage?.(message);
     if (publicKey) {
       const decodedPublicKey = Buffer.from(publicKey?.toBuffer()).toString(
         "hex"
@@ -131,17 +122,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       });
       console.log({ res });
     }
-
-    // console.log(signature);
-    // if (signature) {
-    //   const result = nacl.sign.detached.verify(
-    //     message,
-    //     signature,
-
-    //   );
-    //   console.log(result);
-    // }
-    // use the passkey client to authenticate the add new authenticator request
   }
 
   async function signInWithWallet(email: Email) {

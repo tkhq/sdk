@@ -13,7 +13,6 @@ const client = createWalletClient({
 });
 
 export const signMessage = async (message: Hex) => {
-  // // Retrieve Account from an EIP-1193 Provider.
   const [account] =
     (await window.ethereum?.request({
       method: "eth_requestAccounts",

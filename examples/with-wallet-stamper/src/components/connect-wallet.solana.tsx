@@ -10,17 +10,12 @@ import {
 export function ConnectWallet() {
   const { connected, connect, select } = useWallet();
   const { setVisible } = useWalletModal();
-  // const { buttonState, onConnect, onDisconnect, onSelectWallet } =
-  //   useWalletMultiButton({
-  //     onSelectWallet: setWalletModalConfig,
-  //   });
 
   return (
     <Button
       onClick={() => {
         console.log("click");
         setVisible(true);
-        // connect();
       }}
     >
       {connected ? "Connected" : "Connect"}

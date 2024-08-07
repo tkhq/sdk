@@ -18,26 +18,6 @@ const AddWalletAuth: React.FC = () => {
   }
 
   const handleAddWallet = async () => {
-    // const sig = await signMessage?.(Buffer.from('hello'));
-    // console.log('sig', sig);
-    // const pubKey = publicKey?.toBuffer();
-    // if (publicKey && pubKey) {
-    //   const pubKeyBytes = PublicKey.decode(pubKey);
-    //   //   console.log(
-    //   //     'handle add wallet ',
-    //   //     Buffer.from(pubKeyBytes.toBuffer()).toString('hex')
-    //   //   );
-    //   const decodedPublicKey = Buffer.from(pubKey).toString('hex');
-    //   console.log('decodedPublicKey', decodedPublicKey);
-
-    //   const encodedPublicKey = bs58.encode(
-    //     Buffer.from(decodedPublicKey, 'hex')
-    //   );
-    //   console.log('encodedPublicKey', encodedPublicKey);
-
-    //   const pubK = new PublicKey(Buffer.from(decodedPublicKey, 'hex'));
-    //   console.log('pubK', pubK.toString());
-    // }
     if (email) {
       try {
         console.log("Attempting to add wallet authenticator for:", email);
@@ -51,7 +31,6 @@ const AddWalletAuth: React.FC = () => {
 
   const handleListWallets = async () => {
     const wallets = await signInWithWallet(email as Email);
-    console.log({ wallets });
   };
 
   return (
