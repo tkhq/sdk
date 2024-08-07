@@ -4,6 +4,8 @@ import {
   uint8ArrayFromHexString,
   uint8ArrayToHexString,
   base64StringToBase64UrlEncodedString,
+  base64urlToBuffer,
+  bufferToBase64url,
 } from "..";
 
 // Test for stringToBase64urlString
@@ -32,6 +34,34 @@ test("stringToBase64urlString", async function () {
   ).toBe(
     "eyJwdWJsaWNLZXkiOiIwMmY3MzlmOGM3N2IzMmY0ZDVmMTMyNjU4NjFmZWJkNzZlN2E5YzYxYTExNDBkMjk2YjhjMTYzMDI1MDg4NzAzMTYiLCJzaWduYXR1cmUiOiIzMDQ0MDIyMDJhOTJjMjRlNGI0ZGUzY2RiNWMwNWEyYjFmNDIyNjRiYTgxMzljZjY2YjJkMWVjZjBhMDk5ODdhYjlhMmZlY2IwMjIwM2JmZDkxZDhjNWU4N2Y3OGRhOGI1Y2Y1ZGRiMjdjOTZjYjAwYjg0ODc5N2QwZmM3M2JmMzcxODkyYzQyM2Y4MSIsInNjaGVtZSI6IlNJR05BVFVSRV9TQ0hFTUVfVEtfQVBJX1AyNTYifQ" // Base64url encoded
   );
+});
+
+test("base64urlToBuffer", async function () {
+  // Trivial test string
+  expect(base64urlToBuffer("aGVsbG8")).toEqual(
+    new Uint8Array([104, 101, 108, 108, 111])
+  ); // "hello"
+
+  // Hello, World!
+  expect(base64urlToBuffer("SGVsbG8sIFdvcmxkIQ")).toEqual(
+    new Uint8Array([72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33])
+  );
+});
+
+test("bufferToBase64url", async function () {
+  // Trivial test string
+  expect(bufferToBase64url(new Uint8Array([104, 101, 108, 108, 111]))).toEqual(
+    "aGVsbG8"
+  ); // "hello"
+
+  // Hello, World!
+  expect(
+    bufferToBase64url(
+      new Uint8Array([
+        72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33,
+      ])
+    )
+  ).toEqual("SGVsbG8sIFdvcmxkIQ");
 });
 
 // Test for base64StringToBase64UrlEncodedString
