@@ -18,7 +18,7 @@ test("correctly converts turnkey API key to JWK", function () {
       const newApiKeyPair = generateP256KeyPair();
 
       const result = convertTurnkeyApiKeyToJwk({
-        uncompressedPrivateKeyHex: newApiKeyPair.privateKey,
+        uncompressedPrivateKeyHex: "ee05fc3bdf4161bc70701c221d8d77180294cefcfcea64ba83c4d4c732fcb9", // arbitrary 31 byte hex string
         compressedPublicKeyHex: newApiKeyPair.publicKey,
       });
     } catch (err: any) {
