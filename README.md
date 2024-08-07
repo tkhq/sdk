@@ -23,6 +23,7 @@ API Docs: https://docs.turnkey.com/
 | [`@turnkey/api-key-stamper`](/packages/api-key-stamper)                           | [![npm](https://img.shields.io/npm/v/@turnkey/api-key-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/api-key-stamper)                           | Provide API key signatures over Turnkey requests                        | [CHANGELOG](/packages/api-key-stamper/CHANGELOG.md)              | Turnkey primitives |
 | [`@turnkey/iframe-stamper`](/packages/iframe-stamper)                             | [![npm](https://img.shields.io/npm/v/@turnkey/iframe-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/iframe-stamper)                             | Provide API key signatures over Turnkey requests within iframe contexts | [CHANGELOG](/packages/iframe-stamper/CHANGELOG.md)               | Turnkey primitives |
 | [`@turnkey/webauthn-stamper`](/packages/webauthn-stamper)                         | [![npm](https://img.shields.io/npm/v/@turnkey/webauthn-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/webauthn-stamper)                         | Provide Webauthn signatures over Turnkey requests                       | [CHANGELOG](/packages/webauthn-stamper/CHANGELOG.md)             | Turnkey primitives |
+| [`@turnkey/wallet-stamper`](/packages/wallet-stamper)                             | [![npm](https://img.shields.io/npm/v/@turnkey/wallet-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/wallet-stamper)                             | Provide wallet signatures over Turnkey requests                         | [CHANGELOG](/packages/wallet-stamper/CHANGELOG.md)               | Turnkey primitives |
 
 ## Code Examples
 
@@ -50,6 +51,7 @@ API Docs: https://docs.turnkey.com/
 | [`with-offline`](/examples/with-offline/)                              | Sign a Turnkey request in offline context                                                                                   |
 | [`with-federated-passkeys`](/examples/with-federated-passkeys/)        | A NextJS app that demonstrates how to use Turnkey to build a federated, webauthn powered authentication flow                |
 | [`with-eip-1193-provider`](/examples/with-eip-1193-provider/)          | A NextJS app that demonstrates how to use Turnkey the `@turnkey/eip-1193-provider` in your app                              |
+| [`with-wallet-stamper`](/examples/with-wallet-stamper/)                | A NextJS app that demonstrates how to use Turnkey the `@turnkey/wallet-stamper` in your app                                 |
 
 ## Demos built with Turnkey
 
