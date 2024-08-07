@@ -24,18 +24,18 @@ export function convertTurnkeyApiKeyToJwk(input: {
     DEFAULT_JWK_MEMBER_BYTE_LENGTH
   );
 
-  // Manipulate x and y
-  const decodedX = base64urlToBuffer(jwkCopy.x!);
-  const paddedX = hexStringToBase64urlString(
-    uint8ArrayToHexString(new Uint8Array(decodedX)),
-    DEFAULT_JWK_MEMBER_BYTE_LENGTH
-  );
+  // // Manipulate x and y
+  // const decodedX = base64urlToBuffer(jwkCopy.x!);
+  // const paddedX = hexStringToBase64urlString(
+  //   uint8ArrayToHexString(new Uint8Array(decodedX)),
+  //   DEFAULT_JWK_MEMBER_BYTE_LENGTH
+  // );
 
-  const decodedY = base64urlToBuffer(jwkCopy.y!);
-  const paddedY = hexStringToBase64urlString(
-    uint8ArrayToHexString(new Uint8Array(decodedY)),
-    DEFAULT_JWK_MEMBER_BYTE_LENGTH
-  );
+  // const decodedY = base64urlToBuffer(jwkCopy.y!);
+  // const paddedY = hexStringToBase64urlString(
+  //   uint8ArrayToHexString(new Uint8Array(decodedY)),
+  //   DEFAULT_JWK_MEMBER_BYTE_LENGTH
+  // );
 
   jwkCopy.d = paddedD;
   jwkCopy.x = paddedX;

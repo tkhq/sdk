@@ -734,6 +734,10 @@ importers:
       sha256-uint8array:
         specifier: ^0.10.7
         version: 0.10.7
+    devDependencies:
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../crypto
 
   packages/cosmjs:
     dependencies:
