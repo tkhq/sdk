@@ -30,6 +30,13 @@ export const uint8ArrayFromHexString = (hexString: string): Uint8Array => {
   );
 };
 
+export const uint8ArrayFromHexStringPadded = (hexString: string, length: number): Uint8Array => {
+  var buffer =  uint8ArrayFromHexString(hexString);
+  var paddedBuffer = new Uint8Array(length);
+  paddedBuffer.set(buffer, length - buffer.length);
+  return paddedBuffer;
+};
+
 // Pure JS implementation of btoa. This is adapted from the following:
 // https://github.com/jsdom/abab/blob/80874ae1fe1cde2e587bb6e51b6d7c9b42ca1d34/lib/btoa.js
 function btoa(s: string): string {

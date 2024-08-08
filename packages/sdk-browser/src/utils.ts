@@ -1,4 +1,4 @@
-import { uint8ArrayFromHexString } from "@turnkey/encoding";
+import { uint8ArrayFromHexString, uint8ArrayFromHexStringPadded } from "@turnkey/encoding";
 import {
   generateP256KeyPair,
   buildAdditionalAssociatedData,
@@ -28,11 +28,30 @@ export const createEmbeddedAPIKey = async (
     aead: AeadId.Aes256Gcm,
   });
 
+  // Function to extract x and y components from a hex string public key
+  function getXYComponentsFromHexString(publicKeyHex: string) {
+    publicKeyHex = publicKeyHex.replace(/^0x/, '');
+    if (!publicKeyHex.startsWith('04')) {
+      throw new Error("Public key is not in uncompressed format");
+    }
+    const x = publicKeyHex.slice(2, 66);
+    const y = publicKeyHex.slice(66, 130);
+    return { x, y };
+  }
+
   // 3: import the targetPublicKey (i.e. passed in from the iframe)
   const targetKeyBytes = uint8ArrayFromHexString(targetPublicKey);
+  const { x, y } = getXYComponentsFromHexString(targetPublicKey);
+
   const targetKey = await crypto.subtle.importKey(
-    "raw",
-    targetKeyBytes,
+    "jwk",
+    {
+      kty: "EC",
+      crv: "P-256",
+      x: base64UrlEncode(uint8ArrayFromHexStringPadded(x, 32)),
+      y: base64UrlEncode(uint8ArrayFromHexStringPadded(y, 32)),
+      ext: true
+    }, // this is what needs to be changed 
     {
       name: "ECDH",
       namedCurve: "P-256",
