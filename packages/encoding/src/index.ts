@@ -31,7 +31,10 @@ export const uint8ArrayFromHexString = (hexString: string): Uint8Array => {
 };
 
 export const uint8ArrayFromHexStringPadded = (hexString: string, length: number): Uint8Array => {
-  var buffer =  uint8ArrayFromHexString(hexString);
+  var buffer = uint8ArrayFromHexString(hexString);
+  if (buffer.length >= length) {
+    return buffer
+  }
   var paddedBuffer = new Uint8Array(length);
   paddedBuffer.set(buffer, length - buffer.length);
   return paddedBuffer;
