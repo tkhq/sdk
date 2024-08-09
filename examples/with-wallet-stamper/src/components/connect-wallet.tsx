@@ -111,7 +111,7 @@ export function ConnectWallet() {
     );
   }
   return (
-    <>
+    <div className="flex flex-col gap-2">
       <ButtonSelect
         connect={connect}
         onSelect={(selection: ChainType) => setSelectedChain(selection)}
@@ -124,6 +124,6 @@ export function ConnectWallet() {
         wallets={wallets}
         onWalletSelect={handleWalletSelect}
       />
-    </>
+    </div>
   );
 }

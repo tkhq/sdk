@@ -17,7 +17,7 @@ export interface TStamper {
 }
 
 /**
- * Base interface for wallet functionalities common across different blockchain technologies.
+ * Base interface for wallet functionalities common across different blockchain chains.
  * @interface BaseWalletInterface
  * @property {function(string): Promise<string>} signMessage - Signs a message and returns the hex signature as a string.
  */

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-import { type TurnkeyClient } from "@turnkey/http";
+import { createActivityPoller, type TurnkeyClient } from "@turnkey/http";
 
 import {
   SolanaWalletInterface,
@@ -9,28 +9,40 @@ import {
   WalletStamper,
   EvmWalletInterface,
 } from "@turnkey/wallet-stamper";
-import { createWebauthnStamper, Email, registerPassKey } from "@/lib/turnkey";
-import { createUserSubOrg } from "@/lib/server";
+import { createWebauthnStamper, Email } from "@/lib/turnkey";
+import { createUserSubOrg, getSubOrgByPublicKey } from "@/lib/server";
 import { ChainType } from "@/lib/types";
 import { useWallet } from "@solana/wallet-adapter-react";
+
+import { useRouter } from "next/navigation";
+import { ACCOUNT_CONFIG_SOLANA } from "@/lib/constants";
+import { User, Wallet } from "@/lib/types";
 
 // Context for the TurnkeyClient
 const TurnkeyContext = createContext<{
   client: TurnkeyClient | null;
   passkeyClient: TurnkeyClient | null;
   walletClient: TurnkeyClient | null;
-  createSubOrg: (email: Email, chainType?: ChainType) => Promise<void>;
-  addWalletAuthenticator: (email: Email) => Promise<void>;
+  createSubOrg: (email?: Email, chainType?: ChainType) => Promise<void>;
+
   setWallet: (wallet: WalletInterface | null) => void;
-  signInWithWallet: (email: Email) => Promise<void>;
+  signInWithWallet: () => Promise<User | null>;
+  getWallets: () => Promise<Wallet[]>;
+  authenticating: boolean;
+  user: User | null;
+  createWallet: (walletName: string) => Promise<void>;
 }>({
   client: null,
   passkeyClient: null,
   walletClient: null,
   createSubOrg: async () => {},
-  addWalletAuthenticator: async () => {},
+
   setWallet: () => {},
-  signInWithWallet: async () => {},
+  signInWithWallet: async () => null,
+  getWallets: async () => [],
+  authenticating: false,
+  user: null,
+  createWallet: async () => {},
 });
 
 export const useTurnkey = () => useContext(TurnkeyContext);
@@ -46,13 +58,21 @@ const clientConfig = {
 export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   children,
 }) => {
-  const { signMessage, publicKey } = useWallet();
   const [wallet, setWallet] = useState<WalletInterface | null>(null);
   const [client, setClient] = useState<TurnkeyClient | null>(null);
   const [passkeyClient, setPasskeyClient] = useState<TurnkeyClient | null>(
     null
   );
   const [walletClient, setWalletClient] = useState<TurnkeyClient | null>(null);
+  const [authenticating, setAuthenticating] = useState(false);
+  const [user, setUser] = useState<User | null>({
+    organizationId: "",
+    organizationName: "",
+    userId: "",
+    username: "",
+  });
+
+  const router = useRouter();
 
   const createTurnkeyClient = async (stamper: TStamper) => {
     const { TurnkeyClient } = await import("@turnkey/http");
@@ -77,61 +97,85 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   }, []);
 
   async function createSubOrg(
-    email: Email,
+    email?: Email,
     chainType: ChainType = ChainType.SOLANA
   ) {
+    setAuthenticating(true);
+    let publicKey = null;
     if (chainType === ChainType.SOLANA) {
       const solanaWallet = wallet as SolanaWalletInterface;
-      solanaWallet.recoverPublicKey();
+      publicKey = solanaWallet.recoverPublicKey();
     } else if (chainType === ChainType.EVM) {
       const evmWallet = wallet as EvmWalletInterface;
     }
 
-    const { challenge, attestation } = await registerPassKey(email);
-
     const res = await createUserSubOrg({
       email,
-      challenge,
-      attestation,
+      publicKey,
       chainType,
     });
 
-    console.log("Response from createUserSubOrg:", res);
+    setUser((prevUser) => ({
+      ...prevUser,
+      organizationId: res.subOrganizationId || "",
+      organizationName: prevUser?.organizationName || "",
+      userId: prevUser?.userId || "",
+      username: prevUser?.username || "",
+    }));
+
+    setAuthenticating(false);
+    router.push("/dashboard");
   }
 
-  async function addWalletAuthenticator(email: Email) {
-    if (publicKey) {
-      const decodedPublicKey = Buffer.from(publicKey?.toBuffer()).toString(
-        "hex"
-      );
-      const res = await passkeyClient?.createApiKeys({
-        type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
-        timestampMs: new Date().getTime().toString(),
-        organizationId: "f45c3014-e68c-40e2-a9a3-f4a36d5a0251",
-        parameters: {
-          apiKeys: [
-            {
-              apiKeyName: "wallet-authenticator",
-              publicKey: decodedPublicKey,
-              //@ts-ignore
-              curveType: "API_KEY_CURVE_ED25519",
-            },
-          ],
-          userId: "ac81ee4d-0a57-443b-a582-33cd2d7dd1ae",
-        },
-      });
-      console.log({ res });
+  async function getWallets(): Promise<Wallet[]> {
+    if (!walletClient || !user?.organizationId) {
+      return [];
     }
+    const { wallets } = await walletClient?.getWallets({
+      organizationId: user?.organizationId,
+    });
+
+    return wallets as unknown as Wallet[];
   }
 
-  async function signInWithWallet(email: Email) {
+  async function signInWithWallet(): Promise<User | null> {
+    const publicKey = (wallet as SolanaWalletInterface)?.recoverPublicKey();
+    const { organizationIds } = await getSubOrgByPublicKey(publicKey);
+    const organizationId = organizationIds[0];
+
+    let whoami: User | null = null;
     if (walletClient) {
-      const wallets = await walletClient?.getWallets({
-        organizationId: "f45c3014-e68c-40e2-a9a3-f4a36d5a0251",
-      });
-      console.log({ wallets });
+      try {
+        whoami = await walletClient.getWhoami({
+          organizationId,
+        });
+        setUser(whoami);
+        router.push("/dashboard");
+      } catch (e) {
+        console.error(e);
+      }
     }
-    return Promise.resolve();
+    return whoami;
+  }
+
+  async function createWallet(walletName: string) {
+    if (!walletClient || !user?.organizationId) {
+      return;
+    }
+    const activityPoller = createActivityPoller({
+      client: walletClient,
+      requestFn: walletClient.createWallet,
+    });
+
+    const completedActivity = await activityPoller({
+      type: "ACTIVITY_TYPE_CREATE_WALLET",
+      timestampMs: new Date().getTime().toString(),
+      organizationId: user?.organizationId,
+      parameters: {
+        walletName,
+        accounts: [ACCOUNT_CONFIG_SOLANA],
+      },
+    });
   }
 
   return (
@@ -141,9 +185,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         passkeyClient,
         walletClient,
         createSubOrg,
-        addWalletAuthenticator,
         setWallet,
         signInWithWallet,
+        authenticating,
+        user,
+        getWallets,
+        createWallet,
       }}
     >
       {children}

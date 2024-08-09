@@ -522,7 +522,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5",
       },
-      "createSubOrganizationResultV5"
+      "createSubOrganizationResultV6"
     );
   };
 

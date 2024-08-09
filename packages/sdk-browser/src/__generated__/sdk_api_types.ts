@@ -388,7 +388,7 @@ export type TCreateReadWriteSessionBody =
     commandOverrideParams;
 
 export type TCreateSubOrganizationResponse =
-  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV5"] &
+  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV6"] &
     ActivityMetadata;
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };

@@ -19,10 +19,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
   const wallets = useMemo(() => [new SolflareWalletAdapter()], [network]);
-  // @todo add autoConnect back
+
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets}>
+      <WalletProvider autoConnect wallets={wallets}>
         <WalletModalProvider>
           <TurnkeyProvider>{children}</TurnkeyProvider>
         </WalletModalProvider>

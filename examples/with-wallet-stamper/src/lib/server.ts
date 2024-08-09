@@ -10,7 +10,7 @@ import { env } from "@/env.mjs";
 
 import { Email } from "./turnkey";
 import { Attestation, ChainType } from "./types";
-import { ACCOUNT_CONFIG_EVM, ACCOUNT_CONFIG_SOLANA } from "./constants";
+import { CURVE_TYPE_ED25519, CURVE_TYPE_SECP256K1 } from "./constants";
 
 const {
   TURNKEY_API_PUBLIC_KEY,
@@ -33,15 +33,6 @@ export const createAPIKeyStamper = (options?: TApiKeyStamperConfig) => {
   });
 };
 
-export const createServerClient = () => {
-  return new TurnkeyClient(
-    {
-      baseUrl: NEXT_PUBLIC_BASE_URL,
-    },
-    createAPIKeyStamper()
-  );
-};
-
 export const createUserSubOrg = async ({
   email,
   challenge,
@@ -49,11 +40,11 @@ export const createUserSubOrg = async ({
   chainType,
   publicKey,
 }: {
-  email: Email;
+  email?: Email;
   challenge?: string;
   attestation?: Attestation;
   chainType: ChainType;
-  publicKey?: string;
+  publicKey?: string | null;
 }): Promise<{
   organizationId?: string;
   subOrganizationId?: string;
@@ -75,13 +66,13 @@ export const createUserSubOrg = async ({
   });
 
   const organizationId = NEXT_PUBLIC_ORGANIZATION_ID;
-  console.log({ organizationId });
+
   const timestampMs = String(Date.now());
 
-  const userName = email.split("@")[0];
+  const userName = email?.split("@")[0] || publicKey?.slice(0, 6) || "user";
 
-  const accountConfig =
-    chainType === ChainType.EVM ? ACCOUNT_CONFIG_EVM : ACCOUNT_CONFIG_SOLANA;
+  const curveType =
+    chainType === ChainType.EVM ? CURVE_TYPE_SECP256K1 : CURVE_TYPE_ED25519;
 
   const authenticators =
     challenge && attestation
@@ -99,13 +90,13 @@ export const createUserSubOrg = async ({
         {
           apiKeyName: "Public Key",
           publicKey,
-          curveType: "API_KEY_CURVE_ED25519",
+          curveType,
         },
       ]
     : [];
 
   const completedActivity = await activityPoller({
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5",
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6",
     timestampMs,
     organizationId,
     parameters: {
@@ -120,28 +111,38 @@ export const createUserSubOrg = async ({
           apiKeys,
         },
       ],
-      wallet: {
-        walletName: `User ${userName} wallet`,
-        accounts: [accountConfig],
-      },
     },
   }).catch((error) => {
     console.error(error);
   });
 
   const { subOrganizationId, wallet } =
-    completedActivity?.result.createSubOrganizationResultV5 || {};
+    completedActivity?.result.createSubOrganizationResultV6 || {};
+
   const { addresses, walletId } = wallet || {};
-  console.log({
-    organizationId,
-    subOrganizationId,
-    walletId,
-    address: addresses?.[0],
-  });
+
   return {
     organizationId,
     subOrganizationId,
     walletId,
     address: addresses?.[0],
   };
+};
+
+export const getSubOrgByPublicKey = async (publicKey: string) => {
+  const stamper = await createAPIKeyStamper();
+
+  const client = new TurnkeyClient(
+    {
+      baseUrl: NEXT_PUBLIC_BASE_URL,
+    },
+    stamper
+  );
+
+  const subOrg = await client.getSubOrgIds({
+    organizationId: NEXT_PUBLIC_ORGANIZATION_ID,
+    filterType: "PUBLIC_KEY",
+    filterValue: publicKey,
+  });
+  return subOrg;
 };

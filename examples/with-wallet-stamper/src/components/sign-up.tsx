@@ -17,12 +17,9 @@ const SignUp: React.FC = () => {
     return null;
   }
   const handleSignUp = async () => {
-    console.log("handle signup ", email);
     if (email) {
       try {
-        console.log("Attempting to create sub organization for:", email);
         await createSubOrg(email as Email);
-        console.log("Sub organization created successfully");
       } catch (error) {
         console.error("Failed to create sub organization:", error);
       }

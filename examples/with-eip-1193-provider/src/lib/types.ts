@@ -6,7 +6,7 @@ export type Attestation = Parameters<
   TurnkeyClient["createSubOrganization"]
 >[0]["parameters"]["rootUsers"][0]["authenticators"][0]["attestation"];
 
-export interface PassKeyRegistrationResult {
+export interface PasskeyRegistrationResult {
   challenge: string;
   attestation: Attestation;
 }

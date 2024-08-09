@@ -16,6 +16,7 @@ export const ACCOUNT_CONFIG_EVM = {
   pathFormat: "PATH_FORMAT_BIP32" as const,
   path: ETHEREUM_WALLET_DEFAULT_PATH,
   addressFormat: "ADDRESS_FORMAT_ETHEREUM" as const,
+  curveType: "API_KEY_CURVE_SECP256K1" as const,
 };
 
 export const ACCOUNT_CONFIG_SOLANA = {
@@ -24,3 +25,6 @@ export const ACCOUNT_CONFIG_SOLANA = {
   curve: "CURVE_ED25519" as const,
   addressFormat: "ADDRESS_FORMAT_SOLANA" as const,
 };
+
+export const CURVE_TYPE_ED25519 = "API_KEY_CURVE_ED25519" as const;
+export const CURVE_TYPE_SECP256K1 = "API_KEY_CURVE_SECP256K1" as const;
