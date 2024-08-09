@@ -69,3 +69,27 @@ test("uint8ArrayFromHexString", async function () {
   ]);
   expect(uint8ArrayFromHexString(hexString)).toEqual(expectedUint8Array); // Hex string => Uint8Array
 });
+
+// Test array padding for uint8ArrayFromHexString
+// Convert hex string to uint8 array and pads it with zeroes to a particular length if its less
+test("uint8ArrayFromHexString Test padding", async function () {
+
+  // TOO SHORT - test a hex string with less bytes than the "length" parameter provided 
+  const hexString =
+    "5234d08dfa2c815f3097b8ba848a28172e85bec78886e8e201afccb166fc"; // length is 30 bytes, so must be padded with 2 0's at the beginning
+  const expectedUint8Array = new Uint8Array([
+    0, 0, 82, 52, 208, 141, 250, 44, 129, 95, 48, 151, 184, 186, 132, 138, 40, 23, 46,
+    133, 190, 199, 136, 134, 232, 226, 1, 175, 204, 177, 102, 252,
+  ]);
+  expect(uint8ArrayFromHexString(hexString, 32)).toEqual(expectedUint8Array); // Hex string => Uint8Array
+
+
+  // TOO LONG - test a hex string with less bytes than the "length" parameter provided 
+  const hexString2 =
+    "5234d08dfa2c815f3097b8ba848a28172e85bec78886e8e201afccb166fcfafbfcfd"; // length is 34 bytes, so no additional padding will be added
+  const expectedUint8Array2 = new Uint8Array([
+    0, 0, 82, 52, 208, 141, 250, 44, 129, 95, 48, 151, 184, 186, 132, 138, 40, 23, 46,
+    133, 190, 199, 136, 134, 232, 226, 1, 175, 204, 177, 102, 252, 250, 251, 252, 253,
+  ]);
+  expect(uint8ArrayFromHexString(hexString, 32)).toEqual(expectedUint8Array); // Hex string => Uint8Array
+});
