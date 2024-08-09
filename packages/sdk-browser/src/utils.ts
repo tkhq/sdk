@@ -1,4 +1,4 @@
-import { uint8ArrayFromHexString, uint8ArrayFromHexStringPadded } from "@turnkey/encoding";
+import { uint8ArrayFromHexString } from "@turnkey/encoding";
 import {
   generateP256KeyPair,
   buildAdditionalAssociatedData,
@@ -48,10 +48,10 @@ export const createEmbeddedAPIKey = async (
     {
       kty: "EC",
       crv: "P-256",
-      x: base64UrlEncode(uint8ArrayFromHexStringPadded(x, 32)),
-      y: base64UrlEncode(uint8ArrayFromHexStringPadded(y, 32)),
+      x: base64UrlEncode(uint8ArrayFromHexString(x, 32)),
+      y: base64UrlEncode(uint8ArrayFromHexString(y, 32)),
       ext: true
-    }, // this is what needs to be changed 
+    },
     {
       name: "ECDH",
       namedCurve: "P-256",

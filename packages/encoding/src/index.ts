@@ -18,21 +18,15 @@ export function uint8ArrayToHexString(input: Uint8Array): string {
   );
 }
 
-export const uint8ArrayFromHexString = (hexString: string): Uint8Array => {
+export const uint8ArrayFromHexString = (hexString: string, length?: number): Uint8Array => {
   const hexRegex = /^[0-9A-Fa-f]+$/;
   if (!hexString || hexString.length % 2 != 0 || !hexRegex.test(hexString)) {
     throw new Error(
       `cannot create uint8array from invalid hex string: "${hexString}"`
     );
   }
-  return new Uint8Array(
-    hexString!.match(/../g)!.map((h: string) => parseInt(h, 16))
-  );
-};
-
-export const uint8ArrayFromHexStringPadded = (hexString: string, length: number): Uint8Array => {
-  var buffer = uint8ArrayFromHexString(hexString);
-  if (buffer.length >= length) {
+  var buffer = new Uint8Array(hexString!.match(/../g)!.map((h: string) => parseInt(h, 16)));
+  if (length === undefined || buffer.length >= length) {
     return buffer
   }
   var paddedBuffer = new Uint8Array(length);

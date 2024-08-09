@@ -3,7 +3,6 @@ import {
   stringToBase64urlString,
   uint8ArrayFromHexString,
   uint8ArrayToHexString,
-  uint8ArrayFromHexStringPadded,
   base64StringToBase64UrlEncodedString,
 } from "..";
 
@@ -71,9 +70,9 @@ test("uint8ArrayFromHexString", async function () {
   expect(uint8ArrayFromHexString(hexString)).toEqual(expectedUint8Array); // Hex string => Uint8Array
 });
 
-// Test for uint8ArrayFromHexStringPadded
+// Test array padding for uint8ArrayFromHexString
 // Convert hex string to uint8 array and pads it with zeroes to a particular length if its less
-test("uint8ArrayFromHexStringPadded", async function () {
+test("uint8ArrayFromHexString Test padding", async function () {
 
   // TOO SHORT - test a hex string with less bytes than the "length" parameter provided 
   const hexString =
@@ -82,7 +81,7 @@ test("uint8ArrayFromHexStringPadded", async function () {
     0, 0, 82, 52, 208, 141, 250, 44, 129, 95, 48, 151, 184, 186, 132, 138, 40, 23, 46,
     133, 190, 199, 136, 134, 232, 226, 1, 175, 204, 177, 102, 252,
   ]);
-  expect(uint8ArrayFromHexStringPadded(hexString, 32)).toEqual(expectedUint8Array); // Hex string => Uint8Array
+  expect(uint8ArrayFromHexString(hexString, 32)).toEqual(expectedUint8Array); // Hex string => Uint8Array
 
 
   // TOO LONG - test a hex string with less bytes than the "length" parameter provided 
@@ -92,5 +91,5 @@ test("uint8ArrayFromHexStringPadded", async function () {
     0, 0, 82, 52, 208, 141, 250, 44, 129, 95, 48, 151, 184, 186, 132, 138, 40, 23, 46,
     133, 190, 199, 136, 134, 232, 226, 1, 175, 204, 177, 102, 252, 250, 251, 252, 253,
   ]);
-  expect(uint8ArrayFromHexStringPadded(hexString, 32)).toEqual(expectedUint8Array); // Hex string => Uint8Array
+  expect(uint8ArrayFromHexString(hexString, 32)).toEqual(expectedUint8Array); // Hex string => Uint8Array
 });
