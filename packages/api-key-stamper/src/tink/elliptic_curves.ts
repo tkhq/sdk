@@ -7,6 +7,10 @@
  */
 
 import * as Bytes from "./bytes";
+import {
+  DEFAULT_JWK_MEMBER_BYTE_LENGTH,
+  uint8ArrayFromHexString,
+} from "@turnkey/encoding";
 
 /**
  * P-256 only
@@ -34,12 +38,20 @@ function byteArrayToInteger(bytes: Uint8Array): bigint {
   return BigInt("0x" + Bytes.toHex(bytes));
 }
 
-/** Converts bigint to byte array. */
-function integerToByteArray(i: bigint): Uint8Array {
+/** Converts bigint to byte array. This implementation has been modified to optionally augment the resulting byte array to a certain length. */
+function integerToByteArray(i: bigint, length?: number): Uint8Array {
   let input = i.toString(16);
   // If necessary, prepend leading zero to ensure that input length is even.
   input = input.length % 2 === 0 ? input : "0" + input;
-  return Bytes.fromHex(input);
+  if (!length) {
+    return Bytes.fromHex(input);
+  }
+  if (input.length / 2 > length) {
+    throw new Error(
+      "hex value cannot fit in a buffer of " + length + " byte(s)"
+    );
+  }
+  return uint8ArrayFromHexString(input, length);
 }
 
 /** Returns true iff the ith bit (in lsb order) of n is set. */
@@ -151,8 +163,14 @@ export function pointDecode(point: Uint8Array): JsonWebKey {
   const result: JsonWebKey = {
     kty: "EC",
     crv: "P-256",
-    x: Bytes.toBase64(integerToByteArray(x), /* websafe */ true),
-    y: Bytes.toBase64(integerToByteArray(y), /* websafe */ true),
+    x: Bytes.toBase64(
+      integerToByteArray(x, DEFAULT_JWK_MEMBER_BYTE_LENGTH),
+      /* websafe */ true
+    ),
+    y: Bytes.toBase64(
+      integerToByteArray(y, DEFAULT_JWK_MEMBER_BYTE_LENGTH),
+      /* websafe */ true
+    ),
     ext: true,
   };
   return result;
