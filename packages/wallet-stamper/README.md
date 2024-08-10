@@ -59,9 +59,9 @@ const result = activityPoller({
   parameters: {
     apiKeys: [
       {
-        apiKeyName: "test-wallet-stamper",
+        apiKeyName: "solana-wallet",
         publicKey,
-        curveType: "API_KEY_CURVE_ED25519",
+        curveType,
       },
     ],
     userId,
@@ -121,10 +121,17 @@ const walletStamper = new WalletStamper(new SolanaWallet());
 // Instantiate the TurnkeyClient with the WalletStamper
 const client = new TurnkeyClient({ baseUrl: BASE_URL }, walletStamper);
 
-// Get a user stamping the request with their wallet
-const user = await client.getUser({
-  organizationId: ORGANIZATION_ID,
-  userId: USER_ID,
+// Call getWhoami to get the sub org's organizationId and userId passing in the parent org id
+// whoami { organizationId: string; organizationName: string; userId: string; username: string; }
+const whoami = await client.getWhoami({
+  organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID,
+});
+
+// Now that we have the sub organization id, we can make requests using that sub org id
+
+// Get the wallets for this sub organization
+const wallets = await client.getWallets({
+  organizationId: whoami.organizationId,
 });
 ```
 
@@ -146,6 +153,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { mainnet } from "viem/chains";
 
 import { WalletStamper, EvmWalletInterface } from "@turnkey/wallet-stamper";
+
 export class EthereumWallet implements EvmWalletInterface {
   account = privateKeyToAccount(ETHEREUM_PRIVATE_KEY);
   type = "evm" as const;
@@ -172,6 +180,25 @@ export class EthereumWallet implements EvmWalletInterface {
     return secp256k1PublicKey;
   }
 }
+
+// Instantiate the WalletStamper with the EthereumWallet
+const walletStamper = new WalletStamper(new EthereumWallet());
+
+// Instantiate the TurnkeyClient with the WalletStamper
+const client = new TurnkeyClient({ baseUrl: BASE_URL }, walletStamper);
+
+// Call getWhoami to get the sub org's organizationId and userId passing in the parent org id
+// whoami { organizationId: string; organizationName: string; userId: string; username: string; }
+const whoami = await client.getWhoami({
+  organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID,
+});
+
+// Now that we have the sub organization id, we can make requests using that sub org id
+
+// Get the wallets for this sub organization
+const wallets = await client.getWallets({
+  organizationId: whoami.organizationId,
+});
 ```
 
 ## Contributing
