@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
-import ButtonSelect from "./ui/button-select";
-import { ChainType } from "@/lib/types";
-import { useEffect, useState } from "react";
-import Account from "./account";
-import WalletSelector from "./wallet-selector";
-import { WalletName } from "@solana/wallet-adapter-base";
-import { useTurnkey } from "./turnkey-provider";
+import ButtonSelect from './ui/button-select';
+import { ChainType } from '@/lib/types';
+import { useEffect, useState } from 'react';
+import Account from './account';
+import WalletSelector from './wallet-selector';
+import { WalletName } from '@solana/wallet-adapter-base';
+import { useTurnkey } from './turnkey-provider';
 
 export function ConnectWallet() {
   const { connection } = useConnection();
@@ -28,7 +28,7 @@ export function ConnectWallet() {
   const { setWallet } = useTurnkey();
 
   const [balance, setBalance] = useState<number | null>(null);
-  const [userWalletAddress, setUserWalletAddress] = useState<string>("");
+  const [userWalletAddress, setUserWalletAddress] = useState<string>('');
 
   const [selectedChain, setSelectedChain] = useState<ChainType>();
   const [showWalletSelector, setShowWalletSelector] = useState(false); // State to manage visibility of WalletSelector
@@ -43,7 +43,7 @@ export function ConnectWallet() {
       (updatedAccountInfo) => {
         setBalance(updatedAccountInfo.lamports / LAMPORTS_PER_SOL);
       },
-      "confirmed"
+      'confirmed'
     );
 
     connection.getAccountInfo(publicKey).then((info) => {
@@ -61,11 +61,11 @@ export function ConnectWallet() {
         setWallet({
           signMessage: async (message) => {
             const signedMessage = await signMessage(Buffer.from(message));
-            return Buffer.from(signedMessage).toString("hex");
+            return Buffer.from(signedMessage).toString('hex');
           },
           recoverPublicKey: () =>
-            Buffer.from(publicKey?.toBuffer()).toString("hex"),
-          type: "solana",
+            Buffer.from(publicKey?.toBuffer()).toString('hex'),
+          type: 'solana',
         });
       }
     }
@@ -73,19 +73,6 @@ export function ConnectWallet() {
 
   const connect = async () => {
     setShowWalletSelector(true);
-    // if (selectedChain === ChainType.SOLANA) {
-    //   onConnect?.();
-    //   onSelectWallet?.();
-    //   setVisible(true);
-
-    //   if (wallet?.adapter.name) {
-    //     console.log('connect sol');
-    //     select(wallet?.adapter.name);
-    //     await connectSolana();
-    //   }
-    // } else {
-    //   //
-    // }
   };
   const handleWalletSelect = async (walletName: WalletName) => {
     if (walletName) {
@@ -94,7 +81,7 @@ export function ConnectWallet() {
         await connectSolana();
         setShowWalletSelector(false);
       } catch (error) {
-        console.log("wallet connection err : ", error);
+        console.log('wallet connection err : ', error);
       }
     }
   };
@@ -103,7 +90,7 @@ export function ConnectWallet() {
     return (
       <Account
         address={publicKey.toString()}
-        balance={balance?.toString() || ""}
+        balance={balance?.toString() || ''}
         disconnect={async () => {
           await disconnect();
         }}

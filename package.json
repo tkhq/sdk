@@ -55,7 +55,8 @@
       "web3-utils": ">=4.2.1",
       "braces": ">=3.0.3",
       "ws": ">=8.17.1",
-      "fast-xml-parser": ">=4.4.1"
+      "fast-xml-parser": ">=4.4.1",
+      "semver": ">=6.3.1"
     }
   }
 }
