@@ -5,7 +5,7 @@ import {
   type TApiKeyStamperConfig,
 } from "@turnkey/api-key-stamper";
 import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
-import type { Attestation, Email, PassKeyRegistrationResult } from "./types";
+import type { Attestation, Email, PasskeyRegistrationResult } from "./types";
 
 import { ETHEREUM_WALLET_DEFAULT_PATH } from "./constants";
 import type { UUID } from "crypto";
@@ -110,7 +110,7 @@ export const createUserSubOrg = async (
 
 export const signUp = async (
   email: Email,
-  passKeyRegistrationResult: PassKeyRegistrationResult
+  passKeyRegistrationResult: PasskeyRegistrationResult
 ) => {
   const client = new TurnkeyClient(
     { baseUrl: NEXT_PUBLIC_BASE_URL! },
