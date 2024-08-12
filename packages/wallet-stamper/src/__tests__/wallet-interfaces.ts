@@ -12,11 +12,12 @@ import { mainnet } from "viem/chains";
 import type { SolanaWalletInterface, EvmWalletInterface } from "../types";
 import nacl from "tweetnacl";
 import { ETHEREUM_PRIVATE_KEY, SOLANA_PRIVATE_KEY } from "./constants";
+import { WALLET_TYPE_EVM, WALLET_TYPE_SOLANA } from "../constants";
 
 // Mock Solana wallet
 export class MockSolanaWallet implements SolanaWalletInterface {
   keypair = Keypair.fromSecretKey(SOLANA_PRIVATE_KEY);
-  type = "solana" as const;
+  type = WALLET_TYPE_SOLANA;
 
   async signMessage(message: string): Promise<string> {
     const messageBytes = decodeUTF8(message);
@@ -35,7 +36,7 @@ export class MockSolanaWallet implements SolanaWalletInterface {
 // Mock EVM wallet
 export class MockEvmWallet implements EvmWalletInterface {
   account = privateKeyToAccount(ETHEREUM_PRIVATE_KEY);
-  type = "evm" as const;
+  type = WALLET_TYPE_EVM;
 
   async signMessage(message: string): Promise<string> {
     const walletClient = createWalletClient({
