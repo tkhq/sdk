@@ -93,13 +93,3 @@ test("uint8ArrayFromHexString Test padding", async function () {
   ]);
   expect(uint8ArrayFromHexString(hexString2, 32)).toEqual(expectedUint8Array2); // Hex string => Uint8Array
 });
-
-test("uint8ArrayFromHexString zeroes", async function () {
-  const hexString =
-    "0000d08dfa2c815f3097b8ba848a28172e85bec78886e8e201afccb166fc54c1";
-  const expectedUint8Array = new Uint8Array([
-    82, 52, 208, 141, 250, 44, 129, 95, 48, 151, 184, 186, 132, 138, 40, 23, 46,
-    133, 190, 199, 136, 134, 232, 226, 1, 175, 204, 177, 102, 252, 84, 193,
-  ]);
-  expect(uint8ArrayFromHexString(hexString)).toEqual(expectedUint8Array); // Hex string => Uint8Array
-});
