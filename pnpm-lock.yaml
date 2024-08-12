@@ -760,19 +760,19 @@ importers:
         specifier: workspace:*
         version: link:../../packages/api-key-stamper
       '@turnkey/encoding':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/encoding
       '@turnkey/http':
-        specifier: ^2.10.0
+        specifier: workspace:*
         version: link:../../packages/http
       '@turnkey/solana':
-        specifier: ^0.3.7
+        specifier: workspace:*
         version: link:../../packages/solana
       '@turnkey/viem':
-        specifier: ^0.4.24
+        specifier: workspace:*
         version: link:../../packages/viem
       '@turnkey/wallet-stamper':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/wallet-stamper
       '@turnkey/webauthn-stamper':
         specifier: workspace:*

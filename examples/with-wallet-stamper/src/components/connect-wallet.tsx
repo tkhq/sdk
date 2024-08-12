@@ -81,7 +81,7 @@ export function ConnectWallet() {
         await connectSolana();
         setShowWalletSelector(false);
       } catch (error) {
-        console.log("wallet connection err : ", error);
+        console.error("wallet connection err : ", error);
       }
     }
   };

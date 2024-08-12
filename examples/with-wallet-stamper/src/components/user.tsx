@@ -30,11 +30,7 @@ const User: React.FC = () => {
         <CardTitle>Account</CardTitle>
         <CardDescription>
           <Label className="text-sm text-primary">Organization ID</Label>
-          <div>{user?.organizationId}</div>
-
-          {/* <div>Organization Name: {user?.organizationName}</div>
-          <div>User ID: {user?.userId}</div>
-          <div>Username: {user?.username}</div> */}
+          {user?.organizationId}
         </CardDescription>
       </CardHeader>
       <CardContent>

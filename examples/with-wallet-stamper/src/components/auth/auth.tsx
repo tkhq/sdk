@@ -24,13 +24,10 @@ export function AuthForm({ isSignUp = false }) {
     useTurnkey();
 
   const handleSignUp = async () => {
-    console.log("handleSignUp");
     if (walletClient) {
       if (isSignUp) {
-        console.log("createSubOrg");
         await createSubOrg();
       } else {
-        console.log("signInWithWallet");
         await signInWithWallet();
       }
     }

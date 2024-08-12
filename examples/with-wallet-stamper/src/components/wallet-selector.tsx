@@ -25,9 +25,6 @@ export default function WalletSelector({
   open,
   setOpen,
 }: WalletSelectorProps) {
-  useEffect(() => {
-    console.log("open changed:", open);
-  }, [open]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="">
