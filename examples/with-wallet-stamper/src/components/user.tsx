@@ -28,9 +28,9 @@ const User: React.FC = () => {
     <Card>
       <CardHeader>
         <CardTitle>Account</CardTitle>
-        <CardDescription>
+        <CardDescription className="space-x-2">
           <Label className="text-sm text-primary">Organization ID</Label>
-          {user?.organizationId}
+          <span>{user?.organizationId}</span>
         </CardDescription>
       </CardHeader>
       <CardContent>
