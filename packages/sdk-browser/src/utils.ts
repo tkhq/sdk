@@ -10,7 +10,7 @@ import bs58check from "bs58check";
 import { AeadId, CipherSuite, KdfId, KemId } from "hpke-js";
 
 import type { EmbeddedAPIKey } from "./models";
-import { pointDecode } from "../../api-key-stamper/src/tink/elliptic_curves";
+import { pointDecode } from "@turnkey/api-key-stamper/src/tink/elliptic_curves";
 
 // createEmbeddedAPIKey creates an embedded API key encrypted to a target key (typically embedded within an iframe).
 // This returns a bundle that can be decrypted by that target key, as well as the public key of the newly created API key.
