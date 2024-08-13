@@ -128,34 +128,73 @@ function getY(x: bigint, lsb: boolean): bigint {
 }
 
 /**
- * Decodes a public key in _compressed_ format.
+ *
+ * Given x and y coordinates of a JWK, checks whether these are valid points on 
+ * the P-256 elliptic curve. 
+ * 
+ * P-256 only
+ *
+ * @param x x-coordinate
+ * @param y y-coordinate
+ * @return boolean validitiy
+ */
+function validateUncompressedXY(x: bigint, y: bigint): boolean {
+  const p = getModulus();
+  const a = p - BigInt(3);
+  const b = getB();
+  const rhs = ((x * x + a) * x + b) % p;
+  const lhs = (y ** BigInt(2)) % p
+  return lhs === rhs;
+}
+
+/**
+ * Decodes a public key in _compressed_ OR _uncompressed_ format.
  *
  * P-256 only
  */
 export function pointDecode(point: Uint8Array): JsonWebKey {
+  
   const fieldSize = fieldSizeInBytes();
-
-  if (point.length !== 1 + fieldSize) {
-    throw new Error("compressed point has wrong length");
+  const compressedLength = fieldSize + 1;
+  const uncompressedLength = (2 * fieldSize) + 1;
+  if (point.length !== compressedLength && point.length !== uncompressedLength) {
+    throw new Error("Invalid length: point is not in compressed or uncompressed format");
   }
-  if (point[0] !== 2 && point[0] !== 3) {
-    throw new Error("invalid format");
+  // Decodes point if its length and first bit match the compressed format
+  if ((point[0] === 2 || point[0] === 3) && point.length == compressedLength) {
+    const lsb = point[0] === 3; // point[0] must be 2 (false) or 3 (true).
+    const x = byteArrayToInteger(point.subarray(1, point.length));
+    const p = getModulus();
+    if (x < BigInt(0) || x >= p) {
+      throw new Error("x is out of range");
+    }
+    const y = getY(x, lsb);
+    const result: JsonWebKey = {
+      kty: "EC",
+      crv: "P-256",
+      x: Bytes.toBase64(integerToByteArray(x), /* websafe */ true),
+      y: Bytes.toBase64(integerToByteArray(y), /* websafe */ true),
+      ext: true,
+    };
+    return result;
+  // Decodes point if its length and first bit match the uncompressed format
+  } else if (point[0] === 4 && point.length == uncompressedLength) {
+    const x = byteArrayToInteger(point.subarray(1, fieldSize + 1))
+    const y = byteArrayToInteger(point.subarray(fieldSize + 1, (2 * fieldSize) + 1))
+    const p = getModulus();
+    if (x < BigInt(0) || x >= p || y < BigInt(0) || y >= p || !validateUncompressedXY(x, y)) {
+      throw new Error("invalid uncompressed x and y coordinates");
+    }
+    const result: JsonWebKey = {
+      kty: "EC",
+      crv: "P-256",
+      x: Bytes.toBase64(integerToByteArray(x), /* websafe */ true),
+      y: Bytes.toBase64(integerToByteArray(y), /* websafe */ true),
+      ext: true,
+    };
+    return result
   }
-  const lsb = point[0] === 3; // point[0] must be 2 (false) or 3 (true).
-  const x = byteArrayToInteger(point.subarray(1, point.length));
-  const p = getModulus();
-  if (x < BigInt(0) || x >= p) {
-    throw new Error("x is out of range");
-  }
-  const y = getY(x, lsb);
-  const result: JsonWebKey = {
-    kty: "EC",
-    crv: "P-256",
-    x: Bytes.toBase64(integerToByteArray(x), /* websafe */ true),
-    y: Bytes.toBase64(integerToByteArray(y), /* websafe */ true),
-    ext: true,
-  };
-  return result;
+  throw new Error("invalid format");
 }
 
 /**

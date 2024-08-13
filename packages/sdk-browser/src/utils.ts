@@ -10,6 +10,7 @@ import bs58check from "bs58check";
 import { AeadId, CipherSuite, KdfId, KemId } from "hpke-js";
 
 import type { EmbeddedAPIKey } from "./models";
+import { pointDecode } from "../../api-key-stamper/src/tink/elliptic_curves";
 
 // createEmbeddedAPIKey creates an embedded API key encrypted to a target key (typically embedded within an iframe).
 // This returns a bundle that can be decrypted by that target key, as well as the public key of the newly created API key.
@@ -30,17 +31,11 @@ export const createEmbeddedAPIKey = async (
 
   // 3: import the targetPublicKey (i.e. passed in from the iframe)
   const targetKeyBytes = uint8ArrayFromHexString(targetPublicKey);
-  const { x, y } = getXYComponentsFromHexString(targetPublicKey);
+  const jwk = pointDecode(targetKeyBytes);
 
   const targetKey = await crypto.subtle.importKey(
     "jwk",
-    {
-      kty: "EC",
-      crv: "P-256",
-      x: base64UrlEncode(uint8ArrayFromHexString(x, 32)),
-      y: base64UrlEncode(uint8ArrayFromHexString(y, 32)),
-      ext: true
-    },
+    jwk,
     {
       name: "ECDH",
       namedCurve: "P-256",
@@ -103,14 +98,3 @@ export const bytesToHex = (bytes: Uint8Array): string => {
   }
   return hex;
 };
-
-// Function to extract x and y components from a hex string public key
-function getXYComponentsFromHexString(publicKeyHex: string) {
-  publicKeyHex = publicKeyHex.replace(/^0x/, '');
-  if (!publicKeyHex.startsWith('04')) {
-    throw new Error("Public key is not in uncompressed format");
-  }
-  const x = publicKeyHex.slice(2, 66);
-  const y = publicKeyHex.slice(66, 130);
-  return { x, y };
-}
