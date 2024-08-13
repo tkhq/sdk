@@ -42,8 +42,7 @@
   "pnpm": {
     "auditConfig": {
       "ignoreCves": [
-        "CVE-2023-42282",
-        "CVE-2024-39338"
+        "CVE-2023-42282"
       ]
     },
     "overrides": {
