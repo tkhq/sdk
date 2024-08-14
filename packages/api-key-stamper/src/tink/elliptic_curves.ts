@@ -1,5 +1,6 @@
 /**
  * Code modified from https://github.com/google/tink/blob/6f74b99a2bfe6677e3670799116a57268fd067fa/javascript/subtle/elliptic_curves.ts
+ * - The implementation of integerToByteArray has been modified to augment the resulting byte array to a certain length.
  *
  * @license
  * Copyright 2020 Google LLC
@@ -35,11 +36,18 @@ function byteArrayToInteger(bytes: Uint8Array): bigint {
 }
 
 /** Converts bigint to byte array. */
-function integerToByteArray(i: bigint): Uint8Array {
-  let input = i.toString(16);
-  // If necessary, prepend leading zero to ensure that input length is even.
-  input = input.length % 2 === 0 ? input : "0" + input;
-  return Bytes.fromHex(input);
+function integerToByteArray(i: bigint, length: number): Uint8Array {
+  const input = i.toString(16);
+  const numHexChars = length * 2;
+  let padding = "";
+  if (numHexChars < input.length) {
+    throw new Error(
+      `cannot pack integer with ${input.length} hex chars into ${length} bytes`
+    );
+  } else {
+    padding = "0".repeat(numHexChars - input.length);
+  }
+  return Bytes.fromHex(padding + input);
 }
 
 /** Returns true iff the ith bit (in lsb order) of n is set. */
@@ -129,6 +137,7 @@ function getY(x: bigint, lsb: boolean): bigint {
 
 /**
  * Decodes a public key in _compressed_ format.
+ * Augmented to ensure that the x and y components are padded to fit 32 bytes.
  *
  * P-256 only
  */
@@ -151,8 +160,8 @@ export function pointDecode(point: Uint8Array): JsonWebKey {
   const result: JsonWebKey = {
     kty: "EC",
     crv: "P-256",
-    x: Bytes.toBase64(integerToByteArray(x), /* websafe */ true),
-    y: Bytes.toBase64(integerToByteArray(y), /* websafe */ true),
+    x: Bytes.toBase64(integerToByteArray(x, 32), /* websafe */ true),
+    y: Bytes.toBase64(integerToByteArray(y, 32), /* websafe */ true),
     ext: true,
   };
   return result;

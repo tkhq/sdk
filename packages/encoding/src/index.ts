@@ -1,10 +1,23 @@
 /**
  * Code modified from https://github.com/github/webauthn-json/blob/e932b3585fa70b0bd5b5a4012ba7dbad7b0a0d0f/src/webauthn-json/base64url.ts#L23
  */
+export const DEFAULT_JWK_MEMBER_BYTE_LENGTH = 32;
+
 export function stringToBase64urlString(input: string): string {
   // string to base64 -- we do not rely on the browser's btoa since it's not present in React Native environments
   const base64String = btoa(input);
   return base64StringToBase64UrlEncodedString(base64String);
+}
+
+export function hexStringToBase64url(input: string, length?: number): string {
+  // Add an extra 0 to the start of the string to get a valid hex string (even length)
+  // (e.g. 0x0123 instead of 0x123)
+  const hexString = input.padStart(Math.ceil(input.length / 2) * 2, "0");
+  const buffer = uint8ArrayFromHexString(hexString, length);
+
+  return stringToBase64urlString(
+    buffer.reduce((result, x) => result + String.fromCharCode(x), "")
+  );
 }
 
 export function base64StringToBase64UrlEncodedString(input: string): string {
@@ -18,16 +31,34 @@ export function uint8ArrayToHexString(input: Uint8Array): string {
   );
 }
 
-export const uint8ArrayFromHexString = (hexString: string): Uint8Array => {
+export const uint8ArrayFromHexString = (
+  hexString: string,
+  length?: number
+): Uint8Array => {
   const hexRegex = /^[0-9A-Fa-f]+$/;
   if (!hexString || hexString.length % 2 != 0 || !hexRegex.test(hexString)) {
     throw new Error(
       `cannot create uint8array from invalid hex string: "${hexString}"`
     );
   }
-  return new Uint8Array(
+
+  const buffer = new Uint8Array(
     hexString!.match(/../g)!.map((h: string) => parseInt(h, 16))
   );
+
+  if (!length) {
+    return buffer;
+  }
+  if (hexString.length / 2 > length) {
+    throw new Error(
+      "hex value cannot fit in a buffer of " + length + " byte(s)"
+    );
+  }
+
+  // If a length is specified, ensure we sufficiently pad
+  let paddedBuffer = new Uint8Array(length);
+  paddedBuffer.set(buffer, length - buffer.length);
+  return paddedBuffer;
 };
 
 // Pure JS implementation of btoa. This is adapted from the following:

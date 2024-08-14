@@ -1,5 +1,9 @@
 import { pointDecode } from "./tink/elliptic_curves";
-import { stringToBase64urlString } from "@turnkey/encoding";
+import {
+  hexStringToBase64url,
+  uint8ArrayFromHexString,
+  DEFAULT_JWK_MEMBER_BYTE_LENGTH,
+} from "@turnkey/encoding";
 
 export function convertTurnkeyApiKeyToJwk(input: {
   uncompressedPrivateKeyHex: string;
@@ -7,35 +11,13 @@ export function convertTurnkeyApiKeyToJwk(input: {
 }): JsonWebKey {
   const { uncompressedPrivateKeyHex, compressedPublicKeyHex } = input;
 
-  const jwk = pointDecode(hexStringToUint8Array(compressedPublicKeyHex));
+  const jwk = pointDecode(uint8ArrayFromHexString(compressedPublicKeyHex));
 
-  jwk.d = hexStringToBase64urlString(uncompressedPrivateKeyHex);
+  // Ensure that d is sufficiently padded
+  jwk.d = hexStringToBase64url(
+    uncompressedPrivateKeyHex,
+    DEFAULT_JWK_MEMBER_BYTE_LENGTH
+  );
 
   return jwk;
-}
-
-function hexStringToUint8Array(input: string): Uint8Array {
-  if (
-    input.length === 0 ||
-    input.length % 2 !== 0 ||
-    /[^a-fA-F0-9]/u.test(input)
-  ) {
-    throw new Error(`Invalid hex string: ${JSON.stringify(input)}`);
-  }
-
-  return Uint8Array.from(
-    input
-      .match(
-        /.{2}/g // Split string by every two characters
-      )!
-      .map((byte) => parseInt(byte, 16))
-  );
-}
-
-function hexStringToBase64urlString(input: string): string {
-  const buffer = hexStringToUint8Array(input);
-
-  return stringToBase64urlString(
-    buffer.reduce((result, x) => result + String.fromCharCode(x), "")
-  );
 }
