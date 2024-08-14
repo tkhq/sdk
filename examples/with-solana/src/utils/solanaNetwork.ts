@@ -5,6 +5,7 @@ import {
   LAMPORTS_PER_SOL,
   TransactionConfirmationStrategy,
   Transaction,
+  VersionedTransaction,
 } from "@solana/web3.js";
 import bs58 from "bs58";
 
@@ -63,6 +64,25 @@ export async function broadcast(
   );
   print(
     "Transaction broadcast and confirmed! 🎉",
+    `https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`
+  );
+}
+
+export async function broadcastVersioned(
+  connection: Connection,
+  signedTransaction: VersionedTransaction
+) {
+  const confirmationStrategy = await getConfirmationStrategy(
+    bs58.encode(signedTransaction.signatures[0]!)
+  );
+  const transactionHash = await sendAndConfirmRawTransaction(
+    connection,
+    Buffer.from(signedTransaction.serialize()),
+    confirmationStrategy,
+    { commitment: "confirmed" }
+  );
+  print(
+    "Versioned transaction broadcast and confirmed! 🎉",
     `https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`
   );
 }
