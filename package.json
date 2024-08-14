@@ -42,7 +42,8 @@
   "pnpm": {
     "auditConfig": {
       "ignoreCves": [
-        "CVE-2023-42282"
+        "CVE-2023-42282",
+        "CVE-2024-39338"
       ]
     },
     "overrides": {
@@ -55,7 +56,8 @@
       "web3-utils": ">=4.2.1",
       "braces": ">=3.0.3",
       "ws": ">=8.17.1",
-      "fast-xml-parser": ">=4.4.1"
+      "fast-xml-parser": ">=4.4.1",
+      "semver": ">=6.3.1"
     }
   }
 }

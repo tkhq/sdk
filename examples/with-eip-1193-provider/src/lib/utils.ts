@@ -3,7 +3,7 @@ import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { PUBKEY_CRED_TYPE, ALG_ES256 } from "./constants";
-import { Email, PassKeyRegistrationResult } from "./types";
+import { Email, PasskeyRegistrationResult } from "./types";
 import type { Chain } from "viem";
 
 export function cn(...inputs: ClassValue[]) {
@@ -55,7 +55,7 @@ export const getTurnkeyClient = () => {
 
 export const registerPassKey = async (
   email: Email
-): Promise<PassKeyRegistrationResult> => {
+): Promise<PasskeyRegistrationResult> => {
   if (!process.env.NEXT_PUBLIC_WEBAUTHN_RPID) {
     throw "Error must define NEXT_PUBLIC_WEBAUTHN_RPID in your .env file";
   }

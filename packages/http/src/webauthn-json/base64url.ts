@@ -17,7 +17,7 @@ export function base64urlToBuffer(
   for (let i = 0; i < str.length; i++) {
     byteView[i] = str.charCodeAt(i);
   }
-  return buffer;
+  return byteView;
 }
 
 export function bufferToBase64url(buffer: ArrayBuffer): Base64urlString {

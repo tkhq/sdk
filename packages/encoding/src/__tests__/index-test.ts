@@ -4,6 +4,7 @@ import {
   uint8ArrayFromHexString,
   uint8ArrayToHexString,
   base64StringToBase64UrlEncodedString,
+  hexStringToBase64url,
 } from "..";
 
 // Test for stringToBase64urlString
@@ -68,6 +69,46 @@ test("uint8ArrayFromHexString", async function () {
     133, 190, 199, 136, 134, 232, 226, 1, 175, 204, 177, 102, 252, 84, 193,
   ]);
   expect(uint8ArrayFromHexString(hexString)).toEqual(expectedUint8Array); // Hex string => Uint8Array
+
+  expect(uint8ArrayFromHexString("627566666572").toString()).toEqual(
+    "98,117,102,102,101,114"
+  );
+
+  // Error case: empty string
+  expect(() => {
+    uint8ArrayFromHexString("");
+  }).toThrow("cannot create uint8array from invalid hex string");
+  // Error case: odd number of characters
+  expect(() => {
+    uint8ArrayFromHexString("123");
+  }).toThrow("cannot create uint8array from invalid hex string");
+  // Error case: bad characters outside of hex range
+  expect(() => {
+    uint8ArrayFromHexString("oops");
+  }).toThrow("cannot create uint8array from invalid hex string");
+  // Happy path: if length parameter is included, pad the resulting buffer
+  expect(uint8ArrayFromHexString("01", 2).toString()).toEqual("0,1");
+  // Happy path: if length parameter is omitted, do not pad the resulting buffer
+  expect(uint8ArrayFromHexString("01").toString()).toEqual("1");
+  // Error case: hex value cannot fit in desired length
+  expect(() => {
+    uint8ArrayFromHexString("0100", 1).toString(); // the number 256 cannot fit into 1 byte
+  }).toThrow("hex value cannot fit in a buffer of 1 byte(s)");
+});
+
+// Test for hexStringToBase64url
+test("hexStringToBase64url", async function () {
+  expect(hexStringToBase64url("01")).toEqual("AQ");
+  expect(hexStringToBase64url("01", 2)).toEqual("AAE");
+
+  // extrapolate to larger numbers
+  expect(hexStringToBase64url("ff")).toEqual("_w"); // max 1 byte
+  expect(hexStringToBase64url("ff", 2)).toEqual("AP8"); // max 1 byte expressed in 2 bytes
+
+  // error case
+  expect(() => {
+    hexStringToBase64url("0100", 1);
+  }).toThrow("hex value cannot fit in a buffer of 1 byte(s)");
 });
 
 // Test array padding for uint8ArrayFromHexString
