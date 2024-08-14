@@ -37,6 +37,8 @@ function byteArrayToInteger(bytes: Uint8Array): bigint {
 
 /** Converts bigint to byte array. */
 function integerToByteArray(i: bigint, length: number): Uint8Array {
+  console.log("bigint", i);
+  
   const input = i.toString(16);
   const numHexChars = length * 2;
   let padding = "";
@@ -47,6 +49,11 @@ function integerToByteArray(i: bigint, length: number): Uint8Array {
   } else {
     padding = "0".repeat(numHexChars - input.length);
   }
+
+  console.log("hex input", input);
+  console.log("input", Bytes.fromHex(input));
+  console.log("padded input", Bytes.fromHex(padding + input));
+
   return Bytes.fromHex(padding + input);
 }
 

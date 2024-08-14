@@ -49,6 +49,11 @@
   text-align: center;
 }
 
+.table_label {
+  font-family: "Inter";
+  display: block;
+}
+
 .prompt {
   font-family: "Inter";
 }

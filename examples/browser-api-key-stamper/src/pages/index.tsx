@@ -1,60 +1,58 @@
 import Image from "next/image";
 import styles from "./index.module.css";
-import { createActivityPoller, TurnkeyClient } from "@turnkey/http";
-import { IframeStamper } from "@turnkey/iframe-stamper";
+import { TurnkeyClient } from "@turnkey/http";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import * as React from "react";
-import { useState } from "react";
-import { Auth } from "@/components/Auth";
+import { SetStateAction, useState } from "react";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-
-/**
- * Type definition for the server response coming back from `/api/auth`
- */
-type AuthResponse = {
-  userId: string;
-  apiKeyId: string;
-  organizationId: string;
-};
+import { p256 } from "@noble/curves/p256";
+import { uint8ArrayToHexString } from "@turnkey/encoding";
 
 /**
  * Type definitions for the form data (client-side forms)
  */
-type InjectCredentialsFormData = {
-  walletName: string;
-  authBundle: string;
-};
-type AuthFormData = {
-  email: string;
-  suborgID: string;
-  invalidateExisting: boolean;
-};
 type WhoamiFormData = {
   publicKey: string;
   privateKey: string;
 };
 
-export default function AuthPage() {
-  const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
-  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
-    null
-  );
-  const { register: authFormRegister, handleSubmit: authFormSubmit } =
-    useForm<AuthFormData>();
-  const {
-    register: injectCredentialsFormRegister,
-    handleSubmit: injectCredentialsFormSubmit,
-  } = useForm<InjectCredentialsFormData>();
+export default function WhoamiPage() {
   const { register: whoamiFormRegister, handleSubmit: whoamiFormSubmit } =
     useForm<WhoamiFormData>();
+  const [privateKey, setPrivateKey] = useState("");
+  const [publicKey, setPublicKey] = useState("");
+  const [whoamiResponse, setWhoamiResponse] = useState({
+    organizationId: "",
+    organizationName: "",
+    userId: "",
+    username: "",
+  });
 
-  const whoami = async (data: WhoamiFormData) => {
+  const handlePrivateKeyChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
+    setPrivateKey(event.target.value);
+
+    const paddedPrivateKey = event.target.value.toString().padStart(64, "0");
+
+    // Also derive corresponding public key
+    setPublicKey(
+      uint8ArrayToHexString(p256.getPublicKey(paddedPrivateKey, true))
+    );
+  };
+
+  const handlePublicKeyChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
+    setPublicKey(event.target.value);
+  };
+
+  const whoami = async () => {
     const turnkeyClient = new TurnkeyClient(
       { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
       new ApiKeyStamper({
-        apiPublicKey: process.env.NEXT_PUBLIC_WEB_API_PUBLIC_KEY!,
-        apiPrivateKey: process.env.NEXT_PUBLIC_WEB_API_PRIVATE_KEY!, // this should be an "invalid" priv key
+        apiPublicKey: publicKey,
+        apiPrivateKey: privateKey,
       })
     );
 
@@ -62,81 +60,7 @@ export default function AuthPage() {
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
-    console.log('able to get valid response', response);
-  };
-
-  const auth = async (data: AuthFormData) => {
-    if (iframeStamper === null) {
-      throw new Error("cannot initialize auth without an iframe");
-    }
-
-    const response = await axios.post("/api/auth", {
-      suborgID: data.suborgID,
-      email: data.email,
-      targetPublicKey: iframeStamper.publicKey(),
-      invalidateExisting: data.invalidateExisting,
-    });
-
-    setAuthResponse(response.data);
-  };
-
-  const injectCredentials = async (data: InjectCredentialsFormData) => {
-    if (iframeStamper === null) {
-      throw new Error("iframeStamper is null");
-    }
-    if (authResponse === null) {
-      throw new Error("authResponse is null");
-    }
-
-    try {
-      await iframeStamper.injectCredentialBundle(data.authBundle);
-    } catch (e) {
-      const msg = `error while injecting bundle: ${e}`;
-      console.error(msg);
-      alert(msg);
-      return;
-    }
-
-    const client = new TurnkeyClient(
-      {
-        baseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-      },
-      iframeStamper
-    );
-
-    // get whoami for suborg
-    const whoamiResponse = await client.getWhoami({
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-    });
-
-    const orgID = whoamiResponse.organizationId;
-
-    const activityPoller = createActivityPoller({
-      client,
-      requestFn: client.createWallet,
-    });
-
-    const completedActivity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_WALLET",
-      timestampMs: String(Date.now()),
-      organizationId: orgID,
-      parameters: {
-        walletName: data.walletName,
-        accounts: [
-          {
-            curve: "CURVE_SECP256K1",
-            pathFormat: "PATH_FORMAT_BIP32",
-            path: "m/44'/60'/0'/0/0",
-            addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-          },
-        ],
-      },
-    });
-
-    const wallet = refineNonNull(completedActivity.result.createWalletResult);
-    const address = refineNonNull(wallet.addresses[0]);
-
-    alert(`SUCCESS! Wallet and new address created: ${address} `);
+    setWhoamiResponse(response);
   };
 
   return (
@@ -156,128 +80,92 @@ export default function AuthPage() {
         />
       </a>
 
-      <Auth
-        setIframeStamper={setIframeStamper}
-        iframeUrl={process.env.NEXT_PUBLIC_AUTH_IFRAME_URL!}
-        turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
-      ></Auth>
-
       <form
         className={styles.form}
         onSubmit={whoamiFormSubmit(whoami)}
       >
         <label className={styles.label}>
-          API Public Key
-          <input
-            className={styles.input}
-            {...whoamiFormRegister("publicKey")}
-            placeholder="Public Key"
-          />
-        </label>
-        <label className={styles.label}>
           API Private Key
           <input
             className={styles.input}
-            {...whoamiFormRegister("privateKey")}
+            type="text"
+            value={privateKey}
+            onChange={handlePrivateKeyChange}
             placeholder="Private Key"
           />
         </label>
 
-        <input
+        <label className={styles.label}>
+          API Public Key.
+          <br />
+          (By default, this will be derived from the provided private key.)
+          <input
+            className={styles.input}
+            type="text"
+            value={publicKey}
+            onChange={handlePublicKeyChange}
+            placeholder="Public Key"
+          />
+        </label>
+
+        <button
           className={styles.button}
-          type="submit"
-          value="Whoami?"
-        />
+          onClick={() => {
+            whoami();
+          }}
+        >
+          Whoami?
+        </button>
       </form>
 
-      {!iframeStamper && <p>Loading...</p>}
-
-      {iframeStamper && iframeStamper.publicKey() && authResponse === null && (
-        <form
-          className={styles.form}
-          onSubmit={authFormSubmit(auth)}
-        >
-          <label className={styles.label}>
-            Email
-            <input
-              className={styles.input}
-              {...authFormRegister("email")}
-              placeholder="Email"
-            />
-          </label>
-          <label className={styles.label}>
-            Suborg ID (Optional — if not provided, attempt for standalone parent
-            org)
-            <input
-              className={styles.input}
-              {...authFormRegister("suborgID")}
-              placeholder="Suborg ID"
-            />
-          </label>
-          <label className={styles.label}>
-            Invalidate previously issued email authentication token(s)?
-            <input
-              className={styles.input_checkbox}
-              {...authFormRegister("invalidateExisting")}
-              type="checkbox"
-            />
-          </label>
-          <label className={styles.label}>
-            Encryption Target from iframe:
-            <br />
-            <code title={iframeStamper.publicKey()!}>
-              {iframeStamper.publicKey()!.substring(0, 30)}...
-            </code>
-          </label>
-
-          <input
-            className={styles.button}
-            type="submit"
-            value="Auth"
-          />
-        </form>
-      )}
-
-      {iframeStamper && iframeStamper.publicKey() && authResponse !== null && (
-        <form
-          className={styles.form}
-          onSubmit={injectCredentialsFormSubmit(injectCredentials)}
-        >
-          <label className={styles.label}>
-            Auth Bundle
-            <input
-              className={styles.input}
-              {...injectCredentialsFormRegister("authBundle")}
-              placeholder="Paste your auth bundle here"
-            />
-          </label>
-          <label className={styles.label}>
-            New wallet name
-            <input
-              className={styles.input}
-              {...injectCredentialsFormRegister("walletName")}
-              placeholder="Wallet name"
-            />
-          </label>
-
-          <input
-            className={styles.button}
-            type="submit"
-            value="Create Wallet"
-          />
-        </form>
+      {whoamiResponse.organizationId && (
+        <div>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+                  <label className={styles.table_label}>Org ID</label>
+                </td>
+                <td>
+                  <label className={styles.table_label}>
+                    {whoamiResponse.organizationId}
+                  </label>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label className={styles.table_label}>Org Name</label>
+                </td>
+                <td>
+                  <label className={styles.table_label}>
+                    {whoamiResponse.organizationName}
+                  </label>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label className={styles.table_label}>User ID</label>
+                </td>
+                <td>
+                  <label className={styles.table_label}>
+                    {whoamiResponse.userId}
+                  </label>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label className={styles.table_label}>User Name</label>
+                </td>
+                <td>
+                  <label className={styles.table_label}>
+                    {whoamiResponse.username}
+                  </label>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       )}
     </main>
   );
-}
-
-function refineNonNull<T>(
-  input: T | null | undefined,
-  errorMessage?: string
-): T {
-  if (input == null) {
-    throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
-  }
-
-  return input;
 }
