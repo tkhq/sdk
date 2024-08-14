@@ -80,10 +80,7 @@ export default function WhoamiPage() {
         />
       </a>
 
-      <form
-        className={styles.form}
-        onSubmit={whoamiFormSubmit(whoami)}
-      >
+      <form className={styles.form} onSubmit={whoamiFormSubmit(whoami)}>
         <label className={styles.label}>
           API Private Key
           <input

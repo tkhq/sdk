@@ -1,12 +1,12 @@
 # Example: `browser-api-key-stamper`
 
-This example takes a Turnkey API key and uses it to authenticate (stamp) a `whoami` request. This is primarily a utility example to test encoding functionality, as opposed to being a real customer-facing example.
+This example takes a Turnkey API key and uses it to authenticate (stamp) a `whoami` request. This is primarily a utility example to test encoding functionality within a browser context (i.e. using webcrypto libraries), as opposed to being a real customer-facing example. Given the sensitivity of API keys, we recommend only using them in the browser context for testing purposes, or if you really know what you're doing.
 
 ## Getting started
 
 ### 1/ Cloning the example
 
-Make sure you have `node` installed locally; we recommend using Node v16+.
+Make sure you have `node` installed locally; we recommend using Node v18+.
 
 ```bash
 $ git clone https://github.com/tkhq/sdk
@@ -14,7 +14,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/email-auth/
+$ cd examples/browser-api-key-stamper/
 ```
 
 ### 2/ Setting up Turnkey
@@ -43,4 +43,4 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm run dev
 ```
 
-This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to start an email auth.
+This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to enter an API keypair. Then, clicking the `Whoami` button should yield a successful response from Turnkey containing your organization + user details.
