@@ -1,4 +1,4 @@
-import * as solanaNetwork from "./solanaNetwork";
+import * as solanaNetwork from "./utils/solanaNetwork";
 import { input } from "@inquirer/prompts";
 
 async function main() {
