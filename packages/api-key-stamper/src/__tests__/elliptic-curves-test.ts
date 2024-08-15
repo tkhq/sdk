@@ -1,7 +1,6 @@
 import { test, expect } from "@jest/globals";
 import { pointDecode } from "../tink/elliptic_curves";
 import { uint8ArrayFromHexString, uint8ArrayToHexString } from "@turnkey/encoding";
-import { base64urlToBuffer, Base64urlString } from "../../../http/src/webauthn-json/base64url"
 
 test("pointDecode -> uncompressed invalid", async function () {
     // Invalid uncompressed key (the last byte has been changed)
@@ -18,15 +17,34 @@ test("pointDecode -> uncompressed valid", async function () {
 
     // Convert x value to make sure it matches first half of uncompressed key WITHOUT truncating the first 0 bit
     let xString: string = jwk.x !== undefined ? jwk.x: "_";
-    let xBase64Url: Base64urlString = xString;
-    let xBytes = new Uint8Array(base64urlToBuffer(xBase64Url));
+    let xBytes = new Uint8Array(base64urlToBuffer(xString));
     let xHex = uint8ArrayToHexString(xBytes);
     expect(xHex).toBe(uncompPubKey.substring(2, 66))
 
     // Convert y value to make sure it's the same as second half of uncompressed key
     let yString: string = jwk.y !== undefined ? jwk.y: "_";
-    let yBase64Url: Base64urlString = yString;
-    let yBytes = new Uint8Array(base64urlToBuffer(yBase64Url));
+    let yBytes = new Uint8Array(base64urlToBuffer(yString));
     let yHex = uint8ArrayToHexString(yBytes);
     expect(yHex).toBe(uncompPubKey.substring(66, 130))
 });
+
+// Convert base64 url encoded string to an array -- used here to test that output pads correctly and doesn't get truncated
+function base64urlToBuffer(
+    baseurl64String: string
+  ): ArrayBuffer {
+    // Base64url to Base64
+    const padding = "==".slice(0, (4 - (baseurl64String.length % 4)) % 4);
+    const base64String =
+      baseurl64String.replace(/-/g, "+").replace(/_/g, "/") + padding;
+  
+    // Base64 to binary string
+    const str = atob(base64String);
+  
+    // Binary string to buffer
+    const buffer = new ArrayBuffer(str.length);
+    const byteView = new Uint8Array(buffer);
+    for (let i = 0; i < str.length; i++) {
+      byteView[i] = str.charCodeAt(i);
+    }
+    return buffer;
+}
