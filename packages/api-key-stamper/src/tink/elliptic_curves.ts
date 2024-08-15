@@ -1,6 +1,8 @@
 /**
  * Code modified from https://github.com/google/tink/blob/6f74b99a2bfe6677e3670799116a57268fd067fa/javascript/subtle/elliptic_curves.ts
  * - The implementation of integerToByteArray has been modified to augment the resulting byte array to a certain length.
+ * - The implementation of PointDecode has been modified to decode both compressed and uncompressed points by checking for correct format
+ * - Methoed isP256CurvePoint added to check whether an uncompressed point is valid
  *
  * @license
  * Copyright 2020 Google LLC
@@ -146,7 +148,7 @@ function getY(x: bigint, lsb: boolean): bigint {
  * @param y y-coordinate
  * @return boolean validity
  */
-function validateUncompressedXY(x: bigint, y: bigint): boolean {
+function isP256CurvePoint(x: bigint, y: bigint): boolean {
   const p = getModulus();
   const a = p - BigInt(3);
   const b = getB();
@@ -202,7 +204,7 @@ export function pointDecode(point: Uint8Array): JsonWebKey {
       x >= p ||
       y < BigInt(0) ||
       y >= p ||
-      !validateUncompressedXY(x, y)
+      !isP256CurvePoint(x, y)
     ) {
       throw new Error("invalid uncompressed x and y coordinates");
     }
