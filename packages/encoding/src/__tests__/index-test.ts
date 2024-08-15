@@ -125,12 +125,8 @@ test("uint8ArrayFromHexString Test padding", async function () {
   expect(uint8ArrayFromHexString(hexString, 32)).toEqual(expectedUint8Array); // Hex string => Uint8Array
 
 
-  // TOO LONG - test a hex string with less bytes than the "length" parameter provided 
+  // TOO LONG - test a hex string with less bytes than the "length" parameter provided -- Should error
   const hexString2 =
     "5234d08dfa2c815f3097b8ba848a28172e85bec78886e8e201afccb166fcfafbfcfd"; // length is 34 bytes, so no additional padding will be added
-  const expectedUint8Array2 = new Uint8Array([
-    82, 52, 208, 141, 250, 44, 129, 95, 48, 151, 184, 186, 132, 138, 40, 23, 46,
-    133, 190, 199, 136, 134, 232, 226, 1, 175, 204, 177, 102, 252, 250, 251, 252, 253,
-  ]);
-  expect(uint8ArrayFromHexString(hexString2, 32)).toEqual(expectedUint8Array2); // Hex string => Uint8Array
+  expect(() => uint8ArrayFromHexString(hexString2, 32)).toThrow("hex value cannot fit in a buffer of 32 byte(s)")
 });
