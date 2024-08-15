@@ -136,7 +136,6 @@ function getY(x: bigint, lsb: boolean): bigint {
 }
 
 /**
-<<<<<<< HEAD
  *
  * Given x and y coordinates of a JWK, checks whether these are valid points on 
  * the P-256 elliptic curve. 
