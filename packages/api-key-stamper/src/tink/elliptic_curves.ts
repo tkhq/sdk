@@ -152,7 +152,7 @@ function validateUncompressedXY(x: bigint, y: bigint): boolean {
   const a = p - BigInt(3);
   const b = getB();
   const rhs = ((x * x + a) * x + b) % p;
-  const lhs = (y ** BigInt(2)) % p
+  const lhs = y ** BigInt(2) % p;
   return lhs === rhs;
 }
 
@@ -163,12 +163,16 @@ function validateUncompressedXY(x: bigint, y: bigint): boolean {
  * P-256 only
  */
 export function pointDecode(point: Uint8Array): JsonWebKey {
-  
   const fieldSize = fieldSizeInBytes();
   const compressedLength = fieldSize + 1;
-  const uncompressedLength = (2 * fieldSize) + 1;
-  if (point.length !== compressedLength && point.length !== uncompressedLength) {
-    throw new Error("Invalid length: point is not in compressed or uncompressed format");
+  const uncompressedLength = 2 * fieldSize + 1;
+  if (
+    point.length !== compressedLength &&
+    point.length !== uncompressedLength
+  ) {
+    throw new Error(
+      "Invalid length: point is not in compressed or uncompressed format"
+    );
   }
   // Decodes point if its length and first bit match the compressed format
   if ((point[0] === 2 || point[0] === 3) && point.length == compressedLength) {
@@ -187,12 +191,20 @@ export function pointDecode(point: Uint8Array): JsonWebKey {
       ext: true,
     };
     return result;
-  // Decodes point if its length and first bit match the uncompressed format
+    // Decodes point if its length and first bit match the uncompressed format
   } else if (point[0] === 4 && point.length == uncompressedLength) {
-    const x = byteArrayToInteger(point.subarray(1, fieldSize + 1))
-    const y = byteArrayToInteger(point.subarray(fieldSize + 1, (2 * fieldSize) + 1))
+    const x = byteArrayToInteger(point.subarray(1, fieldSize + 1));
+    const y = byteArrayToInteger(
+      point.subarray(fieldSize + 1, 2 * fieldSize + 1)
+    );
     const p = getModulus();
-    if (x < BigInt(0) || x >= p || y < BigInt(0) || y >= p || !validateUncompressedXY(x, y)) {
+    if (
+      x < BigInt(0) ||
+      x >= p ||
+      y < BigInt(0) ||
+      y >= p ||
+      !validateUncompressedXY(x, y)
+    ) {
       throw new Error("invalid uncompressed x and y coordinates");
     }
     const result: JsonWebKey = {
@@ -202,7 +214,7 @@ export function pointDecode(point: Uint8Array): JsonWebKey {
       y: Bytes.toBase64(integerToByteArray(y, 32), /* websafe */ true),
       ext: true,
     };
-    return result
+    return result;
   }
   throw new Error("invalid format");
 }
