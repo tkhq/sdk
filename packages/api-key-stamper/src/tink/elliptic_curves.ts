@@ -144,7 +144,7 @@ function getY(x: bigint, lsb: boolean): bigint {
  *
  * @param x x-coordinate
  * @param y y-coordinate
- * @return boolean validitiy
+ * @return boolean validity
  */
 function validateUncompressedXY(x: bigint, y: bigint): boolean {
   const p = getModulus();
