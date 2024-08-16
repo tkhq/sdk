@@ -6,7 +6,6 @@
 
 - 2d7e5a9: include additional utility functions
 
-
 ## 0.2.0
 
 ### Minor Changes
