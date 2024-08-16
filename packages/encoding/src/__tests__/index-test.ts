@@ -94,6 +94,22 @@ test("uint8ArrayFromHexString", async function () {
   expect(() => {
     uint8ArrayFromHexString("0100", 1).toString(); // the number 256 cannot fit into 1 byte
   }).toThrow("hex value cannot fit in a buffer of 1 byte(s)");
+
+  // TOO SHORT - test a hex string with less bytes than the "length" parameter provided
+  const hexString2 =
+    "5234d08dfa2c815f3097b8ba848a28172e85bec78886e8e201afccb166fc"; // length is 30 bytes, so must be padded with 2 0's at the beginning
+  const expectedUint8Array2 = new Uint8Array([
+    0, 0, 82, 52, 208, 141, 250, 44, 129, 95, 48, 151, 184, 186, 132, 138, 40,
+    23, 46, 133, 190, 199, 136, 134, 232, 226, 1, 175, 204, 177, 102, 252,
+  ]);
+  expect(uint8ArrayFromHexString(hexString2, 32)).toEqual(expectedUint8Array2); // Hex string => Uint8Array
+
+  // TOO LONG - test a hex string with less bytes than the "length" parameter provided -- Should error
+  const hexString3 =
+    "5234d08dfa2c815f3097b8ba848a28172e85bec78886e8e201afccb166fcfafbfcfd"; // length is 34 bytes, so no additional padding will be added
+  expect(() => uint8ArrayFromHexString(hexString3, 32)).toThrow(
+    "hex value cannot fit in a buffer of 32 byte(s)"
+  );
 });
 
 // Test for hexStringToBase64url

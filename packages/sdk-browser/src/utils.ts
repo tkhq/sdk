@@ -10,6 +10,7 @@ import bs58check from "bs58check";
 import { AeadId, CipherSuite, KdfId, KemId } from "hpke-js";
 
 import type { EmbeddedAPIKey } from "./models";
+import { pointDecode } from "@turnkey/api-key-stamper";
 
 // createEmbeddedAPIKey creates an embedded API key encrypted to a target key (typically embedded within an iframe).
 // This returns a bundle that can be decrypted by that target key, as well as the public key of the newly created API key.
@@ -30,9 +31,11 @@ export const createEmbeddedAPIKey = async (
 
   // 3: import the targetPublicKey (i.e. passed in from the iframe)
   const targetKeyBytes = uint8ArrayFromHexString(targetPublicKey);
+  const jwk = pointDecode(targetKeyBytes);
+
   const targetKey = await crypto.subtle.importKey(
-    "raw",
-    targetKeyBytes,
+    "jwk",
+    jwk,
     {
       name: "ECDH",
       namedCurve: "P-256",

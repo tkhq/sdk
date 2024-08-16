@@ -78,3 +78,5 @@ export class ApiKeyStamper {
     };
   }
 }
+
+export { pointDecode } from "./tink/elliptic_curves";
