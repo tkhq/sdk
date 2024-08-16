@@ -79,6 +79,4 @@ export class ApiKeyStamper {
   }
 }
 
-import { pointDecode } from "./tink/elliptic_curves";
-
-export { pointDecode };
+export { pointDecode } from "./tink/elliptic_curves";

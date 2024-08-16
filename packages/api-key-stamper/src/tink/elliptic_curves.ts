@@ -2,7 +2,7 @@
  * Code modified from https://github.com/google/tink/blob/6f74b99a2bfe6677e3670799116a57268fd067fa/javascript/subtle/elliptic_curves.ts
  * - The implementation of integerToByteArray has been modified to augment the resulting byte array to a certain length.
  * - The implementation of PointDecode has been modified to decode both compressed and uncompressed points by checking for correct format
- * - Methoed isP256CurvePoint added to check whether an uncompressed point is valid
+ * - Method isP256CurvePoint added to check whether an uncompressed point is valid
  *
  * @license
  * Copyright 2020 Google LLC
