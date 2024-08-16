@@ -1,6 +1,5 @@
 import { test, expect } from "@jest/globals";
 import { createEmbeddedAPIKey } from "../utils";
-import { create } from "domain";
 
 test("createEmbeddedAPIKey", async function () {
   // Test valid uncompressed public key
