@@ -1,5 +1,16 @@
 # @turnkey/viem
 
+## 0.4.26
+
+### Patch Changes
+
+- Updated dependencies [2d7e5a9]
+- Updated dependencies [f4b607f]
+  - @turnkey/api-key-stamper@0.4.1
+  - @turnkey/http@2.12.2
+  - @turnkey/sdk-browser@1.2.2
+  - @turnkey/sdk-server@1.2.2
+
 ## 0.4.25
 
 ### Patch Changes

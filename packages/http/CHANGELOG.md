@@ -1,5 +1,15 @@
 # @turnkey/http
 
+## 2.12.2
+
+### Patch Changes
+
+- 2d7e5a9: fix a (currently unused) return value
+
+- Updated dependencies
+  - @turnkey/api-key-stamper@0.4.1
+  - @turnkey/encoding@0.2.1
+
 ## 2.12.1
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @turnkey/sdk-browser
 
+## 1.2.2
+
+### Patch Changes
+
+- f4b607f: Verify and pad uncompressed public keys while creating passkey sessions
+
+- Updated dependencies
+  - @turnkey/api-key-stamper@0.4.1
+  - @turnkey/encoding@0.2.1
+  - @turnkey/http@2.12.2
+  - @turnkey/crypto@0.2.1
+
 ## 1.2.1
 
 ### Patch Changes

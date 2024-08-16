@@ -1,5 +1,13 @@
 # @turnkey/sdk-server
 
+## 1.2.2
+
+### Patch Changes
+
+- Updated dependencies [2d7e5a9]
+  - @turnkey/api-key-stamper@0.4.1
+  - @turnkey/http@2.12.2
+
 ## 1.2.1
 
 ### Patch Changes

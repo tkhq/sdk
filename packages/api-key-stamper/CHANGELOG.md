@@ -1,5 +1,14 @@
 # @turnkey/api-key-stamper
 
+## 0.4.1
+
+### Patch Changes
+
+- Changes: Resolves bugs where byte arrays might not be sufficiently padded (32 bytes are expected for x, y, and d elements of a JWK)
+
+- Updated dependencies
+  - @turnkey/encoding@0.2.1
+
 ## 0.4.0
 
 ### Minor Changes
