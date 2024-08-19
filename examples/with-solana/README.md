@@ -71,7 +71,7 @@ Your new Solana address: "G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp"
 💸 Your onchain balance is at 0! To continue this demo you'll need devnet funds! You can use:
 - The faucet in this example: `pnpm run faucet`
 - The official Solana CLI: `solana airdrop 1 G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp`
-- Any online faucet (e.g. https://faucet.triangleplatform.com/solana/devnet)
+- Any online faucet (e.g. https://faucet.solana.com/)
 
 To check your balance: https://explorer.solana.com/address/G6fEj2pt4YYAxLS8JAsY5BL6hea7Fpe8Xyqscg2e7pgp?cluster=devnet
 
@@ -87,7 +87,7 @@ Transaction broadcast and confirmed! 🎉
         https://explorer.solana.com/tx/3Wr1vmSwqf7jPJXzgqA3fGfELdTfiR8v86sRiTJxNYT4KYEcadQjceFsN8BoHQZqb6mnuqsJsgHdk6i8Sj8YtmVr?cluster=devnet
 ```
 
-### 4/ Running the advanced script (multiple transactions)
+### 4/ Running the advanced script (multiple versioned transactions)
 
 ```bash
 $ pnpm advanced

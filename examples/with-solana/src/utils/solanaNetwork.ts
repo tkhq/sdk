@@ -5,6 +5,7 @@ import {
   LAMPORTS_PER_SOL,
   TransactionConfirmationStrategy,
   Transaction,
+  VersionedTransaction,
 } from "@solana/web3.js";
 import bs58 from "bs58";
 
@@ -50,14 +51,18 @@ export async function dropTokens(
 
 export async function broadcast(
   connection: Connection,
-  signedTransaction: Transaction
+  signedTransaction: Transaction | VersionedTransaction
 ) {
+  const signature =
+    signedTransaction instanceof Transaction
+      ? signedTransaction.signature!
+      : signedTransaction.signatures[0]!;
   const confirmationStrategy = await getConfirmationStrategy(
-    bs58.encode(signedTransaction.signature!)
+    bs58.encode(signature)
   );
   const transactionHash = await sendAndConfirmRawTransaction(
     connection,
-    signedTransaction.serialize(),
+    Buffer.from(signedTransaction.serialize()),
     confirmationStrategy,
     { commitment: "confirmed" }
   );

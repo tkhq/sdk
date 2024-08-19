@@ -56,7 +56,7 @@ async function main() {
         `\n💸 Your onchain balance is at 0! To continue this demo you'll need devnet funds! You can use:`,
         `- The faucet in this example: \`pnpm run faucet\``,
         `- The official Solana CLI: \`solana airdrop 1 ${solAddress}\``,
-        `- Any online faucet (e.g. https://faucet.triangleplatform.com/solana/devnet)`,
+        `- Any online faucet (e.g. https://faucet.solana.com/)`,
         `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=devnet`,
         `\n--------`,
       ].join("\n")

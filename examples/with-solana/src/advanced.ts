@@ -1,17 +1,24 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
+import nacl from "tweetnacl";
+import bs58 from "bs58";
+import { input, confirm } from "@inquirer/prompts";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { input, confirm } from "@inquirer/prompts";
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import {
+  PublicKey,
+  SystemProgram,
+  VersionedTransaction,
+  TransactionMessage,
+} from "@solana/web3.js";
 
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { TurnkeySigner } from "@turnkey/solana";
 
-import { createNewSolanaWallet, solanaNetwork, signTransfers } from "./utils";
+import { createNewSolanaWallet, solanaNetwork } from "./utils";
 
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
@@ -48,7 +55,7 @@ async function main() {
         `\n💸 Your onchain balance is at 0! To continue this demo you'll need devnet funds! You can use:`,
         `- The faucet in this example: \`pnpm run faucet\``,
         `- The official Solana CLI: \`solana airdrop 1 ${solAddress}\``,
-        `- Any online faucet (e.g. https://faucet.triangleplatform.com/solana/devnet)`,
+        `- Any online faucet (e.g. https://faucet.solana.com)`,
         `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=devnet`,
         `\n--------`,
       ].join("\n")
@@ -65,7 +72,7 @@ async function main() {
     })
   );
 
-  const unsignedTxs = new Array<Transaction>();
+  const unsignedTxs = new Array<VersionedTransaction>();
 
   for (let i = 0; i < numTxs; i++) {
     const destination = await input({
@@ -98,34 +105,41 @@ async function main() {
 
     const fromKey = new PublicKey(solAddress);
     const toKey = new PublicKey(destination);
+    const blockhash = await solanaNetwork.recentBlockhash();
 
-    const transferTransaction = new Transaction().add(
-      SystemProgram.transfer({
-        fromPubkey: fromKey,
-        toPubkey: toKey,
-        lamports: Number(amount),
-      })
-    );
+    const txMessage = new TransactionMessage({
+      payerKey: fromKey,
+      recentBlockhash: blockhash,
+      instructions: [
+        SystemProgram.transfer({
+          fromPubkey: fromKey,
+          toPubkey: toKey,
+          lamports: Number(amount),
+        }),
+      ],
+    });
 
-    // Get a recent block hash
-    transferTransaction.recentBlockhash = await solanaNetwork.recentBlockhash();
-    // Set the signer
-    transferTransaction.feePayer = fromKey;
+    const versionedTxMessage = txMessage.compileToV0Message();
+
+    // Use VersionedTransaction
+    const transferTransaction = new VersionedTransaction(versionedTxMessage);
 
     unsignedTxs.push(transferTransaction);
   }
 
-  // 2. Create, sign, and verify multiple transfer transaction
-  const signedTransactions = await signTransfers({
-    signer: turnkeySigner,
-    fromAddress: solAddress,
+  const signedTransactions = (await turnkeySigner.signAllTransactions(
     unsignedTxs,
-  });
+    solAddress
+  )) as VersionedTransaction[];
 
   for (let i = 0; i < signedTransactions.length; i++) {
-    const verified = signedTransactions[i]!.verifySignatures();
+    const isValidSignature = nacl.sign.detached.verify(
+      signedTransactions[i]!.message.serialize(),
+      signedTransactions[i]!.signatures[0]!,
+      bs58.decode(solAddress)
+    );
 
-    if (!verified) {
+    if (!isValidSignature) {
       throw new Error("unable to verify transaction signatures");
     }
 

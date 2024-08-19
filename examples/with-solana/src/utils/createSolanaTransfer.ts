@@ -1,6 +1,67 @@
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import {
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  VersionedTransaction,
+  TransactionMessage,
+} from "@solana/web3.js";
 import { recentBlockhash } from "./solanaNetwork";
 import type { TurnkeySigner } from "@turnkey/solana";
+
+/**
+ * Creates an unsigned Solana transfer.
+ * @param signer
+ * @param fromAddress
+ * @param toAddress
+ * @param amount amount to send in LAMPORTS (one SOL = 1000000000 LAMPS)
+ */
+export async function createTransfer(input: {
+  fromAddress: string;
+  toAddress: string;
+  amount: number;
+  version: string;
+}): Promise<Transaction | VersionedTransaction> {
+  const { fromAddress, toAddress, amount, version } = input;
+  const fromKey = new PublicKey(fromAddress);
+  const toKey = new PublicKey(toAddress);
+  const blockhash = await recentBlockhash();
+
+  let transferTransaction;
+
+  if (version === "legacy") {
+    // Legacy transaction
+    transferTransaction = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: fromKey,
+        toPubkey: toKey,
+        lamports: amount,
+      })
+    );
+
+    // Get a recent block hash
+    transferTransaction!.recentBlockhash = blockhash;
+    // Set the signer
+    transferTransaction!.feePayer = fromKey;
+  } else {
+    // VersionedTransaction
+    const txMessage = new TransactionMessage({
+      payerKey: fromKey,
+      recentBlockhash: blockhash,
+      instructions: [
+        SystemProgram.transfer({
+          fromPubkey: fromKey,
+          toPubkey: toKey,
+          lamports: Number(amount),
+        }),
+      ],
+    });
+
+    const versionedTxMessage = txMessage.compileToV0Message();
+    transferTransaction = new VersionedTransaction(versionedTxMessage);
+  }
+
+  return transferTransaction;
+}
 
 /**
  * Creates a Solana transfer and signs it with Turnkey.
@@ -9,7 +70,7 @@ import type { TurnkeySigner } from "@turnkey/solana";
  * @param toAddress
  * @param amount amount to send in LAMPORTS (one SOL = 1000000000 LAMPS)
  */
-export async function createAndSignTransfer(input: {
+export async function signTransfer(input: {
   signer: TurnkeySigner;
   fromAddress: string;
   toAddress: string;
@@ -35,16 +96,4 @@ export async function createAndSignTransfer(input: {
   await signer.addSignature(transferTransaction, fromAddress);
 
   return transferTransaction;
-}
-
-export async function signTransfers(input: {
-  signer: TurnkeySigner;
-  fromAddress: string;
-  unsignedTxs: Transaction[];
-}): Promise<Transaction[]> {
-  const { signer, fromAddress, unsignedTxs } = input;
-
-  const signedTxs = await signer.signAllTransactions(unsignedTxs, fromAddress);
-
-  return signedTxs as Transaction[];
 }
