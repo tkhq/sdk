@@ -8,7 +8,7 @@ If you want to see a demo with passkeys, head to the example [`with-ethers-and-p
 
 ### 1/ Cloning the example
 
-Make sure you have `Node.js` installed locally; we recommend using Node v16+.
+Make sure you have `Node.js` installed locally; we recommend using Node v18+.
 
 ```bash
 $ git clone https://github.com/tkhq/sdk

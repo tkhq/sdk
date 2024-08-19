@@ -6,7 +6,7 @@ This example shows how to deploy a smart contract using [`Ethers`](https://docs.
 
 ### 1/ Cloning the example
 
-Make sure you have `Node.js` installed locally; we recommend using Node v16+.
+Make sure you have `Node.js` installed locally; we recommend using Node v18+.
 
 ```bash
 $ git clone https://github.com/tkhq/sdk

@@ -6,7 +6,7 @@ This example shows how to create a sub organization and facilitate creating a pr
 
 ### 1/ Cloning the example
 
-Make sure you have `node` installed locally; we recommend using Node v16+.
+Make sure you have `node` installed locally; we recommend using Node v18+.
 
 ```bash
 $ git clone https://github.com/tkhq/sdk
