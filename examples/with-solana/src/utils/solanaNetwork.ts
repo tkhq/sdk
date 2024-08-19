@@ -51,29 +51,14 @@ export async function dropTokens(
 
 export async function broadcast(
   connection: Connection,
-  signedTransaction: Transaction
+  signedTransaction: Transaction | VersionedTransaction
 ) {
+  const signature =
+    signedTransaction instanceof Transaction
+      ? signedTransaction.signature!
+      : signedTransaction.signatures[0]!;
   const confirmationStrategy = await getConfirmationStrategy(
-    bs58.encode(signedTransaction.signature!)
-  );
-  const transactionHash = await sendAndConfirmRawTransaction(
-    connection,
-    signedTransaction.serialize(),
-    confirmationStrategy,
-    { commitment: "confirmed" }
-  );
-  print(
-    "Transaction broadcast and confirmed! 🎉",
-    `https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`
-  );
-}
-
-export async function broadcastVersioned(
-  connection: Connection,
-  signedTransaction: VersionedTransaction
-) {
-  const confirmationStrategy = await getConfirmationStrategy(
-    bs58.encode(signedTransaction.signatures[0]!)
+    bs58.encode(signature)
   );
   const transactionHash = await sendAndConfirmRawTransaction(
     connection,
@@ -82,7 +67,7 @@ export async function broadcastVersioned(
     { commitment: "confirmed" }
   );
   print(
-    "Versioned transaction broadcast and confirmed! 🎉",
+    "Transaction broadcast and confirmed! 🎉",
     `https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`
   );
 }

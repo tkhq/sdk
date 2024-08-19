@@ -18,11 +18,7 @@ import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { TurnkeySigner } from "@turnkey/solana";
 
-import {
-  createNewSolanaWallet,
-  solanaNetwork,
-  signVersionedTransfers,
-} from "./utils";
+import { createNewSolanaWallet, solanaNetwork } from "./utils";
 
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
@@ -131,19 +127,14 @@ async function main() {
     unsignedTxs.push(transferTransaction);
   }
 
-  // 2. Create, sign, and verify multiple transfer transaction
-  const signedTransactions = await signVersionedTransfers({
-    signer: turnkeySigner,
-    fromAddress: solAddress,
+  const signedTransactions = (await turnkeySigner.signAllTransactions(
     unsignedTxs,
-  });
+    solAddress
+  )) as VersionedTransaction[];
 
   for (let i = 0; i < signedTransactions.length; i++) {
-    // const verified = signedTransactions[i]!.verifySignatures();
-
     const isValidSignature = nacl.sign.detached.verify(
       signedTransactions[i]!.message.serialize(),
-      // messageAsUint8Array,
       signedTransactions[i]!.signatures[0]!,
       bs58.decode(solAddress)
     );
@@ -153,7 +144,7 @@ async function main() {
     }
 
     // 3. Broadcast the signed payload on devnet
-    await solanaNetwork.broadcastVersioned(connection, signedTransactions[i]!);
+    await solanaNetwork.broadcast(connection, signedTransactions[i]!);
   }
 
   process.exit(0);

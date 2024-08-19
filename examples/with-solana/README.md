@@ -87,7 +87,7 @@ Transaction broadcast and confirmed! 🎉
         https://explorer.solana.com/tx/3Wr1vmSwqf7jPJXzgqA3fGfELdTfiR8v86sRiTJxNYT4KYEcadQjceFsN8BoHQZqb6mnuqsJsgHdk6i8Sj8YtmVr?cluster=devnet
 ```
 
-### 4/ Running the advanced script (multiple transactions)
+### 4/ Running the advanced script (multiple versioned transactions)
 
 ```bash
 $ pnpm advanced
