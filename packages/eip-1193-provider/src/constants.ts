@@ -27,5 +27,3 @@ export const TURNKEY_ERROR_CODE = {
   WALLET_NOT_FOUND: 5,
   ORG_NOT_FOUND: 3,
 };
-
-export const VERSION = process.env.VERSION ?? "[VI]{version}[/VI]";
