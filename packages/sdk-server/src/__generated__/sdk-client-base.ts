@@ -68,6 +68,9 @@ export class TurnkeySDKClientBase {
     const activityStatus = responseData["activity"]["status"];
 
     if (activityStatus !== "ACTIVITY_STATUS_PENDING") {
+      console.log("activityStatus", activityStatus);
+      console.log("responseData", responseData);
+      console.log("resultKey", resultKey);
       return {
         ...responseData["activity"]["result"][`${resultKey}`],
         activity: {
