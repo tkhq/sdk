@@ -86,6 +86,8 @@ async function main() {
   );
   let respJson = await resp.json();
 
+  // Get balance and calculate amount + change amount
+
   const pbst = new bitcoin.Psbt({ network: bitcoin.networks.testnet });
   pbst.addInput({
     hash: hash,
@@ -100,12 +102,19 @@ async function main() {
     })?.redeem?.output!,
   });
 
+  // Output to destination
   pbst.addOutput({
     script: bitcoin.address.toOutputScript(
       destination,
       bitcoin.networks.testnet
     ),
     value: amount,
+  });
+
+  // Change
+  pbst.addOutput({
+    script: bitcoin.address.toOutputScript(changeAddress, bitcoin.networks.testnet),
+    value: changeAmount,
   });
 
   // Create a signer
