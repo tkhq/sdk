@@ -1,5 +1,11 @@
 # @turnkey/eip-1193-provider
 
+## 2.0.3
+
+### Patch Changes
+
+- Removes unused VERSION from constants. Fixes issue with using process in a browser environment.
+
 ## 2.0.2
 
 ### Patch Changes
