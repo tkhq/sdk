@@ -16,7 +16,7 @@ $ npm install @turnkey/sdk-server
 const { Turnkey } = require("@turnkey/sdk-server");
 
 // This config contains parameters including base URLs, API credentials, and org ID
-const turnkeyConfig = JSON.parse(fs.readFileSync("./turnkey.json"), "utf8");
+const turnkeyConfig = JSON.parse(fs.readFileSync("./turnkey.json", "utf8"));
 
 // Use the config to instantiate a Turnkey Client
 const turnkeyServerClient = new Turnkey(turnkeyConfig);
