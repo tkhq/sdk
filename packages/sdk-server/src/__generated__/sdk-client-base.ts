@@ -520,7 +520,7 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5",
+        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6",
       },
       "createSubOrganizationResultV6"
     );

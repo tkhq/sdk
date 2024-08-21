@@ -1,5 +1,11 @@
 # with-wallet-stamper
 
+## 0.1.3
+
+### Patch Changes
+
+- @turnkey/viem@0.4.27
+
 ## 0.1.2
 
 ### Patch Changes

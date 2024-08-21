@@ -1,5 +1,11 @@
 # @turnkey/sdk-browser
 
+## 1.2.3
+
+### Patch Changes
+
+- Fix activity versioning for CREATE_SUB_ORGANIZATION (V5=>V6)
+
 ## 1.2.2
 
 ### Patch Changes
