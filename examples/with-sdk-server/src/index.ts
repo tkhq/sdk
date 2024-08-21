@@ -1,5 +1,5 @@
-import { Turnkey } from '@turnkey/sdk-server';
-import fs from 'fs';
+import { Turnkey } from "@turnkey/sdk-server";
+import fs from "fs";
 
 const turnkeyConfig = JSON.parse(fs.readFileSync("./config.json", "utf8"));
 const turnkeyServerClient = new Turnkey(turnkeyConfig);

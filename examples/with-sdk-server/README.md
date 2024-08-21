@@ -39,6 +39,7 @@ $ pnpm run start
 ```
 
 This will simply make a [`Whoami request`](https://docs.turnkey.com/api#tag/Sessions/operation/GetWhoami). If it's successful you should see something like the following:
+
 ```
 Successfully called Turnkey. Whoami response:  {
   organizationId: '4c9c6e70-d30b-405f-ae30-41e766279eb6',
