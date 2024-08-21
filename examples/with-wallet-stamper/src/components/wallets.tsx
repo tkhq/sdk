@@ -13,8 +13,12 @@ import {
 interface Wallet {
   walletId: string;
   walletName: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: {
+    seconds: string;
+  };
+  updatedAt: {
+    seconds: string;
+  };
   exported: boolean;
   imported: boolean;
 }
@@ -45,10 +49,14 @@ const Wallets: React.FC<WalletsProps> = ({ wallets }) => {
               <TableCell>{wallet.walletId}</TableCell>
               <TableCell>{wallet.walletName}</TableCell>
               <TableCell>
-                {new Date(wallet.createdAt).toLocaleString()}
+                {new Date(
+                  parseInt(wallet.createdAt.seconds) * 1000
+                ).toLocaleString()}
               </TableCell>
               <TableCell>
-                {new Date(wallet.updatedAt).toLocaleString()}
+                {new Date(
+                  parseInt(wallet.updatedAt.seconds) * 1000
+                ).toLocaleString()}
               </TableCell>
               <TableCell>{wallet.exported ? "Yes" : "No"}</TableCell>
               <TableCell>{wallet.imported ? "Yes" : "No"}</TableCell>

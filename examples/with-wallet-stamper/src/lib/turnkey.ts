@@ -1,7 +1,6 @@
-import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
-import { ALG_ES256, PUBKEY_CRED_TYPE } from "./constants";
-
 import { TWebauthnStamperConfig } from "@turnkey/webauthn-stamper";
+
+import { ALG_ES256, PUBKEY_CRED_TYPE } from "./constants";
 import { base64UrlEncode, generateRandomBuffer } from "./utils";
 import { PasskeyRegistrationResult } from "./types";
 import { env } from "@/env.mjs";
