@@ -11,7 +11,10 @@ import { createNewWallet } from "./createNewWallet";
 import { print, assertEqual } from "./util";
 
 async function main() {
-  if (!process.env.SIGN_WITH_COMPRESSED || !process.env.SIGN_WITH_UNCOMPRESSED) {
+  if (
+    !process.env.SIGN_WITH_COMPRESSED ||
+    !process.env.SIGN_WITH_UNCOMPRESSED
+  ) {
     // If you don't specify a `SIGN_WITH`, we'll create a new BTC wallet for you via calling the Turnkey API.
     await createNewWallet();
     return;

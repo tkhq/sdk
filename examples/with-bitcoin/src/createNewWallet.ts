@@ -22,7 +22,7 @@ export async function createNewWallet() {
         {
           curve: "CURVE_SECP256K1",
           pathFormat: "PATH_FORMAT_BIP32",
-          path: "m/44'/60'/0'/0/0",
+          path: "m/44'/0'/0'/0/0",
           addressFormat: "ADDRESS_FORMAT_COMPRESSED",
         },
       ],
@@ -39,7 +39,7 @@ export async function createNewWallet() {
         `- Wallet ID: ${walletId}`,
         `- Address: ${address}`,
         ``,
-        "Now you can take the address, put it in `.env.local` (`SIGN_WITH=<address>`), then re-run the script.",
+        "Now you can take the address, put it in `.env.local` (`SIGN_WITH_COMPRESSED=<address>`), then re-run the script.",
       ].join("\n")
     );
   } catch (error) {
@@ -49,7 +49,7 @@ export async function createNewWallet() {
     }
 
     throw new TurnkeyActivityError({
-      message: "Failed to create a new Bitcoin wallet",
+      message: "Failed to create a new BTC wallet",
       cause: error as Error,
     });
   }

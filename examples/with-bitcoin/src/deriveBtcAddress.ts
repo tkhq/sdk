@@ -5,7 +5,7 @@ import { ECPairFactory } from "ecpair"; // Apparently deprecated as of bitcoinjs
 
 const ECPair = ECPairFactory(ecc);
 
-async function run() {
+async function main() {
   const cliPrompts = [
     {
       type: "text" as PromptType,
@@ -42,4 +42,11 @@ async function run() {
   // console.log("Testnet P2PKH address: " + p2pkhAddress);
 }
 
-run().then((res) => console.log(res));
+main()
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
