@@ -4,12 +4,22 @@ import {
   type VersionedTransaction,
 } from "@solana/web3.js";
 import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
+import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
+import type { TurnkeyServerClient } from "@turnkey/sdk-server";
+
+type TSignature = {
+  r: string;
+  s: string;
+  v: string;
+};
+
+type TClient = TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
 
 export class TurnkeySigner {
   public readonly organizationId: string;
-  public readonly client: TurnkeyClient;
+  public readonly client: TClient;
 
-  constructor(input: { organizationId: string; client: TurnkeyClient }) {
+  constructor(input: { organizationId: string; client: TClient }) {
     this.organizationId = input.organizationId;
     this.client = input.client;
   }
@@ -33,10 +43,9 @@ export class TurnkeySigner {
       fromAddress
     );
 
-    const signatures =
-      signRawPayloadsResult.signRawPayloadsResult?.signatures?.map(
-        (sig) => `${sig?.r}${sig?.s}`
-      );
+    const signatures = signRawPayloadsResult?.signatures?.map(
+      (sig: TSignature) => `${sig?.r}${sig?.s}`
+    );
 
     for (let i in txs) {
       txs[i]?.addSignature(fromKey, Buffer.from(signatures![i]!, "hex"));
@@ -64,7 +73,7 @@ export class TurnkeySigner {
       fromAddress
     );
 
-    const signature = `${signRawPayloadResult.signRawPayloadResult?.r}${signRawPayloadResult.signRawPayloadResult?.s}`;
+    const signature = `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`;
 
     tx.addSignature(fromKey, Buffer.from(signature, "hex"));
   }
@@ -84,67 +93,93 @@ export class TurnkeySigner {
       fromAddress
     );
     return Buffer.from(
-      `${signRawPayloadResult.signRawPayloadResult?.r}${signRawPayloadResult.signRawPayloadResult?.s}`,
+      `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`,
       "hex"
     );
   }
 
   private async signRawPayload(payload: string, signWith: string) {
-    const response = await this.client.signRawPayload({
-      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      parameters: {
+    if (this.client instanceof TurnkeyClient) {
+      const response = await this.client.signRawPayload({
+        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        parameters: {
+          signWith,
+          payload,
+          encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+          // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
+          // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
+          hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+        },
+      });
+
+      const { id, status, type, result } = response.activity;
+
+      if (status !== "ACTIVITY_STATUS_COMPLETED") {
+        throw new TurnkeyActivityError({
+          message: `Expected COMPLETED status, got ${status}`,
+          activityId: id,
+          activityStatus: status,
+          activityType: type,
+        });
+      }
+
+      return assertNonNull(result?.signRawPayloadResult);
+    } else {
+      const result = await this.client.signRawPayload({
         signWith,
         payload,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
         // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
-      },
-    });
-
-    const { id, status, type, result } = response.activity;
-
-    if (status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new TurnkeyActivityError({
-        message: `Expected COMPLETED status, got ${status}`,
-        activityId: id,
-        activityStatus: status,
-        activityType: type,
       });
-    }
 
-    return result;
+      return assertNonNull(result);
+    }
   }
 
   private async signRawPayloads(payloads: string[], signWith: string) {
-    const response = await this.client.signRawPayloads({
-      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
-      organizationId: this.organizationId,
-      timestampMs: String(Date.now()),
-      parameters: {
+    if (this.client instanceof TurnkeyClient) {
+      const response = await this.client.signRawPayloads({
+        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        parameters: {
+          signWith,
+          payloads,
+          encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+          // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
+          // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
+          hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+        },
+      });
+
+      const { id, status, type, result } = response.activity;
+
+      if (status !== "ACTIVITY_STATUS_COMPLETED") {
+        throw new TurnkeyActivityError({
+          message: `Expected COMPLETED status, got ${status}`,
+          activityId: id,
+          activityStatus: status,
+          activityType: type,
+        });
+      }
+
+      return assertNonNull(result?.signRawPayloadsResult);
+    } else {
+      const result = await this.client.signRawPayloads({
         signWith,
         payloads,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
         // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
-      },
-    });
-
-    const { id, status, type, result } = response.activity;
-
-    if (status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new TurnkeyActivityError({
-        message: `Expected COMPLETED status, got ${status}`,
-        activityId: id,
-        activityStatus: status,
-        activityType: type,
       });
-    }
 
-    return result;
+      return assertNonNull(result);
+    }
   }
 
   private getMessageToSign(tx: Transaction | VersionedTransaction): Buffer {
@@ -164,4 +199,12 @@ export class TurnkeySigner {
 
     return messageToSign;
   }
+}
+
+function assertNonNull<T>(input: T | null | undefined): T {
+  if (input == null) {
+    throw new Error(`Got unexpected ${JSON.stringify(input)}`);
+  }
+
+  return input;
 }

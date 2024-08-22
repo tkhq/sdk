@@ -49,7 +49,9 @@
   },
   "dependencies": {
     "@solana/web3.js": "^1.88.1",
-    "@turnkey/http": "workspace:*"
+    "@turnkey/http": "workspace:*",
+    "@turnkey/sdk-browser": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*"
   },
   "devDependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
