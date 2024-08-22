@@ -613,6 +613,12 @@ importers:
         specifier: ^16.0.3
         version: 16.0.3
 
+  examples/with-sdk-server:
+    dependencies:
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+
   examples/with-solana:
     dependencies:
       '@inquirer/prompts':

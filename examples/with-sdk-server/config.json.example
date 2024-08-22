@@ -1,0 +1,6 @@
+{
+    "apiBaseUrl": "https://api.turnkey.com",
+    "apiPublicKey": "<Turnkey API Public Key (that starts with 02 or 03)>",
+    "apiPrivateKey": "<Turnkey API Private Key>",
+    "defaultOrganizationId": "<Turnkey Organization ID>"
+}
