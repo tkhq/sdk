@@ -349,9 +349,6 @@ importers:
       '@turnkey/api-key-stamper':
         specifier: workspace:*
         version: link:../../packages/api-key-stamper
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../packages/ethers
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
@@ -370,9 +367,6 @@ importers:
       ecpair:
         specifier: ^2.1.0
         version: 2.1.0
-      ethers:
-        specifier: ^6.10.0
-        version: 6.10.0
       prompts:
         specifier: ^2.4.2
         version: 2.4.2

@@ -15,6 +15,17 @@ import { createNewWallet } from "./createNewWallet";
 
 bitcoin.initEccLib(ecc);
 
+async function getBalance(address: string) {
+  try {
+    const response = await fetch(
+      `https://api.blockcypher.com/v1/btc/test3/addrs/${address}/balance`
+    );
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching balance:", error);
+  }
+}
+
 async function main() {
   if (
     !process.env.SIGN_WITH_COMPRESSED
@@ -86,7 +97,18 @@ async function main() {
   );
   let respJson = await resp.json();
 
-  // Get balance and calculate amount + change amount
+  // Get address and balance, then calculate amount and change amount
+  const address = bitcoin.payments.p2sh({
+    redeem: bitcoin.payments.p2wpkh({
+      pubkey: pair.publicKey,
+      network: bitcoin.networks.testnet,
+    }),
+  }).address;
+
+  const fee = 1000; // just an estimate
+  const balance = await getBalance(address!);
+  console.log("balance response", balance);
+  const changeAmount = balance.unconfirmed_balance - amount - fee;
 
   const pbst = new bitcoin.Psbt({ network: bitcoin.networks.testnet });
   pbst.addInput({
@@ -113,7 +135,7 @@ async function main() {
 
   // Change
   pbst.addOutput({
-    script: bitcoin.address.toOutputScript(changeAddress, bitcoin.networks.testnet),
+    script: bitcoin.address.toOutputScript(address!, bitcoin.networks.testnet),
     value: changeAmount,
   });
 
