@@ -2256,6 +2256,58 @@ export const signDeletePrivateKeyTags = (
   });
 
 /**
+ * `POST /public/v1/submit/delete_private_keys`
+ */
+export type TDeletePrivateKeysResponse =
+  operations["PublicApiService_DeletePrivateKeys"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_private_keys`
+ */
+export type TDeletePrivateKeysInput = { body: TDeletePrivateKeysBody };
+
+/**
+ * `POST /public/v1/submit/delete_private_keys`
+ */
+export type TDeletePrivateKeysBody =
+  operations["PublicApiService_DeletePrivateKeys"]["parameters"]["body"]["body"];
+
+/**
+ * Delete organization private keys
+ *
+ * Deletes private keys for an organization
+ *
+ * `POST /public/v1/submit/delete_private_keys`
+ */
+export const deletePrivateKeys = (input: TDeletePrivateKeysInput) =>
+  request<
+    TDeletePrivateKeysResponse,
+    TDeletePrivateKeysBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_private_keys",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeletePrivateKeys` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeletePrivateKeys}
+ */
+export const signDeletePrivateKeys = (
+  input: TDeletePrivateKeysInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TDeletePrivateKeysBody, never, never>({
+    uri: "/public/v1/submit/delete_private_keys",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/delete_user_tags`
  */
 export type TDeleteUserTagsResponse =
@@ -2343,6 +2395,52 @@ export const signDeleteUsers = (
 ) =>
   signedRequest<TDeleteUsersBody, never, never>({
     uri: "/public/v1/submit/delete_users",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_wallets`
+ */
+export type TDeleteWalletsResponse =
+  operations["PublicApiService_DeleteWallets"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_wallets`
+ */
+export type TDeleteWalletsInput = { body: TDeleteWalletsBody };
+
+/**
+ * `POST /public/v1/submit/delete_wallets`
+ */
+export type TDeleteWalletsBody =
+  operations["PublicApiService_DeleteWallets"]["parameters"]["body"]["body"];
+
+/**
+ * Delete organization wallets
+ *
+ * Deletes wallets for an organization
+ *
+ * `POST /public/v1/submit/delete_wallets`
+ */
+export const deleteWallets = (input: TDeleteWalletsInput) =>
+  request<TDeleteWalletsResponse, TDeleteWalletsBody, never, never, never>({
+    uri: "/public/v1/submit/delete_wallets",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteWallets` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteWallets}
+ */
+export const signDeleteWallets = (
+  input: TDeleteWalletsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TDeleteWalletsBody, never, never>({
+    uri: "/public/v1/submit/delete_wallets",
     body: input.body,
     options,
   });
@@ -2746,6 +2844,52 @@ export const signInitImportWallet = (
   });
 
 /**
+ * `POST /public/v1/submit/init_otp_auth`
+ */
+export type TInitOtpAuthResponse =
+  operations["PublicApiService_InitOtpAuth"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/init_otp_auth`
+ */
+export type TInitOtpAuthInput = { body: TInitOtpAuthBody };
+
+/**
+ * `POST /public/v1/submit/init_otp_auth`
+ */
+export type TInitOtpAuthBody =
+  operations["PublicApiService_InitOtpAuth"]["parameters"]["body"]["body"];
+
+/**
+ * Init OTP auth
+ *
+ * Initiate an OTP auth activity
+ *
+ * `POST /public/v1/submit/init_otp_auth`
+ */
+export const initOtpAuth = (input: TInitOtpAuthInput) =>
+  request<TInitOtpAuthResponse, TInitOtpAuthBody, never, never, never>({
+    uri: "/public/v1/submit/init_otp_auth",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `InitOtpAuth` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link InitOtpAuth}
+ */
+export const signInitOtpAuth = (
+  input: TInitOtpAuthInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TInitOtpAuthBody, never, never>({
+    uri: "/public/v1/submit/init_otp_auth",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/init_user_email_recovery`
  */
 export type TInitUserEmailRecoveryResponse =
@@ -2839,6 +2983,52 @@ export const signOauth = (
 ) =>
   signedRequest<TOauthBody, never, never>({
     uri: "/public/v1/submit/oauth",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/otp_auth`
+ */
+export type TOtpAuthResponse =
+  operations["PublicApiService_OtpAuth"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/otp_auth`
+ */
+export type TOtpAuthInput = { body: TOtpAuthBody };
+
+/**
+ * `POST /public/v1/submit/otp_auth`
+ */
+export type TOtpAuthBody =
+  operations["PublicApiService_OtpAuth"]["parameters"]["body"]["body"];
+
+/**
+ * OTP auth
+ *
+ * Authenticate a user with an OTP code sent via email or sms
+ *
+ * `POST /public/v1/submit/otp_auth`
+ */
+export const otpAuth = (input: TOtpAuthInput) =>
+  request<TOtpAuthResponse, TOtpAuthBody, never, never, never>({
+    uri: "/public/v1/submit/otp_auth",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `OtpAuth` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link OtpAuth}
+ */
+export const signOtpAuth = (
+  input: TOtpAuthInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TOtpAuthBody, never, never>({
+    uri: "/public/v1/submit/otp_auth",
     body: input.body,
     options,
   });

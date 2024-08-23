@@ -176,12 +176,20 @@ import type {
   TDeletePrivateKeyTagsResponse,
 } from "./public_api.fetcher";
 import type {
+  TDeletePrivateKeysBody,
+  TDeletePrivateKeysResponse,
+} from "./public_api.fetcher";
+import type {
   TDeleteUserTagsBody,
   TDeleteUserTagsResponse,
 } from "./public_api.fetcher";
 import type {
   TDeleteUsersBody,
   TDeleteUsersResponse,
+} from "./public_api.fetcher";
+import type {
+  TDeleteWalletsBody,
+  TDeleteWalletsResponse,
 } from "./public_api.fetcher";
 import type { TEmailAuthBody, TEmailAuthResponse } from "./public_api.fetcher";
 import type {
@@ -213,10 +221,15 @@ import type {
   TInitImportWalletResponse,
 } from "./public_api.fetcher";
 import type {
+  TInitOtpAuthBody,
+  TInitOtpAuthResponse,
+} from "./public_api.fetcher";
+import type {
   TInitUserEmailRecoveryBody,
   TInitUserEmailRecoveryResponse,
 } from "./public_api.fetcher";
 import type { TOauthBody, TOauthResponse } from "./public_api.fetcher";
+import type { TOtpAuthBody, TOtpAuthResponse } from "./public_api.fetcher";
 import type {
   TRecoverUserBody,
   TRecoverUserResponse,
@@ -1723,6 +1736,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Deletes private keys for an organization
+   *
+   * Sign the provided `TDeletePrivateKeysBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_private_keys).
+   *
+   * See also {@link stampDeletePrivateKeys}.
+   */
+  deletePrivateKeys = async (
+    input: TDeletePrivateKeysBody
+  ): Promise<TDeletePrivateKeysResponse> => {
+    return this.request("/public/v1/submit/delete_private_keys", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeletePrivateKeysBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeletePrivateKeys}.
+   */
+  stampDeletePrivateKeys = async (
+    input: TDeletePrivateKeysBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_private_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Delete User Tags within an Organization
    *
    * Sign the provided `TDeleteUserTagsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_user_tags).
@@ -1775,6 +1820,37 @@ export class TurnkeyClient {
     input: TDeleteUsersBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_users";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Deletes wallets for an organization
+   *
+   * Sign the provided `TDeleteWalletsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_wallets).
+   *
+   * See also {@link stampDeleteWallets}.
+   */
+  deleteWallets = async (
+    input: TDeleteWalletsBody
+  ): Promise<TDeleteWalletsResponse> => {
+    return this.request("/public/v1/submit/delete_wallets", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteWalletsBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteWallets}.
+   */
+  stampDeleteWallets = async (
+    input: TDeleteWalletsBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_wallets";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2034,6 +2110,37 @@ export class TurnkeyClient {
   };
 
   /**
+   * Initiate an OTP auth activity
+   *
+   * Sign the provided `TInitOtpAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_otp_auth).
+   *
+   * See also {@link stampInitOtpAuth}.
+   */
+  initOtpAuth = async (
+    input: TInitOtpAuthBody
+  ): Promise<TInitOtpAuthResponse> => {
+    return this.request("/public/v1/submit/init_otp_auth", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TInitOtpAuthBody` by using the client's `stamp` function.
+   *
+   * See also {@link InitOtpAuth}.
+   */
+  stampInitOtpAuth = async (
+    input: TInitOtpAuthBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/init_otp_auth";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Initializes a new email recovery
    *
    * Sign the provided `TInitUserEmailRecoveryBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_user_email_recovery).
@@ -2083,6 +2190,33 @@ export class TurnkeyClient {
    */
   stampOauth = async (input: TOauthBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/oauth";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Authenticate a user with an OTP code sent via email or sms
+   *
+   * Sign the provided `TOtpAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/otp_auth).
+   *
+   * See also {@link stampOtpAuth}.
+   */
+  otpAuth = async (input: TOtpAuthBody): Promise<TOtpAuthResponse> => {
+    return this.request("/public/v1/submit/otp_auth", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TOtpAuthBody` by using the client's `stamp` function.
+   *
+   * See also {@link OtpAuth}.
+   */
+  stampOtpAuth = async (input: TOtpAuthBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/otp_auth";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

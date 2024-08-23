@@ -520,9 +520,9 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6",
+        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
       },
-      "createSubOrganizationResultV6"
+      "createSubOrganizationResultV7"
     );
   };
 
@@ -686,6 +686,22 @@ export class TurnkeySDKClientBase {
     );
   };
 
+  deletePrivateKeys = async (
+    input: SdkApiTypes.TDeletePrivateKeysBody
+  ): Promise<SdkApiTypes.TDeletePrivateKeysResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_private_keys",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS",
+      },
+      "deletePrivateKeysResult"
+    );
+  };
+
   deleteUserTags = async (
     input: SdkApiTypes.TDeleteUserTagsBody
   ): Promise<SdkApiTypes.TDeleteUserTagsResponse> => {
@@ -715,6 +731,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_USERS",
       },
       "deleteUsersResult"
+    );
+  };
+
+  deleteWallets = async (
+    input: SdkApiTypes.TDeleteWalletsBody
+  ): Promise<SdkApiTypes.TDeleteWalletsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_wallets",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_WALLETS",
+      },
+      "deleteWalletsResult"
     );
   };
 
@@ -846,6 +878,22 @@ export class TurnkeySDKClientBase {
     );
   };
 
+  initOtpAuth = async (
+    input: SdkApiTypes.TInitOtpAuthBody
+  ): Promise<SdkApiTypes.TInitOtpAuthResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/init_otp_auth",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_INIT_OTP_AUTH",
+      },
+      "initOtpAuthResult"
+    );
+  };
+
   initUserEmailRecovery = async (
     input: SdkApiTypes.TInitUserEmailRecoveryBody
   ): Promise<SdkApiTypes.TInitUserEmailRecoveryResponse> => {
@@ -875,6 +923,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_OAUTH",
       },
       "oauthResult"
+    );
+  };
+
+  otpAuth = async (
+    input: SdkApiTypes.TOtpAuthBody
+  ): Promise<SdkApiTypes.TOtpAuthResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/otp_auth",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_OTP_AUTH",
+      },
+      "otpAuthResult"
     );
   };
 
