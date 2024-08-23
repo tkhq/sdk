@@ -22,6 +22,8 @@ const DEFAULT_API_PROXY_ALLOWED_METHODS = [
   "createSubOrganization",
   "emailAuth",
   "initUserEmailRecovery",
+  "otpAuth",
+  "initOtpAuth",
 ];
 
 export class TurnkeyServerSDK {

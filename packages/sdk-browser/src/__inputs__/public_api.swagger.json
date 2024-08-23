@@ -1540,6 +1540,38 @@
         "tags": ["Private Key Tags"]
       }
     },
+    "/public/v1/submit/delete_private_keys": {
+      "post": {
+        "summary": "Delete organization private keys",
+        "description": "Deletes private keys for an organization",
+        "operationId": "PublicApiService_DeletePrivateKeys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeletePrivateKeysRequest"
+            }
+          }
+        ],
+        "tags": ["Private Keys"]
+      }
+    },
     "/public/v1/submit/delete_user_tags": {
       "post": {
         "summary": "Delete User Tags",
@@ -1602,6 +1634,38 @@
           }
         ],
         "tags": ["Users"]
+      }
+    },
+    "/public/v1/submit/delete_wallets": {
+      "post": {
+        "summary": "Delete organization wallets",
+        "description": "Deletes wallets for an organization",
+        "operationId": "PublicApiService_DeleteWallets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteWalletsRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
       }
     },
     "/public/v1/submit/email_auth": {
@@ -1860,6 +1924,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/submit/init_otp_auth": {
+      "post": {
+        "summary": "Init OTP auth",
+        "description": "Initiate an OTP auth activity",
+        "operationId": "PublicApiService_InitOtpAuth",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1InitOtpAuthRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
     "/public/v1/submit/init_user_email_recovery": {
       "post": {
         "summary": "Init Email Recovery",
@@ -1918,6 +2014,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1OauthRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
+    "/public/v1/submit/otp_auth": {
+      "post": {
+        "summary": "OTP auth",
+        "description": "Authenticate a user with an OTP code sent via email or sms",
+        "operationId": "PublicApiService_OtpAuth",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1OtpAuthRequest"
             }
           }
         ],
@@ -2686,7 +2814,12 @@
         "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
         "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION",
         "ACTIVITY_TYPE_EMAIL_AUTH_V2",
-        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6"
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6",
+        "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS",
+        "ACTIVITY_TYPE_DELETE_WALLETS",
+        "ACTIVITY_TYPE_INIT_OTP_AUTH",
+        "ACTIVITY_TYPE_OTP_AUTH",
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"
       ]
     },
     "v1AddressFormat": {
@@ -3964,12 +4097,51 @@
       },
       "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
     },
+    "v1CreateSubOrganizationIntentV7": {
+      "type": "object",
+      "properties": {
+        "subOrganizationName": {
+          "type": "string",
+          "description": "Name for this sub-organization"
+        },
+        "rootUsers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RootUserParamsV4"
+          },
+          "description": "Root users to create within this sub-organization"
+        },
+        "rootQuorumThreshold": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users"
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1WalletParams",
+          "description": "The wallet to create for the sub-organization"
+        },
+        "disableEmailRecovery": {
+          "type": "boolean",
+          "description": "Disable email recovery for the sub-organization"
+        },
+        "disableEmailAuth": {
+          "type": "boolean",
+          "description": "Disable email auth for the sub-organization"
+        },
+        "disableSmsAuth": {
+          "type": "boolean",
+          "description": "Disable email auth for the sub-organization"
+        }
+      },
+      "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
+    },
     "v1CreateSubOrganizationRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6"]
+          "enum": ["ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"]
         },
         "timestampMs": {
           "type": "string",
@@ -3980,7 +4152,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1CreateSubOrganizationIntentV6"
+          "$ref": "#/definitions/v1CreateSubOrganizationIntentV7"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -4060,6 +4232,24 @@
       "required": ["subOrganizationId"]
     },
     "v1CreateSubOrganizationResultV6": {
+      "type": "object",
+      "properties": {
+        "subOrganizationId": {
+          "type": "string"
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1WalletResult"
+        },
+        "rootUserIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["subOrganizationId"]
+    },
+    "v1CreateSubOrganizationResultV7": {
       "type": "object",
       "properties": {
         "subOrganizationId": {
@@ -4324,7 +4514,8 @@
         "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256",
         "CREDENTIAL_TYPE_API_KEY_SECP256K1",
         "CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256",
-        "CREDENTIAL_TYPE_API_KEY_ED25519"
+        "CREDENTIAL_TYPE_API_KEY_ED25519",
+        "CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"
       ]
     },
     "v1Curve": {
@@ -4660,6 +4851,57 @@
       },
       "required": ["privateKeyTagIds", "privateKeyIds"]
     },
+    "v1DeletePrivateKeysIntent": {
+      "type": "object",
+      "properties": {
+        "privateKeyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of unique identifiers for private keys within an organization"
+        },
+        "deleteWithoutExport": {
+          "type": "boolean",
+          "description": "Optional parameter for deleting the private keys, even if any have not been previously exported. If they have been exported, this field is ignored."
+        }
+      },
+      "required": ["privateKeyIds"]
+    },
+    "v1DeletePrivateKeysRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_PRIVATE_KEYS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeletePrivateKeysIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeletePrivateKeysResult": {
+      "type": "object",
+      "properties": {
+        "privateKeyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of private key unique identifiers that were removed"
+        }
+      },
+      "required": ["privateKeyIds"]
+    },
     "v1DeleteUserTagsIntent": {
       "type": "object",
       "properties": {
@@ -4760,6 +5002,57 @@
         }
       },
       "required": ["userIds"]
+    },
+    "v1DeleteWalletsIntent": {
+      "type": "object",
+      "properties": {
+        "walletIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of unique identifiers for wallets within an organization"
+        },
+        "deleteWithoutExport": {
+          "type": "boolean",
+          "description": "Optional parameter for deleting the wallets, even if any have not been previously exported. If they have been exported, this field is ignored."
+        }
+      },
+      "required": ["walletIds"]
+    },
+    "v1DeleteWalletsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_WALLETS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteWalletsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteWalletsResult": {
+      "type": "object",
+      "properties": {
+        "walletIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of wallet unique identifiers that were removed"
+        }
+      },
+      "required": ["walletIds"]
     },
     "v1DisablePrivateKeyIntent": {
       "type": "object",
@@ -5074,7 +5367,8 @@
         "FEATURE_NAME_WEBAUTHN_ORIGINS",
         "FEATURE_NAME_EMAIL_AUTH",
         "FEATURE_NAME_EMAIL_RECOVERY",
-        "FEATURE_NAME_WEBHOOK"
+        "FEATURE_NAME_WEBHOOK",
+        "FEATURE_NAME_SMS_AUTH"
       ]
     },
     "v1GetActivitiesRequest": {
@@ -5850,6 +6144,55 @@
       },
       "required": ["importBundle"]
     },
+    "v1InitOtpAuthIntent": {
+      "type": "object",
+      "properties": {
+        "otpType": {
+          "type": "string",
+          "description": "Enum to specifiy whether to send otp via sms or email"
+        },
+        "contact": {
+          "type": "string",
+          "description": "Email or phone number to send the otp code to"
+        },
+        "emailCustomization": {
+          "$ref": "#/definitions/v1EmailCustomizationParams",
+          "description": "Optional parameters for customizing emails. If not provided, the default email will be used."
+        }
+      },
+      "required": ["otpType", "contact"]
+    },
+    "v1InitOtpAuthRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_INIT_OTP_AUTH"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1InitOtpAuthIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1InitOtpAuthResult": {
+      "type": "object",
+      "properties": {
+        "otpId": {
+          "type": "string",
+          "description": "Unique identifier for the authenticating User."
+        }
+      },
+      "required": ["otpId"]
+    },
     "v1InitUserEmailRecoveryIntent": {
       "type": "object",
       "properties": {
@@ -6121,6 +6464,21 @@
         },
         "createSubOrganizationIntentV6": {
           "$ref": "#/definitions/v1CreateSubOrganizationIntentV6"
+        },
+        "deletePrivateKeysIntent": {
+          "$ref": "#/definitions/v1DeletePrivateKeysIntent"
+        },
+        "deleteWalletsIntent": {
+          "$ref": "#/definitions/v1DeleteWalletsIntent"
+        },
+        "createSubOrganizationIntentV7": {
+          "$ref": "#/definitions/v1CreateSubOrganizationIntentV7"
+        },
+        "initOtpAuthIntent": {
+          "$ref": "#/definitions/v1InitOtpAuthIntent"
+        },
+        "otpAuthIntent": {
+          "$ref": "#/definitions/v1OtpAuthIntent"
         }
       }
     },
@@ -6484,6 +6842,87 @@
           }
         }
       }
+    },
+    "v1OtpAuthIntent": {
+      "type": "object",
+      "properties": {
+        "otpType": {
+          "type": "string",
+          "description": "Enum to specifiy how the otp code was sent"
+        },
+        "contact": {
+          "type": "string",
+          "description": "Email or phone number that the otp code was sent to"
+        },
+        "otpId": {
+          "type": "string",
+          "description": "id representing the result of an init otp activity."
+        },
+        "otpCode": {
+          "type": "string",
+          "description": "6 digit OTP code sent out to a user's contact (email or sms)"
+        },
+        "generateCredential": {
+          "type": "boolean",
+          "description": "whether or not to use this path to generate a credential. Leave this empty or pass false if you are using this for verification purposes only"
+        },
+        "targetPublicKey": {
+          "type": "string",
+          "description": "Client-side public key generated by the user, to which the otp bundle (credentials) will be encrypted."
+        },
+        "apiKeyName": {
+          "type": "string",
+          "description": "Optional human-readable name for an API Key. If none provided, default to Oauth - \u003cTimestamp\u003e"
+        },
+        "expirationSeconds": {
+          "type": "string",
+          "description": "Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used."
+        },
+        "invalidateExisting": {
+          "type": "boolean",
+          "description": "Invalidate all other previously generated OTP Auth API keys"
+        }
+      },
+      "required": ["otpType", "contact", "otpId", "otpCode"]
+    },
+    "v1OtpAuthRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_OTP_AUTH"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1OtpAuthIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1OtpAuthResult": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for the authenticating User."
+        },
+        "apiKeyId": {
+          "type": "string",
+          "description": "Unique identifier for the created API key."
+        },
+        "credentialBundle": {
+          "type": "string",
+          "description": "HPKE encrypted credential bundle"
+        }
+      },
+      "required": ["userId"]
     },
     "v1Pagination": {
       "type": "object",
@@ -6992,6 +7431,21 @@
         },
         "createSubOrganizationResultV6": {
           "$ref": "#/definitions/v1CreateSubOrganizationResultV6"
+        },
+        "deletePrivateKeysResult": {
+          "$ref": "#/definitions/v1DeletePrivateKeysResult"
+        },
+        "deleteWalletsResult": {
+          "$ref": "#/definitions/v1DeleteWalletsResult"
+        },
+        "createSubOrganizationResultV7": {
+          "$ref": "#/definitions/v1CreateSubOrganizationResultV7"
+        },
+        "initOtpAuthResult": {
+          "$ref": "#/definitions/v1InitOtpAuthResult"
+        },
+        "otpAuthResult": {
+          "$ref": "#/definitions/v1OtpAuthResult"
         }
       }
     },
@@ -7073,6 +7527,48 @@
         "userEmail": {
           "type": "string",
           "description": "The user's email address."
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ApiKeyParamsV2"
+          },
+          "description": "A list of API Key parameters."
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
+          },
+          "description": "A list of Authenticator parameters."
+        },
+        "oauthProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OauthProviderParams"
+          },
+          "description": "A list of Oauth providers."
+        }
+      },
+      "required": ["userName", "apiKeys", "authenticators", "oauthProviders"]
+    },
+    "v1RootUserParamsV4": {
+      "type": "object",
+      "properties": {
+        "userName": {
+          "type": "string",
+          "description": "Human-readable name for a User."
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "The user's email address."
+        },
+        "userPhoneNumber": {
+          "type": "string",
+          "description": "The user's phone number in E.164 format."
         },
         "apiKeys": {
           "type": "array",
@@ -7789,6 +8285,10 @@
           "type": "string",
           "description": "The user's email address."
         },
+        "userPhoneNumber": {
+          "type": "string",
+          "description": "The user's phone number."
+        },
         "authenticators": {
           "type": "array",
           "items": {
@@ -7825,6 +8325,14 @@
         },
         "updatedAt": {
           "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "isEmailVerified": {
+          "type": "boolean",
+          "description": "Boolean representing email verification"
+        },
+        "isPhoneVerified": {
+          "type": "boolean",
+          "description": "Boolean representing phone verification"
         }
       },
       "required": [

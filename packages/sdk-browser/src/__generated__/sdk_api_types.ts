@@ -388,7 +388,7 @@ export type TCreateReadWriteSessionBody =
     commandOverrideParams;
 
 export type TCreateSubOrganizationResponse =
-  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV6"] &
+  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV7"] &
     ActivityMetadata;
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
@@ -497,6 +497,16 @@ export type TDeletePrivateKeyTagsBody =
   operations["PublicApiService_DeletePrivateKeyTags"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TDeletePrivateKeysResponse =
+  operations["PublicApiService_DeletePrivateKeys"]["responses"]["200"]["schema"]["activity"]["result"]["deletePrivateKeysResult"] &
+    ActivityMetadata;
+
+export type TDeletePrivateKeysInput = { body: TDeletePrivateKeysBody };
+
+export type TDeletePrivateKeysBody =
+  operations["PublicApiService_DeletePrivateKeys"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TDeleteUserTagsResponse =
   operations["PublicApiService_DeleteUserTags"]["responses"]["200"]["schema"]["activity"]["result"]["deleteUserTagsResult"] &
     ActivityMetadata;
@@ -515,6 +525,16 @@ export type TDeleteUsersInput = { body: TDeleteUsersBody };
 
 export type TDeleteUsersBody =
   operations["PublicApiService_DeleteUsers"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TDeleteWalletsResponse =
+  operations["PublicApiService_DeleteWallets"]["responses"]["200"]["schema"]["activity"]["result"]["deleteWalletsResult"] &
+    ActivityMetadata;
+
+export type TDeleteWalletsInput = { body: TDeleteWalletsBody };
+
+export type TDeleteWalletsBody =
+  operations["PublicApiService_DeleteWallets"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TEmailAuthResponse =
@@ -597,6 +617,16 @@ export type TInitImportWalletBody =
   operations["PublicApiService_InitImportWallet"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TInitOtpAuthResponse =
+  operations["PublicApiService_InitOtpAuth"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpAuthResult"] &
+    ActivityMetadata;
+
+export type TInitOtpAuthInput = { body: TInitOtpAuthBody };
+
+export type TInitOtpAuthBody =
+  operations["PublicApiService_InitOtpAuth"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TInitUserEmailRecoveryResponse =
   operations["PublicApiService_InitUserEmailRecovery"]["responses"]["200"]["schema"]["activity"]["result"]["initUserEmailRecoveryResult"] &
     ActivityMetadata;
@@ -615,6 +645,16 @@ export type TOauthInput = { body: TOauthBody };
 
 export type TOauthBody =
   operations["PublicApiService_Oauth"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TOtpAuthResponse =
+  operations["PublicApiService_OtpAuth"]["responses"]["200"]["schema"]["activity"]["result"]["otpAuthResult"] &
+    ActivityMetadata;
+
+export type TOtpAuthInput = { body: TOtpAuthBody };
+
+export type TOtpAuthBody =
+  operations["PublicApiService_OtpAuth"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TRecoverUserResponse =
