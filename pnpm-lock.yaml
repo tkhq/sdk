@@ -636,6 +636,9 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
       '@turnkey/solana':
         specifier: workspace:*
         version: link:../../packages/solana
