@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.12.3
+
+### Patch Changes
+
+- e2f2e0b: Added two new endpoints for deleting private keys and deleting wallets
+
 ## 2.12.2
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @turnkey/eip-1193-provider
 
+## 2.0.4
+
+### Patch Changes
+
+- Updated dependencies [e2f2e0b]
+  - @turnkey/http@2.12.3
+
 ## 2.0.3
 
 ### Patch Changes
