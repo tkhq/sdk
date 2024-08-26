@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.12.3
+
+### Patch Changes
+
+- e2f2e0b: updates to sdk-browser, sdk-server and http
+
 ## 2.12.2
 
 ### Patch Changes
