@@ -1540,6 +1540,38 @@
         "tags": ["Private Key Tags"]
       }
     },
+    "/public/v1/submit/delete_private_keys": {
+      "post": {
+        "summary": "Delete organization private keys",
+        "description": "Deletes private keys for an organization",
+        "operationId": "PublicApiService_DeletePrivateKeys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeletePrivateKeysRequest"
+            }
+          }
+        ],
+        "tags": ["Private Keys"]
+      }
+    },
     "/public/v1/submit/delete_user_tags": {
       "post": {
         "summary": "Delete User Tags",
@@ -1602,6 +1634,38 @@
           }
         ],
         "tags": ["Users"]
+      }
+    },
+    "/public/v1/submit/delete_wallets": {
+      "post": {
+        "summary": "Delete organization wallets",
+        "description": "Deletes wallets for an organization",
+        "operationId": "PublicApiService_DeleteWallets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteWalletsRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
       }
     },
     "/public/v1/submit/email_auth": {
@@ -2686,7 +2750,9 @@
         "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
         "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION",
         "ACTIVITY_TYPE_EMAIL_AUTH_V2",
-        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6"
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6",
+        "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS",
+        "ACTIVITY_TYPE_DELETE_WALLETS"
       ]
     },
     "v1AddressFormat": {
@@ -4660,6 +4726,57 @@
       },
       "required": ["privateKeyTagIds", "privateKeyIds"]
     },
+    "v1DeletePrivateKeysIntent": {
+      "type": "object",
+      "properties": {
+        "privateKeyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of unique identifiers for private keys within an organization"
+        },
+        "deleteWithoutExport": {
+          "type": "boolean",
+          "description": "Optional parameter for deleting the private keys, even if any have not been previously exported. If they have been exported, this field is ignored."
+        }
+      },
+      "required": ["privateKeyIds"]
+    },
+    "v1DeletePrivateKeysRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_PRIVATE_KEYS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeletePrivateKeysIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeletePrivateKeysResult": {
+      "type": "object",
+      "properties": {
+        "privateKeyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of private key unique identifiers that were removed"
+        }
+      },
+      "required": ["privateKeyIds"]
+    },
     "v1DeleteUserTagsIntent": {
       "type": "object",
       "properties": {
@@ -4760,6 +4877,57 @@
         }
       },
       "required": ["userIds"]
+    },
+    "v1DeleteWalletsIntent": {
+      "type": "object",
+      "properties": {
+        "walletIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of unique identifiers for wallets within an organization"
+        },
+        "deleteWithoutExport": {
+          "type": "boolean",
+          "description": "Optional parameter for deleting the wallets, even if any have not been previously exported. If they have been exported, this field is ignored."
+        }
+      },
+      "required": ["walletIds"]
+    },
+    "v1DeleteWalletsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_WALLETS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteWalletsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteWalletsResult": {
+      "type": "object",
+      "properties": {
+        "walletIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of wallet unique identifiers that were removed"
+        }
+      },
+      "required": ["walletIds"]
     },
     "v1DisablePrivateKeyIntent": {
       "type": "object",
@@ -6121,6 +6289,12 @@
         },
         "createSubOrganizationIntentV6": {
           "$ref": "#/definitions/v1CreateSubOrganizationIntentV6"
+        },
+        "deletePrivateKeysIntent": {
+          "$ref": "#/definitions/v1DeletePrivateKeysIntent"
+        },
+        "deleteWalletsIntent": {
+          "$ref": "#/definitions/v1DeleteWalletsIntent"
         }
       }
     },
@@ -6992,6 +7166,12 @@
         },
         "createSubOrganizationResultV6": {
           "$ref": "#/definitions/v1CreateSubOrganizationResultV6"
+        },
+        "deletePrivateKeysResult": {
+          "$ref": "#/definitions/v1DeletePrivateKeysResult"
+        },
+        "deleteWalletsResult": {
+          "$ref": "#/definitions/v1DeleteWalletsResult"
         }
       }
     },

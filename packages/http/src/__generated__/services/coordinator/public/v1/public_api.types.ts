@@ -188,6 +188,10 @@ export type paths = {
     /** Delete Private Key Tags within an Organization */
     post: operations["PublicApiService_DeletePrivateKeyTags"];
   };
+  "/public/v1/submit/delete_private_keys": {
+    /** Deletes private keys for an organization */
+    post: operations["PublicApiService_DeletePrivateKeys"];
+  };
   "/public/v1/submit/delete_user_tags": {
     /** Delete User Tags within an Organization */
     post: operations["PublicApiService_DeleteUserTags"];
@@ -195,6 +199,10 @@ export type paths = {
   "/public/v1/submit/delete_users": {
     /** Delete Users within an Organization */
     post: operations["PublicApiService_DeleteUsers"];
+  };
+  "/public/v1/submit/delete_wallets": {
+    /** Deletes wallets for an organization */
+    post: operations["PublicApiService_DeleteWallets"];
   };
   "/public/v1/submit/email_auth": {
     /** Authenticate a user via Email */
@@ -475,7 +483,9 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_API_KEYS_V2"
     | "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION"
     | "ACTIVITY_TYPE_EMAIL_AUTH_V2"
-    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6";
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6"
+    | "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS"
+    | "ACTIVITY_TYPE_DELETE_WALLETS";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1242,6 +1252,25 @@ export type definitions = {
     /** @description A list of Private Key IDs. */
     privateKeyIds: string[];
   };
+  v1DeletePrivateKeysIntent: {
+    /** @description List of unique identifiers for private keys within an organization */
+    privateKeyIds: string[];
+    /** @description Optional parameter for deleting the private keys, even if any have not been previously exported. If they have been exported, this field is ignored. */
+    deleteWithoutExport?: boolean;
+  };
+  v1DeletePrivateKeysRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeletePrivateKeysIntent"];
+  };
+  v1DeletePrivateKeysResult: {
+    /** @description A list of private key unique identifiers that were removed */
+    privateKeyIds: string[];
+  };
   v1DeleteUserTagsIntent: {
     /** @description A list of User Tag IDs. */
     userTagIds: string[];
@@ -1277,6 +1306,25 @@ export type definitions = {
   v1DeleteUsersResult: {
     /** @description A list of User IDs. */
     userIds: string[];
+  };
+  v1DeleteWalletsIntent: {
+    /** @description List of unique identifiers for wallets within an organization */
+    walletIds: string[];
+    /** @description Optional parameter for deleting the wallets, even if any have not been previously exported. If they have been exported, this field is ignored. */
+    deleteWithoutExport?: boolean;
+  };
+  v1DeleteWalletsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_WALLETS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteWalletsIntent"];
+  };
+  v1DeleteWalletsResult: {
+    /** @description A list of wallet unique identifiers that were removed */
+    walletIds: string[];
   };
   v1DisablePrivateKeyIntent: {
     /** @description Unique identifier for a given Private Key. */
@@ -1818,6 +1866,8 @@ export type definitions = {
     createReadWriteSessionIntent?: definitions["v1CreateReadWriteSessionIntent"];
     emailAuthIntentV2?: definitions["v1EmailAuthIntentV2"];
     createSubOrganizationIntentV6?: definitions["v1CreateSubOrganizationIntentV6"];
+    deletePrivateKeysIntent?: definitions["v1DeletePrivateKeysIntent"];
+    deleteWalletsIntent?: definitions["v1DeleteWalletsIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2138,6 +2188,8 @@ export type definitions = {
     oauthResult?: definitions["v1OauthResult"];
     createReadWriteSessionResult?: definitions["v1CreateReadWriteSessionResult"];
     createSubOrganizationResultV6?: definitions["v1CreateSubOrganizationResultV6"];
+    deletePrivateKeysResult?: definitions["v1DeletePrivateKeysResult"];
+    deleteWalletsResult?: definitions["v1DeleteWalletsResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -3408,6 +3460,24 @@ export type operations = {
       };
     };
   };
+  /** Deletes private keys for an organization */
+  PublicApiService_DeletePrivateKeys: {
+    parameters: {
+      body: {
+        body: definitions["v1DeletePrivateKeysRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Delete User Tags within an Organization */
   PublicApiService_DeleteUserTags: {
     parameters: {
@@ -3431,6 +3501,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1DeleteUsersRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Deletes wallets for an organization */
+  PublicApiService_DeleteWallets: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteWalletsRequest"];
       };
     };
     responses: {
