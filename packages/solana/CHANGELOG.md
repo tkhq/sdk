@@ -1,5 +1,11 @@
 # @turnkey/solana
 
+## 0.4.0
+
+### Minor Changes
+
+- c342954: Add compatibility with @turnkey/sdk-server and @turnkey/sdk-browser
+
 ## 0.3.10
 
 ### Patch Changes
