@@ -41,7 +41,15 @@ Now open `.env.local` and add the missing environment variables:
 
 ### 3/ Running the scripts
 
-Note: there are multiple scripts included. See `package.json` for all of them. The following is the default:
+Some implementation notes:
+
+- Default to using Bech32 addresses
+- Use testnet3 (though testnet4 is coming soon!)
+- Faucet funds:
+  - Testnet3: https://coinfaucet.eu/en/btc-testnet/, https://bitcoinfaucet.uo1.net/
+  - Testnet4: https://mempool.space/testnet4/faucet
+
+There are multiple scripts included. See `package.json` for all of them. The following is the default:
 
 ```bash
 $ pnpm start
@@ -50,14 +58,37 @@ $ pnpm start
 This script will do the following:
 
 1. Create a new BTC wallet (if necessary)
-2. Prompt for a transaction amount and destination
-3. Do some UTXO math to perform coin selection
-4. Broadcast the transaction
+2. Prompt the user for a transaction amount and destination
+3. Do some UTXO math to perform (very very naive) coin selection
+4. Optional: Broadcast the transaction \*\* : this is fragile. I would recommend broadcasting via https://live.blockcypher.com/pushtx (select the `Bitcoin Testnet` option), as it's the most permissive and allows for very small transaction amounts (i.e. dust).
 
 For the sake of example, we utilize three different, prominent Bitcoin API providers: Blockstream, Mempool, and BlockCypher.
+
+Example output:
+
+```
+✔ Amount (in satoshis) … 1
+✔ Destination BTC address, starting with tb1 (Bech32 testnet pubkey hash or script hash) … tb1q7acq9r6pzskjzn822uvfmgxqm0728wawqxx2z9
+
+02000000000101024ef0e2a6a0b2ff47363b6fd45cc57e82d4cc6fedc49a7c4b849f6e0772788e0200000000ffffffff020100000000000000160014f770028f41142d214cea57189da0c0dbfca3bbae5811000000000000160014f770028f41142d214cea57189da0c0dbfca3bbae02483045022100b74ed137d0e8681c049dc9304717ad12278c721eaef73780465bd84e3735f553022010c0839b953da57a504b957d4821bf4acde6c066846adcc0867a54f1d9bf8ab601210393c8e4065aca474ec8e8e4562a063f57e5b5e6b0aa316d43cec42fbb8d5b324d00000000
+```
+
+We also have another script specifically to derive a BTC address given a compressed public key:
+
+```bash
+$ pnpm derive
+```
+
+Example output:
+
+```
+✔ Generic public key (hex-encoded, starts with 04, 66 characters long) … 0393c8e4065aca474ec8e8e4562a063f57e5b5e6b0aa316d43cec42fbb8d5b324d
+Testnet P2WPKH address: tb1q7acq9r6pzskjzn822uvfmgxqm0728wawqxx2z9
+```
 
 ### Other
 
 Remaining TODOs:
 
-- Remove usage of ECPair in favor of BIP32 libraries
+- Remove usage of ECPair in favor of Bech32 libraries
+- Transaction replacement: RBF, CPFP

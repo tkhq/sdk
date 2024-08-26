@@ -1,13 +1,13 @@
-import * as bitcoin from "bitcoinjs-lib";
-import prompts, { PromptType } from "prompts";
-import * as ecc from "tiny-secp256k1";
-import { ECPairFactory } from "ecpair";
-
 import * as path from "path";
 import * as dotenv from "dotenv";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+
+import * as bitcoin from "bitcoinjs-lib";
+import prompts, { PromptType } from "prompts";
+import * as ecc from "tiny-secp256k1";
+import { ECPairFactory } from "ecpair";
 
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createNewWallet } from "./createNewWallet";
@@ -32,16 +32,6 @@ async function main() {
   });
 
   const cliPrompts = [
-    // {
-    //   type: "text" as PromptType,
-    //   name: "hash",
-    //   message: "Unspent transaction ID",
-    // },
-    // {
-    //   type: "number" as PromptType,
-    //   name: "index",
-    //   message: "Unspent transaction index",
-    // },
     {
       type: "number" as PromptType,
       name: "amount",
@@ -50,93 +40,79 @@ async function main() {
     {
       type: "text" as PromptType,
       name: "destination",
-      message: "Destination BTC address (P2SH-P2WPKH), starting with 2",
+      // See https://en.bitcoin.it/wiki/List_of_address_prefixes for various prefixes
+      // i.e. P2SH-P2WPKH addresses, which start with 2
+      message:
+        "Destination BTC address, starting with tb1 (Bech32 testnet pubkey hash or script hash)",
     },
   ];
 
-  // Sample values to use:
-  //   hash: "6a94d6b2d27a3df8036ecf713af6418ef9e8bf5daa7ee170fa74d67a07d4ffae"
-  //   index: 0
-  //   amount: 501
-  //   destination: "2Mv28PpCuEynr6rU9rqNJ5VW3znGZFfAU7Y"
-  // const { hash, index, amount, destination } = await prompts(cliPrompts);
   const { amount, destination } = await prompts(cliPrompts);
 
   const ECPair = ECPairFactory(ecc);
   const pair = ECPair.fromPublicKey(Buffer.from(publicKeyCompressed, "hex"));
 
-  // // Get the transaction info from blockcypher API
-  // let resp = await fetch(
-  //   `https://api.blockcypher.com/v1/btc/test3/txs/${hash}?limit=50&includeHex=true`
-  // );
-  // let respJson = await resp.json();
-
   // Get address and balance, then calculate amount and change amount
-  const address = bitcoin.payments.p2sh({
-    redeem: bitcoin.payments.p2wpkh({
-      pubkey: pair.publicKey,
-      network: bitcoin.networks.testnet,
-    }),
+  const address = bitcoin.payments.p2wpkh({
+    pubkey: pair.publicKey,
+    network: bitcoin.networks.testnet,
   }).address!;
 
-  // const fee = 2000; // Should be sufficient; feel free to adjust
-  const fee = await getFeeEstimate(); // Should be sufficient; feel free to adjust
-  // const balance = await getBalance(address);
-  const balance = 16266;
-  const changeAmount = balance - amount - fee.economyFee;
-  // const changeAmount = balance.final_balance - amount - fee.economyFee;
+  // If you would like to use P2SH-P2WPKH addresses (starting with 2), use the following:
+  // ----
+  // const address = bitcoin.payments.p2sh({
+  //   redeem: bitcoin.payments.p2wpkh({
+  //     pubkey: pair.publicKey,
+  //     network: bitcoin.networks.testnet,
+  //   }),
+  // }).address!;
+
+  const balanceResponse = await getBalance(address);
+  const feeResponse = await getFeeEstimate();
   const utxos = await getUTXOs(address);
+
+  const balance = balanceResponse.final_balance;
+  const fee = feeResponse.hourFee;
+  const changeAmount = balance - amount - fee;
 
   const network = bitcoin.networks.testnet;
   const psbt = new bitcoin.Psbt({ network });
 
-  console.log({
-    changeAmount,
-    amount,
-    fee,
-    balance,
-    utxos,
-  });
-
   let inputAmount = 0;
   for (const utxo of utxos) {
-    const txHex = await getTransactionInfo(utxo.txid);
-
-    console.log("in loop", {
-      utxo,
-      txHex,
-      inputAmount,
-    });
-
-    inputAmount += utxo.value;
-    if (inputAmount >= amount + fee.economyFee) break;
+    if (inputAmount >= amount + fee) break;
 
     psbt.addInput({
       hash: utxo.txid,
       index: utxo.vout,
-      nonWitnessUtxo: Buffer.from(txHex.hex, "hex"),
-      redeemScript: bitcoin.payments.p2sh({
-        redeem: bitcoin.payments.p2wpkh({
-          pubkey: pair.publicKey,
-          network,
-        }),
-      }).redeem?.output!,
+      witnessUtxo: {
+        script: Buffer.from(
+          bitcoin.payments.p2wpkh({
+            pubkey: pair.publicKey,
+            network,
+          }).output!
+        ),
+        value: utxo.value,
+      },
     });
+
+    inputAmount += utxo.value;
+
+    // The following is useful in the case that you're using p2sh addresses
+    // ----
+    // const txHex = await getTransactionInfo(utxo.txid);
+    // psbt.addInput({
+    //   hash: hash,
+    //   index: index,
+    //   nonWitnessUtxo: Buffer.from(txHex.hex, "hex"),
+    //   redeemScript: bitcoin.payments.p2sh({
+    //     redeem: bitcoin.payments.p2wpkh({
+    //       pubkey: pair.publicKey,
+    //       network: bitcoin.networks.testnet,
+    //     }),
+    //   })?.redeem?.output!,
+    // });
   }
-
-  console.log("psbt inputs", psbt.txInputs);
-
-  // psbt.addInput({
-  //   hash: hash,
-  //   index: index,
-  //   nonWitnessUtxo: Buffer.from(respJson.hex, "hex"),
-  //   redeemScript: bitcoin.payments.p2sh({
-  //     redeem: bitcoin.payments.p2wpkh({
-  //       pubkey: pair.publicKey,
-  //       network: bitcoin.networks.testnet,
-  //     }),
-  //   })?.redeem?.output!,
-  // });
 
   // Output to destination
   psbt.addOutput({
@@ -170,7 +146,9 @@ async function main() {
 
   await psbt.signInputAsync(0, tkSigner);
   psbt.finalizeAllInputs();
-  return psbt.extractTransaction().toHex();
+  const signedPayload = psbt.extractTransaction().toHex();
+  return signedPayload;
+  // await broadcast(signedPayload); // Generally, we recommend broadcasting via Web, i.e. via https://live.blockcypher.com/pushtx
 }
 
 main()
@@ -221,6 +199,8 @@ async function getUTXOs(address: string) {
   }
 }
 
+// @ts-ignore
+// Optional helper to get additional transaction info
 async function getTransactionInfo(txhash: string) {
   try {
     // Get the transaction info from blockcypher API
@@ -230,6 +210,27 @@ async function getTransactionInfo(txhash: string) {
     return await response.json();
   } catch (error) {
     console.error("Error fetching transaction info:", error);
+    throw error;
+  }
+}
+
+// @ts-ignore
+// Optional helper to programmatically broadcast a transaction
+async function broadcast(signedPayload: string) {
+  try {
+    // Note this endpoint is resistant to dust transactions
+    const response = await fetch("https://mempool.space/testnet/tx/push", {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain",
+      },
+      body: signedPayload,
+    });
+    console.log("response", response);
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error broadcasting transaction:", error);
     throw error;
   }
 }

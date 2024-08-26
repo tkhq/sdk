@@ -346,9 +346,6 @@ importers:
 
   examples/with-bitcoin:
     dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../packages/api-key-stamper
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
