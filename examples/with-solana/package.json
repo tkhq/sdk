@@ -16,6 +16,7 @@
     "@solana/web3.js": "^1.88.1",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
     "@turnkey/solana": "workspace:*",
     "bs58": "^5.0.0",
     "dotenv": "^16.0.3",

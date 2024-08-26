@@ -14,8 +14,7 @@ import {
   TransactionMessage,
 } from "@solana/web3.js";
 
-import { TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 
 import { createNewSolanaWallet, solanaNetwork } from "./utils";
@@ -27,22 +26,21 @@ async function main() {
 
   const connection = solanaNetwork.connect();
 
-  const turnkeyClient = new TurnkeyClient(
-    { baseUrl: process.env.BASE_URL! },
-    new ApiKeyStamper({
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
-  );
+  const turnkeyClient = new Turnkey({
+    apiBaseUrl: process.env.BASE_URL!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    defaultOrganizationId: organizationId,
+  });
 
   const turnkeySigner = new TurnkeySigner({
     organizationId,
-    client: turnkeyClient,
+    client: turnkeyClient.apiClient(),
   });
 
   let solAddress = process.env.SOLANA_ADDRESS!;
   if (!solAddress) {
-    solAddress = await createNewSolanaWallet(turnkeyClient, organizationId);
+    solAddress = await createNewSolanaWallet(turnkeyClient.apiClient());
     console.log(`\nYour new Solana address: "${solAddress}"`);
   } else {
     console.log(`\nUsing existing Solana address from ENV: "${solAddress}"`);

@@ -636,6 +636,9 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
       '@turnkey/solana':
         specifier: workspace:*
         version: link:../../packages/solana
@@ -1131,6 +1134,12 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
+      '@turnkey/sdk-browser':
+        specifier: workspace:*
+        version: link:../sdk-browser
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../sdk-server
     devDependencies:
       '@turnkey/api-key-stamper':
         specifier: workspace:*

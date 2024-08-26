@@ -1,5 +1,12 @@
 # with-wallet-stamper
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies [c342954]
+  - @turnkey/solana@0.4.0
+
 ## 0.1.4
 
 ### Patch Changes

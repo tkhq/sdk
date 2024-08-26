@@ -1,57 +1,35 @@
-import {
-  TurnkeyActivityError,
-  TurnkeyClient,
-  createActivityPoller,
-} from "@turnkey/http";
+import { TurnkeyActivityError } from "@turnkey/http";
+import type { TurnkeyApiClient } from "@turnkey/sdk-server";
 import * as crypto from "crypto";
 
-export async function createNewSolanaWallet(
-  client: TurnkeyClient,
-  turnkeyOrganizationId: string
-) {
+export async function createNewSolanaWallet(client: TurnkeyApiClient) {
   console.log("creating a new Solana wallet in your Turnkey organization...\n");
 
   const walletName = `Solana Wallet ${crypto.randomBytes(2).toString("hex")}`;
 
   try {
-    const activityPoller = createActivityPoller({
-      client: client,
-      requestFn: client.createWallet,
+    const response = await client.createWallet({
+      walletName,
+      accounts: [
+        {
+          pathFormat: "PATH_FORMAT_BIP32",
+          // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+          path: "m/44'/501'/0'/0'",
+          curve: "CURVE_ED25519",
+          addressFormat: "ADDRESS_FORMAT_SOLANA",
+        },
+      ],
     });
 
-    const completedActivity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_WALLET",
-      organizationId: turnkeyOrganizationId,
-      parameters: {
-        walletName,
-        accounts: [
-          {
-            pathFormat: "PATH_FORMAT_BIP32",
-            // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
-            path: "m/44'/501'/0'/0'",
-            curve: "CURVE_ED25519",
-            addressFormat: "ADDRESS_FORMAT_SOLANA",
-          },
-        ],
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
-    });
-
-    const walletId = completedActivity.result.createWalletResult?.walletId;
+    const walletId = response.walletId;
     if (!walletId) {
-      console.error(
-        "activity doesn't contain a valid wallet ID",
-        completedActivity
-      );
+      console.error("response doesn't contain a valid wallet ID");
       process.exit(1);
     }
 
-    const address = completedActivity.result.createWalletResult?.addresses[0];
+    const address = response.addresses[0];
     if (!address) {
-      console.error(
-        "activity result doesn't contain a valid address",
-        completedActivity
-      );
+      console.error("response doesn't contain a valid address");
       process.exit(1);
     }
 
