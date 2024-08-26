@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- e2f2e0b: updates to sdk-browser, sdk-server and http
+- e2f2e0b: Added two new endpoints for deleting private keys and deleting wallets
 
 ## 2.12.2
 

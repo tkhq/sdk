@@ -4,8 +4,6 @@
 
 ### Patch Changes
 
-- e2f2e0b: updates to sdk-browser, sdk-server and http
-
 - Updated dependencies [e2f2e0b]
   - @turnkey/http@2.12.3
 
