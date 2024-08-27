@@ -152,6 +152,9 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
       '@types/node':
         specifier: 20.3.1
         version: 20.3.1
