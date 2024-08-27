@@ -38,6 +38,31 @@ export function Export(props: ExportProps) {
       iframeStamper.init().then(() => {
         setIframeStamper(iframeStamper);
         props.setIframeStamper(iframeStamper);
+        return iframeStamper;
+      })
+      .then((iframeStamper: IframeStamper) => {
+        const styles = {
+          padding: "20px",
+          borderRadius: "8px",
+          borderWidth: "2px",
+          borderStyle: "solid",
+          borderColor: "#ff6961",
+          fontFamily: "monospace",
+          color: "#333",
+          width: "340px",
+          height: "100px",
+          backgroundColor: "#fff3f3",
+          boxShadow: "0px 0px 10px #aaa",
+          overflowWrap: "break-word",
+          wordWrap: "break-word",
+          resize: "none",
+        };
+        return iframeStamper.applySettings({ styles })
+      })
+      .then((settingsApplied: boolean) => {
+        if(settingsApplied !== true) {
+          alert("Unexpected error while applying settings.");
+        }
       });
     }
 
