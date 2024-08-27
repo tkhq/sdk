@@ -1,3 +1,5 @@
+// Note: this is a slightly modified version of https://github.com/jup-ag/jupiter-quote-api-node/blob/main/example/utils/transactionSender.ts.
+
 import {
   BlockhashWithExpiryBlockHeight,
   Connection,
@@ -23,7 +25,9 @@ export async function transactionSenderAndConfirmationWaiter({
   connection,
   serializedTransaction,
   blockhashWithExpiryBlockHeight,
-}: TransactionSenderAndConfirmationWaiterArgs): Promise<VersionedTransactionResponse | undefined> {
+}: TransactionSenderAndConfirmationWaiterArgs): Promise<
+  VersionedTransactionResponse | undefined
+> {
   const txid = await connection.sendRawTransaction(
     serializedTransaction,
     SEND_OPTIONS

@@ -47,6 +47,7 @@ const createSwap = async () => {
   }
 
   // Swapping SOL to USDC with input 0.05 SOL and 0.5% slippage
+  // See example here: https://station.jup.ag/docs/apis/swap-api
   const quoteResponse = await (
     await fetch(
       "https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112\
