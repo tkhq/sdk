@@ -45,6 +45,19 @@ Now open `.env.local` and add the missing environment variables:
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
 
+If you would like to test this with a standalone, parent organization, you will have to enable your parent organization to perform email auth. You can set the feature flag with the following via [tkcli](https://github.com/tkhq/tkcli):
+
+```bash
+turnkey request --host api.turnkey.com --path /public/v1/submit/set_organization_feature --body '{
+    "timestampMs": "'"$(date +%s)"'000",
+    "type": "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE",
+    "organizationId": "<your organization ID>",
+    "parameters": {
+            "name": "FEATURE_NAME_EMAIL_AUTH"
+    }
+}' --organization <your organization ID>
+```
+
 ### 3/ Running the app
 
 ```bash

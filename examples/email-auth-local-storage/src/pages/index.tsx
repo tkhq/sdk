@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 
-import { createActivityPoller, TurnkeyClient } from "@turnkey/http";
+import { Turnkey } from "@turnkey/sdk-server";
 import {
   generateP256KeyPair,
   decryptBundle,
@@ -13,7 +13,6 @@ import {
   uint8ArrayToHexString,
   uint8ArrayFromHexString,
 } from "@turnkey/encoding";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 import styles from "./index.module.css";
 
@@ -30,8 +29,10 @@ type AuthResponse = {
  * Type definitions for the form data (client-side forms)
  */
 type InjectCredentialsFormData = {
-  walletName: string;
   authBundle: string;
+};
+type CreateWalletFormData = {
+  walletName: string;
 };
 type AuthFormData = {
   email: string;
@@ -53,7 +54,14 @@ export default function AuthPage() {
     register: injectCredentialsFormRegister,
     handleSubmit: injectCredentialsFormSubmit,
   } = useForm<InjectCredentialsFormData>();
+  const {
+    register: createWalletFormRegister,
+    handleSubmit: createWalletFormSubmit,
+  } = useForm<CreateWalletFormData>();
   const [targetPublicKey, setTargetPublicKey] = useState("");
+  const [turnkeyPrivateKey, setTurnkeyPrivateKey] = useState("");
+  const [turnkeyPublicKey, setTurnkeyPublicKey] = useState("");
+  const [useLocalBundle, setUseLocalBundle] = useState(false);
 
   useEffect(() => {
     handleGenerateKey();
@@ -99,9 +107,12 @@ export default function AuthPage() {
     setAuthResponse(response.data);
   };
 
-  const injectCredentials = async (data: InjectCredentialsFormData) => {
-    if (authResponse === null) {
-      throw new Error("authResponse is null");
+  // This emulates injecting an email auth credential bundle into an iframe. The difference is that here,
+  // instead of decrypting the bundle using a target key stored within an iframe, we use a target key stored
+  // within the app's local storage.
+  const injectCredentials = (data: InjectCredentialsFormData) => {
+    if (authResponse === null && !useLocalBundle) {
+      throw new Error("No credentials found");
     }
 
     let decryptedData;
@@ -109,7 +120,7 @@ export default function AuthPage() {
       const embeddedKey = getItemWithExpiry(TURNKEY_EMBEDDED_KEY);
       const parsed = JSON.parse(embeddedKey);
 
-      // This is decrypting the email auth bundle using the locally stored target embedded key
+      // This is decrypting the user-provided email auth bundle using the locally stored target embedded key
       const decryptedDataRaw = decryptBundle(
         data.authBundle,
         parsed.privateKey
@@ -118,7 +129,8 @@ export default function AuthPage() {
       // This is the resulting decrypted Turnkey API key
       decryptedData = uint8ArrayToHexString(decryptedDataRaw);
 
-      // Save the email auth bundle to local storage as well
+      // Save the email auth bundle to local storage as well. This can be reused in order for the
+      // end user to avoid having to email auth repeatedly
       setItemWithExpiry(
         TURNKEY_CREDENTIAL_BUNDLE,
         data.authBundle,
@@ -136,50 +148,83 @@ export default function AuthPage() {
       return;
     }
 
-    const privateKey = decryptedData;
-    const publicKey = getPublicKeyFromPrivateKeyHex(privateKey);
+    // The decrypted credential is an API keypair that can be used to authenticate Turnkey requests
+    setTurnkeyPrivateKey(decryptedData);
+    setTurnkeyPublicKey(getPublicKeyFromPrivateKeyHex(decryptedData));
 
-    const turnkeyClient = new TurnkeyClient(
-      { baseUrl: "https://api.turnkey.com" },
-      new ApiKeyStamper({
-        apiPublicKey: publicKey,
-        apiPrivateKey: privateKey,
-      })
-    );
+    alert("Credential bundle injected from user input!");
+  };
 
-    // get whoami for suborg
-    const whoamiResponse = await turnkeyClient.getWhoami({
+  const createWallet = async (data: CreateWalletFormData) => {
+    const turnkeyClient = new Turnkey({
+      apiBaseUrl: "https://api.turnkey.com",
+      apiPublicKey: turnkeyPublicKey,
+      apiPrivateKey: turnkeyPrivateKey,
+      defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+    });
+
+    // Get whoami response for suborg
+    const whoamiResponse = await turnkeyClient.apiClient().getWhoami({
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
     const orgID = whoamiResponse.organizationId;
 
-    const activityPoller = createActivityPoller({
-      client: turnkeyClient,
-      requestFn: turnkeyClient.createWallet,
-    });
-
-    const completedActivity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_WALLET",
-      timestampMs: String(Date.now()),
+    const response = await turnkeyClient.apiClient().createWallet({
       organizationId: orgID,
-      parameters: {
-        walletName: data.walletName,
-        accounts: [
-          {
-            curve: "CURVE_SECP256K1",
-            pathFormat: "PATH_FORMAT_BIP32",
-            path: "m/44'/60'/0'/0/0",
-            addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-          },
-        ],
-      },
+      walletName: data.walletName,
+      accounts: [
+        {
+          curve: "CURVE_SECP256K1",
+          pathFormat: "PATH_FORMAT_BIP32",
+          path: "m/44'/60'/0'/0/0",
+          addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+        },
+      ],
     });
 
-    const wallet = refineNonNull(completedActivity.result.createWalletResult);
-    const address = refineNonNull(wallet.addresses[0]);
+    const walletId = refineNonNull(response.walletId);
+    const address = refineNonNull(response.addresses[0]);
 
-    alert(`SUCCESS! Wallet and new address created: ${address} `);
+    alert(`SUCCESS! New address ${address} created for wallet ${walletId}`);
+  };
+
+  const handleInjectLocallyStoredBundle = () => {
+    let decryptedData;
+    try {
+      const embeddedKey = getItemWithExpiry(TURNKEY_EMBEDDED_KEY);
+      const parsedKey = JSON.parse(embeddedKey);
+
+      const localCredentialBundle = getItemWithExpiry(
+        TURNKEY_CREDENTIAL_BUNDLE
+      );
+
+      // This is decrypting the locally stored email auth bundle using the locally stored target embedded key
+      const decryptedDataRaw = decryptBundle(
+        localCredentialBundle,
+        parsedKey.privateKey
+      ) as Uint8Array;
+
+      // This is the resulting decrypted Turnkey API key
+      decryptedData = uint8ArrayToHexString(decryptedDataRaw);
+    } catch (e) {
+      const msg = `Error while injecting bundle: ${e}`;
+      console.error(msg);
+      alert(msg);
+      return;
+    }
+
+    if (!decryptedData) {
+      console.error("Missing decrypted data; did you perform email auth?");
+      return;
+    }
+
+    // The decrypted credential is an API keypair that can be used to authenticate Turnkey requests
+    setTurnkeyPrivateKey(decryptedData);
+    setTurnkeyPublicKey(getPublicKeyFromPrivateKeyHex(decryptedData));
+    setUseLocalBundle(true);
+
+    alert("Credential bundle injected from localStorage!");
   };
 
   return (
@@ -201,73 +246,105 @@ export default function AuthPage() {
 
       {!targetPublicKey && <p>Loading...</p>}
 
-      {targetPublicKey && authResponse === null && (
-        <form className={styles.form} onSubmit={authFormSubmit(auth)}>
-          <label className={styles.label}>
-            Email
-            <input
-              className={styles.input}
-              {...authFormRegister("email")}
-              placeholder="Email"
-            />
-          </label>
-          <label className={styles.label}>
-            Suborg ID (Optional — if not provided, attempt for standalone parent
-            org)
-            <input
-              className={styles.input}
-              {...authFormRegister("suborgID")}
-              placeholder="Suborg ID"
-            />
-          </label>
-          <label className={styles.label}>
-            Invalidate previously issued email authentication token(s)?
-            <input
-              className={styles.input_checkbox}
-              {...authFormRegister("invalidateExisting")}
-              type="checkbox"
-            />
-          </label>
-          <label className={styles.label}>
-            Encryption Target from Local Storage:
-            <br />
-            <code title={targetPublicKey!}>
-              {targetPublicKey!.substring(0, 30)}...
-            </code>
-          </label>
+      {targetPublicKey && authResponse === null && !useLocalBundle && (
+        <div>
+          <form className={styles.form} onSubmit={authFormSubmit(auth)}>
+            <label className={styles.label}>
+              Email
+              <input
+                className={styles.input}
+                {...authFormRegister("email")}
+                placeholder="Email"
+              />
+            </label>
+            <label className={styles.label}>
+              Suborg ID (Optional — if not provided, attempt for standalone
+              parent org)
+              <input
+                className={styles.input}
+                {...authFormRegister("suborgID")}
+                placeholder="Suborg ID"
+              />
+            </label>
+            <label className={styles.label}>
+              Invalidate previously issued email authentication token(s)?
+              <input
+                className={styles.input_checkbox}
+                {...authFormRegister("invalidateExisting")}
+                type="checkbox"
+              />
+            </label>
+            <label className={styles.label}>
+              Encryption Target (from Local Storage):
+              <br />
+              <code title={targetPublicKey!}>
+                {targetPublicKey!.substring(0, 30)}...
+              </code>
+            </label>
 
-          <input className={styles.button} type="submit" value="Auth" />
-        </form>
+            <input className={styles.button} type="submit" value="Auth" />
+          </form>
+
+          <label className={styles.label}>OR...</label>
+
+          <form className={styles.form}>
+            {" "}
+            <button
+              className={styles.button}
+              type="submit"
+              onClick={handleInjectLocallyStoredBundle}
+            >
+              Use Locally Stored Credential Bundle
+            </button>
+          </form>
+        </div>
       )}
 
-      {targetPublicKey && authResponse !== null && (
-        <form
-          className={styles.form}
-          onSubmit={injectCredentialsFormSubmit(injectCredentials)}
-        >
-          <label className={styles.label}>
-            Auth Bundle
-            <input
-              className={styles.input}
-              {...injectCredentialsFormRegister("authBundle")}
-              placeholder="Paste your auth bundle here"
-            />
-          </label>
-          <label className={styles.label}>
-            New wallet name
-            <input
-              className={styles.input}
-              {...injectCredentialsFormRegister("walletName")}
-              placeholder="Wallet name"
-            />
-          </label>
+      {targetPublicKey && (authResponse !== null || useLocalBundle) && (
+        <div>
+          <form
+            className={styles.form}
+            onSubmit={injectCredentialsFormSubmit(injectCredentials)}
+          >
+            <label className={styles.label}>
+              Auth Bundle {useLocalBundle ? "From Local Storage" : ""}
+              <input
+                defaultValue={getItemWithExpiry(TURNKEY_CREDENTIAL_BUNDLE)}
+                className={styles.input}
+                {...injectCredentialsFormRegister("authBundle")}
+                placeholder="Paste your auth bundle here"
+              />
+            </label>
 
-          <input
-            className={styles.button}
-            type="submit"
-            value="Create Wallet"
-          />
-        </form>
+            <input
+              className={styles.button}
+              type="submit"
+              disabled={useLocalBundle}
+              value={
+                useLocalBundle ? "Bundle Already Injected" : "Inject Bundle"
+              }
+            />
+          </form>
+          <form
+            className={styles.form}
+            onSubmit={createWalletFormSubmit(createWallet)}
+          >
+            <label className={styles.label}>
+              New Wallet Name
+              <input
+                className={styles.input}
+                {...createWalletFormRegister("walletName")}
+                placeholder="Wallet Name"
+              />
+            </label>
+
+            <input
+              className={styles.button}
+              type="submit"
+              value="Create Wallet"
+            />
+          </form>
+        </div>
       )}
     </main>
   );

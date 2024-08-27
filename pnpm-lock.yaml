@@ -140,9 +140,6 @@ importers:
 
   examples/email-auth-local-storage:
     dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../packages/api-key-stamper
       '@turnkey/crypto':
         specifier: workspace:*
         version: link:../../packages/crypto
