@@ -27,32 +27,33 @@ API Docs: https://docs.turnkey.com/
 
 ## Code Examples
 
-| Example                                                                | Description                                                                                                                                           |
-| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
-| [`demo-consumer-wallet`](https://github.com/tkhq/demo-consumer-wallet) | A minimal consumer wallet app powered by Turnkey and WalletConnect                                                                                    |
-| [`demo-passkey-wallet`](https://github.com/tkhq/demo-passkey-wallet)   | A minimal consumer wallet app powered by Turnkey and passkeys                                                                                         |
-| [`demo-ethers-passkeys`](https://github.com/tkhq/demo-ethers-passkeys) | A NextJS app that demonstrates how to use `@turnkey/ethers` to build a passkey-powered application                                                    |
-| [`demo-viem-passkeys`](https://github.com/tkhq/demo-viem-passkeys)     | A NextJS app that demonstrates how to use `@turnkey/viem` to build a passkey-powered application                                                      |
-| [`passkeyapp`](https://github.com/tkhq/passkeyapp)                     | A React Native + Expo app powered by Turnkey and passkeys                                                                                             |
-| [`deployer`](/examples/deployer/)                                      | Compile and deploy a smart contract                                                                                                                   |
-| [`email-auth`](/examples/email-auth/)                                  | A NextJS app demonstrating a complete email auth flow                                                                                                 |
-| [`email-recovery`](/examples/email-recovery/)                          | A NextJS app demonstrating a complete email recovery flow                                                                                             |
-| [`wallet-import-export`](/examples/wallet-import-export/)              | A NextJS app demonstrating complete wallet import and export flows                                                                                    |
-| [`rebalancer`](/examples/rebalancer/)                                  | A demo application which showcases an example of how to use Turnkey for managing multiple types of keys & users                                       |
-| [`sweeper`](/examples/sweeper/)                                        | Sweep funds from one address to a different address                                                                                                   |
-| [`trading-runner`](/examples/trading-runner/)                          | A sample application demonstrating a trading operation, using various private keys, users, and policies, powered by Uniswap                           |
-| [`with-ethers`](/examples/with-ethers/)                                | Create a new Ethereum address, then sign and broadcast a transaction using the Ethers signer with Infura                                              |
-| [`with-viem`](/examples/with-viem/)                                    | Sign and broadcast a transaction using the Turnkey Custom Account and Infura                                                                          |
-| [`with-bitcoin`](/examples/with-bitcoin/)                              | Create a new wallet, derive a BTC address, create, sign, and broadcast a transaction using BitcoinJS and other external APIs                          |
-| [`with-cosmjs`](/examples/with-cosmjs/)                                | Create a new Cosmos address, then sign and broadcast a transaction on Celestia testnet using the CosmJS signer                                        |
-| [`with-solana`](/examples/with-solana/)                                | Create a new Solana address, then sign and broadcast a transaction on Solana's devnet. Also includes SPL token creation + transfer, and Jupiter swaps |     |
-| [`with-gnosis`](/examples/with-gnosis/)                                | Create new Ethereum addresses, configure a 3/3 Gnosis safe, and create + execute a transaction from it                                                |
-| [`with-uniswap`](/examples/with-uniswap/)                              | Sign and broadcast a Uniswap v3 trade using the Ethers signer with Infura                                                                             |
-| [`with-nonce-manager`](/examples/with-nonce-manager/)                  | Create a new Ethereum address, then sign and broadcast multiple transactions in a sequential or optimistic manner                                     |
-| [`with-offline`](/examples/with-offline/)                              | Sign a Turnkey request in offline context                                                                                                             |
-| [`with-federated-passkeys`](/examples/with-federated-passkeys/)        | A NextJS app that demonstrates how to use Turnkey to build a federated, webauthn powered authentication flow                                          |
-| [`with-eip-1193-provider`](/examples/with-eip-1193-provider/)          | A NextJS app that demonstrates how to use Turnkey the `@turnkey/eip-1193-provider` in your app                                                        |
-| [`with-wallet-stamper`](/examples/with-wallet-stamper/)                | A NextJS app that demonstrates how to use Turnkey the `@turnkey/wallet-stamper` in your app                                                           |
+| Example                                                                | Description                                                                                                                  |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| [`demo-consumer-wallet`](https://github.com/tkhq/demo-consumer-wallet) | A minimal consumer wallet app powered by Turnkey and WalletConnect                                                           |
+| [`demo-passkey-wallet`](https://github.com/tkhq/demo-passkey-wallet)   | A minimal consumer wallet app powered by Turnkey and passkeys                                                                |
+| [`demo-ethers-passkeys`](https://github.com/tkhq/demo-ethers-passkeys) | A NextJS app that demonstrates how to use `@turnkey/ethers` to build a passkey-powered application                           |
+| [`demo-viem-passkeys`](https://github.com/tkhq/demo-viem-passkeys)     | A NextJS app that demonstrates how to use `@turnkey/viem` to build a passkey-powered application                             |
+| [`passkeyapp`](https://github.com/tkhq/passkeyapp)                     | A React Native + Expo app powered by Turnkey and passkeys                                                                    |
+| [`deployer`](/examples/deployer/)                                      | Compile and deploy a smart contract                                                                                          |
+| [`email-auth`](/examples/email-auth/)                                  | A NextJS app demonstrating a complete email auth flow using Turnkey iframes                                                  |
+| [`email-auth-local-storage`](/examples/email-auth-local-storage/)      | A NextJS app demonstrating a complete email auth flow using a locally stored target embedded key                             |
+| [`email-recovery`](/examples/email-recovery/)                          | A NextJS app demonstrating a complete email recovery flow using Turnkey iframes                                              |
+| [`wallet-import-export`](/examples/wallet-import-export/)              | A NextJS app demonstrating complete wallet import and export flows                                                           |
+| [`rebalancer`](/examples/rebalancer/)                                  | A demo application which showcases an example of how to use Turnkey for managing multiple types of keys & users              |
+| [`sweeper`](/examples/sweeper/)                                        | Sweep funds from one address to a different address                                                                          |
+| [`trading-runner`](/examples/trading-runner/)                          | A sample application demonstrating a trading operation, using various private keys, users, and policies, powered by Uniswap  |
+| [`with-ethers`](/examples/with-ethers/)                                | Create a new Ethereum address, then sign and broadcast a transaction using the Ethers signer with Infura                     |
+| [`with-viem`](/examples/with-viem/)                                    | Sign and broadcast a transaction using the Turnkey Custom Account and Infura                                                 |
+| [`with-cosmjs`](/examples/with-cosmjs/)                                | Create a new Cosmos address, then sign and broadcast a transaction on Celestia testnet using the CosmJS signer               |
+| [`with-solana`](/examples/with-solana/)                                | Create a new Solana address, then sign and broadcast a transaction on Solana's devnet                                        |
+| [`with-bitcoin`](/examples/with-bitcoin/)                              | Create a new wallet, derive a BTC address, create, sign, and broadcast a transaction using BitcoinJS and other external APIs |
+| [`with-gnosis`](/examples/with-gnosis/)                                | Create new Ethereum addresses, configure a 3/3 Gnosis safe, and create + execute a transaction from it                       |
+| [`with-uniswap`](/examples/with-uniswap/)                              | Sign and broadcast a Uniswap v3 trade using the Ethers signer with Infura                                                    |
+| [`with-nonce-manager`](/examples/with-nonce-manager/)                  | Create a new Ethereum address, then sign and broadcast multiple transactions in a sequential or optimistic manner            |
+| [`with-offline`](/examples/with-offline/)                              | Sign a Turnkey request in offline context                                                                                    |
+| [`with-federated-passkeys`](/examples/with-federated-passkeys/)        | A NextJS app that demonstrates how to use Turnkey to build a federated, webauthn powered authentication flow                 |
+| [`with-eip-1193-provider`](/examples/with-eip-1193-provider/)          | A NextJS app that demonstrates how to use Turnkey the `@turnkey/eip-1193-provider` in your app                               |
+| [`with-wallet-stamper`](/examples/with-wallet-stamper/)                | A NextJS app that demonstrates how to use Turnkey the `@turnkey/wallet-stamper` in your app                                  |
 
 ## Demos built with Turnkey
 
