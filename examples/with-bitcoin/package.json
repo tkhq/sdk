@@ -1,0 +1,25 @@
+{
+  "name": "@turnkey/example-with-bitcoin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "tsx src/createBtcTx.ts",
+    "send": "tsx src/createBtcTx.ts",
+    "derive": "tsx src/deriveBtcAddress.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/http": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "bip32": "^4.0.0",
+    "bitcoinjs-lib": "^6.1.6",
+    "dotenv": "^16.0.3",
+    "ecpair": "^2.1.0",
+    "prompts": "^2.4.2",
+    "tiny-secp256k1": "^2.2.3"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.2"
+  }
+}
