@@ -7,6 +7,7 @@ import { createMint } from "./createMint";
 import { createToken } from "./createToken";
 import { createTokenAccount } from "./createTokenAccount";
 import { createTokenTransfer } from "./createTokenTransfer";
+import { transactionSenderAndConfirmationWaiter } from "./retrySender";
 
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
@@ -19,6 +20,7 @@ export {
   createTransfer,
   print,
   signMessage,
+  transactionSenderAndConfirmationWaiter,
   solanaNetwork,
   TURNKEY_WAR_CHEST,
 };
