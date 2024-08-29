@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.13.0
+
+### Minor Changes
+
+- 93dee46: Add create read write session v2 which allows for user targeting directly from stamp or optional userId in intent
+
 ## 2.12.3
 
 ### Patch Changes

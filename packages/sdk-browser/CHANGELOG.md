@@ -1,5 +1,16 @@
 # @turnkey/sdk-browser
 
+## 1.3.0
+
+### Minor Changes
+
+- 93dee46: Add create read write session v2 which allows for user targeting directly from stamp or optional userId in intent
+
+### Patch Changes
+
+- Updated dependencies [93dee46]
+  - @turnkey/http@2.13.0
+
 ## 1.2.4
 
 ### Patch Changes
