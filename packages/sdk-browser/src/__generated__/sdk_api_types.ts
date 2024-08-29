@@ -376,7 +376,7 @@ export type TCreateReadOnlySessionBody =
     commandOverrideParams;
 
 export type TCreateReadWriteSessionResponse =
-  operations["PublicApiService_CreateReadWriteSession"]["responses"]["200"]["schema"]["activity"]["result"]["createReadWriteSessionResult"] &
+  operations["PublicApiService_CreateReadWriteSession"]["responses"]["200"]["schema"]["activity"]["result"]["createReadWriteSessionResultV2"] &
     ActivityMetadata;
 
 export type TCreateReadWriteSessionInput = {
