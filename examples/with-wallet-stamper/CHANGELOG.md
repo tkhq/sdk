@@ -1,5 +1,15 @@
 # with-wallet-stamper
 
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies [93dee46]
+  - @turnkey/http@2.13.0
+  - @turnkey/solana@0.4.1
+  - @turnkey/viem@0.4.29
+  - @turnkey/wallet-stamper@0.0.3
+
 ## 0.1.5
 
 ### Patch Changes
