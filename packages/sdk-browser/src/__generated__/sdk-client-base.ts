@@ -561,9 +561,9 @@ export class TurnkeySDKClientBase {
           currentUser?.organization?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION",
+        type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
       },
-      "createReadWriteSessionResult"
+      "createReadWriteSessionResultV2"
     );
   };
 
