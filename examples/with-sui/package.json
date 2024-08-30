@@ -1,0 +1,18 @@
+{
+  "name": "@turnkey/example-with-sui",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "pnpm tsx src/index.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mysten/sui.js": "0.0.0-experimental-20240524224044",
+    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/encoding": "workspace:*",
+    "dotenv": "^16.0.3"
+  }
+}
