@@ -73,17 +73,15 @@ export class TurnkeyActivityError extends BaseError {
   }
 }
 
-export async function createAccount(input: {
+export function createAccountWithAddress(input: {
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
   organizationId: string;
   // This can be a wallet account address, private key address, or private key ID.
   signWith: string;
   // Ethereum address to use for this account, in the case that a private key ID is used to sign.
-  // If left undefined, `createAccount` will fetch it from the Turnkey API.
-  // We recommend setting this if you're using a passkey client, so that your users are not prompted for a passkey signature just to fetch their address.
-  // You may leave this undefined if using an API key client.
+  // Can be left undefined if signWith is a wallet account address.
   ethereumAddress?: string;
-}): Promise<LocalAccount> {
+}): LocalAccount {
   const { client, organizationId, signWith } = input;
   let { ethereumAddress } = input;
 
@@ -97,21 +95,9 @@ export async function createAccount(input: {
     // override provided `ethereumAddress`
     ethereumAddress = signWith;
   } else if (!ethereumAddress) {
-    // we have a private key ID, but not an ethereumAddress
-    const data = await client.getPrivateKey({
-      privateKeyId: signWith,
-      organizationId: organizationId,
+    throw new TurnkeyActivityError({
+      message: `Missing ethereumAddress parameter`,
     });
-
-    ethereumAddress = data.privateKey.addresses.find(
-      (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM"
-    )?.address;
-
-    if (typeof ethereumAddress !== "string" || !ethereumAddress) {
-      throw new TurnkeyHttpActivityError({
-        message: `Unable to find Ethereum address for key ${signWith} under organization ${organizationId}`,
-      });
-    }
   }
 
   return toAccount({
@@ -148,6 +134,55 @@ export async function createAccount(input: {
     ): Promise<Hex> {
       return signTypedData(client, typedData, organizationId, signWith);
     },
+  });
+}
+
+export async function createAccount(input: {
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
+  organizationId: string;
+  // This can be a wallet account address, private key address, or private key ID.
+  signWith: string;
+  // Ethereum address to use for this account, in the case that a private key ID is used to sign.
+  // If left undefined, `createAccount` will fetch it from the Turnkey API.
+  // We recommend setting this if you're using a passkey client, so that your users are not prompted for a passkey signature just to fetch their address.
+  // You may leave this undefined if using an API key client.
+  ethereumAddress?: string;
+}): Promise<LocalAccount> {
+  const { client, organizationId, signWith } = input;
+  let { ethereumAddress } = input;
+
+  if (!signWith) {
+    throw new TurnkeyActivityError({
+      message: `Missing signWith parameter`,
+    });
+  }
+
+  if (isAddress(signWith)) {
+    // override provided `ethereumAddress`
+    ethereumAddress = signWith;
+  } else if (!ethereumAddress) {
+    // we have a private key ID, but not an ethereumAddress
+    const data = await client.getPrivateKey({
+      privateKeyId: signWith,
+      organizationId: organizationId,
+    });
+
+    ethereumAddress = data.privateKey.addresses.find(
+      (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM"
+    )?.address;
+
+    if (typeof ethereumAddress !== "string" || !ethereumAddress) {
+      throw new TurnkeyActivityError({
+        message: `Unable to find Ethereum address for key ${signWith} under organization ${organizationId}`,
+      });
+    }
+  }
+
+  return createAccountWithAddress({
+    client,
+    organizationId,
+    signWith,
+    ethereumAddress,
   });
 }
 

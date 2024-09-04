@@ -16,7 +16,7 @@ import {
 import { foundry } from "viem/chains";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { createAccount } from "../";
+import { createAccount, createAccountWithAddress } from "../";
 import Test721 from "./Test721.json";
 import { expect, beforeEach, describe, test } from "@jest/globals";
 
@@ -78,12 +78,22 @@ describe("TurnkeyAccount", () => {
       expectedEthAddress: expectedWalletAccountEthAddress,
     },
     {
+      configName: "Wallet Account using createAccountWithAddress",
+      signWith: expectedWalletAccountEthAddress,
+      expectedEthAddress: expectedWalletAccountEthAddress,
+    },
+    {
       configName: "Private Key ID",
       signWith: privateKeyId,
       expectedEthAddress: expectedPrivateKeyEthAddress,
     },
     {
       configName: "Private Key Address",
+      signWith: expectedPrivateKeyEthAddress,
+      expectedEthAddress: expectedPrivateKeyEthAddress,
+    },
+    {
+      configName: "Private Key Address using createAccountWithAddress",
       signWith: expectedPrivateKeyEthAddress,
       expectedEthAddress: expectedPrivateKeyEthAddress,
     },
@@ -101,7 +111,11 @@ describe("TurnkeyAccount", () => {
           })
         );
 
-        turnkeyAccount = await createAccount({
+        turnkeyAccount = signingConfig.configName.includes("createAccountWithAddress") ? createAccountWithAddress({
+          client: turnkeyClient,
+          organizationId,
+          signWith: signingConfig.signWith
+        }) : await createAccount({
           client: turnkeyClient,
           organizationId,
           signWith: signingConfig.signWith,
@@ -360,6 +374,8 @@ describe("TurnkeyAccount", () => {
     });
   });
 });
+
+
 
 function assertNonEmptyString(input: unknown, name: string): string {
   if (typeof input !== "string" || !input) {
