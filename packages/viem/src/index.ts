@@ -15,6 +15,70 @@ import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient } from "@turnkey/sdk-server";
 
+export function createAccountWithAddress(input: {
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
+  organizationId: string;
+  // This can be a wallet account address, private key address, or private key ID.
+  signWith: string;
+  // Ethereum address to use for this account, in the case that a private key ID is used to sign.
+  // Can be left undefined if signWith is a wallet account address.
+  ethereumAddress?: string;
+}): LocalAccount {
+  const { client, organizationId, signWith } = input;
+  let { ethereumAddress } = input;
+
+  if (!signWith) {
+    throw new TurnkeyActivityError({
+      message: `Missing signWith parameter`,
+    });
+  }
+
+  if (isAddress(signWith)) {
+    // override provided `ethereumAddress`
+    ethereumAddress = signWith;
+  } else if (!ethereumAddress) {
+    throw new TurnkeyActivityError({
+      message: `Missing ethereumAddress parameter`,
+    });
+  }
+
+  return toAccount({
+    address: ethereumAddress as Hex,
+    signMessage: function ({
+      message,
+    }: {
+      message: SignableMessage;
+    }): Promise<Hex> {
+      return signMessage(client, message, organizationId, signWith);
+    },
+    signTransaction: function <
+      TTransactionSerializable extends TransactionSerializable
+    >(
+      transaction: TTransactionSerializable,
+      args?:
+        | { serializer?: SerializeTransactionFn<TTransactionSerializable> }
+        | undefined
+    ): Promise<Hex> {
+      const serializer = !args?.serializer
+        ? serializeTransaction
+        : args.serializer;
+
+      return signTransaction(
+        client,
+        transaction,
+        serializer,
+        organizationId,
+        signWith
+      );
+    },
+    signTypedData: function (
+      typedData: TypedData | { [key: string]: unknown }
+    ): Promise<Hex> {
+      return signTypedData(client, typedData, organizationId, signWith);
+    },
+  });
+}
+
 export async function createAccount(input: {
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
   organizationId: string;
@@ -56,40 +120,11 @@ export async function createAccount(input: {
     }
   }
 
-  return toAccount({
-    address: ethereumAddress as Hex,
-    signMessage: function ({
-      message,
-    }: {
-      message: SignableMessage;
-    }): Promise<Hex> {
-      return signMessage(client, message, organizationId, signWith);
-    },
-    signTransaction: function <
-      TTransactionSerializable extends TransactionSerializable
-    >(
-      transaction: TTransactionSerializable,
-      args?:
-        | { serializer?: SerializeTransactionFn<TTransactionSerializable> }
-        | undefined
-    ): Promise<Hex> {
-      const serializer = !args?.serializer
-        ? serializeTransaction
-        : args.serializer;
-
-      return signTransaction(
-        client,
-        transaction,
-        serializer,
-        organizationId,
-        signWith
-      );
-    },
-    signTypedData: function (
-      typedData: TypedData | { [key: string]: unknown }
-    ): Promise<Hex> {
-      return signTypedData(client, typedData, organizationId, signWith);
-    },
+  return createAccountWithAddress({
+    client,
+    organizationId,
+    signWith,
+    ethereumAddress,
   });
 }
 
