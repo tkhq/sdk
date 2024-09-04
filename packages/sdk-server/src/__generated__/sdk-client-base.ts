@@ -60,20 +60,13 @@ export class TurnkeySDKClientBase {
     const delay = (ms: number) =>
       new Promise((resolve) => setTimeout(resolve, ms));
 
-    const handleResponse = (
-      activity: any,
-      responseData?: any
-    ): TResponseType => {
-      const baseActivity = {
-        activity: {
-          id: activity.id,
-          status: activity.status,
-        },
-      };
+    const handleResponse = (activityData: ActivityResponse): TResponseType => {
+      const { id, status, result } = activityData.activity;
+      const baseActivity = { activity: { id, status } };
 
-      if (activity.status === "ACTIVITY_STATUS_COMPLETE" && responseData) {
+      if (status === "ACTIVITY_STATUS_COMPLETE") {
         return {
-          ...responseData["activity"]["result"][`${resultKey}`],
+          ...result[`${resultKey}`],
           ...baseActivity,
         } as TResponseType;
       }
@@ -81,36 +74,28 @@ export class TurnkeySDKClientBase {
       return baseActivity as TResponseType;
     };
 
+    const pollStatus = async (activityId: string): Promise<TResponseType> => {
+      const pollBody = { activityId };
+      const pollData = (await this.getActivity(pollBody)) as ActivityResponse;
+
+      if (pollData.activity.status === "ACTIVITY_STATUS_PENDING") {
+        await delay(POLLING_DURATION);
+        return pollStatus(activityId);
+      }
+
+      return handleResponse(pollData);
+    };
+
     const responseData = (await this.request<TBodyType, TResponseType>(
       url,
       body
     )) as ActivityResponse;
-    const { id: activityId, status: activityStatus } = responseData["activity"];
 
-    if (
-      activityStatus === "ACTIVITY_STATUS_COMPLETE" ||
-      activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED"
-    ) {
-      return handleResponse(
-        { id: activityId, status: activityStatus },
-        responseData
-      );
+    if (responseData.activity.status === "ACTIVITY_STATUS_PENDING") {
+      return pollStatus(responseData.activity.id);
     }
 
-    const pollStatus = async (): Promise<TResponseType> => {
-      const pollBody = { activityId: activityId };
-      const pollData = (await this.getActivity(pollBody)) as ActivityResponse;
-      const { status } = pollData["activity"];
-
-      if (status === "ACTIVITY_STATUS_PENDING") {
-        await delay(POLLING_DURATION);
-        return await pollStatus();
-      }
-
-      return handleResponse({ id: activityId, status }, pollData);
-    };
-
-    return await pollStatus();
+    return handleResponse(responseData);
   }
 
   async activityDecision<TBodyType, TResponseType>(
