@@ -69,40 +69,54 @@ export class TurnkeySDKClientBase {
     const delay = (ms: number) =>
       new Promise((resolve) => setTimeout(resolve, ms));
 
+    const handleResponse = (
+      activity: any,
+      responseData?: any
+    ): TResponseType => {
+      const baseActivity = {
+        activity: {
+          id: activity.id,
+          status: activity.status,
+        },
+      };
+
+      if (activity.status === "ACTIVITY_STATUS_COMPLETE" && responseData) {
+        return {
+          ...responseData["activity"]["result"][`${resultKey}`],
+          ...baseActivity,
+        } as TResponseType;
+      }
+
+      return baseActivity as TResponseType;
+    };
+
     const responseData = (await this.request<TBodyType, TResponseType>(
       url,
       body
     )) as ActivityResponse;
-    const activityId = responseData["activity"]["id"];
-    const activityStatus = responseData["activity"]["status"];
+    const { id: activityId, status: activityStatus } = responseData["activity"];
 
-    if (activityStatus !== "ACTIVITY_STATUS_PENDING") {
-      return {
-        ...responseData["activity"]["result"][`${resultKey}`],
-        activity: {
-          id: activityId,
-          status: activityStatus,
-        },
-      } as TResponseType;
+    if (
+      activityStatus === "ACTIVITY_STATUS_COMPLETE" ||
+      activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED"
+    ) {
+      return handleResponse(
+        { id: activityId, status: activityStatus },
+        responseData
+      );
     }
 
     const pollStatus = async (): Promise<TResponseType> => {
       const pollBody = { activityId: activityId };
       const pollData = (await this.getActivity(pollBody)) as ActivityResponse;
-      const activityStatus = pollData["activity"]["status"];
+      const { status } = pollData["activity"];
 
-      if (activityStatus === "ACTIVITY_STATUS_PENDING") {
+      if (status === "ACTIVITY_STATUS_PENDING") {
         await delay(POLLING_DURATION);
         return await pollStatus();
-      } else {
-        return {
-          ...pollData["activity"]["result"][`${resultKey}`],
-          activity: {
-            id: activityId,
-            status: activityStatus,
-          },
-        } as TResponseType;
       }
+
+      return handleResponse({ id: activityId, status }, pollData);
     };
 
     return await pollStatus();
