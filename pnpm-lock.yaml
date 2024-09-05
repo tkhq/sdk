@@ -321,6 +321,21 @@ importers:
         specifier: ^1.4.8
         version: 1.4.8
 
+  examples/kitchen-sink:
+    dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../packages/api-key-stamper
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+
   examples/otp-auth:
     dependencies:
       '@turnkey/api-key-stamper':
