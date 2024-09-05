@@ -61,6 +61,16 @@ export default async function createUser(
             ],
             oauthProviders: [],
           },
+          {
+            userName: "Provisioning user",
+            apiKeys: [{
+              apiKeyName: "Provisioning user API key",
+              publicKey: "<your API public key>",
+              curveType: "API_KEY_CURVE_P256"
+            }],
+            authenticators: [],
+            oauthProviders: [],
+          },
         ],
         wallet: {
           walletName,
