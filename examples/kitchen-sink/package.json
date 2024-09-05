@@ -1,0 +1,17 @@
+{
+  "name": "@turnkey/kitchen-sink",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start-sdk-server": "tsx sdkServerClient.ts",
+    "start-http": "tsx httpClient.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/http": "workspace:*",
+    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "dotenv": "^16.0.3"
+  }
+}
