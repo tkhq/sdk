@@ -229,6 +229,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     //
     // The pubkey type only supports one value, "public-key"
     // See https://www.w3.org/TR/webauthn-2/#enumdef-publickeycredentialtype for more details
+    // TODO: consider un-nesting these config params
     const webauthnConfig: CredentialCreationOptions = {
       publicKey: {
         rp: {
@@ -248,6 +249,9 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
           displayName: config.publicKey?.user?.displayName ?? "Default User",
         },
         authenticatorSelection: {
+          authenticatorAttachment:
+            config.publicKey?.authenticatorSelection?.authenticatorAttachment ??
+            undefined, // default to empty
           requireResidentKey:
             config.publicKey?.authenticatorSelection?.requireResidentKey ??
             true,
