@@ -12,8 +12,10 @@ import type {
 } from "viem";
 import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
-import type { TurnkeyServerClient } from "@turnkey/sdk-server";
+import type {
+  TurnkeyBrowserClient,
+} from "@turnkey/sdk-browser";
+import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
 
 export async function createAccount(input: {
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
@@ -295,7 +297,7 @@ async function signTransactionImpl(
 
     if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
       throw new TurnkeyActivityError({
-        message: `Invalid activity status: ${activity.status}`,
+        message: `Unexpected activity status: ${activity.status}`,
         activityId: id,
         activityStatus: status,
         activityType: type,
@@ -306,14 +308,21 @@ async function signTransactionImpl(
       activity?.result?.signTransactionResult?.signedTransaction
     );
   } else {
-    // Want to get additional activity details here
-    const activity = await client.signTransaction({
+    const { activity, signedTransaction } = await client.signTransaction({
       signWith,
       type: "TRANSACTION_TYPE_ETHEREUM",
       unsignedTransaction: unsignedTransaction,
     });
 
-    return assertNonNull(activity?.signedTransaction);
+    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+      throw new TurnkeyActivityError({
+        message: `Unexpected activity status: ${activity.status}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      });
+    }
+
+    return assertNonNull(signedTransaction);
   }
 }
 
@@ -370,7 +379,7 @@ async function signMessageImpl(
 
     if (status !== "ACTIVITY_STATUS_COMPLETED") {
       throw new TurnkeyActivityError({
-        message: `Invalid activity status: ${activity.status}`,
+        message: `Unexpected activity status: ${activity.status}`,
         activityId: id,
         activityStatus: status,
         activityType: type,
@@ -379,17 +388,29 @@ async function signMessageImpl(
 
     result = assertNonNull(activity?.result?.signRawPayloadResult);
   } else {
-    // Want to get ID and status back as well in the result (we won't get an error)
-    // Maybe do a try/catch?
-    result = await client.signRawPayload({
+    const { activity, r, s, v } = await client.signRawPayload({
       signWith,
       payload: message,
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
       hashFunction: "HASH_FUNCTION_NO_OP",
     });
+
+    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+      throw new TurnkeyActivityError({
+        message: `Unexpected activity status: ${activity.status}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      });
+    }
+
+    result = {
+      r,
+      s,
+      v,
+    };
   }
 
-  let assembled = signatureToHex({
+  const assembled = signatureToHex({
     r: `0x${result!.r}`,
     s: `0x${result!.s}`,
     v: result!.v === "00" ? 27n : 28n,

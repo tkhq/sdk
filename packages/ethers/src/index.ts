@@ -12,7 +12,7 @@ import {
 import { TurnkeyActivityError, TurnkeyRequestError } from "@turnkey/http";
 import { TurnkeyClient } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
-import type { TurnkeyServerClient } from "@turnkey/sdk-server";
+import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
 import {
   type TypedDataDomain,
   type TypedDataField,
@@ -100,7 +100,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
     return ethereumAddress;
   }
 
-  private async _signTransactionImpl(message: string): Promise<string> {
+  private async _signTransactionImpl(unsignedTransaction: string): Promise<string> {
     if (this.client instanceof TurnkeyClient) {
       const { activity } = await this.client.signTransaction({
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
@@ -108,7 +108,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         parameters: {
           signWith: this.signWith,
           type: "TRANSACTION_TYPE_ETHEREUM",
-          unsignedTransaction: message,
+          unsignedTransaction,
         },
         timestampMs: String(Date.now()), // millisecond timestamp
       });
@@ -128,13 +128,21 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         activityType: type,
       });
     } else {
-      const activity = await this.client.signTransaction({
+      const { activity, signedTransaction } = await this.client.signTransaction({
         signWith: this.signWith,
         type: "TRANSACTION_TYPE_ETHEREUM",
-        unsignedTransaction: message,
+        unsignedTransaction,
       });
 
-      return assertNonNull(activity?.signedTransaction);
+      if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+        throw new TurnkeyActivityError({
+          message: `Unexpected activity status: ${activity.status}`,
+          activityId: activity.id,
+          activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        });
+      }
+
+      return assertNonNull(signedTransaction);
     }
   }
 
@@ -244,7 +252,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
       if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
         throw new TurnkeyActivityError({
-          message: `Invalid activity status: ${activity.status}`,
+          message: `Unexpected activity status: ${activity.status}`,
           activityId: id,
           activityStatus: status,
           activityType: type,
@@ -253,21 +261,36 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
       result = assertNonNull(activity?.result?.signRawPayloadResult);
     } else {
-      result = await this.client.signRawPayload({
+      const { activity, r, s, v } = await this.client.signRawPayload({
         signWith: this.signWith,
         payload: message,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NO_OP",
       });
+
+      if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+        throw new TurnkeyActivityError({
+          message: `Unexpected activity status: ${activity.status}`,
+          activityId: activity.id,
+          activityStatus:
+            activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        });
+      }
+
+      result = {
+        r,
+        s,
+        v,
+      };
     }
 
-    let assembled = Signature.from({
+    // Assemble the hex
+    const assembled = Signature.from({
       r: `0x${result!.r}`,
       s: `0x${result!.s}`,
       v: parseInt(result!.v) + 27,
     }).serialized;
 
-    // Assemble the hex
     return assertNonNull(assembled);
   }
 

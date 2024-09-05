@@ -5,7 +5,7 @@ import {
 } from "@solana/web3.js";
 import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
-import type { TurnkeyServerClient } from "@turnkey/sdk-server";
+import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
 
 type TSignature = {
   r: string;
@@ -127,7 +127,7 @@ export class TurnkeySigner {
 
       return assertNonNull(result?.signRawPayloadResult);
     } else {
-      const result = await this.client.signRawPayload({
+      const { activity, r, s, v } = await this.client.signRawPayload({
         signWith,
         payload,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
@@ -136,7 +136,20 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      return assertNonNull(result);
+      if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+        throw new TurnkeyActivityError({
+          message: `Unexpected activity status: ${activity.status}`,
+          activityId: activity.id,
+          activityStatus:
+            activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        });
+      }
+
+      return assertNonNull({
+        r,
+        s,
+        v,
+      });
     }
   }
 

@@ -305,7 +305,7 @@ export class TurnkeySDKClientBase {
       const { id, status, result } = activityData.activity;
       const baseActivity = { activity: { id, status } };
 
-      if (status === "ACTIVITY_STATUS_COMPLETE") {
+      if (status === "ACTIVITY_STATUS_COMPLETED") {
         return {
           ...result[\`\${resultKey}\`],
           ...baseActivity
