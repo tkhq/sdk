@@ -38,7 +38,7 @@ type TConfig = {
   signWith: string;
 };
 
-type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"]
+type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
 
 export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   private readonly client:

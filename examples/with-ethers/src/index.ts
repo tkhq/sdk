@@ -25,6 +25,11 @@ async function main() {
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
+    // The following config is useful in contexts where an activity requires consensus
+    // activityPoller: {
+    //   duration: 5_000,
+    //   timeout: 6_0000,
+    // },
   });
 
   // Initialize a Turnkey Signer
