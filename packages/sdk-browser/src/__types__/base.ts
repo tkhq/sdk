@@ -23,6 +23,11 @@ export type THttpConfig = {
   baseUrl: string;
 };
 
+export type TActivityPollerConfig = {
+  intervalMs: number;
+  numRetries: number;
+};
+
 export class TurnkeyRequestError extends Error {
   details: any[] | null;
   code: number;
@@ -60,10 +65,7 @@ export interface ActivityMetadata {
 interface BaseSDKClientConfig {
   apiBaseUrl: string;
   organizationId: string;
-  activityPoller?: {
-    duration: number;
-    timeout: number;
-  };
+  activityPoller?: TActivityPollerConfig | undefined;
 }
 
 interface SDKClientConfigWithStamper extends BaseSDKClientConfig {

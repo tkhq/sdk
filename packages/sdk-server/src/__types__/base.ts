@@ -1,12 +1,5 @@
 import type { TurnkeyApiTypes } from "@turnkey/http";
 
-export const TERMINAL_ACTIVITY_STATUSES: TurnkeyApiTypes["v1ActivityStatus"][] =
-  [
-    "ACTIVITY_STATUS_COMPLETED",
-    "ACTIVITY_STATUS_FAILED",
-    "ACTIVITY_STATUS_REJECTED",
-  ];
-
 export type GrpcStatus = {
   message: string;
   code: number;
@@ -32,9 +25,9 @@ export type THttpConfig = {
   baseUrl: string;
 };
 
-export type TActivityPoller = {
-  duration: number; // milliseconds
-  timeout: number; // milliseconds
+export type TActivityPollerConfig = {
+  intervalMs: number;
+  numRetries: number;
 };
 
 export class TurnkeyRequestError extends Error {
@@ -84,7 +77,7 @@ export interface TurnkeySDKClientConfig {
   stamper: TStamper;
   apiBaseUrl: string;
   organizationId: string;
-  activityPoller?: TActivityPoller | undefined;
+  activityPoller?: TActivityPollerConfig | undefined;
 }
 
 export interface TurnkeySDKServerConfig {
@@ -92,12 +85,21 @@ export interface TurnkeySDKServerConfig {
   apiPrivateKey: string;
   apiPublicKey: string;
   defaultOrganizationId: string;
-  activityPoller?: TActivityPoller | undefined;
+  activityPoller?: TActivityPollerConfig | undefined;
 }
 
 export interface TurnkeyProxyHandlerConfig {
   allowedMethods?: string[];
 }
+
+export const TERMINAL_ACTIVITY_STATUSES: TurnkeyApiTypes["v1ActivityStatus"][] =
+  [
+    "ACTIVITY_STATUS_COMPLETED",
+    "ACTIVITY_STATUS_FAILED",
+    "ACTIVITY_STATUS_REJECTED",
+  ];
+
+export type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
 
 export interface NextApiRequest {
   body: any;
