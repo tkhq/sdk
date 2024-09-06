@@ -25,7 +25,12 @@ async function main() {
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
-    // The following config is useful in contexts where an activity requires consensus
+    // The following config is useful in contexts where an activity requires consensus.
+    // By default, if the activity is not initially successful, it will poll a maximum
+    // of 3 times with an interval of 1000 milliseconds.
+    // 
+    // -----
+    //
     // activityPoller: {
     //   duration: 5_000,
     //   timeout: 6_0000,

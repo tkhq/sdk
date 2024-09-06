@@ -40,6 +40,8 @@ type TConfig = {
 
 type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
 
+type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
+
 export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   private readonly client:
     | TurnkeyClient
@@ -145,7 +147,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
           message: `Unexpected activity status: ${activity.status}`,
           activityId: activity.id,
           activityStatus:
-            activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+            activity.status as TActivityStatus,
         });
       }
 
@@ -280,7 +282,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
           message: `Unexpected activity status: ${activity.status}`,
           activityId: activity.id,
           activityStatus:
-            activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+            activity.status as TActivityStatus,
         });
       }
 
@@ -351,7 +353,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       throw new TurnkeyActivityError({
         message: `Unexpected activity type: ${activity.type}`,
         activityId: activity.id,
-        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        activityStatus: activity.status as TActivityStatus,
       });
     }
 
@@ -359,7 +361,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       throw new TurnkeyActivityError({
         message: `Activity is not yet completed: ${activity.status}`,
         activityId: activity.id,
-        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        activityStatus: activity.status as TActivityStatus,
       });
     }
 
@@ -392,7 +394,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       throw new TurnkeyActivityError({
         message: `Unexpected activity type: ${activity.type}`,
         activityId: activity.id,
-        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        activityStatus: activity.status as TActivityStatus,
       });
     }
 
@@ -400,7 +402,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       throw new TurnkeyActivityError({
         message: `Activity is not yet completed: ${activity.status}`,
         activityId: activity.id,
-        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        activityStatus: activity.status as TActivityStatus,
       });
     }
 

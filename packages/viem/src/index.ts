@@ -17,6 +17,8 @@ import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
 
 type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
 
+type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
+
 export async function createAccount(input: {
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
   organizationId: string;
@@ -273,7 +275,7 @@ export async function getSignatureFromActivity(
     throw new TurnkeyActivityError({
       message: `Unexpected activity type: ${activity.type}`,
       activityId: activity.id,
-      activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      activityStatus: activity.status as TActivityStatus,
     });
   }
 
@@ -281,7 +283,7 @@ export async function getSignatureFromActivity(
     throw new TurnkeyActivityError({
       message: `Activity is not yet completed: ${activity.status}`,
       activityId: activity.id,
-      activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      activityStatus: activity.status as TActivityStatus,
     });
   }
 
@@ -316,7 +318,7 @@ export async function getSignedTransactionFromActivity(
     throw new TurnkeyActivityError({
       message: `Unexpected activity type: ${activity.type}`,
       activityId: activity.id,
-      activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      activityStatus: activity.status as TActivityStatus,
     });
   }
 
@@ -324,7 +326,7 @@ export async function getSignedTransactionFromActivity(
     throw new TurnkeyActivityError({
       message: `Activity is not yet completed: ${activity.status}`,
       activityId: activity.id,
-      activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      activityStatus: activity.status as TActivityStatus,
     });
   }
 
@@ -404,7 +406,7 @@ async function signTransactionImpl(
       throw new TurnkeyActivityError({
         message: `Unexpected activity status: ${activity.status}`,
         activityId: activity.id,
-        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        activityStatus: activity.status as TActivityStatus,
       });
     }
 
@@ -485,7 +487,7 @@ async function signMessageImpl(
       throw new TurnkeyActivityError({
         message: `Unexpected activity status: ${activity.status}`,
         activityId: activity.id,
-        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        activityStatus: activity.status as TActivityStatus,
       });
     }
 

@@ -7,9 +7,12 @@ import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
 
+type TClient = TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
+
 type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
 
-type TClient = TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
+type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
+
 
 export class TurnkeySigner {
   public readonly organizationId: string;
@@ -118,7 +121,7 @@ export class TurnkeySigner {
       throw new TurnkeyActivityError({
         message: `Unexpected activity type: ${activity.type}`,
         activityId: activity.id,
-        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        activityStatus: activity.status as TActivityStatus,
       });
     }
 
@@ -126,7 +129,7 @@ export class TurnkeySigner {
       throw new TurnkeyActivityError({
         message: `Activity is not yet completed: ${activity.status}`,
         activityId: activity.id,
-        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        activityStatus: activity.status as TActivityStatus,
       });
     }
 
@@ -156,7 +159,7 @@ export class TurnkeySigner {
       throw new TurnkeyActivityError({
         message: `Unexpected activity type: ${activity.type}`,
         activityId: activity.id,
-        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        activityStatus: activity.status as TActivityStatus,
       });
     }
 
@@ -164,7 +167,7 @@ export class TurnkeySigner {
       throw new TurnkeyActivityError({
         message: `Activity is not yet completed: ${activity.status}`,
         activityId: activity.id,
-        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        activityStatus: activity.status as TActivityStatus,
       });
     }
 
@@ -220,7 +223,7 @@ export class TurnkeySigner {
           message: `Unexpected activity status: ${activity.status}`,
           activityId: activity.id,
           activityStatus:
-            activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+            activity.status as TActivityStatus,
         });
       }
 
@@ -275,7 +278,7 @@ export class TurnkeySigner {
           message: `Unexpected activity status: ${activity.status}`,
           activityId: activity.id,
           activityStatus:
-            activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+            activity.status as TActivityStatus,
         });
       }
 
