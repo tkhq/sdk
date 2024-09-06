@@ -1,3 +1,12 @@
+import type { TurnkeyApiTypes } from "@turnkey/http";
+
+export const TERMINAL_ACTIVITY_STATUSES: TurnkeyApiTypes["v1ActivityStatus"][] =
+  [
+    "ACTIVITY_STATUS_COMPLETED",
+    "ACTIVITY_STATUS_FAILED",
+    "ACTIVITY_STATUS_REJECTED",
+  ];
+
 export type GrpcStatus = {
   message: string;
   code: number;

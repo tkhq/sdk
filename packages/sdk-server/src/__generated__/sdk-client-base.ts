@@ -73,7 +73,7 @@ export class TurnkeySDKClientBase {
       const pollBody = { activityId };
       const pollData = await this.getActivity(pollBody) as ActivityResponse;
       
-      if (pollData.activity.status === "ACTIVITY_STATUS_PENDING") {
+      if (!TERMINAL_ACTIVITY_STATUSES.includes(pollData.activity.status)) {
         await delay(POLLING_DURATION);
         return pollStatus(activityId);
       }
@@ -83,7 +83,7 @@ export class TurnkeySDKClientBase {
 
     const responseData = await this.request<TBodyType, TResponseType>(url, body) as ActivityResponse;
     
-    if (responseData.activity.status === "ACTIVITY_STATUS_PENDING") {
+    if (!TERMINAL_ACTIVITY_STATUSES.includes(responseData.activity.status)) {
       return pollStatus(responseData.activity.id);
     }
 

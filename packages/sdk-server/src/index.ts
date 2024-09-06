@@ -30,6 +30,7 @@ import type {
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
   TurnkeyProxyHandlerConfig,
+  TERMINAL_ACTIVITY_STATUSES,
 } from "./__types__/base";
 
 import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
@@ -68,7 +69,7 @@ export {
 };
 
 // Constants
-export { DEFAULT_ETHEREUM_ACCOUNTS };
+export { DEFAULT_ETHEREUM_ACCOUNTS, TERMINAL_ACTIVITY_STATUSES };
 
 // Base Turnkey API
 export { TurnkeyApi };
