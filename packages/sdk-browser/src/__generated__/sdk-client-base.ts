@@ -115,8 +115,6 @@ export class TurnkeySDKClientBase {
     } as TResponseType;
   }
 
-  
-
 
 	getActivity = async (input: SdkApiTypes.TGetActivityBody): Promise<SdkApiTypes.TGetActivityResponse> => {
     return this.request("/public/v1/query/get_activity", {

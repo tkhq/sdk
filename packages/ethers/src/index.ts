@@ -38,6 +38,8 @@ type TConfig = {
   signWith: string;
 };
 
+type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"]
+
 export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   private readonly client:
     | TurnkeyClient
@@ -100,7 +102,9 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
     return ethereumAddress;
   }
 
-  private async _signTransactionImpl(unsignedTransaction: string): Promise<string> {
+  private async _signTransactionImpl(
+    unsignedTransaction: string
+  ): Promise<string> {
     if (this.client instanceof TurnkeyClient) {
       const { activity } = await this.client.signTransaction({
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
@@ -128,17 +132,20 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         activityType: type,
       });
     } else {
-      const { activity, signedTransaction } = await this.client.signTransaction({
-        signWith: this.signWith,
-        type: "TRANSACTION_TYPE_ETHEREUM",
-        unsignedTransaction,
-      });
+      const { activity, signedTransaction } = await this.client.signTransaction(
+        {
+          signWith: this.signWith,
+          type: "TRANSACTION_TYPE_ETHEREUM",
+          unsignedTransaction,
+        }
+      );
 
       if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
         throw new TurnkeyActivityError({
           message: `Unexpected activity status: ${activity.status}`,
           activityId: activity.id,
-          activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+          activityStatus:
+            activity.status as TurnkeyApiTypes["v1ActivityStatus"],
         });
       }
 
@@ -319,6 +326,88 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   _signTypedData = this.signTypedData.bind(this);
+
+  /**
+   * This function is a helper method to easily extract a signature string from a completed signing activity.
+   * Particularly useful for scenarios where a signature requires consensus
+   *
+   * @param activityId the signing activity
+   * @return signature (r, s, v)
+   */
+  public async getSignatureFromActivity(
+    activityId: string
+  ): Promise<TSignature> {
+    const { activity } = await this.client.getActivity({
+      organizationId: this.organizationId,
+      activityId,
+    });
+
+    if (
+      ![
+        "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
+        "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
+      ].includes(activity.type)
+    ) {
+      throw new TurnkeyActivityError({
+        message: `Unexpected activity type: ${activity.type}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      });
+    }
+
+    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+      throw new TurnkeyActivityError({
+        message: `Activity is not yet completed: ${activity.status}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      });
+    }
+
+    const signature = activity.result?.signRawPayloadResult!;
+
+    return assertNonNull(signature);
+  }
+
+  /**
+   * This function is a helper method to easily extract a signed transaction from a completed signing activity.
+   * Particularly useful for scenarios where a signature requires consensus
+   *
+   * @param activityId the signing activity
+   * @return signed transaction string
+   */
+  public async getSignedTransactionFromActivity(
+    activityId: string
+  ): Promise<string> {
+    const { activity } = await this.client.getActivity({
+      organizationId: this.organizationId,
+      activityId,
+    });
+
+    if (
+      ![
+        "ACTIVITY_TYPE_SIGN_TRANSACTION",
+        "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
+      ].includes(activity.type)
+    ) {
+      throw new TurnkeyActivityError({
+        message: `Unexpected activity type: ${activity.type}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      });
+    }
+
+    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+      throw new TurnkeyActivityError({
+        message: `Activity is not yet completed: ${activity.status}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      });
+    }
+
+    const { signedTransaction } = activity.result?.signTransactionResult!;
+
+    return assertNonNull(`0x${signedTransaction}`);
+  }
 }
 
 export { TurnkeyActivityError, TurnkeyRequestError };

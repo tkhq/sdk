@@ -359,9 +359,7 @@ export class TurnkeySDKClientBase {
         status: activityStatus
       }
     } as TResponseType;
-  }
-
-  `);
+  }`);
 
   const latestVersions = extractLatestVersions(swaggerSpec.definitions);
 

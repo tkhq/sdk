@@ -7,11 +7,7 @@ import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
 
-type TSignature = {
-  r: string;
-  s: string;
-  v: string;
-};
+type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
 
 type TClient = TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
 
@@ -98,6 +94,89 @@ export class TurnkeySigner {
     );
   }
 
+  /**
+   * This function is a helper method to easily extract a signature string from a completed signing activity.
+   * Particularly useful for scenarios where a signature requires consensus.
+   * This can be used in conjunction with `addSignature()` and `signMessage()` methods included in this SDK.
+   * The resulting signature can be added to a transaction via `tx.addSignature(fromKey, Buffer.from(signature), "hex"))`
+   *
+   * @param activityId the signing activity
+   * @return signature string. Caller can convert it to a Buffer if needed
+   */
+  public async getSignatureFromActivity(activityId: string): Promise<string> {
+    const { activity } = await this.client.getActivity({
+      organizationId: this.organizationId,
+      activityId,
+    });
+
+    if (
+      ![
+        "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
+        "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
+      ].includes(activity.type)
+    ) {
+      throw new TurnkeyActivityError({
+        message: `Unexpected activity type: ${activity.type}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      });
+    }
+
+    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+      throw new TurnkeyActivityError({
+        message: `Activity is not yet completed: ${activity.status}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      });
+    }
+
+    const { r, s } = activity.result?.signRawPayloadResult!;
+
+    return assertNonNull(`${r}${s}`);
+  }
+
+  /**
+   * This function is a helper method to easily extract signature strings from a completed signing activity.
+   * Particularly useful for scenarios where a signature requires consensus.
+   * This can be used in conjunction with the `signAllTransactions()` method included in this SDK.
+   * The resulting signatures can be added to transactions via `tx.addSignature(fromKey, Buffer.from(signature), "hex"))`
+   *
+   * @param activityId the signing activity
+   * @return signature strings. Caller can convert each to a Buffer if needed
+   */
+  public async getSignaturesFromActivity(
+    activityId: string
+  ): Promise<string[]> {
+    const { activity } = await this.client.getActivity({
+      organizationId: this.organizationId,
+      activityId,
+    });
+
+    if (activity.type !== "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS") {
+      throw new TurnkeyActivityError({
+        message: `Unexpected activity type: ${activity.type}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      });
+    }
+
+    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+      throw new TurnkeyActivityError({
+        message: `Activity is not yet completed: ${activity.status}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+      });
+    }
+
+    const { signatures } = activity.result?.signRawPayloadsResult!;
+
+    const signatureStrings = signatures?.map(
+      (sig: TSignature) => `${sig?.r}${sig?.s}`
+    );
+
+    return assertNonNull(signatureStrings);
+  }
+
   private async signRawPayload(payload: string, signWith: string) {
     if (this.client instanceof TurnkeyClient) {
       const response = await this.client.signRawPayload({
@@ -182,7 +261,7 @@ export class TurnkeySigner {
 
       return assertNonNull(result?.signRawPayloadsResult);
     } else {
-      const result = await this.client.signRawPayloads({
+      const { activity, signatures } = await this.client.signRawPayloads({
         signWith,
         payloads,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
@@ -191,7 +270,18 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      return assertNonNull(result);
+      if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+        throw new TurnkeyActivityError({
+          message: `Unexpected activity status: ${activity.status}`,
+          activityId: activity.id,
+          activityStatus:
+            activity.status as TurnkeyApiTypes["v1ActivityStatus"],
+        });
+      }
+
+      return assertNonNull(
+        signatures as TurnkeyApiTypes["v1SignRawPayloadsResult"]
+      );
     }
   }
 
