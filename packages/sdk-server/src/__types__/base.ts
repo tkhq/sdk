@@ -23,6 +23,11 @@ export type THttpConfig = {
   baseUrl: string;
 };
 
+export type TActivityPoller = {
+  duration: number; // milliseconds
+  timeout: number; // milliseconds
+};
+
 export class TurnkeyRequestError extends Error {
   details: any[] | null;
   code: number;
@@ -70,10 +75,7 @@ export interface TurnkeySDKClientConfig {
   stamper: TStamper;
   apiBaseUrl: string;
   organizationId: string;
-  activityPoller?: {
-    duration: number;
-    timeout: number;
-  };
+  activityPoller?: TActivityPoller | undefined;
 }
 
 export interface TurnkeySDKServerConfig {
@@ -81,6 +83,7 @@ export interface TurnkeySDKServerConfig {
   apiPrivateKey: string;
   apiPublicKey: string;
   defaultOrganizationId: string;
+  activityPoller?: TActivityPoller | undefined;
 }
 
 export interface TurnkeyProxyHandlerConfig {

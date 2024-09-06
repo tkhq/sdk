@@ -41,6 +41,7 @@ export class TurnkeyServerSDK {
       stamper: apiKeyStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
+      activityPoller: this.config.activityPoller,
     });
   };
 
