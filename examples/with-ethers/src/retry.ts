@@ -6,12 +6,12 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
-import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
+import {
+  Turnkey as TurnkeyServerSDK,
+  TERMINAL_ACTIVITY_STATUSES,
+} from "@turnkey/sdk-server";
 import { createNewWallet } from "./createNewWallet";
-import { print, assertEqual } from "./util";
-import WETH_TOKEN_ABI from "./weth-contract-abi.json";
-
-const WETH_TOKEN_ADDRESS_SEPOLIA = "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9";
+import { print, sleep } from "./util";
 
 async function main() {
   if (!process.env.SIGN_WITH) {
@@ -25,6 +25,16 @@ async function main() {
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
+    // The following config is useful in contexts where an activity requires consensus.
+    // By default, if the activity is not initially successful, it will poll a maximum
+    // of 3 times with an interval of 1000 milliseconds.
+    //
+    // -----
+    //
+    // activityPoller: {
+    //   intervalMs: 10_000,
+    //   numRetries: 5,
+    // },
   });
 
   // Initialize a Turnkey Signer
@@ -53,15 +63,6 @@ async function main() {
   print("Balance:", `${ethers.formatEther(balance)} Ether`);
   print("Transaction count:", `${transactionCount}`);
 
-  // 1. Sign a raw payload (`eth_sign` style)
-  const message = "Hello Turnkey";
-  const signature = await connectedSigner.signMessage(message);
-  const recoveredAddress = ethers.verifyMessage(message, signature);
-
-  print("Turnkey-powered signature:", `${signature}`);
-  print("Recovered address:", `${recoveredAddress}`);
-  assertEqual(recoveredAddress, address);
-
   // Create a simple send transaction
   const transactionAmount = "0.00001";
   const destinationAddress = "0x2Ad9eA1E677949a536A270CEC812D6e868C88108";
@@ -70,10 +71,6 @@ async function main() {
     value: ethers.parseEther(transactionAmount),
     type: 2,
   };
-
-  const signedTx = await connectedSigner.signTransaction(transactionRequest);
-
-  print("Turnkey-signed transaction:", `${signedTx}`);
 
   if (balance === 0) {
     let warningMessage =
@@ -87,37 +84,47 @@ async function main() {
     return;
   }
 
-  // 2. Simple send tx
-  const sentTx = await connectedSigner.sendTransaction(transactionRequest);
+  let sentTx;
 
-  print(
-    `Sent ${ethers.formatEther(sentTx.value)} Ether to ${sentTx.to}:`,
-    `https://${network}.etherscan.io/tx/${sentTx.hash}`
-  );
+  // Simple send tx.
+  // If it does not succeed at first, wait for consensus, then attempt to broadcast the signed transaction
+  try {
+    sentTx = await connectedSigner.sendTransaction(transactionRequest);
+  } catch (error: any) {
+    const activityId = error["activityId"];
+    let activityStatus = error["activityStatus"];
 
-  if (network === "sepolia") {
-    // https://sepolia.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6
-    const wethContract = new ethers.Contract(
-      WETH_TOKEN_ADDRESS_SEPOLIA,
-      WETH_TOKEN_ABI,
-      connectedSigner
-    );
+    while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
+      console.log("Waiting for consensus...");
 
-    // Read from contract
-    const wethBalance = await wethContract?.balanceOf?.(address);
+      // Wait 5 seconds
+      await sleep(5_000);
 
-    print("WETH Balance:", `${ethers.formatEther(wethBalance)} WETH`);
+      // Refresh activity status
+      activityStatus = (
+        await turnkeyClient.apiClient().getActivity({
+          activityId,
+          organizationId: process.env.ORGANIZATION_ID!,
+        })
+      ).activity.status;
+    }
 
-    // 3. Wrap ETH -> WETH
-    const depositTx = await wethContract?.deposit?.({
-      value: ethers.parseEther(transactionAmount),
-    });
+    console.log("Consensus reached! Moving onto broadcasting...");
 
-    print(
-      `Wrapped ${ethers.formatEther(depositTx.value)} ETH:`,
-      `https://${network}.etherscan.io/tx/${depositTx.hash}`
+    // Break out of loop now that we have an activity that has reached terminal status.
+    // Get the signature
+    const signedTransaction =
+      await connectedSigner.getSignedTransactionFromActivity(activityId);
+
+    sentTx = await connectedSigner.provider?.broadcastTransaction(
+      signedTransaction
     );
   }
+
+  print(
+    `Sent ${ethers.formatEther(sentTx!.value)} Ether to ${sentTx!.to}:`,
+    `https://${network}.etherscan.io/tx/${sentTx!.hash}`
+  );
 }
 
 main().catch((error) => {

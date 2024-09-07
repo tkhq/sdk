@@ -245,7 +245,11 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   const imports = [];
 
   imports.push(
-    'import { GrpcStatus, TurnkeyRequestError, ActivityResponse, TurnkeySDKClientConfig, TActivityStatus, TERMINAL_ACTIVITY_STATUSES } from "../__types__/base";'
+    'import { GrpcStatus, TurnkeyRequestError, ActivityResponse, TurnkeySDKClientConfig, TActivityStatus } from "../__types__/base";'
+  );
+
+  imports.push(
+    'import { TERMINAL_ACTIVITY_STATUSES } from "../turnkey-helpers";'
   );
 
   imports.push('import { VERSION } from "../__generated__/version";');

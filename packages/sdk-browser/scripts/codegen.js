@@ -245,7 +245,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   const imports = [];
 
   imports.push(
-    'import { GrpcStatus, TurnkeyRequestError, ActivityResponse, TurnkeySDKClientConfig } from "../__types__/base";'
+    'import { GrpcStatus, TurnkeyRequestError, ActivityResponse, TurnkeySDKClientConfig, TActivityStatus } from "../__types__/base";'
   );
 
   imports.push('import { VERSION } from "../__generated__/version";');
@@ -253,6 +253,10 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
 
   imports.push('import { StorageKeys, getStorageValue } from "../storage";');
+
+  imports.push(
+    'import { TERMINAL_ACTIVITY_STATUSES } from "../turnkey-helpers";'
+  );
 
   codeBuffer.push(`
 export class TurnkeySDKClientBase {
@@ -307,8 +311,10 @@ export class TurnkeySDKClientBase {
     body: TBodyType,
     resultKey: string
   ): Promise<TResponseType> {
-    const POLLING_DURATION = this.config.activityPoller?.duration ?? 1000;
-    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    const pollingDuration = this.config.activityPoller?.intervalMs ?? 1000;
+    const maxRetries = this.config.activityPoller?.numRetries ?? 3;
+
+    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
     const handleResponse = (activityData: ActivityResponse): TResponseType => {
       const { id, status, result } = activityData.activity;
@@ -324,12 +330,20 @@ export class TurnkeySDKClientBase {
       return baseActivity as TResponseType;
     };
 
+    let attempts = 0;
+
     const pollStatus = async (activityId: string): Promise<TResponseType> => {
       const pollBody = { activityId };
       const pollData = await this.getActivity(pollBody) as ActivityResponse;
+
+      if (attempts > maxRetries) {
+        return handleResponse(pollData);
+      }
+
+      attempts += 1;
       
-      if (pollData.activity.status === "ACTIVITY_STATUS_PENDING") {
-        await delay(POLLING_DURATION);
+      if (!TERMINAL_ACTIVITY_STATUSES.includes(pollData.activity.status as TActivityStatus)) {
+        await sleep(pollingDuration);
         return pollStatus(activityId);
       }
 
@@ -338,7 +352,7 @@ export class TurnkeySDKClientBase {
 
     const responseData = await this.request<TBodyType, TResponseType>(url, body) as ActivityResponse;
     
-    if (responseData.activity.status === "ACTIVITY_STATUS_PENDING") {
+    if (!TERMINAL_ACTIVITY_STATUSES.includes(responseData.activity.status as TActivityStatus)) {
       return pollStatus(responseData.activity.id);
     }
 

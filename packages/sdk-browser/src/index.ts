@@ -38,9 +38,11 @@ import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   defaultSolanaAccountAtIndex,
   DEFAULT_SOLANA_ACCOUNTS,
+  TERMINAL_ACTIVITY_STATUSES,
 } from "./turnkey-helpers";
 
 import type {
+  TActivityStatus,
   TurnkeySDKClientConfig,
   TurnkeySDKBrowserConfig,
 } from "./__types__/base";
@@ -62,6 +64,7 @@ export {
 
 // Types
 export type {
+  TActivityStatus,
   TApiKeyStamperConfig,
   TIframeStamperConfig,
   TSignedRequest,
@@ -83,7 +86,11 @@ export {
 };
 
 // Constants
-export { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS };
+export {
+  DEFAULT_ETHEREUM_ACCOUNTS,
+  DEFAULT_SOLANA_ACCOUNTS,
+  TERMINAL_ACTIVITY_STATUSES,
+};
 
 // Enums
 export { IframeEventType };

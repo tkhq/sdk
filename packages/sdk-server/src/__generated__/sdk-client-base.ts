@@ -6,8 +6,9 @@ import {
   ActivityResponse,
   TurnkeySDKClientConfig,
   TActivityStatus,
-  TERMINAL_ACTIVITY_STATUSES,
 } from "../__types__/base";
+
+import { TERMINAL_ACTIVITY_STATUSES } from "../turnkey-helpers";
 
 import { VERSION } from "../__generated__/version";
 

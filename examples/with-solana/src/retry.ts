@@ -1,11 +1,10 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
-import nacl from "tweetnacl";
-import bs58 from "bs58";
 import { input, confirm } from "@inquirer/prompts";
 import type { Transaction } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 
-import { Turnkey } from "@turnkey/sdk-server";
+import { Turnkey, TERMINAL_ACTIVITY_STATUSES } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
@@ -13,12 +12,7 @@ const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import {
-  createNewSolanaWallet,
-  solanaNetwork,
-  signMessage,
-  print,
-} from "./utils";
+import { createNewSolanaWallet, solanaNetwork } from "./utils";
 import { createTransfer } from "./utils/createSolanaTransfer";
 
 async function main() {
@@ -37,10 +31,10 @@ async function main() {
     //
     // -----
     //
-    activityPoller: {
-      intervalMs: 10_000,
-      numRetries: 5,
-    },
+    // activityPoller: {
+    //   intervalMs: 10_000,
+    //   numRetries: 5,
+    // },
   });
 
   const turnkeySigner = new TurnkeySigner({
@@ -55,6 +49,8 @@ async function main() {
   } else {
     console.log(`\nUsing existing Solana address from ENV: "${solAddress}"`);
   }
+
+  const fromKey = new PublicKey(solAddress);
 
   let balance = await solanaNetwork.balance(connection, solAddress);
   while (balance === 0) {
@@ -99,29 +95,7 @@ async function main() {
     },
   });
 
-  // 1. Sign and verify a message
-  const message = "Hello world!";
-  const messageAsUint8Array = Buffer.from(message);
-
-  const signature = await signMessage({
-    signer: turnkeySigner,
-    fromAddress: solAddress,
-    message,
-  });
-
-  const isValidSignature = nacl.sign.detached.verify(
-    messageAsUint8Array,
-    signature,
-    bs58.decode(solAddress)
-  );
-
-  if (!isValidSignature) {
-    throw new Error("unable to verify signed message");
-  }
-
-  print("\nTurnkey-powered signature:", `${bs58.encode(signature)}`);
-
-  // 2. Create, sign, and verify a transfer transaction
+  // 1. Create, sign, and verify a transfer transaction
   const transaction = await createTransfer({
     fromAddress: solAddress,
     toAddress: destination,
@@ -129,7 +103,33 @@ async function main() {
     version: "legacy",
   });
 
-  await turnkeySigner.addSignature(transaction, solAddress);
+  try {
+    await turnkeySigner.addSignature(transaction, solAddress);
+  } catch (error: any) {
+    const activityId = error["activityId"];
+    let activityStatus = error["activityStatus"];
+
+    while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
+      console.log("Waiting for consensus...");
+
+      // Wait 5 seconds
+      await sleep(5_000);
+
+      // Refresh activity status
+      activityStatus = (
+        await turnkeySigner.client.getActivity({ activityId, organizationId })
+      ).activity.status;
+    }
+
+    console.log("Consensus reached! Moving onto broadcasting...");
+
+    // Break out of loop now that we have an activity that has reached terminal status.
+    // Get the signature
+    const signature = await turnkeySigner.getSignatureFromActivity(activityId);
+
+    // Attach signature to the transaction
+    transaction.addSignature(fromKey, Buffer.from(signature, "hex"));
+  }
 
   const verified = (transaction as Transaction).verifySignatures();
 
@@ -137,7 +137,7 @@ async function main() {
     throw new Error("unable to verify transaction signatures");
   }
 
-  // 3. Broadcast the signed payload on devnet
+  // 2. Broadcast the signed payload on devnet
   await solanaNetwork.broadcast(connection, transaction);
 
   process.exit(0);
@@ -147,3 +147,5 @@ main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

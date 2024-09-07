@@ -146,8 +146,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         throw new TurnkeyActivityError({
           message: `Unexpected activity status: ${activity.status}`,
           activityId: activity.id,
-          activityStatus:
-            activity.status as TActivityStatus,
+          activityStatus: activity.status as TActivityStatus,
         });
       }
 
@@ -281,8 +280,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         throw new TurnkeyActivityError({
           message: `Unexpected activity status: ${activity.status}`,
           activityId: activity.id,
-          activityStatus:
-            activity.status as TActivityStatus,
+          activityStatus: activity.status as TActivityStatus,
         });
       }
 

@@ -1,6 +1,6 @@
 import { hashTypedData, serializeTransaction, signatureToHex } from "viem";
 import { toAccount } from "viem/accounts";
-import { hashMessage, isAddress } from "viem";
+import { BaseError, hashMessage, isAddress } from "viem";
 import type {
   Hex,
   HashTypedDataParameters,
@@ -272,19 +272,23 @@ export async function getSignatureFromActivity(
       "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
     ].includes(activity.type)
   ) {
-    throw new TurnkeyActivityError({
-      message: `Unexpected activity type: ${activity.type}`,
-      activityId: activity.id,
-      activityStatus: activity.status as TActivityStatus,
-    });
+    throw new BaseError(
+      JSON.stringify({
+        message: `Unexpected activity type: ${activity.type}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TActivityStatus,
+      })
+    );
   }
 
   if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-    throw new TurnkeyActivityError({
-      message: `Activity is not yet completed: ${activity.status}`,
-      activityId: activity.id,
-      activityStatus: activity.status as TActivityStatus,
-    });
+    throw new BaseError(
+      JSON.stringify({
+        message: `Activity is not yet completed: ${activity.status}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TActivityStatus,
+      })
+    );
   }
 
   const signature = activity.result?.signRawPayloadResult!;
@@ -315,19 +319,23 @@ export async function getSignedTransactionFromActivity(
       "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
     ].includes(activity.type)
   ) {
-    throw new TurnkeyActivityError({
-      message: `Unexpected activity type: ${activity.type}`,
-      activityId: activity.id,
-      activityStatus: activity.status as TActivityStatus,
-    });
+    throw new BaseError(
+      JSON.stringify({
+        message: `Unexpected activity type: ${activity.type}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TActivityStatus,
+      })
+    );
   }
 
   if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-    throw new TurnkeyActivityError({
-      message: `Activity is not yet completed: ${activity.status}`,
-      activityId: activity.id,
-      activityStatus: activity.status as TActivityStatus,
-    });
+    throw new BaseError(
+      JSON.stringify({
+        message: `Activity is not yet completed: ${activity.status}`,
+        activityId: activity.id,
+        activityStatus: activity.status as TActivityStatus,
+      })
+    );
   }
 
   const { signedTransaction } = activity.result?.signTransactionResult!;
@@ -350,14 +358,12 @@ async function signTransactionWithErrorWrapping(
       signWith
     );
   } catch (error) {
-    if (error instanceof TurnkeyActivityError) {
-      throw error;
-    }
-
-    throw new TurnkeyActivityError({
-      message: `Failed to sign transaction: ${(error as Error).message}`,
-      cause: error as Error,
-    });
+    throw new BaseError(
+      JSON.stringify({
+        message: `Failed to sign transaction: ${(error as Error).message}`,
+        cause: error as Error,
+      })
+    );
   }
 
   return `0x${signedTx}`;
@@ -384,12 +390,14 @@ async function signTransactionImpl(
     const { id, status, type } = activity;
 
     if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new TurnkeyActivityError({
-        message: `Unexpected activity status: ${activity.status}`,
-        activityId: id,
-        activityStatus: status,
-        activityType: type,
-      });
+      throw new BaseError(
+        JSON.stringify({
+          message: `Unexpected activity status: ${activity.status}`,
+          activityId: id,
+          activityStatus: status,
+          activityType: type,
+        })
+      );
     }
 
     return assertNonNull(
@@ -403,11 +411,13 @@ async function signTransactionImpl(
     });
 
     if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new TurnkeyActivityError({
-        message: `Unexpected activity status: ${activity.status}`,
-        activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
-      });
+      throw new BaseError(
+        JSON.stringify({
+          message: `Unexpected activity status: ${activity.status}`,
+          activityId: activity.id,
+          activityStatus: activity.status as TActivityStatus,
+        })
+      );
     }
 
     return assertNonNull(signedTransaction);
@@ -429,14 +439,12 @@ async function signMessageWithErrorWrapping(
       signWith
     );
   } catch (error) {
-    if (error instanceof TurnkeyActivityError) {
-      throw error;
-    }
-
-    throw new TurnkeyActivityError({
-      message: `Failed to sign: ${(error as Error).message}`,
-      cause: error as Error,
-    });
+    throw new BaseError(
+      JSON.stringify({
+        message: `Failed to sign: ${(error as Error).message}`,
+        cause: error as Error,
+      })
+    );
   }
 
   return signedMessage as Hex;
@@ -466,12 +474,14 @@ async function signMessageImpl(
     const { id, status, type } = activity;
 
     if (status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new TurnkeyActivityError({
-        message: `Unexpected activity status: ${activity.status}`,
-        activityId: id,
-        activityStatus: status,
-        activityType: type,
-      });
+      throw new BaseError(
+        JSON.stringify({
+          message: `Unexpected activity status: ${activity.status}`,
+          activityId: id,
+          activityStatus: status,
+          activityType: type,
+        })
+      );
     }
 
     result = assertNonNull(activity?.result?.signRawPayloadResult);
@@ -484,11 +494,13 @@ async function signMessageImpl(
     });
 
     if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new TurnkeyActivityError({
-        message: `Unexpected activity status: ${activity.status}`,
-        activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
-      });
+      throw new BaseError(
+        JSON.stringify({
+          message: `Unexpected activity status: ${activity.status}`,
+          activityId: activity.id,
+          activityStatus: activity.status as TActivityStatus,
+        })
+      );
     }
 
     result = {

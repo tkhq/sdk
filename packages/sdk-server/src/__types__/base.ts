@@ -92,13 +92,6 @@ export interface TurnkeyProxyHandlerConfig {
   allowedMethods?: string[];
 }
 
-export const TERMINAL_ACTIVITY_STATUSES: TurnkeyApiTypes["v1ActivityStatus"][] =
-  [
-    "ACTIVITY_STATUS_COMPLETED",
-    "ACTIVITY_STATUS_FAILED",
-    "ACTIVITY_STATUS_REJECTED",
-  ];
-
 export type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
 
 export interface NextApiRequest {

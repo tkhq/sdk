@@ -1,7 +1,5 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
-import nacl from "tweetnacl";
-import bs58 from "bs58";
 import { input, confirm } from "@inquirer/prompts";
 import type { Transaction } from "@solana/web3.js";
 
@@ -13,12 +11,7 @@ const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import {
-  createNewSolanaWallet,
-  solanaNetwork,
-  signMessage,
-  print,
-} from "./utils";
+import { createNewSolanaWallet, solanaNetwork } from "./utils";
 import { createTransfer } from "./utils/createSolanaTransfer";
 
 async function main() {
@@ -99,29 +92,7 @@ async function main() {
     },
   });
 
-  // 1. Sign and verify a message
-  const message = "Hello world!";
-  const messageAsUint8Array = Buffer.from(message);
-
-  const signature = await signMessage({
-    signer: turnkeySigner,
-    fromAddress: solAddress,
-    message,
-  });
-
-  const isValidSignature = nacl.sign.detached.verify(
-    messageAsUint8Array,
-    signature,
-    bs58.decode(solAddress)
-  );
-
-  if (!isValidSignature) {
-    throw new Error("unable to verify signed message");
-  }
-
-  print("\nTurnkey-powered signature:", `${bs58.encode(signature)}`);
-
-  // 2. Create, sign, and verify a transfer transaction
+  // 1. Create, sign, and verify a transfer transaction
   const transaction = await createTransfer({
     fromAddress: solAddress,
     toAddress: destination,
@@ -137,7 +108,7 @@ async function main() {
     throw new Error("unable to verify transaction signatures");
   }
 
-  // 3. Broadcast the signed payload on devnet
+  // 2. Broadcast the signed payload on devnet
   await solanaNetwork.broadcast(connection, transaction);
 
   process.exit(0);

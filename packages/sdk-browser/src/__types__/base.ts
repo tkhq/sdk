@@ -1,3 +1,5 @@
+import type { TurnkeyApiTypes } from "@turnkey/http";
+
 export type GrpcStatus = {
   message: string;
   code: number;
@@ -27,6 +29,8 @@ export type TActivityPollerConfig = {
   intervalMs: number;
   numRetries: number;
 };
+
+export type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
 
 export class TurnkeyRequestError extends Error {
   details: any[] | null;

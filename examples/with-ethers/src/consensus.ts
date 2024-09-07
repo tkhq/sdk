@@ -9,9 +9,6 @@ import { ethers } from "ethers";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createNewWallet } from "./createNewWallet";
 import { print, assertEqual } from "./util";
-import WETH_TOKEN_ABI from "./weth-contract-abi.json";
-
-const WETH_TOKEN_ADDRESS_SEPOLIA = "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9";
 
 async function main() {
   if (!process.env.SIGN_WITH) {
@@ -25,6 +22,16 @@ async function main() {
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
+    // The following config is useful in contexts where an activity requires consensus.
+    // By default, if the activity is not initially successful, it will poll a maximum
+    // of 3 times with an interval of 1000 milliseconds.
+    //
+    // -----
+    //
+    activityPoller: {
+      intervalMs: 10_000,
+      numRetries: 5,
+    },
   });
 
   // Initialize a Turnkey Signer
@@ -71,10 +78,6 @@ async function main() {
     type: 2,
   };
 
-  const signedTx = await connectedSigner.signTransaction(transactionRequest);
-
-  print("Turnkey-signed transaction:", `${signedTx}`);
-
   if (balance === 0) {
     let warningMessage =
       "The transaction won't be broadcasted because your account balance is zero.\n";
@@ -87,37 +90,13 @@ async function main() {
     return;
   }
 
-  // 2. Simple send tx
+  // 1. Simple send tx
   const sentTx = await connectedSigner.sendTransaction(transactionRequest);
 
   print(
     `Sent ${ethers.formatEther(sentTx.value)} Ether to ${sentTx.to}:`,
     `https://${network}.etherscan.io/tx/${sentTx.hash}`
   );
-
-  if (network === "sepolia") {
-    // https://sepolia.etherscan.io/address/0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6
-    const wethContract = new ethers.Contract(
-      WETH_TOKEN_ADDRESS_SEPOLIA,
-      WETH_TOKEN_ABI,
-      connectedSigner
-    );
-
-    // Read from contract
-    const wethBalance = await wethContract?.balanceOf?.(address);
-
-    print("WETH Balance:", `${ethers.formatEther(wethBalance)} WETH`);
-
-    // 3. Wrap ETH -> WETH
-    const depositTx = await wethContract?.deposit?.({
-      value: ethers.parseEther(transactionAmount),
-    });
-
-    print(
-      `Wrapped ${ethers.formatEther(depositTx.value)} ETH:`,
-      `https://${network}.etherscan.io/tx/${depositTx.hash}`
-    );
-  }
 }
 
 main().catch((error) => {

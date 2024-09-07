@@ -13,7 +13,6 @@ type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
 
 type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
 
-
 export class TurnkeySigner {
   public readonly organizationId: string;
   public readonly client: TClient;
@@ -101,7 +100,7 @@ export class TurnkeySigner {
    * This function is a helper method to easily extract a signature string from a completed signing activity.
    * Particularly useful for scenarios where a signature requires consensus.
    * This can be used in conjunction with `addSignature()` and `signMessage()` methods included in this SDK.
-   * The resulting signature can be added to a transaction via `tx.addSignature(fromKey, Buffer.from(signature), "hex"))`
+   * The resulting signature can be added to a transaction via `tx.addSignature(fromKey, Buffer.from(signature, "hex"))`
    *
    * @param activityId the signing activity
    * @return signature string. Caller can convert it to a Buffer if needed
@@ -142,7 +141,7 @@ export class TurnkeySigner {
    * This function is a helper method to easily extract signature strings from a completed signing activity.
    * Particularly useful for scenarios where a signature requires consensus.
    * This can be used in conjunction with the `signAllTransactions()` method included in this SDK.
-   * The resulting signatures can be added to transactions via `tx.addSignature(fromKey, Buffer.from(signature), "hex"))`
+   * The resulting signatures can be added to transactions via `tx.addSignature(fromKey, Buffer.from(signature, "hex"))`
    *
    * @param activityId the signing activity
    * @return signature strings. Caller can convert each to a Buffer if needed
@@ -222,8 +221,7 @@ export class TurnkeySigner {
         throw new TurnkeyActivityError({
           message: `Unexpected activity status: ${activity.status}`,
           activityId: activity.id,
-          activityStatus:
-            activity.status as TActivityStatus,
+          activityStatus: activity.status as TActivityStatus,
         });
       }
 
@@ -277,8 +275,7 @@ export class TurnkeySigner {
         throw new TurnkeyActivityError({
           message: `Unexpected activity status: ${activity.status}`,
           activityId: activity.id,
-          activityStatus:
-            activity.status as TActivityStatus,
+          activityStatus: activity.status as TActivityStatus,
         });
       }
 
