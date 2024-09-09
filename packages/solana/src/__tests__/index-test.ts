@@ -55,7 +55,7 @@ describe("TurnkeySigner", () => {
       }),
     },
     {
-      configName: "@turnkey/sdk-browser client",
+      configName: "@turnkey/sdk-server client",
       signer: new TurnkeySigner({
         organizationId,
         client: turnkeyServerClient.apiClient(),

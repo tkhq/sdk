@@ -42,7 +42,9 @@ export class TurnkeySigner {
     );
 
     const signatures = signRawPayloadsResult?.signatures?.map(
-      (sig: TSignature) => `${sig?.r}${sig?.s}`
+      (sig: TSignature) => {
+        return `${sig?.r}${sig?.s}`;
+      }
     );
 
     for (let i in txs) {
@@ -279,9 +281,9 @@ export class TurnkeySigner {
         });
       }
 
-      return assertNonNull(
-        signatures as TurnkeyApiTypes["v1SignRawPayloadsResult"]
-      );
+      return assertNonNull({
+        signatures: signatures as TurnkeyApiTypes["v1SignRawPayloadResult"][],
+      });
     }
   }
 
