@@ -12,6 +12,7 @@ import {
 } from "@turnkey/sdk-server";
 import { createNewWallet } from "./createNewWallet";
 import { print, sleep } from "./util";
+import { TurnkeyActivityConsensusNeededError } from "@turnkey/http";
 
 async function main() {
   if (!process.env.SIGN_WITH) {
@@ -27,7 +28,7 @@ async function main() {
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
     // The following config is useful in contexts where an activity requires consensus.
     // By default, if the activity is not initially successful, it will poll a maximum
-    // of 3 times with an interval of 1000 milliseconds.
+    // of 3 times with an interval of 10000 milliseconds.
     //
     // -----
     //
@@ -87,38 +88,47 @@ async function main() {
   let sentTx;
 
   // Simple send tx.
-  // If it does not succeed at first, wait for consensus, then attempt to broadcast the signed transaction
+  // The `addSignature()` call will wait and perform retries based on the `activityPoller` config.
+  // If the activity is still not complete after this period (typically due to consensus requirements),
+  // the resulting error will get caught and handled:
+  // - Continue awaiting consensus
+  // - Once consensus is reached, get the signed payload and broadcast the transaction
   try {
     sentTx = await connectedSigner.sendTransaction(transactionRequest);
   } catch (error: any) {
-    const activityId = error["activityId"];
-    let activityStatus = error["activityStatus"];
+    if (error instanceof TurnkeyActivityConsensusNeededError) {
+      const activityId = error["activityId"]!;
+      let activityStatus = error["activityStatus"]!;
 
-    while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
-      console.log("Waiting for consensus...");
+      while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
+        console.log("Waiting for consensus...");
 
-      // Wait 5 seconds
-      await sleep(5_000);
+        // Wait 5 seconds
+        await sleep(5_000);
 
-      // Refresh activity status
-      activityStatus = (
-        await turnkeyClient.apiClient().getActivity({
-          activityId,
-          organizationId: process.env.ORGANIZATION_ID!,
-        })
-      ).activity.status;
+        // Refresh activity status
+        activityStatus = (
+          await turnkeyClient.apiClient().getActivity({
+            activityId,
+            organizationId: process.env.ORGANIZATION_ID!,
+          })
+        ).activity.status;
+      }
+
+      console.log("Consensus reached! Moving onto broadcasting...");
+
+      // Break out of loop now that we have an activity that has reached terminal status.
+      // Get the signature
+      const signedTransaction =
+        await connectedSigner.getSignedTransactionFromActivity(activityId);
+
+      sentTx = await connectedSigner.provider?.broadcastTransaction(
+        signedTransaction
+      );
     }
 
-    console.log("Consensus reached! Moving onto broadcasting...");
-
-    // Break out of loop now that we have an activity that has reached terminal status.
-    // Get the signature
-    const signedTransaction =
-      await connectedSigner.getSignedTransactionFromActivity(activityId);
-
-    sentTx = await connectedSigner.provider?.broadcastTransaction(
-      signedTransaction
-    );
+    // Rethrow error
+    throw error;
   }
 
   print(

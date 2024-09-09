@@ -4,7 +4,13 @@ export { TurnkeyClient } from "./__generated__/services/coordinator/public/v1/pu
 export { init, browserInit } from "./config";
 
 export { TurnkeyRequestError } from "./base";
-export { TurnkeyActivityError } from "./shared";
+export {
+  TurnkeyActivityError,
+  TurnkeyActivityConsensusNeededError,
+  type TActivityId,
+  type TActivityStatus,
+  type TActivityType,
+} from "./shared";
 export type { SignedRequest, TSignedRequest } from "./base";
 export { getWebAuthnAttestation } from "./webauthn";
 

@@ -9,7 +9,11 @@ import {
   copyRequest,
   resolveAddress,
 } from "ethers";
-import { TurnkeyActivityError, TurnkeyRequestError } from "@turnkey/http";
+import {
+  TurnkeyActivityConsensusNeededError,
+  TurnkeyActivityError,
+  TurnkeyRequestError,
+} from "@turnkey/http";
 import { TurnkeyClient } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
@@ -119,20 +123,14 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         timestampMs: String(Date.now()), // millisecond timestamp
       });
 
-      const { id, status, type } = activity;
-
-      if (activity.status === "ACTIVITY_STATUS_COMPLETED") {
-        return assertNonNull(
-          activity?.result?.signTransactionResult?.signedTransaction
-        );
-      }
-
-      throw new TurnkeyActivityError({
-        message: `Invalid activity status: ${activity.status}`,
-        activityId: id,
-        activityStatus: status,
-        activityType: type,
+      checkActivityStatus({
+        id: activity.id,
+        status: activity.status,
       });
+
+      return assertNonNull(
+        activity?.result?.signTransactionResult?.signedTransaction
+      );
     } else {
       const { activity, signedTransaction } = await this.client.signTransaction(
         {
@@ -142,13 +140,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         }
       );
 
-      if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-        throw new TurnkeyActivityError({
-          message: `Unexpected activity status: ${activity.status}`,
-          activityId: activity.id,
-          activityStatus: activity.status as TActivityStatus,
-        });
-      }
+      checkActivityStatus({
+        id: activity.id,
+        status: activity.status,
+      });
 
       return assertNonNull(signedTransaction);
     }
@@ -256,16 +251,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         timestampMs: String(Date.now()), // millisecond timestamp
       });
 
-      const { id, status, type } = activity;
-
-      if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-        throw new TurnkeyActivityError({
-          message: `Unexpected activity status: ${activity.status}`,
-          activityId: id,
-          activityStatus: status,
-          activityType: type,
-        });
-      }
+      checkActivityStatus({
+        id: activity.id,
+        status: activity.status,
+      });
 
       result = assertNonNull(activity?.result?.signRawPayloadResult);
     } else {
@@ -276,13 +265,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         hashFunction: "HASH_FUNCTION_NO_OP",
       });
 
-      if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-        throw new TurnkeyActivityError({
-          message: `Unexpected activity status: ${activity.status}`,
-          activityId: activity.id,
-          activityStatus: activity.status as TActivityStatus,
-        });
-      }
+      checkActivityStatus({
+        id: activity.id,
+        status: activity.status,
+      });
 
       result = {
         r,
@@ -351,17 +337,14 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       throw new TurnkeyActivityError({
         message: `Unexpected activity type: ${activity.type}`,
         activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
+        activityStatus: activity.status,
       });
     }
 
-    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new TurnkeyActivityError({
-        message: `Activity is not yet completed: ${activity.status}`,
-        activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
-      });
-    }
+    checkActivityStatus({
+      id: activity.id,
+      status: activity.status,
+    });
 
     const signature = activity.result?.signRawPayloadResult!;
 
@@ -392,17 +375,14 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       throw new TurnkeyActivityError({
         message: `Unexpected activity type: ${activity.type}`,
         activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
+        activityStatus: activity.status,
       });
     }
 
-    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new TurnkeyActivityError({
-        message: `Activity is not yet completed: ${activity.status}`,
-        activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
-      });
-    }
+    checkActivityStatus({
+      id: activity.id,
+      status: activity.status,
+    });
 
     const { signedTransaction } = activity.result?.signTransactionResult!;
 
@@ -410,7 +390,27 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 }
 
-export { TurnkeyActivityError, TurnkeyRequestError };
+function checkActivityStatus(input: { id: string; status: TActivityStatus }) {
+  const { id: activityId, status: activityStatus } = input;
+
+  if (activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
+    throw new TurnkeyActivityConsensusNeededError({
+      message: "Activity requires consensus",
+      activityId,
+      activityStatus,
+    });
+  }
+
+  if (activityStatus !== "ACTIVITY_STATUS_COMPLETED") {
+    throw new TurnkeyActivityError({
+      message: `Expected COMPLETED status, got ${activityStatus}`,
+      activityId,
+      activityStatus,
+    });
+  }
+
+  return true;
+}
 
 function assertNonNull<T>(input: T | null | undefined): T {
   if (input == null) {
@@ -419,3 +419,5 @@ function assertNonNull<T>(input: T | null | undefined): T {
 
   return input;
 }
+
+export { TurnkeyActivityError, TurnkeyRequestError };

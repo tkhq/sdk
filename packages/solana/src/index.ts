@@ -3,7 +3,11 @@ import {
   type Transaction,
   type VersionedTransaction,
 } from "@solana/web3.js";
-import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
+import {
+  TurnkeyActivityError,
+  TurnkeyActivityConsensusNeededError,
+  TurnkeyClient,
+} from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
 
@@ -126,13 +130,10 @@ export class TurnkeySigner {
       });
     }
 
-    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new TurnkeyActivityError({
-        message: `Activity is not yet completed: ${activity.status}`,
-        activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
-      });
-    }
+    checkActivityStatus({
+      id: activity.id,
+      status: activity.status,
+    });
 
     const { r, s } = activity.result?.signRawPayloadResult!;
 
@@ -164,13 +165,10 @@ export class TurnkeySigner {
       });
     }
 
-    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new TurnkeyActivityError({
-        message: `Activity is not yet completed: ${activity.status}`,
-        activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
-      });
-    }
+    checkActivityStatus({
+      id: activity.id,
+      status: activity.status,
+    });
 
     const { signatures } = activity.result?.signRawPayloadsResult!;
 
@@ -197,16 +195,12 @@ export class TurnkeySigner {
         },
       });
 
-      const { id, status, type, result } = response.activity;
+      const { id, status, result } = response.activity;
 
-      if (status !== "ACTIVITY_STATUS_COMPLETED") {
-        throw new TurnkeyActivityError({
-          message: `Expected COMPLETED status, got ${status}`,
-          activityId: id,
-          activityStatus: status,
-          activityType: type,
-        });
-      }
+      checkActivityStatus({
+        id,
+        status,
+      });
 
       return assertNonNull(result?.signRawPayloadResult);
     } else {
@@ -219,13 +213,12 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-        throw new TurnkeyActivityError({
-          message: `Unexpected activity status: ${activity.status}`,
-          activityId: activity.id,
-          activityStatus: activity.status as TActivityStatus,
-        });
-      }
+      const { id, status } = activity;
+
+      checkActivityStatus({
+        id,
+        status: status as TActivityStatus,
+      });
 
       return assertNonNull({
         r,
@@ -251,16 +244,12 @@ export class TurnkeySigner {
         },
       });
 
-      const { id, status, type, result } = response.activity;
+      const { id, status, result } = response.activity;
 
-      if (status !== "ACTIVITY_STATUS_COMPLETED") {
-        throw new TurnkeyActivityError({
-          message: `Expected COMPLETED status, got ${status}`,
-          activityId: id,
-          activityStatus: status,
-          activityType: type,
-        });
-      }
+      checkActivityStatus({
+        id,
+        status,
+      });
 
       return assertNonNull(result?.signRawPayloadsResult);
     } else {
@@ -273,13 +262,12 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-        throw new TurnkeyActivityError({
-          message: `Unexpected activity status: ${activity.status}`,
-          activityId: activity.id,
-          activityStatus: activity.status as TActivityStatus,
-        });
-      }
+      const { id, status } = activity;
+
+      checkActivityStatus({
+        id,
+        status: status as TActivityStatus,
+      });
 
       return assertNonNull({
         signatures: signatures as TurnkeyApiTypes["v1SignRawPayloadResult"][],
@@ -304,6 +292,28 @@ export class TurnkeySigner {
 
     return messageToSign;
   }
+}
+
+function checkActivityStatus(input: { id: string; status: TActivityStatus }) {
+  const { id: activityId, status: activityStatus } = input;
+
+  if (activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
+    throw new TurnkeyActivityConsensusNeededError({
+      message: "Activity requires consensus",
+      activityId,
+      activityStatus,
+    });
+  }
+
+  if (activityStatus !== "ACTIVITY_STATUS_COMPLETED") {
+    throw new TurnkeyActivityError({
+      message: `Expected COMPLETED status, got ${activityStatus}`,
+      activityId,
+      activityStatus,
+    });
+  }
+
+  return true;
 }
 
 function assertNonNull<T>(input: T | null | undefined): T {

@@ -30,6 +30,30 @@ export class TurnkeyActivityError extends Error {
   }
 }
 
+export class TurnkeyActivityConsensusNeededError extends Error {
+  activityId: TActivityId | null;
+  activityStatus: TActivityStatus | null;
+  activityType: TActivityType | null;
+  cause: Error | null;
+
+  constructor(input: {
+    message: string;
+    cause?: Error | null;
+    activityId?: TActivityId | null;
+    activityStatus?: TActivityStatus | null;
+    activityType?: TActivityType | null;
+  }) {
+    const { message, cause, activityId, activityStatus, activityType } = input;
+    super(message);
+
+    this.name = "TurnkeyActivityConsensusNeededError";
+    this.activityId = activityId ?? null;
+    this.activityStatus = activityStatus ?? null;
+    this.activityType = activityType ?? null;
+    this.cause = cause ?? null;
+  }
+}
+
 export function stableStringify(input: Record<string, any>): string {
   return JSON.stringify(input);
 }

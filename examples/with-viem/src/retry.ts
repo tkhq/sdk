@@ -1,14 +1,18 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
 
-import { createAccount, getSignedTransactionFromActivity } from "@turnkey/viem";
+import {
+  TConsensusNeededError,
+  createAccount,
+  getSignedTransactionFromActivity,
+} from "@turnkey/viem";
 import {
   Turnkey as TurnkeyServerSDK,
   TERMINAL_ACTIVITY_STATUSES,
 } from "@turnkey/sdk-server";
 import { createWalletClient, http, type Account } from "viem";
 import { sepolia } from "viem/chains";
-import { print, sleep } from "./util";
+import { print, refineNonNull, sleep } from "./util";
 import { createNewWallet } from "./createNewWallet";
 
 // Load environment variables from `.env.local`
@@ -28,7 +32,7 @@ async function main() {
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
     // The following config is useful in contexts where an activity requires consensus.
     // By default, if the activity is not initially successful, it will poll a maximum
-    // of 3 times with an interval of 1000 milliseconds.
+    // of 3 times with an interval of 10000 milliseconds.
     //
     // -----
     //
@@ -64,47 +68,57 @@ async function main() {
   let txHash;
 
   // Simple send tx.
-  // If it does not succeed at first, wait for consensus, then attempt to broadcast the signed transaction
+  // The `addSignature()` call will wait and perform retries based on the `activityPoller` config.
+  // If the activity is still not complete after this period (typically due to consensus requirements),
+  // the resulting error will get caught and handled:
+  // - Continue awaiting consensus
+  // - Once consensus is reached, get the signed payload and broadcast the transaction
   try {
     txHash = await client.sendTransaction(transactionRequest);
   } catch (error: any) {
-    console.log("error", error);
-    const parsedErrorMessage = JSON.parse(error["shortMessage"])["cause"][
-      "shortMessage"
-    ];
-    const parsedTurnkeyError = JSON.parse(parsedErrorMessage);
+    const isTurnkeyActivityConsensusNeededError = error.walk((e: any) => {
+      return e instanceof TConsensusNeededError;
+    });
 
-    const activityId = parsedTurnkeyError["activityId"];
-    let activityStatus = parsedTurnkeyError["activityStatus"];
+    if (isTurnkeyActivityConsensusNeededError) {
+      console.log("error", error);
+      console.log("error details", error.details);
+      console.log("error cause", error.cause);
+      const activityId = refineNonNull(error.cause.activityId);
+      let activityStatus = refineNonNull(error.cause.activityStatus);
 
-    while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
-      console.log("Waiting for consensus...");
+      while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
+        console.log("Waiting for consensus...");
 
-      // Wait 5 seconds
-      await sleep(5_000);
+        // Wait 5 seconds
+        await sleep(5_000);
 
-      // Refresh activity status
-      activityStatus = (
-        await turnkeyClient.apiClient().getActivity({
-          activityId,
-          organizationId: process.env.ORGANIZATION_ID!,
-        })
-      ).activity.status;
+        // Refresh activity status
+        activityStatus = (
+          await turnkeyClient.apiClient().getActivity({
+            activityId,
+            organizationId: process.env.ORGANIZATION_ID!,
+          })
+        ).activity.status;
+      }
+
+      console.log("Consensus reached! Moving onto broadcasting...");
+
+      // Break out of loop now that we have an activity that has reached terminal status.
+      // Get the signature
+      const signedTransaction = await getSignedTransactionFromActivity(
+        turnkeyClient.apiClient(),
+        process.env.ORGANIZATION_ID!,
+        activityId
+      );
+
+      txHash = await client.sendRawTransaction({
+        serializedTransaction: signedTransaction,
+      });
     }
 
-    console.log("Consensus reached! Moving onto broadcasting...");
-
-    // Break out of loop now that we have an activity that has reached terminal status.
-    // Get the signature
-    const signedTransaction = await getSignedTransactionFromActivity(
-      turnkeyClient.apiClient(),
-      process.env.ORGANIZATION_ID!,
-      activityId
-    );
-
-    txHash = await client.sendRawTransaction({
-      serializedTransaction: signedTransaction,
-    });
+    // Rethrow error
+    throw error;
   }
 
   print("Source address", client.account.address);

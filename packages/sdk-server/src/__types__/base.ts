@@ -1,4 +1,4 @@
-import type { TurnkeyApiTypes } from "@turnkey/http";
+import type { TActivityId, TurnkeyApiTypes } from "@turnkey/http";
 
 export type GrpcStatus = {
   message: string;
@@ -51,16 +51,16 @@ export class TurnkeyRequestError extends Error {
 
 export interface ActivityResponse {
   activity: {
-    id: string;
-    status: string;
+    id: TActivityId;
+    status: TActivityStatus;
     result: Record<string, any>;
   };
 }
 
 export interface ActivityMetadata {
   activity: {
-    id: string;
-    status: string;
+    id: TActivityId;
+    status: TActivityStatus;
   };
 }
 

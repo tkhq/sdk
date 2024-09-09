@@ -10,7 +10,12 @@ import type {
   TransactionSerializable,
   TypedData,
 } from "viem";
-import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
+import {
+  TActivityId,
+  TurnkeyActivityConsensusNeededError,
+  TurnkeyActivityError,
+  TurnkeyClient,
+} from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
@@ -18,6 +23,74 @@ import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
 type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
 
 type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
+
+export class TConsensusNeededError extends TurnkeyActivityConsensusNeededError {
+  // details: string;
+  // shortMessage: string;
+  // version: string;
+
+  constructor(input: {
+    message: string;
+    activityId: TActivityId;
+    activityStatus: TActivityStatus;
+    details?: string;
+    shortMessage?: string;
+    version?: string;
+  }) {
+    const {
+      message,
+      activityId,
+      activityStatus,
+      // details,
+      // shortMessage,
+      // version,
+    } = input;
+    super({
+      message,
+      activityId,
+      activityStatus,
+      cause: new Error(),
+    });
+  }
+  walk(): Error;
+  walk(fn: (err: unknown) => boolean): Error | null;
+  walk(fn?: any): any {
+    return walk(this, fn);
+  }
+}
+
+function walk(
+  err: unknown,
+  fn?: ((err: unknown) => boolean) | undefined
+): unknown {
+  console.log("walking err", err);
+  if (fn?.(err)) return err;
+  if (err && typeof err === "object" && "cause" in err)
+    return walk(err.cause, fn);
+  return fn ? null : err;
+}
+
+// export type TConsensusNeededErrorType = TConsensusNeededError & {
+//   name: "ConsensusNeededError";
+// };
+// export class TConsensusNeededError extends BaseError {
+//   override name = "ConsensusNeededError";
+
+//   activityId: TActivityId;
+//   activityStatus: TActivityStatus;
+
+//   constructor({
+//     activityId,
+//     activityStatus,
+//   }: {
+//     activityId: TActivityId;
+//     activityStatus: TActivityStatus;
+//   }) {
+//     super("Activity requires consensus.");
+//     this.activityId = activityId;
+//     this.activityStatus = activityStatus;
+//   }
+// }
 
 export async function createAccount(input: {
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
@@ -272,24 +345,17 @@ export async function getSignatureFromActivity(
       "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
     ].includes(activity.type)
   ) {
-    throw new BaseError(
-      JSON.stringify({
-        message: `Unexpected activity type: ${activity.type}`,
-        activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
-      })
-    );
+    throw new TurnkeyActivityError({
+      message: `Unexpected activity type: ${activity.type}`,
+      activityId: activity.id,
+      activityStatus: activity.status as TActivityStatus,
+    });
   }
 
-  if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-    throw new BaseError(
-      JSON.stringify({
-        message: `Activity is not yet completed: ${activity.status}`,
-        activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
-      })
-    );
-  }
+  checkActivityStatus({
+    id: activity.id,
+    status: activity.status,
+  });
 
   const signature = activity.result?.signRawPayloadResult!;
 
@@ -319,24 +385,17 @@ export async function getSignedTransactionFromActivity(
       "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
     ].includes(activity.type)
   ) {
-    throw new BaseError(
-      JSON.stringify({
-        message: `Unexpected activity type: ${activity.type}`,
-        activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
-      })
-    );
+    throw new TurnkeyActivityError({
+      message: `Unexpected activity type: ${activity.type}`,
+      activityId: activity.id,
+      activityStatus: activity.status as TActivityStatus,
+    });
   }
 
-  if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-    throw new BaseError(
-      JSON.stringify({
-        message: `Activity is not yet completed: ${activity.status}`,
-        activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
-      })
-    );
-  }
+  checkActivityStatus({
+    id: activity.id,
+    status: activity.status,
+  });
 
   const { signedTransaction } = activity.result?.signTransactionResult!;
 
@@ -358,12 +417,16 @@ async function signTransactionWithErrorWrapping(
       signWith
     );
   } catch (error) {
-    throw new BaseError(
-      JSON.stringify({
-        message: `Failed to sign transaction: ${(error as Error).message}`,
-        cause: error as Error,
-      })
-    );
+    console.log("throwing error", error);
+
+    // throw new BaseError(`Failed to sign transaction`, {
+    //   details: JSON.stringify(error),
+    // });
+    // throw new TConsensusNeededError(error);
+
+    // wrap errors further up the chain
+
+    throw error;
   }
 
   return `0x${signedTx}`;
@@ -387,18 +450,10 @@ async function signTransactionImpl(
       timestampMs: String(Date.now()), // millisecond timestamp
     });
 
-    const { id, status, type } = activity;
-
-    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new BaseError(
-        JSON.stringify({
-          message: `Unexpected activity status: ${activity.status}`,
-          activityId: id,
-          activityStatus: status,
-          activityType: type,
-        })
-      );
-    }
+    checkActivityStatus({
+      id: activity.id,
+      status: activity.status,
+    });
 
     return assertNonNull(
       activity?.result?.signTransactionResult?.signedTransaction
@@ -410,15 +465,10 @@ async function signTransactionImpl(
       unsignedTransaction: unsignedTransaction,
     });
 
-    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new BaseError(
-        JSON.stringify({
-          message: `Unexpected activity status: ${activity.status}`,
-          activityId: activity.id,
-          activityStatus: activity.status as TActivityStatus,
-        })
-      );
-    }
+    checkActivityStatus({
+      id: activity.id,
+      status: activity.status,
+    });
 
     return assertNonNull(signedTransaction);
   }
@@ -439,12 +489,9 @@ async function signMessageWithErrorWrapping(
       signWith
     );
   } catch (error) {
-    throw new BaseError(
-      JSON.stringify({
-        message: `Failed to sign: ${(error as Error).message}`,
-        cause: error as Error,
-      })
-    );
+    throw new BaseError(`Failed to sign message`, {
+      details: JSON.stringify(error),
+    });
   }
 
   return signedMessage as Hex;
@@ -471,18 +518,10 @@ async function signMessageImpl(
       timestampMs: String(Date.now()), // millisecond timestamp
     });
 
-    const { id, status, type } = activity;
-
-    if (status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new BaseError(
-        JSON.stringify({
-          message: `Unexpected activity status: ${activity.status}`,
-          activityId: id,
-          activityStatus: status,
-          activityType: type,
-        })
-      );
-    }
+    checkActivityStatus({
+      id: activity.id,
+      status: activity.status,
+    });
 
     result = assertNonNull(activity?.result?.signRawPayloadResult);
   } else {
@@ -493,15 +532,10 @@ async function signMessageImpl(
       hashFunction: "HASH_FUNCTION_NO_OP",
     });
 
-    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new BaseError(
-        JSON.stringify({
-          message: `Unexpected activity status: ${activity.status}`,
-          activityId: activity.id,
-          activityStatus: activity.status as TActivityStatus,
-        })
-      );
-    }
+    checkActivityStatus({
+      id: activity.id,
+      status: activity.status,
+    });
 
     result = {
       r,
@@ -518,6 +552,37 @@ async function signMessageImpl(
 
   // Assemble the hex
   return assertNonNull(assembled);
+}
+
+function checkActivityStatus(input: {
+  id: TActivityId;
+  status: TActivityStatus;
+}) {
+  const { id: activityId, status: activityStatus } = input;
+
+  if (activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
+    // throw new TConsensusNeededError({
+    //   // message: "Activity requires consensus",
+    //   activityId,
+    //   activityStatus,
+    // });
+
+    throw new TConsensusNeededError({
+      message: "Activity requires consensus",
+      activityId,
+      activityStatus,
+    });
+  }
+
+  if (activityStatus !== "ACTIVITY_STATUS_COMPLETED") {
+    throw new TurnkeyActivityError({
+      message: `Expected COMPLETED status, got ${activityStatus}`,
+      activityId,
+      activityStatus,
+    });
+  }
+
+  return true;
 }
 
 function assertNonNull<T>(input: T | null | undefined): T {
