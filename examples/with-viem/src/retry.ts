@@ -2,7 +2,7 @@ import * as path from "path";
 import * as dotenv from "dotenv";
 
 import {
-  TConsensusNeededError,
+  TurnkeyConsensusNeededError,
   createAccount,
   getSignedTransactionFromActivity,
 } from "@turnkey/viem";
@@ -77,13 +77,10 @@ async function main() {
     txHash = await client.sendTransaction(transactionRequest);
   } catch (error: any) {
     const isTurnkeyActivityConsensusNeededError = error.walk((e: any) => {
-      return e instanceof TConsensusNeededError;
+      return e instanceof TurnkeyConsensusNeededError;
     });
 
     if (isTurnkeyActivityConsensusNeededError) {
-      console.log("error", error);
-      console.log("error details", error.details);
-      console.log("error cause", error.cause);
       const activityId = refineNonNull(error.cause.activityId);
       let activityStatus = refineNonNull(error.cause.activityStatus);
 
@@ -112,6 +109,7 @@ async function main() {
         activityId
       );
 
+      // Broadcast transaction
       txHash = await client.sendRawTransaction({
         serializedTransaction: signedTransaction,
       });

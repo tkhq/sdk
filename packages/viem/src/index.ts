@@ -12,7 +12,7 @@ import type {
 } from "viem";
 import {
   TActivityId,
-  TurnkeyActivityError,
+  TurnkeyActivityError as TurnkeyHttpActivityError,
   TurnkeyClient,
 } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
@@ -23,46 +23,50 @@ type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
 
 type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
 
-export type TTurnkeyConsensusNeededErrorType = TConsensusNeededError & {
+export type TTurnkeyConsensusNeededErrorType = TurnkeyConsensusNeededError & {
   name: "TurnkeyConsensusNeededError";
 };
-export class TConsensusNeededError extends BaseError {
+export class TurnkeyConsensusNeededError extends BaseError {
   override name = "TurnkeyConsensusNeededError";
 
   activityId: TActivityId;
   activityStatus: TActivityStatus;
 
   constructor({
+    message = "Turnkey activity requires consensus.",
     activityId,
     activityStatus,
   }: {
+    message?: string;
     activityId: TActivityId;
     activityStatus: TActivityStatus;
   }) {
-    super("Activity requires consensus.");
+    super(message);
     this.activityId = activityId;
     this.activityStatus = activityStatus;
   }
 }
 
-export type TTurnkeyConsensusNeededErrorType = TConsensusNeededError & {
-  name: "TurnkeyConsensusNeededError";
+export type TTurnkeyActivityErrorType = TurnkeyActivityError & {
+  name: "TurnkeyActivityError";
 };
 
-export class TActivityError extends BaseError {
+export class TurnkeyActivityError extends BaseError {
   override name = "TurnkeyActivityError";
 
-  activityId: TActivityId;
-  activityStatus: TActivityStatus;
+  activityId: TActivityId | undefined;
+  activityStatus: TActivityStatus | undefined;
 
   constructor({
+    message = "Received unexpected Turnkey activity status.",
     activityId,
     activityStatus,
   }: {
-    activityId: TActivityId;
-    activityStatus: TActivityStatus;
+    message?: string;
+    activityId?: TActivityId;
+    activityStatus?: TActivityStatus;
   }) {
-    super("Activity requires consensus.");
+    super(message);
     this.activityId = activityId;
     this.activityStatus = activityStatus;
   }
@@ -83,7 +87,7 @@ export async function createAccount(input: {
   let { ethereumAddress } = input;
 
   if (!signWith) {
-    throw new TurnkeyActivityError({
+    throw new TurnkeyHttpActivityError({
       message: `Missing signWith parameter`,
     });
   }
@@ -103,7 +107,7 @@ export async function createAccount(input: {
     )?.address;
 
     if (typeof ethereumAddress !== "string" || !ethereumAddress) {
-      throw new TurnkeyActivityError({
+      throw new TurnkeyHttpActivityError({
         message: `Unable to find Ethereum address for key ${signWith} under organization ${organizationId}`,
       });
     }
@@ -205,7 +209,7 @@ export async function createApiKeyAccount(
   )?.address;
 
   if (typeof ethereumAddress !== "string" || !ethereumAddress) {
-    throw new TurnkeyActivityError({
+    throw new TurnkeyHttpActivityError({
       message: `Unable to find Ethereum address for key ${privateKeyId} under organization ${organizationId}`,
     });
   }
@@ -324,7 +328,7 @@ export async function getSignatureFromActivity(
     throw new TurnkeyActivityError({
       message: `Unexpected activity type: ${activity.type}`,
       activityId: activity.id,
-      activityStatus: activity.status as TActivityStatus,
+      activityStatus: activity.status,
     });
   }
 
@@ -364,7 +368,7 @@ export async function getSignedTransactionFromActivity(
     throw new TurnkeyActivityError({
       message: `Unexpected activity type: ${activity.type}`,
       activityId: activity.id,
-      activityStatus: activity.status as TActivityStatus,
+      activityStatus: activity.status,
     });
   }
 
@@ -392,17 +396,17 @@ async function signTransactionWithErrorWrapping(
       organizationId,
       signWith
     );
-  } catch (error) {
-    console.log("throwing error", error);
+  } catch (error: any) {
+    if (
+      isTurnkeyActivityConsensusNeededError(error) ||
+      isTurnkeyActivityError(error)
+    ) {
+      throw error;
+    }
 
-    // throw new BaseError(`Failed to sign transaction`, {
-    //   details: JSON.stringify(error),
-    // });
-    // throw new TConsensusNeededError(error);
-
-    // wrap errors further up the chain
-
-    throw error;
+    throw new TurnkeyActivityError({
+      message: `Failed to sign: ${(error as Error).message}`,
+    });
   }
 
   return `0x${signedTx}`;
@@ -464,9 +468,16 @@ async function signMessageWithErrorWrapping(
       organizationId,
       signWith
     );
-  } catch (error) {
-    throw new BaseError(`Failed to sign message`, {
-      details: JSON.stringify(error),
+  } catch (error: any) {
+    if (
+      isTurnkeyActivityConsensusNeededError(error) ||
+      isTurnkeyActivityError(error)
+    ) {
+      throw error;
+    }
+
+    throw new TurnkeyActivityError({
+      message: `Failed to sign: ${(error as Error).message}`,
     });
   }
 
@@ -537,7 +548,7 @@ function checkActivityStatus(input: {
   const { id: activityId, status: activityStatus } = input;
 
   if (activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
-    throw new TConsensusNeededError({
+    throw new TurnkeyConsensusNeededError({
       activityId,
       activityStatus,
     });
@@ -552,6 +563,24 @@ function checkActivityStatus(input: {
   }
 
   return true;
+}
+
+function isTurnkeyActivityConsensusNeededError(error: any) {
+  return (
+    typeof error.walk === "function" &&
+    error.walk((e: any) => {
+      return e instanceof TurnkeyConsensusNeededError;
+    })
+  );
+}
+
+function isTurnkeyActivityError(error: any) {
+  return (
+    typeof error.walk === "function" &&
+    error.walk((e: any) => {
+      return e instanceof TurnkeyActivityError;
+    })
+  );
 }
 
 function assertNonNull<T>(input: T | null | undefined): T {
