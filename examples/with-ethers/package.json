@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "start": "tsx src/index.ts",
-    "consensus": "tsx src/consensus.ts",
     "retry": "tsx src/retry.ts",
     "start-advanced": "tsx src/advanced.ts",
     "start-sepolia-legacy": "tsx src/sepoliaLegacyTx.ts",
