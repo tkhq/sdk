@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "tsx src/createBtcTx.ts",
-    "send": "tsx src/createBtcTx.ts",
-    "derive": "tsx src/deriveBtcAddress.ts",
+    "create-wallet": "tsx src/createNewWallet.ts",
+    "send-p2wpkh": "tsx src/p2wpkh/createBtcTx.ts",
+    "derive-p2wpkh": "tsx src/p2wpkh/deriveBtcAddress.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
