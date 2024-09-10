@@ -111,15 +111,19 @@ describe("TurnkeyAccount", () => {
           })
         );
 
-        turnkeyAccount = signingConfig.configName.includes("createAccountWithAddress") ? createAccountWithAddress({
-          client: turnkeyClient,
-          organizationId,
-          signWith: signingConfig.signWith
-        }) : await createAccount({
-          client: turnkeyClient,
-          organizationId,
-          signWith: signingConfig.signWith,
-        });
+        turnkeyAccount = signingConfig.configName.includes(
+          "createAccountWithAddress"
+        )
+          ? createAccountWithAddress({
+              client: turnkeyClient,
+              organizationId,
+              signWith: signingConfig.signWith,
+            })
+          : await createAccount({
+              client: turnkeyClient,
+              organizationId,
+              signWith: signingConfig.signWith,
+            });
 
         walletClient = createTestClient({
           account: turnkeyAccount,
@@ -374,8 +378,6 @@ describe("TurnkeyAccount", () => {
     });
   });
 });
-
-
 
 function assertNonEmptyString(input: unknown, name: string): string {
   if (typeof input !== "string" || !input) {
