@@ -11,34 +11,27 @@ import {
   type OfflineDirectSigner,
 } from "@cosmjs/proto-signing";
 import {
-  init as httpInit,
+  TurnkeyClient,
   TurnkeyActivityError,
   TurnkeyRequestError,
-  TurnkeyApi,
 } from "@turnkey/http";
+import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
+import type { TurnkeyServerClient } from "@turnkey/sdk-server";
 import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 type TConfig = {
   /**
-   * Turnkey API public key
+   * Turnkey client
    */
-  apiPublicKey: string;
-  /**
-   * Turnkey API private key
-   */
-  apiPrivateKey: string;
-  /**
-   * Turnkey API base URL
-   */
-  baseUrl: string;
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
   /**
    * Turnkey organization ID
    */
   organizationId: string;
   /**
-   * Turnkey private key ID
+   * Turnkey wallet account public key or private key ID
    */
-  privateKeyId: string;
+  signWith: string;
 };
 
 const DEFAULT_PREFIX = "cosmos";
@@ -51,18 +44,23 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
     prefix?: string | undefined;
   }): Promise<TurnkeyDirectWallet> {
     const { config, prefix } = input;
-    const { privateKeyId, apiPublicKey, apiPrivateKey, baseUrl } = config;
+    const { client, signWith } = config;
 
-    httpInit({
-      apiPublicKey: apiPublicKey,
-      apiPrivateKey: apiPrivateKey,
-      baseUrl: baseUrl,
-    });
+    let compressedPublicKey: Uint8Array;
 
-    const { compressedPublicKey } = await fetchCompressedPublicKey({
-      privateKeyId,
-      organizationId: config.organizationId,
-    });
+    // If sign with is a UUID corresponding to a private key, fetch its public key
+    if (isValidUuid(signWith)) {
+      const { compressedPublicKey: fetchedPublicKey } =
+        await fetchCompressedPublicKey({
+          client,
+          privateKeyId: signWith,
+          organizationId: config.organizationId,
+        });
+
+      compressedPublicKey = fetchedPublicKey;
+    } else {
+      compressedPublicKey = fromHex(signWith);
+    }
 
     return new TurnkeyDirectWallet({
       config,
@@ -73,7 +71,12 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
 
   public readonly prefix: string;
   public readonly organizationId: string;
-  public readonly privateKeyId: string;
+  public readonly signWith: string;
+
+  private readonly client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient;
 
   private readonly compressedPublicKey: Uint8Array;
 
@@ -83,12 +86,13 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
     compressedPublicKey: Uint8Array;
   }) {
     const { compressedPublicKey, prefix, config } = input;
-    const { organizationId, privateKeyId } = config;
+    const { client, organizationId, signWith } = config;
 
     this.prefix = prefix ?? DEFAULT_PREFIX;
     this.compressedPublicKey = compressedPublicKey;
     this.organizationId = organizationId;
-    this.privateKeyId = privateKeyId;
+    this.signWith = signWith;
+    this.client = client;
   }
 
   private get address(): string {
@@ -139,54 +143,61 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
   private async _signImpl(
     message: Uint8Array
   ): Promise<ExtendedSecp256k1Signature> {
-    const { activity } = await TurnkeyApi.signRawPayload({
-      body: {
+    const messageHex = toHex(message);
+    let result;
+
+    if (this.client instanceof TurnkeyClient) {
+      const { activity } = await this.client.signRawPayload({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
         organizationId: this.organizationId,
         timestampMs: String(Date.now()),
         parameters: {
-          signWith: this.privateKeyId,
-          payload: toHex(message),
+          signWith: this.signWith,
+          payload: messageHex,
           encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
           hashFunction: "HASH_FUNCTION_SHA256",
         },
-      },
-    });
+      });
 
-    const { id, status, type } = activity;
+      const { id, status, type } = activity;
 
-    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new TurnkeyActivityError({
-        message: `Invalid activity status: ${activity.status}`,
-        activityId: id,
-        activityStatus: status,
-        activityType: type,
+      if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
+        throw new TurnkeyActivityError({
+          message: `Invalid activity status: ${activity.status}`,
+          activityId: id,
+          activityStatus: status,
+          activityType: type,
+        });
+      }
+
+      result = refineNonNull(activity?.result?.signRawPayloadResult);
+    } else {
+      result = await this.client.signRawPayload({
+        signWith: this.signWith,
+        payload: messageHex,
+        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+        hashFunction: "HASH_FUNCTION_NO_OP",
       });
     }
 
-    const result = refineNonNull(activity?.result?.signRawPayloadResult);
-
-    const { r, s, v } = result;
-
     return new ExtendedSecp256k1Signature(
-      fromHex(r),
-      fromHex(s),
-      parseInt(v, 16)
+      fromHex(result.r!),
+      fromHex(result.s!),
+      parseInt(result.v!, 16)
     );
   }
 }
 
-async function fetchCompressedPublicKey(input: {
+export async function fetchCompressedPublicKey(input: {
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
   privateKeyId: string;
   organizationId: string;
 }): Promise<{ compressedPublicKey: Uint8Array }> {
-  const { privateKeyId, organizationId } = input;
+  const { client, privateKeyId, organizationId } = input;
 
-  const keyInfo = await TurnkeyApi.getPrivateKey({
-    body: {
-      organizationId,
-      privateKeyId,
-    },
+  const keyInfo = await client.getPrivateKey({
+    organizationId,
+    privateKeyId,
   });
 
   const uncompressedPublicKey = keyInfo.privateKey.publicKey;
@@ -208,4 +219,9 @@ function refineNonNull<T>(
   }
 
   return input;
+}
+
+function isValidUuid(s: string): boolean {
+  const regex = /^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+  return regex.test(s);
 }

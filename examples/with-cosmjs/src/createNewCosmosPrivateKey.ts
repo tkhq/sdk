@@ -1,17 +1,15 @@
-import { TurnkeyClient, TurnkeyActivityError } from "@turnkey/http";
-import { createActivityPoller } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { TurnkeyClient, TurnkeyActivityError, createActivityPoller } from "@turnkey/http";
+import { Turnkey } from "@turnkey/sdk-server";
 import * as crypto from "crypto";
-import { refineNonNull } from "./shared";
+import { refineNonNull } from "./util";
 
 export async function createNewCosmosPrivateKey() {
-  const turnkeyClient = new TurnkeyClient(
-    { baseUrl: process.env.BASE_URL! },
-    new ApiKeyStamper({
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
-  );
+  const turnkeyClient = new Turnkey({
+    apiBaseUrl: process.env.BASE_URL!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    defaultOrganizationId: process.env.ORGANIZATION_ID!,
+  });
 
   console.log(
     "`process.env.PRIVATE_KEY_ID` not found; creating a new Cosmos private key on Turnkey...\n"

@@ -8,7 +8,7 @@ import { toHex } from "@cosmjs/encoding";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { TurnkeyDirectWallet } from "@turnkey/cosmjs";
 import { createNewCosmosPrivateKey } from "./createNewCosmosPrivateKey";
-import { print, refineNonNull } from "./shared";
+import { print, refineNonNull } from "./util";
 
 // https://docs.celestia.org/nodes/arabica-devnet/#rpc-endpoints
 const ENDPOINT = "https://rpc-arabica-9.consensus.celestia-arabica.com";
