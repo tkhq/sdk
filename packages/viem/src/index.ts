@@ -12,7 +12,6 @@ import type {
 } from "viem";
 import {
   TActivityId,
-  TurnkeyActivityConsensusNeededError,
   TurnkeyActivityError,
   TurnkeyClient,
 } from "@turnkey/http";
@@ -24,73 +23,50 @@ type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
 
 type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
 
-export class TConsensusNeededError extends TurnkeyActivityConsensusNeededError {
-  // details: string;
-  // shortMessage: string;
-  // version: string;
+export type TTurnkeyConsensusNeededErrorType = TConsensusNeededError & {
+  name: "TurnkeyConsensusNeededError";
+};
+export class TConsensusNeededError extends BaseError {
+  override name = "TurnkeyConsensusNeededError";
 
-  constructor(input: {
-    message: string;
+  activityId: TActivityId;
+  activityStatus: TActivityStatus;
+
+  constructor({
+    activityId,
+    activityStatus,
+  }: {
     activityId: TActivityId;
     activityStatus: TActivityStatus;
-    details?: string;
-    shortMessage?: string;
-    version?: string;
   }) {
-    const {
-      message,
-      activityId,
-      activityStatus,
-      // details,
-      // shortMessage,
-      // version,
-    } = input;
-    super({
-      message,
-      activityId,
-      activityStatus,
-      cause: new Error(),
-    });
-  }
-  walk(): Error;
-  walk(fn: (err: unknown) => boolean): Error | null;
-  walk(fn?: any): any {
-    return walk(this, fn);
+    super("Activity requires consensus.");
+    this.activityId = activityId;
+    this.activityStatus = activityStatus;
   }
 }
 
-function walk(
-  err: unknown,
-  fn?: ((err: unknown) => boolean) | undefined
-): unknown {
-  console.log("walking err", err);
-  if (fn?.(err)) return err;
-  if (err && typeof err === "object" && "cause" in err)
-    return walk(err.cause, fn);
-  return fn ? null : err;
+export type TTurnkeyConsensusNeededErrorType = TConsensusNeededError & {
+  name: "TurnkeyConsensusNeededError";
+};
+
+export class TActivityError extends BaseError {
+  override name = "TurnkeyActivityError";
+
+  activityId: TActivityId;
+  activityStatus: TActivityStatus;
+
+  constructor({
+    activityId,
+    activityStatus,
+  }: {
+    activityId: TActivityId;
+    activityStatus: TActivityStatus;
+  }) {
+    super("Activity requires consensus.");
+    this.activityId = activityId;
+    this.activityStatus = activityStatus;
+  }
 }
-
-// export type TConsensusNeededErrorType = TConsensusNeededError & {
-//   name: "ConsensusNeededError";
-// };
-// export class TConsensusNeededError extends BaseError {
-//   override name = "ConsensusNeededError";
-
-//   activityId: TActivityId;
-//   activityStatus: TActivityStatus;
-
-//   constructor({
-//     activityId,
-//     activityStatus,
-//   }: {
-//     activityId: TActivityId;
-//     activityStatus: TActivityStatus;
-//   }) {
-//     super("Activity requires consensus.");
-//     this.activityId = activityId;
-//     this.activityStatus = activityStatus;
-//   }
-// }
 
 export async function createAccount(input: {
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
@@ -561,14 +537,7 @@ function checkActivityStatus(input: {
   const { id: activityId, status: activityStatus } = input;
 
   if (activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
-    // throw new TConsensusNeededError({
-    //   // message: "Activity requires consensus",
-    //   activityId,
-    //   activityStatus,
-    // });
-
     throw new TConsensusNeededError({
-      message: "Activity requires consensus",
       activityId,
       activityStatus,
     });
