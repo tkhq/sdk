@@ -33,6 +33,8 @@ import {
   TurnkeyPasskeyClient,
 } from "./sdk-client";
 
+export { getStorageValue, setStorageValue, StorageKeys } from "./storage";
+
 import {
   defaultEthereumAccountAtIndex,
   DEFAULT_ETHEREUM_ACCOUNTS,
