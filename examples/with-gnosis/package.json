@@ -16,9 +16,6 @@
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0"
   },
-  "devDependencies": {
-    "@typechain/web3-v1": ">=6.0.7"
-  },
   "overrides": {
     "@safe-global/protocol-kit": {
       "web3": ">=4.2.1",
