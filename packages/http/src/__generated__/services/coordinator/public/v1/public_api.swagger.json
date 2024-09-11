@@ -2414,6 +2414,99 @@
       },
       "required": ["productId"]
     },
+    "billingDeletePaymentMethodIntent": {
+      "type": "object",
+      "properties": {
+        "paymentMethodId": {
+          "type": "string",
+          "description": "The payment method that the customer wants to remove."
+        }
+      },
+      "required": ["paymentMethodId"]
+    },
+    "billingDeletePaymentMethodResult": {
+      "type": "object",
+      "properties": {
+        "paymentMethodId": {
+          "type": "string",
+          "description": "The payment method that was removed."
+        }
+      },
+      "required": ["paymentMethodId"]
+    },
+    "billingSetPaymentMethodIntent": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "string",
+          "description": "The account number of the customer's credit card."
+        },
+        "cvv": {
+          "type": "string",
+          "description": "The verification digits of the customer's credit card."
+        },
+        "expiryMonth": {
+          "type": "string",
+          "description": "The month that the credit card expires."
+        },
+        "expiryYear": {
+          "type": "string",
+          "description": "The year that the credit card expires."
+        },
+        "cardHolderEmail": {
+          "type": "string",
+          "description": "The email that will receive invoices for the credit card."
+        },
+        "cardHolderName": {
+          "type": "string",
+          "description": "The name associated with the credit card."
+        }
+      },
+      "required": [
+        "number",
+        "cvv",
+        "expiryMonth",
+        "expiryYear",
+        "cardHolderEmail",
+        "cardHolderName"
+      ]
+    },
+    "billingSetPaymentMethodIntentV2": {
+      "type": "object",
+      "properties": {
+        "paymentMethodId": {
+          "type": "string",
+          "description": "The id of the payment method that was created clientside."
+        },
+        "cardHolderEmail": {
+          "type": "string",
+          "description": "The email that will receive invoices for the credit card."
+        },
+        "cardHolderName": {
+          "type": "string",
+          "description": "The name associated with the credit card."
+        }
+      },
+      "required": ["paymentMethodId", "cardHolderEmail", "cardHolderName"]
+    },
+    "billingSetPaymentMethodResult": {
+      "type": "object",
+      "properties": {
+        "lastFour": {
+          "type": "string",
+          "description": "The last four digits of the credit card added."
+        },
+        "cardHolderName": {
+          "type": "string",
+          "description": "The name associated with the payment method."
+        },
+        "cardHolderEmail": {
+          "type": "string",
+          "description": "The email address associated with the payment method."
+        }
+      },
+      "required": ["lastFour", "cardHolderName", "cardHolderEmail"]
+    },
     "datav1Tag": {
       "type": "object",
       "properties": {
@@ -2764,7 +2857,29 @@
         "ADDRESS_FORMAT_ETHEREUM",
         "ADDRESS_FORMAT_SOLANA",
         "ADDRESS_FORMAT_COSMOS",
-        "ADDRESS_FORMAT_TRON"
+        "ADDRESS_FORMAT_TRON",
+        "ADDRESS_FORMAT_SUI",
+        "ADDRESS_FORMAT_APTOS",
+        "ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH",
+        "ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH",
+        "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH",
+        "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH",
+        "ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR",
+        "ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH",
+        "ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH",
+        "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH",
+        "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH",
+        "ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR",
+        "ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH",
+        "ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH",
+        "ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH",
+        "ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH",
+        "ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR",
+        "ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH",
+        "ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH",
+        "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH",
+        "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH",
+        "ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"
       ]
     },
     "v1ApiKey": {
@@ -4671,26 +4786,6 @@
       },
       "required": ["organizationId"]
     },
-    "v1DeletePaymentMethodIntent": {
-      "type": "object",
-      "properties": {
-        "paymentMethodId": {
-          "type": "string",
-          "description": "The payment method that the customer wants to remove."
-        }
-      },
-      "required": ["paymentMethodId"]
-    },
-    "v1DeletePaymentMethodResult": {
-      "type": "object",
-      "properties": {
-        "paymentMethodId": {
-          "type": "string",
-          "description": "The payment method that was removed."
-        }
-      },
-      "required": ["paymentMethodId"]
-    },
     "v1DeletePolicyIntent": {
       "type": "object",
       "properties": {
@@ -6207,13 +6302,13 @@
           "$ref": "#/definitions/v1CreatePolicyIntentV2"
         },
         "setPaymentMethodIntent": {
-          "$ref": "#/definitions/v1SetPaymentMethodIntent"
+          "$ref": "#/definitions/billingSetPaymentMethodIntent"
         },
         "activateBillingTierIntent": {
           "$ref": "#/definitions/billingActivateBillingTierIntent"
         },
         "deletePaymentMethodIntent": {
-          "$ref": "#/definitions/v1DeletePaymentMethodIntent"
+          "$ref": "#/definitions/billingDeletePaymentMethodIntent"
         },
         "createPolicyIntentV3": {
           "$ref": "#/definitions/v1CreatePolicyIntentV3"
@@ -6261,7 +6356,7 @@
           "$ref": "#/definitions/v1UpdatePolicyIntent"
         },
         "setPaymentMethodIntentV2": {
-          "$ref": "#/definitions/v1SetPaymentMethodIntentV2"
+          "$ref": "#/definitions/billingSetPaymentMethodIntentV2"
         },
         "createSubOrganizationIntentV3": {
           "$ref": "#/definitions/v1CreateSubOrganizationIntentV3"
@@ -7120,13 +7215,13 @@
           "$ref": "#/definitions/v1DeletePrivateKeyTagsResult"
         },
         "setPaymentMethodResult": {
-          "$ref": "#/definitions/v1SetPaymentMethodResult"
+          "$ref": "#/definitions/billingSetPaymentMethodResult"
         },
         "activateBillingTierResult": {
           "$ref": "#/definitions/billingActivateBillingTierResult"
         },
         "deletePaymentMethodResult": {
-          "$ref": "#/definitions/v1DeletePaymentMethodResult"
+          "$ref": "#/definitions/billingDeletePaymentMethodResult"
         },
         "createApiOnlyUsersResult": {
           "$ref": "#/definitions/v1CreateApiOnlyUsersResult"
@@ -7426,79 +7521,6 @@
         }
       },
       "required": ["features"]
-    },
-    "v1SetPaymentMethodIntent": {
-      "type": "object",
-      "properties": {
-        "number": {
-          "type": "string",
-          "description": "The account number of the customer's credit card."
-        },
-        "cvv": {
-          "type": "string",
-          "description": "The verification digits of the customer's credit card."
-        },
-        "expiryMonth": {
-          "type": "string",
-          "description": "The month that the credit card expires."
-        },
-        "expiryYear": {
-          "type": "string",
-          "description": "The year that the credit card expires."
-        },
-        "cardHolderEmail": {
-          "type": "string",
-          "description": "The email that will receive invoices for the credit card."
-        },
-        "cardHolderName": {
-          "type": "string",
-          "description": "The name associated with the credit card."
-        }
-      },
-      "required": [
-        "number",
-        "cvv",
-        "expiryMonth",
-        "expiryYear",
-        "cardHolderEmail",
-        "cardHolderName"
-      ]
-    },
-    "v1SetPaymentMethodIntentV2": {
-      "type": "object",
-      "properties": {
-        "paymentMethodId": {
-          "type": "string",
-          "description": "The id of the payment method that was created clientside."
-        },
-        "cardHolderEmail": {
-          "type": "string",
-          "description": "The email that will receive invoices for the credit card."
-        },
-        "cardHolderName": {
-          "type": "string",
-          "description": "The name associated with the credit card."
-        }
-      },
-      "required": ["paymentMethodId", "cardHolderEmail", "cardHolderName"]
-    },
-    "v1SetPaymentMethodResult": {
-      "type": "object",
-      "properties": {
-        "lastFour": {
-          "type": "string",
-          "description": "The last four digits of the credit card added."
-        },
-        "cardHolderName": {
-          "type": "string",
-          "description": "The name associated with the payment method."
-        },
-        "cardHolderEmail": {
-          "type": "string",
-          "description": "The email address associated with the payment method."
-        }
-      },
-      "required": ["lastFour", "cardHolderName", "cardHolderEmail"]
     },
     "v1SignRawPayloadIntent": {
       "type": "object",
