@@ -11,6 +11,8 @@ import type {
   TypedData,
 } from "viem";
 import {
+  assertNonNull,
+  checkActivityStatus,
   TActivityId,
   TurnkeyActivityError as TurnkeyHttpActivityError,
   TurnkeyClient,
@@ -541,30 +543,6 @@ async function signMessageImpl(
   return assertNonNull(assembled);
 }
 
-function checkActivityStatus(input: {
-  id: TActivityId;
-  status: TActivityStatus;
-}) {
-  const { id: activityId, status: activityStatus } = input;
-
-  if (activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
-    throw new TurnkeyConsensusNeededError({
-      activityId,
-      activityStatus,
-    });
-  }
-
-  if (activityStatus !== "ACTIVITY_STATUS_COMPLETED") {
-    throw new TurnkeyActivityError({
-      message: `Expected COMPLETED status, got ${activityStatus}`,
-      activityId,
-      activityStatus,
-    });
-  }
-
-  return true;
-}
-
 function isTurnkeyActivityConsensusNeededError(error: any) {
   return (
     typeof error.walk === "function" &&
@@ -581,12 +559,4 @@ function isTurnkeyActivityError(error: any) {
       return e instanceof TurnkeyActivityError;
     })
   );
-}
-
-function assertNonNull<T>(input: T | null | undefined): T {
-  if (input == null) {
-    throw new Error(`Got unexpected ${JSON.stringify(input)}`);
-  }
-
-  return input;
 }

@@ -54,6 +54,36 @@ export class TurnkeyActivityConsensusNeededError extends Error {
   }
 }
 
+export function checkActivityStatus(input: { id: string; status: TActivityStatus }) {
+  const { id: activityId, status: activityStatus } = input;
+
+  if (activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
+    throw new TurnkeyActivityConsensusNeededError({
+      message: "Activity requires consensus",
+      activityId,
+      activityStatus,
+    });
+  }
+
+  if (activityStatus !== "ACTIVITY_STATUS_COMPLETED") {
+    throw new TurnkeyActivityError({
+      message: `Expected COMPLETED status, got ${activityStatus}`,
+      activityId,
+      activityStatus,
+    });
+  }
+
+  return true;
+}
+
 export function stableStringify(input: Record<string, any>): string {
   return JSON.stringify(input);
+}
+
+export function assertNonNull<T>(input: T | null | undefined): T {
+  if (input == null) {
+    throw new Error(`Got unexpected ${JSON.stringify(input)}`);
+  }
+
+  return input;
 }

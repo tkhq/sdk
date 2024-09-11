@@ -10,9 +10,10 @@ import {
   resolveAddress,
 } from "ethers";
 import {
-  TurnkeyActivityConsensusNeededError,
   TurnkeyActivityError,
   TurnkeyRequestError,
+  checkActivityStatus,
+  assertNonNull,
 } from "@turnkey/http";
 import { TurnkeyClient } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
@@ -43,8 +44,6 @@ type TConfig = {
 };
 
 type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
-
-type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
 
 export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   private readonly client:
@@ -388,36 +387,6 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
     return assertNonNull(`0x${signedTransaction}`);
   }
-}
-
-function checkActivityStatus(input: { id: string; status: TActivityStatus }) {
-  const { id: activityId, status: activityStatus } = input;
-
-  if (activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
-    throw new TurnkeyActivityConsensusNeededError({
-      message: "Activity requires consensus",
-      activityId,
-      activityStatus,
-    });
-  }
-
-  if (activityStatus !== "ACTIVITY_STATUS_COMPLETED") {
-    throw new TurnkeyActivityError({
-      message: `Expected COMPLETED status, got ${activityStatus}`,
-      activityId,
-      activityStatus,
-    });
-  }
-
-  return true;
-}
-
-function assertNonNull<T>(input: T | null | undefined): T {
-  if (input == null) {
-    throw new Error(`Got unexpected ${JSON.stringify(input)}`);
-  }
-
-  return input;
 }
 
 export { TurnkeyActivityError, TurnkeyRequestError };

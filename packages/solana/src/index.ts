@@ -4,8 +4,9 @@ import {
   type VersionedTransaction,
 } from "@solana/web3.js";
 import {
+  assertNonNull,
+  checkActivityStatus,
   TurnkeyActivityError,
-  TurnkeyActivityConsensusNeededError,
   TurnkeyClient,
 } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
@@ -14,8 +15,6 @@ import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
 type TClient = TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
 
 type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
-
-type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
 
 export class TurnkeySigner {
   public readonly organizationId: string;
@@ -126,7 +125,7 @@ export class TurnkeySigner {
       throw new TurnkeyActivityError({
         message: `Unexpected activity type: ${activity.type}`,
         activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
+        activityStatus: activity.status,
       });
     }
 
@@ -161,7 +160,7 @@ export class TurnkeySigner {
       throw new TurnkeyActivityError({
         message: `Unexpected activity type: ${activity.type}`,
         activityId: activity.id,
-        activityStatus: activity.status as TActivityStatus,
+        activityStatus: activity.status,
       });
     }
 
@@ -217,7 +216,7 @@ export class TurnkeySigner {
 
       checkActivityStatus({
         id,
-        status: status as TActivityStatus,
+        status: status,
       });
 
       return assertNonNull({
@@ -266,7 +265,7 @@ export class TurnkeySigner {
 
       checkActivityStatus({
         id,
-        status: status as TActivityStatus,
+        status: status,
       });
 
       return assertNonNull({
@@ -292,34 +291,4 @@ export class TurnkeySigner {
 
     return messageToSign;
   }
-}
-
-function checkActivityStatus(input: { id: string; status: TActivityStatus }) {
-  const { id: activityId, status: activityStatus } = input;
-
-  if (activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
-    throw new TurnkeyActivityConsensusNeededError({
-      message: "Activity requires consensus",
-      activityId,
-      activityStatus,
-    });
-  }
-
-  if (activityStatus !== "ACTIVITY_STATUS_COMPLETED") {
-    throw new TurnkeyActivityError({
-      message: `Expected COMPLETED status, got ${activityStatus}`,
-      activityId,
-      activityStatus,
-    });
-  }
-
-  return true;
-}
-
-function assertNonNull<T>(input: T | null | undefined): T {
-  if (input == null) {
-    throw new Error(`Got unexpected ${JSON.stringify(input)}`);
-  }
-
-  return input;
 }
