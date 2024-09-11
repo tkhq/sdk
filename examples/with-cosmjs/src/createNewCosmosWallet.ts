@@ -18,6 +18,7 @@ export async function createNewWallet() {
 
     const response = await turnkeyClient.apiClient().createWallet({
       walletName,
+      // These accounts use the same path, but just different address formats
       accounts: [
         {
           curve: "CURVE_SECP256K1",
