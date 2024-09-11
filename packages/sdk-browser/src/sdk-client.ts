@@ -1,5 +1,5 @@
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
-import { IframeStamper } from "@turnkey/iframe-stamper";
+import { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
 import { VERSION } from "./__generated__/version";
@@ -342,12 +342,14 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
 
   injectKeyExportBundle = async (
     credentialBundle: string,
-    organizationId: string
+    organizationId: string,
+    keyFormat?: KeyFormat | undefined
   ): Promise<boolean> => {
     const stamper = this.config.stamper as IframeStamper;
     return await stamper.injectKeyExportBundle(
       credentialBundle,
-      organizationId
+      organizationId,
+      keyFormat
     );
   };
 
