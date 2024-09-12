@@ -3,7 +3,7 @@ import { Turnkey } from "@turnkey/sdk-server";
 import * as crypto from "crypto";
 import { refineNonNull } from "./util";
 
-export async function createNewWallet() {
+export async function createNewCosmosWallet() {
   console.log("creating a new wallet on Turnkey...\n");
 
   const walletName = `Cosmos Wallet ${crypto.randomBytes(2).toString("hex")}`;
@@ -24,14 +24,14 @@ export async function createNewWallet() {
           curve: "CURVE_SECP256K1",
           pathFormat: "PATH_FORMAT_BIP32",
           path: "m/44'/118'/0'/0/0",
-          addressFormat: "ADDRESS_FORMAT_UNCOMPRESSED",
+          addressFormat: "ADDRESS_FORMAT_COMPRESSED",
         },
         {
-            curve: "CURVE_SECP256K1",
-            pathFormat: "PATH_FORMAT_BIP32",
-            path: "m/44'/118'/0'/0/0",
-            addressFormat: "ADDRESS_FORMAT_COSMOS",
-          },
+          curve: "CURVE_SECP256K1",
+          pathFormat: "PATH_FORMAT_BIP32",
+          path: "m/44'/118'/0'/0/0",
+          addressFormat: "ADDRESS_FORMAT_COSMOS",
+        },
       ],
     });
 
