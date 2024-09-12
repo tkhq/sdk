@@ -14,6 +14,7 @@ import {
   TurnkeyRequestError,
   checkActivityStatus,
   assertNonNull,
+  TurnkeyActivityConsensusNeededError,
 } from "@turnkey/http";
 import { TurnkeyClient } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
@@ -155,7 +156,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
     try {
       signedTx = await this._signTransactionImpl(message);
     } catch (error) {
-      if (error instanceof TurnkeyActivityError) {
+      if (
+        error instanceof TurnkeyActivityError ||
+        error instanceof TurnkeyActivityConsensusNeededError
+      ) {
         throw error;
       }
 
@@ -221,7 +225,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
     try {
       signedMessage = await this._signMessageImpl(message);
     } catch (error) {
-      if (error instanceof TurnkeyActivityError) {
+      if (
+        error instanceof TurnkeyActivityError ||
+        error instanceof TurnkeyActivityConsensusNeededError
+      ) {
         throw error;
       }
 
@@ -276,14 +283,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       };
     }
 
-    // Assemble the hex
-    const assembled = Signature.from({
-      r: `0x${result!.r}`,
-      s: `0x${result!.s}`,
-      v: parseInt(result!.v) + 27,
-    }).serialized;
-
-    return assertNonNull(assembled);
+    return serializeSignature(result);
   }
 
   async signTypedData(
@@ -387,6 +387,16 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
     return assertNonNull(`0x${signedTransaction}`);
   }
+}
+
+export function serializeSignature(signature: TSignature) {
+  const assembled = Signature.from({
+    r: `0x${signature.r}`,
+    s: `0x${signature.s}`,
+    v: parseInt(signature.v) + 27,
+  }).serialized;
+
+  return assertNonNull(assembled);
 }
 
 export { TurnkeyActivityError, TurnkeyRequestError };

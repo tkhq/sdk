@@ -574,6 +574,13 @@ importers:
       ethers:
         specifier: ^6.10.0
         version: 6.10.0
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
 
   examples/with-federated-passkeys:
     dependencies:
