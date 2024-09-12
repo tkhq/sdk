@@ -18,7 +18,9 @@ export async function createNewCosmosWallet() {
 
     const response = await turnkeyClient.apiClient().createWallet({
       walletName,
-      // These accounts use the same path, but just different address formats
+      // These accounts use the same path, but just different address formats.
+      // `ADDRESS_FORMAT_COMPRESSED` is the critical format as it's required for both
+      // signing and to derive other Cosmos-SDK-based addresses.
       accounts: [
         {
           curve: "CURVE_SECP256K1",

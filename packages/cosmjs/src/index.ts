@@ -2,7 +2,7 @@ import {
   encodeSecp256k1Signature,
   rawSecp256k1PubkeyToRawAddress,
 } from "@cosmjs/amino";
-import { ExtendedSecp256k1Signature, Secp256k1 } from "@cosmjs/crypto";
+import { ExtendedSecp256k1Signature, Secp256k1, sha256 } from "@cosmjs/crypto";
 import { fromHex, toBech32, toHex } from "@cosmjs/encoding";
 import {
   makeSignBytes,
@@ -117,11 +117,13 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
     signDoc: SignDoc
   ): Promise<DirectSignResponse> {
     const signBytes = makeSignBytes(signDoc);
+    const message = sha256(signBytes);
+
     if (address !== this.address) {
       throw new Error(`Address ${address} not found in wallet`);
     }
 
-    const signature = await this._signImpl(signBytes);
+    const signature = await this._signImpl(message);
 
     const signatureBytes = new Uint8Array([
       ...signature.r(32),
