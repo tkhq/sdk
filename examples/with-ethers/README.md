@@ -96,6 +96,17 @@ Wrapped 0.00001 ETH:
 	https://sepolia.etherscan.io/tx/0x7f98c1b2c7ff7f8ab876b27fdcd794653d8b7f728dbeec3b1d403789c38bcb71
 ```
 
+Note: if you have a consensus-related policy resembling the following
+
+```
+{
+  "effect": "EFFECT_ALLOW",
+  "consensus": "approvers.count() >= 2"
+}
+```
+
+then the script will await consensus to be met. Specifically, the script will attempt to poll for activity completion per the `activityPoller` config passed to the `TurnkeyServerSDK`. If consensus still isn't met during this period, then the resulting `Consensus Needed` error will be caught, and the script will prompt the user to indicate when consensus has been met. At that point, the script will continue.
+
 ```bash
 $ pnpm start-legacy-sepolia
 ```
