@@ -244,6 +244,8 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   /** @type {Array<string>} */
   const imports = [];
 
+  imports.push('import { TERMINAL_ACTIVITY_STATUSES } from "@turnkey/http";');
+
   imports.push(
     'import { GrpcStatus, TurnkeyRequestError, ActivityResponse, TurnkeySDKClientConfig, TActivityStatus } from "../__types__/base";'
   );
@@ -253,10 +255,6 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
 
   imports.push('import { StorageKeys, getStorageValue } from "../storage";');
-
-  imports.push(
-    'import { TERMINAL_ACTIVITY_STATUSES } from "../turnkey-helpers";'
-  );
 
   codeBuffer.push(`
 export class TurnkeySDKClientBase {

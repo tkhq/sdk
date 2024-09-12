@@ -38,7 +38,6 @@ import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   defaultSolanaAccountAtIndex,
   DEFAULT_SOLANA_ACCOUNTS,
-  TERMINAL_ACTIVITY_STATUSES,
 } from "./turnkey-helpers";
 
 import type {
@@ -86,11 +85,7 @@ export {
 };
 
 // Constants
-export {
-  DEFAULT_ETHEREUM_ACCOUNTS,
-  DEFAULT_SOLANA_ACCOUNTS,
-  TERMINAL_ACTIVITY_STATUSES,
-};
+export { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS };
 
 // Enums
 export { IframeEventType };

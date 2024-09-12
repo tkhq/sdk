@@ -7,54 +7,57 @@ export type TActivityStatus = TActivity["status"];
 export type TActivityType = TActivity["type"];
 
 export class TurnkeyActivityError extends Error {
-  activityId: TActivityId | null;
-  activityStatus: TActivityStatus | null;
-  activityType: TActivityType | null;
-  cause: Error | null;
+  activityId: TActivityId | undefined;
+  activityStatus: TActivityStatus | undefined;
+  activityType: TActivityType | undefined;
+  cause: Error | undefined;
 
   constructor(input: {
     message: string;
-    cause?: Error | null;
-    activityId?: TActivityId | null;
-    activityStatus?: TActivityStatus | null;
-    activityType?: TActivityType | null;
+    cause?: Error | undefined;
+    activityId?: TActivityId | undefined;
+    activityStatus?: TActivityStatus | undefined;
+    activityType?: TActivityType | undefined;
   }) {
     const { message, cause, activityId, activityStatus, activityType } = input;
     super(message);
 
     this.name = "TurnkeyActivityError";
-    this.activityId = activityId ?? null;
-    this.activityStatus = activityStatus ?? null;
-    this.activityType = activityType ?? null;
-    this.cause = cause ?? null;
+    this.activityId = activityId ?? undefined;
+    this.activityStatus = activityStatus ?? undefined;
+    this.activityType = activityType ?? undefined;
+    this.cause = cause ?? undefined;
   }
 }
 
 export class TurnkeyActivityConsensusNeededError extends Error {
-  activityId: TActivityId | null;
-  activityStatus: TActivityStatus | null;
-  activityType: TActivityType | null;
-  cause: Error | null;
+  activityId: TActivityId | undefined;
+  activityStatus: TActivityStatus | undefined;
+  activityType: TActivityType | undefined;
+  cause: Error | undefined;
 
   constructor(input: {
     message: string;
-    cause?: Error | null;
-    activityId?: TActivityId | null;
-    activityStatus?: TActivityStatus | null;
-    activityType?: TActivityType | null;
+    cause?: Error | undefined;
+    activityId?: TActivityId | undefined;
+    activityStatus?: TActivityStatus | undefined;
+    activityType?: TActivityType | undefined;
   }) {
     const { message, cause, activityId, activityStatus, activityType } = input;
     super(message);
 
     this.name = "TurnkeyActivityConsensusNeededError";
-    this.activityId = activityId ?? null;
-    this.activityStatus = activityStatus ?? null;
-    this.activityType = activityType ?? null;
-    this.cause = cause ?? null;
+    this.activityId = activityId ?? undefined;
+    this.activityStatus = activityStatus ?? undefined;
+    this.activityType = activityType ?? undefined;
+    this.cause = cause ?? undefined;
   }
 }
 
-export function checkActivityStatus(input: { id: string; status: TActivityStatus }) {
+export function checkActivityStatus(input: {
+  id: string;
+  status: TActivityStatus;
+}) {
   const { id: activityId, status: activityStatus } = input;
 
   if (activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
@@ -87,3 +90,9 @@ export function assertNonNull<T>(input: T | null | undefined): T {
 
   return input;
 }
+
+export const TERMINAL_ACTIVITY_STATUSES: definitions["v1ActivityStatus"][] = [
+  "ACTIVITY_STATUS_COMPLETED",
+  "ACTIVITY_STATUS_FAILED",
+  "ACTIVITY_STATUS_REJECTED",
+];

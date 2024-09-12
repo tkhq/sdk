@@ -24,7 +24,6 @@ import {
 import {
   defaultEthereumAccountAtIndex,
   DEFAULT_ETHEREUM_ACCOUNTS,
-  TERMINAL_ACTIVITY_STATUSES,
 } from "./turnkey-helpers";
 
 import type {
@@ -71,7 +70,7 @@ export {
 };
 
 // Constants
-export { DEFAULT_ETHEREUM_ACCOUNTS, TERMINAL_ACTIVITY_STATUSES };
+export { DEFAULT_ETHEREUM_ACCOUNTS };
 
 // Base Turnkey API
 export { TurnkeyApi };

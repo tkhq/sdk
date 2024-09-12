@@ -1,5 +1,3 @@
-import type { TurnkeyApiTypes } from "@turnkey/http";
-
 interface WalletAccount {
   curve: "CURVE_SECP256K1" | "CURVE_ED25519";
   pathFormat: "PATH_FORMAT_BIP32";
@@ -42,10 +40,3 @@ export const defaultSolanaAccountAtIndex = (
 export const DEFAULT_SOLANA_ACCOUNTS: WalletAccount[] = [
   defaultSolanaAccountAtIndex(0),
 ];
-
-export const TERMINAL_ACTIVITY_STATUSES: TurnkeyApiTypes["v1ActivityStatus"][] =
-  [
-    "ACTIVITY_STATUS_COMPLETED",
-    "ACTIVITY_STATUS_FAILED",
-    "ACTIVITY_STATUS_REJECTED",
-  ];

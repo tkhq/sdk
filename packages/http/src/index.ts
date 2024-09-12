@@ -12,6 +12,7 @@ export {
   type TActivityId,
   type TActivityStatus,
   type TActivityType,
+  TERMINAL_ACTIVITY_STATUSES,
 } from "./shared";
 export type { SignedRequest, TSignedRequest } from "./base";
 export { getWebAuthnAttestation } from "./webauthn";

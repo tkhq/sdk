@@ -1,4 +1,3 @@
-import type { TurnkeyApiTypes } from "@turnkey/http";
 interface WalletAccount {
   curve: "CURVE_SECP256K1" | "CURVE_ED25519";
   pathFormat: "PATH_FORMAT_BIP32";
@@ -26,10 +25,3 @@ export const defaultEthereumAccountAtIndex = (
 export const DEFAULT_ETHEREUM_ACCOUNTS: WalletAccount[] = [
   defaultEthereumAccountAtIndex(0),
 ];
-
-export const TERMINAL_ACTIVITY_STATUSES: TurnkeyApiTypes["v1ActivityStatus"][] =
-  [
-    "ACTIVITY_STATUS_COMPLETED",
-    "ACTIVITY_STATUS_FAILED",
-    "ACTIVITY_STATUS_REJECTED",
-  ];
