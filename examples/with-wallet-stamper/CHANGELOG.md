@@ -1,5 +1,12 @@
 # with-wallet-stamper
 
+## 0.1.7
+
+### Patch Changes
+
+- @turnkey/solana@0.4.2
+- @turnkey/viem@0.4.30
+
 ## 0.1.6
 
 ### Patch Changes
