@@ -1,5 +1,11 @@
 # @turnkey/sdk-browser
 
+## 1.5.0
+
+### Minor Changes
+
+- 1813ed5: Allow `organizationId` override for `TurnkeyBrowserClient.login` with an extra `config` argument
+
 ## 1.4.0
 
 ### Minor Changes
