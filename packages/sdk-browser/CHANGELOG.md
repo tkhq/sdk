@@ -1,5 +1,16 @@
 # @turnkey/sdk-browser
 
+## 1.4.0
+
+### Minor Changes
+
+- bab5393: Add keyformat to key export bundle injection
+
+### Patch Changes
+
+- a16073c: Exposes storage APIs used by the sdk for managing users & sessions
+- 7e7d209: Add authenticatorAttachment option
+
 ## 1.3.0
 
 ### Minor Changes
