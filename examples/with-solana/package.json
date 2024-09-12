@@ -5,7 +5,6 @@
   "scripts": {
     "start": "pnpm tsx src/index.ts",
     "advanced": "pnpm tsx src/advanced.ts",
-    "retry": "pnpm tsx src/retry.ts",
     "token-transfer": "pnpm tsx src/tokenTransfer.ts",
     "faucet": "pnpm tsx src/faucet.ts",
     "jupiter-swap": "pnpm tsx src/jupiterSwap.ts",
