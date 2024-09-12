@@ -15,6 +15,7 @@ import {
   checkActivityStatus,
   TActivityId,
   TurnkeyActivityError as TurnkeyHttpActivityError,
+  TurnkeyActivityConsensusNeededError as TurnkeyHttpActivityConsensusNeededError,
   TurnkeyClient,
 } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
@@ -31,17 +32,17 @@ export type TTurnkeyConsensusNeededErrorType = TurnkeyConsensusNeededError & {
 export class TurnkeyConsensusNeededError extends BaseError {
   override name = "TurnkeyConsensusNeededError";
 
-  activityId: TActivityId;
-  activityStatus: TActivityStatus;
+  activityId: TActivityId | undefined;
+  activityStatus: TActivityStatus | undefined;
 
   constructor({
     message = "Turnkey activity requires consensus.",
     activityId,
     activityStatus,
   }: {
-    message?: string;
-    activityId: TActivityId;
-    activityStatus: TActivityStatus;
+    message?: string | undefined;
+    activityId: TActivityId | undefined;
+    activityStatus: TActivityStatus | undefined;
   }) {
     super(message);
     this.activityId = activityId;
@@ -64,9 +65,9 @@ export class TurnkeyActivityError extends BaseError {
     activityId,
     activityStatus,
   }: {
-    message?: string;
-    activityId?: TActivityId;
-    activityStatus?: TActivityStatus;
+    message?: string | undefined;
+    activityId?: TActivityId | undefined;
+    activityStatus?: TActivityStatus | undefined;
   }) {
     super(message);
     this.activityId = activityId;
@@ -399,11 +400,21 @@ async function signTransactionWithErrorWrapping(
       signWith
     );
   } catch (error: any) {
-    if (
-      isTurnkeyActivityConsensusNeededError(error) ||
-      isTurnkeyActivityError(error)
-    ) {
-      throw error;
+    // Wrap Turnkey error in Viem-specific error
+    if (error instanceof TurnkeyHttpActivityError) {
+      throw new TurnkeyActivityError({
+        message: error.message,
+        activityId: error.activityId,
+        activityStatus: error.activityStatus,
+      });
+    }
+
+    if (error instanceof TurnkeyHttpActivityConsensusNeededError) {
+      throw new TurnkeyConsensusNeededError({
+        message: error.message,
+        activityId: error.activityId,
+        activityStatus: error.activityStatus,
+      });
     }
 
     throw new TurnkeyActivityError({
@@ -471,11 +482,21 @@ async function signMessageWithErrorWrapping(
       signWith
     );
   } catch (error: any) {
-    if (
-      isTurnkeyActivityConsensusNeededError(error) ||
-      isTurnkeyActivityError(error)
-    ) {
-      throw error;
+    // Wrap Turnkey error in Viem-specific error
+    if (error instanceof TurnkeyHttpActivityError) {
+      throw new TurnkeyActivityError({
+        message: error.message,
+        activityId: error.activityId,
+        activityStatus: error.activityStatus,
+      });
+    }
+
+    if (error instanceof TurnkeyHttpActivityConsensusNeededError) {
+      throw new TurnkeyConsensusNeededError({
+        message: error.message,
+        activityId: error.activityId,
+        activityStatus: error.activityStatus,
+      });
     }
 
     throw new TurnkeyActivityError({
@@ -533,17 +554,18 @@ async function signMessageImpl(
     };
   }
 
-  const assembled = signatureToHex({
-    r: `0x${result!.r}`,
-    s: `0x${result!.s}`,
-    v: result!.v === "00" ? 27n : 28n,
-  });
-
-  // Assemble the hex
-  return assertNonNull(assembled);
+  return assertNonNull(serializeSignature(result));
 }
 
-function isTurnkeyActivityConsensusNeededError(error: any) {
+export function serializeSignature(sig: TSignature) {
+  return signatureToHex({
+    r: `0x${sig.r}`,
+    s: `0x${sig.s}`,
+    v: sig.v === "00" ? 27n : 28n,
+  });
+}
+
+export function isTurnkeyActivityConsensusNeededError(error: any) {
   return (
     typeof error.walk === "function" &&
     error.walk((e: any) => {
@@ -552,7 +574,7 @@ function isTurnkeyActivityConsensusNeededError(error: any) {
   );
 }
 
-function isTurnkeyActivityError(error: any) {
+export function isTurnkeyActivityError(error: any) {
   return (
     typeof error.walk === "function" &&
     error.walk((e: any) => {

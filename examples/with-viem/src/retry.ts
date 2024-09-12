@@ -1,6 +1,7 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
 
+import { TERMINAL_ACTIVITY_STATUSES } from "@turnkey/http";
 import {
   TurnkeyConsensusNeededError,
   createAccount,
@@ -8,7 +9,6 @@ import {
 } from "@turnkey/viem";
 import {
   Turnkey as TurnkeyServerSDK,
-  TERMINAL_ACTIVITY_STATUSES,
 } from "@turnkey/sdk-server";
 import { createWalletClient, http, type Account } from "viem";
 import { sepolia } from "viem/chains";

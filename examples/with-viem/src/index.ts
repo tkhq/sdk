@@ -1,8 +1,6 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
-
-import { createAccount } from "@turnkey/viem";
-import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
+import prompts, { PromptType } from "prompts";
 import {
   createWalletClient,
   http,
@@ -10,6 +8,16 @@ import {
   type Account,
 } from "viem";
 import { sepolia } from "viem/chains";
+
+import { TERMINAL_ACTIVITY_STATUSES } from "@turnkey/http";
+import {
+  createAccount,
+  getSignatureFromActivity,
+  getSignedTransactionFromActivity,
+  isTurnkeyActivityConsensusNeededError,
+  serializeSignature,
+} from "@turnkey/viem";
+import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { print, assertEqual } from "./util";
 import { createNewWallet } from "./createNewWallet";
 
@@ -28,6 +36,16 @@ async function main() {
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
+    // The following config is useful in contexts where an activity requires consensus.
+    // By default, if the activity is not initially successful, it will poll a maximum
+    // of 3 times with an interval of 10000 milliseconds.
+    //
+    // -----
+    //
+    // activityPoller: {
+    //   intervalMs: 10_000,
+    //   numRetries: 5,
+    // },
   });
 
   const turnkeyAccount = await createAccount({
@@ -44,27 +62,36 @@ async function main() {
     ),
   });
 
-  // This demo sends ETH back to our faucet (we keep a bunch of Sepolia ETH at this address)
-  const turnkeyFaucet = "0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7";
+  // 1. Sign a simple message
+  const { message } = await prompts([
+    {
+      type: "text" as PromptType,
+      name: "message",
+      message: "Message to sign",
+      initial: "Hello Turnkey",
+    },
+  ]);
+  const address = client.account.address;
 
-  // 1. Simple send tx
-  const transactionRequest = {
-    to: turnkeyFaucet as `0x${string}`,
-    value: 1000000000000000n,
-  };
+  let signature;
+  try {
+    signature = await client.signMessage({
+      message,
+    });
+  } catch (error: any) {
+    signature = await handleActivityError(error).then(
+      async (activityId: string) => {
+        const rawSignature = await getSignatureFromActivity(
+          turnkeyClient.apiClient(),
+          process.env.ORGANIZATION_ID!,
+          activityId
+        );
+        return serializeSignature(rawSignature);
+      }
+    );
+  }
 
-  const txHash = await client.sendTransaction(transactionRequest);
-
-  print("Source address", client.account.address);
-  print("Transaction sent", `https://sepolia.etherscan.io/tx/${txHash}`);
-
-  // 2. Sign a simple message
-  let address = client.account.address;
-  let message = "Hello Turnkey";
-  let signature = await client.signMessage({
-    message,
-  });
-  let recoveredAddress = await recoverMessageAddress({
+  const recoveredAddress = await recoverMessageAddress({
     message,
     signature,
   });
@@ -72,6 +99,90 @@ async function main() {
   print("Turnkey-powered signature:", `${signature}`);
   print("Recovered address:", `${recoveredAddress}`);
   assertEqual(address, recoveredAddress);
+
+  const { amount, destination } = await prompts([
+    {
+      type: "number" as PromptType,
+      name: "amount",
+      message: "Amount to send (wei). Default to 0.0000001 ETH",
+      initial: 100000000000,
+    },
+    {
+      type: "text" as PromptType,
+      name: "destination",
+      message: "Destination address (default to TKHQ warchest)",
+      initial: "0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7",
+    },
+  ]);
+
+  // 2. Simple send tx
+  const transactionRequest = {
+    to: destination as `0x${string}`,
+    value: amount,
+  };
+
+  let txHash;
+  try {
+    txHash = await client.sendTransaction(transactionRequest);
+  } catch (error: any) {
+    txHash = await handleActivityError(error).then(
+      async (activityId: string) => {
+        console.log({ activityId });
+        const signedTx = await getSignedTransactionFromActivity(
+          turnkeyClient.apiClient(),
+          process.env.ORGANIZATION_ID!,
+          activityId
+        );
+        return await client.sendRawTransaction({
+          serializedTransaction: signedTx,
+        });
+      }
+    );
+  }
+
+  print("Source address", client.account.address);
+  print("Transaction sent", `https://sepolia.etherscan.io/tx/${txHash}`);
+
+  async function handleActivityError(error: any) {
+    if (isTurnkeyActivityConsensusNeededError(error)) {
+      // Turnkey-specific error details may be wrapped by higher level errors
+      const activityId = error["activityId"] || error["cause"]["activityId"];
+      let activityStatus =
+        error["activityStatus"] || error["cause"]["activityId"];
+
+      while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
+        console.log("\nWaiting for consensus...\n");
+
+        const { retry } = await prompts([
+          {
+            type: "text" as PromptType,
+            name: "retry",
+            message: "Consensus reached? y/n",
+            initial: "y",
+          },
+        ]);
+
+        if (retry === "n") {
+          continue;
+        }
+
+        // Refresh activity status
+        activityStatus = (
+          await turnkeyClient.apiClient().getActivity({
+            activityId,
+            organizationId: process.env.ORGANIZATION_ID!,
+          })
+        ).activity.status;
+      }
+
+      console.log("\nConsensus reached! Moving on...\n");
+
+      return activityId;
+    }
+
+    // Rethrow error
+    throw error;
+  }
 }
 
 main().catch((error) => {
