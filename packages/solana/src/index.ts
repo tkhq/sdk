@@ -45,9 +45,7 @@ export class TurnkeySigner {
     );
 
     const signatures = signRawPayloadsResult?.signatures?.map(
-      (sig: TSignature) => {
-        return `${sig?.r}${sig?.s}`;
-      }
+      (sig: TSignature) => `${sig?.r}${sig?.s}`
     );
 
     for (let i in txs) {
@@ -212,11 +210,9 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      const { id, status } = activity;
-
       checkActivityStatus({
-        id,
-        status: status,
+        id: activity.id,
+        status: activity.status,
       });
 
       return assertNonNull({
@@ -261,11 +257,9 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      const { id, status } = activity;
-
       checkActivityStatus({
-        id,
-        status: status,
+        id: activity.id,
+        status: activity.status,
       });
 
       return assertNonNull({
