@@ -255,7 +255,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
   };
 
   /**
-   * Creates a read-write session. This method infers the current user's organization ID. To be used in conjunction with an `iframeStamper`: the resulting session's credential bundle can be injected into an iframeStamper to create a session that enables both read and write requests.
+   * Creates a read-write session. This method infers the current user's organization ID and target userId. To be used in conjunction with an `iframeStamper`: the resulting session's credential bundle can be injected into an iframeStamper to create a session that enables both read and write requests.
    *
    * @param email
    * @param targetEmbeddedKey
@@ -265,12 +265,12 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
   loginWithReadWriteSession = async (
     targetEmbeddedKey: string,
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION,
-    userId?: string,
+    userId?: string
   ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
     const readWriteSessionResult = await this.createReadWriteSession({
-      userId: userId,
       targetPublicKey: targetEmbeddedKey,
       expirationSeconds,
+      userId: userId!,
     });
 
     // store auth bundle in local storage
@@ -368,7 +368,8 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
   createPasskeySession = async (
     userId: string,
     targetEmbeddedKey: string,
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION
+    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION,
+    organizationId?: string
   ): Promise<ReadWriteSession> => {
     const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
     userId = userId ?? localStorageUser?.userId;
@@ -379,6 +380,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
 
     // add API key to Turnkey User
     await this.createApiKeys({
+      organizationId: organizationId!,
       userId,
       apiKeys: [
         {
