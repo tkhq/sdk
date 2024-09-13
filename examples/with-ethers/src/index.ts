@@ -35,13 +35,13 @@ async function main() {
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
     // The following config is useful in contexts where an activity requires consensus.
     // By default, if the activity is not initially successful, it will poll a maximum
-    // of 3 times with an interval of 10000 milliseconds.
+    // of 3 times with an interval of 1000 milliseconds. Otherwise, use the values below.
     //
     // -----
     //
     // activityPoller: {
-    //   intervalMs: 10_000,
-    //   numRetries: 5,
+    //   intervalMs: 5_000,
+    //   numRetries: 10,
     // },
   });
 

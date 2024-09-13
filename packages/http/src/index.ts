@@ -6,10 +6,11 @@ export { init, browserInit } from "./config";
 export { TurnkeyRequestError } from "./base";
 export {
   assertNonNull,
-  checkActivityStatus,
+  assertActivityCompleted,
   getSignatureFromActivity,
   getSignaturesFromActivity,
   getSignedTransactionFromActivity,
+  InvalidArgumentError,
   TurnkeyActivityError,
   TurnkeyActivityConsensusNeededError,
   type TActivity,

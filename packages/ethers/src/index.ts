@@ -21,7 +21,7 @@ import {
   TurnkeyActivityError,
   TurnkeyRequestError,
   TurnkeyActivityConsensusNeededError,
-  checkActivityStatus,
+  assertActivityCompleted,
   assertNonNull,
   type TSignature,
 } from "@turnkey/http";
@@ -120,7 +120,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         timestampMs: String(Date.now()), // millisecond timestamp
       });
 
-      checkActivityStatus({
+      assertActivityCompleted({
         id: activity.id,
         status: activity.status,
       });
@@ -137,7 +137,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         }
       );
 
-      checkActivityStatus({
+      assertActivityCompleted({
         id: activity.id,
         status: activity.status,
       });
@@ -254,14 +254,13 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         timestampMs: String(Date.now()), // millisecond timestamp
       });
 
-      checkActivityStatus({
+      assertActivityCompleted({
         id: activity.id,
         status: activity.status,
       });
 
       result = assertNonNull(activity?.result?.signRawPayloadResult);
     } else {
-      // const trying = this.client as TurnkeyClient;
       const { activity, r, s, v } = await this.client.signRawPayload({
         signWith: this.signWith,
         payload: message,
@@ -269,7 +268,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         hashFunction: "HASH_FUNCTION_NO_OP",
       });
 
-      checkActivityStatus({
+      assertActivityCompleted({
         id: activity.id,
         status: activity.status,
       });

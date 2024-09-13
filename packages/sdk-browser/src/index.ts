@@ -41,7 +41,6 @@ import {
 } from "./turnkey-helpers";
 
 import type {
-  TActivityStatus,
   TurnkeySDKClientConfig,
   TurnkeySDKBrowserConfig,
 } from "./__types__/base";
@@ -63,7 +62,6 @@ export {
 
 // Types
 export type {
-  TActivityStatus,
   TApiKeyStamperConfig,
   TIframeStamperConfig,
   TSignedRequest,

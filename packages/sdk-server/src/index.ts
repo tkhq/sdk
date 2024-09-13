@@ -30,7 +30,6 @@ import type {
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
   TurnkeyProxyHandlerConfig,
-  TActivityStatus,
 } from "./__types__/base";
 
 import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
@@ -49,7 +48,6 @@ export {
 
 // Types
 export type {
-  TActivityStatus,
   TApiKeyStamperConfig,
   TSignedRequest,
   TurnkeyApiTypes,

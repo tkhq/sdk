@@ -12,7 +12,7 @@ import type {
 } from "viem";
 import {
   assertNonNull,
-  checkActivityStatus,
+  assertActivityCompleted,
   TActivityStatus,
   TActivityId,
   TSignature,
@@ -361,7 +361,7 @@ async function signTransactionImpl(
       timestampMs: String(Date.now()), // millisecond timestamp
     });
 
-    checkActivityStatus({
+    assertActivityCompleted({
       id: activity.id,
       status: activity.status,
     });
@@ -376,7 +376,7 @@ async function signTransactionImpl(
       unsignedTransaction: unsignedTransaction,
     });
 
-    checkActivityStatus({
+    assertActivityCompleted({
       id: activity.id,
       status: activity.status,
     });
@@ -446,7 +446,7 @@ async function signMessageImpl(
       timestampMs: String(Date.now()), // millisecond timestamp
     });
 
-    checkActivityStatus({
+    assertActivityCompleted({
       id: activity.id,
       status: activity.status,
     });
@@ -460,7 +460,7 @@ async function signMessageImpl(
       hashFunction: "HASH_FUNCTION_NO_OP",
     });
 
-    checkActivityStatus({
+    assertActivityCompleted({
       id: activity.id,
       status: activity.status,
     });

@@ -57,7 +57,31 @@ export class TurnkeyActivityConsensusNeededError extends Error {
   }
 }
 
-export function checkActivityStatus(input: {
+export class InvalidArgumentError extends Error {
+  activityId: TActivityId | undefined;
+  activityStatus: TActivityStatus | undefined;
+  activityType: TActivityType | undefined;
+  cause: Error | undefined;
+
+  constructor(input: {
+    message: string;
+    cause?: Error | undefined;
+    activityId?: TActivityId | undefined;
+    activityStatus?: TActivityStatus | undefined;
+    activityType?: TActivityType | undefined;
+  }) {
+    const { message, cause, activityId, activityStatus, activityType } = input;
+    super(message);
+
+    this.name = "InvalidArgumentError";
+    this.activityId = activityId ?? undefined;
+    this.activityStatus = activityStatus ?? undefined;
+    this.activityType = activityType ?? undefined;
+    this.cause = cause ?? undefined;
+  }
+}
+
+export function assertActivityCompleted(input: {
   id: string;
   status: TActivityStatus;
 }) {
@@ -114,14 +138,14 @@ export function getSignatureFromActivity(activity: TActivity): TSignature {
       "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
     ].includes(activity.type)
   ) {
-    throw new TurnkeyActivityError({
-      message: `Unexpected activity type: ${activity.type}`,
+    throw new InvalidArgumentError({
+      message: `Cannot get signature from activity type: ${activity.type}`,
       activityId: activity.id,
       activityStatus: activity.status,
     });
   }
 
-  checkActivityStatus({
+  assertActivityCompleted({
     id: activity.id,
     status: activity.status,
   });
@@ -140,14 +164,14 @@ export function getSignatureFromActivity(activity: TActivity): TSignature {
  */
 export function getSignaturesFromActivity(activity: TActivity): TSignature[] {
   if (!["ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"].includes(activity.type)) {
-    throw new TurnkeyActivityError({
-      message: `Unexpected activity type: ${activity.type}`,
+    throw new InvalidArgumentError({
+      message: `Cannot get signature from activity type: ${activity.type}`,
       activityId: activity.id,
       activityStatus: activity.status,
     });
   }
 
-  checkActivityStatus({
+  assertActivityCompleted({
     id: activity.id,
     status: activity.status,
   });
@@ -173,14 +197,14 @@ export function getSignedTransactionFromActivity(
       "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
     ].includes(activity.type)
   ) {
-    throw new TurnkeyActivityError({
-      message: `Unexpected activity type: ${activity.type}`,
+    throw new InvalidArgumentError({
+      message: `Cannot get signed transaction from activity type: ${activity.type}`,
       activityId: activity.id,
       activityStatus: activity.status,
     });
   }
 
-  checkActivityStatus({
+  assertActivityCompleted({
     id: activity.id,
     status: activity.status,
   });

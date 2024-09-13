@@ -5,7 +5,7 @@ import {
 } from "@solana/web3.js";
 import {
   assertNonNull,
-  checkActivityStatus,
+  assertActivityCompleted,
   TurnkeyClient,
   type TSignature,
 } from "@turnkey/http";
@@ -115,7 +115,7 @@ export class TurnkeySigner {
 
       const { id, status, result } = response.activity;
 
-      checkActivityStatus({
+      assertActivityCompleted({
         id,
         status,
       });
@@ -131,7 +131,7 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      checkActivityStatus({
+      assertActivityCompleted({
         id: activity.id,
         status: activity.status,
       });
@@ -162,7 +162,7 @@ export class TurnkeySigner {
 
       const { id, status, result } = response.activity;
 
-      checkActivityStatus({
+      assertActivityCompleted({
         id,
         status,
       });
@@ -178,7 +178,7 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      checkActivityStatus({
+      assertActivityCompleted({
         id: activity.id,
         status: activity.status,
       });

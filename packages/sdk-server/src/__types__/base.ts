@@ -1,4 +1,4 @@
-import type { TActivityId, TurnkeyApiTypes } from "@turnkey/http";
+import type { TActivityId, TActivityStatus } from "@turnkey/http";
 
 export type GrpcStatus = {
   message: string;
@@ -23,11 +23,6 @@ export interface TStamper {
 
 export type THttpConfig = {
   baseUrl: string;
-};
-
-export type TActivityPollerConfig = {
-  intervalMs: number;
-  numRetries: number;
 };
 
 export class TurnkeyRequestError extends Error {
@@ -73,6 +68,11 @@ export type commandOverrideParams = {
   timestampMs?: string;
 };
 
+export type TActivityPollerConfig = {
+  intervalMs: number;
+  numRetries: number;
+};
+
 export interface TurnkeySDKClientConfig {
   stamper: TStamper;
   apiBaseUrl: string;
@@ -91,8 +91,6 @@ export interface TurnkeySDKServerConfig {
 export interface TurnkeyProxyHandlerConfig {
   allowedMethods?: string[];
 }
-
-export type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
 
 export interface NextApiRequest {
   body: any;
