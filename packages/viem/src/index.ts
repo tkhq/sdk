@@ -13,18 +13,16 @@ import type {
 import {
   assertNonNull,
   checkActivityStatus,
+  TActivityStatus,
   TActivityId,
+  TSignature,
   TurnkeyActivityError as TurnkeyHttpActivityError,
   TurnkeyActivityConsensusNeededError as TurnkeyHttpActivityConsensusNeededError,
   TurnkeyClient,
 } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
-import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
-
-type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
-
-type TActivityStatus = TurnkeyApiTypes["v1ActivityStatus"];
+import type { TurnkeyServerClient } from "@turnkey/sdk-server";
 
 export type TTurnkeyConsensusNeededErrorType = TurnkeyConsensusNeededError & {
   name: "TurnkeyConsensusNeededError";
@@ -303,86 +301,6 @@ export async function signTypedData(
     organizationId,
     signWith
   );
-}
-
-/**
- * This function is a helper method to easily extract a signature string from a completed signing activity.
- * Particularly useful for scenarios where a signature requires consensus
- *
- * @param activityId the signing activity
- * @return signature (r, s, v)
- */
-export async function getSignatureFromActivity(
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
-  organizationId: string,
-  activityId: string
-): Promise<TSignature> {
-  const { activity } = await client.getActivity({
-    organizationId,
-    activityId,
-  });
-
-  if (
-    ![
-      "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
-      "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
-    ].includes(activity.type)
-  ) {
-    throw new TurnkeyActivityError({
-      message: `Unexpected activity type: ${activity.type}`,
-      activityId: activity.id,
-      activityStatus: activity.status,
-    });
-  }
-
-  checkActivityStatus({
-    id: activity.id,
-    status: activity.status,
-  });
-
-  const signature = activity.result?.signRawPayloadResult!;
-
-  return assertNonNull(signature);
-}
-
-/**
- * This function is a helper method to easily extract a signed transaction from a completed signing activity.
- * Particularly useful for scenarios where a signature requires consensus
- *
- * @param activityId the signing activity
- * @return signed transaction string
- */
-export async function getSignedTransactionFromActivity(
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
-  organizationId: string,
-  activityId: string
-): Promise<Hex> {
-  const { activity } = await client.getActivity({
-    organizationId,
-    activityId,
-  });
-
-  if (
-    ![
-      "ACTIVITY_TYPE_SIGN_TRANSACTION",
-      "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
-    ].includes(activity.type)
-  ) {
-    throw new TurnkeyActivityError({
-      message: `Unexpected activity type: ${activity.type}`,
-      activityId: activity.id,
-      activityStatus: activity.status,
-    });
-  }
-
-  checkActivityStatus({
-    id: activity.id,
-    status: activity.status,
-  });
-
-  const { signedTransaction } = activity.result?.signTransactionResult!;
-
-  return assertNonNull(`0x${signedTransaction}` as Hex);
 }
 
 async function signTransactionWithErrorWrapping(

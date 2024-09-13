@@ -9,8 +9,10 @@ import { PublicKey, type Transaction } from "@solana/web3.js";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import {
+  getSignatureFromActivity,
   TurnkeyActivityConsensusNeededError,
   TERMINAL_ACTIVITY_STATUSES,
+  type TActivity,
 } from "@turnkey/http";
 import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
@@ -94,11 +96,13 @@ async function main() {
     });
   } catch (error: any) {
     signature = await handleActivityError(error).then(
-      async (activityId: string) => {
-        const rawSignature = await turnkeySigner.getSignatureFromActivity(
-          activityId
-        );
-        return Buffer.from(rawSignature, "hex");
+      (activity?: TActivity) => {
+        if (!activity) {
+          throw error;
+        }
+
+        const { r, s } = getSignatureFromActivity(activity);
+        return Buffer.from(`${r}${s}`, "hex");
       }
     );
   }
@@ -152,13 +156,15 @@ async function main() {
   try {
     await turnkeySigner.addSignature(transaction, solAddress);
   } catch (error: any) {
-    await handleActivityError(error).then(async (activityId: string) => {
-      const rawSignature = await turnkeySigner.getSignatureFromActivity(
-        activityId
-      );
+    await handleActivityError(error).then((activity?: TActivity) => {
+      if (!activity) {
+        throw error;
+      }
+
+      const { r, s } = getSignatureFromActivity(activity);
       transaction.addSignature(
         new PublicKey(solAddress),
-        Buffer.from(rawSignature, "hex")
+        Buffer.from(`${r}${s}`, "hex")
       );
     });
   }
@@ -178,6 +184,7 @@ async function main() {
     if (error instanceof TurnkeyActivityConsensusNeededError) {
       const activityId = error["activityId"]!;
       let activityStatus = error["activityStatus"]!;
+      let activity: TActivity | undefined;
 
       while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
         console.log("\nWaiting for consensus...\n");
@@ -191,18 +198,20 @@ async function main() {
           continue;
         }
 
-        // Refresh activity status
-        activityStatus = (
+        // Refresh activity
+        activity = (
           await turnkeyClient.apiClient().getActivity({
             activityId,
             organizationId: process.env.ORGANIZATION_ID!,
           })
-        ).activity.status;
+        ).activity;
+
+        activityStatus = activity.status;
       }
 
       console.log("\nConsensus reached! Moving on...\n");
 
-      return activityId;
+      return activity;
     }
 
     // Rethrow error

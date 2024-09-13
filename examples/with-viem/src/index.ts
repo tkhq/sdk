@@ -9,11 +9,14 @@ import {
 } from "viem";
 import { sepolia } from "viem/chains";
 
-import { TERMINAL_ACTIVITY_STATUSES } from "@turnkey/http";
 import {
-  createAccount,
+  TERMINAL_ACTIVITY_STATUSES,
   getSignatureFromActivity,
   getSignedTransactionFromActivity,
+  type TActivity,
+} from "@turnkey/http";
+import {
+  createAccount,
   isTurnkeyActivityConsensusNeededError,
   serializeSignature,
 } from "@turnkey/viem";
@@ -80,13 +83,12 @@ async function main() {
     });
   } catch (error: any) {
     signature = await handleActivityError(error).then(
-      async (activityId: string) => {
-        const rawSignature = await getSignatureFromActivity(
-          turnkeyClient.apiClient(),
-          process.env.ORGANIZATION_ID!,
-          activityId
-        );
-        return serializeSignature(rawSignature);
+      async (activity?: TActivity) => {
+        if (!activity) {
+          throw error;
+        }
+
+        return serializeSignature(getSignatureFromActivity(activity));
       }
     );
   }
@@ -126,15 +128,15 @@ async function main() {
     txHash = await client.sendTransaction(transactionRequest);
   } catch (error: any) {
     txHash = await handleActivityError(error).then(
-      async (activityId: string) => {
-        console.log({ activityId });
-        const signedTx = await getSignedTransactionFromActivity(
-          turnkeyClient.apiClient(),
-          process.env.ORGANIZATION_ID!,
-          activityId
-        );
+      async (activity?: TActivity) => {
+        if (!activity) {
+          throw error;
+        }
+
         return await client.sendRawTransaction({
-          serializedTransaction: signedTx,
+          serializedTransaction: getSignedTransactionFromActivity(
+            activity
+          ) as `0x${string}`,
         });
       }
     );
@@ -149,6 +151,7 @@ async function main() {
       const activityId = error["activityId"] || error["cause"]["activityId"];
       let activityStatus =
         error["activityStatus"] || error["cause"]["activityId"];
+      let activity: TActivity | undefined;
 
       while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
         console.log("\nWaiting for consensus...\n");
@@ -167,17 +170,18 @@ async function main() {
         }
 
         // Refresh activity status
-        activityStatus = (
+        activity = (
           await turnkeyClient.apiClient().getActivity({
             activityId,
             organizationId: process.env.ORGANIZATION_ID!,
           })
-        ).activity.status;
+        ).activity;
+        activityStatus = activity.status;
       }
 
       console.log("\nConsensus reached! Moving on...\n");
 
-      return activityId;
+      return activity;
     }
 
     // Rethrow error

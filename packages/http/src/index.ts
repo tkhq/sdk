@@ -7,11 +7,16 @@ export { TurnkeyRequestError } from "./base";
 export {
   assertNonNull,
   checkActivityStatus,
+  getSignatureFromActivity,
+  getSignaturesFromActivity,
+  getSignedTransactionFromActivity,
   TurnkeyActivityError,
   TurnkeyActivityConsensusNeededError,
+  type TActivity,
   type TActivityId,
   type TActivityStatus,
   type TActivityType,
+  type TSignature,
   TERMINAL_ACTIVITY_STATUSES,
 } from "./shared";
 export type { SignedRequest, TSignedRequest } from "./base";

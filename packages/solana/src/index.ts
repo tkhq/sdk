@@ -6,15 +6,13 @@ import {
 import {
   assertNonNull,
   checkActivityStatus,
-  TurnkeyActivityError,
   TurnkeyClient,
+  type TSignature,
 } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
 
 type TClient = TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
-
-type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
 
 export class TurnkeySigner {
   public readonly organizationId: string;
@@ -97,83 +95,6 @@ export class TurnkeySigner {
       `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`,
       "hex"
     );
-  }
-
-  /**
-   * This function is a helper method to easily extract a signature string from a completed signing activity.
-   * Particularly useful for scenarios where a signature requires consensus.
-   * This can be used in conjunction with `addSignature()` and `signMessage()` methods included in this SDK.
-   * The resulting signature can be added to a transaction via `tx.addSignature(fromKey, Buffer.from(signature, "hex"))`
-   *
-   * @param activityId the signing activity
-   * @return signature string. Caller can convert it to a Buffer if needed
-   */
-  public async getSignatureFromActivity(activityId: string): Promise<string> {
-    const { activity } = await this.client.getActivity({
-      organizationId: this.organizationId,
-      activityId,
-    });
-
-    if (
-      ![
-        "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
-        "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
-      ].includes(activity.type)
-    ) {
-      throw new TurnkeyActivityError({
-        message: `Unexpected activity type: ${activity.type}`,
-        activityId: activity.id,
-        activityStatus: activity.status,
-      });
-    }
-
-    checkActivityStatus({
-      id: activity.id,
-      status: activity.status,
-    });
-
-    const { r, s } = activity.result?.signRawPayloadResult!;
-
-    return assertNonNull(`${r}${s}`);
-  }
-
-  /**
-   * This function is a helper method to easily extract signature strings from a completed signing activity.
-   * Particularly useful for scenarios where a signature requires consensus.
-   * This can be used in conjunction with the `signAllTransactions()` method included in this SDK.
-   * The resulting signatures can be added to transactions via `tx.addSignature(fromKey, Buffer.from(signature, "hex"))`
-   *
-   * @param activityId the signing activity
-   * @return signature strings. Caller can convert each to a Buffer if needed
-   */
-  public async getSignaturesFromActivity(
-    activityId: string
-  ): Promise<string[]> {
-    const { activity } = await this.client.getActivity({
-      organizationId: this.organizationId,
-      activityId,
-    });
-
-    if (activity.type !== "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS") {
-      throw new TurnkeyActivityError({
-        message: `Unexpected activity type: ${activity.type}`,
-        activityId: activity.id,
-        activityStatus: activity.status,
-      });
-    }
-
-    checkActivityStatus({
-      id: activity.id,
-      status: activity.status,
-    });
-
-    const { signatures } = activity.result?.signRawPayloadsResult!;
-
-    const signatureStrings = signatures?.map(
-      (sig: TSignature) => `${sig?.r}${sig?.s}`
-    );
-
-    return assertNonNull(signatureStrings);
   }
 
   private async signRawPayload(payload: string, signWith: string) {

@@ -1,4 +1,11 @@
 import {
+  type TypedDataDomain,
+  type TypedDataField,
+  type Provider,
+  AbstractSigner,
+  isAddress,
+  getAddress,
+  TypedDataEncoder,
   Signature,
   Transaction,
   TransactionLike,
@@ -10,24 +17,16 @@ import {
   resolveAddress,
 } from "ethers";
 import {
+  TurnkeyClient,
   TurnkeyActivityError,
   TurnkeyRequestError,
+  TurnkeyActivityConsensusNeededError,
   checkActivityStatus,
   assertNonNull,
-  TurnkeyActivityConsensusNeededError,
+  type TSignature,
 } from "@turnkey/http";
-import { TurnkeyClient } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
-import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
-import {
-  type TypedDataDomain,
-  type TypedDataField,
-  type Provider,
-  AbstractSigner,
-  isAddress,
-  getAddress,
-  TypedDataEncoder,
-} from "ethers";
+import type { TurnkeyServerClient } from "@turnkey/sdk-server";
 
 type TConfig = {
   /**
@@ -43,8 +42,6 @@ type TConfig = {
    */
   signWith: string;
 };
-
-type TSignature = TurnkeyApiTypes["v1SignRawPayloadResult"];
 
 export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   private readonly client:
@@ -264,6 +261,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
       result = assertNonNull(activity?.result?.signRawPayloadResult);
     } else {
+      // const trying = this.client as TurnkeyClient;
       const { activity, r, s, v } = await this.client.signRawPayload({
         signWith: this.signWith,
         payload: message,
@@ -311,82 +309,6 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   _signTypedData = this.signTypedData.bind(this);
-
-  /**
-   * This function is a helper method to easily extract a signature string from a completed signing activity.
-   * Particularly useful for scenarios where a signature requires consensus
-   *
-   * @param activityId the signing activity
-   * @return signature (r, s, v)
-   */
-  public async getSignatureFromActivity(
-    activityId: string
-  ): Promise<TSignature> {
-    const { activity } = await this.client.getActivity({
-      organizationId: this.organizationId,
-      activityId,
-    });
-
-    if (
-      ![
-        "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
-        "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
-      ].includes(activity.type)
-    ) {
-      throw new TurnkeyActivityError({
-        message: `Unexpected activity type: ${activity.type}`,
-        activityId: activity.id,
-        activityStatus: activity.status,
-      });
-    }
-
-    checkActivityStatus({
-      id: activity.id,
-      status: activity.status,
-    });
-
-    const signature = activity.result?.signRawPayloadResult!;
-
-    return assertNonNull(signature);
-  }
-
-  /**
-   * This function is a helper method to easily extract a signed transaction from a completed signing activity.
-   * Particularly useful for scenarios where a signature requires consensus
-   *
-   * @param activityId the signing activity
-   * @return signed transaction string
-   */
-  public async getSignedTransactionFromActivity(
-    activityId: string
-  ): Promise<string> {
-    const { activity } = await this.client.getActivity({
-      organizationId: this.organizationId,
-      activityId,
-    });
-
-    if (
-      ![
-        "ACTIVITY_TYPE_SIGN_TRANSACTION",
-        "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
-      ].includes(activity.type)
-    ) {
-      throw new TurnkeyActivityError({
-        message: `Unexpected activity type: ${activity.type}`,
-        activityId: activity.id,
-        activityStatus: activity.status,
-      });
-    }
-
-    checkActivityStatus({
-      id: activity.id,
-      status: activity.status,
-    });
-
-    const { signedTransaction } = activity.result?.signTransactionResult!;
-
-    return assertNonNull(`0x${signedTransaction}`);
-  }
 }
 
 export function serializeSignature(signature: TSignature) {
