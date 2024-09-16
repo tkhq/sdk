@@ -122,11 +122,11 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
   const imports = [];
 
   imports.push(
-    'import type { operations } from "../__inputs__/public_api.types";'
+    'import type { operations, definitions } from "../__inputs__/public_api.types";'
   );
 
   imports.push(
-    'import type { queryOverrideParams, commandOverrideParams, ActivityMetadata } from "../__types__/base";'
+    'import type { queryOverrideParams, commandOverrideParams } from "../__types__/base";'
   );
 
   const latestVersions = extractLatestVersions(swaggerSpec.definitions);
@@ -155,11 +155,11 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
       const resultKey = operationNameWithoutNamespace + "Result";
       const versionedMethodName = latestVersions[resultKey].formattedKeyName;
 
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${versionedMethodName}"] & ActivityMetadata`;
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${versionedMethodName}"] & definitions["v1ActivityResponse"]`;
     } else if (["noop", "query"].includes(methodType)) {
       responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
     } else if (methodType === "activityDecision") {
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"] & ActivityMetadata`;
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"] & definitions["v1ActivityResponse"]`;
     }
 
     /** @type {TBinding} */
@@ -245,11 +245,15 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   const imports = [];
 
   imports.push(
-    'import { TERMINAL_ACTIVITY_STATUSES, TActivityStatus } from "@turnkey/http";'
+    'import { TERMINAL_ACTIVITY_STATUSES, TActivityResponse, TActivityStatus } from "@turnkey/http";'
   );
 
   imports.push(
-    'import { GrpcStatus, TurnkeyRequestError, ActivityResponse, TurnkeySDKClientConfig } from "../__types__/base";'
+    'import type { definitions } from "../__inputs__/public_api.types";'
+  );
+
+  imports.push(
+    'import { GrpcStatus, TurnkeyRequestError, TurnkeySDKClientConfig } from "../__types__/base";'
   );
 
   imports.push('import { VERSION } from "../__generated__/version";');
@@ -316,25 +320,24 @@ export class TurnkeySDKClientBase {
 
     const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-    const handleResponse = (activityData: ActivityResponse): TResponseType => {
-      const { id, status, result } = activityData.activity;
-      const baseActivity = { activity: { id, status } };
+    const handleResponse = (activityData: TActivityResponse): TResponseType => {
+      const { result, status } = activityData.activity;
 
       if (status === "ACTIVITY_STATUS_COMPLETED") {
         return {
-          ...result[\`\${resultKey}\`],
-          ...baseActivity
+          ...result[\`\${resultKey}\` as keyof definitions["v1Result"]],
+          ...activityData
         } as TResponseType;
       }
 
-      return baseActivity as TResponseType;
+      return activityData as TResponseType;
     };
 
     let attempts = 0;
 
     const pollStatus = async (activityId: string): Promise<TResponseType> => {
       const pollBody = { activityId };
-      const pollData = await this.getActivity(pollBody) as ActivityResponse;
+      const pollData = await this.getActivity(pollBody) as TActivityResponse;
 
       if (attempts > maxRetries) {
         return handleResponse(pollData);
@@ -350,7 +353,7 @@ export class TurnkeySDKClientBase {
       return handleResponse(pollData);
     };
 
-    const responseData = await this.request<TBodyType, TResponseType>(url, body) as ActivityResponse;
+    const responseData = await this.request<TBodyType, TResponseType>(url, body) as TActivityResponse;
     
     if (!TERMINAL_ACTIVITY_STATUSES.includes(responseData.activity.status as TActivityStatus)) {
       return pollStatus(responseData.activity.id);
@@ -363,15 +366,11 @@ export class TurnkeySDKClientBase {
     url: string,
     body: TBodyType
   ): Promise<TResponseType> {
-    const data = await this.request(url, body) as ActivityResponse;
-    const activityId = data["activity"]["id"];
-    const activityStatus = data["activity"]["status"];
+    const activityData = await this.request(url, body) as TActivityResponse;
+
     return {
-      ...data["activity"]["result"],
-      activity: {
-        id: activityId,
-        status: activityStatus
-      }
+      ...activityData["activity"]["result"],
+      ...activityData
     } as TResponseType;
   }`);
 

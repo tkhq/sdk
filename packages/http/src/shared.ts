@@ -81,11 +81,8 @@ export class InvalidArgumentError extends Error {
   }
 }
 
-export function assertActivityCompleted(input: {
-  id: string;
-  status: TActivityStatus;
-}) {
-  const { id: activityId, status: activityStatus } = input;
+export function assertActivityCompleted(activity: TActivity) {
+  const { id: activityId, status: activityStatus } = activity;
 
   if (activityStatus === "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
     throw new TurnkeyActivityConsensusNeededError({
@@ -145,10 +142,7 @@ export function getSignatureFromActivity(activity: TActivity): TSignature {
     });
   }
 
-  assertActivityCompleted({
-    id: activity.id,
-    status: activity.status,
-  });
+  assertActivityCompleted(activity);
 
   const signature = activity.result?.signRawPayloadResult!;
 
@@ -171,10 +165,7 @@ export function getSignaturesFromActivity(activity: TActivity): TSignature[] {
     });
   }
 
-  assertActivityCompleted({
-    id: activity.id,
-    status: activity.status,
-  });
+  assertActivityCompleted(activity);
 
   const { signatures } = activity.result?.signRawPayloadsResult!;
 
@@ -204,10 +195,7 @@ export function getSignedTransactionFromActivity(
     });
   }
 
-  assertActivityCompleted({
-    id: activity.id,
-    status: activity.status,
-  });
+  assertActivityCompleted(activity);
 
   const { signedTransaction } = activity.result?.signTransactionResult!;
 

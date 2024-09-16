@@ -361,10 +361,7 @@ async function signTransactionImpl(
       timestampMs: String(Date.now()), // millisecond timestamp
     });
 
-    assertActivityCompleted({
-      id: activity.id,
-      status: activity.status,
-    });
+    assertActivityCompleted(activity);
 
     return assertNonNull(
       activity?.result?.signTransactionResult?.signedTransaction
@@ -376,10 +373,7 @@ async function signTransactionImpl(
       unsignedTransaction: unsignedTransaction,
     });
 
-    assertActivityCompleted({
-      id: activity.id,
-      status: activity.status,
-    });
+    assertActivityCompleted(activity);
 
     return assertNonNull(signedTransaction);
   }
@@ -446,10 +440,7 @@ async function signMessageImpl(
       timestampMs: String(Date.now()), // millisecond timestamp
     });
 
-    assertActivityCompleted({
-      id: activity.id,
-      status: activity.status,
-    });
+    assertActivityCompleted(activity);
 
     result = assertNonNull(activity?.result?.signRawPayloadResult);
   } else {
@@ -460,10 +451,7 @@ async function signMessageImpl(
       hashFunction: "HASH_FUNCTION_NO_OP",
     });
 
-    assertActivityCompleted({
-      id: activity.id,
-      status: activity.status,
-    });
+    assertActivityCompleted(activity);
 
     result = {
       r,

@@ -120,10 +120,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         timestampMs: String(Date.now()), // millisecond timestamp
       });
 
-      assertActivityCompleted({
-        id: activity.id,
-        status: activity.status,
-      });
+      assertActivityCompleted(activity);
 
       return assertNonNull(
         activity?.result?.signTransactionResult?.signedTransaction
@@ -137,10 +134,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         }
       );
 
-      assertActivityCompleted({
-        id: activity.id,
-        status: activity.status,
-      });
+      assertActivityCompleted(activity);
 
       return assertNonNull(signedTransaction);
     }
@@ -254,10 +248,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         timestampMs: String(Date.now()), // millisecond timestamp
       });
 
-      assertActivityCompleted({
-        id: activity.id,
-        status: activity.status,
-      });
+      assertActivityCompleted(activity);
 
       result = assertNonNull(activity?.result?.signRawPayloadResult);
     } else {
@@ -268,10 +259,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         hashFunction: "HASH_FUNCTION_NO_OP",
       });
 
-      assertActivityCompleted({
-        id: activity.id,
-        status: activity.status,
-      });
+      assertActivityCompleted(activity);
 
       result = {
         r,

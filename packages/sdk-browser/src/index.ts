@@ -2,11 +2,12 @@ import {
   createActivityPoller,
   getWebAuthnAttestation,
   sealAndStampRequestBody,
-  TSignedRequest,
   TurnkeyActivityError,
   TurnkeyApi,
-  TurnkeyApiTypes,
   TurnkeyRequestError,
+  type TSignedRequest,
+  type TActivity,
+  type TurnkeyApiTypes,
 } from "@turnkey/http";
 
 import {
@@ -62,6 +63,7 @@ export {
 
 // Types
 export type {
+  TActivity,
   TApiKeyStamperConfig,
   TIframeStamperConfig,
   TSignedRequest,

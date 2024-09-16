@@ -113,14 +113,11 @@ export class TurnkeySigner {
         },
       });
 
-      const { id, status, result } = response.activity;
+      const { activity } = response;
 
-      assertActivityCompleted({
-        id,
-        status,
-      });
+      assertActivityCompleted(activity);
 
-      return assertNonNull(result?.signRawPayloadResult);
+      return assertNonNull(activity?.result?.signRawPayloadResult);
     } else {
       const { activity, r, s, v } = await this.client.signRawPayload({
         signWith,
@@ -131,10 +128,7 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      assertActivityCompleted({
-        id: activity.id,
-        status: activity.status,
-      });
+      assertActivityCompleted(activity);
 
       return assertNonNull({
         r,
@@ -160,14 +154,11 @@ export class TurnkeySigner {
         },
       });
 
-      const { id, status, result } = response.activity;
+      const { activity } = response;
 
-      assertActivityCompleted({
-        id,
-        status,
-      });
+      assertActivityCompleted(activity);
 
-      return assertNonNull(result?.signRawPayloadsResult);
+      return assertNonNull(activity?.result?.signRawPayloadsResult);
     } else {
       const { activity, signatures } = await this.client.signRawPayloads({
         signWith,
@@ -178,10 +169,7 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      assertActivityCompleted({
-        id: activity.id,
-        status: activity.status,
-      });
+      assertActivityCompleted(activity);
 
       return assertNonNull({
         signatures: signatures as TurnkeyApiTypes["v1SignRawPayloadResult"][],

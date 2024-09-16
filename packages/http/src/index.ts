@@ -15,6 +15,7 @@ export {
   TurnkeyActivityConsensusNeededError,
   type TActivity,
   type TActivityId,
+  type TActivityResponse,
   type TActivityStatus,
   type TActivityType,
   type TSignature,
