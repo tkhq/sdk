@@ -83,7 +83,9 @@ async function main() {
   const amount = 1000n; // 1,000 MIST (minimum practical amount)
 
   console.log(
-    `\nSending ${amount} MIST (${Number(amount) / 1e9} SUI) to ${recipientAddress}`
+    `\nSending ${amount} MIST (${
+      Number(amount) / 1e9
+    } SUI) to ${recipientAddress}`
   );
 
   const tx = new TransactionBlock();
@@ -95,11 +97,13 @@ async function main() {
   tx.setGasBudget(1000000n);
 
   // Set gas payment
-  tx.setGasPayment([{
-    objectId: coins.data[0]!.coinObjectId,
-    version: coins.data[0]!.version,
-    digest: coins.data[0]!.digest,
-  }]);
+  tx.setGasPayment([
+    {
+      objectId: coins.data[0]!.coinObjectId,
+      version: coins.data[0]!.version,
+      digest: coins.data[0]!.digest,
+    },
+  ]);
 
   // Set sender
   tx.setSender(suiAddress);
@@ -131,15 +135,14 @@ async function main() {
   const { r, s } = txSignResult;
 
   // Concatenate r and s to form the signature
-  const signatureBytes = Buffer.from(r + s, 'hex');
+  const signatureBytes = Buffer.from(r + s, "hex");
 
   // Create the serialized signature
   const serializedSignature = toSerializedSignature({
     signature: signatureBytes,
-    signatureScheme: 'ED25519',
+    signatureScheme: "ED25519",
     pubKey: publicKey,
   });
-
 
   // Base64 encode the transaction bytes
   const txBytesBase64 = Buffer.from(txBytes).toString("base64");

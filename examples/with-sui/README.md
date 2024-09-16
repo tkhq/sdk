@@ -38,9 +38,8 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `BASE_URL`
 - `ORGANIZATION_ID`
-- `sui_ADDRESS`
-- `sui_PUBLIC_KEY`
-
+- `SUI_ADDRESS`
+- `SUI_PUBLIC_KEY`
 
 ### 3/ Running the script
 

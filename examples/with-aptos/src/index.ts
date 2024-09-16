@@ -21,7 +21,9 @@ async function main() {
   const aptosPublicKeyHex = process.env.APTOS_PUBLIC_KEY!;
 
   if (!aptosAddress || !aptosPublicKeyHex) {
-    console.error("Please set your APTOS_ADDRESS and APTOS_PUBLIC_KEY in the .env.local file.");
+    console.error(
+      "Please set your APTOS_ADDRESS and APTOS_PUBLIC_KEY in the .env.local file."
+    );
     process.exit(1);
   }
 
@@ -31,7 +33,9 @@ async function main() {
   // Check if account exists
   let accountData = await client.getAccount(aptosAddress).catch(() => null);
   if (!accountData) {
-    console.log(`Your account does not exist. Please fund your address ${aptosAddress} to proceed.`);
+    console.log(
+      `Your account does not exist. Please fund your address ${aptosAddress} to proceed.`
+    );
     process.exit(1);
   }
 
@@ -43,24 +47,31 @@ async function main() {
 
   const amount = 100n; // 100 Octas (minimum practical amount)
 
-  console.log(`\nSending ${amount} Octas (${Number(amount) / 1e8} APT) to ${recipientAddress}`);
+  console.log(
+    `\nSending ${amount} Octas (${
+      Number(amount) / 1e8
+    } APT) to ${recipientAddress}`
+  );
 
   // Prepare the transaction payload
   const token = new TxnBuilderTypes.TypeTagStruct(
     TxnBuilderTypes.StructTag.fromString("0x1::aptos_coin::AptosCoin")
   );
 
-  const entryFunctionPayload = new TxnBuilderTypes.TransactionPayloadEntryFunction(
-    TxnBuilderTypes.EntryFunction.natural(
-      "0x1::coin",
-      "transfer",
-      [token],
-      [
-        BCS.bcsToBytes(TxnBuilderTypes.AccountAddress.fromHex(recipientAddress)),
-        BCS.bcsSerializeUint64(Number(amount)),
-      ]
-    )
-  );
+  const entryFunctionPayload =
+    new TxnBuilderTypes.TransactionPayloadEntryFunction(
+      TxnBuilderTypes.EntryFunction.natural(
+        "0x1::coin",
+        "transfer",
+        [token],
+        [
+          BCS.bcsToBytes(
+            TxnBuilderTypes.AccountAddress.fromHex(recipientAddress)
+          ),
+          BCS.bcsSerializeUint64(Number(amount)),
+        ]
+      )
+    );
 
   // Get account sequence number and chain ID
   const [{ sequence_number: sequenceNumber }, chainId] = await Promise.all([
@@ -84,25 +95,27 @@ async function main() {
 
   // Sign the transaction using Turnkey with HASH_FUNCTION_NO_OP
   const txSignResult = await turnkeyClient.apiClient().signRawPayload({
-      signWith: aptosAddress,
-      payload: bytesToHex(signingMessage),
-      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-      hashFunction: "HASH_FUNCTION_NOT_APPLICABLE", 
-    });
+    signWith: aptosAddress,
+    payload: bytesToHex(signingMessage),
+    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+  });
 
   // Extract r and s from the result
   const { r, s } = txSignResult;
 
   // Ensure r and s are 64 hex characters (32 bytes)
-  const rHex = r.padStart(64, '0');
-  const sHex = s.padStart(64, '0');
+  const rHex = r.padStart(64, "0");
+  const sHex = s.padStart(64, "0");
 
   // Concatenate r and s to form the signature
   const txSignatureHex = rHex + sHex;
 
   // Validate signature length
   if (txSignatureHex.length !== 128) {
-    console.error("Invalid signature length for Ed25519. Expected 128 hex characters.");
+    console.error(
+      "Invalid signature length for Ed25519. Expected 128 hex characters."
+    );
     process.exit(1);
   }
 
@@ -112,7 +125,10 @@ async function main() {
     new TxnBuilderTypes.Ed25519Signature(Buffer.from(txSignatureHex, "hex"))
   );
 
-  const signedTxn = new TxnBuilderTypes.SignedTransaction(rawTxn, authenticator);
+  const signedTxn = new TxnBuilderTypes.SignedTransaction(
+    rawTxn,
+    authenticator
+  );
   const bcsTxn = BCS.bcsToBytes(signedTxn);
 
   // Submit the transaction

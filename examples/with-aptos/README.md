@@ -41,7 +41,6 @@ Now open `.env.local` and add the missing environment variables:
 - `APTOS_ADDRESS`
 - `APTOS_PUBLIC_KEY`
 
-
 ### 3/ Running the script
 
 Note that this example is currently set up with Aptos mainnet. You will need a balance to run this example
