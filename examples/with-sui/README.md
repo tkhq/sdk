@@ -1,4 +1,4 @@
-# Example: `with-suu`
+# Example: `with-sui`
 
 This is a simple example that walks through the following:
 
