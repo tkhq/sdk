@@ -1,3 +1,5 @@
+import type { TActivityId, TActivityStatus } from "@turnkey/http";
+
 export type GrpcStatus = {
   message: string;
   code: number;
@@ -44,26 +46,28 @@ export class TurnkeyRequestError extends Error {
 
 export interface ActivityResponse {
   activity: {
-    id: string;
-    status: string;
+    id: TActivityId;
+    status: TActivityStatus;
     result: Record<string, any>;
   };
 }
 
 export interface ActivityMetadata {
   activity: {
-    id: string;
-    status: string;
+    id: TActivityId;
+    status: TActivityStatus;
   };
 }
+
+export type TActivityPollerConfig = {
+  intervalMs: number;
+  numRetries: number;
+};
 
 interface BaseSDKClientConfig {
   apiBaseUrl: string;
   organizationId: string;
-  activityPoller?: {
-    duration: number;
-    timeout: number;
-  };
+  activityPoller?: TActivityPollerConfig | undefined;
 }
 
 interface SDKClientConfigWithStamper extends BaseSDKClientConfig {

@@ -1,3 +1,5 @@
+import type { TActivityId, TActivityStatus } from "@turnkey/http";
+
 export type GrpcStatus = {
   message: string;
   code: number;
@@ -44,16 +46,16 @@ export class TurnkeyRequestError extends Error {
 
 export interface ActivityResponse {
   activity: {
-    id: string;
-    status: string;
+    id: TActivityId;
+    status: TActivityStatus;
     result: Record<string, any>;
   };
 }
 
 export interface ActivityMetadata {
   activity: {
-    id: string;
-    status: string;
+    id: TActivityId;
+    status: TActivityStatus;
   };
 }
 
@@ -66,14 +68,16 @@ export type commandOverrideParams = {
   timestampMs?: string;
 };
 
+export type TActivityPollerConfig = {
+  intervalMs: number;
+  numRetries: number;
+};
+
 export interface TurnkeySDKClientConfig {
   stamper: TStamper;
   apiBaseUrl: string;
   organizationId: string;
-  activityPoller?: {
-    duration: number;
-    timeout: number;
-  };
+  activityPoller?: TActivityPollerConfig | undefined;
 }
 
 export interface TurnkeySDKServerConfig {
@@ -81,6 +85,7 @@ export interface TurnkeySDKServerConfig {
   apiPrivateKey: string;
   apiPublicKey: string;
   defaultOrganizationId: string;
+  activityPoller?: TActivityPollerConfig | undefined;
 }
 
 export interface TurnkeyProxyHandlerConfig {

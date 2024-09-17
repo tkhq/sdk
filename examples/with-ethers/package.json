@@ -10,11 +10,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/ethers": "workspace:*",
     "@turnkey/http": "workspace:*",
-    "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "dotenv": "^16.0.3",
-    "ethers": "^6.10.0"
+    "ethers": "^6.10.0",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.2"
   }
 }

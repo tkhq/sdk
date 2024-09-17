@@ -3,15 +3,14 @@ import {
   type Transaction,
   type VersionedTransaction,
 } from "@solana/web3.js";
-import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
+import {
+  assertNonNull,
+  assertActivityCompleted,
+  TurnkeyClient,
+  type TSignature,
+} from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
-import type { TurnkeyServerClient } from "@turnkey/sdk-server";
-
-type TSignature = {
-  r: string;
-  s: string;
-  v: string;
-};
+import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
 
 type TClient = TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
 
@@ -114,20 +113,13 @@ export class TurnkeySigner {
         },
       });
 
-      const { id, status, type, result } = response.activity;
+      const { activity } = response;
 
-      if (status !== "ACTIVITY_STATUS_COMPLETED") {
-        throw new TurnkeyActivityError({
-          message: `Expected COMPLETED status, got ${status}`,
-          activityId: id,
-          activityStatus: status,
-          activityType: type,
-        });
-      }
+      assertActivityCompleted(activity);
 
-      return assertNonNull(result?.signRawPayloadResult);
+      return assertNonNull(activity?.result?.signRawPayloadResult);
     } else {
-      const result = await this.client.signRawPayload({
+      const { activity, r, s, v } = await this.client.signRawPayload({
         signWith,
         payload,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
@@ -136,7 +128,13 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      return assertNonNull(result);
+      assertActivityCompleted(activity);
+
+      return assertNonNull({
+        r,
+        s,
+        v,
+      });
     }
   }
 
@@ -156,20 +154,13 @@ export class TurnkeySigner {
         },
       });
 
-      const { id, status, type, result } = response.activity;
+      const { activity } = response;
 
-      if (status !== "ACTIVITY_STATUS_COMPLETED") {
-        throw new TurnkeyActivityError({
-          message: `Expected COMPLETED status, got ${status}`,
-          activityId: id,
-          activityStatus: status,
-          activityType: type,
-        });
-      }
+      assertActivityCompleted(activity);
 
-      return assertNonNull(result?.signRawPayloadsResult);
+      return assertNonNull(activity?.result?.signRawPayloadsResult);
     } else {
-      const result = await this.client.signRawPayloads({
+      const { activity, signatures } = await this.client.signRawPayloads({
         signWith,
         payloads,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
@@ -178,7 +169,11 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      return assertNonNull(result);
+      assertActivityCompleted(activity);
+
+      return assertNonNull({
+        signatures: signatures as TurnkeyApiTypes["v1SignRawPayloadResult"][],
+      });
     }
   }
 
@@ -199,12 +194,4 @@ export class TurnkeySigner {
 
     return messageToSign;
   }
-}
-
-function assertNonNull<T>(input: T | null | undefined): T {
-  if (input == null) {
-    throw new Error(`Got unexpected ${JSON.stringify(input)}`);
-  }
-
-  return input;
 }

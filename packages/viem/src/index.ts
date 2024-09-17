@@ -1,6 +1,6 @@
 import { hashTypedData, serializeTransaction, signatureToHex } from "viem";
 import { toAccount } from "viem/accounts";
-import { hashMessage, isAddress } from "viem";
+import { BaseError, hashMessage, isAddress } from "viem";
 import type {
   Hex,
   HashTypedDataParameters,
@@ -10,10 +10,68 @@ import type {
   TransactionSerializable,
   TypedData,
 } from "viem";
-import { TurnkeyActivityError, TurnkeyClient } from "@turnkey/http";
+import {
+  assertNonNull,
+  assertActivityCompleted,
+  TActivityStatus,
+  TActivityId,
+  TSignature,
+  TurnkeyActivityError as TurnkeyHttpActivityError,
+  TurnkeyActivityConsensusNeededError as TurnkeyHttpActivityConsensusNeededError,
+  TurnkeyClient,
+} from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient } from "@turnkey/sdk-server";
+
+export type TTurnkeyConsensusNeededErrorType = TurnkeyConsensusNeededError & {
+  name: "TurnkeyConsensusNeededError";
+};
+export class TurnkeyConsensusNeededError extends BaseError {
+  override name = "TurnkeyConsensusNeededError";
+
+  activityId: TActivityId | undefined;
+  activityStatus: TActivityStatus | undefined;
+
+  constructor({
+    message = "Turnkey activity requires consensus.",
+    activityId,
+    activityStatus,
+  }: {
+    message?: string | undefined;
+    activityId: TActivityId | undefined;
+    activityStatus: TActivityStatus | undefined;
+  }) {
+    super(message);
+    this.activityId = activityId;
+    this.activityStatus = activityStatus;
+  }
+}
+
+export type TTurnkeyActivityErrorType = TurnkeyActivityError & {
+  name: "TurnkeyActivityError";
+};
+
+export class TurnkeyActivityError extends BaseError {
+  override name = "TurnkeyActivityError";
+
+  activityId: TActivityId | undefined;
+  activityStatus: TActivityStatus | undefined;
+
+  constructor({
+    message = "Received unexpected Turnkey activity status.",
+    activityId,
+    activityStatus,
+  }: {
+    message?: string | undefined;
+    activityId?: TActivityId | undefined;
+    activityStatus?: TActivityStatus | undefined;
+  }) {
+    super(message);
+    this.activityId = activityId;
+    this.activityStatus = activityStatus;
+  }
+}
 
 export async function createAccount(input: {
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
@@ -30,7 +88,7 @@ export async function createAccount(input: {
   let { ethereumAddress } = input;
 
   if (!signWith) {
-    throw new TurnkeyActivityError({
+    throw new TurnkeyHttpActivityError({
       message: `Missing signWith parameter`,
     });
   }
@@ -50,7 +108,7 @@ export async function createAccount(input: {
     )?.address;
 
     if (typeof ethereumAddress !== "string" || !ethereumAddress) {
-      throw new TurnkeyActivityError({
+      throw new TurnkeyHttpActivityError({
         message: `Unable to find Ethereum address for key ${signWith} under organization ${organizationId}`,
       });
     }
@@ -152,7 +210,7 @@ export async function createApiKeyAccount(
   )?.address;
 
   if (typeof ethereumAddress !== "string" || !ethereumAddress) {
-    throw new TurnkeyActivityError({
+    throw new TurnkeyHttpActivityError({
       message: `Unable to find Ethereum address for key ${privateKeyId} under organization ${organizationId}`,
     });
   }
@@ -259,14 +317,26 @@ async function signTransactionWithErrorWrapping(
       organizationId,
       signWith
     );
-  } catch (error) {
-    if (error instanceof TurnkeyActivityError) {
-      throw error;
+  } catch (error: any) {
+    // Wrap Turnkey error in Viem-specific error
+    if (error instanceof TurnkeyHttpActivityError) {
+      throw new TurnkeyActivityError({
+        message: error.message,
+        activityId: error.activityId,
+        activityStatus: error.activityStatus,
+      });
+    }
+
+    if (error instanceof TurnkeyHttpActivityConsensusNeededError) {
+      throw new TurnkeyConsensusNeededError({
+        message: error.message,
+        activityId: error.activityId,
+        activityStatus: error.activityStatus,
+      });
     }
 
     throw new TurnkeyActivityError({
-      message: `Failed to sign transaction: ${(error as Error).message}`,
-      cause: error as Error,
+      message: `Failed to sign: ${(error as Error).message}`,
     });
   }
 
@@ -291,29 +361,21 @@ async function signTransactionImpl(
       timestampMs: String(Date.now()), // millisecond timestamp
     });
 
-    const { id, status, type } = activity;
-
-    if (activity.status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new TurnkeyActivityError({
-        message: `Invalid activity status: ${activity.status}`,
-        activityId: id,
-        activityStatus: status,
-        activityType: type,
-      });
-    }
+    assertActivityCompleted(activity);
 
     return assertNonNull(
       activity?.result?.signTransactionResult?.signedTransaction
     );
   } else {
-    // Want to get additional activity details here
-    const activity = await client.signTransaction({
+    const { activity, signedTransaction } = await client.signTransaction({
       signWith,
       type: "TRANSACTION_TYPE_ETHEREUM",
       unsignedTransaction: unsignedTransaction,
     });
 
-    return assertNonNull(activity?.signedTransaction);
+    assertActivityCompleted(activity);
+
+    return assertNonNull(signedTransaction);
   }
 }
 
@@ -331,14 +393,26 @@ async function signMessageWithErrorWrapping(
       organizationId,
       signWith
     );
-  } catch (error) {
-    if (error instanceof TurnkeyActivityError) {
-      throw error;
+  } catch (error: any) {
+    // Wrap Turnkey error in Viem-specific error
+    if (error instanceof TurnkeyHttpActivityError) {
+      throw new TurnkeyActivityError({
+        message: error.message,
+        activityId: error.activityId,
+        activityStatus: error.activityStatus,
+      });
+    }
+
+    if (error instanceof TurnkeyHttpActivityConsensusNeededError) {
+      throw new TurnkeyConsensusNeededError({
+        message: error.message,
+        activityId: error.activityId,
+        activityStatus: error.activityStatus,
+      });
     }
 
     throw new TurnkeyActivityError({
       message: `Failed to sign: ${(error as Error).message}`,
-      cause: error as Error,
     });
   }
 
@@ -366,43 +440,51 @@ async function signMessageImpl(
       timestampMs: String(Date.now()), // millisecond timestamp
     });
 
-    const { id, status, type } = activity;
-
-    if (status !== "ACTIVITY_STATUS_COMPLETED") {
-      throw new TurnkeyActivityError({
-        message: `Invalid activity status: ${activity.status}`,
-        activityId: id,
-        activityStatus: status,
-        activityType: type,
-      });
-    }
+    assertActivityCompleted(activity);
 
     result = assertNonNull(activity?.result?.signRawPayloadResult);
   } else {
-    // Want to get ID and status back as well in the result (we won't get an error)
-    // Maybe do a try/catch?
-    result = await client.signRawPayload({
+    const { activity, r, s, v } = await client.signRawPayload({
       signWith,
       payload: message,
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
       hashFunction: "HASH_FUNCTION_NO_OP",
     });
+
+    assertActivityCompleted(activity);
+
+    result = {
+      r,
+      s,
+      v,
+    };
   }
 
-  let assembled = signatureToHex({
-    r: `0x${result!.r}`,
-    s: `0x${result!.s}`,
-    v: result!.v === "00" ? 27n : 28n,
-  });
-
-  // Assemble the hex
-  return assertNonNull(assembled);
+  return assertNonNull(serializeSignature(result));
 }
 
-function assertNonNull<T>(input: T | null | undefined): T {
-  if (input == null) {
-    throw new Error(`Got unexpected ${JSON.stringify(input)}`);
-  }
+export function serializeSignature(sig: TSignature) {
+  return signatureToHex({
+    r: `0x${sig.r}`,
+    s: `0x${sig.s}`,
+    v: sig.v === "00" ? 27n : 28n,
+  });
+}
 
-  return input;
+export function isTurnkeyActivityConsensusNeededError(error: any) {
+  return (
+    typeof error.walk === "function" &&
+    error.walk((e: any) => {
+      return e instanceof TurnkeyConsensusNeededError;
+    })
+  );
+}
+
+export function isTurnkeyActivityError(error: any) {
+  return (
+    typeof error.walk === "function" &&
+    error.walk((e: any) => {
+      return e instanceof TurnkeyActivityError;
+    })
+  );
 }

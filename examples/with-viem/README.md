@@ -78,3 +78,14 @@ Turnkey-powered signature:
 Recovered address:
         0xDC608F098255C89B36da905D9132A9Ee3DD266D9
 ```
+
+Note: if you have a consensus-related policy resembling the following
+
+```
+{
+  "effect": "EFFECT_ALLOW",
+  "consensus": "approvers.count() >= 2"
+}
+```
+
+then the script will await consensus to be met. Specifically, the script will attempt to poll for activity completion per the `activityPoller` config passed to the `TurnkeyServerSDK`. If consensus still isn't met during this period, then the resulting `Consensus Needed` error will be caught, and the script will prompt the user to indicate when consensus has been met. At that point, the script will continue.
