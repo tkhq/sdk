@@ -30,7 +30,7 @@ interface HpkeDecryptParams {
 interface HpkeEncryptParams {
   plainTextBuf: Uint8Array;
   targetKeyBuf: Uint8Array;
-  senderPriv: string;
+  senderPriv?: string;
 }
 
 interface KeyPair {
@@ -66,16 +66,28 @@ export const hpkeEncrypt = ({
   plainTextBuf,
   targetKeyBuf,
   senderPriv,
-}: HpkeEncryptParams): Uint8Array => {
+}: HpkeEncryptParams): string => {
   try {
-    const senderPubBuf = getPublicKey(
-      uint8ArrayFromHexString(senderPriv),
-      false
-    );
-    const aad = buildAdditionalAssociatedData(senderPubBuf, targetKeyBuf); // Eventually we want users to be able to pass in aad as optional
+    let senderPrivBuf: Uint8Array | null = null;
+    let senderPubBuf: Uint8Array;
+
+    if (senderPriv) {
+      // Authenticated HPKE Mode
+      senderPrivBuf = uint8ArrayFromHexString(senderPriv);
+      senderPubBuf = getPublicKey(senderPriv, false);
+    } else {
+      // Standard HPKE Mode (Ephemeral Key Pair)
+      const ephemeralKeyPair = generateP256KeyPair();
+      senderPrivBuf = uint8ArrayFromHexString(ephemeralKeyPair.privateKey);
+      senderPubBuf = uint8ArrayFromHexString(
+        ephemeralKeyPair.publicKeyUncompressed
+      );
+    }
+
+    const aad = buildAdditionalAssociatedData(senderPubBuf, targetKeyBuf);
 
     // Step 1: Generate Shared Secret
-    const ss = deriveSS(targetKeyBuf, senderPriv);
+    const ss = deriveSS(targetKeyBuf, uint8ArrayToHexString(senderPrivBuf!));
 
     // Step 2: Generate the KEM context
     const kemContext = getKemContext(
@@ -113,7 +125,17 @@ export const hpkeEncrypt = ({
     result.set(compressedSenderBuf, 0);
     result.set(encryptedData, compressedSenderBuf.length);
 
-    return result;
+    const encappedKeyBufHex = uint8ArrayToHexString(
+      uncompressRawPublicKey(compressedSenderBuf)
+    );
+    const ciphertextHex = uint8ArrayToHexString(
+      result.slice(compressedSenderBuf.length)
+    );
+
+    return JSON.stringify({
+      encappedPublic: encappedKeyBufHex,
+      ciphertext: ciphertextHex,
+    });
   } catch (error) {
     throw new Error(`Unable to perform hpkeEncrypt: ${error}`);
   }
