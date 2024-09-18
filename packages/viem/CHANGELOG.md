@@ -1,5 +1,26 @@
 # @turnkey/viem
 
+## 0.5.0
+
+### Minor Changes
+
+- 848f8d3: Support awaiting consensus and improve error handling
+
+  - Add new error types that extend `BaseError` (and thus implement `error.walk`)
+    - `TurnkeyConsensusNeededError` wraps consensus-related errors
+    - `TurnkeyActivityError` wraps base Turnkey errors
+  - Add a few new helper functions:
+    - `serializeSignature` serializes a raw signature
+    - `isTurnkeyActivityConsensusNeededError` and `isTurnkeyActivityError` use `error.walk` to check the type of a Viem error
+
+### Patch Changes
+
+- Updated dependencies [c988ed0]
+- Updated dependencies [848f8d3]
+  - @turnkey/sdk-browser@1.6.0
+  - @turnkey/sdk-server@1.4.0
+  - @turnkey/http@2.14.0
+
 ## 0.4.31
 
 ### Patch Changes
