@@ -57,6 +57,18 @@ async function main() {
     signWith: process.env.SIGN_WITH!,
   });
 
+  // If you would like to create a Viem account synchronously,
+  // import `createAccountWithAddress` and provide an Ethereum address as well
+  //
+  // -----
+  //
+  // const turnkeyAccount = createAccountWithAddress({
+  //   client: turnkeyClient.apiClient(),
+  //   organizationId: process.env.ORGANIZATION_ID!,
+  //   signWith: process.env.SIGN_WITH!,
+  //   ethereumAddress: process.env.ETHEREUM_ADDRESS!,
+  // });
+
   const client = createWalletClient({
     account: turnkeyAccount as Account,
     chain: sepolia,
