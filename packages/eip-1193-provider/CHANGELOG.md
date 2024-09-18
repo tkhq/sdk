@@ -1,6 +1,6 @@
 # @turnkey/eip-1193-provider
 
-## 3.0.0
+## 2.0.6
 
 ### Patch Changes
 
