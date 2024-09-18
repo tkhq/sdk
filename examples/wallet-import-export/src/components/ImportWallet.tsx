@@ -71,7 +71,6 @@ export function ImportWallet(props: ImportWalletProps) {
       alert("Encrypted bundle is empty.");
       return;
     }
-    encryptedBundle;
     const response = await axios.post("/api/importWallet", {
       userId: props.userId,
       walletName,
