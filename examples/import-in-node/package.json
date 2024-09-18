@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/example-with-solana",
+  "name": "@turnkey/example-import-in-node",
   "version": "0.1.0",
   "private": true,
   "scripts": {
