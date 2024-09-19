@@ -60,6 +60,44 @@ export const uint8ArrayFromHexString = (
   paddedBuffer.set(buffer, length - buffer.length);
   return paddedBuffer;
 };
+/**
+ * Function to normalize padding of byte array with 0's to a target length.
+ *
+ * @param {Uint8Array} byteArray - The byte array to pad or trim.
+ * @param {number} targetLength - The target length after padding or trimming.
+ * @returns {Uint8Array} - The normalized byte array.
+ */
+export const normalizePadding = (
+  byteArray: Uint8Array,
+  targetLength: number
+) => {
+  const paddingLength = targetLength - byteArray.length;
+
+  // Add leading 0's to array
+  if (paddingLength > 0) {
+    const padding = new Uint8Array(paddingLength).fill(0);
+    return new Uint8Array([...padding, ...byteArray]);
+  }
+
+  // Remove leading 0's from array
+  if (paddingLength < 0) {
+    const expectedZeroCount = paddingLength * -1;
+    let zeroCount = 0;
+    for (let i = 0; i < expectedZeroCount && i < byteArray.length; i++) {
+      if (byteArray[i] === 0) {
+        zeroCount++;
+      }
+    }
+    // Check if the number of zeros found equals the number of zeroes expected
+    if (zeroCount !== expectedZeroCount) {
+      throw new Error(
+        `invalid number of starting zeroes. Expected number of zeroes: ${expectedZeroCount}. Found: ${zeroCount}.`
+      );
+    }
+    return byteArray.slice(expectedZeroCount, expectedZeroCount + targetLength);
+  }
+  return byteArray;
+};
 
 // Pure JS implementation of btoa. This is adapted from the following:
 // https://github.com/jsdom/abab/blob/80874ae1fe1cde2e587bb6e51b6d7c9b42ca1d34/lib/btoa.js

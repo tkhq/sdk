@@ -23,7 +23,7 @@ const mockCredentialBundle =
   "w99a5xV6A75TfoAUkZn869fVyDYvgVsKrawMALZXmrauZd8hEv66EkPU1Z42CUaHESQjcA5bqd8dynTGBMLWB9ewtXWPEVbZvocB4Tw2K1vQVp7uwjf";
 
 describe("HPKE Encryption and Decryption", () => {
-  test("hpkeEncrypt and hpkeDecrypt - end-to-end encryption and decryption", async () => {
+  test("hpkeEncrypt and hpkeDecrypt - end-to-end encryption and decryption", () => {
     const senderKeyPair = generateP256KeyPair();
     const receiverKeyPair = generateP256KeyPair();
     const receiverPublicKeyUncompressed = uncompressRawPublicKey(

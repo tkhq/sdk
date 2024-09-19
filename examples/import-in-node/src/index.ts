@@ -23,7 +23,7 @@ async function main() {
     defaultOrganizationId: organizationId,
   });
   const importType = await input({
-    message: "Enter Import Type, either wallet or key",
+    message: `Enter Import Type, either "wallet" or "key"`,
   });
   let initResult;
   if (importType == "wallet") {
@@ -35,14 +35,15 @@ async function main() {
       userId,
     });
   } else {
-    throw new Error(`Invalid import type. Please enter wallet or key`);
+    throw new Error(`Invalid import type. Please enter "wallet" or "key"`);
   }
   const importBundle = JSON.parse(initResult.importBundle);
 
   const verified = await verifyEnclaveSignature(
     importBundle.enclaveQuorumPublic,
     importBundle.dataSignature,
-    importBundle.data
+    importBundle.data,
+    "PREPROD"
   );
   if (!verified) {
     throw new Error(`failed to verify enclave signature: ${importBundle}`);
@@ -74,13 +75,13 @@ async function main() {
   const targetKeyBuf = uint8ArrayFromHexString(signedData.targetPublic);
   if (importType == "wallet") {
     const mnemonic = await input({
-      message: "Enter mneomnic seed phrase for wallet to import",
+      message: "Enter mnemonic seed phrase for wallet to import",
     });
     const plainTextBuf = new TextEncoder().encode(mnemonic);
     const walletBundle = hpkeEncrypt({ plainTextBuf, targetKeyBuf });
     const walletImportResult = await turnkeyClient.apiClient().importWallet({
       userId: userId,
-      walletName: `example-wallet-node-${Date.now()}`,
+      walletName: `example-import-wallet-node-${Date.now()}`,
       encryptedBundle: walletBundle,
       accounts: [],
     });
@@ -102,7 +103,7 @@ async function main() {
       .apiClient()
       .importPrivateKey({
         userId: userId,
-        privateKeyName: `example-private-key-node-${Date.now()}`,
+        privateKeyName: `example-import-private-key-node-${Date.now()}`,
         encryptedBundle: privateKeyBundle,
         curve: "CURVE_SECP256K1",
         addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],

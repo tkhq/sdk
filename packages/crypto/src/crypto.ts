@@ -12,20 +12,19 @@ import bs58check from "bs58check";
 import { modSqrt, testBit } from "./math";
 import {
   AES_KEY_INFO,
+  Environment,
   HPKE_VERSION,
   IV_INFO,
   LABEL_EAE_PRK,
   LABEL_SECRET,
   LABEL_SHARED_SECRET,
+  SIGNER_PUBLIC_KEY,
   SUITE_ID_1,
   SUITE_ID_2,
 } from "./constants";
 import bs58 from "bs58";
+import { normalizePadding } from "@turnkey/encoding";
 
-export enum Environment {
-  PROD = "PROD",
-  PREPROD = "PREPROD",
-}
 interface HpkeDecryptParams {
   ciphertextBuf: Uint8Array;
   encappedKeyBuf: Uint8Array;
@@ -495,12 +494,12 @@ const bigIntToHex = (num: bigint, length: number): string => {
 };
 
 /**
- * Verifies a signature from an enclave using ECDSA and SHA-256.
+ * Verifies a signature from a Turnkey enclave using ECDSA and SHA-256.
  *
  * @param {string} enclaveQuorumPublic - The public key of the enclave signer.
  * @param {string} publicSignature - The ECDSA signature in DER format.
  * @param {string} signedData - The data that was signed.
- * @param {Environemnt} environemnt - An enum PROD or PREPROD to verify against the correct signer enclave key
+ * @param {Environemnt} environment - An enum PROD or PREPROD to verify against the correct signer enclave key
  * @returns {Promise<boolean>} - Returns true if the signature is valid, otherwise throws an error.
  */
 
@@ -510,12 +509,7 @@ export const verifyEnclaveSignature = async (
   signedData: string,
   environment?: Environment
 ) => {
-  let signer_key =
-    "04cf288fe433cc4e1aa0ce1632feac4ea26bf2f5a09dcfe5a42c398e06898710330f0572882f4dbdf0f5304b8fc8703acd69adca9a4bbf7f5d00d20a5e364b2569";
-  if (environment == Environment.PREPROD) {
-    signer_key =
-      "04f3422b8afbe425d6ece77b8d2469954715a2ff273ab7ac89f1ed70e0a9325eaa1698b4351fd1b23734e65c0b6a86b62dd49d70b37c94606aac402cbd84353212";
-  }
+  const signer_key = SIGNER_PUBLIC_KEY[environment ?? Environment.PROD];
 
   if (enclaveQuorumPublic != signer_key) {
     throw new Error(
@@ -586,48 +580,12 @@ const fromDerSignature = (derSignature: string) => {
 };
 
 /**
- * Function to normalize padding of byte array with 0's to a target length.
- *
- * @param {Uint8Array} byteArray - The byte array to pad or trim.
- * @param {number} targetLength - The target length after padding or trimming.
- * @returns {Uint8Array} - The normalized byte array.
- */
-const normalizePadding = (byteArray: Uint8Array, targetLength: number) => {
-  const paddingLength = targetLength - byteArray.length;
-
-  // Add leading 0's to array
-  if (paddingLength > 0) {
-    const padding = new Uint8Array(paddingLength).fill(0);
-    return new Uint8Array([...padding, ...byteArray]);
-  }
-
-  // Remove leading 0's from array
-  if (paddingLength < 0) {
-    const expectedZeroCount = paddingLength * -1;
-    let zeroCount = 0;
-    for (let i = 0; i < expectedZeroCount && i < byteArray.length; i++) {
-      if (byteArray[i] === 0) {
-        zeroCount++;
-      }
-    }
-    // Check if the number of zeros found equals the number of zeroes expected
-    if (zeroCount !== expectedZeroCount) {
-      throw new Error(
-        `invalid number of starting zeroes. Expected number of zeroes: ${expectedZeroCount}. Found: ${zeroCount}.`
-      );
-    }
-    return byteArray.slice(expectedZeroCount, expectedZeroCount + targetLength);
-  }
-  return byteArray;
-};
-
-/**
  * Loads an ECDSA public key from a raw format for signature verification.
  *
  * @param {Uint8Array} quorumPublic - The raw public key bytes.
  * @returns {Promise<CryptoKey>} - The imported ECDSA public key.
  */
-const loadQuorumKey = async (quorumPublic: Uint8Array) => {
+const loadQuorumKey = async (quorumPublic: Uint8Array): Promise<CryptoKey> => {
   return await crypto.subtle.importKey(
     "raw",
     quorumPublic,
@@ -648,7 +606,7 @@ const loadQuorumKey = async (quorumPublic: Uint8Array) => {
  * @returns {Uint8Array} - The decoded private key.
  */
 
-export const decodeKey = (privateKey: string, keyFormat: any) => {
+export const decodeKey = (privateKey: string, keyFormat: any): Uint8Array => {
   switch (keyFormat) {
     case "SOLANA":
       const decodedKeyBytes = bs58.decode(privateKey);
