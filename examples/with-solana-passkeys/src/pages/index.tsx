@@ -1,26 +1,55 @@
-import { createAccount } from "@turnkey/viem";
-import { useTurnkey } from "@turnkey/sdk-react";
+import {
+  PublicKey,
+  Transaction,
+  VersionedTransaction,
+  MessageV0,
+  VersionedMessage,
+} from "@solana/web3.js";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import nacl from "tweetnacl";
+import bs58 from "bs58";
 import { useState, useEffect } from "react";
+
 import styles from "./index.module.css";
 import { TWalletDetails } from "../types";
+
+import { useTurnkey } from "@turnkey/sdk-react";
+import { TurnkeySigner } from "@turnkey/solana";
+import { recentBlockhash } from "@/utils";
+import { TransactionMessage } from "@solana/web3.js";
+import { SystemProgram } from "@solana/web3.js";
+import { TSignedTransaction } from "./api/signTransaction";
 
 type subOrgFormData = {
   subOrgName: string;
 };
 
-type signingFormData = {
+type signMessageFormData = {
   messageToSign: string;
+};
+
+type signTransactionFormData = {
+  // signerAddress: string;
+  destinationAddress: string;
+  amount: string;
+  // transaction: Transaction;
 };
 
 type TWalletState = TWalletDetails | null;
 
+type TSignedTransactionState = Transaction | VersionedTransaction | null;
+
 type TSignedMessage = {
   message: string;
-  signature: string;
+  base58Signature: string;
+  base64Signature: string;
+  rawSignature: string;
 } | null;
+
+const base64Encode = (payload: ArrayBuffer): string =>
+  Buffer.from(payload).toString("base64");
 
 const humanReadableDateTime = (): string => {
   return new Date().toLocaleString().replaceAll("/", "-").replaceAll(":", ".");
@@ -32,10 +61,22 @@ export default function Home() {
   // Wallet is used as a proxy for logged-in state
   const [wallet, setWallet] = useState<TWalletState>(null);
   const [signedMessage, setSignedMessage] = useState<TSignedMessage>(null);
+  const [signedTransaction, setSignedTransaction] =
+    useState<TSignedTransactionState>(null);
 
   const { handleSubmit: subOrgFormSubmit } = useForm<subOrgFormData>();
-  const { register: signingFormRegister, handleSubmit: signingFormSubmit } =
-    useForm<signingFormData>();
+  const {
+    register: signMessageFormRegister,
+    handleSubmit: signMessageFormSubmit,
+  } = useForm<signMessageFormData>();
+  const {
+    register: signTransactionFormRegister,
+    handleSubmit: signTransactionFormSubmit,
+  } = useForm<signTransactionFormData>({
+    defaultValues: {
+      destinationAddress: "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C",
+    },
+  });
   const { register: _loginFormRegister, handleSubmit: loginFormSubmit } =
     useForm();
 
@@ -48,41 +89,119 @@ export default function Home() {
     })();
   });
 
-  const signMessage = async (data: signingFormData) => {
+  const signMessage = async (data: signMessageFormData) => {
     if (!wallet) {
       throw new Error("wallet not found");
     }
 
-    const viemAccount = await createAccount({
-      client: passkeyClient!,
+    const turnkeySigner = new TurnkeySigner({
       organizationId: wallet.subOrgId,
-      signWith: wallet.address,
-      ethereumAddress: wallet.address,
+      client: passkeyClient!,
     });
 
-    const viemClient = createWalletClient({
-      account: viemAccount,
-      chain: sepolia,
-      transport: http(),
-    });
+    const messageAsUint8Array = Buffer.from(data.messageToSign);
 
-    const signedMessage = await viemClient.signMessage({
-      message: data.messageToSign,
-    });
+    const signedMessage = await turnkeySigner.signMessage(
+      messageAsUint8Array,
+      wallet.address
+    );
+
+    const base58EncodedSignature = bs58.encode(signedMessage);
+    const base64EncodedSignature = base64Encode(signedMessage);
+    const rawSignature = Buffer.from(signedMessage).toString("hex");
 
     setSignedMessage({
       message: data.messageToSign,
-      signature: signedMessage,
+      base58Signature: base58EncodedSignature,
+      base64Signature: base64EncodedSignature,
+      rawSignature,
     });
   };
 
+  const signTransaction = async (data: signTransactionFormData) => {
+    if (!wallet) {
+      throw new Error("wallet not found");
+    }
+
+    const turnkeySigner = new TurnkeySigner({
+      organizationId: wallet.subOrgId,
+      client: passkeyClient!,
+    });
+
+    // const fromKey = new PublicKey(wallet.address);
+    // const toKey = new PublicKey(data.destinationAddress);
+    // const blockhash = await recentBlockhash();
+
+    // create transaction on the backend
+    // const txMessage = new TransactionMessage({
+    //   payerKey: fromKey,
+    //   recentBlockhash: blockhash,
+    //   instructions: [
+    //     SystemProgram.transfer({
+    //       fromPubkey: fromKey,
+    //       toPubkey: toKey,
+    //       lamports: Number(data.amount),
+    //     }),
+    //   ],
+    // });
+
+    // const versionedTxMessage = txMessage.compileToV0Message();
+    // const transferTransaction = new VersionedTransaction(versionedTxMessage);
+
+    // console.log("client transaction", transferTransaction);
+
+    // request backend to sign
+    const res = await axios.post("/api/signTransaction", {
+      fromAddress: wallet.address,
+      destinationAddress: data.destinationAddress,
+      amount: data.amount,
+    });
+
+    console.log("res", res);
+
+    const { transaction, message, signatures, serializedTransaction } =
+      res.data as TSignedTransaction;
+      console.log("res data", res.data);
+      console.log("transaction", transaction);
+      console.log("serializedTransaction", serializedTransaction);
+    
+      const reconstructedMessage = new MessageV0(message);
+
+      console.log('message.serialize', reconstructedMessage.serialize)
+
+    // const resultingMessage = VersionedMessage.deserialize(message);
+    const reconstructedTransaction = new VersionedTransaction(
+      reconstructedMessage,
+      signatures
+    );
+
+    console.log("reconstructedTransaction", reconstructedTransaction);
+    console.log("reconstructedTransaction.message", reconstructedTransaction.message);
+    console.log("reconstructedTransaction.message.serialize()", reconstructedTransaction.message.serialize());
+
+    // let txMsg = TransactionMessage
+    // let tx = transaction as VersionedTransaction;
+    // tx.message = new MessageV0(tx.message)
+    // console.log('tx', tx)
+    // console.log('tx.message', tx.message)
+    // console.log('tx.message.serialize', tx.message.serialize())
+
+    // add user signature
+    await turnkeySigner.addSignature(
+      reconstructedTransaction,
+      wallet.address
+    );
+
+    setSignedTransaction(reconstructedTransaction);
+  };
+
   const createSubOrgAndWallet = async () => {
-    const subOrgName = `Turnkey Viem+Passkey Demo - ${humanReadableDateTime()}`;
+    const subOrgName = `Turnkey Solana + Passkey Demo - ${humanReadableDateTime()}`;
     const credential = await passkeyClient?.createUserPasskey({
       publicKey: {
         rp: {
           id: "localhost",
-          name: "Turnkey Viem Passkey Demo",
+          name: "Turnkey Solana Passkey Demo",
         },
         user: {
           name: subOrgName,
@@ -170,7 +289,7 @@ export default function Home() {
         )}
         {wallet && (
           <div className={styles.info}>
-            ETH address: <br />
+            SOL address: <br />
             <span className={styles.code}>{wallet.address}</span>
           </div>
         )}
@@ -181,15 +300,27 @@ export default function Home() {
             <br />
             <br />
             Signature: <br />
-            <span className={styles.code}>{signedMessage.signature}</span>
+            <span className={styles.code}>{signedMessage.base58Signature}</span>
+          </div>
+        )}
+        {wallet && signedMessage && (
+          <div className={styles.info}>
+            Raw public key: <br />
+            <span className={styles.code}>
+              {base64Encode(bs58.decode(wallet.address))}
+            </span>
+            <br />
+            <br />
+            Signature (for verifying): <br />
+            <span className={styles.code}>{signedMessage.base64Signature}</span>
             <br />
             <br />
             <a
-              href="https://etherscan.io/verifiedSignatures"
+              href="https://tweetnacl.js.org/#/sign"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Verify with Etherscan
+              Verify with tweetnacl
             </a>
           </div>
         )}
@@ -259,42 +390,65 @@ export default function Home() {
           </form>
         </div>
       )}
-      {wallet !== null && (
+      {wallet && (
         <div>
-          <h2>Now let&apos;s sign something!</h2>
+          <h2>Now let&apos;s sign a message!</h2>
           <p className={styles.explainer}>
             We&apos;ll use a{" "}
             <a
-              href="https://viem.sh/docs/accounts/custom.html"
+              href="https://solana.com/docs/clients/javascript"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Viem custom account
+              Solana web3js account
             </a>{" "}
             to do this, using{" "}
             <a
-              href="https://www.npmjs.com/package/@turnkey/viem"
+              href="https://www.npmjs.com/package/@turnkey/solana"
               target="_blank"
               rel="noopener noreferrer"
             >
-              @turnkey/viem
+              @turnkey/solana
             </a>
-            . You can kill your NextJS server if you want, everything happens on
-            the client-side!
+            .
           </p>
           <form
             className={styles.form}
-            onSubmit={signingFormSubmit(signMessage)}
+            onSubmit={signMessageFormSubmit(signMessage)}
           >
             <input
               className={styles.input}
-              {...signingFormRegister("messageToSign")}
+              {...signMessageFormRegister("messageToSign")}
               placeholder="Write something to sign..."
             />
             <input
               className={styles.button}
               type="submit"
               value="Sign Message"
+            />
+          </form>
+        </div>
+      )}
+      {wallet && (
+        <div>
+          <h2>... and now let&apos;s sign a transaction!</h2>
+          <form
+            className={styles.form}
+            onSubmit={signTransactionFormSubmit(signTransaction)}
+          >
+            <input
+              className={styles.input}
+              {...signTransactionFormRegister("amount")}
+              placeholder="Amount (Lamports)"
+            />
+            <input
+              className={styles.input}
+              {...signTransactionFormRegister("destinationAddress")}
+            />
+            <input
+              className={styles.button}
+              type="submit"
+              value="Sign and Broadcast Transaction"
             />
           </form>
         </div>
