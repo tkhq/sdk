@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import {
-  type Transaction,
   PublicKey,
   TransactionMessage,
   SystemProgram,
@@ -11,21 +10,14 @@ import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 
 import { recentBlockhash } from "@/utils";
-import { MessageV0 } from "@solana/web3.js";
 
-type SignTransactionRequest = {
+type CreateTransactionRequest = {
   fromAddress: string;
   destinationAddress: string;
   amount: string;
-  // transaction: Transaction | VersionedTransaction;
 };
 
-export type TSignedTransaction = {
-  txMessage: TransactionMessage;
-  message: MessageV0;
-  serializedMessage: Uint8Array;
-  signatures: Uint8Array[];
-  transaction: Transaction | VersionedTransaction;
+export type TCreatedTransaction = {
   serializedTransaction: string;
 };
 
@@ -34,12 +26,12 @@ type ErrorMessage = {
 };
 
 // Every client-created transaction should be signed by the fee payer (parent org wallet)
-export default async function signTransaction(
+export default async function createTransaction(
   req: NextApiRequest,
-  res: NextApiResponse<TSignedTransaction | ErrorMessage>
+  res: NextApiResponse<TCreatedTransaction | ErrorMessage>
 ) {
   const { amount, fromAddress, destinationAddress } =
-    req.body as SignTransactionRequest;
+    req.body as CreateTransactionRequest;
 
   try {
     const turnkey = new Turnkey({
@@ -62,7 +54,6 @@ export default async function signTransaction(
     const toKey = new PublicKey(destinationAddress);
     const blockhash = await recentBlockhash();
 
-    // create transaction on the backend
     const txMessage = new TransactionMessage({
       payerKey: feePayerKey,
       recentBlockhash: blockhash,
@@ -79,19 +70,13 @@ export default async function signTransaction(
     const transferTransaction = new VersionedTransaction(versionedTxMessage);
 
     await turnkeySigner.addSignature(transferTransaction, feePayerAddress);
-    console.log("server transaction", transferTransaction);
 
     const serializedTransaction = Buffer.from(
       transferTransaction.serialize()
     ).toString("base64");
 
     res.status(200).json({
-      txMessage: txMessage,
-      message: versionedTxMessage,
-      serializedMessage: transferTransaction.message.serialize(),
-      signatures: transferTransaction.signatures,
-      serializedTransaction: serializedTransaction,
-      transaction: transferTransaction,
+      serializedTransaction,
     });
   } catch (e) {
     console.error(e);

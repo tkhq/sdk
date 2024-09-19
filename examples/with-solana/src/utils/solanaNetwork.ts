@@ -70,6 +70,8 @@ export async function broadcast(
     "Transaction broadcast and confirmed! 🎉",
     `https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`
   );
+
+  return transactionHash;
 }
 
 export async function recentBlockhash(): Promise<string> {

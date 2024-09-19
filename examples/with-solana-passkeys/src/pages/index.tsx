@@ -1,15 +1,7 @@
-import {
-  PublicKey,
-  Transaction,
-  VersionedTransaction,
-  MessageV0,
-  VersionedMessage,
-  TransactionInstruction,
-} from "@solana/web3.js";
+import { Transaction, VersionedTransaction } from "@solana/web3.js";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import nacl from "tweetnacl";
 import bs58 from "bs58";
 import { useState, useEffect } from "react";
 
@@ -18,10 +10,7 @@ import { TWalletDetails } from "../types";
 
 import { useTurnkey } from "@turnkey/sdk-react";
 import { TurnkeySigner } from "@turnkey/solana";
-import { recentBlockhash } from "@/utils";
-import { TransactionMessage } from "@solana/web3.js";
-import { SystemProgram } from "@solana/web3.js";
-import { TSignedTransaction } from "./api/signTransaction";
+import { broadcast, connect } from "@/utils";
 
 type subOrgFormData = {
   subOrgName: string;
@@ -32,15 +21,11 @@ type signMessageFormData = {
 };
 
 type signTransactionFormData = {
-  // signerAddress: string;
   destinationAddress: string;
   amount: string;
-  // transaction: Transaction;
 };
 
 type TWalletState = TWalletDetails | null;
-
-type TSignedTransactionState = Transaction | VersionedTransaction | null;
 
 type TSignedMessage = {
   message: string;
@@ -62,8 +47,9 @@ export default function Home() {
   // Wallet is used as a proxy for logged-in state
   const [wallet, setWallet] = useState<TWalletState>(null);
   const [signedMessage, setSignedMessage] = useState<TSignedMessage>(null);
-  const [signedTransaction, setSignedTransaction] =
-    useState<TSignedTransactionState>(null);
+  const [signedTransaction, setSignedTransaction] = useState<string | null>(
+    null
+  );
 
   const { handleSubmit: subOrgFormSubmit } = useForm<subOrgFormData>();
   const {
@@ -129,123 +115,33 @@ export default function Home() {
       client: passkeyClient!,
     });
 
-    // const fromKey = new PublicKey(wallet.address);
-    // const toKey = new PublicKey(data.destinationAddress);
-    // const blockhash = await recentBlockhash();
-
-    // create transaction on the backend
-    // const txMessage = new TransactionMessage({
-    //   payerKey: fromKey,
-    //   recentBlockhash: blockhash,
-    //   instructions: [
-    //     SystemProgram.transfer({
-    //       fromPubkey: fromKey,
-    //       toPubkey: toKey,
-    //       lamports: Number(data.amount),
-    //     }),
-    //   ],
-    // });
-
-    // const versionedTxMessage = txMessage.compileToV0Message();
-    // const transferTransaction = new VersionedTransaction(versionedTxMessage);
-
-    // console.log("client transaction", transferTransaction);
-
-    const blockhash = await recentBlockhash();
-
-    // separate stuff TEMP
-    const txMessage = new TransactionMessage({
-      payerKey: new PublicKey(wallet.address),
-      recentBlockhash: blockhash,
-      instructions: [
-        SystemProgram.transfer({
-          fromPubkey: new PublicKey(wallet.address),
-          toPubkey: new PublicKey(wallet.address),
-          lamports: Number(data.amount),
-        }),
-      ],
-    });
-
-    const versionedTxMessage = txMessage.compileToV0Message();
-    console.log("just the message", txMessage);
-    const freshTx = new VersionedTransaction(versionedTxMessage);
-    console.log("freshtx message", freshTx.message);
-    console.log("freshtx serialize", freshTx.message.serialize());
-
-    // END TEMP
-
-    // request backend to sign
-    const res = await axios.post("/api/signTransaction", {
+    // request backend to (create and) sign a transaction
+    const res = await axios.post("/api/createTransaction", {
       fromAddress: wallet.address,
       destinationAddress: data.destinationAddress,
       amount: data.amount,
     });
 
-    console.log("res", res);
+    const { serializedTransaction } = res.data;
 
-    const {
-      txMessage: freshTxMessageCopy,
-      transaction,
-      message,
-      signatures,
-      serializedTransaction,
-    } = res.data as TSignedTransaction;
-    console.log("res data", res.data);
-    console.log("transaction", transaction);
-    console.log("serializedTransaction", serializedTransaction);
-
-    freshTxMessageCopy.payerKey = new PublicKey(freshTxMessageCopy.payerKey);
-    // convert nested public keys to PublicKey objects
-
-    const freshTxMessage = Object.assign({}, freshTxMessageCopy); // clone
-    for (let i = 0; i < freshTxMessageCopy.instructions.length; i++) {
-      let instruction = freshTxMessageCopy.instructions[i];
-
-      freshTxMessage.instructions[i] = new TransactionInstruction(instruction);
-
-      for (let j = 0; j < freshTxMessage.instructions[i].keys.length; j++) {
-        freshTxMessage.instructions[i].keys[j].pubkey = new PublicKey(
-          instruction.keys[j].pubkey
-        );
-      }
-
-      freshTxMessage.instructions[i].programId = new PublicKey(instruction.programId);
-    }
-
-    // const reconstructedMessage = new MessageV0(message);
-    console.log("freshtx message", freshTxMessage);
-    console.log("new txmessage", new TransactionMessage(freshTxMessage));
-    const reconstructedMessage = new TransactionMessage(
-      freshTxMessage
-    ).compileToV0Message();
-
-    // const resultingMessage = VersionedMessage.deserialize(message);
-    const reconstructedTransaction = new VersionedTransaction(
-      reconstructedMessage,
-      signatures
+    const deserializedTransaction = VersionedTransaction.deserialize(
+      Buffer.from(serializedTransaction, "base64")
     );
-
-    console.log("reconstructedTransaction", reconstructedTransaction);
-    console.log(
-      "reconstructedTransaction.message",
-      reconstructedTransaction.message
-    );
-    console.log(
-      "reconstructedTransaction.message.serialize()",
-      reconstructedTransaction.message.serialize()
-    );
-
-    // let txMsg = TransactionMessage
-    // let tx = transaction as VersionedTransaction;
-    // tx.message = new MessageV0(tx.message)
-    // console.log('tx', tx)
-    // console.log('tx.message', tx.message)
-    // console.log('tx.message.serialize', tx.message.serialize())
 
     // add user signature
-    await turnkeySigner.addSignature(reconstructedTransaction, wallet.address);
+    await turnkeySigner.addSignature(deserializedTransaction, wallet.address);
 
-    setSignedTransaction(reconstructedTransaction);
+    const connection = connect();
+
+    // broadcast
+    const transactionHash = await broadcast(
+      connection,
+      deserializedTransaction
+    );
+
+    setSignedTransaction(
+      `https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`
+    );
   };
 
   const createSubOrgAndWallet = async () => {
@@ -319,11 +215,7 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <a
-        href="https://turnkey.com"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <a href="https://turnkey.com" target="_blank" rel="noopener noreferrer">
         <Image
           src="/logo.svg"
           alt="Turnkey Logo"
@@ -431,10 +323,7 @@ export default function Home() {
               Whoami endpoint.
             </a>
           </p>
-          <form
-            className={styles.form}
-            onSubmit={loginFormSubmit(login)}
-          >
+          <form className={styles.form} onSubmit={loginFormSubmit(login)}>
             <input
               className={styles.button}
               type="submit"
@@ -504,6 +393,22 @@ export default function Home() {
               value="Sign and Broadcast Transaction"
             />
           </form>
+          {signedTransaction && (
+            <div className={styles.info}>
+              <p>
+                🚀 Transaction broadcasted and confirmed!
+                <br />
+                <br />
+                <a
+                  href={signedTransaction}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {signedTransaction}
+                </a>
+              </p>
+            </div>
+          )}
         </div>
       )}
     </main>
