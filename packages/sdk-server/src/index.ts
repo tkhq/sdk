@@ -25,6 +25,8 @@ import {
 import {
   defaultEthereumAccountAtIndex,
   DEFAULT_ETHEREUM_ACCOUNTS,
+  defaultSolanaAccountAtIndex,
+  DEFAULT_SOLANA_ACCOUNTS,
 } from "./turnkey-helpers";
 
 import type {
@@ -64,13 +66,14 @@ export {
   fetch,
   createActivityPoller,
   defaultEthereumAccountAtIndex,
+  defaultSolanaAccountAtIndex,
   getWebAuthnAttestation,
   sealAndStampRequestBody,
   signWithApiKey,
 };
 
 // Constants
-export { DEFAULT_ETHEREUM_ACCOUNTS };
+export { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS };
 
 // Base Turnkey API
 export { TurnkeyApi };

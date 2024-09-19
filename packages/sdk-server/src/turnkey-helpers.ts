@@ -25,3 +25,18 @@ export const defaultEthereumAccountAtIndex = (
 export const DEFAULT_ETHEREUM_ACCOUNTS: WalletAccount[] = [
   defaultEthereumAccountAtIndex(0),
 ];
+
+export const defaultSolanaAccountAtIndex = (
+  pathIndex: number
+): WalletAccount => {
+  return {
+    pathFormat: "PATH_FORMAT_BIP32",
+    path: `m/44'/501'/${pathIndex}'/0'`,
+    curve: "CURVE_ED25519",
+    addressFormat: "ADDRESS_FORMAT_SOLANA",
+  };
+};
+
+export const DEFAULT_SOLANA_ACCOUNTS: WalletAccount[] = [
+  defaultSolanaAccountAtIndex(0),
+];
