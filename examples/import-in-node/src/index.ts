@@ -43,7 +43,6 @@ async function main() {
     importBundle.enclaveQuorumPublic,
     importBundle.dataSignature,
     importBundle.data,
-    "PREPROD"
   );
   if (!verified) {
     throw new Error(`failed to verify enclave signature: ${importBundle}`);
