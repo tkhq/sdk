@@ -52,6 +52,8 @@ API Docs: https://docs.turnkey.com/
 | [`with-nonce-manager`](/examples/with-nonce-manager/)                  | Create a new Ethereum address, then sign and broadcast multiple transactions in a sequential or optimistic manner            |
 | [`with-offline`](/examples/with-offline/)                              | Sign a Turnkey request in offline context                                                                                    |
 | [`with-federated-passkeys`](/examples/with-federated-passkeys/)        | A NextJS app that demonstrates how to use Turnkey to build a federated, webauthn powered authentication flow                 |
+| [`with-viem-passkeys`](/examples/with-viem-passkeys/)                  | A NextJS app powering users to create suborgs and sign messages via Viem                                                     |
+| [`with-ethers-passkeys`](/examples/with-ethers-passkeys/)              | A NextJS app powering users to create suborgs and sign messages via Ethers                                                   |
 | [`with-eip-1193-provider`](/examples/with-eip-1193-provider/)          | A NextJS app that demonstrates how to use Turnkey the `@turnkey/eip-1193-provider` in your app                               |
 | [`with-wallet-stamper`](/examples/with-wallet-stamper/)                | A NextJS app that demonstrates how to use Turnkey the `@turnkey/wallet-stamper` in your app                                  |
 
