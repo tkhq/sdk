@@ -21,6 +21,7 @@ type SignTransactionRequest = {
 };
 
 export type TSignedTransaction = {
+  txMessage: TransactionMessage;
   message: MessageV0;
   serializedMessage: Uint8Array;
   signatures: Uint8Array[];
@@ -85,6 +86,7 @@ export default async function signTransaction(
     ).toString("base64");
 
     res.status(200).json({
+      txMessage: txMessage,
       message: versionedTxMessage,
       serializedMessage: transferTransaction.message.serialize(),
       signatures: transferTransaction.signatures,

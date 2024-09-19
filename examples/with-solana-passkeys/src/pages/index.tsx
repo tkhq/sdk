@@ -4,6 +4,7 @@ import {
   VersionedTransaction,
   MessageV0,
   VersionedMessage,
+  TransactionInstruction,
 } from "@solana/web3.js";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
@@ -150,6 +151,29 @@ export default function Home() {
 
     // console.log("client transaction", transferTransaction);
 
+    const blockhash = await recentBlockhash();
+
+    // separate stuff TEMP
+    const txMessage = new TransactionMessage({
+      payerKey: new PublicKey(wallet.address),
+      recentBlockhash: blockhash,
+      instructions: [
+        SystemProgram.transfer({
+          fromPubkey: new PublicKey(wallet.address),
+          toPubkey: new PublicKey(wallet.address),
+          lamports: Number(data.amount),
+        }),
+      ],
+    });
+
+    const versionedTxMessage = txMessage.compileToV0Message();
+    console.log("just the message", txMessage);
+    const freshTx = new VersionedTransaction(versionedTxMessage);
+    console.log("freshtx message", freshTx.message);
+    console.log("freshtx serialize", freshTx.message.serialize());
+
+    // END TEMP
+
     // request backend to sign
     const res = await axios.post("/api/signTransaction", {
       fromAddress: wallet.address,
@@ -159,15 +183,41 @@ export default function Home() {
 
     console.log("res", res);
 
-    const { transaction, message, signatures, serializedTransaction } =
-      res.data as TSignedTransaction;
-      console.log("res data", res.data);
-      console.log("transaction", transaction);
-      console.log("serializedTransaction", serializedTransaction);
-    
-      const reconstructedMessage = new MessageV0(message);
+    const {
+      txMessage: freshTxMessageCopy,
+      transaction,
+      message,
+      signatures,
+      serializedTransaction,
+    } = res.data as TSignedTransaction;
+    console.log("res data", res.data);
+    console.log("transaction", transaction);
+    console.log("serializedTransaction", serializedTransaction);
 
-      console.log('message.serialize', reconstructedMessage.serialize)
+    freshTxMessageCopy.payerKey = new PublicKey(freshTxMessageCopy.payerKey);
+    // convert nested public keys to PublicKey objects
+
+    const freshTxMessage = Object.assign({}, freshTxMessageCopy); // clone
+    for (let i = 0; i < freshTxMessageCopy.instructions.length; i++) {
+      let instruction = freshTxMessageCopy.instructions[i];
+
+      freshTxMessage.instructions[i] = new TransactionInstruction(instruction);
+
+      for (let j = 0; j < freshTxMessage.instructions[i].keys.length; j++) {
+        freshTxMessage.instructions[i].keys[j].pubkey = new PublicKey(
+          instruction.keys[j].pubkey
+        );
+      }
+
+      freshTxMessage.instructions[i].programId = new PublicKey(instruction.programId);
+    }
+
+    // const reconstructedMessage = new MessageV0(message);
+    console.log("freshtx message", freshTxMessage);
+    console.log("new txmessage", new TransactionMessage(freshTxMessage));
+    const reconstructedMessage = new TransactionMessage(
+      freshTxMessage
+    ).compileToV0Message();
 
     // const resultingMessage = VersionedMessage.deserialize(message);
     const reconstructedTransaction = new VersionedTransaction(
@@ -176,8 +226,14 @@ export default function Home() {
     );
 
     console.log("reconstructedTransaction", reconstructedTransaction);
-    console.log("reconstructedTransaction.message", reconstructedTransaction.message);
-    console.log("reconstructedTransaction.message.serialize()", reconstructedTransaction.message.serialize());
+    console.log(
+      "reconstructedTransaction.message",
+      reconstructedTransaction.message
+    );
+    console.log(
+      "reconstructedTransaction.message.serialize()",
+      reconstructedTransaction.message.serialize()
+    );
 
     // let txMsg = TransactionMessage
     // let tx = transaction as VersionedTransaction;
@@ -187,10 +243,7 @@ export default function Home() {
     // console.log('tx.message.serialize', tx.message.serialize())
 
     // add user signature
-    await turnkeySigner.addSignature(
-      reconstructedTransaction,
-      wallet.address
-    );
+    await turnkeySigner.addSignature(reconstructedTransaction, wallet.address);
 
     setSignedTransaction(reconstructedTransaction);
   };
