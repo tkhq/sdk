@@ -59,7 +59,6 @@ export default function Home() {
       signWith: wallet.address,
     });
 
-    
     const signedMessage = await ethersSigner.signMessage(data.messageToSign);
 
     setSignedMessage({
@@ -67,7 +66,6 @@ export default function Home() {
       signature: signedMessage,
     });
   };
-
 
   const createSubOrgAndWallet = async () => {
     const subOrgName = `Turnkey Ethers+Passkey Demo - ${humanReadableDateTime()}`;
@@ -196,15 +194,16 @@ export default function Home() {
               rel="noopener noreferrer"
             >
               Turnkey Sub-Organization
-            </a>
-            {" "}and a new{" "}
+            </a>{" "}
+            and a new{" "}
             <a
               href="https://docs.turnkey.com/getting-started/wallets"
               target="_blank"
               rel="noopener noreferrer"
             >
-            Wallet
-            </a> within it.
+              Wallet
+            </a>{" "}
+            within it.
             <br />
             <br />
             This request to Turnkey will be created and signed by the backend
@@ -244,7 +243,7 @@ export default function Home() {
           </form>
         </div>
       )}
-      {wallet !== null &&  (
+      {wallet !== null && (
         <div>
           <h2>Now let&apos;s sign something!</h2>
           <p className={styles.explainer}>
