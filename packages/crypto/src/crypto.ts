@@ -22,7 +22,6 @@ import {
 } from "./constants";
 import bs58 from "bs58";
 
-
 export enum Environment {
   PROD = "PROD",
   PREPROD = "PREPROD",
@@ -511,9 +510,11 @@ export const verifyEnclaveSignature = async (
   signedData: string,
   environment?: Environment
 ) => {
-  let signer_key = "04cf288fe433cc4e1aa0ce1632feac4ea26bf2f5a09dcfe5a42c398e06898710330f0572882f4dbdf0f5304b8fc8703acd69adca9a4bbf7f5d00d20a5e364b2569"
-  if (environment == Environment.PREPROD){
-    signer_key = "04f3422b8afbe425d6ece77b8d2469954715a2ff273ab7ac89f1ed70e0a9325eaa1698b4351fd1b23734e65c0b6a86b62dd49d70b37c94606aac402cbd84353212"
+  let signer_key =
+    "04cf288fe433cc4e1aa0ce1632feac4ea26bf2f5a09dcfe5a42c398e06898710330f0572882f4dbdf0f5304b8fc8703acd69adca9a4bbf7f5d00d20a5e364b2569";
+  if (environment == Environment.PREPROD) {
+    signer_key =
+      "04f3422b8afbe425d6ece77b8d2469954715a2ff273ab7ac89f1ed70e0a9325eaa1698b4351fd1b23734e65c0b6a86b62dd49d70b37c94606aac402cbd84353212";
   }
 
   if (enclaveQuorumPublic != signer_key) {

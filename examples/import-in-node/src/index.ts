@@ -3,7 +3,11 @@ import * as path from "path";
 import { input } from "@inquirer/prompts";
 import { Turnkey } from "@turnkey/sdk-server";
 import { Crypto } from "@peculiar/webcrypto";
-import { decodeKey, hpkeEncrypt, verifyEnclaveSignature } from "@turnkey/crypto";
+import {
+  decodeKey,
+  hpkeEncrypt,
+  verifyEnclaveSignature,
+} from "@turnkey/crypto";
 import { uint8ArrayFromHexString } from "@turnkey/encoding";
 global.crypto = new Crypto();
 
