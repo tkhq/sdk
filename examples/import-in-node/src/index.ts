@@ -3,9 +3,8 @@ import * as path from "path";
 import { input } from "@inquirer/prompts";
 import { Turnkey } from "@turnkey/sdk-server";
 import { Crypto } from "@peculiar/webcrypto";
-import { hpkeEncrypt } from "@turnkey/crypto";
+import { decodeKey, hpkeEncrypt, verifyEnclaveSignature } from "@turnkey/crypto";
 import { uint8ArrayFromHexString } from "@turnkey/encoding";
-import { decodeKey, verifyEnclaveSignature } from "./utils";
 global.crypto = new Crypto();
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });

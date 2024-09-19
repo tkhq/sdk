@@ -46,6 +46,7 @@
     "@noble/hashes": "1.4.0",
     "@turnkey/encoding": "workspace:*",
     "bs58check": "3.0.1",
+    "bs58": "^5.0.0",
     "react-native": "0.74.0",
     "react-native-get-random-values": "1.11.0",
     "react-native-quick-base64": "2.1.2",

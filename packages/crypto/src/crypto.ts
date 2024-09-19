@@ -20,7 +20,13 @@ import {
   SUITE_ID_1,
   SUITE_ID_2,
 } from "./constants";
+import bs58 from "bs58";
 
+
+export enum Environment {
+  PROD = "PROD",
+  PREPROD = "PREPROD",
+}
 interface HpkeDecryptParams {
   ciphertextBuf: Uint8Array;
   encappedKeyBuf: Uint8Array;
@@ -487,4 +493,182 @@ const bigIntToHex = (num: bigint, length: number): string => {
     );
   }
   return hexString.padStart(length, "0");
+};
+
+/**
+ * Verifies a signature from an enclave using ECDSA and SHA-256.
+ *
+ * @param {string} enclaveQuorumPublic - The public key of the enclave signer.
+ * @param {string} publicSignature - The ECDSA signature in DER format.
+ * @param {string} signedData - The data that was signed.
+ * @param {Environemnt} environemnt - An enum PROD or PREPROD to verify against the correct signer enclave key
+ * @returns {Promise<boolean>} - Returns true if the signature is valid, otherwise throws an error.
+ */
+
+export const verifyEnclaveSignature = async (
+  enclaveQuorumPublic: string,
+  publicSignature: string,
+  signedData: string,
+  environment?: Environment
+) => {
+  let signer_key = "04cf288fe433cc4e1aa0ce1632feac4ea26bf2f5a09dcfe5a42c398e06898710330f0572882f4dbdf0f5304b8fc8703acd69adca9a4bbf7f5d00d20a5e364b2569"
+  if (environment == Environment.PREPROD){
+    signer_key = "04f3422b8afbe425d6ece77b8d2469954715a2ff273ab7ac89f1ed70e0a9325eaa1698b4351fd1b23734e65c0b6a86b62dd49d70b37c94606aac402cbd84353212"
+  }
+
+  if (enclaveQuorumPublic != signer_key) {
+    throw new Error(
+      "expected signer key does not match signer key from bundle"
+    );
+  }
+
+  const encryptionQuorumPublicBuf = new Uint8Array(
+    uint8ArrayFromHexString(enclaveQuorumPublic)
+  );
+  const quorumKey = await loadQuorumKey(encryptionQuorumPublicBuf);
+  if (!quorumKey) {
+    throw new Error("failed to load quorum key");
+  }
+
+  // The ECDSA signature is ASN.1 DER encoded but WebCrypto uses raw format
+  const publicSignatureBuf = fromDerSignature(publicSignature);
+  const signedDataBuf = uint8ArrayFromHexString(signedData);
+  return await crypto.subtle.verify(
+    { name: "ECDSA", hash: { name: "SHA-256" } },
+    quorumKey,
+    publicSignatureBuf,
+    signedDataBuf
+  );
+};
+
+/**
+ * Converts an ASN.1 DER-encoded ECDSA signature to the raw format that WebCrypto uses.
+ *
+ * @param {string} derSignature - The DER-encoded signature.
+ * @returns {Uint8Array} - The raw signature.
+ */
+const fromDerSignature = (derSignature: string) => {
+  const derSignatureBuf = uint8ArrayFromHexString(derSignature);
+
+  // Check and skip the sequence tag (0x30)
+  let index = 2;
+
+  // Parse 'r' and check for integer tag (0x02)
+  if (derSignatureBuf[index] !== 0x02) {
+    throw new Error(
+      "failed to convert DER-encoded signature: invalid tag for r"
+    );
+  }
+  index++; // Move past the INTEGER tag
+  const rLength = derSignatureBuf[index];
+  index++; // Move past the length byte
+  const r = derSignatureBuf.slice(index, index + rLength!);
+  index += rLength!; // Move to the start of s
+
+  // Parse 's' and check for integer tag (0x02)
+  if (derSignatureBuf[index] !== 0x02) {
+    throw new Error(
+      "failed to convert DER-encoded signature: invalid tag for s"
+    );
+  }
+  index++; // Move past the INTEGER tag
+  const sLength = derSignatureBuf[index];
+  index++; // Move past the length byte
+  const s = derSignatureBuf.slice(index, index + sLength!);
+
+  // Normalize 'r' and 's' to 32 bytes each
+  const rPadded = normalizePadding(r, 32);
+  const sPadded = normalizePadding(s, 32);
+
+  // Concatenate and return the raw signature
+  return new Uint8Array([...rPadded, ...sPadded]);
+};
+
+/**
+ * Function to normalize padding of byte array with 0's to a target length.
+ *
+ * @param {Uint8Array} byteArray - The byte array to pad or trim.
+ * @param {number} targetLength - The target length after padding or trimming.
+ * @returns {Uint8Array} - The normalized byte array.
+ */
+const normalizePadding = (byteArray: Uint8Array, targetLength: number) => {
+  const paddingLength = targetLength - byteArray.length;
+
+  // Add leading 0's to array
+  if (paddingLength > 0) {
+    const padding = new Uint8Array(paddingLength).fill(0);
+    return new Uint8Array([...padding, ...byteArray]);
+  }
+
+  // Remove leading 0's from array
+  if (paddingLength < 0) {
+    const expectedZeroCount = paddingLength * -1;
+    let zeroCount = 0;
+    for (let i = 0; i < expectedZeroCount && i < byteArray.length; i++) {
+      if (byteArray[i] === 0) {
+        zeroCount++;
+      }
+    }
+    // Check if the number of zeros found equals the number of zeroes expected
+    if (zeroCount !== expectedZeroCount) {
+      throw new Error(
+        `invalid number of starting zeroes. Expected number of zeroes: ${expectedZeroCount}. Found: ${zeroCount}.`
+      );
+    }
+    return byteArray.slice(expectedZeroCount, expectedZeroCount + targetLength);
+  }
+  return byteArray;
+};
+
+/**
+ * Loads an ECDSA public key from a raw format for signature verification.
+ *
+ * @param {Uint8Array} quorumPublic - The raw public key bytes.
+ * @returns {Promise<CryptoKey>} - The imported ECDSA public key.
+ */
+const loadQuorumKey = async (quorumPublic: Uint8Array) => {
+  return await crypto.subtle.importKey(
+    "raw",
+    quorumPublic,
+    {
+      name: "ECDSA",
+      namedCurve: "P-256",
+    },
+    true,
+    ["verify"]
+  );
+};
+
+/**
+ * Decodes a private key based on the specified format.
+ *
+ * @param {string} privateKey - The private key to decode.
+ * @param {string} keyFormat - The format of the private key (e.g., "SOLANA", "HEXADECIMAL").
+ * @returns {Uint8Array} - The decoded private key.
+ */
+
+export const decodeKey = (privateKey: string, keyFormat: any) => {
+  switch (keyFormat) {
+    case "SOLANA":
+      const decodedKeyBytes = bs58.decode(privateKey);
+      if (decodedKeyBytes.length !== 64) {
+        throw new Error(
+          `invalid key length. Expected 64 bytes. Got ${decodedKeyBytes.length}.`
+        );
+      }
+      return decodedKeyBytes.subarray(0, 32);
+    case "HEXADECIMAL":
+      if (privateKey.startsWith("0x")) {
+        return uint8ArrayFromHexString(privateKey.slice(2));
+      }
+      return uint8ArrayFromHexString(privateKey);
+    default:
+      console.warn(
+        `invalid key format: ${keyFormat}. Defaulting to HEXADECIMAL.`
+      );
+      if (privateKey.startsWith("0x")) {
+        return uint8ArrayFromHexString(privateKey.slice(2));
+      }
+      return uint8ArrayFromHexString(privateKey);
+  }
 };

@@ -40,7 +40,6 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `BASE_URL`
 - `ORGANIZATION_ID`
-- `SIGNER_PUBLIC_KEY`
 
 ### 3/ Running the script
 
