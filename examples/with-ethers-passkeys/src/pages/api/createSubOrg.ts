@@ -38,7 +38,7 @@ export default async function createUser(
       defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
-    const apiClient = turnkey.api(); // TODO: rename to apiClient
+    const apiClient = turnkey.apiClient();
 
     const walletName = `Default ETH Wallet`;
 
@@ -56,6 +56,7 @@ export default async function createUser(
               attestation: createSubOrgRequest.attestation,
             },
           ],
+          oauthProviders: [],
         },
       ],
       wallet: {

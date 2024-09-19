@@ -1,11 +1,13 @@
-import { createAccount } from "@turnkey/viem";
-import { useTurnkey } from "@turnkey/sdk-react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { createWalletClient, http } from "viem";
+import { Account, createWalletClient, http } from "viem";
 import { sepolia } from "viem/chains";
+
+import { createAccount } from "@turnkey/viem";
+import { useTurnkey } from "@turnkey/sdk-react";
+
 import styles from "./index.module.css";
 import { TWalletDetails } from "../types";
 
@@ -63,7 +65,7 @@ export default function Home() {
     });
 
     const viemClient = createWalletClient({
-      account: viemAccount,
+      account: viemAccount as Account,
       chain: sepolia,
       transport: http(),
     });
