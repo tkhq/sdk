@@ -298,6 +298,14 @@ export type paths = {
 };
 
 export type definitions = {
+  apiApiKeyParams: {
+    /** @description Human-readable name for an API Key. */
+    apiKeyName: string;
+    /** @description The public component of a cryptographic key pair used to sign messages and transactions. */
+    publicKey: string;
+    /** @description Optional window (in seconds) indicating how long the API Key should last. */
+    expirationSeconds?: string;
+  };
   billingActivateBillingTierIntent: {
     /** @description The product that the customer wants to subscribe to. */
     productId: string;
@@ -305,6 +313,44 @@ export type definitions = {
   billingActivateBillingTierResult: {
     /** @description The id of the product being subscribed to. */
     productId: string;
+  };
+  billingDeletePaymentMethodIntent: {
+    /** @description The payment method that the customer wants to remove. */
+    paymentMethodId: string;
+  };
+  billingDeletePaymentMethodResult: {
+    /** @description The payment method that was removed. */
+    paymentMethodId: string;
+  };
+  billingSetPaymentMethodIntent: {
+    /** @description The account number of the customer's credit card. */
+    number: string;
+    /** @description The verification digits of the customer's credit card. */
+    cvv: string;
+    /** @description The month that the credit card expires. */
+    expiryMonth: string;
+    /** @description The year that the credit card expires. */
+    expiryYear: string;
+    /** @description The email that will receive invoices for the credit card. */
+    cardHolderEmail: string;
+    /** @description The name associated with the credit card. */
+    cardHolderName: string;
+  };
+  billingSetPaymentMethodIntentV2: {
+    /** @description The id of the payment method that was created clientside. */
+    paymentMethodId: string;
+    /** @description The email that will receive invoices for the credit card. */
+    cardHolderEmail: string;
+    /** @description The name associated with the credit card. */
+    cardHolderName: string;
+  };
+  billingSetPaymentMethodResult: {
+    /** @description The last four digits of the credit card added. */
+    lastFour: string;
+    /** @description The name associated with the payment method. */
+    cardHolderName: string;
+    /** @description The email address associated with the payment method. */
+    cardHolderEmail: string;
   };
   datav1Tag: {
     /** @description Unique identifier for a given Tag. */
@@ -494,7 +540,29 @@ export type definitions = {
     | "ADDRESS_FORMAT_ETHEREUM"
     | "ADDRESS_FORMAT_SOLANA"
     | "ADDRESS_FORMAT_COSMOS"
-    | "ADDRESS_FORMAT_TRON";
+    | "ADDRESS_FORMAT_TRON"
+    | "ADDRESS_FORMAT_SUI"
+    | "ADDRESS_FORMAT_APTOS"
+    | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH"
+    | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH"
+    | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"
+    | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH"
+    | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR"
+    | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH"
+    | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH"
+    | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"
+    | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH"
+    | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR"
+    | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH"
+    | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH"
+    | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH"
+    | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH"
+    | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR"
+    | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH"
+    | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"
+    | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"
+    | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"
+    | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR";
   v1ApiKey: {
     /** @description A User credential that can be used to authenticate to Turnkey. */
     credential: definitions["externaldatav1Credential"];
@@ -515,14 +583,6 @@ export type definitions = {
     | "API_KEY_CURVE_P256"
     | "API_KEY_CURVE_SECP256K1"
     | "API_KEY_CURVE_ED25519";
-  v1ApiKeyParams: {
-    /** @description Human-readable name for an API Key. */
-    apiKeyName: string;
-    /** @description The public component of a cryptographic key pair used to sign messages and transactions. */
-    publicKey: string;
-    /** @description Optional window (in seconds) indicating how long the API Key should last. */
-    expirationSeconds?: string;
-  };
   v1ApiKeyParamsV2: {
     /** @description Human-readable name for an API Key. */
     apiKeyName: string;
@@ -541,7 +601,7 @@ export type definitions = {
     /** @description A list of tags assigned to the new API-only User. */
     userTags: string[];
     /** @description A list of API Key parameters. */
-    apiKeys: definitions["v1ApiKeyParams"][];
+    apiKeys: definitions["apiApiKeyParams"][];
   };
   v1ApproveActivityIntent: {
     /** @description An artifact verifying a User's action. */
@@ -622,7 +682,7 @@ export type definitions = {
   };
   v1CreateApiKeysIntent: {
     /** @description A list of API Keys. */
-    apiKeys: definitions["v1ApiKeyParams"][];
+    apiKeys: definitions["apiApiKeyParams"][];
     /** @description Unique identifier for a given User. */
     userId: string;
   };
@@ -893,7 +953,7 @@ export type definitions = {
     /** @description Client-side public key generated by the user, to which the read write session bundle (credentials) will be encrypted. */
     targetPublicKey: string;
     /** @description Unique identifier for a given User. */
-    userId: string;
+    userId?: string;
     /** @description Optional human-readable name for an API Key. If none provided, default to Read Write Session - <Timestamp> */
     apiKeyName?: string;
     /** @description Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used. */
@@ -1232,14 +1292,6 @@ export type definitions = {
   v1DeleteOrganizationResult: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-  };
-  v1DeletePaymentMethodIntent: {
-    /** @description The payment method that the customer wants to remove. */
-    paymentMethodId: string;
-  };
-  v1DeletePaymentMethodResult: {
-    /** @description The payment method that was removed. */
-    paymentMethodId: string;
   };
   v1DeletePolicyIntent: {
     /** @description Unique identifier for a given Policy. */
@@ -1843,9 +1895,9 @@ export type definitions = {
     createPrivateKeyTagIntent?: definitions["v1CreatePrivateKeyTagIntent"];
     deletePrivateKeyTagsIntent?: definitions["v1DeletePrivateKeyTagsIntent"];
     createPolicyIntentV2?: definitions["v1CreatePolicyIntentV2"];
-    setPaymentMethodIntent?: definitions["v1SetPaymentMethodIntent"];
+    setPaymentMethodIntent?: definitions["billingSetPaymentMethodIntent"];
     activateBillingTierIntent?: definitions["billingActivateBillingTierIntent"];
-    deletePaymentMethodIntent?: definitions["v1DeletePaymentMethodIntent"];
+    deletePaymentMethodIntent?: definitions["billingDeletePaymentMethodIntent"];
     createPolicyIntentV3?: definitions["v1CreatePolicyIntentV3"];
     createApiOnlyUsersIntent?: definitions["v1CreateApiOnlyUsersIntent"];
     updateRootQuorumIntent?: definitions["v1UpdateRootQuorumIntent"];
@@ -1861,7 +1913,7 @@ export type definitions = {
     createPrivateKeysIntentV2?: definitions["v1CreatePrivateKeysIntentV2"];
     updateUserIntent?: definitions["v1UpdateUserIntent"];
     updatePolicyIntent?: definitions["v1UpdatePolicyIntent"];
-    setPaymentMethodIntentV2?: definitions["v1SetPaymentMethodIntentV2"];
+    setPaymentMethodIntentV2?: definitions["billingSetPaymentMethodIntentV2"];
     createSubOrganizationIntentV3?: definitions["v1CreateSubOrganizationIntentV3"];
     createWalletIntent?: definitions["v1CreateWalletIntent"];
     createWalletAccountsIntent?: definitions["v1CreateWalletAccountsIntent"];
@@ -2177,9 +2229,9 @@ export type definitions = {
     createApiKeysResult?: definitions["v1CreateApiKeysResult"];
     createPrivateKeyTagResult?: definitions["v1CreatePrivateKeyTagResult"];
     deletePrivateKeyTagsResult?: definitions["v1DeletePrivateKeyTagsResult"];
-    setPaymentMethodResult?: definitions["v1SetPaymentMethodResult"];
+    setPaymentMethodResult?: definitions["billingSetPaymentMethodResult"];
     activateBillingTierResult?: definitions["billingActivateBillingTierResult"];
-    deletePaymentMethodResult?: definitions["v1DeletePaymentMethodResult"];
+    deletePaymentMethodResult?: definitions["billingDeletePaymentMethodResult"];
     createApiOnlyUsersResult?: definitions["v1CreateApiOnlyUsersResult"];
     updateRootQuorumResult?: definitions["v1UpdateRootQuorumResult"];
     updateUserTagResult?: definitions["v1UpdateUserTagResult"];
@@ -2224,7 +2276,7 @@ export type definitions = {
     /** @description The user's email address. */
     userEmail?: string;
     /** @description A list of API Key parameters. */
-    apiKeys: definitions["v1ApiKeyParams"][];
+    apiKeys: definitions["apiApiKeyParams"][];
     /** @description A list of Authenticator parameters. */
     authenticators: definitions["v1AuthenticatorParamsV2"][];
   };
@@ -2234,7 +2286,7 @@ export type definitions = {
     /** @description The user's email address. */
     userEmail?: string;
     /** @description A list of API Key parameters. */
-    apiKeys: definitions["v1ApiKeyParams"][];
+    apiKeys: definitions["apiApiKeyParams"][];
     /** @description A list of Authenticator parameters. */
     authenticators: definitions["v1AuthenticatorParamsV2"][];
     /** @description A list of Oauth providers. */
@@ -2280,36 +2332,6 @@ export type definitions = {
   v1SetOrganizationFeatureResult: {
     /** @description Resulting list of organization features. */
     features: definitions["v1Feature"][];
-  };
-  v1SetPaymentMethodIntent: {
-    /** @description The account number of the customer's credit card. */
-    number: string;
-    /** @description The verification digits of the customer's credit card. */
-    cvv: string;
-    /** @description The month that the credit card expires. */
-    expiryMonth: string;
-    /** @description The year that the credit card expires. */
-    expiryYear: string;
-    /** @description The email that will receive invoices for the credit card. */
-    cardHolderEmail: string;
-    /** @description The name associated with the credit card. */
-    cardHolderName: string;
-  };
-  v1SetPaymentMethodIntentV2: {
-    /** @description The id of the payment method that was created clientside. */
-    paymentMethodId: string;
-    /** @description The email that will receive invoices for the credit card. */
-    cardHolderEmail: string;
-    /** @description The name associated with the credit card. */
-    cardHolderName: string;
-  };
-  v1SetPaymentMethodResult: {
-    /** @description The last four digits of the credit card added. */
-    lastFour: string;
-    /** @description The name associated with the payment method. */
-    cardHolderName: string;
-    /** @description The email address associated with the payment method. */
-    cardHolderEmail: string;
   };
   v1SignRawPayloadIntent: {
     /** @description Unique identifier for a given Private Key. */
@@ -2551,7 +2573,7 @@ export type definitions = {
     /** @description The User's permissible access method(s). */
     accessType: definitions["v1AccessType"];
     /** @description A list of API Key parameters. */
-    apiKeys: definitions["v1ApiKeyParams"][];
+    apiKeys: definitions["apiApiKeyParams"][];
     /** @description A list of Authenticator parameters. */
     authenticators: definitions["v1AuthenticatorParams"][];
     /** @description A list of User Tag IDs. */
@@ -2563,7 +2585,7 @@ export type definitions = {
     /** @description The user's email address. */
     userEmail?: string;
     /** @description A list of API Key parameters. */
-    apiKeys: definitions["v1ApiKeyParams"][];
+    apiKeys: definitions["apiApiKeyParams"][];
     /** @description A list of Authenticator parameters. */
     authenticators: definitions["v1AuthenticatorParamsV2"][];
     /** @description A list of User Tag IDs. */
