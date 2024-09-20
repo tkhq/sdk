@@ -1,5 +1,22 @@
 # @turnkey/ethers
 
+## 1.1.0
+
+### Minor Changes
+
+- bdded80: Support awaiting consensus
+
+  - Add a few new helper functions:
+    - `serializeSignature` serializes a raw signature
+
+### Patch Changes
+
+- Updated dependencies [c988ed0]
+- Updated dependencies [848f8d3]
+  - @turnkey/sdk-browser@1.6.0
+  - @turnkey/sdk-server@1.4.0
+  - @turnkey/http@2.14.0
+
 ## 1.0.21
 
 ### Patch Changes

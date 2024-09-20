@@ -1,5 +1,37 @@
 # @turnkey/sdk-server
 
+## 1.4.0
+
+### Minor Changes
+
+- c988ed0: Support activity polling (e.g. for awaiting consensus)
+
+  - [Breaking] Update the `activityPoller` parameter for configuring polling behavior
+  - Polling continues until either a max number of retries is reached, or if the activity hits a terminal status
+
+  The shape of the parameter has gone from:
+
+  ```
+  {
+    duration: number;
+    timeout: number;
+  }
+  ```
+
+  to
+
+  ```
+  {
+    intervalMs: number;
+    numRetries: number;
+  }
+  ```
+
+### Patch Changes
+
+- Updated dependencies [848f8d3]
+  - @turnkey/http@2.14.0
+
 ## 1.3.0
 
 ### Minor Changes
