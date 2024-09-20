@@ -1,5 +1,14 @@
 # @turnkey/http
 
+## 2.14.1
+
+### Patch Changes
+
+- ff059d5: Update dependencies
+- Updated dependencies [93666ff]
+  - @turnkey/encoding@0.3.0
+  - @turnkey/api-key-stamper@0.4.2
+
 ## 2.14.0
 
 ### Minor Changes
