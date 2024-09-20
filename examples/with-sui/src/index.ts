@@ -32,10 +32,9 @@ async function main() {
   const suiPublicKeyHex = process.env.SUI_PUBLIC_KEY!;
 
   if (!suiAddress || !suiPublicKeyHex) {
-    console.error(
+    throw new Error(
       "Please set your SUI_ADDRESS and SUI_PUBLIC_KEY in the .env.local file."
     );
-    process.exit(1);
   }
 
   console.log(`Using Sui address: ${suiAddress}`);
@@ -46,8 +45,9 @@ async function main() {
   const computedAddress = publicKey.toSuiAddress();
 
   if (computedAddress !== suiAddress) {
-    console.error("The SUI_PUBLIC_KEY does not correspond to the SUI_ADDRESS.");
-    process.exit(1);
+    throw new Error(
+      "The SUI_PUBLIC_KEY does not correspond to the SUI_ADDRESS."
+    );
   }
 
   // Check balance
@@ -70,8 +70,7 @@ async function main() {
   });
 
   if (coins.data.length === 0) {
-    console.error("No SUI coins found in the account.");
-    process.exit(1);
+    throw new Error("No SUI coins found in the account.");
   }
 
   // Create and sign a transaction
@@ -92,8 +91,8 @@ async function main() {
 
   // Use the first coin for transfer
 
-  const reference_gas_price = await provider.getReferenceGasPrice();
-  tx.setGasPrice(reference_gas_price);
+  const referenceGasPrice = await provider.getReferenceGasPrice();
+  tx.setGasPrice(referenceGasPrice);
   tx.setGasBudget(1000000n);
 
   // Set gas payment

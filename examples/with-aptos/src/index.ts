@@ -21,10 +21,9 @@ async function main() {
   const aptosPublicKeyHex = process.env.APTOS_PUBLIC_KEY!;
 
   if (!aptosAddress || !aptosPublicKeyHex) {
-    console.error(
+    throw new Error(
       "Please set your APTOS_ADDRESS and APTOS_PUBLIC_KEY in the .env.local file."
     );
-    process.exit(1);
   }
 
   console.log(`Using Aptos address: ${aptosAddress}`);
@@ -113,10 +112,9 @@ async function main() {
 
   // Validate signature length
   if (txSignatureHex.length !== 128) {
-    console.error(
+    throw new Error(
       "Invalid signature length for Ed25519. Expected 128 hex characters."
     );
-    process.exit(1);
   }
 
   // Construct the signed transaction using the public key and signature

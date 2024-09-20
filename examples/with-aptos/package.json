@@ -4,25 +4,21 @@
   "private": true,
   "scripts": {
     "start": "pnpm tsx src/index.ts",
-    "advanced": "pnpm tsx src/advanced.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@inquirer/prompts": "^2.1.0",
     "@noble/hashes": "1.4.0",
-    "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "aptos": "^1.21.0",
     "async-retry": "^1.3.3",
-    "bs58": "^5.0.0",
     "cross-fetch": "^4.0.0",
     "dotenv": "^16.0.3"
   },
   "devDependencies": {
     "@types/async-retry": "^1.4.8",
-    "@types/bs58": "^4.0.1",
     "tsx": "^3.12.7",
     "typescript": "^5.0.4"
   }
