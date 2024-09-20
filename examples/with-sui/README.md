@@ -2,7 +2,7 @@
 
 This is a simple example that walks through the following:
 
-- Construction of an sui transaction sending the funds out on mainnet
+- Construction of a sui transaction sending the funds out on mainnet
 
 ## Getting started
 

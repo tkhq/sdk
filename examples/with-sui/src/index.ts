@@ -122,7 +122,9 @@ async function main() {
   // Hash the intent message
   const txDigest = blake2b(intentMessage, { dkLen: 32 });
 
-  // Sign the transaction digest using Turnkey
+  // Sign the payload using Turnkey with HASH_FUNCTION_NOT_APPLICABLE
+  // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
+  // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
   const txSignResult = await turnkeyClient.apiClient().signRawPayload({
     signWith: suiAddress,
     payload: bytesToHex(txDigest),

@@ -92,7 +92,9 @@ async function main() {
   // Get the signing message
   const signingMessage = TransactionBuilder.getSigningMessage(rawTxn);
 
-  // Sign the transaction using Turnkey with HASH_FUNCTION_NO_OP
+  // Sign the payload using Turnkey with HASH_FUNCTION_NOT_APPLICABLE
+  // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
+  // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
   const txSignResult = await turnkeyClient.apiClient().signRawPayload({
     signWith: aptosAddress,
     payload: bytesToHex(signingMessage),
