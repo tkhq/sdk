@@ -12,18 +12,34 @@ import bs58check from "bs58check";
 import { modSqrt, testBit } from "./math";
 import {
   AES_KEY_INFO,
-  Environment,
   HPKE_VERSION,
   IV_INFO,
   LABEL_EAE_PRK,
   LABEL_SECRET,
   LABEL_SHARED_SECRET,
-  SIGNER_PUBLIC_KEY,
+  PRODUCTION_SIGNER_PUBLIC_KEY,
   SUITE_ID_1,
   SUITE_ID_2,
 } from "./constants";
 import bs58 from "bs58";
 import { normalizePadding } from "@turnkey/encoding";
+
+interface EncryptPrivateKeyToBundleParams {
+  privateKey: string;
+  keyFormat: string;
+  importBundle: string;
+  userId: string;
+  organizationId: string;
+  dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
+}
+
+interface EncryptWalletToBundleParams {
+  mnemonic: string;
+  importBundle: string;
+  userId: string;
+  organizationId: string;
+  dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
+}
 
 interface HpkeDecryptParams {
   ciphertextBuf: Uint8Array;
@@ -34,7 +50,11 @@ interface HpkeDecryptParams {
 interface HpkeEncryptParams {
   plainTextBuf: Uint8Array;
   targetKeyBuf: Uint8Array;
-  senderPriv?: string;
+}
+interface HpkeAuthEncryptParams {
+  plainTextBuf: Uint8Array;
+  targetKeyBuf: Uint8Array;
+  senderPriv: string;
 }
 
 interface KeyPair {
@@ -69,24 +89,14 @@ export const getPublicKey = (
 export const hpkeEncrypt = ({
   plainTextBuf,
   targetKeyBuf,
-  senderPriv,
-}: HpkeEncryptParams): string => {
+}: HpkeEncryptParams): Uint8Array => {
   try {
-    let senderPrivBuf: Uint8Array | null = null;
-    let senderPubBuf: Uint8Array;
-
-    if (senderPriv) {
-      // Authenticated HPKE Mode
-      senderPrivBuf = uint8ArrayFromHexString(senderPriv);
-      senderPubBuf = getPublicKey(senderPriv, false);
-    } else {
-      // Standard HPKE Mode (Ephemeral Key Pair)
-      const ephemeralKeyPair = generateP256KeyPair();
-      senderPrivBuf = uint8ArrayFromHexString(ephemeralKeyPair.privateKey);
-      senderPubBuf = uint8ArrayFromHexString(
-        ephemeralKeyPair.publicKeyUncompressed
-      );
-    }
+    // Standard HPKE Mode (Ephemeral Key Pair)
+    const ephemeralKeyPair = generateP256KeyPair();
+    const senderPrivBuf = uint8ArrayFromHexString(ephemeralKeyPair.privateKey);
+    const senderPubBuf = uint8ArrayFromHexString(
+      ephemeralKeyPair.publicKeyUncompressed
+    );
 
     const aad = buildAdditionalAssociatedData(senderPubBuf, targetKeyBuf);
 
@@ -129,20 +139,97 @@ export const hpkeEncrypt = ({
     result.set(compressedSenderBuf, 0);
     result.set(encryptedData, compressedSenderBuf.length);
 
-    const encappedKeyBufHex = uint8ArrayToHexString(
-      uncompressRawPublicKey(compressedSenderBuf)
-    );
-    const ciphertextHex = uint8ArrayToHexString(
-      result.slice(compressedSenderBuf.length)
-    );
-
-    return JSON.stringify({
-      encappedPublic: encappedKeyBufHex,
-      ciphertext: ciphertextHex,
-    });
+    return result;
   } catch (error) {
     throw new Error(`Unable to perform hpkeEncrypt: ${error}`);
   }
+};
+
+/**
+ * HPKE Encrypt Function
+ * Encrypts data using Authenticated ,Hybrid Public Key Encryption (HPKE) standard https://datatracker.ietf.org/doc/rfc9180/.
+ *
+ * @param {HpkeAuthEncryptParams} params - The encryption parameters including plain text, encapsulated key, and sender private key.
+ * @returns {Uint8Array} - The encrypted data.
+ */
+
+export const hpkeAuthEncrypt = ({
+  plainTextBuf,
+  targetKeyBuf,
+  senderPriv,
+}: HpkeAuthEncryptParams): Uint8Array => {
+  try {
+    // Authenticated HPKE Mode
+    const senderPrivBuf = uint8ArrayFromHexString(senderPriv);
+    const senderPubBuf = getPublicKey(senderPriv, false);
+
+    const aad = buildAdditionalAssociatedData(senderPubBuf, targetKeyBuf);
+
+    // Step 1: Generate Shared Secret
+    const ss = deriveSS(targetKeyBuf, uint8ArrayToHexString(senderPrivBuf!));
+
+    // Step 2: Generate the KEM context
+    const kemContext = getKemContext(
+      senderPubBuf,
+      uint8ArrayToHexString(targetKeyBuf)
+    );
+
+    // Step 3: Build the HKDF inputs for key derivation
+    let ikm = buildLabeledIkm(LABEL_EAE_PRK, ss, SUITE_ID_1);
+    let info = buildLabeledInfo(
+      LABEL_SHARED_SECRET,
+      kemContext,
+      SUITE_ID_1,
+      32
+    );
+    const sharedSecret = extractAndExpand(new Uint8Array([]), ikm, info, 32);
+
+    // Step 4: Derive the AES key
+    ikm = buildLabeledIkm(LABEL_SECRET, new Uint8Array([]), SUITE_ID_2);
+    info = AES_KEY_INFO;
+    const key = extractAndExpand(sharedSecret, ikm, info, 32);
+
+    // Step 5: Derive the initialization vector
+    info = IV_INFO;
+    const iv = extractAndExpand(sharedSecret, ikm, info, 12);
+
+    // Step 6: Encrypt the data using AES-GCM
+    const encryptedData = aesGcmEncrypt(plainTextBuf, key, iv, aad);
+
+    // Step 7: Concatenate the encapsulated key and the encrypted data for output
+    const compressedSenderBuf = compressRawPublicKey(senderPubBuf);
+    const result = new Uint8Array(
+      compressedSenderBuf.length + encryptedData.length
+    );
+    result.set(compressedSenderBuf, 0);
+    result.set(encryptedData, compressedSenderBuf.length);
+    return result;
+  } catch (error) {
+    throw new Error(`Unable to perform hpkeEncrypt: ${error}`);
+  }
+};
+
+/**
+ * Format HPKE Buffer Function
+ * Returns a JSON string of an encrypted bundle, separating out the cipher text and the sender public key
+ *
+ * @param {Uint8Array} encryptedBuf - The result of hpkeAuthEncrypt or hpkeEncrypt
+ * @returns {string} - A JSON string with "encappedPublic" and "ciphertext"
+ */
+
+export const formatHpkeBuf = (encryptedBuf: Uint8Array): string => {
+  const compressedSenderBuf = encryptedBuf.slice(0, 33);
+  const encryptedData = encryptedBuf.slice(33);
+
+  const encappedKeyBufHex = uint8ArrayToHexString(
+    uncompressRawPublicKey(compressedSenderBuf)
+  );
+  const ciphertextHex = uint8ArrayToHexString(encryptedData);
+
+  return JSON.stringify({
+    encappedPublic: encappedKeyBufHex,
+    ciphertext: ciphertextHex,
+  });
 };
 
 /**
@@ -503,17 +590,19 @@ const bigIntToHex = (num: bigint, length: number): string => {
  * @returns {Promise<boolean>} - Returns true if the signature is valid, otherwise throws an error.
  */
 
-export const verifyEnclaveSignature = async (
+const verifyEnclaveSignature = async (
   enclaveQuorumPublic: string,
   publicSignature: string,
   signedData: string,
-  environment?: Environment
+  dangerouslyOverrideSignerPublicKey?: string
 ) => {
-  const signer_key = SIGNER_PUBLIC_KEY[environment ?? Environment.PROD];
-
-  if (enclaveQuorumPublic != signer_key) {
+  const expectedSignerPublicKey =
+    dangerouslyOverrideSignerPublicKey || PRODUCTION_SIGNER_PUBLIC_KEY;
+  if (enclaveQuorumPublic != expectedSignerPublicKey) {
     throw new Error(
-      "expected signer key does not match signer key from bundle"
+      `expected signer key ${
+        dangerouslyOverrideSignerPublicKey ?? PRODUCTION_SIGNER_PUBLIC_KEY
+      } does not match signer key from bundle: ${enclaveQuorumPublic}`
     );
   }
 
@@ -606,7 +695,7 @@ const loadQuorumKey = async (quorumPublic: Uint8Array): Promise<CryptoKey> => {
  * @returns {Uint8Array} - The decoded private key.
  */
 
-export const decodeKey = (privateKey: string, keyFormat: any): Uint8Array => {
+const decodeKey = (privateKey: string, keyFormat: any): Uint8Array => {
   switch (keyFormat) {
     case "SOLANA":
       const decodedKeyBytes = bs58.decode(privateKey);
@@ -630,4 +719,114 @@ export const decodeKey = (privateKey: string, keyFormat: any): Uint8Array => {
       }
       return uint8ArrayFromHexString(privateKey);
   }
+};
+
+/**
+ * Encrypts a private key bundle using HPKE and verifies the enclave signature.
+ *
+ * @param {EncryptPrivateKeyToBundleParams} params - An object containing the private key, key format, bundle, user, and organization details. Optionally, you can override the default signer key.
+ * @returns {Promise<string>} - A promise that resolves to a JSON string representing the encrypted bundle.
+ * @throws {Error} - If enclave signature verification or any other validation fails.
+ */
+export const encryptPrivateKeyToBundle = async ({
+  privateKey,
+  keyFormat,
+  importBundle,
+  userId,
+  organizationId,
+  dangerouslyOverrideSignerPublicKey,
+}: EncryptPrivateKeyToBundleParams): Promise<string> => {
+  const parsedImportBundle = JSON.parse(importBundle);
+  const plainTextBuf = decodeKey(privateKey, keyFormat);
+  const verified = await verifyEnclaveSignature(
+    parsedImportBundle.enclaveQuorumPublic,
+    parsedImportBundle.dataSignature,
+    parsedImportBundle.data,
+    dangerouslyOverrideSignerPublicKey
+  );
+  if (!verified) {
+    throw new Error(`failed to verify enclave signature: ${importBundle}`);
+  }
+
+  const signedData = JSON.parse(
+    new TextDecoder().decode(uint8ArrayFromHexString(parsedImportBundle.data))
+  );
+
+  if (
+    !signedData.organizationId ||
+    signedData.organizationId !== organizationId
+  ) {
+    throw new Error(
+      `organization id does not match expected value. Expected: ${organizationId}. Found: ${signedData.organizationId}.`
+    );
+  }
+  if (!signedData.userId || signedData.userId !== userId) {
+    throw new Error(
+      `user id does not match expected value. Expected: ${userId}. Found: ${signedData.userId}.`
+    );
+  }
+
+  if (!signedData.targetPublic) {
+    throw new Error('missing "targetPublic" in bundle signed data');
+  }
+
+  // Load target public key generated from enclave and set in local storage
+  const targetKeyBuf = uint8ArrayFromHexString(signedData.targetPublic);
+  const privateKeyBundle = hpkeEncrypt({ plainTextBuf, targetKeyBuf });
+  return formatHpkeBuf(privateKeyBundle);
+};
+
+/**
+/**
+ * Encrypts a mnemonic wallet bundle using HPKE and verifies the enclave signature.
+ *
+ * @param {EncryptWalletToBundleParams} params - An object containing the mnemonic, bundle, user, and organization details. Optionally, you can override the default signer key.
+ * @returns {Promise<string>} - A promise that resolves to a JSON string representing the encrypted wallet bundle.
+ * @throws {Error} - If enclave signature verification or any other validation fails.
+ */
+export const encryptWalletToBundle = async ({
+  mnemonic,
+  importBundle,
+  userId,
+  organizationId,
+  dangerouslyOverrideSignerPublicKey,
+}: EncryptWalletToBundleParams): Promise<string> => {
+  const parsedImportBundle = JSON.parse(importBundle);
+  const plainTextBuf = new TextEncoder().encode(mnemonic);
+  const verified = await verifyEnclaveSignature(
+    parsedImportBundle.enclaveQuorumPublic,
+    parsedImportBundle.dataSignature,
+    parsedImportBundle.data,
+    dangerouslyOverrideSignerPublicKey
+  );
+  if (!verified) {
+    throw new Error(`failed to verify enclave signature: ${importBundle}`);
+  }
+
+  const signedData = JSON.parse(
+    new TextDecoder().decode(uint8ArrayFromHexString(parsedImportBundle.data))
+  );
+
+  if (
+    !signedData.organizationId ||
+    signedData.organizationId !== organizationId
+  ) {
+    throw new Error(
+      `organization id does not match expected value. Expected: ${organizationId}. Found: ${signedData.organizationId}.`
+    );
+  }
+  if (!signedData.userId || signedData.userId !== userId) {
+    throw new Error(
+      `user id does not match expected value. Expected: ${userId}. Found: ${signedData.userId}.`
+    );
+  }
+
+  if (!signedData.targetPublic) {
+    throw new Error('missing "targetPublic" in bundle signed data');
+  }
+
+  // Load target public key generated from enclave and set in local storage
+  const targetKeyBuf = uint8ArrayFromHexString(signedData.targetPublic);
+  const privateKeyBundle = hpkeEncrypt({ plainTextBuf, targetKeyBuf });
+  return formatHpkeBuf(privateKeyBundle);
 };

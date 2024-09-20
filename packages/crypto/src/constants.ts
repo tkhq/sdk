@@ -21,13 +21,5 @@ export const IV_INFO = new Uint8Array([
   41, 180, 122, 198, 166, 48, 185, 46, 196, 207, 125, 35, 69, 8, 208, 175, 151,
   113, 201, 158, 80,
 ]); //base_nonce
-export enum Environment {
-  PROD = "PROD",
-  PREPROD = "PREPROD",
-}
-export const SIGNER_PUBLIC_KEY = {
-  [Environment.PROD]:
-    "04cf288fe433cc4e1aa0ce1632feac4ea26bf2f5a09dcfe5a42c398e06898710330f0572882f4dbdf0f5304b8fc8703acd69adca9a4bbf7f5d00d20a5e364b2569",
-  [Environment.PREPROD]:
-    "04f3422b8afbe425d6ece77b8d2469954715a2ff273ab7ac89f1ed70e0a9325eaa1698b4351fd1b23734e65c0b6a86b62dd49d70b37c94606aac402cbd84353212",
-};
+export const PRODUCTION_SIGNER_PUBLIC_KEY =
+  "04cf288fe433cc4e1aa0ce1632feac4ea26bf2f5a09dcfe5a42c398e06898710330f0572882f4dbdf0f5304b8fc8703acd69adca9a4bbf7f5d00d20a5e364b2569";

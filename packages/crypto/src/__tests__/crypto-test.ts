@@ -12,6 +12,8 @@ import {
   compressRawPublicKey,
   hpkeDecrypt,
   hpkeEncrypt,
+  hpkeAuthEncrypt,
+  formatHpkeBuf,
 } from "../crypto";
 
 // Mock data for testing
@@ -23,7 +25,7 @@ const mockCredentialBundle =
   "w99a5xV6A75TfoAUkZn869fVyDYvgVsKrawMALZXmrauZd8hEv66EkPU1Z42CUaHESQjcA5bqd8dynTGBMLWB9ewtXWPEVbZvocB4Tw2K1vQVp7uwjf";
 
 describe("HPKE Encryption and Decryption", () => {
-  test("hpkeEncrypt and hpkeDecrypt - end-to-end encryption and decryption", () => {
+  test("hpkeAuthEncrypt and hpkeDecrypt - end-to-end encryption and decryption", () => {
     const senderKeyPair = generateP256KeyPair();
     const receiverKeyPair = generateP256KeyPair();
     const receiverPublicKeyUncompressed = uncompressRawPublicKey(
@@ -35,12 +37,12 @@ describe("HPKE Encryption and Decryption", () => {
     const plainText = "Hello, this is a secure message!";
     const plainTextBuf = textEncoder.encode(plainText);
     // Encrypt
-    const encryptedData = hpkeEncrypt({
+    const encryptedDataBuf = hpkeAuthEncrypt({
       plainTextBuf: plainTextBuf,
       targetKeyBuf: receiverPublicKeyUncompressed,
       senderPriv: senderKeyPair.privateKey,
     });
-
+    const encryptedData = formatHpkeBuf(encryptedDataBuf);
     // Extract the encapsulated key buffer and the ciphertext
     const data = JSON.parse(encryptedData);
     // Decrypt
@@ -73,12 +75,12 @@ describe("HPKE Standard Encryption and Decryption", () => {
     const plainTextBuf = textEncoder.encode(plainText);
 
     // Encrypt using standard mode (no sender private key provided)
-    const encryptedData = hpkeEncrypt({
+    const encryptedDataBuf = hpkeEncrypt({
       plainTextBuf: plainTextBuf,
       targetKeyBuf: receiverPublicKeyUncompressed,
       // No senderPriv provided, so it will use an ephemeral key
     });
-
+    const encryptedData = formatHpkeBuf(encryptedDataBuf);
     // Parse the encrypted data
     const data = JSON.parse(encryptedData);
     // Decrypt the message
