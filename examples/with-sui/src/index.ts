@@ -93,7 +93,7 @@ async function main() {
 
   const referenceGasPrice = await provider.getReferenceGasPrice();
   tx.setGasPrice(referenceGasPrice);
-  tx.setGasBudget(1000000n);
+  tx.setGasBudget(5000000n);
 
   // Set gas payment
   tx.setGasPayment([

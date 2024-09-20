@@ -53,16 +53,12 @@ async function main() {
   );
 
   // Prepare the transaction payload
-  const token = new TxnBuilderTypes.TypeTagStruct(
-    TxnBuilderTypes.StructTag.fromString("0x1::aptos_coin::AptosCoin")
-  );
-
   const entryFunctionPayload =
     new TxnBuilderTypes.TransactionPayloadEntryFunction(
       TxnBuilderTypes.EntryFunction.natural(
-        "0x1::coin",
+        "0x1::aptos_account",
         "transfer",
-        [token],
+        [],
         [
           BCS.bcsToBytes(
             TxnBuilderTypes.AccountAddress.fromHex(recipientAddress)
