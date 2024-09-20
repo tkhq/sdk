@@ -12,6 +12,8 @@ import {
   compressRawPublicKey,
   hpkeDecrypt,
   hpkeEncrypt,
+  hpkeAuthEncrypt,
+  formatHpkeBuf,
 } from "../crypto";
 
 // Mock data for testing
@@ -23,7 +25,7 @@ const mockCredentialBundle =
   "w99a5xV6A75TfoAUkZn869fVyDYvgVsKrawMALZXmrauZd8hEv66EkPU1Z42CUaHESQjcA5bqd8dynTGBMLWB9ewtXWPEVbZvocB4Tw2K1vQVp7uwjf";
 
 describe("HPKE Encryption and Decryption", () => {
-  test("hpkeEncrypt and hpkeDecrypt - end-to-end encryption and decryption", () => {
+  test("hpkeAuthEncrypt and hpkeDecrypt - end-to-end encryption and decryption", () => {
     const senderKeyPair = generateP256KeyPair();
     const receiverKeyPair = generateP256KeyPair();
     const receiverPublicKeyUncompressed = uncompressRawPublicKey(
@@ -35,20 +37,18 @@ describe("HPKE Encryption and Decryption", () => {
     const plainText = "Hello, this is a secure message!";
     const plainTextBuf = textEncoder.encode(plainText);
     // Encrypt
-    const encryptedData = hpkeEncrypt({
+    const encryptedDataBuf = hpkeAuthEncrypt({
       plainTextBuf: plainTextBuf,
       targetKeyBuf: receiverPublicKeyUncompressed,
       senderPriv: senderKeyPair.privateKey,
     });
-
+    const encryptedData = formatHpkeBuf(encryptedDataBuf);
     // Extract the encapsulated key buffer and the ciphertext
-    const encappedKeyBuf = encryptedData.slice(0, 33);
-    const ciphertextBuf = encryptedData.slice(33);
-
+    const data = JSON.parse(encryptedData);
     // Decrypt
     const decryptedData = hpkeDecrypt({
-      ciphertextBuf,
-      encappedKeyBuf: uncompressRawPublicKey(encappedKeyBuf),
+      ciphertextBuf: uint8ArrayFromHexString(data.ciphertext),
+      encappedKeyBuf: uint8ArrayFromHexString(data.encappedPublic),
       receiverPriv: receiverKeyPair.privateKey,
     });
 
@@ -57,6 +57,49 @@ describe("HPKE Encryption and Decryption", () => {
 
     // Expect the decrypted text to equal the original plaintext
     expect(decryptedText).toEqual(plainText);
+  });
+});
+
+describe("HPKE Standard Encryption and Decryption", () => {
+  test("hpkeEncrypt and hpkeDecrypt - standard mode (ephemeral sender key)", async () => {
+    // Generate a receiver key pair
+    const receiverKeyPair = generateP256KeyPair();
+    const receiverPublicKeyUncompressed = uncompressRawPublicKey(
+      uint8ArrayFromHexString(receiverKeyPair.publicKey)
+    );
+
+    // Prepare the plaintext
+    const textEncoder = new TextEncoder();
+    const plainText =
+      "6ab33bd6e4bdc73017233da0554f9616fe10ede5c3ce001e81b321d5a74199b7";
+    const plainTextBuf = textEncoder.encode(plainText);
+
+    // Encrypt using standard mode (no sender private key provided)
+    const encryptedDataBuf = hpkeEncrypt({
+      plainTextBuf: plainTextBuf,
+      targetKeyBuf: receiverPublicKeyUncompressed,
+      // No senderPriv provided, so it will use an ephemeral key
+    });
+    const encryptedData = formatHpkeBuf(encryptedDataBuf);
+    // Parse the encrypted data
+    const data = JSON.parse(encryptedData);
+    // Decrypt the message
+    const decryptedData = hpkeDecrypt({
+      ciphertextBuf: uint8ArrayFromHexString(data.ciphertext),
+      encappedKeyBuf: uint8ArrayFromHexString(data.encappedPublic),
+      receiverPriv: receiverKeyPair.privateKey,
+    });
+
+    // Convert decrypted data back to string
+    const decryptedText = new TextDecoder().decode(decryptedData);
+
+    // Verify that the decrypted text matches the original plaintext
+    expect(decryptedText).toEqual(plainText);
+
+    // Additional checks to ensure standard mode behavior
+    const encappedPublicKey = uint8ArrayFromHexString(data.encappedPublic);
+    expect(encappedPublicKey.length).toBe(65); // Uncompressed public key length
+    expect(encappedPublicKey[0]).toBe(0x04); // Uncompressed public key prefix
   });
 });
 

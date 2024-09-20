@@ -1,0 +1,27 @@
+{
+  "name": "@turnkey/example-import-in-node",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "pnpm tsx src/index.ts",
+    "advanced": "pnpm tsx src/advanced.ts",
+    "token-transfer": "pnpm tsx src/tokenTransfer.ts",
+    "faucet": "pnpm tsx src/faucet.ts",
+    "jupiter-swap": "pnpm tsx src/jupiterSwap.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^2.1.0",
+    "@peculiar/webcrypto": "^1.5.0",
+    "@turnkey/crypto": "workspace:*",
+    "@turnkey/encoding": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "async-retry": "^1.3.3",
+    "cross-fetch": "^4.0.0",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "@types/async-retry": "^1.4.8"
+  }
+}
