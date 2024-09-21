@@ -1,5 +1,20 @@
 # @turnkey/sdk-browser
 
+## 1.7.0
+
+### Minor Changes
+
+- ff059d5: Add ability to create a read + write session
+
+### Patch Changes
+
+- Updated dependencies [ff059d5]
+- Updated dependencies [93666ff]
+  - @turnkey/http@2.14.1
+  - @turnkey/crypto@1.0.0
+  - @turnkey/encoding@0.3.0
+  - @turnkey/api-key-stamper@0.4.2
+
 ## 1.6.0
 
 ### Minor Changes

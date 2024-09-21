@@ -1,5 +1,24 @@
 # @turnkey/viem
 
+## 0.6.0
+
+### Minor Changes
+
+- 2bb9ea0: Add synchronous createAccount variant (thank you @mshrieve)
+
+  - Closes https://github.com/tkhq/sdk/issues/349
+  - Originally attributed to https://github.com/tkhq/sdk/pull/348
+  - Upshot: no change required if your setup was working. However, if you would like a synchronous option for creating a Viem account, now you may do so with `createAccountWithAddress`
+
+### Patch Changes
+
+- Updated dependencies [ff059d5]
+- Updated dependencies [ff059d5]
+  - @turnkey/sdk-browser@1.7.0
+  - @turnkey/sdk-server@1.4.1
+  - @turnkey/http@2.14.1
+  - @turnkey/api-key-stamper@0.4.2
+
 ## 0.5.0
 
 ### Minor Changes

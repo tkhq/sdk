@@ -1,5 +1,11 @@
 # @turnkey/encoding
 
+## 0.3.0
+
+### Minor Changes
+
+- 93666ff: turnkey/crypto standard HPKE encryption, first major release. Allows for programmatic importing in environments like node. Moved some encoding helper functions to turnkey/encoding
+
 ## 0.2.1
 
 ### Patch Changes
