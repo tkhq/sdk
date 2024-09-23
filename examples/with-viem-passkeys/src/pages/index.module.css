@@ -88,3 +88,34 @@
   font-size: 0.9em;
   color: rgb(134, 153, 156);
 }
+
+.toggleContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.toggleButton {
+  background-color: #e0e0e0;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.toggleButton:not(:last-child) {
+  border-right: 1px solid #ccc;
+}
+
+.toggleButton.active {
+  background-color: black;
+  color: white;
+}
+
+.toggleButton:first-child {
+  border-radius: 5px 0 0 5px;
+}
+
+.toggleButton:last-child {
+  border-radius: 0 5px 5px 0;
+}

@@ -904,6 +904,9 @@ importers:
       '@turnkey/api-key-stamper':
         specifier: workspace:*
         version: link:../../packages/api-key-stamper
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../packages/ethers
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http

@@ -18,6 +18,7 @@
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-react": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/ethers": "workspace:*",
     "@turnkey/viem": "workspace:*",
     "@turnkey/webauthn-stamper": "workspace:*",
     "@types/node": "20.3.1",

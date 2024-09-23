@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { Account, createWalletClient, http } from "viem";
 import { sepolia } from "viem/chains";
 
+import { TurnkeySigner } from "@turnkey/ethers";
 import { createAccount } from "@turnkey/viem";
 import { useTurnkey } from "@turnkey/sdk-react";
 
@@ -36,6 +37,7 @@ export default function Home() {
   // Wallet is used as a proxy for logged-in state
   const [wallet, setWallet] = useState<TWalletState>(null);
   const [signedMessage, setSignedMessage] = useState<TSignedMessage>(null);
+  const [useViem, setUseViem] = useState(true);
 
   const { handleSubmit: subOrgFormSubmit } = useForm<subOrgFormData>();
   const { register: signingFormRegister, handleSubmit: signingFormSubmit } =
@@ -57,11 +59,19 @@ export default function Home() {
       throw new Error("wallet not found");
     }
 
+    if (useViem) {
+      await signMessageViem(data);
+    } else {
+      await signMessageEthers(data);
+    }
+  };
+
+  const signMessageViem = async (data: signingFormData) => {
     const viemAccount = await createAccount({
       client: passkeyClient!,
-      organizationId: wallet.subOrgId,
-      signWith: wallet.address,
-      ethereumAddress: wallet.address,
+      organizationId: wallet!.subOrgId,
+      signWith: wallet!.address,
+      ethereumAddress: wallet!.address,
     });
 
     const viemClient = createWalletClient({
@@ -73,6 +83,21 @@ export default function Home() {
     const signedMessage = await viemClient.signMessage({
       message: data.messageToSign,
     });
+
+    setSignedMessage({
+      message: data.messageToSign,
+      signature: signedMessage,
+    });
+  };
+
+  const signMessageEthers = async (data: signingFormData) => {
+    const ethersSigner = new TurnkeySigner({
+      client: passkeyClient!,
+      organizationId: wallet!.subOrgId,
+      signWith: wallet!.address,
+    });
+
+    const signedMessage = await ethersSigner.signMessage(data.messageToSign);
 
     setSignedMessage({
       message: data.messageToSign,
@@ -151,7 +176,11 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <a href="https://turnkey.com" target="_blank" rel="noopener noreferrer">
+      <a
+        href="https://turnkey.com"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <Image
           src="/logo.svg"
           alt="Turnkey Logo"
@@ -247,7 +276,10 @@ export default function Home() {
               Whoami endpoint.
             </a>
           </p>
-          <form className={styles.form} onSubmit={loginFormSubmit(login)}>
+          <form
+            className={styles.form}
+            onSubmit={loginFormSubmit(login)}
+          >
             <input
               className={styles.button}
               type="submit"
@@ -258,6 +290,24 @@ export default function Home() {
       )}
       {wallet !== null && (
         <div>
+          <div className={styles.toggleContainer}>
+            <button
+              className={`${styles.toggleButton} ${
+                useViem ? styles.active : ""
+              }`}
+              onClick={() => setUseViem(true)}
+            >
+              Viem
+            </button>
+            <button
+              className={`${styles.toggleButton} ${
+                !useViem ? styles.active : ""
+              }`}
+              onClick={() => setUseViem(false)}
+            >
+              Ethers
+            </button>
+          </div>
           <h2>Now let&apos;s sign something!</h2>
           <p className={styles.explainer}>
             We&apos;ll use a{" "}
