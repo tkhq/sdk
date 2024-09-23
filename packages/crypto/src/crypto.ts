@@ -339,7 +339,7 @@ export const decryptEmailBundle = (
  *   - exportBundle {string}: The encrypted export bundle in JSON format.
  *   - organizationId {string}: The expected organization ID to verify against the signed data.
  *   - embeddedKey {string}: The private key used for decrypting the data.
- *   - dangerouslyOverrideSignerPublicKey {string} [Optional]: Optionally override the default signer public key used for verifying the signature.
+ *   - dangerouslyOverrideSignerPublicKey {string} [Optional]: Optionally override the default signer public key used for verifying the signature. This should only be done for testing
  *   - returnMnemonic {boolean}: If true, returns the decrypted data as a mnemonic string; otherwise, returns it in hexadecimal format.
  * @returns {Promise<string>} - A promise that resolves to the decrypted mnemonic or decrypted hexadecimal data.
  * @throws {Error} - If decryption or signature verification fails, throws an error with details.
@@ -801,7 +801,7 @@ const decodeKey = (privateKey: string, keyFormat: any): Uint8Array => {
 /**
  * Encrypts a private key bundle using HPKE and verifies the enclave signature.
  *
- * @param {EncryptPrivateKeyToBundleParams} params - An object containing the private key, key format, bundle, user, and organization details. Optionally, you can override the default signer key.
+ * @param {EncryptPrivateKeyToBundleParams} params - An object containing the private key, key format, bundle, user, and organization details. Optionally, you can override the default signer key (for testing purposes)
  * @returns {Promise<string>} - A promise that resolves to a JSON string representing the encrypted bundle.
  * @throws {Error} - If enclave signature verification or any other validation fails.
  */
@@ -857,7 +857,7 @@ export const encryptPrivateKeyToBundle = async ({
 /**
  * Encrypts a mnemonic wallet bundle using HPKE and verifies the enclave signature.
  *
- * @param {EncryptWalletToBundleParams} params - An object containing the mnemonic, bundle, user, and organization details. Optionally, you can override the default signer key.
+ * @param {EncryptWalletToBundleParams} params - An object containing the mnemonic, bundle, user, and organization details. Optionally, you can override the default signer key (for testing purposes).
  * @returns {Promise<string>} - A promise that resolves to a JSON string representing the encrypted wallet bundle.
  * @throws {Error} - If enclave signature verification or any other validation fails.
  */
