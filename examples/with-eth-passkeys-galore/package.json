@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/with-eth-passkeys-galore",
+  "name": "@turnkey/with-eth-passkey-signers",
   "version": "0.1.0",
   "private": true,
   "scripts": {

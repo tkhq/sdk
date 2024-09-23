@@ -176,11 +176,7 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <a
-        href="https://turnkey.com"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <a href="https://turnkey.com" target="_blank" rel="noopener noreferrer">
         <Image
           src="/logo.svg"
           alt="Turnkey Logo"
@@ -276,10 +272,7 @@ export default function Home() {
               Whoami endpoint.
             </a>
           </p>
-          <form
-            className={styles.form}
-            onSubmit={loginFormSubmit(login)}
-          >
+          <form className={styles.form} onSubmit={loginFormSubmit(login)}>
             <input
               className={styles.button}
               type="submit"
