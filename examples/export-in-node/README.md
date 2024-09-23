@@ -2,9 +2,9 @@
 
 This example demonstrates the following:
 
-- Programmatic export of a private key or wallet into your Turnkey organization
+- Programmatic export of a private key, wallet, or wallet account from your Turnkey organization
 - Verification of enclave signature during export
-- Encryption of sensitive data using HPKE (Hybrid Public Key Encryption)
+- Decryption of sensitive data using HPKE (Hybrid Public Key Encryption)
 
 ## Getting started
 

@@ -59,6 +59,7 @@ async function main() {
     organizationId,
     returnMnemonic: exportType == "wallet",
   });
+  // WARNING: Be VERY careful how you handle this bundle, this can be use to import your private keys/mnemonics anywhere and can lead to a potential loss of funds
   console.log(decryptedBundle);
 }
 

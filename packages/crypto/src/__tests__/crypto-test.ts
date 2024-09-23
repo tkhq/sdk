@@ -1,8 +1,5 @@
 import { test, expect, describe } from "@jest/globals";
-import {
-  uint8ArrayFromHexString,
-  uint8ArrayToHexString,
-} from "@turnkey/encoding";
+import { uint8ArrayFromHexString } from "@turnkey/encoding";
 import {
   getPublicKey,
   generateP256KeyPair,
