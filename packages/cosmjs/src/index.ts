@@ -48,7 +48,8 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
 
     let compressedPublicKey: Uint8Array;
 
-    // If sign with is a UUID corresponding to a private key, fetch its public key
+    // If sign with is a UUID corresponding to a private key, fetch its public key.
+    // Otherwise, it should be an uncompressed public key, which we need to compress
     if (isValidUuid(signWith)) {
       const { compressedPublicKey: fetchedPublicKey } =
         await fetchCompressedPublicKey({
@@ -59,8 +60,24 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
 
       compressedPublicKey = fetchedPublicKey;
     } else {
-      compressedPublicKey = fromHex(signWith);
+      compressedPublicKey = Secp256k1.compressPubkey(fromHex(signWith));
     }
+
+    return new TurnkeyDirectWallet({
+      config,
+      compressedPublicKey,
+      prefix,
+    });
+  }
+
+  public static initWithPublicKey(input: {
+    config: TConfig;
+    prefix?: string | undefined;
+  }): TurnkeyDirectWallet {
+    const { config, prefix } = input;
+    const { signWith } = config;
+
+    const compressedPublicKey = Secp256k1.compressPubkey(fromHex(signWith));
 
     return new TurnkeyDirectWallet({
       config,
