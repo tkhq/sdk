@@ -106,12 +106,12 @@ export default function Home() {
   };
 
   const createSubOrgAndWallet = async () => {
-    const subOrgName = `Turnkey Viem+Passkey Demo - ${humanReadableDateTime()}`;
+    const subOrgName = `Turnkey ETH+Passkey Demo - ${humanReadableDateTime()}`;
     const credential = await passkeyClient?.createUserPasskey({
       publicKey: {
         rp: {
           id: "localhost",
-          name: "Turnkey Viem Passkey Demo",
+          name: "Turnkey ETH Passkey Demo",
         },
         user: {
           name: subOrgName,
@@ -309,26 +309,49 @@ export default function Home() {
             </button>
           </div>
           <h2>Now let&apos;s sign something!</h2>
-          <p className={styles.explainer}>
-            We&apos;ll use a{" "}
-            <a
-              href="https://viem.sh/docs/accounts/custom.html"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Viem custom account
-            </a>{" "}
-            to do this, using{" "}
-            <a
-              href="https://www.npmjs.com/package/@turnkey/viem"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              @turnkey/viem
-            </a>
-            . You can kill your NextJS server if you want, everything happens on
-            the client-side!
-          </p>
+          {useViem ? (
+            <p className={styles.explainer}>
+              We&apos;ll use a{" "}
+              <a
+                href="https://viem.sh/docs/accounts/custom.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Viem custom account
+              </a>{" "}
+              to do this, using{" "}
+              <a
+                href="https://www.npmjs.com/package/@turnkey/viem"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                @turnkey/viem
+              </a>
+              . You can kill your NextJS server if you want, everything happens
+              on the client-side!
+            </p>
+          ) : (
+            <p className={styles.explainer}>
+              We&apos;ll use an{" "}
+              <a
+                href="https://docs.ethers.org/v6/api/providers/#Signer"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Ethers signer
+              </a>{" "}
+              to do this, using{" "}
+              <a
+                href="https://www.npmjs.com/package/@turnkey/ethers"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                @turnkey/ethers
+              </a>
+              . You can kill your NextJS server if you want, everything happens
+              on the client-side!
+            </p>
+          )}
           <form
             className={styles.form}
             onSubmit={signingFormSubmit(signMessage)}

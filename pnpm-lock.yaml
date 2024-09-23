@@ -554,35 +554,7 @@ importers:
         specifier: ^5
         version: 5.1.5
 
-  examples/with-ethers:
-    dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../packages/api-key-stamper
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../packages/ethers
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../packages/http
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../packages/sdk-server
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.10.0
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-
-  examples/with-ethers-passkeys:
+  examples/with-eth-passkeys-galore:
     dependencies:
       '@turnkey/api-key-stamper':
         specifier: workspace:*
@@ -602,6 +574,9 @@ importers:
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../packages/viem
       '@turnkey/webauthn-stamper':
         specifier: workspace:*
         version: link:../../packages/webauthn-stamper
@@ -629,9 +604,6 @@ importers:
       esm:
         specifier: ^3.2.25
         version: 3.2.25
-      ethers:
-        specifier: ^6.10.0
-        version: 6.10.0
       install:
         specifier: ^0.13.0
         version: 0.13.0
@@ -653,6 +625,37 @@ importers:
       typescript:
         specifier: 5.1.3
         version: 5.1.3
+      viem:
+        specifier: ^1.10.0
+        version: 1.16.6(typescript@5.1.3)
+
+  examples/with-ethers:
+    dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../packages/api-key-stamper
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../packages/ethers
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.10.0
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
 
   examples/with-federated-passkeys:
     dependencies:
@@ -898,81 +901,6 @@ importers:
       '@types/prompts':
         specifier: ^2.4.2
         version: 2.4.2
-
-  examples/with-viem-passkeys:
-    dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../packages/api-key-stamper
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../packages/ethers
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../packages/http
-      '@turnkey/sdk-browser':
-        specifier: workspace:*
-        version: link:../../packages/sdk-browser
-      '@turnkey/sdk-react':
-        specifier: workspace:*
-        version: link:../../packages/sdk-react
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../packages/sdk-server
-      '@turnkey/viem':
-        specifier: workspace:*
-        version: link:../../packages/viem
-      '@turnkey/webauthn-stamper':
-        specifier: workspace:*
-        version: link:../../packages/webauthn-stamper
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-      axios:
-        specifier: ^1.4.0
-        version: 1.7.4
-      encoding:
-        specifier: ^0.1.13
-        version: 0.1.13
-      eslint:
-        specifier: 8.43.0
-        version: 8.43.0
-      eslint-config-next:
-        specifier: 13.4.7
-        version: 13.4.7(eslint@8.43.0)(typescript@5.1.3)
-      esm:
-        specifier: ^3.2.25
-        version: 3.2.25
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
-      next:
-        specifier: 14.2.10
-        version: 14.2.10(@babel/core@7.24.5)(react-dom@18.2.0)(react@18.2.0)
-      npm:
-        specifier: ^9.7.2
-        version: 9.7.2
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
-      react-hook-form:
-        specifier: ^7.45.1
-        version: 7.45.1(react@18.2.0)
-      typescript:
-        specifier: 5.1.3
-        version: 5.1.3
-      viem:
-        specifier: ^1.10.0
-        version: 1.16.6(typescript@5.1.3)
 
   examples/with-wallet-stamper:
     dependencies:
