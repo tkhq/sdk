@@ -70,7 +70,7 @@ async function main() {
       userId,
       organizationId,
     });
-    const privateKeyImportResult = await turnkeyClient
+   const privateKeyImportResult = await turnkeyClient
       .apiClient()
       .importPrivateKey({
         userId: userId,

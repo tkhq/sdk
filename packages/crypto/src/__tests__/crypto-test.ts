@@ -6,7 +6,7 @@ import {
 import {
   getPublicKey,
   generateP256KeyPair,
-  decryptBundle,
+  decryptEmailBundle,
   extractPrivateKeyFromPKCS8Bytes,
   uncompressRawPublicKey,
   compressRawPublicKey,
@@ -129,10 +129,9 @@ describe("Turnkey Crypto Primitives", () => {
     ).toEqual(uint8ArrayFromHexString(publicKey));
   });
 
-  test("decryptBundle - successfully decrypts a credential bundle", () => {
-    const decryptedData = decryptBundle(mockCredentialBundle, mockPrivateKey);
-    expect(decryptedData).toBeInstanceOf(Uint8Array);
-    expect(uint8ArrayToHexString(decryptedData)).toBe(mockSenderPrivateKey);
+  test("decryptEmailBundle - successfully decrypts a credential bundle", () => {
+    const decryptedData = decryptEmailBundle(mockCredentialBundle, mockPrivateKey);
+    expect(decryptedData).toBe(mockSenderPrivateKey);
   });
 
   test("extractPrivateKeyFromPKCS8Bytes", () => {

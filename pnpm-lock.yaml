@@ -256,6 +256,37 @@ importers:
         specifier: 5.1.3
         version: 5.1.3
 
+  examples/export-in-node:
+    dependencies:
+      '@inquirer/prompts':
+        specifier: ^2.1.0
+        version: 2.1.0
+      '@peculiar/webcrypto':
+        specifier: ^1.5.0
+        version: 1.5.0
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../packages/crypto
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../../packages/encoding
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      async-retry:
+        specifier: ^1.3.3
+        version: 1.3.3
+      cross-fetch:
+        specifier: ^4.0.0
+        version: 4.0.0
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+    devDependencies:
+      '@types/async-retry':
+        specifier: ^1.4.8
+        version: 1.4.8
+
   examples/import-in-node:
     dependencies:
       '@inquirer/prompts':

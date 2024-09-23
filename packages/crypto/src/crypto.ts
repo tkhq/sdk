@@ -23,7 +23,17 @@ import {
 } from "./constants";
 import bs58 from "bs58";
 import { normalizePadding } from "@turnkey/encoding";
+import { hexToAscii } from "@turnkey/encoding";
 
+
+
+interface DecryptExportBundleParams {
+  exportBundle: string;
+  organizationId: string;
+  embeddedKey: string,
+  dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
+  returnMnemonic: boolean;
+}
 interface EncryptPrivateKeyToBundleParams {
   privateKey: string;
   keyFormat: string;
@@ -289,13 +299,13 @@ export const hpkeDecrypt = ({
  *
  * @param {string} credentialBundle - The encrypted credential bundle.
  * @param {string} embeddedKey - The private key for decryption.
- * @returns {Uint8Array} - The decrypted data or null if decryption fails.
+ * @returns {string} - The decrypted data or null if decryption fails.
  * @throws {Error} - If unable to decrypt the credential bundle
  */
-export const decryptBundle = (
+export const decryptEmailBundle = (
   credentialBundle: string,
   embeddedKey: string
-): Uint8Array => {
+): string => {
   try {
     const bundleBytes = bs58check.decode(credentialBundle);
     if (bundleBytes.byteLength <= 33) {
@@ -313,9 +323,76 @@ export const decryptBundle = (
       receiverPriv: embeddedKey,
     });
 
-    return decryptedData;
+    return uint8ArrayToHexString(decryptedData);
   } catch (error) {
-    throw new Error(`"Error injecting bundle:", ${error}`);
+    throw new Error(`"Error decrypting bundle:", ${error}`);
+  }
+};
+
+/**
+ * Decrypt an encrypted export bundle (such as a private key or wallet account bundle).
+ *
+ * This function verifies the enclave signature to ensure the authenticity of the encrypted data.
+ * It uses HPKE (Hybrid Public Key Encryption) to decrypt the contents of the bundle and returns
+ * either the decrypted mnemonic or the decrypted data in hexadecimal format, based on the
+ * `returnMnemonic` flag.
+ *
+ * @param {DecryptExportBundleParams} params - An object containing the following properties:
+ *   - exportBundle {string}: The encrypted export bundle in JSON format.
+ *   - organizationId {string}: The expected organization ID to verify against the signed data.
+ *   - embeddedKey {string}: The private key used for decrypting the data.
+ *   - dangerouslyOverrideSignerPublicKey {string} [Optional]: Optionally override the default signer public key used for verifying the signature.
+ *   - returnMnemonic {boolean}: If true, returns the decrypted data as a mnemonic string; otherwise, returns it in hexadecimal format.
+ * @returns {Promise<string>} - A promise that resolves to the decrypted mnemonic or decrypted hexadecimal data.
+ * @throws {Error} - If decryption or signature verification fails, throws an error with details.
+ */
+export const decryptExportBundle = async ({
+  exportBundle,
+  embeddedKey,
+  organizationId,
+  dangerouslyOverrideSignerPublicKey,
+  returnMnemonic
+}: DecryptExportBundleParams) => {
+  try {
+    const parsedExportBundle = JSON.parse(exportBundle);
+    const verified = await verifyEnclaveSignature(
+      parsedExportBundle.enclaveQuorumPublic,
+      parsedExportBundle.dataSignature,
+      parsedExportBundle.data,
+      dangerouslyOverrideSignerPublicKey
+    );
+    if (!verified) {
+      throw new Error(`failed to verify enclave signature: ${parsedExportBundle}`);
+    }
+  
+    const signedData = JSON.parse(
+      new TextDecoder().decode(uint8ArrayFromHexString(parsedExportBundle.data))
+    );
+  
+    if (
+      !signedData.organizationId ||
+      signedData.organizationId !== organizationId
+    ) {
+      throw new Error(
+        `organization id does not match expected value. Expected: ${organizationId}. Found: ${signedData.organizationId}.`
+      );
+    }
+    if (!signedData.encappedPublic) {
+      throw new Error('missing "encappedPublic" in bundle signed data');
+    }
+
+    const encappedKeyBuf = uint8ArrayFromHexString(signedData.encappedPublic);
+    const ciphertextBuf = uint8ArrayFromHexString(signedData.ciphertext);
+    const decryptedData = hpkeDecrypt({
+      ciphertextBuf,
+      encappedKeyBuf,
+      receiverPriv: embeddedKey,
+    });
+
+    const decryptedDataHex = uint8ArrayToHexString(decryptedData)
+    return returnMnemonic ? hexToAscii(decryptedDataHex) : decryptedDataHex
+  } catch (error) {
+    throw new Error(`"Error decrypting bundle:", ${error}`);
   }
 };
 
