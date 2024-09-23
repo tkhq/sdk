@@ -130,7 +130,10 @@ describe("Turnkey Crypto Primitives", () => {
   });
 
   test("decryptEmailBundle - successfully decrypts a credential bundle", () => {
-    const decryptedData = decryptEmailBundle(mockCredentialBundle, mockPrivateKey);
+    const decryptedData = decryptEmailBundle(
+      mockCredentialBundle,
+      mockPrivateKey
+    );
     expect(decryptedData).toBe(mockSenderPrivateKey);
   });
 

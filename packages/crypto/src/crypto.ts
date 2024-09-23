@@ -25,12 +25,10 @@ import bs58 from "bs58";
 import { normalizePadding } from "@turnkey/encoding";
 import { hexToAscii } from "@turnkey/encoding";
 
-
-
 interface DecryptExportBundleParams {
   exportBundle: string;
   organizationId: string;
-  embeddedKey: string,
+  embeddedKey: string;
   dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
   returnMnemonic: boolean;
 }
@@ -351,7 +349,7 @@ export const decryptExportBundle = async ({
   embeddedKey,
   organizationId,
   dangerouslyOverrideSignerPublicKey,
-  returnMnemonic
+  returnMnemonic,
 }: DecryptExportBundleParams) => {
   try {
     const parsedExportBundle = JSON.parse(exportBundle);
@@ -362,13 +360,15 @@ export const decryptExportBundle = async ({
       dangerouslyOverrideSignerPublicKey
     );
     if (!verified) {
-      throw new Error(`failed to verify enclave signature: ${parsedExportBundle}`);
+      throw new Error(
+        `failed to verify enclave signature: ${parsedExportBundle}`
+      );
     }
-  
+
     const signedData = JSON.parse(
       new TextDecoder().decode(uint8ArrayFromHexString(parsedExportBundle.data))
     );
-  
+
     if (
       !signedData.organizationId ||
       signedData.organizationId !== organizationId
@@ -389,8 +389,8 @@ export const decryptExportBundle = async ({
       receiverPriv: embeddedKey,
     });
 
-    const decryptedDataHex = uint8ArrayToHexString(decryptedData)
-    return returnMnemonic ? hexToAscii(decryptedDataHex) : decryptedDataHex
+    const decryptedDataHex = uint8ArrayToHexString(decryptedData);
+    return returnMnemonic ? hexToAscii(decryptedDataHex) : decryptedDataHex;
   } catch (error) {
     throw new Error(`"Error decrypting bundle:", ${error}`);
   }
