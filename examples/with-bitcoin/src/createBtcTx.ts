@@ -10,19 +10,20 @@ import * as ecc from "tiny-secp256k1";
 import { ECPairFactory } from "ecpair";
 
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
-import { createNewWallet } from "./createNewWallet";
+
+// Extra imports if you want to test the local mnemonic route
+// (no need to do this outside of debugging)
+// import BIP32Factory from 'bip32';
+// import * as bip39 from 'bip39';
 
 bitcoin.initEccLib(ecc);
 
-async function main() {
-  if (!process.env.SIGN_WITH_COMPRESSED) {
-    // If you don't specify a `SIGN_WITH_COMPRESSED`, we'll create a new BTC wallet for you via calling the Turnkey API.
-    // If you need to explicitly derive your BTC address, use the `deriveBtcAddress.ts` script.
-    await createNewWallet();
-    return;
-  }
+// I know, lazy. This is just to estimate fees. We take the live per-byte fee rate and multiply by this constant.
+// 200 bytes is generally enough for a simple send. If you need more, bump it.
+const ROUGH_AMOUNT_OF_BYTES = 200
 
-  const publicKeyCompressed = process.env.SIGN_WITH_COMPRESSED;
+async function main() {
+  const publicKeyCompressed = process.env.SIGN_WITH_COMPRESSED!;
 
   const turnkeyClient = new TurnkeyServerSDK({
     apiBaseUrl: process.env.BASE_URL!,
@@ -30,6 +31,8 @@ async function main() {
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
   });
+
+
 
   const cliPrompts = [
     {
@@ -40,42 +43,38 @@ async function main() {
     {
       type: "text" as PromptType,
       name: "destination",
-      // See https://en.bitcoin.it/wiki/List_of_address_prefixes for various prefixes
-      // i.e. P2SH-P2WPKH addresses, which start with 2
       message:
-        "Destination BTC address, starting with tb1 (Bech32 testnet pubkey hash or script hash)",
+        "Destination BTC address, starting with bc1 (taproot address)",
     },
   ];
 
-  const { amount, destination } = await prompts(cliPrompts);
+  let { amount, destination } = await prompts(cliPrompts);
+  amount = amount
+  destination = destination;
 
   const ECPair = ECPairFactory(ecc);
   const pair = ECPair.fromPublicKey(Buffer.from(publicKeyCompressed, "hex"));
 
   // Get address and balance, then calculate amount and change amount
-  const address = bitcoin.payments.p2wpkh({
-    pubkey: pair.publicKey,
-    network: bitcoin.networks.testnet,
+  const address = bitcoin.payments.p2tr({
+    internalPubkey: pair.publicKey.slice(1, 33),
+    network: bitcoin.networks.bitcoin,
   }).address!;
-
-  // If you would like to use P2SH-P2WPKH addresses (starting with 2), use the following:
-  // ----
-  // const address = bitcoin.payments.p2sh({
-  //   redeem: bitcoin.payments.p2wpkh({
-  //     pubkey: pair.publicKey,
-  //     network: bitcoin.networks.testnet,
-  //   }),
-  // }).address!;
+  const xOnlyPublicKey = pair.publicKey.slice(1, 33);
+  
+  console.log("Taproot address for public key: ", address)
 
   const balanceResponse = await getBalance(address);
   const feeResponse = await getFeeEstimate();
   const utxos = await getUTXOs(address);
 
   const balance = balanceResponse.final_balance;
-  const fee = feeResponse.hourFee;
+  const fee = feeResponse.hourFee * ROUGH_AMOUNT_OF_BYTES;
   const changeAmount = balance - amount - fee;
 
-  const network = bitcoin.networks.testnet;
+  console.log(`Constructing a transaction with fee of ${fee} and a change output of ${changeAmount}`);
+
+  const network = bitcoin.networks.bitcoin;
   const psbt = new bitcoin.Psbt({ network });
 
   let inputAmount = 0;
@@ -85,70 +84,59 @@ async function main() {
     psbt.addInput({
       hash: utxo.txid,
       index: utxo.vout,
+      tapInternalKey: xOnlyPublicKey,
       witnessUtxo: {
-        script: Buffer.from(
-          bitcoin.payments.p2wpkh({
-            pubkey: pair.publicKey,
+        script: bitcoin.payments.p2tr({
             network,
-          }).output!
-        ),
+            internalPubkey: xOnlyPublicKey,
+          }).output!,
         value: utxo.value,
       },
     });
 
     inputAmount += utxo.value;
-
-    // The following is useful in the case that you're using p2sh addresses
-    // ----
-    // const txHex = await getTransactionInfo(utxo.txid);
-    // psbt.addInput({
-    //   hash: hash,
-    //   index: index,
-    //   nonWitnessUtxo: Buffer.from(txHex.hex, "hex"),
-    //   redeemScript: bitcoin.payments.p2sh({
-    //     redeem: bitcoin.payments.p2wpkh({
-    //       pubkey: pair.publicKey,
-    //       network: bitcoin.networks.testnet,
-    //     }),
-    //   })?.redeem?.output!,
-    // });
   }
 
   // Output to destination
   psbt.addOutput({
     script: bitcoin.address.toOutputScript(
       destination,
-      bitcoin.networks.testnet
+      bitcoin.networks.bitcoin
     ),
     value: amount,
   });
 
-  // Output for change
-  psbt.addOutput({
-    script: bitcoin.address.toOutputScript(address, bitcoin.networks.testnet),
-    value: changeAmount,
-  });
+  if (changeAmount > 0) {
+    // Output for change
+    psbt.addOutput({
+      script: bitcoin.address.toOutputScript(address, bitcoin.networks.bitcoin),
+      value: changeAmount,
+    });
+  } else {
+    console.log("skipping change output!")
+  }
 
-  // Create a signer
-  const tkSigner = {
-    publicKey: pair.publicKey,
-    sign: async (hash: Buffer, _lowrR: boolean | undefined) => {
-      const { r, s } = await turnkeyClient.apiClient().signRawPayload({
-        signWith: publicKeyCompressed,
-        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-        hashFunction: "HASH_FUNCTION_NO_OP",
-        payload: hash.toString("hex"),
-      });
-
-      return Buffer.from(r + s, "hex");
-    },
-  } as bitcoin.SignerAsync;
-
+  // This is how you'd sign using a local mnemonic. Note the tweakChildNode!
+  // const mnemonic ='your twelve words mnemonic';
+  // const bip32Path = `m/86'/0'/0'/0/0`; 
+  // const seed = await bip39.mnemonicToSeed(mnemonic);
+  // const bip32 = BIP32Factory(ecc);
+  // const rootKey = bip32.fromSeed(seed);
+  // const childNode = rootKey.derivePath(bip32Path);
+  // const tweakedChildNode = childNode.tweak(
+  //   bitcoin.crypto.taggedHash('TapTweak', xOnlyPublicKey),
+  // );
+  // psbt.signInput(0, tweakedChildNode);
+  
+  // Doing the same with Turnkey -- Turnkey performs this same tweak at signing time for you
+  const tkSigner = new TkSchnorrSigner(turnkeyClient, address)
   await psbt.signInputAsync(0, tkSigner);
+
   psbt.finalizeAllInputs();
   const signedPayload = psbt.extractTransaction().toHex();
+
+  // To broadcast it: https://mempool.space/tx/push
   return signedPayload;
-  // await broadcast(signedPayload); // Generally, we recommend broadcasting via Web, i.e. via https://live.blockcypher.com/pushtx
 }
 
 main()
@@ -160,6 +148,38 @@ main()
     process.exit(1);
   });
 
+class TkSchnorrSigner {
+  client: TurnkeyServerSDK
+  publicKey: Buffer;
+  // The Turnkey-derived address in bech32 format (e.g. bc1pdyzj6qxu6q40jdkcslh0uqmnppx4vtg0l0a7kfdccr5833wfjwqqnp949w)
+  taprootAddress: string;
+  
+  constructor(client: TurnkeyServerSDK, taprootAddress: string) {
+    this.client = client;
+    this.taprootAddress = taprootAddress;
+    // This public key needs to be the decoded address, in order to match the output's "public key"
+    // See https://github.com/bitcoinjs/bitcoinjs-lib/blob/34e1644b5fb60055793ec3078f2e4f48b2648ca6/ts_src/psbt.ts#L1786
+    this.publicKey =  bitcoin.address.fromBech32(taprootAddress).data;
+  }
+
+  // No need to implement sign since all inputs will use `signSchnorr`. We're in a Schnorr signer!
+  async sign(_hash: Buffer): Promise<Buffer> {
+    throw new Error("not implemented")
+  }
+
+  async signSchnorr(hash: Buffer): Promise<Buffer> {
+    console.log("signing a hash", hash.toString("hex"));
+    const { r, s } = await this.client.apiClient().signRawPayload({
+      signWith: this.taprootAddress,
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_NO_OP",
+      payload: hash.toString("hex"),
+    });
+
+    return Buffer.from(r + s, "hex");
+  }
+}
+
 /**
  * VARIOUS HELPERS CALLING OUT TO EXTERNAL APIS BELOW
  */
@@ -167,7 +187,7 @@ main()
 async function getBalance(address: string) {
   try {
     const response = await fetch(
-      `https://api.blockcypher.com/v1/btc/test3/addrs/${address}/balance`
+      `https://api.blockcypher.com/v1/btc/main/addrs/${address}/balance`
     );
     return await response.json();
   } catch (error) {
@@ -178,7 +198,7 @@ async function getBalance(address: string) {
 async function getFeeEstimate() {
   try {
     const response = await fetch(
-      "https://mempool.space/testnet/api/v1/fees/recommended"
+      "https://mempool.space/api/v1/fees/recommended"
     );
     return await response.json();
   } catch (error) {
@@ -190,7 +210,7 @@ async function getFeeEstimate() {
 async function getUTXOs(address: string) {
   try {
     const response = await fetch(
-      `https://blockstream.info/testnet/api/address/${address}/utxo`
+      `https://blockstream.info/api/address/${address}/utxo`
     );
     return await response.json();
   } catch (error) {

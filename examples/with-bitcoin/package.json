@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "tsx src/createBtcTx.ts",
+    "sign": "tsx src/signBtcTx.ts",
     "send": "tsx src/createBtcTx.ts",
     "derive": "tsx src/deriveBtcAddress.ts",
     "clean": "rimraf ./dist ./.cache",
@@ -13,6 +14,7 @@
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "bip32": "^4.0.0",
+    "bip39": "^3.1.0",
     "bitcoinjs-lib": "^6.1.6",
     "dotenv": "^16.0.3",
     "ecpair": "^2.1.0",
