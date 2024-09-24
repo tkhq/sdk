@@ -3,7 +3,7 @@ import { uint8ArrayFromHexString } from "@turnkey/encoding";
 import {
   getPublicKey,
   generateP256KeyPair,
-  decryptEmailBundle,
+  decryptCredentialBundle,
   extractPrivateKeyFromPKCS8Bytes,
   uncompressRawPublicKey,
   compressRawPublicKey,
@@ -126,8 +126,8 @@ describe("Turnkey Crypto Primitives", () => {
     ).toEqual(uint8ArrayFromHexString(publicKey));
   });
 
-  test("decryptEmailBundle - successfully decrypts a credential bundle", () => {
-    const decryptedData = decryptEmailBundle(
+  test("decryptCredentialBundle - successfully decrypts a credential bundle", () => {
+    const decryptedData = decryptCredentialBundle(
       mockCredentialBundle,
       mockPrivateKey
     );

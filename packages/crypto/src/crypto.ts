@@ -293,14 +293,14 @@ export const hpkeDecrypt = ({
 };
 
 /**
- * Decrypt an encrypted email auth/recovery credential bundle.
+ * Decrypt an encrypted email auth/recovery or oauth credential bundle.
  *
  * @param {string} credentialBundle - The encrypted credential bundle.
  * @param {string} embeddedKey - The private key for decryption.
  * @returns {string} - The decrypted data or null if decryption fails.
  * @throws {Error} - If unable to decrypt the credential bundle
  */
-export const decryptEmailBundle = (
+export const decryptCredentialBundle = (
   credentialBundle: string,
   embeddedKey: string
 ): string => {
