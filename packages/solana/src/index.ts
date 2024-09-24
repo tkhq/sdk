@@ -1,7 +1,8 @@
 import {
   PublicKey,
-  type Transaction,
-  type VersionedTransaction,
+  SignaturePubkeyPair,
+  Transaction,
+  VersionedTransaction,
 } from "@solana/web3.js";
 import {
   assertNonNull,
@@ -64,14 +65,11 @@ export class TurnkeySigner {
     fromAddress: string
   ) {
     const fromKey = new PublicKey(fromAddress);
-
-    let messageToSign: Buffer = this.getMessageToSign(tx);
-
+    const messageToSign: Buffer = this.getMessageToSign(tx);
     const signRawPayloadResult = await this.signRawPayload(
       messageToSign.toString("hex"),
       fromAddress
     );
-
     const signature = `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`;
 
     tx.addSignature(fromKey, Buffer.from(signature, "hex"));
@@ -95,6 +93,85 @@ export class TurnkeySigner {
       `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`,
       "hex"
     );
+  }
+
+  // TODO: what happens if someone tries to add a signature twice? Or in the wrong order?
+  /**
+   * This function takes a Solana transaction and adds a signature with Turnkey
+   *
+   * @param tx Transaction | VersionedTransaction object (native @solana/web3.js type)
+   * @param fromAddress Solana address (base58 encoded)
+   */
+  public async signTransaction(
+    tx: Transaction | VersionedTransaction,
+    fromAddress: string
+  ): Promise<Transaction | VersionedTransaction> {
+    const messageToSign: Buffer = this.getMessageToSign(tx);
+    const signedTransaction = await this.signTransactionImpl(
+      messageToSign.toString("hex"),
+      fromAddress
+    );
+    const decodedTransaction = Buffer.from(signedTransaction, "hex");
+    const recoveredTransaction = Transaction.from(decodedTransaction);
+
+    return this.combineSignatures(tx, recoveredTransaction);
+  }
+
+  /**
+   *
+   * @param unsignedTransaction
+   * @param signedTranasaction
+   * @returns a Transaction-like object that combines all signatures between the initial and newly signed transactions.
+   */
+  private combineSignatures(
+    initialTransaction: Transaction | VersionedTransaction,
+    signedTranasaction: Transaction | VersionedTransaction
+  ) {
+    const combinedTransaction = initialTransaction;
+    signedTranasaction.signatures.map((sig) => {
+      const pair = sig as SignaturePubkeyPair;
+      combinedTransaction.addSignature(pair.publicKey, pair.signature!);
+    });
+
+    return combinedTransaction;
+  }
+
+  private async signTransactionImpl(
+    unsignedTransaction: string,
+    signWith: string
+  ) {
+    if (this.client instanceof TurnkeyClient) {
+      const response = await this.client.signTransaction({
+        type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        parameters: {
+          signWith,
+          unsignedTransaction,
+          type: "TRANSACTION_TYPE_SOLANA",
+        },
+      });
+
+      const { activity } = response;
+
+      assertActivityCompleted(activity);
+
+      return assertNonNull(
+        activity?.result?.signTransactionResult?.signedTransaction
+      );
+    } else {
+      const { activity, signedTransaction } = await this.client.signTransaction(
+        {
+          signWith,
+          unsignedTransaction,
+          type: "TRANSACTION_TYPE_SOLANA",
+        }
+      );
+
+      assertActivityCompleted(activity);
+
+      return assertNonNull(signedTransaction);
+    }
   }
 
   private async signRawPayload(payload: string, signWith: string) {
