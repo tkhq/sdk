@@ -3,7 +3,7 @@ import * as path from "path";
 import nacl from "tweetnacl";
 import bs58 from "bs58";
 import { input, confirm } from "@inquirer/prompts";
-import { PublicKey, type Transaction } from "@solana/web3.js";
+import type { Transaction } from "@solana/web3.js";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -13,6 +13,7 @@ import {
   TurnkeyActivityConsensusNeededError,
   TERMINAL_ACTIVITY_STATUSES,
   type TActivity,
+  getSignedTransactionFromActivity,
 } from "@turnkey/http";
 import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
@@ -153,30 +154,30 @@ async function main() {
     version: "legacy",
   });
 
+  let signedTransaction;
   try {
-    await turnkeySigner.addSignature(transaction, solAddress);
+    signedTransaction = await turnkeySigner.signTransaction(
+      transaction,
+      solAddress
+    );
   } catch (error: any) {
     await handleActivityError(error).then((activity?: TActivity) => {
       if (!activity) {
         throw error;
       }
 
-      const { r, s } = getSignatureFromActivity(activity);
-      transaction.addSignature(
-        new PublicKey(solAddress),
-        Buffer.from(`${r}${s}`, "hex")
-      );
+      signedTransaction = getSignedTransactionFromActivity(activity);
     });
   }
 
-  const verified = (transaction as Transaction).verifySignatures();
+  const verified = (signedTransaction as Transaction).verifySignatures();
 
   if (!verified) {
     throw new Error("unable to verify transaction signatures");
   }
 
   // 3. Broadcast the signed payload on devnet
-  await solanaNetwork.broadcast(connection, transaction);
+  await solanaNetwork.broadcast(connection, signedTransaction!);
 
   process.exit(0);
 
