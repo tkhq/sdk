@@ -9,7 +9,20 @@ import {
 } from "@solana/web3.js";
 import bs58 from "bs58";
 
-import { print } from "./print";
+export function refineNonNull<T>(
+  input: T | null | undefined,
+  errorMessage?: string
+): T {
+  if (input == null) {
+    throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
+  }
+
+  return input;
+}
+
+export function print(header: string, body: string): void {
+  console.log(`${header}\n\t${body}\n`);
+}
 
 export function connect(endpoint?: string): Connection {
   if (endpoint === undefined) {

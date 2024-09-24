@@ -903,6 +903,82 @@ importers:
         specifier: ^1.4.8
         version: 1.4.8
 
+  examples/with-solana-passkeys:
+    dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../packages/api-key-stamper
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../packages/http
+      '@turnkey/sdk-browser':
+        specifier: workspace:*
+        version: link:../../packages/sdk-browser
+      '@turnkey/sdk-react':
+        specifier: workspace:*
+        version: link:../../packages/sdk-react
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      '@turnkey/solana':
+        specifier: workspace:*
+        version: link:../../packages/solana
+      '@turnkey/webauthn-stamper':
+        specifier: workspace:*
+        version: link:../../packages/webauthn-stamper
+      axios:
+        specifier: ^1.4.0
+        version: 1.7.4
+      bs58:
+        specifier: ^5.0.0
+        version: 5.0.0
+      encoding:
+        specifier: ^0.1.13
+        version: 0.1.13
+      eslint:
+        specifier: 8.43.0
+        version: 8.43.0
+      eslint-config-next:
+        specifier: 14.2.10
+        version: 14.2.10(eslint@8.43.0)(typescript@5.1.3)
+      esm:
+        specifier: ^3.2.25
+        version: 3.2.25
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
+      next:
+        specifier: 14.2.10
+        version: 14.2.10(@babel/core@7.24.5)(react-dom@18.2.0)(react@18.2.0)
+      npm:
+        specifier: ^9.7.2
+        version: 9.7.2
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-hook-form:
+        specifier: ^7.45.1
+        version: 7.45.1(react@18.2.0)
+      typescript:
+        specifier: 5.1.3
+        version: 5.1.3
+    devDependencies:
+      '@solana/web3.js':
+        specifier: ^1.95.1
+        version: 1.95.1(encoding@0.1.13)
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: ^18.2.25
+        version: 18.3.3
+      '@types/react-dom':
+        specifier: ^18.2.6
+        version: 18.3.0
+
   examples/with-sui:
     dependencies:
       '@inquirer/prompts':
@@ -1488,7 +1564,7 @@ importers:
     devDependencies:
       '@solana/web3.js':
         specifier: ^1.88.1
-        version: 1.95.1
+        version: 1.95.1(encoding@0.1.13)
       '@turnkey/api-key-stamper':
         specifier: workspace:^
         version: link:../api-key-stamper
@@ -4688,7 +4764,7 @@ packages:
     peerDependencies:
       '@solana/web3.js': ^1.68.0
     dependencies:
-      '@solana/web3.js': 1.95.1
+      '@solana/web3.js': 1.95.1(encoding@0.1.13)
       bn.js: 5.2.1
       buffer-layout: 1.2.2
     dev: false
@@ -6239,7 +6315,7 @@ packages:
       '@keystonehq/bc-ur-registry': 0.5.5
       '@keystonehq/bc-ur-registry-sol': 0.3.1
       '@keystonehq/sdk': 0.13.1
-      '@solana/web3.js': 1.95.1
+      '@solana/web3.js': 1.95.1(encoding@0.1.13)
       bs58: 5.0.0
       uuid: 8.3.2
     transitivePeerDependencies:
@@ -7448,7 +7524,7 @@ packages:
     engines: {node: '>=11'}
     dependencies:
       '@coral-xyz/borsh': 0.26.0(@solana/web3.js@1.95.1)
-      '@solana/web3.js': 1.95.1
+      '@solana/web3.js': 1.95.1(encoding@0.1.13)
       base64-js: 1.5.1
       bn.js: 5.2.1
       bs58: 4.0.1
@@ -9141,7 +9217,7 @@ packages:
       execa: 5.1.1
       find-up: 5.0.0
       mime: 2.6.0
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       open: 6.4.0
       ora: 5.4.1
       semver: 7.5.4
@@ -9286,7 +9362,7 @@ packages:
       metro: 0.80.5
       metro-config: 0.80.5
       metro-core: 0.80.5
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       querystring: 0.2.1
       readline: 1.3.0
     transitivePeerDependencies:
@@ -9313,7 +9389,7 @@ packages:
       chrome-launcher: 0.15.2
       connect: 3.7.0
       debug: 2.6.9
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       nullthrows: 1.1.1
       open: 7.4.2
       selfsigned: 2.4.1
@@ -9848,7 +9924,7 @@ packages:
     engines: {node: '>= 10'}
     dependencies:
       '@solana/buffer-layout': 4.0.1
-      '@solana/web3.js': 1.95.1
+      '@solana/web3.js': 1.95.1(encoding@0.1.13)
       bigint-buffer: 1.1.5
       bignumber.js: 9.1.2
     transitivePeerDependencies:
@@ -10736,7 +10812,7 @@ packages:
       buffer: 6.0.3
       fast-stable-stringify: 1.0.0
       jayson: 4.1.0
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       rpc-websockets: 7.5.1
       superstruct: 0.14.2
     transitivePeerDependencies:
@@ -10745,7 +10821,7 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@solana/web3.js@1.95.1:
+  /@solana/web3.js@1.95.1(encoding@0.1.13):
     resolution: {integrity: sha512-mRX/AjV6QbiOXpWcy5Rz1ZWEH2lVkwO7T0pcv9t97ACpv3/i3tPiqXwk0JIZgSR3wOSTiT26JfygnJH2ulS6dQ==}
     dependencies:
       '@babel/runtime': 7.24.8
@@ -10760,7 +10836,7 @@ packages:
       buffer: 6.0.3
       fast-stable-stringify: 1.0.0
       jayson: 4.1.1
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       rpc-websockets: 9.0.2
       superstruct: 2.0.2
     transitivePeerDependencies:
@@ -11106,7 +11182,7 @@ packages:
       '@babel/runtime': 7.x
     dependencies:
       '@babel/runtime': 7.24.8
-      '@solana/web3.js': 1.95.1
+      '@solana/web3.js': 1.95.1(encoding@0.1.13)
       '@toruslabs/base-controllers': 2.9.0(@babel/runtime@7.24.8)
       '@toruslabs/http-helpers': 3.4.0(@babel/runtime@7.24.8)
       '@toruslabs/openlogin-jrpc': 3.2.0(@babel/runtime@7.24.8)
@@ -11143,7 +11219,7 @@ packages:
     peerDependencies:
       tslib: ^2.6.2
     dependencies:
-      '@solana/web3.js': 1.95.1
+      '@solana/web3.js': 1.95.1(encoding@0.1.13)
       '@trezor/type-utils': 1.1.0
       '@trezor/utxo-lib': 2.1.0(tslib@2.6.3)
       socks-proxy-agent: 6.1.1
@@ -11161,7 +11237,7 @@ packages:
       tslib: ^2.6.2
     dependencies:
       '@mobily/ts-belt': 3.13.1
-      '@solana/web3.js': 1.95.1
+      '@solana/web3.js': 1.95.1(encoding@0.1.13)
       '@trezor/env-utils': 1.1.0(react-native@0.74.0)(tslib@2.6.3)
       '@trezor/utils': 9.1.0(tslib@2.6.3)
       tslib: 2.6.3
@@ -11180,7 +11256,7 @@ packages:
       tslib: ^2.6.2
     dependencies:
       '@solana/buffer-layout': 4.0.1
-      '@solana/web3.js': 1.95.1
+      '@solana/web3.js': 1.95.1(encoding@0.1.13)
       '@trezor/blockchain-link-types': 1.1.0(tslib@2.6.3)
       '@trezor/blockchain-link-utils': 1.1.0(react-native@0.74.0)(tslib@2.6.3)
       '@trezor/utils': 9.1.0(tslib@2.6.3)
@@ -14257,7 +14333,7 @@ packages:
   /cross-fetch@4.0.0:
     resolution: {integrity: sha512-e4a5N8lVvuLgAWgnCrLr2PP0YyDOTHa9H/Rj54dirp61qXnNq46m82bRhNqIA5VccJtWBvPTFRV3TtvHUKPB1g==}
     dependencies:
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -14735,7 +14811,6 @@ packages:
     resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==}
     dependencies:
       iconv-lite: 0.6.3
-    dev: false
 
   /end-of-stream@1.4.4:
     resolution: {integrity: sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==}
@@ -16581,7 +16656,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       safer-buffer: 2.1.2
-    dev: false
 
   /idb-keyval@6.2.1:
     resolution: {integrity: sha512-8Sb3veuYCyrZL+VBt9LJfZjLUPWVvqn8tG28VqYNFCo43KHcKuq+b4EiXGeuaLAQWL2YmyDgMp2aSpH9JHsEQg==}
@@ -16989,7 +17063,7 @@ packages:
   /isomorphic-fetch@3.0.0:
     resolution: {integrity: sha512-qvUtwJ3j6qwsF3jLxkZ72qCgjMysPzDfeV240JHiGZsANBYd+EEuu35v7dfrJ9Up0Ak07D7GGSkGhCHTqg/5wA==}
     dependencies:
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       whatwg-fetch: 3.6.20
     transitivePeerDependencies:
       - encoding
@@ -16998,7 +17072,7 @@ packages:
   /isomorphic-unfetch@3.1.0:
     resolution: {integrity: sha512-geDJjpoZ8N0kWexiwkX8F9NkTsXhetLPVbZFQ+JTW239QNOwvB0gniuR1Wc6f0AMTn7/mFGyXvHTifrCp/GH8Q==}
     dependencies:
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       unfetch: 4.2.0
     transitivePeerDependencies:
       - encoding
@@ -18414,7 +18488,7 @@ packages:
       metro-transform-plugins: 0.80.5
       metro-transform-worker: 0.80.5
       mime-types: 2.1.35
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       nullthrows: 1.1.1
       rimraf: 3.0.2
       serialize-error: 2.1.0
@@ -18816,7 +18890,7 @@ packages:
       whatwg-url: 5.0.0
     dev: false
 
-  /node-fetch@2.7.0:
+  /node-fetch@2.7.0(encoding@0.1.13):
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
     engines: {node: 4.x || >=6.0.0}
     peerDependencies:
@@ -18825,6 +18899,7 @@ packages:
       encoding:
         optional: true
     dependencies:
+      encoding: 0.1.13
       whatwg-url: 5.0.0
 
   /node-forge@1.3.1:
