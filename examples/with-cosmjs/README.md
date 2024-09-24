@@ -36,7 +36,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `BASE_URL`
 - `ORGANIZATION_ID`
-- `PRIVATE_KEY_ID` -- if you leave it blank, we'll create one for you via calling the Turnkey API
+- `SIGN_WITH` -- if you leave it blank, we'll create a wallet for you via calling the Turnkey API
 
 ### 3/ Running the script
 
@@ -44,7 +44,7 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm start
 ```
 
-The script signs your transaction via Turnkey and broadcasts on Celestia testnet. If the script exits because your account isn't funded, you can request funds via the [Celestia Discord](https://discord.gg/celestiacommunity).
+The script signs your transaction via Turnkey and broadcasts on Celestia testnet. If the script exits because your account isn't funded, you can request funds via the [Celestia Discord](https://discord.gg/celestiacommunity), or https://faucet.celestia-arabica-11.com/.
 
 Visit the explorer links to view your transaction; you have successfully sent your first transaction with Turnkey!
 
@@ -56,11 +56,11 @@ Wallet address:
 	celestia160pdug04aedlqhfeue5vhjjke5zgmtyruzk6w7
 
 Wallet on explorer:
-	https://testnet.mintscan.io/celestia-incentivized-testnet/account/celestia160pdug04aedlqhfeue5vhjjke5zgmtyruzk6w7
+	https://arabica.celenium.io/address/celestia160pdug04aedlqhfeue5vhjjke5zgmtyruzk6w7
 
 Account balance:
 	[{"denom":"utia","amount":"4979900"}]
 
 Sent 0.0001 TIA to celestia1vsvx8n7f8dh5udesqqhgrjutyun7zqrgehdq2l:
-	https://explorer-arabica-9.celestia-arabica.com/arabica-9/tx/933236071C0AFEC756E09F4C2F14F52FAD56971FBD5E83D9E405B4A538D10E63
+	https://arabica.celenium.io/tx/933236071C0AFEC756E09F4C2F14F52FAD56971FBD5E83D9E405B4A538D10E63
 ```

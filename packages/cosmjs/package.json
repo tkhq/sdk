@@ -51,7 +51,10 @@
     "@cosmjs/crypto": "^0.31.0",
     "@cosmjs/encoding": "^0.31.0",
     "@cosmjs/proto-signing": "^0.31.0",
-    "@turnkey/http": "workspace:*"
+    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "@turnkey/sdk-browser": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*"
   },
   "devDependencies": {
     "cosmjs-types": "^0.8.0"

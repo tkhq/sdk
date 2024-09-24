@@ -512,15 +512,15 @@ importers:
       '@cosmjs/stargate':
         specifier: ^0.31.0
         version: 0.31.0
-      '@turnkey/api-key-stamper':
-        specifier: workspace:^
-        version: link:../../packages/api-key-stamper
       '@turnkey/cosmjs':
         specifier: workspace:*
         version: link:../../packages/cosmjs
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:^
+        version: link:../../packages/sdk-server
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
@@ -1275,9 +1275,18 @@ importers:
       '@cosmjs/proto-signing':
         specifier: ^0.31.0
         version: 0.31.0
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../api-key-stamper
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
+      '@turnkey/sdk-browser':
+        specifier: workspace:*
+        version: link:../sdk-browser
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../sdk-server
     devDependencies:
       cosmjs-types:
         specifier: ^0.8.0
