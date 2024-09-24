@@ -10,7 +10,7 @@ import * as ecc from "tiny-secp256k1";
 import { ECPairFactory } from "ecpair";
 
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
-import { createNewWallet } from "./createNewWallet";
+import { createNewWallet } from "../createNewWallet";
 
 bitcoin.initEccLib(ecc);
 

@@ -2,6 +2,14 @@
 
 This example shows how to construct, sign, and broadcast a Bitcoin transaction using Turnkey.
 
+| Status | Format |
+| ------ | ------ |
+| 🚧     | P2PKH  |
+| 🚧     | P2TR   |
+| 🚧     | P2WSH  |
+| ✅     | P2SH   |
+| ✅     | P2WPKH |
+
 ## Getting started
 
 ### 1/ Cloning the example
