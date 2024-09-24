@@ -1,15 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Turnkey, TurnkeyApiTypes } from "@turnkey/sdk-server";
 import { refineNonNull } from "@/utils";
 import { TWalletDetails } from "@/types";
 
-// Default path for the first Ethereum address in a new HD wallet.
+// Default path for the first Solana address in a new HD wallet.
 // See https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki, paths are in the form:
 //     m / purpose' / coin_type' / account' / change / address_index
 // - Purpose is a constant set to 44' following the BIP43 recommendation.
-// - Coin type is set to 60 (ETH) -- see https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+// - Coin type is set to 501 (SOL) -- see https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 // - Account, Change, and Address Index are set to 0
-import { DEFAULT_SOLANA_ACCOUNTS } from "@turnkey/sdk-server";
+import {
+  Turnkey,
+  TurnkeyApiTypes,
+  DEFAULT_SOLANA_ACCOUNTS,
+} from "@turnkey/sdk-server";
 
 type TAttestation = TurnkeyApiTypes["v1Attestation"];
 
