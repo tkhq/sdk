@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/example-import-in-node",
+  "name": "@turnkey/example-export-in-node",
   "version": "0.1.0",
   "private": true,
   "scripts": {

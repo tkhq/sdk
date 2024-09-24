@@ -1,12 +1,9 @@
 import { test, expect, describe } from "@jest/globals";
-import {
-  uint8ArrayFromHexString,
-  uint8ArrayToHexString,
-} from "@turnkey/encoding";
+import { uint8ArrayFromHexString } from "@turnkey/encoding";
 import {
   getPublicKey,
   generateP256KeyPair,
-  decryptBundle,
+  decryptCredentialBundle,
   extractPrivateKeyFromPKCS8Bytes,
   uncompressRawPublicKey,
   compressRawPublicKey,
@@ -129,10 +126,12 @@ describe("Turnkey Crypto Primitives", () => {
     ).toEqual(uint8ArrayFromHexString(publicKey));
   });
 
-  test("decryptBundle - successfully decrypts a credential bundle", () => {
-    const decryptedData = decryptBundle(mockCredentialBundle, mockPrivateKey);
-    expect(decryptedData).toBeInstanceOf(Uint8Array);
-    expect(uint8ArrayToHexString(decryptedData)).toBe(mockSenderPrivateKey);
+  test("decryptCredentialBundle - successfully decrypts a credential bundle", () => {
+    const decryptedData = decryptCredentialBundle(
+      mockCredentialBundle,
+      mockPrivateKey
+    );
+    expect(decryptedData).toBe(mockSenderPrivateKey);
   });
 
   test("extractPrivateKeyFromPKCS8Bytes", () => {

@@ -60,6 +60,20 @@ export const uint8ArrayFromHexString = (
   paddedBuffer.set(buffer, length - buffer.length);
   return paddedBuffer;
 };
+
+/**
+ * Converts a hex string to an ASCII string.
+ * @param {string} hexString - The input hex string to convert.
+ * @returns {string} - The converted ASCII string.
+ */
+export function hexToAscii(hexString: string): string {
+  let asciiStr = "";
+  for (let i = 0; i < hexString.length; i += 2) {
+    asciiStr += String.fromCharCode(parseInt(hexString.substr(i, 2), 16));
+  }
+  return asciiStr;
+}
+
 /**
  * Function to normalize padding of byte array with 0's to a target length.
  *

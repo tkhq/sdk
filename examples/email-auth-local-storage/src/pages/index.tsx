@@ -6,7 +6,7 @@ import axios from "axios";
 import { Turnkey } from "@turnkey/sdk-server";
 import {
   generateP256KeyPair,
-  decryptBundle,
+  decryptCredentialBundle,
   getPublicKey,
 } from "@turnkey/crypto";
 import {
@@ -121,13 +121,10 @@ export default function AuthPage() {
       const parsed = JSON.parse(embeddedKey);
 
       // This is decrypting the user-provided email auth bundle using the locally stored target embedded key
-      const decryptedDataRaw = decryptBundle(
+      decryptedData = decryptCredentialBundle(
         data.authBundle,
         parsed.privateKey
-      ) as Uint8Array;
-
-      // This is the resulting decrypted Turnkey API key
-      decryptedData = uint8ArrayToHexString(decryptedDataRaw);
+      );
 
       // Save the email auth bundle to local storage as well. This can be reused in order for the
       // end user to avoid having to email auth repeatedly
@@ -200,13 +197,10 @@ export default function AuthPage() {
       );
 
       // This is decrypting the locally stored email auth bundle using the locally stored target embedded key
-      const decryptedDataRaw = decryptBundle(
+      decryptedData = decryptCredentialBundle(
         localCredentialBundle,
         parsedKey.privateKey
-      ) as Uint8Array;
-
-      // This is the resulting decrypted Turnkey API key
-      decryptedData = uint8ArrayToHexString(decryptedDataRaw);
+      );
     } catch (e) {
       const msg = `Error while injecting bundle: ${e}`;
       console.error(msg);
