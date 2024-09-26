@@ -10,8 +10,6 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import {
   getSignatureFromActivity,
-  TurnkeyActivityConsensusNeededError,
-  TERMINAL_ACTIVITY_STATUSES,
   type TActivity,
   getSignedTransactionFromActivity,
 } from "@turnkey/http";
@@ -19,6 +17,7 @@ import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 import {
   createNewSolanaWallet,
+  handleActivityError,
   solanaNetwork,
   signMessage,
   print,
@@ -96,7 +95,7 @@ async function main() {
       message,
     });
   } catch (error: any) {
-    signature = await handleActivityError(error).then(
+    signature = await handleActivityError(turnkeyClient, error).then(
       (activity?: TActivity) => {
         if (!activity) {
           throw error;
@@ -161,17 +160,19 @@ async function main() {
       solAddress
     )) as Transaction;
   } catch (error: any) {
-    await handleActivityError(error).then((activity?: TActivity) => {
-      if (!activity) {
-        throw error;
-      }
+    await handleActivityError(turnkeyClient, error).then(
+      (activity?: TActivity) => {
+        if (!activity) {
+          throw error;
+        }
 
-      const decodedTransaction = Buffer.from(
-        getSignedTransactionFromActivity(activity),
-        "hex"
-      );
-      signedTransaction = Transaction.from(decodedTransaction);
-    });
+        const decodedTransaction = Buffer.from(
+          getSignedTransactionFromActivity(activity),
+          "hex"
+        );
+        signedTransaction = Transaction.from(decodedTransaction);
+      }
+    );
   }
 
   const verified = signedTransaction!.verifySignatures();
@@ -184,44 +185,6 @@ async function main() {
   await solanaNetwork.broadcast(connection, signedTransaction!);
 
   process.exit(0);
-
-  async function handleActivityError(error: any) {
-    if (error instanceof TurnkeyActivityConsensusNeededError) {
-      const activityId = error["activityId"]!;
-      let activityStatus = error["activityStatus"]!;
-      let activity: TActivity | undefined;
-
-      while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
-        console.log("\nWaiting for consensus...\n");
-
-        const retry = await input({
-          message: "Consensus reached? y/n",
-          default: "y",
-        });
-
-        if (retry === "n") {
-          continue;
-        }
-
-        // Refresh activity
-        activity = (
-          await turnkeyClient.apiClient().getActivity({
-            activityId,
-            organizationId: process.env.ORGANIZATION_ID!,
-          })
-        ).activity;
-
-        activityStatus = activity.status;
-      }
-
-      console.log("\nConsensus reached! Moving on...\n");
-
-      return activity;
-    }
-
-    // Rethrow error
-    throw error;
-  }
 }
 
 main().catch((error) => {

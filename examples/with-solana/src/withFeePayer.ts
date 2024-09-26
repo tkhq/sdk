@@ -7,15 +7,18 @@ import { VersionedTransaction } from "@solana/web3.js";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import {
-  TurnkeyActivityConsensusNeededError,
-  TERMINAL_ACTIVITY_STATUSES,
   type TActivity,
   getSignedTransactionFromActivity,
 } from "@turnkey/http";
 import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
-import { createNewSolanaWallet, solanaNetwork, print } from "./utils";
-import { createTransfer } from "./utils/createSolanaTransfer";
+import {
+  createNewSolanaWallet,
+  createTransfer,
+  handleActivityError,
+  solanaNetwork,
+  print,
+} from "./utils";
 
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
@@ -29,16 +32,6 @@ async function main() {
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     defaultOrganizationId: organizationId,
-    // The following config is useful in contexts where an activity requires consensus.
-    // By default, if the activity is not initially successful, it will poll a maximum
-    // of 3 times with an interval of 1000 milliseconds. Otherwise, use the values below.
-    //
-    // -----
-    //
-    // activityPoller: {
-    //   intervalMs: 5_000,
-    //   numRetries: 10,
-    // },
   });
 
   const turnkeySigner = new TurnkeySigner({
@@ -127,17 +120,20 @@ async function main() {
       solAddress
     )) as VersionedTransaction;
   } catch (error: any) {
-    await handleActivityError(error).then((activity?: TActivity) => {
-      if (!activity) {
-        throw error;
-      }
+    await handleActivityError(turnkeyClient, error).then(
+      (activity?: TActivity) => {
+        if (!activity) {
+          throw error;
+        }
 
-      const decodedTransaction = Buffer.from(
-        getSignedTransactionFromActivity(activity),
-        "hex"
-      );
-      signedTransaction = VersionedTransaction.deserialize(decodedTransaction);
-    });
+        const decodedTransaction = Buffer.from(
+          getSignedTransactionFromActivity(activity),
+          "hex"
+        );
+        signedTransaction =
+          VersionedTransaction.deserialize(decodedTransaction);
+      }
+    );
   }
 
   // Next, sign with fee payer
@@ -147,61 +143,26 @@ async function main() {
       feePayerAddress
     )) as VersionedTransaction;
   } catch (error: any) {
-    await handleActivityError(error).then((activity?: TActivity) => {
-      if (!activity) {
-        throw error;
-      }
+    await handleActivityError(turnkeyClient, error).then(
+      (activity?: TActivity) => {
+        if (!activity) {
+          throw error;
+        }
 
-      const decodedTransaction = Buffer.from(
-        getSignedTransactionFromActivity(activity),
-        "hex"
-      );
-      signedTransaction = VersionedTransaction.deserialize(decodedTransaction);
-    });
+        const decodedTransaction = Buffer.from(
+          getSignedTransactionFromActivity(activity),
+          "hex"
+        );
+        signedTransaction =
+          VersionedTransaction.deserialize(decodedTransaction);
+      }
+    );
   }
 
   // 3. Broadcast the signed payload on devnet
   await solanaNetwork.broadcast(connection, signedTransaction!);
 
   process.exit(0);
-
-  async function handleActivityError(error: any) {
-    if (error instanceof TurnkeyActivityConsensusNeededError) {
-      const activityId = error["activityId"]!;
-      let activityStatus = error["activityStatus"]!;
-      let activity: TActivity | undefined;
-
-      while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
-        console.log("\nWaiting for consensus...\n");
-
-        const retry = await input({
-          message: "Consensus reached? y/n",
-          default: "y",
-        });
-
-        if (retry === "n") {
-          continue;
-        }
-
-        // Refresh activity
-        activity = (
-          await turnkeyClient.apiClient().getActivity({
-            activityId,
-            organizationId: process.env.ORGANIZATION_ID!,
-          })
-        ).activity;
-
-        activityStatus = activity.status;
-      }
-
-      console.log("\nConsensus reached! Moving on...\n");
-
-      return activity;
-    }
-
-    // Rethrow error
-    throw error;
-  }
 }
 
 main().catch((error) => {

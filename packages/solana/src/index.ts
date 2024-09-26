@@ -90,10 +90,9 @@ export class TurnkeySigner {
     );
   }
 
-  // TODO: what happens if someone tries to add a signature twice? Or in the wrong order?
   /**
    * This function takes a Solana transaction, adds a signature via Turnkey,
-   * and returns a new transaction (pure function)
+   * and returns a new transaction
    *
    * @param tx Transaction | VersionedTransaction object (native @solana/web3.js type)
    * @param fromAddress Solana address (base58 encoded)
