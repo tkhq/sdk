@@ -1,9 +1,4 @@
-import {
-  PublicKey,
-  SignaturePubkeyPair,
-  Transaction,
-  VersionedTransaction,
-} from "@solana/web3.js";
+import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 import {
   assertNonNull,
   assertActivityCompleted,
@@ -97,7 +92,8 @@ export class TurnkeySigner {
 
   // TODO: what happens if someone tries to add a signature twice? Or in the wrong order?
   /**
-   * This function takes a Solana transaction and adds a signature with Turnkey
+   * This function takes a Solana transaction, adds a signature via Turnkey,
+   * and returns a new transaction (pure function)
    *
    * @param tx Transaction | VersionedTransaction object (native @solana/web3.js type)
    * @param fromAddress Solana address (base58 encoded)
@@ -106,34 +102,26 @@ export class TurnkeySigner {
     tx: Transaction | VersionedTransaction,
     fromAddress: string
   ): Promise<Transaction | VersionedTransaction> {
-    const messageToSign: Buffer = this.getMessageToSign(tx);
+    const payloadToSign = Buffer.from(
+      tx.serialize({
+        requireAllSignatures: false,
+        verifySignatures: false,
+      })
+    ).toString("hex");
+
     const signedTransaction = await this.signTransactionImpl(
-      messageToSign.toString("hex"),
+      payloadToSign,
       fromAddress
     );
+
     const decodedTransaction = Buffer.from(signedTransaction, "hex");
-    const recoveredTransaction = Transaction.from(decodedTransaction);
 
-    return this.combineSignatures(tx, recoveredTransaction);
-  }
+    const recoveredTransaction: Transaction | VersionedTransaction =
+      "version" in tx
+        ? VersionedTransaction.deserialize(decodedTransaction)
+        : Transaction.from(decodedTransaction);
 
-  /**
-   *
-   * @param unsignedTransaction
-   * @param signedTranasaction
-   * @returns a Transaction-like object that combines all signatures between the initial and newly signed transactions.
-   */
-  private combineSignatures(
-    initialTransaction: Transaction | VersionedTransaction,
-    signedTranasaction: Transaction | VersionedTransaction
-  ) {
-    const combinedTransaction = initialTransaction;
-    signedTranasaction.signatures.map((sig) => {
-      const pair = sig as SignaturePubkeyPair;
-      combinedTransaction.addSignature(pair.publicKey, pair.signature!);
-    });
-
-    return combinedTransaction;
+    return recoveredTransaction;
   }
 
   private async signTransactionImpl(
