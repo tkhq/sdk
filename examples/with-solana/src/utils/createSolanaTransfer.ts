@@ -20,10 +20,17 @@ export async function createTransfer(input: {
   toAddress: string;
   amount: number;
   version: string;
+  feePayerAddress?: string;
 }): Promise<Transaction | VersionedTransaction> {
-  const { fromAddress, toAddress, amount, version } = input;
+  const { fromAddress, toAddress, amount, version, feePayerAddress } = input;
   const fromKey = new PublicKey(fromAddress);
   const toKey = new PublicKey(toAddress);
+
+  let feePayerKey;
+  if (feePayerAddress) {
+    feePayerKey = new PublicKey(feePayerAddress);
+  }
+
   const blockhash = await recentBlockhash();
 
   let transferTransaction;
@@ -41,11 +48,11 @@ export async function createTransfer(input: {
     // Get a recent block hash
     transferTransaction!.recentBlockhash = blockhash;
     // Set the signer
-    transferTransaction!.feePayer = fromKey;
+    transferTransaction!.feePayer = feePayerKey ?? fromKey;
   } else {
     // VersionedTransaction
     const txMessage = new TransactionMessage({
-      payerKey: fromKey,
+      payerKey: feePayerKey ?? fromKey,
       recentBlockhash: blockhash,
       instructions: [
         SystemProgram.transfer({

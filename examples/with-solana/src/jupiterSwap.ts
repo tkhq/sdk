@@ -46,14 +46,14 @@ const createSwap = async () => {
     console.log(`\nUsing existing Solana address from ENV: "${solAddress}"`);
   }
 
-  // Swapping SOL to USDC with input 0.05 SOL and 0.5% slippage
+  // Swapping SOL to USDC with input 0.05 SOL and 1% slippage
   // See example here: https://station.jup.ag/docs/apis/swap-api
   const quoteResponse = await (
     await fetch(
       "https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112\
 &outputMint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\
 &amount=50000000\
-&slippageBps=50"
+&slippageBps=100"
     )
   ).json();
 
@@ -77,21 +77,22 @@ const createSwap = async () => {
     })
   ).json();
 
-  console.log({ swapTransaction });
-
   // deserialize the transaction
   const swapTransactionBuf = Buffer.from(swapTransaction, "base64");
   const swapTransactionHex = swapTransactionBuf.toString("hex");
   let transaction = VersionedTransaction.deserialize(swapTransactionBuf);
 
   // sign the transaction
-  await turnkeySigner.addSignature(transaction, solAddress);
+  const signedTransaction = await turnkeySigner.signTransaction(
+    transaction,
+    solAddress
+  );
 
   // get the latest block hash
   const latestBlockHash = await connection.getLatestBlockhash();
 
   // Execute the transaction
-  const rawTransaction = transaction.serialize();
+  const rawTransaction = signedTransaction.serialize();
 
   const transactionResponse = await transactionSenderAndConfirmationWaiter({
     connection,

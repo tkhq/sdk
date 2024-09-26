@@ -8,6 +8,7 @@
     "token-transfer": "pnpm tsx src/tokenTransfer.ts",
     "faucet": "pnpm tsx src/faucet.ts",
     "jupiter-swap": "pnpm tsx src/jupiterSwap.ts",
+    "with-fee-payer": "pnpm tsx src/withFeePayer.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
