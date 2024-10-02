@@ -2273,7 +2273,7 @@ export type TDeletePrivateKeysBody =
   operations["PublicApiService_DeletePrivateKeys"]["parameters"]["body"]["body"];
 
 /**
- * Delete organization private keys
+ * Delete Private Keys
  *
  * Deletes private keys for an organization
  *
@@ -2303,6 +2303,58 @@ export const signDeletePrivateKeys = (
 ) =>
   signedRequest<TDeletePrivateKeysBody, never, never>({
     uri: "/public/v1/submit/delete_private_keys",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_sub_organization`
+ */
+export type TDeleteSubOrganizationResponse =
+  operations["PublicApiService_DeleteSubOrganization"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_sub_organization`
+ */
+export type TDeleteSubOrganizationInput = { body: TDeleteSubOrganizationBody };
+
+/**
+ * `POST /public/v1/submit/delete_sub_organization`
+ */
+export type TDeleteSubOrganizationBody =
+  operations["PublicApiService_DeleteSubOrganization"]["parameters"]["body"]["body"];
+
+/**
+ * Delete Sub Organization
+ *
+ * Deletes a sub organization
+ *
+ * `POST /public/v1/submit/delete_sub_organization`
+ */
+export const deleteSubOrganization = (input: TDeleteSubOrganizationInput) =>
+  request<
+    TDeleteSubOrganizationResponse,
+    TDeleteSubOrganizationBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_sub_organization",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteSubOrganization` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteSubOrganization}
+ */
+export const signDeleteSubOrganization = (
+  input: TDeleteSubOrganizationInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TDeleteSubOrganizationBody, never, never>({
+    uri: "/public/v1/submit/delete_sub_organization",
     body: input.body,
     options,
   });
@@ -2417,7 +2469,7 @@ export type TDeleteWalletsBody =
   operations["PublicApiService_DeleteWallets"]["parameters"]["body"]["body"];
 
 /**
- * Delete organization wallets
+ * Delete Wallets
  *
  * Deletes wallets for an organization
  *

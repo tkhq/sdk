@@ -1542,7 +1542,7 @@
     },
     "/public/v1/submit/delete_private_keys": {
       "post": {
-        "summary": "Delete organization private keys",
+        "summary": "Delete Private Keys",
         "description": "Deletes private keys for an organization",
         "operationId": "PublicApiService_DeletePrivateKeys",
         "responses": {
@@ -1570,6 +1570,38 @@
           }
         ],
         "tags": ["Private Keys"]
+      }
+    },
+    "/public/v1/submit/delete_sub_organization": {
+      "post": {
+        "summary": "Delete Sub Organization",
+        "description": "Deletes a sub organization",
+        "operationId": "PublicApiService_DeleteSubOrganization",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteSubOrganizationRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"]
       }
     },
     "/public/v1/submit/delete_user_tags": {
@@ -1638,7 +1670,7 @@
     },
     "/public/v1/submit/delete_wallets": {
       "post": {
-        "summary": "Delete organization wallets",
+        "summary": "Delete Wallets",
         "description": "Deletes wallets for an organization",
         "operationId": "PublicApiService_DeleteWallets",
         "responses": {
@@ -2864,7 +2896,8 @@
         "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6",
         "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS",
         "ACTIVITY_TYPE_DELETE_WALLETS",
-        "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2"
+        "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
+        "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION"
       ]
     },
     "v1AddressFormat": {
@@ -4932,6 +4965,46 @@
       },
       "required": ["privateKeyIds"]
     },
+    "v1DeleteSubOrganizationIntent": {
+      "type": "object",
+      "properties": {
+        "deleteWithoutExport": {
+          "type": "boolean",
+          "description": "Sub-organization deletion, by default, requires associated wallets and private keys to be exported for security reasons. Set this boolean to true to force sub-organization deletion even if some wallets or private keys within it have not been exported yet. Default: false."
+        }
+      }
+    },
+    "v1DeleteSubOrganizationRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteSubOrganizationIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteSubOrganizationResult": {
+      "type": "object",
+      "properties": {
+        "subOrganizationUuid": {
+          "type": "string",
+          "description": "Unique identifier of the sub organization that was removed"
+        }
+      },
+      "required": ["subOrganizationUuid"]
+    },
     "v1DeleteUserTagsIntent": {
       "type": "object",
       "properties": {
@@ -6453,6 +6526,9 @@
         },
         "createReadWriteSessionIntentV2": {
           "$ref": "#/definitions/v1CreateReadWriteSessionIntentV2"
+        },
+        "deleteSubOrganizationIntent": {
+          "$ref": "#/definitions/v1DeleteSubOrganizationIntent"
         }
       }
     },
@@ -7333,6 +7409,9 @@
         },
         "createReadWriteSessionResultV2": {
           "$ref": "#/definitions/v1CreateReadWriteSessionResultV2"
+        },
+        "deleteSubOrganizationResult": {
+          "$ref": "#/definitions/v1DeleteSubOrganizationResult"
         }
       }
     },
@@ -7747,7 +7826,7 @@
     },
     "v1TransactionType": {
       "type": "string",
-      "enum": ["TRANSACTION_TYPE_ETHEREUM"]
+      "enum": ["TRANSACTION_TYPE_ETHEREUM", "TRANSACTION_TYPE_SOLANA"]
     },
     "v1UpdateAllowedOriginsIntent": {
       "type": "object",

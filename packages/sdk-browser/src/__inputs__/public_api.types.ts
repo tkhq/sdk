@@ -192,6 +192,10 @@ export type paths = {
     /** Deletes private keys for an organization */
     post: operations["PublicApiService_DeletePrivateKeys"];
   };
+  "/public/v1/submit/delete_sub_organization": {
+    /** Deletes a sub organization */
+    post: operations["PublicApiService_DeleteSubOrganization"];
+  };
   "/public/v1/submit/delete_user_tags": {
     /** Delete User Tags within an Organization */
     post: operations["PublicApiService_DeleteUserTags"];
@@ -532,7 +536,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6"
     | "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS"
     | "ACTIVITY_TYPE_DELETE_WALLETS"
-    | "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2";
+    | "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2"
+    | "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1348,6 +1353,23 @@ export type definitions = {
     /** @description A list of private key unique identifiers that were removed */
     privateKeyIds: string[];
   };
+  v1DeleteSubOrganizationIntent: {
+    /** @description Sub-organization deletion, by default, requires associated wallets and private keys to be exported for security reasons. Set this boolean to true to force sub-organization deletion even if some wallets or private keys within it have not been exported yet. Default: false. */
+    deleteWithoutExport?: boolean;
+  };
+  v1DeleteSubOrganizationRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteSubOrganizationIntent"];
+  };
+  v1DeleteSubOrganizationResult: {
+    /** @description Unique identifier of the sub organization that was removed */
+    subOrganizationUuid: string;
+  };
   v1DeleteUserTagsIntent: {
     /** @description A list of User Tag IDs. */
     userTagIds: string[];
@@ -1946,6 +1968,7 @@ export type definitions = {
     deletePrivateKeysIntent?: definitions["v1DeletePrivateKeysIntent"];
     deleteWalletsIntent?: definitions["v1DeleteWalletsIntent"];
     createReadWriteSessionIntentV2?: definitions["v1CreateReadWriteSessionIntentV2"];
+    deleteSubOrganizationIntent?: definitions["v1DeleteSubOrganizationIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2269,6 +2292,7 @@ export type definitions = {
     deletePrivateKeysResult?: definitions["v1DeletePrivateKeysResult"];
     deleteWalletsResult?: definitions["v1DeleteWalletsResult"];
     createReadWriteSessionResultV2?: definitions["v1CreateReadWriteSessionResultV2"];
+    deleteSubOrganizationResult?: definitions["v1DeleteSubOrganizationResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -2426,7 +2450,7 @@ export type definitions = {
   /** @enum {string} */
   v1TagType: "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
   /** @enum {string} */
-  v1TransactionType: "TRANSACTION_TYPE_ETHEREUM";
+  v1TransactionType: "TRANSACTION_TYPE_ETHEREUM" | "TRANSACTION_TYPE_SOLANA";
   v1UpdateAllowedOriginsIntent: {
     /** @description Additional origins requests are allowed from besides Turnkey origins */
     allowedOrigins: string[];
@@ -3514,6 +3538,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1DeletePrivateKeysRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Deletes a sub organization */
+  PublicApiService_DeleteSubOrganization: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteSubOrganizationRequest"];
       };
     };
     responses: {
