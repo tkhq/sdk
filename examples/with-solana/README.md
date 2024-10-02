@@ -48,7 +48,7 @@ You can specify an existing Turnkey Solana address if you have one already:
 SOLANA_ADDRESS=<your Turnkey Solana address>
 ```
 
-Note that this is optional: the script gives you a fresh one if you don't specify one in your `.env.local` file
+Note that this is optional: the script gives you a fresh one if you don't specify one in your `.env.local` file.
 
 ### 3/ Running the script
 

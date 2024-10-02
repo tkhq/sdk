@@ -54,9 +54,10 @@ export async function broadcast(
   signedTransaction: Transaction | VersionedTransaction
 ) {
   const signature =
-    signedTransaction instanceof Transaction
-      ? signedTransaction.signature!
-      : signedTransaction.signatures[0]!;
+    "version" in signedTransaction
+      ? signedTransaction.signatures[0]!
+      : signedTransaction.signature!;
+
   const confirmationStrategy = await getConfirmationStrategy(
     bs58.encode(signature)
   );

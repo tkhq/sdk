@@ -1,8 +1,4 @@
-import {
-  PublicKey,
-  type Transaction,
-  type VersionedTransaction,
-} from "@solana/web3.js";
+import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 import {
   assertNonNull,
   assertActivityCompleted,
@@ -64,14 +60,11 @@ export class TurnkeySigner {
     fromAddress: string
   ) {
     const fromKey = new PublicKey(fromAddress);
-
-    let messageToSign: Buffer = this.getMessageToSign(tx);
-
+    const messageToSign: Buffer = this.getMessageToSign(tx);
     const signRawPayloadResult = await this.signRawPayload(
       messageToSign.toString("hex"),
       fromAddress
     );
-
     const signature = `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`;
 
     tx.addSignature(fromKey, Buffer.from(signature, "hex"));
@@ -95,6 +88,77 @@ export class TurnkeySigner {
       `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`,
       "hex"
     );
+  }
+
+  /**
+   * This function takes a Solana transaction, adds a signature via Turnkey,
+   * and returns a new transaction
+   *
+   * @param tx Transaction | VersionedTransaction object (native @solana/web3.js type)
+   * @param fromAddress Solana address (base58 encoded)
+   */
+  public async signTransaction(
+    tx: Transaction | VersionedTransaction,
+    fromAddress: string
+  ): Promise<Transaction | VersionedTransaction> {
+    const payloadToSign = Buffer.from(
+      tx.serialize({
+        requireAllSignatures: false,
+        verifySignatures: false,
+      })
+    ).toString("hex");
+
+    const signedTransaction = await this.signTransactionImpl(
+      payloadToSign,
+      fromAddress
+    );
+
+    const decodedTransaction = Buffer.from(signedTransaction, "hex");
+
+    const recoveredTransaction: Transaction | VersionedTransaction =
+      "version" in tx
+        ? VersionedTransaction.deserialize(decodedTransaction)
+        : Transaction.from(decodedTransaction);
+
+    return recoveredTransaction;
+  }
+
+  private async signTransactionImpl(
+    unsignedTransaction: string,
+    signWith: string
+  ) {
+    if (this.client instanceof TurnkeyClient) {
+      const response = await this.client.signTransaction({
+        type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
+        organizationId: this.organizationId,
+        timestampMs: String(Date.now()),
+        parameters: {
+          signWith,
+          unsignedTransaction,
+          type: "TRANSACTION_TYPE_SOLANA",
+        },
+      });
+
+      const { activity } = response;
+
+      assertActivityCompleted(activity);
+
+      return assertNonNull(
+        activity?.result?.signTransactionResult?.signedTransaction
+      );
+    } else {
+      const { activity, signedTransaction } = await this.client.signTransaction(
+        {
+          signWith,
+          unsignedTransaction,
+          type: "TRANSACTION_TYPE_SOLANA",
+        }
+      );
+
+      assertActivityCompleted(activity);
+
+      return assertNonNull(signedTransaction);
+    }
   }
 
   private async signRawPayload(payload: string, signWith: string) {

@@ -78,13 +78,13 @@ async function main() {
       default: TURNKEY_WAR_CHEST,
     });
 
-    // Amount defaults to current balance - (5000 * numTxs)
+    // Amount defaults to 100.
     // Any other amount is possible, so long as a sufficient balance remains for fees.
     const amount = await input({
       message: `${
         i + 1
       }. Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
-      default: `${balance - 5000 * numTxs}`,
+      default: "100",
       validate: function (str) {
         var n = Math.floor(Number(str));
         if (n !== Infinity && String(n) === str && n > 0) {

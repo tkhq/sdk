@@ -8,6 +8,7 @@ import { createToken } from "./createToken";
 import { createTokenAccount } from "./createTokenAccount";
 import { createTokenTransfer } from "./createTokenTransfer";
 import { transactionSenderAndConfirmationWaiter } from "./retrySender";
+import { handleActivityError } from "./handleActivityError";
 
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
@@ -18,6 +19,7 @@ export {
   createTokenAccount,
   createTokenTransfer,
   createTransfer,
+  handleActivityError,
   print,
   signMessage,
   transactionSenderAndConfirmationWaiter,

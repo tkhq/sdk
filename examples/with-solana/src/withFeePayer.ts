@@ -1,15 +1,12 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
-import nacl from "tweetnacl";
-import bs58 from "bs58";
 import { input, confirm } from "@inquirer/prompts";
-import { Transaction } from "@solana/web3.js";
+import { VersionedTransaction } from "@solana/web3.js";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import {
-  getSignatureFromActivity,
   type TActivity,
   getSignedTransactionFromActivity,
 } from "@turnkey/http";
@@ -17,12 +14,11 @@ import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 import {
   createNewSolanaWallet,
+  createTransfer,
   handleActivityError,
   solanaNetwork,
-  signMessage,
   print,
 } from "./utils";
-import { createTransfer } from "./utils/createSolanaTransfer";
 
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
@@ -36,16 +32,6 @@ async function main() {
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     defaultOrganizationId: organizationId,
-    // The following config is useful in contexts where an activity requires consensus.
-    // By default, if the activity is not initially successful, it will poll a maximum
-    // of 3 times with an interval of 1000 milliseconds. Otherwise, use the values below.
-    //
-    // -----
-    //
-    // activityPoller: {
-    //   intervalMs: 5_000,
-    //   numRetries: 10,
-    // },
   });
 
   const turnkeySigner = new TurnkeySigner({
@@ -59,6 +45,16 @@ async function main() {
     console.log(`\nYour new Solana address: "${solAddress}"`);
   } else {
     console.log(`\nUsing existing Solana address from ENV: "${solAddress}"`);
+  }
+
+  let feePayerAddress = process.env.SOLANA_ADDRESS_FEE_PAYER!;
+  if (!feePayerAddress) {
+    feePayerAddress = await createNewSolanaWallet(turnkeyClient.apiClient());
+    console.log(`\nYour new Solana address: "${feePayerAddress}"`);
+  } else {
+    console.log(
+      `\nUsing existing Solana address from ENV: "${feePayerAddress}"`
+    );
   }
 
   let balance = await solanaNetwork.balance(connection, solAddress);
@@ -80,46 +76,7 @@ async function main() {
 
   print("SOL balance:", `${balance} Lamports`);
 
-  // 1. Sign and verify a message
-  const message = await input({
-    message: "Message to sign",
-    default: "Hello Turnkey",
-  });
-  const messageAsUint8Array = Buffer.from(message);
-
-  let signature;
-  try {
-    signature = await signMessage({
-      signer: turnkeySigner,
-      fromAddress: solAddress,
-      message,
-    });
-  } catch (error: any) {
-    signature = await handleActivityError(turnkeyClient, error).then(
-      (activity?: TActivity) => {
-        if (!activity) {
-          throw error;
-        }
-
-        const { r, s } = getSignatureFromActivity(activity);
-        return Buffer.from(`${r}${s}`, "hex");
-      }
-    );
-  }
-
-  const isValidSignature = nacl.sign.detached.verify(
-    messageAsUint8Array,
-    signature,
-    bs58.decode(solAddress)
-  );
-
-  if (!isValidSignature) {
-    throw new Error("unable to verify signed message");
-  }
-
-  print("Turnkey-powered signature:", `${bs58.encode(signature)}`);
-
-  // 2. Create, sign, and verify a transfer transaction
+  // 1. Create, sign, and verify a transfer transaction
   const destination = await input({
     message: `Destination address:`,
     default: TURNKEY_WAR_CHEST,
@@ -150,15 +107,18 @@ async function main() {
     fromAddress: solAddress,
     toAddress: destination,
     amount: Number(amount),
-    version: "legacy",
+    version: "v0",
+    feePayerAddress,
   });
 
-  let signedTransaction: Transaction | undefined = undefined; // legacy
+  let signedTransaction: VersionedTransaction | undefined = undefined; // v0
+
+  // First, sign with sender
   try {
     signedTransaction = (await turnkeySigner.signTransaction(
       transaction,
       solAddress
-    )) as Transaction;
+    )) as VersionedTransaction;
   } catch (error: any) {
     await handleActivityError(turnkeyClient, error).then(
       (activity?: TActivity) => {
@@ -170,15 +130,33 @@ async function main() {
           getSignedTransactionFromActivity(activity),
           "hex"
         );
-        signedTransaction = Transaction.from(decodedTransaction);
+        signedTransaction =
+          VersionedTransaction.deserialize(decodedTransaction);
       }
     );
   }
 
-  const verified = signedTransaction!.verifySignatures();
+  // Next, sign with fee payer
+  try {
+    signedTransaction = (await turnkeySigner.signTransaction(
+      signedTransaction!,
+      feePayerAddress
+    )) as VersionedTransaction;
+  } catch (error: any) {
+    await handleActivityError(turnkeyClient, error).then(
+      (activity?: TActivity) => {
+        if (!activity) {
+          throw error;
+        }
 
-  if (!verified) {
-    throw new Error("unable to verify transaction signatures");
+        const decodedTransaction = Buffer.from(
+          getSignedTransactionFromActivity(activity),
+          "hex"
+        );
+        signedTransaction =
+          VersionedTransaction.deserialize(decodedTransaction);
+      }
+    );
   }
 
   // 3. Broadcast the signed payload on devnet
