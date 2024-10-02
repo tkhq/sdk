@@ -180,6 +180,10 @@ import type {
   TDeletePrivateKeysResponse,
 } from "./public_api.fetcher";
 import type {
+  TDeleteSubOrganizationBody,
+  TDeleteSubOrganizationResponse,
+} from "./public_api.fetcher";
+import type {
   TDeleteUserTagsBody,
   TDeleteUserTagsResponse,
 } from "./public_api.fetcher";
@@ -1753,6 +1757,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/delete_private_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Deletes a sub organization
+   *
+   * Sign the provided `TDeleteSubOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_sub_organization).
+   *
+   * See also {@link stampDeleteSubOrganization}.
+   */
+  deleteSubOrganization = async (
+    input: TDeleteSubOrganizationBody
+  ): Promise<TDeleteSubOrganizationResponse> => {
+    return this.request("/public/v1/submit/delete_sub_organization", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteSubOrganizationBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteSubOrganization}.
+   */
+  stampDeleteSubOrganization = async (
+    input: TDeleteSubOrganizationBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_sub_organization";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

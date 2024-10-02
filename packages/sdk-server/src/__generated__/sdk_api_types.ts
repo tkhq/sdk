@@ -506,6 +506,16 @@ export type TDeletePrivateKeysBody =
   operations["PublicApiService_DeletePrivateKeys"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TDeleteSubOrganizationResponse =
+  operations["PublicApiService_DeleteSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["deleteSubOrganizationResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteSubOrganizationInput = { body: TDeleteSubOrganizationBody };
+
+export type TDeleteSubOrganizationBody =
+  operations["PublicApiService_DeleteSubOrganization"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TDeleteUserTagsResponse =
   operations["PublicApiService_DeleteUserTags"]["responses"]["200"]["schema"]["activity"]["result"]["deleteUserTagsResult"] &
     definitions["v1ActivityResponse"];

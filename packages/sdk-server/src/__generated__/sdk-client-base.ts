@@ -721,6 +721,22 @@ export class TurnkeySDKClientBase {
     );
   };
 
+  deleteSubOrganization = async (
+    input: SdkApiTypes.TDeleteSubOrganizationBody
+  ): Promise<SdkApiTypes.TDeleteSubOrganizationResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_sub_organization",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
+      },
+      "deleteSubOrganizationResult"
+    );
+  };
+
   deleteUserTags = async (
     input: SdkApiTypes.TDeleteUserTagsBody
   ): Promise<SdkApiTypes.TDeleteUserTagsResponse> => {
