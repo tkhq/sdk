@@ -1,5 +1,17 @@
 # @turnkey/sdk-browser
 
+## 1.7.1
+
+### Patch Changes
+
+- 96d7f99: Update dependencies
+- Updated dependencies [e5c4fe9]
+- Updated dependencies [96d7f99]
+  - @turnkey/crypto@2.0.0
+  - @turnkey/encoding@0.4.0
+  - @turnkey/http@2.14.2
+  - @turnkey/api-key-stamper@0.4.3
+
 ## 1.7.0
 
 ### Minor Changes

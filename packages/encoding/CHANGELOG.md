@@ -1,5 +1,11 @@
 # @turnkey/encoding
 
+## 0.4.0
+
+### Minor Changes
+
+- added hexToAscii function, useful for converting a raw hex string to a (wallet) mnemonic
+
 ## 0.3.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @turnkey/crypto
 
+## 2.0.0
+
+### Major Changes
+
+- [BREAKING CHANGE] renamed `decryptBundle` to `decryptCredentialBundle` (for decrypting email auth/recovery and oauth credential bundles) in order to distinguish from the new `decryptExportBundle` (for decrypting bundles containing wallet mnemonics or private key material)
+
+### Patch Changes
+
+- Updated dependencies [e5c4fe9]
+  - @turnkey/encoding@0.4.0
+
 ## 1.0.0
 
 ### Major Changes

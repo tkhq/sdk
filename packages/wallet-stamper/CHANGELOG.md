@@ -1,5 +1,12 @@
 # @turnkey/wallet-stamper
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies [e5c4fe9]
+  - @turnkey/encoding@0.4.0
+
 ## 0.0.4
 
 ### Patch Changes
