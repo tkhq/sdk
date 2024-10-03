@@ -29,19 +29,22 @@ async function main() {
 
   const ECPair = ECPairFactory(ecc);
   const pair = ECPair.fromPublicKey(Buffer.from(publicKeyCompressed, "hex"));
-  
+
   // Only relevant for taproot.
   const xOnlyPublicKey = pair.publicKey.slice(1, 33);
 
-  const addressType = parseAddressAgainstPublicKey(bitcoinAddress, publicKeyCompressed);
-  const network = getNetwork(addressType)
-  
-  console.log("✅ Loaded configuration")
+  const addressType = parseAddressAgainstPublicKey(
+    bitcoinAddress,
+    publicKeyCompressed
+  );
+  const network = getNetwork(addressType);
+
+  console.log("✅ Loaded configuration");
   console.log(`-> Source address: ${bitcoinAddress}`);
   console.log(`-> Inferred address type: ${addressType}`);
-  
+
   console.log("Fetching UTXOs...");
-  const utxos = await getUTXOs(bitcoinAddress, network );
+  const utxos = await getUTXOs(bitcoinAddress, network);
   if (utxos.length === 0) {
     throw new Error("no UTXOs found on this address. Aborting.");
   }
@@ -51,26 +54,25 @@ async function main() {
       hash: utxo.txid,
       index: utxo.vout,
       value: utxo.value,
-    }
+    };
     return {
       title: `${utxoInfo.value} sats (tx # ${utxoInfo.hash} @ ${utxoInfo.index})`,
       value: utxoInfo,
-    }
+    };
   });
 
   const { utxosToSpend, destination } = await prompts([
     {
-      type: 'multiselect',
-      name: 'utxosToSpend',
-      message: 'select UTXOS to spend',
+      type: "multiselect",
+      name: "utxosToSpend",
+      message: "select UTXOS to spend",
       choices: choices,
       min: 1,
     },
     {
-      type: 'text',
-      name: 'destination',
-      message:
-        "Destination BTC address",
+      type: "text",
+      name: "destination",
+      message: "Destination BTC address",
     },
   ]);
 
@@ -78,30 +80,34 @@ async function main() {
     numInputs: utxosToSpend.length,
     numOutputs: 2, // 1 output for destination, 1 for change.
     network,
-  })
+  });
   console.log(`✅ Fee estimate: ${feeEstimate} sats`);
 
-  const totalToSpend = utxosToSpend.reduce((total: number, utxo: any) => { return total + utxo.value }, 0)
+  const totalToSpend = utxosToSpend.reduce((total: number, utxo: any) => {
+    return total + utxo.value;
+  }, 0);
   const maxToSpend = totalToSpend - feeEstimate;
   const { amount } = await prompts([
     {
-      type: 'number',
-      name: 'amount',
+      type: "number",
+      name: "amount",
       message: `How much to you want to send to ${destination}? (max: ${maxToSpend} sats, the rest will go back to the source address as change)`,
       initial: maxToSpend,
-      style: 'default',
+      style: "default",
       min: 1,
-      max: maxToSpend
-    }
+      max: maxToSpend,
+    },
   ]);
 
   const changeAmount = maxToSpend - amount;
-  const { confirmChange } = await prompts([{
-    type: 'confirm',
-    name: 'confirmChange',
-    message: `change amount going back to your source address will be ${changeAmount}. Looks good?`,
-    initial: true
-  }]);
+  const { confirmChange } = await prompts([
+    {
+      type: "confirm",
+      name: "confirmChange",
+      message: `change amount going back to your source address will be ${changeAmount}. Looks good?`,
+      initial: true,
+    },
+  ]);
   if (!confirmChange) {
     throw new Error("aborting.");
   }
@@ -109,28 +115,31 @@ async function main() {
   const psbt = new bitcoin.Psbt({ network });
 
   for (const utxo of utxosToSpend) {
-    if (addressType == 'MainnetP2TR' || addressType == 'TestnetP2TR') {
+    if (addressType == "MainnetP2TR" || addressType == "TestnetP2TR") {
       psbt.addInput({
         hash: utxo.hash,
         index: utxo.index,
         tapInternalKey: xOnlyPublicKey,
         witnessUtxo: {
           script: bitcoin.payments.p2tr({
-              network: network,
-              internalPubkey: xOnlyPublicKey,
-            }).output!,
+            network: network,
+            internalPubkey: xOnlyPublicKey,
+          }).output!,
           value: utxo.value,
         },
       });
-    } else if (addressType == 'MainnetP2WPKH' || addressType == 'TestnetP2WPKH') {
+    } else if (
+      addressType == "MainnetP2WPKH" ||
+      addressType == "TestnetP2WPKH"
+    ) {
       psbt.addInput({
         hash: utxo.hash,
         index: utxo.index,
         witnessUtxo: {
           script: bitcoin.payments.p2wpkh({
-              pubkey: pair.publicKey,
-              network: network,
-            }).output!,
+            pubkey: pair.publicKey,
+            network: network,
+          }).output!,
           value: utxo.value,
         },
       });
@@ -155,30 +164,44 @@ async function main() {
   }
 
   var signer: TurnkeySigner;
-  if (addressType === 'MainnetP2TR' || addressType === 'TestnetP2TR') {
+  if (addressType === "MainnetP2TR" || addressType === "TestnetP2TR") {
     // For taproot public key needs to be the decoded address, in order to match the output's "public key" (tweaked)
     // See https://github.com/bitcoinjs/bitcoinjs-lib/blob/34e1644b5fb60055793ec3078f2e4f48b2648ca6/ts_src/psbt.ts#L1786
-    signer = new TurnkeySigner(turnkeyClient, bitcoinAddress, bitcoin.address.fromBech32(bitcoinAddress).data);
+    signer = new TurnkeySigner(
+      turnkeyClient,
+      bitcoinAddress,
+      bitcoin.address.fromBech32(bitcoinAddress).data
+    );
   } else {
     signer = new TurnkeySigner(turnkeyClient, bitcoinAddress, pair.publicKey);
   }
 
   // Sign the transaction inputs
-  await Promise.all(utxosToSpend.map(async (_utxo: any, i: number) => {
-    await psbt.signInputAsync(i, signer);
-  }));
+  await Promise.all(
+    utxosToSpend.map(async (_utxo: any, i: number) => {
+      await psbt.signInputAsync(i, signer);
+    })
+  );
   psbt.finalizeAllInputs();
   const signedPayload = psbt.extractTransaction().toHex();
 
   // To broadcast it: https://mempool.space/tx/push
-  const broadcastUrl = network.bech32 === 'bc' ? "https://mempool.space/tx/push" : "https://mempool.space/testnet/tx/push"
-  console.log(`✅ Transaction signed! To broadcast it, copy and paste the hex payload to ${broadcastUrl}`)
+  const broadcastUrl =
+    network.bech32 === "bc"
+      ? "https://mempool.space/tx/push"
+      : "https://mempool.space/testnet/tx/push";
+  console.log(
+    `✅ Transaction signed! To broadcast it, copy and paste the hex payload to ${broadcastUrl}`
+  );
   return signedPayload;
 }
 
 async function getUTXOs(address: string, network: bitcoin.Network) {
   try {
-    const url = network.bech32 === 'bc' ? `https://blockstream.info/api/address/${address}/utxo` : `https://blockstream.info/testnet/api/address/${address}/utxo`;
+    const url =
+      network.bech32 === "bc"
+        ? `https://blockstream.info/api/address/${address}/utxo`
+        : `https://blockstream.info/testnet/api/address/${address}/utxo`;
     const response = await fetch(url);
     return await response.json();
   } catch (error) {

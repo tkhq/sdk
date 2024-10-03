@@ -18,12 +18,16 @@ export function refineNonNull<T>(
   return input;
 }
 
-type SupportedAddressType = 'TestnetP2WPKH' | 'TestnetP2TR' | 'MainnetP2WPKH' | 'MainnetP2TR';
+type SupportedAddressType =
+  | "TestnetP2WPKH"
+  | "TestnetP2TR"
+  | "MainnetP2WPKH"
+  | "MainnetP2TR";
 
 export function getNetwork(addressType: SupportedAddressType): bitcoin.Network {
-  if (addressType === 'MainnetP2TR' || addressType === 'MainnetP2WPKH') {
+  if (addressType === "MainnetP2TR" || addressType === "MainnetP2WPKH") {
     return bitcoin.networks.bitcoin;
-  } else if (addressType === 'TestnetP2TR' || addressType === 'TestnetP2WPKH') {
+  } else if (addressType === "TestnetP2TR" || addressType === "TestnetP2WPKH") {
     return bitcoin.networks.testnet;
   } else {
     throw new Error("should never happen if all addresses are covered above");
@@ -36,17 +40,20 @@ export function getNetwork(addressType: SupportedAddressType): bitcoin.Network {
  * Throws is the address isn't related.
  * Returns the address type for convenience since we already went through the trouble of parsing it!
  */
-export function parseAddressAgainstPublicKey(address: string, publicKey: string): SupportedAddressType {
+export function parseAddressAgainstPublicKey(
+  address: string,
+  publicKey: string
+): SupportedAddressType {
   const ECPair = ECPairFactory(ecc);
   const pair = ECPair.fromPublicKey(Buffer.from(publicKey, "hex"));
-  
+
   if (address.startsWith("bc1")) {
     const p2trAddress = bitcoin.payments.p2tr({
       internalPubkey: pair.publicKey.slice(1, 33),
       network: bitcoin.networks.bitcoin,
     }).address!;
     if (address == p2trAddress) {
-      return 'MainnetP2TR';
+      return "MainnetP2TR";
     }
 
     const p2wpkhAddress = bitcoin.payments.p2wpkh({
@@ -54,31 +61,35 @@ export function parseAddressAgainstPublicKey(address: string, publicKey: string)
       network: bitcoin.networks.bitcoin,
     }).address!;
     if (address == p2wpkhAddress) {
-      return 'MainnetP2WPKH'
+      return "MainnetP2WPKH";
     }
 
-    throw new Error(`Address ${address} not related to public key ${publicKey} (tried p2tr, p2wpkh)`);
-
+    throw new Error(
+      `Address ${address} not related to public key ${publicKey} (tried p2tr, p2wpkh)`
+    );
   } else if (address.startsWith("tb1")) {
     const p2trAddress = bitcoin.payments.p2tr({
       internalPubkey: pair.publicKey.slice(1, 33),
       network: bitcoin.networks.testnet,
     }).address!;
     if (address == p2trAddress) {
-      return 'TestnetP2TR'
+      return "TestnetP2TR";
     }
-    
+
     const p2wpkhAddress = bitcoin.payments.p2wpkh({
       pubkey: pair.publicKey,
       network: bitcoin.networks.testnet,
     }).address!;
     if (address == p2wpkhAddress) {
-      return 'TestnetP2WPKH'
+      return "TestnetP2WPKH";
     }
-  
-    throw new Error(`Address ${address} not related to public key ${publicKey} (tried p2tr, p2wpkh)`)
-  
+
+    throw new Error(
+      `Address ${address} not related to public key ${publicKey} (tried p2tr, p2wpkh)`
+    );
   } else {
-    throw new Error(`Address ${address} doesn't start with bc1 or tb1; not yet supported by this demo!`);
+    throw new Error(
+      `Address ${address} doesn't start with bc1 or tb1; not yet supported by this demo!`
+    );
   }
 }

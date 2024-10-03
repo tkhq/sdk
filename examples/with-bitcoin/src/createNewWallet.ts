@@ -17,43 +17,43 @@ async function main() {
 
   const { walletParams, walletName } = await prompts([
     {
-      type: 'text',
-      name: 'walletName',
-      message: 'Name your new wallet'
+      type: "text",
+      name: "walletName",
+      message: "Name your new wallet",
     },
     {
-      type: 'select',
-      name: 'walletParams',
-      message: 'Select the type of wallet you would like to create',
+      type: "select",
+      name: "walletParams",
+      message: "Select the type of wallet you would like to create",
       choices: [
         {
           title: "P2TR (testnet)",
           value: {
             path: "m/86'/1'/1'/0/0",
             addressFormat: "ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR",
-          }
+          },
         },
         {
           title: "P2TR (mainnet)",
           value: {
             path: "m/86'/0'/0'/0/0",
             addressFormat: "ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR",
-          }
+          },
         },
         {
           title: "P2WPKH (testnet)",
           value: {
             path: "m/84'/1'/1'/0/0",
             addressFormat: "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH",
-          }
+          },
         },
         {
           title: "P2WPKH (mainnet)",
           value: {
             path: "m/84'/0'/0'/0/0",
             addressFormat: "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH",
-          }
-        }
+          },
+        },
       ],
     },
   ]);
