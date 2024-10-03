@@ -11,7 +11,7 @@ import { ECPairFactory } from "ecpair";
 
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "./signer";
-import { getNetwork, parseAddressAgainstPublicKey } from "./util";
+import { getNetwork, isMainnet, parseAddressAgainstPublicKey } from "./util";
 import { estimateFees } from "./fees";
 
 bitcoin.initEccLib(ecc);
@@ -29,9 +29,6 @@ async function main() {
 
   const ECPair = ECPairFactory(ecc);
   const pair = ECPair.fromPublicKey(Buffer.from(publicKeyCompressed, "hex"));
-
-  // Only relevant for taproot.
-  const xOnlyPublicKey = pair.publicKey.slice(1, 33);
 
   const addressType = parseAddressAgainstPublicKey(
     bitcoinAddress,
@@ -116,6 +113,12 @@ async function main() {
 
   for (const utxo of utxosToSpend) {
     if (addressType == "MainnetP2TR" || addressType == "TestnetP2TR") {
+      // Taproot uses Schnorr signatures and tweaks raw public keys to work around linearity attacks.
+      // This is described in [BIP141](https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki) if you're curious.
+      // This "x-only" public key is expected by bitcoinjs-lib because the underlying secp256k1 library which performs the tweak expects this format
+      // (see https://github.com/bitcoinjs/tiny-secp256k1/blob/e8966cd1d9c724c4999ae71c9511b14c6a37648e/src_ts/index.ts#L263-L286)
+      const xOnlyPublicKey = pair.publicKey.slice(1, 33);
+
       psbt.addInput({
         hash: utxo.hash,
         index: utxo.index,
@@ -186,10 +189,9 @@ async function main() {
   const signedPayload = psbt.extractTransaction().toHex();
 
   // To broadcast it: https://mempool.space/tx/push
-  const broadcastUrl =
-    network.bech32 === "bc"
-      ? "https://mempool.space/tx/push"
-      : "https://mempool.space/testnet/tx/push";
+  const broadcastUrl = isMainnet(network)
+    ? "https://mempool.space/tx/push"
+    : "https://mempool.space/testnet/tx/push";
   console.log(
     `✅ Transaction signed! To broadcast it, copy and paste the hex payload to ${broadcastUrl}`
   );
@@ -198,10 +200,9 @@ async function main() {
 
 async function getUTXOs(address: string, network: bitcoin.Network) {
   try {
-    const url =
-      network.bech32 === "bc"
-        ? `https://blockstream.info/api/address/${address}/utxo`
-        : `https://blockstream.info/testnet/api/address/${address}/utxo`;
+    const url = isMainnet(network)
+      ? `https://blockstream.info/api/address/${address}/utxo`
+      : `https://blockstream.info/testnet/api/address/${address}/utxo`;
     const response = await fetch(url);
     return await response.json();
   } catch (error) {

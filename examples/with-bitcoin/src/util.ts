@@ -33,6 +33,10 @@ export function getNetwork(addressType: SupportedAddressType): bitcoin.Network {
   }
 }
 
+export function isMainnet(network: bitcoin.Network): boolean {
+  return network.bech32 === "bc";
+}
+
 /**
  * Verify that the address comes from the passed in publicKey
  * We do not support all types of addresses.
