@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+
+import { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
 
 type InitRecoveryRequest = {
   email: string;
@@ -27,32 +27,22 @@ export default async function initRecovery(
 ) {
   try {
     const request = req.body as InitRecoveryRequest;
-    const turnkeyClient = new TurnkeyClient(
-      { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
-      new ApiKeyStamper({
-        apiPublicKey: process.env.API_PUBLIC_KEY!,
-        apiPrivateKey: process.env.API_PRIVATE_KEY!,
-      })
-    );
-
-    const activityPoller = createActivityPoller({
-      client: turnkeyClient,
-      requestFn: turnkeyClient.initUserEmailRecovery,
+    const turnkeyClient = new TurnkeySDKClient({
+      apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+      defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
-    const completedActivity = await activityPoller({
-      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
-      timestampMs: String(Date.now()),
-      // This is simple in the case of a single organization.
-      // If you use sub-organizations for each user, this needs to be replaced by the user's specific sub-organization.
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-      parameters: {
+    const emailRecoveryResponse = await turnkeyClient
+      .apiClient()
+      .initUserEmailRecovery({
         email: request.email,
         targetPublicKey: request.targetPublicKey,
-      },
-    });
+      });
 
-    const userId = completedActivity.result.initUserEmailRecoveryResult?.userId;
+    const { userId } = emailRecoveryResponse;
+
     if (!userId) {
       throw new Error("Expected a non-null user ID!");
     }

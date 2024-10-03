@@ -1,12 +1,11 @@
-import Image from "next/image";
-import styles from "./index.module.css";
-import { getWebAuthnAttestation, TurnkeyClient } from "@turnkey/http";
-import { IframeStamper } from "@turnkey/iframe-stamper";
-import { useForm } from "react-hook-form";
 import axios from "axios";
-import * as React from "react";
 import { useState } from "react";
-import { Recovery } from "@/components/Recovery";
+import Image from "next/image";
+import { useForm } from "react-hook-form";
+
+import styles from "./index.module.css";
+
+import { useTurnkey } from "@turnkey/sdk-react";
 
 /**
  * Type definition for the server response coming back from `/api/initRecovery`
@@ -37,26 +36,11 @@ const rs256 = -257;
 // https://www.w3.org/TR/webauthn-2/#enumdef-publickeycredentialtype
 const publicKey = "public-key";
 
-const generateRandomBuffer = (): ArrayBuffer => {
-  const arr = new Uint8Array(32);
-  crypto.getRandomValues(arr);
-  return arr.buffer;
-};
-
-const base64UrlEncode = (challenge: ArrayBuffer): string => {
-  return Buffer.from(challenge)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
-};
-
 export default function RecoveryPage() {
+  const { passkeyClient, authIframeClient } = useTurnkey();
+
   const [initRecoveryResponse, setInitRecoveryResponse] =
     useState<InitRecoveryResponse | null>(null);
-  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
-    null
-  );
   const {
     register: initRecoveryFormRegister,
     handleSubmit: initRecoveryFormSubmit,
@@ -67,27 +51,27 @@ export default function RecoveryPage() {
   } = useForm<RecoverUserFormData>();
 
   const initRecovery = async (data: InitRecoveryFormData) => {
-    if (iframeStamper === null) {
+    if (authIframeClient === null) {
       throw new Error("cannot initialize recovery without an iframe");
     }
 
     const response = await axios.post("/api/initRecovery", {
       email: data.email,
-      targetPublicKey: iframeStamper.publicKey(),
+      targetPublicKey: authIframeClient!.iframePublicKey!,
     });
     setInitRecoveryResponse(response.data);
   };
 
   const recoverUser = async (data: RecoverUserFormData) => {
-    if (iframeStamper === null) {
-      throw new Error("iframeStamper is null");
+    if (authIframeClient === null) {
+      throw new Error("iframe client is null");
     }
     if (initRecoveryResponse === null) {
       throw new Error("initRecoveryResponse is null");
     }
 
     try {
-      await iframeStamper.injectCredentialBundle(data.recoveryBundle);
+      await authIframeClient!.injectCredentialBundle(data.recoveryBundle);
     } catch (e) {
       const msg = `error while injecting bundle: ${e}`;
       console.error(msg);
@@ -95,53 +79,31 @@ export default function RecoveryPage() {
       return;
     }
 
-    const challenge = generateRandomBuffer();
-    const authenticatorUserId = generateRandomBuffer();
+    const { encodedChallenge, attestation } =
+      await passkeyClient?.createUserPasskey({
+        publicKey: {
+          pubKeyCredParams: [
+            { type: publicKey, alg: es256 },
+            { type: publicKey, alg: rs256 },
+          ],
+          rp: {
+            id: "localhost",
+            name: "Turnkey Federated Passkey Demo",
+          },
+          user: {
+            name: data.authenticatorName,
+            displayName: data.authenticatorName,
+          },
+        },
+      })!;
 
-    // An example of possible options can be found here:
-    // https://www.w3.org/TR/webauthn-2/#sctn-sample-registration
-    const attestation = await getWebAuthnAttestation({
-      publicKey: {
-        authenticatorSelection: {
-          residentKey: "preferred",
-          requireResidentKey: false,
-          userVerification: "preferred",
-        },
-        rp: {
-          id: "localhost",
-          name: "Turnkey Federated Passkey Demo",
-        },
-        challenge,
-        pubKeyCredParams: [
-          { type: publicKey, alg: es256 },
-          { type: publicKey, alg: rs256 },
-        ],
-        user: {
-          id: authenticatorUserId,
-          name: data.authenticatorName,
-          displayName: data.authenticatorName,
-        },
-      },
-    });
-
-    const client = new TurnkeyClient(
-      {
-        baseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-      },
-      iframeStamper
-    );
-
-    const response = await client.recoverUser({
-      type: "ACTIVITY_TYPE_RECOVER_USER",
-      timestampMs: String(Date.now()),
-      organizationId: initRecoveryResponse.organizationId,
-      parameters: {
-        userId: initRecoveryResponse.userId,
-        authenticator: {
-          authenticatorName: data.authenticatorName,
-          challenge: base64UrlEncode(challenge),
-          attestation: attestation,
-        },
+    const response = await authIframeClient!.recoverUser({
+      organizationId: initRecoveryResponse.organizationId, // need to specify the suborg ID
+      userId: initRecoveryResponse.userId,
+      authenticator: {
+        authenticatorName: data.authenticatorName,
+        challenge: encodedChallenge,
+        attestation,
       },
     });
 
@@ -177,16 +139,10 @@ export default function RecoveryPage() {
         />
       </a>
 
-      <Recovery
-        setIframeStamper={setIframeStamper}
-        iframeUrl={process.env.NEXT_PUBLIC_RECOVERY_IFRAME_URL!}
-        turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
-      ></Recovery>
+      {!authIframeClient && <p>Loading...</p>}
 
-      {!iframeStamper && <p>Loading...</p>}
-
-      {iframeStamper &&
-        iframeStamper.publicKey() &&
+      {authIframeClient &&
+        authIframeClient.iframePublicKey &&
         initRecoveryResponse === null && (
           <form
             className={styles.form}
@@ -203,8 +159,8 @@ export default function RecoveryPage() {
             <label className={styles.label}>
               Encryption Target from iframe:
               <br />
-              <code title={iframeStamper.publicKey()!}>
-                {iframeStamper.publicKey()!.substring(0, 30)}...
+              <code title={authIframeClient.iframePublicKey!}>
+                {authIframeClient.iframePublicKey!.substring(0, 30)}...
               </code>
             </label>
 
@@ -216,8 +172,8 @@ export default function RecoveryPage() {
           </form>
         )}
 
-      {iframeStamper &&
-        iframeStamper.publicKey() &&
+      {authIframeClient &&
+        authIframeClient.iframePublicKey &&
         initRecoveryResponse !== null && (
           <form
             className={styles.form}

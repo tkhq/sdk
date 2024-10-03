@@ -201,15 +201,18 @@ importers:
 
   examples/email-recovery:
     dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../packages/api-key-stamper
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
-      '@turnkey/iframe-stamper':
+      '@turnkey/sdk-browser':
         specifier: workspace:*
-        version: link:../../packages/iframe-stamper
+        version: link:../../packages/sdk-browser
+      '@turnkey/sdk-react':
+        specifier: workspace:*
+        version: link:../../packages/sdk-react
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
       '@types/node':
         specifier: 20.3.1
         version: 20.3.1

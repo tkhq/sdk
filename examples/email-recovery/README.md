@@ -10,6 +10,10 @@ The overall flow for email recovery is outlined below:
 
 This example contains an example recovery page as well as a stub API endpoint for "your business" (where the email is resolved into an organization ID). The creation of the hidden iframe is abstracted by our `@turnkey/iframe-stamper` package. For more information on email recovery, [check out our documentation](https://docs.turnkey.com/features/email-recovery).
 
+Note [10/3/2024]: we've since updated this example to use `@turnkey/sdk-react`, `@turnkey/sdk-server`, and `@turnkey/sdk-browser` to make it increasingly easier to interact with Turnkey, and especially iframes.
+
+![Email recovery demo](./demo.png)
+
 ## Getting started
 
 ### 1/ Cloning the example
