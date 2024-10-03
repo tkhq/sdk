@@ -4,9 +4,7 @@
   "private": true,
   "scripts": {
     "start": "tsx src/createBtcTx.ts",
-    "sign": "tsx src/signBtcTx.ts",
-    "send": "tsx src/createBtcTx.ts",
-    "derive": "tsx src/deriveBtcAddress.ts",
+    "create-wallet": "tsx src/createNewWallet",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },

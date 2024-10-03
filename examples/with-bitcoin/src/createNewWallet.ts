@@ -1,56 +1,104 @@
-import { TurnkeyActivityError } from "@turnkey/http";
 import { Turnkey } from "@turnkey/sdk-server";
-import * as crypto from "crypto";
 import { refineNonNull } from "./util";
+import prompts from "prompts";
+import * as path from "path";
+import * as dotenv from "dotenv";
 
-export async function createNewWallet() {
-  console.log("creating a new wallet on Turnkey...\n");
+// Load environment variables from `.env.local`
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-  const walletName = `BTC Wallet ${crypto.randomBytes(2).toString("hex")}`;
+async function main() {
+  const turnkeyClient = new Turnkey({
+    apiBaseUrl: process.env.BASE_URL!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    defaultOrganizationId: process.env.ORGANIZATION_ID!,
+  });
 
-  try {
-    const turnkeyClient = new Turnkey({
-      apiBaseUrl: process.env.BASE_URL!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      defaultOrganizationId: process.env.ORGANIZATION_ID!,
-    });
-
-    const response = await turnkeyClient.apiClient().createWallet({
-      walletName,
-      accounts: [
+  const { walletParams, walletName } = await prompts([
+    {
+      type: 'text',
+      name: 'walletName',
+      message: 'Name your new wallet'
+    },
+    {
+      type: 'select',
+      name: 'walletParams',
+      message: 'Select the type of wallet you would like to create',
+      choices: [
         {
-          curve: "CURVE_SECP256K1",
-          pathFormat: "PATH_FORMAT_BIP32",
-          path: "m/44'/0'/0'/0/0",
-          addressFormat: "ADDRESS_FORMAT_COMPRESSED",
+          title: "P2TR (testnet)",
+          value: {
+            path: "m/86'/1'/1'/0/0",
+            addressFormat: "ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR",
+          }
         },
+        {
+          title: "P2TR (mainnet)",
+          value: {
+            path: "m/86'/0'/0'/0/0",
+            addressFormat: "ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR",
+          }
+        },
+        {
+          title: "P2WPKH (testnet)",
+          value: {
+            path: "m/84'/1'/1'/0/0",
+            addressFormat: "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH",
+          }
+        },
+        {
+          title: "P2WPKH (mainnet)",
+          value: {
+            path: "m/84'/0'/0'/0/0",
+            addressFormat: "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH",
+          }
+        }
       ],
-    });
+    },
+  ]);
 
-    const walletId = refineNonNull(response.walletId);
-    const address = refineNonNull(response.addresses[0]);
+  const response = await turnkeyClient.apiClient().createWallet({
+    walletName,
+    accounts: [
+      {
+        curve: "CURVE_SECP256K1",
+        pathFormat: "PATH_FORMAT_BIP32",
+        path: walletParams.path,
+        addressFormat: "ADDRESS_FORMAT_COMPRESSED",
+      },
+      {
+        curve: "CURVE_SECP256K1",
+        pathFormat: "PATH_FORMAT_BIP32",
+        path: walletParams.path,
+        addressFormat: walletParams.addressFormat,
+      },
+    ],
+  });
+  const walletId = refineNonNull(response.walletId);
+  const publicKey = refineNonNull(response.addresses[0]);
+  const address = refineNonNull(response.addresses[1]);
 
-    // Success!
-    console.log(
-      [
-        `New Bitcoin wallet created!`,
-        `- Name: ${walletName}`,
-        `- Wallet ID: ${walletId}`,
-        `- Address: ${address}`,
-        ``,
-        "Now you can take the address, put it in `.env.local` (`SIGN_WITH_COMPRESSED=<address>`), then re-run the script.",
-      ].join("\n")
-    );
-  } catch (error) {
-    // If needed, you can read from `TurnkeyActivityError` to find out why the activity didn't succeed
-    if (error instanceof TurnkeyActivityError) {
-      throw error;
-    }
-
-    throw new TurnkeyActivityError({
-      message: "Failed to create a new BTC wallet",
-      cause: error as Error,
-    });
-  }
+  // Success!
+  console.log(
+    [
+      `New Bitcoin wallet created!`,
+      `- Name: ${walletName}`,
+      `- Wallet ID: ${walletId}`,
+      `- Public key: ${publicKey}`,
+      `- Address: ${address}`,
+      "\nNow you can populate your `.env.local` with:",
+      `SOURCE_COMPRESSED_PUBLIC_KEY="${publicKey}"`,
+      `SOURCE_BITCOIN_ADDRESS="${address}"`,
+    ].join("\n")
+  );
 }
+
+main()
+  .then((_res) => {
+    console.log("Exiting.");
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
