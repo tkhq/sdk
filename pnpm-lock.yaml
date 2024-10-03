@@ -329,6 +329,12 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
+      '@turnkey/sdk-browser':
+        specifier: workspace:*
+        version: link:../../packages/sdk-browser
+      '@turnkey/sdk-react':
+        specifier: workspace:*
+        version: link:../../packages/sdk-react
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server

@@ -12,6 +12,8 @@
     "@turnkey/http": "workspace:*",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/sdk-react": "workspace:*",
+    "@turnkey/sdk-browser": "workspace:*",
     "dotenv": "^16.0.3"
   }
 }
