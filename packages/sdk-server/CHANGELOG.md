@@ -1,5 +1,15 @@
 # @turnkey/sdk-server
 
+## 1.4.2
+
+### Patch Changes
+
+- abe7138: Export DEFAULT_SOLANA_ACCOUNTS
+- 96d7f99: Update dependencies
+- Updated dependencies [96d7f99]
+  - @turnkey/http@2.14.2
+  - @turnkey/api-key-stamper@0.4.3
+
 ## 1.4.1
 
 ### Patch Changes
