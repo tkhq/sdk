@@ -515,6 +515,9 @@ importers:
       bip32:
         specifier: ^4.0.0
         version: 4.0.0
+      bip39:
+        specifier: ^3.1.0
+        version: 3.1.0
       bitcoinjs-lib:
         specifier: ^6.1.6
         version: 6.1.6
@@ -13547,6 +13550,12 @@ packages:
       '@scure/base': 1.1.7
       typeforce: 1.18.0
       wif: 2.0.6
+    dev: false
+
+  /bip39@3.1.0:
+    resolution: {integrity: sha512-c9kiwdk45Do5GL0vJMe7tS95VjCii65mYAH7DfWl3uW8AVzXKQVUm64i3hzVybBDMp9r7j9iNxR85+ul8MdN/A==}
+    dependencies:
+      '@noble/hashes': 1.4.0
     dev: false
 
   /bip66@1.1.5:
