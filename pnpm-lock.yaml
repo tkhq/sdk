@@ -63,15 +63,15 @@ importers:
 
   examples/deployer:
     dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:^
-        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
