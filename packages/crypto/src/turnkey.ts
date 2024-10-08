@@ -153,14 +153,14 @@ export const decryptExportBundle = async ({
  * @param {string} signature - The ECDSA signature in DER format.
  * @param {string} signedData - The data that was signed (e.g. JSON-stringified Turnkey request body).
  * @returns {Promise<boolean>} - Returns true if the signature is valid, otherwise throws an error.
- * 
+ *
  * @example
- * 
+ *
  * const stampedRequest = await turnkeyClient.stampGetWhoami(...);
  * const decodedStampContents = atob(stampedRequest.stamp.stampHeaderValue);
  * const parsedStampContents = JSON.parse(decodedStampContents);
  * const signature = parsedStampContents.signature;
- * 
+ *
  * await verifyStampSignature(publicKey, signature, stampedRequest.body)
  */
 export const verifyStampSignature = async (
