@@ -4,10 +4,10 @@ import bs58check from "bs58check";
 import bs58 from "bs58";
 
 import {
-    uint8ArrayToHexString,
-    uint8ArrayFromHexString,
-    hexToAscii,
-  } from "@turnkey/encoding";
+  uint8ArrayToHexString,
+  uint8ArrayFromHexString,
+  hexToAscii,
+} from "@turnkey/encoding";
 
 import { PRODUCTION_SIGNER_PUBLIC_KEY } from "./constants";
 import {
@@ -100,7 +100,7 @@ export const decryptExportBundle = async ({
   organizationId,
   dangerouslyOverrideSignerPublicKey,
   returnMnemonic,
-}: DecryptExportBundleParams) => {
+}: DecryptExportBundleParams): Promise<string> => {
   try {
     const parsedExportBundle = JSON.parse(exportBundle);
     const verified = await verifyEnclaveSignature(
@@ -147,12 +147,51 @@ export const decryptExportBundle = async ({
 };
 
 /**
+ * Verifies a signature from a Turnkey stamp using ECDSA and SHA-256.
+ *
+ * @param {string} publicKey - The public key of the authenticator (e.g. WebAuthn or P256 API key).
+ * @param {string} signature - The ECDSA signature in DER format.
+ * @param {string} signedData - The data that was signed (e.g. JSON-stringified Turnkey request body).
+ * @returns {Promise<boolean>} - Returns true if the signature is valid, otherwise throws an error.
+ * 
+ * @example
+ * 
+ * const stampedRequest = await turnkeyClient.stampGetWhoami(...);
+ * const decodedStampContents = atob(stampedRequest.stamp.stampHeaderValue);
+ * const parsedStampContents = JSON.parse(decodedStampContents);
+ * const signature = parsedStampContents.signature;
+ * 
+ * await verifyStampSignature(publicKey, signature, stampedRequest.body)
+ */
+export const verifyStampSignature = async (
+  publicKey: string,
+  signature: string,
+  signedData: string
+): Promise<boolean> => {
+  const publicKeyBuffer = uint8ArrayFromHexString(publicKey);
+  const loadedPublicKey = await loadPublicKey(publicKeyBuffer);
+  if (!loadedPublicKey) {
+    throw new Error("failed to load public key");
+  }
+
+  // The ECDSA signature is ASN.1 DER encoded but WebCrypto uses raw format
+  const publicSignatureBuf = fromDerSignature(signature);
+  const signedDataBuf = Buffer.from(signedData);
+  return await crypto.subtle.verify(
+    { name: "ECDSA", hash: { name: "SHA-256" } },
+    loadedPublicKey,
+    publicSignatureBuf,
+    signedDataBuf
+  );
+};
+
+/**
  * Verifies a signature from a Turnkey enclave using ECDSA and SHA-256.
  *
  * @param {string} enclaveQuorumPublic - The public key of the enclave signer.
  * @param {string} publicSignature - The ECDSA signature in DER format.
  * @param {string} signedData - The data that was signed.
- * @param {Environemnt} environment - An enum PROD or PREPROD to verify against the correct signer enclave key.
+ * @param {Environment} dangerouslyOverrideSignerPublicKey - (optional) an enum (PROD or PREPROD) to verify against the correct signer enclave key.
  * @returns {Promise<boolean>} - Returns true if the signature is valid, otherwise throws an error.
  */
 const verifyEnclaveSignature = async (
@@ -160,7 +199,7 @@ const verifyEnclaveSignature = async (
   publicSignature: string,
   signedData: string,
   dangerouslyOverrideSignerPublicKey?: string
-) => {
+): Promise<boolean> => {
   const expectedSignerPublicKey =
     dangerouslyOverrideSignerPublicKey || PRODUCTION_SIGNER_PUBLIC_KEY;
   if (enclaveQuorumPublic != expectedSignerPublicKey) {

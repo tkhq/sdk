@@ -1,4 +1,6 @@
 import { test, expect, describe } from "@jest/globals";
+import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
+import { TurnkeyClient } from "@turnkey/http";
 import { uint8ArrayFromHexString } from "@turnkey/encoding";
 import {
   getPublicKey,
@@ -11,6 +13,7 @@ import {
   hpkeEncrypt,
   hpkeAuthEncrypt,
   formatHpkeBuf,
+  verifyStampSignature,
 } from "../";
 
 // Mock data for testing
@@ -144,5 +147,39 @@ describe("Turnkey Crypto Primitives", () => {
         uint8ArrayFromHexString(pkcs8PrivateKeyHex)
       )
     ).toEqual(uint8ArrayFromHexString(expectedRawPrivateKeyHex));
+  });
+
+  test("verifyRequestStamp", async () => {
+    const { publicKey, privateKey } = generateP256KeyPair();
+    const serverClient = new TurnkeyServerSDK({
+      apiBaseUrl: "https://api.turnkey.com",
+      apiPrivateKey: privateKey,
+      apiPublicKey: publicKey,
+      defaultOrganizationId: "00000000-00000000-00000000-00000000",
+    });
+    const stamper = serverClient.apiClient().config.stamper!;
+    const turnkeyClient = new TurnkeyClient(
+      {
+        baseUrl: "https://api.turnkey.com",
+      },
+      stamper
+    );
+
+    const stampedRequest = await turnkeyClient.stampGetWhoami({
+      organizationId: "00000000-00000000-00000000-00000000",
+    });
+
+    const stampContents = stampedRequest.stamp.stampHeaderValue;
+    const decodedStampContents = atob(stampContents);
+    const parsedStampContents = JSON.parse(decodedStampContents);
+    const signature = parsedStampContents.signature;
+
+    const verified = await verifyStampSignature(
+      publicKey,
+      signature,
+      stampedRequest.body
+    );
+
+    expect(verified).toEqual(true);
   });
 });

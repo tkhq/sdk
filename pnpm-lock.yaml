@@ -1359,6 +1359,12 @@ importers:
         specifier: 5.0.4
         version: 5.0.4
     devDependencies:
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../sdk-server
       crypto:
         specifier: 1.0.1
         version: 1.0.1
