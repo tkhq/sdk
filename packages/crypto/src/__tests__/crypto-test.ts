@@ -11,7 +11,7 @@ import {
   hpkeEncrypt,
   hpkeAuthEncrypt,
   formatHpkeBuf,
-} from "../crypto";
+} from "../";
 
 // Mock data for testing
 const mockSenderPrivateKey =
