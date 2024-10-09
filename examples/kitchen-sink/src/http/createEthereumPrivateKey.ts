@@ -1,8 +1,8 @@
 import { TurnkeyClient } from "@turnkey/http";
 import { createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";
+import { refineNonNull } from "../utils";
 
 export async function createNewEthereumPrivateKey() {
   const turnkeyClient = new TurnkeyClient(
@@ -58,26 +58,7 @@ export async function createNewEthereumPrivateKey() {
         "Now you can take the private key ID, put it in `.env.local`, then re-run the script.",
       ].join("\n")
     );
-  } catch (error) {
-    // If needed, you can read from `TurnkeyActivityError` to find out why the activity didn't succeed
-    if (error instanceof TurnkeyActivityError) {
-      throw error;
-    }
-
-    throw new TurnkeyActivityError({
-      message: "Failed to create a new Ethereum private key",
-      cause: error as Error,
-    });
+  } catch (err: any) {
+    throw new Error("Failed to create a new Ethereum private key: " + err);
   }
-}
-
-export function refineNonNull<T>(
-  input: T | null | undefined,
-  errorMessage?: string
-): T {
-  if (input == null) {
-    throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
-  }
-
-  return input;
 }

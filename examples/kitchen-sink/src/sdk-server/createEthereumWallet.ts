@@ -1,8 +1,8 @@
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import * as crypto from "crypto";
-import { refineNonNull } from "./util";
+import { refineNonNull } from "../utils";
 
-export async function createNewWallet() {
+export async function createNewEthereumWallet() {
   const turnkeyClient = new TurnkeySDKServer({
     apiBaseUrl: "https://api.turnkey.com",
     apiPublicKey: process.env.API_PUBLIC_KEY!,
