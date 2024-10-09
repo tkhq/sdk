@@ -1,6 +1,18 @@
 /// <reference lib="dom" />
 import { stringToBase64urlString } from "@turnkey/encoding";
-import { signWithApiKey } from "./purejs";
+
+/**
+ * Signature function abstracting the differences between NodeJS and web environments for signing with API keys.
+ */
+export const signWithApiKey = async (input: {
+  content: string;
+  publicKey: string;
+  privateKey: string;
+}): Promise<string> => {
+  // By default, use purejs implementation
+  const fn = await import("./purejs").then((m) => m.signWithApiKey);
+  return fn(input);
+};
 
 // Header name for an API key stamp
 const stampHeaderName = "X-Stamp";

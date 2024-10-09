@@ -4,7 +4,7 @@ import { assertValidSignature } from "./shared";
 import { signWithApiKey as signPureJS } from "../purejs";
 
 import { readFixture } from "../__fixtures__/shared";
-import { generateKeyPairWithOpenSsl } from "./shared";
+// import { generateKeyPairWithOpenSsl } from "./shared";
 
 test.each([{ impl: signPureJS, name: "sign (PureJS)" }])(
   "sign with Turnkey fixture: $name",
