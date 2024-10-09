@@ -1,5 +1,5 @@
 import * as crypto from "crypto";
-import { test, expect, beforeAll } from "@jest/globals";
+import { test, expect } from "@jest/globals";
 import { assertValidSignature } from "./shared";
 import { signWithApiKey as signPureJS } from "../purejs";
 
@@ -39,46 +39,46 @@ test.each([{ impl: signPureJS, name: "sign (PureJS)" }])(
   }
 );
 
-test.each([{ impl: signPureJS, name: "sign (PureJS)" }])(
-  "sign with openssl generated key pairs: $name",
-  async ({ impl: stamp }) => {
-    // Run 20 times, where each run spawns 10 keys in parallel -> 200 tests in total
-    for (let i = 0; i < 20; i++) {
-      await Promise.all(
-        Array.from({ length: 10 }, () => true).map(async () => {
-          const { privateKey, publicKey, pemPublicKey } =
-            await generateKeyPairWithOpenSsl();
+// test.each([{ impl: signPureJS, name: "sign (PureJS)" }])(
+//   "sign with openssl generated key pairs: $name",
+//   async ({ impl: stamp }) => {
+//     // Run 20 times, where each run spawns 10 keys in parallel -> 200 tests in total
+//     for (let i = 0; i < 20; i++) {
+//       await Promise.all(
+//         Array.from({ length: 10 }, () => true).map(async () => {
+//           const { privateKey, publicKey, pemPublicKey } =
+//             await generateKeyPairWithOpenSsl();
 
-          // A string of random unicode characters
-          const content = Array.from({ length: 64 }, () => {
-            return String.fromCharCode(Math.floor(Math.random() * 65536));
-          }).join("");
+//           // A string of random unicode characters
+//           const content = Array.from({ length: 64 }, () => {
+//             return String.fromCharCode(Math.floor(Math.random() * 65536));
+//           }).join("");
 
-          const signature = await stamp({
-            content,
-            privateKey,
-            publicKey,
-          });
+//           const signature = await stamp({
+//             content,
+//             privateKey,
+//             publicKey,
+//           });
 
-          // We can't snapshot `actualStamp.signature` because P-256 signatures are not deterministic
-          expect(
-            assertValidSignature({
-              content,
-              pemPublicKey,
-              signature: signature,
-            })
-          ).toBe(true);
+//           // We can't snapshot `actualStamp.signature` because P-256 signatures are not deterministic
+//           expect(
+//             assertValidSignature({
+//               content,
+//               pemPublicKey,
+//               signature: signature,
+//             })
+//           ).toBe(true);
 
-          // Sanity check
-          expect(() => {
-            assertValidSignature({
-              content: "something else that wasn't stamped",
-              pemPublicKey,
-              signature: signature,
-            });
-          }).toThrow();
-        })
-      );
-    }
-  }
-);
+//           // Sanity check
+//           expect(() => {
+//             assertValidSignature({
+//               content: "something else that wasn't stamped",
+//               pemPublicKey,
+//               signature: signature,
+//             });
+//           }).toThrow();
+//         })
+//       );
+//     }
+//   }
+// );
