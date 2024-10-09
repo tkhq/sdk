@@ -84,7 +84,7 @@ export function hexToAscii(hexString: string): string {
 export const normalizePadding = (
   byteArray: Uint8Array,
   targetLength: number
-) => {
+): Uint8Array => {
   const paddingLength = targetLength - byteArray.length;
 
   // Add leading 0's to array

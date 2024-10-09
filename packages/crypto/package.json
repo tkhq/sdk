@@ -55,6 +55,8 @@
   "devDependencies": {
     "crypto": "1.0.1",
     "jest": "29.7.0",
-    "@turnkey/encoding": "workspace:*"
+    "@turnkey/encoding": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*"
   }
 }
