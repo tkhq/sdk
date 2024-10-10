@@ -271,7 +271,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             const signerAddress = expectedWalletAddress;
             const signature = await eip1193Provider?.request({
               method: "personal_sign",
-              params: [signerAddress, messageDigest],
+              params: [messageDigest, signerAddress],
             });
             expect(signature).not.toBeUndefined();
             expect(signature).not.toBe("");
