@@ -387,7 +387,7 @@ export type TCreateReadWriteSessionBody =
     commandOverrideParams;
 
 export type TCreateSubOrganizationResponse =
-  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV6"] &
+  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV7"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
@@ -626,6 +626,16 @@ export type TInitImportWalletBody =
   operations["PublicApiService_InitImportWallet"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TInitOtpAuthResponse =
+  operations["PublicApiService_InitOtpAuth"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpAuthResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TInitOtpAuthInput = { body: TInitOtpAuthBody };
+
+export type TInitOtpAuthBody =
+  operations["PublicApiService_InitOtpAuth"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TInitUserEmailRecoveryResponse =
   operations["PublicApiService_InitUserEmailRecovery"]["responses"]["200"]["schema"]["activity"]["result"]["initUserEmailRecoveryResult"] &
     definitions["v1ActivityResponse"];
@@ -644,6 +654,16 @@ export type TOauthInput = { body: TOauthBody };
 
 export type TOauthBody =
   operations["PublicApiService_Oauth"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TOtpAuthResponse =
+  operations["PublicApiService_OtpAuth"]["responses"]["200"]["schema"]["activity"]["result"]["otpAuthResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TOtpAuthInput = { body: TOtpAuthBody };
+
+export type TOtpAuthBody =
+  operations["PublicApiService_OtpAuth"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TRecoverUserResponse =

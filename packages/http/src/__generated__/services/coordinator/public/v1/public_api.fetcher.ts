@@ -2896,6 +2896,52 @@ export const signInitImportWallet = (
   });
 
 /**
+ * `POST /public/v1/submit/init_otp_auth`
+ */
+export type TInitOtpAuthResponse =
+  operations["PublicApiService_InitOtpAuth"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/init_otp_auth`
+ */
+export type TInitOtpAuthInput = { body: TInitOtpAuthBody };
+
+/**
+ * `POST /public/v1/submit/init_otp_auth`
+ */
+export type TInitOtpAuthBody =
+  operations["PublicApiService_InitOtpAuth"]["parameters"]["body"]["body"];
+
+/**
+ * Init OTP auth
+ *
+ * Initiate an OTP auth activity
+ *
+ * `POST /public/v1/submit/init_otp_auth`
+ */
+export const initOtpAuth = (input: TInitOtpAuthInput) =>
+  request<TInitOtpAuthResponse, TInitOtpAuthBody, never, never, never>({
+    uri: "/public/v1/submit/init_otp_auth",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `InitOtpAuth` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link InitOtpAuth}
+ */
+export const signInitOtpAuth = (
+  input: TInitOtpAuthInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TInitOtpAuthBody, never, never>({
+    uri: "/public/v1/submit/init_otp_auth",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/init_user_email_recovery`
  */
 export type TInitUserEmailRecoveryResponse =
@@ -2989,6 +3035,52 @@ export const signOauth = (
 ) =>
   signedRequest<TOauthBody, never, never>({
     uri: "/public/v1/submit/oauth",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/otp_auth`
+ */
+export type TOtpAuthResponse =
+  operations["PublicApiService_OtpAuth"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/otp_auth`
+ */
+export type TOtpAuthInput = { body: TOtpAuthBody };
+
+/**
+ * `POST /public/v1/submit/otp_auth`
+ */
+export type TOtpAuthBody =
+  operations["PublicApiService_OtpAuth"]["parameters"]["body"]["body"];
+
+/**
+ * OTP auth
+ *
+ * Authenticate a user with an OTP code sent via email or SMS
+ *
+ * `POST /public/v1/submit/otp_auth`
+ */
+export const otpAuth = (input: TOtpAuthInput) =>
+  request<TOtpAuthResponse, TOtpAuthBody, never, never, never>({
+    uri: "/public/v1/submit/otp_auth",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `OtpAuth` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link OtpAuth}
+ */
+export const signOtpAuth = (
+  input: TOtpAuthInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TOtpAuthBody, never, never>({
+    uri: "/public/v1/submit/otp_auth",
     body: input.body,
     options,
   });

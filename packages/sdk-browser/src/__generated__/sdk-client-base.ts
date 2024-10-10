@@ -600,9 +600,9 @@ export class TurnkeySDKClientBase {
           currentUser?.organization?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6",
+        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
       },
-      "createSubOrganizationResultV6"
+      "createSubOrganizationResultV7"
     );
   };
 
@@ -1066,6 +1066,26 @@ export class TurnkeySDKClientBase {
     );
   };
 
+  initOtpAuth = async (
+    input: SdkApiTypes.TInitOtpAuthBody
+  ): Promise<SdkApiTypes.TInitOtpAuthResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const currentUser = await getStorageValue(StorageKeys.CurrentUser);
+    return this.command(
+      "/public/v1/submit/init_otp_auth",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          currentUser?.organization?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_INIT_OTP_AUTH",
+      },
+      "initOtpAuthResult"
+    );
+  };
+
   initUserEmailRecovery = async (
     input: SdkApiTypes.TInitUserEmailRecoveryBody
   ): Promise<SdkApiTypes.TInitUserEmailRecoveryResponse> => {
@@ -1103,6 +1123,26 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_OAUTH",
       },
       "oauthResult"
+    );
+  };
+
+  otpAuth = async (
+    input: SdkApiTypes.TOtpAuthBody
+  ): Promise<SdkApiTypes.TOtpAuthResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const currentUser = await getStorageValue(StorageKeys.CurrentUser);
+    return this.command(
+      "/public/v1/submit/otp_auth",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          currentUser?.organization?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_OTP_AUTH",
+      },
+      "otpAuthResult"
     );
   };
 
