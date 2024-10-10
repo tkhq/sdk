@@ -240,6 +240,10 @@ export type paths = {
     /** Initializes a new wallet import */
     post: operations["PublicApiService_InitImportWallet"];
   };
+  "/public/v1/submit/init_otp_auth": {
+    /** Initiate an OTP auth activity */
+    post: operations["PublicApiService_InitOtpAuth"];
+  };
   "/public/v1/submit/init_user_email_recovery": {
     /** Initializes a new email recovery */
     post: operations["PublicApiService_InitUserEmailRecovery"];
@@ -247,6 +251,10 @@ export type paths = {
   "/public/v1/submit/oauth": {
     /** Authenticate a user with an Oidc token (Oauth) - BETA */
     post: operations["PublicApiService_Oauth"];
+  };
+  "/public/v1/submit/otp_auth": {
+    /** Authenticate a user with an OTP code sent via email or SMS */
+    post: operations["PublicApiService_OtpAuth"];
   };
   "/public/v1/submit/recover_user": {
     /** Completes the process of recovering a user by adding an authenticator */
@@ -537,7 +545,10 @@ export type definitions = {
     | "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS"
     | "ACTIVITY_TYPE_DELETE_WALLETS"
     | "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2"
-    | "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION";
+    | "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION"
+    | "ACTIVITY_TYPE_INIT_OTP_AUTH"
+    | "ACTIVITY_TYPE_OTP_AUTH"
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1082,14 +1093,35 @@ export type definitions = {
     /** @description Disable email auth for the sub-organization */
     disableEmailAuth?: boolean;
   };
+  v1CreateSubOrganizationIntentV7: {
+    /** @description Name for this sub-organization */
+    subOrganizationName: string;
+    /** @description Root users to create within this sub-organization */
+    rootUsers: definitions["v1RootUserParamsV4"][];
+    /**
+     * Format: int32
+     * @description The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users
+     */
+    rootQuorumThreshold: number;
+    /** @description The wallet to create for the sub-organization */
+    wallet?: definitions["v1WalletParams"];
+    /** @description Disable email recovery for the sub-organization */
+    disableEmailRecovery?: boolean;
+    /** @description Disable email auth for the sub-organization */
+    disableEmailAuth?: boolean;
+    /** @description Disable OTP SMS auth for the sub-organization */
+    disableSmsAuth?: boolean;
+    /** @description Disable OTP email auth for the sub-organization */
+    disableOtpEmailAuth?: boolean;
+  };
   v1CreateSubOrganizationRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6";
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1CreateSubOrganizationIntentV6"];
+    parameters: definitions["v1CreateSubOrganizationIntentV7"];
   };
   v1CreateSubOrganizationResult: {
     subOrganizationId: string;
@@ -1112,6 +1144,11 @@ export type definitions = {
     rootUserIds?: string[];
   };
   v1CreateSubOrganizationResultV6: {
+    subOrganizationId: string;
+    wallet?: definitions["v1WalletResult"];
+    rootUserIds?: string[];
+  };
+  v1CreateSubOrganizationResultV7: {
     subOrganizationId: string;
     wallet?: definitions["v1WalletResult"];
     rootUserIds?: string[];
@@ -1213,7 +1250,8 @@ export type definitions = {
     | "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"
     | "CREDENTIAL_TYPE_API_KEY_SECP256K1"
     | "CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"
-    | "CREDENTIAL_TYPE_API_KEY_ED25519";
+    | "CREDENTIAL_TYPE_API_KEY_ED25519"
+    | "CREDENTIAL_TYPE_OTP_AUTH_KEY_P256";
   /** @enum {string} */
   v1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
   v1DeleteApiKeysIntent: {
@@ -1565,7 +1603,9 @@ export type definitions = {
     | "FEATURE_NAME_WEBAUTHN_ORIGINS"
     | "FEATURE_NAME_EMAIL_AUTH"
     | "FEATURE_NAME_EMAIL_RECOVERY"
-    | "FEATURE_NAME_WEBHOOK";
+    | "FEATURE_NAME_WEBHOOK"
+    | "FEATURE_NAME_SMS_AUTH"
+    | "FEATURE_NAME_OTP_EMAIL_AUTH";
   v1GetActivitiesRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -1869,6 +1909,27 @@ export type definitions = {
     /** @description Import bundle containing a public key and signature to use for importing client data. */
     importBundle: string;
   };
+  v1InitOtpAuthIntent: {
+    /** @description Enum to specifiy whether to send OTP via SMS or email */
+    otpType: string;
+    /** @description Email or phone number to send the OTP code to */
+    contact: string;
+    /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
+    emailCustomization?: definitions["v1EmailCustomizationParams"];
+  };
+  v1InitOtpAuthRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_INIT_OTP_AUTH";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1InitOtpAuthIntent"];
+  };
+  v1InitOtpAuthResult: {
+    /** @description Unique identifier for an OTP authentication */
+    otpId: string;
+  };
   v1InitUserEmailRecoveryIntent: {
     /** @description Email of the user starting recovery */
     email: string;
@@ -1969,6 +2030,9 @@ export type definitions = {
     deleteWalletsIntent?: definitions["v1DeleteWalletsIntent"];
     createReadWriteSessionIntentV2?: definitions["v1CreateReadWriteSessionIntentV2"];
     deleteSubOrganizationIntent?: definitions["v1DeleteSubOrganizationIntent"];
+    initOtpAuthIntent?: definitions["v1InitOtpAuthIntent"];
+    otpAuthIntent?: definitions["v1OtpAuthIntent"];
+    createSubOrganizationIntentV7?: definitions["v1CreateSubOrganizationIntentV7"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2106,6 +2170,37 @@ export type definitions = {
     rootQuorum?: definitions["externaldatav1Quorum"];
     features?: definitions["v1Feature"][];
     wallets?: definitions["v1Wallet"][];
+  };
+  v1OtpAuthIntent: {
+    /** @description ID representing the result of an init OTP activity. */
+    otpId: string;
+    /** @description 6 digit OTP code sent out to a user's contact (email or SMS) */
+    otpCode: string;
+    /** @description Client-side public key generated by the user, to which the OTP bundle (credentials) will be encrypted. */
+    targetPublicKey?: string;
+    /** @description Optional human-readable name for an API Key. If none provided, default to OTP Auth - <Timestamp> */
+    apiKeyName?: string;
+    /** @description Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used. */
+    expirationSeconds?: string;
+    /** @description Invalidate all other previously generated OTP Auth API keys */
+    invalidateExisting?: boolean;
+  };
+  v1OtpAuthRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_OTP_AUTH";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1OtpAuthIntent"];
+  };
+  v1OtpAuthResult: {
+    /** @description Unique identifier for the authenticating User. */
+    userId: string;
+    /** @description Unique identifier for the created API key. */
+    apiKeyId?: string;
+    /** @description HPKE encrypted credential bundle */
+    credentialBundle?: string;
   };
   v1Pagination: {
     /** @description A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
@@ -2293,6 +2388,9 @@ export type definitions = {
     deleteWalletsResult?: definitions["v1DeleteWalletsResult"];
     createReadWriteSessionResultV2?: definitions["v1CreateReadWriteSessionResultV2"];
     deleteSubOrganizationResult?: definitions["v1DeleteSubOrganizationResult"];
+    initOtpAuthResult?: definitions["v1InitOtpAuthResult"];
+    otpAuthResult?: definitions["v1OtpAuthResult"];
+    createSubOrganizationResultV7?: definitions["v1CreateSubOrganizationResultV7"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -2321,6 +2419,20 @@ export type definitions = {
     userName: string;
     /** @description The user's email address. */
     userEmail?: string;
+    /** @description A list of API Key parameters. */
+    apiKeys: definitions["v1ApiKeyParamsV2"][];
+    /** @description A list of Authenticator parameters. */
+    authenticators: definitions["v1AuthenticatorParamsV2"][];
+    /** @description A list of Oauth providers. */
+    oauthProviders: definitions["v1OauthProviderParams"][];
+  };
+  v1RootUserParamsV4: {
+    /** @description Human-readable name for a User. */
+    userName: string;
+    /** @description The user's email address. */
+    userEmail?: string;
+    /** @description The user's phone number in E.164 format e.g. +13214567890 */
+    userPhoneNumber?: string;
     /** @description A list of API Key parameters. */
     apiKeys: definitions["v1ApiKeyParamsV2"][];
     /** @description A list of Authenticator parameters. */
@@ -2534,6 +2646,8 @@ export type definitions = {
     userEmail?: string;
     /** @description An updated list of User Tags to apply to this User. */
     userTagIds?: string[];
+    /** @description The user's phone number in E.164 format e.g. +13214567890 */
+    userPhoneNumber?: string;
   };
   v1UpdateUserRequest: {
     /** @enum {string} */
@@ -2578,6 +2692,8 @@ export type definitions = {
     userName: string;
     /** @description The user's email address. */
     userEmail?: string;
+    /** @description The user's phone number in E.164 format e.g. +13214567890 */
+    userPhoneNumber?: string;
     /** @description A list of Authenticator parameters. */
     authenticators: definitions["v1Authenticator"][];
     /** @description A list of API Key parameters. */
@@ -3767,6 +3883,24 @@ export type operations = {
       };
     };
   };
+  /** Initiate an OTP auth activity */
+  PublicApiService_InitOtpAuth: {
+    parameters: {
+      body: {
+        body: definitions["v1InitOtpAuthRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Initializes a new email recovery */
   PublicApiService_InitUserEmailRecovery: {
     parameters: {
@@ -3790,6 +3924,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1OauthRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Authenticate a user with an OTP code sent via email or SMS */
+  PublicApiService_OtpAuth: {
+    parameters: {
+      body: {
+        body: definitions["v1OtpAuthRequest"];
       };
     };
     responses: {

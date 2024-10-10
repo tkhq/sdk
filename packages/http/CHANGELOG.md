@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.15.0
+
+### Minor Changes
+
+- 9ebd062: Release OTP functionality
+
 ## 2.14.2
 
 ### Patch Changes

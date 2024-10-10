@@ -1,5 +1,16 @@
 # @turnkey/sdk-server
 
+## 1.5.0
+
+### Minor Changes
+
+- 9ebd062: Release OTP functionality
+
+### Patch Changes
+
+- Updated dependencies [9ebd062]
+  - @turnkey/http@2.15.0
+
 ## 1.4.2
 
 ### Patch Changes

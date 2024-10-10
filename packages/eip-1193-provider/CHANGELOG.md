@@ -1,5 +1,13 @@
 # @turnkey/eip-1193-provider
 
+## 3.0.0
+
+### Patch Changes
+
+- 9c056d0: fix: personal_sign parameters
+- Updated dependencies [9ebd062]
+  - @turnkey/http@2.15.0
+
 ## 2.0.8
 
 ### Patch Changes

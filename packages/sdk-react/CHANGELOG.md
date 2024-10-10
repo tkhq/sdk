@@ -1,5 +1,12 @@
 # @turnkey/sdk-react
 
+## 1.0.13
+
+### Patch Changes
+
+- Updated dependencies [9ebd062]
+  - @turnkey/sdk-browser@1.8.0
+
 ## 1.0.12
 
 ### Patch Changes

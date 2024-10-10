@@ -225,10 +225,15 @@ import type {
   TInitImportWalletResponse,
 } from "./public_api.fetcher";
 import type {
+  TInitOtpAuthBody,
+  TInitOtpAuthResponse,
+} from "./public_api.fetcher";
+import type {
   TInitUserEmailRecoveryBody,
   TInitUserEmailRecoveryResponse,
 } from "./public_api.fetcher";
 import type { TOauthBody, TOauthResponse } from "./public_api.fetcher";
+import type { TOtpAuthBody, TOtpAuthResponse } from "./public_api.fetcher";
 import type {
   TRecoverUserBody,
   TRecoverUserResponse,
@@ -2141,6 +2146,37 @@ export class TurnkeyClient {
   };
 
   /**
+   * Initiate an OTP auth activity
+   *
+   * Sign the provided `TInitOtpAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_otp_auth).
+   *
+   * See also {@link stampInitOtpAuth}.
+   */
+  initOtpAuth = async (
+    input: TInitOtpAuthBody
+  ): Promise<TInitOtpAuthResponse> => {
+    return this.request("/public/v1/submit/init_otp_auth", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TInitOtpAuthBody` by using the client's `stamp` function.
+   *
+   * See also {@link InitOtpAuth}.
+   */
+  stampInitOtpAuth = async (
+    input: TInitOtpAuthBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/init_otp_auth";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Initializes a new email recovery
    *
    * Sign the provided `TInitUserEmailRecoveryBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_user_email_recovery).
@@ -2190,6 +2226,33 @@ export class TurnkeyClient {
    */
   stampOauth = async (input: TOauthBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/oauth";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Authenticate a user with an OTP code sent via email or SMS
+   *
+   * Sign the provided `TOtpAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/otp_auth).
+   *
+   * See also {@link stampOtpAuth}.
+   */
+  otpAuth = async (input: TOtpAuthBody): Promise<TOtpAuthResponse> => {
+    return this.request("/public/v1/submit/otp_auth", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TOtpAuthBody` by using the client's `stamp` function.
+   *
+   * See also {@link OtpAuth}.
+   */
+  stampOtpAuth = async (input: TOtpAuthBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/otp_auth";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
