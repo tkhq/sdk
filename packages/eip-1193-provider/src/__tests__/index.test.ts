@@ -265,13 +265,31 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             expect(accounts).toContain(expectedWalletAddress);
           });
         });
-        describe("eth_sign/person_sign", () => {
+        describe("eth_sign", () => {
+          it("should sign a message", async () => {
+            const messageDigest = stringToHex("A man, a plan, a canal, Panama");
+            const signerAddress = expectedWalletAddress;
+            const signature = await eip1193Provider?.request({
+              method: "eth_sign",
+              params: [signerAddress, messageDigest],
+            });
+            expect(signature).not.toBeUndefined();
+            expect(signature).not.toBe("");
+            const address = await recoverAddress({
+              hash: messageDigest,
+              signature: signature!,
+            });
+            expect(getAddress(address)).toBe(getAddress(signerAddress));
+            expect(signature).toMatch(/^0x.*$/);
+          });
+        });
+        describe("personal_sign", () => {
           it("should sign a message", async () => {
             const messageDigest = stringToHex("A man, a plan, a canal, Panama");
             const signerAddress = expectedWalletAddress;
             const signature = await eip1193Provider?.request({
               method: "personal_sign",
-              params: [signerAddress, messageDigest],
+              params: [messageDigest, signerAddress],
             });
             expect(signature).not.toBeUndefined();
             expect(signature).not.toBe("");

@@ -135,7 +135,19 @@ export const createEIP1193Provider = async (
         case "eth_accounts":
           setConnected(true, { chainId: activeChain.chainId });
           return [...accounts];
-        case "personal_sign":
+        case "personal_sign": {
+          const [message, signWith] =
+            params as WalletRpcSchema[10]["Parameters"];
+
+          const signedMessage = await signMessage({
+            organizationId,
+            message,
+            signWith,
+            client: turnkeyClient,
+          });
+          setConnected(true, { chainId: activeChain.chainId });
+          return signedMessage;
+        }
         case "eth_sign": {
           const [signWith, message] =
             params as WalletRpcSchema[6]["Parameters"];
