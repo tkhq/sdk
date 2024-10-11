@@ -47,7 +47,7 @@ Now open `.env.local` and add the missing environment variables:
 
 - `API_PUBLIC_KEY`
 - `API_PRIVATE_KEY`
-- `NEXT_PUBLIC_TURNKEY_API_BASE_URL`
+- `NEXT_PUBLIC_BASE_URL`
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_RPID=localhost` # replace with domain in production
 - `NEXT_PUBLIC_SERVER_SIGN_URL=http://localhost:3000/api` # replace with backend URL in production
