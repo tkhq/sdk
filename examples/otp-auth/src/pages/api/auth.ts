@@ -51,7 +51,8 @@ export default async function auth(
       },
     });
 
-    const credentialBundle = completedActivity.result.otpAuthResult?.credentialBundle;
+    const credentialBundle =
+      completedActivity.result.otpAuthResult?.credentialBundle;
     if (!credentialBundle) {
       throw new Error("Expected a non-null user ID!");
     }
@@ -68,7 +69,7 @@ export default async function auth(
     res.status(200).json({
       credentialBundle,
       apiKeyId,
-      userId
+      userId,
     });
   } catch (e) {
     console.error(e);

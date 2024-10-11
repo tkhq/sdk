@@ -8,7 +8,6 @@ import * as React from "react";
 import { useState } from "react";
 import { Auth } from "@/components/Auth";
 
-
 /**
  * Type definition for the server response coming back from `/api/init_auth`
  */
@@ -39,7 +38,8 @@ type AuthFormData = {
 
 export default function AuthPage() {
   const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
-  const [initAuthResponse, setInitAuthResponse] = useState<InitAuthResponse | null>(null);
+  const [initAuthResponse, setInitAuthResponse] =
+    useState<InitAuthResponse | null>(null);
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
     null
   );
@@ -51,16 +51,15 @@ export default function AuthPage() {
   } = useForm<CreateWalletFormData>();
 
   const auth = async (data: AuthFormData) => {
-
     if (iframeStamper === null) {
       throw new Error("cannot initialize auth without an iframe");
     }
     const response = await axios.post("/api/auth", {
-        suborgID: data.suborgID,
-        targetPublicKey: iframeStamper.publicKey(),
-        invalidateExisting: data.invalidateExisting,
-        otpId: initAuthResponse?.otpId,
-        otpCode: data.otpCode
+      suborgID: data.suborgID,
+      targetPublicKey: iframeStamper.publicKey(),
+      invalidateExisting: data.invalidateExisting,
+      otpId: initAuthResponse?.otpId,
+      otpCode: data.otpCode,
     });
     setAuthResponse(response.data);
   };
@@ -73,7 +72,7 @@ export default function AuthPage() {
     const response = await axios.post("/api/init_auth", {
       suborgID: data.suborgID,
       contact: data.email,
-      otpType: "OTP_TYPE_EMAIL" // You can specify OTP_TYPE_SMS here
+      otpType: "OTP_TYPE_EMAIL", // You can specify OTP_TYPE_SMS here
     });
     setInitAuthResponse(response.data);
   };
@@ -86,7 +85,9 @@ export default function AuthPage() {
       throw new Error("authResponse is null");
     }
     try {
-      await iframeStamper.injectCredentialBundle(authResponse?.credentialBundle);
+      await iframeStamper.injectCredentialBundle(
+        authResponse?.credentialBundle
+      );
     } catch (e) {
       const msg = `error while injecting bundle: ${e}`;
       console.error(msg);
@@ -152,7 +153,7 @@ export default function AuthPage() {
           priority
         />
       </a>
-    
+
       <Auth
         setIframeStamper={setIframeStamper}
         iframeUrl={process.env.NEXT_PUBLIC_AUTH_IFRAME_URL!}
@@ -161,68 +162,73 @@ export default function AuthPage() {
 
       {!iframeStamper && <p>Loading...</p>}
 
-      {iframeStamper && iframeStamper.publicKey() && initAuthResponse === null && (
-        <form className={styles.form} onSubmit={authFormSubmit(initAuth)}>
-          <label className={styles.label}>
-            Email
-            <input
-              className={styles.input}
-              {...authFormRegister("email")}
-              placeholder="Email"
-            />
-          </label>
-          <label className={styles.label}>
-            Suborg ID (Optional — if not provided, attempt for standalone parent
-            org)
-            <input
-              className={styles.input}
-              {...authFormRegister("suborgID")}
-              placeholder="Suborg ID"
-            />
-          </label>
-          <label className={styles.label}>
-            Encryption Target from iframe:
-            <br />
-            <code title={iframeStamper.publicKey()!}>
-              {iframeStamper.publicKey()!.substring(0, 30)}...
-            </code>
-          </label>
+      {iframeStamper &&
+        iframeStamper.publicKey() &&
+        initAuthResponse === null && (
+          <form className={styles.form} onSubmit={authFormSubmit(initAuth)}>
+            <label className={styles.label}>
+              Email
+              <input
+                className={styles.input}
+                {...authFormRegister("email")}
+                placeholder="Email"
+              />
+            </label>
+            <label className={styles.label}>
+              Suborg ID (Optional — if not provided, attempt for standalone
+              parent org)
+              <input
+                className={styles.input}
+                {...authFormRegister("suborgID")}
+                placeholder="Suborg ID"
+              />
+            </label>
+            <label className={styles.label}>
+              Encryption Target from iframe:
+              <br />
+              <code title={iframeStamper.publicKey()!}>
+                {iframeStamper.publicKey()!.substring(0, 30)}...
+              </code>
+            </label>
 
-          <input className={styles.button} type="submit" value="Send OTP" />
-        </form>
-      )}
+            <input className={styles.button} type="submit" value="Send OTP" />
+          </form>
+        )}
 
-{iframeStamper && iframeStamper.publicKey() && initAuthResponse !== null && authResponse == null && (
-        <form className={styles.form} onSubmit={authFormSubmit(auth)}>
-          <label className={styles.label}>
-            Otp Code
-            <input
-              className={styles.input}
-              {...authFormRegister("otpCode")}
-              placeholder="Paste your otp code here"
-            />
-          </label>
+      {iframeStamper &&
+        iframeStamper.publicKey() &&
+        initAuthResponse !== null &&
+        authResponse == null && (
+          <form className={styles.form} onSubmit={authFormSubmit(auth)}>
+            <label className={styles.label}>
+              Otp Code
+              <input
+                className={styles.input}
+                {...authFormRegister("otpCode")}
+                placeholder="Paste your otp code here"
+              />
+            </label>
 
-          <label className={styles.label}>
-            Invalidate previously issued OTP authentication token(s)?
-            <input
-              className={styles.input_checkbox}
-              {...authFormRegister("invalidateExisting")}
-              type="checkbox"
-            />
-          </label>
+            <label className={styles.label}>
+              Invalidate previously issued OTP authentication token(s)?
+              <input
+                className={styles.input_checkbox}
+                {...authFormRegister("invalidateExisting")}
+                type="checkbox"
+              />
+            </label>
 
-          <label className={styles.label}>
-            Encryption Target from iframe:
-            <br />
-            <code title={iframeStamper.publicKey()!}>
-              {iframeStamper.publicKey()!.substring(0, 30)}...
-            </code>
-          </label>
+            <label className={styles.label}>
+              Encryption Target from iframe:
+              <br />
+              <code title={iframeStamper.publicKey()!}>
+                {iframeStamper.publicKey()!.substring(0, 30)}...
+              </code>
+            </label>
 
-          <input className={styles.button} type="submit" value="Verify OTP" />
-        </form>
-      )}
+            <input className={styles.button} type="submit" value="Verify OTP" />
+          </form>
+        )}
 
       {iframeStamper && iframeStamper.publicKey() && authResponse !== null && (
         <form
