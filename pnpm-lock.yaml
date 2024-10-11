@@ -321,6 +321,63 @@ importers:
         specifier: ^1.4.8
         version: 1.4.8
 
+  examples/otp-auth:
+    dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../packages/api-key-stamper
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../packages/http
+      '@turnkey/iframe-stamper':
+        specifier: workspace:*
+        version: link:../../packages/iframe-stamper
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      axios:
+        specifier: ^1.7.4
+        version: 1.7.4
+      encoding:
+        specifier: ^0.1.13
+        version: 0.1.13
+      eslint:
+        specifier: 8.43.0
+        version: 8.43.0
+      eslint-config-next:
+        specifier: 14.2.10
+        version: 14.2.10(eslint@8.43.0)(typescript@5.1.3)
+      esm:
+        specifier: ^3.2.25
+        version: 3.2.25
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
+      next:
+        specifier: ^14.2.10
+        version: 14.2.10(@babel/core@7.24.5)(react-dom@18.2.0)(react@18.2.0)
+      npm:
+        specifier: ^9.7.2
+        version: 9.7.2
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-hook-form:
+        specifier: ^7.45.1
+        version: 7.45.1(react@18.2.0)
+      typescript:
+        specifier: 5.1.3
+        version: 5.1.3
+
   examples/rebalancer:
     dependencies:
       '@turnkey/api-key-stamper':
