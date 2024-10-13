@@ -120,8 +120,10 @@ export class TurnkeyServerSDK {
 }
 
 export class TurnkeyServerClient extends TurnkeySDKClientBase {
+  type: string;
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
+    this.type = "server";
   }
 
   [methodName: string]: any;

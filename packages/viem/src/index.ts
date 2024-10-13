@@ -21,8 +21,8 @@ import {
   TurnkeyClient,
 } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
-import { TurnkeyServerClient } from "@turnkey/sdk-server";
+import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
+import type { TurnkeyServerClient } from "@turnkey/sdk-server";
 
 export type TTurnkeyConsensusNeededErrorType = TurnkeyConsensusNeededError & {
   name: "TurnkeyConsensusNeededError";
@@ -384,7 +384,8 @@ async function signTransactionImpl(
   organizationId: string,
   signWith: string
 ): Promise<string> {
-  if (!(client instanceof TurnkeyBrowserClient) && !(client instanceof TurnkeyServerClient)) {
+  if (client.type === "http") {
+    client = client as TurnkeyClient;
     const { activity } = await client.signTransaction({
       type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       organizationId: organizationId,
@@ -402,6 +403,7 @@ async function signTransactionImpl(
       activity?.result?.signTransactionResult?.signedTransaction
     );
   } else {
+    client = client as TurnkeyBrowserClient | TurnkeyServerClient;
     const { activity, signedTransaction } = await client.signTransaction({
       signWith,
       type: "TRANSACTION_TYPE_ETHEREUM",
