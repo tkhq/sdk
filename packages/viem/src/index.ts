@@ -384,8 +384,7 @@ async function signTransactionImpl(
   organizationId: string,
   signWith: string
 ): Promise<string> {
-  if (client.type === "http") {
-    client = client as TurnkeyClient;
+  if (client instanceof TurnkeyClient) {
     const { activity } = await client.signTransaction({
       type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       organizationId: organizationId,
@@ -403,7 +402,6 @@ async function signTransactionImpl(
       activity?.result?.signTransactionResult?.signedTransaction
     );
   } else {
-    client = client as TurnkeyBrowserClient | TurnkeyServerClient;
     const { activity, signedTransaction } = await client.signTransaction({
       signWith,
       type: "TRANSACTION_TYPE_ETHEREUM",

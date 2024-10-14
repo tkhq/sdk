@@ -224,10 +224,8 @@ export class TurnkeyBrowserSDK {
 }
 
 export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
-  type: string;
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
-    this.type = "browser";
   }
 
   login = async (config?: {

@@ -286,13 +286,12 @@ import type {
 export class TurnkeyClient {
   config: THttpConfig;
   stamper: TStamper;
-  type: string;
 
   constructor(config: THttpConfig, stamper: TStamper) {
     if (!config.baseUrl) {
       throw new Error(`Missing base URL. Please verify env vars.`);
     }
-    this.type = "http";
+
     this.config = config;
     this.stamper = stamper;
   }
