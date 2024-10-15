@@ -5,9 +5,8 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeySigner } from "@turnkey/ethers";
-import { ethers } from "ethers";
-import { TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { ethers, Transaction, Signature } from "ethers";
+import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createNewWallet } from "./createNewWallet";
 
 async function main() {
@@ -17,25 +16,22 @@ async function main() {
     return;
   }
 
-  const turnkeyClient = new TurnkeyClient(
-    {
-      baseUrl: process.env.BASE_URL!,
-    },
-    new ApiKeyStamper({
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
-  );
+  const turnkeyClient = new TurnkeyServerSDK({
+    apiBaseUrl: process.env.BASE_URL!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    defaultOrganizationId: process.env.ORGANIZATION_ID!,
+  });
 
   // Initialize a Turnkey Signer
   const turnkeySigner = new TurnkeySigner({
-    client: turnkeyClient,
+    client: turnkeyClient.apiClient(),
     organizationId: process.env.ORGANIZATION_ID!,
     signWith: process.env.SIGN_WITH!,
   });
 
   // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v6/api/providers/)
-  const network = "goerli";
+  const network = "sepolia";
   const provider = new ethers.InfuraProvider(network);
   const connectedSigner = turnkeySigner.connect(provider);
   const address = await connectedSigner.getAddress();
@@ -95,6 +91,44 @@ async function main() {
 
   print("Turnkey-powered signature - typed data (EIP-712):", `${signature}`);
   assertEqual(recoveredAddress, address);
+
+  // 4. Sign type 3 (EIP-4844) raw transaction
+  const unsignedTx = Transaction.from({
+    to: "0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7",
+    value: 1111,
+    type: 3,
+    chainId: 11155111,
+    maxFeePerBlobGas: 100,
+    blobVersionedHashes: [],
+  });
+
+  console.log({
+    unsignedTx,
+    unsignedTxTo: unsignedTx.to,
+    unsignedTxSerialized: unsignedTx.unsignedSerialized,
+  });
+
+  const signedMessage = await connectedSigner.signMessage(
+    unsignedTx.unsignedSerialized
+  );
+
+  console.log({
+    unsignedTx,
+    signedMessage,
+  });
+
+  const signedTx = Object.assign({}, unsignedTx);
+
+  signedTx.signature = Signature.from(signedMessage);
+
+  console.log({ signedTx });
+
+  // Combine the signautre + transaction
+  const broadcastedTx = await connectedSigner.provider?.broadcastTransaction(
+    signedTx.serialized
+  );
+
+  print("Successfully broadcasted EIP-4844 transaction!", broadcastedTx?.hash!);
 }
 
 main().catch((error) => {
