@@ -19,6 +19,7 @@
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/viem": "workspace:*",
     "dotenv": "^16.0.3",
+    "ethers": "6.13.0",
     "fetch": "^1.1.0",
     "prompts": "^2.4.2",
     "typescript": "5.1",
