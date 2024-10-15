@@ -3,6 +3,8 @@ interface WalletAccount {
   pathFormat: "PATH_FORMAT_BIP32";
   path: string;
   addressFormat:
+    | "ADDRESS_FORMAT_UNCOMPRESSED"
+    | "ADDRESS_FORMAT_COMPRESSED"
     | "ADDRESS_FORMAT_ETHEREUM"
     | "ADDRESS_FORMAT_SOLANA"
     | "ADDRESS_FORMAT_COSMOS"
@@ -42,7 +44,9 @@ interface WalletAccount {
 // ----------------------------
 
 // Cosmos
-export const defaultCosmosAccountAtIndex = (pathIndex: number): WalletAccount => {
+export const defaultCosmosAccountAtIndex = (
+  pathIndex: number
+): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
     pathFormat: "PATH_FORMAT_BIP32",
@@ -56,7 +60,9 @@ export const DEFAULT_COSMOS_ACCOUNTS: WalletAccount[] = [
 ];
 
 // Ethereum
-export const defaultEthereumAccountAtIndex = (pathIndex: number): WalletAccount => {
+export const defaultEthereumAccountAtIndex = (
+  pathIndex: number
+): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
     pathFormat: "PATH_FORMAT_BIP32",
@@ -454,7 +460,9 @@ export const DEFAULT_SEI_ACCOUNTS: WalletAccount[] = [
 // ----------------------------
 
 // Solana
-export const defaultSolanaAccountAtIndex = (pathIndex: number): WalletAccount => {
+export const defaultSolanaAccountAtIndex = (
+  pathIndex: number
+): WalletAccount => {
   return {
     curve: "CURVE_ED25519",
     pathFormat: "PATH_FORMAT_BIP32",
@@ -482,7 +490,9 @@ export const DEFAULT_SUI_ACCOUNTS: WalletAccount[] = [
 ];
 
 // Aptos
-export const defaultAptosAccountAtIndex = (pathIndex: number): WalletAccount => {
+export const defaultAptosAccountAtIndex = (
+  pathIndex: number
+): WalletAccount => {
   return {
     curve: "CURVE_ED25519",
     pathFormat: "PATH_FORMAT_BIP32",
@@ -510,7 +520,9 @@ export const DEFAULT_XLM_ACCOUNTS: WalletAccount[] = [
 ];
 
 // TON V3R2
-export const defaultTonV3r2AccountAtIndex = (pathIndex: number): WalletAccount => {
+export const defaultTonV3r2AccountAtIndex = (
+  pathIndex: number
+): WalletAccount => {
   return {
     curve: "CURVE_ED25519",
     pathFormat: "PATH_FORMAT_BIP32",
@@ -524,7 +536,9 @@ export const DEFAULT_TON_V3R2_ACCOUNTS: WalletAccount[] = [
 ];
 
 // TON V4R2
-export const defaultTonV4r2AccountAtIndex = (pathIndex: number): WalletAccount => {
+export const defaultTonV4r2AccountAtIndex = (
+  pathIndex: number
+): WalletAccount => {
   return {
     curve: "CURVE_ED25519",
     pathFormat: "PATH_FORMAT_BIP32",
@@ -536,4 +550,3 @@ export const defaultTonV4r2AccountAtIndex = (pathIndex: number): WalletAccount =
 export const DEFAULT_TON_V4R2_ACCOUNTS: WalletAccount[] = [
   defaultTonV4r2AccountAtIndex(0),
 ];
-
