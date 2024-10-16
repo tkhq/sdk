@@ -3,7 +3,7 @@ import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 type AuthRequest = {
-  suborgID: string,
+  suborgID: string;
   oidcToken: string;
   targetPublicKey: string;
 };
@@ -39,8 +39,7 @@ export default async function auth(
     const completedActivity = await activityPoller({
       type: "ACTIVITY_TYPE_OAUTH",
       timestampMs: String(Date.now()),
-      organizationId:
-        request.suborgID,
+      organizationId: request.suborgID,
       parameters: {
         oidcToken: request.oidcToken,
         targetPublicKey: request.targetPublicKey,

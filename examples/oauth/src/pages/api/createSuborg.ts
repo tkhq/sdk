@@ -7,9 +7,9 @@ type CreateSuborgRequest = {
 };
 
 type Provider = {
-  providerName: string,
-  oidcToken: string,
-}
+  providerName: string;
+  oidcToken: string;
+};
 type CreateSuborgResponse = {
   subOrganizationId: string;
 };
@@ -49,7 +49,7 @@ export default async function createSuborg(
             userEmail: "",
             userPhoneNumber: "",
             apiKeys: [],
-            authenticators: [], 
+            authenticators: [],
             oauthProviders: request.oauthProviders,
           },
         ],
@@ -63,7 +63,7 @@ export default async function createSuborg(
     }
 
     res.status(200).json({
-      subOrganizationId
+      subOrganizationId,
     });
   } catch (e) {
     console.error(e);

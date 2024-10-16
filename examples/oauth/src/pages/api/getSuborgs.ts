@@ -27,17 +27,13 @@ export default async function getSuborgs(
       })
     );
 
-    const response = await turnkeyClient.getSubOrgIds(
-      {
+    const response = await turnkeyClient.getSubOrgIds({
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       filterType: "OIDC_TOKEN",
-      filterValue: request.filterValue
-      }
-      )
+      filterValue: request.filterValue,
+    });
 
-
-    res.status(200).json(
-      response);
+    res.status(200).json(response);
   } catch (e) {
     console.error(e);
 

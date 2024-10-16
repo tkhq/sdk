@@ -12,8 +12,8 @@ import axios from "axios";
 import * as React from "react";
 import { useState } from "react";
 import { Auth } from "@/components/Auth";
-import { sha256 } from '@noble/hashes/sha2'
-import { bytesToHex } from '@noble/hashes/utils';
+import { sha256 } from "@noble/hashes/sha2";
+import { bytesToHex } from "@noble/hashes/utils";
 
 /**
  * Type definition for the server response coming back from `/api/auth`
@@ -48,26 +48,28 @@ export default function AuthPage() {
 
   const handleGoogleLogin = async (response: any) => {
     let targetSubOrgId: string;
-    const getSuborgsResponse = await axios.post("api/getSuborgs",{
+    const getSuborgsResponse = await axios.post("api/getSuborgs", {
       filterType: "OIDC_TOKEN",
       filterValue: response.credential,
-    })
+    });
     targetSubOrgId = getSuborgsResponse.data.organizationIds[0]; // If you don't have a 1:1 relationship for suborgs:oauthProviders you will need to manage this
 
     if (getSuborgsResponse.data.organizationIds.length == 0) {
-      const createSuborgResponse = await axios.post("api/createSuborg",{
+      const createSuborgResponse = await axios.post("api/createSuborg", {
         oauthProviders: [
-          {providerName: "Google-Test",
-          oidcToken: response.credential
-          }
+          { providerName: "Google-Test", oidcToken: response.credential },
         ],
-      })
-      targetSubOrgId = createSuborgResponse.data.subOrganizationId
+      });
+      targetSubOrgId = createSuborgResponse.data.subOrganizationId;
     }
-    authFormSubmit((data) => auth(data, response.credential, targetSubOrgId))(); 
+    authFormSubmit((data) => auth(data, response.credential, targetSubOrgId))();
   };
 
-  const auth = async (data: AuthFormData,  oidcCredential: string, suborgID: string) => {
+  const auth = async (
+    data: AuthFormData,
+    oidcCredential: string,
+    suborgID: string
+  ) => {
     if (iframeStamper === null) {
       throw new Error("cannot initialize auth without an iframe");
     }
@@ -184,10 +186,14 @@ export default function AuthPage() {
           </label>
 
           <GoogleOAuthProvider
-                clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
-              >
-                <GoogleLogin nonce={bytesToHex(sha256(iframeStamper.publicKey()!))} onSuccess={handleGoogleLogin} useOneTap />
-              </GoogleOAuthProvider>
+            clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+          >
+            <GoogleLogin
+              nonce={bytesToHex(sha256(iframeStamper.publicKey()!))}
+              onSuccess={handleGoogleLogin}
+              useOneTap
+            />
+          </GoogleOAuthProvider>
         </form>
       )}
 
