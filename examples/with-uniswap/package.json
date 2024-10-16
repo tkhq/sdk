@@ -8,9 +8,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
     "@turnkey/ethers": "workspace:*",
-    "@turnkey/http": "workspace:*",
     "@uniswap/sdk-core": "^3.1.1",
     "@uniswap/v3-core": "^1.0.1",
     "@uniswap/v3-sdk": "^3.9.0",
