@@ -1,5 +1,7 @@
-import { TurnkeyActivityError } from "@turnkey/http";
-import type { TurnkeyApiClient } from "@turnkey/sdk-server";
+import {
+  type TurnkeyApiClient,
+  TurnkeyActivityError,
+} from "@turnkey/sdk-server";
 import * as crypto from "crypto";
 
 export async function createNewSolanaWallet(client: TurnkeyApiClient) {
