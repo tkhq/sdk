@@ -69,28 +69,31 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ### 4/ Stackblitz Example
 
-You will need to create a stackblitz 
+You will need to create a Stackblitz account to run this example
 
 Example Link: https://stackblitz.com/edit/stackblitz-starters-h5pmnu
 
 #### Prerequisites
-To use the example you need the following
-- Turnkey Organization
-- API key for the root user (both public and private key needed) 
-- Solana wallet for Parent org (created within turnkey UI) 
-- Airdrop SOL to parent org wallet using devnet faucet → https://faucet.solana.com/ 
 
+To use the example you need the following
+
+- Turnkey Organization
+- API key for the root user (both public and private key needed)
+- Solana wallet for Parent org (created within turnkey UI)
+- Airdrop devnet SOL to parent org wallet using devnet faucet → https://faucet.solana.com/
 
 #### Set Env Variables
-Set the following environment variables in .env.local
-- API_PUBLIC_KEY → Public key of your API associated with root user
-- API_PRIVATE_KEY → Private key of your API associated with root user 
-- NEXT_PUBLIC_ORGANIZTION_ID → org ID of the turnkey organization that you’re using
-- NEXT_PUBLIC_RPID --> this should be prefilled with the value `local-credentialless.webcontainer.io` which is the RPID required in the stackblitz environment
-- NEXT_PUBLIC_SERVER_SIGN_URL → fill this out with the url in the browser of stackblitz followed by “/api” --> for example: https://stackblitzstartersh5pmnu-0bej--3000--134daa3c.local-credentialless.webcontainer.io/api
-- NEXT_PUBLIC_FEE_PAYER_ADDRESS --> the address of the solana address with airdropped funds
 
+Set the following environment variables in .env.local
+
+- API_PUBLIC_KEY → Public key of your API associated with root user
+- API_PRIVATE_KEY → Private key of your API associated with root user
+- NEXT_PUBLIC_ORGANIZTION_ID → org ID of the Turnkey organization that you’re using
+- NEXT_PUBLIC_RPID --> this should be pre-filled with the value `local-credentialless.webcontainer.io` which is the RPID required in the Stackblitz environment
+- NEXT_PUBLIC_SERVER_SIGN_URL → fill this out with the url in the browser of Stackblitz followed by “/api” --> for example: https://stackblitzstartersh5pmnu-0bej--3000--134daa3c.local-credentialless.webcontainer.io/api
+- NEXT_PUBLIC_FEE_PAYER_ADDRESS --> the address of the Solana address with airdropped funds
 
 #### Directions to use
+
 - run `npm install && npm run build && npm run dev"
 - follow example flow
