@@ -37,7 +37,7 @@ export async function createNewWallet() {
         `- Wallet ID: ${walletId}`,
         `- Address: ${address}`,
         ``,
-        "Now you can take the address, put it in `.env.local`, then re-run the script.",
+        "Now you can take the address, put it in `.env.local` (`SIGN_WITH=<address>`), then re-run the script.",
       ].join("\n")
     );
   } catch (err: any) {
