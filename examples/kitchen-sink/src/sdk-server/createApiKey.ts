@@ -18,17 +18,19 @@ async function main() {
   });
 
   const userId = "<user id>";
-  const apiKeyName = "<API key name>"
-  const publicKey = "<API public key>"
-  const curveType = "API_KEY_CURVE_P256" // this is the default
+  const apiKeyName = "<API key name>";
+  const publicKey = "<API public key>";
+  const curveType = "API_KEY_CURVE_P256"; // this is the default
 
   const { apiKeyIds } = await turnkeyClient.apiClient().createApiKeys({
     userId,
-    apiKeys: [{
+    apiKeys: [
+      {
         apiKeyName,
         publicKey,
-        curveType
-    }]
+        curveType,
+      },
+    ],
   });
 
   const newApiKeyIds = refineNonNull(apiKeyIds);
