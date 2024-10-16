@@ -1,44 +1,33 @@
-import type { TurnkeyClient } from "@turnkey/http";
-import { createActivityPoller } from "@turnkey/http";
-import { TurnkeyActivityError } from "@turnkey/ethers";
+import {
+  type TurnkeyServerClient,
+  TurnkeyActivityError,
+} from "@turnkey/sdk-server";
 import { refineNonNull } from "./utils";
 
 export default async function createPrivateKeyTag(
-  turnkeyClient: TurnkeyClient,
+  turnkeyClient: TurnkeyServerClient,
   privateKeyTagName: string,
   privateKeyIds: string[]
 ): Promise<string> {
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createPrivateKeyTag,
-  });
-
   try {
-    const activity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
-      organizationId: process.env.ORGANIZATION_ID!,
-      parameters: {
-        privateKeyTagName,
-        privateKeyIds,
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
+    const { privateKeyTagId } = await turnkeyClient.createPrivateKeyTag({
+      privateKeyTagName,
+      privateKeyIds,
     });
 
-    const privateKeyTagId = refineNonNull(
-      activity.result.createPrivateKeyTagResult?.privateKeyTagId
-    );
+    const newPrivateKeyTagId = refineNonNull(privateKeyTagId);
 
     // Success!
     console.log(
       [
         `New private key tag created!`,
         `- Name: ${privateKeyTagName}`,
-        `- Private key tag ID: ${privateKeyTagId}`,
+        `- Private key tag ID: ${newPrivateKeyTagId}`,
         ``,
       ].join("\n")
     );
 
-    return privateKeyTagId;
+    return newPrivateKeyTagId;
   } catch (error) {
     // If needed, you can read from `TurnkeyActivityError` to find out why the activity didn't succeed
     if (error instanceof TurnkeyActivityError) {

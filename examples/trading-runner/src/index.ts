@@ -1,13 +1,13 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
+import prompts from "prompts";
+import { FeeData, ethers } from "ethers";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { FeeData, ethers } from "ethers";
-import prompts from "prompts";
+import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
+
 import { isKeyOfObject, fromReadableAmount } from "./utils";
 import {
   createPrivateKey,
@@ -38,13 +38,12 @@ import { prepareV3Trade, executeTrade } from "./uniswap/base";
 import { toReadableAmount } from "./utils";
 
 // For demonstration purposes, create a globally accessible TurnkeyClient
-const turnkeyClient = new TurnkeyClient(
-  { baseUrl: process.env.BASE_URL! },
-  new ApiKeyStamper({
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-  })
-);
+const turnkeyClient = new TurnkeySDKServer({
+  apiBaseUrl: "https://api.turnkey.com",
+  apiPublicKey: process.env.API_PUBLIC_KEY!,
+  apiPrivateKey: process.env.API_PRIVATE_KEY!,
+  defaultOrganizationId: process.env.ORGANIZATION_ID!,
+});
 
 async function main() {
   const args = process.argv.slice(2);
@@ -106,19 +105,27 @@ main().catch((error) => {
 
 async function setup(_options: any) {
   // setup user tags
-  const adminTagId = await createUserTag(turnkeyClient, "Admin", []);
-  const traderTagId = await createUserTag(turnkeyClient, "Trader", []);
+  const adminTagId = await createUserTag(
+    turnkeyClient.apiClient(),
+    "Admin",
+    []
+  );
+  const traderTagId = await createUserTag(
+    turnkeyClient.apiClient(),
+    "Trader",
+    []
+  );
 
   // setup users
   await createUser(
-    turnkeyClient,
+    turnkeyClient.apiClient(),
     "Alice",
     [adminTagId],
     "Alice key",
     keys!.alice!.publicKey!
   );
   await createUser(
-    turnkeyClient,
+    turnkeyClient.apiClient(),
     "Bob",
     [traderTagId],
     "Bob key",
@@ -126,25 +133,35 @@ async function setup(_options: any) {
   );
 
   // setup private key tags
-  const tradingTagId = await createPrivateKeyTag(turnkeyClient, "trading", []);
-  const personal = await createPrivateKeyTag(turnkeyClient, "personal", []);
+  const tradingTagId = await createPrivateKeyTag(
+    turnkeyClient.apiClient(),
+    "trading",
+    []
+  );
+  const personal = await createPrivateKeyTag(
+    turnkeyClient.apiClient(),
+    "personal",
+    []
+  );
   const longTermStorageTagId = await createPrivateKeyTag(
-    turnkeyClient,
+    turnkeyClient.apiClient(),
     "long-term-storage",
     []
   );
 
   // setup private keys
-  await createPrivateKey(turnkeyClient, "Trading Wallet", [tradingTagId]);
-  await createPrivateKey(turnkeyClient, "Long Term Storage", [
+  await createPrivateKey(turnkeyClient.apiClient(), "Trading Wallet", [
+    tradingTagId,
+  ]);
+  await createPrivateKey(turnkeyClient.apiClient(), "Long Term Storage", [
     longTermStorageTagId,
   ]);
-  await createPrivateKey(turnkeyClient, "Personal", [personal]);
+  await createPrivateKey(turnkeyClient.apiClient(), "Personal", [personal]);
 
   // setup policies: grant specific users permissions to use specific private keys
   // ADMIN
   await createPolicy(
-    turnkeyClient,
+    turnkeyClient.apiClient(),
     "Admin users can do everything",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${adminTagId}'))`,
@@ -157,35 +174,35 @@ async function setup(_options: any) {
 
   // TRADING
   await createPolicy(
-    turnkeyClient,
+    turnkeyClient.apiClient(),
     "Traders can use trading keys to deposit, aka wrap, ETH",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
     `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${DEPOSIT_SELECTOR}'`
   );
   await createPolicy(
-    turnkeyClient,
+    turnkeyClient.apiClient(),
     "Traders can use trading keys to withdraw, aka unwrap, WETH",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
     `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${WITHDRAW_SELECTOR}'`
   );
   await createPolicy(
-    turnkeyClient,
+    turnkeyClient.apiClient(),
     "Traders can use trading keys to make ERC20 token approvals for WETH for usage with Uniswap",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
     `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SELECTOR}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`
   );
   await createPolicy(
-    turnkeyClient,
+    turnkeyClient.apiClient(),
     "Traders can use trading keys to make ERC20 token approvals for USDC for usage with Uniswap",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
     `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SELECTOR}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`
   );
   await createPolicy(
-    turnkeyClient,
+    turnkeyClient.apiClient(),
     "Traders can use trading keys to make trades using Uniswap",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
@@ -195,7 +212,7 @@ async function setup(_options: any) {
   // SENDING
   // first, get long term storage address(es)
   const longTermStoragePrivateKey = (
-    await getPrivateKeysForTag(turnkeyClient, "long-term-storage")
+    await getPrivateKeysForTag(turnkeyClient.apiClient(), "long-term-storage")
   )[0];
   const longTermStorageAddress = longTermStoragePrivateKey?.addresses.find(
     (address: any) => {
@@ -214,21 +231,21 @@ async function setup(_options: any) {
     .padStart(64, "0");
 
   await createPolicy(
-    turnkeyClient,
+    turnkeyClient.apiClient(),
     "Traders can use trading keys to send ETH to long term storage addresses",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
     `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${longTermStorageAddress.address!}'`
   );
   await createPolicy(
-    turnkeyClient,
+    turnkeyClient.apiClient(),
     "Traders can use trading keys to send WETH to long term storage addresses",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
     `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SELECTOR}' && eth.tx.data[10..74] == '${paddedLongTermStorageAddress}'`
   );
   await createPolicy(
-    turnkeyClient,
+    turnkeyClient.apiClient(),
     "Traders can use trading keys to send USDC to long term storage addresses",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
@@ -270,7 +287,7 @@ async function trade(options: { [key: string]: string }) {
 async function wrapUnwrapImpl(baseAsset: string, baseAmount: string) {
   // find "trading" private key
   const tradingPrivateKey = (
-    await getPrivateKeysForTag(turnkeyClient, "trading")
+    await getPrivateKeysForTag(turnkeyClient.apiClient(), "trading")
   )[0];
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
@@ -336,7 +353,7 @@ async function tradeImpl(
 ) {
   // find "trading" private key
   const tradingPrivateKey = (
-    await getPrivateKeysForTag(turnkeyClient, "trading")
+    await getPrivateKeysForTag(turnkeyClient.apiClient(), "trading")
   )[0];
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
@@ -508,12 +525,12 @@ async function sweep(options: any) {
 async function sweepImpl(asset: string, destination: string, amount: string) {
   // find trading private keys
   const tradingPrivateKey = (
-    await getPrivateKeysForTag(turnkeyClient, "trading")
+    await getPrivateKeysForTag(turnkeyClient.apiClient(), "trading")
   )[0]!;
 
   // find long term storage private key
   const longTermStoragePrivateKey = (
-    await getPrivateKeysForTag(turnkeyClient, "long-term-storage")
+    await getPrivateKeysForTag(turnkeyClient.apiClient(), "long-term-storage")
   )[0];
 
   // send from trading address to long term storage

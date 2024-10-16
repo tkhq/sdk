@@ -1,43 +1,34 @@
-import type { TurnkeyClient } from "@turnkey/http";
-import { createActivityPoller, TurnkeyActivityError } from "@turnkey/http";
+import {
+  type TurnkeyServerClient,
+  TurnkeyActivityError,
+} from "@turnkey/sdk-server";
+
 import { refineNonNull } from "./utils";
 
 export default async function createPolicy(
-  turnkeyClient: TurnkeyClient,
+  turnkeyClient: TurnkeyServerClient,
   policyName: string,
   effect: "EFFECT_ALLOW" | "EFFECT_DENY",
   consensus: string,
   condition: string
 ): Promise<string> {
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createPolicy,
-  });
-
   try {
-    const activity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
-      organizationId: process.env.ORGANIZATION_ID!,
-      parameters: {
-        policyName,
-        condition,
-        consensus,
-        effect,
-        notes: "",
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
+    const { policyId } = await turnkeyClient.apiClient().createPolicy({
+      policyName,
+      condition,
+      consensus,
+      effect,
+      notes: "",
     });
 
-    const policyId = refineNonNull(
-      activity.result.createPolicyResult?.policyId
-    );
+    const newPolicyId = refineNonNull(policyId);
 
     // Success!
     console.log(
       [
         `New policy created!`,
         `- Name: ${policyName}`,
-        `- Policy ID: ${policyId}`,
+        `- Policy ID: ${newPolicyId}`,
         `- Effect: ${effect}`,
         `- Consensus: ${consensus}`,
         `- Condition: ${condition}`,
@@ -45,7 +36,7 @@ export default async function createPolicy(
       ].join("\n")
     );
 
-    return policyId;
+    return newPolicyId;
   } catch (error) {
     // If needed, you can read from `TurnkeyActivityError` to find out why the activity didn't succeed
     if (error instanceof TurnkeyActivityError) {
