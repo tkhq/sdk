@@ -25,7 +25,7 @@ async function main() {
 
   await turnkeyClient.apiClient().updateRootQuorum({
     threshold: 1,
-    userIds: [orgConfigsResponse.configs.quorum?.userIds[0]!], // retain the first root user, which would be the passkey user
+    userIds: [orgConfigsResponse.configs.quorum?.userIds[0]!], // retain the first root user
   });
 
   const updatedOrgConfigsResponse = await turnkeyClient
