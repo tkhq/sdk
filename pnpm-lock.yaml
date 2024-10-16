@@ -347,15 +347,12 @@ importers:
       '@react-oauth/google':
         specifier: ^0.12.1
         version: 0.12.1(react-dom@18.2.0)(react@18.2.0)
-      '@turnkey/api-key-stamper':
+      '@turnkey/sdk-react':
         specifier: workspace:*
-        version: link:../../packages/api-key-stamper
-      '@turnkey/http':
+        version: link:../../packages/sdk-react
+      '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../packages/http
-      '@turnkey/iframe-stamper':
-        specifier: workspace:*
-        version: link:../../packages/iframe-stamper
+        version: link:../../packages/sdk-server
       '@types/node':
         specifier: 20.3.1
         version: 20.3.1

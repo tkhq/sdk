@@ -1,17 +1,11 @@
-import {
-  GoogleOAuthProvider,
-  GoogleLogin,
-  useGoogleLogin,
-} from "@react-oauth/google";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
 import styles from "./index.module.css";
-import { createActivityPoller, TurnkeyClient } from "@turnkey/http";
-import { IframeStamper } from "@turnkey/iframe-stamper";
+import { useTurnkey } from "@turnkey/sdk-react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
 import { useState } from "react";
-import { Auth } from "@/components/Auth";
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 
@@ -36,9 +30,7 @@ type AuthFormData = {
 
 export default function AuthPage() {
   const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
-  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
-    null
-  );
+  const { authIframeClient } = useTurnkey();
   const { register: authFormRegister, handleSubmit: authFormSubmit } =
     useForm<AuthFormData>();
   const {
@@ -52,7 +44,7 @@ export default function AuthPage() {
       filterType: "OIDC_TOKEN",
       filterValue: response.credential,
     });
-    targetSubOrgId = getSuborgsResponse.data.organizationIds[0]; // If you don't have a 1:1 relationship for suborgs:oauthProviders you will need to manage this
+    targetSubOrgId = getSuborgsResponse.data.organizationIds[0]; // If you don't have a 1:1 relationship for suborgs:oauthProviders you will need to manage this yourself in a database
 
     if (getSuborgsResponse.data.organizationIds.length == 0) {
       const createSuborgResponse = await axios.post("api/createSuborg", {
@@ -70,12 +62,12 @@ export default function AuthPage() {
     oidcCredential: string,
     suborgID: string
   ) => {
-    if (iframeStamper === null) {
+    if (authIframeClient === null) {
       throw new Error("cannot initialize auth without an iframe");
     }
     const response = await axios.post("/api/auth", {
       suborgID,
-      targetPublicKey: iframeStamper.publicKey(),
+      targetPublicKey: authIframeClient!.iframePublicKey!,
       oidcToken: oidcCredential,
       invalidateExisting: data.invalidateExisting,
     });
@@ -84,15 +76,17 @@ export default function AuthPage() {
   };
 
   const injectCredentials = async (data: InjectCredentialsFormData) => {
-    if (iframeStamper === null) {
-      throw new Error("iframeStamper is null");
+    if (authIframeClient === null) {
+      throw new Error("iframe client is null");
     }
     if (authResponse === null) {
       throw new Error("authResponse is null");
     }
 
     try {
-      await iframeStamper.injectCredentialBundle(authResponse.credentialBundle);
+      await authIframeClient!.injectCredentialBundle(
+        authResponse.credentialBundle
+      );
     } catch (e) {
       const msg = `error while injecting bundle: ${e}`;
       console.error(msg);
@@ -100,44 +94,28 @@ export default function AuthPage() {
       return;
     }
 
-    const client = new TurnkeyClient(
-      {
-        baseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-      },
-      iframeStamper
-    );
-
     // get whoami for suborg
-    const whoamiResponse = await client.getWhoami({
+    const whoamiResponse = await authIframeClient!.getWhoami({
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
     const orgID = whoamiResponse.organizationId;
 
-    const activityPoller = createActivityPoller({
-      client,
-      requestFn: client.createWallet,
-    });
-
-    const completedActivity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_WALLET",
-      timestampMs: String(Date.now()),
+    const createWalletResponse = await authIframeClient!.createWallet({
       organizationId: orgID,
-      parameters: {
-        walletName: data.walletName,
-        accounts: [
-          {
-            curve: "CURVE_SECP256K1",
-            pathFormat: "PATH_FORMAT_BIP32",
-            path: "m/44'/60'/0'/0/0",
-            addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-          },
-        ],
-      },
+      walletName: data.walletName,
+      accounts: [
+        {
+          curve: "CURVE_SECP256K1",
+          pathFormat: "PATH_FORMAT_BIP32",
+          path: "m/44'/60'/0'/0/0",
+          addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+        },
+      ],
     });
 
-    const wallet = refineNonNull(completedActivity.result.createWalletResult);
-    const address = refineNonNull(wallet.addresses[0]);
+    const wallet = refineNonNull(createWalletResponse.walletId);
+    const address = refineNonNull(createWalletResponse.addresses[0]);
 
     alert(`SUCCESS! Wallet and new address created: ${address} `);
   };
@@ -159,65 +137,63 @@ export default function AuthPage() {
         />
       </a>
 
-      <Auth
-        setIframeStamper={setIframeStamper}
-        iframeUrl={process.env.NEXT_PUBLIC_AUTH_IFRAME_URL!}
-        turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
-      ></Auth>
+      {!authIframeClient && <p>Loading...</p>}
 
-      {!iframeStamper && <p>Loading...</p>}
+      {authIframeClient &&
+        authIframeClient.iframePublicKey &&
+        authResponse === null && (
+          <form className={styles.form}>
+            <label className={styles.label}>
+              Invalidate previously issued oauth authentication token(s)?
+              <input
+                className={styles.input_checkbox}
+                {...authFormRegister("invalidateExisting")}
+                type="checkbox"
+              />
+            </label>
+            <label className={styles.label}>
+              Encryption Target from iframe:
+              <br />
+              <code title={authIframeClient.iframePublicKey!}>
+                {authIframeClient.iframePublicKey!.substring(0, 30)}...
+              </code>
+            </label>
 
-      {iframeStamper && iframeStamper.publicKey() && authResponse === null && (
-        <form className={styles.form}>
-          <label className={styles.label}>
-            Invalidate previously issued oauth authentication token(s)?
-            <input
-              className={styles.input_checkbox}
-              {...authFormRegister("invalidateExisting")}
-              type="checkbox"
-            />
-          </label>
-          <label className={styles.label}>
-            Encryption Target from iframe:
-            <br />
-            <code title={iframeStamper.publicKey()!}>
-              {iframeStamper.publicKey()!.substring(0, 30)}...
-            </code>
-          </label>
+            <GoogleOAuthProvider
+              clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+            >
+              <GoogleLogin
+                nonce={bytesToHex(sha256(authIframeClient.iframePublicKey!))}
+                onSuccess={handleGoogleLogin}
+                useOneTap
+              />
+            </GoogleOAuthProvider>
+          </form>
+        )}
 
-          <GoogleOAuthProvider
-            clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+      {authIframeClient &&
+        authIframeClient.iframePublicKey &&
+        authResponse !== null && (
+          <form
+            className={styles.form}
+            onSubmit={injectCredentialsFormSubmit(injectCredentials)}
           >
-            <GoogleLogin
-              nonce={bytesToHex(sha256(iframeStamper.publicKey()!))}
-              onSuccess={handleGoogleLogin}
-              useOneTap
-            />
-          </GoogleOAuthProvider>
-        </form>
-      )}
+            <label className={styles.label}>
+              New wallet name
+              <input
+                className={styles.input}
+                {...injectCredentialsFormRegister("walletName")}
+                placeholder="Wallet name"
+              />
+            </label>
 
-      {iframeStamper && iframeStamper.publicKey() && authResponse !== null && (
-        <form
-          className={styles.form}
-          onSubmit={injectCredentialsFormSubmit(injectCredentials)}
-        >
-          <label className={styles.label}>
-            New wallet name
             <input
-              className={styles.input}
-              {...injectCredentialsFormRegister("walletName")}
-              placeholder="Wallet name"
+              className={styles.button}
+              type="submit"
+              value="Create Wallet"
             />
-          </label>
-
-          <input
-            className={styles.button}
-            type="submit"
-            value="Create Wallet"
-          />
-        </form>
-      )}
+          </form>
+        )}
     </main>
   );
 }
