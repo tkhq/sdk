@@ -10,9 +10,8 @@
     "@safe-global/protocol-kit": "^3.0.1",
     "@safe-global/safe-core-sdk-types": "^4.0.1",
     "@safe-global/safe-ethers-lib": "^1.9.2",
-    "@turnkey/api-key-stamper": "workspace:^",
+    "@turnkey/sdk-server": "workspace:*",
     "@turnkey/ethers": "workspace:*",
-    "@turnkey/http": "workspace:*",
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0"
   },

@@ -1,50 +1,33 @@
-import { TurnkeyClient } from "@turnkey/http";
-import { createActivityPoller } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import { TurnkeyActivityError } from "@turnkey/ethers";
 import * as crypto from "crypto";
 import { refineNonNull } from "./util";
 
 export async function createNewEthereumPrivateKey() {
-  const turnkeyClient = new TurnkeyClient(
-    { baseUrl: process.env.BASE_URL! },
-    new ApiKeyStamper({
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
-  );
+  const turnkeyClient = new TurnkeySDKServer({
+    apiBaseUrl: "https://api.turnkey.com",
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    defaultOrganizationId: process.env.ORGANIZATION_ID!,
+  });
 
   console.log(
     "`process.env.PRIVATE_KEY_ID_{INDEX}` not found; creating a new Ethereum private key on Turnkey...\n"
   );
-
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createPrivateKeys,
-  });
-
   const privateKeyName = `ETH Key ${crypto.randomBytes(2).toString("hex")}`;
 
   try {
-    const activity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
-      organizationId: process.env.ORGANIZATION_ID!,
-      parameters: {
-        privateKeys: [
-          {
-            privateKeyName,
-            curve: "CURVE_SECP256K1",
-            addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-            privateKeyTags: [],
-          },
-        ],
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
+    const { privateKeys } = await turnkeyClient.apiClient().createPrivateKeys({
+      privateKeys: [
+        {
+          privateKeyName,
+          curve: "CURVE_SECP256K1",
+          addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
+          privateKeyTags: [],
+        },
+      ],
     });
 
-    const privateKeys = refineNonNull(
-      activity.result.createPrivateKeysResultV2?.privateKeys
-    );
     const privateKeyId = refineNonNull(privateKeys?.[0]?.privateKeyId);
     const address = refineNonNull(privateKeys?.[0]?.addresses?.[0]?.address);
 
