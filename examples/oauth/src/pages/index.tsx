@@ -21,7 +21,7 @@ import { bytesToHex } from '@noble/hashes/utils';
 type AuthResponse = {
   userId: string;
   apiKeyId: string;
-  organizationId: string;
+  credentialBundle: string;
 };
 
 /**
@@ -29,11 +29,8 @@ type AuthResponse = {
  */
 type InjectCredentialsFormData = {
   walletName: string;
-  authBundle: string;
 };
 type AuthFormData = {
-  email: string;
-  suborgID: string;
   invalidateExisting: boolean;
 };
 
@@ -42,7 +39,6 @@ export default function AuthPage() {
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
     null
   );
-  const [googleResponse, setGoogleResponse] = useState<any>(null); 
   const { register: authFormRegister, handleSubmit: authFormSubmit } =
     useForm<AuthFormData>();
   const {
@@ -50,20 +46,35 @@ export default function AuthPage() {
     handleSubmit: injectCredentialsFormSubmit,
   } = useForm<InjectCredentialsFormData>();
 
-  const handleGoogleLogin = (response: any) => {
-    setGoogleResponse(response); 
-    authFormSubmit(auth)(); 
+  const handleGoogleLogin = async (response: any) => {
+    let targetSubOrgId: string;
+    const getSuborgsResponse = await axios.post("api/getSuborgs",{
+      filterType: "OIDC_TOKEN",
+      filterValue: response.credential,
+    })
+    targetSubOrgId = getSuborgsResponse.data.organizationIds[0]; // If you don't have a 1:1 relationship for suborgs:oauthProviders you will need to manage this
+
+    if (getSuborgsResponse.data.organizationIds.length == 0) {
+      const createSuborgResponse = await axios.post("api/createSuborg",{
+        oauthProviders: [
+          {providerName: "Google-Test",
+          oidcToken: response.credential
+          }
+        ],
+      })
+      targetSubOrgId = createSuborgResponse.data.subOrganizationId
+    }
+    authFormSubmit((data) => auth(data, response.credential, targetSubOrgId))(); 
   };
 
-  const auth = async (data: AuthFormData) => {
+  const auth = async (data: AuthFormData,  oidcCredential: string, suborgID: string) => {
     if (iframeStamper === null) {
       throw new Error("cannot initialize auth without an iframe");
     }
-
     const response = await axios.post("/api/auth", {
-      suborgID: data.suborgID,
-      email: data.email,
+      suborgID,
       targetPublicKey: iframeStamper.publicKey(),
+      oidcToken: oidcCredential,
       invalidateExisting: data.invalidateExisting,
     });
 
@@ -79,7 +90,7 @@ export default function AuthPage() {
     }
 
     try {
-      await iframeStamper.injectCredentialBundle(data.authBundle);
+      await iframeStamper.injectCredentialBundle(authResponse.credentialBundle);
     } catch (e) {
       const msg = `error while injecting bundle: ${e}`;
       console.error(msg);
@@ -155,16 +166,7 @@ export default function AuthPage() {
       {!iframeStamper && <p>Loading...</p>}
 
       {iframeStamper && iframeStamper.publicKey() && authResponse === null && (
-        <form className={styles.form} onSubmit={authFormSubmit(auth)}>
-          <label className={styles.label}>
-            Suborg ID (Optional — if not provided, attempt for standalone parent
-            org)
-            <input
-              className={styles.input}
-              {...authFormRegister("suborgID")}
-              placeholder="Suborg ID"
-            />
-          </label>
+        <form className={styles.form}>
           <label className={styles.label}>
             Invalidate previously issued oauth authentication token(s)?
             <input
@@ -182,7 +184,7 @@ export default function AuthPage() {
           </label>
 
           <GoogleOAuthProvider
-                clientId={process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID!}
+                clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
               >
                 <GoogleLogin nonce={bytesToHex(sha256(iframeStamper.publicKey()!))} onSuccess={handleGoogleLogin} useOneTap />
               </GoogleOAuthProvider>
@@ -194,14 +196,6 @@ export default function AuthPage() {
           className={styles.form}
           onSubmit={injectCredentialsFormSubmit(injectCredentials)}
         >
-          <label className={styles.label}>
-            Auth Bundle
-            <input
-              className={styles.input}
-              {...injectCredentialsFormRegister("authBundle")}
-              placeholder="Paste your auth bundle here"
-            />
-          </label>
           <label className={styles.label}>
             New wallet name
             <input

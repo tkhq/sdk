@@ -39,28 +39,25 @@ export default async function auth(
     const completedActivity = await activityPoller({
       type: "ACTIVITY_TYPE_OAUTH",
       timestampMs: String(Date.now()),
-      // This is simple in the case of a single organization.
-      // If you use sub-organizations for each user, this needs to be replaced by the user's specific sub-organization.
       organizationId:
-        request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+        request.suborgID,
       parameters: {
         oidcToken: request.oidcToken,
         targetPublicKey: request.targetPublicKey,
       },
     });
-
     const credentialBundle =
-      completedActivity.result.otpAuthResult?.credentialBundle;
+      completedActivity.result.oauthResult?.credentialBundle;
     if (!credentialBundle) {
       throw new Error("Expected a non-null user ID!");
     }
 
-    const apiKeyId = completedActivity.result.otpAuthResult?.apiKeyId;
+    const apiKeyId = completedActivity.result.oauthResult?.apiKeyId;
     if (!apiKeyId) {
       throw new Error("Expected a non-null user ID!");
     }
 
-    const userId = completedActivity.result.otpAuthResult?.userId;
+    const userId = completedActivity.result.oauthResult?.userId;
     if (!userId) {
       throw new Error("Expected a non-null user ID!");
     }

@@ -3,7 +3,7 @@ import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 type GetSuborgsRequest = {
-  oidcToken: string;
+  filterValue: string;
 };
 
 type GetSuborgsResponse = {
@@ -13,7 +13,7 @@ type ErrorMessage = {
   message: string;
 };
 
-export default async function createSuborg(
+export default async function getSuborgs(
   req: NextApiRequest,
   res: NextApiResponse<GetSuborgsResponse | ErrorMessage>
 ) {
@@ -31,7 +31,7 @@ export default async function createSuborg(
       {
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       filterType: "OIDC_TOKEN",
-      filterValue: request.oidcToken
+      filterValue: request.filterValue
       }
       )
 

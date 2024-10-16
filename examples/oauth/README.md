@@ -1,11 +1,11 @@
-# Example: `otp-auth`
+# Example: `oauth`
 
-This example shows a complete OTP auth flow. It contains a NextJS app with:
+This example shows a complete Oauth flow with google. It contains a NextJS app with:
 
 - a frontend application
 - a backend application
 
-This example contains an example auth page as well as a stub API endpoint for "your business" (where the contact is resolved into an organization ID). The creation of the hidden iframe is abstracted by our `@turnkey/iframe-stamper` package. For more information on OTP auth, [check out our documentation](https://docs.turnkey.com/features/otp-auth).
+This example contains an example auth page as well as a stub API endpoint for "your business" (where the contact is resolved into an organization ID). The creation of the hidden iframe is abstracted by our `@turnkey/iframe-stamper` package. For more information on oauth, [check out our documentation](https://docs.turnkey.com/features/oauth).
 
 ## Getting started
 
@@ -19,7 +19,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/otp-auth/
+$ cd examples/oauth/
 ```
 
 ### 2/ Setting up Turnkey
@@ -49,4 +49,4 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm run dev
 ```
 
-This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to start an OTP auth.
+This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to start an oauth activity.
