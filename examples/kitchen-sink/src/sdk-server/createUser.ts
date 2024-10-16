@@ -1,6 +1,5 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
-import * as crypto from "crypto";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -10,6 +9,7 @@ import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import { refineNonNull } from "../utils";
 
 async function main() {
+  // Initialize a Turnkey client
   const turnkeyClient = new TurnkeySDKServer({
     apiBaseUrl: "https://api.turnkey.com",
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -17,31 +17,35 @@ async function main() {
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
   });
 
-  const privateKeyName = `ETH Key ${crypto.randomBytes(2).toString("hex")}`;
+  const userName = "<user name>";
+  const userTags = ["<your user tag>"];
+  const apiKeyName = "<API key name>";
+  const publicKey = "<API public key>";
 
-  const { privateKeys } = await turnkeyClient.apiClient().createPrivateKeys({
-    privateKeys: [
+  const { userIds } = await turnkeyClient.apiClient().createApiOnlyUsers({
+    apiOnlyUsers: [
       {
-        privateKeyName,
-        curve: "CURVE_SECP256K1",
-        addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-        privateKeyTags: [],
+        userName,
+        userTags,
+        apiKeys: [
+          {
+            apiKeyName,
+            publicKey,
+          },
+        ],
       },
     ],
   });
 
-  const privateKeyId = refineNonNull(privateKeys?.[0]?.privateKeyId);
-  const address = refineNonNull(privateKeys?.[0]?.addresses?.[0]?.address);
+  const userId = refineNonNull(userIds[0]);
 
   // Success!
   console.log(
     [
-      `New Ethereum private key created!`,
-      `- Name: ${privateKeyName}`,
-      `- Private key ID: ${privateKeyId}`,
-      `- Address: ${address}`,
+      `New user created!`,
+      `- Name: ${userName}`,
+      `- User ID: ${userId}`,
       ``,
-      "Now you can take the private key ID, put it in `.env.local`, then re-run the script.",
     ].join("\n")
   );
 }

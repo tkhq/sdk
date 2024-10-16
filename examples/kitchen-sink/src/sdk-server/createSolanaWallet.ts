@@ -10,6 +10,10 @@ import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import { refineNonNull } from "../utils";
 
 async function main() {
+  console.log("creating a new wallet on Turnkey...\n");
+
+  const walletName = `SOL Wallet ${crypto.randomBytes(2).toString("hex")}`;
+
   const turnkeyClient = new TurnkeySDKServer({
     apiBaseUrl: "https://api.turnkey.com",
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -17,31 +21,31 @@ async function main() {
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
   });
 
-  const privateKeyName = `ETH Key ${crypto.randomBytes(2).toString("hex")}`;
-
-  const { privateKeys } = await turnkeyClient.apiClient().createPrivateKeys({
-    privateKeys: [
+  const { walletId, addresses } = await turnkeyClient.apiClient().createWallet({
+    walletName,
+    accounts: [
       {
-        privateKeyName,
-        curve: "CURVE_SECP256K1",
-        addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
-        privateKeyTags: [],
+        pathFormat: "PATH_FORMAT_BIP32",
+        // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+        path: "m/44'/501'/0'/0'",
+        curve: "CURVE_ED25519",
+        addressFormat: "ADDRESS_FORMAT_SOLANA",
       },
     ],
   });
 
-  const privateKeyId = refineNonNull(privateKeys?.[0]?.privateKeyId);
-  const address = refineNonNull(privateKeys?.[0]?.addresses?.[0]?.address);
+  const newWalletId = refineNonNull(walletId);
+  const address = refineNonNull(addresses[0]);
 
   // Success!
   console.log(
     [
-      `New Ethereum private key created!`,
-      `- Name: ${privateKeyName}`,
-      `- Private key ID: ${privateKeyId}`,
+      `New SOL wallet created!`,
+      `- Name: ${walletName}`,
+      `- Wallet ID: ${newWalletId}`,
       `- Address: ${address}`,
       ``,
-      "Now you can take the private key ID, put it in `.env.local`, then re-run the script.",
+      "Now you can take the address, put it in `.env.local` (`SIGN_WITH=<address>`), then re-run the script.",
     ].join("\n")
   );
 }

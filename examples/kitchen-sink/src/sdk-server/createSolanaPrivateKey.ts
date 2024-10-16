@@ -1,15 +1,18 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
-import * as crypto from "crypto";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 
+import * as crypto from "crypto";
+
 import { refineNonNull } from "../utils";
 
 async function main() {
+  console.log("creating a new Solana private key on Turnkey...");
+
   const turnkeyClient = new TurnkeySDKServer({
     apiBaseUrl: "https://api.turnkey.com",
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -17,26 +20,27 @@ async function main() {
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
   });
 
-  const privateKeyName = `ETH Key ${crypto.randomBytes(2).toString("hex")}`;
+  const privateKeyName = `SOL Key ${crypto.randomBytes(2).toString("hex")}`;
 
   const { privateKeys } = await turnkeyClient.apiClient().createPrivateKeys({
     privateKeys: [
       {
         privateKeyName,
-        curve: "CURVE_SECP256K1",
-        addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
+        curve: "CURVE_ED25519",
+        addressFormats: ["ADDRESS_FORMAT_SOLANA"],
         privateKeyTags: [],
       },
     ],
   });
 
-  const privateKeyId = refineNonNull(privateKeys?.[0]?.privateKeyId);
-  const address = refineNonNull(privateKeys?.[0]?.addresses?.[0]?.address);
+  const newPrivateKeys = refineNonNull(privateKeys);
+  const privateKeyId = refineNonNull(newPrivateKeys[0]?.privateKeyId);
+  const address = refineNonNull(newPrivateKeys[0]?.addresses?.[0]?.address);
 
   // Success!
   console.log(
     [
-      `New Ethereum private key created!`,
+      `New Solana private key created!`,
       `- Name: ${privateKeyName}`,
       `- Private key ID: ${privateKeyId}`,
       `- Address: ${address}`,
