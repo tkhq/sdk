@@ -1,52 +1,65 @@
-import type { TurnkeyClient } from "@turnkey/http";
-import { createActivityPoller } from "@turnkey/http";
+import * as path from "path";
+import * as dotenv from "dotenv";
+
+// Load environment variables from `.env.local`
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+
+import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+
 import { refineNonNull } from "../utils";
 
-export default async function createPolicy(
-  turnkeyClient: TurnkeyClient,
-  policyName: string,
-  effect: "EFFECT_ALLOW" | "EFFECT_DENY",
-  consensus: string,
-  condition: string
-): Promise<string> {
+async function main() {
+  // Initialize a Turnkey client
+  const turnkeyClient = new TurnkeyClient(
+    { baseUrl: process.env.BASE_URL! },
+    new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    })
+  );
+
   const activityPoller = createActivityPoller({
     client: turnkeyClient,
     requestFn: turnkeyClient.createPolicy,
   });
 
-  try {
-    const activity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
-      organizationId: process.env.ORGANIZATION_ID!,
-      parameters: {
-        policyName,
-        condition,
-        consensus,
-        effect,
-        notes: "",
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
-    });
+  const policyName = "<your new policy name";
+  const effect = "EFFECT_ALLOW"; // "EFFECT_ALLOW" | "EFFECT_DENY"
+  const consensus = ""; // desired consensus. See https://docs.turnkey.com/concepts/policies/overview
+  const condition = ""; // desired condition. See https://docs.turnkey.com/concepts/policies/overview
+  const notes = "";
 
-    const policyId = refineNonNull(
-      activity.result.createPolicyResult?.policyId
-    );
+  const activity = await activityPoller({
+    type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
+    organizationId: process.env.ORGANIZATION_ID!,
+    parameters: {
+      policyName,
+      condition,
+      consensus,
+      effect,
+      notes,
+    },
+    timestampMs: String(Date.now()), // millisecond timestamp
+  });
 
-    // Success!
-    console.log(
-      [
-        `New policy created!`,
-        `- Name: ${policyName}`,
-        `- Policy ID: ${policyId}`,
-        `- Effect: ${effect}`,
-        `- Consensus: ${consensus}`,
-        `- Condition: ${condition}`,
-        ``,
-      ].join("\n")
-    );
+  const policyId = refineNonNull(activity.result.createPolicyResult?.policyId);
 
-    return policyId;
-  } catch (err: any) {
-    throw new Error("Failed to create a new Ethereum private key: " + err);
-  }
+  // Success!
+  console.log(
+    [
+      `New policy created!`,
+      `- Name: ${policyName}`,
+      `- Policy ID: ${policyId}`,
+      `- Effect: ${effect}`,
+      `- Consensus: ${consensus}`,
+      `- Condition: ${condition}`,
+      ``,
+    ].join("\n")
+  );
 }
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

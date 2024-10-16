@@ -1,18 +1,19 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
+import * as crypto from "crypto";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import * as crypto from "crypto";
+
 import { refineNonNull } from "../utils";
 
 async function main() {
   console.log("creating a new wallet on Turnkey...\n");
 
-  const walletName = `ETH Wallet ${crypto.randomBytes(2).toString("hex")}`;
+  const walletName = `SOL Wallet ${crypto.randomBytes(2).toString("hex")}`;
 
   const turnkeyClient = new TurnkeyClient(
     { baseUrl: process.env.BASE_URL! },
@@ -35,10 +36,11 @@ async function main() {
       walletName,
       accounts: [
         {
-          curve: "CURVE_SECP256K1",
           pathFormat: "PATH_FORMAT_BIP32",
-          path: "m/44'/60'/0'/0/0",
-          addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+          // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+          path: "m/44'/501'/0'/0'",
+          curve: "CURVE_ED25519",
+          addressFormat: "ADDRESS_FORMAT_SOLANA",
         },
       ],
     },
@@ -51,7 +53,7 @@ async function main() {
   // Success!
   console.log(
     [
-      `New Ethereum wallet created!`,
+      `New SOL wallet created!`,
       `- Name: ${walletName}`,
       `- Wallet ID: ${walletId}`,
       `- Address: ${address}`,

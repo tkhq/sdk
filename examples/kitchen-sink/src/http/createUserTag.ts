@@ -1,55 +1,57 @@
-import { createActivityPoller, type TurnkeyClient } from "@turnkey/http";
+import * as path from "path";
+import * as dotenv from "dotenv";
+
+// Load environment variables from `.env.local`
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+
+import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+
 import { refineNonNull } from "../utils";
 
-export default async function createUser(
-  turnkeyClient: TurnkeyClient,
-  userName: string,
-  userTags: string[],
-  apiKeyName: string,
-  publicKey: string
-): Promise<string> {
+async function main() {
+  // Initialize a Turnkey client
+  const turnkeyClient = new TurnkeyClient(
+    { baseUrl: process.env.BASE_URL! },
+    new ApiKeyStamper({
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    })
+  );
+
   const activityPoller = createActivityPoller({
     client: turnkeyClient,
-    requestFn: turnkeyClient.createApiOnlyUsers,
+    requestFn: turnkeyClient.createUserTag,
   });
 
-  try {
-    const activity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
-      organizationId: process.env.ORGANIZATION_ID!,
-      parameters: {
-        apiOnlyUsers: [
-          {
-            userName,
-            userTags,
-            apiKeys: [
-              {
-                apiKeyName,
-                publicKey,
-              },
-            ],
-          },
-        ],
-      },
-      timestampMs: String(Date.now()), // millisecond timestamp
-    });
+  const userTagName = "<desired tag name>";
 
-    const userId = refineNonNull(
-      activity.result.createApiOnlyUsersResult?.userIds?.[0]
-    );
+  const activity = await activityPoller({
+    type: "ACTIVITY_TYPE_CREATE_USER_TAG",
+    organizationId: process.env.ORGANIZATION_ID!,
+    parameters: {
+      userTagName,
+      userIds: [], // relevant user IDs
+    },
+    timestampMs: String(Date.now()), // millisecond timestamp
+  });
 
-    // Success!
-    console.log(
-      [
-        `New user created!`,
-        `- Name: ${userName}`,
-        `- User ID: ${userId}`,
-        ``,
-      ].join("\n")
-    );
+  const userTagId = refineNonNull(
+    activity.result.createUserTagResult?.userTagId
+  );
 
-    return userId;
-  } catch (err: any) {
-    throw new Error("Failed to create a new Ethereum private key: " + err);
-  }
+  // Success!
+  console.log(
+    [
+      `New user tag created!`,
+      `- Name: ${userTagName}`,
+      `- User tag ID: ${userTagId}`,
+      ``,
+    ].join("\n")
+  );
 }
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

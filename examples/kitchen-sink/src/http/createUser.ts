@@ -21,32 +21,44 @@ async function main() {
 
   const activityPoller = createActivityPoller({
     client: turnkeyClient,
-    requestFn: turnkeyClient.createPrivateKeyTag,
+    requestFn: turnkeyClient.createApiOnlyUsers,
   });
 
-  const privateKeyTagName = "<your desired private key tag name>";
-  const privateKeyIds = ["<relevant private key ID>"];
+  const userName = "<user name>";
+  const userTags = ["<your user tag>"];
+  const apiKeyName = "<API key name>";
+  const publicKey = "<API public key>";
 
   const activity = await activityPoller({
-    type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
+    type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
     organizationId: process.env.ORGANIZATION_ID!,
     parameters: {
-      privateKeyTagName,
-      privateKeyIds,
+      apiOnlyUsers: [
+        {
+          userName,
+          userTags,
+          apiKeys: [
+            {
+              apiKeyName,
+              publicKey,
+            },
+          ],
+        },
+      ],
     },
     timestampMs: String(Date.now()), // millisecond timestamp
   });
 
-  const privateKeyTagId = refineNonNull(
-    activity.result.createPrivateKeyTagResult?.privateKeyTagId
+  const userId = refineNonNull(
+    activity.result.createApiOnlyUsersResult?.userIds?.[0]
   );
 
   // Success!
   console.log(
     [
-      `New private key tag created!`,
-      `- Name: ${privateKeyTagName}`,
-      `- Private key tag ID: ${privateKeyTagId}`,
+      `New user created!`,
+      `- Name: ${userName}`,
+      `- User ID: ${userId}`,
       ``,
     ].join("\n")
   );
