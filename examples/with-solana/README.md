@@ -7,6 +7,8 @@ This example walks through the following:
 - Construction of a transaction sending the funds out with the `@turnkey/solana` signer
 - Creating, minting, and transferring a SPL token using Turnkey
 
+You can try this example quickly on Stackblitz -- follow the instructions below
+
 ## Getting started
 
 ### 1/ Cloning the example
@@ -163,3 +165,29 @@ Token balance for warchest: 0.0001
 ```
 
 Enjoy!
+
+
+### 6/ Stackblitz Example
+
+You will need to create a stackblitz 
+
+Example Link: https://stackblitz.com/edit/stackblitz-starters-xeb93i
+
+#### Prerequisites
+- To use the example you need the following
+- Turnkey Organization
+- API key for the root user (both public and private key needed) 
+
+
+#### Set Env Variables 
+Set the following environment variables in .env.local
+- API_PUBLIC_KEY --> Set this to be the public key of the API key for the root user for the org you've created
+- API_PRIVATE_KEY --> Set this to be the private key of the API key for the root user for the org you've created
+- ORGANIZATION_ID --> Set this to be the Org ID of the org you've created
+
+#### Optional Env Variables
+- SOLANA_ADDRESS --> This is optional, If you want to use an existing Solana address in your organization, put it here!
+- SOLANA_ADDRESS_FEE_PAYER --> This is optional, a separate fee payer address. To be used in `withFeePayer.ts`
+
+#### Directions to use
+- run `npm install && npm start`

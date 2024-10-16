@@ -15,6 +15,8 @@ The flow showcases 3 ways to make requests to Turnkey:
 
 If you want to see a Solana demo with API keys instead of passkeys, head to the example [`with-solana`](https://github.com/tkhq/sdk/tree/main/examples/with-solana).
 
+You can try this example quickly on Stackblitz -- follow the instructions below
+
 ## Getting started
 
 ### 1/ Clone or fork this repo
@@ -64,3 +66,31 @@ This command will start a NextJS app on localhost. If you navigate to http://loc
 # Legal Disclaimer
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL TURNKEY BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+### 4/ Stackblitz Example
+
+You will need to create a stackblitz 
+
+Example Link: https://stackblitz.com/edit/stackblitz-starters-h5pmnu
+
+#### Prerequisites
+To use the example you need the following
+- Turnkey Organization
+- API key for the root user (both public and private key needed) 
+- Solana wallet for Parent org (created within turnkey UI) 
+- Airdrop SOL to parent org wallet using devnet faucet → https://faucet.solana.com/ 
+
+
+#### Set Env Variables
+Set the following environment variables in .env.local
+- API_PUBLIC_KEY → Public key of your API associated with root user
+- API_PRIVATE_KEY → Private key of your API associated with root user 
+- NEXT_PUBLIC_ORGANIZTION_ID → org ID of the turnkey organization that you’re using
+- NEXT_PUBLIC_RPID --> this should be prefilled with the value `local-credentialless.webcontainer.io` which is the RPID required in the stackblitz environment
+- NEXT_PUBLIC_SERVER_SIGN_URL → fill this out with the url in the browser of stackblitz followed by “/api” --> for example: https://stackblitzstartersh5pmnu-0bej--3000--134daa3c.local-credentialless.webcontainer.io/api
+- NEXT_PUBLIC_FEE_PAYER_ADDRESS --> the address of the solana address with airdropped funds
+
+
+#### Directions to use
+- run `npm install && npm run build && npm run dev"
+- follow example flow
