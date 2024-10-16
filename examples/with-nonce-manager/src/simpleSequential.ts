@@ -1,36 +1,33 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
+import { ethers } from "ethers";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeySigner } from "@turnkey/ethers";
-import { ethers } from "ethers";
-import { TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { createNewWallet } from "./createNewWallet";
+import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
+
+import { createNewEthereumWallet } from "./createNewWallet";
 import { print } from "./util";
 
 async function main() {
   if (!process.env.SIGN_WITH) {
     // If you don't specify a `SIGN_WITH`, we'll create a new wallet for you via calling the Turnkey API.
-    await createNewWallet();
+    await createNewEthereumWallet();
     return;
   }
 
-  const turnkeyClient = new TurnkeyClient(
-    {
-      baseUrl: process.env.BASE_URL!,
-    },
-    new ApiKeyStamper({
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
-  );
+  const turnkeyClient = new TurnkeySDKServer({
+    apiBaseUrl: "https://api.turnkey.com",
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    defaultOrganizationId: process.env.ORGANIZATION_ID!,
+  });
 
   // Initialize a Turnkey Signer
   const turnkeySigner = new TurnkeySigner({
-    client: turnkeyClient,
+    client: turnkeyClient.apiClient(),
     organizationId: process.env.ORGANIZATION_ID!,
     signWith: process.env.SIGN_WITH!,
   });
