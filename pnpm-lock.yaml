@@ -66,9 +66,6 @@ importers:
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../packages/http
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server
@@ -401,15 +398,9 @@ importers:
 
   examples/rebalancer:
     dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:^
-        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
-      '@turnkey/http':
-        specifier: workspace:*
-        version: link:../../packages/http
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server
@@ -422,15 +413,12 @@ importers:
 
   examples/sweeper:
     dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
-      '@turnkey/http':
+      '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../packages/http
+        version: link:../../packages/sdk-server
       '@uniswap/sdk-core':
         specifier: ^3.1.1
         version: 3.1.1
@@ -453,15 +441,12 @@ importers:
 
   examples/trading-runner:
     dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:^
-        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
-      '@turnkey/http':
+      '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../packages/http
+        version: link:../../packages/sdk-server
       '@uniswap/sdk-core':
         specifier: ^3.1.1
         version: 3.1.1
@@ -917,15 +902,12 @@ importers:
       '@safe-global/safe-ethers-lib':
         specifier: ^1.9.2
         version: 1.9.2
-      '@turnkey/api-key-stamper':
-        specifier: workspace:^
-        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
-      '@turnkey/http':
+      '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../packages/http
+        version: link:../../packages/sdk-server
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
@@ -935,15 +917,12 @@ importers:
 
   examples/with-nonce-manager:
     dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:^
-        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
-      '@turnkey/http':
+      '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../packages/http
+        version: link:../../packages/sdk-server
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
@@ -1133,15 +1112,12 @@ importers:
 
   examples/with-uniswap:
     dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
-      '@turnkey/http':
+      '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../packages/http
+        version: link:../../packages/sdk-server
       '@uniswap/sdk-core':
         specifier: ^3.1.1
         version: 3.1.1
