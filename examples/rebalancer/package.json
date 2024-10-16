@@ -9,9 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@turnkey/api-key-stamper": "workspace:^",
     "@turnkey/ethers": "workspace:*",
-    "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0"
