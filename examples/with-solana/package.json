@@ -9,6 +9,7 @@
     "faucet": "pnpm tsx src/faucet.ts",
     "jupiter-swap": "pnpm tsx src/jupiterSwap.ts",
     "with-fee-payer": "pnpm tsx src/withFeePayer.ts",
+    "add-signature": "pnpm tsx src/addSignature.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
