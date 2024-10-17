@@ -31,7 +31,8 @@ export default async function init_auth(
     const initOtpAuthResponse = await turnkeyClient.apiClient().initOtpAuth({
       contact: request.contact,
       otpType: request.otpType,
-      organizationId: request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      organizationId:
+        request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
     const { otpId } = initOtpAuthResponse;

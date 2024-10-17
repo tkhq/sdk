@@ -35,13 +35,16 @@ export default async function auth(
       otpId: request.otpId,
       otpCode: request.otpCode,
       targetPublicKey: request.targetPublicKey,
-      organizationId: request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      organizationId:
+        request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
     const { credentialBundle, apiKeyId, userId } = otpAuthResponse;
 
     if (!credentialBundle || !apiKeyId || !userId) {
-      throw new Error("Expected non-null values for credentialBundle, apiKeyId, and userId.");
+      throw new Error(
+        "Expected non-null values for credentialBundle, apiKeyId, and userId."
+      );
     }
 
     res.status(200).json({ credentialBundle, apiKeyId, userId });

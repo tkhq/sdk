@@ -39,7 +39,8 @@ export default async function auth(
       email: request.email,
       targetPublicKey: request.targetPublicKey,
       invalidateExisting: request.invalidateExisting,
-      organizationId: request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      organizationId:
+        request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
     const { userId, apiKeyId } = emailAuthResponse;
