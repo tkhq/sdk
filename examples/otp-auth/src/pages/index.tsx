@@ -1,12 +1,10 @@
 import Image from "next/image";
 import styles from "./index.module.css";
-import { createActivityPoller, TurnkeyClient } from "@turnkey/http";
-import { IframeStamper } from "@turnkey/iframe-stamper";
+import { useTurnkey } from "@turnkey/sdk-react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
 import { useState } from "react";
-import { Auth } from "@/components/Auth";
 
 /**
  * Type definition for the server response coming back from `/api/init_auth`
@@ -40,9 +38,7 @@ export default function AuthPage() {
   const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
   const [initAuthResponse, setInitAuthResponse] =
     useState<InitAuthResponse | null>(null);
-  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
-    null
-  );
+    const { authIframeClient } = useTurnkey();
   const { register: authFormRegister, handleSubmit: authFormSubmit } =
     useForm<AuthFormData>();
   const {
@@ -51,12 +47,12 @@ export default function AuthPage() {
   } = useForm<CreateWalletFormData>();
 
   const auth = async (data: AuthFormData) => {
-    if (iframeStamper === null) {
+    if (authIframeClient === null) {
       throw new Error("cannot initialize auth without an iframe");
     }
     const response = await axios.post("/api/auth", {
       suborgID: data.suborgID,
-      targetPublicKey: iframeStamper.publicKey(),
+      targetPublicKey: authIframeClient!.iframePublicKey,
       invalidateExisting: data.invalidateExisting,
       otpId: initAuthResponse?.otpId,
       otpCode: data.otpCode,
@@ -65,7 +61,7 @@ export default function AuthPage() {
   };
 
   const initAuth = async (data: AuthFormData) => {
-    if (iframeStamper === null) {
+    if (authIframeClient === null) {
       throw new Error("cannot initialize auth without an iframe");
     }
 
@@ -78,14 +74,14 @@ export default function AuthPage() {
   };
 
   const createWallet = async (data: CreateWalletFormData) => {
-    if (iframeStamper === null) {
+    if (authIframeClient === null) {
       throw new Error("iframeStamper is null");
     }
     if (authResponse === null) {
       throw new Error("authResponse is null");
     }
     try {
-      await iframeStamper.injectCredentialBundle(
+      await authIframeClient!.injectCredentialBundle(
         authResponse?.credentialBundle
       );
     } catch (e) {
@@ -95,44 +91,26 @@ export default function AuthPage() {
       return;
     }
 
-    const client = new TurnkeyClient(
-      {
-        baseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-      },
-      iframeStamper
-    );
-
     // get whoami for suborg
-    const whoamiResponse = await client.getWhoami({
+    const whoamiResponse = await authIframeClient!.getWhoami({
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
     const orgID = whoamiResponse.organizationId;
 
-    const activityPoller = createActivityPoller({
-      client,
-      requestFn: client.createWallet,
-    });
-
-    const completedActivity = await activityPoller({
-      type: "ACTIVITY_TYPE_CREATE_WALLET",
-      timestampMs: String(Date.now()),
+    const createWalletResponse = await authIframeClient!.createWallet({
       organizationId: orgID,
-      parameters: {
-        walletName: data.walletName,
-        accounts: [
-          {
-            curve: "CURVE_SECP256K1",
-            pathFormat: "PATH_FORMAT_BIP32",
-            path: "m/44'/60'/0'/0/0",
-            addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-          },
-        ],
-      },
+      walletName: data.walletName,
+      accounts: [
+        {
+          curve: "CURVE_SECP256K1",
+          pathFormat: "PATH_FORMAT_BIP32",
+          path: "m/44'/60'/0'/0/0",
+          addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+        },
+      ],
     });
-
-    const wallet = refineNonNull(completedActivity.result.createWalletResult);
-    const address = refineNonNull(wallet.addresses[0]);
+    const address = refineNonNull(createWalletResponse.addresses[0]);
 
     alert(`SUCCESS! Wallet and new address created: ${address} `);
   };
@@ -154,16 +132,10 @@ export default function AuthPage() {
         />
       </a>
 
-      <Auth
-        setIframeStamper={setIframeStamper}
-        iframeUrl={process.env.NEXT_PUBLIC_AUTH_IFRAME_URL!}
-        turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
-      ></Auth>
+      {!authIframeClient && <p>Loading...</p>}
 
-      {!iframeStamper && <p>Loading...</p>}
-
-      {iframeStamper &&
-        iframeStamper.publicKey() &&
+      {authIframeClient &&
+        authIframeClient.iframePublicKey &&
         initAuthResponse === null && (
           <form className={styles.form} onSubmit={authFormSubmit(initAuth)}>
             <label className={styles.label}>
@@ -186,8 +158,8 @@ export default function AuthPage() {
             <label className={styles.label}>
               Encryption Target from iframe:
               <br />
-              <code title={iframeStamper.publicKey()!}>
-                {iframeStamper.publicKey()!.substring(0, 30)}...
+              <code title={authIframeClient.iframePublicKey!}>
+                {authIframeClient.iframePublicKey!.substring(0, 30)}...
               </code>
             </label>
 
@@ -195,8 +167,8 @@ export default function AuthPage() {
           </form>
         )}
 
-      {iframeStamper &&
-        iframeStamper.publicKey() &&
+      {authIframeClient &&
+        authIframeClient.iframePublicKey &&
         initAuthResponse !== null &&
         authResponse == null && (
           <form className={styles.form} onSubmit={authFormSubmit(auth)}>
@@ -221,8 +193,8 @@ export default function AuthPage() {
             <label className={styles.label}>
               Encryption Target from iframe:
               <br />
-              <code title={iframeStamper.publicKey()!}>
-                {iframeStamper.publicKey()!.substring(0, 30)}...
+              <code title={authIframeClient.iframePublicKey!}>
+                {authIframeClient.iframePublicKey!.substring(0, 30)}...
               </code>
             </label>
 
@@ -230,7 +202,7 @@ export default function AuthPage() {
           </form>
         )}
 
-      {iframeStamper && iframeStamper.publicKey() && authResponse !== null && (
+      {authIframeClient && authIframeClient.iframePublicKey && authResponse !== null && (
         <form
           className={styles.form}
           onSubmit={createWalletFormSubmit(createWallet)}

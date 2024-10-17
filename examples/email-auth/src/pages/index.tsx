@@ -91,7 +91,6 @@ export default function AuthPage() {
       ],
     });
 
-    const wallet = refineNonNull(createWalletResponse.walletId);
     const address = refineNonNull(createWalletResponse.addresses[0]);
 
     alert(`SUCCESS! Wallet and new address created: ${address} `);
