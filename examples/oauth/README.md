@@ -41,7 +41,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
 - `NEXT_PUBLIC_ORGANIZATION_ID`
-- `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID`(Google OIDC credentials client id: https://developers.google.com/identity/openid-connect/openid-connect)
 - `NEXT_PUBLIC_AUTH_IFRAME_URL`
 
 ### 3/ Running the app

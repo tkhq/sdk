@@ -8,7 +8,7 @@ const turnkeyConfig = {
   defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
   rpId: process.env.NEXT_PUBLIC_RPID!,
   iframeUrl:
-    process.env.NEXT_PUBLIC_AUTH_IFRAME_URL ?? "https://auth.turnkey.com", // not necessary for this example
+    process.env.NEXT_PUBLIC_AUTH_IFRAME_URL ?? "https://auth.turnkey.com",
 };
 
 function Oauth({ Component, pageProps }: AppProps) {
