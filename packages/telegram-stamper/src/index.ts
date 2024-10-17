@@ -25,11 +25,7 @@ export class TelegramStamper {
 
   constructor(config?: TTelegramStamperConfig) {
     // check to see if were in a telegram mini app context
-    if (window.Telegram?.WebApp == null) {
-      throw new TelegramStamperError(
-        "Cannot initialize telegram stamper in non telegram mini-app environment"
-      );
-    }
+    this.checkTelegramContext();
 
     // check the type of config that was passed in to the constructor
     if (config) {
@@ -43,6 +39,9 @@ export class TelegramStamper {
 
   // initialize the telegram stamper by getting/setting the private/public api key values from/to telegram cloud storage
   async init() {
+    // check to see if were in a telegram mini app context
+    this.checkTelegramContext();
+
     if (this.stamper) {
       // insert creds into telegram cloud storage
       // insert public key
@@ -130,6 +129,10 @@ export class TelegramStamper {
   }
 
   async stamp(payload: string) {
+    // check to see if were in a telegram mini app context
+    this.checkTelegramContext();
+
+    // check to see that the stamper was initialized
     if (!this.stamper) {
       throw new TelegramStamperError(
         "Cannot stamp with unintialized telegram stamper, call TelegramStamper.init()"
@@ -141,6 +144,9 @@ export class TelegramStamper {
 
   // clear key from telegram cloud storage
   async clearKey(key: string) {
+    // check to see if were in a telegram mini app context
+    this.checkTelegramContext();
+
     await window.Telegram.WebApp.CloudStorage.removeItem(
       key,
       (err: any, removed: boolean) => {
@@ -151,5 +157,13 @@ export class TelegramStamper {
         }
       }
     );
+  }
+
+  checkTelegramContext() {
+    if (window.Telegram?.WebApp == null) {
+      throw new TelegramStamperError(
+        "Cannot use telegram stamper in non telegram mini-app environment"
+      );
+    }
   }
 }
