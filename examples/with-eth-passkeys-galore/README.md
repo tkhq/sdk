@@ -55,6 +55,39 @@ $ pnpm run dev
 
 This command will start a NextJS app on localhost. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to create a sub organization, create a private key for the newly created sub-organization, and sign a message using your passkey with a Viem custom account, or Ethers signer!
 
+### 4/ Stackblitz Example
+
+You will need to create a Stackblitz account to run the following example
+
+Example Link: https://stackblitz.com/edit/stackblitz-starters-2psu3g
+
+#### Prerequisites
+
+To use the example you need the following
+
+- Turnkey Organization
+- API key for the root user (both public and private key needed)
+
+#### Set Env Variables
+
+Set the following environment variables in the `.env.local` file
+
+- `API_PUBLIC_KEY` --> Set this to be the public key of the API key for the root user for the org you've created
+- `API_PRIVATE_KEY` --> Set this to be the private key of the API key for the root user for the org you've created
+- `NEXT_PUBLIC_ORGANIZATION_ID` --> Set this to be the Org ID of the org you've created
+- `NEXT_PUBLIC_BASE_URL` --> This will be preset with https://api.turnkey.com
+- `NEXT_PUBLIC_RPID` --> this should be pre-filled with the value `local-credentialless.webcontainer.io` which is the RPID required in the Stackblitz environment
+- `NEXT_PUBLIC_SERVER_SIGN_URL` → fill this out with the url in the browser of Stackblitz followed by “/api” --> for example: https://stackblitzstartersh5pmnu-0bej--3000--134daa3c.local-credentialless.webcontainer.io/api. This needs to be replaced as in the note below
+
+NOTE: when you update `.env.local` file (or any file) in Stackblitz, the project will get forked and a new Stackblitz environment will get created. This means that you'll have to `NEXT_PUBLIC_SERVER_SIGN_URL` will have to be updated to be the Stackblitz environment broswer URL + the suffix "/api" 
+
+#### Directions to use
+
+- run `npm install && npm run dev`
+- follow the example's flow
+
 # Legal Disclaimer
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL TURNKEY BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
