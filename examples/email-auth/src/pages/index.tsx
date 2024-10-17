@@ -61,9 +61,7 @@ export default function AuthPage() {
       throw new Error("authResponse is null");
     }
     try {
-      await authIframeClient!.injectCredentialBundle(
-        data.authBundle
-      );
+      await authIframeClient!.injectCredentialBundle(data.authBundle);
     } catch (e) {
       const msg = `error while injecting bundle: ${e}`;
       console.error(msg);
@@ -113,77 +111,80 @@ export default function AuthPage() {
         />
       </a>
 
-
       {!authIframeClient && <p>Loading...</p>}
 
-      {authIframeClient && authIframeClient.iframePublicKey && authResponse === null && (
-        <form className={styles.form} onSubmit={authFormSubmit(auth)}>
-          <label className={styles.label}>
-            Email
-            <input
-              className={styles.input}
-              {...authFormRegister("email")}
-              placeholder="Email"
-            />
-          </label>
-          <label className={styles.label}>
-            Suborg ID (Optional — if not provided, attempt for standalone parent
-            org)
-            <input
-              className={styles.input}
-              {...authFormRegister("suborgID")}
-              placeholder="Suborg ID"
-            />
-          </label>
-          <label className={styles.label}>
-            Invalidate previously issued email authentication token(s)?
-            <input
-              className={styles.input_checkbox}
-              {...authFormRegister("invalidateExisting")}
-              type="checkbox"
-            />
-          </label>
-          <label className={styles.label}>
-            Encryption Target from iframe:
-            <br />
-            <code title={authIframeClient.iframePublicKey!}>
-              {authIframeClient.iframePublicKey!.substring(0, 30)}...
-            </code>
-          </label>
+      {authIframeClient &&
+        authIframeClient.iframePublicKey &&
+        authResponse === null && (
+          <form className={styles.form} onSubmit={authFormSubmit(auth)}>
+            <label className={styles.label}>
+              Email
+              <input
+                className={styles.input}
+                {...authFormRegister("email")}
+                placeholder="Email"
+              />
+            </label>
+            <label className={styles.label}>
+              Suborg ID (Optional — if not provided, attempt for standalone
+              parent org)
+              <input
+                className={styles.input}
+                {...authFormRegister("suborgID")}
+                placeholder="Suborg ID"
+              />
+            </label>
+            <label className={styles.label}>
+              Invalidate previously issued email authentication token(s)?
+              <input
+                className={styles.input_checkbox}
+                {...authFormRegister("invalidateExisting")}
+                type="checkbox"
+              />
+            </label>
+            <label className={styles.label}>
+              Encryption Target from iframe:
+              <br />
+              <code title={authIframeClient.iframePublicKey!}>
+                {authIframeClient.iframePublicKey!.substring(0, 30)}...
+              </code>
+            </label>
 
-          <input className={styles.button} type="submit" value="Auth" />
-        </form>
-      )}
+            <input className={styles.button} type="submit" value="Auth" />
+          </form>
+        )}
 
-      {authIframeClient && authIframeClient.iframePublicKey && authResponse !== null && (
-        <form
-          className={styles.form}
-          onSubmit={injectCredentialsFormSubmit(injectCredentials)}
-        >
-          <label className={styles.label}>
-            Auth Bundle
-            <input
-              className={styles.input}
-              {...injectCredentialsFormRegister("authBundle")}
-              placeholder="Paste your auth bundle here"
-            />
-          </label>
-          <label className={styles.label}>
-            New wallet name
-            <input
-              className={styles.input}
-              {...injectCredentialsFormRegister("walletName")}
-              placeholder="Wallet name"
-            />
-          </label>
+      {authIframeClient &&
+        authIframeClient.iframePublicKey &&
+        authResponse !== null && (
+          <form
+            className={styles.form}
+            onSubmit={injectCredentialsFormSubmit(injectCredentials)}
+          >
+            <label className={styles.label}>
+              Auth Bundle
+              <input
+                className={styles.input}
+                {...injectCredentialsFormRegister("authBundle")}
+                placeholder="Paste your auth bundle here"
+              />
+            </label>
+            <label className={styles.label}>
+              New wallet name
+              <input
+                className={styles.input}
+                {...injectCredentialsFormRegister("walletName")}
+                placeholder="Wallet name"
+              />
+            </label>
 
-          <input
-            className={styles.button}
-            type="submit"
-            value="Create Wallet"
-          />
-        </form>
-      )}
+            <input
+              className={styles.button}
+              type="submit"
+              value="Create Wallet"
+            />
+          </form>
+        )}
     </main>
   );
 }

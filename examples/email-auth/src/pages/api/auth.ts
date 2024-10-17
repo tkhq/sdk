@@ -39,7 +39,10 @@ export default async function auth(
       email: request.email,
       targetPublicKey: request.targetPublicKey,
       invalidateExisting: request.invalidateExisting,
-      organizationId: request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      // This is simple in the case of a single organization.
+      // If you use sub-organizations for each user, this needs to be replaced by the user's specific sub-organization.
+      organizationId:
+        request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
     const { userId, apiKeyId } = emailAuthResponse;

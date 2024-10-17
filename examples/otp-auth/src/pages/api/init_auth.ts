@@ -31,7 +31,10 @@ export default async function init_auth(
     const initOtpAuthResponse = await turnkeyClient.apiClient().initOtpAuth({
       contact: request.contact,
       otpType: request.otpType,
-      organizationId: request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      // This is simple in the case of a single organization.
+      // If you use sub-organizations for each user, this needs to be replaced by the user's specific sub-organization.
+      organizationId:
+        request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
     const { otpId } = initOtpAuthResponse;

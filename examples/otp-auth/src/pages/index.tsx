@@ -38,7 +38,7 @@ export default function AuthPage() {
   const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
   const [initAuthResponse, setInitAuthResponse] =
     useState<InitAuthResponse | null>(null);
-    const { authIframeClient } = useTurnkey();
+  const { authIframeClient } = useTurnkey();
   const { register: authFormRegister, handleSubmit: authFormSubmit } =
     useForm<AuthFormData>();
   const {
@@ -202,27 +202,29 @@ export default function AuthPage() {
           </form>
         )}
 
-      {authIframeClient && authIframeClient.iframePublicKey && authResponse !== null && (
-        <form
-          className={styles.form}
-          onSubmit={createWalletFormSubmit(createWallet)}
-        >
-          <label className={styles.label}>
-            New wallet name
-            <input
-              className={styles.input}
-              {...createWalletFormRegister("walletName")}
-              placeholder="Wallet name"
-            />
-          </label>
+      {authIframeClient &&
+        authIframeClient.iframePublicKey &&
+        authResponse !== null && (
+          <form
+            className={styles.form}
+            onSubmit={createWalletFormSubmit(createWallet)}
+          >
+            <label className={styles.label}>
+              New wallet name
+              <input
+                className={styles.input}
+                {...createWalletFormRegister("walletName")}
+                placeholder="Wallet name"
+              />
+            </label>
 
-          <input
-            className={styles.button}
-            type="submit"
-            value="Create Wallet"
-          />
-        </form>
-      )}
+            <input
+              className={styles.button}
+              type="submit"
+              value="Create Wallet"
+            />
+          </form>
+        )}
     </main>
   );
 }
