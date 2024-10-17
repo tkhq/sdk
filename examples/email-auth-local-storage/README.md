@@ -10,6 +10,8 @@ The overall flow for email auth is outlined below:
 
 This example contains an auth page as well and enables you to create wallets using an email auth credential. Unlike our other [email auth example](https://github.com/tkhq/sdk/tree/main/examples/email-auth), this does not use an iframe, which typically houses a target embedded key. Instead, a target embedded key is created within the application itself and stored in local storage.
 
+You can try this example quickly on Stackblitz -- follow the instructions below
+
 ## Getting started
 
 ### 1/ Cloning the example
@@ -65,3 +67,30 @@ $ pnpm run dev
 ```
 
 This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to start an email auth.
+
+### 4/ Stackblitz Example
+
+You will need to create a Stackblitz account to run the following example
+
+Example Link: https://stackblitz.com/edit/stackblitz-starters-pyyw59
+
+#### Prerequisites
+
+To use the example you need the following
+
+- Turnkey Organization
+- API key for the root user (both public and private key needed)
+- Turnkey Suborg with an email user
+
+#### Set Env Variables
+
+Set the following environment variables in the `.env.local` file
+
+- `API_PUBLIC_KEY` --> Set this to be the public key of the API key for the root user for the org you've created
+- `API_PRIVATE_KEY` --> Set this to be the private key of the API key for the root user for the org you've created
+- `NEXT_PUBLIC_ORGANIZATION_ID` --> Set this to be the Org ID of the org you've created
+- `NEXT_PUBLIC_BASE_URL` --> This will be preset with https://api.turnkey.com
+
+#### Directions to use
+
+- run `npm install && npm run dev`
