@@ -181,14 +181,14 @@ To use the example you need the following
 
 Set the following environment variables in the `.env.local` file
 
-- API_PUBLIC_KEY --> Set this to be the public key of the API key for the root user for the org you've created
-- API_PRIVATE_KEY --> Set this to be the private key of the API key for the root user for the org you've created
-- ORGANIZATION_ID --> Set this to be the Org ID of the org you've created
+- `API_PUBLIC_KEY` --> Set this to be the public key of the API key for the root user for the org you've created
+- `API_PRIVATE_KEY` --> Set this to be the private key of the API key for the root user for the org you've created
+- `ORGANIZATION_ID` --> Set this to be the Org ID of the org you've created
 
 #### Optional Env Variables
 
-- SOLANA_ADDRESS --> This is optional, If you want to use an existing Solana address in your organization, put it here!
-- SOLANA_ADDRESS_FEE_PAYER --> This is optional, a separate fee payer address. To be used in `withFeePayer.ts`
+- `SOLANA_ADDRESS` --> This is optional, If you want to use an existing Solana address in your organization, put it here!
+- `SOLANA_ADDRESS_FEE_PAYER` --> This is optional, a separate fee payer address. To be used in `withFeePayer.ts`
 
 #### Directions to use
 
