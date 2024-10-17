@@ -168,8 +168,6 @@ Enjoy!
 
 ### 6/ Stackblitz Example
 
-You will need to create a Stackblitz account to run the following example
-
 Example Link: https://stackblitz.com/edit/stackblitz-starters-xeb93i
 
 #### Prerequisites

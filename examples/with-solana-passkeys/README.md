@@ -65,8 +65,6 @@ This command will start a NextJS app on localhost. If you navigate to http://loc
 
 ### 4/ Stackblitz Example
 
-You will need to create a Stackblitz account to run this example
-
 Example Link: https://stackblitz.com/edit/stackblitz-starters-h5pmnu
 
 #### Prerequisites
@@ -90,7 +88,7 @@ Set the following environment variables in .env.local
 - `NEXT_PUBLIC_SERVER_SIGN_URL` → fill this out with the url in the browser of Stackblitz followed by “/api” --> for example: https://stackblitzstarters2psu3g-5wkd--3000--134daa3c.local-credentialless.webcontainer.io/api. This needs to be replaced as in the note below
 - `NEXT_PUBLIC_FEE_PAYER_ADDRESS` --> the address of the Solana address with airdropped funds
 
-NOTE: when you update `.env.local` file (or any file) in Stackblitz, the project will get forked and a new Stackblitz environment will get created. This means that you'll have to `NEXT_PUBLIC_SERVER_SIGN_URL` will have to be updated to be the Stackblitz environment broswer URL + the suffix "/api" 
+NOTE: when you update `.env.local` file (or any file) in Stackblitz, the project will get forked and a new Stackblitz environment will get created. This means that you'll have to `NEXT_PUBLIC_SERVER_SIGN_URL` will have to be updated to be the Stackblitz environment broswer URL + the suffix "/api"
 
 #### Directions to use
 

@@ -70,8 +70,6 @@ This command will run a NextJS app on port 3000. If you navigate to http://local
 
 ### 4/ Stackblitz Example
 
-You will need to create a Stackblitz account to run the following example
-
 Example Link: https://stackblitz.com/edit/stackblitz-starters-pyyw59
 
 #### Prerequisites
