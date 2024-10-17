@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
-import { TonClient, toNano, Address, beginCell, WalletContractV4, internal, storeMessageRelaxed, SendMode, Cell, storeMessage, external } from "@ton/ton";
+import { TonClient, Address, beginCell, WalletContractV4, internal, storeMessageRelaxed, SendMode, Cell, storeMessage, external } from "@ton/ton";
 import { input } from "@inquirer/prompts";
 import { Turnkey } from "@turnkey/sdk-server";
 import { bytesToHex } from "@noble/hashes/utils";
@@ -90,7 +90,7 @@ async function main() {
 
   const client = new TonClient({
     endpoint: "https://toncenter.com/api/v2/jsonRPC",
-    apiKey: "/////",
+    apiKey: "",
   });
   const walletAddress = process.env.TON_ADDRESS!;
   const walletPublicKey = process.env.TON_PUBLIC_KEY!;
@@ -113,9 +113,7 @@ async function main() {
     default: "<recipient_ton_address>",
   });
 
-  const amount = toNano("0.015");
-
-  console.log(`\nSending ${amount.toString()} nanoTON to ${recipientAddress}`);
+  console.log(`\nSending 0.015 TON to ${recipientAddress}`);
 
   const tonWallet = WalletContractV4.create({
     workchain: 0,
@@ -125,7 +123,7 @@ async function main() {
   const opened = client.open(tonWallet);
   const seqno = await opened.getSeqno();
   const message = internal({
-    value: "1",
+    value: "0.015",
     to: recipientAddress,
     body: "Transfer body",
   });
@@ -133,7 +131,7 @@ async function main() {
   const body = await createWalletTransferV4WithTurnkey({
     seqno,
     sendMode: SendMode.PAY_GAS_SEPARATELY,
-    walletId: 0, // Update with the correct walletId if necessary
+    walletId: tonWallet.walletId,
     messages: [message],
     turnkeyClient,
     walletAddress,
