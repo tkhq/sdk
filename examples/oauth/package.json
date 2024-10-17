@@ -1,0 +1,33 @@
+{
+  "name": "@turnkey/example-otp-auth",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@noble/hashes": "1.4.0",
+    "@react-oauth/google": "^0.12.1",
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/sdk-react": "workspace:*",
+    "@types/node": "20.3.1",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6",
+    "axios": "^1.7.4",
+    "encoding": "^0.1.13",
+    "eslint": "8.43.0",
+    "eslint-config-next": "14.2.10",
+    "esm": "^3.2.25",
+    "install": "^0.13.0",
+    "next": "^14.2.10",
+    "npm": "^9.7.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "^7.45.1",
+    "typescript": "5.1.3"
+  }
+}
