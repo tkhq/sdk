@@ -46,13 +46,13 @@ const createSwap = async () => {
     console.log(`\nUsing existing Solana address from ENV: "${solAddress}"`);
   }
 
-  // Swapping SOL to USDC with input 0.05 SOL and 1% slippage
+  // Swapping SOL to USDC with input 0.01 SOL and 1% slippage
   // See example here: https://station.jup.ag/docs/apis/swap-api
   const quoteResponse = await (
     await fetch(
       "https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112\
 &outputMint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\
-&amount=50000000\
+&amount=10000000\
 &slippageBps=100"
     )
   ).json();
@@ -73,6 +73,9 @@ const createSwap = async () => {
         wrapAndUnwrapSol: true,
         // feeAccount is optional. Use if you want to charge a fee.  feeBps must have been passed in /quote API.
         // feeAccount: "fee_account_public_key"
+        dynamicComputeUnitLimit: true, // allow dynamic compute limit instead of max 1,400,000
+        // custom priority fee
+        prioritizationFeeLamports: "auto", // or custom lamports: 1000
       }),
     })
   ).json();
