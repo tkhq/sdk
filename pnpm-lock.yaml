@@ -1242,9 +1242,6 @@ importers:
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server
-      aptos:
-        specifier: ^1.21.0
-        version: 1.21.0
       async-retry:
         specifier: ^1.3.3
         version: 1.3.3

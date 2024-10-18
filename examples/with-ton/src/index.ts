@@ -1,6 +1,17 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
-import { TonClient, Address, beginCell, WalletContractV4, internal, storeMessageRelaxed, SendMode, Cell, storeMessage, external } from "@ton/ton";
+import {
+  TonClient,
+  Address,
+  beginCell,
+  WalletContractV4,
+  internal,
+  storeMessageRelaxed,
+  SendMode,
+  Cell,
+  storeMessage,
+  external,
+} from "@ton/ton";
 import { input } from "@inquirer/prompts";
 import { Turnkey } from "@turnkey/sdk-server";
 import { bytesToHex } from "@noble/hashes/utils";
@@ -49,14 +60,17 @@ async function createWalletTransferV4WithTurnkey(args: {
 
   const { r, s } = txSignResult;
   const signatureBytes = Buffer.from(r + s, "hex");
-  const body = beginCell().storeBuffer(signatureBytes).storeBuilder(signingMessageBuilder).endCell();
+  const body = beginCell()
+    .storeBuffer(signatureBytes)
+    .storeBuilder(signingMessageBuilder)
+    .endCell();
   return body;
 }
 
 async function externalTransaction(
   client: TonClient,
   address: Address,
-  init: { code: Cell | null, data: Cell | null } | null,
+  init: { code: Cell | null; data: Cell | null } | null,
   body: Cell
 ) {
   // Check if the contract needs initialization (init code/data)
@@ -96,7 +110,9 @@ async function main() {
   const walletPublicKey = process.env.TON_PUBLIC_KEY!;
 
   if (!walletAddress || !walletPublicKey) {
-    throw new Error("Please set your TON_ADDRESS and TON_PUBLIC_KEY in the .env.local file.");
+    throw new Error(
+      "Please set your TON_ADDRESS and TON_PUBLIC_KEY in the .env.local file."
+    );
   }
 
   console.log(`Using TON address: ${walletAddress}`);
@@ -104,7 +120,9 @@ async function main() {
   const tonAddress = Address.parse(walletAddress);
   let accountData = await client.getBalance(tonAddress).catch(() => null);
   if (!accountData || BigInt(accountData) === 0n) {
-    console.log(`Your account does not exist or has zero balance. Fund your address ${walletAddress} to proceed.`);
+    console.log(
+      `Your account does not exist or has zero balance. Fund your address ${walletAddress} to proceed.`
+    );
     process.exit(1);
   }
 
@@ -138,7 +156,10 @@ async function main() {
   });
 
   // Check if the wallet is deployed, if not provide init data
-  const init = opened.init && !(await client.isContractDeployed(tonAddress)) ? opened.init : null;
+  const init =
+    opened.init && !(await client.isContractDeployed(tonAddress))
+      ? opened.init
+      : null;
 
   // Send the transaction using the external transaction logic
   externalTransaction(client, tonAddress, init, body);
