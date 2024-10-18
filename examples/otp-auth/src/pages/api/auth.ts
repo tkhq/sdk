@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
 
 type AuthRequest = {
   suborgID: string;
@@ -14,6 +13,7 @@ type AuthResponse = {
   apiKeyId: string;
   credentialBundle: string;
 };
+
 type ErrorMessage = {
   message: string;
 };
@@ -24,58 +24,34 @@ export default async function auth(
 ) {
   try {
     const request = req.body as AuthRequest;
-    const turnkeyClient = new TurnkeyClient(
-      { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
-      new ApiKeyStamper({
-        apiPublicKey: process.env.API_PUBLIC_KEY!,
-        apiPrivateKey: process.env.API_PRIVATE_KEY!,
-      })
-    );
-
-    const activityPoller = createActivityPoller({
-      client: turnkeyClient,
-      requestFn: turnkeyClient.otpAuth,
+    const turnkeyClient = new TurnkeySDKClient({
+      apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+      defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
-    const completedActivity = await activityPoller({
-      type: "ACTIVITY_TYPE_OTP_AUTH",
-      timestampMs: String(Date.now()),
+    const otpAuthResponse = await turnkeyClient.apiClient().otpAuth({
+      otpId: request.otpId,
+      otpCode: request.otpCode,
+      targetPublicKey: request.targetPublicKey,
       // This is simple in the case of a single organization.
       // If you use sub-organizations for each user, this needs to be replaced by the user's specific sub-organization.
       organizationId:
         request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-      parameters: {
-        otpId: request.otpId,
-        otpCode: request.otpCode,
-        targetPublicKey: request.targetPublicKey,
-      },
     });
 
-    const credentialBundle =
-      completedActivity.result.otpAuthResult?.credentialBundle;
-    if (!credentialBundle) {
-      throw new Error("Expected a non-null user ID!");
+    const { credentialBundle, apiKeyId, userId } = otpAuthResponse;
+
+    if (!credentialBundle || !apiKeyId || !userId) {
+      throw new Error(
+        "Expected non-null values for credentialBundle, apiKeyId, and userId."
+      );
     }
 
-    const apiKeyId = completedActivity.result.otpAuthResult?.apiKeyId;
-    if (!apiKeyId) {
-      throw new Error("Expected a non-null user ID!");
-    }
-
-    const userId = completedActivity.result.otpAuthResult?.userId;
-    if (!userId) {
-      throw new Error("Expected a non-null user ID!");
-    }
-    res.status(200).json({
-      credentialBundle,
-      apiKeyId,
-      userId,
-    });
+    res.status(200).json({ credentialBundle, apiKeyId, userId });
   } catch (e) {
     console.error(e);
-
-    res.status(500).json({
-      message: "Something went wrong.",
-    });
+    res.status(500).json({ message: "Something went wrong." });
   }
 }

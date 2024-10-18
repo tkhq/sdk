@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
 
 type AuthRequest = {
   suborgID: string;
@@ -29,53 +28,36 @@ export default async function auth(
 ) {
   try {
     const request = req.body as AuthRequest;
-    const turnkeyClient = new TurnkeyClient(
-      { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
-      new ApiKeyStamper({
-        apiPublicKey: process.env.API_PUBLIC_KEY!,
-        apiPrivateKey: process.env.API_PRIVATE_KEY!,
-      })
-    );
-
-    const activityPoller = createActivityPoller({
-      client: turnkeyClient,
-      requestFn: turnkeyClient.emailAuth,
+    const turnkeyClient = new TurnkeySDKClient({
+      apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+      defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
-    const completedActivity = await activityPoller({
-      type: "ACTIVITY_TYPE_EMAIL_AUTH_V2",
-      timestampMs: String(Date.now()),
+    const emailAuthResponse = await turnkeyClient.apiClient().emailAuth({
+      email: request.email,
+      targetPublicKey: request.targetPublicKey,
+      invalidateExisting: request.invalidateExisting,
       // This is simple in the case of a single organization.
       // If you use sub-organizations for each user, this needs to be replaced by the user's specific sub-organization.
       organizationId:
         request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-      parameters: {
-        email: request.email,
-        targetPublicKey: request.targetPublicKey,
-        invalidateExisting: request.invalidateExisting,
-      },
     });
 
-    const userId = completedActivity.result.emailAuthResult?.userId;
-    if (!userId) {
-      throw new Error("Expected a non-null user ID!");
-    }
+    const { userId, apiKeyId } = emailAuthResponse;
 
-    const apiKeyId = completedActivity.result.emailAuthResult?.apiKeyId;
-    if (!apiKeyId) {
-      throw new Error("Expected a non-null API key ID!");
+    if (!userId || !apiKeyId) {
+      throw new Error("Expected non-null values for userId and apiKeyId.");
     }
 
     res.status(200).json({
       userId,
       apiKeyId,
-      // This is simple in the case of a single organization
-      // If you use sub-organizations for each user, this needs to be replaced by the user's specific sub-organization.
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
   } catch (e) {
     console.error(e);
-
     res.status(500).json({
       message: "Something went wrong.",
     });
