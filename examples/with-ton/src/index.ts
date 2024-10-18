@@ -89,8 +89,8 @@ async function main() {
   });
 
   const client = new TonClient({
-    endpoint: "https://toncenter.com/api/v2/jsonRPC",
-    apiKey: "",
+    endpoint: process.env.TON_RPC_URL!,
+    apiKey: process.env.TON_API_KEY!,
   });
   const walletAddress = process.env.TON_ADDRESS!;
   const walletPublicKey = process.env.TON_PUBLIC_KEY!;
@@ -141,7 +141,7 @@ async function main() {
   const init = opened.init && !(await client.isContractDeployed(tonAddress)) ? opened.init : null;
 
   // Send the transaction using the external transaction logic
-  await externalTransaction(client, tonAddress, init, body);
+  externalTransaction(client, tonAddress, init, body);
 
   console.log("Transaction sent successfully.");
 }

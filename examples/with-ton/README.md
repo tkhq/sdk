@@ -1,8 +1,8 @@
-# Example: `with-aptos`
+# Example: `with-ton`
 
 This is a simple example that walks through the following:
 
-- Construction of an aptos transaction sending the funds out on mainnet
+- Construction of a TON transaction sending the funds out on mainnet
 
 ## Getting started
 
@@ -16,7 +16,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-aptos/
+$ cd examples/with-ton/
 ```
 
 ### 2/ Setting up Turnkey
@@ -38,12 +38,14 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `BASE_URL`
 - `ORGANIZATION_ID`
-- `APTOS_ADDRESS`
-- `APTOS_PUBLIC_KEY`
+- `TON_ADDRESS`
+- `TON_PUBLIC_KEY`
+- `TON_RPC_URL`
+- `TON_API_KEY`
 
 ### 3/ Running the script
 
-Note that this example is currently set up with Aptos mainnet. You will need a balance to run this example
+Note that this example is currently set up with TON mainnet. You will need a balance to run this example
 
 ```bash
 $ pnpm start
@@ -52,9 +54,9 @@ $ pnpm start
 You should see output similar to the following:
 
 ```
-? Recipient address: (<recipient_aptos_address>)
+? Recipient address: (<recipient_ton_address>)
 
-Sending 100 Octas (0.000001 APT) to <recipient_aptos_address>
+Sending 0.015 TON to <recipient_ton_address>
 
-Transaction Hash: <aptos_transaction_hash>
+Transaction sent successfully
 ```
