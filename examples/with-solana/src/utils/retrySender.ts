@@ -19,6 +19,7 @@ type TransactionSenderAndConfirmationWaiterArgs = {
 
 const SEND_OPTIONS = {
   skipPreflight: true,
+  maxRetries: 3,
 };
 
 export async function transactionSenderAndConfirmationWaiter({
@@ -38,7 +39,7 @@ export async function transactionSenderAndConfirmationWaiter({
 
   const abortableResender = async () => {
     while (true) {
-      await wait(2_000);
+      await wait(1_000);
       if (abortSignal.aborted) return;
       try {
         await connection.sendRawTransaction(
@@ -70,7 +71,7 @@ export async function transactionSenderAndConfirmationWaiter({
       new Promise(async (resolve) => {
         // in case ws socket died
         while (!abortSignal.aborted) {
-          await wait(2_000);
+          await wait(1_000);
           const tx = await connection.getSignatureStatus(txid, {
             searchTransactionHistory: false,
           });
@@ -83,6 +84,7 @@ export async function transactionSenderAndConfirmationWaiter({
   } catch (e) {
     if (e instanceof TransactionExpiredBlockheightExceededError) {
       // we consume this error and getTransaction would return null
+      console.warn(`failed to confirm transaction: ${e}`);
       return;
     } else {
       // invalid state from web3.js
