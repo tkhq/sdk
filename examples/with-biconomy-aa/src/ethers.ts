@@ -126,8 +126,6 @@ async function main() {
   const transactionRequest = {
     to: destination,
     value: amount,
-    // nonce,
-    // nonce: transactionCount,
     type: 2,
   };
 
