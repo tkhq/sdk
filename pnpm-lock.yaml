@@ -819,6 +819,9 @@ importers:
 
   examples/with-eth-passkeys-galore:
     dependencies:
+      '@biconomy/account':
+        specifier: ^4.5.6
+        version: 4.5.6(typescript@5.1.3)(viem@2.21.29)
       '@turnkey/api-key-stamper':
         specifier: workspace:*
         version: link:../../packages/api-key-stamper
@@ -889,8 +892,8 @@ importers:
         specifier: 5.1.3
         version: 5.1.3
       viem:
-        specifier: ^1.10.0
-        version: 1.16.6(typescript@5.1.3)
+        specifier: ^2.21.9
+        version: 2.21.29(typescript@5.1.3)
 
   examples/with-ethers:
     dependencies:
@@ -4711,6 +4714,22 @@ packages:
   /@bcoe/v8-coverage@0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
+
+  /@biconomy/account@4.5.6(typescript@5.1.3)(viem@2.21.29):
+    resolution: {integrity: sha512-Mq0X9HF4fsPTkf87eXklJJE/Hl3GQwQHN/2/D1fCA4Q4o4AM9HV7Tzpb+hBsh8cUJ+s2j0Q9wORXA1c0onAImQ==}
+    peerDependencies:
+      typescript: ^5
+      viem: ^2
+    dependencies:
+      '@silencelaboratories/walletprovider-sdk': 0.1.0(typescript@5.1.3)
+      merkletreejs: 0.4.0
+      typescript: 5.1.3
+      viem: 2.21.29(typescript@5.1.3)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+    dev: false
 
   /@biconomy/account@4.5.6(typescript@5.1.5)(viem@2.21.29):
     resolution: {integrity: sha512-Mq0X9HF4fsPTkf87eXklJJE/Hl3GQwQHN/2/D1fCA4Q4o4AM9HV7Tzpb+hBsh8cUJ+s2j0Q9wORXA1c0onAImQ==}
@@ -9743,7 +9762,7 @@ packages:
     dependencies:
       '@noble/curves': 1.6.0
       '@noble/hashes': 1.5.0
-      '@scure/base': 1.1.7
+      '@scure/base': 1.1.9
     dev: false
 
   /@scure/bip39@1.1.1:
@@ -9855,10 +9874,22 @@ packages:
     resolution: {integrity: sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==}
     dev: false
 
+  /@silencelaboratories/walletprovider-sdk@0.1.0(typescript@5.1.3):
+    resolution: {integrity: sha512-53fV1noQJDUN9JNydDohyzsFl4+QYoWNkkkAfRzmIgtv+6DR+Dksb0fKmme2WdtA8MPEw/HsRwN3Lr6YC3iF7A==}
+    dependencies:
+      '@noble/curves': 1.6.0
+      viem: 2.21.29(typescript@5.1.3)
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+      - zod
+    dev: false
+
   /@silencelaboratories/walletprovider-sdk@0.1.0(typescript@5.1.5):
     resolution: {integrity: sha512-53fV1noQJDUN9JNydDohyzsFl4+QYoWNkkkAfRzmIgtv+6DR+Dksb0fKmme2WdtA8MPEw/HsRwN3Lr6YC3iF7A==}
     dependencies:
-      '@noble/curves': 1.4.2
+      '@noble/curves': 1.6.0
       viem: 2.21.29(typescript@5.1.5)
     transitivePeerDependencies:
       - bufferutil
@@ -12736,6 +12767,20 @@ packages:
     dependencies:
       typescript: 5.1.5
       zod: 3.23.8
+
+  /abitype@1.0.6(typescript@5.1.3):
+    resolution: {integrity: sha512-MMSqYh4+C/aVqI2RQaWqbvI4Kxo5cQV40WQ4QFtDnNzCkqChm8MuENhElmynZlO0qUy/ObkEUaXtKqYnx1Kp3A==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+      zod: ^3 >=3.22.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      zod:
+        optional: true
+    dependencies:
+      typescript: 5.1.3
+    dev: false
 
   /abitype@1.0.6(typescript@5.1.5):
     resolution: {integrity: sha512-MMSqYh4+C/aVqI2RQaWqbvI4Kxo5cQV40WQ4QFtDnNzCkqChm8MuENhElmynZlO0qUy/ObkEUaXtKqYnx1Kp3A==}
@@ -22426,6 +22471,30 @@ packages:
       - utf-8-validate
       - zod
     dev: true
+
+  /viem@2.21.29(typescript@5.1.3):
+    resolution: {integrity: sha512-n9LoCJjmI1XsE33nl+M4p3Wy5hczv7YC682RpX4Qk9cw8s9HJU+hUi5eDcNDPBcAwIHGCPKsf8yFBEYnE2XYVg==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/curves': 1.6.0
+      '@noble/hashes': 1.5.0
+      '@scure/bip32': 1.5.0
+      '@scure/bip39': 1.4.0
+      abitype: 1.0.6(typescript@5.1.3)
+      isows: 1.0.6(ws@8.17.1)
+      typescript: 5.1.3
+      webauthn-p256: 0.0.10
+      ws: 8.17.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+    dev: false
 
   /viem@2.21.29(typescript@5.1.5):
     resolution: {integrity: sha512-n9LoCJjmI1XsE33nl+M4p3Wy5hczv7YC682RpX4Qk9cw8s9HJU+hUi5eDcNDPBcAwIHGCPKsf8yFBEYnE2XYVg==}
