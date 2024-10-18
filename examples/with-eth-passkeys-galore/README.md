@@ -12,6 +12,8 @@ The flow showcases 3 ways to make requests to Turnkey:
 
 If you want to see a Viem or Ethers demo with API keys instead of passkeys, see these examples: [`with-viem`](https://github.com/tkhq/sdk/tree/main/examples/with-viem), [`with-ethers`](https://github.com/tkhq/sdk/tree/main/examples/with-ethers). See our [SDK repo](https://github.com/tkhq/sdk) for additional packages and examples.
 
+You can try this example quickly on Stackblitz. Follow the instructions below --> [Stackblitz Instructions](#4-stackblitz-example)
+
 ## Getting started
 
 ### 1/ Clone or fork this repo

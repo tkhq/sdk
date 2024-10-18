@@ -15,7 +15,7 @@ The flow showcases 3 ways to make requests to Turnkey:
 
 If you want to see a Solana demo with API keys instead of passkeys, head to the example [`with-solana`](https://github.com/tkhq/sdk/tree/main/examples/with-solana).
 
-You can try this example quickly on Stackblitz -- follow the instructions below
+You can try this example quickly on Stackblitz. Follow the instructions below --> [Stackblitz Instructions](#4-stackblitz-example)
 
 ## Getting started
 

@@ -10,7 +10,7 @@ The overall flow for email auth is outlined below:
 
 This example contains an auth page as well and enables you to create wallets using an email auth credential. Unlike our other [email auth example](https://github.com/tkhq/sdk/tree/main/examples/email-auth), this does not use an iframe, which typically houses a target embedded key. Instead, a target embedded key is created within the application itself and stored in local storage.
 
-You can try this example quickly on Stackblitz -- follow the instructions below
+You can try this example quickly on Stackblitz. Follow the instructions below --> [Stackblitz Instructions](#4-stackblitz-example)
 
 ## Getting started
 

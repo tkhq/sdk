@@ -7,7 +7,7 @@ This example walks through the following:
 - Construction of a transaction sending the funds out with the `@turnkey/solana` signer
 - Creating, minting, and transferring a SPL token using Turnkey
 
-You can try this example quickly on Stackblitz -- follow the instructions below
+You can try this example quickly on Stackblitz. Follow the instructions below --> [Stackblitz Instructions](#6-stackblitz-example)
 
 ## Getting started
 
