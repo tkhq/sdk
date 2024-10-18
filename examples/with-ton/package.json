@@ -1,0 +1,27 @@
+{
+  "name": "@turnkey/example-with-ton",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "pnpm tsx src/index.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^2.1.0",
+    "@noble/hashes": "1.4.0",
+    "@ton/core": "^0.59.0",
+    "@ton/crypto": "^3.3.0",
+    "@ton/ton": "^15.1.0",
+    "@turnkey/http": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "async-retry": "^1.3.3",
+    "cross-fetch": "^4.0.0",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "@types/async-retry": "^1.4.8",
+    "tsx": "^3.12.7",
+    "typescript": "^5.0.4"
+  }
+}
