@@ -14,7 +14,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@inquirer/prompts": "^2.1.0",
     "@project-serum/anchor": "^0.26.0",
     "@solana/spl-token": "^0.4.8",
     "@solana/web3.js": "^1.88.1",
@@ -26,9 +25,13 @@
     "bs58": "^5.0.0",
     "cross-fetch": "^4.0.0",
     "dotenv": "^16.0.3",
+    "prompts": "^2.4.2",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
-    "@types/async-retry": "^1.4.8"
+    "@types/async-retry": "^1.4.8",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
   }
 }

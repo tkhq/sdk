@@ -1,8 +1,8 @@
 import * as solanaNetwork from "./utils/solanaNetwork";
-import { input } from "@inquirer/prompts";
+import prompts from "prompts";
 
 async function main() {
-  const solAddress = await input({
+  const solAddress = await prompts({
     message: "Address to drop devnet tokens into:",
   });
   const connection = solanaNetwork.connect();

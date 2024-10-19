@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
-import { input, confirm } from "@inquirer/prompts";
+import prompts from "prompts";
 import { VersionedTransaction } from "@solana/web3.js";
 
 // Load environment variables from `.env.local`
@@ -69,7 +69,7 @@ async function main() {
         `\n--------`,
       ].join("\n")
     );
-    await confirm({ message: "Ready to Continue?" });
+    await prompts({ message: "Ready to Continue?" });
     // refresh balance...
     balance = await solanaNetwork.balance(connection, solAddress);
   }
@@ -77,14 +77,14 @@ async function main() {
   print("SOL balance:", `${balance} Lamports`);
 
   // 1. Create, sign, and verify a transfer transaction
-  const destination = await input({
+  const destination = await prompts({
     message: `Destination address:`,
     default: TURNKEY_WAR_CHEST,
   });
 
   // Amount defaults to 100.
   // Any other amount is possible.
-  const amount = await input({
+  const amount = await prompts({
     message: `Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
     default: "100",
     validate: function (str) {

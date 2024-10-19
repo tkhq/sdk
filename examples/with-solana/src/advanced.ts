@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 import nacl from "tweetnacl";
 import bs58 from "bs58";
-import { input, confirm } from "@inquirer/prompts";
+import prompts from "prompts";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -58,13 +58,13 @@ async function main() {
         `\n--------`,
       ].join("\n")
     );
-    await confirm({ message: "Ready to Continue?" });
+    await prompts({ message: "Ready to Continue?" });
     // refresh balance...
     balance = await solanaNetwork.balance(connection, solAddress);
   }
 
   const numTxs = parseInt(
-    await input({
+    await prompts({
       message: `Number of transactions:`,
       default: "1",
     })
@@ -73,14 +73,14 @@ async function main() {
   const unsignedTxs = new Array<VersionedTransaction>();
 
   for (let i = 0; i < numTxs; i++) {
-    const destination = await input({
+    const destination = await prompts({
       message: `${i + 1}. Destination address:`,
       default: TURNKEY_WAR_CHEST,
     });
 
     // Amount defaults to 100.
     // Any other amount is possible, so long as a sufficient balance remains for fees.
-    const amount = await input({
+    const amount = await prompts({
       message: `${
         i + 1
       }. Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
