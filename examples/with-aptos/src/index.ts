@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
 import { AptosClient, TxnBuilderTypes, BCS, TransactionBuilder } from "aptos";
-import { input } from "@inquirer/prompts";
+import prompts from "prompts";
 import { Turnkey } from "@turnkey/sdk-server";
 import { bytesToHex } from "@noble/hashes/utils";
 
@@ -39,10 +39,14 @@ async function main() {
   }
 
   // Create and sign a transaction
-  const recipientAddress = await input({
-    message: "Recipient address:",
-    default: "<recipient_aptos_address>",
-  });
+  const { recipientAddress } = await prompts([
+    {
+      type: "text",
+      name: "recipientAddress",
+      message: "Recipient address:",
+      default: "<recipient_aptos_address>",
+    },
+  ]);
 
   const amount = 100n; // 100 Octas (minimum practical amount)
 
