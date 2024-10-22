@@ -7,7 +7,10 @@ import {
   encryptPrivateKeyToBundle,
   encryptWalletToBundle,
 } from "@turnkey/crypto";
-global.crypto = new Crypto();
+if (typeof crypto === "undefined") {
+  global.crypto = new Crypto()
+}
+
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 

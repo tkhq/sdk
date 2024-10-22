@@ -4,7 +4,10 @@ import prompts from "prompts";
 import { Turnkey } from "@turnkey/sdk-server";
 import { Crypto } from "@peculiar/webcrypto";
 import { generateP256KeyPair, decryptExportBundle } from "@turnkey/crypto";
-global.crypto = new Crypto();
+if (typeof crypto === "undefined") {
+  global.crypto = new Crypto()
+}
+
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
