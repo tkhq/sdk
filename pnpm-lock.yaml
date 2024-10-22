@@ -1170,6 +1170,9 @@ importers:
       '@types/async-retry':
         specifier: ^1.4.8
         version: 1.4.8
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
       tsx:
         specifier: ^3.12.7
         version: 3.12.7

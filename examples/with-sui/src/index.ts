@@ -79,7 +79,7 @@ async function main() {
       type: "text",
       name: "recipientAddress",
       message: "Recipient address:",
-      default: "<recipient_sui_address>",
+      initial: "<recipient_sui_address>",
     },
   ]);
 
