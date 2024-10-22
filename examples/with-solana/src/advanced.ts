@@ -75,7 +75,7 @@ async function main() {
     balance = await solanaNetwork.balance(connection, solAddress);
   }
 
-  const numTxs = parseInt(
+  const { numTxs } = parseInt(
     await prompts([
       {
         type: 'text',

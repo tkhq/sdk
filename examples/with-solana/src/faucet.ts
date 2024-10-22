@@ -2,10 +2,10 @@ import * as solanaNetwork from "./utils/solanaNetwork";
 import prompts from "prompts";
 
 async function main() {
-  const solAddress = await prompts([
+  const { solAddress } = await prompts([
   {
     type: 'text',
-    name: 'message',
+    name: 'solAddress',
     message: "Address to drop devnet tokens into:",
   }
 ]);

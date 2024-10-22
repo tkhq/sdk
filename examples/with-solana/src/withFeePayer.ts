@@ -90,7 +90,7 @@ async function main() {
   print("SOL balance:", `${balance} Lamports`);
 
   // 1. Create, sign, and verify a transfer transaction
-  const destination = await prompts([
+  const { destination } = await prompts([
     {
       type: 'text',
       name: 'destination',
@@ -101,7 +101,7 @@ async function main() {
 
   // Amount defaults to 100.
   // Any other amount is possible.
-  const amount = await prompts([
+  const { amount } = await prompts([
     {
       type: 'text',
       name: 'amount',

@@ -87,7 +87,7 @@ async function main() {
 
   // Amount defaults to 100.
   // Any other amount is possible.
-  const amount = await prompts([
+  const { amount } = await prompts([
     {
       name: 'amount',
       type: 'text',
