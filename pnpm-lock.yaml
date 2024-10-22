@@ -255,9 +255,6 @@ importers:
 
   examples/export-in-node:
     dependencies:
-      '@inquirer/prompts':
-        specifier: ^2.1.0
-        version: 2.1.0
       '@peculiar/webcrypto':
         specifier: ^1.5.0
         version: 1.5.0
@@ -279,6 +276,9 @@ importers:
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
     devDependencies:
       '@types/async-retry':
         specifier: ^1.4.8
@@ -286,9 +286,6 @@ importers:
 
   examples/import-in-node:
     dependencies:
-      '@inquirer/prompts':
-        specifier: ^2.1.0
-        version: 2.1.0
       '@peculiar/webcrypto':
         specifier: ^1.5.0
         version: 1.5.0
@@ -310,6 +307,9 @@ importers:
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
     devDependencies:
       '@types/async-retry':
         specifier: ^1.4.8

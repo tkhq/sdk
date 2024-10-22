@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
-import { input } from "@inquirer/prompts";
+import prompts from "prompts";
 import { Turnkey } from "@turnkey/sdk-server";
 import { Crypto } from "@peculiar/webcrypto";
 import {
@@ -20,9 +20,13 @@ async function main() {
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     defaultOrganizationId: organizationId,
   });
-  const importType = await input({
-    message: `Enter Import Type, either "wallet" or "key"`,
-  });
+  const { importType } = await prompts([
+    {
+      type: "text",
+      name: "importType",
+      message: `Enter Import Type, either "wallet" or "key"`,
+    },
+  ]);
   let initResult;
   if (importType == "wallet") {
     initResult = await turnkeyClient.apiClient().initImportWallet({
@@ -37,9 +41,13 @@ async function main() {
   }
 
   if (importType == "wallet") {
-    const mnemonic = await input({
-      message: "Enter mnemonic seed phrase for wallet to import",
-    });
+    const { mnemonic } = await prompts([
+      {
+        type: "text",
+        name: "mnemonic",
+        message: "Enter mnemonic seed phrase for wallet to import",
+      },
+    ]);
     const walletBundle = await encryptWalletToBundle({
       mnemonic,
       importBundle: initResult.importBundle,
@@ -57,12 +65,20 @@ async function main() {
     );
   }
   if (importType == "key") {
-    const privateKey = await input({
-      message: "Enter Private Key to import",
-    });
-    const keyFormat = await input({
-      message: "Enter Key Format, either HEXADECIMAL or SOLANA",
-    });
+    const { privateKey } = await prompts([
+      {
+        type: "text",
+        name: "privateKey",
+        message: "Enter Private Key to import",
+      },
+    ]);
+    const { keyFormat } = await prompts([
+      {
+        type: "text",
+        name: "keyFormat",
+        message: "Enter Key Format, either HEXADECIMAL or SOLANA",
+      },
+    ]);
     const privateKeyBundle = await encryptPrivateKeyToBundle({
       privateKey,
       keyFormat,
