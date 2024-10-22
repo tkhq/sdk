@@ -44,7 +44,7 @@ async function main() {
       type: "text",
       name: "recipientAddress",
       message: "Recipient address:",
-      default: "<recipient_aptos_address>",
+      initial: "<recipient_aptos_address>",
     },
   ]);
 
