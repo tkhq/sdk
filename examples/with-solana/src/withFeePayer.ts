@@ -70,19 +70,14 @@ async function main() {
       ].join("\n")
     );
     // Await user confirmation to continue
-    const { ready } = await prompts([
+    await prompts([
       {
-        type: 'confirm',
-        name: 'ready',
-        message: 'Ready to Continue?',
-      }
+        type: "confirm",
+        name: "ready",
+        message: "Ready to Continue?",
+      },
     ]);
 
-    // Check if the user is ready to continue
-    if (!ready) {
-      console.log('Waiting for your confirmation...');
-      continue;
-    }
     // refresh balance...
     balance = await solanaNetwork.balance(connection, solAddress);
   }
@@ -92,19 +87,19 @@ async function main() {
   // 1. Create, sign, and verify a transfer transaction
   const { destination } = await prompts([
     {
-      type: 'text',
-      name: 'destination',
+      type: "text",
+      name: "destination",
       message: `Destination address:`,
       default: TURNKEY_WAR_CHEST,
-    }]
-  );
+    },
+  ]);
 
   // Amount defaults to 100.
   // Any other amount is possible.
   const { amount } = await prompts([
     {
-      type: 'text',
-      name: 'amount',
+      type: "text",
+      name: "amount",
       message: `Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
       default: "100",
       validate: function (str) {
@@ -121,8 +116,8 @@ async function main() {
           return "amount must be a strictly positive integer";
         }
       },
-    }]
-  );
+    },
+  ]);
 
   const transaction = await createTransfer({
     fromAddress: solAddress,

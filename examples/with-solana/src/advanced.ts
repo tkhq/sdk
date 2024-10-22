@@ -59,51 +59,48 @@ async function main() {
       ].join("\n")
     );
     // Await user confirmation to continue
-    const { ready } = await prompts({
-      type: 'confirm',
-      name: 'ready',
-      message: 'Ready to Continue?',
-    });
-
-    // Check if the user is ready to continue
-    if (!ready) {
-      console.log('Waiting for your confirmation...');
-      continue;
-    }
+    await prompts([
+      {
+        type: "confirm",
+        name: "ready",
+        message: "Ready to Continue?",
+      },
+    ]);
 
     // refresh balance...
     balance = await solanaNetwork.balance(connection, solAddress);
   }
 
-  const { numTxs } = parseInt(
-    await prompts([
-      {
-        type: 'text',
-        name: 'numTxs',
-        message: `Number of transactions:`,
-        default: "1",
-      }
-    ])
-  );
+  const { numTxsStr } = await prompts([
+    {
+      type: "text",
+      name: "numTxsStr",
+      message: `Number of transactions:`,
+      default: "1",
+    },
+  ]);
+  console.log(numTxsStr);
+
+  const numTxs = parseInt(numTxsStr);
 
   const unsignedTxs = new Array<VersionedTransaction>();
 
   for (let i = 0; i < numTxs; i++) {
     const destination = await prompts([
       {
-        type: 'text',
-        name: 'destination',
+        type: "text",
+        name: "destination",
         message: `${i + 1}. Destination address:`,
         default: TURNKEY_WAR_CHEST,
-      }
+      },
     ]);
 
     // Amount defaults to 100.
     // Any other amount is possible, so long as a sufficient balance remains for fees.
     const amount = await prompts([
       {
-        type: 'text',
-        name: 'amount',
+        type: "text",
+        name: "amount",
         message: `${
           i + 1
         }. Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
@@ -122,7 +119,7 @@ async function main() {
             return "amount must be a strictly positive integer";
           }
         },
-      }
+      },
     ]);
 
     const fromKey = new PublicKey(solAddress);

@@ -8,9 +8,8 @@ import {
   encryptWalletToBundle,
 } from "@turnkey/crypto";
 if (typeof crypto === "undefined") {
-  global.crypto = new Crypto()
+  global.crypto = new Crypto();
 }
-
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 

@@ -61,17 +61,14 @@ async function main() {
       ].join("\n")
     );
     // Await user confirmation to continue
-    const { ready } = await prompts({
-      type: 'confirm',
-      name: 'ready',
-      message: 'Ready to Continue?',
-    });
+    await prompts([
+      {
+        type: "confirm",
+        name: "ready",
+        message: "Ready to Continue?",
+      },
+    ]);
 
-    // Check if the user is ready to continue
-    if (!ready) {
-      console.log('Waiting for your confirmation...');
-      continue;
-    }
     // refresh balance...
     balance = await solanaNetwork.balance(connection, solAddress);
   }

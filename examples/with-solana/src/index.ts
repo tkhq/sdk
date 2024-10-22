@@ -74,17 +74,13 @@ async function main() {
       ].join("\n")
     );
     // Await user confirmation to continue
-    const { ready } = await prompts({
-      type: 'confirm',
-      name: 'ready',
-      message: 'Ready to Continue?',
-    });
-
-    // Check if the user is ready to continue
-    if (!ready) {
-      console.log('Waiting for your confirmation...');
-      continue;
-    }
+    await prompts([
+      {
+        type: "confirm",
+        name: "ready",
+        message: "Ready to Continue?",
+      },
+    ]);
 
     // refresh balance...
     balance = await solanaNetwork.balance(connection, solAddress);
@@ -95,10 +91,10 @@ async function main() {
   // 1. Sign and verify a message
   const { message } = await prompts([
     {
-      type: 'text',
-      name: 'message',
-      message: 'Message to sign',
-      initial: 'Hello Turnkey',
+      type: "text",
+      name: "message",
+      message: "Message to sign",
+      initial: "Hello Turnkey",
     },
   ]);
   const messageAsUint8Array = Buffer.from(message);
@@ -138,8 +134,8 @@ async function main() {
   // 2. Create, sign, and verify a transfer transaction
   const { destination } = await prompts([
     {
-      name: 'destination',
-      type: 'text',
+      name: "destination",
+      type: "text",
       message: `Destination address:`,
       initial: TURNKEY_WAR_CHEST,
     },
@@ -149,10 +145,10 @@ async function main() {
   // Any other amount is possible.
   const { amount } = await prompts([
     {
-      name: 'amount',
-      type: 'text',
+      name: "amount",
+      type: "text",
       message: `Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
-      initial: '100',
+      initial: "100",
       validate: function (str) {
         var n = Math.floor(Number(str));
         if (n !== Infinity && String(n) === str && n > 0) {
@@ -164,7 +160,7 @@ async function main() {
           }
           return true;
         } else {
-          return 'amount must be a strictly positive integer';
+          return "amount must be a strictly positive integer";
         }
       },
     },
