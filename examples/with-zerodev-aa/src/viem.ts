@@ -7,27 +7,22 @@ import {
   createPublicClient,
   http,
   type Account,
-  WalletClient,
   formatEther,
 } from "viem";
 import { sepolia } from "viem/chains";
 
 import { signerToEcdsaValidator } from "@zerodev/ecdsa-validator";
-import { KERNEL_V3_1, KERNEL_V2_4 } from "@zerodev/sdk/constants";
+import { KERNEL_V3_1 } from "@zerodev/sdk/constants";
 import {
   createKernelAccount,
   createZeroDevPaymasterClient,
   createKernelAccountClient,
 } from "@zerodev/sdk";
 import { entryPoint07Address } from "viem/account-abstraction";
-import { walletClientToSmartAccountSigner } from "permissionless";
-// import { toEcdsaKernelSmartAccount } from "permissionless/accounts";
-// import { ENTRYPOINT_ADDRESS_V07, bundlerActions } from "permissionless";
-// import { entry } from "permissionless/clients";
-
-// import { http, createPublicClient, zeroAddress } from "viem"
-// import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
-// import { sepolia } from "viem/chains"
+import {
+  walletClientToSmartAccountSigner,
+  createBundlerClient,
+} from "permissionless";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -44,15 +39,13 @@ async function main() {
     return;
   }
 
-  const PROJECT_ID = process.env.ZERODEV_PROJECT_ID!;
   const BUNDLER_RPC = process.env.ZERODEV_BUNDLER_RPC!;
   const PAYMASTER_RPC = process.env.ZERODEV_PAYMASTER_RPC!;
 
   const chain = sepolia;
-  // const entryPoint = ENTRYPOINT_ADDRESS_V07;
+  const network = "sepolia";
   const entryPoint = entryPoint07Address;
-  // const kernelVersion = KERNEL_V3_1;
-  const kernelVersion = KERNEL_V2_4;
+  const kernelVersion = KERNEL_V3_1;
 
   const turnkeyClient = new TurnkeyServerSDK({
     apiBaseUrl: process.env.BASE_URL!,
@@ -68,25 +61,24 @@ async function main() {
     signWith: process.env.SIGN_WITH!,
   });
 
-  const network = "sepolia";
-
-  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v6/api/providers/)
+  // Create Viem client for signer
   const client = createWalletClient({
     account: turnkeyAccount as Account,
     chain: sepolia,
     transport: http(BUNDLER_RPC),
   });
 
+  // Create public client for fetching chain data
   const publicClient = createPublicClient({
     chain: sepolia,
     transport: http(BUNDLER_RPC),
   });
 
-  console.log("wallet client", client.account.address);
+  const smartAccountSigner = walletClientToSmartAccountSigner(client);
 
   // Construct a validator
   const ecdsaValidator = await signerToEcdsaValidator(publicClient, {
-    signer: client,
+    signer: smartAccountSigner,
     entryPoint,
     kernelVersion,
   });
@@ -129,10 +121,7 @@ async function main() {
     address: smartAccountAddress,
   });
 
-  console.log("printing kernel client");
-  console.dir(kernelClient);
-
-  const nonce = kernelClient;
+  const nonce = await kernelClient.account.getNonce();
   let balance =
     (await publicClient.getBalance({ address: smartAccountAddress })) ?? 0;
 
@@ -179,37 +168,49 @@ async function main() {
       initial: "0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7",
     },
   ]);
+
   const transactionRequest = {
     to: destination,
     value: amount,
-    // nonce,
-    // nonce: transactionCount,
     type: 2,
   };
 
   // Make a simple send tx (which calls `signTransaction` under the hood)
-  // const userOpResponse = await smartAccountSigner?.sendTransaction(
-  //   transactionRequest,
-  //   {
-  //     nonceOptions: { nonceKey: Number(0) },
-  //     paymasterServiceData: { mode: PaymasterMode.SPONSORED },
-  //   }
-  // );
+  const userOpHash = await kernelClient.sendUserOperation({
+    userOperation: {
+      callData: await account.encodeCallData({
+        to: transactionRequest.to,
+        value: transactionRequest.value,
+        data: "0x",
+      }),
+    },
+  });
 
-  // const { transactionHash } = await userOpResponse.waitForTxHash();
+  const bundlerClient = createBundlerClient({
+    entryPoint,
+    transport: http(BUNDLER_RPC),
+  });
+
+  const { receipt } = await bundlerClient.waitForUserOperationReceipt({
+    hash: userOpHash,
+    timeout: 60_000, // 1 minute
+  });
 
   print(
     `Sent ${formatEther(transactionRequest.value)} Ether to ${
       transactionRequest.to
     }:`,
-    // `https://${network}.etherscan.io/tx/${transactionHash}`
-    ``
+    `https://${network}.etherscan.io/tx/${receipt.transactionHash}`
+  );
+
+  print(
+    `Bundle can be found here:`,
+    `https://jiffyscan.xyz/bundle/${receipt.transactionHash}?network=${network}&pageNo=0&pageSize=10`
   );
 
   print(
     `User Ops can be found here:`,
-    // `https://jiffyscan.xyz/bundle/${transactionHash}?network=${network}&pageNo=0&pageSize=10`
-    ``
+    `https://jiffyscan.xyz/userOpHash/${receipt.transactionHash}?network=${network}&pageNo=0&pageSize=10`
   );
 }
 

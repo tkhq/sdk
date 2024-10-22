@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start-ethers": "tsx src/ethers.ts",
     "start-viem": "tsx src/viem.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
@@ -16,7 +15,7 @@
     "@zerodev/sdk": "^5.3.22",
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0",
-    "permissionless": "^0.2.10",
+    "permissionless": "^0.1.45",
     "prompts": "^2.4.2",
     "viem": "^2.18.0"
   },

@@ -1437,10 +1437,10 @@ importers:
         version: link:../../packages/viem
       '@zerodev/ecdsa-validator':
         specifier: ^5.3.3
-        version: 5.3.3(@zerodev/sdk@5.3.22)(permissionless@0.2.10)(viem@2.21.29)
+        version: 5.3.3(@zerodev/sdk@5.3.22)(permissionless@0.1.45)(viem@2.21.29)
       '@zerodev/sdk':
         specifier: ^5.3.22
-        version: 5.3.22(permissionless@0.2.10)(viem@2.21.29)
+        version: 5.3.22(permissionless@0.1.45)(viem@2.21.29)
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
@@ -1448,8 +1448,8 @@ importers:
         specifier: ^6.10.0
         version: 6.10.0
       permissionless:
-        specifier: ^0.2.10
-        version: 0.2.10(viem@2.21.29)
+        specifier: ^0.1.45
+        version: 0.1.45(viem@2.21.29)
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
@@ -12711,25 +12711,25 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /@zerodev/ecdsa-validator@5.3.3(@zerodev/sdk@5.3.22)(permissionless@0.2.10)(viem@2.21.29):
+  /@zerodev/ecdsa-validator@5.3.3(@zerodev/sdk@5.3.22)(permissionless@0.1.45)(viem@2.21.29):
     resolution: {integrity: sha512-eMl9IGxnnLmXZr7GRuMjZpaZtVPHuzNf76dlLFRq6sCCtiq/V9poazVx0hP6gaNRPJLKRtdgYRBRO67Ts+llxg==}
     peerDependencies:
       '@zerodev/sdk': ^5.2.1
       permissionless: '>=0.1.44 <=0.1.45'
       viem: '>=2.16.3 <2.18.0'
     dependencies:
-      '@zerodev/sdk': 5.3.22(permissionless@0.2.10)(viem@2.21.29)
-      permissionless: 0.2.10(viem@2.21.29)
+      '@zerodev/sdk': 5.3.22(permissionless@0.1.45)(viem@2.21.29)
+      permissionless: 0.1.45(viem@2.21.29)
       viem: 2.21.29(typescript@5.1.5)
     dev: false
 
-  /@zerodev/sdk@5.3.22(permissionless@0.2.10)(viem@2.21.29):
+  /@zerodev/sdk@5.3.22(permissionless@0.1.45)(viem@2.21.29):
     resolution: {integrity: sha512-d+WRt5NcRrTe/D/zxzVHcp3HFLmL4QzdbUOmCNRaDgc8IoYsDLBzNg69m9/SCDSEciOqdQKDA6bc0MzSACAjag==}
     peerDependencies:
       permissionless: '>=0.1.44 <=0.1.45'
       viem: '>=2.16.3 <2.18.0'
     dependencies:
-      permissionless: 0.2.10(viem@2.21.29)
+      permissionless: 0.1.45(viem@2.21.29)
       semver: 7.5.4
       viem: 2.21.29(typescript@5.1.5)
     dev: false
@@ -19563,10 +19563,10 @@ packages:
       safe-buffer: 5.2.1
       sha.js: 2.4.11
 
-  /permissionless@0.2.10(viem@2.21.29):
-    resolution: {integrity: sha512-l05ORtPTLo1B+36eHXSIsRAxHvUvsD9i2t12524NaWuwgAM8SMQX99FNWOQwNRb3oVIeYMXCygDXDdvyqwvNzA==}
+  /permissionless@0.1.45(viem@2.21.29):
+    resolution: {integrity: sha512-YJJrNFeP3T7mmfXExZsGz0J8SfOPgYzT3fyRIJtImFcUI2UmnyBQLrFt+BaiIXNogzAQuBvOSi6KKtyBePJ2/Q==}
     peerDependencies:
-      viem: ^2.21.2
+      viem: '>=2.14.1 <2.18.0'
     dependencies:
       viem: 2.21.29(typescript@5.1.5)
     dev: false
