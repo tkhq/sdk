@@ -75,9 +75,9 @@ async function main() {
   const { destination } = await prompts([
     {
       type: "text",
-      name: "destionation",
+      name: "destination",
       message: `Destination address:`,
-      default: TURNKEY_WAR_CHEST,
+      initial: TURNKEY_WAR_CHEST,
     },
   ]);
 
@@ -88,7 +88,7 @@ async function main() {
       name: "amount",
       type: "text",
       message: `Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
-      default: "100",
+      initial: "100",
       validate: function (str) {
         var n = Math.floor(Number(str));
         if (n !== Infinity && String(n) === str && n > 0) {

@@ -76,7 +76,7 @@ async function main() {
       type: "text",
       name: "numTxsStr",
       message: `Number of transactions:`,
-      default: "1",
+      initial: "1",
     },
   ]);
   console.log(numTxsStr);
@@ -91,20 +91,20 @@ async function main() {
         type: "text",
         name: "destination",
         message: `${i + 1}. Destination address:`,
-        default: TURNKEY_WAR_CHEST,
+        initial: TURNKEY_WAR_CHEST,
       },
     ]);
 
     // Amount defaults to 100.
     // Any other amount is possible, so long as a sufficient balance remains for fees.
-    const amount = await prompts([
+    const { amount } = await prompts([
       {
         type: "text",
         name: "amount",
         message: `${
           i + 1
         }. Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
-        default: "100",
+        initial: "100",
         validate: function (str) {
           var n = Math.floor(Number(str));
           if (n !== Infinity && String(n) === str && n > 0) {

@@ -43,7 +43,7 @@ async function main() {
       targetPublicKey: publicKey,
     });
   } else if (exportType == "key") {
-    const privateKeyId = await prompts([
+    const { privateKeyId } = await prompts([
       {
         type: "text",
         name: "privateKeyId",
@@ -55,7 +55,7 @@ async function main() {
       targetPublicKey: publicKey,
     });
   } else if (exportType == "account") {
-    const address = await prompts([
+    const { address } = await prompts([
       {
         type: "text",
         name: "address",

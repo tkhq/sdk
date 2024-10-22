@@ -8,9 +8,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@turnkey/http": "workspace:*",
     "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/http": "workspace:*",
     "dotenv": "^16.0.3",
     "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.2"
   }
 }
