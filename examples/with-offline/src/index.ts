@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { input } from "@inquirer/prompts";
+import prompts from "prompts";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -50,7 +50,13 @@ async function main() {
     `Creating a new Private Key for organization ${organizationId} using the configured Turnkey API key...`
   );
 
-  const privateKeyName = await input({ message: "New Private Key Name:" });
+  const { privateKeyName } = await prompts([
+    {
+      type: "text",
+      name: "privateKeyName",
+      message: "New Private Key Name:",
+    },
+  ]);
 
   const signedRequest = await turnkeyClient.stampCreatePrivateKeys({
     timestampMs: String(Date.now()), // millisecond timestamp

@@ -1,4 +1,4 @@
-import { input } from "@inquirer/prompts";
+import prompts from "prompts";
 import {
   TurnkeyActivityConsensusNeededError,
   TERMINAL_ACTIVITY_STATUSES,
@@ -15,10 +15,14 @@ export async function handleActivityError(turnkeyClient: Turnkey, error: any) {
     while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
       console.log("\nWaiting for consensus...\n");
 
-      const retry = await input({
-        message: "Consensus reached? y/n",
-        default: "y",
-      });
+      const { retry } = await prompts([
+        {
+          type: "text",
+          name: "retry",
+          message: "Consensus reached? y/n",
+          initial: "y",
+        },
+      ]);
 
       if (retry === "n") {
         continue;

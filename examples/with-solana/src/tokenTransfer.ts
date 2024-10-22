@@ -4,7 +4,7 @@ import * as path from "path";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { confirm } from "@inquirer/prompts";
+import prompts from "prompts";
 import { PublicKey } from "@solana/web3.js";
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 
@@ -60,7 +60,15 @@ async function main() {
         `\n--------`,
       ].join("\n")
     );
-    await confirm({ message: "Ready to Continue?" });
+    // Await user confirmation to continue
+    await prompts([
+      {
+        type: "confirm",
+        name: "ready",
+        message: "Ready to Continue?",
+      },
+    ]);
+
     // refresh balance...
     balance = await solanaNetwork.balance(connection, solAddress);
   }

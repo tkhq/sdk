@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 import nacl from "tweetnacl";
 import bs58 from "bs58";
-import { input, confirm } from "@inquirer/prompts";
+import prompts from "prompts";
 import { Transaction } from "@solana/web3.js";
 
 // Load environment variables from `.env.local`
@@ -73,7 +73,15 @@ async function main() {
         `\n--------`,
       ].join("\n")
     );
-    await confirm({ message: "Ready to Continue?" });
+    // Await user confirmation to continue
+    await prompts([
+      {
+        type: "confirm",
+        name: "ready",
+        message: "Ready to Continue?",
+      },
+    ]);
+
     // refresh balance...
     balance = await solanaNetwork.balance(connection, solAddress);
   }
@@ -81,10 +89,14 @@ async function main() {
   print("SOL balance:", `${balance} Lamports`);
 
   // 1. Sign and verify a message
-  const message = await input({
-    message: "Message to sign",
-    default: "Hello Turnkey",
-  });
+  const { message } = await prompts([
+    {
+      type: "text",
+      name: "message",
+      message: "Message to sign",
+      initial: "Hello Turnkey",
+    },
+  ]);
   const messageAsUint8Array = Buffer.from(message);
 
   let signature;
@@ -120,31 +132,39 @@ async function main() {
   print("Turnkey-powered signature:", `${bs58.encode(signature)}`);
 
   // 2. Create, sign, and verify a transfer transaction
-  const destination = await input({
-    message: `Destination address:`,
-    default: TURNKEY_WAR_CHEST,
-  });
+  const { destination } = await prompts([
+    {
+      name: "destination",
+      type: "text",
+      message: `Destination address:`,
+      initial: TURNKEY_WAR_CHEST,
+    },
+  ]);
 
   // Amount defaults to 100.
   // Any other amount is possible.
-  const amount = await input({
-    message: `Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
-    default: "100",
-    validate: function (str) {
-      var n = Math.floor(Number(str));
-      if (n !== Infinity && String(n) === str && n > 0) {
-        // valid int was passed in
-        if (n + 5000 > balance) {
-          return `insufficient balance: current balance (${balance}) is less than ${
-            n + 5000
-          } (amount + 5000 for fee)`;
+  const { amount } = await prompts([
+    {
+      name: "amount",
+      type: "text",
+      message: `Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
+      initial: "100",
+      validate: function (str) {
+        var n = Math.floor(Number(str));
+        if (n !== Infinity && String(n) === str && n > 0) {
+          // valid int was passed in
+          if (n + 5000 > balance) {
+            return `insufficient balance: current balance (${balance}) is less than ${
+              n + 5000
+            } (amount + 5000 for fee)`;
+          }
+          return true;
+        } else {
+          return "amount must be a strictly positive integer";
         }
-        return true;
-      } else {
-        return "amount must be a strictly positive integer";
-      }
+      },
     },
-  });
+  ]);
 
   const transaction = await createTransfer({
     fromAddress: solAddress,

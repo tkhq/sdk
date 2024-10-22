@@ -9,7 +9,7 @@ import {
   IntentScope,
   toSerializedSignature,
 } from "@mysten/sui.js";
-import { input } from "@inquirer/prompts";
+import prompts from "prompts";
 import { Turnkey } from "@turnkey/sdk-server";
 import { blake2b } from "@noble/hashes/blake2b";
 import { bytesToHex } from "@noble/hashes/utils";
@@ -74,10 +74,14 @@ async function main() {
   }
 
   // Create and sign a transaction
-  const recipientAddress = await input({
-    message: "Recipient address:",
-    default: "<recipient_sui_address>",
-  });
+  const { recipientAddress } = await prompts([
+    {
+      type: "text",
+      name: "recipientAddress",
+      message: "Recipient address:",
+      initial: "<recipient_sui_address>",
+    },
+  ]);
 
   const amount = 1000n; // 1,000 MIST (minimum practical amount)
 
