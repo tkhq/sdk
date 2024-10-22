@@ -58,48 +58,72 @@ async function main() {
         `\n--------`,
       ].join("\n")
     );
-    await prompts({ message: "Ready to Continue?" });
+    // Await user confirmation to continue
+    const { ready } = await prompts({
+      type: 'confirm',
+      name: 'ready',
+      message: 'Ready to Continue?',
+    });
+
+    // Check if the user is ready to continue
+    if (!ready) {
+      console.log('Waiting for your confirmation...');
+      continue;
+    }
+
     // refresh balance...
     balance = await solanaNetwork.balance(connection, solAddress);
   }
 
   const numTxs = parseInt(
-    await prompts({
-      message: `Number of transactions:`,
-      default: "1",
-    })
+    await prompts([
+      {
+        type: 'text',
+        name: 'numTxs',
+        message: `Number of transactions:`,
+        default: "1",
+      }
+    ])
   );
 
   const unsignedTxs = new Array<VersionedTransaction>();
 
   for (let i = 0; i < numTxs; i++) {
-    const destination = await prompts({
-      message: `${i + 1}. Destination address:`,
-      default: TURNKEY_WAR_CHEST,
-    });
+    const destination = await prompts([
+      {
+        type: 'text',
+        name: 'destination',
+        message: `${i + 1}. Destination address:`,
+        default: TURNKEY_WAR_CHEST,
+      }
+    ]);
 
     // Amount defaults to 100.
     // Any other amount is possible, so long as a sufficient balance remains for fees.
-    const amount = await prompts({
-      message: `${
-        i + 1
-      }. Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
-      default: "100",
-      validate: function (str) {
-        var n = Math.floor(Number(str));
-        if (n !== Infinity && String(n) === str && n > 0) {
-          // valid int was passed in
-          if (n + 5000 > balance) {
-            return `insufficient balance: current balance (${balance}) is less than ${
-              n + 5000 * numTxs
-            } (amount + 5000 lamports per tx for fee)`;
+    const amount = await prompts([
+      {
+        type: 'text',
+        name: 'amount',
+        message: `${
+          i + 1
+        }. Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
+        default: "100",
+        validate: function (str) {
+          var n = Math.floor(Number(str));
+          if (n !== Infinity && String(n) === str && n > 0) {
+            // valid int was passed in
+            if (n + 5000 > balance) {
+              return `insufficient balance: current balance (${balance}) is less than ${
+                n + 5000 * numTxs
+              } (amount + 5000 lamports per tx for fee)`;
+            }
+            return true;
+          } else {
+            return "amount must be a strictly positive integer";
           }
-          return true;
-        } else {
-          return "amount must be a strictly positive integer";
-        }
-      },
-    });
+        },
+      }
+    ]);
 
     const fromKey = new PublicKey(solAddress);
     const toKey = new PublicKey(destination);

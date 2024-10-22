@@ -69,7 +69,20 @@ async function main() {
         `\n--------`,
       ].join("\n")
     );
-    await prompts({ message: "Ready to Continue?" });
+    // Await user confirmation to continue
+    const { ready } = await prompts([
+      {
+        type: 'confirm',
+        name: 'ready',
+        message: 'Ready to Continue?',
+      }
+    ]);
+
+    // Check if the user is ready to continue
+    if (!ready) {
+      console.log('Waiting for your confirmation...');
+      continue;
+    }
     // refresh balance...
     balance = await solanaNetwork.balance(connection, solAddress);
   }
@@ -77,31 +90,39 @@ async function main() {
   print("SOL balance:", `${balance} Lamports`);
 
   // 1. Create, sign, and verify a transfer transaction
-  const destination = await prompts({
-    message: `Destination address:`,
-    default: TURNKEY_WAR_CHEST,
-  });
+  const destination = await prompts([
+    {
+      type: 'text',
+      name: 'destination',
+      message: `Destination address:`,
+      default: TURNKEY_WAR_CHEST,
+    }]
+  );
 
   // Amount defaults to 100.
   // Any other amount is possible.
-  const amount = await prompts({
-    message: `Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
-    default: "100",
-    validate: function (str) {
-      var n = Math.floor(Number(str));
-      if (n !== Infinity && String(n) === str && n > 0) {
-        // valid int was passed in
-        if (n + 5000 > balance) {
-          return `insufficient balance: current balance (${balance}) is less than ${
-            n + 5000
-          } (amount + 5000 for fee)`;
+  const amount = await prompts([
+    {
+      type: 'text',
+      name: 'amount',
+      message: `Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
+      default: "100",
+      validate: function (str) {
+        var n = Math.floor(Number(str));
+        if (n !== Infinity && String(n) === str && n > 0) {
+          // valid int was passed in
+          if (n + 5000 > balance) {
+            return `insufficient balance: current balance (${balance}) is less than ${
+              n + 5000
+            } (amount + 5000 for fee)`;
+          }
+          return true;
+        } else {
+          return "amount must be a strictly positive integer";
         }
-        return true;
-      } else {
-        return "amount must be a strictly positive integer";
-      }
-    },
-  });
+      },
+    }]
+  );
 
   const transaction = await createTransfer({
     fromAddress: solAddress,
