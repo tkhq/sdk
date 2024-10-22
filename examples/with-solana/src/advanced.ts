@@ -79,7 +79,6 @@ async function main() {
       initial: "1",
     },
   ]);
-  console.log(numTxsStr);
 
   const numTxs = parseInt(numTxsStr);
 
