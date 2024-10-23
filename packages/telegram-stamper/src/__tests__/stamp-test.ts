@@ -1,5 +1,5 @@
 import { test, expect } from "@jest/globals";
-import { TelegramStamper } from "../index";
+import TelegramStamper from "../index";
 import { readFixture } from "../__fixtures__/shared";
 import { assertValidSignature } from "./shared";
 

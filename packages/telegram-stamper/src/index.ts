@@ -15,9 +15,13 @@ export type TTelegramStamperConfig = {
   cloudStorageKeySuffix?: string;
 };
 
-// Constants for default key names, note these should NOT be used directly, use the getPublicKeyCloudStorageKeyName() functions as they include the user passed key suffix
-const PUBLIC_KEY_CLOUD_STORAGE_KEY = "TURNKEY_API_PUBLIC_KEY";
-const PRIVATE_KEY_CLOUD_STORAGE_KEY = "TURNKEY_API_PRIVATE_KEY";
+type CloudStorageAPIKey = {
+  apiPublicKey: string;
+  apiPrivateKey: string;
+};
+
+// Constant for default key name, note this should NOT be used directly, use the getCloudStorageKeyName() function as it includes the user passed key suffix
+const TURNKEY_CLOUD_STORAGE_KEY = "TURNKEY_API_KEY";
 
 /**
  * Stamper to use with `@turnkey/http`'s `TurnkeyClient`
@@ -53,37 +57,13 @@ export default class TelegramStamper {
 
     if (this.stamper) {
       // insert creds into telegram cloud storage
-      // insert public key
       await window.Telegram.WebApp.CloudStorage.setItem(
-        this.getPublicKeyCloudStorageKeyName(),
-        this.stamper.apiPublicKey,
+        this.getCloudStorageKeyName(),
+        this.stringifyAPIKey(),
         (err: any, stored: boolean) => {
           if (err != null || !stored) {
             throw new TelegramStamperError(
-              `Failed inserting api public key into Telegram Cloud Storage${
-                err && `: ${err}`
-              }`
-            );
-          }
-        }
-      );
-
-      // insert private key
-      await window.Telegram.WebApp.CloudStorage.setItem(
-        this.getPrivateKeyCloudStorageKeyName(),
-        this.stamper.apiPrivateKey,
-        (err: any, stored: boolean) => {
-          if (err != null || !stored) {
-            // remove public key from storage if private key could not be stored
-            try {
-              this.clearKey(this.getPublicKeyCloudStorageKeyName());
-            } catch (err) {
-              console.log(
-                `Failed removing public key from Telegram Cloud Storage stored at: ${this.getPublicKeyCloudStorageKeyName()}`
-              );
-            }
-            throw new TelegramStamperError(
-              `Failed inserting api private key into Telegram Cloud Storage${
+              `Failed inserting api key into Telegram Cloud Storage${
                 err && `: ${err}`
               }`
             );
@@ -92,48 +72,35 @@ export default class TelegramStamper {
       );
     } else {
       // attempt to get creds from telegram cloud storage
-      let obtainedPublicKey = "";
-      let obtainedPrivateKey = "";
-
-      // get public key
       await window.Telegram.WebApp.CloudStorage.getItem(
-        this.getPublicKeyCloudStorageKeyName(),
-        (err: any, pubKey: string) => {
-          if (err != null || !pubKey) {
+        this.getCloudStorageKeyName(),
+        (err: any, apiKey: string) => {
+          if (err != null || !apiKey) {
             throw new TelegramStamperError(
-              `Failed getting api public key from Telegram Cloud Storage${
+              `Failed getting api key from Telegram Cloud Storage${
                 err && `: ${err}`
               }`
             );
           }
 
-          obtainedPublicKey = pubKey;
-        }
-      );
+          const { parsedPublicKey, parsedPrivateKey } =
+            this.parseAPIKey(apiKey);
 
-      // get private key
-      await window.Telegram.WebApp.CloudStorage.getItem(
-        this.getPrivateKeyCloudStorageKeyName(),
-        (err: any, privKey: string) => {
-          if (err != null || !privKey) {
+          // ToDo: api key validation, how does apikeystamper validate creds passed to it?'
+
+          if (!parsedPublicKey || !parsedPrivateKey) {
             throw new TelegramStamperError(
-              `Failed getting api public key from Telegram Cloud Storage${
-                err && `: ${err}`
-              }`
+              "Failed parsing api key from Telegram Cloud Storage"
             );
           }
 
-          obtainedPrivateKey = privKey;
+          // instantiate api key stamper
+          this.stamper = new ApiKeyStamper({
+            apiPublicKey: parsedPublicKey,
+            apiPrivateKey: parsedPrivateKey,
+          });
         }
       );
-
-      // ToDo: api key validation, how does apikeystamper validate creds passed to it?
-
-      // instantiate api key stamper
-      this.stamper = new ApiKeyStamper({
-        apiPublicKey: obtainedPublicKey,
-        apiPrivateKey: obtainedPrivateKey,
-      });
     }
   }
 
@@ -176,11 +143,41 @@ export default class TelegramStamper {
     }
   }
 
-  getPublicKeyCloudStorageKeyName() {
-    return PUBLIC_KEY_CLOUD_STORAGE_KEY + this.cloudStorageKeySuffix;
+  getCloudStorageKeyName() {
+    return TURNKEY_CLOUD_STORAGE_KEY + this.cloudStorageKeySuffix;
   }
 
-  getPrivateKeyCloudStorageKeyName() {
-    return PRIVATE_KEY_CLOUD_STORAGE_KEY + this.cloudStorageKeySuffix;
+  stringifyAPIKey() {
+    return JSON.stringify({
+      apiPublicKey: this.stamper?.apiPublicKey,
+      apiPrivateKey: this.stamper?.apiPrivateKey,
+    });
+  }
+
+  parseAPIKey(apiKey: string) {
+    try {
+      const parsedApiKey = JSON.parse(apiKey);
+
+      if (!this.isApiKey(parsedApiKey)) {
+        return {
+          parsedPublicKey: "",
+          parsedPrivateKey: "",
+        };
+      }
+
+      return {
+        parsedPublicKey: parsedApiKey.apiPublicKey,
+        parsedPrivateKey: parsedApiKey.apiPrivateKey,
+      };
+    } catch (err) {
+      throw new TelegramStamperError("Failed parsing api key from Telegram Cloud Storage")
+    }
+  }
+
+  isApiKey(apiKey: CloudStorageAPIKey) {
+    return (
+      typeof apiKey.apiPublicKey === "string" &&
+      typeof apiKey.apiPrivateKey === "string"
+    );
   }
 }
