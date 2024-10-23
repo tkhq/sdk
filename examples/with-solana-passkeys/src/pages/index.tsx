@@ -171,6 +171,10 @@ export default function Home() {
 
     const response = res.data as TWalletDetails;
     setWallet(response);
+
+    if (passkeyClient && passkeyClient.config) {
+      passkeyClient.config.organizationId = response.subOrgId;
+    }
   };
 
   const login = async () => {
