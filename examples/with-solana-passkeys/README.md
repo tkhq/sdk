@@ -3,7 +3,7 @@
 This repo contains a sample application **for demonstration purposes only**, walking through how to create sub-organizations, create a wallet, and sign with the [`@turnkey/solana`](https://github.com/tkhq/sdk/tree/main/packages/solana) signer (with transactions sponsored by the parent org!), using passkeys. Please feel free to play with this example and file an issue if there are improvements to be made! ❤️
 
 <p style="text-align:center">
-    <img src="./img/demo.png" width="500"/>
+    <img src="./img/demo.png" width="1750"/>
 </p>
 
 The flow showcases 3 ways to make requests to Turnkey:
