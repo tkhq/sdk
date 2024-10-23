@@ -23,7 +23,7 @@ const stamper = new TelegramStamper({
 
 // initialize the telegram stamper, this stores the api key credentials in Telegram Cloud Storage for the first time
 try {
-  stamper.init();
+  await stamper.init();
 } catch (err) {
   throw new Error(`Failed initializing Telegram Stamper: ${err}`)
 }
@@ -51,7 +51,7 @@ const stamper = new TelegramStamper();
 
 // initialize the telegram stamper, this gets the api key credentials from Telegram Cloud Storage
 try {
-  stamper.init();
+  await stamper.init();
 } catch (err) {
   throw new Error(`Failed initializing Telegram Stamper: ${err}`)
 }
