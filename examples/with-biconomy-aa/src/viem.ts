@@ -47,7 +47,7 @@ async function main() {
 
   const network = "sepolia";
 
-  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v6/api/providers/)
+  // Bring your own provider
   const client = createWalletClient({
     account: turnkeyAccount as Account,
     chain: sepolia,

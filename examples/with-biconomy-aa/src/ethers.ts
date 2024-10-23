@@ -38,7 +38,7 @@ async function main() {
     signWith: process.env.SIGN_WITH!,
   });
 
-  // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v6/api/providers/)
+  // Bring your own provider
   const network = "sepolia";
   const provider = new ethers.JsonRpcProvider(
     `https://${network}.infura.io/v3/${process.env.INFURA_KEY}`
