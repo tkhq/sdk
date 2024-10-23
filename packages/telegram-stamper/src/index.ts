@@ -20,7 +20,7 @@ const PRIVATE_KEY_CLOUD_STORAGE_KEY = "TURNKEY_API_PRIVATE_KEY";
 /**
  * Stamper to use with `@turnkey/http`'s `TurnkeyClient`
  */
-export class TelegramStamper {
+export default class TelegramStamper {
   stamper: ApiKeyStamper | undefined;
 
   constructor(config?: TTelegramStamperConfig) {
@@ -160,7 +160,7 @@ export class TelegramStamper {
   }
 
   checkTelegramContext() {
-    if (window.Telegram?.WebApp == null) {
+    if (window?.Telegram?.WebApp == null) {
       throw new TelegramStamperError(
         "Cannot use telegram stamper in non telegram mini-app environment"
       );
