@@ -13,7 +13,7 @@ Insert a new api key into Telegram Cloud Storage
 
 ```ts
 import { TelegramStamper } from "@turnkey/telegram-stamper";
-import { TurnkeyClient } from "@turnkey/http";
+import { TurnkeyBrowserClient, TurnkeySDKClientConfig } from "@turnkey/sdk-browser";
 
 // create a new telegram stamper
 const stamper = new TelegramStamper({
@@ -28,11 +28,15 @@ try {
   throw new Error(`Failed initializing Telegram Stamper: ${err}`)
 }
 
+// use the stamper in the client config
+const browserConfig: TurnkeySDKClientConfig = {
+  stamper: telegramStamper!,
+  apiBaseUrl: "https://api.turnkey.com",
+  organizationId: <ORGANIZATION_ID>,
+};
+
 // create a TurnkeyClient with the initialized Telegram Stamper
-const httpClient = new TurnkeyClient(
-  { baseUrl: "https://api.turnkey.com" },
-  stamper
-);
+const client = new TurnkeyBrowserClient(browserConfig);
 
 // make a request with the client
 const whoamiResponse = await client.getWhoami({
@@ -44,7 +48,7 @@ Use an exisiting key that has been previously stored in Telegram Cloud Storage
 
 ```ts
 import { TelegramStamper } from "@turnkey/telegram-stamper";
-import { TurnkeyClient } from "@turnkey/http";
+import { TurnkeyBrowserClient, TurnkeySDKClientConfig } from "@turnkey/sdk-browser";
 
 // create a new telegram stamper
 const stamper = new TelegramStamper();
@@ -56,11 +60,15 @@ try {
   throw new Error(`Failed initializing Telegram Stamper: ${err}`)
 }
 
+// use the stamper in the client config
+const browserConfig: TurnkeySDKClientConfig = {
+  stamper: telegramStamper!,
+  apiBaseUrl: "https://api.turnkey.com",
+  organizationId: <ORGANIZATION_ID>,
+};
+
 // create a TurnkeyClient with the initialized Telegram Stamper
-const httpClient = new TurnkeyClient(
-  { baseUrl: "https://api.turnkey.com" },
-  stamper
-);
+const client = new TurnkeyBrowserClient(browserConfig);
 
 // make a request with the client
 const whoamiResponse = await client.getWhoami({
