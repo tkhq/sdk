@@ -1,4 +1,5 @@
-import type { TActivityId, TActivityStatus } from "@turnkey/http";
+import type { TActivityId, TActivityStatus } from '@turnkey/http';
+import type { WalletInterface } from '@turnkey/wallet-stamper';
 
 export type GrpcStatus = {
   message: string;
@@ -38,7 +39,7 @@ export class TurnkeyRequestError extends Error {
 
     super(turnkeyErrorMessage);
 
-    this.name = "TurnkeyRequestError";
+    this.name = 'TurnkeyRequestError';
     this.details = input.details ?? null;
     this.code = input.code;
   }
@@ -104,4 +105,8 @@ export interface IframeClientParams {
   iframeContainer: HTMLElement | null | undefined;
   iframeUrl: string;
   iframeElementId?: string;
+}
+
+export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {
+  wallet: WalletInterface;
 }

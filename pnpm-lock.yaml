@@ -1581,6 +1581,9 @@ importers:
       '@turnkey/iframe-stamper':
         specifier: workspace:*
         version: link:../iframe-stamper
+      '@turnkey/wallet-stamper':
+        specifier: workspace:^
+        version: link:../wallet-stamper
       '@turnkey/webauthn-stamper':
         specifier: workspace:*
         version: link:../webauthn-stamper
@@ -1612,6 +1615,9 @@ importers:
       '@turnkey/sdk-browser':
         specifier: workspace:*
         version: link:../sdk-browser
+      '@turnkey/wallet-stamper':
+        specifier: workspace:^
+        version: link:../wallet-stamper
     devDependencies:
       '@types/react':
         specifier: ^18.2.75
