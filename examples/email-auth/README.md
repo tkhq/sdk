@@ -10,6 +10,10 @@ The overall flow for email auth is outlined below:
 
 This example contains an example auth page as well as a stub API endpoint for "your business" (where the email is resolved into an organization ID). The creation of the hidden iframe is abstracted by our `@turnkey/iframe-stamper` package. For more information on email auth, [check out our documentation](https://docs.turnkey.com/features/email-auth).
 
+<p style="text-align:center">
+    <img src="./img/demo.png" width="2000"/>
+</p>
+
 ## Getting started
 
 ### 1/ Cloning the example
