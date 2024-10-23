@@ -8,47 +8,49 @@ import {
   type TSignedRequest,
   type TActivity,
   type TurnkeyApiTypes,
-} from "@turnkey/http";
+} from '@turnkey/http';
 
 import {
   ApiKeyStamper,
   signWithApiKey,
   TApiKeyStamperConfig,
-} from "@turnkey/api-key-stamper";
+} from '@turnkey/api-key-stamper';
 
 import {
   IframeEventType,
   IframeStamper,
   TIframeStamperConfig,
-} from "@turnkey/iframe-stamper";
+} from '@turnkey/iframe-stamper';
 
 import {
   TWebauthnStamperConfig,
   WebauthnStamper,
-} from "@turnkey/webauthn-stamper";
+} from '@turnkey/webauthn-stamper';
 
 import {
   TurnkeyBrowserSDK,
   TurnkeyBrowserClient,
   TurnkeyIframeClient,
   TurnkeyPasskeyClient,
-} from "./sdk-client";
+} from './sdk-client';
 
-export { getStorageValue, setStorageValue, StorageKeys } from "./storage";
+export { TurnkeyWalletClient } from './wallet-client';
+
+export { getStorageValue, setStorageValue, StorageKeys } from './storage';
 
 import {
   defaultEthereumAccountAtIndex,
   DEFAULT_ETHEREUM_ACCOUNTS,
   defaultSolanaAccountAtIndex,
   DEFAULT_SOLANA_ACCOUNTS,
-} from "./turnkey-helpers";
+} from './turnkey-helpers';
 
 import type {
   TurnkeySDKClientConfig,
   TurnkeySDKBrowserConfig,
-} from "./__types__/base";
+} from './__types__/base';
 
-import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
+import type * as TurnkeySDKApiTypes from './__generated__/sdk_api_types';
 
 // Classes
 export {
