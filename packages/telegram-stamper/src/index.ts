@@ -170,7 +170,9 @@ export default class TelegramStamper {
         parsedPrivateKey: parsedApiKey.apiPrivateKey,
       };
     } catch (err) {
-      throw new TelegramStamperError("Failed parsing api key from Telegram Cloud Storage")
+      throw new TelegramStamperError(
+        "Failed parsing api key from Telegram Cloud Storage"
+      );
     }
   }
 
