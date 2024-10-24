@@ -31,84 +31,85 @@ export default class TelegramStamper {
   stamper: ApiKeyStamper | undefined;
   cloudStorageKey: string | undefined;
 
-  constructor(config?: TTelegramStamperConfig) {
+  private constructor(config: TTelegramStamperConfig) {
     // check to see if were in a telegram mini app context
-    this.checkTelegramContext();
+    TelegramStamper.checkTelegramContext();
 
-    // check the type of config that was passed in to the constructor
-    if (config) {
-      // if a public/private api key was passed in instantiate the stamper
-      this.stamper = new ApiKeyStamper({
-        apiPublicKey: config.apiPublicKey,
-        apiPrivateKey: config.apiPrivateKey,
-      });
+    // instantiate the stamper
+    this.stamper = new ApiKeyStamper({
+      apiPublicKey: config.apiPublicKey,
+      apiPrivateKey: config.apiPrivateKey,
+    });
 
-      // set the cloud storage key
-      if (config.cloudStorageKey) {
-        this.cloudStorageKey = config.cloudStorageKey;
-      } else {
-        this.cloudStorageKey = DEFAULT_TURNKEY_CLOUD_STORAGE_KEY;
-      }
-    }
+    // set the cloud storage key
+    this.cloudStorageKey = config.cloudStorageKey;
   }
 
-  // initialize the telegram stamper by getting/setting the private/public api key values from/to telegram cloud storage
-  async init() {
+  // create a telegram stamper by getting/setting the private/public api key values from/to telegram cloud storage
+  static async create(
+    config?: TTelegramStamperConfig
+  ): Promise<TelegramStamper> {
     // check to see if were in a telegram mini app context
-    this.checkTelegramContext();
+    TelegramStamper.checkTelegramContext();
 
-    if (this.stamper) {
-      // insert creds into telegram cloud storage
-      await window.Telegram.WebApp.CloudStorage.setItem(
-        this.cloudStorageKey,
-        this.stringifyAPIKey(),
-        (err: any, stored: boolean) => {
-          if (err != null || !stored) {
-            throw new TelegramStamperError(
-              `Failed inserting API key into Telegram Cloud Storage${
-                err && `: ${err}`
-              }`
-            );
-          }
-        }
-      );
+    let cloudStorageKey = DEFAULT_TURNKEY_CLOUD_STORAGE_KEY;
+    let apiPublicKey = "";
+    let apiPrivateKey = "";
+
+    // set the api pub and priv key if config is passed in
+    if (config) {
+      apiPublicKey = config.apiPublicKey;
+      apiPrivateKey = config.apiPrivateKey;
+      if (config.cloudStorageKey) {
+        // set the cloud storage key if it is passed in
+        cloudStorageKey = config.cloudStorageKey;
+      }
+
+      try {
+        await TelegramStamper.setCloudStorageItem(
+          cloudStorageKey,
+          TelegramStamper.stringifyAPIKey(
+            config.apiPublicKey,
+            config.apiPrivateKey
+          )
+        );
+      } catch (e) {
+        throw new TelegramStamperError(
+          `Failed storing api key in Telegram Cloud Storage`
+        );
+      }
     } else {
-      // attempt to get creds from telegram cloud storage
-      await window.Telegram.WebApp.CloudStorage.getItem(
-        this.cloudStorageKey,
-        (err: any, apiKey: string) => {
-          if (err != null || !apiKey) {
-            throw new TelegramStamperError(
-              `Failed getting API key from Telegram Cloud Storage${
-                err && `: ${err}`
-              }`
-            );
-          }
+      try {
+        const apiKey = await TelegramStamper.getCloudStorageItem(
+          cloudStorageKey
+        );
+        ({ apiPublicKey, apiPrivateKey } = TelegramStamper.parseAPIKey(apiKey));
 
-          const { parsedPublicKey, parsedPrivateKey } =
-            this.parseAPIKey(apiKey);
-
-          // ToDo: api key validation, how does apikeystamper validate creds passed to it?'
-
-          if (!parsedPublicKey || !parsedPrivateKey) {
-            throw new TelegramStamperError(
-              "Failed parsing API key from Telegram Cloud Storage"
-            );
-          }
-
-          // instantiate api key stamper
-          this.stamper = new ApiKeyStamper({
-            apiPublicKey: parsedPublicKey,
-            apiPrivateKey: parsedPrivateKey,
-          });
+        if (!apiPublicKey || !apiPrivateKey) {
+          throw new TelegramStamperError(
+            "Failed parsing API key from Telegram Cloud Storage"
+          );
         }
-      );
+      } catch (e) {
+        throw new TelegramStamperError(
+          "Failed getting API key from Telegram Cloud Storage"
+        );
+      }
     }
+
+    return new TelegramStamper({
+      apiPublicKey,
+      apiPrivateKey,
+      cloudStorageKey,
+    });
   }
 
   async stamp(payload: string) {
     // check to see if were in a telegram mini app context
-    this.checkTelegramContext();
+    TelegramStamper.checkTelegramContext();
+
+    console.log(this.stamper?.apiPrivateKey)
+    console.log(this.stamper?.apiPublicKey)
 
     // check to see that the stamper was initialized
     if (!this.stamper) {
@@ -123,7 +124,7 @@ export default class TelegramStamper {
   // clear key from telegram cloud storage
   async clearKey(key: string) {
     // check to see if were in a telegram mini app context
-    this.checkTelegramContext();
+    TelegramStamper.checkTelegramContext();
 
     await window.Telegram.WebApp.CloudStorage.removeItem(
       key,
@@ -137,7 +138,7 @@ export default class TelegramStamper {
     );
   }
 
-  checkTelegramContext() {
+  static checkTelegramContext() {
     if (window?.Telegram?.WebApp?.CloudStorage == null) {
       throw new TelegramStamperError(
         "Cannot use telegram stamper in non telegram mini-app environment, window.Telegram.WebApp.CloudStorage is not defined"
@@ -145,27 +146,27 @@ export default class TelegramStamper {
     }
   }
 
-  stringifyAPIKey() {
+  static stringifyAPIKey(apiPublicKey: string, apiPrivateKey: string) {
     return JSON.stringify({
-      apiPublicKey: this.stamper?.apiPublicKey,
-      apiPrivateKey: this.stamper?.apiPrivateKey,
+      apiPublicKey,
+      apiPrivateKey,
     });
   }
 
-  parseAPIKey(apiKey: string) {
+  static parseAPIKey(apiKey: string) {
     try {
       const parsedApiKey = JSON.parse(apiKey);
 
-      if (!this.isApiKey(parsedApiKey)) {
+      if (!TelegramStamper.isApiKey(parsedApiKey)) {
         return {
-          parsedPublicKey: "",
-          parsedPrivateKey: "",
+          apiPublicKey: "",
+          apiPrivateKey: "",
         };
       }
 
       return {
-        parsedPublicKey: parsedApiKey.apiPublicKey,
-        parsedPrivateKey: parsedApiKey.apiPrivateKey,
+        apiPublicKey: parsedApiKey.apiPublicKey,
+        apiPrivateKey: parsedApiKey.apiPrivateKey,
       };
     } catch (err) {
       throw new TelegramStamperError(
@@ -174,10 +175,53 @@ export default class TelegramStamper {
     }
   }
 
-  isApiKey(apiKey: CloudStorageAPIKey) {
+  static isApiKey(apiKey: CloudStorageAPIKey) {
     return (
       typeof apiKey.apiPublicKey === "string" &&
       typeof apiKey.apiPrivateKey === "string"
     );
+  }
+
+  static async getCloudStorageItem(key: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      window.Telegram.WebApp.CloudStorage.getItem(
+        key,
+        (err: any, apiKey: string) => {
+          if (err != null || !apiKey) {
+            reject(
+              new TelegramStamperError(
+                `Failed getting key: ${key} from Telegram Cloud Storage${
+                  err && `: ${err}`
+                }`
+              )
+            );
+          }
+
+          resolve(apiKey);
+        }
+      );
+    });
+  }
+
+  static async setCloudStorageItem(key: string, value: string) {
+    return new Promise((resolve, reject) => {
+      window.Telegram.WebApp.CloudStorage.setItem(
+        key,
+        value,
+        (err: any, stored: boolean) => {
+          if (err != null || !stored) {
+            reject(
+              new TelegramStamperError(
+                `Failed inserting value: ${value} into Telegram Cloud Storage at key: ${key}${
+                  err && `: ${err}`
+                }`
+              )
+            );
+          }
+
+          resolve(stored);
+        }
+      );
+    });
   }
 }

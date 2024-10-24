@@ -6,12 +6,11 @@ import { assertValidSignature } from "./shared";
 test("uses provided signature to make stamp", async function () {
   const { privateKey, publicKey, pemPublicKey } = await readFixture();
 
-  const stamper = new TelegramStamper({
+  // ToDo: init fails since there isn't an actual Telegram environment here
+  const stamper = await TelegramStamper.create({
     apiPublicKey: publicKey,
     apiPrivateKey: privateKey,
-  });
-  // ToDo: init fails since there isn't an actual Telegram environment here
-  // await stamper.init()
+  })
 
   const messageToSign = "hello from TKHQ!";
   const stamp = await stamper.stamp(messageToSign);
