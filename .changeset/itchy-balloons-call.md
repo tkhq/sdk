@@ -1,5 +1,5 @@
 ---
-"@turnkey/telegram-stamper": minor
+"@turnkey/telegram-cloud-storage-stamper": minor
 ---
 
 Initial release

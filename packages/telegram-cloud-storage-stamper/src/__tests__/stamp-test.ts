@@ -1,5 +1,5 @@
 import { test, expect } from "@jest/globals";
-import TelegramStamper from "../index";
+import TelegramCloudStorageStamper from "../index";
 import { readFixture } from "../__fixtures__/shared";
 import { assertValidSignature } from "./shared";
 
@@ -7,7 +7,7 @@ test("uses provided signature to make stamp", async function () {
   const { privateKey, publicKey, pemPublicKey } = await readFixture();
 
   // ToDo: init fails since there isn't an actual Telegram environment here
-  const stamper = await TelegramStamper.create({
+  const stamper = await TelegramCloudStorageStamper.create({
     apiPublicKey: publicKey,
     apiPrivateKey: privateKey,
   })
