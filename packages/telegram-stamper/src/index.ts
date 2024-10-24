@@ -12,7 +12,7 @@ declare global {
 export type TTelegramStamperConfig = {
   apiPublicKey: string;
   apiPrivateKey: string;
-  cloudStorageKeySuffix?: string;
+  cloudStorageKey?: string;
 };
 
 type CloudStorageAPIKey = {
@@ -20,15 +20,16 @@ type CloudStorageAPIKey = {
   apiPrivateKey: string;
 };
 
-// Constant for default key name, note this should NOT be used directly, use the getCloudStorageKeyName() function as it includes the user passed key suffix
-const TURNKEY_CLOUD_STORAGE_KEY = "TURNKEY_API_KEY";
+// Constant for default key name
+const DEFAULT_TURNKEY_CLOUD_STORAGE_KEY = "TURNKEY_API_KEY";
 
 /**
- * Stamper to use with `@turnkey/http`'s `TurnkeyClient`
+ * Stamper to use within a `TurnkeyClient`
  */
 export default class TelegramStamper {
+  // This stamper uses a typical apikey stamper under the hood and abstracts away the storage of the actual api keys
   stamper: ApiKeyStamper | undefined;
-  cloudStorageKeySuffix: string = "";
+  cloudStorageKey: string | undefined;
 
   constructor(config?: TTelegramStamperConfig) {
     // check to see if were in a telegram mini app context
@@ -42,10 +43,11 @@ export default class TelegramStamper {
         apiPrivateKey: config.apiPrivateKey,
       });
 
-      // set the key cloud storage key suffix
-      if (config.cloudStorageKeySuffix) {
-        // add an underscore prior to the suffix so the key is readable
-        this.cloudStorageKeySuffix = "_" + config.cloudStorageKeySuffix;
+      // set the cloud storage key
+      if (config.cloudStorageKey) {
+        this.cloudStorageKey = config.cloudStorageKey;
+      } else {
+        this.cloudStorageKey = DEFAULT_TURNKEY_CLOUD_STORAGE_KEY;
       }
     }
   }
@@ -58,12 +60,12 @@ export default class TelegramStamper {
     if (this.stamper) {
       // insert creds into telegram cloud storage
       await window.Telegram.WebApp.CloudStorage.setItem(
-        this.getCloudStorageKeyName(),
+        this.cloudStorageKey,
         this.stringifyAPIKey(),
         (err: any, stored: boolean) => {
           if (err != null || !stored) {
             throw new TelegramStamperError(
-              `Failed inserting api key into Telegram Cloud Storage${
+              `Failed inserting API key into Telegram Cloud Storage${
                 err && `: ${err}`
               }`
             );
@@ -73,11 +75,11 @@ export default class TelegramStamper {
     } else {
       // attempt to get creds from telegram cloud storage
       await window.Telegram.WebApp.CloudStorage.getItem(
-        this.getCloudStorageKeyName(),
+        this.cloudStorageKey,
         (err: any, apiKey: string) => {
           if (err != null || !apiKey) {
             throw new TelegramStamperError(
-              `Failed getting api key from Telegram Cloud Storage${
+              `Failed getting API key from Telegram Cloud Storage${
                 err && `: ${err}`
               }`
             );
@@ -90,7 +92,7 @@ export default class TelegramStamper {
 
           if (!parsedPublicKey || !parsedPrivateKey) {
             throw new TelegramStamperError(
-              "Failed parsing api key from Telegram Cloud Storage"
+              "Failed parsing API key from Telegram Cloud Storage"
             );
           }
 
@@ -136,15 +138,11 @@ export default class TelegramStamper {
   }
 
   checkTelegramContext() {
-    if (window?.Telegram?.WebApp == null) {
+    if (window?.Telegram?.WebApp?.CloudStorage == null) {
       throw new TelegramStamperError(
-        "Cannot use telegram stamper in non telegram mini-app environment"
+        "Cannot use telegram stamper in non telegram mini-app environment, window.Telegram.WebApp.CloudStorage is not defined"
       );
     }
-  }
-
-  getCloudStorageKeyName() {
-    return TURNKEY_CLOUD_STORAGE_KEY + this.cloudStorageKeySuffix;
   }
 
   stringifyAPIKey() {
@@ -171,7 +169,7 @@ export default class TelegramStamper {
       };
     } catch (err) {
       throw new TelegramStamperError(
-        "Failed parsing api key from Telegram Cloud Storage"
+        "Failed parsing API key from Telegram Cloud Storage"
       );
     }
   }
