@@ -1,18 +1,29 @@
+import type { AuthClient } from "./__types__/base";
+
 export interface User {
   userId: string;
   username: string;
-  organization: SubOrganization;
-  readOnlySession?: ReadOnlySession;
+  organization: {
+    organizationId: string;
+    organizationName: string;
+  };
+  session:
+    | {
+        read?: ReadOnlySession;
+        write?: ReadWriteSession;
+        authenticatedClient: AuthClient;
+      }
+    | undefined;
 }
 
 export interface ReadOnlySession {
-  session: string;
-  sessionExpiry: number;
+  token: string;
+  expiry: number;
 }
 
 export interface ReadWriteSession {
-  authBundle: string;
-  sessionExpiry: number;
+  credentialBundle: string;
+  expiry: number;
 }
 
 export interface SubOrganization {

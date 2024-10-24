@@ -33,10 +33,7 @@ export class WalletStamper implements TStamper {
 
     let publicKey: string;
     try {
-      publicKey =
-        this.wallet.type === WALLET_TYPE_SOLANA
-          ? this.wallet.recoverPublicKey()
-          : await this.wallet.recoverPublicKey(payload, signature);
+      publicKey = await this.wallet.getPublicKey();
     } catch (error) {
       throw new WalletStamperError("Failed to recover public key", error);
     }
