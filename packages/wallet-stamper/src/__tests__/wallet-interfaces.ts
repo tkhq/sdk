@@ -25,7 +25,7 @@ export class MockSolanaWallet implements SolanaWalletInterface {
     return Buffer.from(signature).toString("hex");
   }
 
-  recoverPublicKey(): string {
+  async getPublicKey(): Promise<string> {
     const ed25519PublicKey = Buffer.from(
       this.keypair.publicKey.toBuffer()
     ).toString("hex");
@@ -51,7 +51,9 @@ export class MockEvmWallet implements EvmWalletInterface {
     return signature;
   }
 
-  async recoverPublicKey(message: string, signature: string): Promise<string> {
+  async getPublicKey(): Promise<string> {
+    const message = "hello from TKHQ!";
+    const signature = await this.signMessage(message);
     const publicKey = recoverPublicKey({
       hash: hashMessage(message),
       signature: signature as Hex,

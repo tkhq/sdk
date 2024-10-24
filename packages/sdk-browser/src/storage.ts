@@ -4,12 +4,14 @@ import WindowWrapper from "./__polyfills__/window";
 export enum StorageKeys {
   AuthBundle = "@turnkey/auth_bundle", // LEGACY
   CurrentUser = "@turnkey/current_user",
+  UserSession = "@turnkey/session/v1",
   ReadWriteSession = "@turnkey/read_write_session",
 }
 
 interface StorageValue {
   [StorageKeys.AuthBundle]: string; // LEGACY
   [StorageKeys.CurrentUser]: User;
+  [StorageKeys.UserSession]: User;
   [StorageKeys.ReadWriteSession]: ReadWriteSession;
 }
 
@@ -23,6 +25,7 @@ const STORAGE_VALUE_LOCATIONS: Record<StorageKeys, StorageLocation> = {
   [StorageKeys.AuthBundle]: StorageLocation.Secure,
   [StorageKeys.CurrentUser]: StorageLocation.Local,
   [StorageKeys.ReadWriteSession]: StorageLocation.Secure,
+  [StorageKeys.UserSession]: StorageLocation.Session,
 };
 
 const STORAGE_LOCATIONS = {

@@ -12,27 +12,126 @@ Turnkey API documentation lives here: https://docs.turnkey.com.
 $ npm install @turnkey/sdk-browser
 ```
 
+### Initialize
+
+```typescript
+import { Turnkey } from "@turnkey/sdk-browser";
+
+const turnkey = new Turnkey({
+  apiBaseUrl: "https://api.turnkey.com",
+  defaultOrganizationId: process.env.TURNKEY_ORGANIZATION_ID,
+  // Optional: Your relying party ID - for use with Passkey authentication
+  rpId: process.env.TURNKEY_RP_ID,
+});
+```
+
+### Turnkey Clients
+
+#### Passkey
+
+The Passkey client allows for authentication to Turnkey's API using Passkeys.
+
+```typescript
+const passkeyClient = turnkey.passkeyClient();
+
+// User will be prompted to login with their passkey
+await passkeyClient.login();
+
+// Make authenticated requests to Turnkey API, such as listing user's wallets
+const walletsResponse = await passkeyClient.getWallets();
+```
+
+#### Iframe
+
+The Iframe client can be initialized to interact with Turnkey's hosted iframes for sensitive operations.
+The `iframeContainer` parameter is required, and should be a reference to the DOM element that will host the iframe.
+The `iframeUrl` is the URL of the iframe you wish to interact with.
+
+The example below demonstrates how to initialize the Iframe client for use with [Email Auth](https://docs.turnkey.com/embedded-wallets/sub-organization-auth)
+by passing in `https://auth.turnkey.com` as the `iframeUrl`.
+
+```typescript
+const iframeClient = await turnkey.iframeClient({
+  // The container element that will host the iframe
+  iframeContainer: document.getElementById("<iframe container id>"),
+  iframeUrl: "https://auth.turnkey.com",
+});
+
+const response = await iframeClient.injectCredentialBundle(
+  "<Credential from Email>"
+);
+if (response) {
+  await iframeClient.getWallets();
+}
+```
+
+##### IFrame URLs:
+
+| Flow                                                                                  | URL                                                  |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| [Email Auth](https://docs.turnkey.com/embedded-wallets/sub-organization-auth)         | [auth.turnkey.com](https://auth.turnkey.com)         |
+| [Email Recovery](https://docs.turnkey.com/embedded-wallets/sub-organization-recovery) | [recovery.turnkey.com](https://recovery.turnkey.com) |
+| [Import Wallet](https://docs.turnkey.com/features/import-wallets)                     | [import.turnkey.com](https://import.turnkey.com)     |
+| [Export Wallet](https://docs.turnkey.com/features/export-wallets)                     | [export.turnkey.com](https://export.turnkey.com)     |
+
+#### Wallet
+
+The Wallet client is designed for using your Solana or EVM wallet to stamp and approve activity requests for Turnkey's API.
+This stamping process leverages the wallet's signature to authenticate requests.
+
+The example below showcases how to use an injected Ethereum wallet to stamp requests to Turnkey's API.
+The user will be prompted to sign a message containing the activity request payload to be sent to Turnkey.
+
 ```typescript
 import {
-  TurnkeyBrowserSDK,
-  TurnkeySDKBrowserConfig,
-  TurnkeySDKBrowserClient,
-} from "@turnkey/sdk-browser";
+  createWalletClient,
+  custom,
+  recoverPublicKey,
+  hashMessage,
+} from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { mainnet } from "viem/chains";
 
-// This config contains parameters including base URLs, iframe URLs, org ID, and rp ID (relying party ID for WebAuthn)
-import turnkeyConfig from "./turnkey.json";
+import { WalletStamper } from "@turnkey/wallet-stamper";
 
-// Use the config to instantiate a Turnkey Client
-const turnkeyClient = new TurnkeyBrowserSDK(turnkeyConfig);
+// Create a new wallet client with a JSON-RPC account from the injected provider
+const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+});
 
-// Now you can make authenticated requests!
-const response = await turnkeyClient?.passkeySign.login();
+const signMessage = async (message: string) => {
+  const account = walletClient.account.address;
+  return walletClient.signMessage({
+    account,
+    message,
+  });
+};
+
+const getPublicKey = async () => {
+  // Required to recover the secp256k1 public key from the signature
+  const arbitraryMessage = "getPublicKey";
+  const signature = await signMessage(arbitraryMessage);
+
+  const secp256k1PublicKey = recoverPublicKey({
+    hash: hashMessage(arbitraryMessage),
+    signature: signature as Hex,
+  });
+  return secp256k1PublicKey;
+};
+
+const walletClient = turnkey.walletClient({
+  wallet: {
+    signMessage,
+    getPublicKey,
+  },
+});
+
+// Make authenticated requests to Turnkey API, such as listing user's wallets
+// User will be prompted to sign a message to authenticate the request
+const walletsResponse = await walletClient.getWallets();
 ```
 
 ## Helpers
 
 `@turnkey/sdk-browser` provides `TurnkeySDKBrowserClient`, which offers wrappers around commonly used Turnkey activities, such as creating new wallets and wallet accounts.
-
-// TODO:
-// - explain subtypes within sdk-client.ts
-// - point to demo wallet

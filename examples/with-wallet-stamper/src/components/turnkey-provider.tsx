@@ -3,16 +3,13 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { createActivityPoller, type TurnkeyClient } from "@turnkey/http";
 
 import {
-  SolanaWalletInterface,
   TStamper,
   WalletInterface,
   WalletStamper,
-  EvmWalletInterface,
 } from "@turnkey/wallet-stamper";
 import { createWebauthnStamper, Email } from "@/lib/turnkey";
 import { createUserSubOrg, getSubOrgByPublicKey } from "@/lib/server";
 import { ChainType } from "@/lib/types";
-import { useWallet } from "@solana/wallet-adapter-react";
 
 import { useRouter } from "next/navigation";
 import { ACCOUNT_CONFIG_SOLANA } from "@/lib/constants";
@@ -101,13 +98,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     chainType: ChainType = ChainType.SOLANA
   ) {
     setAuthenticating(true);
-    let publicKey = null;
-    if (chainType === ChainType.SOLANA) {
-      const solanaWallet = wallet as SolanaWalletInterface;
-      publicKey = solanaWallet.recoverPublicKey();
-    } else if (chainType === ChainType.EVM) {
-      const evmWallet = wallet as EvmWalletInterface;
-    }
+    const publicKey = await wallet?.getPublicKey();
 
     const res = await createUserSubOrg({
       email,
@@ -139,7 +130,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   }
 
   async function signInWithWallet(): Promise<User | null> {
-    const publicKey = (wallet as SolanaWalletInterface)?.recoverPublicKey();
+    const publicKey = await wallet?.getPublicKey();
+    if (!publicKey) {
+      return null;
+    }
     const { organizationIds } = await getSubOrgByPublicKey(publicKey);
     const organizationId = organizationIds[0];
 

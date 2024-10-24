@@ -425,7 +425,7 @@ export class TurnkeySDKClientBase {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const currentUser = await getStorageValue(StorageKeys.CurrentUser);
+    const currentUser = await getStorageValue(StorageKeys.UserSession);
     return this.command("${endpointPath}", {
       parameters: rest,
       organizationId: organizationId ?? (currentUser?.organization?.organizationId ?? this.config.organizationId),
@@ -438,7 +438,7 @@ export class TurnkeySDKClientBase {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const currentUser = await getStorageValue(StorageKeys.CurrentUser);
+    const currentUser = await getStorageValue(StorageKeys.UserSession);
     return this.activityDecision("${endpointPath}",
       {
         parameters: rest,

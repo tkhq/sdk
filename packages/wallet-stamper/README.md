@@ -105,7 +105,7 @@ class SolanaWallet implements SolanaWalletInterface {
     return Buffer.from(signature).toString("hex");
   }
 
-  recoverPublicKey(): string {
+  async getPublicKey(): Promise<string> {
     // Convert the base24 encoded Solana wallet public key (the one displayed in the wallet)
     // into the ed25519 decoded public key
     const ed25519PublicKey = Buffer.from(
@@ -140,7 +140,6 @@ const wallets = await client.getWallets({
 The primary difference between signing with an Ethereum Wallet and a Solana Wallet is the process of obtaining the public key.
 For Solana, the public key can be directly derived from the wallet. However, for Ethereum, the secp256k1 public key cannot be directly retrieved.
 Instead, you must first obtain a signature from the user and then recover the public key from that signature.
-This additional step is why the Ethereum Wallet (EVM Wallet) interface includes a different method for recovering the public key.
 
 ```typescript
 import {
@@ -172,11 +171,15 @@ export class EthereumWallet implements EvmWalletInterface {
     return signature;
   }
 
-  async recoverPublicKey(message: string, signature: string): Promise<string> {
+  async getPublicKey(): Promise<string> {
+    const arbitraryMessage = "getPublicKey";
+    const signature = await this.signMessage(arbitraryMessage);
+
     const secp256k1PublicKey = recoverPublicKey({
-      hash: hashMessage(message),
+      hash: hashMessage(arbitraryMessage),
       signature: signature as Hex,
     });
+
     return secp256k1PublicKey;
   }
 }
