@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { TelegramStamperError } from "./errors";
+import { TelegramCloudStorageStamperError } from "./errors";
 
 declare global {
   interface Window {
@@ -9,7 +9,7 @@ declare global {
 }
 
 // config when telegram stamper is passed in an api key
-export type TTelegramStamperConfig = {
+export type TTelegramCloudStorageStamperConfig = {
   apiPublicKey: string;
   apiPrivateKey: string;
   cloudStorageKey?: string;
@@ -26,14 +26,14 @@ const DEFAULT_TURNKEY_CLOUD_STORAGE_KEY = "TURNKEY_API_KEY";
 /**
  * Stamper to use within a `TurnkeyClient`
  */
-export default class TelegramStamper {
+export default class TelegramCloudStorageStamper {
   // This stamper uses a typical apikey stamper under the hood and abstracts away the storage of the actual api keys
   stamper: ApiKeyStamper | undefined;
   cloudStorageKey: string | undefined;
 
-  private constructor(config: TTelegramStamperConfig) {
+  private constructor(config: TTelegramCloudStorageStamperConfig) {
     // check to see if were in a telegram mini app context
-    TelegramStamper.checkTelegramContext();
+    TelegramCloudStorageStamper.checkTelegramContext();
 
     // instantiate the stamper
     this.stamper = new ApiKeyStamper({
@@ -47,10 +47,10 @@ export default class TelegramStamper {
 
   // create a telegram stamper by getting/setting the private/public api key values from/to telegram cloud storage
   static async create(
-    config?: TTelegramStamperConfig
-  ): Promise<TelegramStamper> {
+    config?: TTelegramCloudStorageStamperConfig
+  ): Promise<TelegramCloudStorageStamper> {
     // check to see if were in a telegram mini app context
-    TelegramStamper.checkTelegramContext();
+    TelegramCloudStorageStamper.checkTelegramContext();
 
     let cloudStorageKey = DEFAULT_TURNKEY_CLOUD_STORAGE_KEY;
     let apiPublicKey = "";
@@ -66,38 +66,38 @@ export default class TelegramStamper {
       }
 
       try {
-        await TelegramStamper.setCloudStorageItem(
+        await TelegramCloudStorageStamper.setCloudStorageItem(
           cloudStorageKey,
-          TelegramStamper.stringifyAPIKey(
+          TelegramCloudStorageStamper.stringifyAPIKey(
             config.apiPublicKey,
             config.apiPrivateKey
           )
         );
       } catch (e) {
-        throw new TelegramStamperError(
+        throw new TelegramCloudStorageStamperError(
           `Failed storing api key in Telegram Cloud Storage`
         );
       }
     } else {
       try {
-        const apiKey = await TelegramStamper.getCloudStorageItem(
+        const apiKey = await TelegramCloudStorageStamper.getCloudStorageItem(
           cloudStorageKey
         );
-        ({ apiPublicKey, apiPrivateKey } = TelegramStamper.parseAPIKey(apiKey));
+        ({ apiPublicKey, apiPrivateKey } = TelegramCloudStorageStamper.parseAPIKey(apiKey));
 
         if (!apiPublicKey || !apiPrivateKey) {
-          throw new TelegramStamperError(
+          throw new TelegramCloudStorageStamperError(
             "Failed parsing API key from Telegram Cloud Storage"
           );
         }
       } catch (e) {
-        throw new TelegramStamperError(
+        throw new TelegramCloudStorageStamperError(
           "Failed getting API key from Telegram Cloud Storage"
         );
       }
     }
 
-    return new TelegramStamper({
+    return new TelegramCloudStorageStamper({
       apiPublicKey,
       apiPrivateKey,
       cloudStorageKey,
@@ -106,15 +106,12 @@ export default class TelegramStamper {
 
   async stamp(payload: string) {
     // check to see if were in a telegram mini app context
-    TelegramStamper.checkTelegramContext();
-
-    console.log(this.stamper?.apiPrivateKey)
-    console.log(this.stamper?.apiPublicKey)
+    TelegramCloudStorageStamper.checkTelegramContext();
 
     // check to see that the stamper was initialized
     if (!this.stamper) {
-      throw new TelegramStamperError(
-        "Cannot stamp with unintialized telegram stamper, call TelegramStamper.init()"
+      throw new TelegramCloudStorageStamperError(
+        "Cannot stamp with unintialized telegram stamper"
       );
     }
 
@@ -124,13 +121,13 @@ export default class TelegramStamper {
   // clear key from telegram cloud storage
   async clearKey(key: string) {
     // check to see if were in a telegram mini app context
-    TelegramStamper.checkTelegramContext();
+    TelegramCloudStorageStamper.checkTelegramContext();
 
     await window.Telegram.WebApp.CloudStorage.removeItem(
       key,
       (err: any, removed: boolean) => {
         if (err || !removed) {
-          throw new TelegramStamperError(
+          throw new TelegramCloudStorageStamperError(
             `Failed removing key: ${key}${err && `: ${err}`}`
           );
         }
@@ -140,7 +137,7 @@ export default class TelegramStamper {
 
   static checkTelegramContext() {
     if (window?.Telegram?.WebApp?.CloudStorage == null) {
-      throw new TelegramStamperError(
+      throw new TelegramCloudStorageStamperError(
         "Cannot use telegram stamper in non telegram mini-app environment, window.Telegram.WebApp.CloudStorage is not defined"
       );
     }
@@ -157,7 +154,7 @@ export default class TelegramStamper {
     try {
       const parsedApiKey = JSON.parse(apiKey);
 
-      if (!TelegramStamper.isApiKey(parsedApiKey)) {
+      if (!TelegramCloudStorageStamper.isApiKey(parsedApiKey)) {
         return {
           apiPublicKey: "",
           apiPrivateKey: "",
@@ -169,7 +166,7 @@ export default class TelegramStamper {
         apiPrivateKey: parsedApiKey.apiPrivateKey,
       };
     } catch (err) {
-      throw new TelegramStamperError(
+      throw new TelegramCloudStorageStamperError(
         "Failed parsing API key from Telegram Cloud Storage"
       );
     }
@@ -189,7 +186,7 @@ export default class TelegramStamper {
         (err: any, apiKey: string) => {
           if (err != null || !apiKey) {
             reject(
-              new TelegramStamperError(
+              new TelegramCloudStorageStamperError(
                 `Failed getting key: ${key} from Telegram Cloud Storage${
                   err && `: ${err}`
                 }`
@@ -211,7 +208,7 @@ export default class TelegramStamper {
         (err: any, stored: boolean) => {
           if (err != null || !stored) {
             reject(
-              new TelegramStamperError(
+              new TelegramCloudStorageStamperError(
                 `Failed inserting value: ${value} into Telegram Cloud Storage at key: ${key}${
                   err && `: ${err}`
                 }`
