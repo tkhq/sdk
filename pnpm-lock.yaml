@@ -1632,6 +1632,9 @@ importers:
       '@turnkey/iframe-stamper':
         specifier: workspace:*
         version: link:../iframe-stamper
+      '@turnkey/wallet-stamper':
+        specifier: workspace:^
+        version: link:../wallet-stamper
       '@turnkey/webauthn-stamper':
         specifier: workspace:*
         version: link:../webauthn-stamper
@@ -1663,6 +1666,12 @@ importers:
       '@turnkey/sdk-browser':
         specifier: workspace:*
         version: link:../sdk-browser
+      '@turnkey/wallet-stamper':
+        specifier: workspace:^
+        version: link:../wallet-stamper
+      usehooks-ts:
+        specifier: ^3.1.0
+        version: 3.1.0(react@18.2.0)
     devDependencies:
       '@types/react':
         specifier: ^18.2.75
@@ -22263,6 +22272,16 @@ packages:
       detect-node-es: 1.1.0
       react: 18.3.1
       tslib: 2.6.3
+    dev: false
+
+  /usehooks-ts@3.1.0(react@18.2.0):
+    resolution: {integrity: sha512-bBIa7yUyPhE1BCc0GmR96VU/15l/9gP1Ch5mYdLcFBaFGQsdmXkvjV0TtOqW1yUd6VjIwDunm+flSciCQXujiw==}
+    engines: {node: '>=16.15.0'}
+    peerDependencies:
+      react: ^16.8.0  || ^17 || ^18
+    dependencies:
+      lodash.debounce: 4.0.8
+      react: 18.2.0
     dev: false
 
   /utf-8-validate@5.0.10:

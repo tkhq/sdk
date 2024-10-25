@@ -5,27 +5,39 @@ import {
   TurnkeyPasskeyClient,
   TurnkeySDKBrowserConfig,
   TurnkeyBrowserClient,
+  TurnkeyWalletClient,
+  AuthClient,
 } from "@turnkey/sdk-browser";
+import type { WalletInterface } from "@turnkey/wallet-stamper";
+import { useUserSession } from "../hooks/use-session";
 
 export interface TurnkeyClientType {
+  client: TurnkeyBrowserClient | undefined;
   turnkey: Turnkey | undefined;
   authIframeClient: TurnkeyIframeClient | undefined;
   passkeyClient: TurnkeyPasskeyClient | undefined;
+  walletClient: TurnkeyWalletClient | undefined;
   getActiveClient: () => Promise<TurnkeyBrowserClient | undefined>;
 }
 
 export const TurnkeyContext = createContext<TurnkeyClientType>({
+  client: undefined,
   turnkey: undefined,
   passkeyClient: undefined,
   authIframeClient: undefined,
+  walletClient: undefined,
   getActiveClient: async () => {
     return undefined;
   },
 });
 
+type TurnkeyProviderConfig = TurnkeySDKBrowserConfig & {
+  wallet?: WalletInterface;
+};
+
 interface TurnkeyProviderProps {
   children: ReactNode;
-  config: TurnkeySDKBrowserConfig;
+  config: TurnkeyProviderConfig;
 }
 
 export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
@@ -36,9 +48,19 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const [passkeyClient, setPasskeyClient] = useState<
     TurnkeyPasskeyClient | undefined
   >(undefined);
+  const [walletClient, setWalletClient] = useState<
+    TurnkeyWalletClient | undefined
+  >(undefined);
   const [authIframeClient, setAuthIframeClient] = useState<
     TurnkeyIframeClient | undefined
   >(undefined);
+
+  const [client, setClient] = useState<TurnkeyBrowserClient | undefined>(
+    undefined
+  );
+
+  const { session } = useUserSession();
+
   const iframeInit = useRef<boolean>(false);
 
   const TurnkeyAuthIframeContainerId = "turnkey-auth-iframe-container-id";
@@ -63,7 +85,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
         if (readWriteSession) {
           const injected = await authIframeClient?.injectCredentialBundle(
-            readWriteSession.authBundle
+            readWriteSession.credentialBundle
           );
           if (injected) {
             await authIframeClient?.getWhoami({
@@ -90,6 +112,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const newTurnkey = new Turnkey(config);
         setTurnkey(newTurnkey);
         setPasskeyClient(newTurnkey.passkeyClient());
+        if (config.wallet) {
+          setWalletClient(await newTurnkey.walletClient(config.wallet));
+        }
 
         const newAuthIframeClient = await newTurnkey.iframeClient({
           iframeContainer: document.getElementById(
@@ -103,12 +128,37 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     })();
   }, []);
 
+  /**
+   * Effect hook that updates the active client based on the current session's authenticated client.
+   *
+   * This hook listens for changes in the `session` object. If the `session` contains an `authenticatedClient`,
+   * it determines which client was used for initial authentication by checking the `authenticatedClient` key.
+   * It then sets the corresponding client (either `authIframeClient`, `passkeyClient`, or `walletClient`)
+   * as the active client using the `setClient` function.
+   *
+   * If the `session` changes, the `authenticatedClient` will be recomputed and the active client will be
+   * updated accordingly.
+   */
+  useEffect(() => {
+    if (session?.authenticatedClient) {
+      const client = {
+        [AuthClient.Iframe]: authIframeClient,
+        [AuthClient.Passkey]: passkeyClient,
+        [AuthClient.Wallet]: walletClient,
+      }[session?.authenticatedClient];
+
+      setClient(client);
+    }
+  }, [session]);
+
   return (
     <TurnkeyContext.Provider
       value={{
+        client,
         turnkey,
         passkeyClient,
         authIframeClient,
+        walletClient,
         getActiveClient,
       }}
     >

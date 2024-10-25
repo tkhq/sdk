@@ -10,8 +10,10 @@ import type {
   TurnkeySDKClientConfig,
   TurnkeySDKBrowserConfig,
   IframeClientParams,
+  TurnkeyWalletClientConfig,
+  SessionResponse,
 } from "./__types__/base";
-
+import { AuthClient } from "./__types__/base";
 import { TurnkeyRequestError } from "./__types__/base";
 
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
@@ -34,6 +36,7 @@ import {
   base64UrlEncode,
   createEmbeddedAPIKey,
 } from "./utils";
+import { WalletStamper, type WalletInterface } from "@turnkey/wallet-stamper";
 
 const DEFAULT_SESSION_EXPIRATION = "900"; // default to 15 minutes
 
@@ -92,6 +95,17 @@ export class TurnkeyBrowserSDK {
     });
   };
 
+  walletClient = async (
+    wallet: WalletInterface
+  ): Promise<TurnkeyWalletClient> => {
+    return new TurnkeyWalletClient({
+      stamper: new WalletStamper(wallet),
+      wallet,
+      apiBaseUrl: this.config.apiBaseUrl,
+      organizationId: this.config.defaultOrganizationId,
+    });
+  };
+
   serverSign = async <TResponseType>(
     methodName: string,
     params: any[],
@@ -140,13 +154,13 @@ export class TurnkeyBrowserSDK {
    */
   currentUserSession = async (): Promise<TurnkeyBrowserClient | undefined> => {
     const currentUser = await this.getCurrentUser();
-    if (!currentUser?.readOnlySession) {
+    if (!currentUser?.session?.read) {
       return;
     }
 
-    if (currentUser?.readOnlySession?.sessionExpiry > Date.now()) {
+    if (currentUser?.session?.read?.expiry > Date.now()) {
       return new TurnkeyBrowserClient({
-        readOnlySession: currentUser?.readOnlySession?.session!,
+        readOnlySession: currentUser?.session?.read?.token!,
         apiBaseUrl: this.config.apiBaseUrl,
         organizationId:
           currentUser?.organization?.organizationId ??
@@ -165,12 +179,13 @@ export class TurnkeyBrowserSDK {
    * @returns {Promise<ReadWriteSession | undefined>}
    */
   getReadWriteSession = async (): Promise<ReadWriteSession | undefined> => {
-    const readWriteSession: ReadWriteSession | undefined =
-      await getStorageValue(StorageKeys.ReadWriteSession);
+    const currentUser: User | undefined = await getStorageValue(
+      StorageKeys.UserSession
+    );
 
-    if (readWriteSession) {
-      if (readWriteSession.sessionExpiry > Date.now()) {
-        return readWriteSession;
+    if (currentUser?.session?.write) {
+      if (currentUser.session.write.expiry > Date.now()) {
+        return currentUser.session.write;
       } else {
         await removeStorageValue(StorageKeys.ReadWriteSession);
       }
@@ -180,12 +195,14 @@ export class TurnkeyBrowserSDK {
   };
 
   /**
+   * @deprecated This method is deprecated and will be removed in future versions.
+   * It has been replaced by the `getReadWriteSession` method.
    * Fetches an auth bundle stored in local storage.
    *
    * @returns {Promise<string | undefined>}
    */
   getAuthBundle = async (): Promise<string | undefined> => {
-    return await getStorageValue(StorageKeys.AuthBundle); // DEPRECATED
+    return await getStorageValue(StorageKeys.AuthBundle);
   };
 
   /**
@@ -206,7 +223,7 @@ export class TurnkeyBrowserSDK {
    * @returns {Promise<User | undefined>}
    */
   getCurrentUser = async (): Promise<User | undefined> => {
-    return await getStorageValue(StorageKeys.CurrentUser);
+    return await getStorageValue(StorageKeys.UserSession);
   };
 
   /**
@@ -217,6 +234,7 @@ export class TurnkeyBrowserSDK {
   logoutUser = async (): Promise<boolean> => {
     await removeStorageValue(StorageKeys.AuthBundle); // DEPRECATED
     await removeStorageValue(StorageKeys.CurrentUser);
+    await removeStorageValue(StorageKeys.UserSession);
     await removeStorageValue(StorageKeys.ReadWriteSession);
 
     return true;
@@ -224,8 +242,55 @@ export class TurnkeyBrowserSDK {
 }
 
 export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
-  constructor(config: TurnkeySDKClientConfig) {
+  authClient: AuthClient | undefined;
+
+  constructor(config: TurnkeySDKClientConfig, authClient?: AuthClient) {
     super(config);
+    this.authClient = authClient;
+  }
+
+  async saveSession({
+    organizationId,
+    organizationName,
+    sessionExpiry,
+    credentialBundle,
+    userId,
+    username,
+    ...sessionResponse
+  }: SessionResponse) {
+    if (!this.authClient) {
+      throw new Error("Failed to save session: Authentication client not set");
+    }
+
+    const expiry = Number(sessionExpiry);
+    const session = credentialBundle
+      ? {
+          write: {
+            credentialBundle,
+            expiry,
+          },
+        }
+      : {
+          read: {
+            token: sessionResponse.session!,
+            expiry,
+          },
+        };
+
+    const userSession: User = {
+      userId,
+      username,
+      organization: {
+        organizationId,
+        organizationName,
+      },
+      session: {
+        authenticatedClient: this.authClient,
+        ...session,
+      },
+    };
+
+    await setStorageValue(StorageKeys.UserSession, userSession);
   }
 
   login = async (config?: {
@@ -234,28 +299,16 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
     const readOnlySessionResult = await this.createReadOnlySession(
       config || {}
     );
-    const org = {
-      organizationId: readOnlySessionResult!.organizationId,
-      organizationName: readOnlySessionResult!.organizationName,
-    };
 
-    const currentUser: User = {
-      userId: readOnlySessionResult!.userId,
-      username: readOnlySessionResult!.username,
-      organization: org,
-      readOnlySession: {
-        session: readOnlySessionResult!.session,
-        sessionExpiry: Number(readOnlySessionResult!.sessionExpiry),
-      },
-    };
-
-    await setStorageValue(StorageKeys.CurrentUser, currentUser);
+    await this.saveSession(readOnlySessionResult);
 
     return readOnlySessionResult!;
   };
 
   /**
-   * Creates a read-write session. This method infers the current user's organization ID and target userId. To be used in conjunction with an `iframeStamper`: the resulting session's credential bundle can be injected into an iframeStamper to create a session that enables both read and write requests.
+   * Creates a read-write session. This method infers the current user's organization ID and target userId.
+   * To be used in conjunction with an `iframeStamper`: the resulting session's credential bundle can be
+   * injected into an iframeStamper to create a session that enables both read and write requests.
    *
    * @param email
    * @param targetEmbeddedKey
@@ -273,13 +326,17 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
       userId: userId!,
     });
 
-    // store auth bundle in local storage
-    await setStorageValue(StorageKeys.ReadWriteSession, {
-      authBundle: readWriteSessionResult!.credentialBundle,
-      sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
-    });
+    // Ensure session and sessionExpiry are included in the object
+    const readWriteSessionResultWithSession = {
+      ...readWriteSessionResult,
+      session: readWriteSessionResult.credentialBundle,
+      sessionExpiry: expirationSeconds,
+    };
 
-    return readWriteSessionResult;
+    // store auth bundle in local storage
+    await this.saveSession(readWriteSessionResultWithSession);
+
+    return readWriteSessionResultWithSession;
   };
 }
 
@@ -287,7 +344,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
   rpId: string;
 
   constructor(config: TurnkeySDKClientConfig) {
-    super(config);
+    super(config, AuthClient.Passkey);
     this.rpId = (config.stamper as WebauthnStamper)!.rpId;
   }
 
@@ -357,7 +414,11 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
   };
 
   /**
-   * Uses passkey authentication to create a read-write session, via an embedded API key, and stores + returns the resulting auth bundle that contains the encrypted API key. This auth bundle (also referred to as a credential bundle) can be injected into an iframeStamper, resulting in a touch-free authenticator. Unlike `loginWithReadWriteSession`, this method assumes the end-user's organization ID (i.e. the sub-organization ID) is already known.
+   * Uses passkey authentication to create a read-write session, via an embedded API key,
+   * and stores + returns the resulting auth bundle that contains the encrypted API key.
+   * This auth bundle (also referred to as a credential bundle) can be injected into an `iframeStamper`,
+   * resulting in a touch-free authenticator. Unlike `loginWithReadWriteSession`, this method
+   * assumes the end-user's organization ID (i.e. the sub-organization ID) is already known.
    *
    * @param userId
    * @param targetEmbeddedKey
@@ -371,7 +432,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION,
     organizationId?: string
   ): Promise<ReadWriteSession> => {
-    const localStorageUser = await getStorageValue(StorageKeys.CurrentUser);
+    const localStorageUser = await getStorageValue(StorageKeys.UserSession);
     userId = userId ?? localStorageUser?.userId;
 
     const { authBundle, publicKey } = await createEmbeddedAPIKey(
@@ -392,15 +453,21 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
       ],
     });
 
-    const readWriteSession = {
-      authBundle: authBundle,
-      sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
+    const session: ReadWriteSession = {
+      credentialBundle: authBundle,
+      expiry: Date.now() + Number(expirationSeconds) * 1000,
     };
 
-    // store auth bundle in local storage
-    await setStorageValue(StorageKeys.ReadWriteSession, readWriteSession);
+    await this.saveSession({
+      organizationId: organizationId!,
+      organizationName: "",
+      userId,
+      username: "",
+      credentialBundle: authBundle,
+      sessionExpiry: session.expiry,
+    });
 
-    return readWriteSession;
+    return session;
   };
 }
 
@@ -408,7 +475,7 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
   iframePublicKey: string | null;
 
   constructor(config: TurnkeySDKClientConfig) {
-    super(config);
+    super(config, AuthClient.Iframe);
     this.iframePublicKey = (config.stamper as IframeStamper).iframePublicKey;
   }
 
@@ -461,4 +528,21 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
     const stamper = this.config.stamper as IframeStamper;
     return await stamper.extractKeyEncryptedBundle();
   };
+}
+
+export class TurnkeyWalletClient extends TurnkeyBrowserClient {
+  private wallet: WalletInterface;
+
+  constructor(config: TurnkeyWalletClientConfig) {
+    super(config);
+    this.wallet = config.wallet;
+  }
+
+  async getPublicKey(): Promise<string> {
+    return this.wallet.getPublicKey();
+  }
+
+  getWalletInterface(): WalletInterface {
+    return this.wallet;
+  }
 }

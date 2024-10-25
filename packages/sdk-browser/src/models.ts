@@ -1,18 +1,48 @@
+import type { AuthClient } from "./__types__/base";
+
+/**
+ * This interface defines the structure of user data that will be stored in local storage
+ * when using one of the login methods.
+ */
 export interface User {
+  // Unique identifier for the user.
   userId: string;
+
+  // Username of the user.
   username: string;
-  organization: SubOrganization;
-  readOnlySession?: ReadOnlySession;
+
+  // Organization details associated with the user.
+  organization: {
+    // Unique identifier for the organization.
+    organizationId: string;
+
+    // Name of the organization.
+    organizationName: string;
+  };
+
+  // Session information for the user, which can be either read-only or read-write.
+  session:
+    | {
+        // Optional read-only session details.
+        read?: ReadOnlySession;
+
+        // Optional read-write session details.
+        write?: ReadWriteSession;
+
+        // Authenticated client associated with the session.
+        authenticatedClient: AuthClient;
+      }
+    | undefined;
 }
 
 export interface ReadOnlySession {
-  session: string;
-  sessionExpiry: number;
+  token: string;
+  expiry: number;
 }
 
 export interface ReadWriteSession {
-  authBundle: string;
-  sessionExpiry: number;
+  credentialBundle: string;
+  expiry: number;
 }
 
 export interface SubOrganization {
