@@ -35,6 +35,8 @@ export {
   TurnkeyWalletClient,
 } from "./sdk-client";
 
+export type { User, ReadOnlySession, ReadWriteSession } from "./models";
+
 export { getStorageValue, setStorageValue, StorageKeys } from "./storage";
 
 export {
@@ -44,9 +46,10 @@ export {
   DEFAULT_SOLANA_ACCOUNTS,
 } from "./turnkey-helpers";
 
-export type {
-  TurnkeySDKClientConfig,
-  TurnkeySDKBrowserConfig,
+export {
+  type TurnkeySDKClientConfig,
+  type TurnkeySDKBrowserConfig,
+  AuthClient,
 } from "./__types__/base";
 
 export type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
