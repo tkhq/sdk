@@ -1,5 +1,5 @@
 import { StorageKeys, User } from "@turnkey/sdk-browser";
-import { useSessionStorage } from "usehooks-ts";
+import { useLocalStorage } from "usehooks-ts";
 
 interface UserSession {
   user?: Omit<User, "session"> | undefined;
@@ -10,7 +10,7 @@ interface UserSession {
  * Hook for managing the user session stored in local storage.
  * This hook is reactive and updates whenever the value in local storage changes.
  *
- * @returns {UserSession | null} An object containing user details and session information.
+ * @returns {UserSession | undefined} An object containing user details and session information.
  *
  * @example
  * const { user, session } = useUserSession()
@@ -40,16 +40,13 @@ interface UserSession {
  * }
  */
 export function useUserSession(): UserSession {
-  // Use the StorageKeys.UserSession key to manage session storage
-  const [user] = useSessionStorage<User | undefined>(
+  const [user] = useLocalStorage<User | undefined>(
     StorageKeys.UserSession,
     undefined
   );
 
-  // Destructure user object to separate session from other user details
   const { session, userId, username, organization } = user ?? {};
 
-  // Return the structured object with separated user details and session
   return {
     user:
       userId && organization
