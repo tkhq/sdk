@@ -31,7 +31,7 @@ export interface BaseWalletInterface {
  * Solana wallets can directly access the public key without needing a signed message.
  * @interface SolanaWalletInterface
  * @extends BaseWalletInterface
- * @property {function(): string} getPublicKey - Recovers the public key, which is the ED25519 hex encoded public key from your Solana wallet public key.
+ * @property {function(): string} getPublicKey - Returns the public key, which is the ED25519 hex encoded public key from your Solana wallet public key.
  * @property {'solana'} type - The type of the wallet.
  */
 export interface SolanaWalletInterface extends BaseWalletInterface {
@@ -40,9 +40,13 @@ export interface SolanaWalletInterface extends BaseWalletInterface {
 
 /**
  * EVM wallets require a signed message to derive the public key.
+ *
+ * @remarks This is the SECP256K1 public key of the EVM wallet, not the address.
+ * This requires that the wallet signs a message in order to derive the public key.
+ *
  * @interface EvmWalletInterface
  * @extends BaseWalletInterface
- * @property {function(): Promise<string>} getPublicKey - Public key recovery from signature and message, returning a hex encoded SECP256K1 public key as a string.
+ * @property {function(): Promise<string>} getPublicKey - Returns the public key, which is the SECP256K1 hex encoded public key from your EVM wallet.
  * @property {'evm'} type - The type of the wallet.
  */
 export interface EvmWalletInterface extends BaseWalletInterface {

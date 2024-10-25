@@ -6,10 +6,13 @@ import {
   TurnkeySDKBrowserConfig,
   TurnkeyBrowserClient,
   TurnkeyWalletClient,
+  AuthClient,
 } from "@turnkey/sdk-browser";
 import type { WalletInterface } from "@turnkey/wallet-stamper";
+import { useUserSession } from "../hooks/use-session";
 
 export interface TurnkeyClientType {
+  client: TurnkeyBrowserClient | undefined;
   turnkey: Turnkey | undefined;
   authIframeClient: TurnkeyIframeClient | undefined;
   passkeyClient: TurnkeyPasskeyClient | undefined;
@@ -18,6 +21,7 @@ export interface TurnkeyClientType {
 }
 
 export const TurnkeyContext = createContext<TurnkeyClientType>({
+  client: undefined,
   turnkey: undefined,
   passkeyClient: undefined,
   authIframeClient: undefined,
@@ -27,11 +31,13 @@ export const TurnkeyContext = createContext<TurnkeyClientType>({
   },
 });
 
+type TurnkeyProviderConfig = TurnkeySDKBrowserConfig & {
+  wallet?: WalletInterface;
+};
+
 interface TurnkeyProviderProps {
   children: ReactNode;
-  config: TurnkeySDKBrowserConfig & {
-    wallet?: WalletInterface;
-  };
+  config: TurnkeyProviderConfig;
 }
 
 export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
@@ -48,6 +54,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const [authIframeClient, setAuthIframeClient] = useState<
     TurnkeyIframeClient | undefined
   >(undefined);
+
+  const [client, setClient] = useState<TurnkeyBrowserClient | undefined>(
+    undefined
+  );
+
+  const { session } = useUserSession();
+
   const iframeInit = useRef<boolean>(false);
 
   const TurnkeyAuthIframeContainerId = "turnkey-auth-iframe-container-id";
@@ -115,9 +128,33 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     })();
   }, []);
 
+  /**
+   * Effect hook that updates the active client based on the current session's authenticated client.
+   *
+   * This hook listens for changes in the `session` object. If the `session` contains an `authenticatedClient`,
+   * it determines which client was used for initial authentication by checking the `authenticatedClient` key.
+   * It then sets the corresponding client (either `authIframeClient`, `passkeyClient`, or `walletClient`)
+   * as the active client using the `setClient` function.
+   *
+   * If the `session` changes, the `authenticatedClient` will be recomputed and the active client will be
+   * updated accordingly.
+   */
+  useEffect(() => {
+    if (session?.authenticatedClient) {
+      const client = {
+        [AuthClient.Iframe]: authIframeClient,
+        [AuthClient.Passkey]: passkeyClient,
+        [AuthClient.Wallet]: walletClient,
+      }[session?.authenticatedClient];
+
+      setClient(client);
+    }
+  }, [session]);
+
   return (
     <TurnkeyContext.Provider
       value={{
+        client,
         turnkey,
         passkeyClient,
         authIframeClient,
