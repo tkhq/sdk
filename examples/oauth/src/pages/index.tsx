@@ -1,14 +1,14 @@
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
 import styles from "./index.module.css";
-import { useTurnkey } from "@turnkey/sdk-react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
 import { useState } from "react";
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
-
+import { useTurnkey, Auth} from "@turnkey/sdk-react";
+import { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
 /**
  * Type definition for the server response coming back from `/api/auth`
  */
@@ -31,13 +31,20 @@ type AuthFormData = {
 export default function AuthPage() {
   const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
   const { authIframeClient } = useTurnkey();
+  console.log(process.env.API_PUBLIC_KEY!)
+  const turnkeyClient = new TurnkeySDKClient({
+    apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+    apiPublicKey: "02fa9dbc9eeb32897675eab279687e0e73319791c9754c03a4d66a160e69703c47",
+    apiPrivateKey: "72d77ee664c821a9ff285373c751c3205e82b33f3763cd8219114e455b6971a9",
+    defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+  });
+
   const { register: authFormRegister, handleSubmit: authFormSubmit } =
     useForm<AuthFormData>();
   const {
     register: injectCredentialsFormRegister,
     handleSubmit: injectCredentialsFormSubmit,
-  } = useForm<InjectCredentialsFormData>();
-
+  } = useForm<InjectCredentialsFormData>()
   const handleGoogleLogin = async (response: any) => {
     let targetSubOrgId: string;
     const getSuborgsResponse = await axios.post("api/getSuborgs", {
@@ -135,9 +142,8 @@ export default function AuthPage() {
           priority
         />
       </a>
-
       {!authIframeClient && <p>Loading...</p>}
-
+      <Auth turnkeyClient={turnkeyClient} />
       {authIframeClient &&
         authIframeClient.iframePublicKey &&
         authResponse === null && (
