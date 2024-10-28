@@ -9,6 +9,11 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
       "default": "./dist/index.mjs"
+    },
+    "./styles": {
+      "import": "./dist/styles.esm.css",
+      "require": "./dist/styles.cjs.css",
+      "default": "./dist/styles.esm.css"
     }
   },
   "types": "./dist/index.d.ts",
@@ -45,7 +50,10 @@
   "dependencies": {
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
-    "usehooks-ts": "^3.1.0"
+    "usehooks-ts": "^3.1.0",
+    "@turnkey/sdk-server": "workspace:*",
+    "react-hook-form": "^7.45.1",
+    "react-international-phone": "^4.3.0"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0"

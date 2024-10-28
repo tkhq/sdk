@@ -1,0 +1,175 @@
+/* Auth Card */
+.authCard {
+  position: relative; /* Ensure contained elements respect authCard boundaries */
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
+  padding: 20px;
+  background: var(--Greyscale-20, #F5F7FB);
+  border: 1px solid var(--Greyscale-100, #EBEDF2);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.authCard h2 {
+  font-family: Inter;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 26px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+}
+
+/* Form */
+.authForm {
+  margin-bottom: 16px;
+}
+
+.inputGroup {
+  margin-bottom: 12px;
+}
+
+.inputGroup input {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  border: 1px solid var(--Greyscale-200, #D8DBE3);
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+button {
+padding: 10px 16px 10px 16px;
+gap: 8px;
+color: #ffffff;
+  width: 100%;
+  font-size: 1rem;
+  background: var(--Greyscale-900, #2B2F33);
+  border: 1px solid var(--Greyscale-800, #3F464B);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:disabled {
+  color: var(--Greyscale-700, #A2A7AE);
+  background: var(--Greyscale-200, #DDDDDD);
+  border-color: var(--Greyscale-400, #A2A7AE);
+  cursor: not-allowed;
+}
+
+
+
+
+
+.passkeyButton {
+  margin-top: 12px;
+  padding: 10px 16px 10px 16px;
+gap: 8px;
+color: var(--Greyscale-600, #6C727E);
+
+  width: 100%;
+  font-size: 1rem;
+  background: var(--Greyscale-1, #FFFFFF);
+  border: 1px solid var(--Greyscale-400, #A2A7AE);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.passkeyButton:disabled {
+  color: var(--Greyscale-500, #A2A7AE);
+  background: var(--Greyscale-200, #DDDDDD);
+  border-color: var(--Greyscale-400, #A2A7AE);
+  cursor: not-allowed;
+}
+/* Separator */
+.separator {
+  text-align: center;
+  margin: 16px 0;
+  position: relative;
+}
+
+.separator span {
+  color: var(--Greyscale-500, #868C95);
+  padding: 0 10px;
+  position: relative;
+  z-index: 1;
+  font-size: 0.75rem;
+  background: var(--Greyscale-20, #F5F7FB);
+  color: #666;
+}
+
+.separator::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--Greyscale-100, #EBEDF2);
+  z-index: 0;
+}
+.tos {
+  font-family: Inter;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--Greyscale-500, #868C95);
+  margin-top: 16px;
+}
+
+.tosBold {
+  color: var(--Greyscale-900, #2B2F33);
+  font-weight: 700;
+  cursor: pointer;
+}
+/* Auth Button Styles */
+.google,
+.facebook,
+.apple {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  margin-top: 8px;
+  color: #fff;
+  background-color: #4285f4;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.google:hover {
+  background-color: #357ae8;
+}
+
+.facebook {
+  background-color: #3b5998;
+}
+
+.apple {
+  background-color: #000;
+}
+
+.poweredBy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-family: Inter;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: -0.01em;
+  color: var(--Greyscale-500, #868C95);
+  margin-top: 16px;
+}
+
+.poweredBy span {
+  position: relative;
+  top: -1px;
+}

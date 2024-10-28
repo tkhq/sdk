@@ -1,6 +1,7 @@
 import typescript from "@rollup/plugin-typescript";
 import nodeExternals from "rollup-plugin-node-externals";
 import path from "node:path";
+import postcss from 'rollup-plugin-postcss';
 
 const getFormatConfig = (format) => {
   const pkgPath = path.join(process.cwd(), "package.json");
@@ -16,9 +17,16 @@ const getFormatConfig = (format) => {
       sourcemap: true,
     },
     plugins: [
+      postcss({
+        modules: true,
+        extensions: ['.css', '.scss'], 
+        use: ['sass'], 
+        extract: `styles.${format}.css`,
+        minimize: true,
+        sourceMap: true,
+      }),
       typescript({
         tsconfig: './tsconfig.json',
-        outputToFilesystem: false,
         compilerOptions: {
           outDir: "dist",
           composite: false,
@@ -32,16 +40,12 @@ const getFormatConfig = (format) => {
         builtinsPrefix: 'ignore',
       }),
     ],
-  }
-}
+  };
+};
 
-
-export default () =>  { 
+export default () => {
   const esm = getFormatConfig('esm');
   const cjs = getFormatConfig('cjs');
-  
-  return [
-    esm,
-    cjs
-  ]
-}
+
+  return [esm, cjs];
+};
