@@ -114,6 +114,27 @@ color: var(--Greyscale-600, #6C727E);
   background: var(--Greyscale-100, #EBEDF2);
   z-index: 0;
 }
+.verification {
+  font-family: Inter;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--Greyscale-500, #868C95);
+  margin-top: 16px;
+}
+
+.verificationBold {
+  color: var(--Greyscale-900, #2B2F33);
+  font-weight: 700;
+  margin-top: 8px;
+}
+.verificationIcon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px; 
+}
 .tos {
   font-family: Inter;
   font-size: 12px;
