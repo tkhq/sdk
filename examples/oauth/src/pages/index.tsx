@@ -34,8 +34,8 @@ export default function AuthPage() {
   console.log(process.env.API_PUBLIC_KEY!)
   const turnkeyClient = new TurnkeySDKClient({
     apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-    apiPublicKey: "02fa9dbc9eeb32897675eab279687e0e73319791c9754c03a4d66a160e69703c47",
-    apiPrivateKey: "72d77ee664c821a9ff285373c751c3205e82b33f3763cd8219114e455b6971a9",
+    apiPublicKey: "02a1ba23e1b703fb3424294142807b89032d20d4f8be46ceb4fb0d1bf34ed763c3",
+    apiPrivateKey: "91d9f379bf8e111ff9ec6200a4b336029a3a3c691bcfe1936fc79605aef20093",
     defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
   });
 
