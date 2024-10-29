@@ -1,13 +1,15 @@
 import styles from "./Auth.module.css";
-import "./PhoneInput.css"
 import { SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTurnkey } from "../../hooks/useTurnkey";
 import type { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
 import { initAuth } from "../../api/initAuth";
 import { getSuborgs } from "../../api/getSuborgs";
-import  {PhoneInput}  from 'react-international-phone';
-
+import { MuiPhone } from "./PhoneInput";
+import type { SetStateAction } from "react";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { sha256 } from "@noble/hashes/sha2";
+import { bytesToHex } from "@noble/hashes/utils";
 interface AuthProps {
   turnkeyClient: TurnkeySDKClient;
 }
@@ -64,6 +66,10 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
     setLoadingAction(null);
   };
 
+  const handleGoogleLogin = async() => {
+    setLoadingAction("google");
+    setLoadingAction(null);
+  }
   const handleEmailLogin = async (email: string) => {
     const getSuborgsRequest = {
       filterType: "EMAIL",
@@ -138,18 +144,19 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
         )}
 
         {authConfig.phone && (
+          <div>
+                            <div className={styles.separator}>
+                <span>OR</span>
+              </div>
           <form onSubmit={phoneForm.handleSubmit(onSubmitPhone)}>
-            <div className={styles.inputGroup}>
-            <PhoneInput
-        defaultCountry="ua"
-        value={phone!}
-        onChange={(phone: SetStateAction<string | null>) => setPhone(phone)}
-      /> 
+            <div className = {styles.phoneInput}>
+              <MuiPhone         onChange={(phone: SetStateAction<string | null>) => setPhone(phone)}/>
             </div>
             <button type="button" onClick={handlePhoneLogin}>
               Continue with phone
             </button>
           </form>
+          </div>
         )}
 
         {otpId && (
@@ -171,7 +178,20 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
       <div className={styles.separator}>
         <span>OR</span>
       </div>
-
+      {authConfig.socials.google && authIframeClient &&
+                  <GoogleOAuthProvider
+                  clientId={"TODO"}
+                >
+                  <GoogleLogin
+                    nonce={bytesToHex(sha256(authIframeClient!.iframePublicKey!))}
+                    onSuccess={handleGoogleLogin}
+                    useOneTap
+                  />
+                </GoogleOAuthProvider>
+      
+      }
+            {/* {authConfig.socials.facebook && <FacebookAuth />}
+      {authConfig.socials.apple && <AppleAuth />} */}
           <div className = {styles.tos}>
 <span>By logging in you agree to our <span className = {styles.tosBold}>Terms of Service</span> & <span className = {styles.tosBold}>Privacy Policy</span></span>
           </div>
@@ -190,9 +210,6 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
 </defs>
 </svg>
             </div>
-      {/* {authConfig.socials.google && <GoogleAuth />}
-      {authConfig.socials.facebook && <FacebookAuth />}
-      {authConfig.socials.apple && <AppleAuth />} */}
     </div>
   );
 };
