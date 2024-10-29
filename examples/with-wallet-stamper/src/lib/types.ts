@@ -26,8 +26,12 @@ export interface Wallet {
   walletId: string;
   /** @description Human-readable name for a Wallet. */
   walletName: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: {
+    seconds: string;
+  };
+  updatedAt: {
+    seconds: string;
+  };
   /** @description True when a given Wallet is exported, false otherwise. */
   exported: boolean;
   /** @description True when a given Wallet is imported, false otherwise. */

@@ -1341,6 +1341,15 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../../packages/http
+      '@turnkey/iframe-stamper':
+        specifier: workspace:^
+        version: link:../../packages/iframe-stamper
+      '@turnkey/sdk-browser':
+        specifier: workspace:^
+        version: link:../../packages/sdk-browser
+      '@turnkey/sdk-react':
+        specifier: workspace:^
+        version: link:../../packages/sdk-react
       '@turnkey/solana':
         specifier: workspace:*
         version: link:../../packages/solana
