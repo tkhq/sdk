@@ -38,6 +38,9 @@
   border: 1px solid var(--Greyscale-200, #D8DBE3);
   border-radius: 4px;
   box-sizing: border-box;
+  &::placeholder {
+    color: rgba(0, 0, 0, 0.4); 
+  }
 }
 
 button {
@@ -94,7 +97,7 @@ color: var(--Greyscale-600, #6C727E);
   color: var(--Greyscale-500, #868C95);
   padding: 0 10px;
   position: relative;
-  z-index: 1;
+  z-index: 0;
   font-size: 0.75rem;
   background: var(--Greyscale-20, #F5F7FB);
   color: #666;
@@ -172,4 +175,9 @@ color: var(--Greyscale-600, #6C727E);
 .poweredBy span {
   position: relative;
   top: -1px;
+}
+
+.phoneInput {
+  margin-top: 12px;
+  margin-bottom: 12px;
 }
