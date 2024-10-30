@@ -19,13 +19,14 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
   const { turnkey, passkeyClient, authIframeClient } = useTurnkey();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [otpError, setOtpError] = useState<string |null>(null);
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
   const [step, setStep] = useState<string>("auth");
   const [suborgId, setSuborgId] = useState<string>("");
   const [resendText, setResendText] = useState("Re-send Code");
-
+  console.log(authIframeClient?.iframePublicKey!)
   const authConfig = {
     email: true,
     passkey: true,
@@ -42,6 +43,63 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
       alert(error);
     }
   }, [error]);
+
+  const handleLoginWithPasskey = async () => {
+    setLoadingAction("email");
+    const getSuborgsRequest = {
+      filterType: "EMAIL",
+      filterValue: email,
+    };
+    const getSuborgsResponse = await getSuborgs(getSuborgsRequest, turnkeyClient);
+    if (getSuborgsResponse!.organizationIds.length > 0){
+        const loginResponse = await passkeyClient?.login()
+        if (loginResponse?.organizationId) {
+          console.log("ACCOUNT FOUND")
+        }
+      }
+        else {
+        // User either does not have an account with a sub organization
+        // or does not have a passkey
+        // Create a new passkey for the user
+        const { encodedChallenge, attestation } =
+          (await passkeyClient?.createUserPasskey({
+            publicKey: {
+              user: {
+                name: email,
+                displayName: email,
+              },
+            },
+          })) || {}
+
+        // Create a new sub organization for the user
+        if (encodedChallenge && attestation) {
+          //TODO
+          // const { subOrg, user } = await createUserSubOrg({
+          //   email: email as Email,
+          //   passkey: {
+          //     challenge: encodedChallenge,
+          //     attestation,
+          //   },
+          // })
+
+          // if (subOrg && user) {
+          //   const org = {
+          //     organizationId: subOrg.subOrganizationId,
+          //     organizationName: "",
+          //   }
+          //   const currentUser = {
+          //     userId: user.userId,
+          //     username: user.userName,
+          //     organization: org,
+          //   }
+          //   localStorage.setItem(
+          //     "@turnkey/current_user",
+          //     JSON.stringify(currentUser)
+          //   )
+          // }
+        }
+      }
+    }
 
   const handleEmailLogin = async () => {
     setLoadingAction("email");
@@ -66,7 +124,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
   const handlePhoneLogin = async () => {
     setLoadingAction("phone");
     const getSuborgsRequest = {
-      filterType: "PHONE",
+      filterType: "PHONE_NUMBER",
       filterValue: phone,
     };
     const getSuborgsResponse = await getSuborgs(getSuborgsRequest, turnkeyClient);
@@ -89,13 +147,18 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
     // Add OTP verification logic here
     const authRequest = {
       suborgID: suborgId,
-      otpId: otpId,
+      otpId: otpId!,
       otpCode: otp,
       targetPublicKey: authIframeClient!.iframePublicKey!,
     };
 
     const authResponse = await auth(authRequest, turnkeyClient);
-    console.log(authResponse)
+    if (authResponse?.credentialBundle) {
+      await authIframeClient!.injectCredentialBundle(authResponse.credentialBundle);
+      setOtpError(null);
+    } else {
+      setOtpError("Invalid OTP code, please try again");
+    }
     setLoadingAction(null);
   };
 
@@ -105,6 +168,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
   };
 
   const handleResendCode = async () => {
+    setOtpError(null);
     if (step === "otpEmail") {
       await handleEmailLogin();
     } else if (step === "otpPhone") {
@@ -189,7 +253,11 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
             </span>
             <OTPInput onComplete={handleEnterOtp} />
           </div>
+          
         )}
+                            {otpError && (
+              <div className={styles.errorText}>{otpError}</div>
+            )}
       </div>
 
 
