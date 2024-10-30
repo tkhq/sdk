@@ -34,6 +34,21 @@ const OTPInput: React.FC<OTPInputProps> = ({ onComplete }) => {
     }
   };
 
+  const handlePaste = (event: React.ClipboardEvent) => {
+    const pasteData = event.clipboardData.getData("Text");
+    if (/^\d{6}$/.test(pasteData)) {
+      const newOtp = pasteData.split("");
+      setOtp(newOtp);
+      onComplete(newOtp.join(""));
+
+      // Automatically move focus to the last input box
+      const lastInput = document.getElementById(`otp-input-5`);
+      if (lastInput) (lastInput as HTMLInputElement).focus();
+
+      event.preventDefault();
+    }
+  };
+
   return (
     <Box display="flex" gap={1} justifyContent="center" mt={2}>
       {otp.map((digit, index) => (
@@ -43,6 +58,7 @@ const OTPInput: React.FC<OTPInputProps> = ({ onComplete }) => {
           value={digit}
           onChange={(e) => handleChange(e.target.value, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
+          onPaste={index === 0 ? handlePaste : undefined} // Handle paste on the first input only
           inputProps={{
             maxLength: 1,
             style: {
