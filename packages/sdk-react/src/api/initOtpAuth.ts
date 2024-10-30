@@ -1,20 +1,20 @@
 import type {Turnkey as TurnkeySDKClient}  from "@turnkey/sdk-server";
 
-type InitAuthRequest = {
+type InitOtpAuthRequest = {
   suborgID: string;
   otpType: string;
   contact: string;
 };
 
-type InitAuthResponse = {
+type InitOtpAuthResponse = {
   otpId: string;
 };
 
 
-export async function initAuth(
-  request: InitAuthRequest,
+export async function initOtpAuth(
+  request: InitOtpAuthRequest,
   turnkeyClient: TurnkeySDKClient
-): Promise<InitAuthResponse | undefined> {
+): Promise<InitOtpAuthResponse | undefined> {
   try {
     const initOtpAuthResponse = await turnkeyClient.apiClient().initOtpAuth({
       contact: request.contact,

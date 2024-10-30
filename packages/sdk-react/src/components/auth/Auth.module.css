@@ -202,3 +202,10 @@ color: var(--Greyscale-600, #6C727E);
   margin-top: 12px;
   margin-bottom: 12px;
 }
+
+.errorText {
+  text-align: center;
+  margin-top: 12px;
+  color: #FF4C4C;
+  font-weight: 550;
+}

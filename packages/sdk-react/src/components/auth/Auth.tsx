@@ -2,14 +2,16 @@ import styles from "./Auth.module.css";
 import { useEffect, useState } from "react";
 import { useTurnkey } from "../../hooks/useTurnkey";
 import type { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
-import { initAuth } from "../../api/initAuth";
-import { auth } from "../../api/auth";
+import { initOtpAuth } from "../../api/initOtpAuth";
+import { otpAuth } from "../../api/otpAuth";
 import { getSuborgs } from "../../api/getSuborgs";
 import { MuiPhone } from "./PhoneInput";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import OTPInput from "./OtpInput";
+import { createSuborg } from "../../api/createSuborg";
+import { oauth } from "../../api/oauth";
 
 interface AuthProps {
   turnkeyClient: TurnkeySDKClient;
@@ -52,10 +54,10 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
     };
     const getSuborgsResponse = await getSuborgs(getSuborgsRequest, turnkeyClient);
     if (getSuborgsResponse!.organizationIds.length > 0){
-        const loginResponse = await passkeyClient?.login()
-        if (loginResponse?.organizationId) {
-          console.log("ACCOUNT FOUND")
-        }
+      const createReadWriteSessionResponse = await passkeyClient?.createReadWriteSession({organizationId: getSuborgsResponse!.organizationIds[0]!, targetPublicKey: authIframeClient?.iframePublicKey!})
+      if (createReadWriteSessionResponse!.credentialBundle) {
+        await authIframeClient!.injectCredentialBundle(createReadWriteSessionResponse!.credentialBundle);
+      }
       }
         else {
         // User either does not have an account with a sub organization
@@ -73,30 +75,22 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
 
         // Create a new sub organization for the user
         if (encodedChallenge && attestation) {
-          //TODO
-          // const { subOrg, user } = await createUserSubOrg({
-          //   email: email as Email,
-          //   passkey: {
-          //     challenge: encodedChallenge,
-          //     attestation,
-          //   },
-          // })
+          const createSuborgRequest = {
+            email,
+            passkey: {
+              authenticatorName: "First Passkey",
+              challenge: encodedChallenge,
+              attestation
 
-          // if (subOrg && user) {
-          //   const org = {
-          //     organizationId: subOrg.subOrganizationId,
-          //     organizationName: "",
-          //   }
-          //   const currentUser = {
-          //     userId: user.userId,
-          //     username: user.userName,
-          //     organization: org,
-          //   }
-          //   localStorage.setItem(
-          //     "@turnkey/current_user",
-          //     JSON.stringify(currentUser)
-          //   )
-          // }
+            }
+          };
+          const createSuborgResponse = await createSuborg(createSuborgRequest, turnkeyClient);
+          if (createSuborgResponse?.subOrganizationId) {
+            const createReadWriteSessionResponse = await passkeyClient?.createReadWriteSession({organizationId: createSuborgResponse?.subOrganizationId, targetPublicKey: authIframeClient?.iframePublicKey!})
+            if (createReadWriteSessionResponse!.credentialBundle) {
+              await authIframeClient!.injectCredentialBundle(createReadWriteSessionResponse!.credentialBundle);
+            }
+          }
         }
       }
     }
@@ -108,14 +102,21 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
       filterValue: email,
     };
     const getSuborgsResponse = await getSuborgs(getSuborgsRequest, turnkeyClient);
-
+    let suborgId = getSuborgsResponse!.organizationIds[0]!
+    if (!suborgId){
+      const createSuborgRequest = {
+        email,
+      };
+      const createSuborgResponse = await createSuborg(createSuborgRequest, turnkeyClient);
+      suborgId = createSuborgResponse?.subOrganizationId!
+    }
     const initAuthRequest = {
-      suborgID: getSuborgsResponse!.organizationIds[0]!,
+      suborgID: suborgId,
       otpType: "OTP_TYPE_EMAIL",
       contact: email,
     };
-    const initAuthResponse = await initAuth(initAuthRequest, turnkeyClient);
-    setSuborgId(getSuborgsResponse!.organizationIds[0]!);
+    const initAuthResponse = await initOtpAuth(initAuthRequest, turnkeyClient);
+    setSuborgId(suborgId);
     setOtpId(initAuthResponse!.otpId);
     setStep("otpEmail");
     setLoadingAction(null);
@@ -128,14 +129,21 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
       filterValue: phone,
     };
     const getSuborgsResponse = await getSuborgs(getSuborgsRequest, turnkeyClient);
-
+    let suborgId = getSuborgsResponse!.organizationIds[0]!
+    if (!suborgId){
+      const createSuborgRequest = {
+        phoneNumber: phone,
+      };
+      const createSuborgResponse = await createSuborg(createSuborgRequest, turnkeyClient);
+      suborgId = createSuborgResponse?.subOrganizationId!
+    }
     const initAuthRequest = {
-      suborgID: getSuborgsResponse!.organizationIds[0]!,
+      suborgID: suborgId,
       otpType: "OTP_TYPE_SMS",
       contact: phone,
     };
-    const initAuthResponse = await initAuth(initAuthRequest, turnkeyClient);
-    setSuborgId(getSuborgsResponse!.organizationIds[0]!);
+    const initAuthResponse = await initOtpAuth(initAuthRequest, turnkeyClient);
+    setSuborgId(suborgId);
     setOtpId(initAuthResponse!.otpId);
     setStep("otpPhone");
     setLoadingAction(null);
@@ -152,18 +160,48 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
       targetPublicKey: authIframeClient!.iframePublicKey!,
     };
 
-    const authResponse = await auth(authRequest, turnkeyClient);
+    const authResponse = await otpAuth(authRequest, turnkeyClient);
     if (authResponse?.credentialBundle) {
       await authIframeClient!.injectCredentialBundle(authResponse.credentialBundle);
       setOtpError(null);
     } else {
-      setOtpError("Invalid OTP code, please try again");
+      setOtpError("Invalid code, please try again");
     }
     setLoadingAction(null);
   };
 
-  const handleGoogleLogin = async () => {
-    setLoadingAction("google");
+  const handleGoogleLogin = async (response: any) => {
+    setLoadingAction("oauth");
+    
+    const getSuborgsRequest = {
+      filterType: "OIDC_TOKEN",
+      filterValue: response.credential,
+    };
+    const getSuborgsResponse = await getSuborgs(getSuborgsRequest, turnkeyClient);
+    let suborgId = getSuborgsResponse!.organizationIds[0]!
+    if (!suborgId){
+      const createSuborgRequest = {
+        oauthProviders : [{
+          providerName: "Google OIDC",
+          oidcToken: response.credential
+        }]
+      };
+      const createSuborgResponse = await createSuborg(createSuborgRequest, turnkeyClient);
+      suborgId = createSuborgResponse?.subOrganizationId!
+    }
+    const oauthRequest = {
+      suborgID: suborgId,
+      oidcToken: response.credential,
+      targetPublicKey: authIframeClient?.iframePublicKey!,
+    };
+    const oauthResponse = await oauth(oauthRequest, turnkeyClient);
+    console.log(response.credential)
+    console.log(oauthResponse)
+    setSuborgId(suborgId);
+    if (oauthResponse!.credentialBundle) {
+      console.log(oauthResponse!.credentialBundle)
+      await authIframeClient!.injectCredentialBundle(oauthResponse!.credentialBundle);
+    }
     setLoadingAction(null);
   };
 
@@ -205,7 +243,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
           <button
             type="button"
             className={styles.passkeyButton}
-            onClick={() => console.log("Passkey login")}
+            onClick={handleLoginWithPasskey}
             disabled={loadingAction === "passkey"}
           >
             Continue with passkey
@@ -266,7 +304,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
               <div className={styles.separator}>
               <span>OR</span>
             </div>
-        <GoogleOAuthProvider clientId={"TODO"}>
+        <GoogleOAuthProvider clientId="776352896366-fjmbvor86htj99lap5pb6joeupf67ovo.apps.googleusercontent.com">
           <GoogleLogin
             nonce={bytesToHex(sha256(authIframeClient.iframePublicKey!))}
             onSuccess={handleGoogleLogin}
