@@ -5,7 +5,9 @@ class TelegramEnvironment extends JSDOMEnvironment {
     await super.setup();
 
     this.global.window.Telegram = {
-      WebApp: {},
+      WebApp: {
+        CloudStorage: {}
+      },
     };
   }
 
