@@ -245,7 +245,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   const imports = [];
 
   imports.push(
-    'import { TERMINAL_ACTIVITY_STATUSES, TActivityResponse, TActivityStatus } from "@turnkey/http";'
+    'import { TERMINAL_ACTIVITY_STATUSES, TActivityResponse, TActivityStatus, TSignedRequest } from "@turnkey/http";'
   );
 
   imports.push(
@@ -440,6 +440,22 @@ export class TurnkeySDKClientBase {
   }`
       );
     }
+    // generate a stamping method for each method
+    codeBuffer.push(
+      `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkApiTypes.${inputType}): Promise<TSignedRequest | undefined> => {
+    if (!this.config.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
+    const body = JSON.stringify(input);
+    const stamp = await this.config.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  }`
+    );
   }
 
   // End of the TurnkeySDKClient Class Definition
