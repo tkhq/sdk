@@ -258,7 +258,7 @@ export class TurnkeyBrowserSDK {
 }
 
 export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
-  authClient: AuthClient | undefined;
+  authClient?: AuthClient | undefined;
 
   constructor(config: TurnkeySDKClientConfig, authClient?: AuthClient) {
     super(config);

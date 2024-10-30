@@ -58,3 +58,11 @@ export interface EvmWalletInterface extends BaseWalletInterface {
  * @typedef {SolanaWalletInterface | EvmWalletInterface} WalletInterface
  */
 export type WalletInterface = SolanaWalletInterface | EvmWalletInterface;
+
+/**
+ * Enum representing the type of wallet the user is stamping with.
+ */
+export enum WalletType {
+  Ethereum = "evm",
+  Solana = "solana",
+}

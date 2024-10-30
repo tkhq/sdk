@@ -636,7 +636,7 @@ importers:
     dependencies:
       '@biconomy/account':
         specifier: ^4.5.6
-        version: 4.5.6(typescript@5.1.5)(viem@2.21.29)
+        version: 4.5.6(typescript@5.1.5)(viem@2.21.35)
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
@@ -657,7 +657,7 @@ importers:
         version: 2.4.2
       viem:
         specifier: ^2.21.29
-        version: 2.21.29(typescript@5.1.5)
+        version: 2.21.35(typescript@5.1.5)
     devDependencies:
       '@types/prompts':
         specifier: ^2.4.2
@@ -819,7 +819,7 @@ importers:
     dependencies:
       '@biconomy/account':
         specifier: ^4.5.6
-        version: 4.5.6(typescript@5.1.3)(viem@2.21.29)
+        version: 4.5.6(typescript@5.1.3)(viem@2.21.35)
       '@turnkey/api-key-stamper':
         specifier: workspace:*
         version: link:../../packages/api-key-stamper
@@ -894,7 +894,7 @@ importers:
         version: 5.1.3
       viem:
         specifier: ^2.21.9
-        version: 2.21.29(typescript@5.1.3)
+        version: 2.21.35(typescript@5.1.3)
 
   examples/with-ethers:
     dependencies:
@@ -1813,9 +1813,16 @@ importers:
 
   packages/wallet-stamper:
     dependencies:
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../crypto
       '@turnkey/encoding':
         specifier: workspace:*
         version: link:../encoding
+    optionalDependencies:
+      viem:
+        specifier: ^2.21.35
+        version: 2.21.35(typescript@5.1.5)
     devDependencies:
       '@solana/web3.js':
         specifier: ^1.88.1
@@ -1835,9 +1842,6 @@ importers:
       tweetnacl-util:
         specifier: ^0.15.1
         version: 0.15.1
-      viem:
-        specifier: ^2.18.8
-        version: 2.18.8(typescript@5.1.5)
 
   packages/webauthn-stamper:
     dependencies:
@@ -4768,7 +4772,7 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@biconomy/account@4.5.6(typescript@5.1.3)(viem@2.21.29):
+  /@biconomy/account@4.5.6(typescript@5.1.3)(viem@2.21.35):
     resolution: {integrity: sha512-Mq0X9HF4fsPTkf87eXklJJE/Hl3GQwQHN/2/D1fCA4Q4o4AM9HV7Tzpb+hBsh8cUJ+s2j0Q9wORXA1c0onAImQ==}
     peerDependencies:
       typescript: ^5
@@ -4777,14 +4781,14 @@ packages:
       '@silencelaboratories/walletprovider-sdk': 0.1.0(typescript@5.1.3)
       merkletreejs: 0.4.0
       typescript: 5.1.3
-      viem: 2.21.29(typescript@5.1.3)
+      viem: 2.21.35(typescript@5.1.3)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
       - zod
     dev: false
 
-  /@biconomy/account@4.5.6(typescript@5.1.5)(viem@2.21.29):
+  /@biconomy/account@4.5.6(typescript@5.1.5)(viem@2.21.35):
     resolution: {integrity: sha512-Mq0X9HF4fsPTkf87eXklJJE/Hl3GQwQHN/2/D1fCA4Q4o4AM9HV7Tzpb+hBsh8cUJ+s2j0Q9wORXA1c0onAImQ==}
     peerDependencies:
       typescript: ^5
@@ -4793,7 +4797,7 @@ packages:
       '@silencelaboratories/walletprovider-sdk': 0.1.0(typescript@5.1.5)
       merkletreejs: 0.4.0
       typescript: 5.1.5
-      viem: 2.21.29(typescript@5.1.5)
+      viem: 2.21.35(typescript@5.1.5)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -5171,7 +5175,7 @@ packages:
     resolution: {integrity: sha512-BDXFbYOJzT/NBEtp71cvsrGPwGAMGRB/349rwKuoxNSiKjPraNNnlK6MIIabViCjqZugu6j+xeMDlEkWdHHJSg==}
     dependencies:
       '@esbuild-kit/core-utils': 3.1.0
-      get-tsconfig: 4.8.1
+      get-tsconfig: 4.5.0
     dev: true
 
   /@esbuild-kit/core-utils@3.1.0:
@@ -5187,7 +5191,7 @@ packages:
     deprecated: 'Merged into tsx: https://tsx.is'
     dependencies:
       '@esbuild-kit/core-utils': 3.1.0
-      get-tsconfig: 4.8.1
+      get-tsconfig: 4.5.0
     dev: true
 
   /@esbuild/android-arm64@0.17.18:
@@ -6769,6 +6773,7 @@ packages:
     resolution: {integrity: sha512-p+4cb332SFCrReJkCYe8Xzm0OWi4Jji5jVdIZRL/PmacmDkFNw6MrrV+gGpiPxLHbV+zKFRywUWbaseT+tZRXg==}
     dependencies:
       '@noble/hashes': 1.4.0
+    dev: false
 
   /@noble/curves@1.4.2:
     resolution: {integrity: sha512-TavHr8qycMChk8UwMld0ZDRvatedkzWfH8IiaeGCfymOP5i0hSCozz9vHOL0nkwk7HRMlFnAiKpS2jrUmSybcw==}
@@ -9952,6 +9957,7 @@ packages:
       '@noble/curves': 1.4.0
       '@noble/hashes': 1.4.0
       '@scure/base': 1.1.9
+    dev: false
 
   /@scure/bip32@1.5.0:
     resolution: {integrity: sha512-8EnFYkqEQdnkuGBVpCzKxyIwDCBLDVj3oiX0EKUFre/tOjL/Hqba1D6n/8RcmaQy4f95qQFrO2A8Sr6ybh4NRw==}
@@ -9985,6 +9991,7 @@ packages:
     dependencies:
       '@noble/hashes': 1.4.0
       '@scure/base': 1.1.9
+    dev: false
 
   /@scure/bip39@1.4.0:
     resolution: {integrity: sha512-BEEm6p8IueV/ZTfQLp/0vhw4NPnT9oWf5+28nvmeUICjP99f4vr2d+qc7AVGDDtwRep6ifR43Yed9ERVmiITzw==}
@@ -10074,7 +10081,7 @@ packages:
     resolution: {integrity: sha512-53fV1noQJDUN9JNydDohyzsFl4+QYoWNkkkAfRzmIgtv+6DR+Dksb0fKmme2WdtA8MPEw/HsRwN3Lr6YC3iF7A==}
     dependencies:
       '@noble/curves': 1.6.0
-      viem: 2.21.29(typescript@5.1.3)
+      viem: 2.21.35(typescript@5.1.3)
     transitivePeerDependencies:
       - bufferutil
       - typescript
@@ -10086,7 +10093,7 @@ packages:
     resolution: {integrity: sha512-53fV1noQJDUN9JNydDohyzsFl4+QYoWNkkkAfRzmIgtv+6DR+Dksb0fKmme2WdtA8MPEw/HsRwN3Lr6YC3iF7A==}
     dependencies:
       '@noble/curves': 1.6.0
-      viem: 2.21.29(typescript@5.1.5)
+      viem: 2.21.35(typescript@5.1.5)
     transitivePeerDependencies:
       - bufferutil
       - typescript
@@ -11402,7 +11409,7 @@ packages:
   /@toruslabs/eccrypto@2.2.1:
     resolution: {integrity: sha512-7sviL0wLYsfA5ogEAOIdb0tu/QAOFXfHc9B8ONYtF04x4Mg3Nr89LL35FhjaEm055q8Ru7cUQhEFSiqJqm9GCw==}
     dependencies:
-      elliptic: 6.5.7
+      elliptic: 6.6.0
     dev: false
 
   /@toruslabs/http-helpers@3.4.0(@babel/runtime@7.25.6):
@@ -11429,7 +11436,7 @@ packages:
       '@babel/runtime': 7.25.6
       '@toruslabs/eccrypto': 2.2.1
       '@toruslabs/http-helpers': 3.4.0(@babel/runtime@7.25.6)
-      elliptic: 6.5.7
+      elliptic: 6.6.0
       ethereum-cryptography: 2.1.3
       json-stable-stringify: 1.1.1
     transitivePeerDependencies:
@@ -13025,6 +13032,7 @@ packages:
     dependencies:
       typescript: 5.1.5
       zod: 3.23.8
+    dev: false
 
   /abitype@1.0.6(typescript@5.1.3):
     resolution: {integrity: sha512-MMSqYh4+C/aVqI2RQaWqbvI4Kxo5cQV40WQ4QFtDnNzCkqChm8MuENhElmynZlO0qUy/ObkEUaXtKqYnx1Kp3A==}
@@ -14014,7 +14022,7 @@ packages:
       browserify-rsa: 4.1.0
       create-hash: 1.2.0
       create-hmac: 1.1.7
-      elliptic: 6.5.7
+      elliptic: 6.6.0
       hash-base: 3.0.4
       inherits: 2.0.4
       parse-asn1: 5.1.7
@@ -14655,7 +14663,7 @@ packages:
     resolution: {integrity: sha512-mf+TCx8wWc9VpuxfP2ht0iSISLZnt0JgWlrOKZiNqyUZWnjIaCIVNQArMHnCZKfEYRg6IM7A+NeJoN8gf/Ws0A==}
     dependencies:
       bn.js: 4.12.0
-      elliptic: 6.5.7
+      elliptic: 6.6.0
     dev: false
 
   /create-hash@1.2.0:
@@ -15159,8 +15167,8 @@ packages:
       minimalistic-assert: 1.0.1
       minimalistic-crypto-utils: 1.0.1
 
-  /elliptic@6.5.7:
-    resolution: {integrity: sha512-ESVCtTwiA+XhY3wyh24QqRGBoP3rEdDUl3EDUUo9tft074fi19IrdpH7hLCMMP3CIj7jb3W96rn8lt/BqIlt5Q==}
+  /elliptic@6.6.0:
+    resolution: {integrity: sha512-dpwoQcLc/2WLQvJvLRHKZ+f9FgOdjnq11rurqwekGQygGPsYSK29OMMD2WalatiqQ+XGFDglTNixpPfI+lpaAA==}
     dependencies:
       bn.js: 4.12.0
       brorand: 1.1.0
@@ -16456,12 +16464,6 @@ packages:
   /get-tsconfig@4.5.0:
     resolution: {integrity: sha512-MjhiaIWCJ1sAU4pIQ5i5OfOuHHxVo1oYeNsWTON7jxYkod8pHocXeh+SSbmu5OZZZK73B6cbJ2XADzXehLyovQ==}
 
-  /get-tsconfig@4.8.1:
-    resolution: {integrity: sha512-k9PN+cFBmaLWtVz29SkUoqU5O0slLuHJXt/2P+tMVFT+phsSGXGkp9t3rQIqdz0e+06EHNGs3oM6ZX1s2zHxRg==}
-    dependencies:
-      resolve-pkg-maps: 1.0.0
-    dev: true
-
   /glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
@@ -17493,6 +17495,7 @@ packages:
       ws: '*'
     dependencies:
       ws: 8.17.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+    dev: false
 
   /isows@1.0.6(ws@8.17.1):
     resolution: {integrity: sha512-lPHCayd40oW98/I0uvgaHKWCSvkzY27LjWLbtzOm64yQ+G3Q5npjjbdppU65iZXkK1Zt+kH9pfegli0AYfwYYw==}
@@ -20820,10 +20823,6 @@ packages:
     resolution: {integrity: sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw==}
     engines: {node: '>=8'}
 
-  /resolve-pkg-maps@1.0.0:
-    resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
-    dev: true
-
   /resolve.exports@2.0.0:
     resolution: {integrity: sha512-6K/gDlqgQscOlg9fSRpWstA8sYe8rbELsSTNpx+3kTrsVCzvSl0zIvRErM7fdl9ERWDsKnrLnwB+Ne89918XOg==}
     engines: {node: '>=10'}
@@ -20935,7 +20934,7 @@ packages:
     dependencies:
       bn.js: 5.2.1
       brorand: 1.1.0
-      elliptic: 6.5.7
+      elliptic: 6.6.0
       hash.js: 1.1.7
       ripple-address-codec: 4.3.1
     dev: false
@@ -21146,7 +21145,7 @@ packages:
     engines: {node: '>=18.0.0'}
     requiresBuild: true
     dependencies:
-      elliptic: 6.5.7
+      elliptic: 6.6.0
       node-addon-api: 5.1.0
       node-gyp-build: 4.6.0
 
@@ -22031,7 +22030,7 @@ packages:
       bindings: 1.5.0
       bn.js: 4.12.0
       create-hmac: 1.1.7
-      elliptic: 6.5.7
+      elliptic: 6.6.0
       nan: 2.20.0
     dev: false
 
@@ -22757,32 +22756,8 @@ packages:
       - zod
     dev: false
 
-  /viem@2.18.8(typescript@5.1.5):
-    resolution: {integrity: sha512-Fi5d9fd/LBiVtJ5eV2c99yrdt4dJH5Vbkf2JajwCqHYuV4ErSk/sm+L6Ru3rzT67rfRHSOQibTZxByEBua/WLw==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@adraffy/ens-normalize': 1.10.0
-      '@noble/curves': 1.4.0
-      '@noble/hashes': 1.4.0
-      '@scure/bip32': 1.4.0
-      '@scure/bip39': 1.3.0
-      abitype: 1.0.5(typescript@5.1.5)(zod@3.23.8)
-      isows: 1.0.4(ws@8.17.1)
-      typescript: 5.1.5
-      webauthn-p256: 0.0.5
-      ws: 8.17.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-    dev: true
-
-  /viem@2.21.29(typescript@5.1.3):
-    resolution: {integrity: sha512-n9LoCJjmI1XsE33nl+M4p3Wy5hczv7YC682RpX4Qk9cw8s9HJU+hUi5eDcNDPBcAwIHGCPKsf8yFBEYnE2XYVg==}
+  /viem@2.21.35(typescript@5.1.3):
+    resolution: {integrity: sha512-f3EFc5JILeA9veuNymUN8HG/nKP9ykC0NCgwFrZWuxcCc822GaP0IEnkRBsHGqmjwbz//FxJFmvtx7TBcdVs0A==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -22805,8 +22780,9 @@ packages:
       - zod
     dev: false
 
-  /viem@2.21.29(typescript@5.1.5):
-    resolution: {integrity: sha512-n9LoCJjmI1XsE33nl+M4p3Wy5hczv7YC682RpX4Qk9cw8s9HJU+hUi5eDcNDPBcAwIHGCPKsf8yFBEYnE2XYVg==}
+  /viem@2.21.35(typescript@5.1.5):
+    resolution: {integrity: sha512-f3EFc5JILeA9veuNymUN8HG/nKP9ykC0NCgwFrZWuxcCc822GaP0IEnkRBsHGqmjwbz//FxJFmvtx7TBcdVs0A==}
+    requiresBuild: true
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -23172,6 +23148,7 @@ packages:
     dependencies:
       '@noble/curves': 1.4.0
       '@noble/hashes': 1.4.0
+    dev: false
 
   /webcrypto-core@1.8.0:
     resolution: {integrity: sha512-kR1UQNH8MD42CYuLzvibfakG5Ew5seG85dMMoAM/1LqvckxaF6pUiidLuraIu4V+YCIFabYecUZAW0TuxAoaqw==}
@@ -23503,3 +23480,4 @@ packages:
 
   /zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
+    dev: false

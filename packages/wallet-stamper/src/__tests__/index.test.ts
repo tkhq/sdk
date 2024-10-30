@@ -3,7 +3,7 @@ import "dotenv/config";
 import { WalletStamper } from "..";
 import { TurnkeyClient } from "@turnkey/http";
 
-import { MockSolanaWallet } from "./wallet-interfaces";
+import { MockEvmWallet, MockSolanaWallet } from "./wallet-interfaces";
 import type { UUID } from "crypto";
 
 // Import necessary Jest functions
@@ -22,7 +22,7 @@ const { ORGANIZATION_ID, BASE_URL } = process.env;
 
 // Wrap the existing function in a Jest test block
 describe("Wallet stamper tests", () => {
-  it("Should list wallets using wallet to stamp the request", async () => {
+  it("Solana Wallet - Should list wallets using wallet to stamp the request", async () => {
     const mockWallet = new MockSolanaWallet();
     const walletStamper = new WalletStamper(mockWallet);
 
@@ -31,6 +31,19 @@ describe("Wallet stamper tests", () => {
     const { wallets } =
       (await client.getWallets({
         organizationId: ORGANIZATION_ID,
+      })) ?? {};
+
+    expect(wallets?.length).toBeGreaterThan(0);
+  });
+  it("Ethereum Wallet - Should list wallets using wallet to stamp the request", async () => {
+    const mockWallet = new MockEvmWallet();
+    const walletStamper = new WalletStamper(mockWallet);
+
+    const client = new TurnkeyClient({ baseUrl: BASE_URL }, walletStamper);
+
+    const { wallets } =
+      (await client.getWallets({
+        organizationId: "704020e2-5b59-44a9-a78f-b74aecc67504",
       })) ?? {};
 
     expect(wallets?.length).toBeGreaterThan(0);

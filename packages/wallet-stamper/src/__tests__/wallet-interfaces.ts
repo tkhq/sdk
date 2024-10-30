@@ -6,6 +6,9 @@ import {
   recoverPublicKey,
   hashMessage,
   type Hex,
+  keccak256,
+  isHex,
+  toHex,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { mainnet } from "viem/chains";
@@ -38,16 +41,21 @@ export class MockEvmWallet implements EvmWalletInterface {
   account = privateKeyToAccount(ETHEREUM_PRIVATE_KEY);
   type = WALLET_TYPE_EVM;
 
-  async signMessage(message: string): Promise<string> {
+  async signMessage(message: string | Hex): Promise<string> {
     const walletClient = createWalletClient({
       account: this.account,
       chain: mainnet,
       transport: http(),
     });
-    const signature = await walletClient.signMessage({
-      account: this.account,
-      message,
-    });
+
+    const hashedMessage = isHex(message)
+      ? keccak256(message)
+      : keccak256(toHex(message));
+
+    const signature = await this.account.sign({ hash: hashedMessage });
+
+    console.log("MockEvmWallet signature", { signature });
+
     return signature;
   }
 

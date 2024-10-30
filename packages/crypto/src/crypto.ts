@@ -568,3 +568,46 @@ export const fromDerSignature = (derSignature: string) => {
   // Concatenate and return the raw signature
   return new Uint8Array([...rPadded, ...sPadded]);
 };
+
+export const toDerSignature = (rawSignature: string) => {
+  const rawSignatureBuf = uint8ArrayFromHexString(rawSignature);
+
+  // Split raw signature into r and s, each 32 bytes
+  const r = rawSignatureBuf.slice(0, 32);
+  const s = rawSignatureBuf.slice(32, 64);
+
+  // Helper function to encode an integer with DER structure
+  const encodeDerInteger = (integer?: Uint8Array): Uint8Array => {
+    // Check if integer is defined and has at least one byte
+    if (
+      integer === undefined ||
+      integer.length === 0 ||
+      integer[0] === undefined
+    ) {
+      throw new Error("Invalid integer: input is undefined or empty.");
+    }
+
+    // Add a leading zero if the integer's most significant byte is >= 0x80
+    const needsPadding = integer[0] & 0x80;
+    const paddedInteger = needsPadding
+      ? new Uint8Array([0x00, ...integer])
+      : integer;
+
+    // Prepend the integer tag (0x02) and length
+    return new Uint8Array([0x02, paddedInteger.length, ...paddedInteger]);
+  };
+
+  // DER encode r and s
+  const rEncoded = encodeDerInteger(r);
+  const sEncoded = encodeDerInteger(s);
+
+  // Combine as a DER sequence: 0x30, total length, rEncoded, sEncoded
+  const derSignature = new Uint8Array([
+    0x30,
+    rEncoded.length + sEncoded.length,
+    ...rEncoded,
+    ...sEncoded,
+  ]);
+
+  return uint8ArrayToHexString(derSignature);
+};
