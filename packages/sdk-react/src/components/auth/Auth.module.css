@@ -7,7 +7,7 @@
   padding: 20px;
   background: var(--Greyscale-20, #F5F7FB);
   border: 1px solid var(--Greyscale-100, #EBEDF2);
-  border-radius: 8px;
+  border-radius: 15px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -152,6 +152,23 @@ color: var(--Greyscale-600, #6C727E);
   cursor: pointer;
 }
 /* Auth Button Styles */
+
+.authButton {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.appleButtonContainer {
+  width: 100%;
+  max-width: 180px; /* Optional max-width */
+  height: 40px; /* Adjust height as desired */
+  display: flex;
+  cursor: pointer;
+  justify-content: center;
+}
+
 .google,
 .facebook,
 .apple {

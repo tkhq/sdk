@@ -12,13 +12,21 @@ import { bytesToHex } from "@noble/hashes/utils";
 import OTPInput from "./OtpInput";
 import { createSuborg } from "../../api/createSuborg";
 import { oauth } from "../../api/oauth";
+import AppleLogin from "react-apple-login";
 
 interface AuthProps {
   turnkeyClient: TurnkeySDKClient;
   onHandleAuthSuccess: () => Promise<void>;
+  authConfig: {
+    emailEnabled: boolean;
+    passkeyEnabled: boolean;
+    phoneEnabled: boolean;
+    appleEnabled: boolean;
+    googleEnabled: boolean;
+  };
 }
 
-const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess }) => {
+const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authConfig }) => {
   const { turnkey, passkeyClient, authIframeClient } = useTurnkey();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -29,17 +37,6 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess }) => {
   const [step, setStep] = useState<string>("auth");
   const [suborgId, setSuborgId] = useState<string>("");
   const [resendText, setResendText] = useState("Re-send Code");
-  console.log(authIframeClient?.iframePublicKey!)
-  const authConfig = {
-    email: true,
-    passkey: true,
-    phone: true,
-    socials: {
-      google: true,
-      facebook: true,
-      apple: true,
-    },
-  };
 
   useEffect(() => {
     if (error) {
@@ -154,8 +151,6 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess }) => {
 
   const handleEnterOtp = async (otp: string) => {
     setLoadingAction("otp");
-    console.log(`Verifying OTP: ${otp} with otpId: ${otpId}`);
-    // Add OTP verification logic here
     const authRequest = {
       suborgID: suborgId,
       otpId: otpId!,
@@ -199,13 +194,47 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess }) => {
       targetPublicKey: authIframeClient?.iframePublicKey!,
     };
     const oauthResponse = await oauth(oauthRequest, turnkeyClient);
-    console.log(response.credential)
-    console.log(oauthResponse)
     setSuborgId(suborgId);
     if (oauthResponse!.credentialBundle) {
-      console.log(oauthResponse!.credentialBundle)
       await authIframeClient!.injectCredentialBundle(oauthResponse!.credentialBundle);
       await onHandleAuthSuccess();
+    }
+    setLoadingAction(null);
+  };
+
+  const handleAppleLogin = async (response: any) => {
+    setLoadingAction("oauth");
+    // Implement Apple OAuth with the response received from react-apple-login
+    const appleToken = response.authorization?.id_token;
+
+    if (appleToken) {
+      const getSuborgsRequest = {
+        filterType: "OIDC_TOKEN",
+        filterValue: appleToken,
+      };
+      const getSuborgsResponse = await getSuborgs(getSuborgsRequest, turnkeyClient);
+      let suborgId = getSuborgsResponse!.organizationIds[0]!
+      if (!suborgId){
+        const createSuborgRequest = {
+          oauthProviders : [{
+            providerName: "Apple OIDC",
+            oidcToken: response.credential
+          }]
+        };
+        const createSuborgResponse = await createSuborg(createSuborgRequest, turnkeyClient);
+        suborgId = createSuborgResponse?.subOrganizationId!
+      }
+      
+      const oauthResponse = await oauth({
+        suborgID: suborgId,
+        oidcToken: appleToken,
+        targetPublicKey: authIframeClient?.iframePublicKey!,
+      }, turnkeyClient);
+
+      if (oauthResponse!.credentialBundle) {
+        await authIframeClient!.injectCredentialBundle(oauthResponse!.credentialBundle);
+        await onHandleAuthSuccess();
+      }
     }
     setLoadingAction(null);
   };
@@ -224,7 +253,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess }) => {
     <div className={styles.authCard}>
       <h2>{otpId ? "Enter verification code" : "Log in or sign up"}</h2>
       <div className={styles.authForm}>
-        {authConfig.email && !otpId && (
+        {authConfig.emailEnabled && !otpId && (
           <div>
             <div className={styles.inputGroup}>
               <input
@@ -244,7 +273,8 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess }) => {
           </div>
         )}
 
-        {authConfig.passkey && !otpId && (
+        {authConfig.passkeyEnabled && !otpId && (
+          <div>
           <button
             type="button"
             className={styles.passkeyButton}
@@ -253,13 +283,15 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess }) => {
           >
             Continue with passkey
           </button>
+                    </div>
         )}
-
-        {authConfig.phone && !otpId && (
+{!otpId && (authConfig.passkeyEnabled || authConfig.emailEnabled) && (authConfig.googleEnabled || authConfig.appleEnabled || authConfig.phoneEnabled) &&
+<div className={styles.separator}>
+                      <span>OR</span>
+                    </div>
+}
+        {authConfig.phoneEnabled && !otpId && (
           <div>
-            <div className={styles.separator}>
-              <span>OR</span>
-            </div>
             <div className={styles.phoneInput}>
               <MuiPhone onChange={(value) => setPhone(value)} value={phone} />
             </div>
@@ -302,22 +334,50 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess }) => {
               <div className={styles.errorText}>{otpError}</div>
             )}
       </div>
+      {!otpId && (authConfig.googleEnabled || authConfig.appleEnabled)  && authConfig.phoneEnabled &&
 
-
-      {!otpId && authConfig.socials.google && authIframeClient && (
-        <div>
-              <div className={styles.separator}>
+      <div className={styles.separator}>
               <span>OR</span>
             </div>
-        <GoogleOAuthProvider clientId="776352896366-fjmbvor86htj99lap5pb6joeupf67ovo.apps.googleusercontent.com">
-          <GoogleLogin
-            nonce={bytesToHex(sha256(authIframeClient.iframePublicKey!))}
-            onSuccess={handleGoogleLogin}
-            useOneTap
-          />
-        </GoogleOAuthProvider>
-        </div>
-      )}
+}
+{!otpId && authConfig.googleEnabled && authIframeClient && (
+  <div className={styles.authButton}>
+    <div className={styles.socialButtonContainer}>
+      <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+        <GoogleLogin
+          nonce={bytesToHex(sha256(authIframeClient.iframePublicKey!))}
+          onSuccess={handleGoogleLogin}
+          useOneTap
+          text="signin_with"
+          ux_mode="popup"
+        />
+      </GoogleOAuthProvider>
+    </div>
+  </div>
+)}
+
+
+{!otpId && authConfig.appleEnabled && authIframeClient && (
+  <div className={styles.authButton}>
+    <div className={styles.appleButtonContainer}>
+      <AppleLogin
+        clientId="YOUR_APPLE_CLIENT_ID"
+        redirectURI="YOUR_REDIRECT_URI"
+        responseType="code id_token"
+        callback={(response) => {
+          if (response.error) {
+            console.error("Apple login error:", response.error);
+          } else {
+            handleAppleLogin(response);
+          }
+        }}
+        usePopup
+      />
+    </div>
+  </div>
+)}
+
+
 
       <div className={styles.tos}>
         {!otpId ? (

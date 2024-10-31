@@ -10,10 +10,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@noble/hashes": "1.4.0",
-    "@react-oauth/google": "^0.12.1",
-    "@turnkey/sdk-server": "workspace:*",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.5",
+    "@mui/material": "^6.1.5",
     "@turnkey/sdk-react": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
     "@types/node": "20.3.1",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
@@ -27,7 +29,6 @@
     "npm": "^9.7.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-hook-form": "^7.45.1",
     "typescript": "5.1.3"
   }
 }
