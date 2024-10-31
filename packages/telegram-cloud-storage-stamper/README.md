@@ -16,17 +16,10 @@ import { TelegramCloudStorageStamper } from "@turnkey/telegram-cloud-storage-sta
 import { TurnkeyBrowserClient, TurnkeySDKClientConfig } from "@turnkey/sdk-browser";
 
 // create a new telegram cloud storage stamper
-const stamper = new TelegramCloudStorageStamper({
+const stamper = TelegramCloudStorageStamper.create({
   apiPublicKey: "...",
   apiPrivateKey: "...",
 });
-
-// initialize the telegram cloud storage stamper, this stores the api key credentials in Telegram Cloud Storage for the first time
-try {
-  await stamper.init();
-} catch (err) {
-  throw new Error(`Failed initializing Telegram Cloud Storage Stamper: ${err}`)
-}
 
 // use the stamper in the client config
 const browserConfig: TurnkeySDKClientConfig = {
@@ -51,14 +44,7 @@ import { TelegramCloudStorageStamper } from "@turnkey/telegram-cloud-storage-sta
 import { TurnkeyBrowserClient, TurnkeySDKClientConfig } from "@turnkey/sdk-browser";
 
 // create a new telegram cloud storage stamper
-const stamper = new TelegramCloudStorageStamper();
-
-// initialize the telegram cloud storage stamper, this gets the api key credentials from Telegram Cloud Storage
-try {
-  await stamper.init();
-} catch (err) {
-  throw new Error(`Failed initializing Telegram Cloud Storage Stamper: ${err}`)
-}
+const stamper = TelegramCloudStorageStamper.create();
 
 // use the stamper in the client config
 const browserConfig: TurnkeySDKClientConfig = {
