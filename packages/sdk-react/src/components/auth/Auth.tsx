@@ -15,9 +15,10 @@ import { oauth } from "../../api/oauth";
 
 interface AuthProps {
   turnkeyClient: TurnkeySDKClient;
+  onHandleAuthSuccess: () => Promise<void>;
 }
 
-const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
+const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess }) => {
   const { turnkey, passkeyClient, authIframeClient } = useTurnkey();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +58,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
       const createReadWriteSessionResponse = await passkeyClient?.createReadWriteSession({organizationId: getSuborgsResponse!.organizationIds[0]!, targetPublicKey: authIframeClient?.iframePublicKey!})
       if (createReadWriteSessionResponse!.credentialBundle) {
         await authIframeClient!.injectCredentialBundle(createReadWriteSessionResponse!.credentialBundle);
+        await onHandleAuthSuccess();
       }
       }
         else {
@@ -89,6 +91,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
             const createReadWriteSessionResponse = await passkeyClient?.createReadWriteSession({organizationId: createSuborgResponse?.subOrganizationId, targetPublicKey: authIframeClient?.iframePublicKey!})
             if (createReadWriteSessionResponse!.credentialBundle) {
               await authIframeClient!.injectCredentialBundle(createReadWriteSessionResponse!.credentialBundle);
+              await onHandleAuthSuccess();
             }
           }
         }
@@ -163,6 +166,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
     const authResponse = await otpAuth(authRequest, turnkeyClient);
     if (authResponse?.credentialBundle) {
       await authIframeClient!.injectCredentialBundle(authResponse.credentialBundle);
+      await onHandleAuthSuccess();
       setOtpError(null);
     } else {
       setOtpError("Invalid code, please try again");
@@ -201,6 +205,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient }) => {
     if (oauthResponse!.credentialBundle) {
       console.log(oauthResponse!.credentialBundle)
       await authIframeClient!.injectCredentialBundle(oauthResponse!.credentialBundle);
+      await onHandleAuthSuccess();
     }
     setLoadingAction(null);
   };
