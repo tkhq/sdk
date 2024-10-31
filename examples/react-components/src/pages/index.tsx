@@ -1,234 +1,260 @@
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import Image from "next/image";
 import styles from "./index.module.css";
-import { useForm } from "react-hook-form";
-import axios from "axios";
 import * as React from "react";
 import { useState } from "react";
-import { sha256 } from "@noble/hashes/sha2";
-import { bytesToHex } from "@noble/hashes/utils";
-import { useTurnkey, Auth} from "@turnkey/sdk-react";
+import { useTurnkey, Auth } from "@turnkey/sdk-react";
 import { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
-/**
- * Type definition for the server response coming back from `/api/auth`
- */
-type AuthResponse = {
-  userId: string;
-  apiKeyId: string;
-  credentialBundle: string;
-};
+import { Switch, Typography, IconButton } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import AppsIcon from '@mui/icons-material/Apps';
 
-/**
- * Type definitions for the form data (client-side forms)
- */
-type InjectCredentialsFormData = {
-  walletName: string;
-};
-type AuthFormData = {
-  invalidateExisting: boolean;
-};
-
-export default function AuthPage() {
-  const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
-  const { authIframeClient } = useTurnkey();
-  console.log(process.env.API_PUBLIC_KEY!)
-  const turnkeyClient = new TurnkeySDKClient({
-    apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-    apiPublicKey: "02a1ba23e1b703fb3424294142807b89032d20d4f8be46ceb4fb0d1bf34ed763c3",
-    apiPrivateKey: "91d9f379bf8e111ff9ec6200a4b336029a3a3c691bcfe1936fc79605aef20093",
-    defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-  });
-  console.log(authIframeClient?.iframePublicKey!)
-  const { register: authFormRegister, handleSubmit: authFormSubmit } =
-    useForm<AuthFormData>();
-  const {
-    register: injectCredentialsFormRegister,
-    handleSubmit: injectCredentialsFormSubmit,
-  } = useForm<InjectCredentialsFormData>()
-  const handleGoogleLogin = async (response: any) => {
-    let targetSubOrgId: string;
-    const getSuborgsResponse = await axios.post("api/getSuborgs", {
-      filterType: "OIDC_TOKEN",
-      filterValue: response.credential,
-    });
-    targetSubOrgId = getSuborgsResponse.data.organizationIds[0]; // If you don't have a 1:1 relationship for suborgs:oauthProviders you will need to manage this yourself in a database
-
-    if (getSuborgsResponse.data.organizationIds.length == 0) {
-      const createSuborgResponse = await axios.post("api/createSuborg", {
-        oauthProviders: [
-          { providerName: "Google-Test", oidcToken: response.credential },
-        ],
-      });
-      targetSubOrgId = createSuborgResponse.data.subOrganizationId;
-    }
-    authFormSubmit((data) => auth(data, response.credential, targetSubOrgId))();
-  };
-
-  const auth = async (
-    data: AuthFormData,
-    oidcCredential: string,
-    suborgID: string
-  ) => {
-    if (authIframeClient === null) {
-      throw new Error("cannot initialize auth without an iframe");
-    }
-    const response = await axios.post("/api/auth", {
-      suborgID,
-      targetPublicKey: authIframeClient!.iframePublicKey!,
-      oidcToken: oidcCredential,
-      invalidateExisting: data.invalidateExisting,
-    });
-
-    setAuthResponse(response.data);
-  };
-
-  const injectCredentials = async (data: InjectCredentialsFormData) => {
-    if (authIframeClient === null) {
-      throw new Error("iframe client is null");
-    }
-    if (authResponse === null) {
-      throw new Error("authResponse is null");
-    }
-
-    try {
-      await authIframeClient!.injectCredentialBundle(
-        authResponse.credentialBundle
-      );
-    } catch (e) {
-      const msg = `error while injecting bundle: ${e}`;
-      console.error(msg);
-      alert(msg);
-      return;
-    }
-
-    // get whoami for suborg
-    const whoamiResponse = await authIframeClient!.getWhoami({
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-    });
-
-    const orgID = whoamiResponse.organizationId;
-
-    const createWalletResponse = await authIframeClient!.createWallet({
-      organizationId: orgID,
-      walletName: data.walletName,
-      accounts: [
-        {
-          curve: "CURVE_SECP256K1",
-          pathFormat: "PATH_FORMAT_BIP32",
-          path: "m/44'/60'/0'/0/0",
-          addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-        },
-      ],
-    });
-
-    const address = refineNonNull(createWalletResponse.addresses[0]);
-
-    alert(`SUCCESS! Wallet and new address created: ${address} `);
-  };
-
-  const getWhoAmI = async () => {
-    if (authIframeClient) {
-      try {
-        const whoamiResponse = await authIframeClient.getWhoami({
-          organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-        });
-        console.log("WhoAmI Response:", whoamiResponse);
-      } catch (error) {
-        console.error("Error fetching WhoAmI:", error);
-      }
-    } else {
-      console.error("Auth iframe client is null");
-    }
-  };
-  return (
-    <main className={styles.main}>
-      <a
-        href="https://www.turnkey.com"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Image
-          src="/logo.svg"
-          alt="Turnkey Logo"
-          className={styles.turnkeyLogo}
-          width={100}
-          height={24}
-          priority
-        />
-      </a>
-      {!authIframeClient && <p>Loading...</p>}
-      <Auth turnkeyClient={turnkeyClient} onHandleAuthSuccess = {getWhoAmI} />
-      {authIframeClient &&
-        authIframeClient.iframePublicKey &&
-        authResponse === null && (
-          <form className={styles.form}>
-            <label className={styles.label}>
-              Invalidate previously issued oauth authentication token(s)?
-              <input
-                className={styles.input_checkbox}
-                {...authFormRegister("invalidateExisting")}
-                type="checkbox"
-              />
-            </label>
-            <label className={styles.label}>
-              Encryption Target from iframe:
-              <br />
-              <code title={authIframeClient.iframePublicKey!}>
-                {authIframeClient.iframePublicKey!.substring(0, 30)}...
-              </code>
-            </label>
-
-            <GoogleOAuthProvider
-              clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
-            >
-              <GoogleLogin
-                nonce={bytesToHex(sha256(authIframeClient.iframePublicKey!))}
-                onSuccess={handleGoogleLogin}
-                useOneTap
-              />
-            </GoogleOAuthProvider>
-          </form>
-        )}
-
-      {authIframeClient &&
-        authIframeClient.iframePublicKey &&
-        authResponse !== null && (
-          <form
-            className={styles.form}
-            onSubmit={injectCredentialsFormSubmit(injectCredentials)}
-          >
-            <label className={styles.label}>
-              New wallet name
-              <input
-                className={styles.input}
-                {...injectCredentialsFormRegister("walletName")}
-                placeholder="Wallet name"
-              />
-            </label>
-
-            <input
-              className={styles.button}
-              type="submit"
-              value="Create Wallet"
-            />
-          </form>
-        )}
-              {authIframeClient && (
-        <button className={styles.button} onClick={getWhoAmI}>
-          Get WhoAmI
-        </button>
-      )}
-    </main>
-  );
+// Define types for config and socials
+interface SocialConfig {
+  enabled: boolean;
+  google: boolean;
+  apple: boolean;
 }
 
-function refineNonNull<T>(
-  input: T | null | undefined,
-  errorMessage?: string
-): T {
-  if (input == null) {
-    throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
+interface Config {
+  email: boolean;
+  passkey: boolean;
+  phone: boolean;
+  socials: SocialConfig;
+}
+
+export default function AuthPage() {
+  const { authIframeClient } = useTurnkey();
+  const [orgData, setOrgData] = useState<any>();
+
+  const turnkeyClient = new TurnkeySDKClient({
+    apiBaseUrl: "https://api.preprod.turnkey.engineering",
+    apiPublicKey: "03352f813eadd3efa85a2dad1a0c39391e5544de074665f3986185c92566b39885",
+    apiPrivateKey: "954aa8fdef994a555952f1ee1ea4fb554cb422e5fc896939412a954c4e87c603",
+    defaultOrganizationId: "51fb75bf-c044-4f9f-903b-4fba6bfedab9",
+  });
+
+  const handleAuthSuccess = async () => {
+    const whoamiResponse = await authIframeClient!.getWhoami({
+      organizationId: "51fb75bf-c044-4f9f-903b-4fba6bfedab9",
+    });
+    setOrgData(whoamiResponse as any)
+
   }
 
-  return input;
+  const [config, setConfig] = useState<Config>({
+    email: true,
+    passkey: true,
+    phone: true,
+    socials: {
+      enabled: true,
+      google: true,
+      apple: true,
+    },
+  });
+
+  const toggleConfig = (key: keyof Config) => {
+    setConfig((prev) => {
+      const newConfig = { ...prev };
+  
+      if (key === "email") {
+        newConfig.email = !prev.email;
+        if (!newConfig.email) {
+          newConfig.passkey = false; // Ensure passkey is off if email is off
+        }
+      } else if (key === "passkey") {
+        newConfig.passkey = !prev.passkey;
+        newConfig.email = newConfig.passkey; // Sync email with passkey's state
+      } else if (key !== "socials") {
+        newConfig[key] = !prev[key];
+      }
+  
+      return newConfig;
+    });
+  };
+  
+  const toggleSocials = (key: keyof SocialConfig) => {
+    setConfig((prev) => {
+      if (key === 'enabled') {
+        const isEnabled = !prev.socials.enabled;
+        return {
+          ...prev,
+          socials: {
+            enabled: isEnabled,
+            google: isEnabled,
+            apple: isEnabled,
+          },
+        };
+      }
+      
+      if (prev.socials.enabled) {
+        return {
+          ...prev,
+          socials: {
+            ...prev.socials,
+            [key]: !prev.socials[key],
+          },
+        };
+      }
+
+      return prev; 
+    });
+  };
+
+  const handleCopyConfig = () => {
+    const authConfig = {
+      emailEnabled: config.email,
+      passkeyEnabled: config.passkey,
+      phoneEnabled: config.phone,
+      appleEnabled: config.socials.apple,
+      googleEnabled: config.socials.google,
+    };
+    navigator.clipboard.writeText(JSON.stringify(authConfig, null, 2));
+    alert('Auth config copied to clipboard!');
+  };
+
+  const authConfig = {
+    emailEnabled: config.email,
+    passkeyEnabled: config.passkey,
+    phoneEnabled: config.phone,
+    appleEnabled: config.socials.apple,
+    googleEnabled: config.socials.google,
+  };
+
+  return (
+    <main className={styles.main}>
+      {!orgData &&
+      <div className={styles.authConfigCard}>
+        <Typography variant="h6" className={styles.configTitle}>Authentication config</Typography>
+        
+        <div className={styles.toggleContainer}>
+          <div className={styles.toggleRow}>
+            <div className={styles.labelContainer}>
+              <AppsIcon sx={{ color: 'var(--Greyscale-40, #D1D5DB)' }}/>
+              <Typography>Email</Typography>
+            </div>
+            <Switch sx={{
+              '& .MuiSwitch-switchBase.Mui-checked': {
+                color: 'white',
+              },
+              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                backgroundColor: 'var(--Greyscale-900, #2b2f33)',
+                opacity: 1,
+              },
+            }} checked={config.email} onChange={() => toggleConfig('email')} />
+          </div>
+
+          <div className={styles.toggleRow}>
+            <div className={styles.labelContainer}>
+              <AppsIcon sx={{ color: 'var(--Greyscale-40, #D1D5DB)' }}/>
+              <Typography>Passkey</Typography>
+            </div>
+            <Switch sx={{
+              '& .MuiSwitch-switchBase.Mui-checked': {
+                color: 'white',
+              },
+              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                backgroundColor: 'var(--Greyscale-900, #2b2f33)',
+                opacity: 1,
+              },
+            }} checked={config.passkey} onChange={() => toggleConfig('passkey')} />
+          </div>
+
+          <div className={styles.toggleRow}>
+            <div className={styles.labelContainer}>
+              <AppsIcon sx={{ color: 'var(--Greyscale-40, #D1D5DB)' }}/>
+              <Typography>Phone</Typography>
+            </div>
+            <Switch sx={{
+              '& .MuiSwitch-switchBase.Mui-checked': {
+                color: 'white',
+              },
+              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                backgroundColor: 'var(--Greyscale-900, #2b2f33)',
+                opacity: 1,
+              },
+            }} checked={config.phone} onChange={() => toggleConfig('phone')} />
+          </div>
+
+          <div className={styles.toggleRow}>
+            <div className={styles.labelContainer}>
+              <AppsIcon sx={{ color: 'var(--Greyscale-40, #D1D5DB)' }}/>
+              <Typography>Socials</Typography>
+            </div>
+            <Switch sx={{
+              '& .MuiSwitch-switchBase.Mui-checked': {
+                color: 'white',
+              },
+              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                backgroundColor: 'var(--Greyscale-900, #2b2f33)',
+                opacity: 1,
+              },
+            }} checked={config.socials.enabled} onChange={() => toggleSocials('enabled')} />
+          </div>
+
+          {config.socials.enabled && (
+            <>
+              <div className={styles.toggleRow}>
+                <div className={styles.labelContainer}>
+                  <Typography>Google</Typography>
+                </div>
+                <Switch sx={{
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    color: 'white',
+                  },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    backgroundColor: 'var(--Greyscale-900, #2b2f33)',
+                    opacity: 1,
+                  },
+                }} checked={config.socials.google} onChange={() => toggleSocials('google')} />
+              </div>
+              <div className={styles.toggleRow}>
+                <div className={styles.labelContainer}>
+                  <Typography>Apple</Typography>
+                </div>
+                <Switch sx={{
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    color: 'white',
+                  },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    backgroundColor: 'var(--Greyscale-900, #2b2f33)',
+                    opacity: 1,
+                  },
+                }} checked={config.socials.apple} onChange={() => toggleSocials('apple')} />
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className={styles.copyConfigButton} onClick={handleCopyConfig}>
+          <ContentCopyIcon fontSize="small" />
+          <div className={styles.copyConfigText}>
+            <Typography variant="body2" className={styles.copyText}>Copy config</Typography>
+          </div>
+        </div>
+      </div>
+}
+{orgData ?       
+
+<div className={styles.success}>
+  YOU ARE AUTHENTICATED ON TURNKEY!
+  <div>
+    <strong>Organization Id:</strong> {orgData.organizationId}
+  </div>
+  <div>
+    <strong>User Id:</strong> {orgData.userId}
+  </div>
+  <div>
+    <strong>Username:</strong> {orgData.username}
+  </div>
+  <div>
+    <strong>Organization Name:</strong> {orgData.organizationName}
+  </div>
+</div>
+:
+      <div className={styles.authComponent}>
+        
+        <Auth turnkeyClient={turnkeyClient} authConfig={authConfig} onHandleAuthSuccess={handleAuthSuccess} />
+      </div>
+}
+    </main>
+  );
 }

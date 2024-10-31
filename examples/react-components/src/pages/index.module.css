@@ -18,69 +18,85 @@
 
 .main {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  justify-content: center; /* Centers the authComponent */
   align-items: center;
   padding: 6rem;
   gap: 60px;
+  position: relative; /* Allows absolute positioning for left-aligned card */
 }
 
-.input {
-  display: block;
-  width: 240px;
-  margin: 0;
-  padding: 10px 16px;
-  border-radius: 8px;
-  border-width: 1px;
-  border-style: solid;
-  border-color: rgba(216, 219, 227, 1);
-  font-family: "Inter";
-  margin: 0 auto;
-}
-
-.input_checkbox {
-  display: block;
-  margin: 0 auto;
-}
-
-.label {
-  font-family: "Inter";
-  display: block;
-  text-align: center;
-}
-
-.prompt {
-  font-family: "Inter";
-}
-
-.base {
+.authConfigContainer {
+  position: absolute;
+  left: 0; /* Positions the card to the far left */
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  padding: 10px 16px;
+.authConfigCard {
+  background: var(--Greyscale-20, #F5F7FB);
+  padding: 16px;
   border-radius: 8px;
-  border-width: 1px;
-  border-style: solid;
-  cursor: pointer;
-  color: white;
-  background-color: rgba(43, 47, 51, 1);
-  border-color: rgba(63, 70, 75, 1);
-  font-family: "Inter";
-}
-
-.form {
+  width: 552px;
+  height: 768px;
+  border: 1px solid var(--Greyscale-100, #EBEDF2);
+  font-family: Arial, sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+.configTitle {
+  font-family: Inter;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 26px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+
+.toggleContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.labelContainer {
+  display: flex;
   align-items: center;
-  gap: 20px;
-  min-width: 400px;
+  gap: 8px; 
+}
+
+.toggleRow {
+  background-color: #ffffff;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+}
+
+.copyConfigButton {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #666;
+  font-size: 14px;
+  margin-top: auto;
+  padding: 8px 16px;
+}
+.copyConfigText {
+  padding-left: 4px;
+}
+
+.authComponent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+
+.success {
+  justify-items: center;
 }
