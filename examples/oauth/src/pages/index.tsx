@@ -1,14 +1,14 @@
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
 import styles from "./index.module.css";
+import { useTurnkey } from "@turnkey/sdk-react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
 import { useState } from "react";
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
-import { useTurnkey, Auth} from "@turnkey/sdk-react";
-import { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
+
 /**
  * Type definition for the server response coming back from `/api/auth`
  */
@@ -31,20 +31,13 @@ type AuthFormData = {
 export default function AuthPage() {
   const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
   const { authIframeClient } = useTurnkey();
-  console.log(process.env.API_PUBLIC_KEY!)
-  const turnkeyClient = new TurnkeySDKClient({
-    apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-    apiPublicKey: "02a1ba23e1b703fb3424294142807b89032d20d4f8be46ceb4fb0d1bf34ed763c3",
-    apiPrivateKey: "91d9f379bf8e111ff9ec6200a4b336029a3a3c691bcfe1936fc79605aef20093",
-    defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-  });
-  console.log(authIframeClient?.iframePublicKey!)
   const { register: authFormRegister, handleSubmit: authFormSubmit } =
     useForm<AuthFormData>();
   const {
     register: injectCredentialsFormRegister,
     handleSubmit: injectCredentialsFormSubmit,
-  } = useForm<InjectCredentialsFormData>()
+  } = useForm<InjectCredentialsFormData>();
+
   const handleGoogleLogin = async (response: any) => {
     let targetSubOrgId: string;
     const getSuborgsResponse = await axios.post("api/getSuborgs", {
@@ -126,20 +119,6 @@ export default function AuthPage() {
     alert(`SUCCESS! Wallet and new address created: ${address} `);
   };
 
-  const getWhoAmI = async () => {
-    if (authIframeClient) {
-      try {
-        const whoamiResponse = await authIframeClient.getWhoami({
-          organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-        });
-        console.log("WhoAmI Response:", whoamiResponse);
-      } catch (error) {
-        console.error("Error fetching WhoAmI:", error);
-      }
-    } else {
-      console.error("Auth iframe client is null");
-    }
-  };
   return (
     <main className={styles.main}>
       <a
@@ -156,8 +135,9 @@ export default function AuthPage() {
           priority
         />
       </a>
+
       {!authIframeClient && <p>Loading...</p>}
-      <Auth turnkeyClient={turnkeyClient} onHandleAuthSuccess = {getWhoAmI} />
+
       {authIframeClient &&
         authIframeClient.iframePublicKey &&
         authResponse === null && (
@@ -213,11 +193,6 @@ export default function AuthPage() {
             />
           </form>
         )}
-              {authIframeClient && (
-        <button className={styles.button} onClick={getWhoAmI}>
-          Get WhoAmI
-        </button>
-      )}
     </main>
   );
 }

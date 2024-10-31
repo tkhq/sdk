@@ -1,6 +1,6 @@
 import { AppProps } from "next/app";
 import Head from "next/head";
-import '@turnkey/sdk-react/styles';
+
 import { TurnkeyProvider } from "@turnkey/sdk-react";
 
 const turnkeyConfig = {
