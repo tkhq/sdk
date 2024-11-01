@@ -16,6 +16,8 @@ async function main() {
     return;
   }
 
+  console.log('process base url', process.env.BASE_URL)
+
   const turnkeyClient = new TurnkeyServerSDK({
     apiBaseUrl: process.env.BASE_URL!,
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
@@ -102,31 +104,35 @@ async function main() {
     blobVersionedHashes: [],
   });
 
-  console.log({
-    unsignedTx,
-    unsignedTxTo: unsignedTx.to,
-    unsignedTxSerialized: unsignedTx.unsignedSerialized,
-  });
+  const signedTx = await connectedSigner.signTransaction(unsignedTx);
 
-  const signedMessage = await connectedSigner.signMessage(
-    unsignedTx.unsignedSerialized
-  );
+  console.log('signed tx', signedTx);
 
-  console.log({
-    unsignedTx,
-    signedMessage,
-  });
+  // console.log({
+  //   unsignedTx,
+  //   unsignedTxTo: unsignedTx.to,
+  //   unsignedTxSerialized: unsignedTx.unsignedSerialized,
+  // });
 
-  const signedTx = Object.assign({}, unsignedTx);
+  // const signedMessage = await connectedSigner.signMessage(
+  //   unsignedTx.unsignedSerialized
+  // );
 
-  signedTx.signature = Signature.from(signedMessage);
+  // console.log({
+  //   unsignedTx,
+  //   signedMessage,
+  // });
 
-  console.log({ signedTx });
+  // const signedTx = Object.assign({}, unsignedTx);
 
-  // Combine the signautre + transaction
-  const broadcastedTx = await connectedSigner.provider?.broadcastTransaction(
-    signedTx.serialized
-  );
+  // signedTx.signature = Signature.from(signedMessage);
+
+  // console.log({ signedTx });
+
+  // // Combine the signautre + transaction
+  // const broadcastedTx = await connectedSigner.provider?.broadcastTransaction(
+  //   signedTx.serialized
+  // );
 
   print("Successfully broadcasted EIP-4844 transaction!", broadcastedTx?.hash!);
 }
