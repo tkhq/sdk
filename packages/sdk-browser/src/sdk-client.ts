@@ -1,13 +1,9 @@
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
-<<<<<<< HEAD
 import {
   IframeStamper,
   KeyFormat,
   TIframeSettings,
 } from "@turnkey/iframe-stamper";
-=======
-import { IframeStamper, KeyFormat, TIframeSettings } from "@turnkey/iframe-stamper";
->>>>>>> 87aeac1e (add new sdk-react clients)
 import { getWebAuthnAttestation } from "@turnkey/http";
 
 import { VERSION } from "./__generated__/version";
@@ -416,17 +412,21 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
   // Expose the target public key corresponding to the iframe
   iframePublicKey: string | null;
 
-  // Allows the iframe to be cleared from the DOM
-  clear: () => void;
-
-  // For styling
-  applySettings: (settings: TIframeSettings) => Promise<boolean>;
-
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
     this.iframePublicKey = (config.stamper as IframeStamper).iframePublicKey;
-    this.clear = (config.stamper as IframeStamper).clear;
-    this.applySettings = (config.stamper as IframeStamper).applySettings;
+  }
+
+  // Allows the iframe to be cleared from the DOM
+  clear = (): void => {
+    const stamper = this.config.stamper as IframeStamper;
+    return stamper.clear();
+  }
+
+  // Enable iframe styling
+  applySettings = async (settings: TIframeSettings): Promise<boolean> => {
+    const stamper = this.config.stamper as IframeStamper;
+    return await stamper.applySettings(settings);
   }
 
   injectCredentialBundle = async (

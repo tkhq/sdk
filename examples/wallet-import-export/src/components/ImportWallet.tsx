@@ -1,10 +1,10 @@
 "use client";
 
 import axios from "axios";
-import { SetStateAction, useState, useEffect } from "react";
+import { SetStateAction, useState } from "react";
+import { useTurnkey } from "@turnkey/sdk-react";
 
 import styles from "../pages/index.module.css";
-import { IframeStamper } from "@turnkey/iframe-stamper";
 import { Import } from "@/components/Import";
 
 type ImportWalletProps = {
@@ -14,10 +14,9 @@ type ImportWalletProps = {
 };
 
 export function ImportWallet(props: ImportWalletProps) {
-  const [iframeDisplay, setIframeDisplay] = useState("none");
-  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
-    null
-  );
+  const { authIframeClient } = useTurnkey();
+  // authIframeClient?.config.stamper.
+
   const [walletName, setWalletName] = useState("");
   const [stage, setStage] = useState("init");
 
@@ -30,16 +29,11 @@ export function ImportWallet(props: ImportWalletProps) {
 
   // Init import the wallet
   const initImportWallet = async () => {
-    if (iframeStamper === null) {
-      alert("Cannot init import wallet without an iframe.");
-      return;
-    }
-
     const response = await axios.post("/api/initImportWallet", {
       userId: props.userId,
     });
 
-    const injected = await iframeStamper.injectImportBundle(
+    const injected = await authIframeClient!.injectImportBundle(
       response.data["importBundle"],
       props.organizationId,
       props.userId
@@ -50,7 +44,6 @@ export function ImportWallet(props: ImportWalletProps) {
     }
 
     setStage("import");
-    setIframeDisplay("block");
   };
 
   // Import the wallet
@@ -60,12 +53,8 @@ export function ImportWallet(props: ImportWalletProps) {
       return;
     }
 
-    if (iframeStamper === null) {
-      alert("Cannot import wallet without an iframe.");
-      return;
-    }
-
-    const encryptedBundle = await iframeStamper.extractWalletEncryptedBundle();
+    const encryptedBundle =
+      await authIframeClient!.extractWalletEncryptedBundle();
 
     if (encryptedBundle.trim() === "") {
       alert("Encrypted bundle is empty.");
@@ -83,7 +72,6 @@ export function ImportWallet(props: ImportWalletProps) {
       props.getWallets();
 
       setStage("success");
-      setIframeDisplay("none");
     } else {
       alert("Failed to import wallet! Please try again.");
     }
@@ -116,12 +104,7 @@ export function ImportWallet(props: ImportWalletProps) {
             </label>
           </div>
         )}
-        <Import
-          setIframeStamper={setIframeStamper}
-          iframeDisplay={iframeDisplay}
-          iframeUrl={process.env.NEXT_PUBLIC_IMPORT_IFRAME_URL!}
-          turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
-        />
+        <Import />
         <div className={styles.modalSpace}>
           {stage === "init" ? (
             <button
