@@ -1,9 +1,13 @@
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+<<<<<<< HEAD
 import {
   IframeStamper,
   KeyFormat,
   TIframeSettings,
 } from "@turnkey/iframe-stamper";
+=======
+import { IframeStamper, KeyFormat, TIframeSettings } from "@turnkey/iframe-stamper";
+>>>>>>> 87aeac1e (add new sdk-react clients)
 import { getWebAuthnAttestation } from "@turnkey/http";
 
 import { VERSION } from "./__generated__/version";
