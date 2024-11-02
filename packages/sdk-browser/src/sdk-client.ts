@@ -1,5 +1,9 @@
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
-import { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
+import {
+  IframeStamper,
+  KeyFormat,
+  TIframeSettings,
+} from "@turnkey/iframe-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
 import { VERSION } from "./__generated__/version";
@@ -405,11 +409,20 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
 }
 
 export class TurnkeyIframeClient extends TurnkeyBrowserClient {
+  // Expose the target public key corresponding to the iframe
   iframePublicKey: string | null;
+
+  // Allows the iframe to be cleared from the DOM
+  clear: () => void;
+
+  // For styling
+  applySettings: (settings: TIframeSettings) => Promise<boolean>;
 
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
     this.iframePublicKey = (config.stamper as IframeStamper).iframePublicKey;
+    this.clear = (config.stamper as IframeStamper).clear;
+    this.applySettings = (config.stamper as IframeStamper).applySettings;
   }
 
   injectCredentialBundle = async (

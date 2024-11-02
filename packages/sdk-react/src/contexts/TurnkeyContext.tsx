@@ -9,8 +9,10 @@ import {
 
 export interface TurnkeyClientType {
   turnkey: Turnkey | undefined;
-  authIframeClient: TurnkeyIframeClient | undefined;
   passkeyClient: TurnkeyPasskeyClient | undefined;
+  authIframeClient: TurnkeyIframeClient | undefined;
+  importIframeClient: TurnkeyIframeClient | undefined;
+  exportIframeClient: TurnkeyIframeClient | undefined;
   getActiveClient: () => Promise<TurnkeyBrowserClient | undefined>;
 }
 
@@ -18,6 +20,8 @@ export const TurnkeyContext = createContext<TurnkeyClientType>({
   turnkey: undefined,
   passkeyClient: undefined,
   authIframeClient: undefined,
+  importIframeClient: undefined,
+  exportIframeClient: undefined,
   getActiveClient: async () => {
     return undefined;
   },
@@ -26,23 +30,42 @@ export const TurnkeyContext = createContext<TurnkeyClientType>({
 interface TurnkeyProviderProps {
   children: ReactNode;
   config: TurnkeySDKBrowserConfig;
+  importEnabled?: boolean;
+  exportEnabled?: boolean;
 }
 
+const TurnkeyAuthIframeContainerId = "turnkey-auth-iframe-container-id";
+const TurnkeyAuthIframeElementId = "turnkey-auth-iframe-element-id";
+
+const TurnkeyImportIframeContainerId = "turnkey-import-iframe-container-id";
+const TurnkeyImportIframeElementId = "turnkey-import-iframe-element-id";
+
+const TurnkeyExportIframeContainerId = "turnkey-export-iframe-container-id";
+const TurnkeyExportIframeElementId = "turnkey-export-iframe-element-id";
+
 export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
-  config,
   children,
+  config,
+  importEnabled = false,
+  exportEnabled = false,
 }) => {
   const [turnkey, setTurnkey] = useState<Turnkey | undefined>(undefined);
+
+  // Set clients
   const [passkeyClient, setPasskeyClient] = useState<
     TurnkeyPasskeyClient | undefined
   >(undefined);
   const [authIframeClient, setAuthIframeClient] = useState<
     TurnkeyIframeClient | undefined
   >(undefined);
-  const iframeInit = useRef<boolean>(false);
+  const [importIframeClient, setImportIframeClient] = useState<
+    TurnkeyIframeClient | undefined
+  >(undefined);
+  const [exportIframeClient, setExportIframeClient] = useState<
+    TurnkeyIframeClient | undefined
+  >(undefined);
 
-  const TurnkeyAuthIframeContainerId = "turnkey-auth-iframe-container-id";
-  const TurnkeyAuthIframeElementId = "turnkey-auth-iframe-element-id";
+  const iframeInit = useRef<boolean>(false);
 
   const getActiveClient = async () => {
     let currentClient: TurnkeyBrowserClient | undefined = passkeyClient;
@@ -91,6 +114,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         setTurnkey(newTurnkey);
         setPasskeyClient(newTurnkey.passkeyClient());
 
+        // By default, the auth iframe client is enabled
         const newAuthIframeClient = await newTurnkey.iframeClient({
           iframeContainer: document.getElementById(
             TurnkeyAuthIframeContainerId
@@ -99,6 +123,30 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           iframeElementId: TurnkeyAuthIframeElementId,
         });
         setAuthIframeClient(newAuthIframeClient);
+
+        // Optionally include import iframe
+        if (importEnabled) {
+          const newImportIframeClient = await newTurnkey.iframeClient({
+            iframeContainer: document.getElementById(
+              TurnkeyImportIframeContainerId
+            ),
+            iframeUrl: "https://import.turnkey.com",
+            iframeElementId: TurnkeyImportIframeElementId,
+          });
+          setImportIframeClient(newImportIframeClient);
+        }
+
+        // Optionally include export iframe
+        if (exportEnabled) {
+          const newExportIframeClient = await newTurnkey.iframeClient({
+            iframeContainer: document.getElementById(
+              TurnkeyExportIframeContainerId
+            ),
+            iframeUrl: "https://export.turnkey.com",
+            iframeElementId: TurnkeyExportIframeElementId,
+          });
+          setExportIframeClient(newExportIframeClient);
+        }
       }
     })();
   }, []);
@@ -109,6 +157,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         turnkey,
         passkeyClient,
         authIframeClient,
+        importIframeClient,
+        exportIframeClient,
         getActiveClient,
       }}
     >
@@ -118,6 +168,20 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         id={TurnkeyAuthIframeContainerId}
         style={{ display: "none" }}
       />
+      {importEnabled && (
+        <div
+          className=""
+          id={TurnkeyImportIframeContainerId}
+          style={{ display: "none" }}
+        />
+      )}
+      {exportEnabled && (
+        <div
+          className=""
+          id={TurnkeyExportIframeContainerId}
+          style={{ display: "none" }}
+        />
+      )}
     </TurnkeyContext.Provider>
   );
 };
