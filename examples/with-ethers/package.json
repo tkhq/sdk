@@ -5,17 +5,23 @@
   "scripts": {
     "start": "tsx src/index.ts",
     "start-advanced": "tsx src/advanced.ts",
+    "start-blobs": "tsx src/blobs.ts",
     "start-sepolia-legacy": "tsx src/sepoliaLegacyTx.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@chainsafe/bls": "^8.1.0",
+    "@chainsafe/blst": "^2.2.0",
     "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/encoding": "workspace:*",
     "@turnkey/ethers": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
+    "bls": "link:@chainsafe/bls/bls",
     "dotenv": "^16.0.3",
-    "ethers": "^6.10.0",
+    "ethers": "^6.13.0",
+    "kzg-wasm": "^0.5.0",
     "prompts": "^2.4.2"
   },
   "devDependencies": {

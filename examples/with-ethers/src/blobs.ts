@@ -5,10 +5,18 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeySigner } from "@turnkey/ethers";
-import { ethers, Transaction, Signature } from "ethers";
+import { ethers, Transaction } from "ethers";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createNewWallet } from "./createNewWallet";
-import { print, assertEqual } from "./util";
+import { print } from "./util";
+import {
+  uint8ArrayFromHexString,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
+
+import { loadKZG } from "kzg-wasm";
+// import bls from "@chainsafe/bls";
+// import { Blob } from "@chainsafe/bls/bls";
 
 async function main() {
   if (!process.env.SIGN_WITH) {
@@ -41,67 +49,39 @@ async function main() {
 
   print("Address:", address);
 
-  const baseMessage = "Hello Turnkey";
-
-  // 1. Sign a raw hex message
-  const hexMessage = ethers.hexlify(ethers.toUtf8Bytes(baseMessage));
-  let signature = await connectedSigner.signMessage(hexMessage);
-  let recoveredAddress = ethers.verifyMessage(hexMessage, signature);
-
-  print("Turnkey-powered signature - raw hex message:", `${signature}`);
-  assertEqual(recoveredAddress, address);
-
-  // 2. Sign a raw bytes message
-  const bytesMessage = ethers.toUtf8Bytes(baseMessage);
-  signature = await connectedSigner.signMessage(bytesMessage);
-  recoveredAddress = ethers.verifyMessage(bytesMessage, signature);
-
-  print("Turnkey-powered signature - raw bytes message:", `${signature}`);
-  assertEqual(recoveredAddress, address);
-
-  // 3. Sign typed data (EIP-712)
-  const typedData = {
-    types: {
-      // Note that we do not need to include `EIP712Domain` as a type here, as Ethers will automatically inject it for us
-      Person: [
-        { name: "name", type: "string" },
-        { name: "wallet", type: "address" },
-      ],
-    },
-    domain: {
-      name: "EIP712 Test",
-      version: "1",
-    },
-    primaryType: "Person",
-    message: {
-      name: "Alice",
-      wallet: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    },
-  };
-
-  signature = await connectedSigner.signTypedData(
-    typedData.domain,
-    typedData.types,
-    typedData.message
-  );
-
-  recoveredAddress = ethers.verifyTypedData(
-    typedData.domain,
-    typedData.types,
-    typedData.message,
-    signature
-  );
-
-  print("Turnkey-powered signature - typed data (EIP-712):", `${signature}`);
-  assertEqual(recoveredAddress, address);
-
   // 4. Sign type 3 (EIP-4844) transaction
   const feeEstimate = await connectedSigner.provider?.getFeeData();
   console.log("fee estimate", feeEstimate);
 
+  // Blob stuff
+  // Create blob data (example with zeros)
+  const blobData = new Uint8Array(131072).fill(0);
+
+  // Create KZG proof and commitment
+  // Create versioned hash
+  //   const versionByte = new Uint8Array([1]); // 0x01 for version
+  //   const commitmentBytes = hexToBytes(commitment);
+  //   const versionedCommitment = new Uint8Array([...versionByte, ...commitmentBytes]);
+  //   const versionedHash = ethers.utils.keccak256(versionedCommitment);
+  const kzg = await loadKZG();
+
+  //   const blob = Blob.fromBytes(blobData);
+  const blob = uint8ArrayToHexString(blobData);
+  const commitment = kzg.blobToKZGCommitment(blob);
+  const proof = kzg.computeBlobKZGProof(blob, commitment);
+
+//   // Create versioned hash
+  const versionByte = new Uint8Array([1]); // 0x01 for version
+  const commitmentBytes = uint8ArrayFromHexString(commitment);
+  const versionedCommitment = new Uint8Array([
+    ...versionByte,
+    ...commitmentBytes,
+  ]);
+  const versionedHash = ethers.keccak256(versionedCommitment);
+
   const unsignedTx = Transaction.from({
     to: "0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7",
-    value: 1111,
+    value: 1,
     type: 3,
     chainId: 11155111,
     gasLimit: 21000,
@@ -109,10 +89,15 @@ async function main() {
     maxPriorityFeePerGas: feeEstimate!.maxPriorityFeePerGas,
     maxFeePerBlobGas: feeEstimate!.maxFeePerGas,
     // blobs: [],
-    blobVersionedHashes: [
-      "0x01000000000000000000000000000000000000000000000000000000000000aa",
-    ],
+    blobVersionedHashes: [versionedHash],
   });
+
+  // The blobs, commitments, and proofs are sent separately
+  //   const blobSidecar = {
+  //     blobs: [blob],
+  //     commitments: [commitmentBytes],
+  //     proofs: [uint8ArrayFromHexString(proof)],
+  //   };
 
   const gasEstimate = await connectedSigner.estimateGas(unsignedTx);
   console.log("gas estimate", gasEstimate);
@@ -124,7 +109,10 @@ async function main() {
 
   console.log("signed tx", signedTx);
 
-  const sentTx = await connectedSigner.sendTransaction(unsignedTx);
+  const sentTx = await connectedSigner.sendTransaction({
+    ...unsignedTx,
+    // ...blobSidecar,
+  });
   console.log("sent tx", sentTx);
 
   // console.log({

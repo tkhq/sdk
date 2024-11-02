@@ -10,7 +10,7 @@ export async function createNewWallet() {
 
   try {
     const turnkeyClient = new TurnkeySDKServer({
-      apiBaseUrl: "https://api.turnkey.com",
+      apiBaseUrl: process.env.BASE_URL!,
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
       defaultOrganizationId: process.env.ORGANIZATION_ID!,
