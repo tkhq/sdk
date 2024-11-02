@@ -1,80 +1,44 @@
 "use client";
 
-import { IframeStamper } from "@turnkey/iframe-stamper";
+import { useTurnkey } from "@turnkey/sdk-react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-
-interface ExportProps {
-  iframeUrl: string;
-  turnkeyBaseUrl: string;
-  iframeDisplay: string;
-  setIframeStamper: Dispatch<SetStateAction<IframeStamper | null>>;
-}
 
 const TurnkeyIframeContainerId = "turnkey-export-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-export-iframe-element-id";
 
-export function Export(props: ExportProps) {
-  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
-    null
-  );
-  const [iframeDisplay, setIframeDisplay] = useState<string>("none");
+export function Export() {
+  const { exportIframeClient } = useTurnkey();
 
-  useEffect(() => {
-    setIframeDisplay(props.iframeDisplay);
-    return () => {
-      if (iframeDisplay === "block") {
-        setIframeDisplay("none");
-      }
-    };
-  }, [props.iframeDisplay]);
+  const styles = {
+    padding: "20px",
+    borderRadius: "8px",
+    borderWidth: "2px",
+    borderStyle: "solid",
+    borderColor: "#ff6961",
+    fontFamily: "monospace",
+    color: "#333",
+    width: "340px",
+    height: "100px",
+    backgroundColor: "#ffd966",
+    boxShadow: "0px 0px 10px #aaa",
+    overflowWrap: "break-word",
+    wordWrap: "break-word",
+    resize: "none",
+  };
 
-  useEffect(() => {
-    if (!iframeStamper) {
-      const iframeStamper = new IframeStamper({
-        iframeUrl: props.iframeUrl,
-        iframeContainer: document.getElementById(TurnkeyIframeContainerId),
-        iframeElementId: TurnkeyIframeElementId,
-      });
-      iframeStamper
-        .init()
-        .then(() => {
-          setIframeStamper(iframeStamper);
-          props.setIframeStamper(iframeStamper);
-          return iframeStamper;
-        })
-        .then((iframeStamper: IframeStamper) => {
-          const styles = {
-            padding: "20px",
-            borderRadius: "8px",
-            borderWidth: "2px",
-            borderStyle: "solid",
-            borderColor: "#ff6961",
-            fontFamily: "monospace",
-            color: "#333",
-            width: "340px",
-            height: "100px",
-            backgroundColor: "#ffd966",
-            boxShadow: "0px 0px 10px #aaa",
-            overflowWrap: "break-word",
-            wordWrap: "break-word",
-            resize: "none",
-          };
-          return iframeStamper.applySettings({ styles });
-        })
-        .then((settingsApplied: boolean) => {
-          if (settingsApplied !== true) {
-            alert("Unexpected error while applying settings.");
-          }
+  if (exportIframeClient) {
+    useEffect(() => {
+      (async () => {
+        const settingsApplied = await exportIframeClient!.applySettings({
+          styles,
         });
-    }
-
-    return () => {
-      if (iframeStamper) {
-        iframeStamper.clear();
-        setIframeStamper(null);
-      }
-    };
-  }, [props.setIframeStamper, iframeStamper, setIframeStamper]);
+        if (!settingsApplied) {
+          alert("Unexpected error while applying settings.");
+          return;
+        }
+      })();
+    }, []);
+  }
 
   const iframeCss = `
     iframe {
@@ -90,7 +54,7 @@ export function Export(props: ExportProps) {
     `;
 
   return (
-    <div style={{ display: iframeDisplay }} id={TurnkeyIframeContainerId}>
+    <div id={TurnkeyIframeContainerId}>
       <style>{iframeCss}</style>
     </div>
   );

@@ -2,9 +2,9 @@
 
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useTurnkey } from "@turnkey/sdk-react";
 
 import styles from "../pages/index.module.css";
-import { IframeStamper } from "@turnkey/iframe-stamper";
 import { Export } from "@/components/Export";
 
 type ExportWalletProps = {
@@ -13,29 +13,17 @@ type ExportWalletProps = {
 };
 
 export function ExportWallet(props: ExportWalletProps) {
-  const [iframeDisplay, setIframeDisplay] = useState("none");
-  const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
-    null
-  );
+  const { exportIframeClient } = useTurnkey();
   const [stage, setStage] = useState("export");
-
-  useEffect(() => {
-    setIframeDisplay("none");
-  }, []);
 
   // Export the selected wallet and set the iframe to be visible
   const exportWallet = async () => {
-    if (iframeStamper === null) {
-      alert("Cannot export wallet without an iframe.");
-      return;
-    }
-
     const response = await axios.post("/api/exportWallet", {
       walletId: props.walletId,
-      targetPublicKey: iframeStamper.publicKey(),
+      targetPublicKey: exportIframeClient!.iframePublicKey,
     });
 
-    let injected = await iframeStamper.injectWalletExportBundle(
+    let injected = await exportIframeClient!.injectWalletExportBundle(
       response.data["exportBundle"],
       props.organizationId
     );
@@ -45,7 +33,6 @@ export function ExportWallet(props: ExportWalletProps) {
     }
 
     setStage("success");
-    setIframeDisplay("block");
   };
 
   return (
@@ -102,12 +89,7 @@ export function ExportWallet(props: ExportWalletProps) {
             </div>
           </div>
         )}
-        <Export
-          setIframeStamper={setIframeStamper}
-          iframeDisplay={iframeDisplay}
-          iframeUrl={process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!}
-          turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
-        />
+        <Export />
       </div>
     </div>
   );

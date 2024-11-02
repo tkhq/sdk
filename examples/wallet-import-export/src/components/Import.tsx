@@ -3,6 +3,8 @@
 import { useTurnkey } from "@turnkey/sdk-react";
 import { useEffect } from "react";
 
+const TurnkeyIframeContainerId = "turnkey-import-iframe-container-id";
+
 export function Import() {
   const { importIframeClient } = useTurnkey();
 
@@ -23,15 +25,19 @@ export function Import() {
     resize: "none",
   };
 
-  useEffect(() => {
-    (async () => {
-      const settingsApplied = await importIframeClient!.applySettings({ styles });
-      if (!settingsApplied) {
-        alert("Unexpected error while applying settings.");
-        return;
-      }
-    })();
-  }, []);
+  if (importIframeClient) {
+    useEffect(() => {
+      (async () => {
+        const settingsApplied = await importIframeClient!.applySettings({
+          styles,
+        });
+        if (!settingsApplied) {
+          alert("Unexpected error while applying settings.");
+          return;
+        }
+      })();
+    }, []);
+  }
 
   const iframeCss = `
     iframe {
@@ -43,7 +49,7 @@ export function Import() {
     `;
 
   return (
-    <div>
+    <div id={TurnkeyIframeContainerId}>
       <style>{iframeCss}</style>
     </div>
   );

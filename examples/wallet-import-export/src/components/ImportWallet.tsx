@@ -14,9 +14,7 @@ type ImportWalletProps = {
 };
 
 export function ImportWallet(props: ImportWalletProps) {
-  const { authIframeClient } = useTurnkey();
-  // authIframeClient?.config.stamper.
-
+  const { importIframeClient } = useTurnkey();
   const [walletName, setWalletName] = useState("");
   const [stage, setStage] = useState("init");
 
@@ -33,7 +31,7 @@ export function ImportWallet(props: ImportWalletProps) {
       userId: props.userId,
     });
 
-    const injected = await authIframeClient!.injectImportBundle(
+    const injected = await importIframeClient!.injectImportBundle(
       response.data["importBundle"],
       props.organizationId,
       props.userId
@@ -54,7 +52,7 @@ export function ImportWallet(props: ImportWalletProps) {
     }
 
     const encryptedBundle =
-      await authIframeClient!.extractWalletEncryptedBundle();
+      await importIframeClient!.extractWalletEncryptedBundle();
 
     if (encryptedBundle.trim() === "") {
       alert("Encrypted bundle is empty.");
