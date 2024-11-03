@@ -27,6 +27,7 @@
     "@types/react-dom": "18.2.6",
     "axios": "^1.4.0",
     "encoding": "^0.1.13",
+    "ethers": "^6.10.0",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
     "esm": "^3.2.25",

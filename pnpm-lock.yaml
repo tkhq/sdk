@@ -870,6 +870,9 @@ importers:
       esm:
         specifier: ^3.2.25
         version: 3.2.25
+      ethers:
+        specifier: ^6.10.0
+        version: 6.10.0
       install:
         specifier: ^0.13.0
         version: 0.13.0

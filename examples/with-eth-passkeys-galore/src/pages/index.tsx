@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { Account, createWalletClient, http, type WalletClient } from "viem";
+import { ethers } from "ethers";
 import { sepolia } from "viem/chains";
 import {
   createSmartAccountClient,
@@ -97,6 +98,7 @@ export default function Home() {
           chain: sepolia,
           transport: http(),
         });
+
         setViemClient(viemClient);
 
         smartAccount = await connectViemClient(viemClient);
@@ -106,9 +108,16 @@ export default function Home() {
           client: passkeyClient,
           signWith: wallet.address,
         });
-        setEthersClient(ethersClient);
 
-        smartAccount = await connectEthersClient(ethersClient);
+        const provider = new ethers.JsonRpcProvider(
+          `https://sepolia.infura.io/v3/${process.env.INFURA_KEY}`
+        );
+
+        const connectedSigner = ethersClient.connect(provider);
+
+        setEthersClient(connectedSigner);
+
+        smartAccount = await connectEthersClient(connectedSigner);
       }
 
       const smartAccountAddress = await smartAccount.getAccountAddress();
@@ -119,7 +128,6 @@ export default function Home() {
   }, [wallet, passkeyClient, useViem]);
 
   // Connect a TurnkeySigner to a Biconomy Smart Account Client, defaulting to Sepolia
-  // Ensure this method is hoisted
   const connectEthersClient = async (
     turnkeyClient: TurnkeySigner
   ): Promise<BiconomySmartAccountV2> => {
@@ -139,8 +147,8 @@ export default function Home() {
       throw new Error(error);
     }
   };
+
   // Connect a TurnkeySigner to a Biconomy Smart Account Client, defaulting to Sepolia
-  // Ensure this method is hoisted
   const connectViemClient = async (
     turnkeyClient: WalletClient
   ): Promise<BiconomySmartAccountV2> => {
@@ -167,28 +175,18 @@ export default function Home() {
     }
 
     if (useViem) {
+      if (!viemClient) throw new Error("viem client not initialized");
       await signMessageViem(data);
     } else {
+      if (!ethersClient) throw new Error("ethers client not initialized");
       await signMessageEthers(data);
     }
   };
 
   const signMessageViem = async (data: signMessageFormData) => {
-    const viemAccount = await createAccount({
-      client: passkeyClient!,
-      organizationId: wallet!.subOrgId,
-      signWith: wallet!.address,
-      ethereumAddress: wallet!.address,
-    });
-
-    const viemClient = createWalletClient({
-      account: viemAccount as Account,
-      chain: sepolia,
-      transport: http(),
-    });
-
-    const signedMessage = await viemClient.signMessage({
+    const signedMessage = await viemClient!.signMessage({
       message: data.messageToSign,
+      account: viemClient!.account!,
     });
 
     setSignedMessage({
@@ -198,50 +196,12 @@ export default function Home() {
   };
 
   const signMessageEthers = async (data: signMessageFormData) => {
-    const ethersSigner = new TurnkeySigner({
-      client: passkeyClient!,
-      organizationId: wallet!.subOrgId,
-      signWith: wallet!.address,
-    });
-
-    const signedMessage = await ethersSigner.signMessage(data.messageToSign);
+    const signedMessage = await ethersClient!.signMessage(data.messageToSign);
 
     setSignedMessage({
       message: data.messageToSign,
       signature: signedMessage,
     });
-  };
-
-  const setClient = async () => {
-    let client: WalletClient | TurnkeySigner;
-    if (useViem) {
-      const viemAccount = await createAccount({
-        client: passkeyClient!,
-        organizationId: wallet!.subOrgId,
-        signWith: wallet!.address,
-        ethereumAddress: wallet!.address,
-      });
-
-      const viemClient = createWalletClient({
-        account: viemAccount as Account,
-        chain: sepolia,
-        transport: http(),
-      });
-      setViemClient(viemClient);
-
-      client = viemClient;
-    } else {
-      const ethersClient = new TurnkeySigner({
-        organizationId: wallet!.subOrgId,
-        client: passkeyClient!,
-        signWith: wallet!.address,
-      });
-      setEthersClient(ethersClient);
-
-      client = ethersClient;
-    }
-
-    return client;
   };
 
   const createSubOrgAndWallet = async () => {
@@ -318,21 +278,26 @@ export default function Home() {
     }
   };
 
-  const signTransactionEthers = async (data: signTransactionFormData) => {
+  const signTransactionWithAAClient = async (
+    data: signTransactionFormData,
+    getSmartAccount: (
+      data: signTransactionFormData
+    ) => Promise<BiconomySmartAccountV2>,
+    options?: { nonceOptions?: { nonceKey: number } }
+  ) => {
     const { destinationAddress, amount } = data;
 
-    const smartAccount = await connectEthersClient(ethersClient!);
+    const smartAccount = await getSmartAccount(data);
     const transactionRequest = {
       to: destinationAddress,
       value: amount,
       type: 2,
     };
 
-    // Make a simple send tx (which calls `signTransaction` under the hood)
     const userOpResponse = await smartAccount?.sendTransaction(
       transactionRequest,
       {
-        nonceOptions: { nonceKey: Number(0) },
+        ...options,
         paymasterServiceData: { mode: PaymasterMode.SPONSORED },
       }
     );
@@ -344,29 +309,49 @@ export default function Home() {
     );
   };
 
-  const signTransactionViem = async (data: signTransactionFormData) => {
+  const signTransactionWithClient = async (
+    data: signTransactionFormData,
+    client: WalletClient | TurnkeySigner,
+    isViem: boolean
+  ) => {
     const { destinationAddress, amount } = data;
 
-    const smartAccount = await connectViemClient(viemClient!);
     const transactionRequest = {
-      to: destinationAddress,
-      value: amount,
-      type: 2,
+      to: destinationAddress as `0x${string}`,
+      value: BigInt(amount),
+      ...(isViem && {
+        account: (client as WalletClient).account!,
+        chain: sepolia,
+      }),
     };
 
-    // Make a simple send tx (which calls `signTransaction` under the hood)
-    const userOpResponse = await smartAccount?.sendTransaction(
-      transactionRequest,
-      {
-        paymasterServiceData: { mode: PaymasterMode.SPONSORED },
-      }
-    );
+    const result = await client.sendTransaction({
+      ...transactionRequest,
+      chain: transactionRequest.chain,
+      account: transactionRequest.account || null,
+    });
+    const txHash = isViem ? result : (result as any).hash;
 
-    const { transactionHash } = await userOpResponse.waitForTxHash();
+    setSignedTransaction(`https://sepolia.etherscan.io/tx/${txHash}`);
+  };
 
-    setSignedTransaction(
-      `https://jiffyscan.xyz/bundle/${transactionHash}?network=sepolia&pageNo=0&pageSize=10`
-    );
+  const signTransactionWithProvider = async (
+    data: signTransactionFormData,
+    client: WalletClient | TurnkeySigner,
+    isViem: boolean
+  ) => {
+    if (supportsAA()) {
+      await signTransactionWithAAClient(
+        data,
+        async () =>
+          isViem
+            ? connectViemClient(client as WalletClient)
+            : connectEthersClient(client as TurnkeySigner),
+        { nonceOptions: { nonceKey: Number(0) } }
+      );
+    } else {
+      await signTransactionWithClient(data, client, isViem);
+    }
   };
 
   const signTransaction = async (data: signTransactionFormData) => {
@@ -374,11 +359,11 @@ export default function Home() {
       throw new Error("wallet not found");
     }
 
-    if (useViem) {
-      await signTransactionViem(data);
-    } else {
-      await signTransactionEthers(data);
-    }
+    await signTransactionWithProvider(
+      data,
+      useViem ? viemClient! : ethersClient!,
+      useViem
+    );
   };
 
   return (
@@ -618,3 +603,10 @@ export default function Home() {
     </main>
   );
 }
+
+const supportsAA = () => {
+  return (
+    process.env.NEXT_PUBLIC_BICONOMY_BUNDLER_URL &&
+    process.env.NEXT_PUBLIC_BICONOMY_PAYMASTER_API_KEY
+  );
+};
