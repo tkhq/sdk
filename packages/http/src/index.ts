@@ -3,13 +3,18 @@ export type { definitions as TurnkeyApiTypes } from "./__generated__/services/co
 export { TurnkeyClient } from "./__generated__/services/coordinator/public/v1/public_api.client";
 
 export { init, browserInit } from "./config";
-export { TurnkeyRequestError } from "./base";
+export {
+  TurnkeyRequestError,
+  type SignedRequest,
+  type TSignedRequest,
+} from "./base";
 export {
   assertNonNull,
   assertActivityCompleted,
   getSignatureFromActivity,
   getSignaturesFromActivity,
   getSignedTransactionFromActivity,
+  getLiveTimestamp,
   InvalidArgumentError,
   TurnkeyActivityError,
   TurnkeyActivityConsensusNeededError,
@@ -21,7 +26,6 @@ export {
   type TSignature,
   TERMINAL_ACTIVITY_STATUSES,
 } from "./shared";
-export type { SignedRequest, TSignedRequest } from "./base";
 export { getWebAuthnAttestation } from "./webauthn";
 export { withAsyncPolling, createActivityPoller } from "./async";
 

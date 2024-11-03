@@ -17,6 +17,7 @@ import {
   resolveAddress,
 } from "ethers";
 import {
+  getLiveTimestamp,
   TurnkeyClient,
   TurnkeyActivityError,
   TurnkeyRequestError,
@@ -108,6 +109,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   private async _signTransactionImpl(
     unsignedTransaction: string
   ): Promise<string> {
+    const timestampMs = this.client.config.overrideTimestamp
+      ? `${await getLiveTimestamp()}000`
+      : String(Date.now());
+
     if (this.client instanceof TurnkeyClient) {
       const { activity } = await this.client.signTransaction({
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
@@ -117,7 +122,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
           type: "TRANSACTION_TYPE_ETHEREUM",
           unsignedTransaction,
         },
-        timestampMs: String(Date.now()), // millisecond timestamp
+        timestampMs,
       });
 
       assertActivityCompleted(activity);
@@ -131,6 +136,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
           signWith: this.signWith,
           type: "TRANSACTION_TYPE_ETHEREUM",
           unsignedTransaction,
+          timestampMs,
         }
       );
 
@@ -234,6 +240,9 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
   async _signMessageImpl(message: string): Promise<string> {
     let result;
+    const timestampMs = this.client.config.overrideTimestamp
+      ? `${await getLiveTimestamp()}000`
+      : String(Date.now());
 
     if (this.client instanceof TurnkeyClient) {
       const { activity } = await this.client.signRawPayload({
@@ -245,7 +254,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
           encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
           hashFunction: "HASH_FUNCTION_NO_OP",
         },
-        timestampMs: String(Date.now()), // millisecond timestamp
+        timestampMs,
       });
 
       assertActivityCompleted(activity);
@@ -257,6 +266,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         payload: message,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NO_OP",
+        timestampMs,
       });
 
       assertActivityCompleted(activity);

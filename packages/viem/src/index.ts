@@ -13,6 +13,7 @@ import type {
 import {
   assertNonNull,
   assertActivityCompleted,
+  getLiveTimestamp,
   TActivityStatus,
   TActivityId,
   TSignature,
@@ -384,6 +385,10 @@ async function signTransactionImpl(
   organizationId: string,
   signWith: string
 ): Promise<string> {
+  const timestampMs = client.config.overrideTimestamp
+    ? `${await getLiveTimestamp()}000`
+    : String(Date.now());
+
   if (client instanceof TurnkeyClient) {
     const { activity } = await client.signTransaction({
       type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
@@ -393,7 +398,7 @@ async function signTransactionImpl(
         type: "TRANSACTION_TYPE_ETHEREUM",
         unsignedTransaction: unsignedTransaction,
       },
-      timestampMs: String(Date.now()), // millisecond timestamp
+      timestampMs,
     });
 
     assertActivityCompleted(activity);
@@ -406,6 +411,7 @@ async function signTransactionImpl(
       signWith,
       type: "TRANSACTION_TYPE_ETHEREUM",
       unsignedTransaction: unsignedTransaction,
+      timestampMs,
     });
 
     assertActivityCompleted(activity);
@@ -461,6 +467,9 @@ async function signMessageImpl(
   signWith: string
 ): Promise<string> {
   let result;
+  const timestampMs = client.config.overrideTimestamp
+    ? `${await getLiveTimestamp()}000`
+    : String(Date.now());
 
   if (client instanceof TurnkeyClient) {
     const { activity } = await client.signRawPayload({
@@ -472,7 +481,7 @@ async function signMessageImpl(
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NO_OP",
       },
-      timestampMs: String(Date.now()), // millisecond timestamp
+      timestampMs,
     });
 
     assertActivityCompleted(activity);
@@ -484,6 +493,7 @@ async function signMessageImpl(
       payload: message,
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
       hashFunction: "HASH_FUNCTION_NO_OP",
+      timestampMs,
     });
 
     assertActivityCompleted(activity);

@@ -6,6 +6,7 @@ import {
 
 import {
   createActivityPoller,
+  getLiveTimestamp,
   getWebAuthnAttestation,
   sealAndStampRequestBody,
   TurnkeyActivityError,
@@ -65,9 +66,10 @@ export type {
 export {
   fetch,
   createActivityPoller,
+  getLiveTimestamp,
+  getWebAuthnAttestation,
   defaultEthereumAccountAtIndex,
   defaultSolanaAccountAtIndex,
-  getWebAuthnAttestation,
   sealAndStampRequestBody,
   signWithApiKey,
 };
