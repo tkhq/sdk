@@ -28,12 +28,19 @@ $ pnpm install # Install dependencies
 $ pnpm run build  # Compile source code
 ```
 
-### 2/ Setting up Turnkey
+### 2a/ Setting up Turnkey
 
 The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide, you should have:
 
 - A public/private API key pair for Turnkey
 - An organization ID
+
+### 2b/ Setting up Biconomy (optional)
+
+The next step is to navigate to Biconomy to create a paymaster. Visit the [Biconomy Dashboard](https://dashboard.biconomy.io/) to create a your paymaster and find the following:
+
+- Bundler URL
+- Paymaster API Key
 
 Once you've gathered these values, add them to a new `.env.local` file. Notice that your API private key should be securely managed and **_never_** be committed to git.
 
@@ -48,6 +55,9 @@ Now open `.env.local` and add the missing environment variables:
 - `NEXT_PUBLIC_BASE_URL`
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_RPID`
+- `NEXT_PUBLIC_INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
+- `NEXT_PUBLIC_BICONOMY_BUNDLER_URL`
+- `NEXT_PUBLIC_BICONOMY_PAYMASTER_API_KEY`
 
 ### 3/ Running the app
 
