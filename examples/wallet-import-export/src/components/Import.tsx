@@ -49,7 +49,10 @@ export function Import() {
     `;
 
   return (
-    <div id={TurnkeyIframeContainerId}>
+    <div
+      id={TurnkeyIframeContainerId}
+      style={{ display: "block" }}
+    >
       <style>{iframeCss}</style>
     </div>
   );
