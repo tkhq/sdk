@@ -4,12 +4,13 @@ import { bytesToHex } from "@noble/hashes/utils";
 
 interface GoogleAuthButtonProps {
   iframePublicKey: string;
+  clientId: string;
   onSuccess: (response: any) => void;
 }
 
-const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({ iframePublicKey, onSuccess }) => {
+const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({ iframePublicKey, onSuccess, clientId}) => {
   return (
-    <GoogleOAuthProvider clientId="776352896366-fjmbvor86htj99lap5pb6joeupf67ovo.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId={clientId}>
       <GoogleLogin
         nonce={bytesToHex(sha256(iframePublicKey))}
         onSuccess={onSuccess}
