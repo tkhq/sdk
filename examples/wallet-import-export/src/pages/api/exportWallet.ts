@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { Turnkey } from "@turnkey/sdk-server";
 
 type ExportWalletRequest = {
   walletId: string;
@@ -22,36 +21,23 @@ export default async function exportWallet(
 ) {
   try {
     const request = req.body as ExportWalletRequest;
-    const turnkeyClient = new TurnkeyClient(
-      { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
-      new ApiKeyStamper({
-        apiPublicKey: process.env.API_PUBLIC_KEY!,
-        apiPrivateKey: process.env.API_PRIVATE_KEY!,
-      })
-    );
-
-    const activityPoller = createActivityPoller({
-      client: turnkeyClient,
-      requestFn: turnkeyClient.exportWallet,
+    const turnkeyClient = new Turnkey({
+      apiBaseUrl: "https://api.turnkey.com",
+      apiPublicKey: process.env.API_PUBLIC_KEY!,
+      apiPrivateKey: process.env.API_PRIVATE_KEY!,
+      defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
-    const completedActivity = await activityPoller({
-      type: "ACTIVITY_TYPE_EXPORT_WALLET",
-      timestampMs: String(Date.now()),
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-      parameters: {
-        walletId: request.walletId,
-        targetPublicKey: request.targetPublicKey,
-      },
+    const exportResponse = await turnkeyClient.apiClient().exportWallet({
+      walletId: request.walletId,
+      targetPublicKey: request.targetPublicKey,
     });
 
-    const walletId = completedActivity.result.exportWalletResult?.walletId;
+    const { walletId, exportBundle } = exportResponse;
     if (!walletId) {
       throw new Error("Expected a non-null wallet ID!");
     }
 
-    const exportBundle =
-      completedActivity.result.exportWalletResult?.exportBundle;
     if (!exportBundle) {
       throw new Error("Expected a non-null export bundle!");
     }
