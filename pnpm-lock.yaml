@@ -1816,9 +1816,6 @@ importers:
       react-apple-login:
         specifier: ^1.1.6
         version: 1.1.6(prop-types@15.8.1)(react-dom@18.3.1)(react@18.2.0)
-      react-facebook-login:
-        specifier: ^4.1.1
-        version: 4.1.1(react@18.2.0)
       react-hook-form:
         specifier: ^7.45.1
         version: 7.45.1(react@18.2.0)
@@ -21781,14 +21778,6 @@ packages:
       loose-envify: 1.4.0
       react: 18.3.1
       scheduler: 0.23.2
-    dev: false
-
-  /react-facebook-login@4.1.1(react@18.2.0):
-    resolution: {integrity: sha512-COnHEHlYGTKipz4963safFAK9PaNTcCiXfPXMS/yxo8El+/AJL5ye8kMJf23lKSSGGPgqFQuInskIHVqGqTvSw==}
-    peerDependencies:
-      react: ^16.0.0
-    dependencies:
-      react: 18.2.0
     dev: false
 
   /react-hook-form@7.45.1(react@18.2.0):

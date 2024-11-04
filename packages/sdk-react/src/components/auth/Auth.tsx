@@ -262,7 +262,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
   <div className={styles.authButton}>
     <div className={styles.socialButtonContainer}>
 
-    <GoogleAuthButton iframePublicKey={authIframeClient.iframePublicKey!} onSuccess={handleGoogleLogin} />
+    <GoogleAuthButton clientId = "" iframePublicKey={authIframeClient.iframePublicKey!} onSuccess={handleGoogleLogin} />
     </div>
   </div>
 )}
@@ -271,7 +271,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
 {!otpId && authConfig.appleEnabled && authIframeClient && (
   <div className={styles.authButton}>
     <div className={styles.appleButtonContainer}>
-    <AppleAuthButton onSuccess={handleAppleLogin} />
+    <AppleAuthButton iframePublicKey={authIframeClient.iframePublicKey!} clientId = "" redirectURI="" onSuccess={handleAppleLogin} />
     </div>
   </div>
 )}
