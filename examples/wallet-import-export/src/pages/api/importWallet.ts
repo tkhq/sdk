@@ -29,10 +29,10 @@ export default async function importWallet(
     });
 
     const importWalletResponse = await turnkeyClient.apiClient().importWallet({
-        userId: request.userId,
-        walletName: request.walletName,
-        encryptedBundle: request.encryptedBundle,
-        accounts: [],
+      userId: request.userId,
+      walletName: request.walletName,
+      encryptedBundle: request.encryptedBundle,
+      accounts: [],
     });
 
     const { walletId } = importWalletResponse;

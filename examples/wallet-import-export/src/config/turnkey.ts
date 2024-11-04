@@ -11,4 +11,4 @@ export const turnkeyConfig = {
       containerId: "turnkey-import-iframe-container-id",
     },
   },
-}
+};

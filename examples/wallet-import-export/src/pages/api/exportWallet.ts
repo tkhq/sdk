@@ -29,8 +29,8 @@ export default async function exportWallet(
     });
 
     const exportResponse = await turnkeyClient.apiClient().exportWallet({
-        walletId: request.walletId,
-        targetPublicKey: request.targetPublicKey,
+      walletId: request.walletId,
+      targetPublicKey: request.targetPublicKey,
     });
 
     const { walletId, exportBundle } = exportResponse;

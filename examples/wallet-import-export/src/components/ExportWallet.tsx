@@ -15,6 +15,12 @@ type ExportWalletProps = {
 export function ExportWallet(props: ExportWalletProps) {
   const { exportIframeClient } = useTurnkey();
   const [stage, setStage] = useState("export");
+  const [iframeDisplay, setIframeDisplay] = useState("none");
+
+  // TODO: check if this is necessary
+  useEffect(() => {
+    setIframeDisplay("none");
+  }, []);
 
   // Export the selected wallet and set the iframe to be visible
   const exportWallet = async () => {
@@ -33,6 +39,7 @@ export function ExportWallet(props: ExportWalletProps) {
     }
 
     setStage("success");
+    setIframeDisplay("block");
   };
 
   return (
@@ -89,7 +96,7 @@ export function ExportWallet(props: ExportWalletProps) {
             </div>
           </div>
         )}
-        <Export />
+        <Export iframeDisplay={iframeDisplay} />
       </div>
     </div>
   );

@@ -6,8 +6,22 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 const TurnkeyIframeContainerId = "turnkey-export-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-export-iframe-element-id";
 
-export function Export() {
+interface ExportProps {
+  iframeDisplay: string;
+}
+
+export function Export(props: ExportProps) {
   const { exportIframeClient } = useTurnkey();
+  const [iframeDisplay, setIframeDisplay] = useState<string>("none");
+
+  useEffect(() => {
+    setIframeDisplay(props.iframeDisplay);
+    return () => {
+      if (iframeDisplay === "block") {
+        setIframeDisplay("none");
+      }
+    };
+  }, [props.iframeDisplay]);
 
   const styles = {
     padding: "20px",
@@ -54,10 +68,7 @@ export function Export() {
     `;
 
   return (
-    <div
-      id={TurnkeyIframeContainerId}
-      style={{ display: "block" }}
-    >
+    <div id={TurnkeyIframeContainerId} style={{ display: iframeDisplay }}>
       <style>{iframeCss}</style>
     </div>
   );

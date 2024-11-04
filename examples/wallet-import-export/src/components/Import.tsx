@@ -1,12 +1,26 @@
 "use client";
 
 import { useTurnkey } from "@turnkey/sdk-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const TurnkeyIframeContainerId = "turnkey-import-iframe-container-id";
 
-export function Import() {
+interface ImportProps {
+  iframeDisplay: string;
+}
+
+export function Import(props: ImportProps) {
   const { importIframeClient } = useTurnkey();
+  const [iframeDisplay, setIframeDisplay] = useState<string>("none");
+
+  useEffect(() => {
+    setIframeDisplay(props.iframeDisplay);
+    return () => {
+      if (iframeDisplay === "block") {
+        setIframeDisplay("none");
+      }
+    };
+  }, [props.iframeDisplay]);
 
   const styles = {
     padding: "20px",
@@ -49,10 +63,7 @@ export function Import() {
     `;
 
   return (
-    <div
-      id={TurnkeyIframeContainerId}
-      style={{ display: "block" }}
-    >
+    <div id={TurnkeyIframeContainerId} style={{ display: iframeDisplay }}>
       <style>{iframeCss}</style>
     </div>
   );

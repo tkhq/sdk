@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { useTurnkey } from "@turnkey/sdk-react";
 
 import styles from "../pages/index.module.css";
@@ -17,6 +17,12 @@ export function ImportWallet(props: ImportWalletProps) {
   const { importIframeClient } = useTurnkey();
   const [walletName, setWalletName] = useState("");
   const [stage, setStage] = useState("init");
+  const [iframeDisplay, setIframeDisplay] = useState("none");
+
+  // TODO: check if this is necessary
+  useEffect(() => {
+    setIframeDisplay("none");
+  }, []);
 
   // Handler function to update the state based on input changes
   const handleWalletNameChange = (event: {
@@ -42,6 +48,7 @@ export function ImportWallet(props: ImportWalletProps) {
     }
 
     setStage("import");
+    setIframeDisplay("block");
   };
 
   // Import the wallet
@@ -102,7 +109,7 @@ export function ImportWallet(props: ImportWalletProps) {
             </label>
           </div>
         )}
-        <Import />
+        <Import iframeDisplay={iframeDisplay} />
         <div className={styles.modalSpace}>
           {stage === "init" ? (
             <button
