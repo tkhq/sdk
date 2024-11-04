@@ -6,15 +6,12 @@ import { initOtpAuth } from "../../api/initOtpAuth";
 import { otpAuth } from "../../api/otpAuth";
 import { getSuborgs } from "../../api/getSuborgs";
 import { MuiPhone } from "./PhoneInput";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import { sha256 } from "@noble/hashes/sha2";
-import { bytesToHex } from "@noble/hashes/utils";
 import OTPInput from "./OtpInput";
 import { createSuborg } from "../../api/createSuborg";
 import { oauth } from "../../api/oauth";
-import AppleLogin from "react-apple-login";
 import GoogleAuthButton from "./Google";
 import AppleAuthButton from "./Apple";
+
 interface AuthProps {
   turnkeyClient: TurnkeySDKClient;
   onHandleAuthSuccess: () => Promise<void>;
@@ -28,8 +25,7 @@ interface AuthProps {
 }
 
 const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authConfig }) => {
-  const { turnkey, passkeyClient, authIframeClient } = useTurnkey();
-  const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const { passkeyClient, authIframeClient } = useTurnkey();
   const [error, setError] = useState<string | null>(null);
   const [otpError, setOtpError] = useState<string |null>(null);
   const [email, setEmail] = useState<string>("");
@@ -44,207 +40,129 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
       alert(error);
     }
   }, [error]);
-  const handleLoginWithPasskey = async () => {
-    setLoadingAction("email");
-    const getSuborgsRequest = {
-      filterType: "EMAIL",
-      filterValue: email,
-    };
-    const getSuborgsResponse = await getSuborgs(getSuborgsRequest, turnkeyClient);
-    if (getSuborgsResponse!.organizationIds.length > 0){
-      const createReadWriteSessionResponse = await passkeyClient?.createReadWriteSession({organizationId: getSuborgsResponse!.organizationIds[0]!, targetPublicKey: authIframeClient?.iframePublicKey!})
-      if (createReadWriteSessionResponse!.credentialBundle) {
-        await authIframeClient!.injectCredentialBundle(createReadWriteSessionResponse!.credentialBundle);
-        await onHandleAuthSuccess();
-      }
-      }
-        else {
-        // User either does not have an account with a sub organization
-        // or does not have a passkey
-        // Create a new passkey for the user
-        const { encodedChallenge, attestation } =
-          (await passkeyClient?.createUserPasskey({
-            publicKey: {
-              user: {
-                name: email,
-                displayName: email,
-              },
-            },
-          })) || {}
 
-        // Create a new sub organization for the user
-        if (encodedChallenge && attestation) {
-          const createSuborgRequest = {
-            email,
-            passkey: {
-              authenticatorName: "First Passkey",
-              challenge: encodedChallenge,
-              attestation
-
-            }
-          };
-          const createSuborgResponse = await createSuborg(createSuborgRequest, turnkeyClient);
-          if (createSuborgResponse?.subOrganizationId) {
-            const createReadWriteSessionResponse = await passkeyClient?.createReadWriteSession({organizationId: createSuborgResponse?.subOrganizationId, targetPublicKey: authIframeClient?.iframePublicKey!})
-            if (createReadWriteSessionResponse!.credentialBundle) {
-              await authIframeClient!.injectCredentialBundle(createReadWriteSessionResponse!.credentialBundle);
-              await onHandleAuthSuccess();
-            }
-          }
-        }
-      }
-    }
-
-  const handleEmailLogin = async () => {
-    setLoadingAction("email");
-    const getSuborgsRequest = {
-      filterType: "EMAIL",
-      filterValue: email,
-    };
-    const getSuborgsResponse = await getSuborgs(getSuborgsRequest, turnkeyClient);
-    let suborgId = getSuborgsResponse!.organizationIds[0]!
-    if (!suborgId){
-      const createSuborgRequest = {
-        email,
-      };
-      const createSuborgResponse = await createSuborg(createSuborgRequest, turnkeyClient);
-      suborgId = createSuborgResponse?.subOrganizationId!
-    }
-    const initAuthRequest = {
-      suborgID: suborgId,
-      otpType: "OTP_TYPE_EMAIL",
-      contact: email,
-    };
-    const initAuthResponse = await initOtpAuth(initAuthRequest, turnkeyClient);
-    setSuborgId(suborgId);
-    setOtpId(initAuthResponse!.otpId);
-    setStep("otpEmail");
-    setLoadingAction(null);
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
-  const handlePhoneLogin = async () => {
-    setLoadingAction("phone");
-    const getSuborgsRequest = {
-      filterType: "PHONE_NUMBER",
-      filterValue: phone,
-    };
-    const getSuborgsResponse = await getSuborgs(getSuborgsRequest, turnkeyClient);
-    let suborgId = getSuborgsResponse!.organizationIds[0]!
-    if (!suborgId){
-      const createSuborgRequest = {
-        phoneNumber: phone,
-      };
-      const createSuborgResponse = await createSuborg(createSuborgRequest, turnkeyClient);
-      suborgId = createSuborgResponse?.subOrganizationId!
+  const isValidPhone = (phone: string) => {
+    const usCanadaRegex = /^\+1\d{10}$/;
+    return usCanadaRegex.test(phone);
+  };
+  
+
+  const handleGetOrCreateSuborg = async (filterType: string, filterValue: string, additionalData = {}) => {
+    const getSuborgsResponse = await getSuborgs({ filterType, filterValue }, turnkeyClient);
+    let suborgId = getSuborgsResponse!.organizationIds[0];
+    if (!suborgId) {
+      const createSuborgResponse = await createSuborg({ [filterType.toLowerCase()]: filterValue, ...additionalData }, turnkeyClient);
+      suborgId = createSuborgResponse?.subOrganizationId!;
     }
-    const initAuthRequest = {
-      suborgID: suborgId,
-      otpType: "OTP_TYPE_SMS",
-      contact: phone,
-    };
-    const initAuthResponse = await initOtpAuth(initAuthRequest, turnkeyClient);
+    return suborgId;
+  };
+
+  const handleAuthSuccess = async (credentialBundle: any) => {
+    if (credentialBundle) {
+      await authIframeClient!.injectCredentialBundle(credentialBundle);
+      await onHandleAuthSuccess();
+    }
+  };
+
+  const handleLoginWithPasskey = async () => {
+
+    // Step 1: Try to retrieve the suborg by email
+    const getSuborgsResponse = await getSuborgs({ filterType: "EMAIL", filterValue: email }, turnkeyClient);
+    const existingSuborgId = getSuborgsResponse!.organizationIds[0];
+  
+    if (existingSuborgId) {
+      // If a suborg exists, use it to create a read/write session without a new passkey
+      const sessionResponse = await passkeyClient?.createReadWriteSession({
+        organizationId: existingSuborgId,
+        targetPublicKey: authIframeClient?.iframePublicKey!,
+      });
+  
+      if (sessionResponse?.credentialBundle) {
+        await handleAuthSuccess(sessionResponse.credentialBundle);
+      } else {
+        setError("Failed to complete passkey login.");
+      }
+    } else {
+      // If no suborg exists, first create a user passkey
+      const { encodedChallenge, attestation } = await passkeyClient?.createUserPasskey({
+        publicKey: { user: { name: email, displayName: email } },
+      }) || {};
+  
+      if (encodedChallenge && attestation) {
+        // Use the generated passkey to create a new suborg
+        const createSuborgResponse = await createSuborg({
+          email,
+          passkey: { authenticatorName: "First Passkey", challenge: encodedChallenge, attestation },
+        }, turnkeyClient);
+  
+        const newSuborgId = createSuborgResponse?.subOrganizationId;
+  
+        if (newSuborgId) {
+          // With the new suborg, create a read/write session
+          const newSessionResponse = await passkeyClient?.createReadWriteSession({
+            organizationId: newSuborgId,
+            targetPublicKey: authIframeClient?.iframePublicKey!,
+          });
+  
+          if (newSessionResponse?.credentialBundle) {
+            await handleAuthSuccess(newSessionResponse.credentialBundle);
+          } else {
+            setError("Failed to complete passkey login with new suborg.");
+          }
+        } else {
+          setError("Failed to create suborg with passkey.");
+        }
+      } else {
+        setError("Failed to create user passkey.");
+      }
+    }
+  };  
+
+  const handleOtpLogin = async (type: "EMAIL" | "PHONE_NUMBER", value: string, otpType: string) => {
+    const suborgId = await handleGetOrCreateSuborg(type, value);
+    const initAuthResponse = await initOtpAuth({ suborgID: suborgId, otpType, contact: value }, turnkeyClient);
     setSuborgId(suborgId);
     setOtpId(initAuthResponse!.otpId);
-    setStep("otpPhone");
-    setLoadingAction(null);
+    setStep(type === "EMAIL" ? "otpEmail" : "otpPhone");
   };
 
   const handleEnterOtp = async (otp: string) => {
-    setLoadingAction("otp");
-    const authRequest = {
-      suborgID: suborgId,
-      otpId: otpId!,
-      otpCode: otp,
-      targetPublicKey: authIframeClient!.iframePublicKey!,
-    };
-
-    const authResponse = await otpAuth(authRequest, turnkeyClient);
-    if (authResponse?.credentialBundle) {
-      await authIframeClient!.injectCredentialBundle(authResponse.credentialBundle);
-      await onHandleAuthSuccess();
-      setOtpError(null);
-    } else {
-      setOtpError("Invalid code, please try again");
-    }
-    setLoadingAction(null);
+    const authResponse = await otpAuth(
+      { suborgID: suborgId, otpId: otpId!, otpCode: otp, targetPublicKey: authIframeClient!.iframePublicKey! },
+      turnkeyClient
+    );
+    authResponse?.credentialBundle ? await handleAuthSuccess(authResponse.credentialBundle) : setOtpError("Invalid code, please try again");
   };
 
   const handleGoogleLogin = async (response: any) => {
-    setLoadingAction("oauth");
-    
-    const getSuborgsRequest = {
-      filterType: "OIDC_TOKEN",
-      filterValue: response.credential,
-    };
-    const getSuborgsResponse = await getSuborgs(getSuborgsRequest, turnkeyClient);
-    let suborgId = getSuborgsResponse!.organizationIds[0]!
-    if (!suborgId){
-      const createSuborgRequest = {
-        oauthProviders : [{
-          providerName: "Google OIDC",
-          oidcToken: response.credential
-        }]
-      };
-      const createSuborgResponse = await createSuborg(createSuborgRequest, turnkeyClient);
-      suborgId = createSuborgResponse?.subOrganizationId!
-    }
-    const oauthRequest = {
-      suborgID: suborgId,
-      oidcToken: response.credential,
-      targetPublicKey: authIframeClient?.iframePublicKey!,
-    };
-    const oauthResponse = await oauth(oauthRequest, turnkeyClient);
-    setSuborgId(suborgId);
-    if (oauthResponse!.credentialBundle) {
-      await authIframeClient!.injectCredentialBundle(oauthResponse!.credentialBundle);
-      await onHandleAuthSuccess();
-    }
-    setLoadingAction(null);
+    const credential = response.credential;
+    await handleOAuthLogin(credential, "Google OIDC");
   };
 
   const handleAppleLogin = async (response: any) => {
-    setLoadingAction("oauth");
-    // Implement Apple OAuth with the response received from react-apple-login
     const appleToken = response.authorization?.id_token;
-
     if (appleToken) {
-      const getSuborgsRequest = {
-        filterType: "OIDC_TOKEN",
-        filterValue: appleToken,
-      };
-      const getSuborgsResponse = await getSuborgs(getSuborgsRequest, turnkeyClient);
-      let suborgId = getSuborgsResponse!.organizationIds[0]!
-      if (!suborgId){
-        const createSuborgRequest = {
-          oauthProviders : [{
-            providerName: "Apple OIDC",
-            oidcToken: response.credential
-          }]
-        };
-        const createSuborgResponse = await createSuborg(createSuborgRequest, turnkeyClient);
-        suborgId = createSuborgResponse?.subOrganizationId!
-      }
-      
-      const oauthResponse = await oauth({
-        suborgID: suborgId,
-        oidcToken: appleToken,
-        targetPublicKey: authIframeClient?.iframePublicKey!,
-      }, turnkeyClient);
-
-      if (oauthResponse!.credentialBundle) {
-        await authIframeClient!.injectCredentialBundle(oauthResponse!.credentialBundle);
-        await onHandleAuthSuccess();
-      }
+      await handleOAuthLogin(appleToken, "Apple OIDC");
     }
-    setLoadingAction(null);
+  };
+
+  const handleOAuthLogin = async (credential: string, providerName: string) => {
+    const suborgId = await handleGetOrCreateSuborg("OIDC_TOKEN", credential, { oauthProviders: [{ providerName, oidcToken: credential }] });
+    const oauthResponse = await oauth({ suborgID: suborgId, oidcToken: credential, targetPublicKey: authIframeClient?.iframePublicKey! }, turnkeyClient);
+    await handleAuthSuccess(oauthResponse!.credentialBundle);
   };
 
   const handleResendCode = async () => {
     setOtpError(null);
     if (step === "otpEmail") {
-      await handleEmailLogin();
+      await handleOtpLogin("EMAIL", email, "OTP_TYPE_EMAIL");
     } else if (step === "otpPhone") {
-      await handlePhoneLogin();
+      await handleOtpLogin("PHONE_NUMBER", phone, "OTP_TYPE_SMS");
     }
     setResendText("Code Sent ✓");
   };
@@ -265,8 +183,8 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
             </div>
             <button
               type="button"
-              onClick={handleEmailLogin}
-              disabled={loadingAction === "email"}
+              onClick={()=> handleOtpLogin("EMAIL", email, "OTP_TYPE_EMAIL")}
+              disabled={!isValidEmail(email)}
             >
               Continue with email
             </button>
@@ -279,7 +197,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
             type="button"
             className={styles.passkeyButton}
             onClick={handleLoginWithPasskey}
-            disabled={loadingAction === "passkey"}
+            disabled={!isValidEmail(email)}
           >
             Continue with passkey
           </button>
@@ -297,8 +215,8 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
             </div>
             <button
               type="button"
-              onClick={handlePhoneLogin}
-              disabled={loadingAction === "phone"}
+              onClick={()=>handleOtpLogin("PHONE_NUMBER", phone, "OTP_TYPE_SMS")}
+              disabled={!isValidPhone(phone)}
             >
               Continue with phone
             </button>
@@ -419,3 +337,5 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
 };
 
 export default Auth;
+
+
