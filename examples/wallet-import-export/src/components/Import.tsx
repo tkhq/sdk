@@ -9,11 +9,31 @@ interface ImportProps {
   iframeDisplay: string;
 }
 
+const styles = {
+  padding: "20px",
+  borderRadius: "8px",
+  borderWidth: "2px",
+  borderStyle: "solid",
+  borderColor: "#ff6961",
+  fontFamily: "monospace",
+  color: "#333",
+  width: "340px",
+  height: "100px",
+  backgroundColor: "#fff3f3",
+  boxShadow: "0px 0px 10px #aaa",
+  overflowWrap: "break-word",
+  wordWrap: "break-word",
+  resize: "none",
+};
+
 export function Import(props: ImportProps) {
   const { importIframeClient } = useTurnkey();
   const [iframeDisplay, setIframeDisplay] = useState<string>("none");
 
   useEffect(() => {
+    console.log("iframe display", iframeDisplay);
+    console.log("props iframe display", props.iframeDisplay);
+
     setIframeDisplay(props.iframeDisplay);
     return () => {
       if (iframeDisplay === "block") {
@@ -21,23 +41,6 @@ export function Import(props: ImportProps) {
       }
     };
   }, [props.iframeDisplay]);
-
-  const styles = {
-    padding: "20px",
-    borderRadius: "8px",
-    borderWidth: "2px",
-    borderStyle: "solid",
-    borderColor: "#ff6961",
-    fontFamily: "monospace",
-    color: "#333",
-    width: "340px",
-    height: "100px",
-    backgroundColor: "#fff3f3",
-    boxShadow: "0px 0px 10px #aaa",
-    overflowWrap: "break-word",
-    wordWrap: "break-word",
-    resize: "none",
-  };
 
   if (importIframeClient) {
     useEffect(() => {
@@ -63,7 +66,10 @@ export function Import(props: ImportProps) {
     `;
 
   return (
-    <div id={TurnkeyIframeContainerId} style={{ display: iframeDisplay }}>
+    <div
+      id={TurnkeyIframeContainerId}
+      style={{ display: iframeDisplay }}
+    >
       <style>{iframeCss}</style>
     </div>
   );
