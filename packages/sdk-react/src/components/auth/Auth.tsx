@@ -13,7 +13,8 @@ import OTPInput from "./OtpInput";
 import { createSuborg } from "../../api/createSuborg";
 import { oauth } from "../../api/oauth";
 import AppleLogin from "react-apple-login";
-
+import GoogleAuthButton from "./Google";
+import AppleAuthButton from "./Apple";
 interface AuthProps {
   turnkeyClient: TurnkeySDKClient;
   onHandleAuthSuccess: () => Promise<void>;
@@ -43,7 +44,6 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
       alert(error);
     }
   }, [error]);
-
   const handleLoginWithPasskey = async () => {
     setLoadingAction("email");
     const getSuborgsRequest = {
@@ -343,15 +343,8 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
 {!otpId && authConfig.googleEnabled && authIframeClient && (
   <div className={styles.authButton}>
     <div className={styles.socialButtonContainer}>
-      <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
-        <GoogleLogin
-          nonce={bytesToHex(sha256(authIframeClient.iframePublicKey!))}
-          onSuccess={handleGoogleLogin}
-          useOneTap
-          text="signin_with"
-          ux_mode="popup"
-        />
-      </GoogleOAuthProvider>
+
+    <GoogleAuthButton iframePublicKey={authIframeClient.iframePublicKey!} onSuccess={handleGoogleLogin} />
     </div>
   </div>
 )}
@@ -360,47 +353,49 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
 {!otpId && authConfig.appleEnabled && authIframeClient && (
   <div className={styles.authButton}>
     <div className={styles.appleButtonContainer}>
-      <AppleLogin
-        clientId="YOUR_APPLE_CLIENT_ID"
-        redirectURI="YOUR_REDIRECT_URI"
-        responseType="code id_token"
-        callback={(response) => {
-          if (response.error) {
-            console.error("Apple login error:", response.error);
-          } else {
-            handleAppleLogin(response);
-          }
-        }}
-        usePopup
-      />
+    <AppleAuthButton onSuccess={handleAppleLogin} />
     </div>
   </div>
 )}
 
+<div className={styles.tos}>
+  {!otpId ? (
+    <span>
+      By logging in you agree to our{" "}
+      <a
+        href="https://www.turnkey.com/legal/terms"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.tosBold}
+      >
+        Terms of Service
+      </a>{" "}
+      &{" "}
+      <a
+        href="https://www.turnkey.com/legal/privacy"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.tosBold}
+      >
+        Privacy Policy
+      </a>
+    </span>
+  ) : (
+    <span>
+      Did not receive your code?{" "}
+      <span
+        onClick={resendText === "Re-send Code" ? handleResendCode : undefined}
+        style={{
+          cursor: resendText === "Re-send Code" ? "pointer" : "not-allowed",
+        }}
+        className={styles.tosBold}
+      >
+        {resendText}
+      </span>
+    </span>
+  )}
+</div>
 
-
-      <div className={styles.tos}>
-        {!otpId ? (
-          <span>
-            By logging in you agree to our{" "}
-            <span className={styles.tosBold}>Terms of Service</span> &{" "}
-            <span className={styles.tosBold}>Privacy Policy</span>
-          </span>
-        ) : (
-<span>
-  Did not receive your code?{" "}
-  <span
-    onClick={resendText === "Re-send Code" ? handleResendCode : undefined}
-    style={{
-      cursor: resendText === "Re-send Code" ? "pointer" : "not-allowed",
-    }}
-    className={styles.tosBold}
-  >
-    {resendText}
-  </span>
-</span>
-        )}
-      </div>
 
       <div className={styles.poweredBy}>
         <span>Powered by</span>

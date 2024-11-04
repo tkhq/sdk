@@ -50,6 +50,7 @@
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@greatsumini/react-facebook-login": "^3.3.3",
     "@mui/icons-material": "^6.1.5",
     "@mui/material": "^6.1.5",
     "@noble/hashes": "1.4.0",
