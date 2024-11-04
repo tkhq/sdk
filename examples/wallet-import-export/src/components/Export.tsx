@@ -26,6 +26,19 @@ const styles = {
   resize: "none",
 };
 
+const iframeCss = `
+  iframe {
+    box-sizing: border-box;
+    width: 400px;
+    height: 120px;
+    border-radius: 8px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(216, 219, 227, 1);
+    padding: 20px;
+  }
+`;
+
 export function Export(props: ExportProps) {
   const { exportIframeClient } = useTurnkey();
   const [iframeDisplay, setIframeDisplay] = useState<string>("none");
@@ -45,6 +58,9 @@ export function Export(props: ExportProps) {
   if (exportIframeClient) {
     useEffect(() => {
       (async () => {
+        const injected = await exportIframeClient!.init();
+        console.log("injected", injected);
+        
         const settingsApplied = await exportIframeClient!.applySettings({
           styles,
         });
@@ -55,19 +71,6 @@ export function Export(props: ExportProps) {
       })();
     }, []);
   }
-
-  const iframeCss = `
-    iframe {
-      box-sizing: border-box;
-      width: 400px;
-      height: 120px;
-      border-radius: 8px;
-      border-width: 1px;
-      border-style: solid;
-      border-color: rgba(216, 219, 227, 1);
-      padding: 20px;
-    }
-    `;
 
   return (
     <div

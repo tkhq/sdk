@@ -96,6 +96,57 @@ export class TurnkeyBrowserSDK {
     });
   };
 
+  // With export and import, we do not call init() so that the caller can control when they'd like to insert the iframe into the DOM
+  exportIframeClient = async (
+    params: IframeClientParams
+  ): Promise<TurnkeyIframeClient> => {
+    if (!params.iframeUrl) {
+      throw new Error(
+        "Tried to initialize iframeClient with no iframeUrl defined"
+      );
+    }
+
+    const TurnkeyIframeElementId =
+      params.iframeElementId ?? "turnkey-default-export-iframe-element-id";
+
+    const iframeStamper = new IframeStamper({
+      iframeContainer: params.iframeContainer,
+      iframeUrl: params.iframeUrl,
+      iframeElementId: TurnkeyIframeElementId,
+    });
+
+    return new TurnkeyIframeClient({
+      stamper: iframeStamper,
+      apiBaseUrl: this.config.apiBaseUrl,
+      organizationId: this.config.defaultOrganizationId,
+    });
+  };
+
+  importIframeClient = async (
+    params: IframeClientParams
+  ): Promise<TurnkeyIframeClient> => {
+    if (!params.iframeUrl) {
+      throw new Error(
+        "Tried to initialize iframeClient with no iframeUrl defined"
+      );
+    }
+
+    const TurnkeyIframeElementId =
+      params.iframeElementId ?? "turnkey-default-import-iframe-element-id";
+
+    const iframeStamper = new IframeStamper({
+      iframeContainer: params.iframeContainer,
+      iframeUrl: params.iframeUrl,
+      iframeElementId: TurnkeyIframeElementId,
+    });
+
+    return new TurnkeyIframeClient({
+      stamper: iframeStamper,
+      apiBaseUrl: this.config.apiBaseUrl,
+      organizationId: this.config.defaultOrganizationId,
+    });
+  };
+
   serverSign = async <TResponseType>(
     methodName: string,
     params: any[],
@@ -416,6 +467,12 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
     super(config);
     this.iframePublicKey = (config.stamper as IframeStamper).iframePublicKey;
   }
+
+  // Insert iframe into DOM
+  init = async (): Promise<string> => {
+    const stamper = this.config.stamper as IframeStamper;
+    return await stamper.init();
+  };
 
   // Allows the iframe to be cleared from the DOM
   clear = (): void => {

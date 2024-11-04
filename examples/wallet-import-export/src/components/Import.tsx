@@ -26,6 +26,15 @@ const styles = {
   resize: "none",
 };
 
+const iframeCss = `
+  iframe {
+    box-sizing: border-box;
+    width: 400px;
+    height: 180px;
+    border: none;
+  }
+`;
+
 export function Import(props: ImportProps) {
   const { importIframeClient } = useTurnkey();
   const [iframeDisplay, setIframeDisplay] = useState<string>("none");
@@ -45,6 +54,9 @@ export function Import(props: ImportProps) {
   if (importIframeClient) {
     useEffect(() => {
       (async () => {
+        const injected = await importIframeClient!.init();
+        console.log("injected", injected);
+
         const settingsApplied = await importIframeClient!.applySettings({
           styles,
         });
@@ -55,15 +67,6 @@ export function Import(props: ImportProps) {
       })();
     }, []);
   }
-
-  const iframeCss = `
-    iframe {
-      box-sizing: border-box;
-      width: 400px;
-      height: 180px;
-      border: none;
-    }
-    `;
 
   return (
     <div

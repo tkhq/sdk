@@ -125,8 +125,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         setAuthIframeClient(newAuthIframeClient);
 
         // Optionally include import iframe
+        // Should allow specification (config) of container / element ID
         if (importEnabled) {
-          const newImportIframeClient = await newTurnkey.iframeClient({
+          const newImportIframeClient = await newTurnkey.importIframeClient({
             iframeContainer: document.getElementById(
               TurnkeyImportIframeContainerId
             ),
@@ -138,7 +139,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
         // Optionally include export iframe
         if (exportEnabled) {
-          const newExportIframeClient = await newTurnkey.iframeClient({
+          const newExportIframeClient = await newTurnkey.exportIframeClient({
             iframeContainer: document.getElementById(
               TurnkeyExportIframeContainerId
             ),
@@ -168,7 +169,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         id={TurnkeyAuthIframeContainerId}
         style={{ display: "none" }}
       />
-      {importEnabled && (
+      {/* don't want to enable import/export iframes by default */}
+      {/* {importEnabled && (
         <div
           className=""
           id={TurnkeyImportIframeContainerId}
@@ -181,7 +183,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           id={TurnkeyExportIframeContainerId}
           style={{ display: "none" }}
         />
-      )}
+      )} */}
     </TurnkeyContext.Provider>
   );
 };
