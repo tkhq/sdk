@@ -3199,7 +3199,7 @@ export type TRemoveOrganizationFeatureBody =
 /**
  * Remove Organization Feature
  *
- * Removes an organization feature
+ * Removes an organization feature. This activity must be approved by the current root quorum.
  *
  * `POST /public/v1/submit/remove_organization_feature`
  */
@@ -3255,7 +3255,7 @@ export type TSetOrganizationFeatureBody =
 /**
  * Set Organization Feature
  *
- * Sets an organization feature
+ * Sets an organization feature. This activity must be approved by the current root quorum.
  *
  * `POST /public/v1/submit/set_organization_feature`
  */
@@ -3543,7 +3543,7 @@ export type TUpdateRootQuorumBody =
 /**
  * Update Root Quorum
  *
- * Set the threshold and members of the root quorum. This must be approved by the current root quorum.
+ * Set the threshold and members of the root quorum. This activity must be approved by the current root quorum.
  *
  * `POST /public/v1/submit/update_root_quorum`
  */

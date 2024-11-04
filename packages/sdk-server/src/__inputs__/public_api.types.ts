@@ -265,11 +265,11 @@ export type paths = {
     post: operations["PublicApiService_RejectActivity"];
   };
   "/public/v1/submit/remove_organization_feature": {
-    /** Removes an organization feature */
+    /** Removes an organization feature. This activity must be approved by the current root quorum. */
     post: operations["PublicApiService_RemoveOrganizationFeature"];
   };
   "/public/v1/submit/set_organization_feature": {
-    /** Sets an organization feature */
+    /** Sets an organization feature. This activity must be approved by the current root quorum. */
     post: operations["PublicApiService_SetOrganizationFeature"];
   };
   "/public/v1/submit/sign_raw_payload": {
@@ -293,7 +293,7 @@ export type paths = {
     post: operations["PublicApiService_UpdatePrivateKeyTag"];
   };
   "/public/v1/submit/update_root_quorum": {
-    /** Set the threshold and members of the root quorum. This must be approved by the current root quorum. */
+    /** Set the threshold and members of the root quorum. This activity must be approved by the current root quorum. */
     post: operations["PublicApiService_UpdateRootQuorum"];
   };
   "/public/v1/submit/update_user": {
@@ -578,7 +578,13 @@ export type definitions = {
     | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"
     | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"
     | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"
-    | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR";
+    | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"
+    | "ADDRESS_FORMAT_SEI"
+    | "ADDRESS_FORMAT_XLM"
+    | "ADDRESS_FORMAT_DOGE_MAINNET"
+    | "ADDRESS_FORMAT_DOGE_TESTNET"
+    | "ADDRESS_FORMAT_TON_V3R2"
+    | "ADDRESS_FORMAT_TON_V4R2";
   v1ApiKey: {
     /** @description A User credential that can be used to authenticate to Turnkey. */
     credential: definitions["externaldatav1Credential"];
@@ -3991,7 +3997,7 @@ export type operations = {
       };
     };
   };
-  /** Removes an organization feature */
+  /** Removes an organization feature. This activity must be approved by the current root quorum. */
   PublicApiService_RemoveOrganizationFeature: {
     parameters: {
       body: {
@@ -4009,7 +4015,7 @@ export type operations = {
       };
     };
   };
-  /** Sets an organization feature */
+  /** Sets an organization feature. This activity must be approved by the current root quorum. */
   PublicApiService_SetOrganizationFeature: {
     parameters: {
       body: {
@@ -4117,7 +4123,7 @@ export type operations = {
       };
     };
   };
-  /** Set the threshold and members of the root quorum. This must be approved by the current root quorum. */
+  /** Set the threshold and members of the root quorum. This activity must be approved by the current root quorum. */
   PublicApiService_UpdateRootQuorum: {
     parameters: {
       body: {
