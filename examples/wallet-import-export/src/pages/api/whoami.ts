@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { Turnkey } from "@turnkey/sdk-server";
 
 type GetWhoamiRequest = {
   organizationId: string;
@@ -22,19 +21,17 @@ export default async function getWallets(
   res: NextApiResponse<GetWhoamiResponse | ErrorMessage>
 ) {
   const getWhoamiRequest = req.body as GetWhoamiRequest;
-
-  const turnkeyClient = new TurnkeyClient(
-    { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
-    new ApiKeyStamper({
-      apiPublicKey: process.env.API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
-  );
+  const turnkeyClient = new Turnkey({
+    apiBaseUrl: "https://api.turnkey.com",
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+  });
 
   const organizationId = getWhoamiRequest.organizationId;
 
   try {
-    const whoamiResponse = await turnkeyClient.getWhoami({
+    const whoamiResponse = await turnkeyClient.apiClient().getWhoami({
       organizationId,
     });
 

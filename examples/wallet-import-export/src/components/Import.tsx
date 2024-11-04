@@ -10,6 +10,32 @@ interface ImportProps {
   setIframeStamper: Dispatch<SetStateAction<IframeStamper | null>>;
 }
 
+const styles = {
+  padding: "20px",
+  borderRadius: "8px",
+  borderWidth: "2px",
+  borderStyle: "solid",
+  borderColor: "#ff6961",
+  fontFamily: "monospace",
+  color: "#333",
+  width: "340px",
+  height: "100px",
+  backgroundColor: "#fff3f3",
+  boxShadow: "0px 0px 10px #aaa",
+  overflowWrap: "break-word",
+  wordWrap: "break-word",
+  resize: "none",
+};
+
+const iframeCss = `
+  iframe {
+    box-sizing: border-box;
+    width: 400px;
+    height: 180px;
+    border: none;
+  }
+`;
+
 const TurnkeyIframeContainerId = "turnkey-import-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-import-iframe-element-id";
 
@@ -43,22 +69,6 @@ export function Import(props: ImportProps) {
           return iframeStamper;
         })
         .then((iframeStamper: IframeStamper) => {
-          const styles = {
-            padding: "20px",
-            borderRadius: "8px",
-            borderWidth: "2px",
-            borderStyle: "solid",
-            borderColor: "#ff6961",
-            fontFamily: "monospace",
-            color: "#333",
-            width: "340px",
-            height: "100px",
-            backgroundColor: "#fff3f3",
-            boxShadow: "0px 0px 10px #aaa",
-            overflowWrap: "break-word",
-            wordWrap: "break-word",
-            resize: "none",
-          };
           return iframeStamper.applySettings({ styles });
         })
         .then((settingsApplied: boolean) => {
@@ -76,15 +86,6 @@ export function Import(props: ImportProps) {
       }
     };
   }, [props.setIframeStamper, iframeStamper, setIframeStamper]);
-
-  const iframeCss = `
-    iframe {
-      box-sizing: border-box;
-      width: 400px;
-      height: 180px;
-      border: none;
-    }
-    `;
 
   return (
     <div style={{ display: iframeDisplay }} id={TurnkeyIframeContainerId}>

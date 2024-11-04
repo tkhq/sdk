@@ -4,7 +4,10 @@ import { Dispatch, SetStateAction } from "react";
 import cx from "classnames";
 
 import styles from "../pages/index.module.css";
-import { TurnkeyApiTypes } from "@turnkey/http";
+
+// We can pull this import from @turnkey/sdk-browser, @turnkey/sdk-server, or @turnkey/http.
+// Electing to import from @turnkey/sdk-server as it's the only one we install for this example.
+import { TurnkeyApiTypes } from "@turnkey/sdk-server";
 
 type TWallet = TurnkeyApiTypes["v1Wallet"];
 
