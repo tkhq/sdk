@@ -421,13 +421,13 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
   clear = (): void => {
     const stamper = this.config.stamper as IframeStamper;
     return stamper.clear();
-  }
+  };
 
   // Enable iframe styling
   applySettings = async (settings: TIframeSettings): Promise<boolean> => {
     const stamper = this.config.stamper as IframeStamper;
     return await stamper.applySettings(settings);
-  }
+  };
 
   injectCredentialBundle = async (
     credentialBundle: string
