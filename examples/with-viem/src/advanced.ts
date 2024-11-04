@@ -16,23 +16,13 @@ import {
   type Account,
   toBlobs,
   parseGwei,
-  setupKzg,
   serializeTransaction,
-  Transaction,
-  TransactionEIP4844,
-  parseTransaction,
 } from "viem";
 import { sepolia } from "viem/chains";
 import { loadKZG } from "kzg-wasm";
-import * as cKzg from "c-kzg";
-
-import { mainnetTrustedSetupPath } from "viem/node";
-// import minimalTrustedSetup from 'viem/trusted-setups/minimal.json'
-// import mainnetTrustedSetup from 'viem/trusted-setups/mainnet.json'
 
 import { print, assertEqual } from "./util";
 import { createNewWallet } from "./createNewWallet";
-// import { assertTransactionEIP4844 } from "viem/_types/utils/transaction/assertTransaction";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -149,103 +139,33 @@ async function main() {
   print("Turnkey-powered signature - typed data (EIP-712):", `${signature}`);
   assertEqual(address, recoveredAddress);
 
-  // 3.5: sign standard tx
-  const regularSignedTx = await client.signTransaction({
-    to: TKHQ_WARCHEST,
-    gas: 21000n,
-    chain: sepolia,
-    maxFeePerGas: parseGwei("300"),
-  });
-
-  console.log("regularSignedTx", regularSignedTx);
-
-  const regularHash = await client.sendTransaction({
-    to: TKHQ_WARCHEST,
-    gas: 21000n,
-    chain: sepolia,
-    maxFeePerGas: parseGwei("300"),
-  });
-
-  console.log("regularHash", regularHash);
-
   // 4. Sign type-3 (EIP-4844/blob) transaction
   const kzg = await loadKZG();
-  // const kzgImplementation = await loadKZG();
-  // const kzg = {
-  //   ...kzgImplementation,
-  //   blobToKzgCommitment: kzgImplementation.blobToKZGCommitment,
-  //   computeBlobKzgProof: kzgImplementation.computeBlobKZGProof,
-  //   // ... add other required methods
-  // };
-
-  console.log("dirname", __dirname);
-
-  // const kzg = setupKzg(
-  //   cKzg,
-  //   path.resolve(__dirname, "trusted-setups/minimal.json")
-  // );
   const blobs = toBlobs({ data: stringToHex("hello my worldy") });
 
-  // console.log(
-  //   "serialized",
-  //   serializeTransaction({
-  //     // account: client.account,
-  //     blobs,
-  //     kzg: kzg,
-  //     maxFeePerBlobGas: parseGwei("300"),
-  //     to: TKHQ_WARCHEST,
-  //     gas: 21000n,
-  //     // chain: sepolia,
-  //     chainId: sepolia.id,
-  //   })
-  // );
-
+  // Note: this will write to your local filesystem. Useful for debugging.
   writeFileSync(
     "transaction.txt",
     serializeTransaction({
-      // account: client.account,
       blobs,
       kzg: kzg,
       maxFeePerBlobGas: parseGwei("100"),
       to: TKHQ_WARCHEST,
       gas: 21000n,
-      // chain: sepolia,
       chainId: sepolia.id,
     })
   );
 
-  console.log('parsed transaction', parseTransaction(serializeTransaction({
-    // account: client.account,
+  const hash = await client.sendTransaction({
     blobs,
     kzg: kzg,
     maxFeePerBlobGas: parseGwei("100"),
     to: TKHQ_WARCHEST,
     gas: 21000n,
-    // chain: sepolia,
-    chainId: sepolia.id,
-  })))
-
-  const signedTx = await client.signTransaction({
-    blobs,
-    kzg: kzg,
-    maxFeePerBlobGas: parseGwei("300"),
-    to: TKHQ_WARCHEST,
-    gas: 21000n,
     chain: sepolia,
   });
 
-  console.log("signed tx", signedTx);
-
-  const hash = await client.sendTransaction({
-    blobs,
-    kzg: kzg,
-    maxFeePerBlobGas: parseGwei("300"),
-    to: TKHQ_WARCHEST,
-    gas: 21000n,
-    chain: sepolia,
-  });
-
-  console.log("resulting hash", hash);
+  print("Transaction sent", `https://sepolia.etherscan.io/tx/${hash}`);
 }
 
 main().catch((error) => {
