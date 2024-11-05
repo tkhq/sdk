@@ -59,6 +59,7 @@
     "@turnkey/wallet-stamper": "workspace:*",
     "usehooks-ts": "^3.1.0",
     "@turnkey/sdk-server": "workspace:*",
+    "axios": "^1.7.7",
     "react-apple-login": "^1.1.6",
     "react-hook-form": "^7.45.1",
     "react-international-phone": "^4.3.0"

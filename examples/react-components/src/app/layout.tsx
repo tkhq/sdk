@@ -19,11 +19,9 @@ function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
     <body>
-    <div>
       <TurnkeyProvider config={turnkeyConfig}>
       {children}
       </TurnkeyProvider>
-    </div>
     </body>
     </html>
   );

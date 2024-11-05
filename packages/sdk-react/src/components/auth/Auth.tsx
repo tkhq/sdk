@@ -2,13 +2,9 @@ import styles from "./Auth.module.css";
 import { useEffect, useState } from "react";
 import { useTurnkey } from "../../hooks/useTurnkey";
 import type { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
-import { initOtpAuth } from "../../api/initOtpAuth";
-import { otpAuth } from "../../api/otpAuth";
-import { getSuborgs } from "../../api/getSuborgs";
+import { initOtpAuth, otpAuth, getSuborgs, createSuborg, oauth } from "../../actions/";
 import { MuiPhone } from "./PhoneInput";
 import OTPInput from "./OtpInput";
-import { createSuborg } from "../../api/createSuborg";
-import { oauth } from "../../api/oauth";
 import GoogleAuthButton from "./Google";
 import AppleAuthButton from "./Apple";
 
@@ -24,7 +20,7 @@ interface AuthProps {
   };
 }
 
-const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authConfig }) => {
+const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   const { passkeyClient, authIframeClient } = useTurnkey();
   const [error, setError] = useState<string | null>(null);
   const [otpError, setOtpError] = useState<string |null>(null);
@@ -53,10 +49,10 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
   
 
   const handleGetOrCreateSuborg = async (filterType: string, filterValue: string, additionalData = {}) => {
-    const getSuborgsResponse = await getSuborgs({ filterType, filterValue }, turnkeyClient);
+    const getSuborgsResponse = await getSuborgs({ filterType, filterValue });
     let suborgId = getSuborgsResponse!.organizationIds[0];
     if (!suborgId) {
-      const createSuborgResponse = await createSuborg({ [filterType.toLowerCase()]: filterValue, ...additionalData }, turnkeyClient);
+      const createSuborgResponse = await createSuborg({ [filterType.toLowerCase()]: filterValue, ...additionalData });
       suborgId = createSuborgResponse?.subOrganizationId!;
     }
     return suborgId;
@@ -72,7 +68,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
   const handleLoginWithPasskey = async () => {
 
     // Step 1: Try to retrieve the suborg by email
-    const getSuborgsResponse = await getSuborgs({ filterType: "EMAIL", filterValue: email }, turnkeyClient);
+    const getSuborgsResponse = await getSuborgs({ filterType: "EMAIL", filterValue: email });
     const existingSuborgId = getSuborgsResponse!.organizationIds[0];
   
     if (existingSuborgId) {
@@ -98,7 +94,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
         const createSuborgResponse = await createSuborg({
           email,
           passkey: { authenticatorName: "First Passkey", challenge: encodedChallenge, attestation },
-        }, turnkeyClient);
+        });
   
         const newSuborgId = createSuborgResponse?.subOrganizationId;
   
@@ -125,7 +121,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
 
   const handleOtpLogin = async (type: "EMAIL" | "PHONE_NUMBER", value: string, otpType: string) => {
     const suborgId = await handleGetOrCreateSuborg(type, value);
-    const initAuthResponse = await initOtpAuth({ suborgID: suborgId, otpType, contact: value }, turnkeyClient);
+    const initAuthResponse = await initOtpAuth({ suborgID: suborgId, otpType, contact: value });
     setSuborgId(suborgId);
     setOtpId(initAuthResponse!.otpId);
     setStep(type === "EMAIL" ? "otpEmail" : "otpPhone");
@@ -133,8 +129,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
 
   const handleEnterOtp = async (otp: string) => {
     const authResponse = await otpAuth(
-      { suborgID: suborgId, otpId: otpId!, otpCode: otp, targetPublicKey: authIframeClient!.iframePublicKey! },
-      turnkeyClient
+      { suborgID: suborgId, otpId: otpId!, otpCode: otp, targetPublicKey: authIframeClient!.iframePublicKey! }
     );
     authResponse?.credentialBundle ? await handleAuthSuccess(authResponse.credentialBundle) : setOtpError("Invalid code, please try again");
   };
@@ -153,7 +148,7 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
 
   const handleOAuthLogin = async (credential: string, providerName: string) => {
     const suborgId = await handleGetOrCreateSuborg("OIDC_TOKEN", credential, { oauthProviders: [{ providerName, oidcToken: credential }] });
-    const oauthResponse = await oauth({ suborgID: suborgId, oidcToken: credential, targetPublicKey: authIframeClient?.iframePublicKey! }, turnkeyClient);
+    const oauthResponse = await oauth({ suborgID: suborgId, oidcToken: credential, targetPublicKey: authIframeClient?.iframePublicKey! });
     await handleAuthSuccess(oauthResponse!.credentialBundle);
   };
 
@@ -268,13 +263,13 @@ const Auth: React.FC<AuthProps> = ({ turnkeyClient, onHandleAuthSuccess, authCon
 )}
 
 
-{!otpId && authConfig.appleEnabled && authIframeClient && (
+{/* {!otpId && authConfig.appleEnabled && authIframeClient && (
   <div className={styles.authButton}>
     <div className={styles.appleButtonContainer}>
     <AppleAuthButton iframePublicKey={authIframeClient.iframePublicKey!} clientId = "" redirectURI="" onSuccess={handleAppleLogin} />
     </div>
   </div>
-)}
+)} */}
 
 <div className={styles.tos}>
   {!otpId ? (
