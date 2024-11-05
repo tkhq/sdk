@@ -1,4 +1,6 @@
-import type { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
+'use server'
+
+import { Turnkey } from "@turnkey/sdk-server";
 
 type GetSuborgsRequest = {
   filterValue: string;
@@ -11,18 +13,19 @@ type GetSuborgsResponse = {
 
 export async function getSuborgs(
   request: GetSuborgsRequest,
-  turnkeyClient: TurnkeySDKClient
 ): Promise<GetSuborgsResponse | undefined> {
-
+  const turnkeyClient = new Turnkey({
+    apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+    defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+    apiPrivateKey: process.env.TURNKEY_API_PRIVATE_KEY!, // DO NOT EXPOSE THESE TO YOUR CLIENT SIDE CODE
+    apiPublicKey:  process.env.TURNKEY_API_PUBLIC_KEY!, // DO NOT EXPOSE THESE TO YOUR CLIENT SIDE CODE
+  })
   try {
-    console.log("1")
     const response = await turnkeyClient.apiClient().getSubOrgIds({
       organizationId: turnkeyClient.config.defaultOrganizationId,
       filterType: request.filterType,
       filterValue: request.filterValue,
     });
-    console.log("2")
-    console.log(response)
     if (!response || !response.organizationIds) {
       throw new Error("Expected a non-null response with organizationIds.");
     }

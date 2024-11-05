@@ -2,11 +2,11 @@ import typescript from "@rollup/plugin-typescript";
 import nodeExternals from "rollup-plugin-node-externals";
 import path from "node:path";
 import postcss from 'rollup-plugin-postcss';
+import preserveDirectives from 'rollup-plugin-preserve-directives';
 
 const getFormatConfig = (format) => {
   const pkgPath = path.join(process.cwd(), "package.json");
 
-  /** @type {import('rollup').RollupOptions} */
   return {
     input: 'src/index.ts',
     output: {
@@ -19,8 +19,8 @@ const getFormatConfig = (format) => {
     plugins: [
       postcss({
         modules: true,
-        extensions: ['.css', '.scss'], 
-        use: ['sass'], 
+        extensions: ['.css', '.scss'],
+        use: ['sass'],
         extract: `styles.${format}.css`,
         minimize: true,
         sourceMap: true,
@@ -35,6 +35,8 @@ const getFormatConfig = (format) => {
           sourceMap: true,
         },
       }),
+      // Add the preserveDirectives plugin after typescript
+      preserveDirectives(),
       nodeExternals({
         packagePath: pkgPath,
         builtinsPrefix: 'ignore',
