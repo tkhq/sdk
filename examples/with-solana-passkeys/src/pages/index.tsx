@@ -12,15 +12,15 @@ import { useTurnkey } from "@turnkey/sdk-react";
 import { TurnkeySigner } from "@turnkey/solana";
 import { broadcast, connect } from "@/utils";
 
-type subOrgFormData = {
+type TSubOrgFormData = {
   subOrgName: string;
 };
 
-type signMessageFormData = {
+type TSignMessageFormData = {
   messageToSign: string;
 };
 
-type signTransactionFormData = {
+type TSignTransactionFormData = {
   destinationAddress: string;
   amount: string;
 };
@@ -51,15 +51,15 @@ export default function Home() {
     null
   );
 
-  const { handleSubmit: subOrgFormSubmit } = useForm<subOrgFormData>();
+  const { handleSubmit: subOrgFormSubmit } = useForm<TSubOrgFormData>();
   const {
     register: signMessageFormRegister,
     handleSubmit: signMessageFormSubmit,
-  } = useForm<signMessageFormData>();
+  } = useForm<TSignMessageFormData>();
   const {
     register: signTransactionFormRegister,
     handleSubmit: signTransactionFormSubmit,
-  } = useForm<signTransactionFormData>({
+  } = useForm<TSignTransactionFormData>({
     defaultValues: {
       destinationAddress: "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C",
     },
@@ -76,7 +76,7 @@ export default function Home() {
     })();
   });
 
-  const signMessage = async (data: signMessageFormData) => {
+  const signMessage = async (data: TSignMessageFormData) => {
     if (!wallet) {
       throw new Error("wallet not found");
     }
@@ -105,7 +105,7 @@ export default function Home() {
     });
   };
 
-  const signTransaction = async (data: signTransactionFormData) => {
+  const signTransaction = async (data: TSignTransactionFormData) => {
     if (!wallet) {
       throw new Error("wallet not found");
     }
@@ -278,7 +278,7 @@ export default function Home() {
         <div>
           <h2>Create a new wallet</h2>
           <p className={styles.explainer}>
-            We&apos;ll prompt your browser to create a new passkey. The details
+            {"We'll"} prompt your browser to create a new passkey. The details
             (credential ID, authenticator data, client data, attestation) will
             be used to create a new{" "}
             <a
@@ -338,9 +338,9 @@ export default function Home() {
       )}
       {wallet && (
         <div>
-          <h2>Now let&apos;s sign a message!</h2>
+          <h2>Now {"let's"} sign a message!</h2>
           <p className={styles.explainer}>
-            We&apos;ll use a{" "}
+            {"We'll"} use a{" "}
             <a
               href="https://solana.com/docs/clients/javascript"
               target="_blank"
@@ -377,7 +377,7 @@ export default function Home() {
       )}
       {wallet && (
         <div>
-          <h2>... and now let&apos;s sign a transaction!</h2>
+          <h2>... and now {"let's"} sign a transaction!</h2>
           <form
             className={styles.form}
             onSubmit={signTransactionFormSubmit(signTransaction)}
