@@ -1,3 +1,5 @@
+"use client";
+
 import { ReactNode, createContext, useState, useEffect, useRef } from "react";
 import {
   Turnkey,
@@ -112,6 +114,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const newTurnkey = new Turnkey(config);
         setTurnkey(newTurnkey);
         setPasskeyClient(newTurnkey.passkeyClient());
+
         if (config.wallet) {
           setWalletClient(await newTurnkey.walletClient(config.wallet));
         }

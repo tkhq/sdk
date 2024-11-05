@@ -1,9 +1,7 @@
-import "dotenv/config";
-
-import { WalletStamper } from "..";
+import { EthereumWallet, WalletStamper } from "..";
 import { TurnkeyClient } from "@turnkey/http";
 
-import { MockEvmWallet, MockSolanaWallet } from "./wallet-interfaces";
+import { MockSolanaWallet } from "./wallet-interfaces";
 import type { UUID } from "crypto";
 
 // Import necessary Jest functions
@@ -17,8 +15,10 @@ declare global {
     }
   }
 }
+import { setupEthereumMock } from "./utils";
+import { BASE_URL, ORGANIZATION_ID } from "./constants";
 
-const { ORGANIZATION_ID, BASE_URL } = process.env;
+setupEthereumMock();
 
 // Wrap the existing function in a Jest test block
 describe("Wallet stamper tests", () => {
@@ -36,16 +36,28 @@ describe("Wallet stamper tests", () => {
     expect(wallets?.length).toBeGreaterThan(0);
   });
   it("Ethereum Wallet - Should list wallets using wallet to stamp the request", async () => {
-    const mockWallet = new MockEvmWallet();
-    const walletStamper = new WalletStamper(mockWallet);
-
-    const client = new TurnkeyClient({ baseUrl: BASE_URL }, walletStamper);
+    const evmWallet = new EthereumWallet();
+    const stamper = new WalletStamper(evmWallet);
+    const client = new TurnkeyClient({ baseUrl: BASE_URL }, stamper);
 
     const { wallets } =
       (await client.getWallets({
-        organizationId: "704020e2-5b59-44a9-a78f-b74aecc67504",
+        organizationId: ORGANIZATION_ID,
       })) ?? {};
 
     expect(wallets?.length).toBeGreaterThan(0);
+  });
+  it("Ethereum Wallet - Should list wallets using wallet to stamp the request", async () => {
+    const evmWallet = new EthereumWallet();
+    const stamper = new WalletStamper(evmWallet);
+    const client = new TurnkeyClient({ baseUrl: BASE_URL }, stamper);
+
+    const session = await client.createReadOnlySession({
+      organizationId: ORGANIZATION_ID,
+      type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION",
+      timestampMs: Date.now().toString(),
+      parameters: {},
+    });
+    expect(session).toBeDefined();
   });
 });

@@ -11,7 +11,7 @@ import type {
   TurnkeySDKBrowserConfig,
   IframeClientParams,
   TurnkeyWalletClientConfig,
-  SessionResponse,
+  TSessionResponse,
 } from "./__types__/base";
 import { AuthClient } from "./__types__/base";
 import { TurnkeyRequestError } from "./__types__/base";
@@ -273,7 +273,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
     userId,
     username,
     ...sessionResponse
-  }: SessionResponse) {
+  }: TSessionResponse) {
     if (!this.authClient) {
       throw new Error("Failed to save session: Authentication client not set");
     }

@@ -23,6 +23,7 @@ export interface TStamper {
  * @property {function(): Promise<string>} getPublicKey - Retrieves the public key as a string.
  */
 export interface BaseWalletInterface {
+  type: WalletType.Ethereum | WalletType.Solana;
   signMessage: (message: string) => Promise<string>;
   getPublicKey: () => Promise<string>;
 }
@@ -35,7 +36,7 @@ export interface BaseWalletInterface {
  * @property {'solana'} type - The type of the wallet.
  */
 export interface SolanaWalletInterface extends BaseWalletInterface {
-  type: "solana";
+  type: WalletType.Solana;
 }
 
 /**
@@ -50,7 +51,7 @@ export interface SolanaWalletInterface extends BaseWalletInterface {
  * @property {'evm'} type - The type of the wallet.
  */
 export interface EvmWalletInterface extends BaseWalletInterface {
-  type: "evm";
+  type: WalletType.Ethereum;
 }
 
 /**

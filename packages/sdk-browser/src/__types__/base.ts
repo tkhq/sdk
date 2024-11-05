@@ -121,7 +121,7 @@ export enum AuthClient {
   Iframe = "iframe",
 }
 
-export type SessionResponse = Omit<
+export type TSessionResponse = Omit<
   SdkApiTypes.TCreateReadOnlySessionResponse,
   "activity" | "session" | "sessionExpiry"
 > & {
