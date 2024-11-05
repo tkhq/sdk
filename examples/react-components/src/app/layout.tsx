@@ -1,5 +1,5 @@
-import { AppProps } from "next/app";
-import Head from "next/head";
+"use client"
+
 import '@turnkey/sdk-react/styles';
 import { TurnkeyProvider } from "@turnkey/sdk-react";
 
@@ -11,17 +11,22 @@ const turnkeyConfig = {
     process.env.NEXT_PUBLIC_AUTH_IFRAME_URL ?? "https://auth.turnkey.com",
 };
 
-function Oauth({ Component, pageProps }: AppProps) {
+interface RootLayoutProps {
+  children: React.ReactNode
+}
+
+function RootLayout({ children }: RootLayoutProps) {
   return (
+    <html lang="en" suppressHydrationWarning>
+    <body>
     <div>
       <TurnkeyProvider config={turnkeyConfig}>
-        <Head>
-          <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        </Head>
-        <Component {...pageProps} />
+      {children}
       </TurnkeyProvider>
     </div>
+    </body>
+    </html>
   );
 }
 
-export default Oauth;
+export default RootLayout;

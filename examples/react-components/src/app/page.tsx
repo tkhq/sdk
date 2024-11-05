@@ -1,7 +1,9 @@
+"use client"
+
 import styles from "./index.module.css";
 import * as React from "react";
 import { useState } from "react";
-import { useTurnkey, Auth } from "@turnkey/sdk-react";
+import { useTurnkey, Auth, AuthServerWrapper } from "@turnkey/sdk-react";
 import { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
 import { Switch, Typography, IconButton } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -21,17 +23,19 @@ interface Config {
   socials: SocialConfig;
 }
 
-export default function AuthPage() {
+interface AuthPageProps {
+  turnkeyClientConfig: {
+    apiBaseUrl: string;
+    defaultOrganizationId: string;
+    apiPublicKey: string;
+    apiPrivateKey: string;
+  };
+}
+
+export default function AuthPage({turnkeyClientConfig}: AuthPageProps) {
   const { authIframeClient } = useTurnkey();
   const [orgData, setOrgData] = useState<any>();
-
-  const turnkeyClient = new TurnkeySDKClient({
-    apiBaseUrl: "https://api.preprod.turnkey.engineering",
-    apiPublicKey: "03352f813eadd3efa85a2dad1a0c39391e5544de074665f3986185c92566b39885",
-    apiPrivateKey: "954aa8fdef994a555952f1ee1ea4fb554cb422e5fc896939412a954c4e87c603",
-    defaultOrganizationId: "51fb75bf-c044-4f9f-903b-4fba6bfedab9",
-  });
-
+  
   const handleAuthSuccess = async () => {
     const whoamiResponse = await authIframeClient!.getWhoami({
       organizationId: "51fb75bf-c044-4f9f-903b-4fba6bfedab9",
@@ -106,6 +110,9 @@ export default function AuthPage() {
       phoneEnabled: config.phone,
       appleEnabled: config.socials.apple,
       googleEnabled: config.socials.google,
+      googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+      appleClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!,
+      appleRedirectURI: process.env.NEXT_PUBLIC_APPLE_REDIRECT_URI!
     };
     navigator.clipboard.writeText(JSON.stringify(authConfig, null, 2));
     alert('Auth config copied to clipboard!');
@@ -117,6 +124,9 @@ export default function AuthPage() {
     phoneEnabled: config.phone,
     appleEnabled: config.socials.apple,
     googleEnabled: config.socials.google,
+    googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+    appleClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!,
+    appleRedirectURI: process.env.NEXT_PUBLIC_APPLE_REDIRECT_URI!
   };
 
   return (
@@ -252,9 +262,10 @@ export default function AuthPage() {
 :
       <div className={styles.authComponent}>
         
-        <Auth turnkeyClient={turnkeyClient} authConfig={authConfig} onHandleAuthSuccess={handleAuthSuccess} />
+        <AuthServerWrapper authConfig={authConfig} onHandleAuthSuccess={handleAuthSuccess} />
       </div>
 }
     </main>
   );
 }
+

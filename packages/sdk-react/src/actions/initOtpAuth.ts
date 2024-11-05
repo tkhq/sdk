@@ -1,4 +1,4 @@
-import type {Turnkey as TurnkeySDKClient}  from "@turnkey/sdk-server";
+import type { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
 
 type InitOtpAuthRequest = {
   suborgID: string;
