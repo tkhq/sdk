@@ -1796,9 +1796,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.13.0
         version: 11.13.0(@emotion/react@11.13.3)(@types/react@18.2.75)(react@18.2.0)
-      '@greatsumini/react-facebook-login':
-        specifier: ^3.3.3
-        version: 3.3.3(react@18.2.0)
+      '@icons-pack/react-simple-icons':
+        specifier: ^10.1.0
+        version: 10.1.0(react@18.2.0)
       '@mui/icons-material':
         specifier: ^6.1.5
         version: 6.1.5(@mui/material@6.1.5)(@types/react@18.2.75)(react@18.2.0)
@@ -1826,12 +1826,15 @@ importers:
       react-apple-login:
         specifier: ^1.1.6
         version: 1.1.6(prop-types@15.8.1)(react-dom@18.3.1)(react@18.2.0)
-      react-hook-form:
-        specifier: ^7.45.1
-        version: 7.45.1(react@18.2.0)
       react-international-phone:
         specifier: ^4.3.0
         version: 4.3.0(react@18.2.0)
+      react-social-login-buttons:
+        specifier: ^4.1.0
+        version: 4.1.0(react@18.2.0)
+      reactjs-social-login:
+        specifier: ^2.6.3
+        version: 2.6.3(react-dom@18.3.1)(react@18.2.0)
       usehooks-ts:
         specifier: ^3.1.0
         version: 3.1.0(react@18.2.0)
@@ -6070,14 +6073,6 @@ packages:
       semver: 7.5.4
     dev: false
 
-  /@greatsumini/react-facebook-login@3.3.3(react@18.2.0):
-    resolution: {integrity: sha512-Y5D7EncR3iy/X/OfWwjjpM5OW0XV6PCE08RZUV/yhAE413PEBIlML7S6z69BcpUPWO5XzEt7cytHChUdwXO4Dw==}
-    peerDependencies:
-      react: ^16.0.0 || ^17.0.0 || ^18.0.0
-    dependencies:
-      react: 18.2.0
-    dev: false
-
   /@hapi/hoek@9.3.0:
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
     dev: false
@@ -6105,6 +6100,14 @@ packages:
   /@humanwhocodes/object-schema@1.2.1:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     deprecated: Use @eslint/object-schema instead
+
+  /@icons-pack/react-simple-icons@10.1.0(react@18.2.0):
+    resolution: {integrity: sha512-sZ2oDkYaVAci7GuNL8okERJn4Ej0INbeCwtIDVuwWfO5zILW7j5frvKQbozTB+fLtZqEwAP9KkNp7oR8WeHaIg==}
+    peerDependencies:
+      react: ^16.13 || ^17 || ^18
+    dependencies:
+      react: 18.2.0
+    dev: false
 
   /@inquirer/checkbox@1.5.2:
     resolution: {integrity: sha512-CifrkgQjDkUkWexmgYYNyB5603HhTHI91vLFeQXh6qrTKiCMVASol01Rs1cv6LP/A2WccZSRlJKZhbaBIs/9ZA==}
@@ -19596,8 +19599,8 @@ packages:
       react: 18.3.1
     dev: false
 
-  /magic-string@0.30.12:
-    resolution: {integrity: sha512-Ea8I3sQMVXr8JhN4z+H/d8zwo+tYDgHE9+5G4Wnrwhs0gaK9fXTKx0Tw5Xwsd/bCPTTZNRAdpyzvoeORe9LYpw==}
+  /magic-string@0.30.14:
+    resolution: {integrity: sha512-5c99P1WKTed11ZC0HMJOj6CDIue6F8ySu+bJL+85q1zBEIY8IklrJ1eiKC2NDRh3Ct3FcvmJPyQHb9erXMTJNw==}
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
 
@@ -22021,6 +22024,14 @@ packages:
       react-is: 18.3.1
     dev: false
 
+  /react-social-login-buttons@4.1.0(react@18.2.0):
+    resolution: {integrity: sha512-PoZKH6h3eKGgcviFC5Sh50QDVQ5KhFf7MrPTFBU/wwPNn0DVNEb5km+T7z83+CiM24Z8qV/H82wHZ4OE6gcawQ==}
+    peerDependencies:
+      react: ^16.0.0 || ^17.x || ^18.x
+    dependencies:
+      react: 18.2.0
+    dev: false
+
   /react-style-singleton@2.2.1(@types/react@18.2.14)(react@18.2.0):
     resolution: {integrity: sha512-ZWj0fHEMyWkHzKYUr2Bs/4zU6XLmq9HsgBURm7g5pAVfyn49DgUiNgY2d4lXRlYSiCif9YBGpQleewkcqddc7g==}
     engines: {node: '>=10'}
@@ -22103,6 +22114,17 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
+    dev: false
+
+  /reactjs-social-login@2.6.3(react-dom@18.3.1)(react@18.2.0):
+    resolution: {integrity: sha512-i/pcyJPtlVpHoPRr/j5/KjaP/GNxAInnnHDk0PD2Zo0B3cMdvr0ZiGC/GMjOKAAgKCujyniDf/OiZ7c6MrOLQg==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: ^16 || ^17 || ^18
+      react-dom: ^16 || ^17 || ^18
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.3.1(react@18.2.0)
     dev: false
 
   /read-cache@1.0.0:
@@ -22508,7 +22530,7 @@ packages:
       rollup: 2.x || 3.x || 4.x
     dependencies:
       '@rollup/pluginutils': 5.1.3(rollup@4.22.4)
-      magic-string: 0.30.12
+      magic-string: 0.30.14
       rollup: 4.22.4
     dev: true
 
@@ -22523,7 +22545,7 @@ packages:
     peerDependencies:
       rollup: ^2.0.0 || ^3.0.0 || ^4.0.0
     dependencies:
-      magic-string: 0.30.12
+      magic-string: 0.30.14
       rollup: 4.22.4
     dev: false
 

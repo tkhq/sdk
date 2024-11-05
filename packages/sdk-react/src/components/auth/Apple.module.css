@@ -1,0 +1,25 @@
+.appleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px 16px;
+  color: #000000;
+  font-size: 14px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  border: 1px solid #f2f2f2;
+  transition: background-color 0.3s ease;
+}
+
+.appleButton:hover {
+  background-color: #f2f2f2;
+}
+
+.buttonText {
+  flex-grow: 1;
+  text-align: center;
+  font-family: "Inter", sans-serif;
+}

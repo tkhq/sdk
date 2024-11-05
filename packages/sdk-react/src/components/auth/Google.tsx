@@ -15,8 +15,20 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({ iframePublicKey, on
         nonce={bytesToHex(sha256(iframePublicKey))}
         onSuccess={onSuccess}
         useOneTap
+        width={235}
+        containerProps={{
+          style: {
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            borderRadius: '8px',
+            padding: '10px',
+            cursor: 'pointer',
+            maxWidth: '235px',
+          },
+        }}
         auto_select={false}
-        text="signin_with"
+        text="continue_with"
         ux_mode="popup"
       />
     </GoogleOAuthProvider>
