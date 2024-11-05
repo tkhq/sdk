@@ -1,6 +1,8 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
 
+import { writeFileSync } from "fs";
+
 import { createAccount } from "@turnkey/viem";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
@@ -12,13 +14,20 @@ import {
   stringToHex,
   hexToBytes,
   type Account,
+  toBlobs,
+  parseGwei,
+  serializeTransaction,
 } from "viem";
 import { sepolia } from "viem/chains";
+import { loadKZG } from "kzg-wasm";
+
 import { print, assertEqual } from "./util";
 import { createNewWallet } from "./createNewWallet";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+
+const TKHQ_WARCHEST = "0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7";
 
 async function main() {
   if (!process.env.SIGN_WITH) {
@@ -129,6 +138,34 @@ async function main() {
 
   print("Turnkey-powered signature - typed data (EIP-712):", `${signature}`);
   assertEqual(address, recoveredAddress);
+
+  // 4. Sign type-3 (EIP-4844/blob) transaction
+  const kzg = await loadKZG();
+  const blobs = toBlobs({ data: stringToHex("hello my worldy") });
+
+  // Note: this will write to your local filesystem. Useful for debugging.
+  writeFileSync(
+    "transaction.txt",
+    serializeTransaction({
+      blobs,
+      kzg: kzg,
+      maxFeePerBlobGas: parseGwei("100"),
+      to: TKHQ_WARCHEST,
+      gas: 21000n,
+      chainId: sepolia.id,
+    })
+  );
+
+  const hash = await client.sendTransaction({
+    blobs,
+    kzg: kzg,
+    maxFeePerBlobGas: parseGwei("100"),
+    to: TKHQ_WARCHEST,
+    gas: 21000n,
+    chain: sepolia,
+  });
+
+  print("Transaction sent", `https://sepolia.etherscan.io/tx/${hash}`);
 }
 
 main().catch((error) => {

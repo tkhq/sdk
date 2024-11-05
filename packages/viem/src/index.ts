@@ -100,7 +100,10 @@ export function createAccountWithAddress(input: {
     });
   }
 
-  return toAccount({
+  return {
+    type: "local",
+    publicKey: "0x", // leaving this blank for now
+    source: "custom",
     address: ethereumAddress as Hex,
     signMessage: function ({
       message,
@@ -113,13 +116,13 @@ export function createAccountWithAddress(input: {
       TTransactionSerializable extends TransactionSerializable
     >(
       transaction: TTransactionSerializable,
-      args?:
-        | { serializer?: SerializeTransactionFn<TTransactionSerializable> }
-        | undefined
+      options?: {
+        serializer?: SerializeTransactionFn | undefined; // TODO: use exactOptionalPropertyTypes instead
+      }
     ): Promise<Hex> {
-      const serializer = !args?.serializer
+      const serializer = !options?.serializer
         ? serializeTransaction
-        : args.serializer;
+        : options.serializer;
 
       return signTransaction(
         client,
@@ -134,7 +137,7 @@ export function createAccountWithAddress(input: {
     ): Promise<Hex> {
       return signTypedData(client, typedData, organizationId, signWith);
     },
-  });
+  };
 }
 
 export async function createAccount(input: {
@@ -263,13 +266,13 @@ export async function createApiKeyAccount(
       TTransactionSerializable extends TransactionSerializable
     >(
       transaction: TTransactionSerializable,
-      args?:
-        | { serializer?: SerializeTransactionFn<TTransactionSerializable> }
-        | undefined
+      options?: {
+        serializer?: SerializeTransactionFn | undefined; // TODO: use exactOptionalPropertyTypes instead
+      }
     ): Promise<Hex> {
-      const serializer = !args?.serializer
+      const serializer = !options?.serializer
         ? serializeTransaction
-        : args.serializer;
+        : options.serializer;
 
       return signTransaction(
         client,
