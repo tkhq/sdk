@@ -3,12 +3,14 @@ import { TextField, Box } from "@mui/material";
 
 interface OTPInputProps {
   onComplete: (otp: string) => void;
+  onChange: () => void;
 }
 
-const OTPInput: React.FC<OTPInputProps> = ({ onComplete }) => {
+const OTPInput: React.FC<OTPInputProps> = ({ onComplete, onChange }) => {
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
 
   const handleChange = (value: string, index: number) => {
+    onChange()
     if (/^\d*$/.test(value)) {
       const newOtp = [...otp];
       newOtp[index] = value;

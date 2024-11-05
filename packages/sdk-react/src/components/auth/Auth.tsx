@@ -7,6 +7,7 @@ import { MuiPhone } from "./PhoneInput";
 import OTPInput from "./OtpInput";
 import GoogleAuthButton from "./Google";
 import AppleAuthButton from "./Apple";
+import FacebookAuthButton from "./Facebook";
 
 interface AuthProps {
   turnkeyClient: TurnkeySDKClient;
@@ -16,6 +17,7 @@ interface AuthProps {
     passkeyEnabled: boolean;
     phoneEnabled: boolean;
     appleEnabled: boolean;
+    facebookEnabled: boolean;
     googleEnabled: boolean;
   };
 }
@@ -127,7 +129,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
     setStep(type === "EMAIL" ? "otpEmail" : "otpPhone");
   };
 
-  const handleEnterOtp = async (otp: string) => {
+  const handleValidateOtp = async (otp: string) => {
     const authResponse = await otpAuth(
       { suborgID: suborgId, otpId: otpId!, otpCode: otp, targetPublicKey: authIframeClient!.iframePublicKey! }
     );
@@ -198,7 +200,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
           </button>
                     </div>
         )}
-{!otpId && (authConfig.passkeyEnabled || authConfig.emailEnabled) && (authConfig.googleEnabled || authConfig.appleEnabled || authConfig.phoneEnabled) &&
+{!otpId && (authConfig.passkeyEnabled || authConfig.emailEnabled) && (authConfig.googleEnabled || authConfig.appleEnabled || authConfig.facebookEnabled || authConfig.phoneEnabled) &&
 <div className={styles.separator}>
                       <span>OR</span>
                     </div>
@@ -239,7 +241,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
               We've sent a verification code to{" "}
               <div className = {styles.verificationBold}>{step === "otpEmail" ? email : phone}</div>
             </span>
-            <OTPInput onComplete={handleEnterOtp} />
+            <OTPInput onChange = {() => setOtpError(null)} onComplete={handleValidateOtp} />
           </div>
           
         )}
@@ -247,29 +249,37 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
               <div className={styles.errorText}>{otpError}</div>
             )}
       </div>
-      {!otpId && (authConfig.googleEnabled || authConfig.appleEnabled)  && authConfig.phoneEnabled &&
+      {!otpId && (authConfig.googleEnabled || authConfig.appleEnabled || authConfig.facebookEnabled)  && authConfig.phoneEnabled &&
 
       <div className={styles.separator}>
               <span>OR</span>
             </div>
 }
-{!otpId && authConfig.googleEnabled && authIframeClient && (
-  <div className={styles.authButton}>
-    <div className={styles.socialButtonContainer}>
 
-    <GoogleAuthButton clientId = "" iframePublicKey={authIframeClient.iframePublicKey!} onSuccess={handleGoogleLogin} />
+{!otpId && authConfig.googleEnabled && authIframeClient && (
+  <div className = {styles.authButton}>
+    <div className={styles.socialButtonContainer}>
+    <GoogleAuthButton clientId = {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!} iframePublicKey={authIframeClient.iframePublicKey!} onSuccess={handleGoogleLogin} />
     </div>
+    </div>
+)}
+
+{!otpId && authConfig.appleEnabled && authIframeClient && (
+    <div className = {styles.authButton}>
+    <div className={styles.socialButtonContainer}>
+    <AppleAuthButton  clientId = {process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!} redirectURI = {window.location.href} iframePublicKey={authIframeClient.iframePublicKey!} onSuccess={handleAppleLogin} />
+  </div>
   </div>
 )}
 
 
-{/* {!otpId && authConfig.appleEnabled && authIframeClient && (
-  <div className={styles.authButton}>
-    <div className={styles.appleButtonContainer}>
-    <AppleAuthButton iframePublicKey={authIframeClient.iframePublicKey!} clientId = "" redirectURI="" onSuccess={handleAppleLogin} />
-    </div>
+{!otpId && authConfig.facebookEnabled && authIframeClient && (
+    <div className = {styles.authButton}>
+    <div className={styles.socialButtonContainer}>
+    <FacebookAuthButton clientId = {process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!} redirectURI = {window.location.href} authAPIVersion={process.env.NEXT_PUBLIC_FACEBOOK_AUTH_VERSION!}iframePublicKey={authIframeClient.iframePublicKey!} onSuccess={handleAppleLogin} />
   </div>
-)} */}
+  </div>
+)}
 
 <div className={styles.tos}>
   {!otpId ? (

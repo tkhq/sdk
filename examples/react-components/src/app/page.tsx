@@ -13,6 +13,7 @@ interface SocialConfig {
   enabled: boolean;
   google: boolean;
   apple: boolean;
+  facebook: boolean;
 }
 
 interface Config {
@@ -51,6 +52,7 @@ export default function AuthPage({turnkeyClientConfig}: AuthPageProps) {
       enabled: true,
       google: true,
       apple: true,
+      facebook: true,
     },
   });
 
@@ -84,6 +86,7 @@ export default function AuthPage({turnkeyClientConfig}: AuthPageProps) {
             enabled: isEnabled,
             google: isEnabled,
             apple: isEnabled,
+            facebook: isEnabled,
           },
         };
       }
@@ -109,9 +112,7 @@ export default function AuthPage({turnkeyClientConfig}: AuthPageProps) {
       phoneEnabled: config.phone,
       appleEnabled: config.socials.apple,
       googleEnabled: config.socials.google,
-      googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
-      appleClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!,
-      appleRedirectURI: process.env.NEXT_PUBLIC_APPLE_REDIRECT_URI!
+      facebookEnabled: config.socials.facebook,
     };
     navigator.clipboard.writeText(JSON.stringify(authConfig, null, 2));
     alert('Auth config copied to clipboard!');
@@ -123,9 +124,7 @@ export default function AuthPage({turnkeyClientConfig}: AuthPageProps) {
     phoneEnabled: config.phone,
     appleEnabled: config.socials.apple,
     googleEnabled: config.socials.google,
-    googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
-    appleClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!,
-    appleRedirectURI: process.env.NEXT_PUBLIC_APPLE_REDIRECT_URI!
+    facebookEnabled: config.socials.facebook
   };
 
   return (
@@ -228,6 +227,20 @@ export default function AuthPage({turnkeyClientConfig}: AuthPageProps) {
                     opacity: 1,
                   },
                 }} checked={config.socials.apple} onChange={() => toggleSocials('apple')} />
+              </div>
+              <div className={styles.toggleRow}>
+                <div className={styles.labelContainer}>
+                  <Typography>Facebook</Typography>
+                </div>
+                <Switch sx={{
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    color: 'white',
+                  },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    backgroundColor: 'var(--Greyscale-900, #2b2f33)',
+                    opacity: 1,
+                  },
+                }} checked={config.socials.facebook} onChange={() => toggleSocials('facebook')} />
               </div>
             </>
           )}

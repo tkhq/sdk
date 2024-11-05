@@ -151,7 +151,6 @@ color: var(--Greyscale-600, #6C727E);
   font-weight: 700;
   cursor: pointer;
 }
-/* Auth Button Styles */
 
 .authButton {
   display: flex;
@@ -160,40 +159,21 @@ color: var(--Greyscale-600, #6C727E);
   margin-bottom: 12px;
 }
 
-.appleButtonContainer {
-  width: 100%;
-  max-width: 180px; /* Optional max-width */
-  height: 40px; /* Adjust height as desired */
+.authButton {
   display: flex;
-  cursor: pointer;
   justify-content: center;
-}
-
-.google,
-.facebook,
-.apple {
-  display: block;
   width: 100%;
-  padding: 12px;
-  font-size: 1rem;
-  margin-top: 8px;
-  color: #fff;
-  background-color: #4285f4;
-  border: none;
-  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.socialButtonContainer {
+  width: 235px;
+  height: 40px;
+  display: flex;
+  align-items: center; 
+  justify-content: center; 
   cursor: pointer;
-}
-
-.google:hover {
-  background-color: #357ae8;
-}
-
-.facebook {
-  background-color: #3b5998;
-}
-
-.apple {
-  background-color: #000;
+  text-align: center; 
 }
 
 .poweredBy {
@@ -224,5 +204,5 @@ color: var(--Greyscale-600, #6C727E);
   text-align: center;
   margin-top: 12px;
   color: #FF4C4C;
-  font-weight: 550;
+  font-weight: 500;
 }
