@@ -18,7 +18,6 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
   onSuccess,
   clientId,
 }) => {
-  const [loading, setLoading] = useState<boolean>(false);
   const [tokenExchanged, setTokenExchanged] = useState<boolean>(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
 
@@ -71,7 +70,6 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
       return;
     }
 
-    setLoading(true);
 
     try {
       const tokenData = await exchangeCodeForToken(clientId, redirectURI, authCode, verifier);
@@ -81,12 +79,11 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
     } catch (error) {
       console.error("Error during token exchange:", error);
     } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <div className={styles.facebookButton} onClick={loading ? () => {} : initiateFacebookLogin}>
+    <div className={styles.facebookButton} onClick={initiateFacebookLogin}>
           <SiFacebook />
           <span className={styles.buttonText}>Continue with Facebook</span>
     </div>

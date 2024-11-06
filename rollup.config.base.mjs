@@ -2,7 +2,7 @@ import typescript from "@rollup/plugin-typescript";
 import nodeExternals from "rollup-plugin-node-externals";
 import path from "node:path";
 import postcss from 'rollup-plugin-postcss';
-import preserveDirectives from 'rollup-plugin-preserve-directives';
+import preserveDirectives from 'rollup-preserve-directives'
 
 const getFormatConfig = (format) => {
   const pkgPath = path.join(process.cwd(), "package.json");
@@ -35,7 +35,6 @@ const getFormatConfig = (format) => {
           sourceMap: true,
         },
       }),
-      // Add the preserveDirectives plugin after typescript
       preserveDirectives(),
       nodeExternals({
         packagePath: pkgPath,
