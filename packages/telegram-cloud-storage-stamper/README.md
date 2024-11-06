@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@turnkey/telegram-cloud-storage-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/telegram-cloud-storage-stamper)
 
-This package contains functions to store a Turnkey API public/private key within [Telegram Cloud Storage](https://core.telegram.org/bots/webapps#cloudstorage). This package also handles stamping a Turnkey request with that API key. It is meant to be used with [`@turnkey/sdk-browser`](https://www.npmjs.com/package/@turnkey/sdk-browser) or [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http).
+This package contains functions to store a Turnkey API public/private key within [Telegram Cloud Storage](https://core.telegram.org/bots/webapps#cloudstorage). This package also handles stamping a Turnkey request with that API key. It is meant to be used with [`@turnkey/sdk-browser`](https://www.npmjs.com/package/@turnkey/sdk-browser).
 
 ### Preqrequisites 
 Telegram Bot API >= 6.9
