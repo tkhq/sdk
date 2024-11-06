@@ -37,10 +37,12 @@ The first step is to set up your Turnkey organization and account. By following 
 
 ### 2b/ Setting up Biconomy (optional)
 
-The next step is to navigate to Biconomy to create a paymaster. Visit the [Biconomy Dashboard](https://dashboard.biconomy.io/) to create a your paymaster and find the following:
+If you would like to use [account abstraction](https://docs.turnkey.com/reference/aa-wallets) to power experiences where end-users have their transactions paid for, the next step is to navigate to Biconomy to create a paymaster. Visit the [Biconomy Dashboard](https://dashboard.biconomy.io/) to create a your paymaster and find the following:
 
 - Bundler URL
 - Paymaster API Key
+
+If these parameters are _not_ provided, the application will default to using the Turnkey-provided EOA as the sender address.
 
 Once you've gathered these values, add them to a new `.env.local` file. Notice that your API private key should be securely managed and **_never_** be committed to git.
 
