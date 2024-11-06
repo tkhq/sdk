@@ -75,7 +75,7 @@ if (!stamper) {
 
 // use the stamper in the client config
 const browserConfig: TurnkeySDKClientConfig = {
-  stamper: TelegramCloudStorageStamper!,
+  stamper: stamper,
   apiBaseUrl: "https://api.turnkey.com",
   organizationId: <ORGANIZATION_ID>,
 };
