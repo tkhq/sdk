@@ -92,40 +92,9 @@ import {
 import { privateKeyToAccount } from "viem/accounts";
 import { mainnet } from "viem/chains";
 
-import { WalletStamper } from "@turnkey/wallet-stamper";
+import { WalletStamper, EthereumWallet } from "@turnkey/wallet-stamper";
 
-// Create a new wallet client with a JSON-RPC account from the injected provider
-const walletClient = createWalletClient({
-  chain: mainnet,
-  transport: custom(window.ethereum!),
-});
-
-const signMessage = async (message: string) => {
-  const account = walletClient.account.address;
-  return walletClient.signMessage({
-    account,
-    message,
-  });
-};
-
-const getPublicKey = async () => {
-  // Required to recover the secp256k1 public key from the signature
-  const arbitraryMessage = "getPublicKey";
-  const signature = await signMessage(arbitraryMessage);
-
-  const secp256k1PublicKey = recoverPublicKey({
-    hash: hashMessage(arbitraryMessage),
-    signature: signature as Hex,
-  });
-  return secp256k1PublicKey;
-};
-
-const walletClient = turnkey.walletClient({
-  wallet: {
-    signMessage,
-    getPublicKey,
-  },
-});
+const walletClient = turnkey.walletClient(new EthereumWallet());
 
 // Make authenticated requests to Turnkey API, such as listing user's wallets
 // User will be prompted to sign a message to authenticate the request

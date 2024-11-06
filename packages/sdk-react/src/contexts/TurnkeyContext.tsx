@@ -116,7 +116,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         setPasskeyClient(newTurnkey.passkeyClient());
 
         if (config.wallet) {
-          setWalletClient(await newTurnkey.walletClient(config.wallet));
+          setWalletClient(newTurnkey.walletClient(config.wallet));
         }
 
         const newAuthIframeClient = await newTurnkey.iframeClient({
@@ -149,7 +149,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         [AuthClient.Passkey]: passkeyClient,
         [AuthClient.Wallet]: walletClient,
       }[session?.authenticatedClient];
-
       setClient(client);
     }
   }, [session]);

@@ -77,11 +77,13 @@ To use the `@turnkey/wallet-stamper` package, follow these steps:
 
 2. **Implement the Wallet Interface**: Depending on your chosen blockchain, implement the wallet interface. This involves creating methods to sign messages and recover public keys.
 
+> Note: We've provided a default implementation for Ethereum wallets via the `EthereumWallet` class. For custom implementations, you may implement the `WalletInterface` yourself.
+
 3. **Instantiate the WalletStamper**: Create an instance of the `WalletStamper` using the wallet interface.
 
 4. **Instantiate the TurnkeyClient**: Create an instance of the `TurnkeyClient` with the `WalletStamper` instance.
 
-5. **Stamp Requests**: Now when making request using the TurnkeyClient, the wallet stamper will automatically stamp the request with the user's wallet public key and signature.
+5. **Stamp Requests**: Now when making request using the `TurnkeyClient`, the wallet stamper will automatically stamp the request with the user's wallet public key and signature.
 
 ### Example: Signing with a Solana Wallet
 
@@ -151,38 +153,7 @@ import {
 import { privateKeyToAccount } from "viem/accounts";
 import { mainnet } from "viem/chains";
 
-import { WalletStamper, EvmWalletInterface } from "@turnkey/wallet-stamper";
-
-export class EthereumWallet implements EvmWalletInterface {
-  account = privateKeyToAccount(ETHEREUM_PRIVATE_KEY);
-  type = "evm" as const;
-
-  async signMessage(message: string): Promise<string> {
-    // Create a new wallet client with a JSON-RPC account from the injected provider
-    const walletClient = createWalletClient({
-      chain: mainnet,
-      transport: custom(window.ethereum!),
-    });
-    // Prompt the user to sign the message with their wallet
-    const signature = await walletClient.signMessage({
-      account: this.account,
-      message,
-    });
-    return signature;
-  }
-
-  async getPublicKey(): Promise<string> {
-    const arbitraryMessage = "getPublicKey";
-    const signature = await this.signMessage(arbitraryMessage);
-
-    const secp256k1PublicKey = recoverPublicKey({
-      hash: hashMessage(arbitraryMessage),
-      signature: signature as Hex,
-    });
-
-    return secp256k1PublicKey;
-  }
-}
+import { WalletStamper, EthereumWallet } from "@turnkey/wallet-stamper";
 
 // Instantiate the WalletStamper with the EthereumWallet
 const walletStamper = new WalletStamper(new EthereumWallet());
@@ -196,12 +167,16 @@ const whoami = await client.getWhoami({
   organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID,
 });
 
-// Now that we have the sub organization id, we can make requests using that sub org id
+if (!whoami?.userId) {
+  // User does not yet have a sub organization, so we need to create one
+} else {
+  // User already has a sub organization, so we can make requests using that sub org id
 
-// Get the wallets for this sub organization
-const wallets = await client.getWallets({
-  organizationId: whoami.organizationId,
-});
+  // Get the wallets for this sub organization
+  const wallets = await client.getWallets({
+    organizationId: whoami.organizationId,
+  });
+}
 ```
 
 ## Contributing

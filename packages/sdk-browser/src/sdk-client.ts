@@ -111,9 +111,7 @@ export class TurnkeyBrowserSDK {
     });
   };
 
-  walletClient = async (
-    wallet: WalletInterface
-  ): Promise<TurnkeyWalletClient> => {
+  walletClient = (wallet: WalletInterface): TurnkeyWalletClient => {
     return new TurnkeyWalletClient({
       stamper: new WalletStamper(wallet),
       wallet,
@@ -554,7 +552,7 @@ export class TurnkeyWalletClient extends TurnkeyBrowserClient {
   private wallet: WalletInterface;
 
   constructor(config: TurnkeyWalletClientConfig) {
-    super(config);
+    super(config, AuthClient.Wallet);
     this.wallet = config.wallet;
   }
 
