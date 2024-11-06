@@ -43,7 +43,7 @@ export default class TelegramCloudStorageStamper {
     this.checkTelegramContext();
 
     let telegramStamper = new TelegramCloudStorageStamper()
-    
+
     await telegramStamper.setSigningKey(config)
 
     return telegramStamper;
@@ -56,7 +56,7 @@ export default class TelegramCloudStorageStamper {
     // check to see that the stamper was initialized
     if (!this.stamper) {
       throw new TelegramCloudStorageStamperError(
-        "Cannot stamp with unintialized telegram stamper, try running .create() or .setSigningKey()"
+        "Cannot stamp with uninitialized telegram stamper, try running .create() or .setSigningKey()"
       );
     }
 

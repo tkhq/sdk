@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@turnkey/telegram-cloud-storage-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/telegram-cloud-storage-stamper)
 
-This package contains functions to store a turnkey api public/private key within [Telegram Cloud Storage](https://core.telegram.org/bots/webapps#cloudstorage). This package also handles stamping a Turnkey request with that api key. It is meant to be used with [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http)
+This package contains functions to store a Turnkey API public/private key within [Telegram Cloud Storage](https://core.telegram.org/bots/webapps#cloudstorage). This package also handles stamping a Turnkey request with that API key. It is meant to be used with [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http)
 
 Preqrequisites: \
 Telegram Bot API >= 6.9
@@ -37,7 +37,7 @@ const whoamiResponse = await client.getWhoami({
 });
 ```
 
-Use an exisiting key that has been previously stored in Telegram Cloud Storage
+Use an existing key that has been previously stored in Telegram Cloud Storage
 
 ```ts
 import { TelegramCloudStorageStamper } from "@turnkey/telegram-cloud-storage-stamper";
