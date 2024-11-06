@@ -28,6 +28,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
   const [step, setStep] = useState<string>("auth");
+  const [loading, setLoading] = useState<boolean>(false);
   const [suborgId, setSuborgId] = useState<string>("");
   const [resendText, setResendText] = useState("Re-send Code");
 
@@ -143,6 +144,15 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
     const appleToken = response.authorization?.id_token;
     if (appleToken) {
       await handleOAuthLogin(appleToken, "Apple OIDC");
+    }
+  };
+
+  const handleFacebookLogin = async (response:any) => {
+    const facebookToken = response?.id_token; 
+    if (facebookToken) {
+      await handleOAuthLogin(facebookToken, "Facebook OIDC");
+    } else {
+      setError("Facebook login failed: No token returned.");
     }
   };
 
@@ -265,7 +275,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
 {!otpId && authConfig.appleEnabled && authIframeClient && (
     <div className = {styles.authButton}>
     <div className={styles.socialButtonContainer}>
-    <AppleAuthButton  clientId = {process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!} redirectURI = {window.location.href} iframePublicKey={authIframeClient.iframePublicKey!} onSuccess={handleAppleLogin} />
+    <AppleAuthButton  clientId = {process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!} iframePublicKey={authIframeClient.iframePublicKey!} onSuccess={handleAppleLogin} />
   </div>
   </div>
 )}
@@ -274,7 +284,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
 {!otpId && authConfig.facebookEnabled && authIframeClient && (
     <div className = {styles.authButton}>
     <div className={styles.socialButtonContainer}>
-    <FacebookAuthButton clientId = {process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!} redirectURI = {window.location.href} authAPIVersion={process.env.NEXT_PUBLIC_FACEBOOK_AUTH_VERSION!}iframePublicKey={authIframeClient.iframePublicKey!} onSuccess={handleAppleLogin} />
+    <FacebookAuthButton clientId = {process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!} iframePublicKey={authIframeClient.iframePublicKey!} onSuccess={handleFacebookLogin} setLoading={setLoading} />
   </div>
   </div>
 )}
