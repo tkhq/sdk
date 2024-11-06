@@ -36,8 +36,8 @@ describe("Wallet stamper tests", () => {
     expect(wallets?.length).toBeGreaterThan(0);
   });
   it("Ethereum Wallet - Should list wallets using wallet to stamp the request", async () => {
-    const evmWallet = new EthereumWallet();
-    const stamper = new WalletStamper(evmWallet);
+    const ethereumWallet = new EthereumWallet();
+    const stamper = new WalletStamper(ethereumWallet);
     const client = new TurnkeyClient({ baseUrl: BASE_URL }, stamper);
 
     const { wallets } =
@@ -47,9 +47,9 @@ describe("Wallet stamper tests", () => {
 
     expect(wallets?.length).toBeGreaterThan(0);
   });
-  it("Ethereum Wallet - Should list wallets using wallet to stamp the request", async () => {
-    const evmWallet = new EthereumWallet();
-    const stamper = new WalletStamper(evmWallet);
+  it("Ethereum Wallet - Should create a read only session using wallet to stamp the request", async () => {
+    const ethereumWallet = new EthereumWallet();
+    const stamper = new WalletStamper(ethereumWallet);
     const client = new TurnkeyClient({ baseUrl: BASE_URL }, stamper);
 
     const session = await client.createReadOnlySession({

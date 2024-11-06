@@ -9,7 +9,6 @@ import {
 import {
   SIGNATURE_SCHEME_TK_API_SECP256K1_ERC191,
   SIGNATURE_SCHEME_TK_API_ED25519,
-  WALLET_TYPE_SOLANA,
   STAMP_HEADER_NAME,
 } from "./constants";
 import { type Hex } from "viem";
@@ -33,7 +32,7 @@ export class WalletStamper implements TStamper {
 
     // Determine the signature scheme based on the wallet type.
     const scheme =
-      this.wallet.type === WALLET_TYPE_SOLANA
+      this.wallet.type === WalletType.Solana
         ? SIGNATURE_SCHEME_TK_API_ED25519
         : SIGNATURE_SCHEME_TK_API_SECP256K1_ERC191;
 

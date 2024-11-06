@@ -40,30 +40,30 @@ export interface SolanaWalletInterface extends BaseWalletInterface {
 }
 
 /**
- * EVM wallets require a signed message to derive the public key.
+ * Ethereum wallets require a signed message to derive the public key.
  *
- * @remarks This is the SECP256K1 public key of the EVM wallet, not the address.
+ * @remarks This is the SECP256K1 public key of the Ethereum wallet, not the address.
  * This requires that the wallet signs a message in order to derive the public key.
  *
- * @interface EvmWalletInterface
+ * @interface EthereumWalletInterface
  * @extends BaseWalletInterface
- * @property {function(): Promise<string>} getPublicKey - Returns the public key, which is the SECP256K1 hex encoded public key from your EVM wallet.
- * @property {'evm'} type - The type of the wallet.
+ * @property {function(): Promise<string>} getPublicKey - Returns the public key, which is the SECP256K1 hex encoded public key from your Ethereum wallet.
+ * @property {'ethereum'} type - The type of the wallet.
  */
-export interface EvmWalletInterface extends BaseWalletInterface {
+export interface EthereumWalletInterface extends BaseWalletInterface {
   type: WalletType.Ethereum;
 }
 
 /**
- * Union type for wallet interfaces, supporting both Solana and EVM wallets.
- * @typedef {SolanaWalletInterface | EvmWalletInterface} WalletInterface
+ * Union type for wallet interfaces, supporting both Solana and Ethereum wallets.
+ * @typedef {SolanaWalletInterface | EthereumWalletInterface} WalletInterface
  */
-export type WalletInterface = SolanaWalletInterface | EvmWalletInterface;
+export type WalletInterface = SolanaWalletInterface | EthereumWalletInterface;
 
 /**
  * Enum representing the type of wallet the user is stamping with.
  */
 export enum WalletType {
-  Ethereum = "evm",
+  Ethereum = "ethereum",
   Solana = "solana",
 }

@@ -49,7 +49,7 @@ const publicKey = mockWallet.recoverPublicKey();
 const userId = "f4a5e6b4-3b9c-4f69-b7f6-9c2f456a4d23";
 
 // We set the curve type to 'API_KEY_CURVE_ED25519' for solana wallets
-// If using an EVM wallet, set the curve type to 'API_KEY_CURVE_SECP256K1'
+// If using an Ethereum wallet, set the curve type to 'API_KEY_CURVE_SECP256K1'
 const curveType = "API_KEY_CURVE_ED25519";
 
 const result = activityPoller({

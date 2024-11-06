@@ -1,4 +1,4 @@
-import { EvmWalletInterface, WalletType } from "./types";
+import { EthereumWalletInterface, WalletType } from "./types";
 import {
   recoverPublicKey,
   hashMessage,
@@ -20,7 +20,7 @@ import { compressRawPublicKey } from "@turnkey/crypto";
  * return a promise that resolves to a hexadecimal string representing
  * the signature of the provided message.
  */
-export abstract class BaseEthereumWallet implements EvmWalletInterface {
+export abstract class BaseEthereumWallet implements EthereumWalletInterface {
   type: WalletType.Ethereum = WalletType.Ethereum;
 
   /**

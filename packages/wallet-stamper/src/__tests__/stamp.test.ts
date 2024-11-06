@@ -43,9 +43,9 @@ test("Solana wallet stamping", async function () {
   ).toBe(true);
 });
 
-test("EVM wallet stamping", async function () {
-  const evmWallet = new EthereumWallet();
-  const stamper = new WalletStamper(evmWallet);
+test("Ethereum wallet stamping", async function () {
+  const ethereumWallet = new EthereumWallet();
+  const stamper = new WalletStamper(ethereumWallet);
   const messageToSign = "MESSAGE";
   const stamp = await stamper.stamp(messageToSign);
 
