@@ -1,5 +1,13 @@
 # @turnkey/with-eth-passkey-signers
 
+## 0.2.0
+
+### Features
+
+- Add transaction signing both signers (Viem and Ethers)
+- Add Biconomy paymaster support
+  - If paymaster details are not set, the example will default to using the Turnkey wallet account as opposed to the corresponding smart wallet account
+
 ## 0.1.1
 
 ### Patch Changes
@@ -11,3 +19,7 @@
   - @turnkey/ethers@1.1.3
   - @turnkey/sdk-react@1.0.13
   - @turnkey/viem@0.6.2
+
+## 0.1.0
+
+- Initial release
