@@ -17,9 +17,8 @@ import {
 
 const countries = defaultCountries.filter((country) => {
   const { iso2 } = parseCountry(country);
-  return ['us', 'ca'].includes(iso2);
+  return ["us", "ca"].includes(iso2);
 });
-
 
 export interface MUIPhoneProps extends BaseTextFieldProps {
   value: string;
@@ -92,7 +91,6 @@ export const MuiPhone: React.FC<MUIPhoneProps> = ({
                 ".MuiSelect-select": {
                   padding: "8px",
                   paddingRight: "24px !important",
-
                 },
                 svg: {
                   right: 0,

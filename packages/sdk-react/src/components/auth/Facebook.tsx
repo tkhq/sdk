@@ -38,7 +38,11 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
 
     const facebookOAuthURL = `https://www.facebook.com/v11.0/dialog/oauth?${params.toString()}`;
 
-    const popup = window.open(facebookOAuthURL, "_blank", "width=500,height=600");
+    const popup = window.open(
+      facebookOAuthURL,
+      "_blank",
+      "width=500,height=600"
+    );
 
     if (popup) {
       const interval = setInterval(async () => {
@@ -66,13 +70,19 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
   const handleTokenExchange = async (authCode: string) => {
     const verifier = sessionStorage.getItem("facebook_verifier");
     if (!verifier || tokenExchanged) {
-      console.error("No verifier found in sessionStorage or token exchange already completed");
+      console.error(
+        "No verifier found in sessionStorage or token exchange already completed"
+      );
       return;
     }
 
-
     try {
-      const tokenData = await exchangeCodeForToken(clientId, redirectURI, authCode, verifier);
+      const tokenData = await exchangeCodeForToken(
+        clientId,
+        redirectURI,
+        authCode,
+        verifier
+      );
       sessionStorage.removeItem("facebook_verifier"); // Remove verifier after use
       onSuccess(tokenData);
       setTokenExchanged(true); // Prevent further exchanges
@@ -84,8 +94,8 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
 
   return (
     <div className={styles.facebookButton} onClick={initiateFacebookLogin}>
-          <SiFacebook />
-          <span className={styles.buttonText}>Continue with Facebook</span>
+      <SiFacebook />
+      <span className={styles.buttonText}>Continue with Facebook</span>
     </div>
   );
 };

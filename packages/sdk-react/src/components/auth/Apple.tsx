@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import AppleLogin from "react-apple-login";
-import { SiApple } from "@icons-pack/react-simple-icons"
+import { SiApple } from "@icons-pack/react-simple-icons";
 import styles from "./Apple.module.css";
 interface AppleAuthButtonProps {
   iframePublicKey: string;
@@ -15,14 +15,18 @@ declare global {
   }
 }
 
-
-const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({ iframePublicKey, onSuccess, clientId }) => {
+const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
+  iframePublicKey,
+  onSuccess,
+  clientId,
+}) => {
   const [appleSDKLoaded, setAppleSDKLoaded] = useState(false);
-  const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!
+  const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
   useEffect(() => {
     const loadAppleSDK = () => {
       const script = document.createElement("script");
-      script.src = "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
+      script.src =
+        "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
       script.onload = () => setAppleSDKLoaded(true);
       script.onerror = () => console.error("Failed to load AppleID SDK");
       document.body.appendChild(script);
@@ -48,9 +52,9 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({ iframePublicKey, onSu
       responseMode="fragment"
       render={({ onClick }) => (
         <div onClick={onClick} className={styles.appleButton}>
-        <SiApple />
-        <span className={styles.buttonText}>Continue with Apple</span>
-      </div>
+          <SiApple />
+          <span className={styles.buttonText}>Continue with Apple</span>
+        </div>
       )}
       callback={(response) => {
         if (response.error) {

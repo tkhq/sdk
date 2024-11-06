@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import '@turnkey/sdk-react/styles';
+import "@turnkey/sdk-react/styles";
 import { TurnkeyProvider } from "@turnkey/sdk-react";
 
 const turnkeyConfig = {
@@ -12,17 +12,15 @@ const turnkeyConfig = {
 };
 
 interface RootLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
-    <body>
-      <TurnkeyProvider config={turnkeyConfig}>
-      {children}
-      </TurnkeyProvider>
-    </body>
+      <body>
+        <TurnkeyProvider config={turnkeyConfig}>{children}</TurnkeyProvider>
+      </body>
     </html>
   );
 }

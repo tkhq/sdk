@@ -9,8 +9,8 @@
   height: 200px;
   margin: 0 auto;
   padding: 20px;
-  background: var(--Greyscale-20, #F5F7FB);
-  border: 1px solid var(--Greyscale-100, #EBEDF2);
+  background: var(--Greyscale-20, #f5f7fb);
+  border: 1px solid var(--Greyscale-100, #ebedf2);
   border-radius: 15px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
@@ -19,7 +19,7 @@
 .verifyingText {
   font-weight: bold;
   font-size: 18px;
-  color: var(--Greyscale-900, #2B2F33);
+  color: var(--Greyscale-900, #2b2f33);
   margin-bottom: 20px;
   text-align: center;
 }
@@ -36,7 +36,7 @@
 
 .circularProgress {
   position: absolute;
-  color: #007AFF;
+  color: #007aff;
 }
 
 .oauthIcon {
@@ -44,7 +44,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 60px; 
+  font-size: 60px;
   color: gray;
 }
 
@@ -55,8 +55,8 @@
   min-width: 375px;
   margin: 0 auto;
   padding: 20px;
-  background: var(--Greyscale-20, #F5F7FB);
-  border: 1px solid var(--Greyscale-100, #EBEDF2);
+  background: var(--Greyscale-20, #f5f7fb);
+  border: 1px solid var(--Greyscale-100, #ebedf2);
   border-radius: 15px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -85,55 +85,51 @@
   width: 100%;
   padding: 12px;
   font-size: 1rem;
-  border: 1px solid var(--Greyscale-200, #D8DBE3);
+  border: 1px solid var(--Greyscale-200, #d8dbe3);
   border-radius: 4px;
   box-sizing: border-box;
   &::placeholder {
-    color: rgba(0, 0, 0, 0.4); 
+    color: rgba(0, 0, 0, 0.4);
   }
 }
 
 button {
-padding: 10px 16px 10px 16px;
-gap: 8px;
-color: #ffffff;
+  padding: 10px 16px 10px 16px;
+  gap: 8px;
+  color: #ffffff;
   width: 100%;
   font-size: 1rem;
-  background: var(--Greyscale-900, #2B2F33);
-  border: 1px solid var(--Greyscale-800, #3F464B);
+  background: var(--Greyscale-900, #2b2f33);
+  border: 1px solid var(--Greyscale-800, #3f464b);
   border-radius: 8px;
   cursor: pointer;
 }
 
 button:disabled {
-  color: var(--Greyscale-700, #A2A7AE);
-  background: var(--Greyscale-200, #DDDDDD);
-  border-color: var(--Greyscale-400, #A2A7AE);
+  color: var(--Greyscale-700, #a2a7ae);
+  background: var(--Greyscale-200, #dddddd);
+  border-color: var(--Greyscale-400, #a2a7ae);
   cursor: not-allowed;
 }
-
-
-
-
 
 .passkeyButton {
   margin-top: 12px;
   padding: 10px 16px 10px 16px;
-gap: 8px;
-color: var(--Greyscale-600, #6C727E);
+  gap: 8px;
+  color: var(--Greyscale-600, #6c727e);
 
   width: 100%;
   font-size: 1rem;
-  background: var(--Greyscale-1, #FFFFFF);
-  border: 1px solid var(--Greyscale-400, #A2A7AE);
+  background: var(--Greyscale-1, #ffffff);
+  border: 1px solid var(--Greyscale-400, #a2a7ae);
   border-radius: 8px;
   cursor: pointer;
 }
 
 .passkeyButton:disabled {
-  color: var(--Greyscale-500, #A2A7AE);
-  background: var(--Greyscale-200, #DDDDDD);
-  border-color: var(--Greyscale-400, #A2A7AE);
+  color: var(--Greyscale-500, #a2a7ae);
+  background: var(--Greyscale-200, #dddddd);
+  border-color: var(--Greyscale-400, #a2a7ae);
   cursor: not-allowed;
 }
 /* Separator */
@@ -144,12 +140,12 @@ color: var(--Greyscale-600, #6C727E);
 }
 
 .separator span {
-  color: var(--Greyscale-500, #868C95);
+  color: var(--Greyscale-500, #868c95);
   padding: 0 10px;
   position: relative;
   z-index: 0;
   font-size: 0.75rem;
-  background: var(--Greyscale-20, #F5F7FB);
+  background: var(--Greyscale-20, #f5f7fb);
   color: #666;
 }
 
@@ -161,7 +157,7 @@ color: var(--Greyscale-600, #6C727E);
   left: 0;
   right: 0;
   height: 1px;
-  background: var(--Greyscale-100, #EBEDF2);
+  background: var(--Greyscale-100, #ebedf2);
   z-index: 0;
 }
 .verification {
@@ -171,19 +167,19 @@ color: var(--Greyscale-600, #6C727E);
   line-height: 16px;
   letter-spacing: -0.01em;
   text-align: center;
-  color: var(--Greyscale-500, #868C95);
+  color: var(--Greyscale-500, #868c95);
   margin-top: 16px;
 }
 
 .verificationBold {
-  color: var(--Greyscale-900, #2B2F33);
+  color: var(--Greyscale-900, #2b2f33);
   font-weight: 700;
   margin-top: 8px;
 }
 .verificationIcon {
   display: flex;
   justify-content: center;
-  margin-bottom: 8px; 
+  margin-bottom: 8px;
 }
 .tos {
   font-family: Inter;
@@ -192,12 +188,12 @@ color: var(--Greyscale-600, #6C727E);
   line-height: 16px;
   letter-spacing: -0.01em;
   text-align: center;
-  color: var(--Greyscale-500, #868C95);
+  color: var(--Greyscale-500, #868c95);
   margin-top: 16px;
 }
 
 .tosBold {
-  color: var(--Greyscale-900, #2B2F33);
+  color: var(--Greyscale-900, #2b2f33);
   font-weight: 700;
   cursor: pointer;
 }
@@ -220,10 +216,10 @@ color: var(--Greyscale-600, #6C727E);
   width: 235px;
   height: 40px;
   display: flex;
-  align-items: center; 
-  justify-content: center; 
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  text-align: center; 
+  text-align: center;
 }
 
 .poweredBy {
@@ -236,7 +232,7 @@ color: var(--Greyscale-600, #6C727E);
   font-weight: 400;
   line-height: 16px;
   letter-spacing: -0.01em;
-  color: var(--Greyscale-500, #868C95);
+  color: var(--Greyscale-500, #868c95);
   margin-top: 16px;
 }
 
@@ -253,6 +249,6 @@ color: var(--Greyscale-600, #6C727E);
 .errorText {
   text-align: center;
   margin-top: 12px;
-  color: #FF4C4C;
+  color: #ff4c4c;
   font-weight: 500;
 }

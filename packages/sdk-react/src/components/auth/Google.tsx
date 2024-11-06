@@ -8,7 +8,11 @@ interface GoogleAuthButtonProps {
   onSuccess: (response: any) => void;
 }
 
-const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({ iframePublicKey, onSuccess, clientId}) => {
+const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
+  iframePublicKey,
+  onSuccess,
+  clientId,
+}) => {
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <GoogleLogin
@@ -18,13 +22,13 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({ iframePublicKey, on
         width={235}
         containerProps={{
           style: {
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            borderRadius: '8px',
-            padding: '10px',
-            cursor: 'pointer',
-            maxWidth: '235px',
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            borderRadius: "8px",
+            padding: "10px",
+            cursor: "pointer",
+            maxWidth: "235px",
           },
         }}
         auto_select={false}
