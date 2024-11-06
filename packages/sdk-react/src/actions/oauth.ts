@@ -1,4 +1,4 @@
-'use server'
+"use server";
 
 import { Turnkey } from "@turnkey/sdk-server";
 
@@ -15,14 +15,14 @@ type OauthResponse = {
 };
 
 export async function oauth(
-  request: OauthRequest,
+  request: OauthRequest
 ): Promise<OauthResponse | undefined> {
   const turnkeyClient = new Turnkey({
     apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
     defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     apiPrivateKey: process.env.TURNKEY_API_PRIVATE_KEY!, // DO NOT EXPOSE THESE TO YOUR CLIENT SIDE CODE
-    apiPublicKey:  process.env.TURNKEY_API_PUBLIC_KEY!, // DO NOT EXPOSE THESE TO YOUR CLIENT SIDE CODE
-  })
+    apiPublicKey: process.env.TURNKEY_API_PUBLIC_KEY!, // DO NOT EXPOSE THESE TO YOUR CLIENT SIDE CODE
+  });
   try {
     const oauthResponse = await turnkeyClient.apiClient().oauth({
       oidcToken: request.oidcToken,
@@ -32,7 +32,9 @@ export async function oauth(
 
     const { credentialBundle, apiKeyId, userId } = oauthResponse;
     if (!credentialBundle || !apiKeyId || !userId) {
-      throw new Error("Expected non-null values for credentialBundle, apiKeyId, and userId.");
+      throw new Error(
+        "Expected non-null values for credentialBundle, apiKeyId, and userId."
+      );
     }
 
     return { credentialBundle, apiKeyId, userId };

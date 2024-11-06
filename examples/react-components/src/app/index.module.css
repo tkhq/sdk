@@ -33,12 +33,12 @@
 }
 
 .authConfigCard {
-  background: var(--Greyscale-20, #F5F7FB);
+  background: var(--Greyscale-20, #f5f7fb);
   padding: 16px;
   border-radius: 8px;
   width: 552px;
   height: 768px;
-  border: 1px solid var(--Greyscale-100, #EBEDF2);
+  border: 1px solid var(--Greyscale-100, #ebedf2);
   font-family: Arial, sans-serif;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -65,7 +65,7 @@
 .labelContainer {
   display: flex;
   align-items: center;
-  gap: 8px; 
+  gap: 8px;
 }
 
 .toggleRow {
