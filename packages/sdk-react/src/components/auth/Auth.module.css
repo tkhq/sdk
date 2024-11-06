@@ -1,6 +1,55 @@
-/* Auth Card */
+.authCardLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 450px;
+  min-width: 375px;
+  height: 200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: var(--Greyscale-20, #F5F7FB);
+  border: 1px solid var(--Greyscale-100, #EBEDF2);
+  border-radius: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.verifyingText {
+  font-weight: bold;
+  font-size: 18px;
+  color: var(--Greyscale-900, #2B2F33);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.loadingWrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.circularProgress {
+  position: absolute;
+  color: #007AFF;
+}
+
+.oauthIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 60px; 
+  color: gray;
+}
+
 .authCard {
-  position: relative; /* Ensure contained elements respect authCard boundaries */
+  position: relative;
   width: 100%;
   max-width: 450px;
   min-width: 375px;
