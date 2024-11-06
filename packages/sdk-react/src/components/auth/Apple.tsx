@@ -7,7 +7,6 @@ import styles from "./Apple.module.css";
 interface AppleAuthButtonProps {
   iframePublicKey: string;
   clientId: string;
-  redirectURI: string;
   onSuccess: (response: any) => void;
 }
 declare global {
@@ -17,9 +16,9 @@ declare global {
 }
 
 
-const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({ iframePublicKey, onSuccess, clientId, redirectURI }) => {
+const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({ iframePublicKey, onSuccess, clientId }) => {
   const [appleSDKLoaded, setAppleSDKLoaded] = useState(false);
-
+  const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!
   useEffect(() => {
     const loadAppleSDK = () => {
       const script = document.createElement("script");
