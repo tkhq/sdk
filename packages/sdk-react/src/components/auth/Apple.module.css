@@ -3,22 +3,24 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 10px 16px;
+  padding: 8px 10px;
   color: #000000;
-  font-size: 14px;
+  font-size: 13.5px;
   background-color: #ffffff;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
-  border: 1px solid #f2f2f2;
+  border: 1px solid #dcdcdc;
   transition: background-color 0.3s ease;
 }
 
 .appleButton:hover {
-  background-color: #f2f2f2;
+  background-color: #f1f8ff;
+  border-color: #d0def0;
 }
 
 .buttonText {
+  color: #000000;
   flex-grow: 1;
   text-align: center;
   font-family: "Inter", sans-serif;
