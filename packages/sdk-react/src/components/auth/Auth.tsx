@@ -65,15 +65,25 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   ) => {
     const getSuborgsResponse = await getSuborgs({ filterType, filterValue });
     let suborgId = getSuborgsResponse!.organizationIds[0];
+    
     if (!suborgId) {
-      const createSuborgResponse = await createSuborg({
-        [filterType.toLowerCase()]: filterValue,
+      const createSuborgData: Record<string, any> = {
         ...additionalData,
-      });
+      };
+  
+      if (filterType === "EMAIL") {
+        createSuborgData.email = filterValue;
+      } else if (filterType === "PHONE_NUMBER") {
+        createSuborgData.phoneNumber = filterValue;
+      }
+  
+      const createSuborgResponse = await createSuborg(createSuborgData);
       suborgId = createSuborgResponse?.subOrganizationId!;
     }
+  
     return suborgId;
   };
+  
 
   const handleAuthSuccess = async (credentialBundle: any) => {
     if (credentialBundle) {
@@ -150,6 +160,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
     otpType: string
   ) => {
     const suborgId = await handleGetOrCreateSuborg(type, value);
+    console.log(suborgId)
     const initAuthResponse = await initOtpAuth({
       suborgID: suborgId,
       otpType,

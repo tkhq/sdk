@@ -4,7 +4,7 @@ import styles from "./index.module.css";
 import * as React from "react";
 import { useState } from "react";
 import { useTurnkey, Auth } from "@turnkey/sdk-react";
-import { Switch, Typography, IconButton } from "@mui/material";
+import { Switch, Typography } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import AppsIcon from "@mui/icons-material/Apps";
 
@@ -48,10 +48,10 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
     passkey: true,
     phone: true,
     socials: {
-      enabled: true,
-      google: true,
-      apple: true,
-      facebook: true,
+      enabled: false,
+      google: false,
+      apple: false,
+      facebook: false,
     },
   });
 

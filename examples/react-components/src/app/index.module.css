@@ -17,17 +17,18 @@
 }
 
 .main {
+  font-family: Inter;
   display: flex;
-  justify-content: center; /* Centers the authComponent */
+  justify-content: center;
   align-items: center;
   padding: 6rem;
   gap: 60px;
-  position: relative; /* Allows absolute positioning for left-aligned card */
+  position: relative;
 }
 
 .authConfigContainer {
   position: absolute;
-  left: 0; /* Positions the card to the far left */
+  left: 0;
   display: flex;
   justify-content: flex-start;
 }
@@ -36,8 +37,8 @@
   background: var(--Greyscale-20, #f5f7fb);
   padding: 16px;
   border-radius: 8px;
-  width: 552px;
-  height: 768px;
+  width: 542px;
+  height: 642px;
   border: 1px solid var(--Greyscale-100, #ebedf2);
   font-family: Arial, sans-serif;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -46,7 +47,6 @@
   justify-content: space-between;
 }
 .configTitle {
-  font-family: Inter;
   font-size: 24px;
   font-weight: 700;
   line-height: 26px;
@@ -75,6 +75,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .copyConfigButton {
