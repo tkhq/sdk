@@ -3,6 +3,7 @@
   position: relative; /* Ensure contained elements respect authCard boundaries */
   width: 100%;
   max-width: 450px;
+  min-width: 375px;
   margin: 0 auto;
   padding: 20px;
   background: var(--Greyscale-20, #F5F7FB);
