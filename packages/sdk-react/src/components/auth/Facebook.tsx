@@ -1,11 +1,12 @@
-"use client"
+"use client";
 
-import { SiFacebook } from "@icons-pack/react-simple-icons"
-import { sha256 } from "@noble/hashes/sha2";
-import { bytesToHex } from "@noble/hashes/utils";
 import { useEffect } from "react";
-import { generateChallengePair } from "./facebook-utils"
+import { useSearchParams } from "next/navigation";
+import { SiFacebook } from "@icons-pack/react-simple-icons";
 import styles from "./Facebook.module.css";
+import { exchangeCodeForToken, generateChallengePair } from "./facebook-utils";
+import { sha256 } from "@noble/hashes/sha256";
+import { bytesToHex } from "@noble/hashes/utils";
 
 interface FacebookAuthButtonProps {
   iframePublicKey: string;
@@ -16,63 +17,50 @@ interface FacebookAuthButtonProps {
 }
 
 const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({ iframePublicKey, onSuccess, clientId, authAPIVersion, redirectURI }) => {
+  const searchParams = useSearchParams();
 
-  const redirectToFacebook = async () => {
-    const { verifier, codeChallenge } = await generateChallengePair()
-    const codeChallengeMethod = "sha256"
+  const initiateFacebookLogin = async () => {
+    const { verifier, codeChallenge } = await generateChallengePair();
+    const codeChallengeMethod = "sha256";
 
-    // Generate the Facebook OAuth URL
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectURI,
       state: verifier,
       code_challenge: codeChallenge,
       code_challenge_method: codeChallengeMethod,
-      nonce: bytesToHex(sha256(iframePublicKey)),
+      nonce: bytesToHex(sha256(iframePublicKey || "")),
       scope: "openid",
       response_type: "code",
-    } as any)
+    });
 
-    const facebookOAuthURL = `https://www.facebook.com/v${authAPIVersion}/dialog/oauth?${params.toString()}`
-    window.location.href = facebookOAuthURL
-  }
+    const facebookOAuthURL = `https://www.facebook.com/v${authAPIVersion}/dialog/oauth?${params.toString()}`;
+    window.location.href = facebookOAuthURL;
+  };
+
+  const handleTokenExchange = async (authCode: string, authState: string) => {
+    console.log("HERE")
+    const verifier = authState;
+    const tokenData = await exchangeCodeForToken(clientId, redirectURI, authCode, verifier);
+    console.log(tokenData)
+    onSuccess(tokenData);
+  };
 
   useEffect(() => {
-    const handleFacebookRedirect = async () => {
-      const urlParams = new URLSearchParams(window.location.search)
-      const code = urlParams.get("code")
-      const state = urlParams.get("state")
+    const code = searchParams.get("code");
+    const state = searchParams.get("state");
 
-      if (code && state) {
-        try {
-          // Call backend to exchange the code for a token
-          const response = await fetch("/api/auth/facebook/callback", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code, verifier: state })
-          })
-          const result = await response.json()
-          if (response.ok) {
-            onSuccess(result)
-          } else {
-            console.error("Facebook auth failed", result)
-          }
-        } catch (error) {
-          console.error("Error during Facebook auth callback", error)
-        }
-      }
+    if (code && state) {
+      handleTokenExchange(code, state);
     }
-
-    // Run this only once after redirect
-    handleFacebookRedirect()
-  }, [onSuccess])
+  }, [searchParams]);
 
   return (
-    <div className={styles.facebookButton} onClick={redirectToFacebook}>
+    <div className={styles.facebookButton} onClick={initiateFacebookLogin}>
       <SiFacebook />
       <span className={styles.buttonText}>Continue with Facebook</span>
     </div>
-  )
-}
+  );
+};
 
-export default FacebookAuthButton
+export default FacebookAuthButton;

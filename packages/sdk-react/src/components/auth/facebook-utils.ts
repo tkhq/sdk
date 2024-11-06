@@ -1,25 +1,37 @@
-"use server"
+"use server";
+import crypto from "crypto";
 
-import crypto from "crypto"
-
-export const generateChallengePair = async (): Promise<{
-  verifier: string
-  codeChallenge: string
-}> => {
-  // Step 1: Generate a random 48-character verifier
-  const verifier = crypto.randomBytes(32).toString("base64url") // URL-safe Base64 string
-
-  const codeChallenge = await verifierSegmentToChallenge(verifier)
-
-  // Return both the verifier and the codeChallenge to the client
-  return { verifier, codeChallenge }
+export async function generateChallengePair() {
+  const verifier = crypto.randomBytes(32).toString("base64url");
+  const codeChallenge = await verifierSegmentToChallenge(verifier);
+  return { verifier, codeChallenge };
 }
 
-export const verifierSegmentToChallenge = async (
-  segment: string
-): Promise<string> => {
-  const salt = process.env.FACEBOOK_SECRET_SALT
-  const saltedVerifier = segment + salt
+async function verifierSegmentToChallenge(segment: string) {
+  const salt = process.env.FACEBOOK_SECRET_SALT!
+  const saltedVerifier = segment + salt;
+  return crypto.createHash("sha256").update(saltedVerifier).digest("base64url");
+}
 
-  return crypto.createHash("sha256").update(saltedVerifier).digest("base64url")
+export async function exchangeCodeForToken(clientId: any, redirectURI: any, authCode: any, verifier: any) {
+  console.log(clientId)
+  console.log(redirectURI)
+  console.log(authCode)
+  console.log(verifier)
+  const response = await fetch(`https://graph.facebook.com/v11.0/oauth/access_token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      client_id: clientId,
+      redirect_uri: redirectURI,
+      code: authCode,
+      code_verifier: verifier,
+    }),
+  });
+
+  const tokenData = await response.json();
+  if (!response.ok) {
+    throw new Error("Token exchange failed: " + JSON.stringify(tokenData));
+  }
+  return tokenData;
 }

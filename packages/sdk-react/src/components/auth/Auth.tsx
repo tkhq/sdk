@@ -1,7 +1,6 @@
 import styles from "./Auth.module.css";
 import { useEffect, useState } from "react";
 import { useTurnkey } from "../../hooks/useTurnkey";
-import type { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
 import { initOtpAuth, otpAuth, getSuborgs, createSuborg, oauth } from "../../actions/";
 import { MuiPhone } from "./PhoneInput";
 import OTPInput from "./OtpInput";
@@ -10,7 +9,6 @@ import AppleAuthButton from "./Apple";
 import FacebookAuthButton from "./Facebook";
 
 interface AuthProps {
-  turnkeyClient: TurnkeySDKClient;
   onHandleAuthSuccess: () => Promise<void>;
   authConfig: {
     emailEnabled: boolean;
