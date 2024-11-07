@@ -5,23 +5,29 @@ import { assertValidSignature } from "./shared";
 import { fail } from "assert";
 
 window.Telegram.WebApp.CloudStorage = {
-  async setItem(key: string, value: string, callback: (error: any, stored: boolean) => void) {
+  async setItem(
+    key: string,
+    value: string,
+    callback: (error: any, stored: boolean) => void
+  ) {
     localStorage.setItem(key, value);
-    callback(null, true)
+    callback(null, true);
   },
-  async getItem(key: string, callback: (error: any, value: string) => void ) {
+  async getItem(key: string, callback: (error: any, value: string) => void) {
     let item = localStorage.getItem(key);
     if (!item) {
-      item = ""
+      item = "";
     }
-    callback(null, item)
+    callback(null, item);
   },
-  async removeItem(key: string, callback: (error: any, cleared: boolean) => void) {
+  async removeItem(
+    key: string,
+    callback: (error: any, cleared: boolean) => void
+  ) {
     localStorage.removeItem(key);
     callback(null, true);
-  }
+  },
 };
-
 
 test("uses provided signature to make stamp", async function () {
   const { privateKey, publicKey, pemPublicKey } = await readFixture();
@@ -29,18 +35,18 @@ test("uses provided signature to make stamp", async function () {
   const apiKey: CloudStorageAPIKey = {
     apiPublicKey: publicKey,
     apiPrivateKey: privateKey,
-  }
+  };
 
   try {
     const stamper = await TelegramCloudStorageStamper.create({
-      cloudStorageAPIKey: apiKey
-    })
+      cloudStorageAPIKey: apiKey,
+    });
 
     const messageToSign = "hello from TKHQ!";
     const stamp = await stamper.stamp(messageToSign);
-  
+
     expect(stamp.stampHeaderName).toBe("X-Stamp");
-  
+
     // We expect the stamp to be base64url encoded
     const decodedStamp = JSON.parse(
       Buffer.from(stamp.stampHeaderValue, "base64url").toString()
@@ -51,7 +57,7 @@ test("uses provided signature to make stamp", async function () {
       "scheme",
       "signature",
     ]);
-  
+
     // We assert against these keys one-by-one because P256 signatures aren't deterministic.
     // Can't snapshot!
     expect(decodedStamp["publicKey"]).toBe(publicKey);
@@ -62,6 +68,6 @@ test("uses provided signature to make stamp", async function () {
       signature: decodedStamp["signature"],
     });
   } catch (e) {
-    fail()
+    fail();
   }
 });
