@@ -18,7 +18,6 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
       <GoogleLogin
         nonce={bytesToHex(sha256(iframePublicKey))}
         onSuccess={onSuccess}
-        useOneTap
         width={235}
         containerProps={{
           style: {
@@ -31,9 +30,9 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
             maxWidth: "235px",
           },
         }}
+        useOneTap={false}
         auto_select={false}
         text="continue_with"
-        ux_mode="popup"
       />
     </GoogleOAuthProvider>
   );
