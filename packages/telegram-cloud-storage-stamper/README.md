@@ -32,12 +32,16 @@ Insert a new API key into Telegram Cloud Storage at the default API key location
 
 ```ts
 import TelegramCloudStorageStamper, { CloudStorageAPIKey } from "@turnkey/telegram-cloud-storage-stamper";
+import { generateP256KeyPair } from "@turnkey/crypto";
 import { TurnkeyBrowserClient, TurnkeySDKClientConfig } from "@turnkey/sdk-browser";
+
+// generate an API keypair
+const keyPair = generateP256KeyPair();
 
 // the API key to be stored
 const apiKey: CloudStorageAPIKey = {
-  apiPublicKey: "...",
-  apiPrivateKey: "...",
+  apiPublicKey: keyPair.publicKey,
+  apiPrivateKey: keyPair.privateKey,
 }
 
 // create a new Telegram Cloud Storage Stamper
