@@ -28,7 +28,7 @@ The `.create()` and `.setSigningKey()` functions take one of the following 4 set
 The `.getAPIKey()` and `.setAPIKey()` functions operate in a similar manner taking an optional `key` parameter that will be used to `get` or `set` the API key at that location if it is passed, or at the default location if it is not passed.
 
 ### Usage
-Insert a new api key into Telegram Cloud Storage at the default API key location
+Insert a new API key into Telegram Cloud Storage at the default API key location
 
 ```ts
 import TelegramCloudStorageStamper, { CloudStorageAPIKey } from "@turnkey/telegram-cloud-storage-stamper";
@@ -86,7 +86,7 @@ const whoamiResponse = await client.getWhoami({
 });
 ```
 
-View an entry in Telegram Cloud Storage without inserting an API key, note the usage difference between the `new` and `.create()` here. `.create()` will do the work of getting/setting an API key in Cloud Storage where as  `new` will not
+View an entry in Telegram Cloud Storage without inserting an API key, note the usage difference between the `new` and `.create()` here. `.create()` will do the work of getting/setting an API key in Cloud Storage where as `new` will not
 
 ```ts
 import TelegramCloudStorageStamper, { CloudStorageAPIKey } from "@turnkey/telegram-cloud-storage-stamper";
@@ -95,7 +95,7 @@ import TelegramCloudStorageStamper, { CloudStorageAPIKey } from "@turnkey/telegr
 const stamper = new TelegramCloudStorageStamper();
 
 // the key used to index Telegram Cloud Storage
-const telegramCloudStorageKey = "telegramCloudStorageKey";
+const telegramCloudStorageKey = "@turnkey/telegramCloudStorageKey";
 
 // get the item stored in Telegram Cloud Storage returned as a string
 const item = await stamper.getItem(telegramCloudStorageKey);
@@ -118,7 +118,7 @@ const apiPublicKey = "...";
 const apiPrivateKey = "...";
 
 // the key used to index Telegram Cloud Storage
-const telegramCloudStorageKey = "telegramCloudStorageKey";
+const telegramCloudStorageKey = "@turnkey/telegramCloudStorageKey";
 
 // insert the API key in Telegram Cloud Storage
 const stored = await stamper.insertAPIKey(apiPublicKey, apiPrivateKey, telegramCloudStorageKey);
@@ -147,7 +147,7 @@ const apiPublicKey = "...";
 const apiPrivateKey = "...";
 
 // the key used to index Telegram Cloud Storage
-const telegramCloudStorageKey = "telegramCloudStorageKey";
+const telegramCloudStorageKey = "@turnkey/telegramCloudStorageKey";
 
 // insert the API key in Telegram Cloud Storage
 const stored = await stamper.setSigningKey({
