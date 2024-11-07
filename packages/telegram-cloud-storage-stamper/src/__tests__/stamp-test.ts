@@ -4,6 +4,25 @@ import { readFixture } from "../__fixtures__/shared";
 import { assertValidSignature } from "./shared";
 import { fail } from "assert";
 
+window.Telegram.WebApp.CloudStorage = {
+  async setItem(key: string, value: string, callback: (error: any, stored: boolean) => void) {
+    localStorage.setItem(key, value);
+    callback(null, true)
+  },
+  async getItem(key: string, callback: (error: any, value: string) => void ) {
+    let item = localStorage.getItem(key);
+    if (!item) {
+      item = ""
+    }
+    callback(null, item)
+  },
+  async removeItem(key: string, callback: (error: any, cleared: boolean) => void) {
+    localStorage.removeItem(key);
+    callback(null, true);
+  }
+};
+
+
 test("uses provided signature to make stamp", async function () {
   const { privateKey, publicKey, pemPublicKey } = await readFixture();
 
@@ -16,7 +35,7 @@ test("uses provided signature to make stamp", async function () {
     const stamper = await TelegramCloudStorageStamper.create({
       cloudStorageAPIKey: apiKey
     })
-  
+
     const messageToSign = "hello from TKHQ!";
     const stamp = await stamper.stamp(messageToSign);
   

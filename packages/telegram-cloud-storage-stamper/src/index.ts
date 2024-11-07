@@ -38,7 +38,7 @@ export default class TelegramCloudStorageStamper {
   // create a telegram stamper by getting/setting the private/public API key values from/to telegram cloud storage
   static async create(
     config?: TTelegramCloudStorageStamperConfig
-  ): Promise<TelegramCloudStorageStamper> {
+  ) {
     let telegramStamper = new TelegramCloudStorageStamper()
 
     if(!await telegramStamper.setSigningKey(config)) {
@@ -223,18 +223,18 @@ export default class TelegramCloudStorageStamper {
     return new Promise((resolve, reject) => {
       window.Telegram.WebApp.CloudStorage.getItem(
         key,
-        (err: any, apiKey: string) => {
-          if (err != null || !apiKey) {
+        (err: any, value: string) => {
+          if (err != null || !value) {
             reject(
               new TelegramCloudStorageStamperError(
-                `Failed getting key: ${key} from Telegram Cloud Storage${
+                `Failed getting value: ${key} from Telegram Cloud Storage${
                   err && `: ${err}`
                 }`
               )
             );
           }
 
-          resolve(apiKey);
+          resolve(value);
         }
       );
     });
@@ -255,7 +255,7 @@ export default class TelegramCloudStorageStamper {
               )
             );
           }
-
+          
           resolve(stored);
         }
       );
