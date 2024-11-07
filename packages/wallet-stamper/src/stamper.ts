@@ -11,7 +11,7 @@ import {
   SIGNATURE_SCHEME_TK_API_ED25519,
   STAMP_HEADER_NAME,
 } from "./constants";
-import { type Hex } from "viem";
+import type { Hex } from "viem";
 
 // WalletStamper class implements the TStamper interface to use wallet's signature and public key
 // to authenticate requests to Turnkey.

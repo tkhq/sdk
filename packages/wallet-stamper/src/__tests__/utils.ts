@@ -14,7 +14,13 @@ const client = createWalletClient({
 
 export function setupEthereumMock() {
   beforeEach(() => {
-    const request = async ({ method, params }) => {
+    const request = async ({
+      method,
+      params,
+    }: {
+      method: string;
+      params: any[];
+    }) => {
       if (method === "personal_sign") {
         const signature = await client.signMessage({ message: params[0] });
         return signature;
@@ -22,6 +28,7 @@ export function setupEthereumMock() {
       if (method === "eth_requestAccounts") {
         return [account.address];
       }
+      return null;
     };
 
     // Mock window.ethereum

@@ -1,20 +1,20 @@
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
+import { WalletStamper, type WalletInterface } from "@turnkey/wallet-stamper";
 
 import { VERSION } from "./__generated__/version";
 import WindowWrapper from "./__polyfills__/window";
 
-import type {
-  GrpcStatus,
-  TurnkeySDKClientConfig,
-  TurnkeySDKBrowserConfig,
-  IframeClientParams,
-  TurnkeyWalletClientConfig,
-  TSessionResponse,
+import {
+  type GrpcStatus,
+  type TurnkeySDKClientConfig,
+  type TurnkeySDKBrowserConfig,
+  type IframeClientParams,
+  type TurnkeyWalletClientConfig,
+  TurnkeyRequestError,
+  AuthClient,
 } from "./__types__/base";
-import { AuthClient } from "./__types__/base";
-import { TurnkeyRequestError } from "./__types__/base";
 
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 import type * as SdkApiTypes from "./__generated__/sdk_api_types";
@@ -29,14 +29,13 @@ import {
   StorageKeys,
   getStorageValue,
   removeStorageValue,
-  setStorageValue,
+  saveSession,
 } from "./storage";
 import {
   generateRandomBuffer,
   base64UrlEncode,
   createEmbeddedAPIKey,
 } from "./utils";
-import { WalletStamper, type WalletInterface } from "@turnkey/wallet-stamper";
 
 const DEFAULT_SESSION_EXPIRATION = "900"; // default to 15 minutes
 
@@ -263,50 +262,6 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
     this.authClient = authClient;
   }
 
-  async saveSession({
-    organizationId,
-    organizationName,
-    sessionExpiry,
-    credentialBundle,
-    userId,
-    username,
-    ...sessionResponse
-  }: TSessionResponse) {
-    if (!this.authClient) {
-      throw new Error("Failed to save session: Authentication client not set");
-    }
-
-    const expiry = Number(sessionExpiry);
-    const session = credentialBundle
-      ? {
-          write: {
-            credentialBundle,
-            expiry,
-          },
-        }
-      : {
-          read: {
-            token: sessionResponse.session!,
-            expiry,
-          },
-        };
-
-    const userSession: User = {
-      userId,
-      username,
-      organization: {
-        organizationId,
-        organizationName,
-      },
-      session: {
-        authenticatedClient: this.authClient,
-        ...session,
-      },
-    };
-
-    await setStorageValue(StorageKeys.UserSession, userSession);
-  }
-
   login = async (config?: {
     organizationId?: string;
   }): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
@@ -314,7 +269,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
       config || {}
     );
 
-    await this.saveSession(readOnlySessionResult);
+    await saveSession(readOnlySessionResult, this.authClient);
 
     return readOnlySessionResult!;
   };
@@ -344,11 +299,11 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
     const readWriteSessionResultWithSession = {
       ...readWriteSessionResult,
       session: readWriteSessionResult.credentialBundle,
-      sessionExpiry: expirationSeconds,
+      sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
     };
 
     // store auth bundle in local storage
-    await this.saveSession(readWriteSessionResultWithSession);
+    await saveSession(readWriteSessionResultWithSession, this.authClient);
 
     return readWriteSessionResultWithSession;
   };
@@ -450,16 +405,23 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION,
     organizationId?: string
   ): Promise<ReadWriteSession> => {
-    const localStorageUser = await getStorageValue(StorageKeys.UserSession);
-    userId = userId ?? localStorageUser?.userId;
+    const user = await getStorageValue(StorageKeys.UserSession);
+    organizationId = organizationId ?? user?.organization.organizationId;
 
-    const { authBundle, publicKey } = await createEmbeddedAPIKey(
-      targetEmbeddedKey
-    );
+    if (!organizationId) {
+      throw new Error(
+        "Error creating passkey session: Organization ID is required"
+      );
+    }
+
+    userId = userId ?? user?.userId;
+
+    const { authBundle: credentialBundle, publicKey } =
+      await createEmbeddedAPIKey(targetEmbeddedKey);
 
     // add API key to Turnkey User
     await this.createApiKeys({
-      organizationId: organizationId!,
+      organizationId,
       userId,
       apiKeys: [
         {
@@ -471,21 +433,24 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
       ],
     });
 
-    const session: ReadWriteSession = {
-      credentialBundle: authBundle,
-      expiry: Date.now() + Number(expirationSeconds) * 1000,
+    const expiry = Date.now() + Number(expirationSeconds) * 1000;
+
+    await saveSession(
+      {
+        organizationId,
+        organizationName: user?.organization.organizationName ?? "",
+        userId,
+        username: user?.username ?? "",
+        credentialBundle,
+        sessionExpiry: expiry,
+      },
+      this.authClient
+    );
+
+    return {
+      credentialBundle,
+      expiry,
     };
-
-    await this.saveSession({
-      organizationId: organizationId!,
-      organizationName: "",
-      userId,
-      username: "",
-      credentialBundle: authBundle,
-      sessionExpiry: session.expiry,
-    });
-
-    return session;
   };
 }
 
