@@ -4,6 +4,7 @@ import { readFixture } from "../__fixtures__/shared";
 import { assertValidSignature } from "./shared";
 import { fail } from "assert";
 
+// alias window.Telegram.WebApp.CloudStorage to use mock localStorage
 window.Telegram.WebApp.CloudStorage = {
   async setItem(
     key: string,
