@@ -27,6 +27,8 @@ The `.create()` and `.setSigningKey()` functions take one of the following 4 set
   
 The `.getAPIKey()` and `.setAPIKey()` functions operate in a similar manner taking an optional `key` parameter that will be used to `get` or `set` the API key at that location if it is passed, or at the default location if it is not passed.
 
+The following section will describe the usage of the helper functions provided for interfacing with Telegram Cloud Storage. These functions, mostly, return a boolean indicating if something was stored. They also return "" if there is no value when trying to retrieve an item from Cloud Storage or a string of the value that was stored. It should be noted that there are lower level functions that will throw errors propogating errors directly from Telegram, these functions are: `getCloudStorageItem`, `setCloudStorageItem`, and `clearCloudStorageItem`. Usage of these functions can be observed in the implementation of the helper functions such as `getItem`, `setItem`, `clearItem`.
+
 ### Usage
 Insert a new API key into Telegram Cloud Storage at the default API key location
 

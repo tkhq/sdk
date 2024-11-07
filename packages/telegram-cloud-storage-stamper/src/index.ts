@@ -169,7 +169,7 @@ export default class TelegramCloudStorageStamper {
     this.checkTelegramContext();
 
     try {
-      return await this.clearKey(key)
+      return await this.clearCloudStorageItem(key)
     } catch {
       return false
     }
@@ -263,7 +263,7 @@ export default class TelegramCloudStorageStamper {
   }
 
   // clear key from telegram cloud storage
-  async clearKey(key: string) {
+  async clearCloudStorageItem(key: string) {
     // check to see if we're in a telegram mini app context
     this.checkTelegramContext();
 
