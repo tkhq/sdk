@@ -12,10 +12,7 @@ const config = {
   testEnvironment: "./src/__mocks__/telegram-environment.ts", // state that the tests should be run in a browser environment
   resetMocks: false,
   setupFiles: ["jest-localstorage-mock"],
-  modulePathIgnorePatterns: [
-    "./dist",
-    "./.rollup.cache"
-  ]
+  modulePathIgnorePatterns: ["./dist", "./.rollup.cache"],
 };
 
 module.exports = config;
