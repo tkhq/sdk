@@ -36,15 +36,14 @@ export default class TelegramCloudStorageStamper {
   }
 
   // create a telegram stamper by getting/setting the private/public api key values from/to telegram cloud storage
-  async create(
+  static async create(
     config?: TTelegramCloudStorageStamperConfig
-  ): Promise<TelegramCloudStorageStamper | undefined> {
-    // check to see if were in a telegram mini app context
-    this.checkTelegramContext();
-
+  ): Promise<TelegramCloudStorageStamper> {
     let telegramStamper = new TelegramCloudStorageStamper()
 
-    await telegramStamper.setSigningKey(config)
+    if(!await telegramStamper.setSigningKey(config)) {
+      throw new TelegramCloudStorageStamperError("Failed initializing Telegram Cloud Storage Stamper");
+    }
 
     return telegramStamper;
   }

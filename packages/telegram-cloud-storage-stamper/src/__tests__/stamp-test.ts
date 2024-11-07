@@ -1,40 +1,48 @@
 import { test, expect } from "@jest/globals";
-import TelegramCloudStorageStamper from "../index";
+import TelegramCloudStorageStamper, { CloudStorageAPIKey } from "../index";
 import { readFixture } from "../__fixtures__/shared";
 import { assertValidSignature } from "./shared";
+import { fail } from "assert";
 
 test("uses provided signature to make stamp", async function () {
   const { privateKey, publicKey, pemPublicKey } = await readFixture();
 
-  // ToDo: init fails since there isn't an actual Telegram environment here
-  const stamper = await TelegramCloudStorageStamper.create({
+  const apiKey: CloudStorageAPIKey = {
     apiPublicKey: publicKey,
     apiPrivateKey: privateKey,
-  })
+  }
 
-  const messageToSign = "hello from TKHQ!";
-  const stamp = await stamper.stamp(messageToSign);
-
-  expect(stamp.stampHeaderName).toBe("X-Stamp");
-
-  // We expect the stamp to be base64url encoded
-  const decodedStamp = JSON.parse(
-    Buffer.from(stamp.stampHeaderValue, "base64url").toString()
-  );
-  // ...with 3 keys.
-  expect(Object.keys(decodedStamp)).toEqual([
-    "publicKey",
-    "scheme",
-    "signature",
-  ]);
-
-  // We assert against these keys one-by-one because P256 signatures aren't deterministic.
-  // Can't snapshot!
-  expect(decodedStamp["publicKey"]).toBe(publicKey);
-  expect(decodedStamp["scheme"]).toBe("SIGNATURE_SCHEME_TK_API_P256");
-  assertValidSignature({
-    content: messageToSign,
-    pemPublicKey: pemPublicKey,
-    signature: decodedStamp["signature"],
-  });
+  try {
+    const stamper = await TelegramCloudStorageStamper.create({
+      cloudStorageAPIKey: apiKey
+    })
+  
+    const messageToSign = "hello from TKHQ!";
+    const stamp = await stamper.stamp(messageToSign);
+  
+    expect(stamp.stampHeaderName).toBe("X-Stamp");
+  
+    // We expect the stamp to be base64url encoded
+    const decodedStamp = JSON.parse(
+      Buffer.from(stamp.stampHeaderValue, "base64url").toString()
+    );
+    // ...with 3 keys.
+    expect(Object.keys(decodedStamp)).toEqual([
+      "publicKey",
+      "scheme",
+      "signature",
+    ]);
+  
+    // We assert against these keys one-by-one because P256 signatures aren't deterministic.
+    // Can't snapshot!
+    expect(decodedStamp["publicKey"]).toBe(publicKey);
+    expect(decodedStamp["scheme"]).toBe("SIGNATURE_SCHEME_TK_API_P256");
+    assertValidSignature({
+      content: messageToSign,
+      pemPublicKey: pemPublicKey,
+      signature: decodedStamp["signature"],
+    });
+  } catch (e) {
+    fail()
+  }
 });
