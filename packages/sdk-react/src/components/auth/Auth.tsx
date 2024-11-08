@@ -41,6 +41,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   const [oauthLoading, setOauthLoading] = useState<string>("");
   const [suborgId, setSuborgId] = useState<string>("");
   const [resendText, setResendText] = useState("Re-send Code");
+  const [firstTimePasskey, setFirstTimePasskey] = useState("");
   const otpInputRef = useRef<any>(null);
   
   useEffect(() => {
@@ -470,10 +471,10 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
             </div>
           )}
 
-          <div className={styles.tos}>
             {!otpId ? (
+                <div className={styles.tos}>
               <span>
-                By logging in you agree to our{" "}
+                By continuing, you agree to our{" "}
                 <a
                   href="https://www.turnkey.com/legal/terms"
                   target="_blank"
@@ -492,7 +493,9 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
                   Privacy Policy
                 </a>
               </span>
+              </div>
             ) : (
+              <div className={styles.resendCode}>
               <span>
                 <span
                   onClick={
@@ -502,15 +505,16 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
                     cursor:
                       resendText === "Re-send Code" ? "pointer" : "not-allowed",
                   }}
-                  className={styles.tosBold}
+                  className={styles.resendCodeBold}
                 >
                   {resendText}
                 </span>
               </span>
+              </div>
             )}
-          </div>
+  
 
-          <div className={styles.poweredBy}>
+          <div onClick={() => window.location.href = "https://www.turnkey.com/"} className={styles.poweredBy}>
             <span>Powered by</span>
             <svg
               width="60"
