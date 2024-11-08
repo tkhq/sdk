@@ -137,7 +137,7 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
           <div className={styles.toggleContainer}>
             <div className={styles.toggleRow}>
               <div className={styles.labelContainer}>
-                <AppsIcon sx={{ color: "var(--Greyscale-40, #D1D5DB)" }} />
+              <img src="/dots.svg"/>
                 <Typography>Email</Typography>
               </div>
               <Switch
@@ -157,7 +157,7 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
 
             <div className={styles.toggleRow}>
               <div className={styles.labelContainer}>
-                <AppsIcon sx={{ color: "var(--Greyscale-40, #D1D5DB)" }} />
+              <img src="/dots.svg"/>
                 <Typography>Passkey</Typography>
               </div>
               <Switch
@@ -177,7 +177,7 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
 
             <div className={styles.toggleRow}>
               <div className={styles.labelContainer}>
-                <AppsIcon sx={{ color: "var(--Greyscale-40, #D1D5DB)" }} />
+              <img src="/dots.svg"/>
                 <Typography>Phone</Typography>
               </div>
               <Switch
@@ -194,10 +194,10 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
                 onChange={() => toggleConfig("phone")}
               />
             </div>
-
-            <div className={styles.toggleRow}>
+                <div className = {styles.socialContainer}>
+            <div className={styles.toggleSocialRow}>
               <div className={styles.labelContainer}>
-                <AppsIcon sx={{ color: "var(--Greyscale-40, #D1D5DB)" }} />
+              <img src="/dots.svg"/>
                 <Typography>Socials</Typography>
               </div>
               <Switch
@@ -213,12 +213,12 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
                 checked={config.socials.enabled}
                 onChange={() => toggleSocials("enabled")}
               />
-            </div>
 
-            {config.socials.enabled && (
-              <>
-                <div className={styles.toggleRow}>
+
+            </div>
+                <div className={styles.toggleSocialIndividualRow}>
                   <div className={styles.labelContainer}>
+                  <img src="/google.svg" className = {styles.iconSmall}/>
                     <Typography>Google</Typography>
                   </div>
                   <Switch
@@ -236,8 +236,9 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
                     onChange={() => toggleSocials("google")}
                   />
                 </div>
-                <div className={styles.toggleRow}>
+                <div className={styles.toggleSocialIndividualRow}>
                   <div className={styles.labelContainer}>
+                  <img src="/apple.svg" className = {styles.iconSmall}/>
                     <Typography>Apple</Typography>
                   </div>
                   <Switch
@@ -255,8 +256,9 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
                     onChange={() => toggleSocials("apple")}
                   />
                 </div>
-                <div className={styles.toggleRow}>
+                <div className={styles.toggleSocialIndividualRow}>
                   <div className={styles.labelContainer}>
+                  <img src="/facebook.svg" className = {styles.iconSmall}/>
                     <Typography>Facebook</Typography>
                   </div>
                   <Switch
@@ -274,9 +276,8 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
                     onChange={() => toggleSocials("facebook")}
                   />
                 </div>
-              </>
-            )}
-          </div>
+                </div>
+                </div>
 
           <div className={styles.copyConfigButton} onClick={handleCopyConfig}>
             <ContentCopyIcon fontSize="small" />

@@ -35,7 +35,7 @@
 
 .authConfigCard {
   background: var(--Greyscale-20, #f5f7fb);
-  padding: 16px;
+  padding: 32px;
   border-radius: 8px;
   width: 542px;
   height: 642px;
@@ -47,11 +47,11 @@
   justify-content: space-between;
 }
 .configTitle {
-  font-size: 24px;
+  font-size: 32px;
   font-weight: 700;
-  line-height: 26px;
+  line-height: 36px;
   letter-spacing: -0.01em;
-  text-align: center;
+  text-align: left;
   margin-bottom: 16px;
   margin-top: 16px;
 }
@@ -78,6 +78,26 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.toggleSocialRow {
+  background-color: #ffffff;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.toggleSocialIndividualRow {
+  background-color: var(--Greyscale-20, #f5f7fb);
+  display: flex;
+  margin-left: 16px;
+  padding-left: 16px;
+  padding-top:4px;
+  padding-bottom: 4px;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .copyConfigButton {
   display: flex;
   align-items: center;
@@ -100,4 +120,17 @@
 
 .success {
   justify-items: center;
+}
+
+.iconSmall {
+  width: 18px;
+  height: 18px;
+}
+
+.socialContainer{
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 8px 16px;
+  padding-bottom: 16px;
+  background-color: #ffffff;
 }
