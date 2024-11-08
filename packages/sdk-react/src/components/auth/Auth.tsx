@@ -1,5 +1,5 @@
 import styles from "./Auth.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTurnkey } from "../../hooks/useTurnkey";
 import {
   initOtpAuth,
@@ -41,7 +41,8 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   const [oauthLoading, setOauthLoading] = useState<string>("");
   const [suborgId, setSuborgId] = useState<string>("");
   const [resendText, setResendText] = useState("Re-send Code");
-
+  const otpInputRef = useRef<any>(null);
+  
   useEffect(() => {
     if (error) {
       alert(error);
@@ -172,15 +173,19 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   };
 
   const handleValidateOtp = async (otp: string) => {
+    setOtpError(null)
     const authResponse = await otpAuth({
       suborgID: suborgId,
       otpId: otpId!,
       otpCode: otp,
       targetPublicKey: authIframeClient!.iframePublicKey!,
     });
-    authResponse?.credentialBundle
-      ? await handleAuthSuccess(authResponse.credentialBundle)
-      : setOtpError("Invalid code, please try again");
+    if (authResponse?.credentialBundle) {
+      await handleAuthSuccess(authResponse.credentialBundle);
+    } else {
+      setOtpError("Invalid code. Please try again");
+      otpInputRef.current.resetOtp(); 
+    }
   };
 
   const handleGoogleLogin = async (response: any) => {
@@ -403,18 +408,21 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
                 </div>
 
                 <span>
-                  We've sent a verification code to{" "}
+                Enter the 6-digit code we sent to{" "}
                   <div className={styles.verificationBold}>
                     {step === "otpEmail" ? email : phone}
                   </div>
                 </span>
                 <OTPInput
-                  onChange={() => setOtpError(null)}
+                  ref = {otpInputRef}
                   onComplete={handleValidateOtp}
+                  hasError={!!otpError}
                 />
               </div>
             )}
-            {otpError && <div className={styles.errorText}>{otpError}</div>}
+            <div className={styles.errorText}> 
+            {otpError ? otpError : " "}
+            </div>
           </div>
           {!otpId &&
             (authConfig.googleEnabled ||
@@ -486,7 +494,6 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
               </span>
             ) : (
               <span>
-                Did not receive your code?{" "}
                 <span
                   onClick={
                     resendText === "Re-send Code" ? handleResendCode : undefined
