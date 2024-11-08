@@ -132,7 +132,7 @@ const apiPrivateKey = "...";
 const telegramCloudStorageKey = "@turnkey/telegramCloudStorageKey";
 
 // insert the API key in Telegram Cloud Storage
-const stored = await stamper.insertAPIKey(
+await stamper.insertAPIKey(
   apiPublicKey,
   apiPrivateKey,
   telegramCloudStorageKey
@@ -192,7 +192,7 @@ const apiKey2: CloudStorageAPIKey = {
 };
 
 // insert the API key in Telegram Cloud Storage
-const stored = await stamper.setSigningKey({
+await stamper.setSigningKey({
   cloudStorageAPIKey: apiKey2,
 });
 ```

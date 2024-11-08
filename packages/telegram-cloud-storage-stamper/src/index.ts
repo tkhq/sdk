@@ -214,7 +214,7 @@ export default class TelegramCloudStorageStamper {
   }
 
   async setItem(key: string, value: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       window.Telegram.WebApp.CloudStorage.setItem(
         key,
         value,
@@ -236,7 +236,7 @@ export default class TelegramCloudStorageStamper {
             );
           }
 
-          resolve(stored);
+          resolve();
         }
       );
     });
@@ -247,7 +247,7 @@ export default class TelegramCloudStorageStamper {
     // check to see if we're in a telegram mini app context
     this.checkTelegramContext();
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       window.Telegram.WebApp.CloudStorage.removeItem(
         key,
         (err: any, removed: boolean) => {
@@ -266,7 +266,7 @@ export default class TelegramCloudStorageStamper {
             );
           }
 
-          resolve(removed);
+          resolve();
         }
       );
     });
