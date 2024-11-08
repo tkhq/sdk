@@ -96,14 +96,14 @@ const whoamiResponse = await client.getWhoami({
 });
 ```
 
-View an entry in Telegram Cloud Storage without inserting an API key, note the usage difference between the `new` and `.create()` here. `.create()` will do the work of getting/setting an API key in Cloud Storage where as `new` will not
+View an entry in Telegram Cloud Storage without inserting an API key, note the usage difference between the `new` and `.create()` here. `.create()` will do the work of getting/setting an API key in Cloud Storage whereas `new` will not
 
 ```ts
 import TelegramCloudStorageStamper, {
   CloudStorageAPIKey,
 } from "@turnkey/telegram-cloud-storage-stamper";
 
-// create a new Telegram Cloud Storage Stamper, "new" is used when you don't want to store or retreieve any API keys, and just need an interface into Cloud Storage
+// create a new Telegram Cloud Storage Stamper, "new" is used when you don't want to store or retrieve any API keys, and just need an interface into Cloud Storage
 const stamper = new TelegramCloudStorageStamper();
 
 // the key used to index Telegram Cloud Storage
@@ -137,10 +137,6 @@ const stored = await stamper.insertAPIKey(
   apiPrivateKey,
   telegramCloudStorageKey
 );
-
-if (!stored) {
-  // failed storing API key
-}
 ```
 
 Set a new API key as the signing key for the stamper at a specified key. This will also insert the API key to that location within Telegram CloudStorage. Any subsequent requests for stamping will sign with this API key. The API key and key can also be omitted and the API key at the default location `@turnkey/TURNKEY_API_KEY` will be used. If an API key is omitted and a key is specified an API key at that location will be used. Refer to [this](#argument-usage) section for a full explanation. A stamper that was originally used to just view Cloud Storage values can later be used for signing by using the `.setSigningKey()` function.
@@ -166,14 +162,10 @@ const apiPrivateKey = "...";
 const telegramCloudStorageKey = "@turnkey/telegramCloudStorageKey";
 
 // insert the API key in Telegram Cloud Storage
-const stored = await stamper.setSigningKey({
+await stamper.setSigningKey({
   cloudStorageAPIKey: apiKey,
   cloudStorageKey: telegramCloudStorageKey,
 });
-
-if (!stored) {
-  // failed setting signing key
-}
 ```
 
 Set a new API key as the signing key for the stamper that previously had a different key set for the stamper.
@@ -203,8 +195,4 @@ const apiKey2: CloudStorageAPIKey = {
 const stored = await stamper.setSigningKey({
   cloudStorageAPIKey: apiKey2,
 });
-
-if (!stored) {
-  // failed setting signing key
-}
 ```

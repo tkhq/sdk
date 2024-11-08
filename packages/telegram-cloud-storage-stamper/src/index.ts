@@ -1,6 +1,9 @@
 /// <reference lib="dom" />
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { TelegramCloudStorageStamperError } from "./errors";
+import {
+  TelegramCloudStorageStamperError,
+  TelegramSuccessButFalseError,
+} from "./errors";
 
 declare global {
   interface Window {
@@ -39,11 +42,7 @@ export default class TelegramCloudStorageStamper {
   static async create(config?: TTelegramCloudStorageStamperConfig) {
     let telegramStamper = new TelegramCloudStorageStamper();
 
-    if (!(await telegramStamper.setSigningKey(config))) {
-      throw new TelegramCloudStorageStamperError(
-        "Failed initializing Telegram Cloud Storage Stamper"
-      );
-    }
+    await telegramStamper.setSigningKey(config);
 
     return telegramStamper;
   }
@@ -76,7 +75,7 @@ export default class TelegramCloudStorageStamper {
           apiPublicKey,
           apiPrivateKey,
         });
-        return true;
+        return;
       }
     } else if (config.cloudStorageKey && !config.cloudStorageAPIKey) {
       // try to get API key at specified location and set the stamper to use that
@@ -89,52 +88,39 @@ export default class TelegramCloudStorageStamper {
           apiPublicKey,
           apiPrivateKey,
         });
-        return true;
+        return;
       }
     } else if (!config.cloudStorageKey && config.cloudStorageAPIKey) {
       // try to set API key at default location and set the stamper to use that
       // passing the DEFAULT_TURNKEY_CLOUD_STORAGE_KEY is not necessary since insertAPIKey will use that by default
-      let stored = await this.insertAPIKey(
+      await this.insertAPIKey(
         config.cloudStorageAPIKey.apiPublicKey,
         config.cloudStorageAPIKey.apiPrivateKey,
         DEFAULT_TURNKEY_CLOUD_STORAGE_KEY
       );
 
-      if (stored === true) {
-        this.stamper = new ApiKeyStamper({
-          apiPublicKey: config.cloudStorageAPIKey.apiPublicKey,
-          apiPrivateKey: config.cloudStorageAPIKey.apiPrivateKey,
-        });
-        return true;
-      }
+      this.stamper = new ApiKeyStamper({
+        apiPublicKey: config.cloudStorageAPIKey.apiPublicKey,
+        apiPrivateKey: config.cloudStorageAPIKey.apiPrivateKey,
+      });
+      return;
     } else if (config.cloudStorageKey && config.cloudStorageAPIKey) {
       // try to set API key at specified location and set the stamper to use that
-      let stored = await this.insertAPIKey(
+      await this.insertAPIKey(
         config.cloudStorageAPIKey.apiPublicKey,
         config.cloudStorageAPIKey.apiPrivateKey,
         config.cloudStorageKey
       );
 
-      if (stored === true) {
-        this.stamper = new ApiKeyStamper({
-          apiPublicKey: config.cloudStorageAPIKey.apiPublicKey,
-          apiPrivateKey: config.cloudStorageAPIKey.apiPrivateKey,
-        });
-        return true;
-      }
+      this.stamper = new ApiKeyStamper({
+        apiPublicKey: config.cloudStorageAPIKey.apiPublicKey,
+        apiPrivateKey: config.cloudStorageAPIKey.apiPrivateKey,
+      });
+      return;
     }
-    return false;
-  }
-
-  async insertItem(key: string, value: string) {
-    // check to see if we're in a telegram mini app context
-    this.checkTelegramContext();
-
-    try {
-      return await this.setCloudStorageItem(key, value);
-    } catch {
-      return false;
-    }
+    throw new TelegramCloudStorageStamperError(
+      "Invalid configuration received for signing key"
+    );
   }
 
   async insertAPIKey(
@@ -142,25 +128,10 @@ export default class TelegramCloudStorageStamper {
     apiPrivateKey: string,
     key: string = DEFAULT_TURNKEY_CLOUD_STORAGE_KEY
   ) {
-    try {
-      return await this.insertItem(
-        key,
-        this.stringifyAPIKey(apiPublicKey, apiPrivateKey)
-      );
-    } catch {
-      return false;
-    }
-  }
-
-  async getItem(key: string) {
-    // check to see if we're in a telegram mini app context
-    this.checkTelegramContext();
-
-    try {
-      return await this.getCloudStorageItem(key);
-    } catch {
-      return "";
-    }
+    return await this.setItem(
+      key,
+      this.stringifyAPIKey(apiPublicKey, apiPrivateKey)
+    );
   }
 
   async getAPIKey(key: string = DEFAULT_TURNKEY_CLOUD_STORAGE_KEY) {
@@ -174,17 +145,6 @@ export default class TelegramCloudStorageStamper {
       return this.parseAPIKey(apiKey as string);
     } catch {
       return { apiPublicKey: "", apiPrivateKey: "" };
-    }
-  }
-
-  async clearItem(key: string) {
-    // check to see if we're in a telegram mini app context
-    this.checkTelegramContext();
-
-    try {
-      return await this.clearCloudStorageItem(key);
-    } catch {
-      return false;
     }
   }
 
@@ -232,12 +192,12 @@ export default class TelegramCloudStorageStamper {
     );
   }
 
-  async getCloudStorageItem(key: string) {
+  async getItem(key: string) {
     return new Promise((resolve, reject) => {
       window.Telegram.WebApp.CloudStorage.getItem(
         key,
         (err: any, value: string) => {
-          if (err != null || !value) {
+          if (err != null) {
             reject(
               new TelegramCloudStorageStamperError(
                 `Failed getting value: ${key} from Telegram Cloud Storage${
@@ -253,18 +213,25 @@ export default class TelegramCloudStorageStamper {
     });
   }
 
-  async setCloudStorageItem(key: string, value: string) {
+  async setItem(key: string, value: string) {
     return new Promise((resolve, reject) => {
       window.Telegram.WebApp.CloudStorage.setItem(
         key,
         value,
         (err: any, stored: boolean) => {
-          if (err != null || !stored) {
+          if (err != null) {
             reject(
               new TelegramCloudStorageStamperError(
                 `Failed inserting value: ${value} into Telegram Cloud Storage at key: ${key}${
                   err && `: ${err}`
                 }`
+              )
+            );
+          }
+          if (!stored) {
+            reject(
+              new TelegramSuccessButFalseError(
+                "Telegram indicated success for storing key, but also returned false, see documention: https://core.telegram.org/bots/webapps#cloudstorage"
               )
             );
           }
@@ -276,18 +243,25 @@ export default class TelegramCloudStorageStamper {
   }
 
   // clear key from telegram cloud storage
-  async clearCloudStorageItem(key: string) {
+  async clearItem(key: string) {
     // check to see if we're in a telegram mini app context
     this.checkTelegramContext();
 
-    await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       window.Telegram.WebApp.CloudStorage.removeItem(
         key,
         (err: any, removed: boolean) => {
-          if (err || !removed) {
+          if (err) {
             reject(
               new TelegramCloudStorageStamperError(
                 `Failed removing key: ${key}${err && `: ${err}`}`
+              )
+            );
+          }
+          if (!removed) {
+            reject(
+              new TelegramSuccessButFalseError(
+                "Telegram indicated success for removing key, but also returned false, see documention: https://core.telegram.org/bots/webapps#cloudstorage"
               )
             );
           }
