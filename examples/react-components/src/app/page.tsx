@@ -7,6 +7,7 @@ import { useTurnkey, Auth } from "@turnkey/sdk-react";
 import { Switch, Typography } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import AppsIcon from "@mui/icons-material/Apps";
+import CustomSwitch from "./Switch";
 
 // Define types for config and socials
 interface SocialConfig {
@@ -140,16 +141,7 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
               <img src="/dots.svg"/>
                 <Typography>Email</Typography>
               </div>
-              <Switch
-                sx={{
-                  "& .MuiSwitch-switchBase.Mui-checked": {
-                    color: "white",
-                  },
-                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                    backgroundColor: "var(--Greyscale-900, #2b2f33)",
-                    opacity: 1,
-                  },
-                }}
+              <CustomSwitch
                 checked={config.email}
                 onChange={() => toggleConfig("email")}
               />
@@ -160,16 +152,7 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
               <img src="/dots.svg"/>
                 <Typography>Passkey</Typography>
               </div>
-              <Switch
-                sx={{
-                  "& .MuiSwitch-switchBase.Mui-checked": {
-                    color: "white",
-                  },
-                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                    backgroundColor: "var(--Greyscale-900, #2b2f33)",
-                    opacity: 1,
-                  },
-                }}
+              <CustomSwitch
                 checked={config.passkey}
                 onChange={() => toggleConfig("passkey")}
               />
@@ -180,16 +163,7 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
               <img src="/dots.svg"/>
                 <Typography>Phone</Typography>
               </div>
-              <Switch
-                sx={{
-                  "& .MuiSwitch-switchBase.Mui-checked": {
-                    color: "white",
-                  },
-                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                    backgroundColor: "var(--Greyscale-900, #2b2f33)",
-                    opacity: 1,
-                  },
-                }}
+              <CustomSwitch
                 checked={config.phone}
                 onChange={() => toggleConfig("phone")}
               />
@@ -200,16 +174,7 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
               <img src="/dots.svg"/>
                 <Typography>Socials</Typography>
               </div>
-              <Switch
-                sx={{
-                  "& .MuiSwitch-switchBase.Mui-checked": {
-                    color: "white",
-                  },
-                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                    backgroundColor: "var(--Greyscale-900, #2b2f33)",
-                    opacity: 1,
-                  },
-                }}
+              <CustomSwitch
                 checked={config.socials.enabled}
                 onChange={() => toggleSocials("enabled")}
               />
@@ -221,17 +186,7 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
                   <img src="/google.svg" className = {styles.iconSmall}/>
                     <Typography>Google</Typography>
                   </div>
-                  <Switch
-                    sx={{
-                      "& .MuiSwitch-switchBase.Mui-checked": {
-                        color: "white",
-                      },
-                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                        {
-                          backgroundColor: "var(--Greyscale-900, #2b2f33)",
-                          opacity: 1,
-                        },
-                    }}
+                  <CustomSwitch
                     checked={config.socials.google}
                     onChange={() => toggleSocials("google")}
                   />
@@ -241,17 +196,7 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
                   <img src="/apple.svg" className = {styles.iconSmall}/>
                     <Typography>Apple</Typography>
                   </div>
-                  <Switch
-                    sx={{
-                      "& .MuiSwitch-switchBase.Mui-checked": {
-                        color: "white",
-                      },
-                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                        {
-                          backgroundColor: "var(--Greyscale-900, #2b2f33)",
-                          opacity: 1,
-                        },
-                    }}
+                  <CustomSwitch
                     checked={config.socials.apple}
                     onChange={() => toggleSocials("apple")}
                   />
@@ -261,17 +206,7 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
                   <img src="/facebook.svg" className = {styles.iconSmall}/>
                     <Typography>Facebook</Typography>
                   </div>
-                  <Switch
-                    sx={{
-                      "& .MuiSwitch-switchBase.Mui-checked": {
-                        color: "white",
-                      },
-                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                        {
-                          backgroundColor: "var(--Greyscale-900, #2b2f33)",
-                          opacity: 1,
-                        },
-                    }}
+                  <CustomSwitch
                     checked={config.socials.facebook}
                     onChange={() => toggleSocials("facebook")}
                   />
