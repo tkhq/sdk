@@ -189,7 +189,27 @@ button:disabled {
   letter-spacing: -0.01em;
   text-align: center;
   color: var(--Greyscale-500, #868c95);
-  margin-top: 12px;
+  margin-top: 20px;
+}
+
+.resendCode {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--Greyscale-500, #868c95);
+}
+
+.resendCodeBold {
+  color: var(--Greyscale-900, #2b2f33);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tosBold {
+  color: var(--Greyscale-900, #2b2f33);
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .tosBold {
@@ -233,6 +253,7 @@ button:disabled {
   letter-spacing: -0.01em;
   color: var(--Greyscale-500, #868c95);
   margin-top: 16px;
+  cursor: pointer;
 }
 
 .poweredBy span {
