@@ -2325,7 +2325,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Removes an organization feature
+   * Removes an organization feature. This activity must be approved by the current root quorum.
    *
    * Sign the provided `TRemoveOrganizationFeatureBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/remove_organization_feature).
    *
@@ -2357,7 +2357,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Sets an organization feature
+   * Sets an organization feature. This activity must be approved by the current root quorum.
    *
    * Sign the provided `TSetOrganizationFeatureBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/set_organization_feature).
    *
@@ -2545,7 +2545,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Set the threshold and members of the root quorum. This must be approved by the current root quorum.
+   * Set the threshold and members of the root quorum. This activity must be approved by the current root quorum.
    *
    * Sign the provided `TUpdateRootQuorumBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_root_quorum).
    *
