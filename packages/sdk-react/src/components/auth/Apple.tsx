@@ -3,7 +3,7 @@ import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import AppleLogin from "react-apple-login";
 import { SiApple } from "@icons-pack/react-simple-icons";
-import styles from "./Apple.module.css";
+import styles from "./Socials.module.css";
 interface AppleAuthButtonProps {
   iframePublicKey: string;
   clientId: string;
@@ -51,9 +51,10 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
       responseType="code id_token"
       responseMode="fragment"
       render={({ onClick }) => (
-        <div onClick={onClick} className={styles.appleButton}>
-          <SiApple />
-          <span className={styles.buttonText}>Continue with Apple</span>
+        <div onClick={onClick} className={styles.socialButton}>
+          {/* <SiApple /> */}
+          <img src="/apple.svg" className = {styles.iconSmall}/>
+          <span> Apple</span>
         </div>
       )}
       callback={(response) => {
