@@ -1816,6 +1816,9 @@ importers:
       '@turnkey/wallet-stamper':
         specifier: workspace:*
         version: link:../wallet-stamper
+      libphonenumber-js:
+        specifier: ^1.11.14
+        version: 1.11.14
       next:
         specifier: ^15.0.2
         version: 15.0.2(@babel/core@7.24.5)(react-dom@18.3.1)(react@18.2.0)
@@ -19659,6 +19662,10 @@ packages:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  /libphonenumber-js@1.11.14:
+    resolution: {integrity: sha512-sexvAfwcW1Lqws4zFp8heAtAEXbEDnvkYCEGzvOoMgZR7JhXo/IkE9MkkGACgBed5fWqh3ShBGnJBdDnU9N8EQ==}
+    dev: false
 
   /libsodium-sumo@0.7.11:
     resolution: {integrity: sha512-bY+7ph7xpk51Ez2GbE10lXAQ5sJma6NghcIDaSPbM/G9elfrjLa0COHl/7P6Wb/JizQzl5UQontOOP1z0VwbLA==}

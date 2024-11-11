@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { SiFacebook } from "@icons-pack/react-simple-icons";
-import styles from "./Facebook.module.css";
+import styles from "./Socials.module.css";
 import { exchangeCodeForToken, generateChallengePair } from "./facebook-utils";
 import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex } from "@noble/hashes/utils";
@@ -93,9 +93,10 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
   };
 
   return (
-    <div className={styles.facebookButton} onClick={initiateFacebookLogin}>
-      <SiFacebook />
-      <span className={styles.buttonText}>Continue with Facebook</span>
+    <div className={styles.socialButton} onClick={initiateFacebookLogin}>
+      {/* <SiFacebook /> */}
+      <img src="/facebook.svg" className = {styles.iconSmall}/>
+      <span>Facebook</span>
     </div>
   );
 };

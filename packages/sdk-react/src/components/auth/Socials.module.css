@@ -1,0 +1,28 @@
+.socialButton {
+  padding: 10px 16px 10px 16px;
+  gap: 8px;
+  color: var(--Greyscale-900, #2b2f33);
+  width: 100%;
+  font-size: 1rem;
+  background: #ffffff;
+  border: 1px solid var(--Greyscale-400, #a2a7ae);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: start;
+  align-items: center;
+  justify-content: center;
+    display: flex;
+    align-items: center; 
+    justify-content: start; 
+    transition: background-color 0.2s ease;
+}
+
+.socialButton:hover {
+  background-color: #f0f8ff; 
+}
+
+.iconSmall {
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
+}

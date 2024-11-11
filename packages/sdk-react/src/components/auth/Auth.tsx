@@ -17,6 +17,7 @@ import { CircularProgress } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import AppleIcon from "@mui/icons-material/Apple";
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 interface AuthProps {
   onHandleAuthSuccess: () => Promise<void>;
@@ -44,6 +45,11 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   const [firstTimePasskey, setFirstTimePasskey] = useState("");
   const otpInputRef = useRef<any>(null);
   
+  const formatPhoneNumber = (phone: string) => {
+    const phoneNumber = parsePhoneNumberFromString(phone);
+    return phoneNumber ? phoneNumber.formatInternational() : phone;
+  };
+
   useEffect(() => {
     if (error) {
       alert(error);
@@ -330,6 +336,12 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
               </div>
             )}
 
+{
+  authConfig.emailEnabled && authConfig.passkeyEnabled && !otpId &&
+<div className={styles.separator}>
+                  <span>OR</span>
+                </div>
+}
             {authConfig.passkeyEnabled && !otpId && (
               <div>
                 <button
@@ -340,6 +352,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
                 >
                   Continue with passkey
                 </button>
+                
               </div>
             )}
             {!otpId &&
@@ -411,7 +424,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
                 <span>
                 Enter the 6-digit code we sent to{" "}
                   <div className={styles.verificationBold}>
-                    {step === "otpEmail" ? email : phone}
+                    {step === "otpEmail" ? email : formatPhoneNumber(phone)}
                   </div>
                 </span>
                 <OTPInput
@@ -515,7 +528,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   
 
           <div onClick={() => window.location.href = "https://www.turnkey.com/"} className={styles.poweredBy}>
-            <span>Powered by</span>
+            <span>Secured by</span>
             <svg
               width="60"
               height="11"

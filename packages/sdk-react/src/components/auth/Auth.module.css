@@ -108,7 +108,7 @@ button {
 
 button:disabled {
   color: var(--Greyscale-700, #a2a7ae);
-  background: var(--Greyscale-200, #dddddd);
+  background: #ffffff;
   border-color: var(--Greyscale-400, #a2a7ae);
   cursor: not-allowed;
 }
@@ -129,7 +129,7 @@ button:disabled {
 
 .passkeyButton:disabled {
   color: var(--Greyscale-500, #a2a7ae);
-  background: var(--Greyscale-200, #dddddd);
+  background: #ffffff;
   border-color: var(--Greyscale-400, #a2a7ae);
   cursor: not-allowed;
 }
@@ -233,8 +233,7 @@ button:disabled {
 }
 
 .socialButtonContainer {
-  width: 235px;
-  height: 40px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
