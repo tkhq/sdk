@@ -14,18 +14,18 @@ import GoogleAuthButton from "./Google";
 import AppleAuthButton from "./Apple";
 import FacebookAuthButton from "./Facebook";
 import { CircularProgress } from "@mui/material";
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import turnkeyIcon from "assets/turnkey.svg"
+import { parsePhoneNumberFromString } from "libphonenumber-js";
+import turnkeyIcon from "assets/turnkey.svg";
 import googleIcon from "assets/google.svg";
 import facebookIcon from "assets/facebook.svg";
 import appleIcon from "assets/apple.svg";
 import emailIcon from "assets/email.svg";
 import smsIcon from "assets/sms.svg";
-import faceidIcon from "assets/faceid.svg"
-import fingerprintIcon from "assets/fingerprint.svg"
-import checkboxIcon from "assets/checkbox.svg"
-import clockIcon from "assets/clock.svg" 
-import keyholeIcon from "assets/keyhole.svg"
+import faceidIcon from "assets/faceid.svg";
+import fingerprintIcon from "assets/fingerprint.svg";
+import checkboxIcon from "assets/checkbox.svg";
+import clockIcon from "assets/clock.svg";
+import keyholeIcon from "assets/keyhole.svg";
 
 interface AuthProps {
   onHandleAuthSuccess: () => Promise<void>;
@@ -52,7 +52,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   const [resendText, setResendText] = useState("Re-send Code");
   const [passkeySignupScreen, setPasskeySignupScreen] = useState(false);
   const otpInputRef = useRef<any>(null);
-  
+
   const formatPhoneNumber = (phone: string) => {
     const phoneNumber = parsePhoneNumberFromString(phone);
     return phoneNumber ? phoneNumber.formatInternational() : phone;
@@ -81,25 +81,24 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   ) => {
     const getSuborgsResponse = await getSuborgs({ filterType, filterValue });
     let suborgId = getSuborgsResponse!.organizationIds[0];
-    
+
     if (!suborgId) {
       const createSuborgData: Record<string, any> = {
         ...additionalData,
       };
-  
+
       if (filterType === "EMAIL") {
         createSuborgData.email = filterValue;
       } else if (filterType === "PHONE_NUMBER") {
         createSuborgData.phoneNumber = filterValue;
       }
-  
+
       const createSuborgResponse = await createSuborg(createSuborgData);
       suborgId = createSuborgResponse?.subOrganizationId!;
     }
-  
+
     return suborgId;
   };
-  
 
   const handleAuthSuccess = async (credentialBundle: any) => {
     if (credentialBundle) {
@@ -109,71 +108,83 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   };
 
   const handleSignupWithPasskey = async () => {
-    const siteInfo = `${window.location.href} - ${new Date().toLocaleString(undefined, {
-      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
-    })}`;
+    const siteInfo = `${window.location.href} - ${new Date().toLocaleString(
+      undefined,
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }
+    )}`;
     const { encodedChallenge, attestation } =
-    (await passkeyClient?.createUserPasskey({
-      publicKey: { user: { name: siteInfo, displayName: siteInfo } },
-    })) || {};
+      (await passkeyClient?.createUserPasskey({
+        publicKey: { user: { name: siteInfo, displayName: siteInfo } },
+      })) || {};
 
-  if (encodedChallenge && attestation) {
-    // Use the generated passkey to create a new suborg
-    const createSuborgResponse = await createSuborg({
-      email,
-      passkey: {
-        authenticatorName: "First Passkey",
-        challenge: encodedChallenge,
-        attestation,
-      },
+    if (encodedChallenge && attestation) {
+      // Use the generated passkey to create a new suborg
+      const createSuborgResponse = await createSuborg({
+        email,
+        passkey: {
+          authenticatorName: "First Passkey",
+          challenge: encodedChallenge,
+          attestation,
+        },
+      });
+
+      const suborgId = createSuborgResponse?.subOrganizationId;
+      console.log(suborgId);
+    } else {
+      setError("Failed to create user passkey.");
+    }
+    const sessionResponse = await passkeyClient?.createReadWriteSession({
+      targetPublicKey: authIframeClient?.iframePublicKey!,
     });
-
-    const suborgId = createSuborgResponse?.subOrganizationId;
-    console.log(suborgId)
-  }else {
-        setError("Failed to create user passkey.");
-  }
-  const sessionResponse = await passkeyClient?.createReadWriteSession({        targetPublicKey: authIframeClient?.iframePublicKey!,})
     if (sessionResponse?.credentialBundle) {
       await handleAuthSuccess(sessionResponse.credentialBundle);
     } else {
       setError("Failed to complete passkey login.");
     }
-}
+  };
   const handleLoginWithPasskey = async () => {
-    const sessionResponse = await passkeyClient?.createReadWriteSession({        targetPublicKey: authIframeClient?.iframePublicKey!,})
+    const sessionResponse = await passkeyClient?.createReadWriteSession({
+      targetPublicKey: authIframeClient?.iframePublicKey!,
+    });
     if (sessionResponse?.credentialBundle) {
       await handleAuthSuccess(sessionResponse.credentialBundle);
     } else {
       setError("Failed to complete passkey login.");
     }
-  }
-    
-    // if (existingSuborgId) {
-    //   // If a suborg exists, use it to create a read/write session without a new passkey
-    //   const sessionResponse = await passkeyClient?.createReadWriteSession({
-    //     organizationId: existingSuborgId,
-    //     targetPublicKey: authIframeClient?.iframePublicKey!,
-    //   });
+  };
 
-    //   if (sessionResponse?.credentialBundle) {
-    //     await handleAuthSuccess(sessionResponse.credentialBundle);
-    //   } else {
-    //     setError("Failed to complete passkey login.");
-    //   }
-    // } else {
-      // If no suborg exists, first create a user passkey
+  // if (existingSuborgId) {
+  //   // If a suborg exists, use it to create a read/write session without a new passkey
+  //   const sessionResponse = await passkeyClient?.createReadWriteSession({
+  //     organizationId: existingSuborgId,
+  //     targetPublicKey: authIframeClient?.iframePublicKey!,
+  //   });
 
-    //       } else {
-    //         setError("Failed to complete passkey login with new suborg.");
-    //       }
-    //     } else {
-    //       setError("Failed to create suborg with passkey.");
-    //     }
-    //   } else {
-    //     setError("Failed to create user passkey.");
-    //   }
-    // }
+  //   if (sessionResponse?.credentialBundle) {
+  //     await handleAuthSuccess(sessionResponse.credentialBundle);
+  //   } else {
+  //     setError("Failed to complete passkey login.");
+  //   }
+  // } else {
+  // If no suborg exists, first create a user passkey
+
+  //       } else {
+  //         setError("Failed to complete passkey login with new suborg.");
+  //       }
+  //     } else {
+  //       setError("Failed to create suborg with passkey.");
+  //     }
+  //   } else {
+  //     setError("Failed to create user passkey.");
+  //   }
+  // }
 
   const handleOtpLogin = async (
     type: "EMAIL" | "PHONE_NUMBER",
@@ -181,7 +192,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
     otpType: string
   ) => {
     const suborgId = await handleGetOrCreateSuborg(type, value);
-    console.log(suborgId)
+    console.log(suborgId);
     const initAuthResponse = await initOtpAuth({
       suborgID: suborgId,
       otpType,
@@ -193,7 +204,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   };
 
   const handleValidateOtp = async (otp: string) => {
-    setOtpError(null)
+    setOtpError(null);
     const authResponse = await otpAuth({
       suborgID: suborgId,
       otpId: otpId!,
@@ -204,7 +215,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
       await handleAuthSuccess(authResponse.credentialBundle);
     } else {
       setOtpError("Invalid code. Please try again");
-      otpInputRef.current.resetOtp(); 
+      otpInputRef.current.resetOtp();
     }
   };
 
@@ -265,51 +276,52 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
             <CircularProgress
               size={100}
               thickness={1}
-              className={styles.circularProgress}
+              className={styles.circularProgress!}
             />
             {oauthLoading === "Google" && (
-              <img src = {googleIcon} className = {styles.oauthIcon}/>
+              <img src={googleIcon} className={styles.oauthIcon} />
             )}
             {oauthLoading === "Facebook" && (
-                            <img src = {facebookIcon} className = {styles.oauthIcon}/>
+              <img src={facebookIcon} className={styles.oauthIcon} />
             )}
             {oauthLoading === "Apple" && (
-                            <img src = {appleIcon} className = {styles.oauthIcon}/>
+              <img src={appleIcon} className={styles.oauthIcon} />
             )}
           </div>
           <div className={styles.poweredBy}>
             <span>Powered by</span>
-<img src = {turnkeyIcon}/>
+            <img src={turnkeyIcon} />
           </div>
         </div>
-      ) : passkeySignupScreen ?         <div className={styles.authCard}><div className ={styles.passkeyIconContainer} >
-        <img src = {faceidIcon}/>
-        <img src = {fingerprintIcon}/>  
-      </div> 
-      <center><h3>Secure your account with a passkey</h3></center>
+      ) : passkeySignupScreen ? (
+        <div className={styles.authCard}>
+          <div className={styles.passkeyIconContainer}>
+            <img src={faceidIcon} />
+            <img src={fingerprintIcon} />
+          </div>
+          <center>
+            <h3>Secure your account with a passkey</h3>
+          </center>
 
-      <div className={styles.rowsContainer}>
-    <div className={styles.row}>
-      <img src={checkboxIcon} className={styles.rowIcon} />
-      <span>Log in with Touch ID, Face ID, or a security key</span>
-    </div>
-    <div className={styles.row}>
-      <img src={keyholeIcon} className={styles.rowIcon} />
-      <span>More secure than a password</span>
-    </div>
-    <div className={styles.row}>
-      <img src={clockIcon} className={styles.rowIcon} />
-      <span>Takes seconds to set up and use</span>
-    </div>
-
-              </div>
-              <button
-                  type="button"
-                  onClick={handleSignupWithPasskey}
-                >
-                  Create a passkey
-                </button>
-      </div> : (
+          <div className={styles.rowsContainer}>
+            <div className={styles.row}>
+              <img src={checkboxIcon} className={styles.rowIcon} />
+              <span>Log in with Touch ID, Face ID, or a security key</span>
+            </div>
+            <div className={styles.row}>
+              <img src={keyholeIcon} className={styles.rowIcon} />
+              <span>More secure than a password</span>
+            </div>
+            <div className={styles.row}>
+              <img src={clockIcon} className={styles.rowIcon} />
+              <span>Takes seconds to set up and use</span>
+            </div>
+          </div>
+          <button type="button" onClick={handleSignupWithPasskey}>
+            Create a passkey
+          </button>
+        </div>
+      ) : (
         <div className={styles.authCard}>
           <h2>{otpId ? "Enter verification code" : "Log in or sign up"}</h2>
           <div className={styles.authForm}>
@@ -335,21 +347,22 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
               </div>
             )}
 
-{
-  authConfig.emailEnabled && authConfig.passkeyEnabled && !otpId &&
-<div className={styles.separator}>
-                  <span>OR</span>
-                </div>
-}
+            {authConfig.emailEnabled && authConfig.passkeyEnabled && !otpId && (
+              <div className={styles.separator}>
+                <span>OR</span>
+              </div>
+            )}
             {authConfig.passkeyEnabled && !otpId && (
-              <div className = {styles.passkeyContainer}>
-                <button
-                  type="button"
-                  onClick={handleLoginWithPasskey}
-                >
+              <div className={styles.passkeyContainer}>
+                <button type="button" onClick={handleLoginWithPasskey}>
                   Continue with passkey
                 </button>
-                <div className = {styles.noPasskeyLink} onClick={()=> setPasskeySignupScreen(true)}>I don't have a passkey</div>
+                <div
+                  className={styles.noPasskeyLink}
+                  onClick={() => setPasskeySignupScreen(true)}
+                >
+                  I don't have a passkey
+                </div>
               </div>
             )}
             {!otpId &&
@@ -386,28 +399,26 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
               <div className={styles.verification}>
                 <div className={styles.verificationIcon}>
                   {step === "otpEmail" ? (
-                    <img src = {emailIcon}/>
+                    <img src={emailIcon} />
                   ) : (
-<img src = {smsIcon}/>
+                    <img src={smsIcon} />
                   )}
                 </div>
 
                 <span>
-                Enter the 6-digit code we sent to{" "}
+                  Enter the 6-digit code we sent to{" "}
                   <div className={styles.verificationBold}>
                     {step === "otpEmail" ? email : formatPhoneNumber(phone)}
                   </div>
                 </span>
                 <OtpInput
-                  ref = {otpInputRef}
+                  ref={otpInputRef}
                   onComplete={handleValidateOtp}
                   hasError={!!otpError}
                 />
               </div>
             )}
-            <div className={styles.errorText}> 
-            {otpError ? otpError : " "}
-            </div>
+            <div className={styles.errorText}>{otpError ? otpError : " "}</div>
           </div>
           {!otpId &&
             (authConfig.googleEnabled ||
@@ -455,8 +466,8 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
             </div>
           )}
 
-            {!otpId ? (
-                <div className={styles.tos}>
+          {!otpId ? (
+            <div className={styles.tos}>
               <span>
                 By continuing, you agree to our{" "}
                 <a
@@ -477,9 +488,9 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
                   Privacy Policy
                 </a>
               </span>
-              </div>
-            ) : (
-              <div className={styles.resendCode}>
+            </div>
+          ) : (
+            <div className={styles.resendCode}>
               <span>
                 <span
                   onClick={
@@ -494,13 +505,15 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
                   {resendText}
                 </span>
               </span>
-              </div>
-            )}
-  
+            </div>
+          )}
 
-          <div onClick={() => window.location.href = "https://www.turnkey.com/"} className={styles.poweredBy}>
+          <div
+            onClick={() => (window.location.href = "https://www.turnkey.com/")}
+            className={styles.poweredBy}
+          >
             <span>Secured by</span>
-            <img src = {turnkeyIcon}/>
+            <img src={turnkeyIcon} />
           </div>
         </div>
       )}

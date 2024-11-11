@@ -38,7 +38,7 @@
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-preserve-directives": "^1.1.2",
     "@rollup/plugin-alias": "5.1.1",
-    "@rollup/plugin-url":"8.0.2",
+    "@rollup/plugin-url": "8.0.2",
     "tsx": "^3.12.7",
     "typescript": "^5.1.4"
   },

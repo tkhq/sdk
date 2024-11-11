@@ -63,7 +63,7 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
       <Box display="flex" gap={1} justifyContent="center" mt={2}>
         {otp.map((digit, index) => (
           <TextField
-          autoComplete="off"
+            autoComplete="off"
             key={index}
             id={`otp-input-${index}`}
             value={digit}

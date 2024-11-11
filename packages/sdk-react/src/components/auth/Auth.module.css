@@ -276,7 +276,7 @@ button:disabled {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px; 
+  gap: 8px;
   margin: 16px 0;
 }
 
@@ -288,7 +288,7 @@ button:disabled {
   margin-top: 16px;
   width: 95%;
   margin-left: auto;
-  margin-right: auto; 
+  margin-right: auto;
   margin-bottom: 32px;
 }
 
@@ -301,9 +301,8 @@ button:disabled {
   padding-right: 8px;
 }
 
-
 .noPasskeyLink {
-  color: var(--Blue-500, #4C48FF);
+  color: var(--Blue-500, #4c48ff);
   font-size: 0.9rem;
   margin-top: 8px;
   cursor: pointer;

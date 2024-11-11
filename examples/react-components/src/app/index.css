@@ -92,7 +92,7 @@
   display: flex;
   margin-left: 16px;
   padding-left: 16px;
-  padding-top:4px;
+  padding-top: 4px;
   padding-bottom: 4px;
   justify-content: space-between;
   align-items: center;
@@ -127,7 +127,7 @@
   height: 18px;
 }
 
-.socialContainer{
+.socialContainer {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 8px 16px;
