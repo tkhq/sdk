@@ -29,9 +29,15 @@ importers:
       '@jest/types':
         specifier: ^29.3.1
         version: 29.4.3
+      '@rollup/plugin-alias':
+        specifier: 5.1.1
+        version: 5.1.1(rollup@4.22.4)
       '@rollup/plugin-typescript':
         specifier: ^11.1.5
         version: 11.1.5(rollup@4.22.4)(typescript@5.1.5)
+      '@rollup/plugin-url':
+        specifier: 8.0.2
+        version: 8.0.2(rollup@4.22.4)
       '@tsconfig/node16-strictest':
         specifier: ^1.0.4
         version: 1.0.4
@@ -10483,6 +10489,18 @@ packages:
       - supports-color
     dev: false
 
+  /@rollup/plugin-alias@5.1.1(rollup@4.22.4):
+    resolution: {integrity: sha512-PR9zDb+rOzkRb2VD+EuKB7UC41vU5DIwZ5qqCpk0KJudcWAyi8rvYOhS7+L5aZCspw1stTViLgN5v6FF1p5cgQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      rollup: 4.22.4
+    dev: true
+
   /@rollup/plugin-typescript@11.1.5(rollup@4.22.4)(typescript@5.1.5):
     resolution: {integrity: sha512-rnMHrGBB0IUEv69Q8/JGRD/n4/n6b3nfpufUu26axhUcboUzv/twfZU8fIBbTOphRAe0v8EyxzeDpKXqGHfyDA==}
     engines: {node: '>=14.0.0'}
@@ -10500,6 +10518,21 @@ packages:
       resolve: 1.22.1
       rollup: 4.22.4
       typescript: 5.1.5
+    dev: true
+
+  /@rollup/plugin-url@8.0.2(rollup@4.22.4):
+    resolution: {integrity: sha512-5yW2LP5NBEgkvIRSSEdJkmxe5cUNZKG3eenKtfJvSkxVm/xTTu7w+ayBtNwhozl1ZnTUCU0xFaRQR+cBl2H7TQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@rollup/pluginutils': 5.0.5(rollup@4.22.4)
+      make-dir: 3.1.0
+      mime: 3.0.0
+      rollup: 4.22.4
     dev: true
 
   /@rollup/pluginutils@5.0.5(rollup@4.22.4):
@@ -20250,7 +20283,6 @@ packages:
     resolution: {integrity: sha512-jSCU7/VB1loIWBZe14aEYHU/+1UMEHoaO7qxCOVJOw9GgH72VAWppxNcjU+x9a2k3GSIBXNKxXQFqRvvZ7vr3A==}
     engines: {node: '>=10.0.0'}
     hasBin: true
-    dev: false
 
   /mimic-fn@2.1.0:
     resolution: {integrity: sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==}
