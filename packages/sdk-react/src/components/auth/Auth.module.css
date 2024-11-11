@@ -45,8 +45,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 60px;
-  color: gray;
+  width: 60px;
+  height: 60px;
 }
 
 .authCard {

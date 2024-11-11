@@ -9,14 +9,11 @@ import {
   oauth,
 } from "../../actions/";
 import { MuiPhone } from "./PhoneInput";
-import OTPInput from "./OtpInput";
+import OtpInput from "./OtpInput";
 import GoogleAuthButton from "./Google";
 import AppleAuthButton from "./Apple";
 import FacebookAuthButton from "./Facebook";
 import { CircularProgress } from "@mui/material";
-import GoogleIcon from "@mui/icons-material/Google";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import AppleIcon from "@mui/icons-material/Apple";
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 interface AuthProps {
@@ -255,13 +252,13 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
               className={styles.circularProgress}
             />
             {oauthLoading === "Google" && (
-              <GoogleIcon className={styles.oauthIcon} />
+              <img src = "/google.svg" className = {styles.oauthIcon}/>
             )}
             {oauthLoading === "Facebook" && (
-              <FacebookIcon className={styles.oauthIcon} />
+                            <img src = "/facebook.svg" className = {styles.oauthIcon}/>
             )}
             {oauthLoading === "Apple" && (
-              <AppleIcon className={styles.oauthIcon} />
+                            <img src = "/apple.svg" className = {styles.oauthIcon}/>
             )}
           </div>
           <div className={styles.poweredBy}>
@@ -427,7 +424,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
                     {step === "otpEmail" ? email : formatPhoneNumber(phone)}
                   </div>
                 </span>
-                <OTPInput
+                <OtpInput
                   ref = {otpInputRef}
                   onComplete={handleValidateOtp}
                   hasError={!!otpError}

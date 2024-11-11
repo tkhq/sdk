@@ -34,9 +34,8 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
   return (
     <GoogleOAuthProvider clientId={clientId}>
     <div className={styles.socialButton} onClick={handleLogin}>
-      {/* <SiFacebook /> */}
       <img src="/google.svg" className = {styles.iconSmall}/>
-      <span>Google</span>
+      <span>Continue with Google</span>
     </div>
     </GoogleOAuthProvider>
   );
