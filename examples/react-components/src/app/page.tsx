@@ -1,13 +1,12 @@
 "use client";
 
-import styles from "./index.module.css";
 import * as React from "react";
 import { useState } from "react";
 import { useTurnkey, Auth } from "@turnkey/sdk-react";
-import { Switch, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import AppsIcon from "@mui/icons-material/Apps";
 import CustomSwitch from "./Switch";
+import "./index.css";
 
 // Define types for config and socials
 interface SocialConfig {
@@ -24,16 +23,7 @@ interface Config {
   socials: SocialConfig;
 }
 
-interface AuthPageProps {
-  turnkeyClientConfig: {
-    apiBaseUrl: string;
-    defaultOrganizationId: string;
-    apiPublicKey: string;
-    apiPrivateKey: string;
-  };
-}
-
-export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
+export default function AuthPage() {
   const { authIframeClient } = useTurnkey();
   const [orgData, setOrgData] = useState<any>();
 
@@ -120,17 +110,17 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
   };
 
   return (
-    <main className={styles.main}>
+    <main className="main">
       {!orgData && (
-        <div className={styles.authConfigCard}>
-          <Typography variant="h6" className={styles.configTitle}>
+        <div className="authConfigCard">
+          <Typography variant="h6" className="configTitle">
             Authentication config
           </Typography>
 
-          <div className={styles.toggleContainer}>
-            <div className={styles.toggleRow}>
-              <div className={styles.labelContainer}>
-              <img src="/dots.svg"/>
+          <div className="toggleContainer">
+            <div className="toggleRow">
+              <div className="labelContainer">
+                <img src="/dots.svg" />
                 <Typography>Email</Typography>
               </div>
               <CustomSwitch
@@ -139,9 +129,9 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
               />
             </div>
 
-            <div className={styles.toggleRow}>
-              <div className={styles.labelContainer}>
-              <img src="/dots.svg"/>
+            <div className="toggleRow">
+              <div className="labelContainer">
+                <img src="/dots.svg" />
                 <Typography>Passkey</Typography>
               </div>
               <CustomSwitch
@@ -150,9 +140,9 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
               />
             </div>
 
-            <div className={styles.toggleRow}>
-              <div className={styles.labelContainer}>
-              <img src="/dots.svg"/>
+            <div className="toggleRow">
+              <div className="labelContainer">
+                <img src="/dots.svg" />
                 <Typography>Phone</Typography>
               </div>
               <CustomSwitch
@@ -160,56 +150,54 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
                 onChange={() => toggleConfig("phone")}
               />
             </div>
-                <div className = {styles.socialContainer}>
-            <div className={styles.toggleSocialRow}>
-              <div className={styles.labelContainer}>
-              <img src="/dots.svg"/>
-                <Typography>Socials</Typography>
+            <div className="socialContainer">
+              <div className="toggleSocialRow">
+                <div className="labelContainer">
+                  <img src="/dots.svg" />
+                  <Typography>Socials</Typography>
+                </div>
+                <CustomSwitch
+                  checked={config.socials.enabled}
+                  onChange={() => toggleSocials("enabled")}
+                />
               </div>
-              <CustomSwitch
-                checked={config.socials.enabled}
-                onChange={() => toggleSocials("enabled")}
-              />
-
-
+              <div className="toggleSocialIndividualRow">
+                <div className="labelContainer">
+                  <img src="/google.svg" className="iconSmall" />
+                  <Typography>Google</Typography>
+                </div>
+                <CustomSwitch
+                  checked={config.socials.google}
+                  onChange={() => toggleSocials("google")}
+                />
+              </div>
+              <div className="toggleSocialIndividualRow">
+                <div className="labelContainer">
+                  <img src="/apple.svg" className="iconSmall" />
+                  <Typography>Apple</Typography>
+                </div>
+                <CustomSwitch
+                  checked={config.socials.apple}
+                  onChange={() => toggleSocials("apple")}
+                />
+              </div>
+              <div className="toggleSocialIndividualRow">
+                <div className="labelContainer">
+                  <img src="/facebook.svg" className="iconSmall" />
+                  <Typography>Facebook</Typography>
+                </div>
+                <CustomSwitch
+                  checked={config.socials.facebook}
+                  onChange={() => toggleSocials("facebook")}
+                />
+              </div>
             </div>
-                <div className={styles.toggleSocialIndividualRow}>
-                  <div className={styles.labelContainer}>
-                  <img src="/google.svg" className = {styles.iconSmall}/>
-                    <Typography>Google</Typography>
-                  </div>
-                  <CustomSwitch
-                    checked={config.socials.google}
-                    onChange={() => toggleSocials("google")}
-                  />
-                </div>
-                <div className={styles.toggleSocialIndividualRow}>
-                  <div className={styles.labelContainer}>
-                  <img src="/apple.svg" className = {styles.iconSmall}/>
-                    <Typography>Apple</Typography>
-                  </div>
-                  <CustomSwitch
-                    checked={config.socials.apple}
-                    onChange={() => toggleSocials("apple")}
-                  />
-                </div>
-                <div className={styles.toggleSocialIndividualRow}>
-                  <div className={styles.labelContainer}>
-                  <img src="/facebook.svg" className = {styles.iconSmall}/>
-                    <Typography>Facebook</Typography>
-                  </div>
-                  <CustomSwitch
-                    checked={config.socials.facebook}
-                    onChange={() => toggleSocials("facebook")}
-                  />
-                </div>
-                </div>
-                </div>
+          </div>
 
-          <div className={styles.copyConfigButton} onClick={handleCopyConfig}>
+          <div className="copyConfigButton" onClick={handleCopyConfig}>
             <ContentCopyIcon fontSize="small" />
-            <div className={styles.copyConfigText}>
-              <Typography variant="body2" className={styles.copyText}>
+            <div className="copyConfigText">
+              <Typography variant="body2" className="copyText">
                 Copy config
               </Typography>
             </div>
@@ -217,7 +205,7 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
         </div>
       )}
       {orgData ? (
-        <div className={styles.success}>
+        <div className="success">
           YOU ARE AUTHENTICATED ON TURNKEY!
           <div>
             <strong>Organization Id:</strong> {orgData.organizationId}
@@ -233,7 +221,7 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
           </div>
         </div>
       ) : (
-        <div className={styles.authComponent}>
+        <div className="authComponent">
           <Auth
             authConfig={authConfig}
             onHandleAuthSuccess={handleAuthSuccess}

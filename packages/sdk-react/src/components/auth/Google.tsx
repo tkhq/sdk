@@ -15,13 +15,11 @@ declare global {
   }
 }
 
-
 const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
   iframePublicKey,
   clientId,
   onSuccess,
 }) => {
-
   const handleLogin = async () => {
     const nonce = bytesToHex(sha256(iframePublicKey));
     await window.google?.accounts.id.initialize({
@@ -34,10 +32,10 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-    <div className={styles.socialButton} onClick={handleLogin}>
-      <img src = {googleIcon} className = {styles.iconSmall}/>
-      <span>Continue with Google</span>
-    </div>
+      <div className={styles.socialButton} onClick={handleLogin}>
+        <img src={googleIcon} className={styles.iconSmall} />
+        <span>Continue with Google</span>
+      </div>
     </GoogleOAuthProvider>
   );
 };

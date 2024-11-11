@@ -15,7 +15,7 @@ const CustomSwitch = styled(Switch)(({ theme }) => ({
     margin: 2,
   },
   "& .MuiSwitch-switchBase.Mui-checked": {
-    color: "var(--Greyscale-900, #2B2F33)", 
+    color: "var(--Greyscale-900, #2B2F33)",
   },
   "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
     backgroundColor: "var(--Greyscale-900, #2B2F33)",

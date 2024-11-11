@@ -10,10 +10,12 @@ import {
 import {
   CountryIso2,
   defaultCountries,
-  FlagImage,
   parseCountry,
   usePhoneInput,
 } from "react-international-phone";
+import { FlagImage as OriginalFlagImage } from "react-international-phone";
+
+const FlagImage = OriginalFlagImage as React.ElementType; // fix for typecheck issue
 
 const countries = defaultCountries.filter((country) => {
   const { iso2 } = parseCountry(country);
