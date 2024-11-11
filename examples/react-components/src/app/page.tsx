@@ -60,15 +60,7 @@ export default function AuthPage({ turnkeyClientConfig }: AuthPageProps) {
     setConfig((prev) => {
       const newConfig = { ...prev };
 
-      if (key === "email") {
-        newConfig.email = !prev.email;
-        if (!newConfig.email) {
-          newConfig.passkey = false; // Ensure passkey is off if email is off
-        }
-      } else if (key === "passkey") {
-        newConfig.passkey = !prev.passkey;
-        newConfig.email = newConfig.passkey; // Sync email with passkey's state
-      } else if (key !== "socials") {
+      if (key !== "socials") {
         newConfig[key] = !prev[key];
       }
 

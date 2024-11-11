@@ -1,12 +1,12 @@
 import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { TextField, Box } from "@mui/material";
 
-interface OTPInputProps {
+interface OtpInputProps {
   onComplete: (otp: string) => void;
   hasError: boolean;
 }
 
-const OTPInput = forwardRef<unknown, OTPInputProps>(
+const OtpInput = forwardRef<unknown, OtpInputProps>(
   ({ onComplete, hasError }, ref) => {
     const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
 
@@ -94,4 +94,4 @@ const OTPInput = forwardRef<unknown, OTPInputProps>(
   }
 );
 
-export default OTPInput;
+export default OtpInput;

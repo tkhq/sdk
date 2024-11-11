@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { SiFacebook } from "@icons-pack/react-simple-icons";
 import styles from "./Socials.module.css";
 import { exchangeCodeForToken, generateChallengePair } from "./facebook-utils";
 import { sha256 } from "@noble/hashes/sha256";
@@ -96,7 +95,7 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
     <div className={styles.socialButton} onClick={initiateFacebookLogin}>
       {/* <SiFacebook /> */}
       <img src="/facebook.svg" className = {styles.iconSmall}/>
-      <span>Facebook</span>
+      <span>Continue with Facebook</span>
     </div>
   );
 };
