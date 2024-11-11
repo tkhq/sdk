@@ -2,10 +2,13 @@ import typescript from "@rollup/plugin-typescript";
 import nodeExternals from "rollup-plugin-node-externals";
 import path from "node:path";
 import postcss from 'rollup-plugin-postcss';
-import preserveDirectives from 'rollup-preserve-directives'
+import preserveDirectives from 'rollup-preserve-directives';
+import url from '@rollup/plugin-url';
+import alias from '@rollup/plugin-alias';
 
 const getFormatConfig = (format) => {
   const pkgPath = path.join(process.cwd(), "package.json");
+  const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
   return {
     input: 'src/index.ts',
@@ -17,6 +20,11 @@ const getFormatConfig = (format) => {
       sourcemap: true,
     },
     plugins: [
+      alias({
+        entries: [
+          { find: 'assets', replacement: path.resolve(__dirname, 'packages/sdk-react/src/assets') }
+        ]
+      }),
       postcss({
         modules: true,
         extensions: ['.css', '.scss'],
@@ -39,6 +47,12 @@ const getFormatConfig = (format) => {
       nodeExternals({
         packagePath: pkgPath,
         builtinsPrefix: 'ignore',
+      }),
+      url({
+        include: ['**/*.svg', '**/*.png', '**/*.jpg', '**/*.gif'],
+        limit: 8192,
+        emitFiles: true, 
+        fileName: '[name].[hash][extname]',
       }),
     ],
   };

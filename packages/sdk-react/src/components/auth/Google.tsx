@@ -2,6 +2,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import styles from "./Socials.module.css";
+import googleIcon from "assets/google.svg";
 
 interface GoogleAuthButtonProps {
   iframePublicKey: string;
@@ -34,7 +35,7 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
   return (
     <GoogleOAuthProvider clientId={clientId}>
     <div className={styles.socialButton} onClick={handleLogin}>
-      <img src="/google.svg" className = {styles.iconSmall}/>
+      <img src = {googleIcon} className = {styles.iconSmall}/>
       <span>Continue with Google</span>
     </div>
     </GoogleOAuthProvider>

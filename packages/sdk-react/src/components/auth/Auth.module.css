@@ -271,3 +271,51 @@ button:disabled {
   color: #ff4c4c;
   font-size: 12px;
 }
+
+.passkeyIconContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px; 
+  margin: 16px 0;
+}
+
+.rowsContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto; 
+  margin-bottom: 32px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.rowIcon {
+  padding-right: 8px;
+}
+
+
+.noPasskeyLink {
+  color: var(--Blue-500, #4C48FF);
+  font-size: 0.9rem;
+  margin-top: 8px;
+  cursor: pointer;
+  align-items: center;
+  text-align: center;
+  display: inline-block;
+}
+
+.passkeyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
