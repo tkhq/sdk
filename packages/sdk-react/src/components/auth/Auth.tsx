@@ -26,6 +26,7 @@ import fingerprintIcon from "assets/fingerprint.svg";
 import checkboxIcon from "assets/checkbox.svg";
 import clockIcon from "assets/clock.svg";
 import keyholeIcon from "assets/keyhole.svg";
+import React from "react";
 
 interface AuthProps {
   onHandleAuthSuccess: () => Promise<void>;
@@ -37,9 +38,10 @@ interface AuthProps {
     facebookEnabled: boolean;
     googleEnabled: boolean;
   };
+  configOrder: string[];
 }
 
-const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
+const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrder }) => {
   const { passkeyClient, authIframeClient } = useTurnkey();
   const [error, setError] = useState<string | null>(null);
   const [otpError, setOtpError] = useState<string | null>(null);
@@ -53,6 +55,16 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   const [passkeySignupScreen, setPasskeySignupScreen] = useState(false);
   const otpInputRef = useRef<any>(null);
 
+  const handleResendCode = async () => {
+    setOtpError(null);
+    if (step === "otpEmail") {
+      await handleOtpLogin("EMAIL", email, "OTP_TYPE_EMAIL");
+    } else if (step === "otpPhone") {
+      await handleOtpLogin("PHONE_NUMBER", phone, "OTP_TYPE_SMS");
+    }
+    setResendText("Code Sent ✓");
+  };
+
   const formatPhoneNumber = (phone: string) => {
     const phoneNumber = parsePhoneNumberFromString(phone);
     return phoneNumber ? phoneNumber.formatInternational() : phone;
@@ -64,15 +76,9 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
     }
   }, [error]);
 
-  const isValidEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const isValidPhone = (phone: string) => {
-    const usCanadaRegex = /^\+1\d{10}$/;
-    return usCanadaRegex.test(phone);
-  };
+  const isValidPhone = (phone: string) => /^\+1\d{10}$/.test(phone);
 
   const handleGetOrCreateSuborg = async (
     filterType: string,
@@ -80,23 +86,16 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
     additionalData = {}
   ) => {
     const getSuborgsResponse = await getSuborgs({ filterType, filterValue });
-    let suborgId = getSuborgsResponse!.organizationIds[0];
+    let suborgId = getSuborgsResponse?.organizationIds[0];
 
     if (!suborgId) {
-      const createSuborgData: Record<string, any> = {
-        ...additionalData,
-      };
-
-      if (filterType === "EMAIL") {
-        createSuborgData.email = filterValue;
-      } else if (filterType === "PHONE_NUMBER") {
-        createSuborgData.phoneNumber = filterValue;
-      }
+      const createSuborgData: Record<string, any> = { ...additionalData };
+      if (filterType === "EMAIL") createSuborgData.email = filterValue;
+      else if (filterType === "PHONE_NUMBER") createSuborgData.phoneNumber = filterValue;
 
       const createSuborgResponse = await createSuborg(createSuborgData);
       suborgId = createSuborgResponse?.subOrganizationId!;
     }
-
     return suborgId;
   };
 
@@ -126,7 +125,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
 
     if (encodedChallenge && attestation) {
       // Use the generated passkey to create a new suborg
-      const createSuborgResponse = await createSuborg({
+      await createSuborg({
         email,
         passkey: {
           authenticatorName: "First Passkey",
@@ -134,14 +133,12 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
           attestation,
         },
       });
-
-      const suborgId = createSuborgResponse?.subOrganizationId;
-      console.log(suborgId);
     } else {
       setError("Failed to create user passkey.");
     }
     const sessionResponse = await passkeyClient?.createReadWriteSession({
       targetPublicKey: authIframeClient?.iframePublicKey!,
+      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!
     });
     if (sessionResponse?.credentialBundle) {
       await handleAuthSuccess(sessionResponse.credentialBundle);
@@ -152,6 +149,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
   const handleLoginWithPasskey = async () => {
     const sessionResponse = await passkeyClient?.createReadWriteSession({
       targetPublicKey: authIframeClient?.iframePublicKey!,
+      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!
     });
     if (sessionResponse?.credentialBundle) {
       await handleAuthSuccess(sessionResponse.credentialBundle);
@@ -160,46 +158,11 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
     }
   };
 
-  // if (existingSuborgId) {
-  //   // If a suborg exists, use it to create a read/write session without a new passkey
-  //   const sessionResponse = await passkeyClient?.createReadWriteSession({
-  //     organizationId: existingSuborgId,
-  //     targetPublicKey: authIframeClient?.iframePublicKey!,
-  //   });
-
-  //   if (sessionResponse?.credentialBundle) {
-  //     await handleAuthSuccess(sessionResponse.credentialBundle);
-  //   } else {
-  //     setError("Failed to complete passkey login.");
-  //   }
-  // } else {
-  // If no suborg exists, first create a user passkey
-
-  //       } else {
-  //         setError("Failed to complete passkey login with new suborg.");
-  //       }
-  //     } else {
-  //       setError("Failed to create suborg with passkey.");
-  //     }
-  //   } else {
-  //     setError("Failed to create user passkey.");
-  //   }
-  // }
-
-  const handleOtpLogin = async (
-    type: "EMAIL" | "PHONE_NUMBER",
-    value: string,
-    otpType: string
-  ) => {
+  const handleOtpLogin = async (type: "EMAIL" | "PHONE_NUMBER", value: string, otpType: string) => {
     const suborgId = await handleGetOrCreateSuborg(type, value);
-    console.log(suborgId);
-    const initAuthResponse = await initOtpAuth({
-      suborgID: suborgId,
-      otpType,
-      contact: value,
-    });
+    const initAuthResponse = await initOtpAuth({ suborgID: suborgId, otpType, contact: value });
     setSuborgId(suborgId);
-    setOtpId(initAuthResponse!.otpId);
+    setOtpId(initAuthResponse?.otpId!);
     setStep(type === "EMAIL" ? "otpEmail" : "otpPhone");
   };
 
@@ -211,39 +174,14 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
       otpCode: otp,
       targetPublicKey: authIframeClient!.iframePublicKey!,
     });
-    if (authResponse?.credentialBundle) {
-      await handleAuthSuccess(authResponse.credentialBundle);
-    } else {
-      setOtpError("Invalid code. Please try again");
-      otpInputRef.current.resetOtp();
-    }
-  };
-
-  const handleGoogleLogin = async (response: any) => {
-    const credential = response.credential;
-    setOauthLoading("Google");
-    await handleOAuthLogin(credential, "Google OIDC");
-  };
-
-  const handleAppleLogin = async (response: any) => {
-    const appleToken = response.authorization?.id_token;
-    setOauthLoading("Apple");
-    if (appleToken) {
-      await handleOAuthLogin(appleToken, "Apple OIDC");
-    }
-  };
-
-  const handleFacebookLogin = async (response: any) => {
-    const facebookToken = response?.id_token;
-    setOauthLoading("Facebook");
-    if (facebookToken) {
-      await handleOAuthLogin(facebookToken, "Facebook OIDC");
-    } else {
-      setError("Facebook login failed: No token returned.");
-    }
+    authResponse?.credentialBundle
+      ? await handleAuthSuccess(authResponse.credentialBundle)
+      : setOtpError("Invalid code. Please try again");
+    otpInputRef.current.resetOtp();
   };
 
   const handleOAuthLogin = async (credential: string, providerName: string) => {
+    setOauthLoading(providerName);
     const suborgId = await handleGetOrCreateSuborg("OIDC_TOKEN", credential, {
       oauthProviders: [{ providerName, oidcToken: credential }],
     });
@@ -255,259 +193,228 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
     await handleAuthSuccess(oauthResponse!.credentialBundle);
   };
 
-  const handleResendCode = async () => {
-    setOtpError(null);
-    if (step === "otpEmail") {
-      await handleOtpLogin("EMAIL", email, "OTP_TYPE_EMAIL");
-    } else if (step === "otpPhone") {
-      await handleOtpLogin("PHONE_NUMBER", phone, "OTP_TYPE_SMS");
+  const renderSection = (section: string) => {
+    
+    switch (section) {
+      case "email":
+        return authConfig.emailEnabled && !otpId ? (
+          <div>
+            <div className={styles.inputGroup}>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => handleOtpLogin("EMAIL", email, "OTP_TYPE_EMAIL")}
+              disabled={!isValidEmail(email)}
+            >
+              Continue with email
+            </button>
+          </div>
+        ) : null;
+
+      case "passkey":
+        return authConfig.passkeyEnabled && !otpId ? (
+          <div className={styles.passkeyContainer}>
+            <button type="button" onClick={handleLoginWithPasskey}>Continue with passkey</button>
+            <div className={styles.noPasskeyLink} onClick={() => setPasskeySignupScreen(true)}>
+              I don't have a passkey
+            </div>
+          </div>
+        ) : null;
+
+      case "phone":
+        return authConfig.phoneEnabled && !otpId ? (
+          <div>
+            <div className={styles.phoneInput}>
+              <MuiPhone onChange={(value) => setPhone(value)} value={phone} />
+            </div>
+            <button
+              type="button"
+              onClick={() => handleOtpLogin("PHONE_NUMBER", phone, "OTP_TYPE_SMS")}
+              disabled={!isValidPhone(phone)}
+            >
+              Continue with phone
+            </button>
+          </div>
+        ) : null;
+
+      case "socials":
+        return (authConfig.googleEnabled || authConfig.appleEnabled || authConfig.facebookEnabled) ? (
+
+<div>
+
+            {authConfig.googleEnabled && (
+                                        <div className={styles.authButton}>
+                                        <div className={styles.socialButtonContainer}>
+              <GoogleAuthButton
+                clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+                iframePublicKey={authIframeClient!.iframePublicKey!}
+                onSuccess={(response: any) => handleOAuthLogin(response.credential, "Google")}
+              />
+              </div></div>
+            )}
+            {authConfig.appleEnabled && (
+                            <div className={styles.authButton}>
+                            <div className={styles.socialButtonContainer}>
+              <AppleAuthButton
+                clientId={process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!}
+                iframePublicKey={authIframeClient!.iframePublicKey!}
+                onSuccess={(response: any) => handleOAuthLogin(response.authorization.id_token, "Apple")}
+              />
+              </div></div>
+            )}
+            {authConfig.facebookEnabled && (
+                                            <div className={styles.authButton}>
+                                            <div className={styles.socialButtonContainer}>
+              <FacebookAuthButton
+                clientId={process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!}
+                iframePublicKey={authIframeClient!.iframePublicKey!}
+                onSuccess={(response: any) => handleOAuthLogin(response.id_token, "Facebook")}
+              />
+              </div></div>
+            )}
+            </div>
+        ) : null;
+
+      default:
+        return null;
     }
-    setResendText("Code Sent ✓");
   };
 
   return (
+    <>
+        {passkeySignupScreen ?
+            <div className={styles.authCard}>
+              <div className={styles.passkeyIconContainer}>
+                <img src={faceidIcon} />
+                <img src={fingerprintIcon} />
+              </div>
+              <center>
+                <h3>Secure your account with a passkey</h3>
+              </center>
+    
+              <div className={styles.rowsContainer}>
+                <div className={styles.row}>
+                  <img src={checkboxIcon} className={styles.rowIcon} />
+                  <span>Log in with Touch ID, Face ID, or a security key</span>
+                </div>
+                <div className={styles.row}>
+                  <img src={keyholeIcon} className={styles.rowIcon} />
+                  <span>More secure than a password</span>
+                </div>
+                <div className={styles.row}>
+                  <img src={clockIcon} className={styles.rowIcon} />
+                  <span>Takes seconds to set up and use</span>
+                </div>
+              </div>
+              <button type="button" onClick={handleSignupWithPasskey}>
+                Create a passkey
+              </button>
+            </div> :
     <div>
-      {oauthLoading != "" ? (
+      {oauthLoading !== "" ? (
         <div className={styles.authCardLoading}>
-          <h3 className={styles.verifyingText}>
-            Verifying with {oauthLoading}
-          </h3>
+          <h3 className={styles.verifyingText}>Verifying with {oauthLoading}</h3>
           <div className={styles.loadingWrapper}>
-            <CircularProgress
-              size={100}
-              thickness={1}
-              className={styles.circularProgress!}
-            />
-            {oauthLoading === "Google" && (
-              <img src={googleIcon} className={styles.oauthIcon} />
-            )}
-            {oauthLoading === "Facebook" && (
-              <img src={facebookIcon} className={styles.oauthIcon} />
-            )}
-            {oauthLoading === "Apple" && (
-              <img src={appleIcon} className={styles.oauthIcon} />
-            )}
+            <CircularProgress size={100} thickness={1} className={styles.circularProgress!} />
+            {oauthLoading === "Google" && <img src={googleIcon} className={styles.oauthIcon} />}
+            {oauthLoading === "Facebook" && <img src={facebookIcon} className={styles.oauthIcon} />}
+            {oauthLoading === "Apple" && <img src={appleIcon} className={styles.oauthIcon} />}
           </div>
-          <div className={styles.poweredBy}>
-            <span>Powered by</span>
-            <img src={turnkeyIcon} />
-          </div>
-        </div>
-      ) : passkeySignupScreen ? (
-        <div className={styles.authCard}>
-          <div className={styles.passkeyIconContainer}>
-            <img src={faceidIcon} />
-            <img src={fingerprintIcon} />
-          </div>
-          <center>
-            <h3>Secure your account with a passkey</h3>
-          </center>
-
-          <div className={styles.rowsContainer}>
-            <div className={styles.row}>
-              <img src={checkboxIcon} className={styles.rowIcon} />
-              <span>Log in with Touch ID, Face ID, or a security key</span>
-            </div>
-            <div className={styles.row}>
-              <img src={keyholeIcon} className={styles.rowIcon} />
-              <span>More secure than a password</span>
-            </div>
-            <div className={styles.row}>
-              <img src={clockIcon} className={styles.rowIcon} />
-              <span>Takes seconds to set up and use</span>
-            </div>
-          </div>
-          <button type="button" onClick={handleSignupWithPasskey}>
-            Create a passkey
-          </button>
+          <div className={styles.poweredBy}><span>Powered by</span><img src={turnkeyIcon} /></div>
         </div>
       ) : (
         <div className={styles.authCard}>
           <h2>{otpId ? "Enter verification code" : "Log in or sign up"}</h2>
           <div className={styles.authForm}>
-            {authConfig.emailEnabled && !otpId && (
-              <div>
-                <div className={styles.inputGroup}>
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleOtpLogin("EMAIL", email, "OTP_TYPE_EMAIL")
-                  }
-                  disabled={!isValidEmail(email)}
-                >
-                  Continue with email
-                </button>
-              </div>
-            )}
-
-            {authConfig.emailEnabled && authConfig.passkeyEnabled && !otpId && (
-              <div className={styles.separator}>
-                <span>OR</span>
-              </div>
-            )}
-            {authConfig.passkeyEnabled && !otpId && (
-              <div className={styles.passkeyContainer}>
-                <button type="button" onClick={handleLoginWithPasskey}>
-                  Continue with passkey
-                </button>
-                <div
-                  className={styles.noPasskeyLink}
-                  onClick={() => setPasskeySignupScreen(true)}
-                >
-                  I don't have a passkey
-                </div>
-              </div>
-            )}
-            {!otpId &&
-              (authConfig.passkeyEnabled || authConfig.emailEnabled) &&
-              (authConfig.googleEnabled ||
-                authConfig.appleEnabled ||
-                authConfig.facebookEnabled ||
-                authConfig.phoneEnabled) && (
-                <div className={styles.separator}>
-                  <span>OR</span>
-                </div>
-              )}
-            {authConfig.phoneEnabled && !otpId && (
-              <div>
-                <div className={styles.phoneInput}>
-                  <MuiPhone
-                    onChange={(value) => setPhone(value)}
-                    value={phone}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleOtpLogin("PHONE_NUMBER", phone, "OTP_TYPE_SMS")
-                  }
-                  disabled={!isValidPhone(phone)}
-                >
-                  Continue with phone
-                </button>
-              </div>
-            )}
-
-            {otpId && (
-              <div className={styles.verification}>
-                <div className={styles.verificationIcon}>
-                  {step === "otpEmail" ? (
-                    <img src={emailIcon} />
-                  ) : (
-                    <img src={smsIcon} />
+            {!otpId && configOrder
+              .filter((section) => renderSection(section) !== null)
+              .map((section, index, visibleSections) => (
+                <React.Fragment key={section}>
+                  {renderSection(section)}
+                  {index < visibleSections.length - 1 && (
+                    <div className={styles.separator}>
+                      <span>OR</span>
+                    </div>
                   )}
+                </React.Fragment>
+                
+              ))}
+
+{otpId && (
+                <div>
+              <div className={styles.verification}>
+              <div className={styles.verificationIcon}>
+                {step === "otpEmail" ? (
+                  <img src={emailIcon} />
+                ) : (
+                  <img src={smsIcon} />
+                )}
+              </div>
+
+              <span>
+                Enter the 6-digit code we sent to{" "}
+                <div className={styles.verificationBold}>
+                  {step === "otpEmail" ? email : formatPhoneNumber(phone)}
                 </div>
+              </span>
+              <OtpInput
+                ref={otpInputRef}
+                onComplete={handleValidateOtp}
+                hasError={!!otpError}
+              />
+            </div>
+                      <div className={styles.errorText}>{otpError ? otpError : " "}</div>
+                      </div>
+          )}
 
-                <span>
-                  Enter the 6-digit code we sent to{" "}
-                  <div className={styles.verificationBold}>
-                    {step === "otpEmail" ? email : formatPhoneNumber(phone)}
-                  </div>
-                </span>
-                <OtpInput
-                  ref={otpInputRef}
-                  onComplete={handleValidateOtp}
-                  hasError={!!otpError}
-                />
-              </div>
-            )}
-            <div className={styles.errorText}>{otpError ? otpError : " "}</div>
+              {!otpId ?
+                          <div className={styles.tos}>
+                          <span>
+                            By continuing, you agree to our{" "}
+                            <a
+                              href="https://www.turnkey.com/legal/terms"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.tosBold}
+                            >
+                              Terms of Service
+                            </a>{" "}
+                            &{" "}
+                            <a
+                              href="https://www.turnkey.com/legal/privacy"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.tosBold}
+                            >
+                              Privacy Policy
+                            </a>
+                          </span>
+                        </div> :
+                                    <div className={styles.resendCode}>
+                                    <span>
+                                      <span
+                                        onClick={
+                                          resendText === "Re-send Code" ? handleResendCode : undefined
+                                        }
+                                        style={{
+                                          cursor:
+                                            resendText === "Re-send Code" ? "pointer" : "not-allowed",
+                                        }}
+                                        className={styles.resendCodeBold}
+                                      >
+                                        {resendText}
+                                      </span>
+                                    </span>
+                                  </div>
+              }
+            
           </div>
-          {!otpId &&
-            (authConfig.googleEnabled ||
-              authConfig.appleEnabled ||
-              authConfig.facebookEnabled) &&
-            authConfig.phoneEnabled && (
-              <div className={styles.separator}>
-                <span>OR</span>
-              </div>
-            )}
-
-          {!otpId && authConfig.googleEnabled && authIframeClient && (
-            <div className={styles.authButton}>
-              <div className={styles.socialButtonContainer}>
-                <GoogleAuthButton
-                  clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
-                  iframePublicKey={authIframeClient.iframePublicKey!}
-                  onSuccess={handleGoogleLogin}
-                />
-              </div>
-            </div>
-          )}
-
-          {!otpId && authConfig.appleEnabled && authIframeClient && (
-            <div className={styles.authButton}>
-              <div className={styles.socialButtonContainer}>
-                <AppleAuthButton
-                  clientId={process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!}
-                  iframePublicKey={authIframeClient.iframePublicKey!}
-                  onSuccess={handleAppleLogin}
-                />
-              </div>
-            </div>
-          )}
-
-          {!otpId && authConfig.facebookEnabled && authIframeClient && (
-            <div className={styles.authButton}>
-              <div className={styles.socialButtonContainer}>
-                <FacebookAuthButton
-                  clientId={process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!}
-                  iframePublicKey={authIframeClient.iframePublicKey!}
-                  onSuccess={handleFacebookLogin}
-                />
-              </div>
-            </div>
-          )}
-
-          {!otpId ? (
-            <div className={styles.tos}>
-              <span>
-                By continuing, you agree to our{" "}
-                <a
-                  href="https://www.turnkey.com/legal/terms"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.tosBold}
-                >
-                  Terms of Service
-                </a>{" "}
-                &{" "}
-                <a
-                  href="https://www.turnkey.com/legal/privacy"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.tosBold}
-                >
-                  Privacy Policy
-                </a>
-              </span>
-            </div>
-          ) : (
-            <div className={styles.resendCode}>
-              <span>
-                <span
-                  onClick={
-                    resendText === "Re-send Code" ? handleResendCode : undefined
-                  }
-                  style={{
-                    cursor:
-                      resendText === "Re-send Code" ? "pointer" : "not-allowed",
-                  }}
-                  className={styles.resendCodeBold}
-                >
-                  {resendText}
-                </span>
-              </span>
-            </div>
-          )}
-
           <div
             onClick={() => (window.location.href = "https://www.turnkey.com/")}
             className={styles.poweredBy}
@@ -515,9 +422,10 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig }) => {
             <span>Secured by</span>
             <img src={turnkeyIcon} />
           </div>
+
         </div>
       )}
-    </div>
+    </div>} </>
   );
 };
 

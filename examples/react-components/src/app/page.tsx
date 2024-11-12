@@ -6,6 +6,7 @@ import { useTurnkey, Auth } from "@turnkey/sdk-react";
 import { Typography } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CustomSwitch from "./Switch";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import "./index.css";
 
 // Define types for config and socials
@@ -34,10 +35,12 @@ export default function AuthPage() {
     setOrgData(whoamiResponse as any);
   };
 
+  const [configOrder, setConfigOrder] = useState(["email", "phone", "passkey", "socials"]);
+
   const [config, setConfig] = useState<Config>({
     email: true,
-    passkey: true,
     phone: true,
+    passkey: true,
     socials: {
       enabled: false,
       google: false,
@@ -49,11 +52,9 @@ export default function AuthPage() {
   const toggleConfig = (key: keyof Config) => {
     setConfig((prev) => {
       const newConfig = { ...prev };
-
       if (key !== "socials") {
         newConfig[key] = !prev[key];
       }
-
       return newConfig;
     });
   };
@@ -72,7 +73,6 @@ export default function AuthPage() {
           },
         };
       }
-
       if (prev.socials.enabled) {
         return {
           ...prev,
@@ -82,7 +82,6 @@ export default function AuthPage() {
           },
         };
       }
-
       return prev;
     });
   };
@@ -109,6 +108,17 @@ export default function AuthPage() {
     facebookEnabled: config.socials.facebook,
   };
 
+  const onDragEnd = (result: DropResult) => {
+    const { destination, source } = result;
+    if (!destination) return;
+
+    const reorderedConfig = Array.from(configOrder);
+    const [movedItem] = reorderedConfig.splice(source.index, 1);
+    reorderedConfig.splice(destination.index, 0, movedItem);
+
+    setConfigOrder(reorderedConfig);
+  };
+
   return (
     <main className="main">
       {!orgData && (
@@ -117,82 +127,88 @@ export default function AuthPage() {
             Authentication config
           </Typography>
 
-          <div className="toggleContainer">
-            <div className="toggleRow">
-              <div className="labelContainer">
-                <img src="/dots.svg" />
-                <Typography>Email</Typography>
-              </div>
-              <CustomSwitch
-                checked={config.email}
-                onChange={() => toggleConfig("email")}
-              />
-            </div>
-
-            <div className="toggleRow">
-              <div className="labelContainer">
-                <img src="/dots.svg" />
-                <Typography>Passkey</Typography>
-              </div>
-              <CustomSwitch
-                checked={config.passkey}
-                onChange={() => toggleConfig("passkey")}
-              />
-            </div>
-
-            <div className="toggleRow">
-              <div className="labelContainer">
-                <img src="/dots.svg" />
-                <Typography>Phone</Typography>
-              </div>
-              <CustomSwitch
-                checked={config.phone}
-                onChange={() => toggleConfig("phone")}
-              />
-            </div>
-            <div className="socialContainer">
-              <div className="toggleSocialRow">
-                <div className="labelContainer">
-                  <img src="/dots.svg" />
-                  <Typography>Socials</Typography>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="configList">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef} className="toggleContainer">
+                  {configOrder.map((key, index) => (
+                    key === "socials" ? (
+                      <Draggable key="socials" draggableId="socials" index={index}>
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            className="socialContainer"
+                          >
+                            <div {...provided.dragHandleProps} className="toggleSocialRow">
+                              <div className="labelContainer">
+                                <img src="/dots.svg" alt="Drag handle" />
+                                <Typography>Socials</Typography>
+                              </div>
+                              <CustomSwitch
+                                checked={config.socials.enabled}
+                                onChange={() => toggleSocials("enabled")}
+                              />
+                            </div>
+                            <div className="toggleSocialIndividualRow">
+                              <div className="labelContainer">
+                                <img src="/google.svg" className="iconSmall" />
+                                <Typography>Google</Typography>
+                              </div>
+                              <CustomSwitch
+                                checked={config.socials.google}
+                                onChange={() => toggleSocials("google")}
+                              />
+                            </div>
+                            <div className="toggleSocialIndividualRow">
+                              <div className="labelContainer">
+                                <img src="/apple.svg" className="iconSmall" />
+                                <Typography>Apple</Typography>
+                              </div>
+                              <CustomSwitch
+                                checked={config.socials.apple}
+                                onChange={() => toggleSocials("apple")}
+                              />
+                            </div>
+                            <div className="toggleSocialIndividualRow">
+                              <div className="labelContainer">
+                                <img src="/facebook.svg" className="iconSmall" />
+                                <Typography>Facebook</Typography>
+                              </div>
+                              <CustomSwitch
+                                checked={config.socials.facebook}
+                                onChange={() => toggleSocials("facebook")}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ) : (
+                      <Draggable key={key} draggableId={key} index={index}>
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            className="toggleRow"
+                          >
+                            <div {...provided.dragHandleProps} className="labelContainer">
+                              <img src="/dots.svg" alt="Drag handle" />
+                              <Typography>{key.charAt(0).toUpperCase() + key.slice(1)}</Typography>
+                            </div>
+                            <CustomSwitch
+                              checked={config[key as keyof Config] as boolean}
+                              onChange={() => toggleConfig(key as keyof Config)}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    )
+                  ))}
+                  {provided.placeholder}
                 </div>
-                <CustomSwitch
-                  checked={config.socials.enabled}
-                  onChange={() => toggleSocials("enabled")}
-                />
-              </div>
-              <div className="toggleSocialIndividualRow">
-                <div className="labelContainer">
-                  <img src="/google.svg" className="iconSmall" />
-                  <Typography>Google</Typography>
-                </div>
-                <CustomSwitch
-                  checked={config.socials.google}
-                  onChange={() => toggleSocials("google")}
-                />
-              </div>
-              <div className="toggleSocialIndividualRow">
-                <div className="labelContainer">
-                  <img src="/apple.svg" className="iconSmall" />
-                  <Typography>Apple</Typography>
-                </div>
-                <CustomSwitch
-                  checked={config.socials.apple}
-                  onChange={() => toggleSocials("apple")}
-                />
-              </div>
-              <div className="toggleSocialIndividualRow">
-                <div className="labelContainer">
-                  <img src="/facebook.svg" className="iconSmall" />
-                  <Typography>Facebook</Typography>
-                </div>
-                <CustomSwitch
-                  checked={config.socials.facebook}
-                  onChange={() => toggleSocials("facebook")}
-                />
-              </div>
-            </div>
-          </div>
+              )}
+            </Droppable>
+          </DragDropContext>
 
           <div className="copyConfigButton" onClick={handleCopyConfig}>
             <ContentCopyIcon fontSize="small" />
@@ -224,6 +240,7 @@ export default function AuthPage() {
         <div className="authComponent">
           <Auth
             authConfig={authConfig}
+            configOrder={configOrder}
             onHandleAuthSuccess={handleAuthSuccess}
           />
         </div>
