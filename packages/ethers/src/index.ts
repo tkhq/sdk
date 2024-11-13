@@ -17,6 +17,7 @@ import {
   resolveAddress,
 } from "ethers";
 import {
+  getLiveTimestamp,
   TurnkeyClient,
   TurnkeyActivityError,
   TurnkeyRequestError,
@@ -109,6 +110,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
     unsignedTransaction: string
   ): Promise<string> {
     if (this.client instanceof TurnkeyClient) {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.baseUrl)}000`
+        : String(Date.now());
+
       const { activity } = await this.client.signTransaction({
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
         organizationId: this.organizationId,
@@ -117,7 +122,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
           type: "TRANSACTION_TYPE_ETHEREUM",
           unsignedTransaction,
         },
-        timestampMs: String(Date.now()), // millisecond timestamp
+        timestampMs,
       });
 
       assertActivityCompleted(activity);
@@ -126,11 +131,16 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         activity?.result?.signTransactionResult?.signedTransaction
       );
     } else {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.apiBaseUrl)}000`
+        : String(Date.now());
+
       const { activity, signedTransaction } = await this.client.signTransaction(
         {
           signWith: this.signWith,
           type: "TRANSACTION_TYPE_ETHEREUM",
           unsignedTransaction,
+          timestampMs,
         }
       );
 
@@ -236,6 +246,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
     let result;
 
     if (this.client instanceof TurnkeyClient) {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.baseUrl)}000`
+        : String(Date.now());
+
       const { activity } = await this.client.signRawPayload({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
         organizationId: this.organizationId,
@@ -245,18 +259,23 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
           encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
           hashFunction: "HASH_FUNCTION_NO_OP",
         },
-        timestampMs: String(Date.now()), // millisecond timestamp
+        timestampMs,
       });
 
       assertActivityCompleted(activity);
 
       result = assertNonNull(activity?.result?.signRawPayloadResult);
     } else {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.apiBaseUrl)}000`
+        : String(Date.now());
+
       const { activity, r, s, v } = await this.client.signRawPayload({
         signWith: this.signWith,
         payload: message,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NO_OP",
+        timestampMs,
       });
 
       assertActivityCompleted(activity);

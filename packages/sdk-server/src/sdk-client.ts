@@ -42,6 +42,7 @@ export class TurnkeyServerSDK {
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
       activityPoller: this.config.activityPoller,
+      useTurnkeyRemoteTimestamp: this.config.useTurnkeyRemoteTimestamp ?? false,
     });
   };
 

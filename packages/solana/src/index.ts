@@ -2,6 +2,7 @@ import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 import {
   assertNonNull,
   assertActivityCompleted,
+  getLiveTimestamp,
   TurnkeyClient,
   type TSignature,
 } from "@turnkey/http";
@@ -128,15 +129,19 @@ export class TurnkeySigner {
     signWith: string
   ) {
     if (this.client instanceof TurnkeyClient) {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.baseUrl)}000`
+        : String(Date.now());
+
       const response = await this.client.signTransaction({
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
         organizationId: this.organizationId,
-        timestampMs: String(Date.now()),
         parameters: {
           signWith,
           unsignedTransaction,
           type: "TRANSACTION_TYPE_SOLANA",
         },
+        timestampMs,
       });
 
       const { activity } = response;
@@ -147,11 +152,16 @@ export class TurnkeySigner {
         activity?.result?.signTransactionResult?.signedTransaction
       );
     } else {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.apiBaseUrl)}000`
+        : String(Date.now());
+
       const { activity, signedTransaction } = await this.client.signTransaction(
         {
           signWith,
           unsignedTransaction,
           type: "TRANSACTION_TYPE_SOLANA",
+          timestampMs,
         }
       );
 
@@ -163,10 +173,13 @@ export class TurnkeySigner {
 
   private async signRawPayload(payload: string, signWith: string) {
     if (this.client instanceof TurnkeyClient) {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.baseUrl)}000`
+        : String(Date.now());
+
       const response = await this.client.signRawPayload({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
         organizationId: this.organizationId,
-        timestampMs: String(Date.now()),
         parameters: {
           signWith,
           payload,
@@ -175,6 +188,7 @@ export class TurnkeySigner {
           // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
           hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
         },
+        timestampMs,
       });
 
       const { activity } = response;
@@ -183,6 +197,10 @@ export class TurnkeySigner {
 
       return assertNonNull(activity?.result?.signRawPayloadResult);
     } else {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.apiBaseUrl)}000`
+        : String(Date.now());
+
       const { activity, r, s, v } = await this.client.signRawPayload({
         signWith,
         payload,
@@ -190,6 +208,7 @@ export class TurnkeySigner {
         // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
         // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+        timestampMs,
       });
 
       assertActivityCompleted(activity);
@@ -204,10 +223,13 @@ export class TurnkeySigner {
 
   private async signRawPayloads(payloads: string[], signWith: string) {
     if (this.client instanceof TurnkeyClient) {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.baseUrl)}000`
+        : String(Date.now());
+
       const response = await this.client.signRawPayloads({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
         organizationId: this.organizationId,
-        timestampMs: String(Date.now()),
         parameters: {
           signWith,
           payloads,
@@ -216,6 +238,7 @@ export class TurnkeySigner {
           // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
           hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
         },
+        timestampMs,
       });
 
       const { activity } = response;
@@ -224,6 +247,10 @@ export class TurnkeySigner {
 
       return assertNonNull(activity?.result?.signRawPayloadsResult);
     } else {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.apiBaseUrl)}000`
+        : String(Date.now());
+
       const { activity, signatures } = await this.client.signRawPayloads({
         signWith,
         payloads,
@@ -231,6 +258,7 @@ export class TurnkeySigner {
         // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
         // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+        timestampMs,
       });
 
       assertActivityCompleted(activity);

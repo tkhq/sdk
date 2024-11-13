@@ -13,6 +13,7 @@ import type {
 import {
   assertNonNull,
   assertActivityCompleted,
+  getLiveTimestamp,
   TActivityStatus,
   TActivityId,
   TSignature,
@@ -385,6 +386,10 @@ async function signTransactionImpl(
   signWith: string
 ): Promise<string> {
   if (client instanceof TurnkeyClient) {
+    const timestampMs = client.config.useTurnkeyRemoteTimestamp
+      ? `${await getLiveTimestamp(client.config.baseUrl)}000`
+      : String(Date.now());
+
     const { activity } = await client.signTransaction({
       type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       organizationId: organizationId,
@@ -393,7 +398,7 @@ async function signTransactionImpl(
         type: "TRANSACTION_TYPE_ETHEREUM",
         unsignedTransaction: unsignedTransaction,
       },
-      timestampMs: String(Date.now()), // millisecond timestamp
+      timestampMs,
     });
 
     assertActivityCompleted(activity);
@@ -402,10 +407,15 @@ async function signTransactionImpl(
       activity?.result?.signTransactionResult?.signedTransaction
     );
   } else {
+    const timestampMs = client.config.useTurnkeyRemoteTimestamp
+      ? `${await getLiveTimestamp(client.config.apiBaseUrl)}000`
+      : String(Date.now());
+
     const { activity, signedTransaction } = await client.signTransaction({
       signWith,
       type: "TRANSACTION_TYPE_ETHEREUM",
       unsignedTransaction: unsignedTransaction,
+      timestampMs,
     });
 
     assertActivityCompleted(activity);
@@ -463,6 +473,10 @@ async function signMessageImpl(
   let result;
 
   if (client instanceof TurnkeyClient) {
+    const timestampMs = client.config.useTurnkeyRemoteTimestamp
+      ? `${await getLiveTimestamp(client.config.baseUrl)}000`
+      : String(Date.now());
+
     const { activity } = await client.signRawPayload({
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
       organizationId: organizationId,
@@ -472,18 +486,23 @@ async function signMessageImpl(
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NO_OP",
       },
-      timestampMs: String(Date.now()), // millisecond timestamp
+      timestampMs,
     });
 
     assertActivityCompleted(activity);
 
     result = assertNonNull(activity?.result?.signRawPayloadResult);
   } else {
+    const timestampMs = client.config.useTurnkeyRemoteTimestamp
+      ? `${await getLiveTimestamp(client.config.apiBaseUrl)}000`
+      : String(Date.now());
+
     const { activity, r, s, v } = await client.signRawPayload({
       signWith,
       payload: message,
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
       hashFunction: "HASH_FUNCTION_NO_OP",
+      timestampMs,
     });
 
     assertActivityCompleted(activity);

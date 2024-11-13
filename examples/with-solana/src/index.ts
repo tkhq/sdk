@@ -46,6 +46,11 @@ async function main() {
     //   intervalMs: 5_000,
     //   numRetries: 10,
     // },
+    //
+    // -----
+    //
+    // Optional flag to override timestamp using Turnkey's system clock
+    // useTurnkeyRemoteTimestamp: true,
   });
 
   const turnkeySigner = new TurnkeySigner({

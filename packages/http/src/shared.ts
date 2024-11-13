@@ -201,3 +201,16 @@ export function getSignedTransactionFromActivity(
 
   return assertNonNull(`0x${signedTransaction}`);
 }
+
+/**
+ *
+ * A utility function to get a live stamp directly from Turnkey
+ *
+ * @returns string representing the current UNIX timestamp in seconds. If it fails to fetch a timestamp from Turnkey, this returns an empty string.
+ */
+export async function getLiveTimestamp(baseUrl: string): Promise<string> {
+  const timestampResponse = await fetch(`${baseUrl}/health`);
+  const parsedResponse = await timestampResponse.json();
+
+  return parsedResponse.currentTime ?? "";
+}

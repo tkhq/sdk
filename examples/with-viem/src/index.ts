@@ -49,6 +49,11 @@ async function main() {
     //   intervalMs: 10_000,
     //   numRetries: 5,
     // },
+    //
+    // -----
+    //
+    // Optional flag to override timestamp using Turnkey's system clock
+    // useTurnkeyRemoteTimestamp: true,
   });
 
   const turnkeyAccount = await createAccount({
