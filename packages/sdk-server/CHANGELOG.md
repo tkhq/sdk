@@ -1,5 +1,17 @@
 # @turnkey/sdk-server
 
+## 1.6.0
+
+### Minor Changes
+
+- 3dd74ac: Added functionality for constructing and returning stamped requests for all packages
+- 4df8914: Version bump corresponding to mono release v2024.10.10. More detailed changelog to follow
+
+### Patch Changes
+
+- Updated dependencies [4df8914]
+  - @turnkey/http@2.16.0
+
 ## 1.5.0
 
 ### Minor Changes

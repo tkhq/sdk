@@ -1,5 +1,21 @@
 # @turnkey/sdk-browser
 
+## 1.9.0
+
+### Minor Changes
+
+- 3dd74ac: Added functionality for constructing and returning stamped requests for all packages
+- 1e36edf: Support RS256 by default when invoking createUserPasskey
+- 4df8914: Version bump corresponding to mono release v2024.10.10. More detailed changelog to follow
+
+### Patch Changes
+
+- Updated dependencies [33e8e03]
+- Updated dependencies [d989d46]
+- Updated dependencies [4df8914]
+  - @turnkey/crypto@2.1.0
+  - @turnkey/http@2.16.0
+
 ## 1.8.0
 
 ### Minor Changes
