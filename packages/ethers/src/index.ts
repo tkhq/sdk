@@ -109,11 +109,11 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   private async _signTransactionImpl(
     unsignedTransaction: string
   ): Promise<string> {
-    const timestampMs = this.client.config.overrideTimestamp
-      ? `${await getLiveTimestamp()}000`
-      : String(Date.now());
-
     if (this.client instanceof TurnkeyClient) {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.baseUrl)}000`
+        : String(Date.now());
+
       const { activity } = await this.client.signTransaction({
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
         organizationId: this.organizationId,
@@ -131,6 +131,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         activity?.result?.signTransactionResult?.signedTransaction
       );
     } else {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.apiBaseUrl)}000`
+        : String(Date.now());
+
       const { activity, signedTransaction } = await this.client.signTransaction(
         {
           signWith: this.signWith,
@@ -240,11 +244,12 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
   async _signMessageImpl(message: string): Promise<string> {
     let result;
-    const timestampMs = this.client.config.overrideTimestamp
-      ? `${await getLiveTimestamp()}000`
-      : String(Date.now());
 
     if (this.client instanceof TurnkeyClient) {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.baseUrl)}000`
+        : String(Date.now());
+
       const { activity } = await this.client.signRawPayload({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
         organizationId: this.organizationId,
@@ -261,6 +266,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
       result = assertNonNull(activity?.result?.signRawPayloadResult);
     } else {
+      const timestampMs = this.client.config.useTurnkeyRemoteTimestamp
+        ? `${await getLiveTimestamp(this.client.config.apiBaseUrl)}000`
+        : String(Date.now());
+
       const { activity, r, s, v } = await this.client.signRawPayload({
         signWith: this.signWith,
         payload: message,

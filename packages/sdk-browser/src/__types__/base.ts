@@ -68,7 +68,7 @@ interface BaseSDKClientConfig {
   apiBaseUrl: string;
   organizationId: string;
   activityPoller?: TActivityPollerConfig | undefined;
-  overrideTimestamp?: boolean;
+  useTurnkeyRemoteTimestamp?: boolean;
 }
 
 interface SDKClientConfigWithStamper extends BaseSDKClientConfig {

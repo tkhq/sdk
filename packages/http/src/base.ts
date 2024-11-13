@@ -256,7 +256,7 @@ export async function sealAndStampRequestBody(input: {
 
 export type THttpConfig = {
   baseUrl: string;
-  overrideTimestamp?: boolean;
+  useTurnkeyRemoteTimestamp?: boolean;
 };
 
 /**

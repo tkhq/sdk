@@ -385,11 +385,11 @@ async function signTransactionImpl(
   organizationId: string,
   signWith: string
 ): Promise<string> {
-  const timestampMs = client.config.overrideTimestamp
-    ? `${await getLiveTimestamp()}000`
-    : String(Date.now());
-
   if (client instanceof TurnkeyClient) {
+    const timestampMs = client.config.useTurnkeyRemoteTimestamp
+      ? `${await getLiveTimestamp(client.config.baseUrl)}000`
+      : String(Date.now());
+
     const { activity } = await client.signTransaction({
       type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       organizationId: organizationId,
@@ -407,6 +407,10 @@ async function signTransactionImpl(
       activity?.result?.signTransactionResult?.signedTransaction
     );
   } else {
+    const timestampMs = client.config.useTurnkeyRemoteTimestamp
+      ? `${await getLiveTimestamp(client.config.apiBaseUrl)}000`
+      : String(Date.now());
+
     const { activity, signedTransaction } = await client.signTransaction({
       signWith,
       type: "TRANSACTION_TYPE_ETHEREUM",
@@ -467,11 +471,12 @@ async function signMessageImpl(
   signWith: string
 ): Promise<string> {
   let result;
-  const timestampMs = client.config.overrideTimestamp
-    ? `${await getLiveTimestamp()}000`
-    : String(Date.now());
 
   if (client instanceof TurnkeyClient) {
+    const timestampMs = client.config.useTurnkeyRemoteTimestamp
+      ? `${await getLiveTimestamp(client.config.baseUrl)}000`
+      : String(Date.now());
+
     const { activity } = await client.signRawPayload({
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
       organizationId: organizationId,
@@ -488,6 +493,10 @@ async function signMessageImpl(
 
     result = assertNonNull(activity?.result?.signRawPayloadResult);
   } else {
+    const timestampMs = client.config.useTurnkeyRemoteTimestamp
+      ? `${await getLiveTimestamp(client.config.apiBaseUrl)}000`
+      : String(Date.now());
+
     const { activity, r, s, v } = await client.signRawPayload({
       signWith,
       payload: message,
