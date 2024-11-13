@@ -4,7 +4,10 @@
 
 ### Minor Changes
 
-- 4df8914: Version bump corresponding to mono release v2024.10.10. More detailed changelog to follow
+- 4df8914: Version bump corresponding to mono release v2024.10.10.
+  - Improved error message for duplicate activity submission
+  - Address derivation support for DOGE, TON, SEI, XLM
+  - Fix server side error if sub_org doesn’t have email and/or phone number
 
 ## 2.15.0
 

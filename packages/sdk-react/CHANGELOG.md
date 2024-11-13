@@ -1,8 +1,8 @@
 # @turnkey/sdk-react
 
-## 1.0.14
+## 1.1.0
 
-### Patch Changes
+### Minor Changes
 
 - Updated dependencies [3dd74ac]
 - Updated dependencies [1e36edf]

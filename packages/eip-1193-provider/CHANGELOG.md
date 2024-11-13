@@ -1,8 +1,8 @@
 # @turnkey/eip-1193-provider
 
-## 4.0.0
+## 3.1.0
 
-### Patch Changes
+### Minor Changes
 
 - Updated dependencies [4df8914]
   - @turnkey/http@2.16.0

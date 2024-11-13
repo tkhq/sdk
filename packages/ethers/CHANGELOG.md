@@ -1,8 +1,8 @@
 # @turnkey/ethers
 
-## 1.1.4
+## 1.2.0
 
-### Patch Changes
+### Minor Changes
 
 - Updated dependencies [3dd74ac]
 - Updated dependencies [1e36edf]

@@ -16,7 +16,7 @@
 
 ### Patch Changes
 
-- d989d46: Remove unnecessary react/typsecript packages
+- d989d46: Remove unnecessary React/Typescript packages
 
 ## 2.0.0
 

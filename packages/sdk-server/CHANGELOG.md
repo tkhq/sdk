@@ -5,7 +5,7 @@
 ### Minor Changes
 
 - 3dd74ac: Added functionality for constructing and returning stamped requests for all packages
-- 4df8914: Version bump corresponding to mono release v2024.10.10. More detailed changelog to follow
+- 4df8914: Version bump corresponding to mono release v2024.10.10. See the [@turnkey/http changelog](https://github.com/tkhq/sdk/blob/main/packages/http/CHANGELOG.md) for more details.
 
 ### Patch Changes
 
