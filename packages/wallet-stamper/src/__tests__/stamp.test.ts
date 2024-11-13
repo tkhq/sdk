@@ -1,6 +1,6 @@
 import { test, expect } from "@jest/globals";
 import {
-  SIGNATURE_SCHEME_TK_API_SECP256K1_ERC191,
+  SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191,
   STAMP_HEADER_NAME,
   WalletStamper,
 } from "../index";
@@ -56,6 +56,6 @@ test("Ethereum wallet stamping", async function () {
   );
 
   expect(decodedStamp["publicKey"]).toBe(EXPECTED_COMPRESSED_PUBLIC_KEY);
-  expect(decodedStamp["scheme"]).toBe(SIGNATURE_SCHEME_TK_API_SECP256K1_ERC191);
+  expect(decodedStamp["scheme"]).toBe(SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191);
   expect(decodedStamp["signature"]).toBe(EXPECTED_DER_SIGNATURE);
 });

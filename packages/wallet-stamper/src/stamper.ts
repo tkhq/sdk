@@ -7,7 +7,7 @@ import {
   WalletType,
 } from "./types";
 import {
-  SIGNATURE_SCHEME_TK_API_SECP256K1_ERC191,
+  SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191,
   SIGNATURE_SCHEME_TK_API_ED25519,
   STAMP_HEADER_NAME,
 } from "./constants";
@@ -34,7 +34,7 @@ export class WalletStamper implements TStamper {
     const scheme =
       this.wallet.type === WalletType.Solana
         ? SIGNATURE_SCHEME_TK_API_ED25519
-        : SIGNATURE_SCHEME_TK_API_SECP256K1_ERC191;
+        : SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191;
 
     let publicKey: string;
     try {

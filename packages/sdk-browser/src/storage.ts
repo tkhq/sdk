@@ -3,15 +3,15 @@ import WindowWrapper from "./__polyfills__/window";
 import type { AuthClient, TSessionResponse } from "./__types__/base";
 
 export enum StorageKeys {
-  AuthBundle = "@turnkey/auth_bundle", // LEGACY
-  CurrentUser = "@turnkey/current_user",
+  AuthBundle = "@turnkey/auth_bundle", // DEPRECATED
+  CurrentUser = "@turnkey/current_user", // DEPRECATED
   UserSession = "@turnkey/session/v1",
   ReadWriteSession = "@turnkey/read_write_session",
 }
 
 interface StorageValue {
-  [StorageKeys.AuthBundle]: string; // LEGACY
-  [StorageKeys.CurrentUser]: User;
+  [StorageKeys.AuthBundle]: string; // DEPRECATED
+  [StorageKeys.CurrentUser]: User; // DEPRECATED
   [StorageKeys.UserSession]: User;
   [StorageKeys.ReadWriteSession]: ReadWriteSession;
 }

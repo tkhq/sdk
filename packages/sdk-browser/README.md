@@ -57,10 +57,10 @@ const iframeClient = await turnkey.iframeClient({
   iframeUrl: "https://auth.turnkey.com",
 });
 
-const response = await iframeClient.injectCredentialBundle(
+const injectedResponse = await iframeClient.injectCredentialBundle(
   "<Credential from Email>"
 );
-if (response) {
+if (injectedResponse) {
   await iframeClient.getWallets();
 }
 ```

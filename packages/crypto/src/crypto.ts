@@ -569,6 +569,25 @@ export const fromDerSignature = (derSignature: string) => {
   return new Uint8Array([...rPadded, ...sPadded]);
 };
 
+/**
+ * Converts a raw ECDSA signature to DER-encoded format.
+ *
+ * This function takes a raw ECDSA signature, which is a concatenation of two 32-byte integers (r and s),
+ * and converts it into the DER-encoded format. DER (Distinguished Encoding Rules) is a binary encoding
+ * for data structures described by ASN.1.
+ *
+ * @param {string} rawSignature - The raw signature in hexadecimal string format.
+ * @returns {string} - The DER-encoded signature in hexadecimal string format.
+ *
+ * @throws {Error} - Throws an error if the input signature is invalid or if the encoding process fails.
+ *
+ * @example
+ * // Example usage:
+ * const rawSignature = "0x487cdb8a88f2f4044b701cbb116075c4cabe5fe4657a6358b395c0aab70694db3453a8057e442bd1aff0ecabe8a82c831f0edd7f2158b7c1feb3de9b1f20309b1c";
+ * const derSignature = toDerSignature(rawSignature);
+ * console.log(derSignature); // Outputs the DER-encoded signature as a hex string
+ * // "30440220487cdb8a88f2f4044b701cbb116075c4cabe5fe4657a6358b395c0aab70694db02203453a8057e442bd1aff0ecabe8a82c831f0edd7f2158b7c1feb3de9b1f20309b"
+ */
 export const toDerSignature = (rawSignature: string) => {
   const rawSignatureBuf = uint8ArrayFromHexString(rawSignature);
 
