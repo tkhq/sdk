@@ -44,7 +44,20 @@ export class TurnkeyBrowserSDK {
     this.config = config;
   }
 
-  passkeyClient = (rpId?: string): TurnkeyPasskeyClient => {
+  /**
+   * Creates a passkey client. The parameters are overrides passed to the underlying Turnkey `WebauthnStamper`
+   * @param rpId Relying Party ID (defaults to window.location.hostname if not provided)
+   * @param timeout optional timeout (defaults to 5mins)
+   * @param userVerification optional UV flag (defaults to "preferred")
+   * @param allowCredentials optional allowCredentials array (defaults to empty array)
+   * @returns new TurnkeyPasskeyClient
+   */
+  passkeyClient = (
+    rpId?: string,
+    timeout?: number,
+    userVerification?: UserVerificationRequirement,
+    allowCredentials?: PublicKeyCredentialDescriptor[]
+  ): TurnkeyPasskeyClient => {
     const targetRpId =
       rpId ?? this.config.rpId ?? WindowWrapper.location.hostname;
 
@@ -56,6 +69,9 @@ export class TurnkeyBrowserSDK {
 
     const webauthnStamper = new WebauthnStamper({
       rpId: targetRpId,
+      ...(timeout !== undefined && { timeout }),
+      ...(userVerification !== undefined && { userVerification }),
+      ...(allowCredentials !== undefined && { allowCredentials }),
     });
 
     return new TurnkeyPasskeyClient({
