@@ -1,8 +1,6 @@
 # Example: `with-ton`
 
-This is a simple example that walks through the following:
-
-- Construction of a TON transaction sending the funds out on mainnet
+This is a simple example that walks through the construction of a TON transaction and sending the funds out on mainnet
 
 ## Getting started
 

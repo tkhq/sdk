@@ -118,7 +118,14 @@ async function main() {
   console.log(`Using TON address: ${walletAddress}`);
 
   const tonAddress = Address.parse(walletAddress);
-  let accountData = await client.getBalance(tonAddress).catch(() => null);
+  let accountData;
+  try {
+    accountData = await client.getBalance(tonAddress);
+  } catch (error) {
+    throw new Error(
+      `Failed to retrieve balance for address ${tonAddress}: ${error}`
+    );
+  }
   if (!accountData || BigInt(accountData) === 0n) {
     console.log(
       `Your account does not exist or has zero balance. Fund your address ${walletAddress} to proceed.`
