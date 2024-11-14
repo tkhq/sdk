@@ -5,11 +5,13 @@
   "scripts": {
     "start-ethers": "tsx src/ethers.ts",
     "start-viem": "tsx src/viem.ts",
+    "start-nexus-viem": "tsx src/nexus-viem.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@biconomy/account": "^4.5.6",
+    "@biconomy/sdk": "^0.0.10",
     "@turnkey/ethers": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/viem": "workspace:*",
