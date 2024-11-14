@@ -1,6 +1,6 @@
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
-import { getWebAuthnAttestation } from "@turnkey/http";
+import { getWebAuthnAttestation, getLiveTimestamp } from "@turnkey/http";
 
 import { VERSION } from "./__generated__/version";
 import WindowWrapper from "./__polyfills__/window";
@@ -39,9 +39,44 @@ const DEFAULT_SESSION_EXPIRATION = "900"; // default to 15 minutes
 
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
+  timestampDelta?: number | undefined;
 
   constructor(config: TurnkeySDKBrowserConfig) {
     this.config = config;
+    this.timestampDelta = config.timestampOverride ? config.timestampOverride - Date.now() : undefined;
+  }
+
+  /**
+   * 
+   * @returns cached timestamp delta
+   */
+  getTimestampDelta = () => {
+    return this.timestampDelta;
+  }
+
+  /**
+   * 
+   * @param timestampDelta optional timestamp delta. To be used when you would like to override the client's local timestamp. Note that this takes precedence over the case where the `useTurnkeyRemoteTimestamp` config flag is enabled.
+   */
+  setTimestampDelta = async (timestampDelta?: number) => {
+    if (timestampDelta) {
+      this.timestampDelta = timestampDelta;
+      return;
+    }
+
+    if (this.config.useTurnkeyRemoteTimestamp) {
+      const liveTimestampString = await getLiveTimestamp(
+        this.config.apiBaseUrl
+      );
+
+      this.timestampDelta = parseInt(liveTimestampString) - Date.now();
+    }
+  };
+
+  getOrSetTimestampDelta = async (timestampDelta?: number) => {
+    if (this.getTimestampDelta() === undefined) {
+      await this.setTimestampDelta(timestampDelta);
+    }
   }
 
   passkeyClient = (rpId?: string): TurnkeyPasskeyClient => {

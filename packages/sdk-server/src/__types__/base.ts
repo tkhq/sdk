@@ -79,6 +79,7 @@ export interface TurnkeySDKClientConfig {
   organizationId: string;
   activityPoller?: TActivityPollerConfig | undefined;
   useTurnkeyRemoteTimestamp?: boolean;
+  timestampOverride?: number;
 }
 
 export interface TurnkeySDKServerConfig {
@@ -88,6 +89,7 @@ export interface TurnkeySDKServerConfig {
   defaultOrganizationId: string;
   activityPoller?: TActivityPollerConfig | undefined;
   useTurnkeyRemoteTimestamp?: boolean;
+  timestampOverride?: number;
 }
 
 export interface TurnkeyProxyHandlerConfig {

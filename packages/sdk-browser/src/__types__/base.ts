@@ -69,6 +69,7 @@ interface BaseSDKClientConfig {
   organizationId: string;
   activityPoller?: TActivityPollerConfig | undefined;
   useTurnkeyRemoteTimestamp?: boolean;
+  timestampOverride?: number;
 }
 
 interface SDKClientConfigWithStamper extends BaseSDKClientConfig {
@@ -90,6 +91,8 @@ export interface TurnkeySDKBrowserConfig {
   defaultOrganizationId: string;
   rpId?: string;
   serverSignUrl?: string;
+  useTurnkeyRemoteTimestamp?: boolean;
+  timestampOverride?: number;
 }
 
 export type queryOverrideParams = {

@@ -1,4 +1,5 @@
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { getLiveTimestamp } from "@turnkey/http";
 
 import type {
   ApiCredentials,
@@ -26,10 +27,26 @@ const DEFAULT_API_PROXY_ALLOWED_METHODS = [
 
 export class TurnkeyServerSDK {
   config: TurnkeySDKServerConfig;
+  timestampDelta: number;
 
   constructor(config: TurnkeySDKServerConfig) {
     this.config = config;
+    this.timestampDelta = config.timestampOverride ? config.timestampOverride - Date.now() : 0;
   }
+
+  getTimestampDelta = () => {
+    return this.timestampDelta;
+  }
+
+  setTimestampDelta = async () => {
+    if (this.config.useTurnkeyRemoteTimestamp) {
+      const liveTimestampString = await getLiveTimestamp(
+        this.config.apiBaseUrl
+      );
+
+      this.timestampDelta = parseInt(liveTimestampString) - Date.now();
+    }
+  };
 
   apiClient = (apiCredentials?: ApiCredentials): TurnkeyApiClient => {
     const apiKeyStamper = new ApiKeyStamper({
