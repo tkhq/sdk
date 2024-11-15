@@ -15,12 +15,12 @@ interface PublicKeyCredentialDescriptor {
 }
 
 enum AuthenticatorTransport {
-  usb = 'usb',
-  nfc = 'nfc',
-  ble = 'ble',
-  smartCard = 'smart-card',
-  hybrid = 'hybrid',
-  internal = 'internal',
+  usb = "usb",
+  nfc = "nfc",
+  ble = "ble",
+  smartCard = "smart-card",
+  hybrid = "hybrid",
+  internal = "internal",
 }
 
 /**
@@ -132,34 +132,36 @@ export async function createPasskey(
 ): Promise<TurnkeyAuthenticatorParams> {
   const challenge = config.challenge || getRandomChallenge();
 
-  let createFn = options?.withPlatformKey ? Passkey.createPlatformKey : ( options?.withSecurityKey ? Passkey.createSecurityKey : Passkey.create );
-  const registrationResult = await createFn(
-    {
-      challenge: challenge,
-      rp: config.rp,
-      user: config.user,
-      excludeCredentials: config.excludeCredentials || [],
-      authenticatorSelection: config.authenticatorSelection || {
-        requireResidentKey: true,
-        residentKey: "required",
-        userVerification: "preferred",
-      },
-      attestation: config.attestation || "none",
-      extensions: config.extensions || {},
-      // All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
-      // We only support ES256 and RS256, which are listed below
-      pubKeyCredParams: [
-        {
-          type: "public-key",
-          alg: -7,
-        },
-        {
-          type: "public-key",
-          alg: -257,
-        },
-      ],
+  let createFn = options?.withPlatformKey
+    ? Passkey.createPlatformKey
+    : options?.withSecurityKey
+    ? Passkey.createSecurityKey
+    : Passkey.create;
+  const registrationResult = await createFn({
+    challenge: challenge,
+    rp: config.rp,
+    user: config.user,
+    excludeCredentials: config.excludeCredentials || [],
+    authenticatorSelection: config.authenticatorSelection || {
+      requireResidentKey: true,
+      residentKey: "required",
+      userVerification: "preferred",
     },
-  );
+    attestation: config.attestation || "none",
+    extensions: config.extensions || {},
+    // All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
+    // We only support ES256 and RS256, which are listed below
+    pubKeyCredParams: [
+      {
+        type: "public-key",
+        alg: -7,
+      },
+      {
+        type: "public-key",
+        alg: -257,
+      },
+    ],
+  });
 
   return {
     authenticatorName: config.authenticatorName,
@@ -213,7 +215,11 @@ export class PasskeyStamper {
       extensions: this.extensions,
     };
 
-    let passkeyGetfn = this.forcePlatformKey ? Passkey.getPlatformKey : ( this.forceSecurityKey ? Passkey.getSecurityKey : Passkey.get );
+    let passkeyGetfn = this.forcePlatformKey
+      ? Passkey.getPlatformKey
+      : this.forceSecurityKey
+      ? Passkey.getSecurityKey
+      : Passkey.get;
     const authenticationResult = await passkeyGetfn(signingOptions);
 
     const stamp = {
