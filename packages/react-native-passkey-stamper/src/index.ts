@@ -11,7 +11,16 @@ import { getChallengeFromPayload, getRandomChallenge } from "./util";
 interface PublicKeyCredentialDescriptor {
   type: string;
   id: string;
-  transports?: Array<string>;
+  transports?: Array<AuthenticatorTransport>;
+}
+
+enum AuthenticatorTransport {
+  usb = 'usb',
+  nfc = 'nfc',
+  ble = 'ble',
+  smartCard = 'smart-card',
+  hybrid = 'hybrid',
+  internal = 'internal',
 }
 
 /**
@@ -91,6 +100,12 @@ export type TPasskeyStamperConfig = {
   // Optional list of credentials to pass. Defaults to empty.
   allowCredentials?: PublicKeyCredentialDescriptor[];
 
+  // Option to force security passkeys on native platforms
+  withSecurityKey?: boolean;
+
+  // Option to force platform passkeys on native platforms
+  withPlatformKey?: boolean;
+
   // Optional extensions. Defaults to empty.
   extensions?: Record<string, unknown>;
 };
@@ -112,11 +127,13 @@ export async function createPasskey(
   config: TPasskeyRegistrationConfig,
   options?: {
     withSecurityKey: boolean;
+    withPlatformKey: boolean;
   }
 ): Promise<TurnkeyAuthenticatorParams> {
   const challenge = config.challenge || getRandomChallenge();
 
-  const registrationResult = await Passkey.register(
+  let createFn = options?.withPlatformKey ? Passkey.createPlatformKey : ( options?.withSecurityKey ? Passkey.createSecurityKey : Passkey.create );
+  const registrationResult = await createFn(
     {
       challenge: challenge,
       rp: config.rp,
@@ -142,7 +159,6 @@ export async function createPasskey(
         },
       ],
     },
-    options
   );
 
   return {
@@ -172,6 +188,8 @@ export class PasskeyStamper {
   userVerification: UserVerificationRequirement;
   allowCredentials: PublicKeyCredentialDescriptor[];
   extensions: Record<string, unknown>;
+  forcePlatformKey: boolean;
+  forceSecurityKey: boolean;
 
   constructor(config: TPasskeyStamperConfig) {
     this.rpId = config.rpId;
@@ -179,6 +197,8 @@ export class PasskeyStamper {
     this.userVerification = config.userVerification || defaultUserVerification;
     this.allowCredentials = config.allowCredentials || [];
     this.extensions = config.extensions || {};
+    this.forcePlatformKey = !!config.withPlatformKey;
+    this.forceSecurityKey = !!config.withSecurityKey;
   }
 
   async stamp(payload: string) {
@@ -193,7 +213,8 @@ export class PasskeyStamper {
       extensions: this.extensions,
     };
 
-    const authenticationResult = await Passkey.authenticate(signingOptions);
+    let passkeyGetfn = this.forcePlatformKey ? Passkey.getPlatformKey : ( this.forceSecurityKey ? Passkey.getSecurityKey : Passkey.get );
+    const authenticationResult = await passkeyGetfn(signingOptions);
 
     const stamp = {
       authenticatorData: base64Tobase64url(
