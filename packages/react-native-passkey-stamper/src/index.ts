@@ -8,13 +8,13 @@ import { getChallengeFromPayload, getRandomChallenge } from "./util";
  * Copied from https://github.com/f-23/react-native-passkey/blob/17184a1b1f6f3ac61e07aa784c9b64efb28b570e/src/Passkey.tsx#L80C1-L85C2
  * TODO: can we import this type instead?
  */
-interface PublicKeyCredentialDescriptor {
+export interface PublicKeyCredentialDescriptor {
   type: string;
   id: string;
   transports?: Array<AuthenticatorTransport>;
 }
 
-enum AuthenticatorTransport {
+export enum AuthenticatorTransport {
   usb = "usb",
   nfc = "nfc",
   ble = "ble",
