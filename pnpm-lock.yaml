@@ -1680,7 +1680,7 @@ importers:
         specifier: workspace:*
         version: link:../iframe-stamper
       '@turnkey/wallet-stamper':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../wallet-stamper
       '@turnkey/webauthn-stamper':
         specifier: workspace:*
@@ -1714,7 +1714,7 @@ importers:
         specifier: workspace:*
         version: link:../sdk-browser
       '@turnkey/wallet-stamper':
-        specifier: workspace:^
+        specifier: '*'
         version: link:../wallet-stamper
       usehooks-ts:
         specifier: ^3.1.0
@@ -1828,10 +1828,10 @@ importers:
         specifier: ^1.88.1
         version: 1.95.1(encoding@0.1.13)
       '@turnkey/api-key-stamper':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../api-key-stamper
       '@turnkey/http':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../http
       dotenv:
         specifier: ^16.0.3
@@ -22758,6 +22758,7 @@ packages:
 
   /viem@2.21.35(typescript@5.1.3):
     resolution: {integrity: sha512-f3EFc5JILeA9veuNymUN8HG/nKP9ykC0NCgwFrZWuxcCc822GaP0IEnkRBsHGqmjwbz//FxJFmvtx7TBcdVs0A==}
+    requiresBuild: true
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
