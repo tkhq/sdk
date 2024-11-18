@@ -1,10 +1,17 @@
-// Constants for Ethereum keys
-export const ETHEREUM_PUBLIC_KEY =
-  "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5";
+import { UUID } from "crypto";
+import "dotenv/config";
 
-export const ETHEREUM_PRIVATE_KEY =
-  "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      SUB_ORGANIZATION_ID;
+      ORGANIZATION_ID: UUID;
+      BASE_URL: string;
+    }
+  }
+}
 
+// Solana Keys
 export const SOLANA_PRIVATE_KEY = Uint8Array.from([
   54, 134, 140, 93, 245, 84, 88, 28, 70, 88, 146, 41, 96, 249, 255, 68, 174,
   234, 116, 222, 171, 251, 197, 90, 154, 57, 160, 9, 139, 77, 42, 175, 84, 219,
@@ -17,6 +24,14 @@ export const SOLANA_PUBLIC_KEY = "6iFmi3WEaTEvduaf4gGK13Wy6GvtWv5PYYjvj13ZMitt";
 export const SOLANA_PUBLIC_KEY_DECODED =
   "54dbf3006616c1afaec1ebceaa22a488b1856bfc7b0453a53fb097dd69fa64e5";
 
+// Ethereum Keys
+export const ETHEREUM_PUBLIC_KEY =
+  "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5";
+
+export const ETHEREUM_PRIVATE_KEY =
+  "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+
+// Expected compressed public key associated with SUB_ORGANIZATION_ID
 export const EXPECTED_COMPRESSED_PUBLIC_KEY =
   "038318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed75";
 
@@ -26,7 +41,9 @@ export const EXPECTED_SIGNATURE =
 export const EXPECTED_DER_SIGNATURE =
   "30440220487cdb8a88f2f4044b701cbb116075c4cabe5fe4657a6358b395c0aab70694db02203453a8057e442bd1aff0ecabe8a82c831f0edd7f2158b7c1feb3de9b1f20309b";
 
-// TODO: Change these values once signature changes are in prod
-export const ORGANIZATION_ID = "ac146211-1f67-4843-bc28-c8a6aeb86b36";
+// Sub organization ID associated with the `EXPECTED_COMPRESSED_PUBLIC_KEY`
+export const SUB_ORGANIZATION_ID = "fb5830ac-c49e-4f0e-b68d-3d83087b29c5";
 
-export const BASE_URL = "https://api.turnkey.com";
+// Environment variables
+export const ORGANIZATION_ID = process.env.ORGANIZATION_ID;
+export const BASE_URL = process.env.BASE_URL;

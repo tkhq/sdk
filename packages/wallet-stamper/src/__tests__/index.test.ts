@@ -2,21 +2,12 @@ import { EthereumWallet, WalletStamper } from "..";
 import { TurnkeyClient } from "@turnkey/http";
 
 import { MockSolanaWallet } from "./wallet-interfaces";
-import type { UUID } from "crypto";
 
 // Import necessary Jest functions
 import { describe, expect, it } from "@jest/globals";
 
-declare global {
-  namespace NodeJS {
-    interface ProcessEnv {
-      ORGANIZATION_ID: UUID;
-      BASE_URL: string;
-    }
-  }
-}
 import { setupEthereumMock } from "./utils";
-import { BASE_URL, ORGANIZATION_ID } from "./constants";
+import { BASE_URL, ORGANIZATION_ID, SUB_ORGANIZATION_ID } from "./constants";
 
 setupEthereumMock();
 
@@ -35,6 +26,7 @@ describe("Wallet stamper tests", () => {
 
     expect(wallets?.length).toBeGreaterThan(0);
   });
+
   it("Ethereum Wallet - Should list wallets using wallet to stamp the request", async () => {
     const ethereumWallet = new EthereumWallet();
     const stamper = new WalletStamper(ethereumWallet);
@@ -42,11 +34,12 @@ describe("Wallet stamper tests", () => {
 
     const { wallets } =
       (await client.getWallets({
-        organizationId: ORGANIZATION_ID,
+        organizationId: SUB_ORGANIZATION_ID,
       })) ?? {};
 
     expect(wallets?.length).toBeGreaterThan(0);
   });
+
   it("Ethereum Wallet - Should create a read only session using wallet to stamp the request", async () => {
     const ethereumWallet = new EthereumWallet();
     const stamper = new WalletStamper(ethereumWallet);
@@ -58,6 +51,8 @@ describe("Wallet stamper tests", () => {
       timestampMs: Date.now().toString(),
       parameters: {},
     });
+
     expect(session).toBeDefined();
+    expect(session.activity.status).toBe("ACTIVITY_STATUS_COMPLETED");
   });
 });
