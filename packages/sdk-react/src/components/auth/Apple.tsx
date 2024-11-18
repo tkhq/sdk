@@ -44,6 +44,7 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
   }
 
   return (
+    
     <AppleLogin
       nonce={bytesToHex(sha256(iframePublicKey))}
       clientId={clientId}

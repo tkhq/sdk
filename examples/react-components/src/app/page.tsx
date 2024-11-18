@@ -8,6 +8,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CustomSwitch from "./Switch";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import "./index.css";
+import { useRouter } from "next/navigation";
 
 // Define types for config and socials
 interface SocialConfig {
@@ -27,12 +28,9 @@ interface Config {
 export default function AuthPage() {
   const { authIframeClient } = useTurnkey();
   const [orgData, setOrgData] = useState<any>();
-
+  const router = useRouter();
   const handleAuthSuccess = async () => {
-    const whoamiResponse = await authIframeClient!.getWhoami({
-      organizationId: "51fb75bf-c044-4f9f-903b-4fba6bfedab9",
-    });
-    setOrgData(whoamiResponse as any);
+    router.push("/dashboard");
   };
 
   const [configOrder, setConfigOrder] = useState(["email", "phone", "passkey", "socials"]);

@@ -225,13 +225,6 @@ button:disabled {
   margin-bottom: 12px;
 }
 
-.authButton {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin-bottom: 12px;
-}
-
 .socialButtonContainer {
   width: 100%;
   display: flex;
