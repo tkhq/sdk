@@ -1,0 +1,218 @@
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../../../public/fonts/inter/Inter-Regular.woff2?v=3.19")
+      format("woff2");
+  }
+  
+  @font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../../../public/fonts/inter/Inter-SemiBold.woff2?v=3.19")
+      format("woff2");
+  }
+  
+  .main {
+    font-family: Inter;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 6rem;
+    gap: 60px;
+    position: relative;
+  }
+  
+  .authConfigContainer {
+    position: absolute;
+    left: 0;
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  .authConfigCard {
+    background: var(--Greyscale-20, #f5f7fb);
+    padding: 8px 24px;
+    border-radius: 8px;
+    width: 542px;
+    height: 642px;
+    border: 1px solid var(--Greyscale-100, #ebedf2);
+    font-family: Arial, sans-serif;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  .configTitle {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 36px;
+    letter-spacing: -0.01em;
+    text-align: left;
+    margin-bottom: 16px;
+    margin-top: 16px;
+  }
+  
+  .accountContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-bottom: 1px solid var(--Greyscale-200, #ebedf2);
+  }
+  
+  .labelContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .accountRow {
+    background-color: #ffffff;
+    border-radius: 8px;
+    align-items: center;
+    display: flex;
+    justify-content: space-between; 
+    padding: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .accountAddress {
+    flex: 1; 
+    margin-left: 8px;
+  }
+  
+  .radioButton {
+    margin-left: auto;
+  }
+
+  .toggleSocialRow {
+    background-color: #ffffff;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .toggleSocialIndividualRow {
+    background-color: var(--Greyscale-20, #f5f7fb);
+    display: flex;
+    margin-left: 16px;
+    padding-left: 16px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .copyConfigButton {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: #666;
+    font-size: 14px;
+    margin-top: auto;
+    padding: 8px 16px;
+  }
+  .copyConfigText {
+    padding-left: 4px;
+  }
+  
+  .authComponent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+  }
+  
+  .success {
+    justify-items: center;
+  }
+  
+  .iconSmall {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .socialContainer {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 8px 16px;
+    padding-bottom: 16px;
+    background-color: #ffffff;
+  }
+  
+  .signMessage {
+    margin-bottom: 24px;
+    margin-top: 24px;
+  }
+  .exportImportGroup {
+    margin-top: 24px;
+    display: flex;
+  gap: 12px; 
+  }
+
+  button {
+    padding: 10px 16px 10px 16px;
+    gap: 8px;
+    color: #ffffff;
+    width: 100%;
+    font-size: 1rem;
+    background: var(--Greyscale-900, #2b2f33);
+    border: 1px solid var(--Greyscale-800, #3f464b);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  button:disabled {
+    color: var(--Greyscale-700, #a2a7ae);
+    background: #ffffff;
+    border-color: var(--Greyscale-400, #a2a7ae);
+    cursor: not-allowed;
+  }
+
+
+  .authFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 16px;
+    border-top: 1px solid var(--Greyscale-200, #ebedf2);
+    margin-top: auto;
+  }
+  
+  .authFooterLeft,
+  .authFooterRight {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    margin-bottom: 12px;
+  }
+  
+  .authFooterLeft {
+    justify-content: flex-start;
+    text-align: center;
+  }
+  
+  .authFooterRight {
+    justify-content: flex-start;
+    text-align: center;
+  }
+  
+  .authFooterSeparatorVertical {
+    border-left: 1px solid var(--Greyscale-200, #ebedf2);
+    height: 100%;
+    margin: 0 16px;
+  }
+  
+  .authFooterButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; 
+    cursor: pointer; 
+  }
