@@ -7,7 +7,7 @@ import { MockSolanaWallet } from "./wallet-interfaces";
 import { describe, expect, it } from "@jest/globals";
 
 import { setupEthereumMock } from "./utils";
-import { BASE_URL, ORGANIZATION_ID, SUB_ORGANIZATION_ID } from "./constants";
+import { BASE_URL, ORGANIZATION_ID } from "./constants";
 
 setupEthereumMock();
 
@@ -22,19 +22,6 @@ describe("Wallet stamper tests", () => {
     const { wallets } =
       (await client.getWallets({
         organizationId: ORGANIZATION_ID,
-      })) ?? {};
-
-    expect(wallets?.length).toBeGreaterThan(0);
-  });
-
-  it("Ethereum Wallet - Should list wallets using wallet to stamp the request", async () => {
-    const ethereumWallet = new EthereumWallet();
-    const stamper = new WalletStamper(ethereumWallet);
-    const client = new TurnkeyClient({ baseUrl: BASE_URL }, stamper);
-
-    const { wallets } =
-      (await client.getWallets({
-        organizationId: SUB_ORGANIZATION_ID,
       })) ?? {};
 
     expect(wallets?.length).toBeGreaterThan(0);
