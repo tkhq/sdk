@@ -11,24 +11,26 @@ import { hashMessage, keccak256, recoverAddress, toUtf8Bytes } from "ethers";
  * @param {string} r - The r value of the signature.
  * @param {string} s - The s value of the signature.
  * @param {string} v - The v value of the signature.
- * @returns {string} - The recovered Ethereum address.
+ * @param {string} address - The Ethereum address of the signer.
+ * @returns {boolean} - The recovered Ethereum address.
  */
 export function verifyEthSignature(
     message: string,
     r: string,
     s: string,
-    v: string
-  ): string {
+    v: string,
+    address: string
+  ): boolean {
     try {
       // Construct the full signature
       const signature = `0x${r}${s}${v === "00" ? "1b" : "1c"}`; // 1b/1c corresponds to v for Ethereum
       const hashedMessage = keccak256(toUtf8Bytes(message))
   
       // Recover the address from the signature
-      return recoverAddress(hashedMessage, signature);
+      return address == recoverAddress(hashedMessage, signature);
     } catch (error) {
       console.error("Ethereum signature verification failed:", error);
-      return "";
+      return false
     }
   }
 

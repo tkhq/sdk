@@ -54,7 +54,7 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
       render={({ onClick }) => (
         <div onClick={onClick} className={styles.socialButton}>
           <img src={appleIcon} className={styles.iconSmall} />
-          <span>Continue with Apple</span>
+          <span>Apple</span>
         </div>
       )}
       callback={(response) => {

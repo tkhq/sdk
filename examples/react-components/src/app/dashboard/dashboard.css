@@ -56,6 +56,14 @@
     margin-top: 16px;
   }
   
+  .modalTitle {
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-align: left;
+  }
+
   .accountContainer {
     display: flex;
     flex-direction: column;

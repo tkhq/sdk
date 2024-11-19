@@ -94,7 +94,7 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
   return (
     <div className={styles.socialButton} onClick={initiateFacebookLogin}>
       <img src={facebookIcon} className={styles.iconSmall} />
-      <span>Continue with Facebook</span>
+      <span>Facebook</span>
     </div>
   );
 };
