@@ -82,29 +82,27 @@
   margin-bottom: 12px;
 }
 
-.inputGroup input {
-  width: 100%;
-  padding: 12px;
-  font-size: 1rem;
-  border: 1px solid var(--Greyscale-200, #d8dbe3);
-  border-radius: 4px;
-  box-sizing: border-box;
-  &::placeholder {
-    color: rgba(0, 0, 0, 0.4);
-  }
-}
-
 button {
   padding: 10px 16px 10px 16px;
   gap: 8px;
-  color: #ffffff;
+  color: var(--Greyscale-900, #2b2f33);
   width: 100%;
   font-size: 1rem;
-  background: var(--Greyscale-900, #2b2f33);
-  border: 1px solid var(--Greyscale-800, #3f464b);
+  background: #ffffff;
+  border: 1px solid var(--Greyscale-400, #a2a7ae);
   border-radius: 8px;
   cursor: pointer;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
 }
+
+button:hover {
+  background-color: #F4E8FF;
+}
+
 
 button:disabled {
   color: var(--Greyscale-700, #a2a7ae);
@@ -113,26 +111,6 @@ button:disabled {
   cursor: not-allowed;
 }
 
-.passkeyButton {
-  margin-top: 12px;
-  padding: 10px 16px 10px 16px;
-  gap: 8px;
-  color: var(--Greyscale-600, #6c727e);
-
-  width: 100%;
-  font-size: 1rem;
-  background: var(--Greyscale-1, #ffffff);
-  border: 1px solid var(--Greyscale-400, #a2a7ae);
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.passkeyButton:disabled {
-  color: var(--Greyscale-500, #a2a7ae);
-  background: #ffffff;
-  border-color: var(--Greyscale-400, #a2a7ae);
-  cursor: not-allowed;
-}
 /* Separator */
 .separator {
   text-align: center;

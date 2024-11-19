@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { Auth, useTurnkey } from "@turnkey/sdk-react";
+import { useTurnkey } from "@turnkey/sdk-react";
 import { useEffect, useState } from "react";
 import "./dashboard.css";
 import {
@@ -13,20 +13,24 @@ import {
   Box,
   TextField,
 } from "@mui/material";
-import LogoutIcon from '@mui/icons-material/Logout';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import LogoutIcon from "@mui/icons-material/Logout";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { verifyEthSignature, verifySolSignatureWithAddress } from "../utils";
 import { keccak256, toUtf8Bytes } from "ethers";
 
 export default function Dashboard() {
   const { authIframeClient } = useTurnkey();
-  const [orgData, setOrgData] = useState<any>();
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<any>([]);
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [messageToSign, setMessageToSign] = useState("");
-  const [suborgId, setSuborgId] = useState("")
+  const [signature, setSignature] = useState<any>(null);
+  const [verificationResult, setVerificationResult] = useState<string | null>(
+    null
+  );
+
+
   useEffect(() => {
     const fetchWhoami = async () => {
       try {
@@ -34,7 +38,6 @@ export default function Dashboard() {
           const whoamiResponse = await authIframeClient.getWhoami({
             organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
           });
-          setSuborgId(whoamiResponse.organizationId!)
           const wallets = await authIframeClient.getWallets({
             organizationId: whoamiResponse.organizationId,
           });
@@ -43,6 +46,12 @@ export default function Dashboard() {
             walletId: wallets.wallets[0].walletId,
           });
           setAccounts(accountsResponse.accounts);
+          if (accountsResponse.accounts.length > 0) {
+            setSelectedAccount(accountsResponse.accounts[0].address);
+          }
+          if (authIframeClient && authIframeClient.config) {
+            authIframeClient.config.organizationId = whoamiResponse.organizationId!;
+          }
         }
       } catch (error) {
         console.error("Error fetching Whoami:", error);
@@ -68,29 +77,61 @@ export default function Dashboard() {
 
   const handleModalClose = () => {
     setIsModalOpen(false); // Close the modal
+    setMessageToSign("");
+    setSignature(null);
+    setVerificationResult(null);
   };
 
   const handleSign = async () => {
-    console.log("Message to sign:", messageToSign);
-    console.log("Using address:", selectedAccount);
-    const addressType = selectedAccount?.startsWith("0x") ? "ETH" : "SOL"
+    try {
+      const addressType = selectedAccount?.startsWith("0x") ? "ETH" : "SOL";
+      const hashedMessage =
+        addressType === "ETH"
+          ? keccak256(toUtf8Bytes(messageToSign)) // Ethereum requires keccak256 hash
+          : Buffer.from(messageToSign, "utf8").toString("hex"); // Solana doesn't require hashing
 
-    const hashedMessage =
-    addressType === "ETH"
-      ? keccak256(toUtf8Bytes(messageToSign)) // Ethereum requires keccak256 hash
-      : Buffer.from(messageToSign, "utf8").toString("hex"); // Solana doesn't require hashing
+      const resp = await authIframeClient?.signRawPayload({
+        signWith: selectedAccount!,
+        payload: hashedMessage,
+        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+        hashFunction:
+          addressType === "ETH"
+            ? "HASH_FUNCTION_NO_OP"
+            : "HASH_FUNCTION_NOT_APPLICABLE",
+      });
 
-
-    const resp = await authIframeClient?.signRawPayload({organizationId: suborgId, signWith: selectedAccount!, payload: hashedMessage, encoding: "PAYLOAD_ENCODING_HEXADECIMAL", hashFunction: addressType === "ETH" ? "HASH_FUNCTION_NO_OP" : "HASH_FUNCTION_NOT_APPLICABLE"})
-    if (addressType === "ETH"){
-        console.log(verifyEthSignature(messageToSign, resp?.r!, resp?.s!, resp?.v!))
+      setSignature({ r: resp?.r, s: resp?.s, v: resp?.v });
+    } catch (error) {
+      console.error("Error signing message:", error);
     }
-    else {
-        console.log(verifySolSignatureWithAddress(messageToSign, resp?.r!, resp?.s!, selectedAccount!))
-    }
-    setIsModalOpen(false); // Close the modal after signing
   };
 
+  const handleVerify = () => {
+    if (!signature) return;
+
+    const addressType = selectedAccount?.startsWith("0x") ? "ETH" : "SOL";
+    const verificationPassed =
+      addressType === "ETH"
+        ? verifyEthSignature(
+            messageToSign,
+            signature.r,
+            signature.s,
+            signature.v,
+            selectedAccount!
+          )
+        : verifySolSignatureWithAddress(
+            messageToSign,
+            signature.r,
+            signature.s,
+            selectedAccount!
+          );
+
+    setVerificationResult(
+      verificationPassed
+        ? `Signed with: ${selectedAccount}`
+        : "Verification failed"
+    );
+  };
 
   return (
     <main className="main">
@@ -114,7 +155,14 @@ export default function Dashboard() {
                         height: "32px",
                         marginLeft: "8px",
                         marginRight: "8px",
+                        cursor: "pointer",
                       }}
+                      onClick={() =>
+                        window.open(
+                          `https://etherscan.io/address/${account.address}`,
+                          "_blank"
+                        )
+                      }
                     />
                   )}
                   {account.addressFormat === "ADDRESS_FORMAT_SOLANA" && (
@@ -125,7 +173,14 @@ export default function Dashboard() {
                         height: "32px",
                         marginLeft: "8px",
                         marginRight: "8px",
+                        cursor: "pointer",
                       }}
+                      onClick={() =>
+                        window.open(
+                          `https://solscan.io/account/${account.address}`,
+                          "_blank"
+                        )
+                      }
                     />
                   )}
                   <span className="accountAddress">{`${account.address.slice(
@@ -156,62 +211,112 @@ export default function Dashboard() {
           </RadioGroup>
 
           <div className="exportImportGroup">
-            <button>Export Wallet</button>
-            <button className="exportImportButton">Import Wallet</button>
+            <button>Export wallet</button>
+            <button className="exportImportButton">Import wallet</button>
           </div>
           <div className="authFooter">
             <div className="authFooterLeft">
               <div className="authFooterButton">
                 <LogoutIcon />
-                <Typography>Logout</Typography>
+                <Typography>Log out</Typography>
               </div>
             </div>
             <div className="authFooterSeparatorVertical" />
             <div className="authFooterRight">
               <div className="authFooterButton">
                 <DeleteOutlineIcon sx={{ color: "#FB4E2B" }} />
-                <Typography>Delete Account</Typography>
+                <Typography>Delete account</Typography>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Modal */}
       <Modal open={isModalOpen} onClose={handleModalClose}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
+  <Box
+    sx={{
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: 400,
+      bgcolor: "var(--Greyscale-20, #f5f7fb)", 
+      boxShadow: 24,
+      p: 4,
+      borderRadius: 2,
+    }}
+  >
+        <Typography variant="h6" className="modalTitle">
+          Sign a Message
+        </Typography>
+        <Typography
+      variant="subtitle2"
+      sx={{
+        color: "#6C727E",
+      }}
+    >
+      Signing this message will not cost you any fees.
+    </Typography>
+    <TextField
+      fullWidth
+      margin="normal"
+      value={messageToSign}
+      onChange={(e) => setMessageToSign(e.target.value)}
+      sx={{
+        bgcolor: "#ffffff", 
+        "& .MuiOutlinedInput-root": {
+          height: "80px", // Set the height of the input field
+          alignItems: "flex-start", // Align text to the top
+          "& fieldset": {
+            borderColor: "#D0D5DD", // Default border color
+          },
+          "&:hover fieldset": {
+            borderColor: "#8A929E", // Hover border color
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "#D0D5DD", // Focus highlight color
+            border: "1px solid"
+          },
+        },
+      }}
+    />
+    <button
+      onClick={handleSign}
+      style={{
+        marginTop: "12px",
+      }}
+    >
+      Sign
+    </button>
+    {signature && (
+      <>
+        <Typography
+          sx={{ mt: 2, wordBreak: "break-word" }}
+        >{`Signature: ${JSON.stringify(signature)}`}</Typography>
+        <button
+          style={{
+            marginTop: "12px",
           }}
+          onClick={handleVerify}
         >
-          <Typography variant="h6" component="h2">
-            Sign a Message
-          </Typography>
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Message"
-            value={messageToSign}
-            onChange={(e) => setMessageToSign(e.target.value)}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSign}
-            sx={{ mt: 2 }}
-          >
-            Sign
-          </Button>
-        </Box>
-      </Modal>
+          Verify
+        </button>
+      </>
+    )}
+    {verificationResult && (
+      <Typography
+        sx={{
+          mt: 2,
+          color: verificationResult.startsWith("Signed")
+            ? "green"
+            : "red",
+        }}
+      >
+        {verificationResult}
+      </Typography>
+    )}
+  </Box>
+</Modal>
+
     </main>
   );
 }

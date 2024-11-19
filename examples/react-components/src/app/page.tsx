@@ -26,22 +26,20 @@ interface Config {
 }
 
 export default function AuthPage() {
-  const { authIframeClient } = useTurnkey();
-  const [orgData, setOrgData] = useState<any>();
   const router = useRouter();
   const handleAuthSuccess = async () => {
     router.push("/dashboard");
   };
 
-  const [configOrder, setConfigOrder] = useState(["email", "phone", "passkey", "socials"]);
+  const [configOrder, setConfigOrder] = useState(["socials", "email", "phone", "passkey"]);
 
   const [config, setConfig] = useState<Config>({
     email: true,
     phone: true,
     passkey: true,
     socials: {
-      enabled: false,
-      google: false,
+      enabled: true,
+      google: true,
       apple: false,
       facebook: false,
     },
@@ -119,7 +117,6 @@ export default function AuthPage() {
 
   return (
     <main className="main">
-      {!orgData && (
         <div className="authConfigCard">
           <Typography variant="h6" className="configTitle">
             Authentication config
@@ -217,24 +214,6 @@ export default function AuthPage() {
             </div>
           </div>
         </div>
-      )}
-      {orgData ? (
-        <div className="success">
-          YOU ARE AUTHENTICATED ON TURNKEY!
-          <div>
-            <strong>Organization Id:</strong> {orgData.organizationId}
-          </div>
-          <div>
-            <strong>User Id:</strong> {orgData.userId}
-          </div>
-          <div>
-            <strong>Username:</strong> {orgData.username}
-          </div>
-          <div>
-            <strong>Organization Name:</strong> {orgData.organizationName}
-          </div>
-        </div>
-      ) : (
         <div className="authComponent">
           <Auth
             authConfig={authConfig}
@@ -242,7 +221,6 @@ export default function AuthPage() {
             onHandleAuthSuccess={handleAuthSuccess}
           />
         </div>
-      )}
     </main>
   );
 }

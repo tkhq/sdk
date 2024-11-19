@@ -13,7 +13,7 @@ import OtpInput from "./otp";
 import GoogleAuthButton from "./Google";
 import AppleAuthButton from "./Apple";
 import FacebookAuthButton from "./Facebook";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, TextField } from "@mui/material";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import turnkeyIcon from "assets/turnkey.svg";
 import googleIcon from "assets/google.svg";
@@ -51,8 +51,9 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
   const [step, setStep] = useState<string>("auth");
   const [oauthLoading, setOauthLoading] = useState<string>("");
   const [suborgId, setSuborgId] = useState<string>("");
-  const [resendText, setResendText] = useState("Re-send Code");
+  const [resendText, setResendText] = useState("Resend code");
   const [passkeySignupScreen, setPasskeySignupScreen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const otpInputRef = useRef<any>(null);
 
   const handleResendCode = async () => {
@@ -62,7 +63,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
     } else if (step === "otpPhone") {
       await handleOtpLogin("PHONE_NUMBER", phone, "OTP_TYPE_SMS");
     }
-    setResendText("Code Sent ✓");
+    setResendText("Code sent ✓");
   };
 
   const formatPhoneNumber = (phone: string) => {
@@ -75,6 +76,16 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
       alert(error);
     }
   }, [error]);
+
+  useEffect(() => {
+    if (authIframeClient) {
+      setLoading(false);
+    }
+  }, [authIframeClient]);
+
+  if (loading) {
+    return <></>
+  }
 
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -200,19 +211,39 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
         return authConfig.emailEnabled && !otpId ? (
           <div>
             <div className={styles.inputGroup}>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+            <TextField
+  type="email"
+  placeholder="Enter your email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  fullWidth
+  sx={{
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": {
+        borderColor: "#D0D5DD", 
+      },
+      "&:hover fieldset": {
+        borderColor: "#8A929E", 
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#D0D5DD", 
+        border: "1px solid"
+      },
+    },
+    "& .MuiInputBase-input": {
+      padding: "12px"
+    },
+    backgroundColor: "white",
+  }}
+  variant="outlined"
+/>
             </div>
             <button
               type="button"
               onClick={() => handleOtpLogin("EMAIL", email, "OTP_TYPE_EMAIL")}
               disabled={!isValidEmail(email)}
             >
-              Continue with email
+              Continue
             </button>
           </div>
         ) : null;
@@ -220,9 +251,9 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
       case "passkey":
         return authConfig.passkeyEnabled && !otpId ? (
           <div className={styles.passkeyContainer}>
-            <button type="button" onClick={handleLoginWithPasskey}>Continue with passkey</button>
+            <button type="button" onClick={handleLoginWithPasskey}>Log in with passkey</button>
             <div className={styles.noPasskeyLink} onClick={() => setPasskeySignupScreen(true)}>
-              I don't have a passkey
+              Sign up with passkey
             </div>
           </div>
         ) : null;
@@ -238,7 +269,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
               onClick={() => handleOtpLogin("PHONE_NUMBER", phone, "OTP_TYPE_SMS")}
               disabled={!isValidPhone(phone)}
             >
-              Continue with phone
+              Continue
             </button>
           </div>
         ) : null;
@@ -400,11 +431,11 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
                                     <span>
                                       <span
                                         onClick={
-                                          resendText === "Re-send Code" ? handleResendCode : undefined
+                                          resendText === "Resend code" ? handleResendCode : undefined
                                         }
                                         style={{
                                           cursor:
-                                            resendText === "Re-send Code" ? "pointer" : "not-allowed",
+                                            resendText === "Resend code" ? "pointer" : "not-allowed",
                                         }}
                                         className={styles.resendCodeBold}
                                       >
