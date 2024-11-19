@@ -1,4 +1,8 @@
-import { Passkey } from "react-native-passkey";
+import {
+  Passkey,
+  PasskeyCreateResult,
+  PasskeyGetResult,
+} from "react-native-passkey";
 import type { TurnkeyApiTypes } from "@turnkey/http";
 import { base64StringToBase64UrlEncodedString as base64Tobase64url } from "@turnkey/encoding";
 import { getChallengeFromPayload, getRandomChallenge } from "./util";
@@ -120,6 +124,10 @@ export function isSupported(): boolean {
   return Passkey.isSupported();
 }
 
+// Context: https://github.com/f-23/react-native-passkey/issues/54
+type BrokenPasskeyCreateResult = PasskeyCreateResult | string;
+type BrokenPasskeyGetResult = PasskeyGetResult | string;
+
 /**
  * Creates a passkey and returns authenticator params
  */
@@ -137,7 +145,8 @@ export async function createPasskey(
     : options?.withSecurityKey
     ? Passkey.createSecurityKey
     : Passkey.create;
-  const registrationResult = await createFn({
+
+  let registrationResult = await createFn({
     challenge: challenge,
     rp: config.rp,
     user: config.user,
@@ -162,6 +171,15 @@ export async function createPasskey(
       },
     ],
   });
+
+  // See https://github.com/f-23/react-native-passkey/issues/54
+  // On Android the typedef lies. Registration result is actually a string!
+  // TODO: remove me once the above is resolved.
+  const brokenRegistrationResult =
+    registrationResult as BrokenPasskeyCreateResult;
+  if (typeof brokenRegistrationResult === "string") {
+    registrationResult = JSON.parse(brokenRegistrationResult);
+  }
 
   return {
     authenticatorName: config.authenticatorName,
@@ -220,7 +238,16 @@ export class PasskeyStamper {
       : this.forceSecurityKey
       ? Passkey.getSecurityKey
       : Passkey.get;
-    const authenticationResult = await passkeyGetfn(signingOptions);
+    let authenticationResult = await passkeyGetfn(signingOptions);
+
+    // See https://github.com/f-23/react-native-passkey/issues/54
+    // On Android the typedef lies. Authentication result is actually a string!
+    // TODO: remove me once the above is resolved.
+    const brokenAuthenticationResult =
+      authenticationResult as BrokenPasskeyGetResult;
+    if (typeof brokenAuthenticationResult === "string") {
+      authenticationResult = JSON.parse(brokenAuthenticationResult);
+    }
 
     const stamp = {
       authenticatorData: base64Tobase64url(
