@@ -1,5 +1,11 @@
 # @turnkey/crypto
 
+## 2.2.0
+
+### Minor Changes
+
+- Added `toDerSignature` function used to convert a raw ECDSA signature into DER-encoded format for compatibility with our backend, which requires DER signatures
+
 ## 2.1.0
 
 ### Minor Changes

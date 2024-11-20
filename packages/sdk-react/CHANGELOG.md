@@ -1,5 +1,22 @@
 # @turnkey/sdk-react
 
+## 1.1.0
+
+### Minor Changes
+
+- The `useTurnkey` hook now returns the new `walletClient`, used for authenticating requests via wallet signatures
+- Added new `client` object returned from the `useTurnkey` hook. This is the authenticated client. It will be null if the user is not authenticated. Example:
+
+  ```typescript
+  const { client } = useTurnkey();
+  ```
+
+### Patch Changes
+
+- Updated dependencies [8bea78f]
+  - @turnkey/wallet-stamper@2.0.0
+  - @turnkey/sdk-browser@1.10.0
+
 ## 1.0.14
 
 ### Patch Changes
