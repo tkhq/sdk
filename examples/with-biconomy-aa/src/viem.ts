@@ -166,7 +166,7 @@ async function main() {
 
   print(
     `User Ops can be found here:`,
-    `https://jiffyscan.xyz/bundle/${transactionHash}?network=${network}&pageNo=0&pageSize=10`
+    `https://v2.jiffyscan.xyz/tx/${transactionHash}?network=${network}&pageNo=0&pageSize=10`
   );
 }
 

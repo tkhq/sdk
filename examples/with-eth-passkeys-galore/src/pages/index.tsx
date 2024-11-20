@@ -305,7 +305,7 @@ export default function Home() {
     const { transactionHash } = await userOpResponse.waitForTxHash();
 
     setSignedTransaction(
-      `https://jiffyscan.xyz/bundle/${transactionHash}?network=sepolia&pageNo=0&pageSize=10`
+      `https://v2.jiffyscan.xyz/tx/${transactionHash}?network=sepolia&pageNo=0&pageSize=10`
     );
   };
 
