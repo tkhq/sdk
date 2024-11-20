@@ -6,16 +6,9 @@ import {
   createPublicClient,
   http,
   type Account,
-  WalletClient,
   formatEther,
 } from "viem";
-import { sepolia } from "viem/chains";
-import {
-  createSmartAccountClient,
-  BiconomySmartAccountV2,
-  PaymasterMode,
-  LightSigner,
-} from "@biconomy/account";
+import { baseSepolia } from "viem/chains";
 import { createNexusClient, createBicoPaymasterClient } from "@biconomy/sdk";
 
 // Load environment variables from `.env.local`
@@ -47,62 +40,42 @@ async function main() {
     signWith: process.env.SIGN_WITH!,
   });
 
-  const network = "sepolia";
+  // Network must be base-sepolia at the moment
+  const network = "base-sepolia";
+  const bundlerUrl =
+    "https://bundler.biconomy.io/api/v3/84532/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44";
+  const paymasterUrl =
+    "https://paymaster.biconomy.io/api/v2/84532/F7wyL1clz.75a64804-3e97-41fa-ba1e-33e98c2cc703";
+  const providerUrl = `https://${network}.infura.io/v3/${process.env
+    .INFURA_KEY!}`;
 
   // Bring your own provider
   const client = createWalletClient({
     account: turnkeyAccount as Account,
-    chain: sepolia,
-    transport: http(
-      `https://${network}.infura.io/v3/${process.env.INFURA_KEY!}`
-    ),
+    chain: baseSepolia,
+    transport: http(providerUrl),
   });
 
   const publicClient = createPublicClient({
-    chain: sepolia,
-    transport: http(
-      `https://${network}.infura.io/v3/${process.env.INFURA_KEY!}`
-    ),
+    chain: baseSepolia,
+    transport: http(providerUrl),
   });
-
-  // Connect a TurnkeySigner to a Biconomy Smart Account Client, defaulting to Sepolia
-  // Ensure this method is hoisted
-  const connect = async (
-    turnkeyClient: WalletClient
-  ): Promise<BiconomySmartAccountV2> => {
-    try {
-      const smartAccount = await createSmartAccountClient({
-        signer: turnkeyClient,
-        bundlerUrl: process.env.BICONOMY_BUNDLER_URL!, // <-- Read about this at https://docs.biconomy.io/dashboard#bundler-url
-        biconomyPaymasterApiKey: process.env.BICONOMY_PAYMASTER_API_KEY!, // <-- Read about at https://docs.biconomy.io/dashboard/paymaster
-        rpcUrl: `https://${network}.infura.io/v3/${process.env.INFURA_KEY!}`, // <-- read about this at https://docs.biconomy.io/account/methods#createsmartaccountclient
-        chainId: Number(chainId),
-      });
-
-      return smartAccount;
-    } catch (error: any) {
-      throw new Error(error);
-    }
-  };
 
   const nexusClient = await createNexusClient({
-    signer: client,
-    chain: sepolia,
+    signer: turnkeyAccount,
+    chain: baseSepolia,
     transport: http(),
-    bundlerTransport: http(process.env.BICONOMY_BUNDLER_URL!),
+    bundlerTransport: http(bundlerUrl),
     paymaster: createBicoPaymasterClient({
-        paymasterUrl: process.env.BICONOMY_PAYMASTER_URL!,
-    })
+      paymasterUrl,
+    }),
   });
-  
+
+  const smartAccount = nexusClient.account;
   const smartAccountAddress = nexusClient.account.address;
 
   const chainId = client.chain.id;
   const signerAddress = client.account.address; // signer
-
-  const smartAccount = nexusClient.account;
-  // const smartAccount = await connect(client);
-  // const smartAccountAddress = await smartAccount.getAccountAddress();
 
   const transactionCount = await publicClient.getTransactionCount({
     address: smartAccountAddress,
@@ -162,27 +135,28 @@ async function main() {
     type: 2,
   };
 
-  // Make a simple send tx (which calls `signTransaction` under the hood)
-  const hash = await nexusClient.sendTransaction({ 
-    calls: [ 
-      { 
-        to: destination, 
+  const hash = await nexusClient.sendTransaction({
+    calls: [
+      {
+        to: destination,
         value: amount,
-      }, 
-    ], 
-  }); 
-  const { transactionHash } = await nexusClient.waitForTransactionReceipt({ hash }); 
+      },
+    ],
+  });
+  const { transactionHash } = await nexusClient.waitForTransactionReceipt({
+    hash,
+  });
 
   print(
     `Sent ${formatEther(transactionRequest.value)} Ether to ${
       transactionRequest.to
     }:`,
-    `https://${network}.etherscan.io/tx/${transactionHash}`
+    `https://sepolia.basescan.org/tx/${transactionHash}`
   );
 
   print(
     `User Ops can be found here:`,
-    `https://jiffyscan.xyz/bundle/${transactionHash}?network=${network}&pageNo=0&pageSize=10`
+    `https://v2.jiffyscan.xyz/tx/${transactionHash}?network=${network}&pageNo=0&pageSize=10`
   );
 }
 
