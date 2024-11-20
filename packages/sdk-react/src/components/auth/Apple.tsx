@@ -23,7 +23,6 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps & { layout: "inline" | "sta
 }) => {
   const [appleSDKLoaded, setAppleSDKLoaded] = useState(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
-
   useEffect(() => {
     const loadAppleSDK = () => {
       const script = document.createElement("script");
@@ -58,7 +57,7 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps & { layout: "inline" | "sta
           className={layout === "inline" ? styles.iconButton : styles.socialButton}
         >
           <img src={appleIcon} className={layout === "inline" ? styles.iconLarge : styles.iconSmall} />
-          {layout === "stacked" && <span>Apple</span>}
+          {layout === "stacked" && <span>Continue with Apple</span>}
         </div>
       )}
       callback={(response) => {

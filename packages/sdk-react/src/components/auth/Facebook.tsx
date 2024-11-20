@@ -68,6 +68,7 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps & { layout: "inline" 
   };
 
   const handleTokenExchange = async (authCode: string) => {
+    const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
     const verifier = sessionStorage.getItem("facebook_verifier");
     if (!verifier || tokenExchanged) {
       console.error(
@@ -97,7 +98,7 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps & { layout: "inline" 
       onClick={initiateFacebookLogin}
     >
       <img src={facebookIcon} className={layout === "inline" ? styles.iconLarge : styles.iconSmall} />
-      {layout === "stacked" && <span>Facebook</span>}
+      {layout === "stacked" && <span>Continue with Facebook</span>}
     </div>
   );
 };
