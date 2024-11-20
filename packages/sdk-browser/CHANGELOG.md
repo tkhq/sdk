@@ -1,5 +1,42 @@
 # @turnkey/sdk-browser
 
+## 1.10.0
+
+### Minor Changes
+
+##### `TurnkeyWalletClient`
+
+- Added new `TurnkeyWalletClient` to the `@turnkey/sdk-browser`
+  **Reason**: Allows using the `WalletStamper` with the browser sdk
+- Added `getPublicKey` method to `TurnkeyWalletClient`
+  **Reason**: Enables easy access to wallet public key for sub-organization creation and future authentication flows
+- Updated `TurnkeyWalletClient` to use new `WalletInterface`
+  **Reason**: Ensures compatibility with the updated Wallet Stamper interfaces
+
+##### `AuthClient` (new enum)
+
+- Introduced a new enum to track which client is authenticated (Passkey, Wallet, Iframe)
+
+##### `TurnkeyBrowserClient`, `TurnkeyIframeClient`, `TurnkeyPasskeyClient`, `TurnkeyWalletClient`
+
+- Added a static `authClient` property to base `TurnkeyBrowserClient` to be used by the child classes to track which client was used for the initial authentication
+
+##### `UserSession` interface
+
+- Added a new `UserSession` interface which is to be stored in local storage to track the authentication state of the user and to eliminate the need to store the write and read sessions separately.
+- Added `authClient` in the session object to store the authentication method used in the user's session data. Will be used in the `@turnkey/sdk-react` to determine which client to return.
+- Added new versioned `UserSession` key: `"@turnkey/session/v1"`
+
+##### `login` and `loginWithReadWriteSession` methods
+
+- Updated to use the new `authClient` property to track and store the authentication method used during login
+
+### Patch Changes
+
+- Updated dependencies [8bea78f]
+  - @turnkey/wallet-stamper@2.0.0
+  - @turnkey/crypto@2.2.0
+
 ## 1.9.0
 
 ### Minor Changes
