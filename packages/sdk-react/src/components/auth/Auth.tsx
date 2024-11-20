@@ -70,8 +70,12 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
       await handleOtpLogin("PHONE_NUMBER", phone, "OTP_TYPE_SMS");
     }
     setResendText("Code sent ✓");
+    
+    setTimeout(() => {
+      setResendText("Resend code");
+    }, 15000); 
   };
-
+  
   const formatPhoneNumber = (phone: string) => {
     const phoneNumber = parsePhoneNumberFromString(phone);
     return phoneNumber ? phoneNumber.formatInternational() : phone;
@@ -159,6 +163,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
       setPasskeySignupError("Failed to create user passkey. Please try again")
     }
   }
+  
     const sessionResponse = await passkeyClient?.createReadWriteSession({
       targetPublicKey: authIframeClient?.iframePublicKey!,
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
