@@ -85,10 +85,11 @@ export default function Dashboard() {
   const handleSign = async () => {
     try {
       const addressType = selectedAccount?.startsWith("0x") ? "ETH" : "SOL";
+      const message = messageToSign ? messageToSign : "Signing within Turnkey Demo"
       const hashedMessage =
         addressType === "ETH"
-          ? keccak256(toUtf8Bytes(messageToSign)) // Ethereum requires keccak256 hash
-          : Buffer.from(messageToSign, "utf8").toString("hex"); // Solana doesn't require hashing
+          ? keccak256(toUtf8Bytes(message)) // Ethereum requires keccak256 hash
+          : Buffer.from(message, "utf8").toString("hex"); // Solana doesn't require hashing
 
       const resp = await authIframeClient?.signRawPayload({
         signWith: selectedAccount!,
@@ -108,19 +109,19 @@ export default function Dashboard() {
 
   const handleVerify = () => {
     if (!signature) return;
-
+    const message = messageToSign ? messageToSign : "Signing within Turnkey Demo"
     const addressType = selectedAccount?.startsWith("0x") ? "ETH" : "SOL";
     const verificationPassed =
       addressType === "ETH"
         ? verifyEthSignature(
-            messageToSign,
+            message,
             signature.r,
             signature.s,
             signature.v,
             selectedAccount!
           )
         : verifySolSignatureWithAddress(
-            messageToSign,
+            message,
             signature.r,
             signature.s,
             selectedAccount!
@@ -254,13 +255,14 @@ export default function Dashboard() {
         color: "#6C727E",
       }}
     >
-      Signing this message will not cost you any fees.
+      This helps prove you signed a message using your address
     </Typography>
     <TextField
       fullWidth
       margin="normal"
       value={messageToSign}
       onChange={(e) => setMessageToSign(e.target.value)}
+      placeholder="Signing within Turnkey Demo"
       sx={{
         bgcolor: "#ffffff", 
         "& .MuiOutlinedInput-root": {

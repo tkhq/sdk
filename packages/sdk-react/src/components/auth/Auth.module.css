@@ -109,7 +109,7 @@ button:disabled {
   color: var(--Greyscale-700, #a2a7ae);
   background: #ffffff;
   border-color: var(--Greyscale-100, #f5f7fb);
-  cursor: not-allowed;
+  cursor: default;
 }
 
 /* Separator */
@@ -189,13 +189,9 @@ button:disabled {
   color: var(--Greyscale-900, #2b2f33);
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
 }
 
-.tosBold {
-  color: var(--Greyscale-900, #2b2f33);
-  font-weight: 700;
-  cursor: pointer;
-}
 
 .authButton {
   display: flex;
@@ -281,8 +277,11 @@ button:disabled {
   align-items: center;
   text-align: center;
   display: inline-block;
+  transition: color 0.2s ease;
 }
-
+.noPasskeyLink:hover {
+  color: #000000;
+}
 .passkeyContainer {
   display: flex;
   flex-direction: column;
