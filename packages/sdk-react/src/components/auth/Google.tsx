@@ -1,4 +1,3 @@
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import styles from "./Socials.module.css";
@@ -23,26 +22,63 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps & { layout: "inline" | "s
 }) => {
   const handleLogin = async () => {
     const nonce = bytesToHex(sha256(iframePublicKey));
-    await window.google?.accounts.id.initialize({
-      client_id: clientId,
-      callback: onSuccess,
-      nonce: nonce,
-    });
-    window.google?.accounts.id.prompt();
+    const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!.replace(/\/$/, '');
+    // Construct the Google OIDC URL
+    const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    googleAuthUrl.searchParams.set("client_id", clientId);
+    googleAuthUrl.searchParams.set("redirect_uri", redirectURI); // Replace with your actual redirect URI
+    googleAuthUrl.searchParams.set("response_type", "id_token"); // Use id_token for OpenID Connect
+    googleAuthUrl.searchParams.set("scope", "openid email profile"); // Scopes required for OpenID
+    googleAuthUrl.searchParams.set("nonce", nonce);
+
+    // Open the login flow in a new window
+    const authWindow = window.open(
+      googleAuthUrl.toString(),
+      "_blank",
+      "width=500,height=600,scrollbars=yes,resizable=yes"
+    );
+
+    if (!authWindow) {
+      console.error("Failed to open Google login window.");
+      return;
+    }
+
+    // Monitor the child window for redirect and extract tokens
+    const interval = setInterval(() => {
+      try {
+        const url = authWindow?.location.href || "";
+        if (url.startsWith(window.location.origin)) {
+          const hashParams = new URLSearchParams(url.split("#")[1]);
+          const idToken = hashParams.get("id_token");
+          if (idToken) {
+            authWindow?.close();
+            clearInterval(interval);
+            onSuccess({ idToken });
+          }
+        }
+      } catch (error) {
+        // Ignore cross-origin errors until redirected
+      }
+
+      if (authWindow?.closed) {
+        clearInterval(interval);
+      }
+    }, 500);
   };
 
   return (
-    <GoogleOAuthProvider clientId={clientId}>
     <div
       className={layout === "inline" ? styles.iconButton : styles.socialButton}
       onClick={handleLogin}
     >
-      <img src={googleIcon} className= {layout === "inline" ? styles.iconLarge : styles.iconSmall} />
+      <img
+        src={googleIcon}
+        className={layout === "inline" ? styles.iconLarge : styles.iconSmall}
+        alt="Google"
+      />
       {layout === "stacked" && <span>Continue with Google</span>}
     </div>
-    </GoogleOAuthProvider>
   );
 };
-
 
 export default GoogleAuthButton;

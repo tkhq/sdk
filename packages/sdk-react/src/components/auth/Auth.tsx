@@ -271,7 +271,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
             clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
             iframePublicKey={authIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
-              handleOAuthLogin(response.credential, "Google")
+              handleOAuthLogin(response.idToken, "Google")
             }
           />
         )}
@@ -422,7 +422,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
         { !passkeySignupError ?
         <>
                 <CircularProgress
-                  size={100}
+                  size={80}
                   thickness={1}
                   className={styles.circularProgress!}
                 />
@@ -459,7 +459,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
               </h3>
               <div className={styles.loadingWrapper}>
                 <CircularProgress
-                  size={100}
+                  size={80}
                   thickness={1}
                   className={styles.circularProgress!}
                 />
