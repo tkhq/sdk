@@ -1,5 +1,5 @@
 import styles from "./Auth.module.css";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTurnkey } from "../../hooks/useTurnkey";
 import {
   initOtpAuth,
@@ -23,11 +23,11 @@ import emailIcon from "assets/email.svg";
 import smsIcon from "assets/sms.svg";
 import faceidIcon from "assets/faceid.svg";
 import fingerprintIcon from "assets/fingerprint.svg";
+import redcircleIcon from "assets/redcircle.svg"
+import fingerprintredIcon from "assets/fingerprintred.svg"
 import checkboxIcon from "assets/checkbox.svg";
 import clockIcon from "assets/clock.svg";
 import keyholeIcon from "assets/keyhole.svg";
-import React from "react";
-import IconButton from "@mui/material/IconButton";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 
 interface AuthProps {
@@ -55,8 +55,10 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
   const [suborgId, setSuborgId] = useState<string>("");
   const [resendText, setResendText] = useState("Resend code");
   const [passkeySignupScreen, setPasskeySignupScreen] = useState(false);
+  const [passkeyCreationScreen, setPasskeyCreationScreen] = useState(false);
+  const [passkeySignupError, setPasskeySignupError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [isAuthScreen, setIsAuthScreen] = useState(true);
+  const [passkeyCreated, setPasskeyCreated] = useState(false);
 
   const otpInputRef = useRef<any>(null);
 
@@ -88,7 +90,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
   }, [authIframeClient]);
 
   if (loading) {
-    return <></>
+    return <></>;
   }
 
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -122,6 +124,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
   };
 
   const handleSignupWithPasskey = async () => {
+    setPasskeySignupError("")
     const siteInfo = `${window.location.href} - ${new Date().toLocaleString(
       undefined,
       {
@@ -133,13 +136,16 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
         second: "2-digit",
       }
     )}`;
+    setPasskeySignupScreen(false)
+    setPasskeyCreationScreen(true)
+    try {
+      if (!passkeyCreated){
     const { encodedChallenge, attestation } =
       (await passkeyClient?.createUserPasskey({
         publicKey: { user: { name: siteInfo, displayName: siteInfo } },
       })) || {};
 
     if (encodedChallenge && attestation) {
-      // Use the generated passkey to create a new suborg
       await createSuborg({
         email,
         passkey: {
@@ -148,23 +154,32 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
           attestation,
         },
       });
+      setPasskeyCreated(true)
     } else {
-      setError("Failed to create user passkey.");
+      setPasskeySignupError("Failed to create user passkey. Please try again")
     }
+  }
     const sessionResponse = await passkeyClient?.createReadWriteSession({
       targetPublicKey: authIframeClient?.iframePublicKey!,
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!
+      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
     if (sessionResponse?.credentialBundle) {
       await handleAuthSuccess(sessionResponse.credentialBundle);
     } else {
-      setError("Failed to complete passkey login.");
+      setPasskeySignupError("Failed to login with passkey. Please try again")
     }
+    setPasskeyCreationScreen(false)
+    setPasskeySignupError("")
+  }
+  catch {
+    setPasskeySignupError("Passkey request timed out or rejected by user. Please try again")
+  }
   };
+
   const handleLoginWithPasskey = async () => {
     const sessionResponse = await passkeyClient?.createReadWriteSession({
       targetPublicKey: authIframeClient?.iframePublicKey!,
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!
+      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
     if (sessionResponse?.credentialBundle) {
       await handleAuthSuccess(sessionResponse.credentialBundle);
@@ -209,25 +224,38 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
   };
 
   const renderBackButton = () => (
-    <IconButton
-      onClick={() => setIsAuthScreen(true)}
-      style={{
-        position: "absolute",
-        top: 16,
-        left: 16,
-        zIndex: 10,
-      }}
-    >
-      <ChevronLeftIcon />
-    </IconButton>
+
+<ChevronLeftIcon
+  onClick={() => {
+    setPasskeyCreationScreen(false);
+    setPasskeySignupError("");
+    setPasskeySignupScreen(false);
+    setOtpId(null);
+  }}
+  sx={{
+    color: "#868c95",
+    position: "absolute",
+    top: 16,
+    left: 16,
+    zIndex: 10,
+    cursor: "pointer",
+    borderRadius: "50%", 
+    padding: "6px", 
+    transition: "background-color 0.3s ease", 
+    "&:hover": {
+      backgroundColor: "#e0e3ea",
+    },
+  }}
+/>
+
   );
-  
+
   const renderSocialButtons = () => {
     const { googleEnabled, appleEnabled, facebookEnabled } = authConfig;
     const layout =
-  [googleEnabled, appleEnabled, facebookEnabled].filter(Boolean).length >= 2
-    ? "inline"
-    : "stacked";
+      [googleEnabled, appleEnabled, facebookEnabled].filter(Boolean).length >= 2
+        ? "inline"
+        : "stacked";
 
     return (
       <div
@@ -239,7 +267,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
       >
         {googleEnabled && (
           <GoogleAuthButton
-          layout={layout}
+            layout={layout}
             clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
             iframePublicKey={authIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
@@ -249,7 +277,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
         )}
         {appleEnabled && (
           <AppleAuthButton
-          layout={layout}
+            layout={layout}
             clientId={process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!}
             iframePublicKey={authIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
@@ -259,7 +287,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
         )}
         {facebookEnabled && (
           <FacebookAuthButton
-          layout={layout}
+            layout={layout}
             clientId={process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!}
             iframePublicKey={authIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
@@ -271,40 +299,38 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
     );
   };
 
-  
   const renderSection = (section: string) => {
-    
     switch (section) {
       case "email":
         return authConfig.emailEnabled && !otpId ? (
           <div>
             <div className={styles.inputGroup}>
-            <TextField
-  type="email"
-  placeholder="Enter your email"
-  value={email}
-  onChange={(e) => setEmail(e.target.value)}
-  fullWidth
-  sx={{
-    "& .MuiOutlinedInput-root": {
-      "& fieldset": {
-        borderColor: "#D0D5DD", 
-      },
-      "&:hover fieldset": {
-        borderColor: "#8A929E", 
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#D0D5DD", 
-        border: "1px solid"
-      },
-    },
-    "& .MuiInputBase-input": {
-      padding: "12px"
-    },
-    backgroundColor: "white",
-  }}
-  variant="outlined"
-/>
+              <TextField
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                fullWidth
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#D0D5DD",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#8A929E",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#D0D5DD",
+                      border: "1px solid",
+                    },
+                  },
+                  "& .MuiInputBase-input": {
+                    padding: "12px",
+                  },
+                  backgroundColor: "white",
+                }}
+                variant="outlined"
+              />
             </div>
             <button
               type="button"
@@ -319,8 +345,13 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
       case "passkey":
         return authConfig.passkeyEnabled && !otpId ? (
           <div className={styles.passkeyContainer}>
-            <button type="button" onClick={handleLoginWithPasskey}>Log in with passkey</button>
-            <div className={styles.noPasskeyLink} onClick={() => setPasskeySignupScreen(true)}>
+            <button type="button" onClick={handleLoginWithPasskey}>
+              Log in with passkey
+            </button>
+            <div
+              className={styles.noPasskeyLink}
+              onClick={() => setPasskeySignupScreen(true)}
+            >
               Sign up with passkey
             </div>
           </div>
@@ -342,10 +373,12 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
           </div>
         ) : null;
 
-        case "socials":
-          return (authConfig.googleEnabled || authConfig.appleEnabled || authConfig.facebookEnabled) 
-            ? renderSocialButtons()
-            : null;
+      case "socials":
+        return authConfig.googleEnabled ||
+          authConfig.appleEnabled ||
+          authConfig.facebookEnabled
+          ? renderSocialButtons()
+          : null;
 
       default:
         return null;
@@ -354,148 +387,206 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
 
   return (
     <>
-        {passkeySignupScreen ?
-            <div className={styles.authCard}>
-              <div className={styles.passkeyIconContainer}>
-                <img src={faceidIcon} />
-                <img src={fingerprintIcon} />
-              </div>
-              <center>
-                <h3>Secure your account with a passkey</h3>
-              </center>
-    
-              <div className={styles.rowsContainer}>
-                <div className={styles.row}>
-                  <img src={checkboxIcon} className={styles.rowIcon} />
-                  <span>Log in with Touch ID, Face ID, or a security key</span>
-                </div>
-                <div className={styles.row}>
-                  <img src={keyholeIcon} className={styles.rowIcon} />
-                  <span>More secure than a password</span>
-                </div>
-                <div className={styles.row}>
-                  <img src={clockIcon} className={styles.rowIcon} />
-                  <span>Takes seconds to set up and use</span>
-                </div>
-              </div>
-              <button type="button" onClick={handleSignupWithPasskey}>
-                Create a passkey
-              </button>
-            </div> :
-    <div>
-      {oauthLoading !== "" ? (
-        <div className={styles.authCardLoading}>
-          <h3 className={styles.verifyingText}>Verifying with {oauthLoading}</h3>
-          <div className={styles.loadingWrapper}>
-            <CircularProgress size={100} thickness={1} className={styles.circularProgress!} />
-            {oauthLoading === "Google" && <img src={googleIcon} className={styles.oauthIcon} />}
-            {oauthLoading === "Facebook" && <img src={facebookIcon} className={styles.oauthIcon} />}
-            {oauthLoading === "Apple" && <img src={appleIcon} className={styles.oauthIcon} />}
-          </div>
-          <div className={styles.poweredBy}><span>Powered by</span><img src={turnkeyIcon} /></div>
-        </div>
-      ) : (
+      {passkeySignupScreen ? (
         <div className={styles.authCard}>
-          <h2>{otpId ? "Enter verification code" : "Log in or sign up"}</h2>
-          <div className={styles.authForm}>
-            {!otpId && configOrder
-              .filter((section) => renderSection(section) !== null)
-              .map((section, index, visibleSections) => (
-                <React.Fragment key={section}>
-                  {renderSection(section)}
-                  {index < visibleSections.length - 1 && (
-                    <div className={styles.separator}>
-                      <span>OR</span>
-                    </div>
-                  )}
-                </React.Fragment>
-                
-              ))}
+          {renderBackButton()}
+          <div className={styles.passkeyIconContainer}>
+            <img src={faceidIcon} />
+            <img src={fingerprintIcon} />
+          </div>
+          <center>
+            <h3>Secure your account with a passkey</h3>
+          </center>
+          <div className={styles.rowsContainer}>
+            <div className={styles.row}>
+              <img src={checkboxIcon} className={styles.rowIcon} />
+              <span>Log in with Touch ID, Face ID, or a security key</span>
+            </div>
+            <div className={styles.row}>
+              <img src={keyholeIcon} className={styles.rowIcon} />
+              <span>More secure than a password</span>
+            </div>
+            <div className={styles.row}>
+              <img src={clockIcon} className={styles.rowIcon} />
+              <span>Takes seconds to set up and use</span>
+            </div>
+          </div>
+          <button type="button" onClick={handleSignupWithPasskey}>
+            Create a passkey
+          </button>
+        </div>
+      ) : passkeyCreationScreen ?         <div className={styles.authCard}>
+      {renderBackButton()}
+      <div className={styles.passkeyIconContainer}>
+      <div className={styles.loadingWrapper}>
+        { !passkeySignupError ?
+        <>
+                <CircularProgress
+                  size={100}
+                  thickness={1}
+                  className={styles.circularProgress!}
+                />
+<img src={fingerprintIcon} />
+</> :
+<>
+<img src={redcircleIcon} style = {{  position: "absolute"}}/>
+<img src={fingerprintredIcon} />
+</>
+}
+              </div>
+      </div>
+      <center>
+        <h3>{passkeySignupError ? "Something went wrong" : passkeyCreated ? "Logging in with passkey" : "Creating passkey"}</h3>
+      </center>
+      <div className={styles.rowsContainer}>
+        <center>
 
-{otpId && (
-                <div>
-              <div className={styles.verification}>
-              <div className={styles.verificationIcon}>
-                {step === "otpEmail" ? (
-                  <img src={emailIcon} />
-                ) : (
-                  <img src={smsIcon} />
+          {passkeySignupError ? passkeySignupError : "Please follow prompts to verify your passkey"}
+    
+      </center>
+      </div>
+      { passkeySignupError &&
+      <button type="button" onClick={handleSignupWithPasskey}>
+        Retry
+      </button>
+}
+    </div> :(
+        <div>
+          {oauthLoading !== "" ? (
+            <div className={styles.authCardLoading}>
+              <h3 className={styles.verifyingText}>
+                Verifying with {oauthLoading}
+              </h3>
+              <div className={styles.loadingWrapper}>
+                <CircularProgress
+                  size={100}
+                  thickness={1}
+                  className={styles.circularProgress!}
+                />
+                {oauthLoading === "Google" && (
+                  <img src={googleIcon} className={styles.oauthIcon} />
+                )}
+                {oauthLoading === "Facebook" && (
+                  <img src={facebookIcon} className={styles.oauthIcon} />
+                )}
+                {oauthLoading === "Apple" && (
+                  <img src={appleIcon} className={styles.oauthIcon} />
                 )}
               </div>
-
-              <span>
-                Enter the 6-digit code we sent to{" "}
-                <div className={styles.verificationBold}>
-                  {step === "otpEmail" ? email : formatPhoneNumber(phone)}
-                </div>
-              </span>
-              <OtpInput
-                ref={otpInputRef}
-                onComplete={handleValidateOtp}
-                hasError={!!otpError}
-              />
+              <div className={styles.poweredBy}>
+                <span>Powered by</span>
+                <img src={turnkeyIcon} />
+              </div>
             </div>
-                      <div className={styles.errorText}>{otpError ? otpError : " "}</div>
+          ) : (
+            <div className={styles.authCard}>
+              {otpId && renderBackButton()}
+              <h2>{otpId ? "Enter verification code" : "Log in or sign up"}</h2>
+              <div className={styles.authForm}>
+                {!otpId &&
+                  configOrder
+                    .filter((section) => renderSection(section) !== null)
+                    .map((section, index, visibleSections) => (
+                      <React.Fragment key={section}>
+                        {renderSection(section)}
+                        {index < visibleSections.length - 1 && (
+                          <div className={styles.separator}>
+                            <span>OR</span>
+                          </div>
+                        )}
+                      </React.Fragment>
+                    ))}
+
+                {otpId && (
+                  <div>
+                    <div className={styles.verification}>
+                      <div className={styles.verificationIcon}>
+                        {step === "otpEmail" ? (
+                          <img src={emailIcon} />
+                        ) : (
+                          <img src={smsIcon} />
+                        )}
                       </div>
+
+                      <span>
+                        Enter the 6-digit code we sent to{" "}
+                        <div className={styles.verificationBold}>
+                          {step === "otpEmail"
+                            ? email
+                            : formatPhoneNumber(phone)}
+                        </div>
+                      </span>
+                      <OtpInput
+                        ref={otpInputRef}
+                        onComplete={handleValidateOtp}
+                        hasError={!!otpError}
+                      />
+                    </div>
+                    <div className={styles.errorText}>
+                      {otpError ? otpError : " "}
+                    </div>
+                  </div>
+                )}
+
+                {!otpId ? (
+                  <div className={styles.tos}>
+                    <span>
+                      By continuing, you agree to our{" "}
+                      <a
+                        href="https://www.turnkey.com/legal/terms"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.tosBold}
+                      >
+                        Terms of Service
+                      </a>{" "}
+                      &{" "}
+                      <a
+                        href="https://www.turnkey.com/legal/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.tosBold}
+                      >
+                        Privacy Policy
+                      </a>
+                    </span>
+                  </div>
+                ) : (
+                  <div className={styles.resendCode}>
+                    <span>
+                      <span
+                        onClick={
+                          resendText === "Resend code"
+                            ? handleResendCode
+                            : undefined
+                        }
+                        style={{
+                          cursor:
+                            resendText === "Resend code"
+                              ? "pointer"
+                              : "not-allowed",
+                        }}
+                        className={styles.resendCodeBold}
+                      >
+                        {resendText}
+                      </span>
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div
+                onClick={() => (window.location.href = "https://www.turnkey.com/")}
+                className={styles.poweredBy}
+              >
+                <span>Secured by</span>
+                <img src={turnkeyIcon} />
+              </div>
+            </div>
           )}
-
-              {!otpId ?
-                          <div className={styles.tos}>
-                          <span>
-                            By continuing, you agree to our{" "}
-                            <a
-                              href="https://www.turnkey.com/legal/terms"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.tosBold}
-                            >
-                              Terms of Service
-                            </a>{" "}
-                            &{" "}
-                            <a
-                              href="https://www.turnkey.com/legal/privacy"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.tosBold}
-                            >
-                              Privacy Policy
-                            </a>
-                          </span>
-                        </div> :
-                                    <div className={styles.resendCode}>
-                                    <span>
-                                      <span
-                                        onClick={
-                                          resendText === "Resend code" ? handleResendCode : undefined
-                                        }
-                                        style={{
-                                          cursor:
-                                            resendText === "Resend code" ? "pointer" : "not-allowed",
-                                        }}
-                                        className={styles.resendCodeBold}
-                                      >
-                                        {resendText}
-                                      </span>
-                                    </span>
-                                  </div>
-              }
-            
-          </div>
-          <div
-            onClick={() => (window.location.href = "https://www.turnkey.com/")}
-            className={styles.poweredBy}
-          >
-            <span>Secured by</span>
-            <img src={turnkeyIcon} />
-          </div>
-
         </div>
       )}
-    </div>} </>
+    </>
   );
 };
 
 export default Auth;
-
-
-
