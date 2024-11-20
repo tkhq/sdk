@@ -49,7 +49,7 @@ const publicKey = mockWallet.recoverPublicKey();
 const userId = "f4a5e6b4-3b9c-4f69-b7f6-9c2f456a4d23";
 
 // We set the curve type to 'API_KEY_CURVE_ED25519' for solana wallets
-// If using an EVM wallet, set the curve type to 'API_KEY_CURVE_SECP256K1'
+// If using an Ethereum wallet, set the curve type to 'API_KEY_CURVE_SECP256K1'
 const curveType = "API_KEY_CURVE_ED25519";
 
 const result = activityPoller({
@@ -77,11 +77,13 @@ To use the `@turnkey/wallet-stamper` package, follow these steps:
 
 2. **Implement the Wallet Interface**: Depending on your chosen blockchain, implement the wallet interface. This involves creating methods to sign messages and recover public keys.
 
+> Note: We've provided a default implementation for Ethereum wallets via the `EthereumWallet` class. For custom implementations, you may implement the `WalletInterface` yourself.
+
 3. **Instantiate the WalletStamper**: Create an instance of the `WalletStamper` using the wallet interface.
 
 4. **Instantiate the TurnkeyClient**: Create an instance of the `TurnkeyClient` with the `WalletStamper` instance.
 
-5. **Stamp Requests**: Now when making request using the TurnkeyClient, the wallet stamper will automatically stamp the request with the user's wallet public key and signature.
+5. **Stamp Requests**: Now when making request using the `TurnkeyClient`, the wallet stamper will automatically stamp the request with the user's wallet public key and signature.
 
 ### Example: Signing with a Solana Wallet
 
@@ -105,7 +107,7 @@ class SolanaWallet implements SolanaWalletInterface {
     return Buffer.from(signature).toString("hex");
   }
 
-  recoverPublicKey(): string {
+  async getPublicKey(): Promise<string> {
     // Convert the base24 encoded Solana wallet public key (the one displayed in the wallet)
     // into the ed25519 decoded public key
     const ed25519PublicKey = Buffer.from(
@@ -137,10 +139,10 @@ const wallets = await client.getWallets({
 
 ### Example: Signing with an Ethereum Wallet
 
-The primary difference between signing with an Ethereum Wallet and a Solana Wallet is the process of obtaining the public key.
-For Solana, the public key can be directly derived from the wallet. However, for Ethereum, the secp256k1 public key cannot be directly retrieved.
-Instead, you must first obtain a signature from the user and then recover the public key from that signature.
-This additional step is why the Ethereum Wallet (EVM Wallet) interface includes a different method for recovering the public key.
+The main distinction between signing with an Ethereum Wallet and a Solana Wallet lies in how the public key is obtained.
+For Solana, the public key can be directly derived from the wallet.
+In contrast, with Ethereum, the secp256k1 public key isn't directly accessible.
+Instead, you need to first obtain a signature from the user and then recover the public key from that signature.
 
 ```typescript
 import {
@@ -152,34 +154,7 @@ import {
 import { privateKeyToAccount } from "viem/accounts";
 import { mainnet } from "viem/chains";
 
-import { WalletStamper, EvmWalletInterface } from "@turnkey/wallet-stamper";
-
-export class EthereumWallet implements EvmWalletInterface {
-  account = privateKeyToAccount(ETHEREUM_PRIVATE_KEY);
-  type = "evm" as const;
-
-  async signMessage(message: string): Promise<string> {
-    // Create a new wallet client with a JSON-RPC account from the injected provider
-    const walletClient = createWalletClient({
-      chain: mainnet,
-      transport: custom(window.ethereum!),
-    });
-    // Prompt the user to sign the message with their wallet
-    const signature = await walletClient.signMessage({
-      account: this.account,
-      message,
-    });
-    return signature;
-  }
-
-  async recoverPublicKey(message: string, signature: string): Promise<string> {
-    const secp256k1PublicKey = recoverPublicKey({
-      hash: hashMessage(message),
-      signature: signature as Hex,
-    });
-    return secp256k1PublicKey;
-  }
-}
+import { WalletStamper, EthereumWallet } from "@turnkey/wallet-stamper";
 
 // Instantiate the WalletStamper with the EthereumWallet
 const walletStamper = new WalletStamper(new EthereumWallet());
@@ -187,17 +162,64 @@ const walletStamper = new WalletStamper(new EthereumWallet());
 // Instantiate the TurnkeyClient with the WalletStamper
 const client = new TurnkeyClient({ baseUrl: BASE_URL }, walletStamper);
 
-// Call getWhoami to get the sub org's organizationId and userId passing in the parent org id
+// Call getWhoami to get the sub-org's organizationId and userId passing in the parent org id
 // whoami { organizationId: string; organizationName: string; userId: string; username: string; }
 const whoami = await client.getWhoami({
-  organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID,
+  organizationId: process.env.ORGANIZATION_ID,
 });
 
-// Now that we have the sub organization id, we can make requests using that sub org id
+let subOrganizationId = whoami?.organizationId;
 
-// Get the wallets for this sub organization
+// User does not yet have a sub-organization, so we need to create one
+if (!subOrganizationId) {
+  // We'll need to use the parent org's API keys to create the sub-org on behalf of the user
+  const { ApiKeyStamper } = await import("@turnkey/api-key-stamper");
+
+  // Instantiate the TurnkeyClient with the ApiKeyStamper
+  const parentOrgClient = new TurnkeyClient(
+    { baseUrl: BASE_URL },
+    new ApiKeyStamper({
+      // In practice we'll want to ensure these keys do not get exposed to the client
+      apiPublicKey: process.env.API_PUBLIC_KEY ?? "",
+      apiPrivateKey: process.env.API_PRIVATE_KEY ?? "",
+    })
+  );
+
+  const apiKeys = [
+    {
+      apiKeyName: "Wallet Auth - Embedded Wallet",
+      // The public key of the wallet that will be added as an API key and used to stamp future requests
+      publicKey,
+      // We set the curve type to 'API_KEY_CURVE_ED25519' for solana wallets
+      // If using an Ethereum wallet, set the curve type to 'API_KEY_CURVE_SECP256K1'
+      curveType,
+    },
+  ];
+
+  const subOrg = await parentOrgClient.createSubOrganization({
+    organizationId: process.env.ORGANIZATION_ID,
+    subOrganizationName: `Sub Org - ${publicKey}`,
+    rootUsers: [
+      {
+        // Replace with user provided values
+        userName: "New User",
+        userEmail: "wallet@domain.com",
+        apiKeys,
+      },
+    ],
+    rootQuorumThreshold: 1,
+    wallet: {
+      walletName: "Default Wallet",
+      accounts: DEFAULT_ETHEREUM_ACCOUNTS,
+    },
+  });
+
+  subOrganizationId = subOrg.subOrganizationId;
+}
+
+// Get the wallets for this sub-organization
 const wallets = await client.getWallets({
-  organizationId: whoami.organizationId,
+  organizationId: subOrganizationId,
 });
 ```
 

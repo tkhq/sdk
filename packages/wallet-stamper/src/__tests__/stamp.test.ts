@@ -1,12 +1,23 @@
 import { test, expect } from "@jest/globals";
-import { STAMP_HEADER_NAME, WalletStamper } from "../index";
+import {
+  SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191,
+  STAMP_HEADER_NAME,
+  WalletStamper,
+} from "../index";
 
 import nacl from "tweetnacl";
 import { decodeUTF8 } from "tweetnacl-util";
 
-import { verifyMessage } from "viem";
-import { MockSolanaWallet, MockEvmWallet } from "./wallet-interfaces";
-import { ETHEREUM_PUBLIC_KEY, SOLANA_PUBLIC_KEY_DECODED } from "./constants";
+import { MockSolanaWallet } from "./wallet-interfaces";
+import {
+  EXPECTED_COMPRESSED_PUBLIC_KEY,
+  EXPECTED_DER_SIGNATURE,
+  SOLANA_PUBLIC_KEY_DECODED,
+} from "./constants";
+import { EthereumWallet } from "../ethereum";
+import { setupEthereumMock } from "./utils";
+
+setupEthereumMock();
 
 test("Solana wallet stamping", async function () {
   const solanaWallet = new MockSolanaWallet();
@@ -32,10 +43,10 @@ test("Solana wallet stamping", async function () {
   ).toBe(true);
 });
 
-test("EVM wallet stamping", async function () {
-  const evmWallet = new MockEvmWallet();
-  const stamper = new WalletStamper(evmWallet);
-  const messageToSign = "hello from TKHQ!";
+test("Ethereum wallet stamping", async function () {
+  const ethereumWallet = new EthereumWallet();
+  const stamper = new WalletStamper(ethereumWallet);
+  const messageToSign = "MESSAGE";
   const stamp = await stamper.stamp(messageToSign);
 
   expect(stamp.stampHeaderName).toBe(STAMP_HEADER_NAME);
@@ -44,12 +55,7 @@ test("EVM wallet stamping", async function () {
     Buffer.from(stamp.stampHeaderValue, "base64url").toString()
   );
 
-  expect(decodedStamp["publicKey"]).toBe(ETHEREUM_PUBLIC_KEY);
-  expect(decodedStamp["scheme"]).toBe("SIGNATURE_SCHEME_TK_API_SECP256K1");
-  const valid = await verifyMessage({
-    address: evmWallet.account.address,
-    message: messageToSign,
-    signature: decodedStamp["signature"],
-  });
-  expect(valid).toBe(true);
+  expect(decodedStamp["publicKey"]).toBe(EXPECTED_COMPRESSED_PUBLIC_KEY);
+  expect(decodedStamp["scheme"]).toBe(SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191);
+  expect(decodedStamp["signature"]).toBe(EXPECTED_DER_SIGNATURE);
 });

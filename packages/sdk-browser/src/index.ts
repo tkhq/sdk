@@ -1,4 +1,4 @@
-import {
+export {
   createActivityPoller,
   getWebAuthnAttestation,
   sealAndStampRequestBody,
@@ -10,87 +10,46 @@ import {
   type TurnkeyApiTypes,
 } from "@turnkey/http";
 
-import {
+export {
   ApiKeyStamper,
   signWithApiKey,
-  TApiKeyStamperConfig,
+  type TApiKeyStamperConfig,
 } from "@turnkey/api-key-stamper";
 
-import {
+export {
   IframeEventType,
   IframeStamper,
-  TIframeStamperConfig,
+  type TIframeStamperConfig,
 } from "@turnkey/iframe-stamper";
 
-import {
-  TWebauthnStamperConfig,
+export {
+  type TWebauthnStamperConfig,
   WebauthnStamper,
 } from "@turnkey/webauthn-stamper";
 
-import {
-  TurnkeyBrowserSDK,
+export {
+  TurnkeyBrowserSDK as Turnkey,
   TurnkeyBrowserClient,
   TurnkeyIframeClient,
   TurnkeyPasskeyClient,
+  TurnkeyWalletClient,
 } from "./sdk-client";
+
+export type { User, ReadOnlySession, ReadWriteSession } from "./models";
 
 export { getStorageValue, setStorageValue, StorageKeys } from "./storage";
 
-import {
+export {
   defaultEthereumAccountAtIndex,
   DEFAULT_ETHEREUM_ACCOUNTS,
   defaultSolanaAccountAtIndex,
   DEFAULT_SOLANA_ACCOUNTS,
 } from "./turnkey-helpers";
 
-import type {
-  TurnkeySDKClientConfig,
-  TurnkeySDKBrowserConfig,
+export {
+  type TurnkeySDKClientConfig,
+  type TurnkeySDKBrowserConfig,
+  AuthClient,
 } from "./__types__/base";
 
-import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
-
-// Classes
-export {
-  ApiKeyStamper,
-  IframeStamper,
-  TurnkeyActivityError,
-  TurnkeyBrowserSDK as Turnkey,
-  TurnkeyBrowserClient,
-  TurnkeyIframeClient,
-  TurnkeyPasskeyClient,
-  TurnkeyRequestError,
-  WebauthnStamper,
-};
-
-// Types
-export type {
-  TActivity,
-  TApiKeyStamperConfig,
-  TIframeStamperConfig,
-  TSignedRequest,
-  TurnkeyApiTypes,
-  TurnkeySDKApiTypes,
-  TurnkeySDKClientConfig,
-  TurnkeySDKBrowserConfig,
-  TWebauthnStamperConfig,
-};
-
-// Functions
-export {
-  createActivityPoller,
-  defaultEthereumAccountAtIndex,
-  defaultSolanaAccountAtIndex,
-  getWebAuthnAttestation,
-  sealAndStampRequestBody,
-  signWithApiKey,
-};
-
-// Constants
-export { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS };
-
-// Enums
-export { IframeEventType };
-
-// Base Turnkey API
-export { TurnkeyApi };
+export type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";

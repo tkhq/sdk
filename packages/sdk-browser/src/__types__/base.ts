@@ -1,4 +1,6 @@
 import type { TActivityId, TActivityStatus } from "@turnkey/http";
+import type { WalletInterface } from "@turnkey/wallet-stamper";
+import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 
 export type GrpcStatus = {
   message: string;
@@ -105,3 +107,25 @@ export interface IframeClientParams {
   iframeUrl: string;
   iframeElementId?: string;
 }
+
+export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {
+  wallet: WalletInterface;
+}
+
+/**
+ * The Client used to authenticate the user.
+ */
+export enum AuthClient {
+  Passkey = "passkey",
+  Wallet = "wallet",
+  Iframe = "iframe",
+}
+
+export type TSessionResponse = Omit<
+  SdkApiTypes.TCreateReadOnlySessionResponse,
+  "activity" | "session" | "sessionExpiry"
+> & {
+  credentialBundle?: string;
+  session?: string;
+  sessionExpiry: string | number;
+};
