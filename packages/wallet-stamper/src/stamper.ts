@@ -40,7 +40,7 @@ export class WalletStamper implements TStamper {
     try {
       // For Ethereum, we need to recover the public key from the signature over the payload.
       // This is because recovering the SECP256K1 public key requires a signed message.
-      // This avoids the an additional call to the wallet to get the public key.
+      // This avoids an additional call to the wallet to get the public key.
       if (this.wallet.type === WalletType.Ethereum) {
         const { recoverPublicKey, hashMessage } = await import("viem");
         const { compressRawPublicKey, toDerSignature } = await import(

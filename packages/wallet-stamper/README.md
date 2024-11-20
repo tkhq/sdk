@@ -139,9 +139,10 @@ const wallets = await client.getWallets({
 
 ### Example: Signing with an Ethereum Wallet
 
-The primary difference between signing with an Ethereum Wallet and a Solana Wallet is the process of obtaining the public key.
-For Solana, the public key can be directly derived from the wallet. However, for Ethereum, the secp256k1 public key cannot be directly retrieved.
-Instead, you must first obtain a signature from the user and then recover the public key from that signature.
+The main distinction between signing with an Ethereum Wallet and a Solana Wallet lies in how the public key is obtained.
+For Solana, the public key can be directly derived from the wallet.
+In contrast, with Ethereum, the secp256k1 public key isn't directly accessible.
+Instead, you need to first obtain a signature from the user and then recover the public key from that signature.
 
 ```typescript
 import {
@@ -161,22 +162,65 @@ const walletStamper = new WalletStamper(new EthereumWallet());
 // Instantiate the TurnkeyClient with the WalletStamper
 const client = new TurnkeyClient({ baseUrl: BASE_URL }, walletStamper);
 
-// Call getWhoami to get the sub org's organizationId and userId passing in the parent org id
+// Call getWhoami to get the sub-org's organizationId and userId passing in the parent org id
 // whoami { organizationId: string; organizationName: string; userId: string; username: string; }
 const whoami = await client.getWhoami({
-  organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID,
+  organizationId: process.env.ORGANIZATION_ID,
 });
 
-if (!whoami?.userId) {
-  // User does not yet have a sub organization, so we need to create one
-} else {
-  // User already has a sub organization, so we can make requests using that sub org id
+let subOrganizationId = whoami?.organizationId;
 
-  // Get the wallets for this sub organization
-  const wallets = await client.getWallets({
-    organizationId: whoami.organizationId,
+// User does not yet have a sub-organization, so we need to create one
+if (!subOrganizationId) {
+  // We'll need to use the parent org's API keys to create the sub-org on behalf of the user
+  const { ApiKeyStamper } = await import("@turnkey/api-key-stamper");
+
+  // Instantiate the TurnkeyClient with the ApiKeyStamper
+  const parentOrgClient = new TurnkeyClient(
+    { baseUrl: BASE_URL },
+    new ApiKeyStamper({
+      // In practice we'll want to ensure these keys do not get exposed to the client
+      apiPublicKey: process.env.API_PUBLIC_KEY ?? "",
+      apiPrivateKey: process.env.API_PRIVATE_KEY ?? "",
+    })
+  );
+
+  const apiKeys = [
+    {
+      apiKeyName: "Wallet Auth - Embedded Wallet",
+      // The public key of the wallet that will be added as an API key and used to stamp future requests
+      publicKey,
+      // We set the curve type to 'API_KEY_CURVE_ED25519' for solana wallets
+      // If using an Ethereum wallet, set the curve type to 'API_KEY_CURVE_SECP256K1'
+      curveType,
+    },
+  ];
+
+  const subOrg = await parentOrgClient.createSubOrganization({
+    organizationId: process.env.ORGANIZATION_ID,
+    subOrganizationName: `Sub Org - ${publicKey}`,
+    rootUsers: [
+      {
+        // Replace with user provided values
+        userName: "New User",
+        userEmail: "wallet@domain.com",
+        apiKeys,
+      },
+    ],
+    rootQuorumThreshold: 1,
+    wallet: {
+      walletName: "Default Wallet",
+      accounts: DEFAULT_ETHEREUM_ACCOUNTS,
+    },
   });
+
+  subOrganizationId = subOrg.subOrganizationId;
 }
+
+// Get the wallets for this sub-organization
+const wallets = await client.getWallets({
+  organizationId: subOrganizationId,
+});
 ```
 
 ## Contributing

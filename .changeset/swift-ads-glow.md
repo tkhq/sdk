@@ -8,6 +8,7 @@
 `@turnkey/wallet-stamper`
 
 - Renamed `recoverPublicKey` to `getPublicKey` and standardized its signature, improving clarity and simplifying the process of retrieving public keys across wallet interfaces.
+- Added [`EthereumWallet`](https://github.com/tkhq/sdk/blob/830c3bc68a8a14ef21d1398c1f939994b90dd08d/packages/wallet-stamper/src/ethereum.ts) interface to simplify support for Ethereum wallets
 
 `@turnkey/sdk-browser`
 

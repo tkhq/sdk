@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@turnkey/sdk-browser": "workspace:*",
-    "@turnkey/wallet-stamper": "*",
+    "@turnkey/wallet-stamper": "workspace:*",
     "usehooks-ts": "^3.1.0"
   },
   "peerDependencies": {
