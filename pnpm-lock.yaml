@@ -14,7 +14,7 @@ overrides:
   semver: '>=6.3.1'
   path-to-regexp@<0.1.10: '>=0.1.10'
   secp256k1: '>=4.0.4'
-  cross-spawn: '>=7.0.5 '
+  cross-spawn: '>=7.0.5'
 
 importers:
 
@@ -1715,7 +1715,7 @@ importers:
         specifier: workspace:*
         version: link:../sdk-browser
       '@turnkey/wallet-stamper':
-        specifier: '*'
+        specifier: workspace:*
         version: link:../wallet-stamper
       usehooks-ts:
         specifier: ^3.1.0
