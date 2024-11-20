@@ -35,7 +35,7 @@ export default function AuthPage() {
 
   const [config, setConfig] = useState<Config>({
     email: true,
-    phone: true,
+    phone: false,
     passkey: true,
     socials: {
       enabled: true,

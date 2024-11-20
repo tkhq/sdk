@@ -12,10 +12,11 @@ interface FacebookAuthButtonProps {
   onSuccess: (response: any) => void;
 }
 
-const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
+const FacebookAuthButton: React.FC<FacebookAuthButtonProps & { layout: "inline" | "stacked" }> = ({
   iframePublicKey,
   onSuccess,
   clientId,
+  layout,
 }) => {
   const [tokenExchanged, setTokenExchanged] = useState<boolean>(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
@@ -82,19 +83,21 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
         authCode,
         verifier
       );
-      sessionStorage.removeItem("facebook_verifier"); // Remove verifier after use
+      sessionStorage.removeItem("facebook_verifier");
       onSuccess(tokenData);
-      setTokenExchanged(true); // Prevent further exchanges
+      setTokenExchanged(true);
     } catch (error) {
       console.error("Error during token exchange:", error);
-    } finally {
     }
   };
 
   return (
-    <div className={styles.socialButton} onClick={initiateFacebookLogin}>
-      <img src={facebookIcon} className={styles.iconSmall} />
-      <span>Facebook</span>
+    <div
+      className={layout === "inline" ? styles.iconButton : styles.socialButton}
+      onClick={initiateFacebookLogin}
+    >
+      <img src={facebookIcon} className={layout === "inline" ? styles.iconLarge : styles.iconSmall} />
+      {layout === "stacked" && <span>Facebook</span>}
     </div>
   );
 };

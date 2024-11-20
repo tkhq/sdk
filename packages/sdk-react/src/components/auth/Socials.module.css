@@ -15,7 +15,28 @@
   transition: background-color 0.2s ease;
 }
 
+.iconButton {
+  padding: 10px 16px;
+  gap: 8px;
+  color: var(--Greyscale-900, #2b2f33);
+  width: 100%;
+  font-size: 1rem;
+  background: #ffffff;
+  border: 1px solid var(--Greyscale-400, #a2a7ae);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
 .socialButton:hover {
+  background-color: #F4E8FF;
+}
+
+.iconButton:hover {
   background-color: #F4E8FF;
 }
 
@@ -24,3 +45,10 @@
   height: 20px;
   margin-right: 4px;
 }
+
+.iconLarge {
+  width: 24px;
+  height: 24px;
+}
+
+
