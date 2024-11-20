@@ -64,7 +64,3 @@
 ### Patch Changes
 
 - 68a14dd: Initial release! 🎉
-
-```
-
-```
