@@ -21,7 +21,7 @@
 - Added an `EthereumWallet` implementation as a helper to simplify support for Ethereum wallets:
 
   ```typescript
-  import { EthereumWallet } from '@turnkey/wallet-stamper';
+  import { EthereumWallet } from "@turnkey/wallet-stamper";
 
   const wallet = new EthereumWallet();
 
