@@ -264,16 +264,16 @@ export default function Dashboard() {
       sx={{
         bgcolor: "#ffffff", 
         "& .MuiOutlinedInput-root": {
-          height: "80px", // Set the height of the input field
-          alignItems: "flex-start", // Align text to the top
+          height: "80px",
+          alignItems: "flex-start", 
           "& fieldset": {
-            borderColor: "#D0D5DD", // Default border color
+            borderColor: "#D0D5DD", 
           },
           "&:hover fieldset": {
-            borderColor: "#8A929E", // Hover border color
+            borderColor: "#8A929E", 
           },
           "&.Mui-focused fieldset": {
-            borderColor: "#D0D5DD", // Focus highlight color
+            borderColor: "#D0D5DD",
             border: "1px solid"
           },
         },

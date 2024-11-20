@@ -104,10 +104,11 @@ button:hover {
 }
 
 
+
 button:disabled {
   color: var(--Greyscale-700, #a2a7ae);
   background: #ffffff;
-  border-color: var(--Greyscale-400, #a2a7ae);
+  border-color: var(--Greyscale-100, #f5f7fb);
   cursor: not-allowed;
 }
 
@@ -288,4 +289,20 @@ button:disabled {
   align-items: center;
   gap: 8px;
   margin-top: 16px;
+}
+
+.socialButtonContainerInline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px; /* Space between buttons */
+}
+
+.socialButtonContainerStacked {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-align: center
 }

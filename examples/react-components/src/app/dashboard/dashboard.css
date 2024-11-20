@@ -182,6 +182,10 @@
     cursor: not-allowed;
   }
 
+button:hover {
+    background-color: var(--Greyscale-700, #4a4f55);
+  }
+
 
   .authFooter {
     display: flex;

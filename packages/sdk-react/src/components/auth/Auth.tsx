@@ -27,6 +27,8 @@ import checkboxIcon from "assets/checkbox.svg";
 import clockIcon from "assets/clock.svg";
 import keyholeIcon from "assets/keyhole.svg";
 import React from "react";
+import IconButton from "@mui/material/IconButton";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 
 interface AuthProps {
   onHandleAuthSuccess: () => Promise<void>;
@@ -54,6 +56,8 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
   const [resendText, setResendText] = useState("Resend code");
   const [passkeySignupScreen, setPasskeySignupScreen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isAuthScreen, setIsAuthScreen] = useState(true);
+
   const otpInputRef = useRef<any>(null);
 
   const handleResendCode = async () => {
@@ -204,6 +208,70 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
     await handleAuthSuccess(oauthResponse!.credentialBundle);
   };
 
+  const renderBackButton = () => (
+    <IconButton
+      onClick={() => setIsAuthScreen(true)}
+      style={{
+        position: "absolute",
+        top: 16,
+        left: 16,
+        zIndex: 10,
+      }}
+    >
+      <ChevronLeftIcon />
+    </IconButton>
+  );
+  
+  const renderSocialButtons = () => {
+    const { googleEnabled, appleEnabled, facebookEnabled } = authConfig;
+    const layout =
+  [googleEnabled, appleEnabled, facebookEnabled].filter(Boolean).length >= 2
+    ? "inline"
+    : "stacked";
+
+    return (
+      <div
+        className={
+          layout === "inline"
+            ? styles.socialButtonContainerInline
+            : styles.socialButtonContainerStacked
+        }
+      >
+        {googleEnabled && (
+          <GoogleAuthButton
+          layout={layout}
+            clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+            iframePublicKey={authIframeClient!.iframePublicKey!}
+            onSuccess={(response: any) =>
+              handleOAuthLogin(response.credential, "Google")
+            }
+          />
+        )}
+        {appleEnabled && (
+          <AppleAuthButton
+          layout={layout}
+            clientId={process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!}
+            iframePublicKey={authIframeClient!.iframePublicKey!}
+            onSuccess={(response: any) =>
+              handleOAuthLogin(response.authorization.id_token, "Apple")
+            }
+          />
+        )}
+        {facebookEnabled && (
+          <FacebookAuthButton
+          layout={layout}
+            clientId={process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!}
+            iframePublicKey={authIframeClient!.iframePublicKey!}
+            onSuccess={(response: any) =>
+              handleOAuthLogin(response.id_token, "Facebook")
+            }
+          />
+        )}
+      </div>
+    );
+  };
+
+  
   const renderSection = (section: string) => {
     
     switch (section) {
@@ -274,43 +342,10 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
           </div>
         ) : null;
 
-      case "socials":
-        return (authConfig.googleEnabled || authConfig.appleEnabled || authConfig.facebookEnabled) ? (
-
-<div>
-
-            {authConfig.googleEnabled && (
-                                        <div className={styles.authButton}>
-                                        <div className={styles.socialButtonContainer}>
-              <GoogleAuthButton
-                clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
-                iframePublicKey={authIframeClient!.iframePublicKey!}
-                onSuccess={(response: any) => handleOAuthLogin(response.credential, "Google")}
-              />
-              </div></div>
-            )}
-            {authConfig.appleEnabled && (
-                            <div className={styles.authButton}>
-                            <div className={styles.socialButtonContainer}>
-              <AppleAuthButton
-                clientId={process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!}
-                iframePublicKey={authIframeClient!.iframePublicKey!}
-                onSuccess={(response: any) => handleOAuthLogin(response.authorization.id_token, "Apple")}
-              />
-              </div></div>
-            )}
-            {authConfig.facebookEnabled && (
-                                            <div className={styles.authButton}>
-                                            <div className={styles.socialButtonContainer}>
-              <FacebookAuthButton
-                clientId={process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!}
-                iframePublicKey={authIframeClient!.iframePublicKey!}
-                onSuccess={(response: any) => handleOAuthLogin(response.id_token, "Facebook")}
-              />
-              </div></div>
-            )}
-            </div>
-        ) : null;
+        case "socials":
+          return (authConfig.googleEnabled || authConfig.appleEnabled || authConfig.facebookEnabled) 
+            ? renderSocialButtons()
+            : null;
 
       default:
         return null;
@@ -461,3 +496,6 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
 };
 
 export default Auth;
+
+
+

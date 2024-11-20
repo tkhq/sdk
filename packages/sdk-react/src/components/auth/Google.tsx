@@ -15,10 +15,11 @@ declare global {
   }
 }
 
-const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
+const GoogleAuthButton: React.FC<GoogleAuthButtonProps & { layout: "inline" | "stacked" }> = ({
   iframePublicKey,
   clientId,
   onSuccess,
+  layout,
 }) => {
   const handleLogin = async () => {
     const nonce = bytesToHex(sha256(iframePublicKey));
@@ -32,12 +33,16 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <div className={styles.socialButton} onClick={handleLogin}>
-        <img src={googleIcon} className={styles.iconSmall} />
-        <span>Google</span>
-      </div>
+    <div
+      className={layout === "inline" ? styles.iconButton : styles.socialButton}
+      onClick={handleLogin}
+    >
+      <img src={googleIcon} className= {layout === "inline" ? styles.iconLarge : styles.iconSmall} />
+      {layout === "stacked" && <span>Continue with Google</span>}
+    </div>
     </GoogleOAuthProvider>
   );
 };
+
 
 export default GoogleAuthButton;

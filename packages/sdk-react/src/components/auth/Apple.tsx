@@ -15,13 +15,15 @@ declare global {
   }
 }
 
-const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
+const AppleAuthButton: React.FC<AppleAuthButtonProps & { layout: "inline" | "stacked" }> = ({
   iframePublicKey,
   onSuccess,
   clientId,
+  layout,
 }) => {
   const [appleSDKLoaded, setAppleSDKLoaded] = useState(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
+
   useEffect(() => {
     const loadAppleSDK = () => {
       const script = document.createElement("script");
@@ -40,11 +42,10 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
   }, []);
 
   if (!appleSDKLoaded) {
-    return null; // Or render a loading spinner
+    return null;
   }
 
   return (
-    
     <AppleLogin
       nonce={bytesToHex(sha256(iframePublicKey))}
       clientId={clientId}
@@ -52,9 +53,12 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
       responseType="code id_token"
       responseMode="fragment"
       render={({ onClick }) => (
-        <div onClick={onClick} className={styles.socialButton}>
-          <img src={appleIcon} className={styles.iconSmall} />
-          <span>Apple</span>
+        <div
+          onClick={onClick}
+          className={layout === "inline" ? styles.iconButton : styles.socialButton}
+        >
+          <img src={appleIcon} className={layout === "inline" ? styles.iconLarge : styles.iconSmall} />
+          {layout === "stacked" && <span>Apple</span>}
         </div>
       )}
       callback={(response) => {
