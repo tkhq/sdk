@@ -1,6 +1,6 @@
 "use client"
 
-import { useTurnkey } from "@turnkey/sdk-react";
+import { Export, Import, useTurnkey } from "@turnkey/sdk-react";
 import { useEffect, useState } from "react";
 import "./dashboard.css";
 import {
@@ -23,6 +23,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<any>([]);
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+  const [selectedWallet, setSelectedWallet] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [messageToSign, setMessageToSign] = useState("");
   const [signature, setSignature] = useState<any>(null);
@@ -49,6 +50,7 @@ export default function Dashboard() {
           if (accountsResponse.accounts.length > 0) {
             setSelectedAccount(accountsResponse.accounts[0].address);
           }
+          setSelectedWallet(wallets.wallets[0].walletId)
           if (authIframeClient && authIframeClient.config) {
             authIframeClient.config.organizationId = whoamiResponse.organizationId!;
           }
@@ -212,8 +214,8 @@ export default function Dashboard() {
           </RadioGroup>
 
           <div className="exportImportGroup">
-            <button>Export wallet</button>
-            <button className="exportImportButton">Import wallet</button>
+          <Export walletId = {selectedWallet!}></Export>
+          <Import/>
           </div>
           <div className="authFooter">
             <div className="authFooterLeft">
@@ -246,6 +248,22 @@ export default function Dashboard() {
       borderRadius: 2,
     }}
   >
+        <div
+      onClick={handleModalClose}
+      style={{
+        position: "absolute",
+        top: "16px",
+        right: "16px",
+        background: "none",
+        border: "none",
+        fontSize: "20px",
+        fontWeight: "bold",
+        cursor: "pointer",
+        color: "#6C727E",
+      }}
+    >
+      &times;
+    </div>
         <Typography variant="h6" className="modalTitle">
           Sign a Message
         </Typography>
