@@ -279,9 +279,9 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
    * To be used in conjunction with an `iframeStamper`: the resulting session's credential bundle can be
    * injected into an iframeStamper to create a session that enables both read and write requests.
    *
-   * @param email
    * @param targetEmbeddedKey
    * @param expirationSeconds
+   * @param userId 
    * @returns {Promise<SdkApiTypes.TCreateReadWriteSessionResponse>}
    */
   loginWithReadWriteSession = async (
@@ -307,6 +307,26 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
 
     return readWriteSessionResultWithSession;
   };
+
+    /**
+   * Logs in with an existing auth bundle. this bundle enables both read and write requests.
+   *
+   * @param credentialBundle
+   * @param expirationSeconds 
+   * @returns {Promise<void>}
+   */
+    loginWithAuthBundle = async (
+      credentialBundle: string,
+      expirationSeconds: string = DEFAULT_SESSION_EXPIRATION,
+  
+    ): Promise<any> => {
+      
+    // store auth bundle in local storage
+    await setStorageValue(StorageKeys.ReadWriteSession, {
+      authBundle: credentialBundle,
+      sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
+    });
+  }
 }
 
 export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
