@@ -3,6 +3,7 @@ import { Modal, Box, Typography, TextField } from "@mui/material";
 import { useTurnkey } from "../../hooks/useTurnkey";
 import { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS, IframeStamper } from "@turnkey/sdk-browser";
 import styles from "./Import.module.css";
+import turnkeyIcon from "assets/turnkey.svg";
 
 type ImportProps = {
   onSuccess?: () => void;
@@ -226,6 +227,13 @@ const Import: React.FC<ImportProps> = ({
               Import
             </button>
 
+            <div
+                onClick={() => (window.location.href = "https://www.turnkey.com/")}
+                className={styles.poweredBy}
+              >
+                <span>Secured by</span>
+                <img src={turnkeyIcon} />
+              </div>
         </Box>
       </Modal>
     </>

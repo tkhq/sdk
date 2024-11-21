@@ -123,6 +123,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
   const handleAuthSuccess = async (credentialBundle: any) => {
     if (credentialBundle) {
       await authIframeClient!.injectCredentialBundle(credentialBundle);
+      await authIframeClient!.loginWithAuthBundle(credentialBundle)
       await onHandleAuthSuccess();
     }
   };

@@ -17,33 +17,47 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { verifyEthSignature, verifySolSignatureWithAddress } from "../utils";
 import { keccak256, toUtf8Bytes } from "ethers";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
-  const { authIframeClient } = useTurnkey();
+  const router = useRouter();
+  const { turnkey, getActiveClient, authIframeClient } = useTurnkey();
   const [loading, setLoading] = useState(true);
+  const [iframeClient, setIframeClient] = useState<any>();
   const [accounts, setAccounts] = useState<any>([]);
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [messageToSign, setMessageToSign] = useState("");
   const [signature, setSignature] = useState<any>(null);
+  const [suborgId, setSuborgId] = useState<string>("")
   const [verificationResult, setVerificationResult] = useState<string | null>(
     null
   );
 
-
+const handleLogout: any = async () => {
+  turnkey?.logoutUser()
+  router.push("/");
+}
   useEffect(() => {
-    const fetchWhoami = async () => {
+    const manageSession = async () => {
       try {
-        if (authIframeClient) {
-          const whoamiResponse = await authIframeClient.getWhoami({
-            organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+        if (turnkey && authIframeClient) {
+          const session = await turnkey?.getReadWriteSession()
+          if (!session || Date.now() > session!.sessionExpiry){
+            await handleLogout()
+          }
+
+          const iframeClient = await getActiveClient();
+          setIframeClient(iframeClient)
+          const whoami = await iframeClient?.getWhoami()
+          const suborgId = whoami?.organizationId
+          setSuborgId(suborgId!)
+          const wallets = await iframeClient!.getWallets({
+            organizationId: suborgId!
           });
-          const wallets = await authIframeClient.getWallets({
-            organizationId: whoamiResponse.organizationId,
-          });
-          const accountsResponse = await authIframeClient.getWalletAccounts({
-            organizationId: whoamiResponse.organizationId,
+          const accountsResponse = await iframeClient!.getWalletAccounts({
+            organizationId: suborgId!,
             walletId: wallets.wallets[0].walletId,
           });
           setAccounts(accountsResponse.accounts);
@@ -51,19 +65,16 @@ export default function Dashboard() {
             setSelectedAccount(accountsResponse.accounts[0].address);
           }
           setSelectedWallet(wallets.wallets[0].walletId)
-          if (authIframeClient && authIframeClient.config) {
-            authIframeClient.config.organizationId = whoamiResponse.organizationId!;
-          }
         }
       } catch (error) {
-        console.error("Error fetching Whoami:", error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchWhoami();
-  }, [authIframeClient]);
+    manageSession();
+  }, [authIframeClient, turnkey]);
 
   const handleAccountSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedAccount(event.target.value); // Save the full address (untruncated)
@@ -93,7 +104,8 @@ export default function Dashboard() {
           ? keccak256(toUtf8Bytes(message)) // Ethereum requires keccak256 hash
           : Buffer.from(message, "utf8").toString("hex"); // Solana doesn't require hashing
 
-      const resp = await authIframeClient?.signRawPayload({
+      const resp = await iframeClient?.signRawPayload({
+        organizationId: suborgId!,
         signWith: selectedAccount!,
         payload: hashedMessage,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
@@ -214,12 +226,12 @@ export default function Dashboard() {
           </RadioGroup>
 
           <div className="exportImportGroup">
-          <Export walletId = {selectedWallet!}></Export>
-          <Import/>
+          <Export organizationId = {suborgId} walletId = {selectedWallet!}></Export>
+          <Import organizationId = {suborgId}/>
           </div>
           <div className="authFooter">
             <div className="authFooterLeft">
-              <div className="authFooterButton">
+              <div onClick ={handleLogout} className="authFooterButton">
                 <LogoutIcon />
                 <Typography>Log out</Typography>
               </div>

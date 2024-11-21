@@ -30,7 +30,7 @@
     margin-bottom: 16px;
   }
 
- .importBUtton {
+ .importButton {
     padding: 10px 16px 10px 16px;
     gap: 8px;
     color: #ffffff;
@@ -42,13 +42,32 @@
     cursor: pointer;
   }
   
-  .importBUtton:disabled {
+  .importButton:disabled {
     color: var(--Greyscale-700, #a2a7ae);
     background: #ffffff;
     border-color: var(--Greyscale-400, #a2a7ae);
     cursor: not-allowed;
   }
 
-.importBUtton:hover {
+.importButton:hover {
     background-color: var(--Greyscale-700, #4a4f55);
+  }
+
+  .poweredBy {
+    font-family: Inter;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    letter-spacing: -0.01em;
+    color: var(--Greyscale-500, #868c95);
+    margin-top: 16px;
+    cursor: pointer;
+  }
+  
+  .poweredBy span {
+    position: relative;
   }

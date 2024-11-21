@@ -3,9 +3,13 @@ import { Modal, Box, Typography } from "@mui/material";
 import { useTurnkey } from "../../hooks/useTurnkey";
 import { IframeStamper } from "@turnkey/sdk-browser";
 import styles from "./Export.module.css";
+import unlockIcon from "assets/unlock.svg";
+import eyeIcon from "assets/eye.svg";
+import cautionIcon from "assets/caution.svg";
+import turnkeyIcon from "assets/turnkey.svg";
 
 type ExportProps = {
-  walletId?: string;
+  walletId: string;
 };
 
 const Export: React.FC<ExportProps> = ({
@@ -86,11 +90,12 @@ const Export: React.FC<ExportProps> = ({
   };
 
   const exportWallet = async () => {
+    const whoami = await authIframeClient!.getWhoami();
     const exportResponse = await authIframeClient?.exportWallet({
+      organizationId:         whoami.organizationId,
       walletId: walletId!,
       targetPublicKey: exportIframeStamper!.iframePublicKey!,
     });
-    const whoami = await authIframeClient!.getWhoami();
     if (exportResponse?.exportBundle) {
       await exportIframeStamper?.injectWalletExportBundle(
         exportResponse.exportBundle,
@@ -137,34 +142,44 @@ const Export: React.FC<ExportProps> = ({
       &times;
     </div>
 
-{!isIframeVisible &&
-<>
     <Typography variant="h6" className="modalTitle">
           Export wallet
         </Typography>
-        <Typography
-      variant="subtitle2"
-      sx={{
-        color: "#6C727E",
-        mb: 2,
-      }}
-    >
-      Exporting your seed phrase poses significant security risks. Ensure it is stored securely and never shared with anyone. Anyone with access to your seed phrase can gain full control over your wallet and funds. Proceed with caution.
-    </Typography>
-    </>
+
+        {!isIframeVisible ?
+        <div className={styles.rowsContainer}>
+            <div className={styles.row}>
+              <img src={cautionIcon} className={styles.rowIcon} />
+              <span>Keep your seed phrase private.</span>
+            </div>
+            <div className={styles.row}>
+              <img src={unlockIcon} className={styles.rowIcon} />
+              <span>Anyone who has your seed phrase can access your wallet.</span>
+            </div>
+            <div className={styles.row}>
+              <img src={eyeIcon} className={styles.rowIcon} />
+              <span>Make sure nobody can see your screen when viewing your seed phrase</span>
+            </div>
+          </div>  :
+
+<Typography
+variant="subtitle2"
+sx={{
+  color: "#6C727E",
+  mb: 2,
+}}
+>
+Your seed phrase is the key to your wallet. Save it in a secure location.
+</Typography>
+
 }
     {!isIframeVisible && (
       <>
-      <center>
-        <Typography variant="body1" sx={{ mb: 1}}>
-          Are you sure you want to export?
-        </Typography>
-        </center>
         <button
           onClick={handleExport}
           className={styles.exportButton}
         >
-          Yes, Continue
+          Show seed phrase
         </button>
       </>
     )}
@@ -180,6 +195,13 @@ const Export: React.FC<ExportProps> = ({
         padding: "16px",
       }}
     />
+                  <div
+                onClick={() => (window.location.href = "https://www.turnkey.com/")}
+                className={styles.poweredBy}
+              >
+                <span>Secured by</span>
+                <img src={turnkeyIcon} />
+              </div>
   </Box>
 </Modal>
 
