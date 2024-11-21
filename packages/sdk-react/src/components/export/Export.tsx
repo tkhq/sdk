@@ -5,16 +5,10 @@ import { IframeStamper } from "@turnkey/sdk-browser";
 import styles from "./Export.module.css";
 
 type ExportProps = {
-  onCancel?: () => void;
-  exportType?: "EXPORT_TYPE_PRIVATE_KEY" | "EXPORT_TYPE_SEED_PHRASE";
-  address?: string;
   walletId?: string;
 };
 
 const Export: React.FC<ExportProps> = ({
-  onCancel = () => undefined,
-  exportType,
-  address,
   walletId,
 }) => {
   const { authIframeClient } = useTurnkey();
@@ -51,7 +45,7 @@ const Export: React.FC<ExportProps> = ({
             fontFamily: "monospace",
             color: "#333",
             height: "240px",
-            width: "280px",
+            width: "240px",
             borderStyle: "none",
             backgroundColor: "#ffffff",
             overflowWrap: "break-word",
@@ -87,17 +81,7 @@ const Export: React.FC<ExportProps> = ({
   };
 
   const handleExport = async () => {
-    if (!exportIframeStamper || !exportIframeStamper.iframePublicKey) {
-      console.error("IframeStamper is not initialized or missing public key.");
-      return;
-    }
-
-    if (exportType === "EXPORT_TYPE_PRIVATE_KEY") {
-      await exportWalletAccount();
-    } else {
-      await exportWallet();
-    }
-
+    await exportWallet()  
     setIsIframeVisible(true);
   };
 
@@ -115,28 +99,12 @@ const Export: React.FC<ExportProps> = ({
     }
   };
 
-  const exportWalletAccount = async () => {
-    const exportResponse = await authIframeClient?.exportWalletAccount({
-      address: address!,
-      targetPublicKey: exportIframeStamper!.iframePublicKey!,
-    });
-    const whoami = await authIframeClient!.getWhoami();
-    if (exportResponse?.exportBundle) {
-      await exportIframeStamper?.injectKeyExportBundle(
-        exportResponse.exportBundle,
-        whoami.organizationId
-      );
-    }
-  };
-
   return (
     <>
-      {/* Button to open the modal */}
       <button className={styles.exportButton} onClick={handleOpenModal}>
         Export wallet
       </button>
 
-      {/* Combined Modal */}
       <Modal open={isModalOpen} onClose={handleCloseModal}>
   <Box
     sx={{
@@ -148,11 +116,10 @@ const Export: React.FC<ExportProps> = ({
       boxShadow: 24,
       p: 4,
       borderRadius: 2,
-      width: "340px"
+      width: "336px"
     }}
   >
 
-    {/* Close Button */}
     <div
       onClick={handleCloseModal}
       style={{
@@ -186,7 +153,6 @@ const Export: React.FC<ExportProps> = ({
     </Typography>
     </>
 }
-    {/* Confirmation Buttons */}
     {!isIframeVisible && (
       <>
       <center>

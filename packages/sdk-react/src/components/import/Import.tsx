@@ -1,22 +1,20 @@
 import React, { useState } from "react";
-import { Modal, Box, Typography } from "@mui/material";
+import { Modal, Box, Typography, TextField } from "@mui/material";
 import { useTurnkey } from "../../hooks/useTurnkey";
 import { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS, IframeStamper } from "@turnkey/sdk-browser";
 import styles from "./Import.module.css";
 
 type ImportProps = {
-  onCancel?: () => void;
   onSuccess?: () => void;
 };
 
 const Import: React.FC<ImportProps> = ({
-  onCancel = () => undefined,
   onSuccess = () => undefined,
 }) => {
   const { authIframeClient } = useTurnkey();
   const [importIframeStamper, setImportIframeStamper] = useState<IframeStamper | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isIframeVisible, setIsIframeVisible] = useState(false);
+  const [walletName, setWalletName] = useState("");
   const TurnkeyImportIframeContainerId = "turnkey-import-iframe-container-id";
   const TurnkeyIframeElementId = "turnkey-import-iframe-element-id";
 
@@ -46,7 +44,7 @@ const Import: React.FC<ImportProps> = ({
             fontFamily: "monospace",
             color: "#333",
             height: "240px",
-            width: "280px",
+            width: "240px",
             borderStyle: "none",
             backgroundColor: "#ffffff",
             overflowWrap: "break-word",
@@ -76,25 +74,35 @@ const Import: React.FC<ImportProps> = ({
     }
 
     setIsModalOpen(false);
-    setIsIframeVisible(false);
   };
 
   const handleImport = async () => {
+    const whoami = await authIframeClient!.getWhoami();
     if (!importIframeStamper) {
       console.error("IframeStamper is not initialized.");
       return;
     }
-
-    const encryptedBundle = await importIframeStamper.extractWalletEncryptedBundle();
-    if (!encryptedBundle || encryptedBundle.trim() === "") {
-      alert("Failed to retrieve encrypted bundle.");
+    const initResult = await authIframeClient!.initImportWallet({
+      userId: whoami.userId,
+    });
+    const injected = await importIframeStamper!.injectImportBundle(
+      initResult.importBundle,
+      whoami.organizationId,
+      whoami.userId
+    );
+    if (!injected){
+      console.error("error injecting import bundle")
       return;
     }
-    const whoami = await authIframeClient!.getWhoami();
+    const encryptedBundle = await importIframeStamper.extractWalletEncryptedBundle();
+    if (!encryptedBundle || encryptedBundle.trim() === "") {
+      console.error("failed to retrieve encrypted bundle.")
+      return;
+    }
     const response = await authIframeClient?.importWallet({
       organizationId: whoami.organizationId,
       userId: whoami.userId,
-      walletName: "TEST",
+      walletName: walletName,
       encryptedBundle,
       accounts: [
         ...DEFAULT_ETHEREUM_ACCOUNTS,
@@ -103,22 +111,19 @@ const Import: React.FC<ImportProps> = ({
     });
 
     if (response) {
-      console.log("Wallet imported successfully!");
-      setIsIframeVisible(false);
+      console.log("Wallet imported successfully!");;
       onSuccess();
     } else {
-      alert("Failed to import wallet! Please try again.");
+      console.error("Failed to import wallet")
     }
   };
 
   return (
     <>
-      {/* Button to open the modal */}
       <button className={styles.importButton} onClick={handleOpenModal}>
         Import Wallet
       </button>
 
-      {/* Combined Modal */}
       <Modal open={isModalOpen} onClose={handleCloseModal}>
         <Box
           sx={{
@@ -130,7 +135,7 @@ const Import: React.FC<ImportProps> = ({
             boxShadow: 24,
             p: 4,
             borderRadius: 2,
-            width: "340px",
+            width: "336px"
           }}
         >
           {/* Close Button */}
@@ -151,8 +156,6 @@ const Import: React.FC<ImportProps> = ({
             &times;
           </div>
 
-          {!isIframeVisible && (
-            <>
               <Typography variant="h6" className="modalTitle">
                 Import Wallet
               </Typography>
@@ -163,34 +166,66 @@ const Import: React.FC<ImportProps> = ({
                   mb: 2,
                 }}
               >
-                Import an existing wallet using your secret recovery phrase.
-                Ensure that the phrase is entered securely.
+              Import an existing wallet with your secret recovery phrase. Only
+              you should know your secret recovery phrase. A secret recovery
+              phrase can be 12, 15, 18, 21, or 24 words.
               </Typography>
-            </>
-          )}
 
-          {/* Import Flow */}
-          {!isIframeVisible ? (
+
+<div
+      id={TurnkeyImportIframeContainerId}
+      style={{
+        display: "block",
+        backgroundColor: "#ffffff",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06)",
+        borderStyle: "none",
+        overflow: "hidden",
+        borderRadius: "16px",
+        padding: "16px",
+        marginBottom: "16px"
+      }}
+    />
+
+<TextField
+                type="walletName"
+                placeholder="Enter your wallet name"
+                value={walletName}
+                onChange={(e) => setWalletName(e.target.value)}
+                fullWidth
+                style = {{
+                  "marginTop": "12px",
+                  "marginBottom": "12px"
+                }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#D0D5DD",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#8A929E",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#D0D5DD",
+                      border: "1px solid",
+                    },
+                  },
+                  "& .MuiInputBase-input": {
+                    padding: "12px",
+                  },
+                  backgroundColor: "white",
+                }}
+                variant="outlined"
+              />
+              
+
+
             <button
               onClick={handleImport}
               className={styles.importButton}
             >
-              Continue to Import
+              Import
             </button>
-          ) : (
-            <div
-              id={TurnkeyImportIframeContainerId}
-              style={{
-                display: "block",
-                backgroundColor: "#ffffff",
-                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06)",
-                borderStyle: "none",
-                overflow: "hidden",
-                borderRadius: "16px",
-                padding: "16px",
-              }}
-            />
-          )}
+
         </Box>
       </Modal>
     </>
