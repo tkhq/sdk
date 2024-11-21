@@ -30,27 +30,31 @@
     margin-bottom: 16px;
   }
 
- .exportButton {
-    padding: 10px 16px 10px 16px;
+  .exportButton {
+    display: inline-flex;
+    align-items: center; 
+    justify-content: center; 
+    padding: 10px 16px;
     gap: 8px;
-    color: #ffffff;
+    color: var(--Greyscale-900, #2b2f33);
     width: 100%;
     font-size: 1rem;
-    background: var(--Greyscale-900, #2b2f33);
-    border: 1px solid var(--Greyscale-800, #3f464b);
+    background: #ffffff;
+    border: 1px solid var(--Greyscale-400, #a2a7ae);
     border-radius: 8px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .exportButton:hover {
+    background-color: #F4E8FF;
   }
   
   .exportButton:disabled {
     color: var(--Greyscale-700, #a2a7ae);
     background: #ffffff;
-    border-color: var(--Greyscale-400, #a2a7ae);
-    cursor: not-allowed;
-  }
-
-.exportButton:hover {
-    background-color: var(--Greyscale-700, #4a4f55);
+    border-color: var(--Greyscale-100, #f5f7fb);
+    cursor: default;
   }
 
   .rowsContainer {

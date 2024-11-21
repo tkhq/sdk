@@ -143,7 +143,10 @@ const handleLogout: any = async () => {
 
     setVerificationResult(
       verificationPassed
-        ? `Signed with: ${selectedAccount}`
+        ? `Signed with: ${`${selectedAccount!.slice(
+          0,
+          5
+        )}...${selectedAccount!.slice(-5)}`}`
         : "Verification failed"
     );
   };
@@ -226,8 +229,8 @@ const handleLogout: any = async () => {
           </RadioGroup>
 
           <div className="exportImportGroup">
-          <Export organizationId = {suborgId} walletId = {selectedWallet!}></Export>
-          <Import organizationId = {suborgId}/>
+          <Export walletId = {selectedWallet!}></Export>
+          <Import/>
           </div>
           <div className="authFooter">
             <div className="authFooterLeft">

@@ -82,7 +82,7 @@
   margin-bottom: 12px;
 }
 
-button {
+.authButton {
   padding: 10px 16px 10px 16px;
   gap: 8px;
   color: var(--Greyscale-900, #2b2f33);
@@ -99,13 +99,11 @@ button {
   transition: background-color 0.2s ease;
 }
 
-button:hover {
+.authButton:hover {
   background-color: #F4E8FF;
 }
 
-
-
-button:disabled {
+.authButton:disabled {
   color: var(--Greyscale-700, #a2a7ae);
   background: #ffffff;
   border-color: var(--Greyscale-100, #f5f7fb);
@@ -190,14 +188,6 @@ button:disabled {
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
-}
-
-
-.authButton {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin-bottom: 12px;
 }
 
 .socialButtonContainer {
