@@ -7,7 +7,7 @@ import unlockIcon from "assets/unlock.svg";
 import eyeIcon from "assets/eye.svg";
 import cautionIcon from "assets/caution.svg";
 import turnkeyIcon from "assets/turnkey.svg";
-
+import exportIcon from "assets/export.svg"
 type ExportProps = {
   walletId: string;
 };
@@ -108,6 +108,7 @@ const Export: React.FC<ExportProps> = ({
     <>
       <button className={styles.exportButton} onClick={handleOpenModal}>
         Export wallet
+        <img src = {exportIcon}/>
       </button>
 
       <Modal open={isModalOpen} onClose={handleCloseModal}>

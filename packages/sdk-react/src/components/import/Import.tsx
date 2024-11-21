@@ -4,7 +4,7 @@ import { useTurnkey } from "../../hooks/useTurnkey";
 import { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS, IframeStamper } from "@turnkey/sdk-browser";
 import styles from "./Import.module.css";
 import turnkeyIcon from "assets/turnkey.svg";
-
+import importIcon from "assets/import.svg"
 type ImportProps = {
   onSuccess?: () => void;
 };
@@ -113,6 +113,7 @@ const Import: React.FC<ImportProps> = ({
 
     if (response) {
       console.log("Wallet imported successfully!");;
+      handleCloseModal()
       onSuccess();
     } else {
       console.error("Failed to import wallet")
@@ -122,7 +123,8 @@ const Import: React.FC<ImportProps> = ({
   return (
     <>
       <button className={styles.importButton} onClick={handleOpenModal}>
-        Import Wallet
+        Import wallet
+        <img src = {importIcon}/>
       </button>
 
       <Modal open={isModalOpen} onClose={handleCloseModal}>

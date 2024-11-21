@@ -21,13 +21,7 @@ import facebookIcon from "assets/facebook.svg";
 import appleIcon from "assets/apple.svg";
 import emailIcon from "assets/email.svg";
 import smsIcon from "assets/sms.svg";
-import faceidIcon from "assets/faceid.svg";
-import fingerprintIcon from "assets/fingerprint.svg";
-import redcircleIcon from "assets/redcircle.svg"
-import fingerprintredIcon from "assets/fingerprintred.svg"
-import checkboxIcon from "assets/checkbox.svg";
-import clockIcon from "assets/clock.svg";
-import keyholeIcon from "assets/keyhole.svg";
+import passkeyIcon from "assets/passkey.svg";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 
 interface AuthProps {
@@ -161,7 +155,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
       });
       setPasskeyCreated(true)
     } else {
-      setPasskeySignupError("Failed to create user passkey. Please try again")
+      setPasskeySignupError("Passkey not created. Please try again.")
     }
   }
   
@@ -339,6 +333,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
               />
             </div>
             <button
+              className = {styles.authButton}
               type="button"
               onClick={() => handleOtpLogin("EMAIL", email, "OTP_TYPE_EMAIL")}
               disabled={!isValidEmail(email)}
@@ -351,7 +346,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
       case "passkey":
         return authConfig.passkeyEnabled && !otpId ? (
           <div className={styles.passkeyContainer}>
-            <button type="button" onClick={handleLoginWithPasskey}>
+            <button               className = {styles.authButton} type="button" onClick={handleLoginWithPasskey}>
               Log in with passkey
             </button>
             <div
@@ -370,6 +365,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
               <MuiPhone onChange={(value) => setPhone(value)} value={phone} />
             </div>
             <button
+                          className = {styles.authButton}
               type="button"
               onClick={() => handleOtpLogin("PHONE_NUMBER", phone, "OTP_TYPE_SMS")}
               disabled={!isValidPhone(phone)}
@@ -397,49 +393,31 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
         <div className={styles.authCard}>
           {renderBackButton()}
           <div className={styles.passkeyIconContainer}>
-            <img src={faceidIcon} />
-            <img src={fingerprintIcon} />
+            <img src={passkeyIcon} />
           </div>
           <center>
-            <h3>Secure your account with a passkey</h3>
+            <h3>Create a Passkey</h3>
           </center>
           <div className={styles.rowsContainer}>
-            <div className={styles.row}>
-              <img src={checkboxIcon} className={styles.rowIcon} />
-              <span>Log in with Touch ID, Face ID, or a security key</span>
-            </div>
-            <div className={styles.row}>
-              <img src={keyholeIcon} className={styles.rowIcon} />
-              <span>More secure than a password</span>
-            </div>
-            <div className={styles.row}>
-              <img src={clockIcon} className={styles.rowIcon} />
-              <span>Takes seconds to set up and use</span>
-            </div>
+          Set up with fingerprint, face, or screen lock. Make your logins secure and easy.
           </div>
-          <button type="button" onClick={handleSignupWithPasskey}>
-            Create a passkey
+          <button               className = {styles.authButton} type="button" onClick={handleSignupWithPasskey}>
+            Continue
           </button>
         </div>
       ) : passkeyCreationScreen ?         <div className={styles.authCard}>
       {renderBackButton()}
       <div className={styles.passkeyIconContainer}>
+        { !passkeySignupError &&
       <div className={styles.loadingWrapper}>
-        { !passkeySignupError ?
-        <>
                 <CircularProgress
                   size={80}
                   thickness={1}
                   className={styles.circularProgress!}
                 />
-<img src={fingerprintIcon} />
-</> :
-<>
-<img src={redcircleIcon} style = {{  position: "absolute"}}/>
-<img src={fingerprintredIcon} />
-</>
+<img src={passkeyIcon} />
+</div>
 }
-              </div>
       </div>
       <center>
         <h3>{passkeySignupError ? "Something went wrong" : passkeyCreated ? "Logging in with passkey" : "Creating passkey"}</h3>
@@ -452,7 +430,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
       </center>
       </div>
       { passkeySignupError &&
-      <button type="button" onClick={handleSignupWithPasskey}>
+      <button               className = {styles.authButton} type="button" onClick={handleSignupWithPasskey}>
         Retry
       </button>
 }
