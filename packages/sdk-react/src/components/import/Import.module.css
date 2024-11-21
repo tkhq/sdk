@@ -1,0 +1,54 @@
+.modalTitle {
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-align: left;
+  }
+
+.importCard {
+    font-family: Inter;
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    min-width: 375px;
+    margin: 0 auto;
+    padding: 20px;
+    background: var(--Greyscale-20, #f5f7fb);
+    border: 1px solid var(--Greyscale-100, #ebedf2);
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .importCard h2 {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 26px;
+    letter-spacing: -0.01em;
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+
+ .importBUtton {
+    padding: 10px 16px 10px 16px;
+    gap: 8px;
+    color: #ffffff;
+    width: 100%;
+    font-size: 1rem;
+    background: var(--Greyscale-900, #2b2f33);
+    border: 1px solid var(--Greyscale-800, #3f464b);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .importBUtton:disabled {
+    color: var(--Greyscale-700, #a2a7ae);
+    background: #ffffff;
+    border-color: var(--Greyscale-400, #a2a7ae);
+    cursor: not-allowed;
+  }
+
+.importBUtton:hover {
+    background-color: var(--Greyscale-700, #4a4f55);
+  }

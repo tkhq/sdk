@@ -168,7 +168,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       <div
         className=""
         id={TurnkeyAuthIframeContainerId}
-        style={{ display: "none" }}
       />
     </TurnkeyContext.Provider>
   );

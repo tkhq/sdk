@@ -58,6 +58,7 @@
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
     "usehooks-ts": "^3.1.0",
+    "@turnkey/crypto": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "libphonenumber-js": "^1.11.14",
     "next": "^15.0.2",

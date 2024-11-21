@@ -1828,6 +1828,9 @@ importers:
       '@react-oauth/google':
         specifier: ^0.12.1
         version: 0.12.1(react-dom@18.3.1)(react@18.2.0)
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../crypto
       '@turnkey/sdk-browser':
         specifier: workspace:*
         version: link:../sdk-browser
@@ -7221,10 +7224,10 @@ packages:
     dependencies:
       '@babel/runtime': 7.26.0
       '@emotion/cache': 11.13.1
-      '@emotion/react': 11.13.3(@types/react@18.2.14)(react@18.2.0)
+      '@emotion/react': 11.13.3(@types/react@18.2.75)(react@18.2.0)
       '@emotion/serialize': 1.3.2
       '@emotion/sheet': 1.4.0
-      '@emotion/styled': 11.13.0(@emotion/react@11.13.3)(@types/react@18.2.14)(react@18.2.0)
+      '@emotion/styled': 11.13.0(@emotion/react@11.13.3)(@types/react@18.2.75)(react@18.2.0)
       csstype: 3.1.3
       prop-types: 15.8.1
       react: 18.2.0
