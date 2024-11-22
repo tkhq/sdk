@@ -51,7 +51,7 @@ export async function createSuborg(
           },
         ],
         wallet: {
-          walletName:String(Date.now()) ,
+          walletName:`wallet-${String(Date.now())}` ,
           accounts: [
             ...DEFAULT_ETHEREUM_ACCOUNTS,
             ...DEFAULT_SOLANA_ACCOUNTS,

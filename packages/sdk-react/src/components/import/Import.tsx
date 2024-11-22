@@ -84,6 +84,7 @@ const Import: React.FC<ImportProps> = ({
       return;
     }
     const initResult = await authIframeClient!.initImportWallet({
+      organizationId:       whoami.organizationId,
       userId: whoami.userId,
     });
     const injected = await importIframeStamper!.injectImportBundle(
