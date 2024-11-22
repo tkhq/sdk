@@ -24,16 +24,17 @@
     padding: 6rem;
     gap: 60px;
     position: relative;
+    background-image: url("../../../public/grid.svg");
   }
   
-  .authConfigContainer {
+  .dashboardContainer {
     position: absolute;
     left: 0;
     display: flex;
     justify-content: flex-start;
   }
   
-  .authConfigCard {
+  .dashboardCard {
     background: var(--Greyscale-20, #f5f7fb);
     padding: 8px 24px;
     border-radius: 8px;
@@ -46,6 +47,17 @@
     flex-direction: column;
     justify-content: flex-start;
   }
+
+  .socialsTitle {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 26px;
+    letter-spacing: -0.01em;
+    text-align: left;
+    margin-top: 16px;
+  }
+
+
   .configTitle {
     font-size: 32px;
     font-weight: 700;
@@ -71,12 +83,45 @@
     border-bottom: 1px solid var(--Greyscale-200, #ebedf2);
   }
   
+  .loginMethodContainer {
+    display: flex;
+    flex-direction: column; 
+    gap: 12px; 
+  }
+
+  .loginMethodRow {
+    background-color: #ffffff;
+    border-radius: 8px;
+    align-items: center;
+    display: flex;
+    justify-content: space-between; 
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
   .labelContainer {
     display: flex;
     align-items: center;
     gap: 8px;
   }
   
+  .loginMethodRow {
+    background-color: #ffffff;
+    border-radius: 8px;
+    align-items: center;
+    display: flex;
+    justify-content: space-between; 
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .loginMethodDetails {
+    font-size: 14px;
+    line-height: 20px;
+    color: #868c95;
+    margin-left: 32px; 
+  }
+
   .accountRow {
     background-color: #ffffff;
     border-radius: 8px;
@@ -143,8 +188,8 @@
   }
   
   .iconSmall {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
   }
   
   .socialContainer {
@@ -230,3 +275,4 @@ button:hover {
     gap: 8px; 
     cursor: pointer; 
   }
+
