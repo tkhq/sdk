@@ -27,7 +27,8 @@ export class TurnkeySigner {
    */
   public async signAllTransactions(
     txs: (Transaction | VersionedTransaction)[],
-    fromAddress: string
+    fromAddress: string,
+    organizationId?: string
   ): Promise<(Transaction | VersionedTransaction)[]> {
     const fromKey = new PublicKey(fromAddress);
 
@@ -35,7 +36,8 @@ export class TurnkeySigner {
 
     const signRawPayloadsResult = await this.signRawPayloads(
       messages,
-      fromAddress
+      fromAddress,
+      organizationId
     );
 
     const signatures = signRawPayloadsResult?.signatures?.map(
@@ -65,7 +67,7 @@ export class TurnkeySigner {
     const signRawPayloadResult = await this.signRawPayload(
       messageToSign.toString("hex"),
       fromAddress,
-      organizationId!
+      organizationId ?? this.organizationId
     );
     const signature = `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`;
 
@@ -80,11 +82,13 @@ export class TurnkeySigner {
    */
   public async signMessage(
     message: Uint8Array,
-    fromAddress: string
+    fromAddress: string,
+    organizationId?: string
   ): Promise<Uint8Array> {
     const signRawPayloadResult = await this.signRawPayload(
       Buffer.from(message).toString("hex"),
-      fromAddress
+      fromAddress,
+      organizationId
     );
     return Buffer.from(
       `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`,
@@ -101,7 +105,8 @@ export class TurnkeySigner {
    */
   public async signTransaction(
     tx: Transaction | VersionedTransaction,
-    fromAddress: string
+    fromAddress: string,
+    organizationId?: string
   ): Promise<Transaction | VersionedTransaction> {
     const payloadToSign = Buffer.from(
       tx.serialize({
@@ -112,7 +117,8 @@ export class TurnkeySigner {
 
     const signedTransaction = await this.signTransactionImpl(
       payloadToSign,
-      fromAddress
+      fromAddress,
+      organizationId
     );
 
     const decodedTransaction = Buffer.from(signedTransaction, "hex");
@@ -127,12 +133,13 @@ export class TurnkeySigner {
 
   private async signTransactionImpl(
     unsignedTransaction: string,
-    signWith: string
+    signWith: string,
+    organizationId?: string
   ) {
     if (this.client instanceof TurnkeyClient) {
       const response = await this.client.signTransaction({
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
-        organizationId: this.organizationId,
+        organizationId: organizationId ?? this.organizationId,
         timestampMs: String(Date.now()),
         parameters: {
           signWith,
@@ -151,6 +158,7 @@ export class TurnkeySigner {
     } else {
       const { activity, signedTransaction } = await this.client.signTransaction(
         {
+          ...(organizationId !== undefined && { organizationId }),
           signWith,
           unsignedTransaction,
           type: "TRANSACTION_TYPE_SOLANA",
@@ -209,11 +217,15 @@ export class TurnkeySigner {
     }
   }
 
-  private async signRawPayloads(payloads: string[], signWith: string) {
+  private async signRawPayloads(
+    payloads: string[],
+    signWith: string,
+    organizationId?: string
+  ) {
     if (this.client instanceof TurnkeyClient) {
       const response = await this.client.signRawPayloads({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
-        organizationId: this.organizationId,
+        organizationId: organizationId ?? this.organizationId,
         timestampMs: String(Date.now()),
         parameters: {
           signWith,
@@ -232,6 +244,7 @@ export class TurnkeySigner {
       return assertNonNull(activity?.result?.signRawPayloadsResult);
     } else {
       const { activity, signatures } = await this.client.signRawPayloads({
+        ...(organizationId !== undefined && { organizationId }),
         signWith,
         payloads,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
