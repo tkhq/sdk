@@ -6,6 +6,7 @@
     "start": "pnpm tsx src/index.ts",
     "advanced": "pnpm tsx src/advanced.ts",
     "token-transfer": "pnpm tsx src/tokenTransfer.ts",
+    "sign-all": "pnpm tsx src/signAll.ts",
     "faucet": "pnpm tsx src/faucet.ts",
     "jupiter-swap": "pnpm tsx src/jupiterSwap.ts",
     "with-fee-payer": "pnpm tsx src/withFeePayer.ts",

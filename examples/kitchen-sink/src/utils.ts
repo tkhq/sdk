@@ -1,3 +1,5 @@
+import type { TSignedRequest } from "@turnkey/http";
+
 export function refineNonNull<T>(
   input: T | null | undefined,
   errorMessage?: string
@@ -7,4 +9,17 @@ export function refineNonNull<T>(
   }
 
   return input;
+}
+
+export async function forwardRequestToTurnkey(signedRequest: TSignedRequest) {
+  const tkRes = await fetch(signedRequest.url, {
+    method: "POST",
+    body: signedRequest.body,
+    headers: {
+      [signedRequest.stamp.stampHeaderName]:
+        signedRequest.stamp.stampHeaderValue,
+    },
+  });
+
+  return tkRes;
 }

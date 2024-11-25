@@ -1,6 +1,7 @@
 import Image from "next/image";
 import styles from "./index.module.css";
 import { useTurnkey } from "@turnkey/sdk-react";
+import { TGetWhoamiResponse } from "@turnkey/sdk-server";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
@@ -72,6 +73,25 @@ export default function AuthPage() {
     // get whoami for suborg
     const whoamiResponse = await authIframeClient!.getWhoami({
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+    });
+
+    const requests = Array.from({ length: 3 }, (_, i) => {
+      return authIframeClient!.getWhoami({
+        organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      });
+    });
+
+    Promise.allSettled(requests)
+    .then((results) => {
+        // Log all settled results
+        console.log("All settled results:", results);
+
+        // Filter for only successful responses
+        const successfulResponses = results
+            .filter((result): TGetWhoamiResponse => result.status === "fulfilled")
+            .map(result => result.value);
+
+        console.log("Successful responses:", successfulResponses);
     });
 
     const orgID = whoamiResponse.organizationId;
