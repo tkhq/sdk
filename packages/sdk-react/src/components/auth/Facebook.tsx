@@ -38,10 +38,16 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps & { layout: "inline" 
 
     const facebookOAuthURL = `https://www.facebook.com/v11.0/dialog/oauth?${params.toString()}`;
 
+    const width = 500;
+    const height = 600;
+    const left = window.screenX + (window.innerWidth - width) / 2;
+    const top = window.screenY + (window.innerHeight - height) / 2;
+  
+    // Open the login flow in a new window
     const popup = window.open(
       facebookOAuthURL,
       "_blank",
-      "width=500,height=600"
+      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
     );
 
     if (popup) {

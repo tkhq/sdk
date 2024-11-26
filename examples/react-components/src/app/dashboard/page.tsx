@@ -218,7 +218,7 @@ useEffect(() => {
     <main className="main">
       <div className="dashboardCard">
         <Typography variant="h6" className="configTitle">
-          Login Methods
+          Login methods
         </Typography>
         <div className = "loginMethodContainer">
         <div className="loginMethodRow">

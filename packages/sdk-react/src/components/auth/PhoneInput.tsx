@@ -77,59 +77,68 @@ export const MuiPhone: React.FC<MUIPhoneProps> = ({
             position="start"
             style={{ marginRight: "2px", marginLeft: "-8px" }}
           >
-            <Select
-              MenuProps={{
-                style: {
-                  height: "300px",
-                  width: "360px",
-                  top: "10px",
-                  left: "-34px",
-                },
-                transformOrigin: {
-                  vertical: "top",
-                  horizontal: "left",
-                },
-              }}
-              sx={{
-                width: "max-content",
-                // Remove default outline (display only on focus)
-                fieldset: {
-                  display: "none",
-                },
-                "&.Mui-focused:has(div[aria-expanded='false'])": {
-                  fieldset: {
-                    display: "block",
-                  },
-                },
-                // Update default spacing
-                ".MuiSelect-select": {
-                  padding: "8px",
-                  paddingRight: "24px !important",
-                },
-                svg: {
-                  right: 0,
-                },
-              }}
-              value={country.iso2}
-              onChange={(e) => setCountry(e.target.value as CountryIso2)}
-              renderValue={(value) => (
-                <FlagImage iso2={value} style={{ display: "flex" }} />
-              )}
-            >
-              {countries.map((c) => {
-                const country = parseCountry(c);
-                return (
-                  <MenuItem key={country.iso2} value={country.iso2}>
-                    <FlagImage
-                      iso2={country.iso2}
-                      style={{ marginRight: "8px" }}
-                    />
-                    <Typography marginRight="8px">{country.name}</Typography>
-                    <Typography color="gray">+{country.dialCode}</Typography>
-                  </MenuItem>
-                );
-              })}
-            </Select>
+<Select
+  MenuProps={{
+    style: {
+      height: "300px",
+      width: "360px",
+      top: "10px",
+      left: "-34px",
+    },
+    transformOrigin: {
+      vertical: "top",
+      horizontal: "left",
+    },
+  }}
+  sx={{
+    width: "max-content",
+    fieldset: {
+      display: "none",
+    },
+    "&.Mui-focused:has(div[aria-expanded='false'])": {
+      fieldset: {
+        display: "block",
+      },
+    },
+    ".MuiSelect-select": {
+      padding: "8px",
+      paddingRight: "24px !important",
+    },
+    svg: {
+      right: 0,
+    },
+  }}
+  value={country.iso2}
+  onChange={(e) => setCountry(e.target.value as CountryIso2)}
+  renderValue={(value) => {
+    const selectedCountry = countries.find(
+      (c) => parseCountry(c).iso2 === value
+    );
+    const parsedCountry = selectedCountry ? parseCountry(selectedCountry) : null;
+    return (
+      <div style={{ display: "flex", alignItems: "center" }}>
+        {parsedCountry && (
+          <>
+            <FlagImage iso2={parsedCountry.iso2} style={{ marginRight: "8px" }} />
+            <Typography marginRight="8px">+{parsedCountry.dialCode}</Typography>
+          </>
+        )}
+      </div>
+    );
+  }}
+>
+  {countries.map((c) => {
+    const country = parseCountry(c);
+    return (
+      <MenuItem key={country.iso2} value={country.iso2}>
+        <FlagImage iso2={country.iso2} style={{ marginRight: "8px" }} />
+        <Typography marginRight="8px">{country.name}</Typography>
+        <Typography color="gray">+{country.dialCode}</Typography>
+      </MenuItem>
+    );
+  })}
+</Select>
+
           </InputAdornment>
         ),
       }}
