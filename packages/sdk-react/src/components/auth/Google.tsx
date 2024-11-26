@@ -1,3 +1,5 @@
+"use client";
+
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import styles from "./Socials.module.css";
@@ -30,12 +32,17 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps & { layout: "inline" | "s
     googleAuthUrl.searchParams.set("response_type", "id_token"); // Use id_token for OpenID Connect
     googleAuthUrl.searchParams.set("scope", "openid email profile"); // Scopes required for OpenID
     googleAuthUrl.searchParams.set("nonce", nonce);
-
+    googleAuthUrl.searchParams.set("prompt", "select_account");
+    const width = 500;
+    const height = 600;
+    const left = window.screenX + (window.innerWidth - width) / 2;
+    const top = window.screenY + (window.innerHeight - height) / 2;
+  
     // Open the login flow in a new window
     const authWindow = window.open(
       googleAuthUrl.toString(),
       "_blank",
-      "width=500,height=600,scrollbars=yes,resizable=yes"
+      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
     );
 
     if (!authWindow) {

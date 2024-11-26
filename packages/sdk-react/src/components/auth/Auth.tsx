@@ -165,11 +165,11 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
     });
     if (sessionResponse?.credentialBundle) {
       await handleAuthSuccess(sessionResponse.credentialBundle);
+      setPasskeyCreationScreen(false)
+      setPasskeySignupError("")
     } else {
       setPasskeySignupError("Failed to login with passkey. Please try again")
     }
-    setPasskeyCreationScreen(false)
-    setPasskeySignupError("")
   }
   catch {
     setPasskeySignupError("Passkey request timed out or rejected by user. Please try again")
@@ -281,7 +281,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
             clientId={process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!}
             iframePublicKey={authIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
-              handleOAuthLogin(response.authorization.id_token, "Apple")
+              handleOAuthLogin(response.idToken, "Apple")
             }
           />
         )}
@@ -399,7 +399,9 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
             <h3>Create a Passkey</h3>
           </center>
           <div className={styles.rowsContainer}>
-          Set up with fingerprint, face, or screen lock. Make your logins secure and easy.
+            <center>
+          Make your logins secure and easy. Set up with fingerprint, face, or screen lock.
+          </center>
           </div>
           <button               className = {styles.authButton} type="button" onClick={handleSignupWithPasskey}>
             Continue
@@ -425,7 +427,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
       <div className={styles.rowsContainer}>
         <center>
 
-          {passkeySignupError ? passkeySignupError : "Please follow prompts to verify your passkey"}
+          {passkeySignupError ? passkeySignupError : ""}
     
       </center>
       </div>
@@ -458,7 +460,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
                 )}
               </div>
               <div className={styles.poweredBy}>
-                <span>Powered by</span>
+                <span>Secured by</span>
                 <img src={turnkeyIcon} />
               </div>
             </div>
@@ -493,7 +495,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
                       </div>
 
                       <span>
-                        Enter the 6-digit code we sent to{" "}
+                        Enter the 6-digit code we {step === "otpEmail" ? "emailed" : "texted"} to{" "}
                         <div className={styles.verificationBold}>
                           {step === "otpEmail"
                             ? email
@@ -533,6 +535,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
                       >
                         Privacy Policy
                       </a>
+                      {"."}
                     </span>
                   </div>
                 ) : (
