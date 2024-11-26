@@ -1,86 +1,84 @@
 # Turnkey SDK
 
-[![js-build](https://github.com/tkhq/sdk/actions/workflows/js-build.yml/badge.svg)](https://github.com/tkhq/sdk/actions/workflows/js-build.yml)
+[![js-build](https://github.com/tkhq/sdk/actions/workflows/js-build.yml/badge.svg)](https://github.com/tkhq/sdk/actions/workflows/js-build.yml)å
 
-## Primary Turnkey SDK Web Packages
-SDK Web Packages
-The following packages expose the functionality required to build Turnkey-Powered applications. 
-- [`@turnkey/sdk-browser`](https://github.com/tkhq/sdk/tree/main/packages/sdk-browser) 
-- [`@turnkey/sdk-server`](https://github.com/tkhq/sdk/tree/main/packages/sdk-server)
-- [`@turnkey/sdk-react`](https://github.com/tkhq/sdk/tree/main/packages/sdk-react)
-- [`@turnkey/sdk-react-native-stamper`](https://www.npmjs.com/package/@turnkey/sdk-react-native-stamper)
+## Overview
 
-The below diagram can help provide an understanding of which package can be used where while developing your Turnkey Powered Application. 
+The Turnkey SDK includes functions and clients with methods that construct, authenticate and execute requests to the Turnkey API with support for different ecosystems and methods of authentication. It consists of the [Primary Turnkey Web SDK Packages](#primary-turnkey-web-sdk-packages) which expose the main functionality required to build Turnkey-powered applications in different web environments, the [Chain/Ecosystem-Specific Signing Packages](#chainecosystem-specific-signing-sdk-packages) which expose signers with support for specific ecosystems, built on top of our Web SDK, and the [Advanced Functionality SDK Packages](#advanced-functionality-sdk-packages) which exposes lower level functionality that is leveraged by our Primary Web SDK Packages for those with highly-specific implementations looking to use them.
 
-## [DIAGRAM HERE]
+The below diagram helps visualize the packages in our SDK organized by the functionality they expose.
 
-### [`@turnkey/sdk-browser`](https://github.com/tkhq/sdk/tree/main/packages/sdk-browser)  
-The [`@turnkey/sdk-browser`](https://github.com/tkhq/sdk/tree/main/packages/sdk-browser) package exposes functionality that lets developers build browser based applications that interact with the Turnkey API with different types of authentication. 
-
-It consists of different clients that enable requests to the API to be authenticated via different auth methods like user sessions, passkeys and iFrames. It also contains methods to manage information and state related to authentication like auth bundles and sessions, retrieving user information and server signing API requests.
-
-[![npm](https://img.shields.io/npm/v/@turnkey/http?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-browser)
-
-[CHANGELOG](/packages/sdk-browser/CHANGELOG.md)  
-
-Docs Page: https://docs.turnkey.com/sdks/javascript-browser
-
-### [`@turnkey/sdk-server`](https://github.com/tkhq/sdk/tree/main/packages/sdk-server)
-The [`@turnkey/sdk-server`](https://github.com/tkhq/sdk/tree/main/packages/sdk-server) package exposes functionality that lets developers build server-side functionality for applications that interact with the Turnkey API with different types of authentication –  allowing applications to authenticate users, manage sessions, and perform organizational operations securely and efficiently. It consists of an API Client and API Proxies that enable requests to the Turnkey API to be authenticated with the appropriate credentials. Specifically, the API Client manages requests signed by the user’s authentication details, and the API proxies handle requests signed by the parent organization’s authentication details. 
-
-Use the [`@turnkey/sdk-server`](https://www.npmjs.com/package/@turnkey/sdk-server) package to handle server-side interactions for applications that interact with the Turnkey API.
-
-[![npm](https://img.shields.io/npm/v/@turnkey/sdk-server?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-server)  
-
-[CHANGELOG](/packages/sdk-server/CHANGELOG.md)
-
-Docs Page: https://docs.turnkey.com/sdks/javascript-server
-
-### [`@turnkey/sdk-react`](https://github.com/tkhq/sdk/tree/main/packages/sdk-react)
-The [`@turnkey/sdk-react`](https://github.com/tkhq/sdk/tree/main/packages/sdk-react) package wraps the functionality from the [`@turnkey/sdk-browser`](https://github.com/tkhq/sdk/tree/main/packages/sdk-browser) package to allow developers to build react based applications that interact with the Turnkey API with different types of authentication. It allows developers to use the same clients exposed in [`@turnkey/sdk-browser`](https://github.com/tkhq/sdk/tree/main/packages/sdk-browser) that enable requests to the API to be authenticated via different auth methods like user sessions, passkey and iFrames. It also contains the same methods to manage information and state related to authentication like auth bundles and sessions, retrieving user information and server signing API requests. Use the [`@turnkey/sdk-react`](https://github.com/tkhq/sdk/tree/main/packages/sdk-browser) package when you’re building React-based frontend applications that interact with the Turnkey API.
-
-[![npm](https://img.shields.io/npm/v/@turnkey/sdk-react?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-react)
-
-[CHANGELOG](/packages/sdk-react/CHANGELOG.md)
-
-Docs Page: https://docs.turnkey.com/sdks/react
-
-### [`@turnkey/sdk-react-native-stamper`](https://www.npmjs.com/package/@turnkey/sdk-react-native-stamper)
-Turnkey provides a React Native stamper library, meant to be used in conjunction with the Turnkey http client, to facilitate using passkeys to interact with Turnkey's API within React Native applications. See https://github.com/tkhq/sdk/tree/main/packages/react-native-passkey-stamper for more details.
-
-[![npm](https://img.shields.io/npm/v/@turnkey/react-native-passkey-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/react-native-passkey-stamper)
-
-[CHANGELOG](/packages/react-native-passkey-stamper/CHANGELOG.md)
-
-Docs Page: https://docs.turnkey.com/sdks/react-native
+<img src="./img/sdk-map.png" alt="homepage screenshot" width="1000px">
 
 
+## Primary Turnkey Web SDK Packages
+
+The following packages expose the main functionality required to build Turnkey-powered applications. Each package exposes functions, and/or client classes with methods that manage the process of authenticating requests to the Turnkey API in the contexts of a generic browser environment, a react or react native client environment, or a server environment. 
+
+While these higher level packages are the main points of reference to be used while designing and building Turnkey applications, they wrap other packages with lower level functionality which we also expose separately for those who would like to explore them for more specialized use cases. These packages are listed and described below in the [Advanced Functionality SDK Packages](#advanced-functionality-sdk-packages) section.
+
+Our main web SDK packages are as follows:
+
+| Package | Description | NPM | Changelog | Docs |
+|---------|-------------|-----|-----------|------|
+| [@turnkey/sdk-browser](/packages/sdk-browser) | The `@turnkey/sdk-browser` package exposes functionality that lets developers build browser based applications that interact with the Turnkey API with different types of authentication. It consists of different clients that enable requests to the API to be authenticated via different auth methods like user sessions, passkeys and iFrames. It also contains methods to manage information and state related to authentication like auth bundles and sessions, retrieving user information and server signing API requests. | [![npm](https://img.shields.io/npm/v/@turnkey/http?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-browser) | [CHANGELOG](/packages/sdk-browser/CHANGELOG.md) | [Docs](https://docs.turnkey.com/sdks/javascript-browser) |
+| [@turnkey/sdk-server](https://github.com/tkhq/sdk/tree/main/packages/sdk-server) | The `@turnkey/sdk-server` package exposes functionality that lets developers build server-side functionality for applications that interact with the Turnkey API with different types of authentication – allowing applications to authenticate users, manage sessions, and perform organizational operations securely and efficiently. It consists of an API Client and API Proxies that enable requests to the Turnkey API to be authenticated with the appropriate credentials. Specifically, the API Client manages requests signed by the user's authentication details, and the API proxies handle requests signed by the parent organization's authentication details. Use this package to handle server-side interactions for applications that interact with the Turnkey API. | [![npm](https://img.shields.io/npm/v/@turnkey/sdk-server?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-server) | [CHANGELOG](/packages/sdk-server/CHANGELOG.md) | [Docs](https://docs.turnkey.com/sdks/javascript-server) |
+| [@turnkey/sdk-react](https://github.com/tkhq/sdk/tree/main/packages/sdk-react) | The `@turnkey/sdk-react` package wraps the functionality from the `@turnkey/sdk-browser` package to allow developers to build react based applications that interact with the Turnkey API with different types of authentication. It allows developers to use the same clients exposed in `@turnkey/sdk-browser` that enable requests to the API to be authenticated via different auth methods like user sessions, passkey and iFrames. It also contains the same methods to manage information and state related to authentication like auth bundles and sessions, retrieving user information and server signing API requests. Use this package when you're building React-based frontend applications that interact with the Turnkey API. | [![npm](https://img.shields.io/npm/v/@turnkey/sdk-react?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-react) | [CHANGELOG](/packages/sdk-react/CHANGELOG.md) | [Docs](https://docs.turnkey.com/sdks/react) |
+| [@turnkey/sdk-react-native-passkey-stamper](https://www.npmjs.com/package/@turnkey/sdk-react-native-passkey-stamper) | Turnkey provides a React Native stamper library, meant to be used in conjunction with the Turnkey http client, to facilitate using passkeys to interact with Turnkey's API within React Native applications. See https://github.com/tkhq/sdk/tree/main/packages/react-native-passkey-stamper for more details. | [![npm](https://img.shields.io/npm/v/@turnkey/react-native-passkey-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/react-native-passkey-stamper) | [CHANGELOG](/packages/react-native-passkey-stamper/CHANGELOG.md) | [Docs](https://docs.turnkey.com/sdks/react-native) |
+
+The below diagram helps visualize how each package can be used to devlop the appropriate service in your Turnkey Powered Application, and how Turnkey requests would flow between those services.
+
+<img src="./img/sdk-web-diagram.png" alt="homepage screenshot" width="1000px">
+
+## Chain/Ecosystem-Specific Signing SDK Packages
+
+The following packages contain chain or ecosystem specific signers that take some of our [Primary Turnkey Web SDK Packages](#primary-turnkey-web-sdk-packages) (usually @turnkey/sdk-browser or @turnkey/sdk-server) and add additional support based on the signing process or transaction structure relevant to that specific chain or ecosystem.
+
+| Package | NPM | Description | Changelog |
+| --- | --- | --- | --- |
+| [`@turnkey/ethers`](/packages/ethers) | [![npm](https://img.shields.io/npm/v/@turnkey/ethers?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/ethers) | Turnkey Signer for Ethers | [CHANGELOG](/packages/ethers/CHANGELOG.md) |
+| [`@turnkey/viem`](/packages/viem) | [![npm](https://img.shields.io/npm/v/@turnkey/viem?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/viem) | Turnkey Signer for Viem | [CHANGELOG](/packages/viem/CHANGELOG.md) |
+| [`@turnkey/cosmjs`](/packages/cosmjs) | [![npm](https://img.shields.io/npm/v/@turnkey/cosmjs?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/cosmjs) | Turnkey Signer for CosmJS | [CHANGELOG](/packages/cosmjs/CHANGELOG.md) |
+| [`@turnkey/solana`](/packages/solana) | [![npm](https://img.shields.io/npm/v/@turnkey/solana?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/solana) | Turnkey Signer for Solana | [CHANGELOG](/packages/solana/CHANGELOG.md) |
+| [`@turnkey/eip-1193-provider`](/packages/eip-1193-provider) | [![npm](https://img.shields.io/npm/v/@turnkey/eip-1193-provider?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/eip-1193-provider) | Turnkey-compatible EIP-1193 Provider | [CHANGELOG](/packages/eip-1193-provider/CHANGELOG.md) |
 
 
-API Docs: https://docs.turnkey.com/
+## Advanced Functionality SDK Packages
 
-## Packages
+For those with more specialized use cases, Turnkey exposes it's lower level-libraries stamping and encryption libraries to be used directly. Note: for most use-cases, these libraries are not meant to be used directly and we encourage working on designing your application mainlyusing our [Primary Turnkey Web SDK Packages](#primary-turnkey-web-sdk-packages) along with our [Chain and Ecosystem Specific SDK Packages](#chainecosystem-specific-signing-sdk-packages) as per your use case!
 
-| Package                                                                           | NPM                                                                                                                                                               | Description                                                             | Changelog                                                        | Category           |
-| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------ |
-| [`@turnkey/ethers`](/packages/ethers)                                             | [![npm](https://img.shields.io/npm/v/@turnkey/ethers?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/ethers)                                             | Turnkey Signer for Ethers                                               | [CHANGELOG](/packages/ethers/CHANGELOG.md)                       | Signing            |
-| [`@turnkey/viem`](/packages/viem)                                                 | [![npm](https://img.shields.io/npm/v/@turnkey/viem?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/viem)                                                 | Turnkey Signer for Viem                                                 | [CHANGELOG](/packages/viem/CHANGELOG.md)                         | Signing            |
-| [`@turnkey/cosmjs`](/packages/cosmjs)                                             | [![npm](https://img.shields.io/npm/v/@turnkey/cosmjs?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/cosmjs)                                             | Turnkey Signer for CosmJS                                               | [CHANGELOG](/packages/cosmjs/CHANGELOG.md)                       | Signing            |
-| [`@turnkey/solana`](/packages/solana)                                             | [![npm](https://img.shields.io/npm/v/@turnkey/solana?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/solana)                                             | Turnkey Signer for Solana                                               | [CHANGELOG](/packages/solana/CHANGELOG.md)                       | Signing            |
-| [`@turnkey/eip-1193-provider`](/packages/eip-1193-provider)                       | [![npm](https://img.shields.io/npm/v/@turnkey/eip-1193-provider?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/eip-1193-provider)                       | Turnkey-compatible EIP-1193 Provider                                    | [CHANGELOG](/packages/eip-1193-provider/CHANGELOG.md)            | Signing            |
-| [`@turnkey/encoding`](/packages/encoding)                                         | [![npm](https://img.shields.io/npm/v/@turnkey/encoding?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/encoding)                                         | Encoding and decoding utilities, primarily for internal usage           | [CHANGELOG](/packages/encoding/CHANGELOG.md)                     | Utilities          |
-| [`@turnkey/crypto`](/packages/crypto)                                             | [![npm](https://img.shields.io/npm/v/@turnkey/crypto?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/crypto)                                             | Cryptographic utilities for P256 keys, encryption, and decryption       | [CHANGELOG](/packages/crypto/CHANGELOG.md)                       | Utilities          |
-| [`@turnkey/sdk-browser`](/packages/sdk-browser)                                   | [![npm](https://img.shields.io/npm/v/@turnkey/sdk-browser?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-browser)                                   | Abstractions for using Turnkey in a browser environment                 | [CHANGELOG](/packages/sdk-browser/CHANGELOG.md)                  | Client abstraction |
-| [`@turnkey/sdk-server`](/packages/sdk-server)                                     | [![npm](https://img.shields.io/npm/v/@turnkey/sdk-server?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-server)                                     | Abstractions for using Turnkey in a server environment                  | [CHANGELOG](/packages/sdk-server/CHANGELOG.md)                   | Client abstraction |
-| [`@turnkey/sdk-react`](/packages/sdk-react)                                       | [![npm](https://img.shields.io/npm/v/@turnkey/sdk-react?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-react)                                       | Abstractions for using Turnkey with React                               | [CHANGELOG](/packages/sdk-react/CHANGELOG.md)                    | Client abstraction |
-| [`@turnkey/react-native-passkey-stamper`](/packages/react-native-passkey-stamper) | [![npm](https://img.shields.io/npm/v/@turnkey/react-native-passkey-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/react-native-passkey-stamper) | Passkey signing support in the React Native environment                 | [CHANGELOG](/packages/react-native-passkey-stamper/CHANGELOG.md) | Client abstraction |
-| [`@turnkey/http`](/packages/http)                                                 | [![npm](https://img.shields.io/npm/v/@turnkey/http?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/http)                                                 | Lower-level, fully typed HTTP client for interacting with Turnkey API   | [CHANGELOG](/packages/http/CHANGELOG.md)                         | Turnkey primitives |
-| [`@turnkey/api-key-stamper`](/packages/api-key-stamper)                           | [![npm](https://img.shields.io/npm/v/@turnkey/api-key-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/api-key-stamper)                           | Provide API key signatures over Turnkey requests                        | [CHANGELOG](/packages/api-key-stamper/CHANGELOG.md)              | Turnkey primitives |
-| [`@turnkey/iframe-stamper`](/packages/iframe-stamper)                             | [![npm](https://img.shields.io/npm/v/@turnkey/iframe-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/iframe-stamper)                             | Provide API key signatures over Turnkey requests within iframe contexts | [CHANGELOG](/packages/iframe-stamper/CHANGELOG.md)               | Turnkey primitives |
-| [`@turnkey/webauthn-stamper`](/packages/webauthn-stamper)                         | [![npm](https://img.shields.io/npm/v/@turnkey/webauthn-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/webauthn-stamper)                         | Provide Webauthn signatures over Turnkey requests                       | [CHANGELOG](/packages/webauthn-stamper/CHANGELOG.md)             | Turnkey primitives |
-| [`@turnkey/wallet-stamper`](/packages/wallet-stamper)                             | [![npm](https://img.shields.io/npm/v/@turnkey/wallet-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/wallet-stamper)                             | Provide wallet signatures over Turnkey requests                         | [CHANGELOG](/packages/wallet-stamper/CHANGELOG.md)               | Turnkey primitives |
+### Request Stamping
 
-## Code Examples
+| Package | NPM | Description | Changelog | Docs |
+| --- | --- | --- | --- | --- |
+| [`@turnkey/http`](/packages/http) | [![npm](https://img.shields.io/npm/v/@turnkey/http?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/http) | Lower-level, fully typed HTTP client for interacting with Turnkey API | [CHANGELOG](/packages/http/CHANGELOG.md) | [Docs](https://docs.turnkey.com/sdks/advanced/turnkey-client) |
+| [`@turnkey/api-key-stamper`](/packages/api-key-stamper) | [![npm](https://img.shields.io/npm/v/@turnkey/api-key-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/api-key-stamper) | Provide API key signatures over Turnkey requests | [CHANGELOG](/packages/api-key-stamper/CHANGELOG.md) | [Docs](https://docs.turnkey.com/sdks/advanced/api-key-stamper) |
+| [`@turnkey/iframe-stamper`](/packages/iframe-stamper) | [![npm](https://img.shields.io/npm/v/@turnkey/iframe-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/iframe-stamper) | Provide API key signatures over Turnkey requests within iframe contexts | [CHANGELOG](/packages/iframe-stamper/CHANGELOG.md) | [Docs](https://docs.turnkey.com/sdks/advanced/iframe-stamper) |
+| [`@turnkey/webauthn-stamper`](/packages/webauthn-stamper) | [![npm](https://img.shields.io/npm/v/@turnkey/webauthn-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/webauthn-stamper) | Provide Webauthn signatures over Turnkey requests | [CHANGELOG](/packages/webauthn-stamper/CHANGELOG.md) | [Docs](https://docs.turnkey.com/sdks/advanced/webauthn-stamper) |
+| [`@turnkey/wallet-stamper`](/packages/wallet-stamper) | [![npm](https://img.shields.io/npm/v/@turnkey/wallet-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/wallet-stamper) | Provide wallet signatures over Turnkey requests | [CHANGELOG](/packages/wallet-stamper/CHANGELOG.md) | [Docs](https://docs.turnkey.com/sdks/advanced/wallet-stamper) |
+
+### Utilities 
+
+| Package                                                                           | NPM                                                                                                                                                               | Description                                                             | Changelog                                                        |
+| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [`@turnkey/encoding`](/packages/encoding)                                         | [![npm](https://img.shields.io/npm/v/@turnkey/encoding?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/encoding)                                         | Encoding and decoding utilities, primarily for internal usage           | [CHANGELOG](/packages/encoding/CHANGELOG.md)                     |
+| [`@turnkey/crypto`](/packages/crypto)                                             | [![npm](https://img.shields.io/npm/v/@turnkey/crypto?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/crypto)                                             | Cryptographic utilities for P256 keys, encryption, and decryption       | [CHANGELOG](/packages/crypto/CHANGELOG.md)                       |
+
+## Code Examples 
+
+### Best First Examples -- Test in Stackblitz
+
+The following code examples have been loaded into Stackblitz web environments so you can test them out immediately
+
+
+| Example | Description | Stackblitz Link |
+| --- | --- | --- |
+| [`email-auth-local-storage`](/examples/email-auth-local-storage/)      | A NextJS app demonstrating a complete email auth flow using a locally stored target embedded key | [Test it out on Stackblitz!](https://stackblitz.com/edit/stackblitz-starters-pyyw59) |                 
+| [`with-eth-passkey-signers`](/examples/with-eth-passkey-signers/)      | A NextJS app powering users to create suborgs and sign messages via Viem or Ethers               | [Test it out on Stackblitz!](https://stackblitz.com/edit/stackblitz-starters-2psu3g) |  
+| [`with-solana`](/examples/with-solana/)                                | Create a new Solana address, then sign and broadcast a transaction on Solana's devnet            | [Test it out on Stackblitz!](https://stackblitz.com/edit/stackblitz-starters-xeb93i) |
+| [`with-solana-passkeys`](/examples/with-solana-passkeys/)              | A NextJS app powering users to create suborgs, sign messages, and create transactions sponsored by the parent org using @turnkey/solana | [Test it out on Stackblitz!](https://stackblitz.com/edit/stackblitz-starters-h5pmnu) |
+
+### Other Code Examples
 
 | Example                                                                | Description                                                                                                                             |
 | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
@@ -91,7 +89,6 @@ API Docs: https://docs.turnkey.com/
 | [`passkeyapp`](https://github.com/tkhq/passkeyapp)                     | A React Native + Expo app powered by Turnkey and passkeys                                                                               |
 | [`deployer`](/examples/deployer/)                                      | Compile and deploy a smart contract                                                                                                     |
 | [`email-auth`](/examples/email-auth/)                                  | A NextJS app demonstrating a complete email auth flow using Turnkey iframes                                                             |
-| [`email-auth-local-storage`](/examples/email-auth-local-storage/)      | A NextJS app demonstrating a complete email auth flow using a locally stored target embedded key                                        |
 | [`email-recovery`](/examples/email-recovery/)                          | A NextJS app demonstrating a complete email recovery flow using Turnkey iframes                                                         |
 | [`wallet-import-export`](/examples/wallet-import-export/)              | A NextJS app demonstrating complete wallet import and export flows                                                                      |
 | [`rebalancer`](/examples/rebalancer/)                                  | A demo application which showcases an example of how to use Turnkey for managing multiple types of keys & users                         |
@@ -100,15 +97,12 @@ API Docs: https://docs.turnkey.com/
 | [`with-ethers`](/examples/with-ethers/)                                | Create a new Ethereum address, then sign and broadcast a transaction using the Ethers signer with Infura                                |
 | [`with-viem`](/examples/with-viem/)                                    | Sign and broadcast a transaction using the Turnkey Custom Account and Infura                                                            |
 | [`with-cosmjs`](/examples/with-cosmjs/)                                | Create a new Cosmos address, then sign and broadcast a transaction on Celestia testnet using the CosmJS signer                          |
-| [`with-solana`](/examples/with-solana/)                                | Create a new Solana address, then sign and broadcast a transaction on Solana's devnet                                                   |
 | [`with-bitcoin`](/examples/with-bitcoin/)                              | Create a new wallet, derive a BTC address, create, sign, and broadcast a transaction using BitcoinJS and other external APIs            |
 | [`with-gnosis`](/examples/with-gnosis/)                                | Create new Ethereum addresses, configure a 3/3 Gnosis safe, and create + execute a transaction from it                                  |
 | [`with-uniswap`](/examples/with-uniswap/)                              | Sign and broadcast a Uniswap v3 trade using the Ethers signer with Infura                                                               |
 | [`with-nonce-manager`](/examples/with-nonce-manager/)                  | Create a new Ethereum address, then sign and broadcast multiple transactions in a sequential or optimistic manner                       |
 | [`with-offline`](/examples/with-offline/)                              | Sign a Turnkey request in offline context                                                                                               |
 | [`with-federated-passkeys`](/examples/with-federated-passkeys/)        | A NextJS app that demonstrates how to use Turnkey to build a federated, webauthn powered authentication flow                            |
-| [`with-solana-passkeys`](/examples/with-solana-passkeys/)              | A NextJS app powering users to create suborgs, sign messages, and create transactions sponsored by the parent org using @turnkey/solana |
-| [`with-eth-passkey-signers`](/examples/with-eth-passkey-signers/)      | A NextJS app powering users to create suborgs and sign messages via Viem or Ethers                                                      |
 | [`with-eip-1193-provider`](/examples/with-eip-1193-provider/)          | A NextJS app that demonstrates how to use Turnkey the `@turnkey/eip-1193-provider` in your app                                          |
 | [`with-wallet-stamper`](/examples/with-wallet-stamper/)                | A NextJS app that demonstrates how to use Turnkey the `@turnkey/wallet-stamper` in your app                                             |
 
