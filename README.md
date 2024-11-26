@@ -2,6 +2,61 @@
 
 [![js-build](https://github.com/tkhq/sdk/actions/workflows/js-build.yml/badge.svg)](https://github.com/tkhq/sdk/actions/workflows/js-build.yml)
 
+## Primary Turnkey SDK Web Packages
+SDK Web Packages
+The following packages expose the functionality required to build Turnkey-Powered applications. 
+- [`@turnkey/sdk-browser`](https://github.com/tkhq/sdk/tree/main/packages/sdk-browser) 
+- [`@turnkey/sdk-server`](https://github.com/tkhq/sdk/tree/main/packages/sdk-server)
+- [`@turnkey/sdk-react`](https://github.com/tkhq/sdk/tree/main/packages/sdk-react)
+- [`@turnkey/sdk-react-native-stamper`](https://www.npmjs.com/package/@turnkey/sdk-react-native-stamper)
+
+The below diagram can help provide an understanding of which package can be used where while developing your Turnkey Powered Application. 
+
+## [DIAGRAM HERE]
+
+### [`@turnkey/sdk-browser`](https://github.com/tkhq/sdk/tree/main/packages/sdk-browser)  
+The [`@turnkey/sdk-browser`](https://github.com/tkhq/sdk/tree/main/packages/sdk-browser) package exposes functionality that lets developers build browser based applications that interact with the Turnkey API with different types of authentication. 
+
+It consists of different clients that enable requests to the API to be authenticated via different auth methods like user sessions, passkeys and iFrames. It also contains methods to manage information and state related to authentication like auth bundles and sessions, retrieving user information and server signing API requests.
+
+[![npm](https://img.shields.io/npm/v/@turnkey/http?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-browser)
+
+[CHANGELOG](/packages/sdk-browser/CHANGELOG.md)  
+
+Docs Page: https://docs.turnkey.com/sdks/javascript-browser
+
+### [`@turnkey/sdk-server`](https://github.com/tkhq/sdk/tree/main/packages/sdk-server)
+The [`@turnkey/sdk-server`](https://github.com/tkhq/sdk/tree/main/packages/sdk-server) package exposes functionality that lets developers build server-side functionality for applications that interact with the Turnkey API with different types of authentication –  allowing applications to authenticate users, manage sessions, and perform organizational operations securely and efficiently. It consists of an API Client and API Proxies that enable requests to the Turnkey API to be authenticated with the appropriate credentials. Specifically, the API Client manages requests signed by the user’s authentication details, and the API proxies handle requests signed by the parent organization’s authentication details. 
+
+Use the [`@turnkey/sdk-server`](https://www.npmjs.com/package/@turnkey/sdk-server) package to handle server-side interactions for applications that interact with the Turnkey API.
+
+[![npm](https://img.shields.io/npm/v/@turnkey/sdk-server?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-server)  
+
+[CHANGELOG](/packages/sdk-server/CHANGELOG.md)
+
+Docs Page: https://docs.turnkey.com/sdks/javascript-server
+
+### [`@turnkey/sdk-react`](https://github.com/tkhq/sdk/tree/main/packages/sdk-react)
+The [`@turnkey/sdk-react`](https://github.com/tkhq/sdk/tree/main/packages/sdk-react) package wraps the functionality from the [`@turnkey/sdk-browser`](https://github.com/tkhq/sdk/tree/main/packages/sdk-browser) package to allow developers to build react based applications that interact with the Turnkey API with different types of authentication. It allows developers to use the same clients exposed in [`@turnkey/sdk-browser`](https://github.com/tkhq/sdk/tree/main/packages/sdk-browser) that enable requests to the API to be authenticated via different auth methods like user sessions, passkey and iFrames. It also contains the same methods to manage information and state related to authentication like auth bundles and sessions, retrieving user information and server signing API requests. Use the [`@turnkey/sdk-react`](https://github.com/tkhq/sdk/tree/main/packages/sdk-browser) package when you’re building React-based frontend applications that interact with the Turnkey API.
+
+[![npm](https://img.shields.io/npm/v/@turnkey/sdk-react?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-react)
+
+[CHANGELOG](/packages/sdk-react/CHANGELOG.md)
+
+Docs Page: https://docs.turnkey.com/sdks/react
+
+### [`@turnkey/sdk-react-native-stamper`](https://www.npmjs.com/package/@turnkey/sdk-react-native-stamper)
+Turnkey provides a React Native stamper library, meant to be used in conjunction with the Turnkey http client, to facilitate using passkeys to interact with Turnkey's API within React Native applications. See https://github.com/tkhq/sdk/tree/main/packages/react-native-passkey-stamper for more details.
+
+[![npm](https://img.shields.io/npm/v/@turnkey/react-native-passkey-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/react-native-passkey-stamper)
+
+[CHANGELOG](/packages/react-native-passkey-stamper/CHANGELOG.md)
+
+Docs Page: https://docs.turnkey.com/sdks/react-native
+
+
+
+
 API Docs: https://docs.turnkey.com/
 
 ## Packages
