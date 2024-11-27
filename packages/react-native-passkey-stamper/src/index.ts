@@ -1,4 +1,8 @@
-import { Passkey } from "react-native-passkey";
+import {
+  Passkey,
+  PasskeyCreateResult,
+  PasskeyGetResult,
+} from "react-native-passkey";
 import type { TurnkeyApiTypes } from "@turnkey/http";
 import { base64StringToBase64UrlEncodedString as base64Tobase64url } from "@turnkey/encoding";
 import { getChallengeFromPayload, getRandomChallenge } from "./util";
@@ -8,10 +12,19 @@ import { getChallengeFromPayload, getRandomChallenge } from "./util";
  * Copied from https://github.com/f-23/react-native-passkey/blob/17184a1b1f6f3ac61e07aa784c9b64efb28b570e/src/Passkey.tsx#L80C1-L85C2
  * TODO: can we import this type instead?
  */
-interface PublicKeyCredentialDescriptor {
+export interface PublicKeyCredentialDescriptor {
   type: string;
   id: string;
-  transports?: Array<string>;
+  transports?: Array<AuthenticatorTransport>;
+}
+
+export enum AuthenticatorTransport {
+  usb = "usb",
+  nfc = "nfc",
+  ble = "ble",
+  smartCard = "smart-card",
+  hybrid = "hybrid",
+  internal = "internal",
 }
 
 /**
@@ -91,6 +104,12 @@ export type TPasskeyStamperConfig = {
   // Optional list of credentials to pass. Defaults to empty.
   allowCredentials?: PublicKeyCredentialDescriptor[];
 
+  // Option to force security passkeys on native platforms
+  withSecurityKey?: boolean;
+
+  // Option to force platform passkeys on native platforms
+  withPlatformKey?: boolean;
+
   // Optional extensions. Defaults to empty.
   extensions?: Record<string, unknown>;
 };
@@ -105,6 +124,10 @@ export function isSupported(): boolean {
   return Passkey.isSupported();
 }
 
+// Context: https://github.com/f-23/react-native-passkey/issues/54
+type BrokenPasskeyCreateResult = PasskeyCreateResult | string;
+type BrokenPasskeyGetResult = PasskeyGetResult | string;
+
 /**
  * Creates a passkey and returns authenticator params
  */
@@ -112,38 +135,51 @@ export async function createPasskey(
   config: TPasskeyRegistrationConfig,
   options?: {
     withSecurityKey: boolean;
+    withPlatformKey: boolean;
   }
 ): Promise<TurnkeyAuthenticatorParams> {
   const challenge = config.challenge || getRandomChallenge();
 
-  const registrationResult = await Passkey.register(
-    {
-      challenge: challenge,
-      rp: config.rp,
-      user: config.user,
-      excludeCredentials: config.excludeCredentials || [],
-      authenticatorSelection: config.authenticatorSelection || {
-        requireResidentKey: true,
-        residentKey: "required",
-        userVerification: "preferred",
-      },
-      attestation: config.attestation || "none",
-      extensions: config.extensions || {},
-      // All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
-      // We only support ES256 and RS256, which are listed below
-      pubKeyCredParams: [
-        {
-          type: "public-key",
-          alg: -7,
-        },
-        {
-          type: "public-key",
-          alg: -257,
-        },
-      ],
+  let createFn = options?.withPlatformKey
+    ? Passkey.createPlatformKey
+    : options?.withSecurityKey
+    ? Passkey.createSecurityKey
+    : Passkey.create;
+
+  let registrationResult = await createFn({
+    challenge: challenge,
+    rp: config.rp,
+    user: config.user,
+    excludeCredentials: config.excludeCredentials || [],
+    authenticatorSelection: config.authenticatorSelection || {
+      requireResidentKey: true,
+      residentKey: "required",
+      userVerification: "preferred",
     },
-    options
-  );
+    attestation: config.attestation || "none",
+    extensions: config.extensions || {},
+    // All algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
+    // We only support ES256 and RS256, which are listed below
+    pubKeyCredParams: [
+      {
+        type: "public-key",
+        alg: -7,
+      },
+      {
+        type: "public-key",
+        alg: -257,
+      },
+    ],
+  });
+
+  // See https://github.com/f-23/react-native-passkey/issues/54
+  // On Android the typedef lies. Registration result is actually a string!
+  // TODO: remove me once the above is resolved.
+  const brokenRegistrationResult =
+    registrationResult as BrokenPasskeyCreateResult;
+  if (typeof brokenRegistrationResult === "string") {
+    registrationResult = JSON.parse(brokenRegistrationResult);
+  }
 
   return {
     authenticatorName: config.authenticatorName,
@@ -172,6 +208,8 @@ export class PasskeyStamper {
   userVerification: UserVerificationRequirement;
   allowCredentials: PublicKeyCredentialDescriptor[];
   extensions: Record<string, unknown>;
+  forcePlatformKey: boolean;
+  forceSecurityKey: boolean;
 
   constructor(config: TPasskeyStamperConfig) {
     this.rpId = config.rpId;
@@ -179,6 +217,8 @@ export class PasskeyStamper {
     this.userVerification = config.userVerification || defaultUserVerification;
     this.allowCredentials = config.allowCredentials || [];
     this.extensions = config.extensions || {};
+    this.forcePlatformKey = !!config.withPlatformKey;
+    this.forceSecurityKey = !!config.withSecurityKey;
   }
 
   async stamp(payload: string) {
@@ -193,7 +233,21 @@ export class PasskeyStamper {
       extensions: this.extensions,
     };
 
-    const authenticationResult = await Passkey.authenticate(signingOptions);
+    let passkeyGetfn = this.forcePlatformKey
+      ? Passkey.getPlatformKey
+      : this.forceSecurityKey
+      ? Passkey.getSecurityKey
+      : Passkey.get;
+    let authenticationResult = await passkeyGetfn(signingOptions);
+
+    // See https://github.com/f-23/react-native-passkey/issues/54
+    // On Android the typedef lies. Authentication result is actually a string!
+    // TODO: remove me once the above is resolved.
+    const brokenAuthenticationResult =
+      authenticationResult as BrokenPasskeyGetResult;
+    if (typeof brokenAuthenticationResult === "string") {
+      authenticationResult = JSON.parse(brokenAuthenticationResult);
+    }
 
     const stamp = {
       authenticatorData: base64Tobase64url(

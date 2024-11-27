@@ -1657,8 +1657,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       react-native-passkey:
-        specifier: ^2.1.1
-        version: 2.1.1(react-native@0.74.0)(react@18.3.1)
+        specifier: ^3.0.0
+        version: 3.0.0(react-native@0.74.0)(react@18.3.1)
       sha256-uint8array:
         specifier: ^0.10.7
         version: 0.10.7
@@ -20206,8 +20206,8 @@ packages:
       warning: 4.0.3
     dev: false
 
-  /react-native-passkey@2.1.1(react-native@0.74.0)(react@18.3.1):
-    resolution: {integrity: sha512-/SBlL+8aJOiAAyO4jmRhJAxo1LklMpjQijLyl1jZlt9bKtRnh4Uz94z7AYouBR2anTB+DaEycLIhunG7h8Xbwg==}
+  /react-native-passkey@3.0.0(react-native@0.74.0)(react@18.3.1):
+    resolution: {integrity: sha512-U26Jaz8BeN+LxB9a5rwJiDHIYNBj7sobfnlQnkfyuqylKnSHxzThOnYcJq3WGCSzTYNI5DT0xUtArQkc482fkQ==}
     peerDependencies:
       react: '*'
       react-native: '*'
