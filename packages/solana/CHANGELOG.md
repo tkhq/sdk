@@ -1,5 +1,11 @@
 # @turnkey/solana
 
+## 1.0.4
+
+### Patch Changes
+
+- 9eaf38a: Add optional org id for all signing methods
+
 ## 1.0.3
 
 ### Patch Changes
