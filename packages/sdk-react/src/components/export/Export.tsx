@@ -54,6 +54,7 @@ const Export: React.FC<ExportProps> = ({
             backgroundColor: "#ffffff",
             overflowWrap: "break-word",
             wordWrap: "break-word",
+            overflow: "hidden",
             resize: "none",
           };
           iframeStamper.applySettings({ styles });
@@ -196,6 +197,17 @@ Your seed phrase is the key to your wallet. Save it in a secure location.
         padding: "16px",
       }}
     />
+        {isIframeVisible && (
+      <div className = {styles.doneButtonContainer}>
+        <button
+          onClick={handleCloseModal}
+          className={styles.exportButton}
+        >
+          Done
+        </button>
+      </div>
+    )}
+
                   <div
                 onClick={() => (window.location.href = "https://www.turnkey.com/")}
                 className={styles.poweredBy}

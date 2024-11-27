@@ -30,6 +30,11 @@
     margin-bottom: 16px;
   }
 
+  .doneButtonContainer {
+    margin-top: 12px
+  }
+
+  
   .exportButton {
     display: inline-flex;
     align-items: center; 
