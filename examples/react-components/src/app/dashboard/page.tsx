@@ -333,7 +333,7 @@ useEffect(() => {
   }}
   onClick={handleDropdownClick}
 >
-  <Typography variant="body1" style={{ marginRight: "2px", fontSize: "1.17em", fontWeight: "600" }}>
+  <Typography variant="body1" style={{ marginRight: "2px", fontSize: "1.5rem", fontWeight: "600" }}>
     {wallets.find((wallet) => wallet.walletId === selectedWallet)?.walletName ||
       "Select Wallet"}
   </Typography>

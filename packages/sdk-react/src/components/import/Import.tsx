@@ -125,8 +125,8 @@ const Import: React.FC<ImportProps> = ({
   return (
     <>
       <button className={styles.importButton} onClick={handleOpenModal}>
+      <img src = {importIcon}/>
         Import wallet
-        <img src = {importIcon}/>
       </button>
 
       <Modal open={isModalOpen} onClose={handleCloseModal}>
