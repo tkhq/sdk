@@ -1,5 +1,13 @@
 # @turnkey/react-native-passkey-stamper
 
+## 1.0.0
+
+### Major Changes
+
+Upgrade react-native-passkey to 3.0.0 (see [release notes](https://github.com/f-23/react-native-passkey/releases/tag/v3.0.0)). Among other things you can now specify `withSecurityKey` and `withPlatformKey` (new optional arguments to `createPasskey`) to target platform passkeys or security keys on iOS. The same options can be passed as configuration to `PasskeyStamper` to target these features at authentication time.
+
+This is a major change because the `transports` property, previously a string array (`Array<string>`) is now an array of enums (`Array<AuthenticatorTransport>`).
+
 ## 0.2.16
 
 ### Patch Changes
