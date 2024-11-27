@@ -49,6 +49,7 @@ const Import: React.FC<ImportProps> = ({
             borderStyle: "none",
             backgroundColor: "#ffffff",
             overflowWrap: "break-word",
+            overflow: "hidden",
             wordWrap: "break-word",
             resize: "none",
           };
@@ -170,9 +171,7 @@ const Import: React.FC<ImportProps> = ({
                   mb: 2,
                 }}
               >
-              Import an existing wallet with your secret recovery phrase. Only
-              you should know your secret recovery phrase. A secret recovery
-              phrase can be 12, 15, 18, 21, or 24 words.
+                Enter your seed phrase. Seed phrases are typically 12 - 24 words
               </Typography>
 
 
@@ -192,7 +191,7 @@ const Import: React.FC<ImportProps> = ({
 
 <TextField
                 type="walletName"
-                placeholder="Enter your wallet name"
+                placeholder="Wallet name"
                 value={walletName}
                 onChange={(e) => setWalletName(e.target.value)}
                 fullWidth

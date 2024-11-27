@@ -23,10 +23,10 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { verifyEthSignature, verifySolSignatureWithAddress } from "../utils";
 import { keccak256, toUtf8Bytes } from "ethers";
 import { useRouter } from "next/navigation";
-import {TurnkeyPasskeyClient} from "@turnkey/sdk-browser"
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import LaunchIcon from '@mui/icons-material/Launch';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -39,11 +39,11 @@ export default function Dashboard() {
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [messageToSign, setMessageToSign] = useState("");
+  const [messageToSign, setMessageToSign] = useState("Signing within Turnkey Demo");
   const [signature, setSignature] = useState<any>(null);
   const [suborgId, setSuborgId] = useState<string>("")
   const [user, setUser] = useState<any>("")
-  const [verificationResult, setVerificationResult] = useState<string | null>(
+  const [messageSigningResult, setMessageSigningResult] = useState<string | null>(
     null
   );
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -135,9 +135,8 @@ useEffect(() => {
 
   const handleModalClose = () => {
     setIsModalOpen(false); // Close the modal
-    setMessageToSign("");
     setSignature(null);
-    setVerificationResult(null);
+    setMessageSigningResult(null);
   };
 
 
@@ -161,12 +160,10 @@ useEffect(() => {
   const handleSign = async () => {
     try {
       const addressType = selectedAccount?.startsWith("0x") ? "ETH" : "SOL";
-      const message = messageToSign ? messageToSign : "Signing within Turnkey Demo"
-      const hashedMessage =
-        addressType === "ETH"
-          ? keccak256(toUtf8Bytes(message)) // Ethereum requires keccak256 hash
-          : Buffer.from(message, "utf8").toString("hex"); // Solana doesn't require hashing
-
+      const hashedMessage = addressType === "ETH"
+          ? keccak256(toUtf8Bytes(messageToSign)) // Ethereum requires keccak256 hash
+          : Buffer.from(messageToSign, "utf8").toString("hex"); // Solana doesn't require hashing
+      
       const resp = await iframeClient?.signRawPayload({
         organizationId: suborgId!,
         signWith: selectedAccount!,
@@ -177,7 +174,7 @@ useEffect(() => {
             ? "HASH_FUNCTION_NO_OP"
             : "HASH_FUNCTION_NOT_APPLICABLE",
       });
-
+      setMessageSigningResult("✔ Success! Message signed")
       setSignature({ r: resp?.r, s: resp?.s, v: resp?.v });
     } catch (error) {
       console.error("Error signing message:", error);
@@ -186,27 +183,26 @@ useEffect(() => {
 
   const handleVerify = () => {
     if (!signature) return;
-    const message = messageToSign ? messageToSign : "Signing within Turnkey Demo"
     const addressType = selectedAccount?.startsWith("0x") ? "ETH" : "SOL";
     const verificationPassed =
       addressType === "ETH"
         ? verifyEthSignature(
-            message,
+          messageToSign,
             signature.r,
             signature.s,
             signature.v,
             selectedAccount!
           )
         : verifySolSignatureWithAddress(
-            message,
+          messageToSign,
             signature.r,
             signature.s,
             selectedAccount!
           );
 
-    setVerificationResult(
+    setMessageSigningResult(
       verificationPassed
-        ? `Signed with: ${`${selectedAccount!.slice(
+        ? `Verified! The address used to sign the message matches your wallet address: ${`${selectedAccount!.slice(
           0,
           5
         )}...${selectedAccount!.slice(-5)}`}`
@@ -216,6 +212,8 @@ useEffect(() => {
 
   return (
     <main className="main">
+      <link rel="preload" href="/eth-hover.svg" as="image"/>
+      <link rel="preload" href="/solana-hover.svg" as="image"/>
       <div className="dashboardCard">
         <Typography variant="h6" className="configTitle">
           Login methods
@@ -359,63 +357,64 @@ useEffect(() => {
           <RadioGroup value={selectedAccount} onChange={handleAccountSelect}>
             <div className="accountContainer">
               {accounts.map((account: any, index: number) => (
-                <div key={index} className="accountRow">
-                  {account.addressFormat === "ADDRESS_FORMAT_ETHEREUM" && (
-                    <img
-                      src="/eth.svg"
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        marginLeft: "8px",
-                        marginRight: "8px",
-                        cursor: "pointer",
-                      }}
-                      onClick={() =>
-                        window.open(
-                          `https://etherscan.io/address/${account.address}`,
-                          "_blank"
-                        )
-                      }
-                    />
-                  )}
-                  {account.addressFormat === "ADDRESS_FORMAT_SOLANA" && (
-                    <img
-                      src="/solana.svg"
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        marginLeft: "8px",
-                        marginRight: "8px",
-                        cursor: "pointer",
-                      }}
-                      onClick={() =>
-                        window.open(
-                          `https://solscan.io/account/${account.address}`,
-                          "_blank"
-                        )
-                      }
-                    />
-                  )}
-                  <span className="accountAddress">{`${account.address.slice(
-                    0,
-                    5
-                  )}...${account.address.slice(-5)}`}</span>
-                  <FormControlLabel
-                    value={account.address}
-                    control={
-                      <Radio
-                        sx={{
-                          color: "var(--Greyscale-900, #2b2f33)",
-                          "&.Mui-checked": {
-                            color: "var(--Greyscale-900, #2b2f33)",
-                          },
-                        }}
-                      />
-                    }
-                    label=""
-                    className="radioButton"
-                  />
-                </div>
+                <div
+  key={index}
+  className="accountRow"
+  onClick={() => setSelectedAccount(account.address)} // Ensures the radio button is selected
+  style={{
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+  }}
+>
+  <div
+    className="hoverContainer"
+    onClick={() =>
+      window.open(
+        account.addressFormat === "ADDRESS_FORMAT_ETHEREUM"
+          ? `https://etherscan.io/address/${account.address}`
+          : `https://solscan.io/account/${account.address}`,
+        "_blank"
+      )
+    }
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+    }}
+  >
+    {account.addressFormat === "ADDRESS_FORMAT_ETHEREUM" && (
+      <div className="eth-icon" />
+    )}
+    {account.addressFormat === "ADDRESS_FORMAT_SOLANA" && (
+      <div className="sol-icon" />
+    )}
+    <span className="accountAddress">{`${account.address.slice(
+      0,
+      5
+    )}...${account.address.slice(-5)}`}</span>
+    <LaunchIcon className="launchIcon" />
+  </div>
+  <FormControlLabel
+    value={account.address}
+    control={
+      <Radio
+        sx={{
+          color: "var(--Greyscale-900, #2b2f33)",
+          "&.Mui-checked": {
+            color: "var(--Greyscale-900, #2b2f33)",
+          },
+        }}
+      />
+    }
+    label=""
+    className="radioButton"
+    style={{ pointerEvents: "none" }} // Ensures radio works via the parent click
+  />
+</div>
+
+
+
               ))}
               <button className="signMessage" onClick={handleSignMessageClick}>
                 Sign a message
@@ -476,7 +475,7 @@ useEffect(() => {
       &times;
     </div>
     <Typography variant="h6" className="modalTitle">
-      Are you sure you would like to delete your account?
+    Confirm account deletion
     </Typography>
     <Typography
       variant="subtitle2"
@@ -485,7 +484,7 @@ useEffect(() => {
         marginTop: "8px",
       }}
     >
-      If there are any funds on your wallet, please ensure you have exported your seed phrase before deleting your account. This action cannot be undone.
+      This action can not be undone.
     </Typography>
     <div
       style={{
@@ -506,7 +505,7 @@ useEffect(() => {
         }}
         onClick={handleDeleteAccount}
       >
-        Delete
+        Continue
       </button>
     </div>
   </Box>
@@ -545,7 +544,7 @@ useEffect(() => {
       &times;
     </div>
         <Typography variant="h6" className="modalTitle">
-          Sign a Message
+          Sign a message
         </Typography>
         <Typography
       variant="subtitle2"
@@ -558,40 +557,33 @@ useEffect(() => {
     <TextField
       fullWidth
       margin="normal"
-      value={messageToSign}
-      onChange={(e) => setMessageToSign(e.target.value)}
-      placeholder="Signing within Turnkey Demo"
+      value={signature ? JSON.stringify(signature) : messageToSign}
+      rows = {5}
+      multiline
+      onChange={(e) => signature ? setSignature(JSON.parse(e.target.value)) : setMessageToSign(e.target.value)}
       sx={{
         bgcolor: "#ffffff", 
         "& .MuiOutlinedInput-root": {
-          height: "80px",
-          alignItems: "flex-start", 
+          height: "auto", 
+          alignItems: "flex-start",
           "& fieldset": {
-            borderColor: "#D0D5DD", 
+            borderColor: "#D0D5DD",
           },
           "&:hover fieldset": {
-            borderColor: "#8A929E", 
+            borderColor: "#8A929E",
           },
           "&.Mui-focused fieldset": {
             borderColor: "#D0D5DD",
-            border: "1px solid"
+            border: "1px solid",
           },
+        },
+        "& .MuiInputBase-input": {
+          whiteSpace: "pre-wrap", 
+          wordWrap: "break-word",
         },
       }}
     />
-    <button
-      onClick={handleSign}
-      style={{
-        marginTop: "12px",
-      }}
-    >
-      Sign
-    </button>
-    {signature && (
-      <>
-        <Typography
-          sx={{ mt: 2, wordBreak: "break-word" }}
-        >{`Signature: ${JSON.stringify(signature)}`}</Typography>
+    {signature ? 
         <button
           style={{
             marginTop: "12px",
@@ -600,18 +592,25 @@ useEffect(() => {
         >
           Verify
         </button>
-      </>
-    )}
-    {verificationResult && (
+        :     <button
+      onClick={handleSign}
+      style={{
+        marginTop: "12px",
+      }}
+    >
+      Sign
+    </button>
+    }
+    {messageSigningResult && (
       <Typography
         sx={{
           mt: 2,
-          color: verificationResult.startsWith("Signed")
+          color: (messageSigningResult.startsWith("Verified") ||  messageSigningResult.startsWith("✔"))
             ? "green"
             : "red",
         }}
       >
-        {verificationResult}
+        {messageSigningResult}
       </Typography>
     )}
   </Box>
