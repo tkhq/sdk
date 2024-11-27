@@ -108,8 +108,8 @@ const Export: React.FC<ExportProps> = ({
   return (
     <>
       <button className={styles.exportButton} onClick={handleOpenModal}>
+      <img src = {exportIcon}/>
         Export wallet
-        <img src = {exportIcon}/>
       </button>
 
       <Modal open={isModalOpen} onClose={handleCloseModal}>
