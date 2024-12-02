@@ -66,9 +66,8 @@ export default class TelegramCloudStorageStamper {
     if (!config) {
       // try to get API key at default location and set the stamper to use that
       // passing the DEFAULT_TURNKEY_CLOUD_STORAGE_KEY is not necessary since getAPIKey will use that by default
-      let { apiPublicKey, apiPrivateKey } = await this.getAPIKey(
-        DEFAULT_TURNKEY_CLOUD_STORAGE_KEY
-      );
+      let { apiPublicKey, apiPrivateKey } =
+        (await this.getAPIKey(DEFAULT_TURNKEY_CLOUD_STORAGE_KEY)) ?? {};
 
       if (apiPublicKey && apiPrivateKey) {
         this.stamper = new ApiKeyStamper({
@@ -79,9 +78,8 @@ export default class TelegramCloudStorageStamper {
       }
     } else if (config.cloudStorageKey && !config.cloudStorageAPIKey) {
       // try to get API key at specified location and set the stamper to use that
-      let { apiPublicKey, apiPrivateKey } = await this.getAPIKey(
-        config.cloudStorageKey
-      );
+      let { apiPublicKey, apiPrivateKey } =
+        (await this.getAPIKey(config.cloudStorageKey)) ?? {};
 
       if (apiPublicKey && apiPrivateKey) {
         this.stamper = new ApiKeyStamper({
@@ -134,17 +132,19 @@ export default class TelegramCloudStorageStamper {
     );
   }
 
-  async getAPIKey(key: string = DEFAULT_TURNKEY_CLOUD_STORAGE_KEY) {
+  async getAPIKey(
+    key: string = DEFAULT_TURNKEY_CLOUD_STORAGE_KEY
+  ): Promise<CloudStorageAPIKey | null> {
     try {
       const apiKey = await this.getItem(key);
 
       if (!apiKey) {
-        return { apiPublicKey: "", apiPrivateKey: "" };
+        return null;
       }
 
       return this.parseAPIKey(apiKey as string);
     } catch {
-      return { apiPublicKey: "", apiPrivateKey: "" };
+      return null;
     }
   }
 
@@ -167,11 +167,8 @@ export default class TelegramCloudStorageStamper {
     try {
       const parsedApiKey = JSON.parse(apiKey);
 
-      if (!this.isApiKey(parsedApiKey)) {
-        return {
-          apiPublicKey: "",
-          apiPrivateKey: "",
-        };
+      if (!this.isCloudStorageAPIKey(parsedApiKey)) {
+        return null;
       }
 
       return {
@@ -185,14 +182,15 @@ export default class TelegramCloudStorageStamper {
     }
   }
 
-  isApiKey(apiKey: CloudStorageAPIKey) {
+  // determines if a passed object is of type CloudStorageAPIKey
+  isCloudStorageAPIKey(apiKey: CloudStorageAPIKey) {
     return (
       typeof apiKey.apiPublicKey === "string" &&
       typeof apiKey.apiPrivateKey === "string"
     );
   }
 
-  async getItem(key: string) {
+  async getItem(key: string): Promise<string> {
     return new Promise((resolve, reject) => {
       window.Telegram.WebApp.CloudStorage.getItem(
         key,
