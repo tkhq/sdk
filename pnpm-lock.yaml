@@ -547,6 +547,9 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
+      react-international-phone:
+        specifier: ^4.3.0
+        version: 4.3.0(react@18.2.0)
       tweetnacl:
         specifier: ^1.0.3
         version: 1.0.3

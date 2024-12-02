@@ -87,39 +87,34 @@
     flex-direction: column; 
     gap: 12px; 
   }
-
-  .loginMethodRow {
-    background-color: #ffffff;
-    border-radius: 8px;
-    align-items: center;
-    display: flex;
-    justify-content: space-between; 
-    padding: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .labelContainer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
   
   .loginMethodRow {
     background-color: #ffffff;
     border-radius: 8px;
-    align-items: center;
     display: flex;
+    align-items: center;
     justify-content: space-between; 
     padding: 12px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  
+  .labelContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0;
   }
   
   .loginMethodDetails {
     font-size: 1rem;
     line-height: 20px;
     color: #868c95;
-    margin-left: 32px; 
+    position: absolute;
+    left: 33%;
+    text-align: left;
   }
+  
 
   .accountRow {
     background-color: #ffffff;
@@ -205,6 +200,11 @@
     background-color: #ffffff;
   }
   
+  .continue {
+    margin-top: 12px;
+    /* margin-top: 24px; */
+  }
+
   .signMessage {
     margin-bottom: 12px;
     /* margin-top: 24px; */
