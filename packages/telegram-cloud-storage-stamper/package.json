@@ -1,0 +1,63 @@
+{
+  "name": "@turnkey/telegram-cloud-storage-stamper",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "license": "Apache-2.0",
+  "description": "Telegram cloud storage stamper",
+  "keywords": [
+    "Turnkey",
+    "http",
+    "stamper",
+    "telegram"
+  ],
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.com/"
+  },
+  "homepage": "https://github.com/tkhq/sdk",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tkhq/sdk.git",
+    "directory": "packages/telegram-cloud-storage-stamper"
+  },
+  "files": [
+    "dist/",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepublishOnly": "pnpm -w run clean-all && pnpm -w run build-all",
+    "build": "rollup -c",
+    "clean": "rimraf ./dist ./.cache",
+    "test": "jest",
+    "typecheck": "tsc -p tsconfig.typecheck.json"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "browser": {
+    "crypto": false
+  },
+  "dependencies": {
+    "@turnkey/api-key-stamper": "workspace:*"
+  },
+  "devDependencies": {
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-localstorage-mock": "^2.4.26"
+  }
+}
