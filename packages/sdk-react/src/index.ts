@@ -1,4 +1,5 @@
 import "./components/auth/Auth.module.css";
+import "./components/auth/OtpVerification.module.css";
 import "./components/auth/PhoneInput.css";
 import "./components/export/Export.module.css"
 import "./components/import/Import.module.css"
