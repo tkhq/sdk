@@ -97,10 +97,66 @@ Sent 0.0000001 Ether to 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7:
         https://sepolia.etherscan.io/tx/0x2f2d996d6b262ebf0263b432ca3e6d621ba42d60b92344f31cf3ed94d09f49c4
 
 User Ops can be found here:
-        https://jiffyscan.xyz/bundle/0x2f2d996d6b262ebf0263b432ca3e6d621ba42d60b92344f31cf3ed94d09f49c4?network=sepolia&pageNo=0&pageSize=10
+        https://v2.jiffyscan.xyz/tx/0x2f2d996d6b262ebf0263b432ca3e6d621ba42d60b92344f31cf3ed94d09f49c4?network=sepolia&pageNo=0&pageSize=10
 ```
 
+#### Viem + Nexus
+
+```bash
+$ pnpm start-viem-nexus
+```
+
+This script will do the following:
+
+1. instantiate a Turnkey Viem wallet client
+2. instantiate a Viem public client (to be used to fetch onchain data)
+3. connect the wallet client to Biconomy Nexus
+4. send ETH (via type 2 EIP-1559 transaction)
+
+Note: this script must be used specifically with Base's Sepolia testnet.
+
+See the following for a sample output:
+
+Network:
+base-sepolia (chain ID 84532)
+
+Signer address:
+0xDC608F098255C89B36da905D9132A9Ee3DD266D9
+
+Smart wallet address:
+0xC00f5dCe7E266553cb3FBCd0BeDD11e290D551Fd
+
+Balance:
+0.009998258337028736 Ether
+
+Transaction count:
+1
+
+Nonce:
+106650284489225899116705470776299986053547585411730459514530106938958242906112
+
+✔ Amount to send (wei). Default to 0.0000001 ETH … 100000000000
+✔ Destination address (default to TKHQ warchest) … 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7
+Sent 0.0000001 Ether to 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7:
+https://sepolia.basescan.org/tx/0x453781ffcf1b4f5f98952347bcef14a0e7d6cbf7f9992b2a31163f67278625c6
+
+User Ops can be found here:
+https://v2.jiffyscan.xyz/tx/0x453781ffcf1b4f5f98952347bcef14a0e7d6cbf7f9992b2a31163f67278625c6?network=base-sepolia&pageNo=0&pageSize=10
+
 #### Ethers
+
+```bash
+$ pnpm start-ethers
+```
+
+This script will do the following:
+
+1. instantiate a Turnkey Ethers wallet client
+2. instantiate a Ethers provider (to be used to fetch onchain data)
+3. connect the wallet client to the Biconomy paymaster
+4. send ETH (via type 2 EIP-1559 transaction)
+
+See the following for a sample output:
 
 ```
 Network:
@@ -127,5 +183,5 @@ Sent 0.0000001 Ether to 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7:
         https://sepolia.etherscan.io/tx/0x0f0d5346ba726f7ccf80142ae295f28bf3873b0aeb7b29488b1e3dfb949d5ba6
 
 User Ops can be found here:
-        https://jiffyscan.xyz/bundle/0x0f0d5346ba726f7ccf80142ae295f28bf3873b0aeb7b29488b1e3dfb949d5ba6?network=sepolia&pageNo=0&pageSize=10
+        https://v2.jiffyscan.xyz/tx/0x0f0d5346ba726f7ccf80142ae295f28bf3873b0aeb7b29488b1e3dfb949d5ba6?network=sepolia&pageNo=0&pageSize=10
 ```

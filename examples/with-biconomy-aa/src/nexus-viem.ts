@@ -1,18 +1,20 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
 import prompts, { PromptType } from "prompts";
-import { ethers } from "ethers";
 import {
-  createSmartAccountClient,
-  LightSigner,
-  BiconomySmartAccountV2,
-  PaymasterMode,
-} from "@biconomy/account";
+  createWalletClient,
+  createPublicClient,
+  http,
+  type Account,
+  formatEther,
+} from "viem";
+import { baseSepolia } from "viem/chains";
+import { createNexusClient, createBicoPaymasterClient } from "@biconomy/sdk";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TurnkeySigner } from "@turnkey/ethers";
+import { createAccount } from "@turnkey/viem";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createNewWallet } from "./createNewWallet";
 import { print } from "./util";
@@ -31,57 +33,61 @@ async function main() {
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
   });
 
-  // Initialize a Turnkey Signer via Ethers v6
-  const turnkeySigner = new TurnkeySigner({
+  // Initialize a Turnkey-powered Viem Account
+  const turnkeyAccount = await createAccount({
     client: turnkeyClient.apiClient(),
     organizationId: process.env.ORGANIZATION_ID!,
     signWith: process.env.SIGN_WITH!,
   });
 
+  // Network must be base-sepolia at the moment
+  const network = "base-sepolia";
+  const bundlerUrl =
+    "https://bundler.biconomy.io/api/v3/84532/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44";
+  const paymasterUrl =
+    "https://paymaster.biconomy.io/api/v2/84532/F7wyL1clz.75a64804-3e97-41fa-ba1e-33e98c2cc703";
+  const providerUrl = `https://${network}.infura.io/v3/${process.env
+    .INFURA_KEY!}`;
+
   // Bring your own provider
-  const network = "sepolia";
-  const provider = new ethers.JsonRpcProvider(
-    `https://${network}.infura.io/v3/${process.env.INFURA_KEY}`
-  );
-  const connectedSigner = turnkeySigner.connect(provider);
+  const client = createWalletClient({
+    account: turnkeyAccount as Account,
+    chain: baseSepolia,
+    transport: http(providerUrl),
+  });
 
-  // Connect a TurnkeySigner to a Biconomy Smart Account Client, defaulting to Sepolia
-  // Ensure this method is hoisted
-  const connect = async (
-    turnkeySigner: TurnkeySigner
-  ): Promise<BiconomySmartAccountV2> => {
-    try {
-      const smartAccount = await createSmartAccountClient({
-        signer: turnkeySigner as LightSigner,
-        bundlerUrl: process.env.BICONOMY_BUNDLER_URL!, // <-- Read about this at https://docs.biconomy.io/dashboard#bundler-url
-        biconomyPaymasterApiKey: process.env.BICONOMY_PAYMASTER_API_KEY!, // <-- Read about at https://docs.biconomy.io/dashboard/paymaster
-        rpcUrl: `https://${network}.infura.io/v3/${process.env.INFURA_KEY!}`, // <-- read about this at https://docs.biconomy.io/account/methods#createsmartaccountclient
-        chainId: Number(chainId),
-      });
+  const publicClient = createPublicClient({
+    chain: baseSepolia,
+    transport: http(providerUrl),
+  });
 
-      return smartAccount;
-    } catch (error: any) {
-      throw new Error(error);
-    }
-  };
+  const nexusClient = await createNexusClient({
+    signer: turnkeyAccount,
+    chain: baseSepolia,
+    transport: http(),
+    bundlerTransport: http(bundlerUrl),
+    paymaster: createBicoPaymasterClient({
+      paymasterUrl,
+    }),
+  });
 
-  const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
-  const signerAddress = await connectedSigner.getAddress(); // signer
+  const smartAccount = nexusClient.account;
+  const smartAccountAddress = nexusClient.account.address;
 
-  const smartAccount = await connect(turnkeySigner);
-  const smartAccountAddress = await smartAccount.getAccountAddress();
+  const chainId = client.chain.id;
+  const signerAddress = client.account.address; // signer
 
-  const transactionCount = await connectedSigner.provider?.getTransactionCount(
-    smartAccountAddress
-  );
+  const transactionCount = await publicClient.getTransactionCount({
+    address: smartAccountAddress,
+  });
   const nonce = await smartAccount.getNonce();
   let balance =
-    (await connectedSigner.provider?.getBalance(smartAccountAddress)) ?? 0;
+    (await publicClient.getBalance({ address: smartAccountAddress })) ?? 0;
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Signer address:", signerAddress);
   print("Smart wallet address:", smartAccountAddress);
-  print("Balance:", `${ethers.formatEther(balance)} Ether`);
+  print("Balance:", `${formatEther(balance)} Ether`);
   print("Transaction count:", `${transactionCount}`);
   print("Nonce:", `${nonce}`);
 
@@ -104,9 +110,9 @@ async function main() {
       },
     ]);
 
-    balance = (await connectedSigner.provider?.getBalance(
-      smartAccountAddress
-    ))!;
+    balance = await publicClient.getBalance({
+      address: smartAccountAddress,
+    })!;
   }
 
   const { amount, destination } = await prompts([
@@ -129,22 +135,23 @@ async function main() {
     type: 2,
   };
 
-  // Make a simple send tx (which calls `signTransaction` under the hood)
-  const userOpResponse = await smartAccount?.sendTransaction(
-    transactionRequest,
-    {
-      nonceOptions: { nonceKey: Number(0) },
-      paymasterServiceData: { mode: PaymasterMode.SPONSORED },
-    }
-  );
-
-  const { transactionHash } = await userOpResponse.waitForTxHash();
+  const hash = await nexusClient.sendTransaction({
+    calls: [
+      {
+        to: destination,
+        value: amount,
+      },
+    ],
+  });
+  const { transactionHash } = await nexusClient.waitForTransactionReceipt({
+    hash,
+  });
 
   print(
-    `Sent ${ethers.formatEther(transactionRequest.value)} Ether to ${
+    `Sent ${formatEther(transactionRequest.value)} Ether to ${
       transactionRequest.to
     }:`,
-    `https://${network}.etherscan.io/tx/${transactionHash}`
+    `https://sepolia.basescan.org/tx/${transactionHash}`
   );
 
   print(
