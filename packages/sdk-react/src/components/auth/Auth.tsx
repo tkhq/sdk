@@ -1,28 +1,24 @@
 import styles from "./Auth.module.css";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTurnkey } from "../../hooks/useTurnkey";
 import {
   initOtpAuth,
-  otpAuth,
   getSuborgs,
   createSuborg,
   oauth,
 } from "../../actions/";
 import { MuiPhone } from "./PhoneInput";
-import OtpInput from "./otp";
 import GoogleAuthButton from "./Google";
 import AppleAuthButton from "./Apple";
 import FacebookAuthButton from "./Facebook";
 import { CircularProgress, TextField } from "@mui/material";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
 import turnkeyIcon from "assets/turnkey.svg";
 import googleIcon from "assets/google.svg";
 import facebookIcon from "assets/facebook.svg";
 import appleIcon from "assets/apple.svg";
-import emailIcon from "assets/email.svg";
-import smsIcon from "assets/sms.svg";
 import passkeyIcon from "assets/passkey.svg";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import OtpVerification from "./OtpVerification";
 
 interface AuthProps {
   onHandleAuthSuccess: () => Promise<void>;
@@ -40,41 +36,27 @@ interface AuthProps {
 const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrder }) => {
   const { passkeyClient, authIframeClient } = useTurnkey();
   const [error, setError] = useState<string | null>(null);
-  const [otpError, setOtpError] = useState<string | null>(null);
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
   const [step, setStep] = useState<string>("auth");
   const [oauthLoading, setOauthLoading] = useState<string>("");
   const [suborgId, setSuborgId] = useState<string>("");
-  const [resendText, setResendText] = useState("Resend code");
   const [passkeySignupScreen, setPasskeySignupScreen] = useState(false);
   const [passkeyCreationScreen, setPasskeyCreationScreen] = useState(false);
   const [passkeySignupError, setPasskeySignupError] = useState("");
   const [loading, setLoading] = useState(true);
   const [passkeyCreated, setPasskeyCreated] = useState(false);
 
-  const otpInputRef = useRef<any>(null);
 
   const handleResendCode = async () => {
-    setOtpError(null);
     if (step === "otpEmail") {
       await handleOtpLogin("EMAIL", email, "OTP_TYPE_EMAIL");
     } else if (step === "otpPhone") {
       await handleOtpLogin("PHONE_NUMBER", phone, "OTP_TYPE_SMS");
     }
-    setResendText("Code sent ✓");
-    
-    setTimeout(() => {
-      setResendText("Resend code");
-    }, 15000); 
-  };
+  }
   
-  const formatPhoneNumber = (phone: string) => {
-    const phoneNumber = parsePhoneNumberFromString(phone);
-    return phoneNumber ? phoneNumber.formatInternational() : phone;
-  };
-
   useEffect(() => {
     if (error) {
       alert(error);
@@ -196,19 +178,6 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
     setStep(type === "EMAIL" ? "otpEmail" : "otpPhone");
   };
 
-  const handleValidateOtp = async (otp: string) => {
-    setOtpError(null);
-    const authResponse = await otpAuth({
-      suborgID: suborgId,
-      otpId: otpId!,
-      otpCode: otp,
-      targetPublicKey: authIframeClient!.iframePublicKey!,
-    });
-    authResponse?.credentialBundle
-      ? await handleAuthSuccess(authResponse.credentialBundle)
-      : setOtpError("Invalid code. Please try again");
-    otpInputRef.current.resetOtp();
-  };
 
   const handleOAuthLogin = async (credential: string, providerName: string) => {
     setOauthLoading(providerName);
@@ -482,39 +451,20 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
                         )}
                       </React.Fragment>
                     ))}
+{otpId && (
+  <OtpVerification
+    type={step}
+    contact={step === "otpEmail" ? email : phone}
+    suborgId={suborgId}
+    otpId={otpId!}
+    authIframeClient={authIframeClient!}
+    onValidateSuccess={handleAuthSuccess}
+    onResendCode={handleResendCode}
+  />
+)}
 
-                {otpId && (
-                  <div>
-                    <div className={styles.verification}>
-                      <div className={styles.verificationIcon}>
-                        {step === "otpEmail" ? (
-                          <img src={emailIcon} />
-                        ) : (
-                          <img src={smsIcon} />
-                        )}
-                      </div>
 
-                      <span>
-                        Enter the 6-digit code we {step === "otpEmail" ? "emailed" : "texted"} to{" "}
-                        <div className={styles.verificationBold}>
-                          {step === "otpEmail"
-                            ? email
-                            : formatPhoneNumber(phone)}
-                        </div>
-                      </span>
-                      <OtpInput
-                        ref={otpInputRef}
-                        onComplete={handleValidateOtp}
-                        hasError={!!otpError}
-                      />
-                    </div>
-                    <div className={styles.errorText}>
-                      {otpError ? otpError : " "}
-                    </div>
-                  </div>
-                )}
-
-                {!otpId ? (
+                {!otpId && (
                   <div className={styles.tos}>
                     <span>
                       By continuing, you agree to our{" "}
@@ -536,27 +486,6 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
                         Privacy Policy
                       </a>
                       {"."}
-                    </span>
-                  </div>
-                ) : (
-                  <div className={styles.resendCode}>
-                    <span>
-                      <span
-                        onClick={
-                          resendText === "Resend code"
-                            ? handleResendCode
-                            : undefined
-                        }
-                        style={{
-                          cursor:
-                            resendText === "Resend code"
-                              ? "pointer"
-                              : "not-allowed",
-                        }}
-                        className={styles.resendCodeBold}
-                      >
-                        {resendText}
-                      </span>
                     </span>
                   </div>
                 )}
