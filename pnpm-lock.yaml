@@ -487,6 +487,9 @@ importers:
       '@mui/material':
         specifier: ^6.1.5
         version: 6.1.5(@emotion/react@11.13.3)(@emotion/styled@11.13.0)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)
+      '@noble/hashes':
+        specifier: 1.4.0
+        version: 1.4.0
       '@solana/web3.js':
         specifier: ^1.95.4
         version: 1.95.4(encoding@0.1.13)

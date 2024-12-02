@@ -15,6 +15,7 @@
     "@hello-pangea/dnd": "^17.0.0",
     "@mui/icons-material": "^6.1.5",
     "@mui/material": "^6.1.5",
+    "@noble/hashes": "1.4.0",
     "@solana/web3.js": "^1.95.4",
     "@turnkey/sdk-browser": "^1.10.0",
     "@turnkey/sdk-react": "workspace:*",
