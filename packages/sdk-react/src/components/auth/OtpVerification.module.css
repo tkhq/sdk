@@ -140,6 +140,7 @@
   z-index: 0;
 }
 .verification {
+  font-family: Inter;
   font-size: 16px;
   font-weight: 400;
   line-height: 16px;
@@ -150,6 +151,7 @@
 }
 
 .verificationBold {
+  font-family: Inter;
   color: var(--Greyscale-900, #2b2f33);
   font-weight: 700;
   margin-top: 8px;
@@ -170,6 +172,7 @@
 }
 
 .resendCode {
+  font-family: Inter;
   font-size: 12px;
   line-height: 16px;
   letter-spacing: -0.01em;
@@ -178,6 +181,7 @@
 }
 
 .resendCodeBold {
+  font-family: Inter;
   color: var(--Greyscale-900, #2b2f33);
   font-weight: 700;
   cursor: pointer;

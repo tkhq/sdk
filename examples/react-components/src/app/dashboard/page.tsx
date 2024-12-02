@@ -1,6 +1,6 @@
 "use client"
 
-import { Export, Import, useTurnkey, getSuborgs } from "@turnkey/sdk-react";
+import { Export, Import, useTurnkey, getSuborgs, OtpVerification } from "@turnkey/sdk-react";
 import { useEffect, useState } from "react";
 import "./dashboard.css";
 import {
@@ -28,6 +28,7 @@ import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { appleOidcToken, facebookOidcToken, googleOidcToken } from "../utils/oidc";
+import { MuiPhone } from "../components/PhoneInput";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -44,10 +45,74 @@ export default function Dashboard() {
   const [signature, setSignature] = useState<any>(null);
   const [suborgId, setSuborgId] = useState<string>("")
   const [user, setUser] = useState<any>("")
+  const [otpId, setOtpId] = useState("")
   const [messageSigningResult, setMessageSigningResult] = useState<string | null>(
     null
   );
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+const [emailInput, setEmailInput] = useState("");
+const [phoneInput, setPhoneInput] = useState("");
+
+
+const handleResendEmail = async () => {
+  const initAuthResponse = await authIframeClient?.initOtpAuth({organizationId: suborgId, otpType: "OTP_TYPE_EMAIL", contact: emailInput})
+  setOtpId(initAuthResponse?.otpId!)
+}
+const handleResendSms = async () => {
+  const initAuthResponse = await authIframeClient?.initOtpAuth({organizationId: suborgId, otpType: "OTP_TYPE_SMS", contact: phoneInput})
+  setOtpId(initAuthResponse?.otpId!)
+}
+
+
+const handleOtpSuccess = async (credentialBundle: any) => {
+  window.location.reload();
+}
+const handleOpenEmailModal = () => {
+  setIsEmailModalOpen(true);
+};
+const handleOpenPhoneModal = () => {
+  setIsPhoneModalOpen(true);
+};
+const handleEmailSubmit = async () => {
+  if (!emailInput) {
+    alert("Please enter a valid email address.");
+    return;
+  }
+  const suborgs = await getSuborgs({filterType:"EMAIL", filterValue:emailInput}) //TODO change to get verified suborgs
+  if (suborgs!.organizationIds.length > 0){
+    alert("Email is already connected to another account")
+    return
+  }
+  await authIframeClient?.updateUser({organizationId: suborgId, userId: user.userId, userEmail: emailInput, userTagIds:[]})
+  const initAuthResponse = await authIframeClient?.initOtpAuth({organizationId: suborgId, otpType: "OTP_TYPE_EMAIL", contact: emailInput})
+  setOtpId(initAuthResponse?.otpId!)
+  setIsEmailModalOpen(false);
+  setIsOtpModalOpen(true)
+
+};
+
+
+const handlePhoneSubmit = async () => {
+  if (!phoneInput) {
+    alert("Please enter a valid phone number.");
+    return;
+  }
+  const suborgs = await getSuborgs({filterType:"PHONE_NUMBER", filterValue:phoneInput}) //TODO change to get verified suborgs
+  if (suborgs!.organizationIds.length > 0){
+    alert("Phone Number is already connected to another account")
+    return
+  }
+  await authIframeClient?.updateUser({organizationId: suborgId, userId: user.userId, userPhoneNumber: phoneInput, userTagIds:[]})
+  const initAuthResponse = await authIframeClient?.initOtpAuth({organizationId: suborgId, otpType: "OTP_TYPE_SMS", contact: phoneInput})
+  setOtpId(initAuthResponse?.otpId!)
+  setIsEmailModalOpen(false);
+  setIsOtpModalOpen(true)
+
+};
 
   const handleDeleteOauth = async (oauthType: string) => {
     let providerId
@@ -118,7 +183,7 @@ export default function Dashboard() {
       })) || {};
 
     if (encodedChallenge && attestation) {
-      authIframeClient?.createAuthenticators({organizationId: suborgId, userId: user.userId, authenticators: [{authenticatorName: `Passkey - ${Date.now()}`, challenge:encodedChallenge, attestation  }]})
+      await authIframeClient?.createAuthenticators({organizationId: suborgId, userId: user.userId, authenticators: [{authenticatorName: `Passkey - ${Date.now()}`, challenge:encodedChallenge, attestation  }]})
       window.location.reload();
     }
   }
@@ -165,6 +230,7 @@ useEffect(() => {
 
         const userResponse = await iframeClient!.getUser({organizationId: suborgId!, userId: whoami?.userId!})
         setUser(userResponse.user)
+        console.log(userResponse.user)
         const walletsResponse = await iframeClient!.getWallets({
           organizationId: suborgId!,
         });
@@ -310,11 +376,15 @@ useEffect(() => {
     )}
   </div>
   {user && user.userEmail ? (
+        <div onClick={handleOpenEmailModal}>
     <RemoveCircleIcon
       sx={{ cursor: "pointer", color: "#D8DBE3" }}
     />
+    </div>
   ) : (
+    <div onClick={handleOpenEmailModal}>
     <AddCircleIcon sx={{ cursor: "pointer" }} />
+    </div>
   )}
 </div>
 
@@ -328,11 +398,16 @@ useEffect(() => {
     )}
   </div>
   {user && user.userPhoneNumber ? (
-    <RemoveCircleIcon
-      sx={{ cursor: "pointer", color: "#D8DBE3" }}
-    />
+        <div onClick={handleOpenPhoneModal}>
+        <RemoveCircleIcon
+          sx={{ cursor: "pointer", color: "#D8DBE3" }}
+        />
+        </div>
   ) : (
+    <div onClick={handleOpenPhoneModal}>
+    
     <AddCircleIcon sx={{ cursor: "pointer" }} />
+    </div>
   )}
 </div>
 
@@ -718,7 +793,170 @@ useEffect(() => {
     )}
   </Box>
 </Modal>
+{
+isEmailModalOpen &&
+<Modal open={isEmailModalOpen} onClose={() => setIsEmailModalOpen(false)}>
+  <Box
+    sx={{
+      outline: "none",
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: 400,
+      bgcolor: "var(--Greyscale-20, #f5f7fb)", 
+      boxShadow: 24,
+      p: 4,
+      borderRadius: 2,
+    }}
+  >
+    <div
+      onClick={() => setIsEmailModalOpen(false)}
+      style={{
+        position: "absolute",
+        top: "16px",
+        right: "16px",
+        background: "none",
+        border: "none",
+        fontSize: "20px",
+        fontWeight: "bold",
+        cursor: "pointer",
+        color: "#6C727E",
+      }}
+    >
+      &times;
+    </div>
+    <Typography variant="h6" className="modalTitle">
+      Enter new email
+    </Typography>
+    <TextField
+      fullWidth
+      margin="normal"
+      value={emailInput}
+      onChange={(e) => setEmailInput(e.target.value)}
+      placeholder="example@example.com"
+      sx={{
+        bgcolor: "#ffffff", 
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "#D0D5DD",
+          },
+          "&:hover fieldset": {
+            borderColor: "#8A929E",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "#D0D5DD",
+            border: "1px solid",
+          },
+        },
+        "& .MuiInputBase-input": {
+          whiteSpace: "pre-wrap", 
+          wordWrap: "break-word",
+        },
+      }}
+    />
+    <button className="continue"  onClick={handleEmailSubmit}>
+        Continue
+    </button>
+  </Box>
+</Modal>
+}
 
+{
+isPhoneModalOpen &&
+<Modal open={isPhoneModalOpen} onClose={() => setIsPhoneModalOpen(false)}>
+  <Box
+    sx={{
+      outline: "none",
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: 400,
+      bgcolor: "var(--Greyscale-20, #f5f7fb)", 
+      boxShadow: 24,
+      p: 4,
+      borderRadius: 2,
+    }}
+  >
+    <div
+      onClick={() => setIsPhoneModalOpen(false)}
+      style={{
+        position: "absolute",
+        top: "16px",
+        right: "16px",
+        background: "none",
+        border: "none",
+        fontSize: "20px",
+        fontWeight: "bold",
+        cursor: "pointer",
+        color: "#6C727E",
+      }}
+    >
+      &times;
+    </div>
+    <Typography variant="h6" className="modalTitle">
+      Enter new phone number
+    </Typography>
+    <MuiPhone
+      fullWidth
+      margin="normal"
+      value={phoneInput}
+      onChange={(e) => setPhoneInput(e)}
+    />
+    <button className="continue"  onClick={handlePhoneSubmit}>
+        Continue
+    </button>
+  </Box>
+</Modal>
+}
+
+{
+isOtpModalOpen &&
+<Modal open={isOtpModalOpen} onClose={() => setIsOtpModalOpen(false)}>
+  <Box
+    sx={{
+      outline: "none",
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: 400,
+      bgcolor: "var(--Greyscale-20, #f5f7fb)", 
+      boxShadow: 24,
+      p: 4,
+      borderRadius: 2,
+    }}
+  >
+    <div
+      onClick={() => setIsOtpModalOpen(false)}
+      style={{
+        position: "absolute",
+        top: "16px",
+        right: "16px",
+        background: "none",
+        border: "none",
+        fontSize: "20px",
+        fontWeight: "bold",
+        cursor: "pointer",
+        color: "#6C727E",
+      }}
+    >
+      &times;
+    </div>
+    <OtpVerification
+    type={emailInput ? "otpEmail" : "otpSms"}
+    contact={emailInput ? emailInput : phoneInput}
+    suborgId={suborgId}
+    otpId={otpId!}
+    authIframeClient={authIframeClient!}
+    onValidateSuccess={handleOtpSuccess}
+    onResendCode={emailInput ? handleResendEmail : handleResendSms}
+  />
+  </Box>
+</Modal>
+
+}
     </main>
   );
 }
