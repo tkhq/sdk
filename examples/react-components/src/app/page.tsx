@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useTurnkey, Auth } from "@turnkey/sdk-react";
 import { Typography } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import CustomSwitch from "./Switch";
+import CustomSwitch from "./components/Switch";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import "./index.css";
 import { useRouter } from "next/navigation";

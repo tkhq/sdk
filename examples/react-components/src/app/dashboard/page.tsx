@@ -1,6 +1,6 @@
 "use client"
 
-import { Export, Import, useTurnkey } from "@turnkey/sdk-react";
+import { Export, Import, useTurnkey, getSuborgs } from "@turnkey/sdk-react";
 import { useEffect, useState } from "react";
 import "./dashboard.css";
 import {
@@ -27,10 +27,11 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import LaunchIcon from '@mui/icons-material/Launch';
+import { appleOidcToken, facebookOidcToken, googleOidcToken } from "../utils/oidc";
 
 export default function Dashboard() {
   const router = useRouter();
-  const { turnkey, getActiveClient, authIframeClient } = useTurnkey();
+  const { turnkey, getActiveClient, authIframeClient, passkeyClient } = useTurnkey();
   const [loading, setLoading] = useState(true);
   const [iframeClient, setIframeClient] = useState<any>();
   const [accounts, setAccounts] = useState<any>([]);
@@ -47,6 +48,87 @@ export default function Dashboard() {
     null
   );
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleDeleteOauth = async (oauthType: string) => {
+    let providerId
+    switch (oauthType) {
+      case "Apple":
+        providerId = user?.oauthProviders?.find((provider: { issuer: string }) => provider.issuer.toLowerCase().includes("apple"))?.providerId || null;
+        break;
+  
+      case "Facebook":
+        providerId = user?.oauthProviders?.find((provider: { issuer: string }) => provider.issuer.toLowerCase().includes("facebook"))?.providerId || null;
+        break;
+  
+      case "Google":
+        providerId = user?.oauthProviders?.find((provider: { issuer: string }) => provider.issuer.toLowerCase().includes("google"))?.providerId || null;
+        break;
+  
+      default:
+        console.error(`Unknown OAuth type: ${oauthType}`);
+    }
+
+    if (providerId){
+      await authIframeClient?.deleteOauthProviders({organizationId: suborgId, userId: user.userId, providerIds: [providerId]})
+      window.location.reload();
+    }
+  }
+
+  const handleAddOauth = async (oauthType: string) => {
+    let oidcToken
+    switch (oauthType) {
+      case "Apple":
+        oidcToken = await appleOidcToken({iframePublicKey: authIframeClient?.iframePublicKey!, clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!, redirectURI: `${process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`})
+        break;
+  
+      case "Facebook":
+        oidcToken = await facebookOidcToken({iframePublicKey: authIframeClient?.iframePublicKey!, clientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!, redirectURI: `${process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`})
+        break;
+  
+      case "Google":
+        oidcToken = await googleOidcToken({iframePublicKey: authIframeClient?.iframePublicKey!, clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!, redirectURI: `${process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`})
+        break;
+  
+      default:
+        console.error(`Unknown OAuth type: ${oauthType}`);
+    }
+    if (oidcToken){
+      const suborgs = await getSuborgs({filterType:"OIDC_TOKEN", filterValue:oidcToken.idToken})
+      if (suborgs!.organizationIds.length > 0){
+        alert("Social login is already connected to another account")
+        return
+      }
+      await authIframeClient?.createOauthProviders({organizationId: suborgId, userId: user.userId, oauthProviders: [{providerName: `TurnkeyDemoApp - ${Date.now()}`, oidcToken: oidcToken.idToken}]})
+      window.location.reload();
+    }
+  }
+
+  const handleAddPasskey = async () => {
+    const siteInfo = `${new URL(window.location.href).hostname} - ${new Date().toLocaleString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+  })}`;
+    const { encodedChallenge, attestation } =
+      (await passkeyClient?.createUserPasskey({
+        publicKey: { user: { name: siteInfo, displayName: siteInfo } },
+      })) || {};
+
+    if (encodedChallenge && attestation) {
+      authIframeClient?.createAuthenticators({organizationId: suborgId, userId: user.userId, authenticators: [{authenticatorName: `Passkey - ${Date.now()}`, challenge:encodedChallenge, attestation  }]})
+      window.location.reload();
+    }
+  }
+
+  const handleDeletePasskey = async () => {
+    const authenticators = await authIframeClient?.getAuthenticators({organizationId: suborgId, userId: user.userId})
+    const authenticatorId = authenticators?.authenticators[0].authenticatorId
+    await authIframeClient?.deleteAuthenticators({organizationId: suborgId, userId: user.userId, authenticatorIds:[authenticatorId!]})
+    window.location.reload();
+  }
 
   const handleDropdownClick = (event: React.MouseEvent<HTMLDivElement>) => {
     setAnchorEl(event.currentTarget);
@@ -263,11 +345,15 @@ useEffect(() => {
     )}
   </div>
   {user && user.authenticators && user.authenticators.length > 0 ? (
+    <div onClick = {()=> handleDeletePasskey()}>
     <RemoveCircleIcon
       sx={{ cursor: "pointer", color: "#D8DBE3" }}
     />
+    </div>
   ) : (
+    <div onClick = {() => handleAddPasskey()}>
     <AddCircleIcon sx={{ cursor: "pointer" }} />
+    </div>
   )}
 </div>
 
@@ -278,15 +364,24 @@ useEffect(() => {
   <div className="labelContainer">
     <img src="/google.svg" className="iconSmall" />
     <Typography>Google</Typography>
+    {user && user.oauthProviders && user.oauthProviders.some(
+  (provider: { issuer: string; }) => provider.issuer.toLowerCase().includes("google"))
+ && (
+      <span className="loginMethodDetails">{}</span>
+    )}
   </div>
   {user && user.oauthProviders && user.oauthProviders.some(
-  (provider: { providerName: string; }) => provider.providerName === "Google"
+  (provider: { issuer: string; }) => provider.issuer.toLowerCase().includes("google")
 ) ? (
+  <div onClick = {()=> handleDeleteOauth("Google")}>
     <RemoveCircleIcon
       sx={{ cursor: "pointer", color: "#D8DBE3" }}
     />
+    </div>
   ) : (
+    <div onClick = {() => handleAddOauth("Google")} >
     <AddCircleIcon sx={{ cursor: "pointer" }} />
+    </div>
   )}
 </div>
 <div className="loginMethodRow">
@@ -295,13 +390,17 @@ useEffect(() => {
     <Typography>Apple</Typography>
   </div>
   {user && user.oauthProviders && user.oauthProviders.some(
-  (provider: { providerName: string; }) => provider.providerName === "Apple"
+  (provider: { issuer: string; }) => provider.issuer.toLowerCase().includes("apple")
 ) ? (
+  <div onClick = {()=> handleDeleteOauth("Apple")}>
     <RemoveCircleIcon
       sx={{ cursor: "pointer", color: "#D8DBE3" }}
     />
+    </div>
   ) : (
+    <div onClick ={() => handleAddOauth("Apple")}>
     <AddCircleIcon sx={{ cursor: "pointer" }} />
+    </div>
   )}
 </div>
 <div className="loginMethodRow">
@@ -310,13 +409,17 @@ useEffect(() => {
     <Typography>Facebook</Typography>
   </div>
   {user && user.oauthProviders && user.oauthProviders.some(
-  (provider: { providerName: string; }) => provider.providerName === "Facebook"
+  (provider: { issuer: string; }) => provider.issuer.toLowerCase().includes("facebook")
 ) ? (
+  <div onClick = {()=> handleDeleteOauth("Facebook")}>
     <RemoveCircleIcon
       sx={{ cursor: "pointer", color: "#D8DBE3" }}
     />
+    </div>
   ) : (
+    <div onClick ={() => handleAddOauth("Facebook")}>
     <AddCircleIcon sx={{ cursor: "pointer" }} />
+    </div>
   )}
 </div>
         </div>
