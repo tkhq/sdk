@@ -2,11 +2,13 @@
 
 [![npm](https://img.shields.io/npm/v/@turnkey/telegram-cloud-storage-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/telegram-cloud-storage-stamper)
 
-This package contains functions to store a Turnkey API public/private key within [Telegram Cloud Storage](https://core.telegram.org/bots/webapps#cloudstorage). This package also handles stamping a Turnkey request with that API key. It is meant to be used with [`@turnkey/sdk-browser`](https://www.npmjs.com/package/@turnkey/sdk-browser).
+This package contains functions to store Turnkey API public/private keys and arbitrary data within [Telegram Cloud Storage](https://core.telegram.org/bots/webapps#cloudstorage). This package also handles stamping a Turnkey request with an API key. It is meant to be used with [`@turnkey/sdk-browser`](https://www.npmjs.com/package/@turnkey/sdk-browser).
 
 ### Preqrequisites
 
 Telegram Bot API >= 6.9
+
+### About
 
 The Telegram Cloud Storage Stamper has a few different modes of operation, namely a classic [stamper](https://docs.turnkey.com/api-overview/stamps) for stamping requests made to Turnkey's API, and an interface for a Telegram Mini App built with Turnkey to interact with Telegram Cloud Storage. This provides the developer of the application utilities such as creating stamps on requests made by users, storing user API keys, storing temporary keys that are needed for decrypting credential bundles for activites like [email auth](https://docs.turnkey.com/features/email-auth) or [oauth](https://docs.turnkey.com/features/oauth), or storing arbitrary values that would be helpful to have saved for a user from session to session on device to device.
 
@@ -24,13 +26,13 @@ The Telegram Cloud Storage Stamper will, by default, store the API key used for 
 The `.create()` and `.setSigningKey()` functions take one of the following 4 sets of arguments:
 
 - No arguments: Use an API key at the default location within Telegram Cloud Storage `@turnkey/TURNKEY_API_KEY` and set that as the signing key
-- Just an API key: Store the passed in API key and at the default Telegram Cloud Storage location and set that as the signing key
+- Just an API key: Store the passed in API key at the default Telegram Cloud Storage location and set that as the signing key
 - Just a Cloud Storage key: Use an API key stored at the specified Telegram Cloud Storage key location and set that as the signing key
 - Both an API key and a Cloud Storage key: Store the passed API key at the specified Telegram Cloud Storage key location and set that as the signing key
 
 The `.getAPIKey()` and `.setAPIKey()` functions operate in a similar manner taking an optional `key` parameter that will be used to `get` or `set` the API key at that location if it is passed, or at the default location if it is not passed.
 
-The following section will describe the usage of the helper functions provided for interfacing with Telegram Cloud Storage. These functions, mostly, return a boolean indicating if something was stored. They also return "" if there is no value when trying to retrieve an item from Cloud Storage or a string of the value that was stored. It should be noted that there are lower level functions that will throw errors propogating errors directly from Telegram, these functions are: `getCloudStorageItem`, `setCloudStorageItem`, and `clearCloudStorageItem`. Usage of these functions can be observed in the implementation of the helper functions such as `getItem`, `setItem`, `clearItem`.
+The following section will describe the usage of the helper functions provided for interfacing with Telegram Cloud Storage. These functions return null if there is no value when trying to retrieve an item from Cloud Storage.
 
 ### Usage
 
@@ -139,7 +141,7 @@ await stamper.insertAPIKey(
 );
 ```
 
-Set a new API key as the signing key for the stamper at a specified key. This will also insert the API key to that location within Telegram CloudStorage. Any subsequent requests for stamping will sign with this API key. The API key and key can also be omitted and the API key at the default location `@turnkey/TURNKEY_API_KEY` will be used. If an API key is omitted and a key is specified an API key at that location will be used. Refer to [this](#argument-usage) section for a full explanation. A stamper that was originally used to just view Cloud Storage values can later be used for signing by using the `.setSigningKey()` function.
+Set a new API key as the signing key for the stamper at a specified key. This will also insert the API key to that location within Telegram CloudStorage. Any subsequent requests for stamping will sign with this API key. The API key and CloudStorage key can also be omitted and the API key at the default location `@turnkey/TURNKEY_API_KEY` will be used. If an API key is omitted and a CloudStorage key is specified an API key at that location will be used. Refer to the [argument-usage](#argument-usage) section for a full explanation. A stamper that was originally used to just view Cloud Storage values can later be used for signing by using the `.setSigningKey()` function.
 
 ```ts
 import TelegramCloudStorageStamper, {
@@ -154,9 +156,6 @@ const apiKey: CloudStorageAPIKey = {
 
 // create a new Telegram Cloud Storage Stamper
 const stamper = new TelegramCloudStorageStamper();
-
-const apiPublicKey = "...";
-const apiPrivateKey = "...";
 
 // the key used to index Telegram Cloud Storage
 const telegramCloudStorageKey = "@turnkey/telegramCloudStorageKey";
