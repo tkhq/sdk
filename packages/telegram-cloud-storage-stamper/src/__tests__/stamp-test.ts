@@ -69,7 +69,7 @@ test("uses provided signature to make stamp", async function () {
       signature: decodedStamp["signature"],
     });
 
-    let { apiPublicKey, apiPrivateKey } = await stamper.getAPIKey();
+    let { apiPublicKey, apiPrivateKey } = await stamper.getAPIKey() ?? {};
     expect(apiPublicKey).toEqual(publicKey);
     expect(apiPrivateKey).toEqual(privateKey);
   } catch (e) {
