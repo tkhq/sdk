@@ -162,7 +162,7 @@ const Import: React.FC<ImportProps> = ({
           </div>
 
               <Typography variant="h6" className="modalTitle">
-                Import Wallet
+                Import wallet
               </Typography>
               <Typography
                 variant="subtitle2"
@@ -171,7 +171,7 @@ const Import: React.FC<ImportProps> = ({
                   mb: 2,
                 }}
               >
-                Enter your seed phrase. Seed phrases are typically 12 - 24 words
+                Enter your seed phrase. Seed phrases are typically 12-24 words.
               </Typography>
 
 

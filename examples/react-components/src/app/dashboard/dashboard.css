@@ -21,7 +21,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 6rem;
+    padding: 8rem;
+    padding-bottom: 0rem;
     gap: 60px;
     position: relative;
     background-image: url("../../../public/grid.svg");
@@ -39,7 +40,7 @@
     padding: 8px 24px;
     border-radius: 8px;
     width: 542px;
-    height: 642px;
+    height: 584px;
     border: 1px solid var(--Greyscale-100, #ebedf2);
     font-family: Arial, sans-serif;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -440,4 +441,16 @@ button:hover {
   background-position: center;
   opacity: 0;
   transition: opacity 0.3s ease;
+}
+.passkeyContainer {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+}
+.passkeyIconContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
 }

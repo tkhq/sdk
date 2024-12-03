@@ -9,6 +9,7 @@ import CustomSwitch from "./components/Switch";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import "./index.css";
 import { useRouter } from "next/navigation";
+import Navbar from "./components/Navbar";
 
 // Define types for config and socials
 interface SocialConfig {
@@ -92,7 +93,7 @@ export default function AuthPage() {
       facebookEnabled: config.socials.facebook,
     };
     navigator.clipboard.writeText(JSON.stringify(authConfig, null, 2));
-    alert("Auth config copied to clipboard!");
+    alert("Copied to clipboard!");
   };
 
   const authConfig = {
@@ -117,6 +118,7 @@ export default function AuthPage() {
 
   return (
     <main className="main">
+            <Navbar/>
         <div className="authConfigCard">
           <Typography variant="h6" className="configTitle">
             Authentication config
@@ -128,7 +130,7 @@ export default function AuthPage() {
                 <div {...provided.droppableProps} ref={provided.innerRef} className="toggleContainer">
                   {configOrder.map((key, index) => (
                     key === "socials" ? (
-                      <Draggable key="socials" draggableId="socials" index={index}>
+                      <Draggable key="socials" draggableId="socials" index={index} isDragDisabled={!config.socials.enabled}>
                         {(provided) => (
                           <div
                             ref={provided.innerRef}
@@ -179,22 +181,18 @@ export default function AuthPage() {
                         )}
                       </Draggable>
                     ) : (
-                      <Draggable key={key} draggableId={key} index={index}>
+                      <Draggable key={key} draggableId={key} index={index} isDragDisabled={key !== "socials" && !config[key as keyof Config] as boolean}>
                         {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            className="toggleRow"
-                          >
-                            <div {...provided.dragHandleProps} className="labelContainer">
-                              <img src="/dots.svg" alt="Drag handle" />
-                              <Typography>{key.charAt(0).toUpperCase() + key.slice(1)}</Typography>
-                            </div>
-                            <CustomSwitch
-                              checked={config[key as keyof Config] as boolean}
-                              onChange={() => toggleConfig(key as keyof Config)}
-                            />
-                          </div>
+                          <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="toggleRow">
+  <div className="labelContainer">
+    <img src="/dots.svg" alt="Drag handle" />
+    <Typography>{key.charAt(0).toUpperCase() + key.slice(1)}</Typography>
+  </div>
+  <CustomSwitch
+    checked={config[key as keyof Config] as boolean}
+    onChange={() => toggleConfig(key as keyof Config)}
+  />
+</div>
                         )}
                       </Draggable>
                     )

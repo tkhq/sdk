@@ -154,7 +154,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
     }
   }
   catch {
-    setPasskeySignupError("Passkey request timed out or rejected by user. Please try again")
+    setPasskeySignupError("The operation either timed out or was not allowed. Please try again")
   }
   };
 
@@ -365,11 +365,11 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
             <img src={passkeyIcon} />
           </div>
           <center>
-            <h3>Create a Passkey</h3>
+            <h3>Create a passkey</h3>
           </center>
           <div className={styles.rowsContainer}>
             <center>
-          Make your logins secure and easy. Set up with fingerprint, face, or screen lock.
+            Passkeys allow for easy biometric access to your wallet and can be synced across devices.
           </center>
           </div>
           <button               className = {styles.authButton} type="button" onClick={handleSignupWithPasskey}>
@@ -391,7 +391,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
 }
       </div>
       <center>
-        <h3>{passkeySignupError ? "Something went wrong" : passkeyCreated ? "Logging in with passkey" : "Creating passkey"}</h3>
+        <h3>{passkeySignupError ? "Authentication error" : passkeyCreated ? "Logging in with passkey" : "Creating passkey"}</h3>
       </center>
       <div className={styles.rowsContainer}>
         <center>
