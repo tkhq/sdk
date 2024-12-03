@@ -29,6 +29,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { appleOidcToken, facebookOidcToken, googleOidcToken } from "../utils/oidc";
 import { MuiPhone } from "../components/PhoneInput";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Navbar from "../components/Navbar";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -41,7 +43,8 @@ export default function Dashboard() {
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [messageToSign, setMessageToSign] = useState("Signing within Turnkey Demo");
+  const [isPasskeyModalOpen, setIsPasskeyModalOpen] = useState(false);
+  const [messageToSign, setMessageToSign] = useState("Signing within Turnkey Demo.");
   const [signature, setSignature] = useState<any>(null);
   const [suborgId, setSuborgId] = useState<string>("")
   const [user, setUser] = useState<any>("")
@@ -188,12 +191,6 @@ const handlePhoneSubmit = async () => {
     }
   }
 
-  const handleDeletePasskey = async () => {
-    const authenticators = await authIframeClient?.getAuthenticators({organizationId: suborgId, userId: user.userId})
-    const authenticatorId = authenticators?.authenticators[0].authenticatorId
-    await authIframeClient?.deleteAuthenticators({organizationId: suborgId, userId: user.userId, authenticatorIds:[authenticatorId!]})
-    window.location.reload();
-  }
 
   const handleDropdownClick = (event: React.MouseEvent<HTMLDivElement>) => {
     setAnchorEl(event.currentTarget);
@@ -204,7 +201,7 @@ const handlePhoneSubmit = async () => {
   };
 
   const handleDeleteAccount: any = async () => {
-    authIframeClient?.deleteSubOrganization({organizationId: suborgId, deleteWithoutExport: true})
+    await authIframeClient?.deleteSubOrganization({organizationId: suborgId, deleteWithoutExport: true})
     await handleLogout()
   }
 
@@ -322,7 +319,7 @@ useEffect(() => {
             ? "HASH_FUNCTION_NO_OP"
             : "HASH_FUNCTION_NOT_APPLICABLE",
       });
-      setMessageSigningResult("✔ Success! Message signed")
+      setMessageSigningResult("Success! Message signed")
       setSignature({ r: resp?.r, s: resp?.s, v: resp?.v });
     } catch (error) {
       console.error("Error signing message:", error);
@@ -350,16 +347,14 @@ useEffect(() => {
 
     setMessageSigningResult(
       verificationPassed
-        ? `Verified! The address used to sign the message matches your wallet address: ${`${selectedAccount!.slice(
-          0,
-          5
-        )}...${selectedAccount!.slice(-5)}`}`
-        : "Verification failed"
+        ? "Verified! The address used to sign the message matches your wallet address."
+        : "Verification failed."
     );
   };
 
   return (
     <main className="main">
+      <Navbar/>
       <link rel="preload" href="/eth-hover.svg" as="image"/>
       <link rel="preload" href="/solana-hover.svg" as="image"/>
       <div className="dashboardCard">
@@ -376,11 +371,9 @@ useEffect(() => {
     )}
   </div>
   {user && user.userEmail ? (
-        <div onClick={handleOpenEmailModal}>
-    <RemoveCircleIcon
-      sx={{ cursor: "pointer", color: "#D8DBE3" }}
+    <CheckCircleIcon
+      sx={{color: "#4CAF50" }}
     />
-    </div>
   ) : (
     <div onClick={handleOpenEmailModal}>
     <AddCircleIcon sx={{ cursor: "pointer" }} />
@@ -398,11 +391,9 @@ useEffect(() => {
     )}
   </div>
   {user && user.userPhoneNumber ? (
-        <div onClick={handleOpenPhoneModal}>
-        <RemoveCircleIcon
-          sx={{ cursor: "pointer", color: "#D8DBE3" }}
-        />
-        </div>
+    <CheckCircleIcon
+    sx={{ color: "#4CAF50" }}
+  />
   ) : (
     <div onClick={handleOpenPhoneModal}>
     
@@ -415,18 +406,13 @@ useEffect(() => {
   <div className="labelContainer">
     <img src="/key.svg" className="iconSmall" />
     <Typography>Passkey</Typography>
-    {user && user.authenticators && user.authenticators.length > 0 && (
-      <span className="loginMethodDetails">{user.authenticators[0].credentialId}</span>
-    )}
   </div>
   {user && user.authenticators && user.authenticators.length > 0 ? (
-    <div onClick = {()=> handleDeletePasskey()}>
-    <RemoveCircleIcon
-      sx={{ cursor: "pointer", color: "#D8DBE3" }}
-    />
-    </div>
+    <CheckCircleIcon
+    sx={{ color: "#4CAF50" }}
+  />
   ) : (
-    <div onClick = {() => handleAddPasskey()}>
+    <div onClick = {() => setIsPasskeyModalOpen(true)}>
     <AddCircleIcon sx={{ cursor: "pointer" }} />
     </div>
   )}
@@ -448,11 +434,9 @@ useEffect(() => {
   {user && user.oauthProviders && user.oauthProviders.some(
   (provider: { issuer: string; }) => provider.issuer.toLowerCase().includes("google")
 ) ? (
-  <div onClick = {()=> handleDeleteOauth("Google")}>
-    <RemoveCircleIcon
-      sx={{ cursor: "pointer", color: "#D8DBE3" }}
-    />
-    </div>
+  <CheckCircleIcon
+  sx={{ color: "#4CAF50" }}
+/>
   ) : (
     <div onClick = {() => handleAddOauth("Google")} >
     <AddCircleIcon sx={{ cursor: "pointer" }} />
@@ -467,11 +451,9 @@ useEffect(() => {
   {user && user.oauthProviders && user.oauthProviders.some(
   (provider: { issuer: string; }) => provider.issuer.toLowerCase().includes("apple")
 ) ? (
-  <div onClick = {()=> handleDeleteOauth("Apple")}>
-    <RemoveCircleIcon
-      sx={{ cursor: "pointer", color: "#D8DBE3" }}
-    />
-    </div>
+  <CheckCircleIcon
+  sx={{  color: "#4CAF50" }}
+/>
   ) : (
     <div onClick ={() => handleAddOauth("Apple")}>
     <AddCircleIcon sx={{ cursor: "pointer" }} />
@@ -486,11 +468,9 @@ useEffect(() => {
   {user && user.oauthProviders && user.oauthProviders.some(
   (provider: { issuer: string; }) => provider.issuer.toLowerCase().includes("facebook")
 ) ? (
-  <div onClick = {()=> handleDeleteOauth("Facebook")}>
-    <RemoveCircleIcon
-      sx={{ cursor: "pointer", color: "#D8DBE3" }}
-    />
-    </div>
+  <CheckCircleIcon
+  sx={{ color: "#4CAF50" }}
+/>
   ) : (
     <div onClick ={() => handleAddOauth("Facebook")}>
     <AddCircleIcon sx={{ cursor: "pointer" }} />
@@ -522,6 +502,11 @@ useEffect(() => {
   anchorEl={anchorEl}
   open={Boolean(anchorEl)}
   onClose={handleDropdownClose}
+  sx={{
+    '& .MuiPaper-root': {
+      width: '112px',
+    },
+  }}
 >
   {wallets.map((wallet) => (
     <MenuItem
@@ -730,9 +715,10 @@ useEffect(() => {
         color: "#6C727E",
       }}
     >
-      This helps prove you signed a message using your address
+      This helps prove you signed a message using your address.
     </Typography>
     <TextField
+      disabled = {messageSigningResult?.startsWith("Verif")}
       fullWidth
       margin="normal"
       value={signature ? JSON.stringify(signature) : messageToSign}
@@ -761,15 +747,37 @@ useEffect(() => {
         },
       }}
     />
+        {messageSigningResult && (
+      <Typography
+        sx={{
+          mt: 2,
+          color: (messageSigningResult.startsWith("Verified") ||  messageSigningResult.startsWith("Success"))
+            ? "green"
+            : "red",
+        }}
+      >
+        {messageSigningResult}
+      </Typography>
+    )}
     {signature ? 
-        <button
-          style={{
-            marginTop: "12px",
-          }}
-          onClick={handleVerify}
-        >
-          Verify
-        </button>
+    messageSigningResult?.startsWith("Verif") ?
+    <button
+    style={{
+      marginTop: "12px",
+    }}
+    onClick={handleModalClose}
+  >
+    Done
+  </button>
+ :
+ <button
+ style={{
+   marginTop: "12px",
+ }}
+ onClick={handleVerify}
+>
+ Verify
+</button>
         :     <button
       onClick={handleSign}
       style={{
@@ -779,18 +787,6 @@ useEffect(() => {
       Sign
     </button>
     }
-    {messageSigningResult && (
-      <Typography
-        sx={{
-          mt: 2,
-          color: (messageSigningResult.startsWith("Verified") ||  messageSigningResult.startsWith("✔"))
-            ? "green"
-            : "red",
-        }}
-      >
-        {messageSigningResult}
-      </Typography>
-    )}
   </Box>
 </Modal>
 {
@@ -827,14 +823,14 @@ isEmailModalOpen &&
       &times;
     </div>
     <Typography variant="h6" className="modalTitle">
-      Enter new email
+    Connect email
     </Typography>
     <TextField
       fullWidth
       margin="normal"
       value={emailInput}
       onChange={(e) => setEmailInput(e.target.value)}
-      placeholder="example@example.com"
+      placeholder="Enter your email"
       sx={{
         bgcolor: "#ffffff", 
         "& .MuiOutlinedInput-root": {
@@ -896,9 +892,10 @@ isPhoneModalOpen &&
       &times;
     </div>
     <Typography variant="h6" className="modalTitle">
-      Enter new phone number
+    Connect phone
     </Typography>
     <MuiPhone
+    placeholder= "Phone number"
       fullWidth
       margin="normal"
       value={phoneInput}
@@ -957,6 +954,65 @@ isOtpModalOpen &&
 </Modal>
 
 }
+
+{
+isPasskeyModalOpen &&
+<Modal open={isPasskeyModalOpen} onClose={() => setIsPasskeyModalOpen(false)}>
+  <Box
+    sx={{
+      outline: "none",
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: 400,
+      bgcolor: "var(--Greyscale-20, #f5f7fb)", 
+      boxShadow: 24,
+      p: 4,
+      borderRadius: 2,
+    }}
+  >
+    <div
+      onClick={() => setIsPasskeyModalOpen(false)}
+      style={{
+        position: "absolute",
+        top: "16px",
+        right: "16px",
+        background: "none",
+        border: "none",
+        fontSize: "20px",
+        fontWeight: "bold",
+        cursor: "pointer",
+        color: "#6C727E",
+      }}
+    >
+      &times;
+    </div>
+    <div className = 'passkeyContainer'>
+    <div className='passkeyIconContainer'>
+<img src="/key.svg" />
+</div>
+<center>
+<h3>Create a passkey</h3>
+</center>
+<div className='rowsContainer'>
+<center>
+Passkeys allow for easy biometric access to your wallet and can be synced across devices.
+</center>
+<button className="continue"  onClick={handleAddPasskey}>
+        Continue
+    </button>
+    </div>
+    </div>
+  </Box>
+</Modal>
+
+}
+
     </main>
   );
 }
+
+
+
+

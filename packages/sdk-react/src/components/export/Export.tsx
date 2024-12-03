@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Box, Typography } from "@mui/material";
 import { useTurnkey } from "../../hooks/useTurnkey";
-import { IframeStamper } from "@turnkey/sdk-browser";
+import type {  TurnkeyIframeClient } from "@turnkey/sdk-browser";
 import styles from "./Export.module.css";
 import unlockIcon from "assets/unlock.svg";
 import eyeIcon from "assets/eye.svg";
@@ -15,8 +15,8 @@ type ExportProps = {
 const Export: React.FC<ExportProps> = ({
   walletId,
 }) => {
-  const { authIframeClient } = useTurnkey();
-  const [exportIframeStamper, setExportIframeStamper] = useState<IframeStamper | null>(null);
+  const { authIframeClient, turnkey } = useTurnkey();
+  const [exportIframeClient, setExportIframeClient] = useState<TurnkeyIframeClient | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isIframeVisible, setIsIframeVisible] = useState(false);
   const TurnkeyExportIframeContainerId = "turnkey-export-iframe-container-id";
@@ -37,29 +37,14 @@ const Export: React.FC<ExportProps> = ({
 
       if (!existingIframe) {
         try {
-          const iframeStamper = new IframeStamper({
-            iframeContainer,
-            iframeUrl: "https://export.preprod.turnkey.engineering",
-            iframeElementId: TurnkeyIframeElementId,
-          });
-
-          await iframeStamper.init();
-          const styles = {
-            padding: "20px",
-            fontFamily: "monospace",
-            color: "#333",
-            height: "240px",
-            width: "240px",
-            borderStyle: "none",
-            backgroundColor: "#ffffff",
-            overflowWrap: "break-word",
-            wordWrap: "break-word",
-            overflow: "hidden",
-            resize: "none",
-          };
-          iframeStamper.applySettings({ styles });
-
-          setExportIframeStamper(iframeStamper);
+          const newExportIframeClient = await turnkey?.iframeClient({
+            iframeContainer: document.getElementById(
+              TurnkeyExportIframeContainerId
+            ),
+            iframeUrl:
+              "https://export.preprod.turnkey.engineering",
+          })
+          setExportIframeClient(newExportIframeClient!)
           console.log("IframeStamper initialized successfully.");
         } catch (error) {
           console.error("Error initializing IframeStamper:", error);
@@ -70,9 +55,8 @@ const Export: React.FC<ExportProps> = ({
 
   const handleCloseModal = () => {
     // Clear the iframe stamper
-    if (exportIframeStamper) {
-      exportIframeStamper.clear();
-      setExportIframeStamper(null);
+    if (exportIframeClient) {
+      setExportIframeClient(null);
 
       const existingIframe = document.getElementById(TurnkeyIframeElementId);
       if (existingIframe) {
@@ -95,10 +79,10 @@ const Export: React.FC<ExportProps> = ({
     const exportResponse = await authIframeClient?.exportWallet({
       organizationId:         whoami.organizationId,
       walletId: walletId!,
-      targetPublicKey: exportIframeStamper!.iframePublicKey!,
+      targetPublicKey: exportIframeClient!.iframePublicKey!,
     });
     if (exportResponse?.exportBundle) {
-      await exportIframeStamper?.injectWalletExportBundle(
+      await exportIframeClient?.injectWalletExportBundle(
         exportResponse.exportBundle,
         whoami.organizationId
       );
@@ -160,7 +144,7 @@ const Export: React.FC<ExportProps> = ({
             </div>
             <div className={styles.row}>
               <img src={eyeIcon} className={styles.rowIcon} />
-              <span>Make sure nobody can see your screen when viewing your seed phrase</span>
+              <span>Make sure nobody can see your screen when viewing your seed phrase.</span>
             </div>
           </div>  :
 
@@ -190,11 +174,13 @@ Your seed phrase is the key to your wallet. Save it in a secure location.
       style={{
         display: isIframeVisible ? "block" : "none",
         backgroundColor: "#ffffff",
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06)",
-        borderStyle: "none",
-        overflow: "hidden",
-        borderRadius: "16px",
-        padding: "16px",
+        width: "100%",
+        boxSizing: "border-box",
+        padding: "20px",
+        borderStyle: "solid",
+        borderWidth: "1px",
+        borderRadius: "8px",
+        borderColor: "rgba(216, 219, 227, 1)",
       }}
     />
         {isIframeVisible && (

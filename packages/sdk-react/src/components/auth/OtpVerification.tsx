@@ -76,7 +76,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       </div>
 
       <span>
-        Enter the 6-digit code we {type === "otpEmail" ? "emailed" : "texted"} to{" "}
+        Enter the 6-digit code we {type === "otpEmail" ? "emailed" : "sent"} to{" "}
         <span className={styles.verificationBold}>
           {type === "otpEmail" ? contact : formatPhoneNumber(contact)}
         </span>

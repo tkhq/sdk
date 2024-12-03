@@ -21,7 +21,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 6rem;
+  padding: 8rem;
+  padding-bottom: 0rem;
   gap: 60px;
   position: relative;
   background-image: url("../../public/grid.svg");
@@ -42,7 +43,7 @@
   padding: 32px;
   border-radius: 8px;
   width: 542px;
-  height: 642px;
+  height: 584px;
   border: 1px solid var(--Greyscale-100, #ebedf2);
   font-family: Arial, sans-serif;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -50,6 +51,7 @@
   flex-direction: column;
   justify-content: space-between;
 }
+
 .configTitle {
   font-size: 1.5rem;
   font-weight: 700;
