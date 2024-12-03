@@ -75,3 +75,7 @@
   .poweredBy span {
     position: relative;
   }
+  iframe {
+    box-sizing: border-box; 
+    border: 0 solid #000;
+}
