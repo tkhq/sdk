@@ -42,10 +42,9 @@ const Export: React.FC<ExportProps> = ({
               TurnkeyExportIframeContainerId
             ),
             iframeUrl:
-              "https://export.preprod.turnkey.engineering",
+              "https://export.turnkey.com",
           })
           setExportIframeClient(newExportIframeClient!)
-          console.log("IframeStamper initialized successfully.");
         } catch (error) {
           console.error("Error initializing IframeStamper:", error);
         }

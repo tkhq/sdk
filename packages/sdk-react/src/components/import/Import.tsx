@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Box, Typography, TextField } from "@mui/material";
 import { useTurnkey } from "../../hooks/useTurnkey";
-import { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS, IframeStamper } from "@turnkey/sdk-browser";
+import { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS, TurnkeyIframeClient } from "@turnkey/sdk-browser";
 import styles from "./Import.module.css";
 import turnkeyIcon from "assets/turnkey.svg";
 import importIcon from "assets/import.svg"
@@ -12,8 +12,8 @@ type ImportProps = {
 const Import: React.FC<ImportProps> = ({
   onSuccess = () => undefined,
 }) => {
-  const { authIframeClient } = useTurnkey();
-  const [importIframeStamper, setImportIframeStamper] = useState<IframeStamper | null>(null);
+  const { authIframeClient, turnkey } = useTurnkey();
+  const [importIframeClient, setImportIframeClient] = useState<TurnkeyIframeClient | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [walletName, setWalletName] = useState("");
   const TurnkeyImportIframeContainerId = "turnkey-import-iframe-container-id";
@@ -33,30 +33,15 @@ const Import: React.FC<ImportProps> = ({
 
       if (!existingIframe) {
         try {
-          const iframeStamper = new IframeStamper({
-            iframeContainer,
-            iframeUrl: "https://import.preprod.turnkey.engineering",
-            iframeElementId: TurnkeyIframeElementId,
-          });
 
-          await iframeStamper.init();
-          const styles = {
-            padding: "20px",
-            fontFamily: "monospace",
-            color: "#333",
-            height: "240px",
-            width: "240px",
-            borderStyle: "none",
-            backgroundColor: "#ffffff",
-            overflowWrap: "break-word",
-            overflow: "hidden",
-            wordWrap: "break-word",
-            resize: "none",
-          };
-          iframeStamper.applySettings({ styles });
-
-          setImportIframeStamper(iframeStamper);
-          console.log("IframeStamper initialized successfully.");
+          const newImportIframeClient = await turnkey?.iframeClient({
+            iframeContainer: document.getElementById(
+              TurnkeyImportIframeContainerId
+            ),
+            iframeUrl:
+              "https://import.turnkey.com",
+          })
+          setImportIframeClient(newImportIframeClient!)
         } catch (error) {
           console.error("Error initializing IframeStamper:", error);
         }
@@ -65,9 +50,8 @@ const Import: React.FC<ImportProps> = ({
   };
 
   const handleCloseModal = () => {
-    if (importIframeStamper) {
-      importIframeStamper.clear();
-      setImportIframeStamper(null);
+    if (importIframeClient) {
+      setImportIframeClient(null);
 
       const existingIframe = document.getElementById(TurnkeyIframeElementId);
       if (existingIframe) {
@@ -80,7 +64,7 @@ const Import: React.FC<ImportProps> = ({
 
   const handleImport = async () => {
     const whoami = await authIframeClient!.getWhoami();
-    if (!importIframeStamper) {
+    if (!importIframeClient) {
       console.error("IframeStamper is not initialized.");
       return;
     }
@@ -88,7 +72,7 @@ const Import: React.FC<ImportProps> = ({
       organizationId:       whoami.organizationId,
       userId: whoami.userId,
     });
-    const injected = await importIframeStamper!.injectImportBundle(
+    const injected = await importIframeClient!.injectImportBundle(
       initResult.importBundle,
       whoami.organizationId,
       whoami.userId
@@ -97,7 +81,7 @@ const Import: React.FC<ImportProps> = ({
       console.error("error injecting import bundle")
       return;
     }
-    const encryptedBundle = await importIframeStamper.extractWalletEncryptedBundle();
+    const encryptedBundle = await importIframeClient.extractWalletEncryptedBundle();
     if (!encryptedBundle || encryptedBundle.trim() === "") {
       console.error("failed to retrieve encrypted bundle.")
       return;
@@ -180,12 +164,13 @@ const Import: React.FC<ImportProps> = ({
       style={{
         display: "block",
         backgroundColor: "#ffffff",
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06)",
-        borderStyle: "none",
-        overflow: "hidden",
-        borderRadius: "16px",
-        padding: "16px",
-        marginBottom: "16px"
+        width: "100%",
+        boxSizing: "border-box",
+        padding: "20px",
+        borderStyle: "solid",
+        borderWidth: "1px",
+        borderRadius: "8px",
+        borderColor: "rgba(216, 219, 227, 1)",
       }}
     />
 
