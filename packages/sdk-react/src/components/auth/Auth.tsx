@@ -1,6 +1,5 @@
 import styles from "./Auth.module.css";
 import React, { useEffect, useState } from "react";
-import { useTurnkey } from "../../hooks/useTurnkey";
 import {
   initOtpAuth,
   getSuborgs,
@@ -19,6 +18,7 @@ import appleIcon from "assets/apple.svg";
 import passkeyIcon from "assets/passkey.svg";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import OtpVerification from "./OtpVerification";
+import { useTurnkey } from "../../hooks/use-turnkey";
 
 interface AuthProps {
   onHandleAuthSuccess: () => Promise<void>;

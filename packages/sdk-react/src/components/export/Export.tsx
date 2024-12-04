@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Box, Typography } from "@mui/material";
-import { useTurnkey } from "../../hooks/useTurnkey";
+import { useTurnkey } from "../../hooks/use-turnkey";
 import type {  TurnkeyIframeClient } from "@turnkey/sdk-browser";
 import styles from "./Export.module.css";
 import unlockIcon from "assets/unlock.svg";

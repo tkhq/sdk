@@ -298,7 +298,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
     // Ensure session and sessionExpiry are included in the object
     const readWriteSessionResultWithSession = {
       ...readWriteSessionResult,
-      session: readWriteSessionResult.credentialBundle,
+      credentialBundle: readWriteSessionResult.credentialBundle,
       sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
     };
 
@@ -321,11 +321,15 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
   
     ): Promise<any> => {
       
-    // store auth bundle in local storage
-    await setStorageValue(StorageKeys.ReadWriteSession, {
-      authBundle: credentialBundle,
+
+    const whoAmIResult = await this.getWhoami()
+
+    const readWriteSessionResultWithSession = {
+      ...whoAmIResult,
+      credentialBundle: credentialBundle,
       sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
-    });
+    };
+    await saveSession(readWriteSessionResultWithSession, this.authClient);
   }
 }
 
