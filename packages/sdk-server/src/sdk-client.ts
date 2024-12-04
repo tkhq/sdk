@@ -10,11 +10,7 @@ import type {
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 
 import type { Request, Response, RequestHandler } from "express";
-import type {
-  NextApiRequest,
-  NextApiResponse,
-  NextApiHandler,
-} from "./__types__/base";
+import { NextRequest, NextResponse } from "next/server";
 
 const DEFAULT_API_PROXY_ALLOWED_METHODS = [
   "oauth",
@@ -86,32 +82,40 @@ export class TurnkeyServerSDK {
     };
   };
 
-  nextProxyHandler = (config: TurnkeyProxyHandlerConfig): NextApiHandler => {
+  nextProxyHandler = (config: TurnkeyProxyHandlerConfig) => {
     const allowedMethods =
       config.allowedMethods ?? DEFAULT_API_PROXY_ALLOWED_METHODS;
 
-    return async (
-      request: NextApiRequest,
-      response: NextApiResponse
-    ): Promise<void> => {
-      const { methodName, params } = request.body;
+    return async (request: NextRequest): Promise<void> => {
+      const body = await request.json();
+      const { methodName, params } = body;
+
       if (!methodName || !params) {
-        response.status(400).send("methodName and params are required.");
+        NextResponse.json(
+          { error: "methodName and params are required." },
+          { status: 400 }
+        );
       }
 
       try {
         if (allowedMethods.includes(methodName)) {
           const result = await this.apiProxy(methodName, params);
-          response.json(result);
+          NextResponse.json(result);
         } else {
-          response.status(401).send("Unauthorized proxy method");
+          NextResponse.json(
+            { error: "Unauthorized proxy method." },
+            { status: 401 }
+          );
         }
         return;
       } catch (error) {
         if (error instanceof Error) {
-          response.status(500).send(error.message);
+          NextResponse.json({ error: error.message }, { status: 500 });
         } else {
-          response.status(500).send("An unexpected error occurred");
+          NextResponse.json(
+            { error: "An unexpected error occurred." },
+            { status: 500 }
+          );
         }
         return;
       }
