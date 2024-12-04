@@ -15,7 +15,34 @@
     src: url("../../../public/fonts/inter/Inter-SemiBold.woff2?v=3.19")
       format("woff2");
   }
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh; /* Ensure it covers the full height of the viewport */
+    background-image: url("../../../public/grid.svg");
+    background-size: cover; /* Stretch the image */
+    background-repeat: no-repeat;
+    background-position: center;
+    font-family: Inter, sans-serif;
+  }
+
+  .loaderOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; 
+    background: none;
+  }
   
+  .circularProgress {
+    color: #4C48FF;
+  }
   .main {
     font-family: Inter;
     display: flex;
@@ -25,7 +52,6 @@
     padding-bottom: 0rem;
     gap: 60px;
     position: relative;
-    background-image: url("../../../public/grid.svg");
   }
   
   .dashboardContainer {

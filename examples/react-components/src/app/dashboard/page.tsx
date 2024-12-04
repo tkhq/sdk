@@ -13,6 +13,7 @@ import {
   TextField,
   MenuItem,
   Menu,
+  CircularProgress,
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -197,6 +198,7 @@ useEffect(() => {
         setSuborgId(suborgId!)
 
         const userResponse = await iframeClient!.getUser({organizationId: suborgId!, userId: whoami?.userId!})
+
         setUser(userResponse.user)
         console.log(userResponse.user)
         const walletsResponse = await iframeClient!.getWallets({
@@ -225,8 +227,10 @@ useEffect(() => {
       setLoading(false);
     }
   };
+  if (authIframeClient){
+    manageSession();
+  }
 
-  manageSession();
 }, [authIframeClient, turnkey]);
 
 
@@ -322,10 +326,21 @@ useEffect(() => {
         : "Verification failed."
     );
   };
+  if (loading) {
+    return (
+      <main className="main">
+        <Navbar />
+        <div className="loaderOverlay">
+          <CircularProgress size={80} thickness={1} className="circularProgress" />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="main">
       <Navbar/>
+      
       <link rel="preload" href="/eth-hover.svg" as="image"/>
       <link rel="preload" href="/solana-hover.svg" as="image"/>
       <div className="dashboardCard">
