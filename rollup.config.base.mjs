@@ -34,6 +34,7 @@ const getFormatConfig = (format) => {
         sourceMap: true,
       }),
       typescript({
+        outputToFilesystem: true,
         tsconfig: './tsconfig.json',
         compilerOptions: {
           outDir: "dist",

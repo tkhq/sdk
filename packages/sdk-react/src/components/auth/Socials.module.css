@@ -33,11 +33,11 @@
 }
 
 .socialButton:hover {
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
 }
 
 .iconButton:hover {
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
 }
 
 .iconSmall {
@@ -50,5 +50,3 @@
   width: 24px;
   height: 24px;
 }
-
-

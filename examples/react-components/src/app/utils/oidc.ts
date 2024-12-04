@@ -10,7 +10,11 @@ interface OidcTokenParams {
   redirectURI: string;
 }
 
-export const appleOidcToken = async ({ iframePublicKey, clientId, redirectURI }: OidcTokenParams): Promise<any> => {
+export const appleOidcToken = async ({
+  iframePublicKey,
+  clientId,
+  redirectURI,
+}: OidcTokenParams): Promise<any> => {
   const nonce = bytesToHex(sha256(iframePublicKey));
   const appleAuthUrl = new URL("https://appleid.apple.com/auth/authorize");
   appleAuthUrl.searchParams.set("client_id", clientId);
@@ -60,7 +64,11 @@ export const appleOidcToken = async ({ iframePublicKey, clientId, redirectURI }:
   });
 };
 
-export const googleOidcToken = async ({ iframePublicKey, clientId, redirectURI }: OidcTokenParams): Promise<any> => {
+export const googleOidcToken = async ({
+  iframePublicKey,
+  clientId,
+  redirectURI,
+}: OidcTokenParams): Promise<any> => {
   const nonce = bytesToHex(sha256(iframePublicKey));
   const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   googleAuthUrl.searchParams.set("client_id", clientId);
@@ -111,8 +119,11 @@ export const googleOidcToken = async ({ iframePublicKey, clientId, redirectURI }
   });
 };
 
-
-export const facebookOidcToken = async ({ iframePublicKey, clientId, redirectURI }: OidcTokenParams): Promise<any> => {
+export const facebookOidcToken = async ({
+  iframePublicKey,
+  clientId,
+  redirectURI,
+}: OidcTokenParams): Promise<any> => {
   const { verifier, codeChallenge } = await generateChallengePair();
   sessionStorage.setItem("facebook_verifier", verifier);
 
@@ -149,7 +160,9 @@ export const facebookOidcToken = async ({ iframePublicKey, clientId, redirectURI
       try {
         if (popup.closed) {
           clearInterval(interval);
-          reject(new Error("Popup closed by user before completing authentication"));
+          reject(
+            new Error("Popup closed by user before completing authentication")
+          );
           return;
         }
 
@@ -173,7 +186,7 @@ export const facebookOidcToken = async ({ iframePublicKey, clientId, redirectURI
               verifier
             );
             sessionStorage.removeItem("facebook_verifier");
-            resolve({idToken: tokenData.id_token});
+            resolve({ idToken: tokenData.id_token });
           } catch (error) {
             reject(new Error(`Error during token exchange: ${error}`));
           }
@@ -184,4 +197,3 @@ export const facebookOidcToken = async ({ iframePublicKey, clientId, redirectURI
     }, 250);
   });
 };
-

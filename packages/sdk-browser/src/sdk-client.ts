@@ -281,7 +281,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
    *
    * @param targetEmbeddedKey
    * @param expirationSeconds
-   * @param userId 
+   * @param userId
    * @returns {Promise<SdkApiTypes.TCreateReadWriteSessionResponse>}
    */
   loginWithReadWriteSession = async (
@@ -308,21 +308,18 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
     return readWriteSessionResultWithSession;
   };
 
-    /**
+  /**
    * Logs in with an existing auth bundle. this bundle enables both read and write requests.
    *
    * @param credentialBundle
-   * @param expirationSeconds 
+   * @param expirationSeconds
    * @returns {Promise<void>}
    */
-    loginWithAuthBundle = async (
-      credentialBundle: string,
-      expirationSeconds: string = DEFAULT_SESSION_EXPIRATION,
-  
-    ): Promise<any> => {
-      
-
-    const whoAmIResult = await this.getWhoami()
+  loginWithAuthBundle = async (
+    credentialBundle: string,
+    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION
+  ): Promise<any> => {
+    const whoAmIResult = await this.getWhoami();
 
     const readWriteSessionResultWithSession = {
       ...whoAmIResult,
@@ -330,7 +327,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
       sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
     };
     await saveSession(readWriteSessionResultWithSession, this.authClient);
-  }
+  };
 }
 
 export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {

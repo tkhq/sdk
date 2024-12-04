@@ -1,11 +1,10 @@
 import React, { useRef, useState } from "react";
 import OtpInput from "./otp";
 import styles from "./OtpVerification.module.css";
-import emailIcon from "assets/email.svg";
-import smsIcon from "assets/sms.svg";
 import { formatPhoneNumber } from "./utils";
 import { otpAuth } from "../../actions";
-
+import EmailIcon from "@mui/icons-material/Email";
+import SmsIcon from "@mui/icons-material/Sms";
 interface OtpVerificationProps {
   type: string;
   contact: string;
@@ -13,7 +12,10 @@ interface OtpVerificationProps {
   otpId: string;
   authIframeClient: any;
   onValidateSuccess: (credentialBundle: any) => Promise<void>;
-  onResendCode: (type: "EMAIL" | "PHONE_NUMBER", value: string) => Promise<void>;
+  onResendCode: (
+    type: "EMAIL" | "PHONE_NUMBER",
+    value: string
+  ) => Promise<void>;
 }
 
 const OtpVerification: React.FC<OtpVerificationProps> = ({
@@ -28,7 +30,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   const [otpError, setOtpError] = useState<string | null>(null);
   const [resendText, setResendText] = useState("Resend code");
   const otpInputRef = useRef<any>(null);
-  
 
   const handleValidateOtp = async (otp: string) => {
     setOtpError(null);
@@ -72,7 +73,21 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   return (
     <div className={styles.verification}>
       <div className={styles.verificationIcon}>
-        <img src={type === "otpEmail" ? emailIcon : smsIcon} alt="Icon" />
+        {type === "otpEmail" ? (
+          <EmailIcon
+            sx={{
+              fontSize: "86px",
+              color: "var(--Greyscale-900, #2b2f33)",
+            }}
+          />
+        ) : (
+          <SmsIcon
+            sx={{
+              fontSize: "86px",
+              color: "var(--Greyscale-900, #2b2f33)",
+            }}
+          />
+        )}
       </div>
 
       <span>
@@ -92,9 +107,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 
       <div className={styles.resendCode}>
         <span
-          onClick={
-            resendText === "Resend code" ? handleResendCode : undefined
-          }
+          onClick={resendText === "Resend code" ? handleResendCode : undefined}
           style={{
             cursor: resendText === "Resend code" ? "pointer" : "not-allowed",
           }}
