@@ -22,6 +22,7 @@ import { useTurnkey } from "../../hooks/use-turnkey";
 
 interface AuthProps {
   onHandleAuthSuccess: () => Promise<void>;
+  onError: (errorMessage: string) => void;
   authConfig: {
     emailEnabled: boolean;
     passkeyEnabled: boolean;
@@ -33,9 +34,8 @@ interface AuthProps {
   configOrder: string[];
 }
 
-const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrder }) => {
+const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, onError, authConfig, configOrder }) => {
   const { passkeyClient, authIframeClient } = useTurnkey();
-  const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
@@ -56,12 +56,6 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
       await handleOtpLogin("PHONE_NUMBER", phone, "OTP_TYPE_SMS");
     }
   }
-  
-  useEffect(() => {
-    if (error) {
-      alert(error);
-    }
-  }, [error]);
 
   useEffect(() => {
     if (authIframeClient) {
@@ -89,6 +83,9 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
     additionalData = {}
   ) => {
     const getSuborgsResponse = await getSuborgs({ filterType, filterValue });
+    if (!getSuborgsResponse || !getSuborgsResponse.organizationIds){
+      onError("Failed to fetch account")
+    }
     let suborgId = getSuborgsResponse?.organizationIds[0];
 
     if (!suborgId) {
@@ -97,6 +94,9 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
       else if (filterType === "PHONE_NUMBER") createSuborgData.phoneNumber = filterValue;
 
       const createSuborgResponse = await createSuborg(createSuborgData);
+      if (!createSuborgResponse || !createSuborgResponse.subOrganizationId){
+        onError("Failed to create account")
+      }
       suborgId = createSuborgResponse?.subOrganizationId!;
     }
     return suborgId;
@@ -172,16 +172,21 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
     if (sessionResponse?.credentialBundle) {
       await handleAuthSuccess(sessionResponse.credentialBundle);
     } else {
-      setError("Failed to complete passkey login.");
+      onError("Failed to complete passkey login.")
     }
   };
 
   const handleOtpLogin = async (type: "EMAIL" | "PHONE_NUMBER", value: string, otpType: string) => {
     const suborgId = await handleGetOrCreateSuborg(type, value);
     const initAuthResponse = await initOtpAuth({ suborgID: suborgId, otpType, contact: value });
+    if (initAuthResponse && initAuthResponse.otpId) {
     setSuborgId(suborgId);
     setOtpId(initAuthResponse?.otpId!);
     setStep(type === "EMAIL" ? "otpEmail" : "otpPhone");
+    }
+    else{
+      onError("Failed to send OTP")
+    }
   };
 
 
@@ -195,7 +200,12 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
       oidcToken: credential,
       targetPublicKey: authIframeClient?.iframePublicKey!,
     });
-    await handleAuthSuccess(oauthResponse!.credentialBundle);
+    if( oauthResponse && oauthResponse.credentialBundle){
+      await handleAuthSuccess(oauthResponse!.credentialBundle);
+    }
+    else{
+      onError("Failed to login with OIDC provider")
+    }
   };
 
   const renderBackButton = () => (
