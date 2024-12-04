@@ -1,17 +1,12 @@
-# Example: `oauth`
+# Example: `react-components`
 
-This example shows a complete Oauth flow with google. It contains a NextJS app with:
-
-- a frontend application
-- a backend application
-
-This example contains an example auth page as well as a stub API endpoint for "your business" (where the contact is resolved into an organization ID). The creation of the hidden iframe is abstracted by our `@turnkey/iframe-stamper` package. For more information on oauth, [check out our documentation](https://docs.turnkey.com/features/oauth).
+This example shows a an example app created using our react components from @turnkey/sdk-react. For more information [check out our documentation](https://docs.turnkey.com/features/TODO).
 
 ## Getting started
 
 ### 1/ Cloning the example
 
-Make sure you have `node` installed locally; we recommend using Node v18+.
+Make sure you have `node` installed locally; we recommend using Node v18+. You will also need NextJs v13+ (for use-server/use-client directives and /app directory structure). Our components leverage use-server to make server side calls using private api keys without requiring developers to setup their own backend for turnkey authentication
 
 ```bash
 $ git clone https://github.com/tkhq/sdk
@@ -19,7 +14,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/oauth/
+$ cd examples/react-components/
 ```
 
 ### 2/ Setting up Turnkey
@@ -37,12 +32,15 @@ $ cp .env.local.example .env.local
 
 Now open `.env.local` and add the missing environment variables:
 
-- `API_PUBLIC_KEY`
-- `API_PRIVATE_KEY`
+- `TURNKEY_API_PUBLIC_KEY`
+- `TURNKEY_API_PRIVATE_KEY`
 - `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
 - `NEXT_PUBLIC_ORGANIZATION_ID`
-- `NEXT_PUBLIC_GOOGLE_CLIENT_ID`(Google OIDC credentials client id: https://developers.google.com/identity/openid-connect/openid-connect)
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
+- `NEXT_PUBLIC_FACEBOOK_CLIENT_ID`
+- `NEXT_PUBLIC_APPLE_CLIENT_ID`
 - `NEXT_PUBLIC_AUTH_IFRAME_URL`
+- `NEXT_PUBLIC_OAUTH_REDIRECT_URI`
 
 ### 3/ Running the app
 
