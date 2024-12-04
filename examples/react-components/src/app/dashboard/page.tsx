@@ -41,8 +41,7 @@ import { Toaster, toast } from "sonner";
 
 export default function Dashboard() {
   const router = useRouter();
-  const { turnkey, getActiveClient, authIframeClient, passkeyClient } =
-    useTurnkey();
+  const { turnkey, authIframeClient, passkeyClient } = useTurnkey();
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<any>([]);
   const [wallets, setWallets] = useState<any[]>([]);
@@ -341,7 +340,7 @@ export default function Dashboard() {
 
   const handleWalletSelect = async (walletId: string) => {
     setSelectedWallet(walletId);
-    setAnchorEl(null); 
+    setAnchorEl(null);
 
     // Fetch accounts for the selected wallet
     const accountsResponse = await authIframeClient!.getWalletAccounts({
@@ -641,7 +640,7 @@ export default function Dashboard() {
                     }
                     label=""
                     className="radioButton"
-                    style={{ pointerEvents: "none" }} 
+                    style={{ pointerEvents: "none" }}
                   />
                 </div>
               ))}

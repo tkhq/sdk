@@ -55,6 +55,6 @@
   min-height: 16px;
   text-align: center;
   margin-top: 12px;
-  color: var(--text-error);
+  color: var(--error-color);
   font-size: 12px;
 }

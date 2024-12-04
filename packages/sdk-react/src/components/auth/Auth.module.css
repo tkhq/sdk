@@ -36,11 +36,14 @@
 }
 
 .defaultLoader {
+  max-width: 450px;
+  min-width: 375px;
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  width: 100%;
 }
 
 .circularProgress {
@@ -215,7 +218,7 @@
   min-height: 16px;
   text-align: center;
   margin-top: 12px;
-  color: var(--text-error);
+  color: var(--error-color);
   font-size: 12px;
 }
 
@@ -285,4 +288,12 @@
   justify-content: center;
   cursor: pointer;
   text-align: center;
+}
+
+.primaryText {
+  color: var(--text-primary);
+}
+
+.secondaryText {
+  color: var(--text-secondary);
 }

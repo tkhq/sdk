@@ -55,7 +55,7 @@
     "viem": "^2.21.35"
   },
   "devDependencies": {
-    "@solana/web3.js": "^1.88.1",
+    "@solana/web3.js": "^1.95.8",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
     "dotenv": "^16.0.3",
