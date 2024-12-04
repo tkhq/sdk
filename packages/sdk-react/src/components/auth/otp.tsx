@@ -45,8 +45,8 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
     };
 
     const handlePaste = (event: React.ClipboardEvent) => {
-      const pasteData = event.clipboardData.getData("Text");
-      if (/^\d{6}$/.test(pasteData)) {
+      const pasteData = event.clipboardData.getData("Text").replace(/\D/g, ""); // Ensure only digits are pasted
+      if (pasteData.length === 6) {
         const newOtp = pasteData.split("");
         setOtp(newOtp);
         onComplete(newOtp.join(""));
@@ -83,7 +83,14 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
             sx={{
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
-                  borderColor: hasError && !digit ? "red" : "gray",
+                  borderColor: hasError && !digit ? "red" : "D0D5DD",
+                },
+                "&:hover fieldset": {
+                  borderColor: "8A929E",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "D0D5DD",
+                  border: "1px solid", 
                 },
               },
             }}
