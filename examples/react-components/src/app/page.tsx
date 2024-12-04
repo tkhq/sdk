@@ -102,7 +102,11 @@ export default function AuthPage() {
       googleEnabled: config.socials.google,
       facebookEnabled: config.socials.facebook,
     };
-    navigator.clipboard.writeText(JSON.stringify(authConfig, null, 2));
+    const configToCopy = {
+      authConfig,
+      configOrder
+    }
+    navigator.clipboard.writeText(JSON.stringify(configToCopy, null, 2));
     toast.success("Copied to clipboard!");
   };
 
