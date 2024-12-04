@@ -397,7 +397,7 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
 }
       </div>
       <center>
-        <h3>{passkeySignupError ? "Authentication error" : passkeyCreated ? "Logging in with passkey" : "Creating passkey"}</h3>
+        <h3>{passkeySignupError ? "Authentication error" : passkeyCreated ? "Logging in with passkey..." : "Creating passkey..."}</h3>
       </center>
       <div className={styles.rowsContainer}>
         <center>
