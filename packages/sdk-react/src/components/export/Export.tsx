@@ -20,7 +20,7 @@ const Export: React.FC<ExportProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isIframeVisible, setIsIframeVisible] = useState(false);
   const TurnkeyExportIframeContainerId = "turnkey-export-iframe-container-id";
-  const TurnkeyIframeElementId = "turnkey-export-iframe-element-id";
+  const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
 
   const handleOpenModal = async () => {
     setIsModalOpen(true);

@@ -17,7 +17,7 @@ const Import: React.FC<ImportProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [walletName, setWalletName] = useState("");
   const TurnkeyImportIframeContainerId = "turnkey-import-iframe-container-id";
-  const TurnkeyIframeElementId = "turnkey-import-iframe-element-id";
+  const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
 
   const handleOpenModal = async () => {
     setIsModalOpen(true);
@@ -124,7 +124,7 @@ const Import: React.FC<ImportProps> = ({
             boxShadow: 24,
             p: 4,
             borderRadius: 2,
-            width: "336px"
+            width: "366px"
           }}
         >
           {/* Close Button */}
@@ -162,18 +162,22 @@ const Import: React.FC<ImportProps> = ({
 <div
       id={TurnkeyImportIframeContainerId}
       style={{
+        height: "100%",
+        overflow: "hidden",
         display: "block",
         backgroundColor: "#ffffff",
         width: "100%",
         boxSizing: "border-box",
-        padding: "20px",
+        padding: "5px",
         borderStyle: "solid",
         borderWidth: "1px",
         borderRadius: "8px",
         borderColor: "rgba(216, 219, 227, 1)",
       }}
     />
-
+{/* <div id = "import-iframe-container" className = {styles.iframeContainer}>
+    <iframe id = {TurnkeyIframeElementId} src = "https://import.turnkey.com"/>
+    </div> */}
 <TextField
                 type="walletName"
                 placeholder="Wallet name"
