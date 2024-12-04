@@ -1,6 +1,12 @@
-"use client"
+"use client";
 
-import { Export, Import, useTurnkey, getSuborgs, OtpVerification } from "@turnkey/sdk-react";
+import {
+  Export,
+  Import,
+  useTurnkey,
+  getSuborgs,
+  OtpVerification,
+} from "@turnkey/sdk-react";
 import { useEffect, useState } from "react";
 import "./dashboard.css";
 import {
@@ -20,228 +26,301 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { verifyEthSignature, verifySolSignatureWithAddress } from "../utils";
 import { keccak256, toUtf8Bytes } from "ethers";
 import { useRouter } from "next/navigation";
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import LaunchIcon from '@mui/icons-material/Launch';
-import { appleOidcToken, facebookOidcToken, googleOidcToken } from "../utils/oidc";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import LaunchIcon from "@mui/icons-material/Launch";
+import {
+  appleOidcToken,
+  facebookOidcToken,
+  googleOidcToken,
+} from "../utils/oidc";
 import { MuiPhone } from "../components/PhoneInput";
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Navbar from "../components/Navbar";
-import { Toaster, toast} from "sonner";
+import { Toaster, toast } from "sonner";
 
 export default function Dashboard() {
   const router = useRouter();
-  const { turnkey, getActiveClient, authIframeClient, passkeyClient } = useTurnkey();
+  const { turnkey, getActiveClient, authIframeClient, passkeyClient } =
+    useTurnkey();
   const [loading, setLoading] = useState(true);
-  const [iframeClient, setIframeClient] = useState<any>();
   const [accounts, setAccounts] = useState<any>([]);
   const [wallets, setWallets] = useState<any[]>([]);
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
-  const [selectedWallet, setSelectedWallet] = useState<string | null>(null)
+  const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
   const [isSignModalOpen, setIsSignModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isPasskeyModalOpen, setIsPasskeyModalOpen] = useState(false);
-  const [messageToSign, setMessageToSign] = useState("Signing within Turnkey Demo.");
-  const [signature, setSignature] = useState<any>(null);
-  const [suborgId, setSuborgId] = useState<string>("")
-  const [user, setUser] = useState<any>("")
-  const [otpId, setOtpId] = useState("")
-  const [messageSigningResult, setMessageSigningResult] = useState<string | null>(
-    null
+  const [messageToSign, setMessageToSign] = useState(
+    "Signing within Turnkey Demo."
   );
+  const [signature, setSignature] = useState<any>(null);
+  const [suborgId, setSuborgId] = useState<string>("");
+  const [user, setUser] = useState<any>("");
+  const [otpId, setOtpId] = useState("");
+  const [messageSigningResult, setMessageSigningResult] = useState<
+    string | null
+  >(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
-const [emailInput, setEmailInput] = useState("");
-const [phoneInput, setPhoneInput] = useState("");
+  const [emailInput, setEmailInput] = useState("");
+  const [phoneInput, setPhoneInput] = useState("");
 
+  const handleResendEmail = async () => {
+    const initAuthResponse = await authIframeClient?.initOtpAuth({
+      organizationId: suborgId,
+      otpType: "OTP_TYPE_EMAIL",
+      contact: emailInput,
+    });
+    setOtpId(initAuthResponse?.otpId!);
+  };
+  const handleResendSms = async () => {
+    const initAuthResponse = await authIframeClient?.initOtpAuth({
+      organizationId: suborgId,
+      otpType: "OTP_TYPE_SMS",
+      contact: phoneInput,
+    });
+    setOtpId(initAuthResponse?.otpId!);
+  };
 
-const handleResendEmail = async () => {
-  const initAuthResponse = await authIframeClient?.initOtpAuth({organizationId: suborgId, otpType: "OTP_TYPE_EMAIL", contact: emailInput})
-  setOtpId(initAuthResponse?.otpId!)
-}
-const handleResendSms = async () => {
-  const initAuthResponse = await authIframeClient?.initOtpAuth({organizationId: suborgId, otpType: "OTP_TYPE_SMS", contact: phoneInput})
-  setOtpId(initAuthResponse?.otpId!)
-}
+  const handleOtpSuccess = async (credentialBundle: any) => {
+    window.location.reload();
+  };
+  const handleOpenEmailModal = () => {
+    setIsEmailModalOpen(true);
+  };
+  const handleOpenPhoneModal = () => {
+    setIsPhoneModalOpen(true);
+  };
+  const handleEmailSubmit = async () => {
+    if (!emailInput) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    const suborgs = await getSuborgs({
+      filterType: "EMAIL",
+      filterValue: emailInput,
+    }); //TODO change to get verified suborgs
+    if (suborgs!.organizationIds.length > 0) {
+      toast.error("Email is already connected to another account");
+      return;
+    }
+    await authIframeClient?.updateUser({
+      organizationId: suborgId,
+      userId: user.userId,
+      userEmail: emailInput,
+      userTagIds: [],
+    });
+    const initAuthResponse = await authIframeClient?.initOtpAuth({
+      organizationId: suborgId,
+      otpType: "OTP_TYPE_EMAIL",
+      contact: emailInput,
+    });
+    setOtpId(initAuthResponse?.otpId!);
+    setIsEmailModalOpen(false);
+    setIsOtpModalOpen(true);
+  };
 
-
-const handleOtpSuccess = async (credentialBundle: any) => {
-  window.location.reload();
-}
-const handleOpenEmailModal = () => {
-  setIsEmailModalOpen(true);
-};
-const handleOpenPhoneModal = () => {
-  setIsPhoneModalOpen(true);
-};
-const handleEmailSubmit = async () => {
-  if (!emailInput) {
-    toast.error("Please enter a valid email address");
-    return;
-  }
-  const suborgs = await getSuborgs({filterType:"EMAIL", filterValue:emailInput}) //TODO change to get verified suborgs
-  if (suborgs!.organizationIds.length > 0){
-    toast.error("Email is already connected to another account");
-    return
-  }
-  await authIframeClient?.updateUser({organizationId: suborgId, userId: user.userId, userEmail: emailInput, userTagIds:[]})
-  const initAuthResponse = await authIframeClient?.initOtpAuth({organizationId: suborgId, otpType: "OTP_TYPE_EMAIL", contact: emailInput})
-  setOtpId(initAuthResponse?.otpId!)
-  setIsEmailModalOpen(false);
-  setIsOtpModalOpen(true)
-
-};
-
-
-const handlePhoneSubmit = async () => {
-  if (!phoneInput) {
-    toast.error("Please enter a valid phone number.");
-    return;
-  }
-  const suborgs = await getSuborgs({filterType:"PHONE_NUMBER", filterValue:phoneInput}) //TODO change to get verified suborgs
-  if (suborgs!.organizationIds.length > 0){
-    toast.error("Phone Number is already connected to another account");
-    return
-  }
-  await authIframeClient?.updateUser({organizationId: suborgId, userId: user.userId, userPhoneNumber: phoneInput, userTagIds:[]})
-  const initAuthResponse = await authIframeClient?.initOtpAuth({organizationId: suborgId, otpType: "OTP_TYPE_SMS", contact: phoneInput})
-  setOtpId(initAuthResponse?.otpId!)
-  setIsEmailModalOpen(false);
-  setIsOtpModalOpen(true)
-
-};
-
+  const handlePhoneSubmit = async () => {
+    if (!phoneInput) {
+      toast.error("Please enter a valid phone number.");
+      return;
+    }
+    const suborgs = await getSuborgs({
+      filterType: "PHONE_NUMBER",
+      filterValue: phoneInput,
+    }); //TODO change to get verified suborgs
+    if (suborgs!.organizationIds.length > 0) {
+      toast.error("Phone Number is already connected to another account");
+      return;
+    }
+    await authIframeClient?.updateUser({
+      organizationId: suborgId,
+      userId: user.userId,
+      userPhoneNumber: phoneInput,
+      userTagIds: [],
+    });
+    const initAuthResponse = await authIframeClient?.initOtpAuth({
+      organizationId: suborgId,
+      otpType: "OTP_TYPE_SMS",
+      contact: phoneInput,
+    });
+    setOtpId(initAuthResponse?.otpId!);
+    setIsEmailModalOpen(false);
+    setIsOtpModalOpen(true);
+  };
 
   const handleAddOauth = async (oauthType: string) => {
-    let oidcToken
+    let oidcToken;
     switch (oauthType) {
       case "Apple":
-        oidcToken = await appleOidcToken({iframePublicKey: authIframeClient?.iframePublicKey!, clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!, redirectURI: `${process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`})
+        oidcToken = await appleOidcToken({
+          iframePublicKey: authIframeClient?.iframePublicKey!,
+          clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!,
+          redirectURI: `${process.env
+            .NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`,
+        });
         break;
-  
+
       case "Facebook":
-        oidcToken = await facebookOidcToken({iframePublicKey: authIframeClient?.iframePublicKey!, clientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!, redirectURI: `${process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`})
+        oidcToken = await facebookOidcToken({
+          iframePublicKey: authIframeClient?.iframePublicKey!,
+          clientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!,
+          redirectURI: `${process.env
+            .NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`,
+        });
         break;
-  
+
       case "Google":
-        oidcToken = await googleOidcToken({iframePublicKey: authIframeClient?.iframePublicKey!, clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!, redirectURI: `${process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`})
+        oidcToken = await googleOidcToken({
+          iframePublicKey: authIframeClient?.iframePublicKey!,
+          clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+          redirectURI: `${process.env
+            .NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`,
+        });
         break;
-  
+
       default:
         console.error(`Unknown OAuth type: ${oauthType}`);
     }
-    if (oidcToken){
-      const suborgs = await getSuborgs({filterType:"OIDC_TOKEN", filterValue:oidcToken.idToken})
-      if (suborgs!.organizationIds.length > 0){
+    if (oidcToken) {
+      const suborgs = await getSuborgs({
+        filterType: "OIDC_TOKEN",
+        filterValue: oidcToken.idToken,
+      });
+      if (suborgs!.organizationIds.length > 0) {
         toast.error("Social login is already connected to another account");
-        return
+        return;
       }
-      await authIframeClient?.createOauthProviders({organizationId: suborgId, userId: user.userId, oauthProviders: [{providerName: `TurnkeyDemoApp - ${Date.now()}`, oidcToken: oidcToken.idToken}]})
+      await authIframeClient?.createOauthProviders({
+        organizationId: suborgId,
+        userId: user.userId,
+        oauthProviders: [
+          {
+            providerName: `TurnkeyDemoApp - ${Date.now()}`,
+            oidcToken: oidcToken.idToken,
+          },
+        ],
+      });
       window.location.reload();
     }
-  }
+  };
 
   const handleAddPasskey = async () => {
-    const siteInfo = `${new URL(window.location.href).hostname} - ${new Date().toLocaleString(undefined, {
+    const siteInfo = `${
+      new URL(window.location.href).hostname
+    } - ${new Date().toLocaleString(undefined, {
       year: "numeric",
       month: "long",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-  })}`;
+    })}`;
     const { encodedChallenge, attestation } =
       (await passkeyClient?.createUserPasskey({
         publicKey: { user: { name: siteInfo, displayName: siteInfo } },
       })) || {};
 
     if (encodedChallenge && attestation) {
-      await authIframeClient?.createAuthenticators({organizationId: suborgId, userId: user.userId, authenticators: [{authenticatorName: `Passkey - ${Date.now()}`, challenge:encodedChallenge, attestation  }]})
+      await authIframeClient?.createAuthenticators({
+        organizationId: suborgId,
+        userId: user.userId,
+        authenticators: [
+          {
+            authenticatorName: `Passkey - ${Date.now()}`,
+            challenge: encodedChallenge,
+            attestation,
+          },
+        ],
+      });
       window.location.reload();
     }
-  }
-
+  };
 
   const handleDropdownClick = (event: React.MouseEvent<HTMLDivElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  
+
   const handleDropdownClose = () => {
     setAnchorEl(null);
   };
 
   const handleDeleteAccount: any = async () => {
-    await authIframeClient?.deleteSubOrganization({organizationId: suborgId, deleteWithoutExport: true})
-    await handleLogout()
-  }
+    await authIframeClient?.deleteSubOrganization({
+      organizationId: suborgId,
+      deleteWithoutExport: true,
+    });
+    await handleLogout();
+  };
 
-const handleLogout: any = async () => {
-  turnkey?.logoutUser()
-  router.push("/");
-}
-useEffect(() => {
-  const manageSession = async () => {
-    try {
-      if (turnkey && authIframeClient) {
-        const session = await turnkey?.getReadWriteSession();
-        if (!session || Date.now() > session!.sessionExpiry) {
-          await handleLogout();
-        }
+  const handleLogout: any = async () => {
+    turnkey?.logoutUser();
+    router.push("/");
+  };
+  useEffect(() => {
+    const manageSession = async () => {
+      try {
+        if (turnkey && authIframeClient) {
+          const session = await turnkey?.getReadWriteSession();
+          console.log(session);
+          if (!session || Date.now() > session!.sessionExpiry) {
+            await handleLogout();
+          }
+          await authIframeClient.injectCredentialBundle(
+            session.credentialBundle
+          );
+          const whoami = await authIframeClient?.getWhoami();
+          const suborgId = whoami?.organizationId;
+          setSuborgId(suborgId!);
 
-        const iframeClient = await getActiveClient();
-        setIframeClient(iframeClient);
-
-        const whoami = await iframeClient?.getWhoami();
-        const suborgId = whoami?.organizationId;
-        setSuborgId(suborgId!)
-
-        const userResponse = await iframeClient!.getUser({organizationId: suborgId!, userId: whoami?.userId!})
-
-        setUser(userResponse.user)
-        console.log(userResponse.user)
-        const walletsResponse = await iframeClient!.getWallets({
-          organizationId: suborgId!,
-        });
-        setWallets(walletsResponse.wallets);
-
-        // Default to the first wallet if available
-        if (walletsResponse.wallets.length > 0) {
-          const defaultWalletId = walletsResponse.wallets[0].walletId;
-          setSelectedWallet(defaultWalletId);
-
-          const accountsResponse = await iframeClient!.getWalletAccounts({
+          const userResponse = await authIframeClient!.getUser({
             organizationId: suborgId!,
-            walletId: defaultWalletId,
+            userId: whoami?.userId!,
           });
-          setAccounts(accountsResponse.accounts);
-          if (accountsResponse.accounts.length > 0) {
-            setSelectedAccount(accountsResponse.accounts[0].address);
+
+          setUser(userResponse.user);
+          console.log(userResponse.user);
+          const walletsResponse = await authIframeClient!.getWallets({
+            organizationId: suborgId!,
+          });
+          setWallets(walletsResponse.wallets);
+
+          // Default to the first wallet if available
+          if (walletsResponse.wallets.length > 0) {
+            const defaultWalletId = walletsResponse.wallets[0].walletId;
+            setSelectedWallet(defaultWalletId);
+
+            const accountsResponse = await authIframeClient!.getWalletAccounts({
+              organizationId: suborgId!,
+              walletId: defaultWalletId,
+            });
+            setAccounts(accountsResponse.accounts);
+            if (accountsResponse.accounts.length > 0) {
+              setSelectedAccount(accountsResponse.accounts[0].address);
+            }
           }
         }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+    };
+    if (authIframeClient) {
+      manageSession();
     }
-  };
-  if (authIframeClient){
-    manageSession();
-  }
-
-}, [authIframeClient, turnkey]);
-
+  }, [authIframeClient, turnkey]);
 
   const getWallets = async () => {
-    const walletsResponse = await iframeClient!.getWallets({
+    const walletsResponse = await authIframeClient!.getWallets({
       organizationId: suborgId!,
     });
     setWallets(walletsResponse.wallets);
-    
-  }
+  };
   const handleAccountSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedAccount(event.target.value); // Save the full address (untruncated)
   };
@@ -251,22 +330,21 @@ useEffect(() => {
       toast.error("Please select an account first!");
       return;
     }
-    setIsSignModalOpen(true); 
+    setIsSignModalOpen(true);
   };
 
   const handleModalClose = () => {
-    setIsSignModalOpen(false); 
+    setIsSignModalOpen(false);
     setSignature(null);
     setMessageSigningResult(null);
   };
 
-
   const handleWalletSelect = async (walletId: string) => {
     setSelectedWallet(walletId);
     setAnchorEl(null); // Close the dropdown
-  
+
     // Fetch accounts for the selected wallet
-    const accountsResponse = await iframeClient!.getWalletAccounts({
+    const accountsResponse = await authIframeClient!.getWalletAccounts({
       organizationId: suborgId!,
       walletId,
     });
@@ -281,11 +359,12 @@ useEffect(() => {
   const handleSign = async () => {
     try {
       const addressType = selectedAccount?.startsWith("0x") ? "ETH" : "SOL";
-      const hashedMessage = addressType === "ETH"
+      const hashedMessage =
+        addressType === "ETH"
           ? keccak256(toUtf8Bytes(messageToSign)) // Ethereum requires keccak256 hash
           : Buffer.from(messageToSign, "utf8").toString("hex"); // Solana doesn't require hashing
-      
-      const resp = await iframeClient?.signRawPayload({
+
+      const resp = await authIframeClient?.signRawPayload({
         organizationId: suborgId!,
         signWith: selectedAccount!,
         payload: hashedMessage,
@@ -295,7 +374,7 @@ useEffect(() => {
             ? "HASH_FUNCTION_NO_OP"
             : "HASH_FUNCTION_NOT_APPLICABLE",
       });
-      setMessageSigningResult("Success! Message signed")
+      setMessageSigningResult("Success! Message signed");
       setSignature({ r: resp?.r, s: resp?.s, v: resp?.v });
     } catch (error) {
       console.error("Error signing message:", error);
@@ -308,14 +387,14 @@ useEffect(() => {
     const verificationPassed =
       addressType === "ETH"
         ? verifyEthSignature(
-          messageToSign,
+            messageToSign,
             signature.r,
             signature.s,
             signature.v,
             selectedAccount!
           )
         : verifySolSignatureWithAddress(
-          messageToSign,
+            messageToSign,
             signature.r,
             signature.s,
             selectedAccount!
@@ -332,7 +411,11 @@ useEffect(() => {
       <main className="main">
         <Navbar />
         <div className="loaderOverlay">
-          <CircularProgress size={80} thickness={1} className="circularProgress" />
+          <CircularProgress
+            size={80}
+            thickness={1}
+            className="circularProgress"
+          />
         </div>
       </main>
     );
@@ -340,231 +423,227 @@ useEffect(() => {
 
   return (
     <main className="main">
-      <Navbar/>
-      
-      <link rel="preload" href="/eth-hover.svg" as="image"/>
-      <link rel="preload" href="/solana-hover.svg" as="image"/>
+      <Navbar />
+
+      <link rel="preload" href="/eth-hover.svg" as="image" />
+      <link rel="preload" href="/solana-hover.svg" as="image" />
       <div className="dashboardCard">
         <Typography variant="h6" className="configTitle">
           Login methods
         </Typography>
-        <div className = "loginMethodContainer">
-        <div className="loginMethodRow">
-  <div className="labelContainer">
-    <img src="/mail.svg" className="iconSmall" />
-    <Typography>Email</Typography>
-    {user && user.userEmail && (
-      <span className="loginMethodDetails">{user.userEmail}</span>
-    )}
-  </div>
-  {user && user.userEmail ? (
-    <CheckCircleIcon
-      sx={{color: "#4CAF50" }}
-    />
-  ) : (
-    <div onClick={handleOpenEmailModal}>
-    <AddCircleIcon sx={{ cursor: "pointer" }} />
-    </div>
-  )}
-</div>
+        <div className="loginMethodContainer">
+          <div className="loginMethodRow">
+            <div className="labelContainer">
+              <img src="/mail.svg" className="iconSmall" />
+              <Typography>Email</Typography>
+              {user && user.userEmail && (
+                <span className="loginMethodDetails">{user.userEmail}</span>
+              )}
+            </div>
+            {user && user.userEmail ? (
+              <CheckCircleIcon sx={{ color: "#4CAF50" }} />
+            ) : (
+              <div onClick={handleOpenEmailModal}>
+                <AddCircleIcon sx={{ cursor: "pointer" }} />
+              </div>
+            )}
+          </div>
 
+          <div className="loginMethodRow">
+            <div className="labelContainer">
+              <img src="/phone.svg" className="iconSmall" />
+              <Typography>Phone</Typography>
+              {user && user.userPhoneNumber && (
+                <span className="loginMethodDetails">
+                  {user.userPhoneNumber}
+                </span>
+              )}
+            </div>
+            {user && user.userPhoneNumber ? (
+              <CheckCircleIcon sx={{ color: "#4CAF50" }} />
+            ) : (
+              <div onClick={handleOpenPhoneModal}>
+                <AddCircleIcon sx={{ cursor: "pointer" }} />
+              </div>
+            )}
+          </div>
 
-<div className="loginMethodRow">
-  <div className="labelContainer">
-    <img src="/phone.svg" className="iconSmall" />
-    <Typography>Phone</Typography>
-    {user && user.userPhoneNumber && (
-      <span className="loginMethodDetails">{user.userPhoneNumber}</span>
-    )}
-  </div>
-  {user && user.userPhoneNumber ? (
-    <CheckCircleIcon
-    sx={{ color: "#4CAF50" }}
-  />
-  ) : (
-    <div onClick={handleOpenPhoneModal}>
-    
-    <AddCircleIcon sx={{ cursor: "pointer" }} />
-    </div>
-  )}
-</div>
+          <div className="loginMethodRow">
+            <div className="labelContainer">
+              <img src="/key.svg" className="iconSmall" />
+              <Typography>Passkey</Typography>
+            </div>
+            {user && user.authenticators && user.authenticators.length > 0 ? (
+              <CheckCircleIcon sx={{ color: "#4CAF50" }} />
+            ) : (
+              <div onClick={() => setIsPasskeyModalOpen(true)}>
+                <AddCircleIcon sx={{ cursor: "pointer" }} />
+              </div>
+            )}
+          </div>
 
-<div className="loginMethodRow">
-  <div className="labelContainer">
-    <img src="/key.svg" className="iconSmall" />
-    <Typography>Passkey</Typography>
-  </div>
-  {user && user.authenticators && user.authenticators.length > 0 ? (
-    <CheckCircleIcon
-    sx={{ color: "#4CAF50" }}
-  />
-  ) : (
-    <div onClick = {() => setIsPasskeyModalOpen(true)}>
-    <AddCircleIcon sx={{ cursor: "pointer" }} />
-    </div>
-  )}
-</div>
-
-        <Typography className="socialsTitle">
-          Socials
-        </Typography>   
-        <div className="loginMethodRow">
-  <div className="labelContainer">
-    <img src="/google.svg" className="iconSmall" />
-    <Typography>Google</Typography>
-    {user && user.oauthProviders && user.oauthProviders.some(
-  (provider: { issuer: string; }) => provider.issuer.toLowerCase().includes("google"))
- && (
-      <span className="loginMethodDetails">{}</span>
-    )}
-  </div>
-  {user && user.oauthProviders && user.oauthProviders.some(
-  (provider: { issuer: string; }) => provider.issuer.toLowerCase().includes("google")
-) ? (
-  <CheckCircleIcon
-  sx={{ color: "#4CAF50" }}
-/>
-  ) : (
-    <div onClick = {() => handleAddOauth("Google")} >
-    <AddCircleIcon sx={{ cursor: "pointer" }} />
-    </div>
-  )}
-</div>
-<div className="loginMethodRow">
-  <div className="labelContainer">
-    <img src="/apple.svg" className="iconSmall" />
-    <Typography>Apple</Typography>
-  </div>
-  {user && user.oauthProviders && user.oauthProviders.some(
-  (provider: { issuer: string; }) => provider.issuer.toLowerCase().includes("apple")
-) ? (
-  <CheckCircleIcon
-  sx={{  color: "#4CAF50" }}
-/>
-  ) : (
-    <div onClick ={() => handleAddOauth("Apple")}>
-    <AddCircleIcon sx={{ cursor: "pointer" }} />
-    </div>
-  )}
-</div>
-<div className="loginMethodRow">
-  <div className="labelContainer">
-    <img src="/facebook.svg" className="iconSmall" />
-    <Typography>Facebook</Typography>
-  </div>
-  {user && user.oauthProviders && user.oauthProviders.some(
-  (provider: { issuer: string; }) => provider.issuer.toLowerCase().includes("facebook")
-) ? (
-  <CheckCircleIcon
-  sx={{ color: "#4CAF50" }}
-/>
-  ) : (
-    <div onClick ={() => handleAddOauth("Facebook")}>
-    <AddCircleIcon sx={{ cursor: "pointer" }} />
-    </div>
-  )}
-</div>
+          <Typography className="socialsTitle">Socials</Typography>
+          <div className="loginMethodRow">
+            <div className="labelContainer">
+              <img src="/google.svg" className="iconSmall" />
+              <Typography>Google</Typography>
+              {user &&
+                user.oauthProviders &&
+                user.oauthProviders.some((provider: { issuer: string }) =>
+                  provider.issuer.toLowerCase().includes("google")
+                ) && <span className="loginMethodDetails">{}</span>}
+            </div>
+            {user &&
+            user.oauthProviders &&
+            user.oauthProviders.some((provider: { issuer: string }) =>
+              provider.issuer.toLowerCase().includes("google")
+            ) ? (
+              <CheckCircleIcon sx={{ color: "#4CAF50" }} />
+            ) : (
+              <div onClick={() => handleAddOauth("Google")}>
+                <AddCircleIcon sx={{ cursor: "pointer" }} />
+              </div>
+            )}
+          </div>
+          <div className="loginMethodRow">
+            <div className="labelContainer">
+              <img src="/apple.svg" className="iconSmall" />
+              <Typography>Apple</Typography>
+            </div>
+            {user &&
+            user.oauthProviders &&
+            user.oauthProviders.some((provider: { issuer: string }) =>
+              provider.issuer.toLowerCase().includes("apple")
+            ) ? (
+              <CheckCircleIcon sx={{ color: "#4CAF50" }} />
+            ) : (
+              <div onClick={() => handleAddOauth("Apple")}>
+                <AddCircleIcon sx={{ cursor: "pointer" }} />
+              </div>
+            )}
+          </div>
+          <div className="loginMethodRow">
+            <div className="labelContainer">
+              <img src="/facebook.svg" className="iconSmall" />
+              <Typography>Facebook</Typography>
+            </div>
+            {user &&
+            user.oauthProviders &&
+            user.oauthProviders.some((provider: { issuer: string }) =>
+              provider.issuer.toLowerCase().includes("facebook")
+            ) ? (
+              <CheckCircleIcon sx={{ color: "#4CAF50" }} />
+            ) : (
+              <div onClick={() => handleAddOauth("Facebook")}>
+                <AddCircleIcon sx={{ cursor: "pointer" }} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <div className="dashboardComponent">
         <div className="dashboardCard">
           <div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    cursor: "pointer",
-    marginTop: "16px",
-    marginBottom: "16px",
-  }}
-  onClick={handleDropdownClick}
->
-  <Typography variant="body1" style={{ marginRight: "2px", fontSize: "1.5rem", fontWeight: "600" }}>
-    {wallets.find((wallet) => wallet.walletId === selectedWallet)?.walletName ||
-      "Select Wallet"}
-  </Typography>
-  <ArrowDropDownIcon />
-</div>
+            style={{
+              display: "flex",
+              alignItems: "center",
+              cursor: "pointer",
+              marginTop: "16px",
+              marginBottom: "16px",
+            }}
+            onClick={handleDropdownClick}
+          >
+            <Typography
+              variant="body1"
+              style={{
+                marginRight: "2px",
+                fontSize: "1.5rem",
+                fontWeight: "600",
+              }}
+            >
+              {wallets.find((wallet) => wallet.walletId === selectedWallet)
+                ?.walletName || "Select Wallet"}
+            </Typography>
+            <ArrowDropDownIcon />
+          </div>
 
-<Menu
-  anchorEl={anchorEl}
-  open={Boolean(anchorEl)}
-  onClose={handleDropdownClose}
-  sx={{
-    '& .MuiPaper-root': {
-      width: '112px',
-    },
-  }}
->
-  {wallets.map((wallet) => (
-    <MenuItem
-      key={wallet.walletId}
-      onClick={() => handleWalletSelect(wallet.walletId)}
-    >
-      {wallet.walletName || wallet.walletId}
-    </MenuItem>
-  ))}
-</Menu>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleDropdownClose}
+            sx={{
+              "& .MuiPaper-root": {
+                width: "112px",
+              },
+            }}
+          >
+            {wallets.map((wallet) => (
+              <MenuItem
+                key={wallet.walletId}
+                onClick={() => handleWalletSelect(wallet.walletId)}
+              >
+                {wallet.walletName || wallet.walletId}
+              </MenuItem>
+            ))}
+          </Menu>
           <RadioGroup value={selectedAccount} onChange={handleAccountSelect}>
             <div className="accountContainer">
               {accounts.map((account: any, index: number) => (
                 <div
-  key={index}
-  className="accountRow"
-  onClick={() => setSelectedAccount(account.address)} // Ensures the radio button is selected
-  style={{
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-  }}
->
-  <div
-    className="hoverContainer"
-    onClick={() =>
-      window.open(
-        account.addressFormat === "ADDRESS_FORMAT_ETHEREUM"
-          ? `https://etherscan.io/address/${account.address}`
-          : `https://solscan.io/account/${account.address}`,
-        "_blank"
-      )
-    }
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-    }}
-  >
-    {account.addressFormat === "ADDRESS_FORMAT_ETHEREUM" && (
-      <div className="eth-icon" />
-    )}
-    {account.addressFormat === "ADDRESS_FORMAT_SOLANA" && (
-      <div className="sol-icon" />
-    )}
-    <span className="accountAddress">{`${account.address.slice(
-      0,
-      5
-    )}...${account.address.slice(-5)}`}</span>
-    <LaunchIcon className="launchIcon" />
-  </div>
-  <FormControlLabel
-    value={account.address}
-    control={
-      <Radio
-        sx={{
-          color: "var(--Greyscale-900, #2b2f33)",
-          "&.Mui-checked": {
-            color: "var(--Greyscale-900, #2b2f33)",
-          },
-        }}
-      />
-    }
-    label=""
-    className="radioButton"
-    style={{ pointerEvents: "none" }} // Ensures radio works via the parent click
-  />
-</div>
-
-
-
+                  key={index}
+                  className="accountRow"
+                  onClick={() => setSelectedAccount(account.address)} // Ensures the radio button is selected
+                  style={{
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <div
+                    className="hoverContainer"
+                    onClick={() =>
+                      window.open(
+                        account.addressFormat === "ADDRESS_FORMAT_ETHEREUM"
+                          ? `https://etherscan.io/address/${account.address}`
+                          : `https://solscan.io/account/${account.address}`,
+                        "_blank"
+                      )
+                    }
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    {account.addressFormat === "ADDRESS_FORMAT_ETHEREUM" && (
+                      <div className="eth-icon" />
+                    )}
+                    {account.addressFormat === "ADDRESS_FORMAT_SOLANA" && (
+                      <div className="sol-icon" />
+                    )}
+                    <span className="accountAddress">{`${account.address.slice(
+                      0,
+                      5
+                    )}...${account.address.slice(-5)}`}</span>
+                    <LaunchIcon className="launchIcon" />
+                  </div>
+                  <FormControlLabel
+                    value={account.address}
+                    control={
+                      <Radio
+                        sx={{
+                          color: "var(--Greyscale-900, #2b2f33)",
+                          "&.Mui-checked": {
+                            color: "var(--Greyscale-900, #2b2f33)",
+                          },
+                        }}
+                      />
+                    }
+                    label=""
+                    className="radioButton"
+                    style={{ pointerEvents: "none" }} // Ensures radio works via the parent click
+                  />
+                </div>
               ))}
               <button className="signMessage" onClick={handleSignMessageClick}>
                 Sign a message
@@ -573,19 +652,22 @@ useEffect(() => {
           </RadioGroup>
 
           <div className="exportImportGroup">
-          <Export walletId = {selectedWallet!}></Export>
-          <Import onSuccess = {getWallets}/>
+            <Export walletId={selectedWallet!}></Export>
+            <Import onSuccess={getWallets} />
           </div>
           <div className="authFooter">
             <div className="authFooterLeft">
-              <div onClick ={handleLogout} className="authFooterButton">
+              <div onClick={handleLogout} className="authFooterButton">
                 <LogoutIcon />
                 <Typography>Log out</Typography>
               </div>
             </div>
             <div className="authFooterSeparatorVertical" />
             <div className="authFooterRight">
-              <div onClick= {() => setIsDeleteModalOpen(true)}className="authFooterButton">
+              <div
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="authFooterButton"
+              >
                 <DeleteOutlineIcon sx={{ color: "#FB4E2B" }} />
                 <Typography>Delete account</Typography>
               </div>
@@ -594,414 +676,424 @@ useEffect(() => {
         </div>
       </div>
       <Modal open={isDeleteModalOpen}>
-  <Box
-    sx={{
-      outline: "none",
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      width: 400,
-      bgcolor: "var(--Greyscale-20, #f5f7fb)",
-      boxShadow: 24,
-      p: 4,
-      borderRadius: 2,
-    }}
-  >
-    <div
-      onClick={()=> setIsDeleteModalOpen(false)}
-      style={{
-        position: "absolute",
-        top: "16px",
-        right: "16px",
-        background: "none",
-        border: "none",
-        fontSize: "20px",
-        fontWeight: "bold",
-        cursor: "pointer",
-        color: "#6C727E",
-      }}
-    >
-      &times;
-    </div>
-    <Typography variant="h6" className="modalTitle">
-    Confirm account deletion
-    </Typography>
-    <Typography
-      variant="subtitle2"
-      sx={{
-        color: "#6C727E",
-        marginTop: "8px",
-      }}
-    >
-      This action can not be undone.
-    </Typography>
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "flex-end",
-        marginTop: "16px",
-        gap: "12px",
-      }}
-    >
-      <button
-        style={{
-          padding: "8px 16px",
-          background: "#FB4E2B",
-          color: "#ffffff",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-        }}
-        onClick={handleDeleteAccount}
-      >
-        Continue
-      </button>
-    </div>
-  </Box>
-</Modal>
-
+        <Box
+          sx={{
+            outline: "none",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "var(--Greyscale-20, #f5f7fb)",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <div
+            onClick={() => setIsDeleteModalOpen(false)}
+            style={{
+              position: "absolute",
+              top: "16px",
+              right: "16px",
+              background: "none",
+              border: "none",
+              fontSize: "20px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              color: "#6C727E",
+            }}
+          >
+            &times;
+          </div>
+          <Typography variant="h6" className="modalTitle">
+            Confirm account deletion
+          </Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              color: "#6C727E",
+              marginTop: "8px",
+            }}
+          >
+            This action can not be undone.
+          </Typography>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: "16px",
+              gap: "12px",
+            }}
+          >
+            <button
+              style={{
+                padding: "8px 16px",
+                background: "#FB4E2B",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+              onClick={handleDeleteAccount}
+            >
+              Continue
+            </button>
+          </div>
+        </Box>
+      </Modal>
 
       <Modal open={isSignModalOpen} onClose={handleModalClose}>
-  <Box
-    sx={{
-      outline: "none",
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      width: 400,
-      bgcolor: "var(--Greyscale-20, #f5f7fb)", 
-      boxShadow: 24,
-      p: 4,
-      borderRadius: 2,
-    }}
-  >
-        <div
-      onClick={handleModalClose}
-      style={{
-        position: "absolute",
-        top: "16px",
-        right: "16px",
-        background: "none",
-        border: "none",
-        fontSize: "20px",
-        fontWeight: "bold",
-        cursor: "pointer",
-        color: "#6C727E",
-      }}
-    >
-      &times;
-    </div>
-        <Typography variant="h6" className="modalTitle">
-          Sign a message
-        </Typography>
-        <Typography
-      variant="subtitle2"
-      sx={{
-        color: "#6C727E",
-      }}
-    >
-      This helps prove you signed a message using your address.
-    </Typography>
-    <TextField
-      disabled = {messageSigningResult?.startsWith("Verif")}
-      fullWidth
-      margin="normal"
-      value={signature ? JSON.stringify(signature) : messageToSign}
-      rows = {5}
-      multiline
-      onChange={(e) => signature ? setSignature(JSON.parse(e.target.value)) : setMessageToSign(e.target.value)}
-      sx={{
-        bgcolor: "#ffffff", 
-        "& .MuiOutlinedInput-root": {
-          height: "auto", 
-          alignItems: "flex-start",
-          "& fieldset": {
-            borderColor: "#D0D5DD",
-          },
-          "&:hover fieldset": {
-            borderColor: "#8A929E",
-          },
-          "&.Mui-focused fieldset": {
-            borderColor: "#D0D5DD",
-            border: "1px solid",
-          },
-        },
-        "& .MuiInputBase-input": {
-          whiteSpace: "pre-wrap", 
-          wordWrap: "break-word",
-        },
-      }}
-    />
-        {messageSigningResult && (
-      <Typography
-        sx={{
-          mt: 2,
-          color: (messageSigningResult.startsWith("Verified") ||  messageSigningResult.startsWith("Success"))
-            ? "green"
-            : "red",
-        }}
-      >
-        {messageSigningResult}
-      </Typography>
-    )}
-    {signature ? 
-    messageSigningResult?.startsWith("Verif") ?
-    <button
-    style={{
-      marginTop: "12px",
-    }}
-    onClick={handleModalClose}
-  >
-    Done
-  </button>
- :
- <button
- style={{
-   marginTop: "12px",
- }}
- onClick={handleVerify}
->
- Verify
-</button>
-        :     <button
-      onClick={handleSign}
-      style={{
-        marginTop: "12px",
-      }}
-    >
-      Sign
-    </button>
-    }
-  </Box>
-</Modal>
-{
-isEmailModalOpen &&
-<Modal open={isEmailModalOpen} onClose={() => setIsEmailModalOpen(false)}>
-  <Box
-    sx={{
-      outline: "none",
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      width: 400,
-      bgcolor: "var(--Greyscale-20, #f5f7fb)", 
-      boxShadow: 24,
-      p: 4,
-      borderRadius: 2,
-    }}
-  >
-    <div
-      onClick={() => setIsEmailModalOpen(false)}
-      style={{
-        position: "absolute",
-        top: "16px",
-        right: "16px",
-        background: "none",
-        border: "none",
-        fontSize: "20px",
-        fontWeight: "bold",
-        cursor: "pointer",
-        color: "#6C727E",
-      }}
-    >
-      &times;
-    </div>
-    <Typography variant="h6" className="modalTitle">
-    Connect email
-    </Typography>
-    <TextField
-      fullWidth
-      margin="normal"
-      value={emailInput}
-      onChange={(e) => setEmailInput(e.target.value)}
-      placeholder="Enter your email"
-      sx={{
-        bgcolor: "#ffffff", 
-        "& .MuiOutlinedInput-root": {
-          "& fieldset": {
-            borderColor: "#D0D5DD",
-          },
-          "&:hover fieldset": {
-            borderColor: "#8A929E",
-          },
-          "&.Mui-focused fieldset": {
-            borderColor: "#D0D5DD",
-            border: "1px solid",
-          },
-        },
-        "& .MuiInputBase-input": {
-          whiteSpace: "pre-wrap", 
-          wordWrap: "break-word",
-        },
-      }}
-    />
-    <button className="continue"  onClick={handleEmailSubmit}>
-        Continue
-    </button>
-  </Box>
-</Modal>
-}
+        <Box
+          sx={{
+            outline: "none",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "var(--Greyscale-20, #f5f7fb)",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <div
+            onClick={handleModalClose}
+            style={{
+              position: "absolute",
+              top: "16px",
+              right: "16px",
+              background: "none",
+              border: "none",
+              fontSize: "20px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              color: "#6C727E",
+            }}
+          >
+            &times;
+          </div>
+          <Typography variant="h6" className="modalTitle">
+            Sign a message
+          </Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              color: "#6C727E",
+            }}
+          >
+            This helps prove you signed a message using your address.
+          </Typography>
+          <TextField
+            disabled={messageSigningResult?.startsWith("Verif")}
+            fullWidth
+            margin="normal"
+            value={signature ? JSON.stringify(signature) : messageToSign}
+            rows={5}
+            multiline
+            onChange={(e) =>
+              signature
+                ? setSignature(JSON.parse(e.target.value))
+                : setMessageToSign(e.target.value)
+            }
+            sx={{
+              bgcolor: "#ffffff",
+              "& .MuiOutlinedInput-root": {
+                height: "auto",
+                alignItems: "flex-start",
+                "& fieldset": {
+                  borderColor: "#D0D5DD",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#8A929E",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#D0D5DD",
+                  border: "1px solid",
+                },
+              },
+              "& .MuiInputBase-input": {
+                whiteSpace: "pre-wrap",
+                wordWrap: "break-word",
+              },
+            }}
+          />
+          {messageSigningResult && (
+            <Typography
+              sx={{
+                mt: 2,
+                color:
+                  messageSigningResult.startsWith("Verified") ||
+                  messageSigningResult.startsWith("Success")
+                    ? "green"
+                    : "red",
+              }}
+            >
+              {messageSigningResult}
+            </Typography>
+          )}
+          {signature ? (
+            messageSigningResult?.startsWith("Verif") ? (
+              <button
+                style={{
+                  marginTop: "12px",
+                }}
+                onClick={handleModalClose}
+              >
+                Done
+              </button>
+            ) : (
+              <button
+                style={{
+                  marginTop: "12px",
+                }}
+                onClick={handleVerify}
+              >
+                Verify
+              </button>
+            )
+          ) : (
+            <button
+              onClick={handleSign}
+              style={{
+                marginTop: "12px",
+              }}
+            >
+              Sign
+            </button>
+          )}
+        </Box>
+      </Modal>
+      {isEmailModalOpen && (
+        <Modal
+          open={isEmailModalOpen}
+          onClose={() => setIsEmailModalOpen(false)}
+        >
+          <Box
+            sx={{
+              outline: "none",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 400,
+              bgcolor: "var(--Greyscale-20, #f5f7fb)",
+              boxShadow: 24,
+              p: 4,
+              borderRadius: 2,
+            }}
+          >
+            <div
+              onClick={() => setIsEmailModalOpen(false)}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: "16px",
+                background: "none",
+                border: "none",
+                fontSize: "20px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                color: "#6C727E",
+              }}
+            >
+              &times;
+            </div>
+            <Typography variant="h6" className="modalTitle">
+              Connect email
+            </Typography>
+            <TextField
+              fullWidth
+              margin="normal"
+              value={emailInput}
+              onChange={(e) => setEmailInput(e.target.value)}
+              placeholder="Enter your email"
+              sx={{
+                bgcolor: "#ffffff",
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#D0D5DD",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#8A929E",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#D0D5DD",
+                    border: "1px solid",
+                  },
+                },
+                "& .MuiInputBase-input": {
+                  whiteSpace: "pre-wrap",
+                  wordWrap: "break-word",
+                },
+              }}
+            />
+            <button className="continue" onClick={handleEmailSubmit}>
+              Continue
+            </button>
+          </Box>
+        </Modal>
+      )}
 
-{
-isPhoneModalOpen &&
-<Modal open={isPhoneModalOpen} onClose={() => setIsPhoneModalOpen(false)}>
-  <Box
-    sx={{
-      outline: "none",
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      width: 400,
-      bgcolor: "var(--Greyscale-20, #f5f7fb)", 
-      boxShadow: 24,
-      p: 4,
-      borderRadius: 2,
-    }}
-  >
-    <div
-      onClick={() => setIsPhoneModalOpen(false)}
-      style={{
-        position: "absolute",
-        top: "16px",
-        right: "16px",
-        background: "none",
-        border: "none",
-        fontSize: "20px",
-        fontWeight: "bold",
-        cursor: "pointer",
-        color: "#6C727E",
-      }}
-    >
-      &times;
-    </div>
-    <Typography variant="h6" className="modalTitle">
-    Connect phone
-    </Typography>
-    <MuiPhone
-    placeholder= "Phone number"
-      fullWidth
-      margin="normal"
-      value={phoneInput}
-      onChange={(e) => setPhoneInput(e)}
-    />
-    <button className="continue"  onClick={handlePhoneSubmit}>
-        Continue
-    </button>
-  </Box>
-</Modal>
-}
+      {isPhoneModalOpen && (
+        <Modal
+          open={isPhoneModalOpen}
+          onClose={() => setIsPhoneModalOpen(false)}
+        >
+          <Box
+            sx={{
+              outline: "none",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 400,
+              bgcolor: "var(--Greyscale-20, #f5f7fb)",
+              boxShadow: 24,
+              p: 4,
+              borderRadius: 2,
+            }}
+          >
+            <div
+              onClick={() => setIsPhoneModalOpen(false)}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: "16px",
+                background: "none",
+                border: "none",
+                fontSize: "20px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                color: "#6C727E",
+              }}
+            >
+              &times;
+            </div>
+            <Typography variant="h6" className="modalTitle">
+              Connect phone
+            </Typography>
+            <MuiPhone
+              placeholder="Phone number"
+              fullWidth
+              margin="normal"
+              value={phoneInput}
+              onChange={(e) => setPhoneInput(e)}
+            />
+            <button className="continue" onClick={handlePhoneSubmit}>
+              Continue
+            </button>
+          </Box>
+        </Modal>
+      )}
 
-{
-isOtpModalOpen &&
-<Modal open={isOtpModalOpen} onClose={() => setIsOtpModalOpen(false)}>
-  <Box
-    sx={{
-      outline: "none",
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      width: 400,
-      bgcolor: "var(--Greyscale-20, #f5f7fb)", 
-      boxShadow: 24,
-      p: 4,
-      borderRadius: 2,
-    }}
-  >
-    <div
-      onClick={() => setIsOtpModalOpen(false)}
-      style={{
-        position: "absolute",
-        top: "16px",
-        right: "16px",
-        background: "none",
-        border: "none",
-        fontSize: "20px",
-        fontWeight: "bold",
-        cursor: "pointer",
-        color: "#6C727E",
-      }}
-    >
-      &times;
-    </div>
-    <OtpVerification
-    type={emailInput ? "otpEmail" : "otpSms"}
-    contact={emailInput ? emailInput : phoneInput}
-    suborgId={suborgId}
-    otpId={otpId!}
-    authIframeClient={authIframeClient!}
-    onValidateSuccess={handleOtpSuccess}
-    onResendCode={emailInput ? handleResendEmail : handleResendSms}
-  />
-  </Box>
-</Modal>
+      {isOtpModalOpen && (
+        <Modal open={isOtpModalOpen} onClose={() => setIsOtpModalOpen(false)}>
+          <Box
+            sx={{
+              outline: "none",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 400,
+              bgcolor: "var(--Greyscale-20, #f5f7fb)",
+              boxShadow: 24,
+              p: 4,
+              borderRadius: 2,
+            }}
+          >
+            <div
+              onClick={() => setIsOtpModalOpen(false)}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: "16px",
+                background: "none",
+                border: "none",
+                fontSize: "20px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                color: "#6C727E",
+              }}
+            >
+              &times;
+            </div>
+            <OtpVerification
+              type={emailInput ? "otpEmail" : "otpSms"}
+              contact={emailInput ? emailInput : phoneInput}
+              suborgId={suborgId}
+              otpId={otpId!}
+              authIframeClient={authIframeClient!}
+              onValidateSuccess={handleOtpSuccess}
+              onResendCode={emailInput ? handleResendEmail : handleResendSms}
+            />
+          </Box>
+        </Modal>
+      )}
 
-}
-
-{
-isPasskeyModalOpen &&
-<Modal open={isPasskeyModalOpen} onClose={() => setIsPasskeyModalOpen(false)}>
-  <Box
-    sx={{
-      outline: "none",
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      width: 400,
-      bgcolor: "var(--Greyscale-20, #f5f7fb)", 
-      boxShadow: 24,
-      p: 4,
-      borderRadius: 2,
-    }}
-  >
-    <div
-      onClick={() => setIsPasskeyModalOpen(false)}
-      style={{
-        position: "absolute",
-        top: "16px",
-        right: "16px",
-        background: "none",
-        border: "none",
-        fontSize: "20px",
-        fontWeight: "bold",
-        cursor: "pointer",
-        color: "#6C727E",
-      }}
-    >
-      &times;
-    </div>
-    <div className = 'passkeyContainer'>
-    <div className='passkeyIconContainer'>
-<img src="/key.svg" />
-</div>
-<center>
-<h3>Create a passkey</h3>
-</center>
-<div className='rowsContainer'>
-<center>
-Passkeys allow for easy biometric access to your wallet and can be synced across devices.
-</center>
-<button className="continue"  onClick={handleAddPasskey}>
-        Continue
-    </button>
-    </div>
-    </div>
-  </Box>
-</Modal>
-
-}
-<div>
-        <Toaster position="bottom-right" toastOptions={{ className: 'sonner-toaster' }} />
-        </div>
+      {isPasskeyModalOpen && (
+        <Modal
+          open={isPasskeyModalOpen}
+          onClose={() => setIsPasskeyModalOpen(false)}
+        >
+          <Box
+            sx={{
+              outline: "none",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 400,
+              bgcolor: "var(--Greyscale-20, #f5f7fb)",
+              boxShadow: 24,
+              p: 4,
+              borderRadius: 2,
+            }}
+          >
+            <div
+              onClick={() => setIsPasskeyModalOpen(false)}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: "16px",
+                background: "none",
+                border: "none",
+                fontSize: "20px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                color: "#6C727E",
+              }}
+            >
+              &times;
+            </div>
+            <div className="passkeyContainer">
+              <div className="passkeyIconContainer">
+                <img src="/key.svg" />
+              </div>
+              <center>
+                <h3>Create a passkey</h3>
+              </center>
+              <div className="rowsContainer">
+                <center>
+                  Passkeys allow for easy biometric access to your wallet and
+                  can be synced across devices.
+                </center>
+                <button className="continue" onClick={handleAddPasskey}>
+                  Continue
+                </button>
+              </div>
+            </div>
+          </Box>
+        </Modal>
+      )}
+      <div>
+        <Toaster
+          position="bottom-right"
+          toastOptions={{ className: "sonner-toaster" }}
+        />
+      </div>
     </main>
   );
 }
-
-
-
-

@@ -12,12 +12,9 @@ interface FacebookAuthButtonProps {
   onSuccess: (response: any) => void;
 }
 
-const FacebookAuthButton: React.FC<FacebookAuthButtonProps & { layout: "inline" | "stacked" }> = ({
-  iframePublicKey,
-  onSuccess,
-  clientId,
-  layout,
-}) => {
+const FacebookAuthButton: React.FC<
+  FacebookAuthButtonProps & { layout: "inline" | "stacked" }
+> = ({ iframePublicKey, onSuccess, clientId, layout }) => {
   const [tokenExchanged, setTokenExchanged] = useState<boolean>(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
 
@@ -42,7 +39,7 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps & { layout: "inline" 
     const height = 600;
     const left = window.screenX + (window.innerWidth - width) / 2;
     const top = window.screenY + (window.innerHeight - height) / 2;
-  
+
     // Open the login flow in a new window
     const popup = window.open(
       facebookOAuthURL,
@@ -103,7 +100,10 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps & { layout: "inline" 
       className={layout === "inline" ? styles.iconButton : styles.socialButton}
       onClick={initiateFacebookLogin}
     >
-      <img src={facebookIcon} className={layout === "inline" ? styles.iconLarge : styles.iconSmall} />
+      <img
+        src={facebookIcon}
+        className={layout === "inline" ? styles.iconLarge : styles.iconSmall}
+      />
       {layout === "stacked" && <span>Continue with Facebook</span>}
     </div>
   );

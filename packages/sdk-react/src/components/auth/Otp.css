@@ -37,7 +37,7 @@
 
 .circularProgress {
   position: absolute;
-  color: #4C48FF;
+  color: #4c48ff;
 }
 
 .oauthIcon {
@@ -100,7 +100,7 @@
 }
 
 .authButton:hover {
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
 }
 
 .authButton:disabled {
@@ -293,5 +293,5 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  text-align: center
+  text-align: center;
 }

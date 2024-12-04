@@ -19,9 +19,9 @@ body {
   margin: 0;
   padding: 0;
   width: 100vw;
-  height: 100vh; 
+  height: 100vh;
   background-image: url("../../public/grid.svg");
-  background-size: cover; 
+  background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   font-family: Inter, sans-serif;
@@ -46,6 +46,7 @@ body {
 }
 
 .authConfigCard {
+  min-width: 400px;
   background: var(--Greyscale-20, #f5f7fb);
   padding: 32px;
   border-radius: 8px;
@@ -148,9 +149,8 @@ body {
   background-color: #ffffff;
 }
 
-
 .sonner-toaster {
-  z-index: 9999; 
+  z-index: 9999;
   pointer-events: none;
 }
 

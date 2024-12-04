@@ -1,380 +1,375 @@
 @font-face {
-    font-family: "Inter";
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url("../../../public/fonts/inter/Inter-Regular.woff2?v=3.19")
-      format("woff2");
-  }
-  
-  @font-face {
-    font-family: "Inter";
-    font-style: normal;
-    font-weight: 600;
-    font-display: swap;
-    src: url("../../../public/fonts/inter/Inter-SemiBold.woff2?v=3.19")
-      format("woff2");
-  }
-  body {
-    margin: 0;
-    padding: 0;
-    width: 100vw;
-    height: 100vh; /* Ensure it covers the full height of the viewport */
-    background-image: url("../../../public/grid.svg");
-    background-size: cover; /* Stretch the image */
-    background-repeat: no-repeat;
-    background-position: center;
-    font-family: Inter, sans-serif;
-  }
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../../public/fonts/inter/Inter-Regular.woff2?v=3.19")
+    format("woff2");
+}
 
-  .loaderOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; 
-    background: none;
-  }
-  
-  .circularProgress {
-    color: #4C48FF;
-  }
-  .main {
-    font-family: Inter;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 8rem;
-    padding-bottom: 0rem;
-    gap: 60px;
-    position: relative;
-  }
-  
-  .dashboardContainer {
-    position: absolute;
-    left: 0;
-    display: flex;
-    justify-content: flex-start;
-  }
-  
-  .dashboardCard {
-    background: var(--Greyscale-20, #f5f7fb);
-    padding: 8px 24px;
-    border-radius: 8px;
-    width: 542px;
-    height: 584px;
-    border: 1px solid var(--Greyscale-100, #ebedf2);
-    font-family: Arial, sans-serif;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-  }
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../../../public/fonts/inter/Inter-SemiBold.woff2?v=3.19")
+    format("woff2");
+}
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh; /* Ensure it covers the full height of the viewport */
+  background-image: url("../../../public/grid.svg");
+  background-size: cover; /* Stretch the image */
+  background-repeat: no-repeat;
+  background-position: center;
+  font-family: Inter, sans-serif;
+}
 
-  .socialsTitle {
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 26px;
-    letter-spacing: -0.01em;
-    text-align: left;
-    margin-top: 16px;
-  }
+.loaderOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  background: none;
+}
 
+.circularProgress {
+  color: #4c48ff;
+}
+.main {
+  font-family: Inter;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8rem;
+  padding-bottom: 0rem;
+  gap: 60px;
+  position: relative;
+}
 
-  .configTitle {
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 36px;
-    letter-spacing: -0.01em;
-    text-align: left;
-    margin-bottom: 16px;
-    margin-top: 16px;
-  }
-  .modalTitle {
-    font-size: 18px;
-    line-height: 24px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    text-align: left;
-  }
+.dashboardContainer {
+  position: absolute;
+  left: 0;
+  display: flex;
+  justify-content: flex-start;
+}
 
-  .accountContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    border-bottom: 1px solid var(--Greyscale-200, #ebedf2);
-  }
-  
-  .loginMethodContainer {
-    display: flex;
-    flex-direction: column; 
-    gap: 12px; 
-  }
-  
-  .loginMethodRow {
-    background-color: #ffffff;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between; 
-    padding: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: relative;
-  }
-  
-  .labelContainer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 0;
-  }
-  
-  .loginMethodDetails {
-    font-size: 1rem;
-    line-height: 20px;
-    color: #868c95;
-    position: absolute;
-    left: 33%;
-    text-align: left;
-  }
-  
+.dashboardCard {
+  min-width: 400px;
+  background: var(--Greyscale-20, #f5f7fb);
+  padding: 8px 24px;
+  border-radius: 8px;
+  width: 542px;
+  height: 584px;
+  border: 1px solid var(--Greyscale-100, #ebedf2);
+  font-family: Arial, sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
 
-  .accountRow {
-    background-color: #ffffff;
-    border-radius: 8px;
-    align-items: center;
-    display: flex;
-    justify-content: space-between; 
-    padding: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .accountAddress {
-    margin-left: 4px;
-    font-family: monospace;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    transition: color 0.3s ease;
-  }
-  .accountAddress:hover {
-    color: #8a8a8a;;
-  }
-  
-  .radioButton {
-    margin-left: auto;
-  }
+.socialsTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 26px;
+  letter-spacing: -0.01em;
+  text-align: left;
+  margin-top: 16px;
+}
 
-  .toggleSocialRow {
-    background-color: #ffffff;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-  
-  .toggleSocialIndividualRow {
-    background-color: var(--Greyscale-20, #f5f7fb);
-    display: flex;
-    margin-left: 16px;
-    padding-left: 16px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .copyConfigButton {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    color: #666;
-    font-size: 14px;
-    margin-top: auto;
-    padding: 8px 16px;
-  }
-  .copyConfigText {
-    padding-left: 4px;
-  }
-  
-  .authComponent {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex: 1;
-  }
-  
-  .success {
-    justify-items: center;
-  }
-  
-  .iconSmall {
-    width: 24px;
-    height: 24px;
-  }
-  
-  .socialContainer {
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 8px 16px;
-    padding-bottom: 16px;
-    background-color: #ffffff;
-  }
-  
-  .continue {
-    margin-top: 12px;
-    /* margin-top: 24px; */
-  }
+.configTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 36px;
+  letter-spacing: -0.01em;
+  text-align: left;
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+.modalTitle {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-align: left;
+}
 
-  .signMessage {
-    margin-bottom: 12px;
-    /* margin-top: 24px; */
-  }
-  .exportImportGroup {
-    margin-top: 12px;
-    display: flex;
-  gap: 12px; 
-  }
+.accountContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-bottom: 1px solid var(--Greyscale-200, #ebedf2);
+}
 
-  button {
-    padding: 10px 16px 10px 16px;
-    gap: 8px;
-    color: #ffffff;
-    width: 100%;
-    font-size: 1rem;
-    background: var(--Greyscale-900, #2b2f33);
-    border: 1px solid var(--Greyscale-800, #3f464b);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: opacity 0.3s ease;
-  }
-  
-  button:disabled {
-    color: var(--Greyscale-700, #a2a7ae);
-    background: #ffffff;
-    border-color: var(--Greyscale-400, #a2a7ae);
-    cursor: not-allowed;
-  }
+.loginMethodContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.loginMethodRow {
+  background-color: #ffffff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.labelContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0;
+}
+
+.loginMethodDetails {
+  font-size: 1rem;
+  line-height: 20px;
+  color: #868c95;
+  position: absolute;
+  left: 33%;
+  text-align: left;
+}
+
+.accountRow {
+  background-color: #ffffff;
+  border-radius: 8px;
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.accountAddress {
+  margin-left: 4px;
+  font-family: monospace;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.3s ease;
+}
+.accountAddress:hover {
+  color: #8a8a8a;
+}
+
+.radioButton {
+  margin-left: auto;
+}
+
+.toggleSocialRow {
+  background-color: #ffffff;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.toggleSocialIndividualRow {
+  background-color: var(--Greyscale-20, #f5f7fb);
+  display: flex;
+  margin-left: 16px;
+  padding-left: 16px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.copyConfigButton {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #666;
+  font-size: 14px;
+  margin-top: auto;
+  padding: 8px 16px;
+}
+.copyConfigText {
+  padding-left: 4px;
+}
+
+.authComponent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+
+.success {
+  justify-items: center;
+}
+
+.iconSmall {
+  width: 24px;
+  height: 24px;
+}
+
+.socialContainer {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 8px 16px;
+  padding-bottom: 16px;
+  background-color: #ffffff;
+}
+
+.continue {
+  margin-top: 12px;
+  /* margin-top: 24px; */
+}
+
+.signMessage {
+  margin-bottom: 12px;
+  /* margin-top: 24px; */
+}
+.exportImportGroup {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+}
+
+button {
+  padding: 10px 16px 10px 16px;
+  gap: 8px;
+  color: #ffffff;
+  width: 100%;
+  font-size: 1rem;
+  background: var(--Greyscale-900, #2b2f33);
+  border: 1px solid var(--Greyscale-800, #3f464b);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+button:disabled {
+  color: var(--Greyscale-700, #a2a7ae);
+  background: #ffffff;
+  border-color: var(--Greyscale-400, #a2a7ae);
+  cursor: not-allowed;
+}
 
 button:hover {
-    background-color: var(--Greyscale-700, #4a4f55);
-  }
+  background-color: var(--Greyscale-700, #4a4f55);
+}
 
+.authFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--Greyscale-200, #ebedf2);
+  margin-top: auto;
+}
 
-  .authFooter {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding-top: 16px;
-    border-top: 1px solid var(--Greyscale-200, #ebedf2);
-    margin-top: auto;
-  }
-  
-  .authFooterLeft,
-  .authFooterRight {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 50%;
-    margin-bottom: 12px;
-  }
-  
-  .authFooterLeft {
-    justify-content: flex-start;
-    text-align: center;
-  }
-  
-  .authFooterRight {
-    justify-content: flex-start;
-    text-align: center;
-  }
-  
-  .authFooterSeparatorVertical {
-    border-left: 1px solid var(--Greyscale-200, #ebedf2);
-    height: 100%;
-    margin: 0 16px;
-  }
-  
-  .authFooterButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px; 
-    cursor: pointer; 
-  }
+.authFooterLeft,
+.authFooterRight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 50%;
+  margin-bottom: 12px;
+}
 
+.authFooterLeft {
+  justify-content: flex-start;
+  text-align: center;
+}
 
-  .eth-icon {
-    position: relative;
-    width: 32px;
-    height: 32px;
-    display: inline-block;
-    background-image: url("/eth.svg");
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    cursor: pointer;
-    overflow: hidden;
-  }
-  
-  .eth-icon::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url("/eth-hover.svg");
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0; /* Hover state starts hidden */
-    transition: opacity 0.3s ease; /* Smooth fade-in effect */
-  }
-  
-  .eth-icon:hover::after {
-    opacity: 1; /* Fade in hover image */
-  }
-  
+.authFooterRight {
+  justify-content: flex-start;
+  text-align: center;
+}
 
-  .sol-icon {
-    position: relative;
-    width: 32px;
-    height: 32px;
-    display: inline-block;
-    background-image: url("/solana.svg");
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    cursor: pointer;
-    overflow: hidden;
-  }
-  
-  .sol-icon::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url("/solana-hover.svg");
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 0; 
-    transition: opacity 0.3s ease; 
-  }
-  
-  .sol-icon:hover::after {
-    opacity: 1;
-  }
-  
+.authFooterSeparatorVertical {
+  border-left: 1px solid var(--Greyscale-200, #ebedf2);
+  height: 100%;
+  margin: 0 16px;
+}
+
+.authFooterButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.eth-icon {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  background-image: url("/eth.svg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.eth-icon::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("/eth-hover.svg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0; /* Hover state starts hidden */
+  transition: opacity 0.3s ease; /* Smooth fade-in effect */
+}
+
+.eth-icon:hover::after {
+  opacity: 1; /* Fade in hover image */
+}
+
+.sol-icon {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  background-image: url("/solana.svg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.sol-icon::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("/solana-hover.svg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sol-icon:hover::after {
+  opacity: 1;
+}
 
 /* HoverContainer for the clickable elements */
 .hoverContainer {

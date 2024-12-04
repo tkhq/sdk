@@ -1,19 +1,22 @@
 import React, { useState } from "react";
 import { Modal, Box, Typography, TextField } from "@mui/material";
 import { useTurnkey } from "../../hooks/use-turnkey";
-import { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS, TurnkeyIframeClient } from "@turnkey/sdk-browser";
+import {
+  DEFAULT_ETHEREUM_ACCOUNTS,
+  DEFAULT_SOLANA_ACCOUNTS,
+  TurnkeyIframeClient,
+} from "@turnkey/sdk-browser";
 import styles from "./Import.module.css";
 import turnkeyIcon from "assets/turnkey.svg";
-import importIcon from "assets/import.svg"
+import importIcon from "assets/import.svg";
 type ImportProps = {
   onSuccess?: () => void;
 };
 
-const Import: React.FC<ImportProps> = ({
-  onSuccess = () => undefined,
-}) => {
+const Import: React.FC<ImportProps> = ({ onSuccess = () => undefined }) => {
   const { authIframeClient, turnkey } = useTurnkey();
-  const [importIframeClient, setImportIframeClient] = useState<TurnkeyIframeClient | null>(null);
+  const [importIframeClient, setImportIframeClient] =
+    useState<TurnkeyIframeClient | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [walletName, setWalletName] = useState("");
   const TurnkeyImportIframeContainerId = "turnkey-import-iframe-container-id";
@@ -23,7 +26,9 @@ const Import: React.FC<ImportProps> = ({
     setIsModalOpen(true);
 
     requestAnimationFrame(async () => {
-      const iframeContainer = document.getElementById(TurnkeyImportIframeContainerId);
+      const iframeContainer = document.getElementById(
+        TurnkeyImportIframeContainerId
+      );
       if (!iframeContainer) {
         console.error("Iframe container not found.");
         return;
@@ -33,15 +38,13 @@ const Import: React.FC<ImportProps> = ({
 
       if (!existingIframe) {
         try {
-
           const newImportIframeClient = await turnkey?.iframeClient({
             iframeContainer: document.getElementById(
               TurnkeyImportIframeContainerId
             ),
-            iframeUrl:
-              "https://import.turnkey.com",
-          })
-          setImportIframeClient(newImportIframeClient!)
+            iframeUrl: "https://import.turnkey.com",
+          });
+          setImportIframeClient(newImportIframeClient!);
         } catch (error) {
           console.error("Error initializing IframeStamper:", error);
         }
@@ -69,7 +72,7 @@ const Import: React.FC<ImportProps> = ({
       return;
     }
     const initResult = await authIframeClient!.initImportWallet({
-      organizationId:       whoami.organizationId,
+      organizationId: whoami.organizationId,
       userId: whoami.userId,
     });
     const injected = await importIframeClient!.injectImportBundle(
@@ -77,13 +80,14 @@ const Import: React.FC<ImportProps> = ({
       whoami.organizationId,
       whoami.userId
     );
-    if (!injected){
-      console.error("error injecting import bundle")
+    if (!injected) {
+      console.error("error injecting import bundle");
       return;
     }
-    const encryptedBundle = await importIframeClient.extractWalletEncryptedBundle();
+    const encryptedBundle =
+      await importIframeClient.extractWalletEncryptedBundle();
     if (!encryptedBundle || encryptedBundle.trim() === "") {
-      console.error("failed to retrieve encrypted bundle.")
+      console.error("failed to retrieve encrypted bundle.");
       return;
     }
     const response = await authIframeClient?.importWallet({
@@ -91,25 +95,22 @@ const Import: React.FC<ImportProps> = ({
       userId: whoami.userId,
       walletName: walletName,
       encryptedBundle,
-      accounts: [
-        ...DEFAULT_ETHEREUM_ACCOUNTS,
-        ...DEFAULT_SOLANA_ACCOUNTS,
-      ],
+      accounts: [...DEFAULT_ETHEREUM_ACCOUNTS, ...DEFAULT_SOLANA_ACCOUNTS],
     });
 
     if (response) {
-      console.log("Wallet imported successfully!");;
-      handleCloseModal()
+      console.log("Wallet imported successfully!");
+      handleCloseModal();
       onSuccess();
     } else {
-      console.error("Failed to import wallet")
+      console.error("Failed to import wallet");
     }
   };
 
   return (
     <>
       <button className={styles.importButton} onClick={handleOpenModal}>
-      <img src = {importIcon}/>
+        <img src={importIcon} />
         Import wallet
       </button>
 
@@ -124,7 +125,7 @@ const Import: React.FC<ImportProps> = ({
             boxShadow: 24,
             p: 4,
             borderRadius: 2,
-            width: "366px"
+            width: "366px",
           }}
         >
           {/* Close Button */}
@@ -145,86 +146,80 @@ const Import: React.FC<ImportProps> = ({
             &times;
           </div>
 
-              <Typography variant="h6" className="modalTitle">
-                Import wallet
-              </Typography>
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  color: "#6C727E",
-                  mb: 2,
-                }}
-              >
-                Enter your seed phrase. Seed phrases are typically 12-24 words.
-              </Typography>
+          <Typography variant="h6" className="modalTitle">
+            Import wallet
+          </Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              color: "#6C727E",
+              mb: 2,
+            }}
+          >
+            Enter your seed phrase. Seed phrases are typically 12-24 words.
+          </Typography>
 
-
-<div
-      id={TurnkeyImportIframeContainerId}
-      style={{
-        height: "100%",
-        overflow: "hidden",
-        display: "block",
-        backgroundColor: "#ffffff",
-        width: "100%",
-        boxSizing: "border-box",
-        padding: "5px",
-        borderStyle: "solid",
-        borderWidth: "1px",
-        borderRadius: "8px",
-        borderColor: "rgba(216, 219, 227, 1)",
-      }}
-    />
-{/* <div id = "import-iframe-container" className = {styles.iframeContainer}>
+          <div
+            id={TurnkeyImportIframeContainerId}
+            style={{
+              height: "100%",
+              overflow: "hidden",
+              display: "block",
+              backgroundColor: "#ffffff",
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "5px",
+              borderStyle: "solid",
+              borderWidth: "1px",
+              borderRadius: "8px",
+              borderColor: "rgba(216, 219, 227, 1)",
+            }}
+          />
+          {/* <div id = "import-iframe-container" className = {styles.iframeContainer}>
     <iframe id = {TurnkeyIframeElementId} src = "https://import.turnkey.com"/>
     </div> */}
-<TextField
-                type="walletName"
-                placeholder="Wallet name"
-                value={walletName}
-                onChange={(e) => setWalletName(e.target.value)}
-                fullWidth
-                style = {{
-                  "marginTop": "12px",
-                  "marginBottom": "12px"
-                }}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#D0D5DD",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#8A929E",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#D0D5DD",
-                      border: "1px solid",
-                    },
-                  },
-                  "& .MuiInputBase-input": {
-                    padding: "12px",
-                  },
-                  backgroundColor: "white",
-                }}
-                variant="outlined"
-              />
-              
+          <TextField
+            type="walletName"
+            placeholder="Wallet name"
+            value={walletName}
+            onChange={(e) => setWalletName(e.target.value)}
+            fullWidth
+            style={{
+              marginTop: "12px",
+              marginBottom: "12px",
+            }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#D0D5DD",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#8A929E",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#D0D5DD",
+                  border: "1px solid",
+                },
+              },
+              "& .MuiInputBase-input": {
+                padding: "12px",
+              },
+              backgroundColor: "white",
+            }}
+            variant="outlined"
+          />
 
+          <button onClick={handleImport} className={styles.importButton}>
+            Import
+          </button>
 
-            <button
-              onClick={handleImport}
-              className={styles.importButton}
-            >
-              Import
-            </button>
-
-            <div
-                onClick={() => (window.location.href = "https://www.turnkey.com/")}
-                className={styles.poweredBy}
-              >
-                <span>Secured by</span>
-                <img src={turnkeyIcon} />
-              </div>
+          <div
+            onClick={() => (window.location.href = "https://www.turnkey.com/")}
+            className={styles.poweredBy}
+          >
+            <span>Secured by</span>
+            <img src={turnkeyIcon} />
+          </div>
         </Box>
       </Modal>
     </>

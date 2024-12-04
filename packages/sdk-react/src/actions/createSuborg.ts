@@ -1,6 +1,9 @@
 "use server";
 
-import { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS } from "@turnkey/sdk-browser";
+import {
+  DEFAULT_ETHEREUM_ACCOUNTS,
+  DEFAULT_SOLANA_ACCOUNTS,
+} from "@turnkey/sdk-browser";
 import { Turnkey } from "@turnkey/sdk-server";
 
 type CreateSuborgRequest = {
@@ -44,20 +47,18 @@ export async function createSuborg(
           {
             userName: request.email ?? "",
             userEmail: request.email ?? "",
-            ...(request.phoneNumber ? { userPhoneNumber: request.phoneNumber } : {}),
+            ...(request.phoneNumber
+              ? { userPhoneNumber: request.phoneNumber }
+              : {}),
             apiKeys: [],
             authenticators: request.passkey ? [request.passkey] : [],
             oauthProviders: request.oauthProviders ?? [],
           },
         ],
         wallet: {
-          walletName:`Wallet 1` ,
-          accounts: [
-            ...DEFAULT_ETHEREUM_ACCOUNTS,
-            ...DEFAULT_SOLANA_ACCOUNTS,
-          ],
+          walletName: `Wallet 1`,
+          accounts: [...DEFAULT_ETHEREUM_ACCOUNTS, ...DEFAULT_SOLANA_ACCOUNTS],
         },
-
       });
 
     const { subOrganizationId } = suborgResponse;

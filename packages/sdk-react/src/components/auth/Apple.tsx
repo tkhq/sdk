@@ -15,12 +15,9 @@ declare global {
   }
 }
 
-const AppleAuthButton: React.FC<AppleAuthButtonProps & { layout: "inline" | "stacked" }> = ({
-  iframePublicKey,
-  onSuccess,
-  clientId,
-  layout,
-}) => {
+const AppleAuthButton: React.FC<
+  AppleAuthButtonProps & { layout: "inline" | "stacked" }
+> = ({ iframePublicKey, onSuccess, clientId, layout }) => {
   const [appleSDKLoaded, setAppleSDKLoaded] = useState(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
 
@@ -100,7 +97,10 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps & { layout: "inline" | "sta
       onClick={handleLogin}
       className={layout === "inline" ? styles.iconButton : styles.socialButton}
     >
-      <img src={appleIcon} className={layout === "inline" ? styles.iconLarge : styles.iconSmall} />
+      <img
+        src={appleIcon}
+        className={layout === "inline" ? styles.iconLarge : styles.iconSmall}
+      />
       {layout === "stacked" && <span>Continue with Apple</span>}
     </div>
   );

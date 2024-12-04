@@ -1,107 +1,106 @@
 .modalTitle {
-    font-size: 18px;
-    line-height: 24px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    text-align: left;
-  }
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-align: left;
+}
 
 .exportCard {
-    font-family: Inter;
-    position: relative;
-    width: 100%;
-    max-width: 450px;
-    min-width: 375px;
-    margin: 0 auto;
-    padding: 20px;
-    background: var(--Greyscale-20, #f5f7fb);
-    border: 1px solid var(--Greyscale-100, #ebedf2);
-    border-radius: 15px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .exportCard h2 {
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 26px;
-    letter-spacing: -0.01em;
-    text-align: center;
-    font-size: 1.5rem;
-    margin-bottom: 16px;
-  }
+  font-family: Inter;
+  position: relative;
+  width: 100%;
+  max-width: 450px;
+  min-width: 375px;
+  margin: 0 auto;
+  padding: 20px;
+  background: var(--Greyscale-20, #f5f7fb);
+  border: 1px solid var(--Greyscale-100, #ebedf2);
+  border-radius: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
 
-  .doneButtonContainer {
-    margin-top: 12px
-  }
+.exportCard h2 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 26px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+}
 
-  
-  .exportButton {
-    display: inline-flex;
-    align-items: center; 
-    justify-content: center; 
-    padding: 10px 16px;
-    gap: 8px;
-    color: var(--Greyscale-900, #2b2f33);
-    width: 100%;
-    font-size: 1rem;
-    background: #ffffff;
-    border: 1px solid var(--Greyscale-400, #a2a7ae);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .exportButton:hover {
-    background-color: #F5F5F5;
-  }
-  
-  .exportButton:disabled {
-    color: var(--Greyscale-700, #a2a7ae);
-    background: #ffffff;
-    border-color: var(--Greyscale-100, #f5f7fb);
-    cursor: default;
-  }
+.doneButtonContainer {
+  margin-top: 12px;
+}
 
-  .rowsContainer {
-    font-family: Inter;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 16px;
-    width: 95%;
-    margin-right: auto;
-    margin-bottom: 32px;
-  }
-  
-  .row {
-    display: flex;
-    align-items: center;
-  }
-  
-  .rowIcon {
-    padding-right: 8px;
-  }
-  
-  .poweredBy {
-    font-family: Inter;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 16px;
-    letter-spacing: -0.01em;
-    color: var(--Greyscale-500, #868c95);
-    margin-top: 16px;
-    cursor: pointer;
-  }
-  
-  .poweredBy span {
-    position: relative;
-  }
-  iframe {
-    box-sizing: border-box; 
-    border: 0 solid #000; 
+.exportButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  gap: 8px;
+  color: var(--Greyscale-900, #2b2f33);
+  width: 100%;
+  font-size: 1rem;
+  background: #ffffff;
+  border: 1px solid var(--Greyscale-400, #a2a7ae);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.exportButton:hover {
+  background-color: #f5f5f5;
+}
+
+.exportButton:disabled {
+  color: var(--Greyscale-700, #a2a7ae);
+  background: #ffffff;
+  border-color: var(--Greyscale-100, #f5f7fb);
+  cursor: default;
+}
+
+.rowsContainer {
+  font-family: Inter;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+  width: 95%;
+  margin-right: auto;
+  margin-bottom: 32px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.rowIcon {
+  padding-right: 8px;
+}
+
+.poweredBy {
+  font-family: Inter;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: -0.01em;
+  color: var(--Greyscale-500, #868c95);
+  margin-top: 16px;
+  cursor: pointer;
+}
+
+.poweredBy span {
+  position: relative;
+}
+iframe {
+  box-sizing: border-box;
+  border: 0 solid #000;
 }

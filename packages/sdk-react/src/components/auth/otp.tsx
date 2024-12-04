@@ -90,7 +90,7 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
                 },
                 "&.Mui-focused fieldset": {
                   borderColor: "D0D5DD",
-                  border: "1px solid", 
+                  border: "1px solid",
                 },
               },
             }}

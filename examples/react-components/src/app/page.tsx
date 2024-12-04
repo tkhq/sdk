@@ -6,11 +6,16 @@ import { Auth } from "@turnkey/sdk-react";
 import { Typography } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CustomSwitch from "./components/Switch";
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
 import "./index.css";
 import { useRouter } from "next/navigation";
 import Navbar from "./components/Navbar";
-import { Toaster, toast} from "sonner";
+import { Toaster, toast } from "sonner";
 
 // Define types for config and socials
 interface SocialConfig {
@@ -32,7 +37,12 @@ export default function AuthPage() {
   const handleAuthSuccess = async () => {
     router.push("/dashboard");
   };
-  const [configOrder, setConfigOrder] = useState(["socials", "email", "phone", "passkey"]);
+  const [configOrder, setConfigOrder] = useState([
+    "socials",
+    "email",
+    "phone",
+    "passkey",
+  ]);
 
   const [config, setConfig] = useState<Config>({
     email: true,
@@ -93,7 +103,7 @@ export default function AuthPage() {
       facebookEnabled: config.socials.facebook,
     };
     navigator.clipboard.writeText(JSON.stringify(authConfig, null, 2));
-    toast.success("Copied to clipboard!")
+    toast.success("Copied to clipboard!");
   };
 
   const authConfig = {
@@ -118,111 +128,175 @@ export default function AuthPage() {
 
   return (
     <main className="main">
-            <Navbar/>
-        <div className="authConfigCard">
-          <Typography variant="h6" className="configTitle">
-            Authentication config
-          </Typography>
+      <Navbar />
+      <div className="authConfigCard">
+        <Typography variant="h6" className="configTitle">
+          Authentication config
+        </Typography>
 
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="configList">
-              {(provided: { droppableProps: React.JSX.IntrinsicAttributes & React.ClassAttributes<HTMLDivElement> & React.HTMLAttributes<HTMLDivElement>; innerRef: React.LegacyRef<HTMLDivElement> | undefined; placeholder: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }) => (
-                <div {...provided.droppableProps} ref={provided.innerRef} className="toggleContainer">
-                  {configOrder.map((key, index) => (
-                    key === "socials" ? (
-                      <Draggable key="socials" draggableId="socials" index={index} isDragDisabled={!config.socials.enabled}>
-                        {(provided: { innerRef: React.LegacyRef<HTMLDivElement> | undefined; draggableProps: React.JSX.IntrinsicAttributes & React.ClassAttributes<HTMLDivElement> & React.HTMLAttributes<HTMLDivElement>; dragHandleProps: React.JSX.IntrinsicAttributes & React.ClassAttributes<HTMLDivElement> & React.HTMLAttributes<HTMLDivElement>; }) => (
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="configList">
+            {(provided: {
+              droppableProps: React.JSX.IntrinsicAttributes &
+                React.ClassAttributes<HTMLDivElement> &
+                React.HTMLAttributes<HTMLDivElement>;
+              innerRef: React.LegacyRef<HTMLDivElement> | undefined;
+              placeholder:
+                | string
+                | number
+                | boolean
+                | React.ReactElement<
+                    any,
+                    string | React.JSXElementConstructor<any>
+                  >
+                | Iterable<React.ReactNode>
+                | React.ReactPortal
+                | React.PromiseLikeOfReactNode
+                | null
+                | undefined;
+            }) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className="toggleContainer"
+              >
+                {configOrder.map((key, index) =>
+                  key === "socials" ? (
+                    <Draggable
+                      key="socials"
+                      draggableId="socials"
+                      index={index}
+                      isDragDisabled={!config.socials.enabled}
+                    >
+                      {(provided: {
+                        innerRef: React.LegacyRef<HTMLDivElement> | undefined;
+                        draggableProps: React.JSX.IntrinsicAttributes &
+                          React.ClassAttributes<HTMLDivElement> &
+                          React.HTMLAttributes<HTMLDivElement>;
+                        dragHandleProps: React.JSX.IntrinsicAttributes &
+                          React.ClassAttributes<HTMLDivElement> &
+                          React.HTMLAttributes<HTMLDivElement>;
+                      }) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className="socialContainer"
+                        >
                           <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            className="socialContainer"
+                            {...provided.dragHandleProps}
+                            className="toggleSocialRow"
                           >
-                            <div {...provided.dragHandleProps} className="toggleSocialRow">
-                              <div className="labelContainer">
-                                <img src="/dots.svg" alt="Drag handle" />
-                                <Typography>Socials</Typography>
-                              </div>
-                              <CustomSwitch
-                                checked={config.socials.enabled}
-                                onChange={() => toggleSocials("enabled")}
-                              />
+                            <div className="labelContainer">
+                              <img src="/dots.svg" alt="Drag handle" />
+                              <Typography>Socials</Typography>
                             </div>
-                            <div className="toggleSocialIndividualRow">
-                              <div className="labelContainer">
-                                <img src="/google.svg" className="iconSmall" />
-                                <Typography>Google</Typography>
-                              </div>
-                              <CustomSwitch
-                                checked={config.socials.google}
-                                onChange={() => toggleSocials("google")}
-                              />
-                            </div>
-                            <div className="toggleSocialIndividualRow">
-                              <div className="labelContainer">
-                                <img src="/apple.svg" className="iconSmall" />
-                                <Typography>Apple</Typography>
-                              </div>
-                              <CustomSwitch
-                                checked={config.socials.apple}
-                                onChange={() => toggleSocials("apple")}
-                              />
-                            </div>
-                            <div className="toggleSocialIndividualRow">
-                              <div className="labelContainer">
-                                <img src="/facebook.svg" className="iconSmall" />
-                                <Typography>Facebook</Typography>
-                              </div>
-                              <CustomSwitch
-                                checked={config.socials.facebook}
-                                onChange={() => toggleSocials("facebook")}
-                              />
-                            </div>
+                            <CustomSwitch
+                              checked={config.socials.enabled}
+                              onChange={() => toggleSocials("enabled")}
+                            />
                           </div>
-                        )}
-                      </Draggable>
-                    ) : (
-                      <Draggable key={key} draggableId={key} index={index} isDragDisabled={key !== "socials" && !config[key as keyof Config] as boolean}>
-                        {(provided: { innerRef: React.LegacyRef<HTMLDivElement> | undefined; draggableProps: React.JSX.IntrinsicAttributes & React.ClassAttributes<HTMLDivElement> & React.HTMLAttributes<HTMLDivElement>; dragHandleProps: React.JSX.IntrinsicAttributes & React.ClassAttributes<HTMLDivElement> & React.HTMLAttributes<HTMLDivElement>; }) => (
-                          <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="toggleRow">
-  <div className="labelContainer">
-    <img src="/dots.svg" alt="Drag handle" />
-    <Typography>{key.charAt(0).toUpperCase() + key.slice(1)}</Typography>
-  </div>
-  <CustomSwitch
-    checked={config[key as keyof Config] as boolean}
-    onChange={() => toggleConfig(key as keyof Config)}
-  />
-</div>
-                        )}
-                      </Draggable>
-                    )
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+                          <div className="toggleSocialIndividualRow">
+                            <div className="labelContainer">
+                              <img src="/google.svg" className="iconSmall" />
+                              <Typography>Google</Typography>
+                            </div>
+                            <CustomSwitch
+                              checked={config.socials.google}
+                              onChange={() => toggleSocials("google")}
+                            />
+                          </div>
+                          <div className="toggleSocialIndividualRow">
+                            <div className="labelContainer">
+                              <img src="/apple.svg" className="iconSmall" />
+                              <Typography>Apple</Typography>
+                            </div>
+                            <CustomSwitch
+                              checked={config.socials.apple}
+                              onChange={() => toggleSocials("apple")}
+                            />
+                          </div>
+                          <div className="toggleSocialIndividualRow">
+                            <div className="labelContainer">
+                              <img src="/facebook.svg" className="iconSmall" />
+                              <Typography>Facebook</Typography>
+                            </div>
+                            <CustomSwitch
+                              checked={config.socials.facebook}
+                              onChange={() => toggleSocials("facebook")}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ) : (
+                    <Draggable
+                      key={key}
+                      draggableId={key}
+                      index={index}
+                      isDragDisabled={
+                        key !== "socials" &&
+                        (!config[key as keyof Config] as boolean)
+                      }
+                    >
+                      {(provided: {
+                        innerRef: React.LegacyRef<HTMLDivElement> | undefined;
+                        draggableProps: React.JSX.IntrinsicAttributes &
+                          React.ClassAttributes<HTMLDivElement> &
+                          React.HTMLAttributes<HTMLDivElement>;
+                        dragHandleProps: React.JSX.IntrinsicAttributes &
+                          React.ClassAttributes<HTMLDivElement> &
+                          React.HTMLAttributes<HTMLDivElement>;
+                      }) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="toggleRow"
+                        >
+                          <div className="labelContainer">
+                            <img src="/dots.svg" alt="Drag handle" />
+                            <Typography>
+                              {key.charAt(0).toUpperCase() + key.slice(1)}
+                            </Typography>
+                          </div>
+                          <CustomSwitch
+                            checked={config[key as keyof Config] as boolean}
+                            onChange={() => toggleConfig(key as keyof Config)}
+                          />
+                        </div>
+                      )}
+                    </Draggable>
+                  )
+                )}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
 
-          <div className="copyConfigButton" onClick={handleCopyConfig}>
-            <ContentCopyIcon fontSize="small" />
-            <div className="copyConfigText">
-              <Typography variant="body2" className="copyText">
-                Copy config
-              </Typography>
-            </div>
+        <div className="copyConfigButton" onClick={handleCopyConfig}>
+          <ContentCopyIcon fontSize="small" />
+          <div className="copyConfigText">
+            <Typography variant="body2" className="copyText">
+              Copy config
+            </Typography>
           </div>
         </div>
-        <div className="authComponent">
-          <Auth
-            authConfig={authConfig}
-            configOrder={configOrder}
-            onHandleAuthSuccess={handleAuthSuccess}
-            onError={(errorMessage:string) => toast.error(errorMessage)}
-          />
-        </div>
-        <div>
-        <Toaster position="bottom-right" toastOptions={{ className: 'sonner-toaster' }} />
-        </div>
+      </div>
+      <div className="authComponent">
+        <Auth
+          authConfig={authConfig}
+          configOrder={configOrder}
+          onHandleAuthSuccess={handleAuthSuccess}
+          onError={(errorMessage: string) => toast.error(errorMessage)}
+        />
+      </div>
+      <div>
+        <Toaster
+          position="bottom-right"
+          toastOptions={{ className: "sonner-toaster" }}
+        />
+      </div>
     </main>
   );
 }
