@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useState } from "react";
-import { useTurnkey, Auth } from "@turnkey/sdk-react";
+import { Auth } from "@turnkey/sdk-react";
 import { Typography } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CustomSwitch from "./components/Switch";
@@ -10,6 +10,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import "./index.css";
 import { useRouter } from "next/navigation";
 import Navbar from "./components/Navbar";
+import { Toaster, toast} from "sonner";
 
 // Define types for config and socials
 interface SocialConfig {
@@ -92,7 +93,7 @@ export default function AuthPage() {
       facebookEnabled: config.socials.facebook,
     };
     navigator.clipboard.writeText(JSON.stringify(authConfig, null, 2));
-    alert("Copied to clipboard!");
+    toast.success("Copied to clipboard!")
   };
 
   const authConfig = {
@@ -216,7 +217,11 @@ export default function AuthPage() {
             authConfig={authConfig}
             configOrder={configOrder}
             onHandleAuthSuccess={handleAuthSuccess}
+            onError={(errorMessage:string) => toast.error(errorMessage)}
           />
+        </div>
+        <div>
+        <Toaster position="bottom-right" toastOptions={{ className: 'sonner-toaster' }} />
         </div>
     </main>
   );

@@ -27,6 +27,7 @@ import { appleOidcToken, facebookOidcToken, googleOidcToken } from "../utils/oid
 import { MuiPhone } from "../components/PhoneInput";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Navbar from "../components/Navbar";
+import { Toaster, toast} from "sonner";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -78,12 +79,12 @@ const handleOpenPhoneModal = () => {
 };
 const handleEmailSubmit = async () => {
   if (!emailInput) {
-    alert("Please enter a valid email address.");
+    toast.error("Please enter a valid email address");
     return;
   }
   const suborgs = await getSuborgs({filterType:"EMAIL", filterValue:emailInput}) //TODO change to get verified suborgs
   if (suborgs!.organizationIds.length > 0){
-    alert("Email is already connected to another account")
+    toast.error("Email is already connected to another account");
     return
   }
   await authIframeClient?.updateUser({organizationId: suborgId, userId: user.userId, userEmail: emailInput, userTagIds:[]})
@@ -97,12 +98,12 @@ const handleEmailSubmit = async () => {
 
 const handlePhoneSubmit = async () => {
   if (!phoneInput) {
-    alert("Please enter a valid phone number.");
+    toast.error("Please enter a valid phone number.");
     return;
   }
   const suborgs = await getSuborgs({filterType:"PHONE_NUMBER", filterValue:phoneInput}) //TODO change to get verified suborgs
   if (suborgs!.organizationIds.length > 0){
-    alert("Phone Number is already connected to another account")
+    toast.error("Phone Number is already connected to another account");
     return
   }
   await authIframeClient?.updateUser({organizationId: suborgId, userId: user.userId, userPhoneNumber: phoneInput, userTagIds:[]})
@@ -135,7 +136,7 @@ const handlePhoneSubmit = async () => {
     if (oidcToken){
       const suborgs = await getSuborgs({filterType:"OIDC_TOKEN", filterValue:oidcToken.idToken})
       if (suborgs!.organizationIds.length > 0){
-        alert("Social login is already connected to another account")
+        toast.error("Social login is already connected to another account");
         return
       }
       await authIframeClient?.createOauthProviders({organizationId: suborgId, userId: user.userId, oauthProviders: [{providerName: `TurnkeyDemoApp - ${Date.now()}`, oidcToken: oidcToken.idToken}]})
@@ -247,7 +248,7 @@ useEffect(() => {
 
   const handleSignMessageClick = () => {
     if (!selectedAccount) {
-      alert("Please select an account first!");
+      toast.error("Please select an account first!");
       return;
     }
     setIsSignModalOpen(true); 
@@ -994,7 +995,9 @@ Passkeys allow for easy biometric access to your wallet and can be synced across
 </Modal>
 
 }
-
+<div>
+        <Toaster position="bottom-right" toastOptions={{ className: 'sonner-toaster' }} />
+        </div>
     </main>
   );
 }

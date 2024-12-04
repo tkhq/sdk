@@ -147,3 +147,13 @@ body {
   padding-bottom: 16px;
   background-color: #ffffff;
 }
+
+
+.sonner-toaster {
+  z-index: 9999; 
+  pointer-events: none;
+}
+
+.sonner-toaster > div {
+  pointer-events: auto;
+}
