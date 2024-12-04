@@ -69,8 +69,14 @@ const Auth: React.FC<AuthProps> = ({ onHandleAuthSuccess, authConfig, configOrde
     }
   }, [authIframeClient]);
 
+
+  
   if (loading) {
-    return <></>;
+    return                 <CircularProgress
+    size={80}
+    thickness={1}
+    className={styles.circularProgress!}
+  />;
   }
 
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

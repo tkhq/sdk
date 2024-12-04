@@ -31,7 +31,6 @@ export default function AuthPage() {
   const handleAuthSuccess = async () => {
     router.push("/dashboard");
   };
-
   const [configOrder, setConfigOrder] = useState(["socials", "email", "phone", "passkey"]);
 
   const [config, setConfig] = useState<Config>({
@@ -126,12 +125,12 @@ export default function AuthPage() {
 
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="configList">
-              {(provided) => (
+              {(provided: { droppableProps: React.JSX.IntrinsicAttributes & React.ClassAttributes<HTMLDivElement> & React.HTMLAttributes<HTMLDivElement>; innerRef: React.LegacyRef<HTMLDivElement> | undefined; placeholder: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }) => (
                 <div {...provided.droppableProps} ref={provided.innerRef} className="toggleContainer">
                   {configOrder.map((key, index) => (
                     key === "socials" ? (
                       <Draggable key="socials" draggableId="socials" index={index} isDragDisabled={!config.socials.enabled}>
-                        {(provided) => (
+                        {(provided: { innerRef: React.LegacyRef<HTMLDivElement> | undefined; draggableProps: React.JSX.IntrinsicAttributes & React.ClassAttributes<HTMLDivElement> & React.HTMLAttributes<HTMLDivElement>; dragHandleProps: React.JSX.IntrinsicAttributes & React.ClassAttributes<HTMLDivElement> & React.HTMLAttributes<HTMLDivElement>; }) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
@@ -182,7 +181,7 @@ export default function AuthPage() {
                       </Draggable>
                     ) : (
                       <Draggable key={key} draggableId={key} index={index} isDragDisabled={key !== "socials" && !config[key as keyof Config] as boolean}>
-                        {(provided) => (
+                        {(provided: { innerRef: React.LegacyRef<HTMLDivElement> | undefined; draggableProps: React.JSX.IntrinsicAttributes & React.ClassAttributes<HTMLDivElement> & React.HTMLAttributes<HTMLDivElement>; dragHandleProps: React.JSX.IntrinsicAttributes & React.ClassAttributes<HTMLDivElement> & React.HTMLAttributes<HTMLDivElement>; }) => (
                           <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="toggleRow">
   <div className="labelContainer">
     <img src="/dots.svg" alt="Drag handle" />
