@@ -232,7 +232,7 @@ const Auth: React.FC<AuthProps> = ({
         setOtpId(null);
       }}
       sx={{
-        color: "#868c95",
+        color: "var(--text-secondary)",
         position: "absolute",
         top: 16,
         left: 16,
@@ -242,7 +242,7 @@ const Auth: React.FC<AuthProps> = ({
         padding: "6px",
         transition: "background-color 0.3s ease",
         "&:hover": {
-          backgroundColor: "#e0e3ea",
+          backgroundColor: "var(--button-hover-bg)",
         },
       }}
     />
@@ -313,20 +313,20 @@ const Auth: React.FC<AuthProps> = ({
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": {
-                      borderColor: "#D0D5DD",
+                      borderColor: "var(--input-border)",
                     },
                     "&:hover fieldset": {
-                      borderColor: "#8A929E",
+                      borderColor: "var(--input-hover-border)",
                     },
                     "&.Mui-focused fieldset": {
-                      borderColor: "#D0D5DD",
+                      borderColor: "var(--input-focus-border)",
                       border: "1px solid",
                     },
                   },
                   "& .MuiInputBase-input": {
                     padding: "12px",
                   },
-                  backgroundColor: "white",
+                  backgroundColor: "var(--input-bg)",
                 }}
                 variant="outlined"
               />

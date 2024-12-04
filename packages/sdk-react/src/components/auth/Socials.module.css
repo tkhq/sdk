@@ -1,11 +1,11 @@
 .socialButton {
   padding: 10px 16px;
   gap: 8px;
-  color: var(--Greyscale-900, #2b2f33);
+  color: var(--button-text);
   width: 100%;
   font-size: 1rem;
-  background: #ffffff;
-  border: 1px solid var(--Greyscale-400, #a2a7ae);
+  background: var(--button-bg);
+  border: 1px solid var(--button-border);
   border-radius: 8px;
   cursor: pointer;
   text-align: center;
@@ -18,11 +18,11 @@
 .iconButton {
   padding: 10px 16px;
   gap: 8px;
-  color: var(--Greyscale-900, #2b2f33);
+  color: var(--button-text);
   width: 100%;
   font-size: 1rem;
-  background: #ffffff;
-  border: 1px solid var(--Greyscale-400, #a2a7ae);
+  background: var(--button-bg);
+  border: 1px solid var(--button-border);
   border-radius: 8px;
   cursor: pointer;
   text-align: center;
@@ -33,15 +33,15 @@
 }
 
 .socialButton:hover {
-  background-color: #f5f5f5;
+  background-color: var(--button-hover-bg);
 }
 
 .iconButton:hover {
-  background-color: #f5f5f5;
+  background-color: var(--button-hover-bg);
 }
 
 .iconSmall {
-  width: 20x;
+  width: 20px;
   height: 20px;
   margin-right: 4px;
 }

@@ -341,7 +341,7 @@ export default function Dashboard() {
 
   const handleWalletSelect = async (walletId: string) => {
     setSelectedWallet(walletId);
-    setAnchorEl(null); // Close the dropdown
+    setAnchorEl(null); 
 
     // Fetch accounts for the selected wallet
     const accountsResponse = await authIframeClient!.getWalletAccounts({
@@ -592,7 +592,7 @@ export default function Dashboard() {
                 <div
                   key={index}
                   className="accountRow"
-                  onClick={() => setSelectedAccount(account.address)} // Ensures the radio button is selected
+                  onClick={() => setSelectedAccount(account.address)}
                   style={{
                     cursor: "pointer",
                     display: "flex",
@@ -641,7 +641,7 @@ export default function Dashboard() {
                     }
                     label=""
                     className="radioButton"
-                    style={{ pointerEvents: "none" }} // Ensures radio works via the parent click
+                    style={{ pointerEvents: "none" }} 
                   />
                 </div>
               ))}

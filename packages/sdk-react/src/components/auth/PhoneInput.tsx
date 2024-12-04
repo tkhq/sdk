@@ -57,20 +57,20 @@ export const MuiPhone: React.FC<MUIPhoneProps> = ({
       sx={{
         "& .MuiOutlinedInput-root": {
           "& fieldset": {
-            borderColor: "#D0D5DD",
+            borderColor: "var(--input-border)",
           },
           "&:hover fieldset": {
-            borderColor: "#8A929E",
+            borderColor: "var(--input-border-hover)",
           },
           "&.Mui-focused fieldset": {
-            borderColor: "#D0D5DD",
+            borderColor: "var(--input-border-focus)",
             border: "1px solid",
           },
         },
         "& .MuiInputBase-input": {
           padding: "10px 4px",
         },
-        backgroundColor: "white",
+        backgroundColor: "var(--input-bg)",
       }}
       InputProps={{
         startAdornment: (
