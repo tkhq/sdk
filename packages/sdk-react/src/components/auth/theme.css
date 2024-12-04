@@ -1,0 +1,39 @@
+:root {
+    /* Button Colors */
+    --button-bg: #ffffff; /* Default button background */
+    --button-text: var(--Greyscale-900, #2b2f33); /* Default button text */
+    --button-border: var(--Greyscale-400, #a2a7ae); /* Default button border */
+    --button-hover-bg: #f5f5f5; /* Hover button background */
+    --button-hover-text: var(--Greyscale-900, #2b2f33); /* Hover button text */
+    --button-disabled-bg: #ffffff; /* Disabled button background */
+    --button-disabled-text: var(--Greyscale-700, #a2a7ae); /* Disabled button text */
+    --button-disabled-border: var(--Greyscale-100, #f5f7fb); /* Disabled button border */
+  
+    /* Input Field Colors */
+    --input-bg: #ffffff; /* Input field background */
+    --input-text: var(--Greyscale-900, #2b2f33); /* Input text color */
+    --input-border: var(--Greyscale-400, #D0D5DD); /* Input border color */
+    --input-hover-border: var(--Greyscale-500, #868c95); /* Input border on hover */
+    --input-focus-border: var(--Greyscale-900, #2b2f33); /* Input border on focus */
+  
+    /* Text Colors */
+    --text-primary: var(--Greyscale-900, #2b2f33); /* Primary text */
+    --text-secondary: var(--Greyscale-500, #868c95); /* Secondary text */
+    --text-error: #ff4c4c; /* Error text */
+    --text-disabled: var(--Greyscale-700, #a2a7ae); /* Disabled text */
+  
+    /* Border Colors */
+    --border-default: var(--Greyscale-400, #a2a7ae); /* Default border */
+    --border-hover: var(--Greyscale-500, #868c95); /* Hover border */
+    --border-disabled: var(--Greyscale-100, #f5f7fb); /* Disabled border */
+  
+    /* Card Colors */
+    --auth-card-bg: var(--Greyscale-20, #f5f7fb); /* Default authCard background */
+    --auth-card-border: var(--Greyscale-100, #ebedf2); /* Default authCard border */
+    --auth-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Default authCard shadow */
+    --auth-card-radius: 15px; /* Default authCard border radius */
+
+    /* Accent Colors */
+    --accent-color: var(--Blue-500, #4c48ff);
+  }
+  

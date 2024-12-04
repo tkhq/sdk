@@ -3,6 +3,7 @@ import "./components/auth/OtpVerification.module.css";
 import "./components/auth/PhoneInput.css";
 import "./components/export/Export.module.css";
 import "./components/import/Import.module.css";
+import "./components/auth/theme.css";
 import { TurnkeyContext, TurnkeyProvider } from "./contexts/TurnkeyContext";
 import { useTurnkey } from "./hooks/use-turnkey";
 export * from "./components";

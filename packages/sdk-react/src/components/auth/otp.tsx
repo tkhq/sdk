@@ -83,13 +83,13 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
             sx={{
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
-                  borderColor: hasError && !digit ? "red" : "D0D5DD",
+                  borderColor: hasError && !digit ? "red" : "var(--input-border)",
                 },
                 "&:hover fieldset": {
-                  borderColor: "8A929E",
+                  borderColor: "var(--input-border-hover)",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "D0D5DD",
+                  borderColor: "var(--input-border-focus)",
                   border: "1px solid",
                 },
               },

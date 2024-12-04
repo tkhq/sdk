@@ -10,17 +10,17 @@
   height: 200px;
   margin: 0 auto;
   padding: 20px;
-  background: var(--Greyscale-20, #f5f7fb);
-  border: 1px solid var(--Greyscale-100, #ebedf2);
-  border-radius: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--auth-card-bg);
+  border: 1px solid var(--auth-card-border);
+  border-radius: var(--auth-card-radius);
+  box-shadow: var(--auth-card-shadow);
   position: relative;
 }
 
 .verifyingText {
   font-weight: bold;
   font-size: 18px;
-  color: var(--Greyscale-900, #2b2f33);
+  color: var(--text-primary);
   margin-bottom: 20px;
   text-align: center;
 }
@@ -45,7 +45,7 @@
 
 .circularProgress {
   position: absolute;
-  color: #4c48ff;
+  color: var(--accent-color);
 }
 
 .oauthIcon {
@@ -65,10 +65,10 @@
   min-width: 375px;
   margin: 0 auto;
   padding: 20px;
-  background: var(--Greyscale-20, #f5f7fb);
-  border: 1px solid var(--Greyscale-100, #ebedf2);
-  border-radius: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--auth-card-bg);
+  border: 1px solid var(--auth-card-border);
+  border-radius: var(--auth-card-radius);
+  box-shadow: var(--auth-card-shadow);
 }
 
 .authCard h2 {
@@ -91,13 +91,13 @@
 }
 
 .authButton {
-  padding: 10px 16px 10px 16px;
+  padding: 10px 16px;
   gap: 8px;
-  color: var(--Greyscale-900, #2b2f33);
+  color: var(--button-text);
   width: 100%;
   font-size: 1rem;
-  background: #ffffff;
-  border: 1px solid var(--Greyscale-400, #a2a7ae);
+  background: var(--button-bg);
+  border: 1px solid var(--button-border);
   border-radius: 8px;
   cursor: pointer;
   text-align: center;
@@ -108,13 +108,14 @@
 }
 
 .authButton:hover {
-  background-color: #f5f5f5;
+  background-color: var(--button-hover-bg);
+  color: var(--button-hover-text);
 }
 
 .authButton:disabled {
-  color: var(--Greyscale-700, #a2a7ae);
-  background: #ffffff;
-  border-color: var(--Greyscale-100, #f5f7fb);
+  color: var(--button-disabled-text);
+  background: var(--button-disabled-bg);
+  border-color: var(--button-disabled-border);
   cursor: default;
 }
 
@@ -127,13 +128,12 @@
 
 .separator span {
   font-family: Inter;
-  color: var(--Greyscale-500, #868c95);
+  color: var(--text-secondary);
   padding: 0 10px;
   position: relative;
   z-index: 0;
   font-size: 0.75rem;
-  background: var(--Greyscale-20, #f5f7fb);
-  color: #666;
+  background: var(--auth-card-bg);
 }
 
 .separator::before {
@@ -144,16 +144,17 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: var(--Greyscale-100, #ebedf2);
+  background: var(--auth-card-border);
   z-index: 0;
 }
+
 .tos {
   font-size: 12px;
   font-weight: 400;
   line-height: 16px;
   letter-spacing: -0.01em;
   text-align: center;
-  color: var(--Greyscale-500, #868c95);
+  color: var(--text-secondary);
   margin-top: 20px;
 }
 
@@ -162,17 +163,17 @@
   line-height: 16px;
   letter-spacing: -0.01em;
   text-align: center;
-  color: var(--Greyscale-500, #868c95);
+  color: var(--text-secondary);
 }
 
 .resendCodeBold {
-  color: var(--Greyscale-900, #2b2f33);
+  color: var(--text-primary);
   font-weight: 700;
   cursor: pointer;
 }
 
 .tosBold {
-  color: var(--Greyscale-900, #2b2f33);
+  color: var(--text-primary);
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
@@ -196,7 +197,7 @@
   font-weight: 400;
   line-height: 16px;
   letter-spacing: -0.01em;
-  color: var(--Greyscale-500, #868c95);
+  color: var(--text-secondary);
   margin-top: 16px;
   cursor: pointer;
 }
@@ -214,7 +215,7 @@
   min-height: 16px;
   text-align: center;
   margin-top: 12px;
-  color: #ff4c4c;
+  color: var(--text-error);
   font-size: 12px;
 }
 
@@ -248,7 +249,7 @@
 }
 
 .noPasskeyLink {
-  color: var(--Blue-500, #4c48ff);
+  color: var(--accent-color);
   font-size: 0.9rem;
   margin-top: 8px;
   cursor: pointer;
@@ -257,9 +258,11 @@
   display: inline-block;
   transition: color 0.2s ease;
 }
+
 .noPasskeyLink:hover {
-  color: #000000;
+  color: var(--text-primary);
 }
+
 .passkeyContainer {
   display: flex;
   flex-direction: column;
@@ -272,7 +275,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px; /* Space between buttons */
+  gap: 12px;
 }
 
 .socialButtonContainerStacked {
