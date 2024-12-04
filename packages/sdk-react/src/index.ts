@@ -4,7 +4,7 @@ import "./components/auth/PhoneInput.css";
 import "./components/export/Export.module.css"
 import "./components/import/Import.module.css"
 import { TurnkeyContext, TurnkeyProvider } from "./contexts/TurnkeyContext";
-import { useTurnkey } from "./hooks/useTurnkey";
+import { useTurnkey } from "./hooks/use-turnkey";
 export * from "./components";
 export * from "./actions";
 export { TurnkeyContext, TurnkeyProvider, useTurnkey };

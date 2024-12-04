@@ -8,13 +8,9 @@ import {
   Radio,
   RadioGroup,
   FormControlLabel,
-  Button,
   Modal,
   Box,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
   MenuItem,
   Menu,
 } from "@mui/material";
@@ -24,7 +20,6 @@ import { verifyEthSignature, verifySolSignatureWithAddress } from "../utils";
 import { keccak256, toUtf8Bytes } from "ethers";
 import { useRouter } from "next/navigation";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { appleOidcToken, facebookOidcToken, googleOidcToken } from "../utils/oidc";
@@ -41,7 +36,7 @@ export default function Dashboard() {
   const [wallets, setWallets] = useState<any[]>([]);
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSignModalOpen, setIsSignModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isPasskeyModalOpen, setIsPasskeyModalOpen] = useState(false);
   const [messageToSign, setMessageToSign] = useState("Signing within Turnkey Demo.");
@@ -117,30 +112,6 @@ const handlePhoneSubmit = async () => {
 
 };
 
-  const handleDeleteOauth = async (oauthType: string) => {
-    let providerId
-    switch (oauthType) {
-      case "Apple":
-        providerId = user?.oauthProviders?.find((provider: { issuer: string }) => provider.issuer.toLowerCase().includes("apple"))?.providerId || null;
-        break;
-  
-      case "Facebook":
-        providerId = user?.oauthProviders?.find((provider: { issuer: string }) => provider.issuer.toLowerCase().includes("facebook"))?.providerId || null;
-        break;
-  
-      case "Google":
-        providerId = user?.oauthProviders?.find((provider: { issuer: string }) => provider.issuer.toLowerCase().includes("google"))?.providerId || null;
-        break;
-  
-      default:
-        console.error(`Unknown OAuth type: ${oauthType}`);
-    }
-
-    if (providerId){
-      await authIframeClient?.deleteOauthProviders({organizationId: suborgId, userId: user.userId, providerIds: [providerId]})
-      window.location.reload();
-    }
-  }
 
   const handleAddOauth = async (oauthType: string) => {
     let oidcToken
@@ -275,11 +246,11 @@ useEffect(() => {
       alert("Please select an account first!");
       return;
     }
-    setIsModalOpen(true); // Open the modal
+    setIsSignModalOpen(true); 
   };
 
   const handleModalClose = () => {
-    setIsModalOpen(false); // Close the modal
+    setIsSignModalOpen(false); 
     setSignature(null);
     setMessageSigningResult(null);
   };
@@ -675,7 +646,7 @@ useEffect(() => {
 </Modal>
 
 
-      <Modal open={isModalOpen} onClose={handleModalClose}>
+      <Modal open={isSignModalOpen} onClose={handleModalClose}>
   <Box
     sx={{
       outline: "none",

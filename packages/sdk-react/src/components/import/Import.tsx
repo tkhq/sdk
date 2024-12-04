@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Box, Typography, TextField } from "@mui/material";
-import { useTurnkey } from "../../hooks/useTurnkey";
+import { useTurnkey } from "../../hooks/use-turnkey";
 import { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS, TurnkeyIframeClient } from "@turnkey/sdk-browser";
 import styles from "./Import.module.css";
 import turnkeyIcon from "assets/turnkey.svg";
