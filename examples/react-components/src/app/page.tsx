@@ -104,8 +104,8 @@ export default function AuthPage() {
     };
     const configToCopy = {
       authConfig,
-      configOrder
-    }
+      configOrder,
+    };
     navigator.clipboard.writeText(JSON.stringify(configToCopy, null, 2));
     toast.success("Copied to clipboard!");
   };

@@ -19,7 +19,7 @@ body {
   margin: 0;
   padding: 0;
   width: 100vw;
-  height: 100vh; 
+  height: 100vh;
   background-image: url("../../../public/grid.svg");
   background-size: cover;
   background-repeat: no-repeat;
@@ -251,7 +251,7 @@ button {
   border: 1px solid var(--Greyscale-800, #3f464b);
   border-radius: 8px;
   cursor: pointer;
-  transition: opacity 0.3s ease;
+  transition: 0.3s ease;
 }
 
 button:disabled {

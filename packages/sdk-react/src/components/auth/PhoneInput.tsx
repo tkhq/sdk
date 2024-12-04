@@ -56,6 +56,7 @@ export const MuiPhone: React.FC<MUIPhoneProps> = ({
       fullWidth
       sx={{
         "& .MuiOutlinedInput-root": {
+          color: "var(--input-text)",
           "& fieldset": {
             borderColor: "var(--input-border)",
           },
