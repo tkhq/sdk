@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- 78bc39c: Add default accounts for various address types. Add iniital Telegram Cloud Storage Stamper package.
+- 78bc39c: Add default accounts for various address types. Add wallet account ID to list wallets endpoint. Add initial Telegram Cloud Storage Stamper package.
 
 ### Patch Changes
 
