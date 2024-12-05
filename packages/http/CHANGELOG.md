@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.17.0
+
+### Minor Changes
+
+- 78bc39c: Add default accounts for various address types. Add iniital Telegram Cloud Storage Stamper package.
+
 ## 2.16.0
 
 ### Minor Changes
