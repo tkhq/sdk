@@ -18,6 +18,10 @@ interface RootLayoutProps {
 function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <title>Turnkey Auth Demo</title>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+      </head>
       <body>
         <TurnkeyProvider config={turnkeyConfig}>{children}</TurnkeyProvider>
       </body>
