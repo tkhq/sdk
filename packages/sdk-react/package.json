@@ -9,6 +9,11 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
       "default": "./dist/index.mjs"
+    },
+    "./styles": {
+      "import": "./dist/styles.esm.css",
+      "require": "./dist/styles.cjs.css",
+      "default": "./dist/styles.esm.css"
     }
   },
   "types": "./dist/index.d.ts",
@@ -43,9 +48,22 @@
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@icons-pack/react-simple-icons": "^10.1.0",
+    "@mui/icons-material": "^6.1.5",
+    "@mui/material": "^6.1.5",
+    "@noble/hashes": "1.4.0",
+    "@react-oauth/google": "^0.12.1",
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
-    "usehooks-ts": "^3.1.0"
+    "@turnkey/crypto": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "usehooks-ts": "^3.1.0",
+    "libphonenumber-js": "^1.11.14",
+    "next": "^15.0.2",
+    "react-apple-login": "^1.1.6",
+    "react-international-phone": "^4.3.0"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0"

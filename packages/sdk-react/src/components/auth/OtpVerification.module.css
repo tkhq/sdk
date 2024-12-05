@@ -1,0 +1,60 @@
+.verifyingText {
+  font-weight: bold;
+  font-size: 18px;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.verification {
+  font-family: Inter;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--text-secondary);
+  margin-top: 16px;
+}
+
+.verificationBold {
+  font-family: Inter;
+  color: var(--text-primary);
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.verificationIcon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.resendCode {
+  font-family: Inter;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.resendCodeBold {
+  font-family: Inter;
+  color: var(--text-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.phoneInput {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.errorText {
+  min-height: 16px;
+  text-align: center;
+  margin-top: 12px;
+  color: var(--error-color);
+  font-size: 12px;
+}
