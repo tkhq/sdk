@@ -42,7 +42,7 @@ const Export: React.FC<ExportProps> = ({ walletId }) => {
             iframeContainer: document.getElementById(
               TurnkeyExportIframeContainerId
             ),
-            iframeUrl: "https://export.turnkey.com",
+            iframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
           });
           setExportIframeClient(newExportIframeClient!);
         } catch (error) {

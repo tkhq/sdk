@@ -4,6 +4,14 @@ import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import { exchangeCodeForToken, generateChallengePair } from "./facebookUtils";
 
+// OAuth URLs
+const APPLE_AUTH_URL = "https://appleid.apple.com/auth/authorize";
+const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
+const FACEBOOK_AUTH_URL = "https://www.facebook.com/v11.0/dialog/oauth";
+
+// Popup Size
+const popupWidth = 500;
+const popupHeight = 600;
 interface OidcTokenParams {
   iframePublicKey: string;
   clientId: string;
@@ -16,15 +24,15 @@ export const appleOidcToken = async ({
   redirectURI,
 }: OidcTokenParams): Promise<any> => {
   const nonce = bytesToHex(sha256(iframePublicKey));
-  const appleAuthUrl = new URL("https://appleid.apple.com/auth/authorize");
+  const appleAuthUrl = new URL(APPLE_AUTH_URL);
   appleAuthUrl.searchParams.set("client_id", clientId);
   appleAuthUrl.searchParams.set("redirect_uri", redirectURI);
   appleAuthUrl.searchParams.set("response_type", "code id_token");
   appleAuthUrl.searchParams.set("response_mode", "fragment");
   appleAuthUrl.searchParams.set("nonce", nonce);
 
-  const width = 500;
-  const height = 600;
+  const width = popupWidth;
+  const height = popupHeight;
   const left = window.screenX + (window.innerWidth - width) / 2;
   const top = window.screenY + (window.innerHeight - height) / 2;
 
@@ -53,7 +61,10 @@ export const appleOidcToken = async ({
           }
         }
       } catch (error) {
-        // Ignore cross-origin errors until redirected
+        // Ignore cross-origin errors until the popup redirects to the same origin.
+        // These errors occur because the script attempts to access the URL of the popup window while it's on a different domain.
+        // Due to browser security policies (Same-Origin Policy), accessing properties like location.href on a window that is on a different domain will throw an exception.
+        // Once the popup redirects to the same origin as the parent window, these errors will no longer occur, and the script can safely access the popup's location to extract parameters.
       }
 
       if (authWindow?.closed) {
@@ -70,7 +81,7 @@ export const googleOidcToken = async ({
   redirectURI,
 }: OidcTokenParams): Promise<any> => {
   const nonce = bytesToHex(sha256(iframePublicKey));
-  const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  const googleAuthUrl = new URL(GOOGLE_AUTH_URL);
   googleAuthUrl.searchParams.set("client_id", clientId);
   googleAuthUrl.searchParams.set("redirect_uri", redirectURI);
   googleAuthUrl.searchParams.set("response_type", "id_token");
@@ -78,8 +89,8 @@ export const googleOidcToken = async ({
   googleAuthUrl.searchParams.set("nonce", nonce);
   googleAuthUrl.searchParams.set("prompt", "select_account");
 
-  const width = 500;
-  const height = 600;
+  const width = popupWidth;
+  const height = popupHeight;
   const left = window.screenX + (window.innerWidth - width) / 2;
   const top = window.screenY + (window.innerHeight - height) / 2;
 
@@ -108,7 +119,10 @@ export const googleOidcToken = async ({
           }
         }
       } catch (error) {
-        // Ignore cross-origin errors until redirected
+        // Ignore cross-origin errors until the popup redirects to the same origin.
+        // These errors occur because the script attempts to access the URL of the popup window while it's on a different domain.
+        // Due to browser security policies (Same-Origin Policy), accessing properties like location.href on a window that is on a different domain will throw an exception.
+        // Once the popup redirects to the same origin as the parent window, these errors will no longer occur, and the script can safely access the popup's location to extract parameters.
       }
 
       if (authWindow?.closed) {
@@ -138,9 +152,9 @@ export const facebookOidcToken = async ({
     response_type: "code",
   });
 
-  const facebookOAuthURL = `https://www.facebook.com/v11.0/dialog/oauth?${params.toString()}`;
-  const width = 500;
-  const height = 600;
+  const facebookOAuthURL = `${FACEBOOK_AUTH_URL}?${params.toString()}`;
+  const width = popupWidth;
+  const height = popupHeight;
   const left = window.screenX + (window.innerWidth - width) / 2;
   const top = window.screenY + (window.innerHeight - height) / 2;
 
@@ -192,7 +206,10 @@ export const facebookOidcToken = async ({
           }
         }
       } catch (error) {
-        // Ignore cross-origin errors until the popup redirects to the same origin
+        // Ignore cross-origin errors until the popup redirects to the same origin.
+        // These errors occur because the script attempts to access the URL of the popup window while it's on a different domain.
+        // Due to browser security policies (Same-Origin Policy), accessing properties like location.href on a window that is on a different domain will throw an exception.
+        // Once the popup redirects to the same origin as the parent window, these errors will no longer occur, and the script can safely access the popup's location to extract parameters.
       }
     }, 250);
   });
