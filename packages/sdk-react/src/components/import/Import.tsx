@@ -10,10 +10,11 @@ import styles from "./Import.module.css";
 import turnkeyIcon from "assets/turnkey.svg";
 import importIcon from "assets/import.svg";
 type ImportProps = {
-  onSuccess?: () => void;
+  onError: (errorMessage: string) => void;
+  onHandleImportSuccess: () => Promise<void>;
 };
 
-const Import: React.FC<ImportProps> = ({ onSuccess = () => undefined }) => {
+const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
   const { authIframeClient, turnkey } = useTurnkey();
   const [importIframeClient, setImportIframeClient] =
     useState<TurnkeyIframeClient | null>(null);
@@ -66,44 +67,51 @@ const Import: React.FC<ImportProps> = ({ onSuccess = () => undefined }) => {
   };
 
   const handleImport = async () => {
-    const whoami = await authIframeClient!.getWhoami();
-    if (!importIframeClient) {
-      console.error("IframeStamper is not initialized.");
-      return;
-    }
-    const initResult = await authIframeClient!.initImportWallet({
-      organizationId: whoami.organizationId,
-      userId: whoami.userId,
-    });
-    const injected = await importIframeClient!.injectImportBundle(
-      initResult.importBundle,
-      whoami.organizationId,
-      whoami.userId
-    );
-    if (!injected) {
-      console.error("error injecting import bundle");
-      return;
-    }
-    const encryptedBundle =
-      await importIframeClient.extractWalletEncryptedBundle();
-    if (!encryptedBundle || encryptedBundle.trim() === "") {
-      console.error("failed to retrieve encrypted bundle.");
-      return;
-    }
-    const response = await authIframeClient?.importWallet({
-      organizationId: whoami.organizationId,
-      userId: whoami.userId,
-      walletName: walletName,
-      encryptedBundle,
-      accounts: [...DEFAULT_ETHEREUM_ACCOUNTS, ...DEFAULT_SOLANA_ACCOUNTS],
-    });
+    try {
+      const whoami = await authIframeClient!.getWhoami();
+      if (!importIframeClient) {
+        throw new Error("Import iframe client not initialized");
+      }
 
-    if (response) {
-      console.log("Wallet imported successfully!");
-      handleCloseModal();
-      onSuccess();
-    } else {
-      console.error("Failed to import wallet");
+      const initResult = await authIframeClient!.initImportWallet({
+        organizationId: whoami.organizationId,
+        userId: whoami.userId,
+      });
+
+      const injected = await importIframeClient!.injectImportBundle(
+        initResult.importBundle,
+        whoami.organizationId,
+        whoami.userId
+      );
+
+      if (!injected) {
+        throw new Error("Failed to inject import bundle");
+      }
+
+      const encryptedBundle =
+        await importIframeClient.extractWalletEncryptedBundle();
+
+      if (!encryptedBundle || encryptedBundle.trim() === "") {
+        throw new Error("Encrypted wallet bundle is empty or invalid");
+      }
+
+      const response = await authIframeClient?.importWallet({
+        organizationId: whoami.organizationId,
+        userId: whoami.userId,
+        walletName: walletName,
+        encryptedBundle,
+        accounts: [...DEFAULT_ETHEREUM_ACCOUNTS, ...DEFAULT_SOLANA_ACCOUNTS],
+      });
+
+      if (response?.walletId) {
+        handleCloseModal();
+        onHandleImportSuccess();
+      } else {
+        throw new Error("Failed to import wallet");
+      }
+    } catch (error) {
+      console.error("Error during wallet import:", error);
+      onError("Failed to import wallet");
     }
   };
 

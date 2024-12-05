@@ -71,6 +71,13 @@ export default function Dashboard() {
   const [emailInput, setEmailInput] = useState("");
   const [phoneInput, setPhoneInput] = useState("");
 
+  const handleExportSuccess = async () => {
+    toast.success("Wallet successfully exported");
+  };
+  const handleImportSuccess = async () => {
+    await getWallets();
+    toast.success("Wallet successfully imported");
+  };
   const handleResendEmail = async () => {
     const initAuthResponse = await authIframeClient?.initOtpAuth({
       organizationId: suborgId,
@@ -268,12 +275,11 @@ export default function Dashboard() {
       try {
         if (turnkey && authIframeClient) {
           const session = await turnkey?.getReadWriteSession();
-          console.log(session);
-          if (!session || Date.now() > session!.sessionExpiry) {
+          if (!session || Date.now() > session!.expiry) {
             await handleLogout();
           }
           await authIframeClient.injectCredentialBundle(
-            session.credentialBundle
+            session!.credentialBundle
           );
           const whoami = await authIframeClient?.getWhoami();
           const suborgId = whoami?.organizationId;
@@ -285,7 +291,6 @@ export default function Dashboard() {
           });
 
           setUser(userResponse.user);
-          console.log(userResponse.user);
           const walletsResponse = await authIframeClient!.getWallets({
             organizationId: suborgId!,
           });
@@ -654,8 +659,15 @@ export default function Dashboard() {
           </RadioGroup>
 
           <div className="exportImportGroup">
-            <Export walletId={selectedWallet!}></Export>
-            <Import onSuccess={getWallets} />
+            <Export
+              walletId={selectedWallet!}
+              onHandleExportSuccess={handleExportSuccess}
+              onError={(errorMessage: string) => toast.error(errorMessage)}
+            ></Export>
+            <Import
+              onError={(errorMessage: string) => toast.error(errorMessage)}
+              onHandleImportSuccess={handleImportSuccess}
+            />
           </div>
           <div className="authFooter">
             <div className="authFooterLeft">

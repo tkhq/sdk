@@ -8,11 +8,18 @@ import eyeIcon from "assets/eye.svg";
 import cautionIcon from "assets/caution.svg";
 import turnkeyIcon from "assets/turnkey.svg";
 import exportIcon from "assets/export.svg";
+
 type ExportProps = {
   walletId: string;
+  onHandleExportSuccess: () => Promise<void>;
+  onError: (errorMessage: string) => void;
 };
 
-const Export: React.FC<ExportProps> = ({ walletId }) => {
+const Export: React.FC<ExportProps> = ({
+  walletId,
+  onHandleExportSuccess,
+  onError,
+}) => {
   const { authIframeClient, turnkey } = useTurnkey();
   const [exportIframeClient, setExportIframeClient] =
     useState<TurnkeyIframeClient | null>(null);
@@ -74,17 +81,28 @@ const Export: React.FC<ExportProps> = ({ walletId }) => {
   };
 
   const exportWallet = async () => {
-    const whoami = await authIframeClient!.getWhoami();
-    const exportResponse = await authIframeClient?.exportWallet({
-      organizationId: whoami.organizationId,
-      walletId: walletId!,
-      targetPublicKey: exportIframeClient!.iframePublicKey!,
-    });
-    if (exportResponse?.exportBundle) {
+    try {
+      const whoami = await authIframeClient!.getWhoami();
+
+      const exportResponse = await authIframeClient?.exportWallet({
+        organizationId: whoami.organizationId,
+        walletId: walletId!,
+        targetPublicKey: exportIframeClient!.iframePublicKey!,
+      });
+
+      if (!exportResponse?.exportBundle) {
+        throw new Error("Failed to retrieve export bundle");
+      }
+
       await exportIframeClient?.injectWalletExportBundle(
         exportResponse.exportBundle,
         whoami.organizationId
       );
+
+      onHandleExportSuccess();
+    } catch (error) {
+      console.error("Error during wallet export:", error);
+      onError("Failed to export wallet");
     }
   };
 
