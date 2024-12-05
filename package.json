@@ -34,6 +34,7 @@
     "prettier": "^2.8.4",
     "rimraf": "^3.0.2",
     "rollup": "^4.22.4",
+    "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-node-externals": "^6.1.2",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-preserve-directives": "^1.1.2",
