@@ -1,5 +1,17 @@
 # @turnkey/sdk-server
 
+## 1.7.0
+
+### Minor Changes
+
+- 78bc39c: Add default accounts for various address types
+  - Add wallet account ID to list wallets endpoint
+
+### Patch Changes
+
+- Updated dependencies [78bc39c]
+  - @turnkey/http@2.17.0
+
 ## 1.6.0
 
 ### Minor Changes

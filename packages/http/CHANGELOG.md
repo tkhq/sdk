@@ -1,5 +1,12 @@
 # @turnkey/http
 
+## 2.17.0
+
+### Minor Changes
+
+- 78bc39c: Add default accounts for various address types
+  - Add wallet account ID to list wallets endpoint
+
 ## 2.16.0
 
 ### Minor Changes
