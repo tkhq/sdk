@@ -8686,6 +8686,10 @@
     "v1WalletAccount": {
       "type": "object",
       "properties": {
+        "walletAccountId": {
+          "type": "string",
+          "description": "Unique identifier for a given Wallet Account."
+        },
         "organizationId": {
           "type": "string",
           "description": "The Organization the Account belongs to."
@@ -8722,6 +8726,7 @@
         }
       },
       "required": [
+        "walletAccountId",
         "organizationId",
         "walletId",
         "curve",
