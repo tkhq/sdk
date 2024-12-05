@@ -3,11 +3,18 @@ import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import styles from "./Socials.module.css";
 import appleIcon from "assets/apple.svg";
+import {
+  APPLE_AUTH_SCRIPT_URL,
+  APPLE_AUTH_URL,
+  popupHeight,
+  popupWidth,
+} from "./constants";
 
 interface AppleAuthButtonProps {
   iframePublicKey: string;
   clientId: string;
   onSuccess: (response: any) => void;
+  layout: "inline" | "stacked";
 }
 declare global {
   interface Window {
@@ -15,17 +22,19 @@ declare global {
   }
 }
 
-const AppleAuthButton: React.FC<
-  AppleAuthButtonProps & { layout: "inline" | "stacked" }
-> = ({ iframePublicKey, onSuccess, clientId, layout }) => {
+const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
+  iframePublicKey,
+  onSuccess,
+  clientId,
+  layout,
+}) => {
   const [appleSDKLoaded, setAppleSDKLoaded] = useState(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
 
   useEffect(() => {
     const loadAppleSDK = () => {
       const script = document.createElement("script");
-      script.src =
-        "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
+      script.src = APPLE_AUTH_SCRIPT_URL;
       script.onload = () => setAppleSDKLoaded(true);
       script.onerror = () => console.error("Failed to load AppleID SDK");
       document.body.appendChild(script);
@@ -40,7 +49,7 @@ const AppleAuthButton: React.FC<
 
   const handleLogin = () => {
     const nonce = bytesToHex(sha256(iframePublicKey));
-    const appleAuthUrl = new URL("https://appleid.apple.com/auth/authorize");
+    const appleAuthUrl = new URL(APPLE_AUTH_URL);
     appleAuthUrl.searchParams.set("client_id", clientId);
     appleAuthUrl.searchParams.set("redirect_uri", redirectURI);
     appleAuthUrl.searchParams.set("response_type", "code id_token");
@@ -48,8 +57,8 @@ const AppleAuthButton: React.FC<
     appleAuthUrl.searchParams.set("nonce", nonce);
 
     // Calculate popup dimensions and position for centering
-    const width = 500;
-    const height = 600;
+    const width = popupWidth;
+    const height = popupHeight;
     const left = window.screenX + (window.innerWidth - width) / 2;
     const top = window.screenY + (window.innerHeight - height) / 2;
 
@@ -79,7 +88,10 @@ const AppleAuthButton: React.FC<
           }
         }
       } catch (error) {
-        // Ignore cross-origin errors until redirected
+        // Ignore cross-origin errors until the popup redirects to the same origin.
+        // These errors occur because the script attempts to access the URL of the popup window while it's on a different domain.
+        // Due to browser security policies (Same-Origin Policy), accessing properties like location.href on a window that is on a different domain will throw an exception.
+        // Once the popup redirects to the same origin as the parent window, these errors will no longer occur, and the script can safely access the popup's location to extract parameters.
       }
 
       if (authWindow?.closed) {

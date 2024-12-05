@@ -11,11 +11,17 @@ import {
   Droppable,
   Draggable,
   DropResult,
+  DroppableProvided,
+  DraggableProvided,
 } from "@hello-pangea/dnd";
 import "./index.css";
 import { useRouter } from "next/navigation";
 import Navbar from "./components/Navbar";
 import { Toaster, toast } from "sonner";
+
+// Define reusable types for provided props
+type DroppableProvidedProps = DroppableProvided;
+type DraggableProvidedProps = DraggableProvided;
 
 // Define types for config and socials
 interface SocialConfig {
@@ -37,6 +43,7 @@ export default function AuthPage() {
   const handleAuthSuccess = async () => {
     router.push("/dashboard");
   };
+
   const [configOrder, setConfigOrder] = useState([
     "socials",
     "email",
@@ -140,25 +147,7 @@ export default function AuthPage() {
 
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="configList">
-            {(provided: {
-              droppableProps: React.JSX.IntrinsicAttributes &
-                React.ClassAttributes<HTMLDivElement> &
-                React.HTMLAttributes<HTMLDivElement>;
-              innerRef: React.LegacyRef<HTMLDivElement> | undefined;
-              placeholder:
-                | string
-                | number
-                | boolean
-                | React.ReactElement<
-                    any,
-                    string | React.JSXElementConstructor<any>
-                  >
-                | Iterable<React.ReactNode>
-                | React.ReactPortal
-                | React.PromiseLikeOfReactNode
-                | null
-                | undefined;
-            }) => (
+            {(provided: DroppableProvidedProps) => (
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
@@ -172,22 +161,14 @@ export default function AuthPage() {
                       index={index}
                       isDragDisabled={!config.socials.enabled}
                     >
-                      {(provided: {
-                        innerRef: React.LegacyRef<HTMLDivElement> | undefined;
-                        draggableProps: React.JSX.IntrinsicAttributes &
-                          React.ClassAttributes<HTMLDivElement> &
-                          React.HTMLAttributes<HTMLDivElement>;
-                        dragHandleProps: React.JSX.IntrinsicAttributes &
-                          React.ClassAttributes<HTMLDivElement> &
-                          React.HTMLAttributes<HTMLDivElement>;
-                      }) => (
+                      {(provided: DraggableProvidedProps) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           className="socialContainer"
                         >
                           <div
-                            {...provided.dragHandleProps}
+                            {...(provided.dragHandleProps || {})}
                             className="toggleSocialRow"
                           >
                             <div className="labelContainer">
@@ -242,19 +223,11 @@ export default function AuthPage() {
                         (!config[key as keyof Config] as boolean)
                       }
                     >
-                      {(provided: {
-                        innerRef: React.LegacyRef<HTMLDivElement> | undefined;
-                        draggableProps: React.JSX.IntrinsicAttributes &
-                          React.ClassAttributes<HTMLDivElement> &
-                          React.HTMLAttributes<HTMLDivElement>;
-                        dragHandleProps: React.JSX.IntrinsicAttributes &
-                          React.ClassAttributes<HTMLDivElement> &
-                          React.HTMLAttributes<HTMLDivElement>;
-                      }) => (
+                      {(provided: DraggableProvidedProps) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          {...provided.dragHandleProps}
+                          {...(provided.dragHandleProps || {})}
                           className="toggleRow"
                         >
                           <div className="labelContainer">

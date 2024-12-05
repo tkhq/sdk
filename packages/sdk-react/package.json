@@ -57,9 +57,9 @@
     "@react-oauth/google": "^0.12.1",
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
-    "usehooks-ts": "^3.1.0",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
+    "usehooks-ts": "^3.1.0",
     "libphonenumber-js": "^1.11.14",
     "next": "^15.0.2",
     "react-apple-login": "^1.1.6",
@@ -71,10 +71,6 @@
   "devDependencies": {
     "@types/react": "^18.2.75",
     "react": "^18.2.0"
-  },
-  "overrides": {
-    "react": "18.2.0",
-    "@types/react": "18.2.75"
   },
   "engines": {
     "node": ">=18.0.0"

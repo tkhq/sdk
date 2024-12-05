@@ -13,7 +13,7 @@ import { hashMessage, keccak256, recoverAddress, toUtf8Bytes } from "ethers";
  * @param {string} address - The Ethereum address of the signer.
  * @returns {boolean} - The recovered Ethereum address.
  */
-export function verifyEthSignature(
+export function verifyEthSignatureWithAddress(
   message: string,
   r: string,
   s: string,

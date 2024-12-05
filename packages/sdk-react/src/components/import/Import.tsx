@@ -42,7 +42,7 @@ const Import: React.FC<ImportProps> = ({ onSuccess = () => undefined }) => {
             iframeContainer: document.getElementById(
               TurnkeyImportIframeContainerId
             ),
-            iframeUrl: "https://import.turnkey.com",
+            iframeUrl: process.env.NEXT_PUBLIC_IMPORT_IFRAME_URL!,
           });
           setImportIframeClient(newImportIframeClient!);
         } catch (error) {

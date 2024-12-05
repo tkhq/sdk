@@ -6,15 +6,21 @@ import { exchangeCodeForToken, generateChallengePair } from "./facebookUtils";
 import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex } from "@noble/hashes/utils";
 import facebookIcon from "assets/facebook.svg";
+import { FACEBOOK_AUTH_URL, popupHeight, popupWidth } from "./constants";
+
 interface FacebookAuthButtonProps {
   iframePublicKey: string;
   clientId: string;
   onSuccess: (response: any) => void;
+  layout: "inline" | "stacked";
 }
 
-const FacebookAuthButton: React.FC<
-  FacebookAuthButtonProps & { layout: "inline" | "stacked" }
-> = ({ iframePublicKey, onSuccess, clientId, layout }) => {
+const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
+  iframePublicKey,
+  onSuccess,
+  clientId,
+  layout,
+}) => {
   const [tokenExchanged, setTokenExchanged] = useState<boolean>(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
 
@@ -33,10 +39,10 @@ const FacebookAuthButton: React.FC<
       response_type: "code",
     });
 
-    const facebookOAuthURL = `https://www.facebook.com/v11.0/dialog/oauth?${params.toString()}`;
+    const facebookOAuthURL = `${FACEBOOK_AUTH_URL}?${params.toString()}`;
 
-    const width = 500;
-    const height = 600;
+    const width = popupWidth;
+    const height = popupHeight;
     const left = window.screenX + (window.innerWidth - width) / 2;
     const top = window.screenY + (window.innerHeight - height) / 2;
 
@@ -64,7 +70,10 @@ const FacebookAuthButton: React.FC<
             handleTokenExchange(authCode);
           }
         } catch (error) {
-          // Ignore cross-origin errors until the popup redirects to the same origin
+          // Ignore cross-origin errors until the popup redirects to the same origin.
+          // These errors occur because the script attempts to access the URL of the popup window while it's on a different domain.
+          // Due to browser security policies (Same-Origin Policy), accessing properties like location.href on a window that is on a different domain will throw an exception.
+          // Once the popup redirects to the same origin as the parent window, these errors will no longer occur, and the script can safely access the popup's location to extract parameters.
         }
       }, 250);
     }

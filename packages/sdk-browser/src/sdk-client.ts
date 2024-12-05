@@ -313,20 +313,25 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
    *
    * @param credentialBundle
    * @param expirationSeconds
-   * @returns {Promise<void>}
+   * @returns {Promise<boolean>}
    */
   loginWithAuthBundle = async (
     credentialBundle: string,
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION
   ): Promise<any> => {
-    const whoAmIResult = await this.getWhoami();
+    try {
+      const whoAmIResult = await this.getWhoami();
 
-    const readWriteSessionResultWithSession = {
-      ...whoAmIResult,
-      credentialBundle: credentialBundle,
-      sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
-    };
-    await saveSession(readWriteSessionResultWithSession, this.authClient);
+      const readWriteSessionResultWithSession = {
+        ...whoAmIResult,
+        credentialBundle: credentialBundle,
+        sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
+      };
+      await saveSession(readWriteSessionResultWithSession, this.authClient);
+      return true;
+    } catch {
+      return false;
+    }
   };
 }
 

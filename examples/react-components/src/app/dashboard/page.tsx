@@ -23,7 +23,10 @@ import {
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { verifyEthSignature, verifySolSignatureWithAddress } from "../utils";
+import {
+  verifyEthSignatureWithAddress,
+  verifySolSignatureWithAddress,
+} from "../utils";
 import { keccak256, toUtf8Bytes } from "ethers";
 import { useRouter } from "next/navigation";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -385,7 +388,7 @@ export default function Dashboard() {
     const addressType = selectedAccount?.startsWith("0x") ? "ETH" : "SOL";
     const verificationPassed =
       addressType === "ETH"
-        ? verifyEthSignature(
+        ? verifyEthSignatureWithAddress(
             messageToSign,
             signature.r,
             signature.s,

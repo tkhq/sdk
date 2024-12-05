@@ -1,12 +1,12 @@
 # Example: `react-components`
 
-This example shows a an example app created using our react components from @turnkey/sdk-react. For more information [check out our documentation](https://docs.turnkey.com/features/TODO).
+This example shows an example app created using our react components from @turnkey/sdk-react. For more information [check out our documentation](https://docs.turnkey.com/features/TODO). #TODO docs for react components and is also hosted [here](TODO) #TODO add hosted URL - e.g demo.turnkey.com
 
 ## Getting started
 
 ### 1/ Cloning the example
 
-Make sure you have `node` installed locally; we recommend using Node v18+. You will also need NextJs v13+ (for use-server/use-client directives and /app directory structure). Our components leverage use-server to make server side calls using private api keys without requiring developers to setup their own backend for turnkey authentication
+Make sure you have `node` installed locally; we recommend using Node v18+. You will also need NextJS v13+ (for use-server/use-client directives and /app directory structure). Our components leverage use-server to make server side calls using private API keys without requiring developers to setup their own backend for Turnkey authentication
 
 ```bash
 $ git clone https://github.com/tkhq/sdk
@@ -40,6 +40,8 @@ Now open `.env.local` and add the missing environment variables:
 - `NEXT_PUBLIC_FACEBOOK_CLIENT_ID`
 - `NEXT_PUBLIC_APPLE_CLIENT_ID`
 - `NEXT_PUBLIC_AUTH_IFRAME_URL`
+- `NEXT_PUBLIC_IMPORT_IFRAME_URL`
+- `NEXT_PUBLIC_EXPORT_IFRAME_URL`
 - `NEXT_PUBLIC_OAUTH_REDIRECT_URI`
 
 ### 3/ Running the app
@@ -48,4 +50,4 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm run dev
 ```
 
-This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to start an oauth activity.
+This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, the example app using auth components should be ready to use!
