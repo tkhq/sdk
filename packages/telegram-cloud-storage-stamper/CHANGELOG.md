@@ -1,5 +1,11 @@
 # @turnkey/telegram-cloud-storage-stamper
 
+## 1.0.1
+
+### Patch Changes
+
+- Update the default cloud storage key to conform to cloud storage key constraints
+
 ## 1.0.0
 
 ### Major Changes
