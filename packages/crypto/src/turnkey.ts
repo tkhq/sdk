@@ -18,7 +18,7 @@ import {
   uncompressRawPublicKey,
 } from "./crypto";
 
-import { ed25519 } from '@noble/curves/ed25519';
+import { ed25519 } from "@noble/curves/ed25519";
 
 interface DecryptExportBundleParams {
   exportBundle: string;
@@ -167,7 +167,6 @@ export const decryptExportBundle = async ({
     throw new Error(`Error decrypting bundle: ${error}`);
   }
 };
-
 
 /**
  * Verifies a signature from a Turnkey stamp using ECDSA and SHA-256.
