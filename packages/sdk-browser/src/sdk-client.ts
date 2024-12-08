@@ -488,6 +488,9 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
     this.iframePublicKey = (config.stamper as IframeStamper).iframePublicKey;
   }
 
+  // Take in a batch of Turnkey requests and resolve them all
+  batchRequests = async (_requests: Promise<any>[]): Promise<void> => {}
+
   injectCredentialBundle = async (
     credentialBundle: string
   ): Promise<boolean> => {

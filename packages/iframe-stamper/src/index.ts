@@ -47,6 +47,12 @@ export enum IframeEventType {
   // Event sent by the iframe to communicate the result of a stamp operation.
   // Value: signed payload
   Stamp = "STAMP",
+  // Event sent by the parent page to request a batch of signatures
+  // Value: payloads to sign
+  BatchStampRequest = "BATCH_STAMP_REQUEST",
+  // Event sent by the iframe to communicate the result of a batch stamp operation.
+  // Value: signed payloads
+  BatchStamp = "BATCH_STAMP",
   // Event sent by the parent to establish secure communication via MessageChannel API.
   // Value: MessageChannel port
   TurnkeyInitMessageChannel = "TURNKEY_INIT_MESSAGE_CHANNEL",
@@ -239,10 +245,22 @@ export class IframeStamper {
     switch (event.data?.type) {
       case IframeEventType.Stamp:
         resolve({
-          stampHeaderName: stampHeaderName,
+          stampHeaderName,
           stampHeaderValue: event.data["value"],
         });
         break;
+      case IframeEventType.BatchStamp: {
+        const response = JSON.parse(event.data["value"]); // array of stamped values
+        const stamps = response.map((s: string) => {
+          return {
+            stampHeaderName,
+            stampHeaderValue: s,
+          };
+        });
+
+        resolve(stamps);
+        break;
+      }
       case IframeEventType.Error:
         reject(event.data["value"]);
         break;
@@ -386,6 +404,24 @@ export class IframeStamper {
     this.messageChannel.port1.postMessage({
       type: IframeEventType.StampRequest,
       value: payload,
+    });
+
+    return this.addMessageHandler();
+  }
+
+  /**
+   * Function to sign a batch of payloads with the underlying iframe
+   */
+  async batchStamp(payloads: string[]): Promise<TStamp[]> {
+    if (this.iframePublicKey === null) {
+      throw new Error(
+        "null iframe public key. Have you called/awaited .init()?"
+      );
+    }
+
+    this.messageChannel.port1.postMessage({
+      type: IframeEventType.BatchStamp,
+      value: payloads,
     });
 
     return this.addMessageHandler();
