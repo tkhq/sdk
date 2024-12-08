@@ -18,11 +18,14 @@ import {
   uncompressRawPublicKey,
 } from "./crypto";
 
+import { ed25519 } from "@noble/curves/ed25519";
+
 interface DecryptExportBundleParams {
   exportBundle: string;
   organizationId: string;
   embeddedKey: string;
   dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
+  keyFormat?: "SOLANA" | "HEXADECIMAL";
   returnMnemonic: boolean;
 }
 interface EncryptPrivateKeyToBundleParams {
@@ -99,6 +102,7 @@ export const decryptExportBundle = async ({
   embeddedKey,
   organizationId,
   dangerouslyOverrideSignerPublicKey,
+  keyFormat,
   returnMnemonic,
 }: DecryptExportBundleParams): Promise<string> => {
   try {
@@ -139,10 +143,28 @@ export const decryptExportBundle = async ({
       receiverPriv: embeddedKey,
     });
 
+    if (keyFormat === "SOLANA" && !returnMnemonic) {
+      if (decryptedData.length !== 32) {
+        throw new Error(
+          `invalid private key length. Expected 32 bytes. Got ${decryptedData.length}.`
+        );
+      }
+      const publicKeyBytes = ed25519.getPublicKey(decryptedData);
+      if (publicKeyBytes.length !== 32) {
+        throw new Error(
+          `invalid public key length. Expected 32 bytes. Got ${publicKeyBytes.length}.`
+        );
+      }
+      const concatenatedBytes = new Uint8Array(64);
+      concatenatedBytes.set(decryptedData, 0);
+      concatenatedBytes.set(publicKeyBytes, 32);
+      return bs58.encode(concatenatedBytes);
+    }
+
     const decryptedDataHex = uint8ArrayToHexString(decryptedData);
     return returnMnemonic ? hexToAscii(decryptedDataHex) : decryptedDataHex;
   } catch (error) {
-    throw new Error(`"Error decrypting bundle:", ${error}`);
+    throw new Error(`Error decrypting bundle: ${error}`);
   }
 };
 
