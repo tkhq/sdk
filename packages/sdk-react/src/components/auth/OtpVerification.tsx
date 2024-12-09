@@ -5,6 +5,7 @@ import { formatPhoneNumber } from "./utils";
 import { otpAuth } from "../../actions";
 import EmailIcon from "@mui/icons-material/Email";
 import SmsIcon from "@mui/icons-material/Sms";
+import { CircularProgress } from "@mui/material";
 interface OtpVerificationProps {
   type: string;
   contact: string;
@@ -28,12 +29,13 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   onResendCode,
 }) => {
   const [otpError, setOtpError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [resendText, setResendText] = useState("Resend code");
   const otpInputRef = useRef<any>(null);
 
   const handleValidateOtp = async (otp: string) => {
     setOtpError(null);
-
+    setIsLoading(true)
     try {
       const authResponse = await otpAuth({
         suborgID: suborgId,
@@ -45,12 +47,13 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       if (authResponse?.credentialBundle) {
         await onValidateSuccess(authResponse.credentialBundle);
       } else {
-        setOtpError("Invalid code. Please try again");
+        setOtpError("Invalid code. Please try again.");
       }
       otpInputRef.current.resetOtp();
     } catch (error) {
       setOtpError("An error occurred. Please try again.");
     }
+    setIsLoading(false)
   };
 
   const handleResendCode = async () => {
@@ -72,52 +75,66 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 
   return (
     <div className={styles.verification}>
-      <div className={styles.verificationIcon}>
-        {type === "otpEmail" ? (
-          <EmailIcon
-            sx={{
-              fontSize: "86px",
-              color: "var(--accent-color)",
-            }}
+      {isLoading && (
+        <div className={styles.loadingWrapper}>
+          <CircularProgress
+            size={80}
+            thickness={1}
+            className={styles.circularProgress!}
           />
-        ) : (
-          <SmsIcon
-            sx={{
-              fontSize: "86px",
-              color: "var(--accent-color)",
-            }}
+        </div>
+      )}
+      <div className={styles.contentWrapper} style={{ opacity: isLoading ? 0.5 : 1 }}>
+        <div className={styles.verificationIcon}>
+          {type === "otpEmail" ? (
+            <EmailIcon
+              sx={{
+                fontSize: "86px",
+                color: "var(--accent-color)",
+              }}
+            />
+          ) : (
+            <SmsIcon
+              sx={{
+                fontSize: "86px",
+                color: "var(--accent-color)",
+              }}
+            />
+          )}
+        </div>
+  
+        <span>
+          Enter the 6-digit code we {type === "otpEmail" ? "emailed" : "sent"} to{" "}
+          <span className={styles.verificationBold}>
+            {type === "otpEmail" ? contact : formatPhoneNumber(contact)}
+          </span>
+        </span>
+  
+        <div className={styles.otpInputWrapper}>
+          <OtpInput
+            ref={otpInputRef}
+            onComplete={handleValidateOtp}
+            hasError={!!otpError}
           />
-        )}
-      </div>
-
-      <span>
-        Enter the 6-digit code we {type === "otpEmail" ? "emailed" : "sent"} to{" "}
-        <span className={styles.verificationBold}>
-          {type === "otpEmail" ? contact : formatPhoneNumber(contact)}
-        </span>
-      </span>
-
-      <OtpInput
-        ref={otpInputRef}
-        onComplete={handleValidateOtp}
-        hasError={!!otpError}
-      />
-
-      <div className={styles.errorText}>{otpError ? otpError : " "}</div>
-
-      <div className={styles.resendCode}>
-        <span
-          onClick={resendText === "Resend code" ? handleResendCode : undefined}
-          style={{
-            cursor: resendText === "Resend code" ? "pointer" : "not-allowed",
-          }}
-          className={styles.resendCodeBold}
-        >
-          {resendText}
-        </span>
+        </div>
+  
+        <div className={styles.errorText}>{otpError ? otpError : " "}</div>
+  
+        <div className={styles.resendCode}>
+          <span
+            onClick={resendText === "Resend code" ? handleResendCode : undefined}
+            style={{
+              cursor: resendText === "Resend code" ? "pointer" : "not-allowed",
+            }}
+            className={styles.resendCodeBold}
+          >
+            {resendText}
+          </span>
+        </div>
       </div>
     </div>
   );
+  
 };
 
 export default OtpVerification;

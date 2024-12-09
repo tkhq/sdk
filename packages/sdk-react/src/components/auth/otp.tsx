@@ -75,7 +75,8 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
               style: {
                 textAlign: "center",
                 fontSize: "1.5rem",
-                width: "60px",
+                height: "20px",
+                width: "100%",
                 background: "var(--input-bg)",
               },
             }}

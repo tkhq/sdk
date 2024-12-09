@@ -180,7 +180,7 @@ export default function AuthPage() {
                               onChange={() => toggleSocials("enabled")}
                             />
                           </div>
-                          <div className="toggleSocialIndividualRow">
+                          <div className="toggleSocialIndividualRow" style={{borderTopLeftRadius :"8px", borderTopRightRadius :"8px"}}>
                             <div className="labelContainer">
                               <img src="/google.svg" className="iconSmall" />
                               <Typography>Google</Typography>
@@ -200,7 +200,7 @@ export default function AuthPage() {
                               onChange={() => toggleSocials("apple")}
                             />
                           </div>
-                          <div className="toggleSocialIndividualRow">
+                          <div className="toggleSocialIndividualRow" style={{borderBottomLeftRadius :"8px", borderBottomRightRadius :"8px"}}>
                             <div className="labelContainer">
                               <img src="/facebook.svg" className="iconSmall" />
                               <Typography>Facebook</Typography>

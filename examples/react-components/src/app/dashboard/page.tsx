@@ -42,6 +42,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Navbar from "../components/Navbar";
 import { Toaster, toast } from "sonner";
 
+
 export default function Dashboard() {
   const router = useRouter();
   const { turnkey, authIframeClient, passkeyClient } = useTurnkey();
@@ -381,7 +382,7 @@ export default function Dashboard() {
             ? "HASH_FUNCTION_NO_OP"
             : "HASH_FUNCTION_NOT_APPLICABLE",
       });
-      setMessageSigningResult("Success! Message signed");
+      setMessageSigningResult("Success! Message signed.");
       setSignature({ r: resp?.r, s: resp?.s, v: resp?.v });
     } catch (error) {
       console.error("Error signing message:", error);
@@ -448,7 +449,7 @@ export default function Dashboard() {
               )}
             </div>
             {user && user.userEmail ? (
-              <CheckCircleIcon sx={{ color: "#4CAF50" }} />
+              <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
               <div onClick={handleOpenEmailModal}>
                 <AddCircleIcon sx={{ cursor: "pointer" }} />
@@ -467,7 +468,7 @@ export default function Dashboard() {
               )}
             </div>
             {user && user.userPhoneNumber ? (
-              <CheckCircleIcon sx={{ color: "#4CAF50" }} />
+              <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
               <div onClick={handleOpenPhoneModal}>
                 <AddCircleIcon sx={{ cursor: "pointer" }} />
@@ -481,7 +482,7 @@ export default function Dashboard() {
               <Typography>Passkey</Typography>
             </div>
             {user && user.authenticators && user.authenticators.length > 0 ? (
-              <CheckCircleIcon sx={{ color: "#4CAF50" }} />
+              <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
               <div onClick={() => setIsPasskeyModalOpen(true)}>
                 <AddCircleIcon sx={{ cursor: "pointer" }} />
@@ -505,7 +506,7 @@ export default function Dashboard() {
             user.oauthProviders.some((provider: { issuer: string }) =>
               provider.issuer.toLowerCase().includes("google")
             ) ? (
-              <CheckCircleIcon sx={{ color: "#4CAF50" }} />
+              <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
               <div onClick={() => handleAddOauth("Google")}>
                 <AddCircleIcon sx={{ cursor: "pointer" }} />
@@ -522,7 +523,7 @@ export default function Dashboard() {
             user.oauthProviders.some((provider: { issuer: string }) =>
               provider.issuer.toLowerCase().includes("apple")
             ) ? (
-              <CheckCircleIcon sx={{ color: "#4CAF50" }} />
+              <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
               <div onClick={() => handleAddOauth("Apple")}>
                 <AddCircleIcon sx={{ cursor: "pointer" }} />
@@ -539,7 +540,7 @@ export default function Dashboard() {
             user.oauthProviders.some((provider: { issuer: string }) =>
               provider.issuer.toLowerCase().includes("facebook")
             ) ? (
-              <CheckCircleIcon sx={{ color: "#4CAF50" }} />
+              <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
               <div onClick={() => handleAddOauth("Facebook")}>
                 <AddCircleIcon sx={{ cursor: "pointer" }} />
@@ -836,7 +837,6 @@ export default function Dashboard() {
           {messageSigningResult && (
             <Typography
               sx={{
-                mt: 2,
                 color:
                   messageSigningResult.startsWith("Verified") ||
                   messageSigningResult.startsWith("Success")
@@ -919,6 +919,8 @@ export default function Dashboard() {
             </Typography>
             <TextField
               fullWidth
+              autoComplete="off"
+              name="emailInput"
               margin="normal"
               value={emailInput}
               onChange={(e) => setEmailInput(e.target.value)}
