@@ -1,5 +1,13 @@
 # @turnkey/sdk-browser
 
+## 1.10.2
+
+### Patch Changes
+
+- Updated dependencies [668edfa]
+  - @turnkey/crypto@2.3.0
+  - @turnkey/wallet-stamper@1.0.1
+
 ## 1.10.1
 
 ### Patch Changes
