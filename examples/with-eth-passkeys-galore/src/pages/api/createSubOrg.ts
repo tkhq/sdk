@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Turnkey, TurnkeyApiTypes } from "@turnkey/sdk-server";
 import { refineNonNull } from "@/utils";
 import { TWalletDetails } from "@/types";
 
@@ -9,7 +8,11 @@ import { TWalletDetails } from "@/types";
 // - Purpose is a constant set to 44' following the BIP43 recommendation.
 // - Coin type is set to 60 (ETH) -- see https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 // - Account, Change, and Address Index are set to 0
-import { DEFAULT_ETHEREUM_ACCOUNTS } from "@turnkey/sdk-server";
+import {
+  Turnkey,
+  TurnkeyApiTypes,
+  DEFAULT_ETHEREUM_ACCOUNTS,
+} from "@turnkey/sdk-server";
 
 type TAttestation = TurnkeyApiTypes["v1Attestation"];
 

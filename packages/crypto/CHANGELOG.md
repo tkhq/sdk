@@ -1,5 +1,11 @@
 # @turnkey/crypto
 
+## 2.3.0
+
+### Minor Changes
+
+- 668edfa: Add keyformat to decryptExportBundle for displaying Solana private keys
+
 ## 2.2.0
 
 ### Minor Changes

@@ -2771,6 +2771,8 @@ export type definitions = {
     imported: boolean;
   };
   v1WalletAccount: {
+    /** @description Unique identifier for a given Wallet Account. */
+    walletAccountId: string;
     /** @description The Organization the Account belongs to. */
     organizationId: string;
     /** @description The Wallet the Account was derived from. */

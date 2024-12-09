@@ -1,5 +1,26 @@
 # @turnkey/solana
 
+## 1.0.6
+
+### Patch Changes
+
+- @turnkey/sdk-browser@1.10.2
+
+## 1.0.5
+
+### Patch Changes
+
+- Updated dependencies [78bc39c]
+  - @turnkey/sdk-server@1.7.0
+  - @turnkey/http@2.17.0
+  - @turnkey/sdk-browser@1.10.1
+
+## 1.0.4
+
+### Patch Changes
+
+- 9eaf38a: Add optional org id for all signing methods
+
 ## 1.0.3
 
 ### Patch Changes
