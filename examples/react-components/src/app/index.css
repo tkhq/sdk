@@ -157,8 +157,11 @@ body {
 }
 
 .sonner-toaster {
+  font-family: "Inter";
+  font-size: 14px;
   z-index: 9999;
   pointer-events: none;
+  background-color: var(--Greyscale-20, #f5f7fb);
 }
 
 .sonner-toaster > div {
