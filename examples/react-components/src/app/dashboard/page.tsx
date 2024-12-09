@@ -1104,7 +1104,7 @@ export default function Dashboard() {
       <div>
         <Toaster
           position="bottom-right"
-          toastOptions={{ className: "sonner-toaster" }}
+          toastOptions={{ className: "sonner-toaster", duration: 2500 }}
         />
       </div>
     </main>
