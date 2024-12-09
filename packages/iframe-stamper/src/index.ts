@@ -138,7 +138,7 @@ export class IframeStamper {
     // See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#sandbox
     // We do not need any other permission than running scripts for import/export/auth frames.
     iframe.setAttribute("sandbox", "allow-scripts allow-same-origin");
-    iframe.setAttribute("data-trusted-origin", this.trustedParentOrigin)
+    iframe.setAttribute("data-trusted-origin", this.trustedParentOrigin);
 
     iframe.id = config.iframeElementId;
     iframe.src = config.iframeUrl;
@@ -160,16 +160,18 @@ export class IframeStamper {
     this.container.appendChild(this.iframe);
     this.iframe.addEventListener("load", () => {
       // Send a message to the iframe to initialize the message channel
-      this.iframe.contentWindow?.postMessage("init", this.iframeOrigin, [this.messageChannel.port2]);
-    })
-  
+      this.iframe.contentWindow?.postMessage("init", this.iframeOrigin, [
+        this.messageChannel.port2,
+      ]);
+    });
+
     return new Promise((resolve, _reject) => {
       this.messageChannel.port1.onmessage = (event) => {
         if (event.data?.type === IframeEventType.PublicKeyReady) {
           this.iframePublicKey = event.data["value"];
           resolve(event.data["value"]);
         }
-      }
+      };
     });
   }
 
@@ -198,7 +200,7 @@ export class IframeStamper {
       this.messageChannel.port1.postMessage({
         type: IframeEventType.InjectCredentialBundle,
         value: bundle,
-      })
+      });
       this.messageChannel.port1.onmessage = (event) => {
         if (event.data?.type === IframeEventType.BundleInjected) {
           resolve(event.data["value"]);
@@ -206,7 +208,7 @@ export class IframeStamper {
         if (event.data?.type === IframeEventType.Error) {
           reject(event.data["value"]);
         }
-      }
+      };
     });
   }
 
@@ -233,14 +235,14 @@ export class IframeStamper {
     );
 
     return new Promise((resolve, reject) => {
-      this.messageChannel.port1.onmessage = (event) => {  
+      this.messageChannel.port1.onmessage = (event) => {
         if (event.data?.type === IframeEventType.BundleInjected) {
           resolve(event.data["value"]);
         }
         if (event.data?.type === IframeEventType.Error) {
           reject(event.data["value"]);
         }
-      }
+      };
     });
   }
 
@@ -258,7 +260,7 @@ export class IframeStamper {
       type: IframeEventType.InjectWalletExportBundle,
       value: bundle,
       organizationId,
-    })
+    });
 
     return new Promise((resolve, reject) => {
       this.messageChannel.port1.onmessage = (event) => {
@@ -268,7 +270,7 @@ export class IframeStamper {
         if (event.data?.type === IframeEventType.Error) {
           reject(event.data["value"]);
         }
-      }
+      };
     });
   }
 
@@ -281,14 +283,12 @@ export class IframeStamper {
     organizationId: string,
     userId: string
   ): Promise<boolean> {
-    this.messageChannel.port1.postMessage(
-      {
-        type: IframeEventType.InjectImportBundle,
-        value: bundle,
-        organizationId,
-        userId,
-      },
-    );
+    this.messageChannel.port1.postMessage({
+      type: IframeEventType.InjectImportBundle,
+      value: bundle,
+      organizationId,
+      userId,
+    });
 
     return new Promise((resolve, reject) => {
       this.messageChannel.port1.onmessage = (event) => {
@@ -298,7 +298,7 @@ export class IframeStamper {
         if (event.data?.type === IframeEventType.Error) {
           reject(event.data["value"]);
         }
-      }
+      };
     });
   }
 
@@ -309,11 +309,9 @@ export class IframeStamper {
    * This is used during the wallet import flow.
    */
   async extractWalletEncryptedBundle(): Promise<string> {
-    this.messageChannel.port1.postMessage(
-      {
-        type: IframeEventType.ExtractWalletEncryptedBundle,
-      },
-    );
+    this.messageChannel.port1.postMessage({
+      type: IframeEventType.ExtractWalletEncryptedBundle,
+    });
 
     return new Promise((resolve, reject) => {
       this.messageChannel.port1.onmessage = (event) => {
@@ -323,7 +321,7 @@ export class IframeStamper {
         if (event.data?.type === IframeEventType.Error) {
           reject(event.data["value"]);
         }
-      }
+      };
     });
   }
 
@@ -348,7 +346,7 @@ export class IframeStamper {
         if (event.data?.type === IframeEventType.Error) {
           reject(event.data["value"]);
         }
-      }
+      };
     });
   }
 
@@ -361,7 +359,7 @@ export class IframeStamper {
     this.messageChannel.port1.postMessage({
       type: IframeEventType.ApplySettings,
       value: settingsStr,
-    })
+    });
 
     return new Promise((resolve, reject) => {
       this.messageChannel.port1.onmessage = (event) => {
@@ -371,8 +369,8 @@ export class IframeStamper {
         if (event.data?.type === IframeEventType.Error) {
           reject(event.data["value"]);
         }
-      }
-    })
+      };
+    });
   }
 
   /**
@@ -388,8 +386,8 @@ export class IframeStamper {
     this.messageChannel.port1.postMessage({
       type: IframeEventType.StampRequest,
       value: payload,
-    })
-    
+    });
+
     return new Promise((resolve, reject) => {
       this.messageChannel.port1.onmessage = (event) => {
         if (event.data?.type === IframeEventType.Stamp) {
@@ -401,7 +399,7 @@ export class IframeStamper {
         if (event.data?.type === IframeEventType.Error) {
           reject(event.data["value"]);
         }
-      }
+      };
     });
   }
 }
