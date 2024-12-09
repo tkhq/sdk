@@ -1,5 +1,12 @@
 # @turnkey/sdk-react
 
+## 1.1.2
+
+### Patch Changes
+
+- @turnkey/sdk-browser@1.10.2
+- @turnkey/wallet-stamper@1.0.1
+
 ## 1.1.1
 
 ### Patch Changes
