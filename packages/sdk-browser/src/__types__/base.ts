@@ -91,6 +91,7 @@ export interface TurnkeySDKBrowserConfig {
   defaultOrganizationId: string;
   rpId?: string;
   serverSignUrl?: string;
+  iframeUrl?: string;
 }
 
 export type queryOverrideParams = {
