@@ -6,6 +6,7 @@ import {
   useTurnkey,
   getSuborgs,
   OtpVerification,
+  TurnkeyThemeProvider,
 } from "@turnkey/sdk-react";
 import { useEffect, useState } from "react";
 import "./dashboard.css";
@@ -431,7 +432,6 @@ export default function Dashboard() {
   return (
     <main className="main">
       <Navbar />
-
       <link rel="preload" href="/eth-hover.svg" as="image" />
       <link rel="preload" href="/solana-hover.svg" as="image" />
       <div className="dashboardCard">

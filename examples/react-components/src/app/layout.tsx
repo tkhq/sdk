@@ -1,7 +1,7 @@
 "use client";
 
 import "@turnkey/sdk-react/styles";
-import { TurnkeyProvider } from "@turnkey/sdk-react";
+import { TurnkeyProvider, TurnkeyThemeProvider } from "@turnkey/sdk-react";
 
 const turnkeyConfig = {
   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
@@ -22,9 +22,11 @@ function RootLayout({ children }: RootLayoutProps) {
         <title>Turnkey Auth Demo</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
-      <body>
-        <TurnkeyProvider config={turnkeyConfig}>{children}</TurnkeyProvider>
-      </body>
+      <TurnkeyThemeProvider>
+        <body>
+          <TurnkeyProvider config={turnkeyConfig}>{children}</TurnkeyProvider>
+        </body>
+      </TurnkeyThemeProvider>
     </html>
   );
 }
