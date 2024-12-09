@@ -59,7 +59,6 @@ interface AuthProps {
     googleEnabled: boolean;
   };
   configOrder: string[];
-  theme?: Record<string, string>;
 }
 
 const Auth: React.FC<AuthProps> = ({
@@ -67,7 +66,6 @@ const Auth: React.FC<AuthProps> = ({
   onError,
   authConfig,
   configOrder,
-  theme,
 }) => {
   const { passkeyClient, authIframeClient } = useTurnkey();
   const [email, setEmail] = useState<string>("");
@@ -81,15 +79,6 @@ const Auth: React.FC<AuthProps> = ({
   const [passkeySignupError, setPasskeySignupError] = useState("");
   const [loading, setLoading] = useState(true);
   const [passkeyCreated, setPasskeyCreated] = useState(false);
-
-  useEffect(() => {
-    if (theme) {
-      const root = document.documentElement.style;
-      Object.entries(theme).forEach(([key, value]) => {
-        root.setProperty(key, value);
-      });
-    }
-  }, [theme]);
 
   const handleResendCode = async () => {
     if (step === "otpEmail") {
