@@ -7,7 +7,6 @@
 }
 
 .verification {
-  font-family: Inter;
   font-size: 16px;
   font-weight: 400;
   line-height: 16px;
@@ -22,10 +21,10 @@
   align-items: center;
   position: relative;
   box-sizing: border-box;
-  max-width: 400px; 
+  max-width: 400px;
   padding: 8px;
-  margin: 0 auto; 
-  background-color: var(--card-background-color); 
+  margin: 0 auto;
+  background-color: var(--card-background-color);
   border-radius: 8px;
 }
 
@@ -34,15 +33,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%; 
+  width: 100%;
 }
 
 .otpInputWrapper {
-  width: 100%; 
+  width: 100%;
 }
 
 .loadingWrapper {
-  position: absolute; /* Ensure it overlays the content */
+  position: absolute;
   width: 100px;
   height: 100px;
   display: flex;
@@ -54,50 +53,44 @@
 .errorText {
   min-height: 16px;
   text-align: center;
-  margin-top: 12px;
+  margin-top: 8px;
   color: var(--error-color);
-  font-size: 12px;
-  max-width: 320px; /* Ensures error messages align with the OtpInput */
+  font-size: 14px;
+  margin-bottom: 8px;
+  max-width: 320px;
   word-wrap: break-word;
 }
 
+.verificationText {
+  font-size: 18px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
 
 .verificationBold {
-  font-family: Inter;
   color: var(--text-primary);
-  font-weight: 700;
-  margin-top: 8px;
+  font-weight: 600;
 }
 
 .verificationIcon {
   display: flex;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
-
 
 .circularProgress {
   position: absolute;
   color: var(--accent-color);
 }
 .resendCode {
-  font-family: Inter;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 14px;
   letter-spacing: -0.01em;
   text-align: center;
   color: var(--text-secondary);
 }
 
 .resendCodeBold {
-  font-family: Inter;
   color: var(--text-primary);
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
 }
-
-.phoneInput {
-  margin-top: 12px;
-  margin-bottom: 12px;
-}
-

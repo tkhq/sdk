@@ -35,7 +35,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 
   const handleValidateOtp = async (otp: string) => {
     setOtpError(null);
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const authResponse = await otpAuth({
         suborgID: suborgId,
@@ -53,7 +53,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     } catch (error) {
       setOtpError("An error occurred. Please try again.");
     }
-    setIsLoading(false)
+    setIsLoading(false);
   };
 
   const handleResendCode = async () => {
@@ -84,7 +84,10 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
           />
         </div>
       )}
-      <div className={styles.contentWrapper} style={{ opacity: isLoading ? 0.5 : 1 }}>
+      <div
+        className={styles.contentWrapper}
+        style={{ opacity: isLoading ? 0.5 : 1 }}
+      >
         <div className={styles.verificationIcon}>
           {type === "otpEmail" ? (
             <EmailIcon
@@ -102,14 +105,15 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
             />
           )}
         </div>
-  
-        <span>
-          Enter the 6-digit code we {type === "otpEmail" ? "emailed" : "sent"} to{" "}
+
+        <span className={styles.verificationText}>
+          Enter the 6-digit code we {type === "otpEmail" ? "emailed" : "sent"}{" "}
+          to{" "}
           <span className={styles.verificationBold}>
             {type === "otpEmail" ? contact : formatPhoneNumber(contact)}
           </span>
         </span>
-  
+
         <div className={styles.otpInputWrapper}>
           <OtpInput
             ref={otpInputRef}
@@ -117,12 +121,14 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
             hasError={!!otpError}
           />
         </div>
-  
+
         <div className={styles.errorText}>{otpError ? otpError : " "}</div>
-  
+
         <div className={styles.resendCode}>
           <span
-            onClick={resendText === "Resend code" ? handleResendCode : undefined}
+            onClick={
+              resendText === "Resend code" ? handleResendCode : undefined
+            }
             style={{
               cursor: resendText === "Resend code" ? "pointer" : "not-allowed",
             }}
@@ -134,7 +140,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       </div>
     </div>
   );
-  
 };
 
 export default OtpVerification;

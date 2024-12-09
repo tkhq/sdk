@@ -1,5 +1,4 @@
 .authCardLoading {
-  font-family: Inter;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -61,7 +60,6 @@
 }
 
 .authCard {
-  font-family: Inter;
   position: relative;
   width: 100%;
   max-width: 450px;
@@ -94,6 +92,7 @@
 }
 
 .authButton {
+  font-family: "Inter";
   padding: 10px 16px;
   gap: 8px;
   color: var(--button-text);
@@ -130,7 +129,6 @@
 }
 
 .separator span {
-  font-family: Inter;
   color: var(--text-secondary);
   padding: 0 10px;
   position: relative;
@@ -253,7 +251,7 @@
 
 .noPasskeyLink {
   color: var(--accent-color);
-  font-size: 0.9rem;
+  font-size: 1rem;
   margin-top: 8px;
   cursor: pointer;
   align-items: center;

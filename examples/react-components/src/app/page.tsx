@@ -141,9 +141,7 @@ export default function AuthPage() {
     <main className="main">
       <Navbar />
       <div className="authConfigCard">
-        <Typography variant="h6" className="configTitle">
-          Authentication config
-        </Typography>
+        <div className="configTitle">Authentication config</div>
 
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="configList">
@@ -180,7 +178,13 @@ export default function AuthPage() {
                               onChange={() => toggleSocials("enabled")}
                             />
                           </div>
-                          <div className="toggleSocialIndividualRow" style={{borderTopLeftRadius :"8px", borderTopRightRadius :"8px"}}>
+                          <div
+                            className="toggleSocialIndividualRow"
+                            style={{
+                              borderTopLeftRadius: "8px",
+                              borderTopRightRadius: "8px",
+                            }}
+                          >
                             <div className="labelContainer">
                               <img src="/google.svg" className="iconSmall" />
                               <Typography>Google</Typography>
@@ -200,7 +204,13 @@ export default function AuthPage() {
                               onChange={() => toggleSocials("apple")}
                             />
                           </div>
-                          <div className="toggleSocialIndividualRow" style={{borderBottomLeftRadius :"8px", borderBottomRightRadius :"8px"}}>
+                          <div
+                            className="toggleSocialIndividualRow"
+                            style={{
+                              borderBottomLeftRadius: "8px",
+                              borderBottomRightRadius: "8px",
+                            }}
+                          >
                             <div className="labelContainer">
                               <img src="/facebook.svg" className="iconSmall" />
                               <Typography>Facebook</Typography>

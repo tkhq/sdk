@@ -42,7 +42,6 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Navbar from "../components/Navbar";
 import { Toaster, toast } from "sonner";
 
-
 export default function Dashboard() {
   const router = useRouter();
   const { turnkey, authIframeClient, passkeyClient } = useTurnkey();
@@ -436,9 +435,7 @@ export default function Dashboard() {
       <link rel="preload" href="/eth-hover.svg" as="image" />
       <link rel="preload" href="/solana-hover.svg" as="image" />
       <div className="dashboardCard">
-        <Typography variant="h6" className="configTitle">
-          Login methods
-        </Typography>
+        <div className="configTitle">Login methods</div>
         <div className="loginMethodContainer">
           <div className="loginMethodRow">
             <div className="labelContainer">
@@ -490,7 +487,7 @@ export default function Dashboard() {
             )}
           </div>
 
-          <Typography className="socialsTitle">Socials</Typography>
+          <div className="socialsTitle">Socials</div>
           <div className="loginMethodRow">
             <div className="labelContainer">
               <img src="/google.svg" className="iconSmall" />
