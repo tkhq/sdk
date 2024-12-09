@@ -15,7 +15,13 @@
   src: url("../../../public/fonts/inter/Inter-SemiBold.woff2?v=3.19")
     format("woff2");
 }
+
+.MuiTypography-root {
+  font-family: "Inter", Arial, sans-serif !important;
+}
+
 body {
+  font-family: "Inter";
   margin: 0;
   padding: 0;
   width: 100vw;
@@ -77,6 +83,7 @@ body {
 }
 
 .socialsTitle {
+  font-family: "Inter";
   font-size: 1rem;
   font-weight: 700;
   line-height: 26px;
@@ -86,6 +93,7 @@ body {
 }
 
 .configTitle {
+  font-family: "Inter";
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 36px;

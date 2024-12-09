@@ -14,7 +14,7 @@ type ImportProps = {
   onHandleImportSuccess: () => Promise<void>;
 };
 
-const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError}) => {
+const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
   const { authIframeClient, turnkey } = useTurnkey();
   const [importIframeClient, setImportIframeClient] =
     useState<TurnkeyIframeClient | null>(null);

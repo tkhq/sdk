@@ -200,7 +200,9 @@ const Auth: React.FC<AuthProps> = ({
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(sessionResponse.credentialBundle);
       } else {
-        setPasskeySignupError("Failed to login with passkey. Please try again.");
+        setPasskeySignupError(
+          "Failed to login with passkey. Please try again."
+        );
       }
     } catch {
       setPasskeySignupError(

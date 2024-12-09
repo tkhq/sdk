@@ -38,24 +38,24 @@
   justify-content: center;
   padding: 10px 16px;
   gap: 8px;
-  color: #ffffff; 
+  color: #ffffff;
   width: 100%;
   font-size: 1rem;
-  background: var(--Greyscale-900, #2b2f33); 
-  border: 1px solid var(--Greyscale-800, #3f464b); 
+  background: var(--Greyscale-900, #2b2f33);
+  border: 1px solid var(--Greyscale-800, #3f464b);
   border-radius: 8px;
   cursor: pointer;
   transition: 0.3s ease;
 }
 
 .importButton:hover {
-  background-color: var(--Greyscale-700, #4a4f55); 
+  background-color: var(--Greyscale-700, #4a4f55);
 }
 
 .importButton:disabled {
   color: var(--Greyscale-700, #a2a7ae);
   background: #ffffff;
-  border-color: var(--Greyscale-400, #a2a7ae); 
+  border-color: var(--Greyscale-400, #a2a7ae);
   cursor: not-allowed;
 }
 

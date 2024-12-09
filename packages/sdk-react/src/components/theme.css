@@ -16,6 +16,7 @@
 }
 
 :root {
+  font-family: "Inter";
   /* Button Colors */
   --button-bg: #ffffff; /* Default button background */
   --button-text: var(--Greyscale-900, #2b2f33); /* Default button text */

@@ -15,7 +15,14 @@
   src: url("../../public/fonts/inter/Inter-SemiBold.woff2?v=3.19")
     format("woff2");
 }
+.MuiTypography-root {
+  font-family: "Inter", Arial, sans-serif !important;
+}
+:root {
+  font-family: "Inter";
+}
 body {
+  font-family: "Inter";
   margin: 0;
   padding: 0;
   width: 100vw;
@@ -24,11 +31,10 @@ body {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  font-family: Inter, sans-serif;
 }
 
 .main {
-  font-family: Inter;
+  font-family: "Inter";
   display: flex;
   justify-content: center;
   align-items: center;
@@ -61,6 +67,7 @@ body {
 }
 
 .configTitle {
+  font-family: "Inter";
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 36px;
