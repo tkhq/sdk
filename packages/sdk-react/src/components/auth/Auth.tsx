@@ -199,14 +199,12 @@ const Auth: React.FC<AuthProps> = ({
       });
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(sessionResponse.credentialBundle);
-        setPasskeyCreationScreen(false);
-        setPasskeySignupError("");
       } else {
-        setPasskeySignupError("Failed to login with passkey. Please try again");
+        setPasskeySignupError("Failed to login with passkey. Please try again.");
       }
     } catch {
       setPasskeySignupError(
-        "The operation either timed out or was not allowed. Please try again"
+        "The operation either timed out or was not allowed. Please try again."
       );
     }
   };
@@ -344,6 +342,7 @@ const Auth: React.FC<AuthProps> = ({
             <div className={styles.inputGroup}>
               <TextField
                 name="emailInput"
+                autoComplete="off"
                 type="email"
                 placeholder="Enter your email"
                 value={email}

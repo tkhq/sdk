@@ -15,7 +15,52 @@
   text-align: center;
   color: var(--text-secondary);
   margin-top: 16px;
+  height: 244px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  box-sizing: border-box;
+  max-width: 400px; 
+  padding: 8px;
+  margin: 0 auto; 
+  background-color: var(--card-background-color); 
+  border-radius: 8px;
 }
+
+.contentWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%; 
+}
+
+.otpInputWrapper {
+  width: 100%; 
+}
+
+.loadingWrapper {
+  position: absolute; /* Ensure it overlays the content */
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.errorText {
+  min-height: 16px;
+  text-align: center;
+  margin-top: 12px;
+  color: var(--error-color);
+  font-size: 12px;
+  max-width: 320px; /* Ensures error messages align with the OtpInput */
+  word-wrap: break-word;
+}
+
 
 .verificationBold {
   font-family: Inter;
@@ -30,6 +75,11 @@
   margin-bottom: 12px;
 }
 
+
+.circularProgress {
+  position: absolute;
+  color: var(--accent-color);
+}
 .resendCode {
   font-family: Inter;
   font-size: 12px;
@@ -51,10 +101,3 @@
   margin-bottom: 12px;
 }
 
-.errorText {
-  min-height: 16px;
-  text-align: center;
-  margin-top: 12px;
-  color: var(--error-color);
-  font-size: 12px;
-}

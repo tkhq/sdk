@@ -69,7 +69,6 @@ export const appleOidcToken = async ({
 
       if (authWindow?.closed) {
         clearInterval(interval);
-        reject(new Error("Apple login window was closed."));
       }
     }, 500);
   });
@@ -127,7 +126,6 @@ export const googleOidcToken = async ({
 
       if (authWindow?.closed) {
         clearInterval(interval);
-        reject(new Error("Google login window was closed."));
       }
     }, 500);
   });

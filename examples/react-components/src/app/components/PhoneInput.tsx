@@ -47,6 +47,8 @@ export const MuiPhone: React.FC<MUIPhoneProps> = ({
     <TextField
       variant="outlined"
       color="primary"
+      name="phoneInput"
+      autoComplete="off"
       placeholder="Phone number"
       value={inputValue}
       onChange={handlePhoneValueChange}

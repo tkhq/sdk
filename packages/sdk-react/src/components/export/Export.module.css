@@ -42,25 +42,25 @@
   justify-content: center;
   padding: 10px 16px;
   gap: 8px;
-  color: var(--button-text);
+  color: #ffffff; 
   width: 100%;
   font-size: 1rem;
-  background: var(--button-bg);
-  border: 1px solid var(--button-border);
+  background: var(--Greyscale-900, #2b2f33); 
+  border: 1px solid var(--Greyscale-800, #3f464b); 
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: 0.3s ease;
 }
 
 .exportButton:hover {
-  background-color: var(--button-hover-bg);
+  background-color: var(--Greyscale-700, #4a4f55); 
 }
 
 .exportButton:disabled {
-  color: var(--button-disabled-text);
-  background: var(--button-disabled-bg);
-  border-color: var(--button-disabled-border);
-  cursor: default;
+  color: var(--Greyscale-700, #a2a7ae);
+  background: #ffffff;
+  border-color: var(--Greyscale-400, #a2a7ae); 
+  cursor: not-allowed;
 }
 
 .rowsContainer {
