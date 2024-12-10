@@ -15,7 +15,7 @@ import {
 } from "react-international-phone";
 import { FlagImage as OriginalFlagImage } from "react-international-phone";
 
-const FlagImage = OriginalFlagImage as React.ElementType; // fix for typecheck issue
+const FlagImage = OriginalFlagImage as React.ElementType;
 
 const countries = defaultCountries.filter((country) => {
   const { iso2 } = parseCountry(country);
@@ -45,7 +45,7 @@ export const MuiPhone: React.FC<MUIPhoneProps> = ({
 
   return (
     <TextField
-      name="phoneInput"
+      name="phone-input"
       variant="outlined"
       color="primary"
       autoComplete="off"
@@ -62,15 +62,15 @@ export const MuiPhone: React.FC<MUIPhoneProps> = ({
             borderColor: "var(--input-border)",
           },
           "&:hover fieldset": {
-            borderColor: "var(--input-border-hover)",
+            borderColor: "var(--input-hover-border)",
           },
           "&.Mui-focused fieldset": {
-            borderColor: "var(--input-border-focus)",
+            borderColor: "var(--input-focus-border)",
             border: "1px solid",
           },
         },
         "& .MuiInputBase-input": {
-          padding: "10px 4px",
+          padding: "12px",
         },
         backgroundColor: "var(--input-bg)",
       }}

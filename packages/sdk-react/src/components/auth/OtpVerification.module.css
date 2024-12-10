@@ -24,7 +24,7 @@
   max-width: 400px;
   padding: 8px;
   margin: 0 auto;
-  background-color: var(--card-background-color);
+  background-color: var(--card-bg);
   border-radius: 8px;
 }
 
@@ -70,6 +70,8 @@
 .verificationBold {
   color: var(--text-primary);
   font-weight: 600;
+  display: block;
+  margin-top: 8px;
 }
 
 .verificationIcon {

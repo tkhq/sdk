@@ -129,7 +129,7 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            bgcolor: "var(--Greyscale-20, #f5f7fb)",
+            bgcolor: "var(--card-bg)",
             boxShadow: 24,
             p: 4,
             borderRadius: 2,
@@ -148,19 +148,17 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
               fontSize: "20px",
               fontWeight: "bold",
               cursor: "pointer",
-              color: "#6C727E",
+              color: "var(--text-primary)",
             }}
           >
             &times;
           </div>
 
-          <Typography variant="h6" className="modalTitle">
-            Import wallet
-          </Typography>
+          <div className={styles.importModalTitle}>Import wallet</div>
           <Typography
             variant="subtitle2"
             sx={{
-              color: "#6C727E",
+              color: "var(--text-primary)",
               mb: 2,
             }}
           >
@@ -199,13 +197,13 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
             sx={{
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
-                  borderColor: "#D0D5DD",
+                  borderColor: "var(--input-border)",
                 },
                 "&:hover fieldset": {
-                  borderColor: "#8A929E",
+                  borderColor: "var(--input-hover-border)",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "#D0D5DD",
+                  borderColor: "var(--input-focus-border)",
                   border: "1px solid",
                 },
               },
