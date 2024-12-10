@@ -9,10 +9,10 @@
   height: 200px;
   margin: 0 auto;
   padding: 20px;
-  background: var(--auth-card-bg);
-  border: 1px solid var(--auth-card-border);
-  border-radius: var(--auth-card-radius);
-  box-shadow: var(--auth-card-shadow);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
   position: relative;
 }
 
@@ -66,10 +66,10 @@
   min-width: 375px;
   margin: 0 auto;
   padding: 20px;
-  background: var(--auth-card-bg);
-  border: 1px solid var(--auth-card-border);
-  border-radius: var(--auth-card-radius);
-  box-shadow: var(--auth-card-shadow);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
 }
 
 .authCard h2 {
@@ -134,7 +134,7 @@
   position: relative;
   z-index: 0;
   font-size: 0.75rem;
-  background: var(--auth-card-bg);
+  background: var(--card-bg);
 }
 
 .separator::before {
@@ -145,7 +145,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: var(--auth-card-border);
+  background: var(--card-border);
   z-index: 0;
 }
 

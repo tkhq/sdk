@@ -120,7 +120,7 @@ const Export: React.FC<ExportProps> = ({
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            bgcolor: "var(--Greyscale-20, #f5f7fb)",
+            bgcolor: "var(--card-bg)",
             boxShadow: 24,
             p: 4,
             borderRadius: 2,
@@ -138,15 +138,13 @@ const Export: React.FC<ExportProps> = ({
               fontSize: "20px",
               fontWeight: "bold",
               cursor: "pointer",
-              color: "#6C727E",
+              color: "var(--text-primary)",
             }}
           >
             &times;
           </div>
 
-          <Typography variant="h6" className="modalTitle">
-            Export wallet
-          </Typography>
+          <div className={styles.exportModalTitle}>Export wallet</div>
 
           {!isIframeVisible ? (
             <div className={styles.rowsContainer}>
@@ -172,7 +170,7 @@ const Export: React.FC<ExportProps> = ({
             <Typography
               variant="subtitle2"
               sx={{
-                color: "#6C727E",
+                color: "var(--text-primary)",
                 mb: 2,
               }}
             >
