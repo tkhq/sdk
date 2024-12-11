@@ -1,5 +1,11 @@
 # @turnkey/telegram-cloud-storage-stamper
 
+## 1.0.2
+
+### Patch Changes
+
+- Export the default cloud storage api key location
+
 ## 1.0.1
 
 ### Patch Changes

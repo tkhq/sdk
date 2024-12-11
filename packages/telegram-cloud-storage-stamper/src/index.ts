@@ -23,7 +23,7 @@ export type CloudStorageAPIKey = {
 };
 
 // Constant for default key name
-const DEFAULT_TURNKEY_CLOUD_STORAGE_KEY = "TURNKEY_API_KEY";
+export const DEFAULT_TURNKEY_CLOUD_STORAGE_KEY = "TURNKEY_API_KEY";
 
 /**
  * Stamper to use within a `TurnkeyClient`
