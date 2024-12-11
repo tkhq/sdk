@@ -13,6 +13,7 @@ import appleIcon from "assets/apple.svg";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import OtpVerification from "./OtpVerification";
 import { useTurnkey } from "../../hooks/use-turnkey";
+import { getVerifiedSuborgs } from "../../actions/getVerifiedSuborgs";
 
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
@@ -59,6 +60,7 @@ interface AuthProps {
     googleEnabled: boolean;
   };
   configOrder: string[];
+  customSmsMessage?: string;
 }
 
 const Auth: React.FC<AuthProps> = ({
@@ -66,6 +68,7 @@ const Auth: React.FC<AuthProps> = ({
   onError,
   authConfig,
   configOrder,
+  customSmsMessage,
 }) => {
   const { passkeyClient, authIframeClient } = useTurnkey();
   const [email, setEmail] = useState<string>("");
@@ -116,11 +119,26 @@ const Auth: React.FC<AuthProps> = ({
     filterValue: string,
     additionalData = {}
   ) => {
-    const getSuborgsResponse = await getSuborgs({ filterType, filterValue });
-    if (!getSuborgsResponse || !getSuborgsResponse.organizationIds) {
-      onError("Failed to fetch account");
+    let suborgId;
+    if (filterType == "EMAIL" || filterType == "PHONE_NUMBER") {
+      const getVerifiedSuborgsResponse = await getVerifiedSuborgs({
+        filterType,
+        filterValue,
+      });
+      if (
+        !getVerifiedSuborgsResponse ||
+        !getVerifiedSuborgsResponse.organizationIds
+      ) {
+        onError("Failed to fetch account");
+      }
+      suborgId = getVerifiedSuborgsResponse?.organizationIds[0];
+    } else {
+      const getSuborgsResponse = await getSuborgs({ filterType, filterValue });
+      if (!getSuborgsResponse || !getSuborgsResponse.organizationIds) {
+        onError("Failed to fetch account");
+      }
+      suborgId = getSuborgsResponse?.organizationIds[0];
     }
-    let suborgId = getSuborgsResponse?.organizationIds[0];
 
     if (!suborgId) {
       const createSuborgData: Record<string, any> = { ...additionalData };
@@ -227,6 +245,7 @@ const Auth: React.FC<AuthProps> = ({
       suborgID: suborgId,
       otpType,
       contact: value,
+      ...(customSmsMessage && { customSmsMessage }),
     });
     if (initAuthResponse && initAuthResponse.otpId) {
       setSuborgId(suborgId);

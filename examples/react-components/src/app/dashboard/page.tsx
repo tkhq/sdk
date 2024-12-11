@@ -5,6 +5,7 @@ import {
   Import,
   useTurnkey,
   getSuborgs,
+  getVerifiedSuborgs,
   OtpVerification,
   TurnkeyThemeProvider,
 } from "@turnkey/sdk-react";
@@ -59,6 +60,8 @@ export default function Dashboard() {
   );
   const [signature, setSignature] = useState<any>(null);
   const [suborgId, setSuborgId] = useState<string>("");
+  const [isVerifiedEmail, setIsVerifiedEmail] = useState<boolean>(false);
+  const [isVerifiedPhone, setIsVerifiedPhone] = useState<boolean>(false);
   const [user, setUser] = useState<any>("");
   const [otpId, setOtpId] = useState("");
   const [messageSigningResult, setMessageSigningResult] = useState<
@@ -92,6 +95,9 @@ export default function Dashboard() {
       organizationId: suborgId,
       otpType: "OTP_TYPE_SMS",
       contact: phoneInput,
+      smsCustomization: {
+        template: "Your Turnkey Demo OTP is {{.OtpCode}}",
+      },
     });
     setOtpId(initAuthResponse?.otpId!);
   };
@@ -110,11 +116,11 @@ export default function Dashboard() {
       toast.error("Please enter a valid email address");
       return;
     }
-    const suborgs = await getSuborgs({
+    const suborgs = await getVerifiedSuborgs({
       filterType: "EMAIL",
       filterValue: emailInput,
     }); //TODO change to get verified suborgs
-    if (suborgs!.organizationIds.length > 0) {
+    if (suborgs && suborgs!.organizationIds.length > 0) {
       toast.error("Email is already connected to another account");
       return;
     }
@@ -139,11 +145,11 @@ export default function Dashboard() {
       toast.error("Please enter a valid phone number.");
       return;
     }
-    const suborgs = await getSuborgs({
+    const suborgs = await getVerifiedSuborgs({
       filterType: "PHONE_NUMBER",
       filterValue: phoneInput,
     }); //TODO change to get verified suborgs
-    if (suborgs!.organizationIds.length > 0) {
+    if (suborgs && suborgs!.organizationIds.length > 0) {
       toast.error("Phone Number is already connected to another account");
       return;
     }
@@ -157,6 +163,9 @@ export default function Dashboard() {
       organizationId: suborgId,
       otpType: "OTP_TYPE_SMS",
       contact: phoneInput,
+      smsCustomization: {
+        template: "Your Turnkey Demo OTP is {{.OtpCode}}",
+      },
     });
     setOtpId(initAuthResponse?.otpId!);
     setIsEmailModalOpen(false);
@@ -296,6 +305,33 @@ export default function Dashboard() {
             organizationId: suborgId!,
           });
           setWallets(walletsResponse.wallets);
+          if (userResponse.user.userEmail) {
+            const suborgs = await getVerifiedSuborgs({
+              filterType: "EMAIL",
+              filterValue: userResponse.user.userEmail,
+            });
+
+            if (
+              suborgs &&
+              suborgs!.organizationIds.length > 0 &&
+              suborgs!.organizationIds[0] == suborgId
+            ) {
+              setIsVerifiedEmail(true);
+            }
+          }
+          if (userResponse.user.userPhoneNumber) {
+            const suborgs = await getVerifiedSuborgs({
+              filterType: "PHONE_NUMBER",
+              filterValue: userResponse.user.userPhoneNumber,
+            });
+            if (
+              suborgs &&
+              suborgs!.organizationIds.length > 0 &&
+              suborgs!.organizationIds[0] == suborgId
+            ) {
+              setIsVerifiedPhone(true);
+            }
+          }
 
           // Default to the first wallet if available
           if (walletsResponse.wallets.length > 0) {
@@ -441,11 +477,11 @@ export default function Dashboard() {
             <div className="labelContainer">
               <img src="/mail.svg" className="iconSmall" />
               <Typography>Email</Typography>
-              {user && user.userEmail && (
+              {user && user.userEmail && isVerifiedEmail && (
                 <span className="loginMethodDetails">{user.userEmail}</span>
               )}
             </div>
-            {user && user.userEmail ? (
+            {user && user.userEmail && isVerifiedEmail ? (
               <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
               <div onClick={handleOpenEmailModal}>
@@ -458,13 +494,13 @@ export default function Dashboard() {
             <div className="labelContainer">
               <img src="/phone.svg" className="iconSmall" />
               <Typography>Phone</Typography>
-              {user && user.userPhoneNumber && (
+              {user && user.userPhoneNumber && isVerifiedPhone && (
                 <span className="loginMethodDetails">
                   {user.userPhoneNumber}
                 </span>
               )}
             </div>
-            {user && user.userPhoneNumber ? (
+            {user && user.userPhoneNumber && isVerifiedPhone ? (
               <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
               <div onClick={handleOpenPhoneModal}>

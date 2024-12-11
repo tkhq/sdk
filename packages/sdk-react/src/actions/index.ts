@@ -2,6 +2,7 @@
 
 export { createSuborg } from "./createSuborg";
 export { getSuborgs } from "./getSuborgs";
+export { getVerifiedSuborgs } from "./getVerifiedSuborgs";
 export { initOtpAuth } from "./initOtpAuth";
 export { oauth } from "./oauth";
 export { otpAuth } from "./otpAuth";

@@ -6,6 +6,7 @@ type InitOtpAuthRequest = {
   suborgID: string;
   otpType: string;
   contact: string;
+  customSmsMessage?: string;
 };
 
 type InitOtpAuthResponse = {
@@ -27,6 +28,11 @@ export async function initOtpAuth(
       contact: request.contact,
       otpType: request.otpType,
       organizationId: request.suborgID,
+      ...(request.customSmsMessage && {
+        smsCustomization: {
+          template: request.customSmsMessage,
+        },
+      }),
     });
     const { otpId } = initOtpAuthResponse;
 
