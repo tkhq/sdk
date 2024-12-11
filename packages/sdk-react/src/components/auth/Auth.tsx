@@ -165,17 +165,16 @@ const Auth: React.FC<AuthProps> = ({
 
   const handleSignupWithPasskey = async () => {
     setPasskeySignupError("");
-    const siteInfo = `${window.location.href} - ${new Date().toLocaleString(
-      undefined,
-      {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      }
-    )}`;
+    const siteInfo = `${
+      new URL(window.location.href).hostname
+    } - ${new Date().toLocaleString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    })}`;
     setPasskeySignupScreen(false);
     setPasskeyCreationScreen(true);
     try {
