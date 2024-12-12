@@ -30,6 +30,14 @@ export async function createTokenTransfer(
   // Set the signer
   transferTx.feePayer = fromKey;
 
+  // const serializedTransaction = transferTx.serialize({
+  //   requireAllSignatures: false,
+  //   verifySignatures: false
+  // });
+  
+  // const hexString = serializedTransaction.toString('hex');
+  // console.log("Transaction hex:", hexString);
+
   await turnkeySigner.addSignature(transferTx, solAddress);
 
   console.log("Broadcasting token transfer transaction...");

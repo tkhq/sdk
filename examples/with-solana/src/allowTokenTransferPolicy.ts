@@ -12,11 +12,6 @@ import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 
 import {
-  createUser,
-  createPolicy,
-} from "./requests";
-
-import {
   createMint,
   createNewSolanaWallet,
   createToken,
@@ -26,11 +21,19 @@ import {
   TURNKEY_WAR_CHEST,
 } from "./utils";
 
+import keys from "./keys";
+
+import {
+  createUser,
+  createPolicy,
+} from "./requests";
+
 async function main() {
   const turnkeyWarchest = new PublicKey(TURNKEY_WAR_CHEST);
   const organizationId = process.env.ORGANIZATION_ID!;
   const connection = solanaNetwork.connect();
 
+  // Root user API Client
   const turnkeyClient = new Turnkey({
     apiBaseUrl: process.env.BASE_URL!,
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -38,6 +41,7 @@ async function main() {
     defaultOrganizationId: organizationId,
   });
 
+  // Root user Turnkey signer
   const turnkeySigner = new TurnkeySigner({
     organizationId,
     client: turnkeyClient.apiClient(),
@@ -128,18 +132,40 @@ async function main() {
     tokenAccount.address,
     mintAuthority.publicKey
   );
-
-  let userID = await createUser(
+  
+  // Create non-root user 
+  let nonRootUserID = await createUser(
     turnkeyClient.apiClient(),
-    "Alice",
-    [adminTagId],
-    "Alice key",
-    keys!.alice!.publicKey!
+    "Non Root User",
+    "Non Root User Key",
+    keys!.nonRootUser!.publicKey!
+  );
+
+  // Create non root user API Client
+  const nonRootUserTurnkeyClient = new Turnkey({
+    apiBaseUrl: process.env.BASE_URL!,
+    apiPublicKey: keys!.nonRootUser!.publicKey!,
+    apiPrivateKey: keys!.nonRootUser!.privateKey!,
+    defaultOrganizationId: organizationId,
+  });
+
+  const nonRootUserSigner = new TurnkeySigner({
+    organizationId,
+    client: nonRootUserTurnkeyClient.apiClient(),
+  });
+
+  // Create policy to allow non root user to send SPL tokens to the Token account address for Warchest
+  await createPolicy(
+    turnkeyClient.apiClient(),
+    "Let non root user send SPL transfers to the ATA of WARCHEST",
+    "EFFECT_ALLOW",
+    `approvers.any(user, user.id == '${nonRootUserID}')`,
+    `solana.tx.spl_transfers.any(transfer, transfer.to == '${tokenAccountWarchest.address}')`
   );
 
   // Transfer token from primary to Warchest
   await createTokenTransfer(
-    turnkeySigner,
+    nonRootUserSigner,
     connection,
     solAddress,
     tokenAccount.address,
