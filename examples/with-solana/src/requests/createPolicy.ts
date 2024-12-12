@@ -1,6 +1,6 @@
 import {
-    type TurnkeyServerClient,
-    TurnkeyActivityError,
+  type TurnkeyServerClient,
+  TurnkeyActivityError,
 } from "@turnkey/sdk-server";
 
 import { refineNonNull } from "./utils";
@@ -49,4 +49,3 @@ export default async function createPolicy(
     });
   }
 }
-  

@@ -16,17 +16,14 @@ import {
   createNewSolanaWallet,
   createToken,
   createTokenAccount,
-  createTokenTransfer,
+  createTokenTransferSignTransaction,
   solanaNetwork,
   TURNKEY_WAR_CHEST,
 } from "./utils";
 
 import keys from "./keys";
 
-import {
-  createUser,
-  createPolicy,
-} from "./requests";
+import { createUser, createPolicy } from "./requests";
 
 async function main() {
   const turnkeyWarchest = new PublicKey(TURNKEY_WAR_CHEST);
@@ -132,8 +129,8 @@ async function main() {
     tokenAccount.address,
     mintAuthority.publicKey
   );
-  
-  // Create non-root user 
+
+  // Create non-root user
   let nonRootUserID = await createUser(
     turnkeyClient.apiClient(),
     "Non Root User",
@@ -163,8 +160,9 @@ async function main() {
     `solana.tx.spl_transfers.any(transfer, transfer.to == '${tokenAccountWarchest.address}')`
   );
 
-  // Transfer token from primary to Warchest
-  await createTokenTransfer(
+  // Transfer token from primary to Warchest associated token account\
+  // This call uses Turnkey's sign transaction endpoint which passes the transaction through the policy engine
+  await createTokenTransferSignTransaction(
     nonRootUserSigner,
     connection,
     solAddress,

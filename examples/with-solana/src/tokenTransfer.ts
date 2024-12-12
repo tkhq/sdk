@@ -11,10 +11,7 @@ import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 
-import {
-  createUser,
-  createPolicy,
-} from "./requests";
+import { createUser, createPolicy } from "./requests";
 
 import {
   createMint,

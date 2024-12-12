@@ -6,7 +6,10 @@ import { print } from "./print";
 import { createMint } from "./createMint";
 import { createToken } from "./createToken";
 import { createTokenAccount } from "./createTokenAccount";
-import { createTokenTransfer } from "./createTokenTransfer";
+import {
+  createTokenTransfer,
+  createTokenTransferSignTransaction,
+} from "./createTokenTransfer";
 import { transactionSenderAndConfirmationWaiter } from "./retrySender";
 import { handleActivityError } from "./handleActivityError";
 
@@ -18,6 +21,7 @@ export {
   createToken,
   createTokenAccount,
   createTokenTransfer,
+  createTokenTransferSignTransaction,
   createTransfer,
   handleActivityError,
   print,
