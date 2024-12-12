@@ -84,6 +84,10 @@ export type paths = {
     /** List all Users within an Organization */
     post: operations["PublicApiService_GetUsers"];
   };
+  "/public/v1/query/list_verified_suborgs": {
+    /** Get all email or phone verified suborg IDs associated given a parent org ID. */
+    post: operations["PublicApiService_GetVerifiedSubOrgIds"];
+  };
   "/public/v1/query/list_wallet_accounts": {
     /** List all Accounts wirhin a Wallet */
     post: operations["PublicApiService_GetWalletAccounts"];
@@ -584,7 +588,8 @@ export type definitions = {
     | "ADDRESS_FORMAT_DOGE_MAINNET"
     | "ADDRESS_FORMAT_DOGE_TESTNET"
     | "ADDRESS_FORMAT_TON_V3R2"
-    | "ADDRESS_FORMAT_TON_V4R2";
+    | "ADDRESS_FORMAT_TON_V4R2"
+    | "ADDRESS_FORMAT_XRP";
   v1ApiKey: {
     /** @description A User credential that can be used to authenticate to Turnkey. */
     credential: definitions["externaldatav1Credential"];
@@ -1750,7 +1755,7 @@ export type definitions = {
   v1GetSubOrgIdsRequest: {
     /** @description Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
     organizationId: string;
-    /** @description Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'OIDC_TOKEN' or 'PUBLIC_KEY' */
+    /** @description Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN' or 'PUBLIC_KEY' */
     filterType?: string;
     /** @description The value of the filter to apply for the specified type. For example, a specific email or name string. */
     filterValue?: string;
@@ -1778,6 +1783,20 @@ export type definitions = {
   v1GetUsersResponse: {
     /** @description A list of Users. */
     users: definitions["v1User"][];
+  };
+  v1GetVerifiedSubOrgIdsRequest: {
+    /** @description Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
+    organizationId: string;
+    /** @description Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER' */
+    filterType?: string;
+    /** @description The value of the filter to apply for the specified type. For example, a specific email or phone number string. */
+    filterValue?: string;
+    /** @description Parameters used for cursor-based pagination. */
+    paginationOptions?: definitions["v1Pagination"];
+  };
+  v1GetVerifiedSubOrgIdsResponse: {
+    /** @description List of unique identifiers for the matching sub-organizations. */
+    organizationIds: string[];
   };
   v1GetWalletAccountsRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -1922,6 +1941,10 @@ export type definitions = {
     contact: string;
     /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
     emailCustomization?: definitions["v1EmailCustomizationParams"];
+    /** @description Optional parameters for customizing SMS message. If not provided, the default sms message will be used. */
+    smsCustomization?: definitions["v1SmsCustomizationParams"];
+    /** @description Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address. */
+    userIdentifier?: string;
   };
   v1InitOtpAuthRequest: {
     /** @enum {string} */
@@ -2565,6 +2588,10 @@ export type definitions = {
     appidExclude?: boolean;
     credProps?: definitions["v1CredPropsAuthenticationExtensionsClientOutputs"];
   };
+  v1SmsCustomizationParams: {
+    /** @description Template containing references to .OtpCode i.e Your OTP is {{.OtpCode}} */
+    template?: string;
+  };
   /** @enum {string} */
   v1TagType: "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
   /** @enum {string} */
@@ -2771,6 +2798,8 @@ export type definitions = {
     imported: boolean;
   };
   v1WalletAccount: {
+    /** @description Unique identifier for a given Wallet Account. */
+    walletAccountId: string;
     /** @description The Organization the Account belongs to. */
     organizationId: string;
     /** @description The Wallet the Account was derived from. */
@@ -3180,6 +3209,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetUsersResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get all email or phone verified suborg IDs associated given a parent org ID. */
+  PublicApiService_GetVerifiedSubOrgIds: {
+    parameters: {
+      body: {
+        body: definitions["v1GetVerifiedSubOrgIdsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetVerifiedSubOrgIdsResponse"];
       };
       /** An unexpected error response. */
       default: {

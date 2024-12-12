@@ -642,6 +642,32 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getVerifiedSubOrgIds = async (
+    input: SdkApiTypes.TGetVerifiedSubOrgIdsBody
+  ): Promise<SdkApiTypes.TGetVerifiedSubOrgIdsResponse> => {
+    return this.request("/public/v1/query/list_verified_suborgs", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetVerifiedSubOrgIds = async (
+    input: SdkApiTypes.TGetVerifiedSubOrgIdsBody
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.config.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_verified_suborgs";
+    const body = JSON.stringify(input);
+    const stamp = await this.config.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getWalletAccounts = async (
     input: SdkApiTypes.TGetWalletAccountsBody
   ): Promise<SdkApiTypes.TGetWalletAccountsResponse> => {
