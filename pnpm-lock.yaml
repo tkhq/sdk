@@ -1764,6 +1764,9 @@ importers:
 
   packages/solana:
     dependencies:
+      '@solana/spl-token':
+        specifier: ^0.4.8
+        version: 0.4.8(@solana/web3.js@1.88.1)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5)
       '@solana/web3.js':
         specifier: ^1.88.1
         version: 1.88.1
@@ -10375,6 +10378,20 @@ packages:
       - fastestsmallesttextencoderdecoder
     dev: false
 
+  /@solana/spl-token-group@0.0.5(@solana/web3.js@1.88.1)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5):
+    resolution: {integrity: sha512-CLJnWEcdoUBpQJfx9WEbX3h6nTdNiUzswfFdkABUik7HVwSNA98u5AYvBVK2H93d9PGMOHAak2lHW9xr+zAJGQ==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@solana/web3.js': ^1.94.0
+    dependencies:
+      '@solana/codecs': 2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5)
+      '@solana/spl-type-length-value': 0.1.0
+      '@solana/web3.js': 1.88.1
+    transitivePeerDependencies:
+      - fastestsmallesttextencoderdecoder
+      - typescript
+    dev: false
+
   /@solana/spl-token-group@0.0.5(@solana/web3.js@1.95.1)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5):
     resolution: {integrity: sha512-CLJnWEcdoUBpQJfx9WEbX3h6nTdNiUzswfFdkABUik7HVwSNA98u5AYvBVK2H93d9PGMOHAak2lHW9xr+zAJGQ==}
     engines: {node: '>=16'}
@@ -10389,6 +10406,19 @@ packages:
       - typescript
     dev: false
 
+  /@solana/spl-token-metadata@0.1.4(@solana/web3.js@1.88.1)(fastestsmallesttextencoderdecoder@1.0.22):
+    resolution: {integrity: sha512-N3gZ8DlW6NWDV28+vCCDJoTqaCZiF/jDUnk3o8GRkAFzHObiR60Bs1gXHBa8zCPdvOwiG6Z3dg5pg7+RW6XNsQ==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@solana/web3.js': ^1.91.6
+    dependencies:
+      '@solana/codecs': 2.0.0-preview.2(fastestsmallesttextencoderdecoder@1.0.22)
+      '@solana/spl-type-length-value': 0.1.0
+      '@solana/web3.js': 1.88.1
+    transitivePeerDependencies:
+      - fastestsmallesttextencoderdecoder
+    dev: false
+
   /@solana/spl-token-metadata@0.1.4(@solana/web3.js@1.95.1)(fastestsmallesttextencoderdecoder@1.0.22):
     resolution: {integrity: sha512-N3gZ8DlW6NWDV28+vCCDJoTqaCZiF/jDUnk3o8GRkAFzHObiR60Bs1gXHBa8zCPdvOwiG6Z3dg5pg7+RW6XNsQ==}
     engines: {node: '>=16'}
@@ -10400,6 +10430,26 @@ packages:
       '@solana/web3.js': 1.95.1(encoding@0.1.13)
     transitivePeerDependencies:
       - fastestsmallesttextencoderdecoder
+    dev: false
+
+  /@solana/spl-token@0.4.8(@solana/web3.js@1.88.1)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5):
+    resolution: {integrity: sha512-RO0JD9vPRi4LsAbMUdNbDJ5/cv2z11MGhtAvFeRzT4+hAGE/FUzRi0tkkWtuCfSIU3twC6CtmAihRp/+XXjWsA==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@solana/web3.js': ^1.94.0
+    dependencies:
+      '@solana/buffer-layout': 4.0.1
+      '@solana/buffer-layout-utils': 0.2.0
+      '@solana/spl-token-group': 0.0.5(@solana/web3.js@1.88.1)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5)
+      '@solana/spl-token-metadata': 0.1.4(@solana/web3.js@1.88.1)(fastestsmallesttextencoderdecoder@1.0.22)
+      '@solana/web3.js': 1.88.1
+      buffer: 6.0.3
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - fastestsmallesttextencoderdecoder
+      - typescript
+      - utf-8-validate
     dev: false
 
   /@solana/spl-token@0.4.8(@solana/web3.js@1.95.1)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5):

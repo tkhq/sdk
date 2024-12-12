@@ -1,4 +1,5 @@
 import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
+import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import {
   assertNonNull,
   assertActivityCompleted,
@@ -130,6 +131,24 @@ export class TurnkeySigner {
 
     return recoveredTransaction;
   }
+
+  /**
+   * This function derives a Solana associated token address for a given Solana wallet address, related to a particular token mint address
+   *
+   * @param walletAddress string representation of the Solana wallet address (base58 encoded)
+   * @param mintAddress string representation of the token mint address (base58 encoded)
+   */
+  public getAssociatedTokenAddress(mintAddress: string, walletAddress:string) {
+    const mintPublicKey = new PublicKey(mintAddress);
+    const walletPublicKey = new PublicKey(walletAddress);
+
+    const associatedTokenAddress = getAssociatedTokenAddressSync(
+        mintPublicKey,
+        walletPublicKey
+    );
+
+    return associatedTokenAddress.toString();
+}
 
   private async signTransactionImpl(
     unsignedTransaction: string,
