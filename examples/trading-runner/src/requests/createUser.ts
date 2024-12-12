@@ -13,7 +13,7 @@ export default async function createUser(
   publicKey: string
 ): Promise<string> {
   try {
-    const { userIds } = await turnkeyClient.apiClient().createApiOnlyUsers({
+    const { userIds } = await turnkeyClient.createApiOnlyUsers({
       apiOnlyUsers: [
         {
           userName,

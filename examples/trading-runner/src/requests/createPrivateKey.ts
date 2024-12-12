@@ -12,7 +12,7 @@ export default async function createPrivateKey(
   console.log("creating a new Ethereum private key on Turnkey...\n");
 
   try {
-    const { privateKeys } = await turnkeyClient.apiClient().createPrivateKeys({
+    const { privateKeys } = await turnkeyClient.createPrivateKeys({
       privateKeys: [
         {
           privateKeyName,
