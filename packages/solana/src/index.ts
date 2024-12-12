@@ -138,17 +138,17 @@ export class TurnkeySigner {
    * @param walletAddress string representation of the Solana wallet address (base58 encoded)
    * @param mintAddress string representation of the token mint address (base58 encoded)
    */
-  public getAssociatedTokenAddress(mintAddress: string, walletAddress:string) {
+  public getAssociatedTokenAddress(mintAddress: string, walletAddress: string) {
     const mintPublicKey = new PublicKey(mintAddress);
     const walletPublicKey = new PublicKey(walletAddress);
 
     const associatedTokenAddress = getAssociatedTokenAddressSync(
-        mintPublicKey,
-        walletPublicKey
+      mintPublicKey,
+      walletPublicKey
     );
 
     return associatedTokenAddress.toString();
-}
+  }
 
   private async signTransactionImpl(
     unsignedTransaction: string,
