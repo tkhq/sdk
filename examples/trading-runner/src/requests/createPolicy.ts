@@ -13,7 +13,7 @@ export default async function createPolicy(
   condition: string
 ): Promise<string> {
   try {
-    const { policyId } = await turnkeyClient.apiClient().createPolicy({
+    const { policyId } = await turnkeyClient.createPolicy({
       policyName,
       condition,
       consensus,
