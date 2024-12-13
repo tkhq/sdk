@@ -27,7 +27,7 @@ import keys from "./keys";
 import { createUser, createPolicy } from "./requests";
 
 const commands: { [key: string]: {} } = {
-  "setup": {},
+  setup: {},
   "attempt-transfer": {},
   "create-token-policy": {},
 };
