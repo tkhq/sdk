@@ -344,6 +344,7 @@ async function createTokenPolicy() {
     `Let non root user send SPL transfers to the ATA of WARCHEST: ${ataWarchest.toString()}`,
     "EFFECT_ALLOW",
     `approvers.any(user, user.id == '${nonRootUserID}')`,
-    `solana.tx.instructions.count() == 1 && solana.tx.spl_transfers.any(transfer, transfer.to == '${ataWarchest.toString()}')`
+    `solana.tx.instructions.count() == 1 && solana.tx.spl_transfers.any(transfer, transfer.to == '${ataWarchest.toString()}')`,
+    ""
   );
 }

@@ -4,7 +4,8 @@ import type { TurnkeySigner } from "@turnkey/solana";
 
 import { solanaNetwork } from ".";
 
-export async function createTokenTransfer(
+// This method creates, signs and broadcasts an SPL token transfer using Turnkey's Sign Raw Payload endpoint for signing
+export async function createTokenTransferAddSignature(
   turnkeySigner: TurnkeySigner,
   connection: Connection,
   solAddress: string,
@@ -20,7 +21,7 @@ export async function createTokenTransfer(
       mintAuthority, // mint
       ataRecipient, // to (should be a token account)
       fromKey, // from's owner
-      1e4, // amount, if your deciamls is 8, send 10^8 for 1 token
+      1e4, // amount, if your decimals is 8, send 10^8 for 1 token
       8 // decimals
     )
   );
@@ -37,6 +38,8 @@ export async function createTokenTransfer(
   await solanaNetwork.broadcast(connection, transferTx);
 }
 
+// This method creates, signs and broadcasts an SPL token transfer using Turnkey's Sign Transaction endpoint for signing
+// Note: Sign Transaction passes the transaction through the policy engine, allowing Solana related policies to apply!
 export async function createTokenTransferSignTransaction(
   turnkeySigner: TurnkeySigner,
   connection: Connection,
@@ -45,6 +48,27 @@ export async function createTokenTransferSignTransaction(
   mintAuthority: PublicKey,
   ataRecipient: PublicKey
 ): Promise<any> {
+  const transferTx = await constructTokenTransfer(
+    tokenAccountPubkey,
+    mintAuthority,
+    ataRecipient,
+    solAddress
+  );
+
+  // Use Turnkey's sign transaction endpoint that passes the created transaction through the policy engine
+  let signedTx = await turnkeySigner.signTransaction(transferTx, solAddress);
+
+  console.log("Broadcasting token transfer transaction...");
+
+  await solanaNetwork.broadcast(connection, signedTx);
+}
+
+async function constructTokenTransfer(
+  tokenAccountPubkey: PublicKey,
+  mintAuthority: PublicKey,
+  ataRecipient: PublicKey,
+  solAddress: string
+): Promise<Transaction> {
   const fromKey = new PublicKey(solAddress);
 
   let transferTx = new Transaction().add(
@@ -53,7 +77,7 @@ export async function createTokenTransferSignTransaction(
       mintAuthority, // mint
       ataRecipient, // to (should be a token account)
       fromKey, // from's owner
-      1e4, // amount, if your deciamls is 8, send 10^8 for 1 token
+      1e4, // amount, if your decimals is 8, send 10^8 for 1 token
       8 // decimals
     )
   );
@@ -63,10 +87,5 @@ export async function createTokenTransferSignTransaction(
   // Set the signer
   transferTx.feePayer = fromKey;
 
-  // Use Turnkey's sign transaction endpoint that passes the created transaction through the policy engine
-  let signedTx = await turnkeySigner.signTransaction(transferTx, solAddress);
-
-  console.log("Broadcasting token transfer transaction...");
-
-  await solanaNetwork.broadcast(connection, signedTx);
+  return transferTx;
 }

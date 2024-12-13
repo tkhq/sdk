@@ -3,14 +3,15 @@ import {
   TurnkeyActivityError,
 } from "@turnkey/sdk-server";
 
-import { refineNonNull } from "./utils";
+import { refineNonNull } from "../utils";
 
 export default async function createPolicy(
   turnkeyClient: TurnkeyServerClient,
   policyName: string,
   effect: "EFFECT_ALLOW" | "EFFECT_DENY",
   consensus: string,
-  condition: string
+  condition: string,
+  notes: ""
 ): Promise<string> {
   try {
     const { policyId } = await turnkeyClient.createPolicy({
@@ -18,7 +19,7 @@ export default async function createPolicy(
       condition,
       consensus,
       effect,
-      notes: "",
+      notes,
     });
 
     const newPolicyId = refineNonNull(policyId);

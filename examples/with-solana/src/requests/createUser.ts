@@ -3,7 +3,7 @@ import {
   TurnkeyActivityError,
 } from "@turnkey/sdk-server";
 
-import { refineNonNull } from "./utils";
+import { refineNonNull } from "../utils";
 
 export default async function createUser(
   turnkeyClient: TurnkeyServerClient,
