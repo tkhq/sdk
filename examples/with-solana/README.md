@@ -166,15 +166,15 @@ Token balance for warchest: 0.0001
 
 Enjoy!
 
-### 6/ Running the "allow SPL token transfer policy" example 
+### 6/ Running the "Allow SPL token transfer policy" example 
 
 This example shows the flow of using our policy engine's support for SPL token transfers! Specifcally we show how to allow a user (non root user) to send a Solana SPL token tranfser by calculating the "associated token address" of the receiving account, given the mint address of the token that we are transferring. 
 
 To best see how policies can be used effectively, we will go through example in the following steps 
-1. Setup - this step creates the on-chain state and SOME of the Turnkey setup state required to make this transfer (Notably, it leaves out the creation of the Policy that allows the created non root user to sign the SPL transfer)
+1. Setup - this step creates the on-chain state and SOME of the Turnkey setup state required to make this transfer (notably, it leaves out the creation of the policy that allows the created non root user to sign the SPL transfer)
 2. Attempt Transfer - since we're attempting the transfer WITHOUT having created the policy allowing it, this will fail 
-3. Create Token Policy - this will create a policy that allows solana transactions initiated by the correct user to be signed if they contain a signle instruction which is an SPL token transfer to the correct token account
-4. Attempt Transfer (again) - this will succeed, now that the appropriate policy has been created
+3. Create Token Policy - this will create a policy that allows Solana transactions initiated by the correct user to be signed if they contain a signle instruction which is an SPL token transfer to the correct token account
+4. Attempt Transfer (again) - this will succeed, now that the appropriate policy has been created!
 
 
 #### Step 1. Setup
@@ -220,7 +220,7 @@ Token Mint public key: FA7umztm6eYcENE22ndEZhd8MCf9C7myJ2KjfCwobj8F
 Non root user created with user id: 13c4609b-8818-40be-aeac-c8b63da0de4a
 ```
 
-### Step 2. Attempt to Transfer Tokens (This is expected to FAIL)
+#### Step 2. Attempt to Transfer Tokens (This is expected to FAIL)
 
 We will now attempt to transfer these SPL tokens that we've created 
 
@@ -253,9 +253,9 @@ details: [
   code: 7
 ```
 
-### Step 3. Create Policy allowing the correct user to make SPL transfers to receiving Associated Token Address
+#### Step 3. Create Policy allowing the correct user to make SPL transfers to receiving Associated Token Address
 
-This is the most important step! In this step we are taking our receiving address (the Turnkey Warchest), calculating it's associated token address given the Mint account we've created and allowing the correct non root user to sign solana transactions if they contain a single instruction that is an SPL token transfer to this associated token address. 
+This is the most important step! In this step we are taking our receiving address (the Turnkey Warchest), calculating it's "associated token address", given the Mint account address for the token we've created, and creating a policy that allows the correct non root user to sign Solana transactions if and only if they contain a single instruction that is an SPL token transfer to this associated token address. 
 
 ```bash
 $ pnpm allow-token-transfer create_token_policy
@@ -284,7 +284,7 @@ New policy created!
 - Condition: solana.tx.instructions.count() == 1 && solana.tx.spl_transfers.any(transfer, transfer.to == '6nDvKk6emwskFLtEpbQgFX6rsMtzbNY4LkvaNnzkvBaq')
 ```
 
-### Step 4. Attempt to Transfer Tokens (This is expected to SUCCEED)
+#### Step 4. Attempt to Transfer Tokens (This is expected to SUCCEED)
 
 Following the instructions for step 2 above should find success this time -- showing that the policy has successfully allowed the user to transfer tokens!
 
