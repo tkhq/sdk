@@ -176,7 +176,7 @@ To best see how policies can be used effectively, we will go through example in 
 3. Create Token Policy - this will create a policy that allows Solana transactions initiated by the correct user to be signed if they contain a single instruction which is an SPL token transfer to the correct token account
 4. Attempt Transfer (again) - this will succeed, now that the appropriate policy has been created!
 
-NOTE: An very piece of understanding to glean from this example is the use of "associated token addresses (or "associated token account address") in the creation of SPL related policies. For further context on ATA's look here: https://spl.solana.com/associated-token-account
+NOTE: An very key piece of understanding to glean from this example is the use of "associated token addresses (or "associated token account address") in the creation of SPL related policies. For further context on ATA's look here: https://spl.solana.com/associated-token-account
 
 #### Step 1. Setup
 
