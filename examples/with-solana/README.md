@@ -166,7 +166,135 @@ Token balance for warchest: 0.0001
 
 Enjoy!
 
-### 6/ Stackblitz Example
+### 6/ Running the "allow SPL token transfer policy" example 
+
+This example shows the flow of using our policy engine's support for SPL token transfers! Specifcally we show how to allow a user (non root user) to send a Solana SPL token tranfser by calculating the "associated token address" of the receiving account, given the mint address of the token that we are transferring. 
+
+To best see how policies can be used effectively, we will go through example in the following steps 
+1. Setup - this step creates the on-chain state and SOME of the Turnkey setup state required to make this transfer (Notably, it leaves out the creation of the Policy that allows the created non root user to sign the SPL transfer)
+2. Attempt Transfer - since we're attempting the transfer WITHOUT having created the policy allowing it, this will fail 
+3. Create Token Policy - this will create a policy that allows solana transactions initiated by the correct user to be signed if they contain a signle instruction which is an SPL token transfer to the correct token account
+4. Attempt Transfer (again) - this will succeed, now that the appropriate policy has been created
+
+
+#### Step 1. Setup
+
+First we will run the setup command 
+
+```bash
+$ pnpm allow-token-transfer setup
+```
+
+This will create a Solana wallet address that you'll have to fund with devnet SOL via a faucet or cli. A commonly used SOL devnet faucet is available here --> https://faucet.solana.com/
+
+Funding your devnet and hitting `y` in the terminal to proceed will set up the necessary on-chain state and Turnkey setup to start, and will output the following information to be used in coming steps 
+- Turnkey Solana wallet address
+- Token Mint public key
+- Non root user created with user id
+
+```bash
+✔ Ready to Continue? … yes
+Broadcasting token creation transaction...
+Transaction broadcast and confirmed! 🎉
+	https://explorer.solana.com/tx/35SJqgdy2nWBvuECXrqRVkuYdRf6kkmWCuxNFd3TcmdMsXfrEns6nLjQqhKx5zvUwYPZ8xHnsiYCRtuhS8a9a5XX?cluster=devnet
+
+Broadcasting token account creation transaction...
+Transaction broadcast and confirmed! 🎉
+	https://explorer.solana.com/tx/3ffN8Goe4P3TSbJZGrmBADfGZWVdnrHNTsbNqce8AAPbANFmhWVHhd5MMhinXhppccMMvjqPqj8vz1PbFQUaV8Ns?cluster=devnet
+
+Broadcasting token account creation transaction...
+Transaction broadcast and confirmed! 🎉
+	https://explorer.solana.com/tx/4sTgMDSMvf1oTJenJWiGRapf6mhoghv85juqdTv5VmZuyQ48ykgf22RZPxdCACSEEg8ige6GarSEQc2Nr4NkfzY1?cluster=devnet
+
+Broadcasting mint transaction...
+Transaction broadcast and confirmed! 🎉
+	https://explorer.solana.com/tx/FMBBXrXYGb2nGQqbHs1j17GJG5owzSMnZ1RqN9R7cSVn8Q2JMbZKMik9MLzvG1LNmdrsmSV16yvFdyLHukZw5KJ?cluster=devnet
+
+New user created!
+- Name: Non Root User
+- User ID: 13c4609b-8818-40be-aeac-c8b63da0de4a
+
+Setup complete -- token mint and token accounts created, non root user created
+Turnkey Solana wallet address: 2bwUkGZ72SNyzBWFwfzKVrVWJ9JNZggjqFPDM9X9mrp9
+Token Mint public key: FA7umztm6eYcENE22ndEZhd8MCf9C7myJ2KjfCwobj8F
+Non root user created with user id: 13c4609b-8818-40be-aeac-c8b63da0de4a
+```
+
+### Step 2. Attempt to Transfer Tokens (This is expected to FAIL)
+
+We will now attempt to transfer these SPL tokens that we've created 
+
+```bash
+$ pnpm allow-token-transfer attempt_transfer
+```
+
+This will prompt you first to enter in the Solana wallet address that is originating the transfer (use the address labeled "Turnkey Solana wallet address" output at the end of the setup step)
+
+```bash
+? Enter Solana wallet address originating tranfser (created during setup stage):
+```
+
+Once you've entered your wallet address you will then be prompted to enter in the Mint address/public key for the token being transferred (use the address labeled "Token Mint public key" output at the end of the setup step)
+
+```bash
+? Enter Mint account address of token being transferred (created during setup stage):
+```
+
+Since this is being initated by a non root user, and the policy allowing this has not been created, this is EXPECTED TO FAIL. You will get an error that includes the following information saying that no policies evaluated to the outcome: Allow
+
+```bash
+details: [
+    {
+      '@type': 'type.googleapis.com/errors.v1.PolicyEnginePermissionError',
+      message: 'No policies evaluated to outcome: Allow',
+      policyEvaluations: []
+    }
+  ],
+  code: 7
+```
+
+### Step 3. Create Policy allowing the correct user to make SPL transfers to receiving Associated Token Address
+
+This is the most important step! In this step we are taking our receiving address (the Turnkey Warchest), calculating it's associated token address given the Mint account we've created and allowing the correct non root user to sign solana transactions if they contain a single instruction that is an SPL token transfer to this associated token address. 
+
+```bash
+$ pnpm allow-token-transfer create_token_policy
+```
+
+This will prompt you first to enter in the user ID of the non root user who's credentials are being used to sign the transfer (use the value labeled "Non root user created with user id" output at the end of the setup step)
+
+```bash
+? Enter non-root user ID originating the transfer (created during setup stage):
+```
+
+Once you've entered this user id, you will then be prompted to enter in the Mint address/public key for the token being transferred (use the address labeled "Token Mint public key" output at the end of the setup step)
+
+```bash
+? Enter Mint account address of token being transferred (created during setup stage):
+```
+
+This should successfully create your policy! 
+
+```bash
+New policy created!
+- Name: Let non root user send SPL transfers to the ATA of WARCHEST: 6nDvKk6emwskFLtEpbQgFX6rsMtzbNY4LkvaNnzkvBaq
+- Policy ID: f715fda0-2236-4904-b4be-9098f7c192b8
+- Effect: EFFECT_ALLOW
+- Consensus: approvers.any(user, user.id == '96a10eb7-0389-447e-bc50-b768a76c0d7f')
+- Condition: solana.tx.instructions.count() == 1 && solana.tx.spl_transfers.any(transfer, transfer.to == '6nDvKk6emwskFLtEpbQgFX6rsMtzbNY4LkvaNnzkvBaq')
+```
+
+### Step 4. Attempt to Transfer Tokens (This is expected to SUCCEED)
+
+Following the instructions for step 2 above should find success this time -- showing that the policy has successfully allowed the user to transfer tokens!
+
+```bash
+Broadcasting token transfer transaction...
+Transaction broadcast and confirmed! 🎉
+	https://explorer.solana.com/tx/GQa4uqoS2zU9uGsGuzMBAq4UmR4dYPXAWgfS4cHQ5Lmqdwb3pKwXrEc4jGHEaZLCyZmCZWErsaPWecN8udkBXaT?cluster=devnet
+```
+
+### 7/ Stackblitz Example
 
 Example Link: https://stackblitz.com/edit/stackblitz-starters-xeb93i
 
