@@ -27,9 +27,9 @@ import keys from "./keys";
 import { createUser, createPolicy } from "./requests";
 
 const commands: { [key: string]: {} } = {
-  setup: {},
-  attempt_transfer: {},
-  create_token_policy: {},
+  "setup": {},
+  "attempt-transfer": {},
+  "create-token-policy": {},
 };
 
 async function main() {
@@ -49,17 +49,17 @@ async function main() {
       throw new Error(`setup command should have no arguments`);
     }
     await setup();
-  } else if (command == "attempt_transfer") {
+  } else if (command == "attempt-transfer") {
     if (args.length != 1) {
       throw new Error(
-        `attempt_transfer comand should have no initial arguments -- you will be prompted`
+        `attempt-transfer comand should have no initial arguments -- you will be prompted`
       );
     }
     await attemptTransferToken();
-  } else if (command == "create_token_policy") {
+  } else if (command == "create-token-policy") {
     if (args.length != 1) {
       throw new Error(
-        `create_token_policy comand should have no initial arguments -- you will be prompted`
+        `create-token-policy comand should have no initial arguments -- you will be prompted`
       );
     }
     await createTokenPolicy();
@@ -76,7 +76,7 @@ main().catch((error) => {
  * The setup command creates the onchain state (new token mint, sending and receiving token address etc) required for this example
  * It also creates SOME of the Turnkey setup state required (new Turnkey managed Solana wallet (owner of the sending token address) and non-root user
  * NOTE: The setup command DOES NOT create the policy that allows the non root user to send SPL tokens to the correct associated token address
- * ^ the policy is created when you call create_token_policy
+ * ^ the policy is created when you call create-token-policy
  */
 async function setup() {
   const turnkeyWarchest = new PublicKey(TURNKEY_WAR_CHEST);
@@ -198,14 +198,14 @@ async function setup() {
 }
 
 /*
- * The attemptTransferToken function runs the attempt_transfer command will attempt to make a token transfer using the created non-root user's API key credentials
+ * The attemptTransferToken function runs the attempt-transfer command will attempt to make a token transfer using the created non-root user's API key credentials
  * It will prompt you for the following information:
  * - The originating Solana wallet address (not token address) that was created and printed out during the setup stage
  * - The token mint account address of the token being transferred, also created and printed out during the setup stage
  *
- * NOTE: This command IS EXPECTED TO FAIL IF the create_token_policy command has NOT been run to create the policy with the correct non-root user ID, and the correct token mint
+ * NOTE: This command IS EXPECTED TO FAIL IF the create-token-policy command has NOT been run to create the policy with the correct non-root user ID, and the correct token mint
  *
- * To best illustrate what is going on in this example, run this command once before and once after running the create_token_policy command
+ * To best illustrate what is going on in this example, run this command once before and once after running the create-token-policy command
  */
 async function attemptTransferToken() {
   let { solAddress } = await prompts([
@@ -286,14 +286,14 @@ async function attemptTransferToken() {
 }
 
 /*
- * The createTokenPolicy function runs the create_token_policy command which creates the policy to allow the non root user to transfer the SPL token for this example
+ * The createTokenPolicy function runs the create-token-policy command which creates the policy to allow the non root user to transfer the SPL token for this example
  * This command will prompt you for the following information:
  * - The non root user ID that was created and printed out during the setup stage
  * - The token mint account address of the token being transferred, also created and printed out during the setup stage
  *
- * NOTE: After running this command correctly, attempt_transfer (with the correct parameters) will work!
+ * NOTE: After running this command correctly, attempt-transfer (with the correct parameters) will work!
  *
- * To best illustrate what is going on in this example, run attemp_transfer once without running this command to see it fail, then run this command and run attempt_transfer AGAIN
+ * To best illustrate what is going on in this example, run attemp-transfer once without running this command to see it fail, then run this command and run attempt-transfer AGAIN
  */
 async function createTokenPolicy() {
   // Prompt user for the Non-root user created during setup

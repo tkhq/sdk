@@ -228,7 +228,7 @@ Non root user created with user id: 13c4609b-8818-40be-aeac-c8b63da0de4a
 We will now attempt to transfer these SPL tokens that we've created
 
 ```bash
-$ pnpm token-transfer-policy attempt_transfer
+$ pnpm token-transfer-policy attempt-transfer
 ```
 
 This will prompt you first to enter in the Solana wallet address that is originating the transfer (use the address labeled "Turnkey Solana wallet address" output at the end of the setup step)
@@ -261,7 +261,7 @@ details: [
 This is the most important step! In this step we are taking our receiving address (the Turnkey Warchest), calculating it's "associated token address", given the Mint account address for the token we've created, and creating a policy that allows the correct non root user to sign Solana transactions if and only if they contain a single instruction that is an SPL token transfer to this associated token address.
 
 ```bash
-$ pnpm token-transfer-policy create_token_policy
+$ pnpm token-transfer-policy create-token-policy
 ```
 
 This will prompt you first to enter in the user ID of the non root user who's credentials are being used to sign the transfer (use the value labeled "Non root user created with user id" output at the end of the setup step)
