@@ -338,12 +338,12 @@ async function createTokenPolicy() {
     defaultOrganizationId: organizationId,
   });
 
-  // Create policy to allow non root user to send SPL tokens to the Token account address for Warchest
+  // Create policy to allow non root user to send a Solana transaction that only conains a SINGLE instruction --> one SPL token transfer to the Token account address for Warchest
   await createPolicy(
     rootUserClient.apiClient(),
     `Let non root user send SPL transfers to the ATA of WARCHEST: ${ataWarchest.toString()}`,
     "EFFECT_ALLOW",
     `approvers.any(user, user.id == '${nonRootUserID}')`,
-    `solana.tx.spl_transfers.any(transfer, transfer.to == '${ataWarchest.toString()}')`
+    `solana.tx.instructions.count() == 1 && solana.tx.spl_transfers.any(transfer, transfer.to == '${ataWarchest.toString()}')`
   );
 }
