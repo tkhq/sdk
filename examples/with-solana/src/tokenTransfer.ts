@@ -11,8 +11,6 @@ import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 
-import { createUser, createPolicy } from "./requests";
-
 import {
   createMint,
   createNewSolanaWallet,
@@ -124,14 +122,6 @@ async function main() {
     solAddress,
     tokenAccount.address,
     mintAuthority.publicKey
-  );
-
-  let userID = await createUser(
-    turnkeyClient.apiClient(),
-    "Alice",
-    [adminTagId],
-    "Alice key",
-    keys!.alice!.publicKey!
   );
 
   // Transfer token from primary to Warchest
