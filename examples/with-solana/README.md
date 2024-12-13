@@ -168,12 +168,12 @@ Enjoy!
 
 ### 6/ Running the "Allow SPL token transfer policy" example 
 
-This example shows the flow of using our policy engine's support for SPL token transfers! Specifcally we show how to allow a user (non root user) to send a Solana SPL token tranfser by calculating the "associated token address" of the receiving account, given the mint address of the token that we are transferring. 
+This example shows the flow of using our policy engine's support for SPL token transfers! Specifically we show how to allow a user (non root user) to send a Solana SPL token transfer by calculating the "associated token address" of the receiving account, given the mint address of the token that we are transferring. 
 
 To best see how policies can be used effectively, we will go through example in the following steps 
 1. Setup - this step creates the on-chain state and SOME of the Turnkey setup state required to make this transfer (notably, it leaves out the creation of the policy that allows the created non root user to sign the SPL transfer)
 2. Attempt Transfer - since we're attempting the transfer WITHOUT having created the policy allowing it, this will fail 
-3. Create Token Policy - this will create a policy that allows Solana transactions initiated by the correct user to be signed if they contain a signle instruction which is an SPL token transfer to the correct token account
+3. Create Token Policy - this will create a policy that allows Solana transactions initiated by the correct user to be signed if they contain a single instruction which is an SPL token transfer to the correct token account
 4. Attempt Transfer (again) - this will succeed, now that the appropriate policy has been created!
 
 
@@ -231,7 +231,7 @@ $ pnpm allow-token-transfer attempt_transfer
 This will prompt you first to enter in the Solana wallet address that is originating the transfer (use the address labeled "Turnkey Solana wallet address" output at the end of the setup step)
 
 ```bash
-? Enter Solana wallet address originating tranfser (created during setup stage):
+? Enter Solana wallet address originating transfer (created during setup stage):
 ```
 
 Once you've entered your wallet address you will then be prompted to enter in the Mint address/public key for the token being transferred (use the address labeled "Token Mint public key" output at the end of the setup step)
@@ -240,7 +240,7 @@ Once you've entered your wallet address you will then be prompted to enter in th
 ? Enter Mint account address of token being transferred (created during setup stage):
 ```
 
-Since this is being initated by a non root user, and the policy allowing this has not been created, this is EXPECTED TO FAIL. You will get an error that includes the following information saying that no policies evaluated to the outcome: Allow
+Since this is being initiated by a non root user, and the policy allowing this has not been created, this is EXPECTED TO FAIL. You will get an error that includes the following information saying that no policies evaluated to the outcome: Allow
 
 ```bash
 details: [

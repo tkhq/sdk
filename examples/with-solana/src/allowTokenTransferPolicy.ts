@@ -213,7 +213,7 @@ async function attemptTransferToken() {
       type: "text" as PromptType,
       name: "solAddress",
       message:
-        "Enter Solana wallet address originating tranfser (created during setup stage):",
+        "Enter Solana wallet address originating transfer (created during setup stage):",
     },
   ]);
   solAddress = solAddress.trim();
