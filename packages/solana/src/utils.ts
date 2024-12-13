@@ -7,7 +7,7 @@ import { PublicKey } from "@solana/web3.js";
    * @param walletAddress string representation of the Solana wallet address (base58 encoded)
    * @param mintAddress string representation of the token mint address (base58 encoded)
    */
-export function getAssociatedTokenAddress(mintAddress: string, walletAddress: string) {
+export function getSPLAssociatedTokenAddress(mintAddress: string, walletAddress: string) {
     const mintPublicKey = new PublicKey(mintAddress);
     const walletPublicKey = new PublicKey(walletAddress);
   

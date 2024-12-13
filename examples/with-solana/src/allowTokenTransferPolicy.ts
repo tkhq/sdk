@@ -4,7 +4,7 @@ import * as path from "path";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import prompts from "prompts";
+import prompts, { PromptType } from "prompts";
 import { PublicKey } from "@solana/web3.js";
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 
@@ -12,6 +12,7 @@ import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 
 import {
+  isKeyOfObject,
   createMint,
   createNewSolanaWallet,
   createToken,
@@ -25,13 +26,65 @@ import keys from "./keys";
 
 import { createUser, createPolicy } from "./requests";
 
+const commands: { [key: string]: {} } = {
+  setup: {},
+  attempt_transfer: {},
+  create_token_policy: {},
+};
+
 async function main() {
+  const args = process.argv.slice(2);
+  if (!args.length) {
+    throw new Error("Command is required");
+  }
+
+  const command = args[0];
+
+  if (!isKeyOfObject(command!, commands)) {
+    throw new Error(`Unknown command: ${command}`);
+  }
+
+  if (command == "setup") {
+    if (args.length != 1) {
+      throw new Error(`setup command should have no arguments`);
+    }
+    await setup();
+  } else if (command == "attempt_transfer") {
+    if (args.length != 1) {
+      throw new Error(
+        `attempt_transfer comand should have no initial arguments -- you will be prompted`
+      );
+    }
+    await attemptTransferToken();
+  } else if (command == "create_token_policy") {
+    if (args.length != 1) {
+      throw new Error(
+        `create_token_policy comand should have no initial arguments -- you will be prompted`
+      );
+    }
+    await createTokenPolicy();
+  }
+  process.exit(0);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
+
+/* 
+ * The setup command creates the onchain state (new token mint, sending and receiving token address etc) required for this example
+ * It also creates SOME of the Turnkey setup state required (new Turnkey managed Solana wallet (owner of the sending token address) and non-root user
+ * NOTE: The setup command DOES NOT create the policy that allows the non root user to send SPL tokens to the correct associated token address
+ * ^ the policy is created when you call create_token_policy 
+*/
+async function setup() {
   const turnkeyWarchest = new PublicKey(TURNKEY_WAR_CHEST);
   const organizationId = process.env.ORGANIZATION_ID!;
   const connection = solanaNetwork.connect();
 
   // Root user API Client
-  const turnkeyClient = new Turnkey({
+  const rootUserClient = new Turnkey({
     apiBaseUrl: process.env.BASE_URL!,
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
@@ -39,14 +92,14 @@ async function main() {
   });
 
   // Root user Turnkey signer
-  const turnkeySigner = new TurnkeySigner({
+  const rootUserSigner = new TurnkeySigner({
     organizationId,
-    client: turnkeyClient.apiClient(),
+    client: rootUserClient.apiClient(),
   });
 
   let solAddress = process.env.SOLANA_ADDRESS!;
   if (!solAddress) {
-    solAddress = await createNewSolanaWallet(turnkeyClient.apiClient());
+    solAddress = await createNewSolanaWallet(rootUserClient.apiClient());
     console.log(`\nYour new Solana address: "${solAddress}"`);
   } else {
     console.log(`\nUsing existing Solana address from ENV: "${solAddress}"`);
@@ -81,7 +134,7 @@ async function main() {
 
   // Create SPL token
   const { mintAuthority } = await createToken(
-    turnkeySigner,
+    rootUserSigner,
     connection,
     solAddress
   );
@@ -99,7 +152,7 @@ async function main() {
 
   // For warchest
   await createTokenAccount(
-    turnkeySigner,
+    rootUserSigner,
     connection,
     solAddress,
     ataWarchest,
@@ -107,11 +160,9 @@ async function main() {
     mintAuthority
   );
 
-  const tokenAccountWarchest = await getAccount(connection, ataWarchest);
-
   // For self
   await createTokenAccount(
-    turnkeySigner,
+    rootUserSigner,
     connection,
     solAddress,
     ataPrimary,
@@ -123,7 +174,7 @@ async function main() {
 
   // Mint token
   await createMint(
-    turnkeySigner,
+    rootUserSigner,
     connection,
     solAddress,
     tokenAccount.address,
@@ -132,14 +183,72 @@ async function main() {
 
   // Create non-root user
   let nonRootUserID = await createUser(
-    turnkeyClient.apiClient(),
+    rootUserClient.apiClient(),
     "Non Root User",
     "Non Root User Key",
     keys!.nonRootUser!.publicKey!
   );
 
+  console.log(
+    "Setup complete -- token mint and token accounts created, non root user created"
+  );
+  console.log(`Turnkey Solana wallet address: ${solAddress}`);
+  console.log(`Token Mint public key: ${mintAuthority.publicKey}`);
+  console.log(`Non root user created with user id: ${nonRootUserID}`);
+}
+
+/* 
+ * The attemptTransferToken function runs the attempt_transfer command will attempt to make a token transfer using the created non-root user's API key credentials
+ * It will prompt you for the following information: 
+ * - The originating Solana wallet address (not token address) that was created and printed out during the setup stage
+ * - The token mint account address of the token being transferred, also created and printed out during the setup stage
+ * 
+ * NOTE: This command IS EXPECTED TO FAIL IF the create_token_policy command has NOT been run to create the policy with the correct non-root user ID, and the correct token mint 
+ * 
+ * To best illustrate what is going on in this example, run this command once before and once after running the create_token_policy command
+*/
+async function attemptTransferToken() {
+  let { solAddress } = await prompts([
+    {
+      type: "text" as PromptType,
+      name: "solAddress",
+      message: "Enter Solana wallet address originating tranfser (created during setup stage):",
+    },
+  ]);
+  solAddress = solAddress.trim();
+
+  let { tokenMint } = await prompts([
+    {
+      type: "text" as PromptType,
+      name: "tokenMint",
+      message: "Enter Mint account address of token being transferred (created during setup stage):",
+    },
+  ]);
+  tokenMint = tokenMint.trim();
+
+  const turnkeyWarchest = new PublicKey(TURNKEY_WAR_CHEST);
+  const organizationId = process.env.ORGANIZATION_ID!;
+  const connection = solanaNetwork.connect();
+  const tokenMintPublicKey = new PublicKey(tokenMint);
+  const fromKey = new PublicKey(solAddress);
+
+  // Create token accounts
+  const ataPrimary = await getAssociatedTokenAddress(
+    tokenMintPublicKey, // mint
+    fromKey // owner
+  );
+
+  const tokenAccountFrom = await getAccount(connection, ataPrimary);
+
+  const ataWarchest = await getAssociatedTokenAddress(
+    tokenMintPublicKey, // mint
+    turnkeyWarchest // owner
+  );
+
+  const tokenAccountWarchest = await getAccount(connection, ataWarchest);
+
   // Create non root user API Client
-  const nonRootUserTurnkeyClient = new Turnkey({
+  const nonRootUserClient = new Turnkey({
     apiBaseUrl: process.env.BASE_URL!,
     apiPublicKey: keys!.nonRootUser!.publicKey!,
     apiPrivateKey: keys!.nonRootUser!.privateKey!,
@@ -148,17 +257,8 @@ async function main() {
 
   const nonRootUserSigner = new TurnkeySigner({
     organizationId,
-    client: nonRootUserTurnkeyClient.apiClient(),
+    client: nonRootUserClient.apiClient(),
   });
-
-  // Create policy to allow non root user to send SPL tokens to the Token account address for Warchest
-  await createPolicy(
-    turnkeyClient.apiClient(),
-    "Let non root user send SPL transfers to the ATA of WARCHEST",
-    "EFFECT_ALLOW",
-    `approvers.any(user, user.id == '${nonRootUserID}')`,
-    `solana.tx.spl_transfers.any(transfer, transfer.to == '${tokenAccountWarchest.address}')`
-  );
 
   // Transfer token from primary to Warchest associated token account\
   // This call uses Turnkey's sign transaction endpoint which passes the transaction through the policy engine
@@ -166,8 +266,8 @@ async function main() {
     nonRootUserSigner,
     connection,
     solAddress,
-    tokenAccount.address,
-    mintAuthority.publicKey,
+    tokenAccountFrom.address,
+    tokenMintPublicKey,
     tokenAccountWarchest.address
   );
 
@@ -181,11 +281,65 @@ async function main() {
     "Token balance for warchest:",
     tokenBalanceWarchest.value.uiAmountString
   );
-
-  process.exit(0);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+/* 
+ * The createTokenPolicy function runs the create_token_policy command which creates the policy to allow the non root user to transfer the SPL token for this example 
+ * This command will prompt you for the following information:
+ * - The non root user ID that was created and printed out during the setup stage
+ * - The token mint account address of the token being transferred, also created and printed out during the setup stage
+ * 
+ * NOTE: After running this command correctly, attempt_transfer (with the correct parameters) will work!
+ * 
+ * To best illustrate what is going on in this example, run attemp_transfer once without running this command to see it fail, then run this command and run attempt_transfer AGAIN
+*/
+async function createTokenPolicy() {
+  // Prompt user for the Non-root user created during setup
+  let { nonRootUserID } = await prompts([
+    {
+      type: "text" as PromptType,
+      name: "nonRootUserID",
+      message: "Enter non-root user ID originating the transfer (created during setup stage):",
+    },
+  ]);
+  nonRootUserID = nonRootUserID.trim();
+
+  // Prompt user 
+  let { tokenMint } = await prompts([
+    {
+      type: "text" as PromptType,
+      name: "tokenMint",
+      message: "Enter Mint account address of token being transferred (created during setup stage):",
+    },
+  ]);
+  tokenMint = tokenMint.trim();
+
+  const organizationId = process.env.ORGANIZATION_ID!;
+  const turnkeyWarchest = new PublicKey(TURNKEY_WAR_CHEST);
+  const tokenMintPublicKey = new PublicKey(tokenMint);
+
+  // IMPORTANT STEP
+  // Here, given the mint address of the token being transferred, we calculate the Associated Token Address for the RECEIVING address (in this case, Warchest)
+  // This is associated token address is what will be used to create the policy that allows transfers to the expected wallet address
+  const ataWarchest = await getAssociatedTokenAddress(
+    tokenMintPublicKey, // mint
+    turnkeyWarchest // owner
+  );
+
+  // Root user API Client
+  const rootUserClient = new Turnkey({
+    apiBaseUrl: process.env.BASE_URL!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    defaultOrganizationId: organizationId,
+  });
+
+  // Create policy to allow non root user to send SPL tokens to the Token account address for Warchest
+  await createPolicy(
+    rootUserClient.apiClient(),
+    `Let non root user send SPL transfers to the ATA of WARCHEST: ${ataWarchest.toString()}`,
+    "EFFECT_ALLOW",
+    `approvers.any(user, user.id == '${nonRootUserID}')`,
+    `solana.tx.spl_transfers.any(transfer, transfer.to == '${ataWarchest.toString()}')`
+  );
+}

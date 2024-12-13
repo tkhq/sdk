@@ -7,6 +7,10 @@ import {
 } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
+import { getSPLAssociatedTokenAddress } from "./utils";
+export {
+  getSPLAssociatedTokenAddress
+}
 
 type TClient = TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
 

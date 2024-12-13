@@ -3,6 +3,7 @@ import * as solanaNetwork from "./solanaNetwork";
 import { signMessage } from "./signMessage";
 import { createTransfer } from "./createSolanaTransfer";
 import { print } from "./print";
+import { isKeyOfObject } from "./isKeyOfObject";
 import { createMint } from "./createMint";
 import { createToken } from "./createToken";
 import { createTokenAccount } from "./createTokenAccount";
@@ -25,6 +26,7 @@ export {
   createTransfer,
   handleActivityError,
   print,
+  isKeyOfObject,
   signMessage,
   transactionSenderAndConfirmationWaiter,
   solanaNetwork,
