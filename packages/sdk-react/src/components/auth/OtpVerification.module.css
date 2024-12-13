@@ -82,7 +82,7 @@
 
 .circularProgress {
   position: absolute;
-  color: var(--accent-color);
+  color: var(--icon-colorr);
 }
 .resendCode {
   font-size: 14px;

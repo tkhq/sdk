@@ -64,5 +64,6 @@
 
   /* Accent Colors */
   --accent-color: var(--Blue-500, #4c48ff);
+  --icon-color: var(--Greyscale-900, #2b2f33);
   --error-color: #ff4c4c;
 }

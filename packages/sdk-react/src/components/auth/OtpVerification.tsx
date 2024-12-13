@@ -93,14 +93,14 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
             <EmailIcon
               sx={{
                 fontSize: "86px",
-                color: "var(--accent-color)",
+                color: "var(--icon-color)",
               }}
             />
           ) : (
             <SmsIcon
               sx={{
                 fontSize: "86px",
-                color: "var(--accent-color)",
+                color: "var(--icon-color)",
               }}
             />
           )}

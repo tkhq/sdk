@@ -47,7 +47,7 @@ body {
 }
 
 .circularProgress {
-  color: #4c48ff;
+  color: var(--Greyscale-900, #2b2f33);
 }
 .main {
   font-family: Inter;
