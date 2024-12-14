@@ -16,7 +16,7 @@ import {
   createNewSolanaWallet,
   createToken,
   createTokenAccount,
-  createTokenTransfer,
+  createTokenTransferAddSignature,
   solanaNetwork,
   TURNKEY_WAR_CHEST,
 } from "./utils";
@@ -125,7 +125,7 @@ async function main() {
   );
 
   // Transfer token from primary to Warchest
-  await createTokenTransfer(
+  await createTokenTransferAddSignature(
     turnkeySigner,
     connection,
     solAddress,
