@@ -166,7 +166,7 @@ Token balance for warchest: 0.0001
 
 Enjoy!
 
-### 6/ Running the "Create SPL token transfer policy" example
+### 6/ Running the "Create SPL token transfer with policy" example
 
 This example shows the flow of using our policy engine's support for SPL token transfers! Specifically we show how to allow a user (non root user) to send a Solana SPL token transfer by calculating the "associated token address" of the receiving account, given the mint address of the token that we are transferring.
 
@@ -280,7 +280,7 @@ This should successfully create your policy!
 
 ```bash
 New policy created!
-- Name: Let non root user send SPL transfers to the ATA of WARCHEST: 6nDvKk6emwskFLtEpbQgFX6rsMtzbNY4LkvaNnzkvBaq
+- Name: Let non root user send SPL transfers to the associated token account of WARCHEST: 6nDvKk6emwskFLtEpbQgFX6rsMtzbNY4LkvaNnzkvBaq given the mint address for the token just created
 - Policy ID: f715fda0-2236-4904-b4be-9098f7c192b8
 - Effect: EFFECT_ALLOW
 - Consensus: approvers.any(user, user.id == '96a10eb7-0389-447e-bc50-b768a76c0d7f')
