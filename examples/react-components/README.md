@@ -51,3 +51,16 @@ $ pnpm run dev
 ```
 
 This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, the example app using auth components should be ready to use!
+
+### 4/ Using ngrok for OAuth
+
+To enable OAuth flows like Google, Facebook, or Apple on your local environment, you’ll need to use [ngrok](https://ngrok.com) to expose your localhost server to the internet. This is necessary because OIDC providers require a publicly accessible redirect URI during the authentication process.
+
+#### Steps:
+
+1. **Install ngrok**: Follow the [ngrok installation guide](https://ngrok.com/download) to install ngrok on your machine.
+2. **Run ngrok**: Start ngrok and point it to port 3000 (the port your app runs on):
+
+```bash
+$ ngrok http 3000
+```

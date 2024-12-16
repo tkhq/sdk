@@ -14,12 +14,13 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import OtpVerification from "./OtpVerification";
 import { useTurnkey } from "../../hooks/use-turnkey";
 import { getVerifiedSuborgs } from "../../actions/getVerifiedSuborgs";
-import { AUTH_ERRORS, passkeyIcon, passkeyIconError } from "./constants";
+import { authErrors, passkeyIcon, passkeyIconError } from "./constants";
 
-enum OtpStep {
-  Email = "otpEmail",
-  Sms = "otpSms",
+enum OtpType {
+  Email = "OTP_TYPE_EMAIL",
+  Sms = "OTP_TYPE_SMS",
 }
+
 enum FilterType {
   Email = "EMAIL",
   PhoneNumber = "PHONE_NUMBER",
@@ -61,10 +62,10 @@ const Auth: React.FC<AuthProps> = ({
   const [passkeyCreated, setPasskeyCreated] = useState(false);
 
   const handleResendCode = async () => {
-    if (step === OtpStep.Email) {
-      await handleOtpLogin(FilterType.Email, email, "OTP_TYPE_EMAIL");
-    } else if (step === OtpStep.Sms) {
-      await handleOtpLogin(FilterType.PhoneNumber, phone, "OTP_TYPE_SMS");
+    if (step === OtpType.Email) {
+      await handleOtpLogin(FilterType.Email, email, OtpType.Email);
+    } else if (step === OtpType.Sms) {
+      await handleOtpLogin(FilterType.PhoneNumber, phone, OtpType.Sms);
     }
   };
 
@@ -109,13 +110,13 @@ const Auth: React.FC<AuthProps> = ({
         !getVerifiedSuborgsResponse ||
         !getVerifiedSuborgsResponse.organizationIds
       ) {
-        onError(AUTH_ERRORS.SUBORG.FETCH_FAILED);
+        onError(authErrors.suborg.fetchFailed);
       }
       suborgId = getVerifiedSuborgsResponse?.organizationIds[0];
     } else {
       const getSuborgsResponse = await getSuborgs({ filterType, filterValue });
       if (!getSuborgsResponse || !getSuborgsResponse.organizationIds) {
-        onError(AUTH_ERRORS.SUBORG.FETCH_FAILED);
+        onError(authErrors.suborg.fetchFailed);
       }
       suborgId = getSuborgsResponse?.organizationIds[0];
     }
@@ -128,7 +129,7 @@ const Auth: React.FC<AuthProps> = ({
 
       const createSuborgResponse = await createSuborg(createSuborgData);
       if (!createSuborgResponse || !createSuborgResponse.subOrganizationId) {
-        onError(AUTH_ERRORS.SUBORG.CREATE_FAILED);
+        onError(authErrors.suborg.createFailed);
       }
       suborgId = createSuborgResponse?.subOrganizationId!;
     }
@@ -176,10 +177,10 @@ const Auth: React.FC<AuthProps> = ({
           if (response?.subOrganizationId) {
             setPasskeyCreated(true);
           } else {
-            AUTH_ERRORS.PASSKEY.CREATE_FAILED;
+            authErrors.passkey.createFailed;
           }
         } else {
-          AUTH_ERRORS.PASSKEY.CREATE_FAILED;
+          authErrors.passkey.createFailed;
         }
       }
 
@@ -190,10 +191,10 @@ const Auth: React.FC<AuthProps> = ({
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(sessionResponse.credentialBundle);
       } else {
-        setPasskeySignupError(AUTH_ERRORS.PASSKEY.LOGIN_FAILED);
+        setPasskeySignupError(authErrors.passkey.loginFailed);
       }
     } catch {
-      setPasskeySignupError(AUTH_ERRORS.PASSKEY.TIMEOUT_OR_NOT_ALLOWED);
+      setPasskeySignupError(authErrors.passkey.timeoutOrNotAllowed);
     }
   };
 
@@ -207,10 +208,10 @@ const Auth: React.FC<AuthProps> = ({
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(sessionResponse.credentialBundle);
       } else {
-        AUTH_ERRORS.PASSKEY.LOGIN_FAILED;
+        authErrors.passkey.loginFailed;
       }
     } catch (error) {
-      onError(AUTH_ERRORS.PASSKEY.LOGIN_FAILED);
+      onError(authErrors.passkey.loginFailed);
     }
   };
 
@@ -229,9 +230,9 @@ const Auth: React.FC<AuthProps> = ({
     if (initAuthResponse && initAuthResponse.otpId) {
       setSuborgId(suborgId);
       setOtpId(initAuthResponse?.otpId!);
-      setStep(type === FilterType.Email ? OtpStep.Email : OtpStep.Sms);
+      setStep(otpType);
     } else {
-      onError(AUTH_ERRORS.OTP.SEND_FAILED);
+      onError(authErrors.otp.sendFailed);
     }
   };
 
@@ -252,7 +253,7 @@ const Auth: React.FC<AuthProps> = ({
     if (oauthResponse && oauthResponse.credentialBundle) {
       await handleAuthSuccess(oauthResponse!.credentialBundle);
     } else {
-      onError(AUTH_ERRORS.OAUTH.LOGIN_FAILED);
+      onError(authErrors.oauth.loginFailed);
     }
   };
 
@@ -367,7 +368,7 @@ const Auth: React.FC<AuthProps> = ({
               className={styles.authButton}
               type="button"
               onClick={() =>
-                handleOtpLogin(FilterType.Email, email, "OTP_TYPE_EMAIL")
+                handleOtpLogin(FilterType.Email, email, OtpType.Email)
               }
               disabled={!isValidEmail(email)}
             >
@@ -405,7 +406,7 @@ const Auth: React.FC<AuthProps> = ({
               className={styles.authButton}
               type="button"
               onClick={() =>
-                handleOtpLogin(FilterType.PhoneNumber, phone, "OTP_TYPE_SMS")
+                handleOtpLogin(FilterType.PhoneNumber, phone, OtpType.Sms)
               }
               disabled={!isValidPhone(phone)}
             >
@@ -543,7 +544,7 @@ const Auth: React.FC<AuthProps> = ({
                 {otpId && (
                   <OtpVerification
                     type={step}
-                    contact={step === OtpStep.Email ? email : phone}
+                    contact={step === OtpType.Email ? email : phone}
                     suborgId={suborgId}
                     otpId={otpId!}
                     authIframeClient={authIframeClient!}

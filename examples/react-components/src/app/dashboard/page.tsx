@@ -119,7 +119,7 @@ export default function Dashboard() {
     const suborgs = await getVerifiedSuborgs({
       filterType: "EMAIL",
       filterValue: emailInput,
-    }); //TODO change to get verified suborgs
+    });
     if (suborgs && suborgs!.organizationIds.length > 0) {
       toast.error("Email is already connected to another account");
       return;
@@ -148,7 +148,7 @@ export default function Dashboard() {
     const suborgs = await getVerifiedSuborgs({
       filterType: "PHONE_NUMBER",
       filterValue: phoneInput,
-    }); //TODO change to get verified suborgs
+    });
     if (suborgs && suborgs!.organizationIds.length > 0) {
       toast.error("Phone Number is already connected to another account");
       return;

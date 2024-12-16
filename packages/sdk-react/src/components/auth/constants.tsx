@@ -7,36 +7,32 @@ export const FACEBOOK_GRAPH_URL =
   "https://graph.facebook.com/v11.0/oauth/access_token";
 export const popupWidth = 500;
 export const popupHeight = 600;
-export const AUTH_ERRORS = {
+
+export const authErrors = {
   // Passkey-related errors
-  PASSKEY: {
-    CREATE_FAILED: "Passkey not created. Please try again.",
-    LOGIN_FAILED: "Failed to login with passkey. Please try again.",
-    TIMEOUT_OR_NOT_ALLOWED:
+  passkey: {
+    createFailed: "Passkey not created. Please try again.",
+    loginFailed: "Failed to login with passkey. Please try again.",
+    timeoutOrNotAllowed:
       "The operation either timed out or was not allowed. Please try again.",
   },
 
   // OTP-related errors
-  OTP: {
-    SEND_FAILED: "Failed to send OTP",
-    INVALID_EMAIL: "Invalid email address.",
-    INVALID_PHONE: "Invalid phone number.",
+  otp: {
+    sendFailed: "Failed to send OTP",
+    invalidEmail: "Invalid email address.",
+    invalidPhone: "Invalid phone number.",
   },
 
   // OAuth-related errors
-  OAUTH: {
-    LOGIN_FAILED: "Failed to login with OIDC provider",
+  oauth: {
+    loginFailed: "Failed to login with OIDC provider",
   },
 
   // Sub-organization-related errors
-  SUBORG: {
-    FETCH_FAILED: "Failed to fetch account",
-    CREATE_FAILED: "Failed to create account",
-  },
-
-  // General errors
-  GENERAL: {
-    UNEXPECTED: "An unexpected error occurred. Please try again.",
+  suborg: {
+    fetchFailed: "Failed to fetch account",
+    createFailed: "Failed to create account.",
   },
 };
 

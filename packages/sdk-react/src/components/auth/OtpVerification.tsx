@@ -7,7 +7,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import SmsIcon from "@mui/icons-material/Sms";
 import { CircularProgress } from "@mui/material";
 
-const resendTimer = 15000;
+const resendTimerMs = 15000;
 interface OtpVerificationProps {
   type: string;
   contact: string;
@@ -69,7 +69,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 
       setTimeout(() => {
         setResendText("Resend code");
-      }, resendTimer);
+      }, resendTimerMs);
     } catch {
       setOtpError("Failed to resend the code. Please try again.");
     }
