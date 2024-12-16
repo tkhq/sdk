@@ -17,7 +17,7 @@
     "@mui/material": "^6.1.5",
     "@noble/hashes": "1.4.0",
     "@solana/web3.js": "^1.95.8",
-    "@turnkey/sdk-browser": "^1.10.0",
+    "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-react": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@types/node": "20.3.1",

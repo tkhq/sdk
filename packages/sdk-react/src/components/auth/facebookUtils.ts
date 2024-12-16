@@ -1,6 +1,7 @@
 "use server";
 
 import crypto from "crypto";
+import { FACEBOOK_GRAPH_URL } from "./constants";
 
 export async function generateChallengePair() {
   const verifier = crypto.randomBytes(32).toString("base64url");
@@ -17,19 +18,16 @@ export async function exchangeCodeForToken(
   authCode: string,
   verifier: string
 ) {
-  const response = await fetch(
-    `https://graph.facebook.com/v11.0/oauth/access_token`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        client_id: clientId,
-        redirect_uri: redirectURI,
-        code: authCode,
-        code_verifier: verifier,
-      }),
-    }
-  );
+  const response = await fetch(FACEBOOK_GRAPH_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      client_id: clientId,
+      redirect_uri: redirectURI,
+      code: authCode,
+      code_verifier: verifier,
+    }),
+  });
 
   const tokenData = await response.json();
   if (!response.ok) {

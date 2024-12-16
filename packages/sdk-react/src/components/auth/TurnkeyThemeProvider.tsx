@@ -7,6 +7,24 @@ interface ThemeProviderProps {
   theme?: Record<string, string>;
 }
 
+/**
+ * A provider component for dynamically applying and managing CSS custom properties (variables) as themes.
+ *
+ * - Applies the provided `theme` to the root `<html>` element via CSS variables.
+ * - Makes the `theme` object accessible to child components through React context. These themes will apply to all Turnkey components used in your app
+ *
+ * Example usage:
+ * ```tsx
+ * const theme = {
+ *   "--text-primary": "#333",
+ * };
+ *
+ * <TurnkeyThemeProvider theme={theme}>
+ *   <App />
+ * </TurnkeyThemeProvider>
+ * ```
+ */
+
 export const TurnkeyThemeProvider: React.FC<ThemeProviderProps> = ({
   children,
   theme,

@@ -497,7 +497,7 @@ importers:
         specifier: ^1.95.8
         version: 1.95.8(encoding@0.1.13)
       '@turnkey/sdk-browser':
-        specifier: ^1.10.0
+        specifier: workspace:*
         version: link:../../packages/sdk-browser
       '@turnkey/sdk-react':
         specifier: workspace:*
@@ -23809,6 +23809,7 @@ packages:
 
   /sudo-prompt@9.2.1:
     resolution: {integrity: sha512-Mu7R0g4ig9TUuGSxJavny5Rv0egCEtpZRNMrZaYS1vxkiIxGiGUwoezU3LazIQ+KE04hTrTfNPgxU5gzi7F5Pw==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     dev: false
 
   /superstruct@0.15.5:

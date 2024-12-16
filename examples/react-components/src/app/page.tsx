@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
-import { Auth } from "@turnkey/sdk-react";
+import { useEffect, useState } from "react";
+import { Auth, useTurnkey } from "@turnkey/sdk-react";
 import { Typography } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CustomSwitch from "./components/Switch";
@@ -26,9 +26,11 @@ type DraggableProvidedProps = DraggableProvided;
 // Define types for config and socials
 interface SocialConfig {
   enabled: boolean;
-  google: boolean;
-  apple: boolean;
-  facebook: boolean;
+  providers: {
+    google: boolean;
+    apple: boolean;
+    facebook: boolean;
+  };
 }
 
 interface Config {
@@ -43,7 +45,7 @@ export default function AuthPage() {
   const handleAuthSuccess = async () => {
     router.push("/dashboard");
   };
-
+  const { turnkey } = useTurnkey();
   const [configOrder, setConfigOrder] = useState([
     "socials",
     "email",
@@ -57,11 +59,25 @@ export default function AuthPage() {
     passkey: true,
     socials: {
       enabled: true,
-      google: true,
-      apple: false,
-      facebook: false,
+      providers: {
+        google: true,
+        apple: false,
+        facebook: false,
+      },
     },
   });
+
+  useEffect(() => {
+    const manageSession = async () => {
+      if (turnkey) {
+        const session = await turnkey?.getReadWriteSession();
+        if (session && Date.now() < session.expiry) {
+          await handleAuthSuccess();
+        }
+      }
+    };
+    manageSession();
+  }, [turnkey]);
 
   const toggleConfig = (key: keyof Config) => {
     setConfig((prev) => {
@@ -73,7 +89,9 @@ export default function AuthPage() {
     });
   };
 
-  const toggleSocials = (key: keyof SocialConfig) => {
+  const toggleSocials = (
+    key: keyof SocialConfig | keyof SocialConfig["providers"]
+  ) => {
     setConfig((prev) => {
       if (key === "enabled") {
         const isEnabled = !prev.socials.enabled;
@@ -81,21 +99,29 @@ export default function AuthPage() {
           ...prev,
           socials: {
             enabled: isEnabled,
-            google: isEnabled,
-            apple: isEnabled,
-            facebook: isEnabled,
+            providers: {
+              google: isEnabled,
+              apple: isEnabled,
+              facebook: isEnabled,
+            },
           },
         };
       }
-      if (prev.socials.enabled) {
+
+      if (prev.socials.enabled && key in prev.socials.providers) {
         return {
           ...prev,
           socials: {
             ...prev.socials,
-            [key]: !prev.socials[key],
+            providers: {
+              ...prev.socials.providers,
+              [key]:
+                !prev.socials.providers[key as keyof SocialConfig["providers"]],
+            },
           },
         };
       }
+
       return prev;
     });
   };
@@ -105,10 +131,11 @@ export default function AuthPage() {
       emailEnabled: config.email,
       passkeyEnabled: config.passkey,
       phoneEnabled: config.phone,
-      appleEnabled: config.socials.apple,
-      googleEnabled: config.socials.google,
-      facebookEnabled: config.socials.facebook,
+      appleEnabled: config.socials.providers.apple,
+      googleEnabled: config.socials.providers.google,
+      facebookEnabled: config.socials.providers.facebook,
     };
+
     const configToCopy = {
       authConfig,
       configOrder,
@@ -121,9 +148,9 @@ export default function AuthPage() {
     emailEnabled: config.email,
     passkeyEnabled: config.passkey,
     phoneEnabled: config.phone,
-    appleEnabled: config.socials.apple,
-    googleEnabled: config.socials.google,
-    facebookEnabled: config.socials.facebook,
+    appleEnabled: config.socials.providers.apple,
+    googleEnabled: config.socials.providers.google,
+    facebookEnabled: config.socials.providers.facebook,
   };
 
   const onDragEnd = (result: DropResult) => {
@@ -178,48 +205,41 @@ export default function AuthPage() {
                               onChange={() => toggleSocials("enabled")}
                             />
                           </div>
-                          <div
-                            className="toggleSocialIndividualRow"
-                            style={{
-                              borderTopLeftRadius: "8px",
-                              borderTopRightRadius: "8px",
-                            }}
-                          >
-                            <div className="labelContainer">
-                              <img src="/google.svg" className="iconSmall" />
-                              <Typography>Google</Typography>
-                            </div>
-                            <CustomSwitch
-                              checked={config.socials.google}
-                              onChange={() => toggleSocials("google")}
-                            />
-                          </div>
-                          <div className="toggleSocialIndividualRow">
-                            <div className="labelContainer">
-                              <img src="/apple.svg" className="iconSmall" />
-                              <Typography>Apple</Typography>
-                            </div>
-                            <CustomSwitch
-                              checked={config.socials.apple}
-                              onChange={() => toggleSocials("apple")}
-                            />
-                          </div>
-                          <div
-                            className="toggleSocialIndividualRow"
-                            style={{
-                              borderBottomLeftRadius: "8px",
-                              borderBottomRightRadius: "8px",
-                            }}
-                          >
-                            <div className="labelContainer">
-                              <img src="/facebook.svg" className="iconSmall" />
-                              <Typography>Facebook</Typography>
-                            </div>
-                            <CustomSwitch
-                              checked={config.socials.facebook}
-                              onChange={() => toggleSocials("facebook")}
-                            />
-                          </div>
+                          {Object.entries(config.socials.providers).map(
+                            ([provider, enabled]) => (
+                              <div
+                                key={provider}
+                                className="toggleSocialIndividualRow"
+                                style={{
+                                  borderRadius:
+                                    provider === "google"
+                                      ? "8px 8px 0 0"
+                                      : provider === "facebook"
+                                      ? "0 0 8px 8px"
+                                      : undefined,
+                                }}
+                              >
+                                <div className="labelContainer">
+                                  <img
+                                    src={`/${provider}.svg`}
+                                    className="iconSmall"
+                                  />
+                                  <Typography>
+                                    {provider.charAt(0).toUpperCase() +
+                                      provider.slice(1)}
+                                  </Typography>
+                                </div>
+                                <CustomSwitch
+                                  checked={enabled}
+                                  onChange={() =>
+                                    toggleSocials(
+                                      provider as keyof SocialConfig["providers"]
+                                    )
+                                  }
+                                />
+                              </div>
+                            )
+                          )}
                         </div>
                       )}
                     </Draggable>
@@ -274,7 +294,7 @@ export default function AuthPage() {
         <Auth
           authConfig={authConfig}
           configOrder={configOrder}
-          onHandleAuthSuccess={handleAuthSuccess}
+          onAuthSuccess={handleAuthSuccess}
           onError={(errorMessage: string) => toast.error(errorMessage)}
           customSmsMessage={"Your Turnkey Demo OTP is {{.OtpCode}}"}
         />

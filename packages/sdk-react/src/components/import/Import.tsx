@@ -181,9 +181,6 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
               borderColor: "rgba(216, 219, 227, 1)",
             }}
           />
-          {/* <div id = "import-iframe-container" className = {styles.iframeContainer}>
-    <iframe id = {TurnkeyIframeElementId} src = "https://import.turnkey.com"/>
-    </div> */}
           <TextField
             type="walletName"
             placeholder="Wallet name"

@@ -16,10 +16,11 @@ import {
 import { FlagImage as OriginalFlagImage } from "react-international-phone";
 
 const FlagImage = OriginalFlagImage as React.ElementType;
+const allowedCountries = ["us", "ca"];
 
 const countries = defaultCountries.filter((country) => {
   const { iso2 } = parseCountry(country);
-  return ["us", "ca"].includes(iso2);
+  return allowedCountries.includes(iso2);
 });
 
 export interface MUIPhoneProps extends BaseTextFieldProps {

@@ -98,6 +98,7 @@
   color: var(--button-text);
   width: 100%;
   font-size: 1rem;
+  letter-spacing: -0.01em;
   background: var(--button-bg);
   border: 1px solid var(--button-border);
   border-radius: 8px;
@@ -250,6 +251,7 @@
 }
 
 .noPasskeyLink {
+  letter-spacing: -0.01em;
   color: var(--accent-color);
   font-size: 1rem;
   margin-top: 8px;

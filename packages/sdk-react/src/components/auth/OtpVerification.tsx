@@ -6,6 +6,8 @@ import { otpAuth } from "../../actions";
 import EmailIcon from "@mui/icons-material/Email";
 import SmsIcon from "@mui/icons-material/Sms";
 import { CircularProgress } from "@mui/material";
+
+const resendTimer = 15000;
 interface OtpVerificationProps {
   type: string;
   contact: string;
@@ -67,7 +69,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 
       setTimeout(() => {
         setResendText("Resend code");
-      }, 15000);
+      }, resendTimer);
     } catch {
       setOtpError("Failed to resend the code. Please try again.");
     }

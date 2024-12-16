@@ -1,11 +1,11 @@
 import typescript from "@rollup/plugin-typescript";
 import nodeExternals from "rollup-plugin-node-externals";
 import path from "node:path";
-import postcss from 'rollup-plugin-postcss';
-import preserveDirectives from 'rollup-preserve-directives';
-import url from '@rollup/plugin-url';
-import alias from '@rollup/plugin-alias';
-import copy from 'rollup-plugin-copy';
+import postcss from "rollup-plugin-postcss";
+import preserveDirectives from "rollup-preserve-directives";
+import url from "@rollup/plugin-url";
+import alias from "@rollup/plugin-alias";
+import copy from "rollup-plugin-copy";
 
 const getFormatConfig = (format) => {
   const pkgPath = path.join(process.cwd(), "package.json");
@@ -21,12 +21,12 @@ const getFormatConfig = (format) => {
       sourcemap: true,
     },
     plugins: [
-      alias({
+      alias({ // required for svg assets
         entries: [
           { find: 'assets', replacement: path.resolve(__dirname, 'src/assets') }
         ]
       }),
-      postcss({
+      postcss({ // required for css module bundling
         modules: true,
         extensions: ['.css', '.scss'],
         use: ['sass'],
@@ -45,12 +45,12 @@ const getFormatConfig = (format) => {
           sourceMap: true,
         },
       }),
-      preserveDirectives(),
+      preserveDirectives(), // required for use server and use client directive preservation
       nodeExternals({
         packagePath: pkgPath,
         builtinsPrefix: 'ignore',
       }),
-      url({
+      url({ // required for fonts and assets
         include: [
           '**/*.svg', 
           '**/*.png', 
@@ -65,7 +65,7 @@ const getFormatConfig = (format) => {
         emitFiles: true, 
         fileName: 'assets/fonts/[name].[hash][extname]', 
       }),
-      copy({
+      copy({ // required for fonts
         targets: [
           {
             src: path.resolve(__dirname, "src/assets/fonts/**/*"),
