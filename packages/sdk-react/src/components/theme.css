@@ -62,8 +62,9 @@
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Default auth-card shadow */
   --card-radius: 15px; /* Default auth-card border radius */
 
-  /* Accent Colors */
+  /* Misc Colors */
   --accent-color: var(--Blue-500, #4c48ff);
+  --loader-color: var(--Blue-500, #4c48ff);
   --icon-color: var(--Greyscale-900, #2b2f33);
   --error-color: #ff4c4c;
 }

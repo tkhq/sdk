@@ -47,7 +47,7 @@
 
 .circularProgress {
   position: absolute;
-  color: var(--icon-color);
+  color: var(--loader-color);
 }
 
 .oauthIcon {

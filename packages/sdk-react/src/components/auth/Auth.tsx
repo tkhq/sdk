@@ -470,7 +470,7 @@ const Auth: React.FC<AuthProps> = ({
           {renderBackButton()}
           <div className={styles.passkeyIconContainer}>
             {passkeySignupError ? (
-              <div className={styles.loadingWrapper}>{passkeyIconError}</div>
+              <div>{passkeyIconError}</div>
             ) : (
               <div className={styles.loadingWrapper}>
                 <CircularProgress
