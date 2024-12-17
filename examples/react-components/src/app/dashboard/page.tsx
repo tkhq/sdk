@@ -7,7 +7,7 @@ import {
   getSuborgs,
   getVerifiedSuborgs,
   OtpVerification,
-  TurnkeyThemeProvider,
+  OtpType,
 } from "@turnkey/sdk-react";
 import { useEffect, useState } from "react";
 import "./dashboard.css";
@@ -85,7 +85,7 @@ export default function Dashboard() {
   const handleResendEmail = async () => {
     const initAuthResponse = await authIframeClient?.initOtpAuth({
       organizationId: suborgId,
-      otpType: "OTP_TYPE_EMAIL",
+      otpType: OtpType.Email,
       contact: emailInput,
     });
     setOtpId(initAuthResponse?.otpId!);
@@ -93,7 +93,7 @@ export default function Dashboard() {
   const handleResendSms = async () => {
     const initAuthResponse = await authIframeClient?.initOtpAuth({
       organizationId: suborgId,
-      otpType: "OTP_TYPE_SMS",
+      otpType: OtpType.Sms,
       contact: phoneInput,
       smsCustomization: {
         template: "Your Turnkey Demo OTP is {{.OtpCode}}",
@@ -132,7 +132,7 @@ export default function Dashboard() {
     });
     const initAuthResponse = await authIframeClient?.initOtpAuth({
       organizationId: suborgId,
-      otpType: "OTP_TYPE_EMAIL",
+      otpType: OtpType.Email,
       contact: emailInput,
     });
     setOtpId(initAuthResponse?.otpId!);
@@ -161,7 +161,7 @@ export default function Dashboard() {
     });
     const initAuthResponse = await authIframeClient?.initOtpAuth({
       organizationId: suborgId,
-      otpType: "OTP_TYPE_SMS",
+      otpType: OtpType.Sms,
       contact: phoneInput,
       smsCustomization: {
         template: "Your Turnkey Demo OTP is {{.OtpCode}}",
@@ -1070,7 +1070,7 @@ export default function Dashboard() {
               &times;
             </div>
             <OtpVerification
-              type={emailInput ? "otpEmail" : "otpSms"}
+              type={emailInput ? OtpType.Email : OtpType.Sms}
               contact={emailInput ? emailInput : phoneInput}
               suborgId={suborgId}
               otpId={otpId!}

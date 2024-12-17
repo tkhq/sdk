@@ -6,6 +6,7 @@ import { otpAuth } from "../../actions";
 import EmailIcon from "@mui/icons-material/Email";
 import SmsIcon from "@mui/icons-material/Sms";
 import { CircularProgress } from "@mui/material";
+import { OtpType, FilterType } from "./constants";
 
 const resendTimerMs = 15000;
 interface OtpVerificationProps {
@@ -16,7 +17,7 @@ interface OtpVerificationProps {
   authIframeClient: any;
   onValidateSuccess: (credentialBundle: any) => Promise<void>;
   onResendCode: (
-    type: "EMAIL" | "PHONE_NUMBER",
+    type: FilterType.Email | FilterType.PhoneNumber,
     value: string
   ) => Promise<void>;
 }
@@ -62,7 +63,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     setOtpError(null);
     try {
       await onResendCode(
-        type === "otpEmail" ? "EMAIL" : "PHONE_NUMBER",
+        type === OtpType.Email ? FilterType.Email : FilterType.PhoneNumber,
         contact
       );
       setResendText("Code sent ✓");
@@ -91,7 +92,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         style={{ opacity: isLoading ? 0.5 : 1 }}
       >
         <div className={styles.verificationIcon}>
-          {type === "otpEmail" ? (
+          {type === OtpType.Email ? (
             <EmailIcon
               sx={{
                 fontSize: "86px",
@@ -109,11 +110,11 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         </div>
         <div>
           <span className={styles.verificationText}>
-            Enter the 6-digit code we {type === "otpEmail" ? "emailed" : "sent"}{" "}
-            to{" "}
+            Enter the 6-digit code we{" "}
+            {type === OtpType.Email ? "emailed" : "sent"} to{" "}
           </span>
           <span className={styles.verificationBold}>
-            {type === "otpEmail" ? contact : formatPhoneNumber(contact)}
+            {type === OtpType.Email ? contact : formatPhoneNumber(contact)}
           </span>
         </div>
         <div className={styles.otpInputWrapper}>
