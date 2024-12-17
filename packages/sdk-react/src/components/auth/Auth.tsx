@@ -249,7 +249,7 @@ const Auth: React.FC<AuthProps> = ({
       otpType,
       contact: value,
       ...(customSmsMessage && { customSmsMessage }),
-      userIdentifier: authIframeClient?.iframePublicKey!
+      userIdentifier: authIframeClient?.iframePublicKey!,
     });
     if (initAuthResponse && initAuthResponse.otpId) {
       setSuborgId(suborgId);

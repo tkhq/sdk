@@ -88,11 +88,11 @@ export default function Dashboard() {
       suborgID: suborgId,
       otpType: OtpType.Email,
       contact: emailInput,
-      userIdentifier: authIframeClient?.iframePublicKey!
+      userIdentifier: authIframeClient?.iframePublicKey!,
     });
-    if (!initAuthResponse ||!initAuthResponse.otpId!){
+    if (!initAuthResponse || !initAuthResponse.otpId!) {
       toast.error("Failed to send OTP");
-      return
+      return;
     }
     setOtpId(initAuthResponse?.otpId!);
   };
@@ -102,11 +102,11 @@ export default function Dashboard() {
       otpType: OtpType.Sms,
       contact: phoneInput,
       customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
-      userIdentifier: authIframeClient?.iframePublicKey!
+      userIdentifier: authIframeClient?.iframePublicKey!,
     });
-    if (!initAuthResponse ||!initAuthResponse.otpId!){
+    if (!initAuthResponse || !initAuthResponse.otpId!) {
       toast.error("Failed to send OTP");
-      return
+      return;
     }
     setOtpId(initAuthResponse?.otpId!);
   };
@@ -143,11 +143,11 @@ export default function Dashboard() {
       suborgID: suborgId,
       otpType: OtpType.Email,
       contact: emailInput,
-      userIdentifier: authIframeClient?.iframePublicKey!
+      userIdentifier: authIframeClient?.iframePublicKey!,
     });
-    if (!initAuthResponse ||!initAuthResponse.otpId!){
+    if (!initAuthResponse || !initAuthResponse.otpId!) {
       toast.error("Failed to send OTP");
-      return
+      return;
     }
     setOtpId(initAuthResponse?.otpId!);
     setIsEmailModalOpen(false);
@@ -178,11 +178,11 @@ export default function Dashboard() {
       otpType: OtpType.Sms,
       contact: phoneInput,
       customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
-      userIdentifier: authIframeClient?.iframePublicKey!
+      userIdentifier: authIframeClient?.iframePublicKey!,
     });
-    if (!initAuthResponse ||!initAuthResponse.otpId!){
+    if (!initAuthResponse || !initAuthResponse.otpId!) {
       toast.error("Failed to send OTP");
-      return
+      return;
     }
     setOtpId(initAuthResponse?.otpId!);
     setIsEmailModalOpen(false);

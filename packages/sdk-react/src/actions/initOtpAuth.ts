@@ -30,7 +30,7 @@ export async function initOtpAuth(
       otpType: request.otpType,
       organizationId: request.suborgID,
       ...(request.userIdentifier && {
-        userIdentifier: request.userIdentifier
+        userIdentifier: request.userIdentifier,
       }),
       ...(request.customSmsMessage && {
         smsCustomization: {
