@@ -75,6 +75,10 @@ import type {
 } from "./public_api.fetcher";
 import type { TGetUsersBody, TGetUsersResponse } from "./public_api.fetcher";
 import type {
+  TGetVerifiedSubOrgIdsBody,
+  TGetVerifiedSubOrgIdsResponse,
+} from "./public_api.fetcher";
+import type {
   TGetWalletAccountsBody,
   TGetWalletAccountsResponse,
 } from "./public_api.fetcher";
@@ -918,6 +922,38 @@ export class TurnkeyClient {
    */
   stampGetUsers = async (input: TGetUsersBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_users";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get all email or phone verified suborg IDs associated given a parent org ID.
+   *
+   * Sign the provided `TGetVerifiedSubOrgIdsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_verified_suborgs).
+   *
+   * See also {@link stampGetVerifiedSubOrgIds}.
+   */
+  getVerifiedSubOrgIds = async (
+    input: TGetVerifiedSubOrgIdsBody
+  ): Promise<TGetVerifiedSubOrgIdsResponse> => {
+    return this.request("/public/v1/query/list_verified_suborgs", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetVerifiedSubOrgIdsBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetVerifiedSubOrgIds}.
+   */
+  stampGetVerifiedSubOrgIds = async (
+    input: TGetVerifiedSubOrgIdsBody
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_verified_suborgs";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

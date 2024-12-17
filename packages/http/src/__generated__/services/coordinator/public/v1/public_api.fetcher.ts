@@ -968,6 +968,58 @@ export const signGetUsers = (
   });
 
 /**
+ * `POST /public/v1/query/list_verified_suborgs`
+ */
+export type TGetVerifiedSubOrgIdsResponse =
+  operations["PublicApiService_GetVerifiedSubOrgIds"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_verified_suborgs`
+ */
+export type TGetVerifiedSubOrgIdsInput = { body: TGetVerifiedSubOrgIdsBody };
+
+/**
+ * `POST /public/v1/query/list_verified_suborgs`
+ */
+export type TGetVerifiedSubOrgIdsBody =
+  operations["PublicApiService_GetVerifiedSubOrgIds"]["parameters"]["body"]["body"];
+
+/**
+ * Get Verified Suborgs
+ *
+ * Get all email or phone verified suborg IDs associated given a parent org ID.
+ *
+ * `POST /public/v1/query/list_verified_suborgs`
+ */
+export const getVerifiedSubOrgIds = (input: TGetVerifiedSubOrgIdsInput) =>
+  request<
+    TGetVerifiedSubOrgIdsResponse,
+    TGetVerifiedSubOrgIdsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_verified_suborgs",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetVerifiedSubOrgIds` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetVerifiedSubOrgIds}
+ */
+export const signGetVerifiedSubOrgIds = (
+  input: TGetVerifiedSubOrgIdsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TGetVerifiedSubOrgIdsBody, never, never>({
+    uri: "/public/v1/query/list_verified_suborgs",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_wallet_accounts`
  */
 export type TGetWalletAccountsResponse =

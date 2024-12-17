@@ -1,0 +1,98 @@
+.verifyingText {
+  font-weight: bold;
+  font-size: 18px;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.verification {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--text-secondary);
+  margin-top: 16px;
+  height: 244px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  box-sizing: border-box;
+  max-width: 400px;
+  padding: 8px;
+  margin: 0 auto;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+}
+
+.contentWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.otpInputWrapper {
+  width: 100%;
+}
+
+.loadingWrapper {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.errorText {
+  min-height: 16px;
+  text-align: center;
+  margin-top: 8px;
+  color: var(--error-color);
+  font-size: 14px;
+  margin-bottom: 8px;
+  max-width: 320px;
+  word-wrap: break-word;
+}
+
+.verificationText {
+  font-size: 18px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.verificationBold {
+  color: var(--text-primary);
+  font-weight: 600;
+  display: block;
+  margin-top: 8px;
+}
+
+.verificationIcon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.circularProgress {
+  position: absolute;
+  color: var(--loader-color);
+}
+.resendCode {
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.resendCodeBold {
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: pointer;
+}

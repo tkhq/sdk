@@ -1,0 +1,43 @@
+{
+  "name": "@turnkey/example-react-components",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@hello-pangea/dnd": "^17.0.0",
+    "@mui/icons-material": "^6.1.5",
+    "@mui/material": "^6.1.5",
+    "@noble/hashes": "1.4.0",
+    "@solana/web3.js": "^1.95.8",
+    "@turnkey/sdk-browser": "workspace:*",
+    "@turnkey/sdk-react": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "@types/node": "20.3.1",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6",
+    "axios": "^1.7.4",
+    "buffer": "^6.0.3",
+    "encoding": "^0.1.13",
+    "eslint": "8.43.0",
+    "eslint-config-next": "14.2.10",
+    "esm": "^3.2.25",
+    "ethers": "^6.10.0",
+    "install": "^0.13.0",
+    "next": "^14.2.10",
+    "npm": "^9.7.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-international-phone": "^4.3.0",
+    "sonner": "^1.4.41",
+    "tweetnacl": "^1.0.3",
+    "typescript": "5.1.3"
+  }
+}

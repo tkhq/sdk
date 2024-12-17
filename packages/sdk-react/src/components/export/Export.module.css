@@ -1,0 +1,111 @@
+.exportModalTitle {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.exportCard {
+  font-family: Inter;
+  position: relative;
+  width: 100%;
+  max-width: 450px;
+  min-width: 375px;
+  margin: 0 auto;
+  padding: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
+
+.exportCard h2 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 26px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.doneButtonContainer {
+  margin-top: 12px;
+}
+
+.exportButton {
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  gap: 8px;
+  color: var(--button-text);
+  width: 100%;
+  font-size: 1rem;
+  background: var(--button-bg);
+  border: 1px solid var(--button-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.exportButton:hover {
+  background-color: var(--button-hover-bg);
+}
+
+.exportButton:disabled {
+  color: var(--button-disabled-text);
+  background: var(--button-disabled-bg);
+  border-color: var(--button-disabled-border);
+  cursor: default;
+}
+
+.rowsContainer {
+  font-family: Inter;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+  width: 95%;
+  margin-right: auto;
+  margin-bottom: 32px;
+  color: var(--text-primary);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.rowIcon {
+  padding-right: 8px;
+}
+
+.poweredBy {
+  font-family: Inter;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: -0.01em;
+  color: var(--text-secondary);
+  margin-top: 16px;
+  cursor: pointer;
+}
+
+.poweredBy span {
+  position: relative;
+}
+
+iframe {
+  box-sizing: border-box;
+  border: 0 solid var(--border-default);
+}

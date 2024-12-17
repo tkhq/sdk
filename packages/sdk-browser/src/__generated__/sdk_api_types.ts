@@ -231,6 +231,17 @@ export type TGetUsersBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetVerifiedSubOrgIdsResponse =
+  operations["PublicApiService_GetVerifiedSubOrgIds"]["responses"]["200"]["schema"];
+
+export type TGetVerifiedSubOrgIdsInput = { body: TGetVerifiedSubOrgIdsBody };
+
+export type TGetVerifiedSubOrgIdsBody = Omit<
+  operations["PublicApiService_GetVerifiedSubOrgIds"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetWalletAccountsResponse =
   operations["PublicApiService_GetWalletAccounts"]["responses"]["200"]["schema"];
 
