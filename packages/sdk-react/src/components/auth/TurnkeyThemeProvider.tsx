@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useEffect } from "react";
 
 const ThemeContext = createContext<Record<string, string> | null>(null);
