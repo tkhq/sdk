@@ -1,5 +1,13 @@
 # @turnkey/sdk-server
 
+## 1.7.1
+
+### Patch Changes
+
+- 538d4fc: Update api endpoints - NEW: User verification, SMS customization params
+- Updated dependencies [538d4fc]
+  - @turnkey/http@2.17.1
+
 ## 1.7.0
 
 ### Minor Changes
