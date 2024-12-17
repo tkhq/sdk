@@ -497,13 +497,13 @@ importers:
         specifier: ^1.95.8
         version: 1.95.8(encoding@0.1.13)
       '@turnkey/sdk-browser':
-        specifier: workspace:*
+        specifier: ^1.11.0
         version: link:../../packages/sdk-browser
       '@turnkey/sdk-react':
-        specifier: workspace:*
+        specifier: ^2.00
         version: link:../../packages/sdk-react
       '@turnkey/sdk-server':
-        specifier: workspace:*
+        specifier: ^1.7.0
         version: link:../../packages/sdk-server
       '@types/node':
         specifier: 20.3.1
