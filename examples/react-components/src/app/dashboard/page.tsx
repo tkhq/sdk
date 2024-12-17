@@ -8,6 +8,7 @@ import {
   getVerifiedSuborgs,
   OtpVerification,
   OtpType,
+  initOtpAuth,
 } from "@turnkey/sdk-react";
 import { useEffect, useState } from "react";
 import "./dashboard.css";
@@ -83,22 +84,30 @@ export default function Dashboard() {
     toast.success("Wallet successfully imported");
   };
   const handleResendEmail = async () => {
-    const initAuthResponse = await authIframeClient?.initOtpAuth({
-      organizationId: suborgId,
+    const initAuthResponse = await initOtpAuth({
+      suborgID: suborgId,
       otpType: OtpType.Email,
       contact: emailInput,
+      userIdentifier: authIframeClient?.iframePublicKey!
     });
+    if (!initAuthResponse ||!initAuthResponse.otpId!){
+      toast.error("Failed to send OTP");
+      return
+    }
     setOtpId(initAuthResponse?.otpId!);
   };
   const handleResendSms = async () => {
-    const initAuthResponse = await authIframeClient?.initOtpAuth({
-      organizationId: suborgId,
+    const initAuthResponse = await initOtpAuth({
+      suborgID: suborgId,
       otpType: OtpType.Sms,
       contact: phoneInput,
-      smsCustomization: {
-        template: "Your Turnkey Demo OTP is {{.OtpCode}}",
-      },
+      customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
+      userIdentifier: authIframeClient?.iframePublicKey!
     });
+    if (!initAuthResponse ||!initAuthResponse.otpId!){
+      toast.error("Failed to send OTP");
+      return
+    }
     setOtpId(initAuthResponse?.otpId!);
   };
 
@@ -130,11 +139,16 @@ export default function Dashboard() {
       userEmail: emailInput,
       userTagIds: [],
     });
-    const initAuthResponse = await authIframeClient?.initOtpAuth({
-      organizationId: suborgId,
+    const initAuthResponse = await initOtpAuth({
+      suborgID: suborgId,
       otpType: OtpType.Email,
       contact: emailInput,
+      userIdentifier: authIframeClient?.iframePublicKey!
     });
+    if (!initAuthResponse ||!initAuthResponse.otpId!){
+      toast.error("Failed to send OTP");
+      return
+    }
     setOtpId(initAuthResponse?.otpId!);
     setIsEmailModalOpen(false);
     setIsOtpModalOpen(true);
@@ -159,14 +173,17 @@ export default function Dashboard() {
       userPhoneNumber: phoneInput,
       userTagIds: [],
     });
-    const initAuthResponse = await authIframeClient?.initOtpAuth({
-      organizationId: suborgId,
+    const initAuthResponse = await initOtpAuth({
+      suborgID: suborgId,
       otpType: OtpType.Sms,
       contact: phoneInput,
-      smsCustomization: {
-        template: "Your Turnkey Demo OTP is {{.OtpCode}}",
-      },
+      customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
+      userIdentifier: authIframeClient?.iframePublicKey!
     });
+    if (!initAuthResponse ||!initAuthResponse.otpId!){
+      toast.error("Failed to send OTP");
+      return
+    }
     setOtpId(initAuthResponse?.otpId!);
     setIsEmailModalOpen(false);
     setIsOtpModalOpen(true);
