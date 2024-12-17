@@ -1,5 +1,21 @@
 # @turnkey/sdk-browser
 
+## 1.11.0
+
+### Minor Changes
+
+- 7988bc1: Fix readWrite session to use credentialBundle and add loginWithAuthBundle to create a session when you already have a credentialBundle
+
+### Patch Changes
+
+- 538d4fc: Update api endpoints - NEW: User verification, SMS customization params
+- 12d5aaa: Update TurnkeySDKBrowserConfig type with an optional iframeUrl field. The TurnkeyContext provider will check for an iframeUrl otherwise it will fallback to the default.
+- Updated dependencies [c895c8f]
+- Updated dependencies [538d4fc]
+  - @turnkey/wallet-stamper@1.0.2
+  - @turnkey/http@2.17.1
+  - @turnkey/crypto@2.3.0
+
 ## 1.10.2
 
 ### Patch Changes
