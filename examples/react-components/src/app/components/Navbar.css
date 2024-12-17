@@ -1,0 +1,15 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  height: 3rem;
+  padding: 1rem;
+}
+.navbarLogo {
+  padding-left: 24px;
+}
