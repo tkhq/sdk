@@ -46,6 +46,8 @@ export default function AuthPage() {
     router.push("/dashboard");
   };
   const { turnkey } = useTurnkey();
+  const [isMobile, setIsMobile] = useState(false);
+  const [showContent, setShowContent] = useState(!isMobile);
   const [configOrder, setConfigOrder] = useState([
     "socials",
     "email",
@@ -66,6 +68,16 @@ export default function AuthPage() {
       },
     },
   });
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+      setShowContent(window.innerWidth > 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     const manageSession = async () => {
@@ -163,6 +175,26 @@ export default function AuthPage() {
 
     setConfigOrder(reorderedConfig);
   };
+
+  if (isMobile && !showContent) {
+    return (
+      <main>
+        <div className="mobile-warning">
+          <div className="mobile-content">
+            <div className="warning-text">
+              For the best experience, please view this demo on a desktop.
+            </div>
+            <button
+              className="continueButton"
+              onClick={() => setShowContent(true)}
+            >
+              Continue Anyway
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="main">
