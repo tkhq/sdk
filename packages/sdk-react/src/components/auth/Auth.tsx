@@ -1,3 +1,5 @@
+"use client";
+
 import styles from "./Auth.module.css";
 import React, { useEffect, useState } from "react";
 import { initOtpAuth, getSuborgs, createSuborg, oauth } from "../../actions/";
