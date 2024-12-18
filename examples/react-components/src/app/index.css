@@ -167,3 +167,53 @@ body {
 .sonner-toaster > div {
   pointer-events: auto;
 }
+.mobile-warning {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-image: url("../../public/grid.svg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.mobile-content {
+  text-align: center;
+}
+.warning-text {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.continueButton {
+  padding: 10px 16px 10px 16px;
+  gap: 8px;
+  color: #ffffff;
+  width: 50%;
+  font-size: 1rem;
+  background: var(--Greyscale-900, #2b2f33);
+  border: 1px solid var(--Greyscale-800, #3f464b);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.continueButton:disabled {
+  color: var(--Greyscale-700, #a2a7ae);
+  background: #ffffff;
+  border-color: var(--Greyscale-400, #a2a7ae);
+  cursor: not-allowed;
+}
+
+.continueButton:hover {
+  background-color: var(--Greyscale-700, #4a4f55);
+}
