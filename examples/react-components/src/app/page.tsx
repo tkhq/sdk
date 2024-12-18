@@ -71,14 +71,20 @@ export default function AuthPage() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-      setShowContent(window.innerWidth > 768);
+      const userAgent = navigator.userAgent || navigator.vendor;
+      const mobileRegex =
+        /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+      setIsMobile(mobileRegex.test(userAgent.toLowerCase()));
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
-
+  useEffect(() => {
+    if (isMobile) {
+      setShowContent(false);
+    }
+  }, [isMobile]);
   useEffect(() => {
     const manageSession = async () => {
       if (turnkey) {
