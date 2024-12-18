@@ -169,7 +169,7 @@ export class IframeStamper {
   async init(): Promise<string> {
     this.container.appendChild(this.iframe);
     /**
-     * Once the iframe is loaded, we send a message to the iframe to hand over the 
+     * Once the iframe is loaded, we send a message to the iframe to hand over the
      * MessageChannel's second port, port2, and establish the secure communication channel.
      * The iframe will use this port to send messages back to the parent page.
      * See https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/postMessage#transfer
