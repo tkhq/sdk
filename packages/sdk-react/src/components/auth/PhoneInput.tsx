@@ -1,4 +1,3 @@
-import "./PhoneInput.css";
 import {
   BaseTextFieldProps,
   InputAdornment,
@@ -14,7 +13,7 @@ import {
   usePhoneInput,
 } from "react-international-phone";
 import { FlagImage as OriginalFlagImage } from "react-international-phone";
-
+import "react-international-phone/style.css";
 const FlagImage = OriginalFlagImage as React.ElementType;
 const allowedCountries = ["us", "ca"];
 

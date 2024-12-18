@@ -1,3 +1,5 @@
+"use client";
+
 import styles from "./Auth.module.css";
 import React, { useEffect, useState } from "react";
 import { initOtpAuth, getSuborgs, createSuborg, oauth } from "../../actions/";
@@ -15,6 +17,8 @@ import OtpVerification from "./OtpVerification";
 import { useTurnkey } from "../../hooks/use-turnkey";
 import { getVerifiedSuborgs } from "../../actions/getVerifiedSuborgs";
 import { FilterType, OtpType, authErrors } from "./constants";
+
+type AuthSection = "email" | "passkey" | "phone" | "socials";
 
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
@@ -60,7 +64,7 @@ interface AuthProps {
     facebookEnabled: boolean;
     googleEnabled: boolean;
   };
-  configOrder: string[];
+  configOrder: AuthSection[];
   customSmsMessage?: string;
 }
 
@@ -352,7 +356,7 @@ const Auth: React.FC<AuthProps> = ({
     );
   };
 
-  const renderSection = (section: string) => {
+  const renderSection = (section: AuthSection) => {
     switch (section) {
       case "email":
         return authConfig.emailEnabled && !otpId ? (
