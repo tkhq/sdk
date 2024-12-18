@@ -1,5 +1,11 @@
 # @turnkey/sdk-react
 
+## 2.0.1
+
+### Patch Changes
+
+- 0da96aa: Add README to react sdk
+
 ## 2.0.0
 
 ### Major Changes
