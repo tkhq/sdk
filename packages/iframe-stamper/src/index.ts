@@ -125,7 +125,9 @@ export class IframeStamper {
     }
 
     if (typeof MessageChannel === "undefined") {
-      throw new Error("Cannot initialize iframe without MessageChannel support");
+      throw new Error(
+        "Cannot initialize iframe without MessageChannel support"
+      );
     }
 
     if (!config.iframeContainer) {
@@ -166,11 +168,13 @@ export class IframeStamper {
   async init(): Promise<string> {
     this.container.appendChild(this.iframe);
     this.iframe.addEventListener("load", () => {
-      console.log('sdk init() iframe DOMContentLoaded callback');
+      console.log("sdk init() iframe DOMContentLoaded callback");
       // Send a message to the iframe to initialize the message channel
-      this.iframe.contentWindow?.postMessage({ type: IframeEventType.TurnkeyInitMessageChannel }, this.iframeOrigin, [
-        this.messageChannel.port2,
-      ]);
+      this.iframe.contentWindow?.postMessage(
+        { type: IframeEventType.TurnkeyInitMessageChannel },
+        this.iframeOrigin,
+        [this.messageChannel.port2]
+      );
     });
 
     return new Promise((resolve, _reject) => {
@@ -202,7 +206,7 @@ export class IframeStamper {
   /**
    * Adds a message handler to the iframe's message channel
    */
-  addMessageHandler() : Promise<any> {
+  addMessageHandler(): Promise<any> {
     return new Promise((resolve, reject) => {
       this.messageChannel.port1.onmessage = (event) => {
         this.onMessageHandler(event, resolve, reject);
@@ -258,9 +262,9 @@ export class IframeStamper {
   ): Promise<boolean> {
     this.messageChannel.port1.postMessage({
       type: IframeEventType.InjectKeyExportBundle,
-        value: bundle,
-        keyFormat,
-        organizationId,
+      value: bundle,
+      keyFormat,
+      organizationId,
     });
 
     return this.addMessageHandler();
