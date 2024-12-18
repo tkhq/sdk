@@ -7,8 +7,8 @@ The `@turnkey/sdk-react` package simplifies the integration of the Turnkey API i
 - **Authentication**: Supports email, passkey, phone, and social logins.
 - **Wallet Operations**: Import and export wallets securely.
 - **Client Utilities**: Includes `passkeyClient`, `authIframeClient`, and more.
-- **Components**: Abstracts auth, session, import and export logic away from the developer and allows for simple easy to use imports
-- **Customization**: Components theming options to align with your application's design.
+- **Components**: Abstracts auth, session, import and export logic away from the developer and provides simple, easy to use plug-and-play components
+- **Customization**: Theming options for your components to align with your application's design
 
 Use `@turnkey/sdk-react` when building Next/React applications that interact with the Turnkey API.
 
@@ -32,7 +32,7 @@ const turnkeyConfig = {
   defaultOrganizationId: process.env.TURNKEY_ORGANIZATION_ID,
   rpId: process.env.RPID, // Your application's domain for WebAuthn flows
   iframeUrl: "https://auth.turnkey.com",
-  serverSignUrl: "http://localhost:3000/api", // Backend endpoint for signing operations
+  serverSignUrl: "http://localhost:3000/api", // Backend endpoint for signing operations (optional)
 };
 
 function App() {
@@ -220,4 +220,4 @@ export default function App() {
 
 ## Code Examples
 
-For detailed examples and advanced use cases, refer to the our documentation [here](https://docs.turnkey.com/)
+For detailed examples and advanced use cases, refer to our documentation [here](https://docs.turnkey.com/)
