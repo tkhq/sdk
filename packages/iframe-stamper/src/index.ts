@@ -144,7 +144,7 @@ export class IframeStamper {
 
     // See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#sandbox
     // We do not need any other permission than running scripts for import/export/auth frames.
-    iframe.setAttribute("sandbox", "allow-scripts allow-same-origin");    
+    iframe.setAttribute("sandbox", "allow-scripts allow-same-origin");
 
     iframe.id = config.iframeElementId;
     iframe.src = config.iframeUrl;
@@ -156,6 +156,10 @@ export class IframeStamper {
     // This is populated once the iframe is ready. Call `.init()` to kick off DOM insertion!
     this.iframePublicKey = null;
 
+    /**
+     * The MessageChannel API is used to establish secure communication between the parent page and the iframe.
+     * See https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel
+     */
     this.messageChannel = new MessageChannel();
   }
 
@@ -164,9 +168,13 @@ export class IframeStamper {
    */
   async init(): Promise<string> {
     this.container.appendChild(this.iframe);
+    /**
+     * Once the iframe is loaded, we send a message to the iframe to hand over the 
+     * MessageChannel's second port, port2, and establish the secure communication channel.
+     * The iframe will use this port to send messages back to the parent page.
+     * See https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/postMessage#transfer
+     */
     this.iframe.addEventListener("load", () => {
-      console.log("sdk init() iframe DOMContentLoaded callback");
-      // Send a message to the iframe to initialize the message channel
       this.iframe.contentWindow?.postMessage(
         { type: IframeEventType.TurnkeyInitMessageChannel },
         this.iframeOrigin,
