@@ -112,7 +112,6 @@ export class IframeStamper {
   iframe: HTMLIFrameElement;
   iframeOrigin: string;
   iframePublicKey: string | null;
-  trustedParentOrigin: string;
   messageChannel: MessageChannel;
 
   /**
@@ -143,11 +142,9 @@ export class IframeStamper {
 
     let iframe = window.document.createElement("iframe");
 
-    this.trustedParentOrigin = window.origin;
     // See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#sandbox
     // We do not need any other permission than running scripts for import/export/auth frames.
-    iframe.setAttribute("sandbox", "allow-scripts allow-same-origin");
-    iframe.setAttribute("data-trusted-origin", this.trustedParentOrigin);
+    iframe.setAttribute("sandbox", "allow-scripts allow-same-origin");    
 
     iframe.id = config.iframeElementId;
     iframe.src = config.iframeUrl;
@@ -191,8 +188,8 @@ export class IframeStamper {
    * Removes the iframe from the DOM
    */
   clear() {
-    this.messageChannel.port1.close();
-    this.messageChannel.port2.close();
+    this.messageChannel?.port1?.close();
+    this.messageChannel?.port2?.close();
     this.iframe.remove();
   }
 
