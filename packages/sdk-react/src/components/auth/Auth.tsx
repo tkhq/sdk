@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import styles from "./Auth.module.css";
-import React, { useEffect, useState } from "react";
-import { initOtpAuth, getSuborgs, createSuborg, oauth } from "../../actions/";
-import { MuiPhone } from "./PhoneInput";
-import GoogleAuthButton from "./Google";
-import AppleAuthButton from "./Apple";
-import FacebookAuthButton from "./Facebook";
-import { CircularProgress, TextField } from "@mui/material";
-import turnkeyIcon from "assets/turnkey.svg";
-import googleIcon from "assets/google.svg";
-import facebookIcon from "assets/facebook.svg";
-import appleIcon from "assets/apple.svg";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import OtpVerification from "./OtpVerification";
-import { useTurnkey } from "../../hooks/use-turnkey";
-import { getVerifiedSuborgs } from "../../actions/getVerifiedSuborgs";
-import { FilterType, OtpType, authErrors } from "./constants";
+import styles from './Auth.module.css';
+import React, { useEffect, useState } from 'react';
+import { initOtpAuth, getSuborgs, createSuborg, oauth } from '../../actions/';
+import { MuiPhone } from './PhoneInput';
+import GoogleAuthButton from './Google';
+import AppleAuthButton from './Apple';
+import FacebookAuthButton from './Facebook';
+import { CircularProgress, TextField } from '@mui/material';
+import turnkeyIcon from 'assets/turnkey.svg';
+import googleIcon from 'assets/google.svg';
+import facebookIcon from 'assets/facebook.svg';
+import appleIcon from 'assets/apple.svg';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import OtpVerification from './OtpVerification';
+import { useTurnkey } from '../../hooks/use-turnkey';
+import { getVerifiedSuborgs } from '../../actions/getVerifiedSuborgs';
+import { FilterType, OtpType, authErrors } from './constants';
 
-type AuthSection = "email" | "passkey" | "phone" | "socials";
+type AuthSection = 'email' | 'passkey' | 'phone' | 'socials';
 
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
@@ -64,7 +64,7 @@ interface AuthProps {
     facebookEnabled: boolean;
     googleEnabled: boolean;
   };
-  configOrder: string[];
+  configOrder: AuthSection[];
   customSmsMessage?: string;
 }
 
@@ -76,15 +76,15 @@ const Auth: React.FC<AuthProps> = ({
   customSmsMessage,
 }) => {
   const { passkeyClient, authIframeClient } = useTurnkey();
-  const [email, setEmail] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
+  const [email, setEmail] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
   const [otpId, setOtpId] = useState<string | null>(null);
-  const [step, setStep] = useState<string>("auth");
-  const [oauthLoading, setOauthLoading] = useState<string>("");
-  const [suborgId, setSuborgId] = useState<string>("");
+  const [step, setStep] = useState<string>('auth');
+  const [oauthLoading, setOauthLoading] = useState<string>('');
+  const [suborgId, setSuborgId] = useState<string>('');
   const [passkeySignupScreen, setPasskeySignupScreen] = useState(false);
   const [passkeyCreationScreen, setPasskeyCreationScreen] = useState(false);
-  const [passkeySignupError, setPasskeySignupError] = useState("");
+  const [passkeySignupError, setPasskeySignupError] = useState('');
   const [loading, setLoading] = useState(true);
   const [passkeyCreated, setPasskeyCreated] = useState(false);
 
@@ -172,16 +172,16 @@ const Auth: React.FC<AuthProps> = ({
   };
 
   const handleSignupWithPasskey = async () => {
-    setPasskeySignupError("");
+    setPasskeySignupError('');
     const siteInfo = `${
       new URL(window.location.href).hostname
     } - ${new Date().toLocaleString(undefined, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
     })}`;
     setPasskeySignupScreen(false);
     setPasskeyCreationScreen(true);
@@ -196,7 +196,7 @@ const Auth: React.FC<AuthProps> = ({
           const response = await createSuborg({
             email,
             passkey: {
-              authenticatorName: "First Passkey",
+              authenticatorName: 'First Passkey',
               challenge: encodedChallenge,
               attestation,
             },
@@ -289,20 +289,20 @@ const Auth: React.FC<AuthProps> = ({
     <ChevronLeftIcon
       onClick={() => {
         setPasskeyCreationScreen(false);
-        setPasskeySignupError("");
+        setPasskeySignupError('');
         setPasskeySignupScreen(false);
         setOtpId(null);
       }}
       sx={{
-        color: "var(--text-secondary)",
-        position: "absolute",
+        color: 'var(--text-secondary)',
+        position: 'absolute',
         top: 16,
         left: 16,
         zIndex: 10,
-        cursor: "pointer",
-        borderRadius: "50%",
-        padding: "6px",
-        transition: "background-color 0.3s ease",
+        cursor: 'pointer',
+        borderRadius: '50%',
+        padding: '6px',
+        transition: 'background-color 0.3s ease',
       }}
     />
   );
@@ -311,13 +311,13 @@ const Auth: React.FC<AuthProps> = ({
     const { googleEnabled, appleEnabled, facebookEnabled } = authConfig;
     const layout =
       [googleEnabled, appleEnabled, facebookEnabled].filter(Boolean).length >= 2
-        ? "inline"
-        : "stacked";
+        ? 'inline'
+        : 'stacked';
 
     return (
       <div
         className={
-          layout === "inline"
+          layout === 'inline'
             ? styles.socialButtonContainerInline
             : styles.socialButtonContainerStacked
         }
@@ -328,7 +328,7 @@ const Auth: React.FC<AuthProps> = ({
             clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
             iframePublicKey={authIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
-              handleOAuthLogin(response.idToken, "Google")
+              handleOAuthLogin(response.idToken, 'Google')
             }
           />
         )}
@@ -338,7 +338,7 @@ const Auth: React.FC<AuthProps> = ({
             clientId={process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!}
             iframePublicKey={authIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
-              handleOAuthLogin(response.idToken, "Apple")
+              handleOAuthLogin(response.idToken, 'Apple')
             }
           />
         )}
@@ -348,7 +348,7 @@ const Auth: React.FC<AuthProps> = ({
             clientId={process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!}
             iframePublicKey={authIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
-              handleOAuthLogin(response.id_token, "Facebook")
+              handleOAuthLogin(response.id_token, 'Facebook')
             }
           />
         )}
@@ -358,7 +358,7 @@ const Auth: React.FC<AuthProps> = ({
 
   const renderSection = (section: AuthSection) => {
     switch (section) {
-      case "email":
+      case 'email':
         return authConfig.emailEnabled && !otpId ? (
           <div>
             <div className={styles.inputGroup}>
@@ -371,23 +371,23 @@ const Auth: React.FC<AuthProps> = ({
                 onChange={(e) => setEmail(e.target.value)}
                 fullWidth
                 sx={{
-                  "& .MuiOutlinedInput-root": {
-                    color: "var(--input-text)",
-                    "& fieldset": {
-                      borderColor: "var(--input-border)",
+                  '& .MuiOutlinedInput-root': {
+                    color: 'var(--input-text)',
+                    '& fieldset': {
+                      borderColor: 'var(--input-border)',
                     },
-                    "&:hover fieldset": {
-                      borderColor: "var(--input-hover-border)",
+                    '&:hover fieldset': {
+                      borderColor: 'var(--input-hover-border)',
                     },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "var(--input-focus-border)",
-                      border: "1px solid",
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'var(--input-focus-border)',
+                      border: '1px solid',
                     },
                   },
-                  "& .MuiInputBase-input": {
-                    padding: "12px",
+                  '& .MuiInputBase-input': {
+                    padding: '12px',
                   },
-                  backgroundColor: "var(--input-bg)",
+                  backgroundColor: 'var(--input-bg)',
                 }}
                 variant="outlined"
               />
@@ -405,7 +405,7 @@ const Auth: React.FC<AuthProps> = ({
           </div>
         ) : null;
 
-      case "passkey":
+      case 'passkey':
         return authConfig.passkeyEnabled && !otpId ? (
           <div className={styles.passkeyContainer}>
             <button
@@ -424,7 +424,7 @@ const Auth: React.FC<AuthProps> = ({
           </div>
         ) : null;
 
-      case "phone":
+      case 'phone':
         return authConfig.phoneEnabled && !otpId ? (
           <div>
             <div className={styles.phoneInput}>
@@ -443,7 +443,7 @@ const Auth: React.FC<AuthProps> = ({
           </div>
         ) : null;
 
-      case "socials":
+      case 'socials':
         return authConfig.googleEnabled ||
           authConfig.appleEnabled ||
           authConfig.facebookEnabled
@@ -500,15 +500,15 @@ const Auth: React.FC<AuthProps> = ({
           <center>
             <h3 className={styles.primaryText}>
               {passkeySignupError
-                ? "Authentication error"
+                ? 'Authentication error'
                 : passkeyCreated
-                ? "Logging in with passkey..."
-                : "Creating passkey..."}
+                ? 'Logging in with passkey...'
+                : 'Creating passkey...'}
             </h3>
           </center>
           <div className={styles.rowsContainer}>
             <span className={styles.primaryText}>
-              <center>{passkeySignupError ? passkeySignupError : ""}</center>
+              <center>{passkeySignupError ? passkeySignupError : ''}</center>
             </span>
           </div>
           {passkeySignupError && (
@@ -523,7 +523,7 @@ const Auth: React.FC<AuthProps> = ({
         </div>
       ) : (
         <div>
-          {oauthLoading !== "" ? (
+          {oauthLoading !== '' ? (
             <div className={styles.authCardLoading}>
               <h3 className={styles.verifyingText}>
                 Verifying with {oauthLoading}
@@ -534,13 +534,13 @@ const Auth: React.FC<AuthProps> = ({
                   thickness={1}
                   className={styles.circularProgress!}
                 />
-                {oauthLoading === "Google" && (
+                {oauthLoading === 'Google' && (
                   <img src={googleIcon} className={styles.oauthIcon} />
                 )}
-                {oauthLoading === "Facebook" && (
+                {oauthLoading === 'Facebook' && (
                   <img src={facebookIcon} className={styles.oauthIcon} />
                 )}
-                {oauthLoading === "Apple" && (
+                {oauthLoading === 'Apple' && (
                   <img src={appleIcon} className={styles.oauthIcon} />
                 )}
               </div>
@@ -553,7 +553,7 @@ const Auth: React.FC<AuthProps> = ({
             <div className={styles.authCard}>
               {otpId && renderBackButton()}
               <h2 className={styles.primaryText}>
-                {!otpId && "Log in or sign up"}
+                {!otpId && 'Log in or sign up'}
               </h2>
               <div className={styles.authForm}>
                 {!otpId &&
@@ -584,7 +584,7 @@ const Auth: React.FC<AuthProps> = ({
                 {!otpId && (
                   <div className={styles.tos}>
                     <span>
-                      By continuing, you agree to our{" "}
+                      By continuing, you agree to our{' '}
                       <a
                         href="https://www.turnkey.com/legal/terms"
                         target="_blank"
@@ -592,8 +592,8 @@ const Auth: React.FC<AuthProps> = ({
                         className={styles.tosBold}
                       >
                         Terms of Service
-                      </a>{" "}
-                      &{" "}
+                      </a>{' '}
+                      &{' '}
                       <a
                         href="https://www.turnkey.com/legal/privacy"
                         target="_blank"
@@ -602,14 +602,14 @@ const Auth: React.FC<AuthProps> = ({
                       >
                         Privacy Policy
                       </a>
-                      {"."}
+                      {'.'}
                     </span>
                   </div>
                 )}
               </div>
               <div
                 onClick={() =>
-                  (window.location.href = "https://www.turnkey.com/")
+                  (window.location.href = 'https://www.turnkey.com/')
                 }
                 className={styles.poweredBy}
               >
