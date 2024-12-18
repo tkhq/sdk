@@ -1,5 +1,24 @@
 # @turnkey/sdk-react
 
+## 2.0.0
+
+### Major Changes
+
+- 95717d7: New Feature: UI components - Auth, Export, Import. Leverages server and client directives on NextJS 13+ to abstract functionalities away from the developer
+
+### Patch Changes
+
+- c8330fa: Add a user identifier for sms rate limiting
+- 12d5aaa: Update TurnkeySDKBrowserConfig type with an optional iframeUrl field. The TurnkeyContext provider will check for an iframeUrl otherwise it will fallback to the default.
+- Updated dependencies [7988bc1]
+- Updated dependencies [c895c8f]
+- Updated dependencies [538d4fc]
+- Updated dependencies [12d5aaa]
+  - @turnkey/sdk-browser@1.11.0
+  - @turnkey/wallet-stamper@1.0.2
+  - @turnkey/sdk-server@1.7.1
+  - @turnkey/crypto@2.3.0
+
 ## 1.1.2
 
 ### Patch Changes

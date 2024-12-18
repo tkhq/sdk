@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.17.1
+
+### Patch Changes
+
+- 538d4fc: Update api endpoints - NEW: User verification, SMS customization params
+
 ## 2.17.0
 
 ### Minor Changes

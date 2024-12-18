@@ -1,5 +1,12 @@
 # @turnkey/wallet-stamper
 
+## 1.0.2
+
+### Patch Changes
+
+- c895c8f: Update @solana/web3.js from ^1.88.1 to ^1.95.8
+  - @turnkey/crypto@2.3.0
+
 ## 1.0.1
 
 ### Patch Changes
