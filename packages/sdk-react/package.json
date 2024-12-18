@@ -66,10 +66,10 @@
     "usehooks-ts": "^3.1.0"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "@types/react": "^18.2.75"
   },
   "devDependencies": {
-    "@types/react": "^18.2.75",
     "postcss-import": "^16.1.0",
     "react": "^18.2.0"
   },
