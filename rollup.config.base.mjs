@@ -7,41 +7,37 @@ const getFormatConfig = (format) => {
 
   /** @type {import('rollup').RollupOptions} */
   return {
-    input: 'src/index.ts',
+    input: "src/index.ts",
     output: {
       format,
       dir: "dist",
-      entryFileNames: `[name].${format === 'esm' ? 'mjs' : 'js'}`,
+      entryFileNames: `[name].${format === "esm" ? "mjs" : "js"}`,
       preserveModules: true,
       sourcemap: true,
     },
     plugins: [
       typescript({
-        tsconfig: './tsconfig.json',
+        tsconfig: "./tsconfig.json",
         outputToFilesystem: false,
         compilerOptions: {
           outDir: "dist",
           composite: false,
-          declaration: format === 'esm',
+          declaration: format === "esm",
           declarationMap: format === "esm",
           sourceMap: true,
         },
       }),
       nodeExternals({
         packagePath: pkgPath,
-        builtinsPrefix: 'ignore',
+        builtinsPrefix: "ignore",
       }),
     ],
-  }
-}
+  };
+};
 
+export default () => {
+  const esm = getFormatConfig("esm");
+  const cjs = getFormatConfig("cjs");
 
-export default () =>  { 
-  const esm = getFormatConfig('esm');
-  const cjs = getFormatConfig('cjs');
-  
-  return [
-    esm,
-    cjs
-  ]
-}
+  return [esm, cjs];
+};
