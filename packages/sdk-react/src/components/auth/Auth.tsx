@@ -18,8 +18,6 @@ import { useTurnkey } from "../../hooks/use-turnkey";
 import { getVerifiedSuborgs } from "../../actions/getVerifiedSuborgs";
 import { FilterType, OtpType, authErrors } from "./constants";
 
-type AuthSection = "email" | "passkey" | "phone" | "socials";
-
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
     <path
@@ -64,7 +62,7 @@ interface AuthProps {
     facebookEnabled: boolean;
     googleEnabled: boolean;
   };
-  configOrder: AuthSection[];
+  configOrder: string[];
   customSmsMessage?: string;
 }
 
@@ -356,7 +354,7 @@ const Auth: React.FC<AuthProps> = ({
     );
   };
 
-  const renderSection = (section: AuthSection) => {
+  const renderSection = (section: string) => {
     switch (section) {
       case "email":
         return authConfig.emailEnabled && !otpId ? (
