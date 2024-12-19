@@ -1,5 +1,11 @@
 # @turnkey/sdk-react
 
+## 2.0.2
+
+### Patch Changes
+
+- eaf3e20: Fix css related build issues with React 19+ & NextJs 15+
+
 ## 2.0.1
 
 ### Patch Changes
