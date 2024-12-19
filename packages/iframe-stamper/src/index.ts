@@ -47,6 +47,12 @@ export enum IframeEventType {
   // Event sent by the iframe to communicate the result of a stamp operation.
   // Value: signed payload
   Stamp = "STAMP",
+  // Event sent by the parent page to request a batch of signatures
+  // Value: payloads to sign
+  BatchStampRequest = "BATCH_STAMP_REQUEST",
+  // Event sent by the iframe to communicate the result of a batch stamp operation.
+  // Value: signed payloads
+  BatchStamp = "BATCH_STAMP",
   // Event sent by the iframe to communicate an error
   // Value: serialized error
   Error = "ERROR",
@@ -485,6 +491,55 @@ export class IframeStamper {
               stampHeaderName: stampHeaderName,
               stampHeaderValue: event.data["value"],
             });
+          }
+          if (event.data?.type === IframeEventType.Error) {
+            reject(event.data["value"]);
+          }
+        },
+        false
+      );
+    });
+  }
+
+  /**
+   * Function to sign a batch of payloads with the underlying iframe
+   */
+  async batchStamp(payloads: string[]): Promise<TStamp[]> {
+    if (this.iframePublicKey === null) {
+      throw new Error(
+        "null iframe public key. Have you called/awaited .init()?"
+      );
+    }
+
+    const iframeOrigin = this.iframeOrigin;
+
+    this.iframe.contentWindow?.postMessage(
+      {
+        type: IframeEventType.BatchStampRequest,
+        value: payloads,
+      },
+      "*"
+    );
+
+    return new Promise(function (resolve, reject) {
+      window.addEventListener(
+        "message",
+        (event) => {
+          if (event.origin !== iframeOrigin) {
+            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
+            // Instead of erroring out we simply return. Not our event!
+            return;
+          }
+          if (event.data?.type === IframeEventType.BatchStamp) {
+            const response = JSON.parse(event.data["value"]); // array of stamped values
+            const stamps = response.map((s: string) => {
+              return {
+                stampHeaderName,
+                stampHeaderValue: s,
+              };
+            });
+
+            resolve(stamps);
           }
           if (event.data?.type === IframeEventType.Error) {
             reject(event.data["value"]);
