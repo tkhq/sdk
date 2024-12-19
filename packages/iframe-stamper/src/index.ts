@@ -175,7 +175,10 @@ export class IframeStamper {
      * See https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/postMessage#transfer
      */
     this.iframe.addEventListener("load", () => {
-      if (!this.iframe.contentWindow || !this.iframe.contentWindow.postMessage) {
+      if (
+        !this.iframe.contentWindow ||
+        !this.iframe.contentWindow.postMessage
+      ) {
         throw new Error(
           "contentWindow or contentWindow.postMessage does not exist"
         );
