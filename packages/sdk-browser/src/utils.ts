@@ -31,7 +31,16 @@ export const createEmbeddedAPIKey = async (
 
   // 3: import the targetPublicKey (i.e. passed in from the iframe)
   const targetKeyBytes = uint8ArrayFromHexString(targetPublicKey);
-  const jwk = pointDecode(targetKeyBytes);
+
+  let jwk;
+  try {
+    jwk = pointDecode(targetKeyBytes);
+  } catch (e) {
+    // provide more context about the error that is being thrown
+    throw new Error(
+      `target public key is not a valid compressed public key: ${targetPublicKey}`
+    );
+  }
 
   const targetKey = await crypto.subtle.importKey(
     "jwk",
