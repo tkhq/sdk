@@ -47,6 +47,9 @@ export enum IframeEventType {
   // Event sent by the iframe to communicate the result of a stamp operation.
   // Value: signed payload
   Stamp = "STAMP",
+  // Event sent by the parent to establish secure communication via MessageChannel API.
+  // Value: MessageChannel port
+  TurnkeyInitMessageChannel = "TURNKEY_INIT_MESSAGE_CHANNEL",
   // Event sent by the iframe to communicate an error
   // Value: serialized error
   Error = "ERROR",
@@ -109,6 +112,7 @@ export class IframeStamper {
   iframe: HTMLIFrameElement;
   iframeOrigin: string;
   iframePublicKey: string | null;
+  messageChannel: MessageChannel;
 
   /**
    * Creates a new iframe stamper. This function _does not_ insert the iframe in the DOM.
@@ -117,6 +121,12 @@ export class IframeStamper {
   constructor(config: TIframeStamperConfig) {
     if (typeof window === "undefined") {
       throw new Error("Cannot initialize iframe in non-browser environment");
+    }
+
+    if (typeof MessageChannel === "undefined") {
+      throw new Error(
+        "Cannot initialize iframe without MessageChannel support"
+      );
     }
 
     if (!config.iframeContainer) {
@@ -145,6 +155,13 @@ export class IframeStamper {
 
     // This is populated once the iframe is ready. Call `.init()` to kick off DOM insertion!
     this.iframePublicKey = null;
+
+    /**
+     * The MessageChannel API is used to establish secure communication between two execution contexts.
+     * In this case, the parent page and the iframe.
+     * See https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel
+     */
+    this.messageChannel = new MessageChannel();
   }
 
   /**
@@ -152,22 +169,42 @@ export class IframeStamper {
    */
   async init(): Promise<string> {
     this.container.appendChild(this.iframe);
-    return new Promise((resolve, _reject) => {
-      window.addEventListener(
-        "message",
-        (event) => {
-          if (event.origin !== this.iframeOrigin) {
-            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
-            // Instead of erroring out
-            return;
-          }
-          if (event.data?.type === IframeEventType.PublicKeyReady) {
-            this.iframePublicKey = event.data["value"];
-            resolve(event.data["value"]);
-          }
-        },
-        false
+    /**
+     * Once the iframe is loaded, we send a message to the iframe to hand over the
+     * MessageChannel's second port, port2, and establish the secure communication channel.
+     * The iframe will use this port to send messages back to the parent page.
+     * See https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/postMessage#transfer
+     */
+    this.iframe.addEventListener("load", () => {
+      if (
+        !this.iframe.contentWindow ||
+        !this.iframe.contentWindow.postMessage
+      ) {
+        throw new Error(
+          "contentWindow or contentWindow.postMessage does not exist"
+        );
+      }
+
+      this.iframe.contentWindow.postMessage(
+        { type: IframeEventType.TurnkeyInitMessageChannel },
+        this.iframeOrigin,
+        [this.messageChannel.port2]
       );
+    });
+
+    return new Promise((resolve, _reject) => {
+      /**
+       * The MessageChannel port1 property is the port that gets attached
+       * to the context that instantiated the MessageChannel. This class, the IframeStamper,
+       * instantied the MessageChannel and will use port1 to send messages to the iframe.
+       * See https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel/port1
+       */
+      this.messageChannel.port1.onmessage = (event) => {
+        if (event.data?.type === IframeEventType.PublicKeyReady) {
+          this.iframePublicKey = event.data["value"];
+          resolve(event.data["value"]);
+        }
+      };
     });
   }
 
@@ -175,6 +212,8 @@ export class IframeStamper {
    * Removes the iframe from the DOM
    */
   clear() {
+    this.messageChannel?.port1?.close();
+    this.messageChannel?.port2?.close();
     this.iframe.remove();
   }
 
@@ -186,6 +225,33 @@ export class IframeStamper {
   }
 
   /**
+   * Adds a message handler to the iframe's message channel
+   */
+  addMessageHandler(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.messageChannel.port1.onmessage = (event) => {
+        this.onMessageHandler(event, resolve, reject);
+      };
+    });
+  }
+
+  onMessageHandler(event: MessageEvent, resolve: any, reject: any): void {
+    switch (event.data?.type) {
+      case IframeEventType.Stamp:
+        resolve({
+          stampHeaderName: stampHeaderName,
+          stampHeaderValue: event.data["value"],
+        });
+        break;
+      case IframeEventType.Error:
+        reject(event.data["value"]);
+        break;
+      default:
+        resolve(event.data["value"]);
+    }
+  }
+
+  /**
    * Function to inject a new credential into the iframe
    * The bundle should be encrypted to the iframe's initial public key
    * Encryption should be performed with HPKE (RFC 9180).
@@ -193,31 +259,13 @@ export class IframeStamper {
    */
   async injectCredentialBundle(bundle: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      this.iframe.contentWindow?.postMessage(
-        {
-          type: IframeEventType.InjectCredentialBundle,
-          value: bundle,
-        },
-        "*"
-      );
-
-      window.addEventListener(
-        "message",
-        (event) => {
-          if (event.origin !== this.iframeOrigin) {
-            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
-            // Instead of erroring out we simply return. Not our event!
-            return;
-          }
-          if (event.data?.type === IframeEventType.BundleInjected) {
-            resolve(event.data["value"]);
-          }
-          if (event.data?.type === IframeEventType.Error) {
-            reject(event.data["value"]);
-          }
-        },
-        false
-      );
+      this.messageChannel.port1.postMessage({
+        type: IframeEventType.InjectCredentialBundle,
+        value: bundle,
+      });
+      this.messageChannel.port1.onmessage = (event) => {
+        this.onMessageHandler(event, resolve, reject);
+      };
     });
   }
 
@@ -233,35 +281,14 @@ export class IframeStamper {
     organizationId: string,
     keyFormat?: KeyFormat
   ): Promise<boolean> {
-    this.iframe.contentWindow?.postMessage(
-      {
-        type: IframeEventType.InjectKeyExportBundle,
-        value: bundle,
-        keyFormat,
-        organizationId,
-      },
-      "*"
-    );
-
-    return new Promise((resolve, reject) => {
-      window.addEventListener(
-        "message",
-        (event) => {
-          if (event.origin !== this.iframeOrigin) {
-            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
-            // Instead of erroring out we simply return. Not our event!
-            return;
-          }
-          if (event.data?.type === IframeEventType.BundleInjected) {
-            resolve(event.data["value"]);
-          }
-          if (event.data?.type === IframeEventType.Error) {
-            reject(event.data["value"]);
-          }
-        },
-        false
-      );
+    this.messageChannel.port1.postMessage({
+      type: IframeEventType.InjectKeyExportBundle,
+      value: bundle,
+      keyFormat,
+      organizationId,
     });
+
+    return this.addMessageHandler();
   }
 
   /**
@@ -274,34 +301,13 @@ export class IframeStamper {
     bundle: string,
     organizationId: string
   ): Promise<boolean> {
-    this.iframe.contentWindow?.postMessage(
-      {
-        type: IframeEventType.InjectWalletExportBundle,
-        value: bundle,
-        organizationId,
-      },
-      "*"
-    );
-
-    return new Promise((resolve, reject) => {
-      window.addEventListener(
-        "message",
-        (event) => {
-          if (event.origin !== this.iframeOrigin) {
-            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
-            // Instead of erroring out we simply return. Not our event!
-            return;
-          }
-          if (event.data?.type === IframeEventType.BundleInjected) {
-            resolve(event.data["value"]);
-          }
-          if (event.data?.type === IframeEventType.Error) {
-            reject(event.data["value"]);
-          }
-        },
-        false
-      );
+    this.messageChannel.port1.postMessage({
+      type: IframeEventType.InjectWalletExportBundle,
+      value: bundle,
+      organizationId,
     });
+
+    return this.addMessageHandler();
   }
 
   /**
@@ -313,35 +319,14 @@ export class IframeStamper {
     organizationId: string,
     userId: string
   ): Promise<boolean> {
-    this.iframe.contentWindow?.postMessage(
-      {
-        type: IframeEventType.InjectImportBundle,
-        value: bundle,
-        organizationId,
-        userId,
-      },
-      "*"
-    );
-
-    return new Promise((resolve, reject) => {
-      window.addEventListener(
-        "message",
-        (event) => {
-          if (event.origin !== this.iframeOrigin) {
-            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
-            // Instead of erroring out we simply return. Not our event!
-            return;
-          }
-          if (event.data?.type === IframeEventType.BundleInjected) {
-            resolve(event.data["value"]);
-          }
-          if (event.data?.type === IframeEventType.Error) {
-            reject(event.data["value"]);
-          }
-        },
-        false
-      );
+    this.messageChannel.port1.postMessage({
+      type: IframeEventType.InjectImportBundle,
+      value: bundle,
+      organizationId,
+      userId,
     });
+
+    return this.addMessageHandler();
   }
 
   /**
@@ -351,32 +336,11 @@ export class IframeStamper {
    * This is used during the wallet import flow.
    */
   async extractWalletEncryptedBundle(): Promise<string> {
-    this.iframe.contentWindow?.postMessage(
-      {
-        type: IframeEventType.ExtractWalletEncryptedBundle,
-      },
-      "*"
-    );
-
-    return new Promise((resolve, reject) => {
-      window.addEventListener(
-        "message",
-        (event) => {
-          if (event.origin !== this.iframeOrigin) {
-            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
-            // Instead of erroring out we simply return. Not our event!
-            return;
-          }
-          if (event.data?.type === IframeEventType.EncryptedBundleExtracted) {
-            resolve(event.data["value"]);
-          }
-          if (event.data?.type === IframeEventType.Error) {
-            reject(event.data["value"]);
-          }
-        },
-        false
-      );
+    this.messageChannel.port1.postMessage({
+      type: IframeEventType.ExtractWalletEncryptedBundle,
     });
+
+    return this.addMessageHandler();
   }
 
   /**
@@ -387,33 +351,12 @@ export class IframeStamper {
    * This is used during the private key import flow.
    */
   async extractKeyEncryptedBundle(keyFormat?: KeyFormat): Promise<string> {
-    this.iframe.contentWindow?.postMessage(
-      {
-        type: IframeEventType.ExtractKeyEncryptedBundle,
-        keyFormat: keyFormat,
-      },
-      "*"
-    );
-
-    return new Promise((resolve, reject) => {
-      window.addEventListener(
-        "message",
-        (event) => {
-          if (event.origin !== this.iframeOrigin) {
-            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
-            // Instead of erroring out we simply return. Not our event!
-            return;
-          }
-          if (event.data?.type === IframeEventType.EncryptedBundleExtracted) {
-            resolve(event.data["value"]);
-          }
-          if (event.data?.type === IframeEventType.Error) {
-            reject(event.data["value"]);
-          }
-        },
-        false
-      );
+    this.messageChannel.port1.postMessage({
+      type: IframeEventType.ExtractKeyEncryptedBundle,
+      keyFormat: keyFormat,
     });
+
+    return this.addMessageHandler();
   }
 
   /**
@@ -422,33 +365,12 @@ export class IframeStamper {
    */
   async applySettings(settings: TIframeSettings): Promise<boolean> {
     const settingsStr = JSON.stringify(settings);
-    this.iframe.contentWindow?.postMessage(
-      {
-        type: IframeEventType.ApplySettings,
-        value: settingsStr,
-      },
-      "*"
-    );
-
-    return new Promise((resolve, reject) => {
-      window.addEventListener(
-        "message",
-        (event) => {
-          if (event.origin !== this.iframeOrigin) {
-            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
-            // Instead of erroring out we simply return. Not our event!
-            return;
-          }
-          if (event.data?.type === IframeEventType.SettingsApplied) {
-            resolve(event.data["value"]);
-          }
-          if (event.data?.type === IframeEventType.Error) {
-            reject(event.data["value"]);
-          }
-        },
-        false
-      );
+    this.messageChannel.port1.postMessage({
+      type: IframeEventType.ApplySettings,
+      value: settingsStr,
     });
+
+    return this.addMessageHandler();
   }
 
   /**
@@ -461,37 +383,11 @@ export class IframeStamper {
       );
     }
 
-    const iframeOrigin = this.iframeOrigin;
-
-    this.iframe.contentWindow?.postMessage(
-      {
-        type: IframeEventType.StampRequest,
-        value: payload,
-      },
-      "*"
-    );
-
-    return new Promise(function (resolve, reject) {
-      window.addEventListener(
-        "message",
-        (event) => {
-          if (event.origin !== iframeOrigin) {
-            // There might be other things going on in the window, for example: react dev tools, other extensions, etc.
-            // Instead of erroring out we simply return. Not our event!
-            return;
-          }
-          if (event.data?.type === IframeEventType.Stamp) {
-            resolve({
-              stampHeaderName: stampHeaderName,
-              stampHeaderValue: event.data["value"],
-            });
-          }
-          if (event.data?.type === IframeEventType.Error) {
-            reject(event.data["value"]);
-          }
-        },
-        false
-      );
+    this.messageChannel.port1.postMessage({
+      type: IframeEventType.StampRequest,
+      value: payload,
     });
+
+    return this.addMessageHandler();
   }
 }
