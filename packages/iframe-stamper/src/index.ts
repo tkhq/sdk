@@ -157,7 +157,8 @@ export class IframeStamper {
     this.iframePublicKey = null;
 
     /**
-     * The MessageChannel API is used to establish secure communication between the parent page and the iframe.
+     * The MessageChannel API is used to establish secure communication between two execution contexts.
+     * In this case, the parent page and the iframe.
      * See https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel
      */
     this.messageChannel = new MessageChannel();
@@ -192,6 +193,12 @@ export class IframeStamper {
     });
 
     return new Promise((resolve, _reject) => {
+      /**
+       * The MessageChannel port1 property is the port that gets attached
+       * to the context that instantiated the MessageChannel. This class, the IframeStamper,
+       * instantied the MessageChannel and will use port1 to send messages to the iframe.
+       * See https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel/port1
+       */
       this.messageChannel.port1.onmessage = (event) => {
         if (event.data?.type === IframeEventType.PublicKeyReady) {
           this.iframePublicKey = event.data["value"];
