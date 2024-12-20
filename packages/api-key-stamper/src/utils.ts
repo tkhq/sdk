@@ -11,7 +11,12 @@ export function convertTurnkeyApiKeyToJwk(input: {
 }): JsonWebKey {
   const { uncompressedPrivateKeyHex, compressedPublicKeyHex } = input;
 
-  const jwk = pointDecode(uint8ArrayFromHexString(compressedPublicKeyHex));
+  let jwk;
+  try {
+    jwk = pointDecode(uint8ArrayFromHexString(compressedPublicKeyHex));
+  } catch (e: Error) {
+    throw new Error(`invalid API key: Ensure that you are using a valid public and private key in compressed or uncompressed format and they are not switched`); 
+  }
 
   // Ensure that d is sufficiently padded
   jwk.d = hexStringToBase64url(

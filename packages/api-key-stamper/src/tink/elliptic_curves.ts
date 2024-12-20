@@ -172,7 +172,7 @@ export function pointDecode(point: Uint8Array): JsonWebKey {
     point.length !== uncompressedLength
   ) {
     throw new Error(
-      "Invalid API key: Ensure that you are using a valid public and private key for your API key"
+      "Invalid length: point is not in compressed or uncompressed format"
     );
   }
   // Decodes point if its length and first bit match the compressed format
