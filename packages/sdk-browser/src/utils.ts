@@ -35,7 +35,7 @@ export const createEmbeddedAPIKey = async (
   let jwk;
   try { 
     jwk = pointDecode(targetKeyBytes); 
-  } catch (e: Error) { 
+  } catch (e) { 
     // provide more context about the error that is being thrown
     throw new Error(`target public key is not a valid compressed public key: ${targetPublicKey}`); 
   }
