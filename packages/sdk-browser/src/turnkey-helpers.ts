@@ -35,6 +35,7 @@ interface WalletAccount {
     | "ADDRESS_FORMAT_DOGE_TESTNET"
     | "ADDRESS_FORMAT_SUI"
     | "ADDRESS_FORMAT_APTOS"
+    | "ADDRESS_FORMAT_XRP"
     | "ADDRESS_FORMAT_TON_V3R2"
     | "ADDRESS_FORMAT_TON_V4R2";
 }
@@ -448,6 +449,16 @@ export const defaultSeiAccountAtIndex = (pathIndex: number): WalletAccount => {
     pathFormat: "PATH_FORMAT_BIP32",
     path: `m/44'/118'/${pathIndex}'/0'/0'`,
     addressFormat: "ADDRESS_FORMAT_SEI",
+  };
+};
+
+// Xrp
+export const defaultXrpAccountAtIndex = (pathIndex: number): WalletAccount => {
+  return {
+    curve: "CURVE_SECP256K1",
+    pathFormat: "PATH_FORMAT_BIP32",
+    path: `m/44'/144'/${pathIndex}'/0'/0'`,
+    addressFormat: "ADDRESS_FORMAT_XRP",
   };
 };
 
