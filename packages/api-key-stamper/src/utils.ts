@@ -15,7 +15,9 @@ export function convertTurnkeyApiKeyToJwk(input: {
   try {
     jwk = pointDecode(uint8ArrayFromHexString(compressedPublicKeyHex));
   } catch (e) {
-    throw new Error(`invalid API key: Ensure that you are using a valid public and private key in compressed or uncompressed format and they are not switched`); 
+    throw new Error(
+      `invalid API key: Ensure that you are using a valid public and private key in compressed or uncompressed format and they are not switched`
+    );
   }
 
   // Ensure that d is sufficiently padded

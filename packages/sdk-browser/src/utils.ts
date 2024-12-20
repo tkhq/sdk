@@ -33,11 +33,13 @@ export const createEmbeddedAPIKey = async (
   const targetKeyBytes = uint8ArrayFromHexString(targetPublicKey);
 
   let jwk;
-  try { 
-    jwk = pointDecode(targetKeyBytes); 
-  } catch (e) { 
+  try {
+    jwk = pointDecode(targetKeyBytes);
+  } catch (e) {
     // provide more context about the error that is being thrown
-    throw new Error(`target public key is not a valid compressed public key: ${targetPublicKey}`); 
+    throw new Error(
+      `target public key is not a valid compressed public key: ${targetPublicKey}`
+    );
   }
 
   const targetKey = await crypto.subtle.importKey(
