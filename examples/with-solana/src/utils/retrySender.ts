@@ -6,7 +6,12 @@ import {
   TransactionExpiredBlockheightExceededError,
   VersionedTransactionResponse,
 } from "@solana/web3.js";
+
+
 import asyncRetry from "async-retry";
+
+// You may need to tweak this parameter depending on network conditions
+const validBlockHeightDelta = 50;
 
 const wait = (time: number) =>
   new Promise((resolve) => setTimeout(resolve, time));
@@ -55,7 +60,7 @@ export async function transactionSenderAndConfirmationWaiter({
   try {
     abortableResender();
     const lastValidBlockHeight =
-      blockhashWithExpiryBlockHeight.lastValidBlockHeight - 150;
+      blockhashWithExpiryBlockHeight.lastValidBlockHeight - validBlockHeightDelta;
 
     // this would throw TransactionExpiredBlockheightExceededError
     await Promise.race([
