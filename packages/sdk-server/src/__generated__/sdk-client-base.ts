@@ -2220,7 +2220,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
       },
-      "signRawPayloadsResult"
+      "signRawPayloadsResultV2"
     );
   };
 

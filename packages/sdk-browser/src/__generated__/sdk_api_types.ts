@@ -732,7 +732,7 @@ export type TSignRawPayloadBody =
     commandOverrideParams;
 
 export type TSignRawPayloadsResponse =
-  operations["PublicApiService_SignRawPayloads"]["responses"]["200"]["schema"]["activity"]["result"]["signRawPayloadsResult"] &
+  operations["PublicApiService_SignRawPayloads"]["responses"]["200"]["schema"]["activity"]["result"]["signRawPayloadsResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TSignRawPayloadsInput = { body: TSignRawPayloadsBody };
