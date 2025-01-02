@@ -289,7 +289,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/query/get_organization": {
@@ -1025,7 +1025,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/create_policies": {
@@ -1505,7 +1505,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/delete_policy": {
@@ -2017,7 +2017,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/init_user_email_recovery": {
@@ -2081,7 +2081,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/otp_auth": {
@@ -2113,7 +2113,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/recover_user": {
@@ -2996,7 +2996,8 @@
         "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
         "ACTIVITY_TYPE_INIT_OTP_AUTH",
         "ACTIVITY_TYPE_OTP_AUTH",
-        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
+        "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS_V2"
       ]
     },
     "v1AddressFormat": {
@@ -6800,6 +6801,9 @@
         },
         "createSubOrganizationIntentV7": {
           "$ref": "#/definitions/v1CreateSubOrganizationIntentV7"
+        },
+        "signRawPayloadsIntentV2": {
+          "$ref": "#/definitions/v1SignRawPayloadsIntentV2"
         }
       }
     },
@@ -7761,6 +7765,9 @@
         },
         "createSubOrganizationResultV7": {
           "$ref": "#/definitions/v1CreateSubOrganizationResultV7"
+        },
+        "signRawPayloadsResultV2": {
+          "$ref": "#/definitions/v1SignRawPayloadsResultV2"
         }
       }
     },
@@ -8100,12 +8107,34 @@
       },
       "required": ["signWith", "payloads", "encoding", "hashFunction"]
     },
+    "v1SignRawPayloadsIntentV2": {
+      "type": "object",
+      "properties": {
+        "signWithPayloads": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SignWithPayloads"
+          },
+          "description": "An array of `sign_with` values, each with its associated raw unsigned payloads."
+        },
+        "encoding": {
+          "$ref": "#/definitions/v1PayloadEncoding",
+          "description": "Encoding of the `payload` string. Turnkey uses this information to convert `payload` into bytes with the correct decoder (e.g. hex, utf8)."
+        },
+        "hashFunction": {
+          "$ref": "#/definitions/v1HashFunction",
+          "description": "Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032."
+        }
+      },
+      "required": ["signWithPayloads", "encoding", "hashFunction"]
+    },
     "v1SignRawPayloadsRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"]
+          "enum": ["ACTIVITY_TYPE_SIGN_RAW_PAYLOADS_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -8116,7 +8145,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1SignRawPayloadsIntent"
+          "$ref": "#/definitions/v1SignRawPayloadsIntentV2"
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
@@ -8132,6 +8161,20 @@
           }
         }
       }
+    },
+    "v1SignRawPayloadsResultV2": {
+      "type": "object",
+      "properties": {
+        "signWithResults": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SignWithSignatures"
+          },
+          "description": "A list of results, each containing the `sign_with` value and associated signatures."
+        }
+      },
+      "required": ["signWithResults"]
     },
     "v1SignTransactionIntent": {
       "type": "object",
@@ -8196,6 +8239,41 @@
         }
       },
       "required": ["signedTransaction"]
+    },
+    "v1SignWithPayloads": {
+      "type": "object",
+      "properties": {
+        "signWith": {
+          "type": "string",
+          "description": "A Wallet account address, Private Key address, or Private Key identifier."
+        },
+        "payloads": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "An array of raw unsigned payloads to be signed for this `sign_with`."
+        }
+      },
+      "required": ["signWith", "payloads"]
+    },
+    "v1SignWithSignatures": {
+      "type": "object",
+      "properties": {
+        "signWith": {
+          "type": "string",
+          "description": "The Wallet account address, Private Key address, or Private Key identifier used to sign the payloads."
+        },
+        "signatures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SignRawPayloadResult"
+          },
+          "description": "Signatures for the payloads associated with this `sign_with`."
+        }
+      },
+      "required": ["signWith", "signatures"]
     },
     "v1SimpleClientExtensionResults": {
       "type": "object",

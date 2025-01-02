@@ -6,7 +6,7 @@ import {
   type TSignature,
 } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
-import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
+import type { TurnkeyServerClient } from "@turnkey/sdk-server";
 
 type TClient = TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
 
@@ -26,29 +26,62 @@ export class TurnkeySigner {
    * @param fromAddress Solana address (base58 encoded)
    */
   public async signAllTransactions(
-    txs: (Transaction | VersionedTransaction)[],
-    fromAddress: string,
+    signWithPayloads: {
+      signWith: string;
+      transactions: (Transaction | VersionedTransaction)[];
+    }[],
     organizationId?: string
-  ): Promise<(Transaction | VersionedTransaction)[]> {
-    const fromKey = new PublicKey(fromAddress);
+  ): Promise<
+    {
+      signWith: string;
+      transactions: (Transaction | VersionedTransaction)[];
+    }[]
+  > {
+    const signingPayloads: {
+      signWith: string;
+      payloads: string[];
+    }[] = [];
 
-    let messages = txs.map((tx) => this.getMessageToSign(tx).toString("hex"));
+    for (const p of signWithPayloads) {
+      const messages = p.transactions.map((innerTx) =>
+        this.getMessageToSign(innerTx).toString("hex")
+      );
 
-    const signRawPayloadsResult = await this.signRawPayloads(
-      messages,
-      fromAddress,
+      signingPayloads.push({
+        signWith: p.signWith,
+        payloads: messages,
+      });
+    }
+
+    const { signWithResults } = await this.signRawPayloads(
+      signingPayloads,
       organizationId
     );
 
-    const signatures = signRawPayloadsResult?.signatures?.map(
-      (sig: TSignature) => `${sig?.r}${sig?.s}`
-    );
+    const signedTxs: {
+      signWith: string;
+      transactions: (Transaction | VersionedTransaction)[];
+    }[] = [];
 
-    for (let i in txs) {
-      txs[i]?.addSignature(fromKey, Buffer.from(signatures![i]!, "hex"));
+    // Length of txs and signWithResults should be equivalent
+    for (let i = 0; i < signWithResults.length; i++) {
+      const signer = signWithResults[i]?.signWith;
+      const fromKey = new PublicKey(signer!);
+      const signatures = signWithResults[i]?.signatures?.map(
+        (sig: TSignature) => `${sig?.r}${sig?.s}`
+      );
+
+      for (const tx of signWithPayloads[i]?.transactions!) {
+        tx?.addSignature(fromKey, Buffer.from(signatures![i]!, "hex"));
+      }
+
+      signedTxs.push({
+        signWith: signer!,
+        transactions: signWithPayloads[i]?.transactions!,
+      });
     }
 
-    return txs;
+    return signedTxs;
   }
 
   /**
@@ -218,18 +251,19 @@ export class TurnkeySigner {
   }
 
   private async signRawPayloads(
-    payloads: string[],
-    signWith: string,
+    signWithPayloads: {
+      signWith: string;
+      payloads: string[];
+    }[],
     organizationId?: string
   ) {
     if (this.client instanceof TurnkeyClient) {
       const response = await this.client.signRawPayloads({
-        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
+        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS_V2",
         organizationId: organizationId ?? this.organizationId,
         timestampMs: String(Date.now()),
         parameters: {
-          signWith,
-          payloads,
+          signWithPayloads,
           encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
           // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
           // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
@@ -241,12 +275,11 @@ export class TurnkeySigner {
 
       assertActivityCompleted(activity);
 
-      return assertNonNull(activity?.result?.signRawPayloadsResult);
+      return assertNonNull(activity?.result?.signRawPayloadsResultV2);
     } else {
-      const { activity, signatures } = await this.client.signRawPayloads({
+      const { activity, signWithResults } = await this.client.signRawPayloads({
         ...(organizationId !== undefined && { organizationId }),
-        signWith,
-        payloads,
+        signWithPayloads,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
         // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
@@ -256,7 +289,7 @@ export class TurnkeySigner {
       assertActivityCompleted(activity);
 
       return assertNonNull({
-        signatures: signatures as TurnkeyApiTypes["v1SignRawPayloadResult"][],
+        signWithResults,
       });
     }
   }

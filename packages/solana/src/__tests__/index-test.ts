@@ -1,6 +1,6 @@
 import { test, expect, describe } from "@jest/globals";
 import { TurnkeySigner } from "../";
-import { TurnkeyClient } from "@turnkey/http";
+import { TurnkeyClient, assertNonNull } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { Turnkey } from "@turnkey/sdk-server";
 import {
@@ -161,38 +161,47 @@ describe("TurnkeySigner", () => {
           transactions.push(transferTransaction);
         }
 
-        const signedTransactions =
-          await signerConfig.signer.signAllTransactions(
+        const rawResult = await signerConfig.signer.signAllTransactions([
+          {
+            signWith: turnkeySolAddress,
             transactions,
-            turnkeySolAddress
-          );
-        expect(signedTransactions.length).toBe(numTxs);
+          },
+        ]);
 
-        for (let i = 0; i < signedTransactions.length; i++) {
-          const tx = signedTransactions[i] as Transaction;
+        const result = assertNonNull(rawResult);
+        expect(result.length).toBe(1);
+        expect(result[0]!.signWith).toBe(turnkeySolAddress);
+        expect(result[0]!.transactions.length).toBe(numTxs);
 
-          // Verify the signature itself
-          const isValidSignature = nacl.sign.detached.verify(
-            tx.serializeMessage(),
-            tx.signature as Uint8Array,
-            bs58.decode(turnkeySolAddress)
-          );
-          expect(isValidSignature).toBeTruthy();
+        for (let i = 0; i < result.length; i++) {
+          const txs = result[i]!.transactions;
 
-          // Ensure it's a simple, native transfer
-          expect(tx.instructions.length).toEqual(1);
+          for (const t of txs) {
+            const tx = t as Transaction;
 
-          const programId = tx.instructions[0]!.programId!;
-          const data = tx.instructions[0]!.data!;
+            // Verify the signature itself
+            const isValidSignature = nacl.sign.detached.verify(
+              tx.serializeMessage(),
+              tx.signature as Uint8Array,
+              bs58.decode(turnkeySolAddress)
+            );
+            expect(isValidSignature).toBeTruthy();
 
-          expect(programId).toEqual(SystemProgram.programId);
-          expect(data[0]).toEqual(2);
+            // Ensure it's a simple, native transfer
+            expect(tx.instructions.length).toEqual(1);
 
-          // Convert raw data to lamports, then to whole SOL units
-          const amountLamportsBigInt = Buffer.from(data).readBigUInt64LE(4);
-          const amountLamports = Number(amountLamportsBigInt);
+            const programId = tx.instructions[0]!.programId!;
+            const data = tx.instructions[0]!.data!;
 
-          expect(amounts[i]).toEqual(amountLamports);
+            expect(programId).toEqual(SystemProgram.programId);
+            expect(data[0]).toEqual(2);
+
+            // Convert raw data to lamports, then to whole SOL units
+            const amountLamportsBigInt = Buffer.from(data).readBigUInt64LE(4);
+            const amountLamports = Number(amountLamportsBigInt);
+
+            expect(amounts[i]).toEqual(amountLamports);
+          }
         }
       });
 
@@ -232,45 +241,53 @@ describe("TurnkeySigner", () => {
           transactions.push(transaction);
         }
 
-        const signedTransactions =
-          await signerConfig.signer.signAllTransactions(
+        const rawResult = await signerConfig.signer.signAllTransactions([
+          {
+            signWith: turnkeySolAddress,
             transactions,
-            turnkeySolAddress
-          );
-        expect(signedTransactions.length).toBe(numTxs);
+          },
+        ]);
+        const result = assertNonNull(rawResult);
+        expect(result.length).toBe(1);
+        expect(result[0]!.signWith).toBe(turnkeySolAddress);
+        expect(result[0]!.transactions.length).toBe(numTxs);
 
-        for (let i = 0; i < signedTransactions.length; i++) {
-          const tx = signedTransactions[i] as VersionedTransaction;
+        for (let i = 0; i < result.length; i++) {
+          const txs = result[i]!.transactions;
 
-          // After signing the version transaction, the default signature is replaced with the new one
-          expect(tx.signatures.length).toBe(1);
-          expect(tx.signatures[0]).not.toEqual(DEFAULT_SIGNATURE);
+          for (const t of txs) {
+            const tx = t as VersionedTransaction;
 
-          // Verify the signature itself
-          const isValidSignature = nacl.sign.detached.verify(
-            tx.message.serialize(),
-            tx.signatures[0] as Uint8Array,
-            bs58.decode(turnkeySolAddress)
-          );
-          expect(isValidSignature).toBeTruthy();
+            // Verify the signature itself
+            const isValidSignature = nacl.sign.detached.verify(
+              tx.message.serialize(),
+              tx.signatures[0] as Uint8Array,
+              bs58.decode(turnkeySolAddress)
+            );
+            expect(isValidSignature).toBeTruthy();
 
-          // Ensure it's a simple, native transfer
-          expect(tx.message.compiledInstructions.length).toEqual(1);
+            // After signing the versioned transaction, the default signature is replaced with the new one
+            expect(tx.signatures.length).toBe(1);
+            expect(tx.signatures[0]).not.toEqual(DEFAULT_SIGNATURE);
 
-          const programIdIndex =
-            tx.message.compiledInstructions[0]!.programIdIndex!;
-          const keys = tx.message.getAccountKeys();
-          const programId = keys.staticAccountKeys[programIdIndex];
-          const data = tx.message.compiledInstructions[0]!.data!;
+            // Ensure it's a simple, native transfer
+            expect(tx.message.compiledInstructions.length).toEqual(1);
 
-          expect(programId).toEqual(SystemProgram.programId);
-          expect(data[0]).toEqual(2);
+            const programIdIndex =
+              tx.message.compiledInstructions[0]!.programIdIndex!;
+            const keys = tx.message.getAccountKeys();
+            const programId = keys.staticAccountKeys[programIdIndex];
+            const data = tx.message.compiledInstructions[0]!.data!;
 
-          // Convert raw data to lamports, then to whole SOL units
-          const amountLamportsBigInt = Buffer.from(data).readBigUInt64LE(4);
-          const amountLamports = Number(amountLamportsBigInt);
+            expect(programId).toEqual(SystemProgram.programId);
+            expect(data[0]).toEqual(2);
 
-          expect(amounts[i]).toEqual(amountLamports);
+            // Convert raw data to lamports, then to whole SOL units
+            const amountLamportsBigInt = Buffer.from(data).readBigUInt64LE(4);
+            const amountLamports = Number(amountLamportsBigInt);
+
+            expect(amounts[i]).toEqual(amountLamports);
+          }
         }
       });
 

@@ -552,7 +552,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION"
     | "ACTIVITY_TYPE_INIT_OTP_AUTH"
     | "ACTIVITY_TYPE_OTP_AUTH"
-    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7";
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"
+    | "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS_V2";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -2062,6 +2063,7 @@ export type definitions = {
     initOtpAuthIntent?: definitions["v1InitOtpAuthIntent"];
     otpAuthIntent?: definitions["v1OtpAuthIntent"];
     createSubOrganizationIntentV7?: definitions["v1CreateSubOrganizationIntentV7"];
+    signRawPayloadsIntentV2?: definitions["v1SignRawPayloadsIntentV2"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2420,6 +2422,7 @@ export type definitions = {
     initOtpAuthResult?: definitions["v1InitOtpAuthResult"];
     otpAuthResult?: definitions["v1OtpAuthResult"];
     createSubOrganizationResultV7?: definitions["v1CreateSubOrganizationResultV7"];
+    signRawPayloadsResultV2?: definitions["v1SignRawPayloadsResultV2"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -2545,17 +2548,29 @@ export type definitions = {
     /** @description Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032. */
     hashFunction: definitions["v1HashFunction"];
   };
+  v1SignRawPayloadsIntentV2: {
+    /** @description An array of `sign_with` values, each with its associated raw unsigned payloads. */
+    signWithPayloads: definitions["v1SignWithPayloads"][];
+    /** @description Encoding of the `payload` string. Turnkey uses this information to convert `payload` into bytes with the correct decoder (e.g. hex, utf8). */
+    encoding: definitions["v1PayloadEncoding"];
+    /** @description Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032. */
+    hashFunction: definitions["v1HashFunction"];
+  };
   v1SignRawPayloadsRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS";
+    type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1SignRawPayloadsIntent"];
+    parameters: definitions["v1SignRawPayloadsIntentV2"];
   };
   v1SignRawPayloadsResult: {
     signatures?: definitions["v1SignRawPayloadResult"][];
+  };
+  v1SignRawPayloadsResultV2: {
+    /** @description A list of results, each containing the `sign_with` value and associated signatures. */
+    signWithResults: definitions["v1SignWithSignatures"][];
   };
   v1SignTransactionIntent: {
     /** @description Unique identifier for a given Private Key. */
@@ -2582,6 +2597,18 @@ export type definitions = {
   };
   v1SignTransactionResult: {
     signedTransaction: string;
+  };
+  v1SignWithPayloads: {
+    /** @description A Wallet account address, Private Key address, or Private Key identifier. */
+    signWith: string;
+    /** @description An array of raw unsigned payloads to be signed for this `sign_with`. */
+    payloads: string[];
+  };
+  v1SignWithSignatures: {
+    /** @description The Wallet account address, Private Key address, or Private Key identifier used to sign the payloads. */
+    signWith: string;
+    /** @description Signatures for the payloads associated with this `sign_with`. */
+    signatures: definitions["v1SignRawPayloadResult"][];
   };
   v1SimpleClientExtensionResults: {
     appid?: boolean;
