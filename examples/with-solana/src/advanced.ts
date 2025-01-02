@@ -18,6 +18,7 @@ import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 
 import { createNewSolanaWallet, solanaNetwork } from "./utils";
+import { assertNonNull } from "@turnkey/http";
 
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
@@ -145,24 +146,33 @@ async function main() {
     unsignedTxs.push(transferTransaction);
   }
 
-  const signedTransactions = (await turnkeySigner.signAllTransactions(
-    unsignedTxs,
-    solAddress
-  )) as VersionedTransaction[];
+  const signedTransactionsResult = await turnkeySigner.signAllTransactions([
+    {
+      signWith: solAddress,
+      transactions: unsignedTxs as VersionedTransaction[],
+    },
+  ]);
 
-  for (let i = 0; i < signedTransactions.length; i++) {
-    const isValidSignature = nacl.sign.detached.verify(
-      signedTransactions[i]!.message.serialize(),
-      signedTransactions[i]!.signatures[0]!,
-      bs58.decode(solAddress)
-    );
+  const result = assertNonNull(signedTransactionsResult);
 
-    if (!isValidSignature) {
-      throw new Error("unable to verify transaction signatures");
+  for (let i = 0; i < result.length; i++) {
+    const txs = result[i]?.transactions!;
+
+    for (const t of txs) {
+      const signedTx = t as VersionedTransaction;
+      const isValidSignature = nacl.sign.detached.verify(
+        signedTx!.message.serialize(),
+        signedTx!.signatures[0]!,
+        bs58.decode(solAddress)
+      );
+
+      if (!isValidSignature) {
+        throw new Error("unable to verify transaction signatures");
+      }
+
+      // 3. Broadcast the signed payload on devnet
+      await solanaNetwork.broadcast(connection, signedTx);
     }
-
-    // 3. Broadcast the signed payload on devnet
-    await solanaNetwork.broadcast(connection, signedTransactions[i]!);
   }
 
   process.exit(0);
