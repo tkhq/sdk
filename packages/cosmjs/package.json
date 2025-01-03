@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/cosmjs",
-  "version": "0.6.6",
+  "version": "0.6.8",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -47,19 +47,19 @@
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "dependencies": {
-    "@cosmjs/amino": "^0.31.0",
-    "@cosmjs/crypto": "^0.31.0",
-    "@cosmjs/encoding": "^0.31.0",
-    "@cosmjs/proto-signing": "^0.31.0",
+    "@cosmjs/amino": "^0.32.4",
+    "@cosmjs/crypto": "^0.32.4",
+    "@cosmjs/encoding": "^0.32.4",
+    "@cosmjs/proto-signing": "^0.32.4",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-server": "workspace:*"
   },
   "devDependencies": {
-    "cosmjs-types": "^0.8.0"
+    "cosmjs-types": "^0.9.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
   }
 }

@@ -1,0 +1,16 @@
+{
+    "extends": [
+      "//"
+    ],
+    "tasks": {
+      "build": {
+        "env": ["TURNKEY_API_PUBLIC_KEY", "TURNKEY_API_PRIVATE_KEY"],
+        "inputs": ["$TURBO_DEFAULT$", ".env", ".env.local.example"],
+        "outputs": [
+          ".next/**",
+          "!.next/cache/**"
+        ]
+      }
+    }
+  }
+  

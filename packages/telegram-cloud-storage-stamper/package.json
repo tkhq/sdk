@@ -58,6 +58,7 @@
   },
   "devDependencies": {
     "jest-environment-jsdom": "^29.7.0",
-    "jest-localstorage-mock": "^2.4.26"
+    "jest-localstorage-mock": "^2.4.26",
+    "tslib": "^2.8.1"
   }
 }

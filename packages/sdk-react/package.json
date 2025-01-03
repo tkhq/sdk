@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-react",
-  "version": "2.0.2",
+  "version": "2.0.4",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -60,7 +60,7 @@
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
     "libphonenumber-js": "^1.11.14",
-    "next": "^15.0.2",
+    "next": "^15.1.2",
     "react-apple-login": "^1.1.6",
     "react-international-phone": "^4.3.0",
     "usehooks-ts": "^3.1.0"
@@ -71,9 +71,10 @@
   },
   "devDependencies": {
     "postcss-import": "^16.1.0",
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "tslib": "^2.3.1"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
   }
 }

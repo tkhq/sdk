@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/viem",
-  "version": "0.6.7",
+  "version": "0.6.9",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -60,7 +60,7 @@
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "cross-fetch": "^4.0.0",
-    "typescript": "^5.1"
+    "typescript": "^5.4.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",
@@ -68,6 +68,6 @@
     "viem": "^2.1.1"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
   }
 }

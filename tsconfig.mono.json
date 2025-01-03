@@ -1,7 +1,6 @@
 {
   "references": [
     { "path": "./packages/cosmjs" },
-    { "path": "./packages/encoding" },
     { "path": "./packages/eip-1193-provider" },
     { "path": "./packages/ethers" },
     { "path": "./packages/http" },

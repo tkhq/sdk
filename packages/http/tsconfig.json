@@ -3,12 +3,14 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "tsBuildInfoFile": "./.cache/.tsbuildinfo"
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    "target": "ESNext",
+    "noImplicitOverride": false,
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
-  "references": [
-    { "path": "../api-key-stamper" },
-    { "path": "../webauthn-stamper" }
-  ]
+  // "references": [
+  //   { "path": "../api-key-stamper" },
+  //   { "path": "../webauthn-stamper" }
+  // ]
 }

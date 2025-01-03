@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/crypto",
-  "version": "2.3.0",
+  "version": "2.3.2",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -38,21 +38,22 @@
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
   },
   "dependencies": {
     "@noble/ciphers": "0.5.3",
     "@noble/curves": "1.4.0",
     "@noble/hashes": "1.4.0",
     "@turnkey/encoding": "workspace:*",
-    "bs58check": "3.0.1",
-    "bs58": "^5.0.0"
+    "bs58check": "4.0.0",
+    "bs58": "^6.0.0"
   },
   "devDependencies": {
     "crypto": "1.0.1",
     "jest": "29.7.0",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/http": "workspace:*",
-    "@turnkey/sdk-server": "workspace:*"
+    "@turnkey/sdk-server": "workspace:*",
+    "tslib": "2.8.1"
   }
 }

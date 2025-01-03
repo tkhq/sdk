@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/encoding",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -38,6 +38,9 @@
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "tslib": "^2.8.1"
   }
 }

@@ -4,14 +4,15 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
-    "lib": ["dom"]
+    "lib": ["dom"],
+    "target": "ESNext",
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
-  "references": [
-    { "path": "../api-key-stamper" },
-    { "path": "../http" },
-    { "path": "../iframe-stamper" },
-    { "path": "../webauthn-stamper" }
-  ]
+  // "references": [
+  //   { "path": "../api-key-stamper" },
+  //   { "path": "../http" },
+  //   { "path": "../iframe-stamper" },
+  //   { "path": "../webauthn-stamper" }
+  // ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/eip-1193-provider",
-  "version": "3.0.3",
+  "version": "3.0.5",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -54,7 +54,8 @@
   },
   "devDependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
-    "hardhat": "^2.22.2"
+    "hardhat": "^2.22.2",
+    "tslib": "^2.8.1"
   },
   "peerDependencies": {
     "@turnkey/http": "workspace:*"

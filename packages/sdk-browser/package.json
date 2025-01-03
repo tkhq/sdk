@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-browser",
-  "version": "1.11.0",
+  "version": "1.11.2",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -51,17 +51,18 @@
     "@turnkey/iframe-stamper": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
     "@turnkey/webauthn-stamper": "workspace:*",
-    "bs58check": "^3.0.1",
+    "bs58check": "^4.0.0",
     "buffer": "^6.0.3",
-    "cross-fetch": "^3.1.5",
+    "cross-fetch": "^4.1.0",
     "elliptic": "^6.5.5",
     "hpke-js": "^1.2.7"
   },
   "devDependencies": {
     "@types/elliptic": "^6.4.18",
-    "glob": "^8.0.3"
+    "glob": "^11.0.0",
+    "tslib": "^2.3.1"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
   }
 }

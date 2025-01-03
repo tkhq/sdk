@@ -10,7 +10,7 @@
   "dependencies": {
     "@cosmjs/encoding": "^0.31.0",
     "@cosmjs/stargate": "^0.31.0",
-    "@turnkey/sdk-server": "workspace:^",
+    "@turnkey/sdk-server": "workspace:*",
     "@turnkey/cosmjs": "workspace:*",
     "@turnkey/http": "workspace:*",
     "dotenv": "^16.0.3"

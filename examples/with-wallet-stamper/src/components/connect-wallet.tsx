@@ -1,7 +1,7 @@
 "use client";
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { lamports } from "@solana/web3.js";
 
 import ButtonSelect from "./ui/button-select";
 import { ChainType } from "@/lib/types";
@@ -10,6 +10,7 @@ import Account from "./account";
 import WalletSelector from "./wallet-selector";
 import { WalletName } from "@solana/wallet-adapter-base";
 import { useTurnkey } from "./turnkey-provider";
+import { WalletType } from "../../../../packages/wallet-stamper/dist/types";
 
 export function ConnectWallet() {
   const { connection } = useConnection();
@@ -41,7 +42,7 @@ export function ConnectWallet() {
     connection.onAccountChange(
       publicKey,
       (updatedAccountInfo) => {
-        setBalance(updatedAccountInfo.lamports / LAMPORTS_PER_SOL);
+        setBalance(updatedAccountInfo.lamports / lamports);
       },
       "confirmed"
     );
@@ -51,6 +52,7 @@ export function ConnectWallet() {
         setBalance(info.lamports / LAMPORTS_PER_SOL);
       }
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publicKey, connection]);
 
   useEffect(() => {
@@ -63,12 +65,13 @@ export function ConnectWallet() {
             const signedMessage = await signMessage(Buffer.from(message));
             return Buffer.from(signedMessage).toString("hex");
           },
-          recoverPublicKey: () =>
+          getPublicKey: async () =>
             Buffer.from(publicKey?.toBuffer()).toString("hex"),
-          type: "solana",
+            type: WalletType.Solana,
         });
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publicKey, signMessage]);
 
   const connect = async () => {

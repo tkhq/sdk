@@ -24,9 +24,9 @@ export function bufferToBase64url(buffer: ArrayBuffer): Base64urlString {
   // Buffer to binary string
   const byteView = new Uint8Array(buffer);
   let str = "";
-  for (const charCode of byteView) {
+  byteView.forEach((charCode) => {
     str += String.fromCharCode(charCode);
-  }
+  });
 
   // Binary string to base64
   const base64String = btoa(str);

@@ -19,7 +19,7 @@ const {
   NEXT_PUBLIC_BASE_URL,
 } = env;
 
-export const createAPIKeyStamper = (options?: TApiKeyStamperConfig) => {
+export const createAPIKeyStamper = async (options?: TApiKeyStamperConfig) => {
   const apiPublicKey = options?.apiPublicKey || TURNKEY_API_PUBLIC_KEY;
   const apiPrivateKey = options?.apiPrivateKey || TURNKEY_API_PRIVATE_KEY;
 
@@ -96,7 +96,7 @@ export const createUserSubOrg = async ({
     : [];
 
   const completedActivity = await activityPoller({
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6",
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
     timestampMs,
     organizationId,
     parameters: {

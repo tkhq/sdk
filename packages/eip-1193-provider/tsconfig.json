@@ -3,9 +3,11 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "tsBuildInfoFile": "./.cache/.tsbuildinfo"
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    "ignoreDeprecations": "5.0",
+    "target": "ESNext"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
-  "references": [{ "path": "../http" }, { "path": "../api-key-stamper" }]
+  // "references": [{ "path": "../http" }, { "path": "../api-key-stamper" }]
 }

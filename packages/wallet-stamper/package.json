@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/wallet-stamper",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -60,6 +60,7 @@
     "@turnkey/http": "workspace:*",
     "dotenv": "^16.0.3",
     "tweetnacl": "^1.0.3",
-    "tweetnacl-util": "^0.15.1"
+    "tweetnacl-util": "^0.15.1",
+    "tslib": "^2.8.1"
   }
 }

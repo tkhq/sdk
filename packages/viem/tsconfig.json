@@ -1,5 +1,5 @@
 {
-  "extends": "@tsconfig/node16-strictest/tsconfig.json",
+  "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
     "ignoreDeprecations": "5.0",
     "composite": true,
@@ -12,9 +12,10 @@
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "tsBuildInfoFile": "./.cache/.tsbuildinfo"
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    "target": "ESNext",
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
-  "references": [{ "path": "../http" }, { "path": "../api-key-stamper" }]
+  // "references": [{ "path": "../http" }, { "path": "../api-key-stamper" }]
 }

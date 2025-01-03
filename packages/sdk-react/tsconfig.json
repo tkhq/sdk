@@ -6,7 +6,8 @@
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
     "lib": ["dom", "esnext"],
     "jsx": "react-jsx",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": false
   },
   "include": [
     "src/**/*.ts",
@@ -16,5 +17,5 @@
     "src/**/*.json"
   ],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
-  "references": [{ "path": "../sdk-browser" }]
+  // "references": [{ "path": "../sdk-browser" }]
 }

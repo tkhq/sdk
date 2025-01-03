@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/webauthn-stamper",
-  "version": "0.5.0",
+  "version": "0.5.3",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -44,12 +44,14 @@
     "build": "rollup -c",
     "clean": "rimraf ./dist ./.cache",
     "test": "jest",
+    "check-types": "tsc -p tsconfig.typecheck.json",
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
   },
   "dependencies": {
-    "sha256-uint8array": "^0.10.7"
+    "sha256-uint8array": "^0.10.7",
+    "tslib": "^2.8.1"
   }
 }
