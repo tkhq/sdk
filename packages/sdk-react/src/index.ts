@@ -1,3 +1,4 @@
+import "./components/auth/PhoneInput.module.css";
 import "./components/auth/Auth.module.css";
 import "./components/auth/OtpVerification.module.css";
 import "./components/export/Export.module.css";
