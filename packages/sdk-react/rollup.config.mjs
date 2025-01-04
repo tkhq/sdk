@@ -6,7 +6,6 @@ import preserveDirectives from "rollup-preserve-directives";
 import url from "@rollup/plugin-url";
 import alias from "@rollup/plugin-alias";
 import copy from "rollup-plugin-copy";
-import postcssImport from "postcss-import";
 
 const getFormatConfig = (format) => {
   const pkgPath = path.join(process.cwd(), "package.json");
@@ -39,7 +38,6 @@ const getFormatConfig = (format) => {
         extract: `styles.${format}.css`,
         minimize: true,
         sourceMap: true,
-        plugins: [postcssImport()],
       }),
       typescript({
         outputToFilesystem: true,

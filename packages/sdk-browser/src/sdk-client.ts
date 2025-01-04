@@ -14,6 +14,7 @@ import {
   type TurnkeyWalletClientConfig,
   TurnkeyRequestError,
   AuthClient,
+  TStamp,
 } from "./__types__/base";
 
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
@@ -487,6 +488,20 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
     super(config, AuthClient.Iframe);
     this.iframePublicKey = (config.stamper as IframeStamper).iframePublicKey;
   }
+
+  /**
+   * batchStamp takes in a batch of Turnkey requests and stamps them all
+   * 
+   * @param requests stringified inputs to be stamped
+   * @returns stamps, comprised of StampHeaderName and StampHeaderValue
+   * 
+   * Caller is responsible for assembling the resulting request to be sent to Turnkey:
+   * { body, stamp, url }
+   */
+  batchStamp = async (requests: string[]): Promise<TStamp[]> => {
+    const stamper = this.config.stamper as IframeStamper;
+    return await stamper.batchStamp(requests);
+  };
 
   injectCredentialBundle = async (
     credentialBundle: string

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import styles from "./index.module.css";
 import { useTurnkey } from "@turnkey/sdk-react";
+import { TGetWhoamiResponse } from "@turnkey/sdk-server";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
@@ -70,28 +71,112 @@ export default function AuthPage() {
     }
 
     // get whoami for suborg
-    const whoamiResponse = await authIframeClient!.getWhoami({
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+    // const whoamiResponse = await authIframeClient!.getWhoami({
+    //   organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+    // });
+
+    // const orgID = whoamiResponse.organizationId;
+
+    const orgID = process.env.NEXT_PUBLIC_ORGANIZATION_ID!;
+
+    // get requests to stamp
+    const requests = Array.from({ length: 3 }, (_, i) => {
+      // return authIframeClient!.getWhoami({
+      //   organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      // });
+
+      return JSON.stringify({organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,});
     });
 
-    const orgID = whoamiResponse.organizationId;
+    // 1. Get all requests
+    // 2. Stamp all requests
+    // 3. Submit all stamped requests to Turnkey
+    await Promise.allSettled(requests)
+      .then((results) => {
+        // Log all settled results
+        console.log("All request results:", results);
+        const successfulResponses = results
+          .filter((result) => result.status === "fulfilled")
+          .map((result) => result.value);
 
-    const createWalletResponse = await authIframeClient!.createWallet({
-      organizationId: orgID,
-      walletName: data.walletName,
-      accounts: [
-        {
-          curve: "CURVE_SECP256K1",
-          pathFormat: "PATH_FORMAT_BIP32",
-          path: "m/44'/60'/0'/0/0",
-          addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-        },
-      ],
-    });
+        console.log("successfulResponses", successfulResponses);
+        return successfulResponses;
+      })
+      .then(async (requests) => {
+        // Now, we will stamp all requests
+        console.log("unstamped requests", requests);
+        const stampedRequests = await authIframeClient!.batchStamp(requests);
+        console.log("stamped requests", stampedRequests);
+        // Filter for only successful responses
+        //  const successfulResponses = results
+        //  .filter((result): TGetWhoamiResponse => result.status === "fulfilled")
+        //  .map(result => result.value);
 
-    const address = refineNonNull(createWalletResponse.addresses[0]);
+        //  console.log("Successful responses:", successfulResponses);
+        return { rawRequests: requests, stampedRequests };
+      })
+      .then(async (requests: any) => {
+        // now fire these off to Turnkey
+        // ... to be implemented
+        console.log('all requests', requests);
 
-    alert(`SUCCESS! Wallet and new address created: ${address} `);
+        const turnkeyResponses = await Promise.all(
+          requests.stampedRequests.map(async (r: any, i: number) => {
+            console.log("stamped req", r);
+
+            const response = await fetch(
+              "https://api.turnkey.com/public/v1/query/whoami",
+              {
+                method: "POST",
+                headers: {
+                  "X-Stamp": r["stampHeaderValue"],
+                },
+                body: requests.rawRequests[i],
+                redirect: "follow",
+              }
+            );
+
+            console.log("raw response", response);
+
+            if (!response.ok) {
+              let res: any;
+              try {
+                res = await response.json();
+              } catch (_) {
+                throw new Error(`${response.status} ${response.statusText}`);
+              }
+
+              console.log('raw res', res);
+
+              throw new Error(res);
+            }
+
+            const data = await response.json();
+            return data;
+          })
+        );
+
+        console.log("turnkey response", turnkeyResponses);
+      });
+
+    alert("success ! we are getting to the bottom of this");
+
+    // const createWalletResponse = await authIframeClient!.createWallet({
+    //   organizationId: orgID,
+    //   walletName: data.walletName,
+    //   accounts: [
+    //     {
+    //       curve: "CURVE_SECP256K1",
+    //       pathFormat: "PATH_FORMAT_BIP32",
+    //       path: "m/44'/60'/0'/0/0",
+    //       addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+    //     },
+    //   ],
+    // });
+
+    // const address = refineNonNull(createWalletResponse.addresses[0]);
+
+    // alert(`SUCCESS! Wallet and new address created: ${address} `);
   };
 
   return (
@@ -116,7 +201,10 @@ export default function AuthPage() {
       {authIframeClient &&
         authIframeClient.iframePublicKey &&
         authResponse === null && (
-          <form className={styles.form} onSubmit={authFormSubmit(auth)}>
+          <form
+            className={styles.form}
+            onSubmit={authFormSubmit(auth)}
+          >
             <label className={styles.label}>
               Email
               <input
@@ -150,7 +238,11 @@ export default function AuthPage() {
               </code>
             </label>
 
-            <input className={styles.button} type="submit" value="Auth" />
+            <input
+              className={styles.button}
+              type="submit"
+              value="Auth"
+            />
           </form>
         )}
 
