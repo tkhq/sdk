@@ -14,6 +14,7 @@ import {
   type TurnkeyWalletClientConfig,
   TurnkeyRequestError,
   AuthClient,
+  TStamp,
 } from "./__types__/base";
 
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
@@ -488,19 +489,18 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
     this.iframePublicKey = (config.stamper as IframeStamper).iframePublicKey;
   }
 
-  // Take in a batch of Turnkey requests and resolve them all
-  // Requests tkae the form of input body //, url
-  // Input body corresponds to the request body (i.e. { organizationId: "<your organization ID>" })
-  // // hold up:URL corresponds to the full request URL (i.e. https://api.turnkey.com/public/v1/query/whoami)
-  // Caller should be responsible for assembling the full stamped request:
-  // { body, stamp, url }
-  batchStamp = async (requests: any): Promise<any> => {
-    console.log('sdk-browser requests to batch stamp', requests);
+  /**
+   * batchStamp takes in a batch of Turnkey requests and stamps them all
+   * 
+   * @param requests stringified inputs to be stamped
+   * @returns stamps, comprised of StampHeaderName and StampHeaderValue
+   * 
+   * Caller is responsible for assembling the resulting request to be sent to Turnkey:
+   * { body, stamp, url }
+   */
+  batchStamp = async (requests: string[]): Promise<TStamp[]> => {
     const stamper = this.config.stamper as IframeStamper;
-    const result = await stamper.batchStamp(requests);
-    console.log("sdk-browser batch stamp result", result);
-
-    return result;
+    return await stamper.batchStamp(requests);
   };
 
   injectCredentialBundle = async (

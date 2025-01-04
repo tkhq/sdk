@@ -242,8 +242,6 @@ export class IframeStamper {
   }
 
   onMessageHandler(event: MessageEvent, resolve: any, reject: any): void {
-    console.log("incoming event data type", event.data?.type);
-    console.log("incoming event data value", event.data["value"]);
     switch (event.data?.type) {
       case IframeEventType.Stamp:
         resolve({
@@ -259,8 +257,6 @@ export class IframeStamper {
             stampHeaderValue: s,
           };
         });
-
-        console.log("resulting stamps in iframestamper", stamps);
 
         resolve(stamps);
         break;
@@ -399,7 +395,6 @@ export class IframeStamper {
    * Function to sign a payload with the underlying iframe
    */
   async stamp(payload: string): Promise<TStamp> {
-    console.log("inside stamp handler");
     if (this.iframePublicKey === null) {
       throw new Error(
         "null iframe public key. Have you called/awaited .init()?"
@@ -418,10 +413,6 @@ export class IframeStamper {
    * Function to sign a batch of payloads with the underlying iframe
    */
   async batchStamp(payloads: string[]): Promise<TStamp[]> {
-    console.log("inside batch stamp handler");
-    console.log("iframe event type", IframeEventType.BatchStampRequest);
-    console.log("batch stamp handler payloads", payloads);
-
     if (this.iframePublicKey === null) {
       throw new Error(
         "null iframe public key. Have you called/awaited .init()?"
