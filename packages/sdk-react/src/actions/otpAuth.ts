@@ -7,6 +7,7 @@ type OtpAuthRequest = {
   otpId: string;
   otpCode: string;
   targetPublicKey: string;
+  sessionLength?: number | undefined;
 };
 
 type OtpAuthResponse = {
@@ -30,6 +31,7 @@ export async function otpAuth(
       otpCode: request.otpCode,
       targetPublicKey: request.targetPublicKey,
       organizationId: request.suborgID,
+      ...(request.sessionLength !== undefined && { expirationSeconds: request.sessionLength.toString() })
     });
     const { credentialBundle, apiKeyId, userId } = otpAuthResponse;
 

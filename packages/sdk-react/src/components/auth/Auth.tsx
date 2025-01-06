@@ -61,6 +61,7 @@ interface AuthProps {
     appleEnabled: boolean;
     facebookEnabled: boolean;
     googleEnabled: boolean;
+    sessionLength?: number;
   };
   configOrder: string[];
   customSmsMessage?: string;
@@ -275,6 +276,7 @@ const Auth: React.FC<AuthProps> = ({
       suborgID: suborgId,
       oidcToken: credential,
       targetPublicKey: authIframeClient?.iframePublicKey!,
+      sessionLength: authConfig.sessionLength
     });
     if (oauthResponse && oauthResponse.credentialBundle) {
       await handleAuthSuccess(oauthResponse!.credentialBundle);
@@ -294,6 +296,7 @@ const Auth: React.FC<AuthProps> = ({
       sx={{
         color: "var(--text-secondary)",
         position: "absolute",
+        fontSize: "24px",
         top: 16,
         left: 16,
         zIndex: 10,
@@ -358,11 +361,15 @@ const Auth: React.FC<AuthProps> = ({
     switch (section) {
       case "email":
         return authConfig.emailEnabled && !otpId ? (
-          <div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleOtpLogin(FilterType.Email, email, OtpType.Email);
+            }}
+          >
             <div className={styles.inputGroup}>
               <TextField
-                name="emailInput"
-                autoComplete="off"
+                name="email-input"
                 type="email"
                 placeholder="Enter your email"
                 value={email}
@@ -392,16 +399,35 @@ const Auth: React.FC<AuthProps> = ({
             </div>
             <button
               className={styles.authButton}
-              type="button"
-              onClick={() =>
-                handleOtpLogin(FilterType.Email, email, OtpType.Email)
-              }
+              type="submit"
               disabled={!isValidEmail(email)}
             >
               Continue
             </button>
-          </div>
+          </form>
         ) : null;
+      
+      case "phone":
+        return authConfig.phoneEnabled && !otpId ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleOtpLogin(FilterType.PhoneNumber, phone, OtpType.Sms);
+            }}
+          >
+            <div className={styles.phoneInput}>
+              <MuiPhone onChange={(value) => setPhone(value)} value={phone} />
+            </div>
+            <button
+              className={styles.authButton}
+              type="submit"
+              disabled={!isValidPhone(phone)}
+            >
+              Continue
+            </button>
+          </form>
+        ) : null;
+      
 
       case "passkey":
         return authConfig.passkeyEnabled && !otpId ? (
@@ -419,25 +445,6 @@ const Auth: React.FC<AuthProps> = ({
             >
               Sign up with passkey
             </div>
-          </div>
-        ) : null;
-
-      case "phone":
-        return authConfig.phoneEnabled && !otpId ? (
-          <div>
-            <div className={styles.phoneInput}>
-              <MuiPhone onChange={(value) => setPhone(value)} value={phone} />
-            </div>
-            <button
-              className={styles.authButton}
-              type="button"
-              onClick={() =>
-                handleOtpLogin(FilterType.PhoneNumber, phone, OtpType.Sms)
-              }
-              disabled={!isValidPhone(phone)}
-            >
-              Continue
-            </button>
           </div>
         ) : null;
 
@@ -573,6 +580,7 @@ const Auth: React.FC<AuthProps> = ({
                     contact={step === OtpType.Email ? email : phone}
                     suborgId={suborgId}
                     otpId={otpId!}
+                    sessionLength={authConfig.sessionLength}
                     authIframeClient={authIframeClient!}
                     onValidateSuccess={handleAuthSuccess}
                     onResendCode={handleResendCode}
