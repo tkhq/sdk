@@ -60,7 +60,7 @@
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "cross-fetch": "^4.0.0",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",

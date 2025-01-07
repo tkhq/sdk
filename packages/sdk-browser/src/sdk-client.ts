@@ -102,7 +102,7 @@ export class TurnkeyBrowserSDK {
     });
 
     await iframeStamper.init();
-
+    console.log("this.config.apiBaseUrl", this.config.apiBaseUrl);
     return new TurnkeyIframeClient({
       stamper: iframeStamper,
       apiBaseUrl: this.config.apiBaseUrl,

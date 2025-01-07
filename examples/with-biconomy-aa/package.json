@@ -10,9 +10,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@biconomy/account": "^4.5.6",
-    "@biconomy/sdk": "^0.0.10",
-    "@rhinestone/module-sdk": "^0.1.28",
+    "@biconomy/account": "^4.5.7",
+    "@biconomy/sdk": "^0.0.24",
+    "@rhinestone/module-sdk": "0.1.28",
     "@turnkey/ethers": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/viem": "workspace:*",
@@ -22,6 +22,7 @@
     "viem": "^2.21.29"
   },
   "devDependencies": {
+    "typescript": "^5.5.3",
     "@types/prompts": "^2.4.2"
   }
 }

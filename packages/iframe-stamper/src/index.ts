@@ -184,7 +184,7 @@ export class IframeStamper {
           "contentWindow or contentWindow.postMessage does not exist"
         );
       }
-
+      console.log("iframe loaded");
       this.iframe.contentWindow.postMessage(
         { type: IframeEventType.TurnkeyInitMessageChannel },
         this.iframeOrigin,
@@ -200,6 +200,7 @@ export class IframeStamper {
        * See https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel/port1
        */
       this.messageChannel.port1.onmessage = (event) => {
+        console.log("messageChannel.port1.onmessage");
         if (event.data?.type === IframeEventType.PublicKeyReady) {
           this.iframePublicKey = event.data["value"];
           resolve(event.data["value"]);
@@ -365,6 +366,7 @@ export class IframeStamper {
    */
   async applySettings(settings: TIframeSettings): Promise<boolean> {
     const settingsStr = JSON.stringify(settings);
+    console.log('applySettings');
     this.messageChannel.port1.postMessage({
       type: IframeEventType.ApplySettings,
       value: settingsStr,

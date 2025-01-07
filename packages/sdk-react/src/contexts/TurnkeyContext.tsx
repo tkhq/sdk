@@ -110,8 +110,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     (async () => {
       if (!iframeInit.current) {
         iframeInit.current = true;
-
+        console.log("Initializing TurnkeyProvider with config", config);
         const newTurnkey = new Turnkey(config);
+        console.log('newTurnkey', newTurnkey);
         setTurnkey(newTurnkey);
         setPasskeyClient(newTurnkey.passkeyClient());
 
