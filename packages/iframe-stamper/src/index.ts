@@ -180,9 +180,6 @@ export class IframeStamper {
   }
 
   onMessageHandler(event: MessageEvent): void {
-    console.log("full event data", event.data);
-    console.log("pending requests", this.pendingRequests);
-
     const { type, value, requestId } = event.data || {};
 
     // Handle messages without requestId (like PUBLIC_KEY_READY)
@@ -279,17 +276,14 @@ export class IframeStamper {
    * Generic function to abstract away request creation
    * @param type
    * @param payload
-   * @returns
+   * @returns expected shape <T>
    */
   private createRequest<T>(
     type: IframeEventType,
     payload: any = {}
   ): Promise<T> {
-    console.log("creating request");
     return new Promise((resolve, reject) => {
       const requestId = generateUUID();
-
-      console.log("new request id", requestId);
 
       this.pendingRequests.set(requestId, {
         resolve,
@@ -411,7 +405,6 @@ export class IframeStamper {
    * Function to sign a payload with the underlying iframe
    */
   async stamp(payload: string): Promise<TStamp> {
-    console.log("calling stamp");
     if (this.iframePublicKey === null) {
       throw new Error(
         "null iframe public key. Have you called/awaited .init()?"
