@@ -103,6 +103,16 @@ export type TIframeSettings = {
   styles?: TIframeStyles;
 };
 
+interface PendingRequest {
+  resolve: (value: any) => void;
+  reject: (reason?: any) => void;
+  requestId: string;
+}
+
+function generateUUID(): string {
+  return crypto.randomUUID();
+}
+
 /**
  * Stamper to use with `@turnkey/http`'s `TurnkeyClient`
  * Creating a stamper inserts an iframe in the current page.
@@ -113,6 +123,8 @@ export class IframeStamper {
   iframeOrigin: string;
   iframePublicKey: string | null;
   messageChannel: MessageChannel;
+
+  private pendingRequests: Map<string, PendingRequest>;
 
   /**
    * Creates a new iframe stamper. This function _does not_ insert the iframe in the DOM.
@@ -162,6 +174,9 @@ export class IframeStamper {
      * See https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel
      */
     this.messageChannel = new MessageChannel();
+
+    // Initialize a pending requests tracker
+    this.pendingRequests = new Map();
   }
 
   /**
@@ -215,6 +230,7 @@ export class IframeStamper {
     this.messageChannel?.port1?.close();
     this.messageChannel?.port2?.close();
     this.iframe.remove();
+    this.pendingRequests.clear();
   }
 
   /**
@@ -236,6 +252,30 @@ export class IframeStamper {
   }
 
   onMessageHandler(event: MessageEvent, resolve: any, reject: any): void {
+    const requestId = event.data?.requestId;
+
+    // If there's a requestId, try to find the pending request
+    if (requestId && this.pendingRequests.has(requestId)) {
+      const pendingRequest = this.pendingRequests.get(requestId)!;
+      this.pendingRequests.delete(requestId);
+
+      switch (event.data?.type) {
+        case IframeEventType.Stamp:
+          pendingRequest.resolve({
+            stampHeaderName: stampHeaderName,
+            stampHeaderValue: event.data["value"],
+          });
+          break;
+        case IframeEventType.Error:
+          pendingRequest.reject(event.data["value"]);
+          break;
+        default:
+          pendingRequest.resolve(event.data["value"]);
+      }
+      return;
+    }
+
+    // Otherwise, if there's no requestId, handle per usual
     switch (event.data?.type) {
       case IframeEventType.Stamp:
         resolve({
@@ -263,6 +303,7 @@ export class IframeStamper {
         type: IframeEventType.InjectCredentialBundle,
         value: bundle,
       });
+
       this.messageChannel.port1.onmessage = (event) => {
         this.onMessageHandler(event, resolve, reject);
       };
@@ -383,11 +424,21 @@ export class IframeStamper {
       );
     }
 
-    this.messageChannel.port1.postMessage({
-      type: IframeEventType.StampRequest,
-      value: payload,
+    return new Promise((resolve, reject) => {
+      const requestId = generateUUID();
+      
+      this.pendingRequests.set(requestId, {
+        resolve,
+        reject,
+        requestId,
+      });
+  
+      this.messageChannel.port1.postMessage({
+        type: IframeEventType.StampRequest,
+        value: payload,
+        requestId
+      });
     });
 
-    return this.addMessageHandler();
   }
 }
