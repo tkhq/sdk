@@ -103,6 +103,16 @@ export type TIframeSettings = {
   styles?: TIframeStyles;
 };
 
+interface PendingRequest {
+  resolve: (value: any) => void;
+  reject: (reason?: any) => void;
+  requestId: string;
+}
+
+function generateUUID(): string {
+  return crypto.randomUUID();
+}
+
 /**
  * Stamper to use with `@turnkey/http`'s `TurnkeyClient`
  * Creating a stamper inserts an iframe in the current page.
@@ -113,6 +123,8 @@ export class IframeStamper {
   iframeOrigin: string;
   iframePublicKey: string | null;
   messageChannel: MessageChannel;
+
+  private pendingRequests: Map<string, PendingRequest>;
 
   /**
    * Creates a new iframe stamper. This function _does not_ insert the iframe in the DOM.
@@ -162,48 +174,86 @@ export class IframeStamper {
      * See https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel
      */
     this.messageChannel = new MessageChannel();
+
+    // Initialize a pending requests tracker
+    this.pendingRequests = new Map();
+  }
+
+  onMessageHandler(event: MessageEvent): void {
+    console.log("full event data", event.data);
+    console.log("pending requests", this.pendingRequests);
+
+    const { type, value, requestId } = event.data || {};
+
+    // Handle messages without requestId (like PUBLIC_KEY_READY)
+    if (!requestId) {
+      if (type === IframeEventType.PublicKeyReady) {
+        this.iframePublicKey = value;
+        return;
+      }
+      return;
+    }
+
+    const pendingRequest = this.pendingRequests.get(requestId);
+    if (!pendingRequest) {
+      console.warn(`Received response for unknown request: ${requestId}`);
+      return;
+    }
+
+    // Remove from pending requests
+    this.pendingRequests.delete(requestId);
+
+    if (type === IframeEventType.Error) {
+      pendingRequest.reject(new Error(value));
+      return;
+    }
+
+    // Handle specific response types
+    switch (type) {
+      case IframeEventType.Stamp:
+        pendingRequest.resolve({
+          stampHeaderName,
+          stampHeaderValue: value,
+        });
+        break;
+      default:
+        pendingRequest.resolve(value);
+    }
   }
 
   /**
    * Inserts the iframe on the page and returns a promise resolving to the iframe's public key
    */
   async init(): Promise<string> {
-    this.container.appendChild(this.iframe);
-    /**
-     * Once the iframe is loaded, we send a message to the iframe to hand over the
-     * MessageChannel's second port, port2, and establish the secure communication channel.
-     * The iframe will use this port to send messages back to the parent page.
-     * See https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/postMessage#transfer
-     */
-    this.iframe.addEventListener("load", () => {
-      if (
-        !this.iframe.contentWindow ||
-        !this.iframe.contentWindow.postMessage
-      ) {
-        throw new Error(
-          "contentWindow or contentWindow.postMessage does not exist"
-        );
-      }
+    return new Promise((resolve, reject) => {
+      this.container.appendChild(this.iframe);
 
-      this.iframe.contentWindow.postMessage(
-        { type: IframeEventType.TurnkeyInitMessageChannel },
-        this.iframeOrigin,
-        [this.messageChannel.port2]
-      );
-    });
-
-    return new Promise((resolve, _reject) => {
-      /**
-       * The MessageChannel port1 property is the port that gets attached
-       * to the context that instantiated the MessageChannel. This class, the IframeStamper,
-       * instantied the MessageChannel and will use port1 to send messages to the iframe.
-       * See https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel/port1
-       */
-      this.messageChannel.port1.onmessage = (event) => {
-        if (event.data?.type === IframeEventType.PublicKeyReady) {
-          this.iframePublicKey = event.data["value"];
-          resolve(event.data["value"]);
+      this.iframe.addEventListener("load", () => {
+        if (!this.iframe.contentWindow?.postMessage) {
+          reject(
+            new Error(
+              "contentWindow or contentWindow.postMessage does not exist"
+            )
+          );
+          return;
         }
+
+        this.iframe.contentWindow.postMessage(
+          { type: IframeEventType.TurnkeyInitMessageChannel },
+          this.iframeOrigin,
+          [this.messageChannel.port2]
+        );
+      });
+
+      this.messageChannel.port1.onmessage = (event) => {
+        // Handle initial PublicKeyReady event
+        if (event.data?.type === IframeEventType.PublicKeyReady) {
+          this.iframePublicKey = event.data.value;
+          resolve(event.data.value);
+        }
+
+        // Handle all other messages
+        this.onMessageHandler(event);
       };
     });
   }
@@ -215,6 +265,7 @@ export class IframeStamper {
     this.messageChannel?.port1?.close();
     this.messageChannel?.port2?.close();
     this.iframe.remove();
+    this.pendingRequests.clear();
   }
 
   /**
@@ -225,30 +276,33 @@ export class IframeStamper {
   }
 
   /**
-   * Adds a message handler to the iframe's message channel
+   * Generic function to abstract away request creation
+   * @param type
+   * @param payload
+   * @returns
    */
-  addMessageHandler(): Promise<any> {
+  private createRequest<T>(
+    type: IframeEventType,
+    payload: any = {}
+  ): Promise<T> {
+    console.log("creating request");
     return new Promise((resolve, reject) => {
-      this.messageChannel.port1.onmessage = (event) => {
-        this.onMessageHandler(event, resolve, reject);
-      };
-    });
-  }
+      const requestId = generateUUID();
 
-  onMessageHandler(event: MessageEvent, resolve: any, reject: any): void {
-    switch (event.data?.type) {
-      case IframeEventType.Stamp:
-        resolve({
-          stampHeaderName: stampHeaderName,
-          stampHeaderValue: event.data["value"],
-        });
-        break;
-      case IframeEventType.Error:
-        reject(event.data["value"]);
-        break;
-      default:
-        resolve(event.data["value"]);
-    }
+      console.log("new request id", requestId);
+
+      this.pendingRequests.set(requestId, {
+        resolve,
+        reject,
+        requestId,
+      });
+
+      this.messageChannel.port1.postMessage({
+        type,
+        requestId,
+        ...payload,
+      });
+    });
   }
 
   /**
@@ -258,14 +312,8 @@ export class IframeStamper {
    * This is used during recovery and auth flows.
    */
   async injectCredentialBundle(bundle: string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      this.messageChannel.port1.postMessage({
-        type: IframeEventType.InjectCredentialBundle,
-        value: bundle,
-      });
-      this.messageChannel.port1.onmessage = (event) => {
-        this.onMessageHandler(event, resolve, reject);
-      };
+    return this.createRequest<boolean>(IframeEventType.InjectCredentialBundle, {
+      value: bundle,
     });
   }
 
@@ -281,14 +329,11 @@ export class IframeStamper {
     organizationId: string,
     keyFormat?: KeyFormat
   ): Promise<boolean> {
-    this.messageChannel.port1.postMessage({
-      type: IframeEventType.InjectKeyExportBundle,
+    return this.createRequest<boolean>(IframeEventType.InjectKeyExportBundle, {
       value: bundle,
       keyFormat,
       organizationId,
     });
-
-    return this.addMessageHandler();
   }
 
   /**
@@ -301,13 +346,13 @@ export class IframeStamper {
     bundle: string,
     organizationId: string
   ): Promise<boolean> {
-    this.messageChannel.port1.postMessage({
-      type: IframeEventType.InjectWalletExportBundle,
-      value: bundle,
-      organizationId,
-    });
-
-    return this.addMessageHandler();
+    return this.createRequest<boolean>(
+      IframeEventType.InjectWalletExportBundle,
+      {
+        value: bundle,
+        organizationId,
+      }
+    );
   }
 
   /**
@@ -319,14 +364,11 @@ export class IframeStamper {
     organizationId: string,
     userId: string
   ): Promise<boolean> {
-    this.messageChannel.port1.postMessage({
-      type: IframeEventType.InjectImportBundle,
+    return this.createRequest<boolean>(IframeEventType.InjectImportBundle, {
       value: bundle,
       organizationId,
       userId,
     });
-
-    return this.addMessageHandler();
   }
 
   /**
@@ -336,11 +378,9 @@ export class IframeStamper {
    * This is used during the wallet import flow.
    */
   async extractWalletEncryptedBundle(): Promise<string> {
-    this.messageChannel.port1.postMessage({
-      type: IframeEventType.ExtractWalletEncryptedBundle,
-    });
-
-    return this.addMessageHandler();
+    return this.createRequest<string>(
+      IframeEventType.ExtractWalletEncryptedBundle
+    );
   }
 
   /**
@@ -351,12 +391,10 @@ export class IframeStamper {
    * This is used during the private key import flow.
    */
   async extractKeyEncryptedBundle(keyFormat?: KeyFormat): Promise<string> {
-    this.messageChannel.port1.postMessage({
-      type: IframeEventType.ExtractKeyEncryptedBundle,
-      keyFormat: keyFormat,
-    });
-
-    return this.addMessageHandler();
+    return this.createRequest<string>(
+      IframeEventType.ExtractKeyEncryptedBundle,
+      { keyFormat }
+    );
   }
 
   /**
@@ -364,30 +402,24 @@ export class IframeStamper {
    * This is used to style the HTML element used for plaintext in wallet and private key import.
    */
   async applySettings(settings: TIframeSettings): Promise<boolean> {
-    const settingsStr = JSON.stringify(settings);
-    this.messageChannel.port1.postMessage({
-      type: IframeEventType.ApplySettings,
-      value: settingsStr,
+    return this.createRequest<boolean>(IframeEventType.ApplySettings, {
+      value: JSON.stringify(settings),
     });
-
-    return this.addMessageHandler();
   }
 
   /**
    * Function to sign a payload with the underlying iframe
    */
   async stamp(payload: string): Promise<TStamp> {
+    console.log("calling stamp");
     if (this.iframePublicKey === null) {
       throw new Error(
         "null iframe public key. Have you called/awaited .init()?"
       );
     }
 
-    this.messageChannel.port1.postMessage({
-      type: IframeEventType.StampRequest,
+    return this.createRequest<TStamp>(IframeEventType.StampRequest, {
       value: payload,
     });
-
-    return this.addMessageHandler();
   }
 }

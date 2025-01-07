@@ -1,10 +1,18 @@
 import Image from "next/image";
 import styles from "./index.module.css";
 import { useTurnkey } from "@turnkey/sdk-react";
+import { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
 import { useState } from "react";
+
+const turnkeyClient = new TurnkeySDKClient({
+  apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+  apiPublicKey: "0327a50032e6f0631d5605b6ada32b779074f346e81b68e12801640f1c9ee03dae",
+  apiPrivateKey: "3eaac6a4fe0a874419d088ab8089a8932c601e721d7ff123e3e359de6cce55e8",
+  defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+});
 
 /**
  * Type definition for the server response coming back from `/api/auth`
@@ -76,22 +84,60 @@ export default function AuthPage() {
 
     const orgID = whoamiResponse.organizationId;
 
-    const createWalletResponse = await authIframeClient!.createWallet({
-      organizationId: orgID,
-      walletName: data.walletName,
-      accounts: [
-        {
-          curve: "CURVE_SECP256K1",
-          pathFormat: "PATH_FORMAT_BIP32",
-          path: "m/44'/60'/0'/0/0",
-          addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-        },
-      ],
+    console.log("whoami?", whoamiResponse);
+
+    function createRandomString(length: number): string {
+      const chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let result = "";
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    const start = new Date().getTime();
+
+    let signingPromises = [];
+    for (let i = 0; i < 100; i++) {
+      signingPromises.push(
+        turnkeyClient.apiClient()!.signRawPayload({
+          signWith: "0xc95B01326731D17972a4845458fc954f2aD37E8e",
+          payload: createRandomString(20),
+          encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+          hashFunction: "HASH_FUNCTION_SHA256",
+        })
+      );
+    }
+
+    // This is the step which waits on all signing promises to complete
+    const signatures = await Promise.allSettled(signingPromises);
+
+    const end = new Date().getTime();
+
+    console.log("signatures", signatures);
+    console.log({
+      start,
+      end,
+      diff: end - start,
     });
 
-    const address = refineNonNull(createWalletResponse.addresses[0]);
+    // const createWalletResponse = await authIframeClient!.createWallet({
+    //   organizationId: orgID,
+    //   walletName: data.walletName,
+    //   accounts: [
+    //     {
+    //       curve: "CURVE_SECP256K1",
+    //       pathFormat: "PATH_FORMAT_BIP32",
+    //       path: "m/44'/60'/0'/0/0",
+    //       addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+    //     },
+    //   ],
+    // });
 
-    alert(`SUCCESS! Wallet and new address created: ${address} `);
+    // const address = refineNonNull(createWalletResponse.addresses[0]);
+
+    // alert(`SUCCESS! Wallet and new address created: ${address} `);
   };
 
   return (
@@ -116,7 +162,10 @@ export default function AuthPage() {
       {authIframeClient &&
         authIframeClient.iframePublicKey &&
         authResponse === null && (
-          <form className={styles.form} onSubmit={authFormSubmit(auth)}>
+          <form
+            className={styles.form}
+            onSubmit={authFormSubmit(auth)}
+          >
             <label className={styles.label}>
               Email
               <input
@@ -150,7 +199,11 @@ export default function AuthPage() {
               </code>
             </label>
 
-            <input className={styles.button} type="submit" value="Auth" />
+            <input
+              className={styles.button}
+              type="submit"
+              value="Auth"
+            />
           </form>
         )}
 
