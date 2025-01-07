@@ -1,10 +1,18 @@
 import Image from "next/image";
 import styles from "./index.module.css";
 import { useTurnkey } from "@turnkey/sdk-react";
+import { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
 import { useState } from "react";
+
+const turnkeyClient = new TurnkeySDKClient({
+  apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+  apiPublicKey: "0327a50032e6f0631d5605b6ada32b779074f346e81b68e12801640f1c9ee03dae",
+  apiPrivateKey: "3eaac6a4fe0a874419d088ab8089a8932c601e721d7ff123e3e359de6cce55e8",
+  defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+});
 
 /**
  * Type definition for the server response coming back from `/api/auth`
@@ -93,7 +101,7 @@ export default function AuthPage() {
     let signingPromises = [];
     for (let i = 0; i < 100; i++) {
       signingPromises.push(
-        authIframeClient!.signRawPayload({
+        turnkeyClient.apiClient()!.signRawPayload({
           signWith: "0xc95B01326731D17972a4845458fc954f2aD37E8e",
           payload: createRandomString(20),
           encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
@@ -103,7 +111,7 @@ export default function AuthPage() {
     }
 
     // This is the step which waits on all signing promises to complete
-    const signatures = await Promise.all(signingPromises);
+    const signatures = await Promise.allSettled(signingPromises);
 
     const end = new Date().getTime();
 
