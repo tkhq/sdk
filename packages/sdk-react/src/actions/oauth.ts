@@ -29,7 +29,9 @@ export async function oauth(
       oidcToken: request.oidcToken,
       targetPublicKey: request.targetPublicKey,
       organizationId: request.suborgID,
-      ...(request.sessionLength !== undefined && { expirationSeconds: request.sessionLength.toString() })
+      ...(request.sessionLength !== undefined && {
+        expirationSeconds: request.sessionLength.toString(),
+      }),
     });
 
     const { credentialBundle, apiKeyId, userId } = oauthResponse;

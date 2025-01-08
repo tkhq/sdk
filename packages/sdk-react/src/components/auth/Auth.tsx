@@ -276,7 +276,7 @@ const Auth: React.FC<AuthProps> = ({
       suborgID: suborgId,
       oidcToken: credential,
       targetPublicKey: authIframeClient?.iframePublicKey!,
-      sessionLength: authConfig.sessionLength
+      sessionLength: authConfig.sessionLength,
     });
     if (oauthResponse && oauthResponse.credentialBundle) {
       await handleAuthSuccess(oauthResponse!.credentialBundle);
@@ -406,7 +406,7 @@ const Auth: React.FC<AuthProps> = ({
             </button>
           </form>
         ) : null;
-      
+
       case "phone":
         return authConfig.phoneEnabled && !otpId ? (
           <form
@@ -427,7 +427,6 @@ const Auth: React.FC<AuthProps> = ({
             </button>
           </form>
         ) : null;
-      
 
       case "passkey":
         return authConfig.passkeyEnabled && !otpId ? (

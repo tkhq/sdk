@@ -49,7 +49,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         otpId,
         otpCode: otp,
         targetPublicKey: authIframeClient!.iframePublicKey!,
-        sessionLength
+        sessionLength,
       });
 
       if (authResponse?.credentialBundle) {

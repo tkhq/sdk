@@ -31,7 +31,9 @@ export async function otpAuth(
       otpCode: request.otpCode,
       targetPublicKey: request.targetPublicKey,
       organizationId: request.suborgID,
-      ...(request.sessionLength !== undefined && { expirationSeconds: request.sessionLength.toString() })
+      ...(request.sessionLength !== undefined && {
+        expirationSeconds: request.sessionLength.toString(),
+      }),
     });
     const { credentialBundle, apiKeyId, userId } = otpAuthResponse;
 
