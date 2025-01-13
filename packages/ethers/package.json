@@ -65,6 +65,7 @@
     "@typechain/hardhat": "^9.1.0",
     "ethers": "^6.10.0",
     "hardhat": "^2.19.4",
+    "tslib": "^2.8.1",
     "typechain": "^8.3.2"
   },
   "engines": {

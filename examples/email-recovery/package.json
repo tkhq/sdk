@@ -14,20 +14,20 @@
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-react": "workspace:*",
-    "@types/node": "20.3.1",
+    "@types/node": "^22.10.5",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
     "axios": "^1.7.4",
     "encoding": "^0.1.13",
-    "eslint": "8.56.0",
-    "eslint-config-next": "14.2.20",
+    "eslint": "^9.18.0",
+    "eslint-config-next": "^15.1.4",
     "esm": "^3.2.25",
     "install": "^0.13.0",
-    "next": "^14.2.20",
-    "npm": "^9.7.2",
+    "next": "^15.1.4",
+    "npm": "^10.9.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.45.1",
-    "typescript": "5.1.3"
+    "typescript": "^5.1.3"
   }
 }

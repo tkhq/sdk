@@ -1,9 +1,7 @@
 /// <reference lib="dom" />
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import {
-  TelegramCloudStorageStamperError,
-  TelegramSuccessButFalseError,
-} from "./errors";
+import { TelegramCloudStorageStamperError } from "@errors";
+
 
 declare global {
   interface Window {

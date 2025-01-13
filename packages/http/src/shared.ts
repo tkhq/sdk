@@ -13,7 +13,7 @@ export class TurnkeyActivityError extends Error {
   activityId: TActivityId | undefined;
   activityStatus: TActivityStatus | undefined;
   activityType: TActivityType | undefined;
-  cause: Error | undefined;
+  override cause: Error | undefined;
 
   constructor(input: {
     message: string;
@@ -37,7 +37,7 @@ export class TurnkeyActivityConsensusNeededError extends Error {
   activityId: TActivityId | undefined;
   activityStatus: TActivityStatus | undefined;
   activityType: TActivityType | undefined;
-  cause: Error | undefined;
+  override cause: Error | undefined;
 
   constructor(input: {
     message: string;
@@ -61,7 +61,7 @@ export class InvalidArgumentError extends Error {
   activityId: TActivityId | undefined;
   activityStatus: TActivityStatus | undefined;
   activityType: TActivityType | undefined;
-  cause: Error | undefined;
+  override cause: Error | undefined;
 
   constructor(input: {
     message: string;

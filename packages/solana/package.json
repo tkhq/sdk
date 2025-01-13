@@ -55,8 +55,9 @@
   },
   "devDependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
-    "bs58": "^5.0.0",
-    "tweetnacl": "^1.0.3"
+    "bs58": "^6.0.0",
+    "tweetnacl": "^1.0.3",
+    "tslib": "^2.8.1"
   },
   "engines": {
     "node": ">=18.0.0"
