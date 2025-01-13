@@ -17,6 +17,7 @@ import OtpVerification from "./OtpVerification";
 import { useTurnkey } from "../../hooks/use-turnkey";
 import { getVerifiedSuborgs } from "../../actions/getVerifiedSuborgs";
 import { FilterType, OtpType, authErrors } from "./constants";
+import type { WalletAccount } from "@turnkey/sdk-browser";
 
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
@@ -61,10 +62,11 @@ interface AuthProps {
     appleEnabled: boolean;
     facebookEnabled: boolean;
     googleEnabled: boolean;
-    sessionLength?: number;
+    sessionLength?: number; // Desired expiration time in seconds for the generated API key
   };
   configOrder: string[];
   customSmsMessage?: string;
+  customAccounts?: WalletAccount[];
 }
 
 const Auth: React.FC<AuthProps> = ({
@@ -73,6 +75,7 @@ const Auth: React.FC<AuthProps> = ({
   authConfig,
   configOrder,
   customSmsMessage,
+  customAccounts,
 }) => {
   const { passkeyClient, authIframeClient } = useTurnkey();
   const [email, setEmail] = useState<string>("");
@@ -152,7 +155,9 @@ const Auth: React.FC<AuthProps> = ({
       if (filterType === FilterType.Email) createSuborgData.email = filterValue;
       else if (filterType === FilterType.PhoneNumber)
         createSuborgData.phoneNumber = filterValue;
-
+      if (customAccounts) {
+        createSuborgData.customAccounts = customAccounts;
+      }
       const createSuborgResponse = await createSuborg(createSuborgData);
       if (!createSuborgResponse || !createSuborgResponse.subOrganizationId) {
         onError(authErrors.suborg.createFailed);
@@ -199,6 +204,7 @@ const Auth: React.FC<AuthProps> = ({
               challenge: encodedChallenge,
               attestation,
             },
+            ...(customAccounts && { customAccounts }),
           });
           if (response?.subOrganizationId) {
             setPasskeyCreated(true);

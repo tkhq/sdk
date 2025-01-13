@@ -6,7 +6,7 @@ type OauthRequest = {
   suborgID: string;
   oidcToken: string;
   targetPublicKey: string;
-  sessionLength?: number | undefined;
+  sessionLength?: number | undefined; // Desired expiration time in seconds for the generated API key
 };
 
 type OauthResponse = {

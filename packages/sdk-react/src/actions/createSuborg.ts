@@ -3,6 +3,7 @@
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   DEFAULT_SOLANA_ACCOUNTS,
+  WalletAccount,
 } from "@turnkey/sdk-browser";
 import { Turnkey } from "@turnkey/sdk-server";
 
@@ -11,6 +12,7 @@ type CreateSuborgRequest = {
   email?: string;
   phoneNumber?: string;
   passkey?: Passkey;
+  customAccounts?: WalletAccount[]; //If not specified will generate both default ETH and SOL accounts
 };
 
 type Passkey = {
@@ -57,7 +59,10 @@ export async function createSuborg(
         ],
         wallet: {
           walletName: `Wallet 1`,
-          accounts: [...DEFAULT_ETHEREUM_ACCOUNTS, ...DEFAULT_SOLANA_ACCOUNTS],
+          accounts: request.customAccounts ?? [
+            ...DEFAULT_ETHEREUM_ACCOUNTS,
+            ...DEFAULT_SOLANA_ACCOUNTS,
+          ],
         },
       });
 
