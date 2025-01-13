@@ -41,15 +41,20 @@ export async function signMessage({
   organizationId: string;
   signWith: string;
 }): Promise<string> {
+  const parameters = {
+    signWith,
+    payload: pad(message),
+    encoding:
+      "PAYLOAD_ENCODING_HEXADECIMAL" as definitions["v1PayloadEncoding"],
+    hashFunction: "HASH_FUNCTION_NO_OP" as definitions["v1HashFunction"],
+  };
+
+  console.log("logging sign message parameters:", parameters);
+
   const activityResponse = await client.signRawPayload({
     type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
     organizationId,
-    parameters: {
-      signWith,
-      payload: pad(message),
-      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-      hashFunction: "HASH_FUNCTION_NO_OP",
-    },
+    parameters,
     timestampMs: String(Date.now()), // millisecond timestamp
   });
 
