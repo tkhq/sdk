@@ -17,7 +17,7 @@ interface OtpVerificationProps {
   suborgId: string;
   otpId: string;
   authIframeClient: any;
-  sessionLength?: number | undefined;
+  sessionLengthSeconds?: number | undefined;
   onValidateSuccess: (credentialBundle: any) => Promise<void>;
   onResendCode: (
     type: FilterType.Email | FilterType.PhoneNumber,
@@ -31,7 +31,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   suborgId,
   otpId,
   authIframeClient,
-  sessionLength,
+  sessionLengthSeconds,
   onValidateSuccess,
   onResendCode,
 }) => {
@@ -49,7 +49,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         otpId,
         otpCode: otp,
         targetPublicKey: authIframeClient!.iframePublicKey!,
-        sessionLength,
+        sessionLengthSeconds,
       });
 
       if (authResponse?.credentialBundle) {

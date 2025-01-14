@@ -7,7 +7,7 @@ type OtpAuthRequest = {
   otpId: string;
   otpCode: string;
   targetPublicKey: string;
-  sessionLength?: number | undefined; // Desired expiration time in seconds for the generated API key
+  sessionLengthSeconds?: number | undefined; // Desired expiration time in seconds for the generated API key
 };
 
 type OtpAuthResponse = {
@@ -31,8 +31,8 @@ export async function otpAuth(
       otpCode: request.otpCode,
       targetPublicKey: request.targetPublicKey,
       organizationId: request.suborgID,
-      ...(request.sessionLength !== undefined && {
-        expirationSeconds: request.sessionLength.toString(),
+      ...(request.sessionLengthSeconds !== undefined && {
+        expirationSeconds: request.sessionLengthSeconds.toString(),
       }),
     });
     const { credentialBundle, apiKeyId, userId } = otpAuthResponse;

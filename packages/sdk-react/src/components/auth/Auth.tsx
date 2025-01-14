@@ -62,7 +62,7 @@ interface AuthProps {
     appleEnabled: boolean;
     facebookEnabled: boolean;
     googleEnabled: boolean;
-    sessionLength?: number; // Desired expiration time in seconds for the generated API key
+    sessionLengthSeconds?: number; // Desired expiration time in seconds for the generated API key
   };
   configOrder: string[];
   customSmsMessage?: string;
@@ -282,7 +282,7 @@ const Auth: React.FC<AuthProps> = ({
       suborgID: suborgId,
       oidcToken: credential,
       targetPublicKey: authIframeClient?.iframePublicKey!,
-      sessionLength: authConfig.sessionLength,
+      sessionLengthSeconds: authConfig.sessionLengthSeconds,
     });
     if (oauthResponse && oauthResponse.credentialBundle) {
       await handleAuthSuccess(oauthResponse!.credentialBundle);
@@ -585,7 +585,7 @@ const Auth: React.FC<AuthProps> = ({
                     contact={step === OtpType.Email ? email : phone}
                     suborgId={suborgId}
                     otpId={otpId!}
-                    sessionLength={authConfig.sessionLength}
+                    sessionLengthSeconds={authConfig.sessionLengthSeconds}
                     authIframeClient={authIframeClient!}
                     onValidateSuccess={handleAuthSuccess}
                     onResendCode={handleResendCode}
