@@ -24,7 +24,7 @@ const {
 } = process.env;
 
 // Note: this is not currently in use
-export const createAPIKeyStamper = (options?: TApiKeyStamperConfig) => {
+export const createAPIKeyStamper = async (options?: TApiKeyStamperConfig) => {
   const apiPublicKey = options?.apiPublicKey || TURNKEY_API_PUBLIC_KEY;
   const apiPrivateKey = options?.apiPrivateKey || TURNKEY_API_PRIVATE_KEY;
 
@@ -53,9 +53,6 @@ export const createUserSubOrg = async (
     attestation: Attestation;
   },
 ) => {
-  const organizationId = NEXT_PUBLIC_ORGANIZATION_ID!;
-  const timestampMs = String(Date.now());
-
   const rootUsersOptions =
     challenge && attestation
       ? {
@@ -84,10 +81,6 @@ export const createUserSubOrg = async (
   const userName = email.split("@")[0];
   const createSubOrganizationResult = await turnkeyClient
     .createSubOrganization({
-      // type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
-      // timestampMs,
-      // organizationId,
-      // parameters: {
       subOrganizationName: `Sub Org - ${email}`,
       rootQuorumThreshold: 1,
       rootUsers: [
@@ -108,7 +101,6 @@ export const createUserSubOrg = async (
           },
         ],
       },
-      // },
     })
     .catch((error) => {
       console.error(error);
