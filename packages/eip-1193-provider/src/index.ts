@@ -137,7 +137,7 @@ export const createEIP1193Provider = async (
           const signedMessage = await signMessage({
             organizationId,
             message,
-            signWith,
+            signWith: getAddress(signWith),
             client: turnkeyClient,
           });
           setConnected(true, { chainId: activeChain.chainId });
@@ -150,7 +150,7 @@ export const createEIP1193Provider = async (
           const signedMessage = await signMessage({
             organizationId,
             message,
-            signWith,
+            signWith: getAddress(signWith),
             client: turnkeyClient,
           });
           setConnected(true, { chainId: activeChain.chainId });
@@ -166,7 +166,7 @@ export const createEIP1193Provider = async (
           const signedMessage = await signMessage({
             organizationId,
             message,
-            signWith,
+            signWith: getAddress(signWith),
             client: turnkeyClient,
           });
           setConnected(true, { chainId: activeChain.chainId });
