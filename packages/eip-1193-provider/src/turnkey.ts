@@ -1,8 +1,14 @@
-import type { TurnkeyClient } from "@turnkey/http";
-import type { TSignRawPayloadResponse } from "@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher";
+import { TurnkeyClient } from "@turnkey/http";
+import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
+import type {
+  TSignRawPayloadResponse,
+  TSignTransactionResponse,
+} from "@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher";
 import type { definitions } from "@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.types";
+
 import { signatureToHex } from "viem";
 import { pad } from "viem/utils";
+
 import { TURNKEY_ERROR_CODE } from "./constants";
 
 export function unwrapActivityResult<
@@ -36,22 +42,33 @@ export async function signMessage({
   organizationId,
   signWith,
 }: {
-  client: TurnkeyClient;
+  client: TurnkeyClient | TurnkeyBrowserClient;
   message: `0x${string}`;
   organizationId: string;
   signWith: string;
 }): Promise<string> {
-  const activityResponse = await client.signRawPayload({
-    type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
-    organizationId,
-    parameters: {
+  let activityResponse;
+
+  if (client instanceof TurnkeyClient) {
+    activityResponse = await client.signRawPayload({
+      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
+      organizationId,
+      parameters: {
+        signWith,
+        payload: pad(message),
+        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+        hashFunction: "HASH_FUNCTION_NO_OP",
+      },
+      timestampMs: String(Date.now()), // millisecond timestamp
+    });
+  } else {
+    activityResponse = await client.signRawPayload({
       signWith,
-      payload: pad(message),
+      payload: message,
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
       hashFunction: "HASH_FUNCTION_NO_OP",
-    },
-    timestampMs: String(Date.now()), // millisecond timestamp
-  });
+    });
+  }
 
   const { signRawPayloadResult: signature } =
     unwrapActivityResult<TSignRawPayloadResponse>(activityResponse, {
@@ -68,6 +85,51 @@ export async function signMessage({
     s: `0x${signature.s}`,
     v: BigInt(signature.v) + 27n,
   });
+}
+
+export async function signTransaction({
+  client,
+  unsignedTransaction,
+  organizationId,
+  signWith,
+}: {
+  client: TurnkeyClient | TurnkeyBrowserClient;
+  unsignedTransaction: string;
+  organizationId: string;
+  signWith: string;
+}): Promise<string> {
+  let activityResponse;
+
+  if (client instanceof TurnkeyClient) {
+    activityResponse = await client.signTransaction({
+      type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
+      organizationId: organizationId,
+      parameters: {
+        signWith,
+        type: "TRANSACTION_TYPE_ETHEREUM",
+        unsignedTransaction: unsignedTransaction,
+      },
+      timestampMs: String(Date.now()), // millisecond timestamp
+    });
+  } else {
+    activityResponse = await client.signTransaction({
+      signWith,
+      type: "TRANSACTION_TYPE_ETHEREUM",
+      unsignedTransaction: unsignedTransaction,
+    });
+  }
+
+  const { signTransactionResult } =
+    unwrapActivityResult<TSignTransactionResponse>(activityResponse, {
+      errorMessage: "Error signing transaction",
+    });
+
+  if (!signTransactionResult) {
+    // @todo update error message
+    throw "Error signing transaction";
+  }
+
+  return signTransactionResult.signedTransaction;
 }
 
 /**
