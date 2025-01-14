@@ -125,7 +125,7 @@ export async function signTransaction({
     });
 
   if (!signTransactionResult) {
-    // @todo update error message
+    // @todo update error handling (e.g. consensus)
     throw "Error signing transaction";
   }
 
