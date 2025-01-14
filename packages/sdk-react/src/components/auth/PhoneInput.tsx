@@ -48,7 +48,6 @@ export const MuiPhone: React.FC<MUIPhoneProps> = ({
       name="phone-input"
       variant="outlined"
       color="primary"
-      autoComplete="off"
       placeholder="Phone number"
       value={inputValue}
       onChange={handlePhoneValueChange}

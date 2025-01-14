@@ -1,4 +1,4 @@
-interface WalletAccount {
+export interface WalletAccount {
   curve: "CURVE_SECP256K1" | "CURVE_ED25519";
   pathFormat: "PATH_FORMAT_BIP32";
   path: string;

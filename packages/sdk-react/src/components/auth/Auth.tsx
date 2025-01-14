@@ -17,6 +17,7 @@ import OtpVerification from "./OtpVerification";
 import { useTurnkey } from "../../hooks/use-turnkey";
 import { getVerifiedSuborgs } from "../../actions/getVerifiedSuborgs";
 import { FilterType, OtpType, authErrors } from "./constants";
+import type { WalletAccount } from "@turnkey/sdk-browser";
 
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
@@ -61,9 +62,11 @@ interface AuthProps {
     appleEnabled: boolean;
     facebookEnabled: boolean;
     googleEnabled: boolean;
+    sessionLengthSeconds?: number; // Desired expiration time in seconds for the generated API key
   };
   configOrder: string[];
   customSmsMessage?: string;
+  customAccounts?: WalletAccount[];
 }
 
 const Auth: React.FC<AuthProps> = ({
@@ -72,6 +75,7 @@ const Auth: React.FC<AuthProps> = ({
   authConfig,
   configOrder,
   customSmsMessage,
+  customAccounts,
 }) => {
   const { passkeyClient, authIframeClient } = useTurnkey();
   const [email, setEmail] = useState<string>("");
@@ -151,7 +155,9 @@ const Auth: React.FC<AuthProps> = ({
       if (filterType === FilterType.Email) createSuborgData.email = filterValue;
       else if (filterType === FilterType.PhoneNumber)
         createSuborgData.phoneNumber = filterValue;
-
+      if (customAccounts) {
+        createSuborgData.customAccounts = customAccounts;
+      }
       const createSuborgResponse = await createSuborg(createSuborgData);
       if (!createSuborgResponse || !createSuborgResponse.subOrganizationId) {
         onError(authErrors.suborg.createFailed);
@@ -198,6 +204,7 @@ const Auth: React.FC<AuthProps> = ({
               challenge: encodedChallenge,
               attestation,
             },
+            ...(customAccounts && { customAccounts }),
           });
           if (response?.subOrganizationId) {
             setPasskeyCreated(true);
@@ -275,6 +282,7 @@ const Auth: React.FC<AuthProps> = ({
       suborgID: suborgId,
       oidcToken: credential,
       targetPublicKey: authIframeClient?.iframePublicKey!,
+      sessionLengthSeconds: authConfig.sessionLengthSeconds,
     });
     if (oauthResponse && oauthResponse.credentialBundle) {
       await handleAuthSuccess(oauthResponse!.credentialBundle);
@@ -294,6 +302,7 @@ const Auth: React.FC<AuthProps> = ({
       sx={{
         color: "var(--text-secondary)",
         position: "absolute",
+        fontSize: "24px",
         top: 16,
         left: 16,
         zIndex: 10,
@@ -358,11 +367,15 @@ const Auth: React.FC<AuthProps> = ({
     switch (section) {
       case "email":
         return authConfig.emailEnabled && !otpId ? (
-          <div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleOtpLogin(FilterType.Email, email, OtpType.Email);
+            }}
+          >
             <div className={styles.inputGroup}>
               <TextField
-                name="emailInput"
-                autoComplete="off"
+                name="email-input"
                 type="email"
                 placeholder="Enter your email"
                 value={email}
@@ -392,15 +405,33 @@ const Auth: React.FC<AuthProps> = ({
             </div>
             <button
               className={styles.authButton}
-              type="button"
-              onClick={() =>
-                handleOtpLogin(FilterType.Email, email, OtpType.Email)
-              }
+              type="submit"
               disabled={!isValidEmail(email)}
             >
               Continue
             </button>
-          </div>
+          </form>
+        ) : null;
+
+      case "phone":
+        return authConfig.phoneEnabled && !otpId ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleOtpLogin(FilterType.PhoneNumber, phone, OtpType.Sms);
+            }}
+          >
+            <div className={styles.phoneInput}>
+              <MuiPhone onChange={(value) => setPhone(value)} value={phone} />
+            </div>
+            <button
+              className={styles.authButton}
+              type="submit"
+              disabled={!isValidPhone(phone)}
+            >
+              Continue
+            </button>
+          </form>
         ) : null;
 
       case "passkey":
@@ -419,25 +450,6 @@ const Auth: React.FC<AuthProps> = ({
             >
               Sign up with passkey
             </div>
-          </div>
-        ) : null;
-
-      case "phone":
-        return authConfig.phoneEnabled && !otpId ? (
-          <div>
-            <div className={styles.phoneInput}>
-              <MuiPhone onChange={(value) => setPhone(value)} value={phone} />
-            </div>
-            <button
-              className={styles.authButton}
-              type="button"
-              onClick={() =>
-                handleOtpLogin(FilterType.PhoneNumber, phone, OtpType.Sms)
-              }
-              disabled={!isValidPhone(phone)}
-            >
-              Continue
-            </button>
           </div>
         ) : null;
 
@@ -573,6 +585,7 @@ const Auth: React.FC<AuthProps> = ({
                     contact={step === OtpType.Email ? email : phone}
                     suborgId={suborgId}
                     otpId={otpId!}
+                    sessionLengthSeconds={authConfig.sessionLengthSeconds}
                     authIframeClient={authIframeClient!}
                     onValidateSuccess={handleAuthSuccess}
                     onResendCode={handleResendCode}

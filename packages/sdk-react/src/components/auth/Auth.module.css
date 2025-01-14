@@ -1,12 +1,20 @@
+.authCard {
+  position: relative;
+  width: var(--card-width);
+  margin: 0 auto;
+  padding: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
+
 .authCardLoading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  max-width: 450px;
-  min-width: 375px;
-  height: 200px;
+  width: var(--card-width);
   margin: 0 auto;
   padding: 20px;
   background: var(--card-bg);
@@ -57,19 +65,6 @@
   transform: translate(-50%, -50%);
   width: 60px;
   height: 60px;
-}
-
-.authCard {
-  position: relative;
-  width: 100%;
-  max-width: 450px;
-  min-width: 375px;
-  margin: 0 auto;
-  padding: 20px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--card-radius);
-  box-shadow: var(--card-shadow);
 }
 
 .authCard h2 {
