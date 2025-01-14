@@ -2,6 +2,8 @@
 
 This example shows how to the `@turnkey/eip-1193-provider` package.
 
+<img src="./img/eip1193.png" alt="primary screenshot" width="1000px">
+
 ## Getting started
 
 ### 1/ Cloning the example

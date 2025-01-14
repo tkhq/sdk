@@ -1,6 +1,11 @@
 "use server";
 
 import {
+  Turnkey as TurnkeyServerSDK,
+  TurnkeyApiTypes,
+  TurnkeyServerClient,
+} from "@turnkey/sdk-server";
+import {
   ApiKeyStamper,
   type TApiKeyStamperConfig,
 } from "@turnkey/api-key-stamper";
@@ -18,6 +23,7 @@ const {
   NEXT_PUBLIC_BASE_URL,
 } = process.env;
 
+// Note: this is not currently in use
 export const createAPIKeyStamper = (options?: TApiKeyStamperConfig) => {
   const apiPublicKey = options?.apiPublicKey || TURNKEY_API_PUBLIC_KEY;
   const apiPrivateKey = options?.apiPrivateKey || TURNKEY_API_PRIVATE_KEY;
@@ -26,17 +32,19 @@ export const createAPIKeyStamper = (options?: TApiKeyStamperConfig) => {
     throw "Error must provide public and private api key or define API_PUBLIC_KEY API_PRIVATE_KEY in your .env file";
   }
 
-  return new ApiKeyStamper({
+  return new TurnkeyServerSDK({
+    apiBaseUrl: NEXT_PUBLIC_BASE_URL!,
+    defaultOrganizationId: NEXT_PUBLIC_ORGANIZATION_ID!,
     apiPublicKey,
     apiPrivateKey,
   });
 };
 
 export const createUserSubOrg = async (
-  turnkeyClient: TurnkeyClient,
+  turnkeyClient: TurnkeyServerClient,
   {
     email,
-    // if challenge and attestation are provided we are creating a non-custodial wallet using the users provided authenticator
+    // if challenge and attestation are provided we are creating a non-custodial wallet using the user's provided authenticator
     challenge,
     attestation,
   }: {
@@ -45,11 +53,6 @@ export const createUserSubOrg = async (
     attestation: Attestation;
   },
 ) => {
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createSubOrganization,
-  });
-
   const organizationId = NEXT_PUBLIC_ORGANIZATION_ID!;
   const timestampMs = String(Date.now());
 
@@ -64,6 +67,7 @@ export const createUserSubOrg = async (
             },
           ],
           apiKeys: [],
+          oauthProviders: [],
         }
       : {
           authenticators: [],
@@ -71,15 +75,19 @@ export const createUserSubOrg = async (
             {
               apiKeyName: "turnkey-demo",
               publicKey: TURNKEY_API_PUBLIC_KEY!,
+              curveType:
+                "API_KEY_CURVE_P256" as TurnkeyApiTypes["v1ApiKeyCurve"],
             },
           ],
+          oauthProviders: [],
         };
   const userName = email.split("@")[0];
-  const completedActivity = await activityPoller({
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4",
-    timestampMs,
-    organizationId,
-    parameters: {
+  const createSubOrganizationResult = await turnkeyClient
+    .createSubOrganization({
+      // type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
+      // timestampMs,
+      // organizationId,
+      // parameters: {
       subOrganizationName: `Sub Org - ${email}`,
       rootQuorumThreshold: 1,
       rootUsers: [
@@ -100,30 +108,32 @@ export const createUserSubOrg = async (
           },
         ],
       },
-    },
-  }).catch((error) => {
-    console.error(error);
-  });
+      // },
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 
-  return completedActivity?.result.createSubOrganizationResultV4;
+  return createSubOrganizationResult;
 };
 
 export const signUp = async (
   email: Email,
   passKeyRegistrationResult: PasskeyRegistrationResult,
 ) => {
-  const client = new TurnkeyClient(
-    { baseUrl: NEXT_PUBLIC_BASE_URL! },
-    new ApiKeyStamper({
-      apiPublicKey: TURNKEY_API_PUBLIC_KEY!,
-      apiPrivateKey: TURNKEY_API_PRIVATE_KEY!,
-    }),
-  );
+  const client = new TurnkeyServerSDK({
+    apiBaseUrl: NEXT_PUBLIC_BASE_URL!,
+    defaultOrganizationId: NEXT_PUBLIC_ORGANIZATION_ID!,
+    apiPublicKey: TURNKEY_API_PUBLIC_KEY!,
+    apiPrivateKey: TURNKEY_API_PRIVATE_KEY!,
+  });
 
   // Create a new user sub org with email
   const { subOrganizationId, wallet } =
-    (await createUserSubOrg(client, { email, ...passKeyRegistrationResult })) ??
-    {};
+    (await createUserSubOrg(client.apiClient(), {
+      email,
+      ...passKeyRegistrationResult,
+    })) ?? {};
 
   return {
     subOrganizationId: subOrganizationId as UUID,
