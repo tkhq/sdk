@@ -1,5 +1,25 @@
 # @turnkey/sdk-browser
 
+## 1.11.1
+
+### Patch Changes
+
+- 328d6aa: Add defaultXrpAccountAtIndex helper
+- b90947e: Update default account exports, surface WalletAccount type
+- 2d5977b: Update error messaging around api key and target public key usage
+- fad7c37: @turnkey/iframe-stamper - Implemented MessageChannel API for secure communication between the parent and iframe.
+
+  @turnkey/sdk-browser - fixed spelling in package.json
+  @turnkey/sdk-server - fixed spelling in package.json
+
+- Updated dependencies [2d5977b]
+- Updated dependencies [fad7c37]
+  - @turnkey/api-key-stamper@0.4.4
+  - @turnkey/iframe-stamper@2.1.0
+  - @turnkey/crypto@2.3.0
+  - @turnkey/http@2.17.2
+  - @turnkey/wallet-stamper@1.0.2
+
 ## 1.11.0
 
 ### Minor Changes

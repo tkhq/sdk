@@ -1,5 +1,14 @@
 # @turnkey/iframe-stamper
 
+## 2.1.0
+
+### Minor Changes
+
+- fad7c37: @turnkey/iframe-stamper - Implemented MessageChannel API for secure communication between the parent and iframe.
+
+  @turnkey/sdk-browser - fixed spelling in package.json
+  @turnkey/sdk-server - fixed spelling in package.json
+
 ## 2.0.0
 
 ### Major Changes
