@@ -1,5 +1,20 @@
 # @turnkey/sdk-react
 
+## 2.0.3
+
+### Patch Changes
+
+- d43c52c: Add session length customization, wallet generation customization, enter to continue, more css customization and css fixes (icon sizing issues, etc)
+- 5419d49: fix css bundling bug
+- Updated dependencies [328d6aa]
+- Updated dependencies [b90947e]
+- Updated dependencies [2d5977b]
+- Updated dependencies [fad7c37]
+  - @turnkey/sdk-browser@1.11.1
+  - @turnkey/sdk-server@1.7.2
+  - @turnkey/crypto@2.3.0
+  - @turnkey/wallet-stamper@1.0.2
+
 ## 2.0.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @turnkey/api-key-stamper
 
+## 0.4.4
+
+### Patch Changes
+
+- 2d5977b: Update error messaging around api key and target public key usage
+
 ## 0.4.3
 
 ### Patch Changes
