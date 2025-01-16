@@ -8,7 +8,6 @@
 }
 
 .exportCard {
-  font-family: Inter;
   position: relative;
   width: 100%;
   max-width: 450px;
@@ -65,7 +64,6 @@
 }
 
 .rowsContainer {
-  font-family: Inter;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -87,7 +85,6 @@
 }
 
 .poweredBy {
-  font-family: Inter;
   display: flex;
   align-items: center;
   justify-content: center;

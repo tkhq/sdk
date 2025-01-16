@@ -1,27 +1,4 @@
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../../../public/fonts/inter/Inter-Regular.woff2?v=3.19")
-    format("woff2");
-}
-
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("../../../public/fonts/inter/Inter-SemiBold.woff2?v=3.19")
-    format("woff2");
-}
-
-.MuiTypography-root {
-  font-family: "Inter", Arial, sans-serif !important;
-}
-
 body {
-  font-family: "Inter";
   margin: 0;
   padding: 0;
   width: 100vw;
@@ -30,7 +7,6 @@ body {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  font-family: Inter, sans-serif;
 }
 
 .loaderOverlay {
@@ -50,7 +26,6 @@ body {
   color: #4c48ff;
 }
 .main {
-  font-family: Inter;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -75,7 +50,6 @@ body {
   width: 542px;
   height: 584px;
   border: 1px solid var(--Greyscale-100, #ebedf2);
-  font-family: Arial, sans-serif;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
@@ -83,7 +57,6 @@ body {
 }
 
 .socialsTitle {
-  font-family: "Inter";
   font-size: 1rem;
   font-weight: 700;
   line-height: 26px;
@@ -93,7 +66,6 @@ body {
 }
 
 .configTitle {
-  font-family: "Inter";
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 36px;
@@ -472,7 +444,6 @@ button:hover {
   transition: opacity 0.3s ease;
 }
 .passkeyContainer {
-  font-family: "Inter";
   font-style: normal;
   font-weight: 400;
 }
@@ -485,7 +456,6 @@ button:hover {
 }
 
 .sonner-toaster {
-  font-family: "Inter";
   font-size: 14px;
   z-index: 9999;
   pointer-events: none;

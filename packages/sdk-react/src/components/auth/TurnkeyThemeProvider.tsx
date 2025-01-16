@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { createTheme, ThemeProvider } from "@mui/material";
 
 const ThemeContext = createContext<Record<string, string> | null>(null);
 
@@ -31,6 +32,8 @@ export const TurnkeyThemeProvider: React.FC<ThemeProviderProps> = ({
   children,
   theme,
 }) => {
+  const [muiTheme, setMuiTheme] = useState(createTheme({}));
+
   useEffect(() => {
     if (theme) {
       const root = document.documentElement.style;
@@ -38,11 +41,18 @@ export const TurnkeyThemeProvider: React.FC<ThemeProviderProps> = ({
         root.setProperty(key, value);
       });
     }
+    setMuiTheme(
+      createTheme({
+        typography: {
+          fontFamily: "inherit", // We want MUI components to use the same font as the rest of the app
+        },
+      })
+    );
   }, [theme]);
 
   return (
     <ThemeContext.Provider value={theme || null}>
-      {children}
+      <ThemeProvider theme={muiTheme}>{children}</ThemeProvider>
     </ThemeContext.Provider>
   );
 };
