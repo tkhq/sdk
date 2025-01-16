@@ -1,6 +1,5 @@
 .socialButton {
   letter-spacing: -0.01em;
-  font-family: "Inter";
   padding: 10px 16px;
   gap: 8px;
   color: var(--button-text);

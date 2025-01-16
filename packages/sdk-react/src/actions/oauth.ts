@@ -6,6 +6,7 @@ type OauthRequest = {
   suborgID: string;
   oidcToken: string;
   targetPublicKey: string;
+  sessionLengthSeconds?: number | undefined; // Desired expiration time in seconds for the generated API key
 };
 
 type OauthResponse = {
@@ -28,6 +29,9 @@ export async function oauth(
       oidcToken: request.oidcToken,
       targetPublicKey: request.targetPublicKey,
       organizationId: request.suborgID,
+      ...(request.sessionLengthSeconds !== undefined && {
+        expirationSeconds: request.sessionLengthSeconds.toString(),
+      }),
     });
 
     const { credentialBundle, apiKeyId, userId } = oauthResponse;

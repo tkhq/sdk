@@ -1,5 +1,20 @@
 # @turnkey/sdk-server
 
+## 1.7.2
+
+### Patch Changes
+
+- 328d6aa: Add defaultXrpAccountAtIndex helper
+- b90947e: Update default account exports, surface WalletAccount type
+- fad7c37: @turnkey/iframe-stamper - Implemented MessageChannel API for secure communication between the parent and iframe.
+
+  @turnkey/sdk-browser - fixed spelling in package.json
+  @turnkey/sdk-server - fixed spelling in package.json
+
+- Updated dependencies [2d5977b]
+  - @turnkey/api-key-stamper@0.4.4
+  - @turnkey/http@2.17.2
+
 ## 1.7.1
 
 ### Patch Changes
