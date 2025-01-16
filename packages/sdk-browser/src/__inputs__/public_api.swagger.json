@@ -289,7 +289,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/query/get_organization": {
@@ -1025,7 +1025,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/create_policies": {
@@ -1505,7 +1505,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/delete_policy": {
@@ -2017,7 +2017,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/init_user_email_recovery": {
@@ -2081,7 +2081,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/otp_auth": {
@@ -2113,7 +2113,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/recover_user": {
