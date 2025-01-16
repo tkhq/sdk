@@ -87,7 +87,6 @@
 }
 
 .authButton {
-  font-family: "Inter";
   padding: 10px 16px;
   gap: 8px;
   color: var(--button-text);
