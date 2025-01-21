@@ -25,7 +25,7 @@ export async function createTokenAccount(
   );
 
   // Get a recent block hash
-  createTokenAccountTx.recentBlockhash = await solanaNetwork.recentBlockhash();
+  createTokenAccountTx.recentBlockhash = await solanaNetwork.recentBlockhash(connection);
   // Set the signer
   createTokenAccountTx.feePayer = fromKey;
 

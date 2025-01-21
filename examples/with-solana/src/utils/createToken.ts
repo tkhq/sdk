@@ -45,7 +45,7 @@ export async function createToken(
   );
 
   // Get a recent block hash
-  tx.recentBlockhash = await solanaNetwork.recentBlockhash();
+  tx.recentBlockhash = await solanaNetwork.recentBlockhash(connection);
   // Set the signer
   tx.feePayer = fromKey;
   tx.partialSign(mintAuthority);

@@ -4,6 +4,7 @@ import {
   Transaction,
   VersionedTransaction,
   TransactionMessage,
+  Connection,
 } from "@solana/web3.js";
 import { recentBlockhash } from "./solanaNetwork";
 import type { TurnkeySigner } from "@turnkey/solana";
@@ -21,8 +22,16 @@ export async function createTransfer(input: {
   amount: number;
   version: string;
   feePayerAddress?: string;
+  connection: Connection;
 }): Promise<Transaction | VersionedTransaction> {
-  const { fromAddress, toAddress, amount, version, feePayerAddress } = input;
+  const {
+    fromAddress,
+    toAddress,
+    amount,
+    version,
+    feePayerAddress,
+    connection,
+  } = input;
   const fromKey = new PublicKey(fromAddress);
   const toKey = new PublicKey(toAddress);
 
@@ -31,7 +40,7 @@ export async function createTransfer(input: {
     feePayerKey = new PublicKey(feePayerAddress);
   }
 
-  const blockhash = await recentBlockhash();
+  const blockhash = await recentBlockhash(connection);
 
   let transferTransaction;
 
@@ -82,8 +91,9 @@ export async function signTransfer(input: {
   fromAddress: string;
   toAddress: string;
   amount: number;
+  connection: Connection;
 }): Promise<Transaction> {
-  const { signer, fromAddress, toAddress, amount } = input;
+  const { signer, fromAddress, toAddress, amount, connection } = input;
   const fromKey = new PublicKey(fromAddress);
   const toKey = new PublicKey(toAddress);
 
@@ -96,7 +106,7 @@ export async function signTransfer(input: {
   );
 
   // Get a recent block hash
-  transferTransaction.recentBlockhash = await recentBlockhash();
+  transferTransaction.recentBlockhash = await recentBlockhash(connection);
   // Set the signer
   transferTransaction.feePayer = fromKey;
 
