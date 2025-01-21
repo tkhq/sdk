@@ -11,7 +11,9 @@ import bs58 from "bs58";
 
 import { print } from "./print";
 
-export function connect(endpoint: string = "https://api.devnet.solana.com"): Connection {
+export function connect(
+  endpoint: string = "https://api.devnet.solana.com"
+): Connection {
   return new Connection(endpoint, "confirmed");
 }
 
@@ -36,7 +38,10 @@ export async function dropTokens(
     publicKey,
     LAMPORTS_PER_SOL
   );
-  const confirmationStrategy = await getConfirmationStrategy(connection, airdropSignature);
+  const confirmationStrategy = await getConfirmationStrategy(
+    connection,
+    airdropSignature
+  );
 
   await connection.confirmTransaction(confirmationStrategy);
 
@@ -73,16 +78,14 @@ export async function broadcast(
   return transactionHash;
 }
 
-export async function recentBlockhash(
-  connection: Connection
-): Promise<string> {
+export async function recentBlockhash(connection: Connection): Promise<string> {
   const blockhash = await connection.getLatestBlockhash();
   return blockhash.blockhash;
 }
 
 export async function getConfirmationStrategy(
   connection: Connection,
-  signature: string,
+  signature: string
 ): Promise<TransactionConfirmationStrategy> {
   const latestBlockHash = await connection.getLatestBlockhash();
 

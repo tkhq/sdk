@@ -25,10 +25,11 @@ async function main() {
   const organizationId = process.env.ORGANIZATION_ID!;
   const defaultDestination = TURNKEY_WAR_CHEST;
 
-   // Create a node connection; if no env var is found, default to public devnet RPC
-   const nodeEndpoint = process.env.SOLANA_NODE || "https://api.devnet.solana.com";
-   const connection = solanaNetwork.connect(nodeEndpoint);
-   const network : "devnet" | "mainnet" = "devnet"; 
+  // Create a node connection; if no env var is found, default to public devnet RPC
+  const nodeEndpoint =
+    process.env.SOLANA_NODE || "https://api.devnet.solana.com";
+  const connection = solanaNetwork.connect(nodeEndpoint);
+  const network: "devnet" | "mainnet" = "devnet";
 
   const turnkeyClient = new Turnkey({
     apiBaseUrl: process.env.BASE_URL!,
