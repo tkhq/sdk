@@ -151,7 +151,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       }[session?.authClient];
       setClient(client);
     }
-  }, [session]);
+  }, [session, authIframeClient, passkeyClient, walletClient])
 
   return (
     <TurnkeyContext.Provider
