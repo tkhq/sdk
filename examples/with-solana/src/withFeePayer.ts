@@ -24,8 +24,13 @@ const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
 async function main() {
   const organizationId = process.env.ORGANIZATION_ID!;
+  const defaultDestination = TURNKEY_WAR_CHEST;
 
-  const connection = solanaNetwork.connect();
+  // Create a node connection; if no env var is found, default to public devnet RPC
+  const nodeEndpoint =
+    process.env.SOLANA_NODE || "https://api.devnet.solana.com";
+  const connection = solanaNetwork.connect(nodeEndpoint);
+  const network: "devnet" | "mainnet" = "devnet";
 
   const turnkeyClient = new Turnkey({
     apiBaseUrl: process.env.BASE_URL!,
@@ -61,11 +66,11 @@ async function main() {
   while (balance === 0) {
     console.log(
       [
-        `\n💸 Your onchain balance is at 0! To continue this demo you'll need devnet funds! You can use:`,
+        `\n💸 Your onchain balance is at 0! To continue this demo you'll need funds! You can use:`,
         `- The faucet in this example: \`pnpm run faucet\``,
         `- The official Solana CLI: \`solana airdrop 1 ${solAddress}\``,
         `- Any online faucet (e.g. https://faucet.solana.com/)`,
-        `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=devnet`,
+        `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=${network}`,
         `\n--------`,
       ].join("\n")
     );
@@ -90,7 +95,7 @@ async function main() {
       type: "text",
       name: "destination",
       message: `Destination address:`,
-      initial: TURNKEY_WAR_CHEST,
+      initial: defaultDestination,
     },
   ]);
 
@@ -120,6 +125,7 @@ async function main() {
   ]);
 
   const transaction = await createTransfer({
+    connection,
     fromAddress: solAddress,
     toAddress: destination,
     amount: Number(amount),
@@ -175,7 +181,7 @@ async function main() {
     );
   }
 
-  // 3. Broadcast the signed payload on devnet
+  // 3. Broadcast the signed payload
   await solanaNetwork.broadcast(connection, signedTransaction!);
 
   process.exit(0);

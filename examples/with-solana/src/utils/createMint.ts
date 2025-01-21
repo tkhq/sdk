@@ -25,7 +25,7 @@ export async function createMint(
   );
 
   // Get a recent block hash
-  mintTx.recentBlockhash = await solanaNetwork.recentBlockhash();
+  mintTx.recentBlockhash = await solanaNetwork.recentBlockhash(connection);
   // Set the signer
   mintTx.feePayer = fromKey;
 
