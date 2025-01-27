@@ -27,7 +27,7 @@ export async function createTokenTransferAddSignature(
   );
 
   // Get a recent block hash
-  transferTx.recentBlockhash = await solanaNetwork.recentBlockhash();
+  transferTx.recentBlockhash = await solanaNetwork.recentBlockhash(connection);
   // Set the signer
   transferTx.feePayer = fromKey;
 
@@ -49,6 +49,7 @@ export async function createTokenTransferSignTransaction(
   ataRecipient: PublicKey
 ): Promise<any> {
   const transferTx = await constructTokenTransfer(
+    connection,
     tokenAccountPubkey,
     mintAuthority,
     ataRecipient,
@@ -64,6 +65,7 @@ export async function createTokenTransferSignTransaction(
 }
 
 async function constructTokenTransfer(
+  connection: Connection,
   tokenAccountPubkey: PublicKey,
   mintAuthority: PublicKey,
   ataRecipient: PublicKey,
@@ -83,7 +85,7 @@ async function constructTokenTransfer(
   );
 
   // Get a recent block hash
-  transferTx.recentBlockhash = await solanaNetwork.recentBlockhash();
+  transferTx.recentBlockhash = await solanaNetwork.recentBlockhash(connection);
   // Set the signer
   transferTx.feePayer = fromKey;
 

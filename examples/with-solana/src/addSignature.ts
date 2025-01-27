@@ -107,6 +107,7 @@ async function main() {
   ]);
 
   const transaction = await createTransfer({
+    connection,
     fromAddress: solAddress,
     toAddress: destination,
     amount: Number(amount),
