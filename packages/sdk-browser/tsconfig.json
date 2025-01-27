@@ -4,7 +4,10 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
-    "lib": ["dom"]
+    "lib": ["dom"],
+    "target": "ES2022",
+    "module": "preserve",
+    "moduleResolution": "bundler",
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],

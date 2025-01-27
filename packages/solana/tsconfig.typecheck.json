@@ -2,7 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "tsBuildInfoFile": "./.cache/.typecheck.tsbuildinfo"
+    "tsBuildInfoFile": "./.cache/.typecheck.tsbuildinfo",
+    "target": "ES2022",
+    "module": "esnext",
+    "moduleResolution": "node",
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
+  "references": [{ "path": "../http" }, { "path": "../sdk-browser" }, { "path": "../sdk-server" }],
 }

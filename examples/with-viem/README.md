@@ -57,7 +57,7 @@ Sample output from a successful execution:
 
 ```
 $ pnpm start
-Fetching Node.js 18.0.0 ...
+Fetching Node.js 22.12.0 ...
 
 > @turnkey/example-with-viem@0.0.0 start /Users/rno/tkhq/code/sdk/examples/with-viem
 > pnpm -w run build-all && tsx src/index.ts

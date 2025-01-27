@@ -1,4 +1,4 @@
-import { Transaction, VersionedTransaction } from "@solana/web3.js";
+import { VersionedTransaction } from "@solana/web3.js";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import axios from "axios";
@@ -6,7 +6,7 @@ import bs58 from "bs58";
 import { useState, useEffect } from "react";
 
 import styles from "./index.module.css";
-import { TWalletDetails } from "../types";
+import { TWalletDetails } from "@/types";
 
 import { useTurnkey } from "@turnkey/sdk-react";
 import { TurnkeySigner } from "@turnkey/solana";
@@ -94,7 +94,7 @@ export default function Home() {
     );
 
     const base58EncodedSignature = bs58.encode(signedMessage);
-    const base64EncodedSignature = base64Encode(signedMessage);
+    const base64EncodedSignature = base64Encode(signedMessage.buffer as ArrayBuffer);
     const rawSignature = Buffer.from(signedMessage).toString("hex");
 
     setSignedMessage({
@@ -256,7 +256,7 @@ export default function Home() {
           <div className={styles.info}>
             Raw public key: <br />
             <span className={styles.code}>
-              {base64Encode(bs58.decode(wallet.address))}
+              {base64Encode(bs58.decode(wallet.address).buffer as ArrayBuffer)}
             </span>
             <br />
             <br />

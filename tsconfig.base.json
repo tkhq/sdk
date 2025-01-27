@@ -1,7 +1,7 @@
 {
   "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     "ignoreDeprecations": "5.0",
     "composite": true,
     "declaration": true,
@@ -9,7 +9,6 @@
     "incremental": true,
     "isolatedModules": true,
     "noPropertyAccessFromIndexSignature": false,
-    "resolveJsonModule": true,
     "sourceMap": true
   }
 }

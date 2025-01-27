@@ -1,7 +1,6 @@
 /// <reference lib="dom" />
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { TelegramCloudStorageStamperError } from "@errors";
-
+import { TelegramCloudStorageStamperError, TelegramSuccessButFalseError } from "./errors";
 
 declare global {
   interface Window {
@@ -21,7 +20,7 @@ export type CloudStorageAPIKey = {
 };
 
 // Constant for default key name
-export const DEFAULT_TURNKEY_CLOUD_STORAGE_KEY = "TURNKEY_API_KEY";
+const DEFAULT_TURNKEY_CLOUD_STORAGE_KEY = "TURNKEY_API_KEY";
 
 /**
  * Stamper to use within a `TurnkeyClient`

@@ -20,7 +20,7 @@ import type {
   TurnkeyEIP1193Provider,
   TurnkeyEIP1193ProviderOptions,
 } from "./types";
-import type { TSignTransactionResponse } from "@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher";
+
 import {
   signMessage,
   turnkeyIsDisconnected,
@@ -30,6 +30,7 @@ import {
 import { TurnkeyRequestError } from "@turnkey/http";
 import { ChainIdMismatchError, UnrecognizedChainError } from "./errors";
 import { VERSION } from "./version";
+import { TSignTransactionResponse } from "../../http/src/__generated__/services/coordinator/public/v1/public_api.fetcher";
 
 export { TurnkeyEIP1193Provider };
 

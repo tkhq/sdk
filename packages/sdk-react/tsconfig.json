@@ -6,7 +6,9 @@
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
     "lib": ["dom", "esnext"],
     "jsx": "react-jsx",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "module": "preserve",
+    "moduleResolution": "bundler",
   },
   "include": [
     "src/**/*.ts",

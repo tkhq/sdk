@@ -2,7 +2,10 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "tsBuildInfoFile": "./.cache/.tsbuildinfo"
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    "target": "ES2022",
+    "module": "preserve",
+    "moduleResolution": "bundler",
   },
   "include": ["**/*.js"]
 }

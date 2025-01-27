@@ -7,7 +7,7 @@ import {
 import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
 import type { Attestation, Email, PasskeyRegistrationResult } from "./types";
 
-import { ETHEREUM_WALLET_DEFAULT_PATH } from "./constants";
+import { ETHEREUM_WALLET_DEFAULT_PATH, CURVE_TYPE_SECP256K1 } from "./constants";
 import type { UUID } from "crypto";
 import type { Address } from "viem";
 
@@ -39,6 +39,7 @@ export const createUserSubOrg = async (
     // if challenge and attestation are provided we are creating a non-custodial wallet using the users provided authenticator
     challenge,
     attestation,
+    
   }: {
     email: Email;
     challenge: string;
@@ -71,12 +72,13 @@ export const createUserSubOrg = async (
             {
               apiKeyName: "turnkey-demo",
               publicKey: TURNKEY_API_PUBLIC_KEY!,
+              curveType: CURVE_TYPE_SECP256K1
             },
           ],
         };
   const userName = email.split("@")[0];
   const completedActivity = await activityPoller({
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4",
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
     timestampMs,
     organizationId,
     parameters: {
@@ -86,6 +88,7 @@ export const createUserSubOrg = async (
         {
           userName,
           userEmail: email,
+          oauthProviders: [],
           ...rootUsersOptions,
         },
       ],

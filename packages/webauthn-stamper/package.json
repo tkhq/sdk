@@ -47,7 +47,7 @@
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
   },
   "dependencies": {
     "sha256-uint8array": "^0.10.7"

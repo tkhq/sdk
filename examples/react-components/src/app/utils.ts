@@ -1,8 +1,8 @@
-import { PublicKey, PublicKeyInitData } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import nacl from "tweetnacl";
 import { Buffer } from "buffer";
 
-import { hashMessage, keccak256, recoverAddress, toUtf8Bytes } from "ethers";
+import { keccak256, recoverAddress, toUtf8Bytes } from "ethers";
 
 /**
  * Verifies an Ethereum signature and returns the address it was signed with.

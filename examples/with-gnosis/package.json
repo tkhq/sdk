@@ -12,6 +12,8 @@
     "@safe-global/safe-ethers-lib": "^1.9.2",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/ethers": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "@turnkey/api-key-stamper": "workspace:*",
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0"
   },

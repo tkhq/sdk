@@ -51,7 +51,10 @@
     "@turnkey/encoding": "workspace:*",
     "@turnkey/webauthn-stamper": "workspace:*"
   },
+  "devDependencies": {
+    "tslib": "2.8.1"
+  },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=22.12.0"
   }
 }

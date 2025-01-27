@@ -3,7 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "tsBuildInfoFile": "./.cache/.tsbuildinfo"
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    "target": "ES2022",
+    "module": "esnext",
+    "moduleResolution": "node10",
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"]
