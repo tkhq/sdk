@@ -9,7 +9,7 @@ type TResponse = {
 
 export default async function proxyRequest(
   req: NextApiRequest,
-  res: NextApiResponse<TResponse>
+  res: NextApiResponse<TResponse>,
 ) {
   let signedRequest = req.body as TSignedRequest;
 

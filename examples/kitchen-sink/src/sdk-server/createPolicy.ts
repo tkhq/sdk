@@ -43,7 +43,7 @@ async function main() {
       `- Consensus: ${consensus}`,
       `- Condition: ${condition}`,
       ``,
-    ].join("\n")
+    ].join("\n"),
   );
 }
 

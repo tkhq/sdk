@@ -137,7 +137,7 @@ export class IframeStamper {
 
     if (typeof MessageChannel === "undefined") {
       throw new Error(
-        "Cannot initialize iframe without MessageChannel support"
+        "Cannot initialize iframe without MessageChannel support",
       );
     }
 
@@ -148,7 +148,7 @@ export class IframeStamper {
 
     if (this.container.querySelector(`#${config.iframeElementId}`)) {
       throw new Error(
-        `Iframe element with ID ${config.iframeElementId} already exists`
+        `Iframe element with ID ${config.iframeElementId} already exists`,
       );
     }
 
@@ -229,8 +229,8 @@ export class IframeStamper {
         if (!this.iframe.contentWindow?.postMessage) {
           reject(
             new Error(
-              "contentWindow or contentWindow.postMessage does not exist"
-            )
+              "contentWindow or contentWindow.postMessage does not exist",
+            ),
           );
           return;
         }
@@ -238,7 +238,7 @@ export class IframeStamper {
         this.iframe.contentWindow.postMessage(
           { type: IframeEventType.TurnkeyInitMessageChannel },
           this.iframeOrigin,
-          [this.messageChannel.port2]
+          [this.messageChannel.port2],
         );
       });
 
@@ -280,7 +280,7 @@ export class IframeStamper {
    */
   private createRequest<T>(
     type: IframeEventType,
-    payload: any = {}
+    payload: any = {},
   ): Promise<T> {
     return new Promise((resolve, reject) => {
       const requestId = generateUUID();
@@ -321,7 +321,7 @@ export class IframeStamper {
   async injectKeyExportBundle(
     bundle: string,
     organizationId: string,
-    keyFormat?: KeyFormat
+    keyFormat?: KeyFormat,
   ): Promise<boolean> {
     return this.createRequest<boolean>(IframeEventType.InjectKeyExportBundle, {
       value: bundle,
@@ -338,14 +338,14 @@ export class IframeStamper {
    */
   async injectWalletExportBundle(
     bundle: string,
-    organizationId: string
+    organizationId: string,
   ): Promise<boolean> {
     return this.createRequest<boolean>(
       IframeEventType.InjectWalletExportBundle,
       {
         value: bundle,
         organizationId,
-      }
+      },
     );
   }
 
@@ -356,7 +356,7 @@ export class IframeStamper {
   async injectImportBundle(
     bundle: string,
     organizationId: string,
-    userId: string
+    userId: string,
   ): Promise<boolean> {
     return this.createRequest<boolean>(IframeEventType.InjectImportBundle, {
       value: bundle,
@@ -373,7 +373,7 @@ export class IframeStamper {
    */
   async extractWalletEncryptedBundle(): Promise<string> {
     return this.createRequest<string>(
-      IframeEventType.ExtractWalletEncryptedBundle
+      IframeEventType.ExtractWalletEncryptedBundle,
     );
   }
 
@@ -387,7 +387,7 @@ export class IframeStamper {
   async extractKeyEncryptedBundle(keyFormat?: KeyFormat): Promise<string> {
     return this.createRequest<string>(
       IframeEventType.ExtractKeyEncryptedBundle,
-      { keyFormat }
+      { keyFormat },
     );
   }
 
@@ -407,7 +407,7 @@ export class IframeStamper {
   async stamp(payload: string): Promise<TStamp> {
     if (this.iframePublicKey === null) {
       throw new Error(
-        "null iframe public key. Have you called/awaited .init()?"
+        "null iframe public key. Have you called/awaited .init()?",
       );
     }
 

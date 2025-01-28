@@ -28,7 +28,7 @@ const ETHEREUM_WALLET_DEFAULT_PATH = "m/44'/60'/0'/0/0";
 
 export default async function createUser(
   req: NextApiRequest,
-  res: NextApiResponse<CreateSubOrgResponse | ErrorMessage>
+  res: NextApiResponse<CreateSubOrgResponse | ErrorMessage>,
 ) {
   const createSubOrgRequest = req.body as CreateSubOrgRequest;
 
@@ -103,7 +103,7 @@ export default async function createUser(
 
 function refineNonNull<T>(
   input: T | null | undefined,
-  errorMessage?: string
+  errorMessage?: string,
 ): T {
   if (input == null) {
     throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);

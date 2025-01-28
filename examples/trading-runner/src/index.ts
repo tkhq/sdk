@@ -108,12 +108,12 @@ async function setup(_options: any) {
   const adminTagId = await createUserTag(
     turnkeyClient.apiClient(),
     "Admin",
-    []
+    [],
   );
   const traderTagId = await createUserTag(
     turnkeyClient.apiClient(),
     "Trader",
-    []
+    [],
   );
 
   // setup users
@@ -122,31 +122,31 @@ async function setup(_options: any) {
     "Alice",
     [adminTagId],
     "Alice key",
-    keys!.alice!.publicKey!
+    keys!.alice!.publicKey!,
   );
   await createUser(
     turnkeyClient.apiClient(),
     "Bob",
     [traderTagId],
     "Bob key",
-    keys!.bob!.publicKey!
+    keys!.bob!.publicKey!,
   );
 
   // setup private key tags
   const tradingTagId = await createPrivateKeyTag(
     turnkeyClient.apiClient(),
     "trading",
-    []
+    [],
   );
   const personal = await createPrivateKeyTag(
     turnkeyClient.apiClient(),
     "personal",
-    []
+    [],
   );
   const longTermStorageTagId = await createPrivateKeyTag(
     turnkeyClient.apiClient(),
     "long-term-storage",
-    []
+    [],
   );
 
   // setup private keys
@@ -165,7 +165,7 @@ async function setup(_options: any) {
     "Admin users can do everything",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${adminTagId}'))`,
-    "true"
+    "true",
   );
 
   const paddedRouterAddress = SWAP_ROUTER_ADDRESS.toLowerCase()
@@ -178,35 +178,35 @@ async function setup(_options: any) {
     "Traders can use trading keys to deposit, aka wrap, ETH",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${DEPOSIT_SELECTOR}'`
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${DEPOSIT_SELECTOR}'`,
   );
   await createPolicy(
     turnkeyClient.apiClient(),
     "Traders can use trading keys to withdraw, aka unwrap, WETH",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${WITHDRAW_SELECTOR}'`
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${WITHDRAW_SELECTOR}'`,
   );
   await createPolicy(
     turnkeyClient.apiClient(),
     "Traders can use trading keys to make ERC20 token approvals for WETH for usage with Uniswap",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SELECTOR}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SELECTOR}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`,
   );
   await createPolicy(
     turnkeyClient.apiClient(),
     "Traders can use trading keys to make ERC20 token approvals for USDC for usage with Uniswap",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SELECTOR}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${APPROVE_SELECTOR}' && eth.tx.data[10..74] == '${paddedRouterAddress}'`,
   );
   await createPolicy(
     turnkeyClient.apiClient(),
     "Traders can use trading keys to make trades using Uniswap",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${SWAP_ROUTER_ADDRESS}' && eth.tx.data[0..10] == '${TRADE_SELECTOR}'` // in theory, you can get more granular here with specific trade parameters
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${SWAP_ROUTER_ADDRESS}' && eth.tx.data[0..10] == '${TRADE_SELECTOR}'`, // in theory, you can get more granular here with specific trade parameters
   );
 
   // SENDING
@@ -217,11 +217,11 @@ async function setup(_options: any) {
   const longTermStorageAddress = longTermStoragePrivateKey?.addresses.find(
     (address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
-    }
+    },
   );
   if (!longTermStorageAddress || !longTermStorageAddress.address) {
     throw new Error(
-      `couldn't lookup ETH address for private key: ${longTermStoragePrivateKey?.privateKeyId}`
+      `couldn't lookup ETH address for private key: ${longTermStoragePrivateKey?.privateKeyId}`,
     );
   }
 
@@ -235,21 +235,21 @@ async function setup(_options: any) {
     "Traders can use trading keys to send ETH to long term storage addresses",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${longTermStorageAddress.address!}'`
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${longTermStorageAddress.address!}'`,
   );
   await createPolicy(
     turnkeyClient.apiClient(),
     "Traders can use trading keys to send WETH to long term storage addresses",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SELECTOR}' && eth.tx.data[10..74] == '${paddedLongTermStorageAddress}'`
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SELECTOR}' && eth.tx.data[10..74] == '${paddedLongTermStorageAddress}'`,
   );
   await createPolicy(
     turnkeyClient.apiClient(),
     "Traders can use trading keys to send USDC to long term storage addresses",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${traderTagId}'))`,
-    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SELECTOR}' && eth.tx.data[10..74] == '${paddedLongTermStorageAddress}'`
+    `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${USDC_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${TRANSFER_SELECTOR}' && eth.tx.data[10..74] == '${paddedLongTermStorageAddress}'`,
   );
 }
 
@@ -292,7 +292,7 @@ async function wrapUnwrapImpl(baseAsset: string, baseAmount: string) {
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
     provider,
-    tradingPrivateKey!.privateKeyId
+    tradingPrivateKey!.privateKeyId,
   );
 
   const feeData = await connectedSigner.provider?.getFeeData();
@@ -300,13 +300,13 @@ async function wrapUnwrapImpl(baseAsset: string, baseAmount: string) {
   const tokenContract = new ethers.Contract(
     metadata!.token.address,
     metadata!.abi,
-    connectedSigner
+    connectedSigner,
   );
 
   if (baseAsset === "ETH") {
     const wrapAmount = fromReadableAmount(
       parseFloat(baseAmount),
-      metadata!.token.decimals
+      metadata!.token.decimals,
     );
 
     const { confirmed } = await prompts([
@@ -326,7 +326,7 @@ async function wrapUnwrapImpl(baseAsset: string, baseAmount: string) {
   } else {
     const unwrapAmount = fromReadableAmount(
       parseFloat(baseAmount),
-      metadata!.token.decimals
+      metadata!.token.decimals,
     );
 
     const { confirmed } = await prompts([
@@ -349,7 +349,7 @@ async function wrapUnwrapImpl(baseAsset: string, baseAmount: string) {
 async function tradeImpl(
   baseAsset: string,
   quoteAsset: string,
-  baseAmount: string
+  baseAmount: string,
 ) {
   // find "trading" private key
   const tradingPrivateKey = (
@@ -358,7 +358,7 @@ async function tradeImpl(
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
     provider,
-    tradingPrivateKey!.privateKeyId
+    tradingPrivateKey!.privateKeyId,
   );
 
   let inputAsset = baseAsset;
@@ -366,7 +366,7 @@ async function tradeImpl(
 
   if (baseAsset === "ETH") {
     console.log(
-      "For Uniswap v2/v3 trades, native ETH must first be converted to WETH.\n"
+      "For Uniswap v2/v3 trades, native ETH must first be converted to WETH.\n",
     );
 
     const feeData = await connectedSigner.provider?.getFeeData();
@@ -374,11 +374,11 @@ async function tradeImpl(
     const tokenContract = new ethers.Contract(
       metadata!.token.address,
       metadata!.abi,
-      connectedSigner
+      connectedSigner,
     );
     const wrapAmount = fromReadableAmount(
       parseFloat(baseAmount),
-      metadata!.token.decimals
+      metadata!.token.decimals,
     );
 
     const { confirmed } = await prompts([
@@ -402,7 +402,7 @@ async function tradeImpl(
 
   if (quoteAsset === "ETH") {
     console.log(
-      "For Uniswap v2/v3 trades resulting in ETH, assets must be swapped for WETH and then unwrapped.\n"
+      "For Uniswap v2/v3 trades resulting in ETH, assets must be swapped for WETH and then unwrapped.\n",
     );
 
     outputAsset = "WETH";
@@ -412,11 +412,11 @@ async function tradeImpl(
   const tokenContract = new ethers.Contract(
     metadata!.token.address,
     metadata!.abi,
-    connectedSigner
+    connectedSigner,
   );
 
   const tokenBalance = await tokenContract.balanceOf?.(
-    tradingPrivateKey?.addresses[0]?.address
+    tradingPrivateKey?.addresses[0]?.address,
   );
 
   const inputToken = ASSET_METADATA[inputAsset]!.token;
@@ -424,13 +424,13 @@ async function tradeImpl(
 
   const inputAmount = fromReadableAmount(
     parseFloat(baseAmount),
-    inputToken.decimals
+    inputToken.decimals,
   );
 
   // make balance check to confirm we can make the trade
   if (tokenBalance < inputAmount) {
     throw new Error(
-      `Insufficient funds to perform this trade. Have: ${tokenBalance} ${inputToken.symbol}; Need: ${inputAmount} ${inputToken.symbol}.`
+      `Insufficient funds to perform this trade. Have: ${tokenBalance} ${inputToken.symbol}; Need: ${inputAmount} ${inputToken.symbol}.`,
     );
   }
 
@@ -439,7 +439,7 @@ async function tradeImpl(
     connectedSigner,
     inputToken,
     outputToken,
-    inputAmount
+    inputAmount,
   );
 
   console.log("Trade parameters successfully prepared!\n");
@@ -473,11 +473,11 @@ async function tradeImpl(
     const tokenContract = new ethers.Contract(
       metadata!.token.address,
       metadata!.abi,
-      connectedSigner
+      connectedSigner,
     );
     const unwrapAmount = fromReadableAmount(
       parseFloat(quoteAmount),
-      metadata!.token.decimals
+      metadata!.token.decimals,
     );
 
     const { confirmed } = await prompts([
@@ -537,11 +537,11 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
   const longTermStorageAddress = longTermStoragePrivateKey?.addresses.find(
     (address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
-    }
+    },
   );
   if (!longTermStorageAddress || !longTermStorageAddress.address) {
     throw new Error(
-      `couldn't lookup ETH address for private key: ${longTermStoragePrivateKey?.privateKeyId}`
+      `couldn't lookup ETH address for private key: ${longTermStoragePrivateKey?.privateKeyId}`,
     );
   }
   if (destination.length === 0) {
@@ -549,14 +549,14 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
   }
   if (destination !== longTermStorageAddress.address) {
     console.error(
-      "Destination is not authorized. Allowing script to continue as the policy engine will block the transaction...\n"
+      "Destination is not authorized. Allowing script to continue as the policy engine will block the transaction...\n",
     );
   }
 
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
     provider,
-    tradingPrivateKey.privateKeyId
+    tradingPrivateKey.privateKeyId,
   );
 
   const originalFeeData = await connectedSigner.provider?.getFeeData();
@@ -570,7 +570,7 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
   const feeData = new FeeData(
     originalFeeData?.gasPrice,
     updatedMaxFeePerGas,
-    updatedMaxPriorityFeePerGas
+    updatedMaxPriorityFeePerGas,
   );
 
   if (asset === "ETH") {
@@ -611,10 +611,10 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
     const tokenContract = new ethers.Contract(
       metadata!.token.address,
       metadata!.abi,
-      connectedSigner
+      connectedSigner,
     );
     const tokenBalance = await tokenContract.balanceOf?.(
-      tradingPrivateKey?.addresses[0]?.address
+      tradingPrivateKey?.addresses[0]?.address,
     );
     const sweepAmount = amount
       ? fromReadableAmount(parseFloat(amount), metadata!.token.decimals)
@@ -626,12 +626,12 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
         `Insufficient funds to perform this sweep. Have: ${toReadableAmount(
           tokenBalance,
           metadata!.token.decimals,
-          12
+          12,
         )} ${metadata!.token.symbol}; Need: ${toReadableAmount(
           sweepAmount,
           metadata!.token.decimals,
-          12
-        )} ${metadata!.token.symbol}.`
+          12,
+        )} ${metadata!.token.symbol}.`,
       );
     }
 
@@ -639,8 +639,8 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
       `Sweeping ${toReadableAmount(
         sweepAmount,
         metadata!.token.decimals,
-        12
-      )} ${metadata!.token.symbol} to ${destination}...\n`
+        12,
+      )} ${metadata!.token.symbol} to ${destination}...\n`,
     );
 
     const { confirmed } = await prompts([
@@ -650,7 +650,7 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
         message: `Please confirm: sweep ${toReadableAmount(
           sweepAmount,
           18,
-          12
+          12,
         )} ${metadata!.token.symbol}?`,
       },
     ]);
@@ -666,7 +666,7 @@ async function sweepImpl(asset: string, destination: string, amount: string) {
       sweepAmount,
       metadata!.token,
       tokenContract,
-      feeData
+      feeData,
     );
   }
 }

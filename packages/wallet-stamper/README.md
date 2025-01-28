@@ -111,7 +111,7 @@ class SolanaWallet implements SolanaWalletInterface {
     // Convert the base24 encoded Solana wallet public key (the one displayed in the wallet)
     // into the ed25519 decoded public key
     const ed25519PublicKey = Buffer.from(
-      this.keypair.publicKey.toBuffer()
+      this.keypair.publicKey.toBuffer(),
     ).toString("hex");
     return ed25519PublicKey;
   }
@@ -182,7 +182,7 @@ if (!subOrganizationId) {
       // In practice we'll want to ensure these keys do not get exposed to the client
       apiPublicKey: process.env.API_PUBLIC_KEY ?? "",
       apiPrivateKey: process.env.API_PRIVATE_KEY ?? "",
-    })
+    }),
   );
 
   const apiKeys = [

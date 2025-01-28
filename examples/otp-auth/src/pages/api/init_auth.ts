@@ -17,7 +17,7 @@ type ErrorMessage = {
 
 export default async function init_auth(
   req: NextApiRequest,
-  res: NextApiResponse<InitAuthResponse | ErrorMessage>
+  res: NextApiResponse<InitAuthResponse | ErrorMessage>,
 ) {
   try {
     const request = req.body as InitAuthRequest;

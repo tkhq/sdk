@@ -29,7 +29,7 @@ describe("HPKE Encryption and Decryption", () => {
     const senderKeyPair = generateP256KeyPair();
     const receiverKeyPair = generateP256KeyPair();
     const receiverPublicKeyUncompressed = uncompressRawPublicKey(
-      uint8ArrayFromHexString(receiverKeyPair.publicKey)
+      uint8ArrayFromHexString(receiverKeyPair.publicKey),
     );
 
     const textEncoder = new TextEncoder();
@@ -65,7 +65,7 @@ describe("HPKE Standard Encryption and Decryption", () => {
     // Generate a receiver key pair
     const receiverKeyPair = generateP256KeyPair();
     const receiverPublicKeyUncompressed = uncompressRawPublicKey(
-      uint8ArrayFromHexString(receiverKeyPair.publicKey)
+      uint8ArrayFromHexString(receiverKeyPair.publicKey),
     );
 
     // Prepare the plaintext
@@ -108,7 +108,7 @@ describe("Turnkey Crypto Primitives", () => {
     const keyPair = generateP256KeyPair();
     const publicKey = getPublicKey(
       uint8ArrayFromHexString(keyPair.privateKey),
-      true
+      true,
     );
     expect(publicKey).toHaveLength(33);
   });
@@ -125,14 +125,14 @@ describe("Turnkey Crypto Primitives", () => {
   test("compressRawPublicKey - returns a valid value", () => {
     const { publicKey, publicKeyUncompressed } = generateP256KeyPair();
     expect(
-      compressRawPublicKey(uint8ArrayFromHexString(publicKeyUncompressed))
+      compressRawPublicKey(uint8ArrayFromHexString(publicKeyUncompressed)),
     ).toEqual(uint8ArrayFromHexString(publicKey));
   });
 
   test("decryptCredentialBundle - successfully decrypts a credential bundle", () => {
     const decryptedData = decryptCredentialBundle(
       mockCredentialBundle,
-      mockPrivateKey
+      mockPrivateKey,
     );
     expect(decryptedData).toBe(mockSenderPrivateKey);
   });
@@ -144,8 +144,8 @@ describe("Turnkey Crypto Primitives", () => {
       "01d95d256f744b2a855fe2036ec1074c726445f1382f53580a17ce3296cc2dec";
     expect(
       extractPrivateKeyFromPKCS8Bytes(
-        uint8ArrayFromHexString(pkcs8PrivateKeyHex)
-      )
+        uint8ArrayFromHexString(pkcs8PrivateKeyHex),
+      ),
     ).toEqual(uint8ArrayFromHexString(expectedRawPrivateKeyHex));
   });
 
@@ -162,7 +162,7 @@ describe("Turnkey Crypto Primitives", () => {
       {
         baseUrl: "https://api.turnkey.com",
       },
-      stamper
+      stamper,
     );
 
     const stampedRequest = await turnkeyClient.stampGetWhoami({
@@ -177,7 +177,7 @@ describe("Turnkey Crypto Primitives", () => {
     const verified = await verifyStampSignature(
       publicKey,
       signature,
-      stampedRequest.body
+      stampedRequest.body,
     );
 
     expect(verified).toEqual(true);

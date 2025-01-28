@@ -52,14 +52,14 @@ async function main() {
   } else if (command == "attempt-transfer") {
     if (args.length != 1) {
       throw new Error(
-        `attempt-transfer comand should have no initial arguments -- you will be prompted`
+        `attempt-transfer comand should have no initial arguments -- you will be prompted`,
       );
     }
     await attemptTransferToken();
   } else if (command == "create-token-policy") {
     if (args.length != 1) {
       throw new Error(
-        `create-token-policy comand should have no initial arguments -- you will be prompted`
+        `create-token-policy comand should have no initial arguments -- you will be prompted`,
       );
     }
     await createTokenPolicy();
@@ -117,7 +117,7 @@ async function setup() {
         `- Any online faucet (e.g. https://faucet.solana.com/)`,
         `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=devnet`,
         `\n--------`,
-      ].join("\n")
+      ].join("\n"),
     );
     // Await user confirmation to continue
     await prompts([
@@ -136,18 +136,18 @@ async function setup() {
   const { mintAuthority } = await createToken(
     rootUserSigner,
     connection,
-    solAddress
+    solAddress,
   );
 
   // Create token accounts
   const ataPrimary = await getAssociatedTokenAddress(
     mintAuthority.publicKey, // mint
-    fromKey // owner
+    fromKey, // owner
   );
 
   const ataWarchest = await getAssociatedTokenAddress(
     mintAuthority.publicKey, // mint
-    turnkeyWarchest // owner
+    turnkeyWarchest, // owner
   );
 
   // For warchest
@@ -157,7 +157,7 @@ async function setup() {
     solAddress,
     ataWarchest,
     turnkeyWarchest,
-    mintAuthority
+    mintAuthority,
   );
 
   // For self
@@ -167,7 +167,7 @@ async function setup() {
     solAddress,
     ataPrimary,
     fromKey,
-    mintAuthority
+    mintAuthority,
   );
 
   const tokenAccount = await getAccount(connection, ataPrimary);
@@ -178,7 +178,7 @@ async function setup() {
     connection,
     solAddress,
     tokenAccount.address,
-    mintAuthority.publicKey
+    mintAuthority.publicKey,
   );
 
   // Create non-root user
@@ -186,11 +186,11 @@ async function setup() {
     rootUserClient.apiClient(),
     "Non Root User",
     "Non Root User Key",
-    keys!.nonRootUser!.publicKey!
+    keys!.nonRootUser!.publicKey!,
   );
 
   console.log(
-    "Setup complete -- token mint and token accounts created, non root user created"
+    "Setup complete -- token mint and token accounts created, non root user created",
   );
   console.log(`Turnkey Solana wallet address: ${solAddress}`);
   console.log(`Token Mint public key: ${mintAuthority.publicKey}`);
@@ -237,14 +237,14 @@ async function attemptTransferToken() {
   // Create token accounts
   const ataPrimary = await getAssociatedTokenAddress(
     tokenMintPublicKey, // mint
-    fromKey // owner
+    fromKey, // owner
   );
 
   const tokenAccountFrom = await getAccount(connection, ataPrimary);
 
   const ataWarchest = await getAssociatedTokenAddress(
     tokenMintPublicKey, // mint
-    turnkeyWarchest // owner
+    turnkeyWarchest, // owner
   );
 
   const tokenAccountWarchest = await getAccount(connection, ataWarchest);
@@ -270,18 +270,17 @@ async function attemptTransferToken() {
     solAddress,
     tokenAccountFrom.address,
     tokenMintPublicKey,
-    tokenAccountWarchest.address
+    tokenAccountWarchest.address,
   );
 
   const tokenBalance = await connection.getTokenAccountBalance(ataPrimary);
   console.log("Token balance for user:", tokenBalance.value.uiAmountString);
 
-  const tokenBalanceWarchest = await connection.getTokenAccountBalance(
-    ataWarchest
-  );
+  const tokenBalanceWarchest =
+    await connection.getTokenAccountBalance(ataWarchest);
   console.log(
     "Token balance for warchest:",
-    tokenBalanceWarchest.value.uiAmountString
+    tokenBalanceWarchest.value.uiAmountString,
   );
 }
 
@@ -327,7 +326,7 @@ async function createTokenPolicy() {
   // This is associated token address is what will be used to create the policy that allows transfers to the expected wallet address
   const ataWarchest = await getAssociatedTokenAddress(
     tokenMintPublicKey, // mint
-    turnkeyWarchest // owner
+    turnkeyWarchest, // owner
   );
 
   // Root user API Client
@@ -345,6 +344,6 @@ async function createTokenPolicy() {
     "EFFECT_ALLOW",
     `approvers.any(user, user.id == '${nonRootUserID}')`,
     `solana.tx.instructions.count() == 1 && solana.tx.spl_transfers.any(transfer, transfer.to == '${ataWarchest.toString()}')`,
-    ""
+    "",
   );
 }

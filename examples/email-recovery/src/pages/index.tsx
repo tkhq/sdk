@@ -118,7 +118,7 @@ export default function RecoveryPage() {
 
     // Instead of simply alerting, redirect the user to your app's login page.
     alert(
-      "SUCCESS! Authenticator added. Recovery flow complete. Try logging back in!"
+      "SUCCESS! Authenticator added. Recovery flow complete. Try logging back in!",
     );
   };
 

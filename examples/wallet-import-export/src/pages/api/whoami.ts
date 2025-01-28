@@ -18,7 +18,7 @@ type ErrorMessage = {
 
 export default async function getWallets(
   req: NextApiRequest,
-  res: NextApiResponse<GetWhoamiResponse | ErrorMessage>
+  res: NextApiResponse<GetWhoamiResponse | ErrorMessage>,
 ) {
   const getWhoamiRequest = req.body as GetWhoamiRequest;
   const turnkeyClient = new Turnkey({

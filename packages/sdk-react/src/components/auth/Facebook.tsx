@@ -50,7 +50,7 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
     const popup = window.open(
       facebookOAuthURL,
       "_blank",
-      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
+      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
     );
 
     if (popup) {
@@ -84,7 +84,7 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
     const verifier = sessionStorage.getItem("facebook_verifier");
     if (!verifier || tokenExchanged) {
       console.error(
-        "No verifier found in sessionStorage or token exchange already completed"
+        "No verifier found in sessionStorage or token exchange already completed",
       );
       return;
     }
@@ -94,7 +94,7 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
         clientId,
         redirectURI,
         authCode,
-        verifier
+        verifier,
       );
       sessionStorage.removeItem("facebook_verifier");
       onSuccess(tokenData);

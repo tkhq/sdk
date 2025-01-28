@@ -44,7 +44,7 @@ async function main() {
       `- Name: ${apiKeyName}`,
       `- User ID: ${userId}`,
       ``,
-    ].join("\n")
+    ].join("\n"),
   );
 }
 

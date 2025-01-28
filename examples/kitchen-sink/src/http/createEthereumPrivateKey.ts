@@ -18,7 +18,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
+    }),
   );
 
   const activityPoller = createActivityPoller({
@@ -45,7 +45,7 @@ async function main() {
   });
 
   const privateKeys = refineNonNull(
-    activity.result.createPrivateKeysResultV2?.privateKeys
+    activity.result.createPrivateKeysResultV2?.privateKeys,
   );
   const privateKeyId = refineNonNull(privateKeys?.[0]?.privateKeyId);
   const address = refineNonNull(privateKeys?.[0]?.addresses?.[0]?.address);
@@ -59,7 +59,7 @@ async function main() {
       `- Address: ${address}`,
       ``,
       "Now you can take the private key ID, put it in `.env.local`, then re-run the script.",
-    ].join("\n")
+    ].join("\n"),
   );
 }
 

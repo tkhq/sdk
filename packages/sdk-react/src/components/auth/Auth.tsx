@@ -124,7 +124,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleGetOrCreateSuborg = async (
     filterType: string,
     filterValue: string,
-    additionalData = {}
+    additionalData = {},
   ) => {
     let suborgId;
     if (
@@ -250,7 +250,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleOtpLogin = async (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
-    otpType: string
+    otpType: string,
   ) => {
     const suborgId = await handleGetOrCreateSuborg(type, value);
     const initAuthResponse = await initOtpAuth({
@@ -276,7 +276,7 @@ const Auth: React.FC<AuthProps> = ({
       credential,
       {
         oauthProviders: [{ providerName, oidcToken: credential }],
-      }
+      },
     );
     const oauthResponse = await oauth({
       suborgID: suborgId,
@@ -512,8 +512,8 @@ const Auth: React.FC<AuthProps> = ({
               {passkeySignupError
                 ? "Authentication error"
                 : passkeyCreated
-                ? "Logging in with passkey..."
-                : "Creating passkey..."}
+                  ? "Logging in with passkey..."
+                  : "Creating passkey..."}
             </h3>
           </center>
           <div className={styles.rowsContainer}>

@@ -42,7 +42,7 @@ interface UserSession {
 export function useUserSession(): UserSession {
   const [user] = useLocalStorage<User | undefined>(
     StorageKeys.UserSession,
-    undefined
+    undefined,
   );
 
   const { session, userId, username, organization } = user ?? {};

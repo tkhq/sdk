@@ -103,7 +103,7 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
         ))}
       </Box>
     );
-  }
+  },
 );
 
 export default OtpInput;

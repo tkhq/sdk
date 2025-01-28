@@ -27,7 +27,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
+    }),
   );
 
   // Initialize a Turnkey Signer
@@ -90,7 +90,7 @@ async function main() {
 
   print(
     `Sent ${ethers.formatEther(sentTx.value)} Ether to ${sentTx.to}:`,
-    `https://${network}.etherscan.io/tx/${sentTx.hash}`
+    `https://${network}.etherscan.io/tx/${sentTx.hash}`,
   );
 
   if (network === "sepolia") {
@@ -98,7 +98,7 @@ async function main() {
     const wethContract = new ethers.Contract(
       WETH_TOKEN_ADDRESS_SEPOLIA,
       WETH_TOKEN_ABI,
-      connectedSigner
+      connectedSigner,
     );
 
     // Read from contract
@@ -113,7 +113,7 @@ async function main() {
 
     print(
       `Wrapped ${ethers.formatEther(depositTx.value)} ETH:`,
-      `https://${network}.etherscan.io/tx/${depositTx.hash}`
+      `https://${network}.etherscan.io/tx/${depositTx.hash}`,
     );
   }
 }

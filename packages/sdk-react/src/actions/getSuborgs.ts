@@ -12,7 +12,7 @@ type GetSuborgsResponse = {
 };
 
 export async function getSuborgs(
-  request: GetSuborgsRequest
+  request: GetSuborgsRequest,
 ): Promise<GetSuborgsResponse | undefined> {
   const turnkeyClient = new Turnkey({
     apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
