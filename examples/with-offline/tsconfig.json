@@ -3,7 +3,7 @@
   "compilerOptions": {
     "noEmit": true,
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
-    "moduleResolution": "node",
+    "moduleResolution": "node"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
 }

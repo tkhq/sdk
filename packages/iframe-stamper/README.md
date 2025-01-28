@@ -30,7 +30,7 @@ const injected = await iframeStamper.injectCredentialBundle(credentialBundle);
 // New HTTP client able to sign with the credentials inside of the iframe
 const httpClient = new TurnkeyClient(
   { baseUrl: "https://api.turnkey.com" },
-  iframeStamper
+  iframeStamper,
 );
 ```
 

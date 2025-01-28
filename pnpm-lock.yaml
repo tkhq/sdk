@@ -140,7 +140,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^15.1.4
-        version: 15.1.4(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.1.4(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^10.9.2
         version: 10.9.2
@@ -200,7 +200,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^15.1.4
-        version: 15.1.4(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.1.4(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^10.9.2
         version: 10.9.2
@@ -260,7 +260,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^15.1.4
-        version: 15.1.4(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.1.4(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^10.9.2
         version: 10.9.2
@@ -409,7 +409,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^15.1.4
-        version: 15.1.4(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.1.4(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^10.9.2
         version: 10.9.2
@@ -463,7 +463,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^15.1.4
-        version: 15.1.4(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.1.4(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^10.9.2
         version: 10.9.2
@@ -547,7 +547,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^15.1.4
-        version: 15.1.4(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.1.4(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^10.9.2
         version: 10.9.2
@@ -678,7 +678,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^15.1.4
-        version: 15.1.4(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.1.4(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^10.9.2
         version: 10.9.2
@@ -886,7 +886,7 @@ importers:
         version: 0.471.0(react@18.2.0)
       next:
         specifier: ^15.1.4
-        version: 15.1.4(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.1.4(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       next-themes:
         specifier: ^0.4.4
         version: 0.4.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -998,7 +998,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^15.1.4
-        version: 15.1.4(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.1.4(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^10.9.2
         version: 10.9.2
@@ -1095,7 +1095,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^15.1.4
-        version: 15.1.4(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.1.4(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.7.2
@@ -1116,13 +1116,13 @@ importers:
     dependencies:
       '@safe-global/protocol-kit':
         specifier: ^3.0.1
-        version: 3.0.1(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
+        version: 3.0.1(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
       '@safe-global/safe-core-sdk-types':
         specifier: ^4.0.1
-        version: 4.0.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+        version: 4.0.1(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@safe-global/safe-ethers-lib':
         specifier: ^1.9.2
-        version: 1.9.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+        version: 1.9.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@turnkey/api-key-stamper':
         specifier: workspace:*
         version: link:../../packages/api-key-stamper
@@ -1277,7 +1277,7 @@ importers:
         version: 0.13.0
       next:
         specifier: 15.1.4
-        version: 15.1.4(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 15.1.4(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^10.9.2
         version: 10.9.2
@@ -1776,8 +1776,8 @@ importers:
         specifier: workspace:*
         version: link:../webauthn-stamper
       cross-fetch:
-        specifier: ^3.1.5
-        version: 3.1.5(encoding@0.1.13)
+        specifier: ^4.1.0
+        version: 4.1.0(encoding@0.1.13)
     devDependencies:
       tslib:
         specifier: 2.8.1
@@ -1900,7 +1900,7 @@ importers:
         version: 1.11.14
       next:
         specifier: ^15.0.2
-        version: 15.0.2(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
+        version: 15.0.2(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
       react-apple-login:
         specifier: ^1.1.6
         version: 1.1.6(prop-types@15.8.1)(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
@@ -18887,15 +18887,15 @@ snapshots:
 
   '@rushstack/eslint-patch@1.10.5': {}
 
-  '@safe-global/protocol-kit@3.0.1(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)':
+  '@safe-global/protocol-kit@3.0.1(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)':
     dependencies:
       '@noble/hashes': 1.4.0
       '@safe-global/safe-deployments': 1.34.0
       ethereumjs-util: 7.1.5
       ethers: 6.10.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
       semver: 7.5.4
-      web3: 4.7.0(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
-      web3-core: 4.3.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3: 4.7.0(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
+      web3-core: 4.3.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-utils: 4.2.1
     transitivePeerDependencies:
       - bufferutil
@@ -18904,32 +18904,32 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@safe-global/safe-core-sdk-types@1.9.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)':
+  '@safe-global/safe-core-sdk-types@1.9.0(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@ethersproject/bignumber': 5.7.0
       '@ethersproject/contracts': 5.7.0
       '@gnosis.pm/safe-deployments': 1.19.0
-      web3-core: 4.3.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3-core: 4.3.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-utils: 4.2.1
     transitivePeerDependencies:
       - bufferutil
       - encoding
       - utf-8-validate
 
-  '@safe-global/safe-core-sdk-types@4.0.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)':
+  '@safe-global/safe-core-sdk-types@4.0.1(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@safe-global/safe-deployments': 1.34.0
       ethers: 6.10.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
-      web3-core: 4.3.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3-core: 4.3.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-utils: 4.2.1
     transitivePeerDependencies:
       - bufferutil
       - encoding
       - utf-8-validate
 
-  '@safe-global/safe-core-sdk-utils@1.7.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)':
+  '@safe-global/safe-core-sdk-utils@1.7.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
-      '@safe-global/safe-core-sdk-types': 1.9.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      '@safe-global/safe-core-sdk-types': 1.9.0(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       semver: 7.5.4
       web3-utils: 4.2.1
     transitivePeerDependencies:
@@ -18941,10 +18941,10 @@ snapshots:
     dependencies:
       semver: 7.5.4
 
-  '@safe-global/safe-ethers-lib@1.9.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)':
+  '@safe-global/safe-ethers-lib@1.9.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
-      '@safe-global/safe-core-sdk-types': 1.9.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
-      '@safe-global/safe-core-sdk-utils': 1.7.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      '@safe-global/safe-core-sdk-types': 1.9.0(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      '@safe-global/safe-core-sdk-utils': 1.7.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       ethers: 5.7.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
@@ -26106,7 +26106,7 @@ snapshots:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
-  next@15.0.2(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0):
+  next@15.0.2(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.2.0))(react@18.2.0):
     dependencies:
       '@next/env': 15.0.2
       '@swc/counter': 0.1.3
@@ -26116,7 +26116,7 @@ snapshots:
       postcss: 8.4.31
       react: 18.2.0
       react-dom: 18.3.1(react@18.2.0)
-      styled-jsx: 5.1.6(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react@18.2.0)
+      styled-jsx: 5.1.6(babel-plugin-macros@3.1.0)(react@18.2.0)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.0.2
       '@next/swc-darwin-x64': 15.0.2
@@ -26126,31 +26126,6 @@ snapshots:
       '@next/swc-linux-x64-musl': 15.0.2
       '@next/swc-win32-arm64-msvc': 15.0.2
       '@next/swc-win32-x64-msvc': 15.0.2
-      sharp: 0.33.5
-    transitivePeerDependencies:
-      - '@babel/core'
-      - babel-plugin-macros
-
-  next@15.1.4(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
-    dependencies:
-      '@next/env': 15.1.4
-      '@swc/counter': 0.1.3
-      '@swc/helpers': 0.5.15
-      busboy: 1.6.0
-      caniuse-lite: 1.0.30001581
-      postcss: 8.4.31
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      styled-jsx: 5.1.6(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react@18.2.0)
-    optionalDependencies:
-      '@next/swc-darwin-arm64': 15.1.4
-      '@next/swc-darwin-x64': 15.1.4
-      '@next/swc-linux-arm64-gnu': 15.1.4
-      '@next/swc-linux-arm64-musl': 15.1.4
-      '@next/swc-linux-x64-gnu': 15.1.4
-      '@next/swc-linux-x64-musl': 15.1.4
-      '@next/swc-win32-arm64-msvc': 15.1.4
-      '@next/swc-win32-x64-msvc': 15.1.4
       sharp: 0.33.5
     transitivePeerDependencies:
       - '@babel/core'
@@ -26167,6 +26142,31 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       styled-jsx: 5.1.6(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react@18.3.1)
+    optionalDependencies:
+      '@next/swc-darwin-arm64': 15.1.4
+      '@next/swc-darwin-x64': 15.1.4
+      '@next/swc-linux-arm64-gnu': 15.1.4
+      '@next/swc-linux-arm64-musl': 15.1.4
+      '@next/swc-linux-x64-gnu': 15.1.4
+      '@next/swc-linux-x64-musl': 15.1.4
+      '@next/swc-win32-arm64-msvc': 15.1.4
+      '@next/swc-win32-x64-msvc': 15.1.4
+      sharp: 0.33.5
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+
+  next@15.1.4(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+    dependencies:
+      '@next/env': 15.1.4
+      '@swc/counter': 0.1.3
+      '@swc/helpers': 0.5.15
+      busboy: 1.6.0
+      caniuse-lite: 1.0.30001581
+      postcss: 8.4.31
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      styled-jsx: 5.1.6(babel-plugin-macros@3.1.0)(react@18.2.0)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.1.4
       '@next/swc-darwin-x64': 15.1.4
@@ -28221,20 +28221,19 @@ snapshots:
 
   style-inject@0.3.0: {}
 
-  styled-jsx@5.1.6(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react@18.2.0):
-    dependencies:
-      client-only: 0.0.1
-      react: 18.2.0
-    optionalDependencies:
-      '@babel/core': 7.24.5
-      babel-plugin-macros: 3.1.0
-
   styled-jsx@5.1.6(@babel/core@7.24.5)(babel-plugin-macros@3.1.0)(react@18.3.1):
     dependencies:
       client-only: 0.0.1
       react: 18.3.1
     optionalDependencies:
       '@babel/core': 7.24.5
+      babel-plugin-macros: 3.1.0
+
+  styled-jsx@5.1.6(babel-plugin-macros@3.1.0)(react@18.2.0):
+    dependencies:
+      client-only: 0.0.1
+      react: 18.2.0
+    optionalDependencies:
       babel-plugin-macros: 3.1.0
 
   stylehacks@5.1.1(postcss@8.4.38):
@@ -29083,12 +29082,12 @@ snapshots:
     dependencies:
       defaults: 1.0.4
 
-  web3-core@4.3.2(bufferutil@4.0.7)(utf-8-validate@5.0.10):
+  web3-core@4.3.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10):
     dependencies:
       web3-errors: 1.1.4
       web3-eth-accounts: 4.1.1
       web3-eth-iban: 4.0.7
-      web3-providers-http: 4.1.0
+      web3-providers-http: 4.1.0(encoding@0.1.13)
       web3-providers-ws: 4.0.7(bufferutil@4.0.7)(utf-8-validate@5.0.10)
       web3-types: 1.5.0
       web3-utils: 4.2.1
@@ -29125,11 +29124,11 @@ snapshots:
       web3-utils: 4.2.1
       web3-validator: 2.0.5
 
-  web3-eth-contract@4.3.0(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8):
+  web3-eth-contract@4.3.0(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8):
     dependencies:
-      web3-core: 4.3.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3-core: 4.3.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-errors: 1.1.4
-      web3-eth: 4.5.0(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
+      web3-eth: 4.5.0(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
       web3-eth-abi: 4.2.0(typescript@5.7.3)(zod@3.23.8)
       web3-types: 1.5.0
       web3-utils: 4.2.1
@@ -29141,14 +29140,14 @@ snapshots:
       - utf-8-validate
       - zod
 
-  web3-eth-ens@4.2.0(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8):
+  web3-eth-ens@4.2.0(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
-      web3-core: 4.3.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3-core: 4.3.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-errors: 1.1.4
-      web3-eth: 4.5.0(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
-      web3-eth-contract: 4.3.0(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
-      web3-net: 4.0.7(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3-eth: 4.5.0(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
+      web3-eth-contract: 4.3.0(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
+      web3-net: 4.0.7(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-types: 1.5.0
       web3-utils: 4.2.1
       web3-validator: 2.0.5
@@ -29166,11 +29165,11 @@ snapshots:
       web3-utils: 4.2.1
       web3-validator: 2.0.5
 
-  web3-eth-personal@4.0.8(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8):
+  web3-eth-personal@4.0.8(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8):
     dependencies:
-      web3-core: 4.3.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
-      web3-eth: 4.5.0(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
-      web3-rpc-methods: 1.2.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3-core: 4.3.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      web3-eth: 4.5.0(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
+      web3-rpc-methods: 1.2.0(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-types: 1.5.0
       web3-utils: 4.2.1
       web3-validator: 2.0.5
@@ -29181,16 +29180,16 @@ snapshots:
       - utf-8-validate
       - zod
 
-  web3-eth@4.5.0(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8):
+  web3-eth@4.5.0(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8):
     dependencies:
       setimmediate: 1.0.5
-      web3-core: 4.3.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3-core: 4.3.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-errors: 1.1.4
       web3-eth-abi: 4.2.0(typescript@5.7.3)(zod@3.23.8)
       web3-eth-accounts: 4.1.1
-      web3-net: 4.0.7(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3-net: 4.0.7(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-providers-ws: 4.0.7(bufferutil@4.0.7)(utf-8-validate@5.0.10)
-      web3-rpc-methods: 1.2.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3-rpc-methods: 1.2.0(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-types: 1.5.0
       web3-utils: 4.2.1
       web3-validator: 2.0.5
@@ -29201,10 +29200,10 @@ snapshots:
       - utf-8-validate
       - zod
 
-  web3-net@4.0.7(bufferutil@4.0.7)(utf-8-validate@5.0.10):
+  web3-net@4.0.7(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10):
     dependencies:
-      web3-core: 4.3.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
-      web3-rpc-methods: 1.2.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3-core: 4.3.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      web3-rpc-methods: 1.2.0(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-types: 1.5.0
       web3-utils: 4.2.1
     transitivePeerDependencies:
@@ -29212,7 +29211,7 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  web3-providers-http@4.1.0:
+  web3-providers-http@4.1.0(encoding@0.1.13):
     dependencies:
       cross-fetch: 4.1.0(encoding@0.1.13)
       web3-errors: 1.1.4
@@ -29240,9 +29239,9 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  web3-rpc-methods@1.2.0(bufferutil@4.0.7)(utf-8-validate@5.0.10):
+  web3-rpc-methods@1.2.0(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10):
     dependencies:
-      web3-core: 4.3.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3-core: 4.3.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-types: 1.5.0
       web3-validator: 2.0.5
     transitivePeerDependencies:
@@ -29268,21 +29267,21 @@ snapshots:
       web3-types: 1.5.0
       zod: 3.23.8
 
-  web3@4.7.0(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8):
+  web3@4.7.0(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8):
     dependencies:
-      web3-core: 4.3.2(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3-core: 4.3.2(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-errors: 1.1.4
-      web3-eth: 4.5.0(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
+      web3-eth: 4.5.0(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
       web3-eth-abi: 4.2.0(typescript@5.7.3)(zod@3.23.8)
       web3-eth-accounts: 4.1.1
-      web3-eth-contract: 4.3.0(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
-      web3-eth-ens: 4.2.0(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
+      web3-eth-contract: 4.3.0(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
+      web3-eth-ens: 4.2.0(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
       web3-eth-iban: 4.0.7
-      web3-eth-personal: 4.0.8(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
-      web3-net: 4.0.7(bufferutil@4.0.7)(utf-8-validate@5.0.10)
-      web3-providers-http: 4.1.0
+      web3-eth-personal: 4.0.8(bufferutil@4.0.7)(encoding@0.1.13)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)
+      web3-net: 4.0.7(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      web3-providers-http: 4.1.0(encoding@0.1.13)
       web3-providers-ws: 4.0.7(bufferutil@4.0.7)(utf-8-validate@5.0.10)
-      web3-rpc-methods: 1.2.0(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+      web3-rpc-methods: 1.2.0(bufferutil@4.0.7)(encoding@0.1.13)(utf-8-validate@5.0.10)
       web3-types: 1.5.0
       web3-utils: 4.2.1
       web3-validator: 2.0.5

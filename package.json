@@ -6,7 +6,7 @@
     "changeset": "changeset",
     "prebuild-all": "pnpm run -w clean-all",
     "clean": "turbo run clean -w clean-all",
-    "build": "turbo run build --filter=\"./packages/**\"" ,
+    "build": "turbo run build --filter=\"./packages/**\"",
     "publish-packages": "turbo run build && changeset version && changeset publish",
     "version": "pnpm run --r --filter \"./packages/**\" version",
     "build-all": "pnpm run --r --filter \"./packages/**\" build",

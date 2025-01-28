@@ -115,7 +115,7 @@ export const MuiPhone: React.FC<MUIPhoneProps> = ({
               onChange={(e) => setCountry(e.target.value as CountryIso2)}
               renderValue={(value) => {
                 const selectedCountry = countries.find(
-                  (c) => parseCountry(c).iso2 === value
+                  (c) => parseCountry(c).iso2 === value,
                 );
                 const parsedCountry = selectedCountry
                   ? parseCountry(selectedCountry)

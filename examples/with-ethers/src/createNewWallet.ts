@@ -42,7 +42,7 @@ export async function createNewWallet() {
         `- Address: ${address}`,
         ``,
         "Now you can take the address, put it in `.env.local` (`SIGN_WITH=<address>`), then re-run the script.",
-      ].join("\n")
+      ].join("\n"),
     );
   } catch (error) {
     throw new Error("Failed to create a new Ethereum wallet: " + error);

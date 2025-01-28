@@ -41,14 +41,14 @@ async function main() {
   // Bring your own provider
   const network = "sepolia";
   const provider = new ethers.JsonRpcProvider(
-    `https://${network}.infura.io/v3/${process.env.INFURA_KEY}`
+    `https://${network}.infura.io/v3/${process.env.INFURA_KEY}`,
   );
   const connectedSigner = turnkeySigner.connect(provider);
 
   // Connect a TurnkeySigner to a Biconomy Smart Account Client, defaulting to Sepolia
   // Ensure this method is hoisted
   const connect = async (
-    turnkeySigner: TurnkeySigner
+    turnkeySigner: TurnkeySigner,
   ): Promise<BiconomySmartAccountV2> => {
     try {
       const smartAccount = await createSmartAccountClient({
@@ -71,9 +71,8 @@ async function main() {
   const smartAccount = await connect(turnkeySigner);
   const smartAccountAddress = await smartAccount.getAccountAddress();
 
-  const transactionCount = await connectedSigner.provider?.getTransactionCount(
-    smartAccountAddress
-  );
+  const transactionCount =
+    await connectedSigner.provider?.getTransactionCount(smartAccountAddress);
   const nonce = await smartAccount.getNonce();
   let balance =
     (await connectedSigner.provider?.getBalance(smartAccountAddress)) ?? 0;
@@ -92,7 +91,7 @@ async function main() {
         `- Any online faucet (e.g. https://www.alchemy.com/faucets/)`,
         `\nTo check your balance: https://${network}.etherscan.io/address/${smartAccountAddress}`,
         `\n--------`,
-      ].join("\n")
+      ].join("\n"),
     );
 
     const { continue: _ } = await prompts([
@@ -104,9 +103,8 @@ async function main() {
       },
     ]);
 
-    balance = (await connectedSigner.provider?.getBalance(
-      smartAccountAddress
-    ))!;
+    balance =
+      (await connectedSigner.provider?.getBalance(smartAccountAddress))!;
   }
 
   const { amount, destination } = await prompts([
@@ -135,7 +133,7 @@ async function main() {
     {
       nonceOptions: { nonceKey: Number(0) },
       paymasterServiceData: { mode: PaymasterMode.SPONSORED },
-    }
+    },
   );
 
   const { transactionHash } = await userOpResponse.waitForTxHash();
@@ -144,12 +142,12 @@ async function main() {
     `Sent ${ethers.formatEther(transactionRequest.value)} Ether to ${
       transactionRequest.to
     }:`,
-    `https://${network}.etherscan.io/tx/${transactionHash}`
+    `https://${network}.etherscan.io/tx/${transactionHash}`,
   );
 
   print(
     `User Ops can be found here:`,
-    `https://v2.jiffyscan.xyz/tx/${transactionHash}?network=${network}&pageNo=0&pageSize=10`
+    `https://v2.jiffyscan.xyz/tx/${transactionHash}?network=${network}&pageNo=0&pageSize=10`,
   );
 }
 

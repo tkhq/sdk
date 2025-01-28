@@ -10,7 +10,7 @@ export async function createTokenAccount(
   solAddress: string,
   ata: PublicKey,
   owner: PublicKey,
-  mintAuthority: Keypair
+  mintAuthority: Keypair,
 ): Promise<any> {
   const fromKey = new PublicKey(solAddress);
 
@@ -20,14 +20,13 @@ export async function createTokenAccount(
       fromKey, // payer
       ata, // ata
       owner, // owner
-      mintAuthority.publicKey // mint
-    )
+      mintAuthority.publicKey, // mint
+    ),
   );
 
   // Get a recent block hash
-  createTokenAccountTx.recentBlockhash = await solanaNetwork.recentBlockhash(
-    connection
-  );
+  createTokenAccountTx.recentBlockhash =
+    await solanaNetwork.recentBlockhash(connection);
   // Set the signer
   createTokenAccountTx.feePayer = fromKey;
 

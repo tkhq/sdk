@@ -40,7 +40,7 @@ export const appleOidcToken = async ({
     const authWindow = window.open(
       appleAuthUrl.toString(),
       "_blank",
-      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
+      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
     );
 
     if (!authWindow) {
@@ -97,7 +97,7 @@ export const googleOidcToken = async ({
     const authWindow = window.open(
       googleAuthUrl.toString(),
       "_blank",
-      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
+      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
     );
 
     if (!authWindow) {
@@ -160,7 +160,7 @@ export const facebookOidcToken = async ({
     const popup = window.open(
       facebookOAuthURL,
       "_blank",
-      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
+      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
     );
 
     if (!popup) {
@@ -173,7 +173,7 @@ export const facebookOidcToken = async ({
         if (popup.closed) {
           clearInterval(interval);
           reject(
-            new Error("Popup closed by user before completing authentication")
+            new Error("Popup closed by user before completing authentication"),
           );
           return;
         }
@@ -195,7 +195,7 @@ export const facebookOidcToken = async ({
               clientId,
               redirectURI,
               authCode,
-              verifier
+              verifier,
             );
             sessionStorage.removeItem("facebook_verifier");
             resolve({ idToken: tokenData.id_token });

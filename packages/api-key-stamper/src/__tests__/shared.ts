@@ -13,7 +13,7 @@ export async function generateKeyPairWithOpenSsl(): Promise<{
   pemPublicKey: string;
 }> {
   const tmpFolder = await fs.promises.mkdtemp(
-    path.resolve(os.tmpdir(), "stamp-")
+    path.resolve(os.tmpdir(), "stamp-"),
   );
 
   async function contextualExec(command: string): Promise<string> {
@@ -26,16 +26,16 @@ export async function generateKeyPairWithOpenSsl(): Promise<{
   }
 
   await contextualExec(
-    "openssl ecparam -genkey -name prime256v1 -noout -out private_key.pem"
+    "openssl ecparam -genkey -name prime256v1 -noout -out private_key.pem",
   );
   await contextualExec(
-    "openssl ec -in private_key.pem -pubout -out public_key.pem"
+    "openssl ec -in private_key.pem -pubout -out public_key.pem",
   );
   const rawPrivateKey = await contextualExec(
-    "openssl ec -in private_key.pem -noout -text"
+    "openssl ec -in private_key.pem -noout -text",
   );
   const rawPublicKey = await contextualExec(
-    "openssl ec -pubin -in public_key.pem -conv_form compressed -noout -text"
+    "openssl ec -pubin -in public_key.pem -conv_form compressed -noout -text",
   );
 
   const privateKey = rawPrivateKey
@@ -53,7 +53,7 @@ export async function generateKeyPairWithOpenSsl(): Promise<{
   const pemPublicKey = (
     await fs.promises.readFile(
       path.resolve(tmpFolder, "public_key.pem"),
-      "utf-8"
+      "utf-8",
     )
   ).trim();
 
@@ -85,6 +85,6 @@ export function assertValidSignature({
       `content: ${JSON.stringify(content)}`,
       `pemPublicKey: ${JSON.stringify(pemPublicKey)}`,
       `signature: ${JSON.stringify(signature)}`,
-    ].join("\n")
+    ].join("\n"),
   );
 }

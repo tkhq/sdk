@@ -6,7 +6,7 @@
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
     "target": "ES2022",
     "module": "esnext",
-    "moduleResolution": "node10",
+    "moduleResolution": "node10"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],

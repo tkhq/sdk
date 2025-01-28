@@ -26,7 +26,7 @@ export type TurnkeyEIP1193Provider = Omit<EIP1193Provider, "request"> & {
         Method: "eth_signTypedData_v4";
         Parameters: [address: Address, typedData: TypedDataDefinition];
         ReturnType: Promise<Hash>;
-      }
+      },
     ]
   >;
 };

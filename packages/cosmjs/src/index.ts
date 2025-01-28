@@ -115,7 +115,7 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
   private get address(): string {
     return toBech32(
       this.prefix,
-      rawSecp256k1PubkeyToRawAddress(this.compressedPublicKey)
+      rawSecp256k1PubkeyToRawAddress(this.compressedPublicKey),
     );
   }
 
@@ -131,7 +131,7 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
 
   public async signDirect(
     address: string,
-    signDoc: SignDoc
+    signDoc: SignDoc,
   ): Promise<DirectSignResponse> {
     const signBytes = makeSignBytes(signDoc);
     const message = sha256(signBytes);
@@ -148,7 +148,7 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
     ]);
     const stdSignature = encodeSecp256k1Signature(
       this.compressedPublicKey,
-      signatureBytes
+      signatureBytes,
     );
 
     return {
@@ -160,7 +160,7 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
   // Largely based off `Secp256k1.createSignature(...)`
   // https://github.com/cosmos/cosmjs/blob/e8e65aa0c145616ccb58625c32bffe08b46ff574/packages/crypto/src/secp256k1.ts#L67
   private async _signImpl(
-    message: Uint8Array
+    message: Uint8Array,
   ): Promise<ExtendedSecp256k1Signature> {
     const messageHex = toHex(message);
     let result;
@@ -202,7 +202,7 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
     return new ExtendedSecp256k1Signature(
       fromHex(result.r!),
       fromHex(result.s!),
-      parseInt(result.v!, 16)
+      parseInt(result.v!, 16),
     );
   }
 }
@@ -221,7 +221,7 @@ export async function fetchCompressedPublicKey(input: {
 
   const uncompressedPublicKey = keyInfo.privateKey.publicKey;
   const compressedPublicKey = Secp256k1.compressPubkey(
-    fromHex(uncompressedPublicKey)
+    fromHex(uncompressedPublicKey),
   );
 
   return { compressedPublicKey };
@@ -231,7 +231,7 @@ export { TurnkeyActivityError, TurnkeyRequestError };
 
 function refineNonNull<T>(
   input: T | null | undefined,
-  errorMessage?: string
+  errorMessage?: string,
 ): T {
   if (input == null) {
     throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);

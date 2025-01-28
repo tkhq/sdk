@@ -30,7 +30,7 @@ const client = new TurnkeyClient(
   {
     baseUrl: "https://api.turnkey.com",
   },
-  stamper
+  stamper,
 );
 
 // Now you can make authenticated requests!
@@ -68,7 +68,7 @@ try {
 
   // Success!
   console.log(
-    activity.result.createPrivateKeysResultV2?.privateKeys?.[0]?.privateKeyId
+    activity.result.createPrivateKeysResultV2?.privateKeys?.[0]?.privateKeyId,
   );
 } catch (error) {
   if (error instanceof TurnkeyActivityError) {

@@ -46,7 +46,7 @@ async function main() {
       `- Name: ${userName}`,
       `- User ID: ${userId}`,
       ``,
-    ].join("\n")
+    ].join("\n"),
   );
 }
 

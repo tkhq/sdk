@@ -19,7 +19,7 @@ import { solanaNetwork } from ".";
 export async function createToken(
   turnkeySigner: TurnkeySigner,
   connection: Connection,
-  solAddress: string
+  solAddress: string,
 ): Promise<{ mintAuthority: Keypair }> {
   const fromKey = new PublicKey(solAddress);
 
@@ -40,8 +40,8 @@ export async function createToken(
       mintAuthority.publicKey, // mint pubkey
       8, // decimals
       fromKey, // mint authority
-      fromKey // freeze authority (you can use `null` to disable it. when you disable it, you can't turn it on again)
-    )
+      fromKey, // freeze authority (you can use `null` to disable it. when you disable it, you can't turn it on again)
+    ),
   );
 
   // Get a recent block hash

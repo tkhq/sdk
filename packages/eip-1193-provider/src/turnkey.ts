@@ -3,15 +3,15 @@ import type { TurnkeyClient } from "@turnkey/http";
 import { signatureToHex } from "viem";
 import { pad } from "viem/utils";
 
-import { TSignRawPayloadResponse } from "@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher";
 import { definitions } from "@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.types";
 import { TURNKEY_ERROR_CODE } from "./constants";
+import { TSignRawPayloadResponse } from "@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher";
 
 export function unwrapActivityResult<
-  T extends definitions["v1ActivityResponse"]
+  T extends definitions["v1ActivityResponse"],
 >(
   activityResponse: T,
-  { errorMessage }: { errorMessage: string }
+  { errorMessage }: { errorMessage: string },
 ): T["activity"]["result"] {
   const { activity } = activityResponse;
 

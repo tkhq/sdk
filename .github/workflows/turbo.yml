@@ -1,12 +1,12 @@
 name: Turbo
- 
+
 on:
   push:
     branches: ["main"]
   # TODO: remove before shipping
   pull_request:
     types: [opened, synchronize]
- 
+
 jobs:
   build:
     name: Build
@@ -16,12 +16,12 @@ jobs:
     # env:
     #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
     #  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
- 
+
     steps:
       # https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
- 
+
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup

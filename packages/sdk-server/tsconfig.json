@@ -5,7 +5,7 @@
     "rootDir": "./src",
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
     "module": "preserve",
-    "moduleResolution": "bundler",
+    "moduleResolution": "bundler"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],

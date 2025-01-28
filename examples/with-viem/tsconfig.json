@@ -7,7 +7,7 @@
     "resolveJsonModule": true,
     "target": "ES2022",
     "module": "ES2022",
-    "moduleResolution": "bundler",
+    "moduleResolution": "bundler"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
 }

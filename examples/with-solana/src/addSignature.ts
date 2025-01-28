@@ -54,7 +54,7 @@ async function main() {
         `- Any online faucet (e.g. https://faucet.solana.com/)`,
         `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=devnet`,
         `\n--------`,
-      ].join("\n")
+      ].join("\n"),
     );
     // Await user confirmation to continue
     await prompts([
@@ -126,9 +126,9 @@ async function main() {
         const { r, s } = getSignatureFromActivity(activity);
         transaction.addSignature(
           new PublicKey(solAddress),
-          Buffer.from(`${r}${s}`, "hex")
+          Buffer.from(`${r}${s}`, "hex"),
         );
-      }
+      },
     );
   }
 

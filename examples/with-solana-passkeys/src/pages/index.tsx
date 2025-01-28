@@ -48,7 +48,7 @@ export default function Home() {
   const [wallet, setWallet] = useState<TWalletState>(null);
   const [signedMessage, setSignedMessage] = useState<TSignedMessage>(null);
   const [signedTransaction, setSignedTransaction] = useState<string | null>(
-    null
+    null,
   );
 
   const { handleSubmit: subOrgFormSubmit } = useForm<TSubOrgFormData>();
@@ -90,11 +90,13 @@ export default function Home() {
 
     const signedMessage = await turnkeySigner.signMessage(
       messageAsUint8Array,
-      wallet.address
+      wallet.address,
     );
 
     const base58EncodedSignature = bs58.encode(signedMessage);
-    const base64EncodedSignature = base64Encode(signedMessage.buffer as ArrayBuffer);
+    const base64EncodedSignature = base64Encode(
+      signedMessage.buffer as ArrayBuffer,
+    );
     const rawSignature = Buffer.from(signedMessage).toString("hex");
 
     setSignedMessage({
@@ -125,7 +127,7 @@ export default function Home() {
     const { serializedTransaction } = res.data;
 
     const deserializedTransaction = VersionedTransaction.deserialize(
-      Buffer.from(serializedTransaction, "base64")
+      Buffer.from(serializedTransaction, "base64"),
     );
 
     // add user signature
@@ -136,11 +138,11 @@ export default function Home() {
     // broadcast
     const transactionHash = await broadcast(
       connection,
-      deserializedTransaction
+      deserializedTransaction,
     );
 
     setSignedTransaction(
-      `https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`
+      `https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`,
     );
   };
 

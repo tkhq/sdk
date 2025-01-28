@@ -11,7 +11,7 @@ export async function readFixture(): Promise<{
   const privateKey = (
     await fs.promises.readFile(
       path.resolve(FIXTURES_DIR, "api-key.private"),
-      "utf-8"
+      "utf-8",
     )
   ).trim();
 
@@ -19,13 +19,13 @@ export async function readFixture(): Promise<{
   const publicKey = (
     await fs.promises.readFile(
       path.resolve(FIXTURES_DIR, "api-key.public"),
-      "utf-8"
+      "utf-8",
     )
   ).trim();
   const pemPublicKey = (
     await fs.promises.readFile(
       path.resolve(FIXTURES_DIR, "api-key.public.pem"),
-      "utf-8"
+      "utf-8",
     )
   ).trim();
 

@@ -28,7 +28,7 @@ export class TurnkeySigner {
   public async signAllTransactions(
     txs: (Transaction | VersionedTransaction)[],
     fromAddress: string,
-    organizationId?: string
+    organizationId?: string,
   ): Promise<(Transaction | VersionedTransaction)[]> {
     const fromKey = new PublicKey(fromAddress);
 
@@ -37,11 +37,11 @@ export class TurnkeySigner {
     const signRawPayloadsResult = await this.signRawPayloads(
       messages,
       fromAddress,
-      organizationId
+      organizationId,
     );
 
     const signatures = signRawPayloadsResult?.signatures?.map(
-      (sig: TSignature) => `${sig?.r}${sig?.s}`
+      (sig: TSignature) => `${sig?.r}${sig?.s}`,
     );
 
     for (let i in txs) {
@@ -60,14 +60,14 @@ export class TurnkeySigner {
   public async addSignature(
     tx: Transaction | VersionedTransaction,
     fromAddress: string,
-    organizationId?: string
+    organizationId?: string,
   ) {
     const fromKey = new PublicKey(fromAddress);
     const messageToSign: Buffer = this.getMessageToSign(tx);
     const signRawPayloadResult = await this.signRawPayload(
       messageToSign.toString("hex"),
       fromAddress,
-      organizationId ?? this.organizationId
+      organizationId ?? this.organizationId,
     );
     const signature = `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`;
 
@@ -83,16 +83,16 @@ export class TurnkeySigner {
   public async signMessage(
     message: Uint8Array,
     fromAddress: string,
-    organizationId?: string
+    organizationId?: string,
   ): Promise<Uint8Array> {
     const signRawPayloadResult = await this.signRawPayload(
       Buffer.from(message).toString("hex"),
       fromAddress,
-      organizationId
+      organizationId,
     );
     return Buffer.from(
       `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`,
-      "hex"
+      "hex",
     );
   }
 
@@ -106,19 +106,19 @@ export class TurnkeySigner {
   public async signTransaction(
     tx: Transaction | VersionedTransaction,
     fromAddress: string,
-    organizationId?: string
+    organizationId?: string,
   ): Promise<Transaction | VersionedTransaction> {
     const payloadToSign = Buffer.from(
       tx.serialize({
         requireAllSignatures: false,
         verifySignatures: false,
-      })
+      }),
     ).toString("hex");
 
     const signedTransaction = await this.signTransactionImpl(
       payloadToSign,
       fromAddress,
-      organizationId
+      organizationId,
     );
 
     const decodedTransaction = Buffer.from(signedTransaction, "hex");
@@ -134,7 +134,7 @@ export class TurnkeySigner {
   private async signTransactionImpl(
     unsignedTransaction: string,
     signWith: string,
-    organizationId?: string
+    organizationId?: string,
   ) {
     if (this.client instanceof TurnkeyClient) {
       const response = await this.client.signTransaction({
@@ -153,7 +153,7 @@ export class TurnkeySigner {
       assertActivityCompleted(activity);
 
       return assertNonNull(
-        activity?.result?.signTransactionResult?.signedTransaction
+        activity?.result?.signTransactionResult?.signedTransaction,
       );
     } else {
       const { activity, signedTransaction } = await this.client.signTransaction(
@@ -162,7 +162,7 @@ export class TurnkeySigner {
           signWith,
           unsignedTransaction,
           type: "TRANSACTION_TYPE_SOLANA",
-        }
+        },
       );
 
       assertActivityCompleted(activity);
@@ -174,7 +174,7 @@ export class TurnkeySigner {
   private async signRawPayload(
     payload: string,
     signWith: string,
-    organizationId?: string
+    organizationId?: string,
   ) {
     if (this.client instanceof TurnkeyClient) {
       const response = await this.client.signRawPayload({
@@ -220,7 +220,7 @@ export class TurnkeySigner {
   private async signRawPayloads(
     payloads: string[],
     signWith: string,
-    organizationId?: string
+    organizationId?: string,
   ) {
     if (this.client instanceof TurnkeyClient) {
       const response = await this.client.signRawPayloads({
@@ -272,7 +272,7 @@ export class TurnkeySigner {
       messageToSign = (tx as Transaction).serializeMessage();
     } else {
       messageToSign = Buffer.from(
-        (tx as VersionedTransaction).message.serialize()
+        (tx as VersionedTransaction).message.serialize(),
       );
     }
 

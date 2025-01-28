@@ -35,7 +35,7 @@ import { TSignTransactionResponse } from "../../http/src/__generated__/services/
 export { TurnkeyEIP1193Provider };
 
 export const createEIP1193Provider = async (
-  options: TurnkeyEIP1193ProviderOptions
+  options: TurnkeyEIP1193ProviderOptions,
 ) => {
   const { turnkeyClient, organizationId, walletId, chains } = options;
 
@@ -64,13 +64,13 @@ export const createEIP1193Provider = async (
   function setConnected(connected: false, data: ProviderRpcError): void;
   function setConnected(
     connected: boolean,
-    data: ConnectInfo | ProviderRpcError
+    data: ConnectInfo | ProviderRpcError,
   ) {
     if (!isInitialized) return;
 
     // Find the currently selected chain and update its connected status
     addedChains = addedChains.map((chain) =>
-      chain.chainId === activeChain.chainId ? { ...chain, connected } : chain
+      chain.chainId === activeChain.chainId ? { ...chain, connected } : chain,
     );
     if (connected && lastEmittedEvent !== "connect" && isInitialized) {
       // Emit 'connect' event when the provider becomes connected as per EIP-1193
@@ -84,7 +84,7 @@ export const createEIP1193Provider = async (
       // Emit 'disconnect' event when disconnected from all chains
       // See https://eips.ethereum.org/EIPS/eip-1193#disconnect
       const providerDisconnectedError = new ProviderDisconnectedError(
-        data as ProviderRpcError
+        data as ProviderRpcError,
       );
       eventEmitter.emit("disconnect", providerDisconnectedError);
       // Reset 'connect' emitted flag on disconnect
@@ -165,7 +165,7 @@ export const createEIP1193Provider = async (
         case "eth_signTypedData_v4": {
           const [signWith, typedData] = params as [
             Address,
-            TypedDataDefinition
+            TypedDataDefinition,
           ];
 
           const message = hashTypedData(typedData);
@@ -227,7 +227,7 @@ export const createEIP1193Provider = async (
         case "wallet_switchEthereumChain": {
           const [targetChainId] = params as [string];
           const targetChain = addedChains.find(
-            (chain) => chain.chainId === targetChainId
+            (chain) => chain.chainId === targetChainId,
           );
 
           if (!targetChain) {
@@ -316,7 +316,7 @@ export const createEIP1193Provider = async (
           }
         default:
           throw new MethodNotSupportedRpcError(
-            new Error(`Invalid method: ${method}`)
+            new Error(`Invalid method: ${method}`),
           );
       }
     } catch (error: any) {

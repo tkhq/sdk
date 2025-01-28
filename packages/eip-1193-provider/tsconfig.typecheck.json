@@ -6,7 +6,7 @@
     "resolveJsonModule": true,
     "target": "ES2022",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "node"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json", "./package.json"],
   "references": [{ "path": "../http" }, { "path": "../api-key-stamper" }]

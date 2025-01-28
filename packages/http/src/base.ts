@@ -38,7 +38,7 @@ export type SignedRequest = {
 export async function signedRequest<
   B extends TBodyShape = never,
   Q extends TQueryShape = never,
-  S extends TSubstitutionShape = never
+  S extends TSubstitutionShape = never,
 >(input: {
   uri: string;
   query?: Q;
@@ -74,7 +74,7 @@ export async function request<
   B extends TBodyShape = never,
   Q extends TQueryShape = never,
   S extends TSubstitutionShape = never,
-  H extends THeadersShape = never
+  H extends THeadersShape = never,
 >(input: {
   uri: string;
   method: "POST";
@@ -170,7 +170,7 @@ function getBaseUrl(): string {
 
 function substitutePath(
   uri: string,
-  substitutionMap: TSubstitutionShape
+  substitutionMap: TSubstitutionShape,
 ): string {
   let result = uri;
 
@@ -181,8 +181,8 @@ function substitutePath(
     invariant(
       output !== result,
       `Substitution error: cannot find "${key}" in URI "${uri}". \`substitutionMap\`: ${JSON.stringify(
-        substitutionMap
-      )}`
+        substitutionMap,
+      )}`,
     );
 
     result = output;
@@ -190,7 +190,7 @@ function substitutePath(
 
   invariant(
     !/\{.*\}/.test(result),
-    `Substitution error: found unsubstituted components in "${result}"`
+    `Substitution error: found unsubstituted components in "${result}"`,
   );
 
   return result;

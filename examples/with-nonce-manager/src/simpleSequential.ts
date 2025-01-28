@@ -75,7 +75,7 @@ async function main() {
 
     print(
       `Sent ${ethers.formatEther(sendTx.value)} Ether to ${sendTx.to}:`,
-      `https://${network}.etherscan.io/tx/${sendTx.hash}`
+      `https://${network}.etherscan.io/tx/${sendTx.hash}`,
     );
 
     // Wait for a block confirmation before proceeding

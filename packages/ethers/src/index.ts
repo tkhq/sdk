@@ -67,7 +67,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         organizationId: this.organizationId,
         signWith: this.signWith,
       },
-      provider
+      provider,
     );
   }
 
@@ -92,7 +92,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       });
 
       ethereumAddress = data.privateKey.addresses.find(
-        (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM"
+        (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM",
       )?.address;
 
       if (typeof ethereumAddress !== "string" || !ethereumAddress) {
@@ -106,7 +106,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   private async _signTransactionImpl(
-    unsignedTransaction: string
+    unsignedTransaction: string,
   ): Promise<string> {
     if (this.client instanceof TurnkeyClient) {
       const { activity } = await this.client.signTransaction({
@@ -123,7 +123,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       assertActivityCompleted(activity);
 
       return assertNonNull(
-        activity?.result?.signTransactionResult?.signedTransaction
+        activity?.result?.signTransactionResult?.signedTransaction,
       );
     } else {
       const { activity, signedTransaction } = await this.client.signTransaction(
@@ -131,7 +131,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
           signWith: this.signWith,
           type: "TRANSACTION_TYPE_ETHEREUM",
           unsignedTransaction,
-        }
+        },
       );
 
       assertActivityCompleted(activity);
@@ -141,7 +141,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   private async _signTransactionWithErrorWrapping(
-    message: string
+    message: string,
   ): Promise<string> {
     let signedTx: string;
     try {
@@ -183,7 +183,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       const selfAddress = await this.getAddress();
       if (getAddress(from) !== selfAddress) {
         throw new Error(
-          `Transaction \`tx.from\` address mismatch. Self address: ${selfAddress}; \`tx.from\` address: ${from}`
+          `Transaction \`tx.from\` address mismatch. Self address: ${selfAddress}; \`tx.from\` address: ${from}`,
         );
       }
     }
@@ -205,9 +205,8 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   // i.e. "0x1234" is a SIX (6) byte string, NOT 2 bytes of data
   async signMessage(message: string | Uint8Array): Promise<string> {
     const hashedMessage = hashMessage(message);
-    const signedMessage = await this._signMessageWithErrorWrapping(
-      hashedMessage
-    );
+    const signedMessage =
+      await this._signMessageWithErrorWrapping(hashedMessage);
     return `${signedMessage}`;
   }
 
@@ -274,7 +273,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   async signTypedData(
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
-    value: Record<string, any>
+    value: Record<string, any>,
   ): Promise<string> {
     const populated = await TypedDataEncoder.resolveNames(
       domain,
@@ -287,11 +286,11 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         assertNonNull(address);
 
         return address ?? "";
-      }
+      },
     );
 
     return this._signMessageWithErrorWrapping(
-      TypedDataEncoder.hash(populated.domain, types, populated.value)
+      TypedDataEncoder.hash(populated.domain, types, populated.value),
     );
   }
 

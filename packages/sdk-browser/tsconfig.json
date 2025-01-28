@@ -7,7 +7,7 @@
     "lib": ["dom"],
     "target": "ES2022",
     "module": "preserve",
-    "moduleResolution": "bundler",
+    "moduleResolution": "bundler"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],

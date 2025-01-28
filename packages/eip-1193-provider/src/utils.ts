@@ -28,7 +28,7 @@ export const preprocessTransaction = ({
   const convertValue = <T>(
     value: string | number | undefined,
     converter: (value: string | number) => T,
-    defaultValue: T
+    defaultValue: T,
   ): T => (value !== undefined ? converter(value) : defaultValue);
 
   const typeMapping: { [key: string]: string } = {
@@ -44,7 +44,7 @@ export const preprocessTransaction = ({
     maxPriorityFeePerGas: convertValue(
       transaction.maxPriorityFeePerGas,
       BigInt,
-      0n
+      0n,
     ),
     maxFeePerGas: convertValue(transaction.maxFeePerGas, BigInt, 0n),
     gasPrice: convertValue(transaction.gasPrice, BigInt, 0n),
@@ -52,7 +52,7 @@ export const preprocessTransaction = ({
     nonce: convertValue(
       transaction.nonce,
       (value) => parseInt(value.toString(), 16),
-      0
+      0,
     ),
 
     gas: convertValue(transaction.gas, BigInt, 0n),
@@ -72,7 +72,7 @@ export const isValidUrl = (url: string) => {
 
 export const validateBlockExplorerUrls = (
   blockExplorerUrls: WalletAddEthereumChain["blockExplorerUrls"],
-  chainName: string
+  chainName: string,
 ): Chain["blockExplorers"] => {
   // Check if blockExplorerUrls is null or an array with at least one valid HTTPS URL
   if (blockExplorerUrls === null) return undefined;
@@ -101,7 +101,7 @@ export const validateBlockExplorerUrls = (
  * @throws {InvalidRpcUrlError} If any URL in the rpcUrls array is invalid.
  */
 export const validateRpcUrls = (
-  rpcUrls: AddEthereumChainParameter["rpcUrls"]
+  rpcUrls: AddEthereumChainParameter["rpcUrls"],
 ): void => {
   if (!rpcUrls || rpcUrls.length === 0) {
     throw new RpcUrlsRequiredError();
@@ -113,7 +113,7 @@ export const validateRpcUrls = (
 
 export const validateChain = (
   chain: AddEthereumChainParameter,
-  addedChains: AddEthereumChainParameter[]
+  addedChains: AddEthereumChainParameter[],
 ) => {
   const { rpcUrls, blockExplorerUrls, chainId, nativeCurrency } = chain;
 

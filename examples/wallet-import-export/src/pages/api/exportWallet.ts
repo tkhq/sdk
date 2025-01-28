@@ -17,7 +17,7 @@ type ErrorMessage = {
 
 export default async function exportWallet(
   req: NextApiRequest,
-  res: NextApiResponse<ExportWalletResponse | ErrorMessage>
+  res: NextApiResponse<ExportWalletResponse | ErrorMessage>,
 ) {
   try {
     const request = req.body as ExportWalletRequest;

@@ -17,7 +17,7 @@ import { foundry } from "viem/chains";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createAccount, createAccountWithAddress } from "../";
-import Test721 from "../__tests__/Test721.json"; 
+import Test721 from "../__tests__/Test721.json";
 
 import { expect, beforeEach, describe, test } from "@jest/globals";
 
@@ -41,35 +41,35 @@ describe("TurnkeyAccount", () => {
 
   const apiPublicKey = assertNonEmptyString(
     process.env.API_PUBLIC_KEY,
-    `process.env.API_PUBLIC_KEY`
+    `process.env.API_PUBLIC_KEY`,
   );
   const apiPrivateKey = assertNonEmptyString(
     process.env.API_PRIVATE_KEY,
-    `process.env.API_PRIVATE_KEY`
+    `process.env.API_PRIVATE_KEY`,
   );
   const baseUrl = assertNonEmptyString(
     process.env.BASE_URL,
-    `process.env.BASE_URL`
+    `process.env.BASE_URL`,
   );
   const organizationId = assertNonEmptyString(
     process.env.ORGANIZATION_ID,
-    `process.env.ORGANIZATION_ID`
+    `process.env.ORGANIZATION_ID`,
   );
   const privateKeyId = assertNonEmptyString(
     process.env.PRIVATE_KEY_ID,
-    `process.env.PRIVATE_KEY_ID`
+    `process.env.PRIVATE_KEY_ID`,
   );
   const expectedPrivateKeyEthAddress = assertNonEmptyString(
     process.env.EXPECTED_PRIVATE_KEY_ETH_ADDRESS,
-    `process.env.EXPECTED_PRIVATE_KEY_ETH_ADDRESS`
+    `process.env.EXPECTED_PRIVATE_KEY_ETH_ADDRESS`,
   ) as Hex;
   const expectedWalletAccountEthAddress = assertNonEmptyString(
     process.env.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS,
-    `process.env.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS`
+    `process.env.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS`,
   ) as Hex;
   const bannedToAddress = assertNonEmptyString(
     process.env.BANNED_TO_ADDRESS,
-    `process.env.BANNED_TO_ADDRESS`
+    `process.env.BANNED_TO_ADDRESS`,
   ) as Hex;
 
   [
@@ -109,11 +109,11 @@ describe("TurnkeyAccount", () => {
           new ApiKeyStamper({
             apiPublicKey,
             apiPrivateKey,
-          })
+          }),
         );
 
         turnkeyAccount = signingConfig.configName.includes(
-          "createAccountWithAddress"
+          "createAccountWithAddress",
         )
           ? createAccountWithAddress({
               client: turnkeyClient,
@@ -147,7 +147,7 @@ describe("TurnkeyAccount", () => {
         const addresses = await walletClient.getAddresses();
 
         expect(turnkeyAccount.address).toEqual(
-          signingConfig.expectedEthAddress
+          signingConfig.expectedEthAddress,
         );
         expect(addresses).toEqual([signingConfig.expectedEthAddress]);
       });
@@ -222,7 +222,7 @@ describe("TurnkeyAccount", () => {
             }
           `);
           }
-        }
+        },
       );
 
       testCase("it signs messages, `eth_sign` style", async () => {
@@ -283,9 +283,8 @@ describe("TurnkeyAccount", () => {
           },
         } as const;
 
-        const signTypedDataSignature = await walletClient.signTypedData(
-          typedData
-        );
+        const signTypedDataSignature =
+          await walletClient.signTypedData(typedData);
         const verified = await walletClient.verifyTypedData({
           ...typedData,
           address: signingConfig.expectedEthAddress,

@@ -4,7 +4,7 @@
     "noEmit": true,
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
     "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "nodenext"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
 }

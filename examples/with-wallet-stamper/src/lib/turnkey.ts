@@ -10,7 +10,7 @@ const { NEXT_PUBLIC_TURNKEY_RPID } = env;
 export type Email = `${string}@${string}.${string}`;
 
 export const createWebauthnStamper = async (
-  options?: TWebauthnStamperConfig
+  options?: TWebauthnStamperConfig,
 ) => {
   const { WebauthnStamper } = await import("@turnkey/webauthn-stamper");
   const rpId = options?.rpId || NEXT_PUBLIC_TURNKEY_RPID;
@@ -25,7 +25,7 @@ export const createWebauthnStamper = async (
 };
 
 export const registerPassKey = async (
-  email: Email
+  email: Email,
 ): Promise<PasskeyRegistrationResult> => {
   const { getWebAuthnAttestation } = await import("@turnkey/http");
   const challenge = generateRandomBuffer();
