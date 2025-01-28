@@ -74,7 +74,6 @@ export default function Dashboard() {
   const [emailInput, setEmailInput] = useState("");
   const [phoneInput, setPhoneInput] = useState("");
 
-
   const handleExportSuccess = async () => {
     toast.success("Wallet successfully exported");
   };

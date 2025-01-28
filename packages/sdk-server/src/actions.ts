@@ -1,16 +1,19 @@
 "use server";
 
 import { TurnkeyServerSDK } from "./sdk-client";
-import { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS, WalletAccount } from "./turnkey-helpers";
-
+import {
+  DEFAULT_ETHEREUM_ACCOUNTS,
+  DEFAULT_SOLANA_ACCOUNTS,
+  WalletAccount,
+} from "./turnkey-helpers";
 
 type Session = {
   sessionType: string;
   userId: string;
   organizationId: string;
   expiry: number;
-  token: string | undefined
-}
+  token: string | undefined;
+};
 
 type VerifyOtpRequest = {
   suborgID: string;
@@ -79,7 +82,7 @@ type Provider = {
 
 type CreateSuborgResponse = {
   subOrganizationId: string;
-}
+};
 
 const turnkeyClient = new TurnkeyServerSDK({
   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
@@ -88,7 +91,9 @@ const turnkeyClient = new TurnkeyServerSDK({
   apiPublicKey: process.env.TURNKEY_API_PUBLIC_KEY!,
 });
 
-export async function sendCredential(request: InitEmailAuthRequest): Promise<void> {
+export async function sendCredential(
+  request: InitEmailAuthRequest
+): Promise<void> {
   try {
     const response = await turnkeyClient.apiClient().emailAuth({
       email: request.email,
@@ -98,8 +103,10 @@ export async function sendCredential(request: InitEmailAuthRequest): Promise<voi
       ...(request.sessionLengthSeconds !== undefined && {
         expirationSeconds: request.sessionLengthSeconds.toString(),
       }),
-      ...(request.invalidateExisting && { invalidateExisting: request.invalidateExisting }),
-      })
+      ...(request.invalidateExisting && {
+        invalidateExisting: request.invalidateExisting,
+      }),
+    });
     if (!response.userId) {
       throw new Error("Expected a non-null userId.");
     }
@@ -109,7 +116,9 @@ export async function sendCredential(request: InitEmailAuthRequest): Promise<voi
   }
 }
 
-export async function sendOtp(request: SendOtpRequest): Promise<SendOtpResponse | undefined> {
+export async function sendOtp(
+  request: SendOtpRequest
+): Promise<SendOtpResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().initOtpAuth({
       contact: request.contact,
@@ -130,7 +139,9 @@ export async function sendOtp(request: SendOtpRequest): Promise<SendOtpResponse 
   }
 }
 
-export async function verifyOtp(request: VerifyOtpRequest): Promise<Session | undefined> {
+export async function verifyOtp(
+  request: VerifyOtpRequest
+): Promise<Session | undefined> {
   try {
     const response = await turnkeyClient.apiClient().otpAuth({
       otpId: request.otpId,
@@ -144,15 +155,18 @@ export async function verifyOtp(request: VerifyOtpRequest): Promise<Session | un
 
     const { credentialBundle, apiKeyId, userId } = response;
     if (!credentialBundle || !apiKeyId || !userId) {
-      throw new Error("Expected non-null values for credentialBundle, apiKeyId, and userId.");
+      throw new Error(
+        "Expected non-null values for credentialBundle, apiKeyId, and userId."
+      );
     }
     const session: Session = {
       sessionType: "rw",
       userId: userId,
       organizationId: request.suborgID,
-      expiry: Math.floor(Date.now() / 1000) + (request.sessionLengthSeconds ?? 900), //TODO change this to the actual expiry time from the response,
-      token: credentialBundle
-    }
+      expiry:
+        Math.floor(Date.now() / 1000) + (request.sessionLengthSeconds ?? 900), //TODO change this to the actual expiry time from the response,
+      token: credentialBundle,
+    };
     return session;
   } catch (error) {
     console.error(error);
@@ -160,7 +174,9 @@ export async function verifyOtp(request: VerifyOtpRequest): Promise<Session | un
   }
 }
 
-export async function oauth(request: OauthRequest): Promise<Session | undefined> {
+export async function oauth(
+  request: OauthRequest
+): Promise<Session | undefined> {
   try {
     const response = await turnkeyClient.apiClient().oauth({
       oidcToken: request.oidcToken,
@@ -173,15 +189,18 @@ export async function oauth(request: OauthRequest): Promise<Session | undefined>
 
     const { credentialBundle, apiKeyId, userId } = response;
     if (!credentialBundle || !apiKeyId || !userId) {
-      throw new Error("Expected non-null values for credentialBundle, apiKeyId, and userId.");
+      throw new Error(
+        "Expected non-null values for credentialBundle, apiKeyId, and userId."
+      );
     }
     const session: Session = {
       sessionType: "rw",
       userId: userId,
       organizationId: request.suborgID,
-      expiry: Math.floor(Date.now() / 1000) + (request.sessionLengthSeconds ?? 900), //TODO change this to the actual expiry time from the response,
-      token: credentialBundle
-    }
+      expiry:
+        Math.floor(Date.now() / 1000) + (request.sessionLengthSeconds ?? 900), //TODO change this to the actual expiry time from the response,
+      token: credentialBundle,
+    };
     return session;
   } catch (error) {
     console.error(error);
@@ -189,7 +208,9 @@ export async function oauth(request: OauthRequest): Promise<Session | undefined>
   }
 }
 
-export async function getSuborgs(request: GetSuborgsRequest): Promise<GetSuborgsResponse | undefined> {
+export async function getSuborgs(
+  request: GetSuborgsRequest
+): Promise<GetSuborgsResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().getSubOrgIds({
       organizationId: turnkeyClient.config.defaultOrganizationId,
@@ -207,7 +228,9 @@ export async function getSuborgs(request: GetSuborgsRequest): Promise<GetSuborgs
   }
 }
 
-export async function getVerifiedSuborgs(request: GetSuborgsRequest): Promise<GetSuborgsResponse | undefined> {
+export async function getVerifiedSuborgs(
+  request: GetSuborgsRequest
+): Promise<GetSuborgsResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().getVerifiedSubOrgIds({
       organizationId: turnkeyClient.config.defaultOrganizationId,
@@ -225,7 +248,9 @@ export async function getVerifiedSuborgs(request: GetSuborgsRequest): Promise<Ge
   }
 }
 
-export async function createSuborg(request: CreateSuborgRequest): Promise<CreateSuborgResponse | undefined> {
+export async function createSuborg(
+  request: CreateSuborgRequest
+): Promise<CreateSuborgResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().createSubOrganization({
       subOrganizationName: `suborg-${String(Date.now())}`,
@@ -234,7 +259,9 @@ export async function createSuborg(request: CreateSuborgRequest): Promise<Create
         {
           userName: request.email ?? "",
           userEmail: request.email ?? "",
-          ...(request.phoneNumber ? { userPhoneNumber: request.phoneNumber } : {}),
+          ...(request.phoneNumber
+            ? { userPhoneNumber: request.phoneNumber }
+            : {}),
           apiKeys: [],
           authenticators: request.passkey ? [request.passkey] : [],
           oauthProviders: request.oauthProviders ?? [],

@@ -142,7 +142,10 @@ const Auth: React.FC<AuthProps> = ({
       }
       suborgId = getVerifiedSuborgsResponse?.organizationIds[0];
     } else {
-      const getSuborgsResponse = await server.getSuborgs({ filterType, filterValue });
+      const getSuborgsResponse = await server.getSuborgs({
+        filterType,
+        filterValue,
+      });
       if (!getSuborgsResponse || !getSuborgsResponse.organizationIds) {
         onError(authErrors.suborg.fetchFailed);
       }
