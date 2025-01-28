@@ -1,5 +1,5 @@
 {
-  "name": "with-wallet-stamper",
+  "name": "@turnkey/with-wallet-stamper",
   "version": "0.1.7",
   "private": true,
   "type": "module",
