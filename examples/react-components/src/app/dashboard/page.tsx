@@ -83,31 +83,31 @@ export default function Dashboard() {
     toast.success("Wallet successfully imported");
   };
   const handleResendEmail = async () => {
-    const initAuthResponse = await server.initOtpAuth({
+    const sendOtpResponse = await server.sendOtp({
       suborgID: suborgId,
       otpType: OtpType.Email,
       contact: emailInput,
       userIdentifier: authIframeClient?.iframePublicKey!,
     });
-    if (!initAuthResponse || !initAuthResponse.otpId!) {
+    if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
       return;
     }
-    setOtpId(initAuthResponse?.otpId!);
+    setOtpId(sendOtpResponse?.otpId!);
   };
   const handleResendSms = async () => {
-    const initAuthResponse = await server.initOtpAuth({
+    const sendOtpResponse = await server.sendOtp({
       suborgID: suborgId,
       otpType: OtpType.Sms,
       contact: phoneInput,
       customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
       userIdentifier: authIframeClient?.iframePublicKey!,
     });
-    if (!initAuthResponse || !initAuthResponse.otpId!) {
+    if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
       return;
     }
-    setOtpId(initAuthResponse?.otpId!);
+    setOtpId(sendOtpResponse?.otpId!);
   };
 
   const handleOtpSuccess = async (credentialBundle: any) => {
@@ -138,17 +138,17 @@ export default function Dashboard() {
       userEmail: emailInput,
       userTagIds: [],
     });
-    const initAuthResponse = await server.initOtpAuth({
+    const sendOtpResponse = await server.sendOtp({
       suborgID: suborgId,
       otpType: OtpType.Email,
       contact: emailInput,
       userIdentifier: authIframeClient?.iframePublicKey!,
     });
-    if (!initAuthResponse || !initAuthResponse.otpId!) {
+    if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
       return;
     }
-    setOtpId(initAuthResponse?.otpId!);
+    setOtpId(sendOtpResponse?.otpId!);
     setIsEmailModalOpen(false);
     setIsOtpModalOpen(true);
   };
@@ -172,18 +172,18 @@ export default function Dashboard() {
       userPhoneNumber: phoneInput,
       userTagIds: [],
     });
-    const initAuthResponse = await server.initOtpAuth({
+    const sendOtpResponse = await server.sendOtp({
       suborgID: suborgId,
       otpType: OtpType.Sms,
       contact: phoneInput,
       customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
       userIdentifier: authIframeClient?.iframePublicKey!,
     });
-    if (!initAuthResponse || !initAuthResponse.otpId!) {
+    if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
       return;
     }
-    setOtpId(initAuthResponse?.otpId!);
+    setOtpId(sendOtpResponse?.otpId!);
     setIsEmailModalOpen(false);
     setIsOtpModalOpen(true);
   };

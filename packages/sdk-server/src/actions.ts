@@ -4,18 +4,20 @@ import { TurnkeyServerSDK } from "./sdk-client";
 import { DEFAULT_ETHEREUM_ACCOUNTS, DEFAULT_SOLANA_ACCOUNTS, WalletAccount } from "./turnkey-helpers";
 
 
-type OtpAuthRequest = {
+type Session = {
+  sessionType: string;
+  userId: string;
+  organizationId: string;
+  expiry: number;
+  token: string | undefined
+}
+
+type VerifyOtpRequest = {
   suborgID: string;
   otpId: string;
   otpCode: string;
   targetPublicKey: string;
   sessionLengthSeconds?: number | undefined;
-};
-
-type OtpAuthResponse = {
-  userId: string;
-  apiKeyId: string;
-  credentialBundle: string;
 };
 
 type OauthRequest = {
@@ -25,13 +27,7 @@ type OauthRequest = {
   sessionLengthSeconds?: number | undefined;
 };
 
-type OauthResponse = {
-  userId: string;
-  apiKeyId: string;
-  credentialBundle: string;
-};
-
-type InitOtpAuthRequest = {
+type SendOtpRequest = {
   suborgID: string;
   otpType: string;
   contact: string;
@@ -39,8 +35,18 @@ type InitOtpAuthRequest = {
   userIdentifier?: string | undefined;
 };
 
-type InitOtpAuthResponse = {
+type SendOtpResponse = {
   otpId: string;
+};
+
+type InitEmailAuthRequest = {
+  suborgID: string;
+  email: string;
+  targetPublicKey: string;
+  apiKeyName?: string | undefined;
+  userIdentifier?: string | undefined;
+  sessionLengthSeconds?: number | undefined;
+  invalidateExisting?: boolean | undefined;
 };
 
 type GetSuborgsRequest = {
@@ -82,7 +88,28 @@ const turnkeyClient = new TurnkeyServerSDK({
   apiPublicKey: process.env.TURNKEY_API_PUBLIC_KEY!,
 });
 
-export async function initOtpAuth(request: InitOtpAuthRequest): Promise<InitOtpAuthResponse | undefined> {
+export async function sendCredential(request: InitEmailAuthRequest): Promise<void> {
+  try {
+    const response = await turnkeyClient.apiClient().emailAuth({
+      email: request.email,
+      targetPublicKey: request.targetPublicKey,
+      organizationId: request.suborgID,
+      ...(request.apiKeyName && { apiKeyName: request.apiKeyName }),
+      ...(request.sessionLengthSeconds !== undefined && {
+        expirationSeconds: request.sessionLengthSeconds.toString(),
+      }),
+      ...(request.invalidateExisting && { invalidateExisting: request.invalidateExisting }),
+      })
+    if (!response.userId) {
+      throw new Error("Expected a non-null userId.");
+    }
+  } catch (error) {
+    console.error(error);
+    return undefined;
+  }
+}
+
+export async function sendOtp(request: SendOtpRequest): Promise<SendOtpResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().initOtpAuth({
       contact: request.contact,
@@ -103,7 +130,7 @@ export async function initOtpAuth(request: InitOtpAuthRequest): Promise<InitOtpA
   }
 }
 
-export async function otpAuth(request: OtpAuthRequest): Promise<OtpAuthResponse | undefined> {
+export async function verifyOtp(request: VerifyOtpRequest): Promise<Session | undefined> {
   try {
     const response = await turnkeyClient.apiClient().otpAuth({
       otpId: request.otpId,
@@ -119,14 +146,21 @@ export async function otpAuth(request: OtpAuthRequest): Promise<OtpAuthResponse 
     if (!credentialBundle || !apiKeyId || !userId) {
       throw new Error("Expected non-null values for credentialBundle, apiKeyId, and userId.");
     }
-    return { credentialBundle, apiKeyId, userId };
+    const session: Session = {
+      sessionType: "rw",
+      userId: userId,
+      organizationId: request.suborgID,
+      expiry: Math.floor(Date.now() / 1000) + (request.sessionLengthSeconds ?? 900), //TODO change this to the actual expiry time from the response,
+      token: credentialBundle
+    }
+    return session;
   } catch (error) {
     console.error(error);
     return undefined;
   }
 }
 
-export async function oauth(request: OauthRequest): Promise<OauthResponse | undefined> {
+export async function oauth(request: OauthRequest): Promise<Session | undefined> {
   try {
     const response = await turnkeyClient.apiClient().oauth({
       oidcToken: request.oidcToken,
@@ -141,7 +175,14 @@ export async function oauth(request: OauthRequest): Promise<OauthResponse | unde
     if (!credentialBundle || !apiKeyId || !userId) {
       throw new Error("Expected non-null values for credentialBundle, apiKeyId, and userId.");
     }
-    return { credentialBundle, apiKeyId, userId };
+    const session: Session = {
+      sessionType: "rw",
+      userId: userId,
+      organizationId: request.suborgID,
+      expiry: Math.floor(Date.now() / 1000) + (request.sessionLengthSeconds ?? 900), //TODO change this to the actual expiry time from the response,
+      token: credentialBundle
+    }
+    return session;
   } catch (error) {
     console.error(error);
     return undefined;

@@ -252,7 +252,7 @@ const Auth: React.FC<AuthProps> = ({
     otpType: string
   ) => {
     const suborgId = await handleGetOrCreateSuborg(type, value);
-    const initAuthResponse = await server.initOtpAuth({
+    const initAuthResponse = await server.sendOtp({
       suborgID: suborgId,
       otpType,
       contact: value,
@@ -283,8 +283,8 @@ const Auth: React.FC<AuthProps> = ({
       targetPublicKey: authIframeClient?.iframePublicKey!,
       sessionLengthSeconds: authConfig.sessionLengthSeconds,
     });
-    if (oauthResponse && oauthResponse.credentialBundle) {
-      await handleAuthSuccess(oauthResponse!.credentialBundle);
+    if (oauthResponse && oauthResponse.token) {
+      await handleAuthSuccess(oauthResponse!.token);
     } else {
       onError(authErrors.oauth.loginFailed);
     }
