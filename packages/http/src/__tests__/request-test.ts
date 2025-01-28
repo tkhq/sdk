@@ -1,18 +1,20 @@
 import { fetch } from "../universal";
 import { test, expect, jest } from "@jest/globals";
-import { TurnkeyApi, init } from "../index";
+import { TurnkeyClient } from "../index";
 import { readFixture } from "../__fixtures__/shared";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 jest.mock("cross-fetch");
 
 test("requests are stamped after initialization", async () => {
   const { privateKey, publicKey } = await readFixture();
-
-  init({
-    apiPublicKey: publicKey,
-    apiPrivateKey: privateKey,
-    baseUrl: "https://mocked.turnkey.com",
-  });
+  const client = new TurnkeyClient(
+    { baseUrl: "https://mocked.turnkey.com" },
+    new ApiKeyStamper({
+      apiPublicKey: publicKey,
+      apiPrivateKey: privateKey,
+    })
+  );
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
 
@@ -23,10 +25,8 @@ test("requests are stamped after initialization", async () => {
 
   mockedFetch.mockReturnValue(Promise.resolve(response));
 
-  await TurnkeyApi.getWhoami({
-    body: {
-      organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
-    },
+  await client.getWhoami({
+    organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
   });
 
   expect(fetch).toHaveBeenCalledTimes(1);
@@ -38,11 +38,13 @@ test("requests are stamped after initialization", async () => {
 test("requests return grpc status details as part of their errors", async () => {
   const { privateKey, publicKey } = await readFixture();
 
-  init({
-    apiPublicKey: publicKey,
-    apiPrivateKey: privateKey,
-    baseUrl: "https://mocked.turnkey.com",
-  });
+  const client = new TurnkeyClient(
+    { baseUrl: "https://mocked.turnkey.com" },
+    new ApiKeyStamper({
+      apiPublicKey: publicKey,
+      apiPrivateKey: privateKey,
+    })
+  );
 
   const mockedFetch = fetch as jest.MockedFunction<typeof fetch>;
 
@@ -68,10 +70,8 @@ test("requests return grpc status details as part of their errors", async () => 
   mockedFetch.mockReturnValue(Promise.resolve(response));
 
   try {
-    await TurnkeyApi.getWhoami({
-      body: {
-        organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
-      },
+    await client.getWhoami({
+      organizationId: "89881fc7-6ff3-4b43-b962-916698f8ff58",
     });
   } catch (e: any) {
     expect(e.message).toEqual(

@@ -4,8 +4,8 @@ import {
   request,
   signedRequest,
   TurnkeyCredentialRequestOptions,
-} from "../../../../../base.js";
-import type { operations } from "./public_api.types.js";
+} from "../../../../../base";
+import type { operations } from "./public_api.types";
 
 /**
  * `POST /public/v1/query/get_activity`
