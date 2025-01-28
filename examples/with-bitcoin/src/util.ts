@@ -8,7 +8,7 @@ export function print(header: string, body: string): void {
 
 export function refineNonNull<T>(
   input: T | null | undefined,
-  errorMessage?: string
+  errorMessage?: string,
 ): T {
   if (input == null) {
     throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
@@ -45,7 +45,7 @@ export function isMainnet(network: bitcoin.Network): boolean {
  */
 export function parseAddressAgainstPublicKey(
   address: string,
-  publicKey: string
+  publicKey: string,
 ): SupportedAddressType {
   const ECPair = ECPairFactory(ecc);
   const pair = ECPair.fromPublicKey(Buffer.from(publicKey, "hex"));
@@ -68,7 +68,7 @@ export function parseAddressAgainstPublicKey(
     }
 
     throw new Error(
-      `Address ${address} not related to public key ${publicKey} (tried p2tr, p2wpkh)`
+      `Address ${address} not related to public key ${publicKey} (tried p2tr, p2wpkh)`,
     );
   } else if (address.startsWith("tb1")) {
     const p2trAddress = bitcoin.payments.p2tr({
@@ -88,11 +88,11 @@ export function parseAddressAgainstPublicKey(
     }
 
     throw new Error(
-      `Address ${address} not related to public key ${publicKey} (tried p2tr, p2wpkh)`
+      `Address ${address} not related to public key ${publicKey} (tried p2tr, p2wpkh)`,
     );
   } else {
     throw new Error(
-      `Address ${address} doesn't start with bc1 or tb1; not yet supported by this demo!`
+      `Address ${address} doesn't start with bc1 or tb1; not yet supported by this demo!`,
     );
   }
 }

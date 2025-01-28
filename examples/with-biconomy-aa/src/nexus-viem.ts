@@ -98,7 +98,7 @@ async function main() {
         `- Any online faucet (e.g. https://www.alchemy.com/faucets/)`,
         `\nTo check your balance: https://${network}.etherscan.io/address/${smartAccountAddress}`,
         `\n--------`,
-      ].join("\n")
+      ].join("\n"),
     );
 
     const { continue: _ } = await prompts([
@@ -151,12 +151,12 @@ async function main() {
     `Sent ${formatEther(transactionRequest.value)} Ether to ${
       transactionRequest.to
     }:`,
-    `https://sepolia.basescan.org/tx/${transactionHash}`
+    `https://sepolia.basescan.org/tx/${transactionHash}`,
   );
 
   print(
     `User Ops can be found here:`,
-    `https://v2.jiffyscan.xyz/tx/${transactionHash}?network=${network}&pageNo=0&pageSize=10`
+    `https://v2.jiffyscan.xyz/tx/${transactionHash}?network=${network}&pageNo=0&pageSize=10`,
   );
 }
 

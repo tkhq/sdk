@@ -94,9 +94,8 @@ export function Dashboard({ provider }: DashboardProps) {
         params: [selectedAccount, "latest"],
       });
 
-      const { maxFeePerGas, maxPriorityFeePerGas } = await estimateFees(
-        sepolia
-      );
+      const { maxFeePerGas, maxPriorityFeePerGas } =
+        await estimateFees(sepolia);
 
       const gas = numberToHex(21000);
       const transactionType = "0x2";
@@ -126,7 +125,7 @@ export function Dashboard({ provider }: DashboardProps) {
             onClick: () => {
               window.open(
                 `https://sepolia.etherscan.io/tx/${txHash}`,
-                "_blank"
+                "_blank",
               );
             },
           },

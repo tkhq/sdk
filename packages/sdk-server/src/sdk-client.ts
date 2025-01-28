@@ -52,7 +52,7 @@ export class TurnkeyServerSDK {
       return await method(...params);
     } else {
       throw new Error(
-        `Method: ${methodName} does not exist on TurnkeySDKClient`
+        `Method: ${methodName} does not exist on TurnkeySDKClient`,
       );
     }
   };
@@ -92,7 +92,7 @@ export class TurnkeyServerSDK {
 
     return async (
       request: NextApiRequest,
-      response: NextApiResponse
+      response: NextApiResponse,
     ): Promise<void> => {
       const { methodName, params } = request.body;
       if (!methodName || !params) {

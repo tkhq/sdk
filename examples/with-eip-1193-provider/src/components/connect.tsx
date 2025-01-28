@@ -33,7 +33,7 @@ type Step = "connectWallet" | "connectAccount" | "confirm";
 
 export function Connect({ organizationId, onAccountConnected }: ConnectProps) {
   const [turnkeyClient, setTurnkeyClient] = useState<TurnkeyClient | null>(
-    null
+    null,
   );
 
   const [wallets, setWallets] = useState<TurnkeyApiTypes["v1Wallet"][]>([]);
@@ -50,7 +50,7 @@ export function Connect({ organizationId, onAccountConnected }: ConnectProps) {
         { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
         new WebauthnStamper({
           rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RPID!,
-        })
+        }),
       );
 
       setTurnkeyClient(client);

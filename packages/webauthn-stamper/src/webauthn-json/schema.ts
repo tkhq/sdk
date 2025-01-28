@@ -62,12 +62,12 @@ export const publicKeyCredentialWithAttestation: Schema = {
     attestationObject: required(convert),
     transports: derived(
       copy,
-      (response: any) => response.getTransports?.() || []
+      (response: any) => response.getTransports?.() || [],
     ),
   }),
   clientExtensionResults: derived(
     simplifiedClientExtensionResultsSchema,
-    (pkc: PublicKeyCredential) => pkc.getClientExtensionResults()
+    (pkc: PublicKeyCredential) => pkc.getClientExtensionResults(),
   ),
 };
 
@@ -101,7 +101,7 @@ export const publicKeyCredentialWithAssertion: Schema = {
   }),
   clientExtensionResults: derived(
     simplifiedClientExtensionResultsSchema,
-    (pkc: PublicKeyCredential) => pkc.getClientExtensionResults()
+    (pkc: PublicKeyCredential) => pkc.getClientExtensionResults(),
   ),
 };
 

@@ -12,14 +12,14 @@ import bs58 from "bs58";
 import { print } from "./print";
 
 export function connect(
-  endpoint: string = "https://api.devnet.solana.com"
+  endpoint: string = "https://api.devnet.solana.com",
 ): Connection {
   return new Connection(endpoint, "confirmed");
 }
 
 export async function balance(
   connection: Connection,
-  address: string
+  address: string,
 ): Promise<number> {
   const publicKey = new PublicKey(address);
 
@@ -28,7 +28,7 @@ export async function balance(
 
 export async function dropTokens(
   connection: Connection,
-  solanaAddress: string
+  solanaAddress: string,
 ) {
   const publicKey = new PublicKey(solanaAddress);
 
@@ -36,24 +36,24 @@ export async function dropTokens(
 
   const airdropSignature = await connection.requestAirdrop(
     publicKey,
-    LAMPORTS_PER_SOL
+    LAMPORTS_PER_SOL,
   );
   const confirmationStrategy = await getConfirmationStrategy(
     connection,
-    airdropSignature
+    airdropSignature,
   );
 
   await connection.confirmTransaction(confirmationStrategy);
 
   print(
     "\nSuccess! ✅",
-    `Explorer link: https://explorer.solana.com/address/${solanaAddress}?cluster=devnet`
+    `Explorer link: https://explorer.solana.com/address/${solanaAddress}?cluster=devnet`,
   );
 }
 
 export async function broadcast(
   connection: Connection,
-  signedTransaction: Transaction | VersionedTransaction
+  signedTransaction: Transaction | VersionedTransaction,
 ) {
   const signature =
     "version" in signedTransaction
@@ -62,17 +62,17 @@ export async function broadcast(
 
   const confirmationStrategy = await getConfirmationStrategy(
     connection,
-    bs58.encode(signature)
+    bs58.encode(signature),
   );
   const transactionHash = await sendAndConfirmRawTransaction(
     connection,
     Buffer.from(signedTransaction.serialize()),
     confirmationStrategy,
-    { commitment: "confirmed" }
+    { commitment: "confirmed" },
   );
   print(
     "Transaction broadcast and confirmed! 🎉",
-    `https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`
+    `https://explorer.solana.com/tx/${transactionHash}?cluster=devnet`,
   );
 
   return transactionHash;
@@ -85,7 +85,7 @@ export async function recentBlockhash(connection: Connection): Promise<string> {
 
 export async function getConfirmationStrategy(
   connection: Connection,
-  signature: string
+  signature: string,
 ): Promise<TransactionConfirmationStrategy> {
   const latestBlockHash = await connection.getLatestBlockhash();
 

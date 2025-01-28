@@ -36,7 +36,7 @@ async function main() {
       `- Name: ${privateKeyTagName}`,
       `- Private key tag ID: ${newPrivateKeyTagId}`,
       ``,
-    ].join("\n")
+    ].join("\n"),
   );
 }
 

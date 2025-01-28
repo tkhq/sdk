@@ -32,7 +32,7 @@ async function main() {
 
   const addressType = parseAddressAgainstPublicKey(
     bitcoinAddress,
-    publicKeyCompressed
+    publicKeyCompressed,
   );
   const network = getNetwork(addressType);
 
@@ -173,7 +173,7 @@ async function main() {
     signer = new TurnkeySigner(
       turnkeyClient,
       bitcoinAddress,
-      bitcoin.address.fromBech32(bitcoinAddress).data
+      bitcoin.address.fromBech32(bitcoinAddress).data,
     );
   } else {
     signer = new TurnkeySigner(turnkeyClient, bitcoinAddress, pair.publicKey);
@@ -183,7 +183,7 @@ async function main() {
   await Promise.all(
     utxosToSpend.map(async (_utxo: any, i: number) => {
       await psbt.signInputAsync(i, signer);
-    })
+    }),
   );
   psbt.finalizeAllInputs();
   const signedPayload = psbt.extractTransaction().toHex();
@@ -193,7 +193,7 @@ async function main() {
     ? "https://mempool.space/tx/push"
     : "https://mempool.space/testnet/tx/push";
   console.log(
-    `✅ Transaction signed! To broadcast it, copy and paste the hex payload to ${broadcastUrl}`
+    `✅ Transaction signed! To broadcast it, copy and paste the hex payload to ${broadcastUrl}`,
   );
   return signedPayload;
 }

@@ -45,7 +45,7 @@ const TurnkeyIframeElementId = "turnkey-export-iframe-element-id";
 
 export function Export(props: ExportProps) {
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
-    null
+    null,
   );
   const [iframeDisplay, setIframeDisplay] = useState<string>("none");
 

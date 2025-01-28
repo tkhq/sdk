@@ -15,7 +15,7 @@ type ExportWalletProps = {
 export function ExportWallet(props: ExportWalletProps) {
   const [iframeDisplay, setIframeDisplay] = useState("none");
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
-    null
+    null,
   );
   const [stage, setStage] = useState("export");
 
@@ -37,7 +37,7 @@ export function ExportWallet(props: ExportWalletProps) {
 
     let injected = await iframeStamper.injectWalletExportBundle(
       response.data["exportBundle"],
-      props.organizationId
+      props.organizationId,
     );
     if (injected !== true) {
       alert("Unexpected error while injecting export bundle.");

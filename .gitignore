@@ -130,3 +130,6 @@ playwright/.cache/
 .rollup.cache/
 
 turnkey.json
+
+# turborepo
+.turbo

@@ -24,7 +24,7 @@ type ErrorMessage = {
 
 export default async function auth(
   req: NextApiRequest,
-  res: NextApiResponse<AuthResponse | ErrorMessage>
+  res: NextApiResponse<AuthResponse | ErrorMessage>,
 ) {
   try {
     const request = req.body as AuthRequest;

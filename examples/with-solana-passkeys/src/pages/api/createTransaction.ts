@@ -28,7 +28,7 @@ type ErrorMessage = {
 // Every client-created transaction should be signed by the fee payer (parent org wallet)
 export default async function createTransaction(
   req: NextApiRequest,
-  res: NextApiResponse<TCreatedTransaction | ErrorMessage>
+  res: NextApiResponse<TCreatedTransaction | ErrorMessage>,
 ) {
   const { amount, fromAddress, destinationAddress } =
     req.body as CreateTransactionRequest;
@@ -72,7 +72,7 @@ export default async function createTransaction(
     await turnkeySigner.addSignature(transferTransaction, feePayerAddress);
 
     const serializedTransaction = Buffer.from(
-      transferTransaction.serialize()
+      transferTransaction.serialize(),
     ).toString("base64");
 
     res.status(200).json({

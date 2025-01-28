@@ -17,13 +17,13 @@ class ChainIdMismatchError extends ProviderRpcError {
     super(
       new Error(
         `${PROVIDER_ERROR_MESSAGE.CHAIN_ID_RPC_MISMATCH}${hexToNumber(
-          providerChainId
-        )} RPC Chain ID: ${hexToNumber(rpcChainId)}`
+          providerChainId,
+        )} RPC Chain ID: ${hexToNumber(rpcChainId)}`,
       ),
       {
         code: 4905,
         shortMessage: "Chain ID mismatch",
-      }
+      },
     );
   }
 }
@@ -89,7 +89,7 @@ class NativeCurrencySymbolLengthError extends ProviderRpcError {
       {
         code: PROVIDER_ERROR_CODE.ADD_ETHEREUM_CHAIN,
         shortMessage: "Invalid native currency symbol length",
-      }
+      },
     );
   }
 }
@@ -98,12 +98,12 @@ class NativeCurrencySymbolMismatchError extends ProviderRpcError {
   constructor(symbol: string) {
     super(
       new Error(
-        PROVIDER_ERROR_MESSAGE.NATIVE_CURRENCY_SYMBOL_MISMATCH + symbol
+        PROVIDER_ERROR_MESSAGE.NATIVE_CURRENCY_SYMBOL_MISMATCH + symbol,
       ),
       {
         code: PROVIDER_ERROR_CODE.ADD_ETHEREUM_CHAIN,
         shortMessage: "Native currency symbol mismatch",
-      }
+      },
     );
   }
 }

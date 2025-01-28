@@ -71,7 +71,7 @@ async function externalTransaction(
   client: TonClient,
   address: Address,
   init: { code: Cell | null; data: Cell | null } | null,
-  body: Cell
+  body: Cell,
 ) {
   // Check if the contract needs initialization (init code/data)
   let neededInit: { code: Cell | null; data: Cell | null } | null = null;
@@ -111,7 +111,7 @@ async function main() {
 
   if (!walletAddress || !walletPublicKey) {
     throw new Error(
-      "Please set your TON_ADDRESS and TON_PUBLIC_KEY in the .env.local file."
+      "Please set your TON_ADDRESS and TON_PUBLIC_KEY in the .env.local file.",
     );
   }
 
@@ -123,12 +123,12 @@ async function main() {
     accountData = await client.getBalance(tonAddress);
   } catch (error) {
     throw new Error(
-      `Failed to retrieve balance for address ${tonAddress}: ${error}`
+      `Failed to retrieve balance for address ${tonAddress}: ${error}`,
     );
   }
   if (!accountData || BigInt(accountData) === 0n) {
     console.log(
-      `Your account does not exist or has zero balance. Fund your address ${walletAddress} to proceed.`
+      `Your account does not exist or has zero balance. Fund your address ${walletAddress} to proceed.`,
     );
     process.exit(1);
   }

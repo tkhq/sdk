@@ -66,7 +66,7 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
     const authWindow = window.open(
       appleAuthUrl.toString(),
       "_blank",
-      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
+      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
     );
 
     if (!authWindow) {

@@ -19,7 +19,7 @@ type ErrorMessage = {
 
 export default async function createSuborg(
   req: NextApiRequest,
-  res: NextApiResponse<CreateSuborgResponse | ErrorMessage>
+  res: NextApiResponse<CreateSuborgResponse | ErrorMessage>,
 ) {
   try {
     const request = req.body as CreateSuborgRequest;

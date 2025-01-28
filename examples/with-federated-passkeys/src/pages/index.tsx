@@ -60,7 +60,7 @@ export default function Home() {
 
       await getWallet(subOrgId);
       alert(
-        `Hooray! New address at path "${data.path}" created. Resulting address: ${walletAccountsResult.addresses[0]}`
+        `Hooray! New address at path "${data.path}" created. Resulting address: ${walletAccountsResult.addresses[0]}`,
       );
     } catch (e: any) {
       const message = `caught error: ${e.toString()}`;

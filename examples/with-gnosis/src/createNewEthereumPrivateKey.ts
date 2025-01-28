@@ -12,7 +12,7 @@ export async function createNewEthereumPrivateKey() {
   });
 
   console.log(
-    "`process.env.PRIVATE_KEY_ID_{INDEX}` not found; creating a new Ethereum private key on Turnkey...\n"
+    "`process.env.PRIVATE_KEY_ID_{INDEX}` not found; creating a new Ethereum private key on Turnkey...\n",
   );
   const privateKeyName = `ETH Key ${crypto.randomBytes(2).toString("hex")}`;
 
@@ -40,7 +40,7 @@ export async function createNewEthereumPrivateKey() {
         `- Address: ${address}`,
         ``,
         "Now you can take the private key ID, put it in `.env.local`, then re-run the script.",
-      ].join("\n")
+      ].join("\n"),
     );
   } catch (error) {
     // If needed, you can read from `TurnkeyActivityError` to find out why the activity didn't succeed

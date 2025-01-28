@@ -11,7 +11,7 @@ export default async function createPolicy(
   effect: "EFFECT_ALLOW" | "EFFECT_DENY",
   consensus: string,
   condition: string,
-  notes: ""
+  notes: "",
 ): Promise<string> {
   try {
     const { policyId } = await turnkeyClient.createPolicy({
@@ -34,7 +34,7 @@ export default async function createPolicy(
         `- Consensus: ${consensus}`,
         `- Condition: ${condition}`,
         ``,
-      ].join("\n")
+      ].join("\n"),
     );
 
     return newPolicyId;

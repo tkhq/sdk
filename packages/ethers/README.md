@@ -34,7 +34,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: "...",
       apiPrivateKey: "...",
-    })
+    }),
   );
 
   // Initialize a Turnkey Signer
@@ -82,7 +82,7 @@ async function main() {
   const sentTx = await connectedSigner.sendTransaction(transactionRequest);
 
   console.log(
-    `Transaction sent!\n\thttps://${network}.etherscan.io/tx/${sentTx.hash}`
+    `Transaction sent!\n\thttps://${network}.etherscan.io/tx/${sentTx.hash}`,
   );
 }
 

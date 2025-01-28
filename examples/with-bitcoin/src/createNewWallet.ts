@@ -90,7 +90,7 @@ async function main() {
       "\nNow you can populate your `.env.local` with:",
       `SOURCE_COMPRESSED_PUBLIC_KEY="${publicKey}"`,
       `SOURCE_BITCOIN_ADDRESS="${address}"`,
-    ].join("\n")
+    ].join("\n"),
   );
 }
 

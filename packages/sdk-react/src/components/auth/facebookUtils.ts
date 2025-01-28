@@ -16,7 +16,7 @@ export async function exchangeCodeForToken(
   clientId: string,
   redirectURI: string,
   authCode: string,
-  verifier: string
+  verifier: string,
 ) {
   const response = await fetch(FACEBOOK_GRAPH_URL, {
     method: "POST",

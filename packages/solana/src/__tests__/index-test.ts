@@ -22,7 +22,7 @@ describe("TurnkeySigner", () => {
   if (!process.env.SOLANA_TEST_ORG_API_PRIVATE_KEY) {
     // These tests requires an env var to be set
     throw new Error(
-      "These tests require SOLANA_TEST_ORG_API_PRIVATE_KEY to be set"
+      "These tests require SOLANA_TEST_ORG_API_PRIVATE_KEY to be set",
     );
   }
 
@@ -36,7 +36,7 @@ describe("TurnkeySigner", () => {
     new ApiKeyStamper({
       apiPublicKey,
       apiPrivateKey: process.env.SOLANA_TEST_ORG_API_PRIVATE_KEY,
-    })
+    }),
   );
 
   const turnkeyServerClient = new Turnkey({
@@ -70,7 +70,7 @@ describe("TurnkeySigner", () => {
             // Destination doesn't matter, we set it to the Turnkey war chest!
             toPubkey: new PublicKey(TKHQ_WARCHEST),
             lamports: 10000,
-          })
+          }),
         );
 
         // Doesn't really matter since we're not going to broadcast this transaction!
@@ -81,14 +81,14 @@ describe("TurnkeySigner", () => {
         expect(transferTransaction.signatures.length).toBe(0);
         await signerConfig.signer.addSignature(
           transferTransaction,
-          turnkeySolAddress
+          turnkeySolAddress,
         );
         expect(transferTransaction.signatures.length).toBe(1);
 
         const isValidSignature = nacl.sign.detached.verify(
           transferTransaction.serializeMessage(),
           transferTransaction.signature as Uint8Array,
-          bs58.decode(turnkeySolAddress)
+          bs58.decode(turnkeySolAddress),
         );
         expect(isValidSignature).toBeTruthy();
       });
@@ -128,7 +128,7 @@ describe("TurnkeySigner", () => {
         const isValidSignature = nacl.sign.detached.verify(
           transaction.message.serialize(),
           transaction.signatures[0] as Uint8Array,
-          bs58.decode(turnkeySolAddress)
+          bs58.decode(turnkeySolAddress),
         );
         expect(isValidSignature).toBeTruthy();
       });
@@ -148,7 +148,7 @@ describe("TurnkeySigner", () => {
               // Destination doesn't matter, we set it to the Turnkey war chest!
               toPubkey: new PublicKey(TKHQ_WARCHEST),
               lamports: amount,
-            })
+            }),
           );
 
           expect(transferTransaction.signatures.length).toBe(0);
@@ -164,7 +164,7 @@ describe("TurnkeySigner", () => {
         const signedTransactions =
           await signerConfig.signer.signAllTransactions(
             transactions,
-            turnkeySolAddress
+            turnkeySolAddress,
           );
         expect(signedTransactions.length).toBe(numTxs);
 
@@ -175,7 +175,7 @@ describe("TurnkeySigner", () => {
           const isValidSignature = nacl.sign.detached.verify(
             tx.serializeMessage(),
             tx.signature as Uint8Array,
-            bs58.decode(turnkeySolAddress)
+            bs58.decode(turnkeySolAddress),
           );
           expect(isValidSignature).toBeTruthy();
 
@@ -235,7 +235,7 @@ describe("TurnkeySigner", () => {
         const signedTransactions =
           await signerConfig.signer.signAllTransactions(
             transactions,
-            turnkeySolAddress
+            turnkeySolAddress,
           );
         expect(signedTransactions.length).toBe(numTxs);
 
@@ -250,7 +250,7 @@ describe("TurnkeySigner", () => {
           const isValidSignature = nacl.sign.detached.verify(
             tx.message.serialize(),
             tx.signatures[0] as Uint8Array,
-            bs58.decode(turnkeySolAddress)
+            bs58.decode(turnkeySolAddress),
           );
           expect(isValidSignature).toBeTruthy();
 
@@ -280,13 +280,13 @@ describe("TurnkeySigner", () => {
 
         const signature = await signerConfig.signer.signMessage(
           messageAsUint8Array,
-          turnkeySolAddress
+          turnkeySolAddress,
         );
 
         const isValidSignature = nacl.sign.detached.verify(
           messageAsUint8Array,
           signature,
-          bs58.decode(turnkeySolAddress)
+          bs58.decode(turnkeySolAddress),
         );
         expect(isValidSignature).toBeTruthy();
       });

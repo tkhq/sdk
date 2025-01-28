@@ -46,7 +46,7 @@ export const TurnkeyThemeProvider: React.FC<ThemeProviderProps> = ({
         typography: {
           fontFamily: "inherit", // We want MUI components to use the same font as the rest of the app
         },
-      })
+      }),
     );
   }, [theme]);
 

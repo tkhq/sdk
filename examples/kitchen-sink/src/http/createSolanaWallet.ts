@@ -20,7 +20,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    })
+    }),
   );
 
   const activityPoller = createActivityPoller({
@@ -59,7 +59,7 @@ async function main() {
       `- Address: ${address}`,
       ``,
       "Now you can take the address, put it in `.env.local` (`SIGN_WITH=<address>`), then re-run the script.",
-    ].join("\n")
+    ].join("\n"),
   );
 }
 

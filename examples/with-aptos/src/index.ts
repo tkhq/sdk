@@ -22,7 +22,7 @@ async function main() {
 
   if (!aptosAddress || !aptosPublicKeyHex) {
     throw new Error(
-      "Please set your APTOS_ADDRESS and APTOS_PUBLIC_KEY in the .env.local file."
+      "Please set your APTOS_ADDRESS and APTOS_PUBLIC_KEY in the .env.local file.",
     );
   }
 
@@ -33,7 +33,7 @@ async function main() {
   let accountData = await client.getAccount(aptosAddress).catch(() => null);
   if (!accountData) {
     console.log(
-      `Your account does not exist. Please fund your address ${aptosAddress} to proceed.`
+      `Your account does not exist. Please fund your address ${aptosAddress} to proceed.`,
     );
     process.exit(1);
   }
@@ -53,7 +53,7 @@ async function main() {
   console.log(
     `\nSending ${amount} Octas (${
       Number(amount) / 1e8
-    } APT) to ${recipientAddress}`
+    } APT) to ${recipientAddress}`,
   );
 
   // Prepare the transaction payload
@@ -65,11 +65,11 @@ async function main() {
         [],
         [
           BCS.bcsToBytes(
-            TxnBuilderTypes.AccountAddress.fromHex(recipientAddress)
+            TxnBuilderTypes.AccountAddress.fromHex(recipientAddress),
           ),
           BCS.bcsSerializeUint64(Number(amount)),
-        ]
-      )
+        ],
+      ),
     );
 
   // Get account sequence number and chain ID
@@ -86,7 +86,7 @@ async function main() {
     2000n, // Max gas amount
     100n, // Gas price per unit
     BigInt(Math.floor(Date.now() / 1000) + 600), // Expiration timestamp
-    new TxnBuilderTypes.ChainId(Number(chainId))
+    new TxnBuilderTypes.ChainId(Number(chainId)),
   );
 
   // Get the signing message
@@ -115,19 +115,19 @@ async function main() {
   // Validate signature length
   if (txSignatureHex.length !== 128) {
     throw new Error(
-      "Invalid signature length for Ed25519. Expected 128 hex characters."
+      "Invalid signature length for Ed25519. Expected 128 hex characters.",
     );
   }
 
   // Construct the signed transaction using the public key and signature
   const authenticator = new TxnBuilderTypes.TransactionAuthenticatorEd25519(
     new TxnBuilderTypes.Ed25519PublicKey(publicKeyBytes),
-    new TxnBuilderTypes.Ed25519Signature(Buffer.from(txSignatureHex, "hex"))
+    new TxnBuilderTypes.Ed25519Signature(Buffer.from(txSignatureHex, "hex")),
   );
 
   const signedTxn = new TxnBuilderTypes.SignedTransaction(
     rawTxn,
-    authenticator
+    authenticator,
   );
   const bcsTxn = BCS.bcsToBytes(signedTxn);
 
