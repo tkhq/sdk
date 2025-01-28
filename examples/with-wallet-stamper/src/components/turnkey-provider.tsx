@@ -58,7 +58,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const [wallet, setWallet] = useState<WalletInterface | null>(null);
   const [client, setClient] = useState<TurnkeyClient | null>(null);
   const [passkeyClient, setPasskeyClient] = useState<TurnkeyClient | null>(
-    null,
+    null
   );
   const [walletClient, setWalletClient] = useState<TurnkeyClient | null>(null);
   const [authenticating, setAuthenticating] = useState(false);
@@ -95,7 +95,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   async function createSubOrg(
     email?: Email,
-    chainType: ChainType = ChainType.SOLANA,
+    chainType: ChainType = ChainType.SOLANA
   ) {
     setAuthenticating(true);
     const publicKey = await wallet?.getPublicKey();

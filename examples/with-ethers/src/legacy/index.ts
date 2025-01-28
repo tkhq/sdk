@@ -28,7 +28,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    }),
+    })
   );
 
   // Initialize a Turnkey Signer with a private key ID
@@ -46,8 +46,9 @@ async function main() {
   const chainId = (await connectedSigner.provider?.getNetwork())?.chainId;
   const address = await connectedSigner.getAddress();
   const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0;
-  const transactionCount =
-    await connectedSigner.provider?.getTransactionCount(address);
+  const transactionCount = await connectedSigner.provider?.getTransactionCount(
+    address
+  );
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);
@@ -93,7 +94,7 @@ async function main() {
 
   print(
     `Sent ${ethers.formatEther(sentTx.value)} Ether to ${sentTx.to}:`,
-    `https://${network}.etherscan.io/tx/${sentTx.hash}`,
+    `https://${network}.etherscan.io/tx/${sentTx.hash}`
   );
 
   if (network === "goerli") {
@@ -101,7 +102,7 @@ async function main() {
     const wethContract = new ethers.Contract(
       WETH_TOKEN_ADDRESS_GOERLI,
       WETH_TOKEN_ABI,
-      connectedSigner,
+      connectedSigner
     );
 
     // Read from contract
@@ -116,7 +117,7 @@ async function main() {
 
     print(
       `Wrapped ${ethers.formatEther(depositTx.value)} ETH:`,
-      `https://${network}.etherscan.io/tx/${depositTx.hash}`,
+      `https://${network}.etherscan.io/tx/${depositTx.hash}`
     );
   }
 }

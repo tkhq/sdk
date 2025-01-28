@@ -33,7 +33,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: "...",
       apiPrivateKey: "...",
-    }),
+    })
   );
 
   // Create the Viem custom account

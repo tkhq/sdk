@@ -75,8 +75,8 @@ export function AuthForm({ isSignUp = false }) {
                     {authenticating
                       ? "Authenticating..."
                       : isSignUp
-                        ? "Sign Up"
-                        : "Sign In"}
+                      ? "Sign Up"
+                      : "Sign In"}
                   </Button>
                 )}
               </CardContent>

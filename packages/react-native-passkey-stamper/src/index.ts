@@ -136,15 +136,15 @@ export async function createPasskey(
   options?: {
     withSecurityKey: boolean;
     withPlatformKey: boolean;
-  },
+  }
 ): Promise<TurnkeyAuthenticatorParams> {
   const challenge = config.challenge || getRandomChallenge();
 
   let createFn = options?.withPlatformKey
     ? Passkey.createPlatformKey
     : options?.withSecurityKey
-      ? Passkey.createSecurityKey
-      : Passkey.create;
+    ? Passkey.createSecurityKey
+    : Passkey.create;
 
   let registrationResult = await createFn({
     challenge: challenge,
@@ -187,10 +187,10 @@ export async function createPasskey(
     attestation: {
       credentialId: base64Tobase64url(registrationResult.id),
       clientDataJson: base64Tobase64url(
-        registrationResult.response.clientDataJSON,
+        registrationResult.response.clientDataJSON
       ),
       attestationObject: base64Tobase64url(
-        registrationResult.response.attestationObject,
+        registrationResult.response.attestationObject
       ),
       // TODO: can we infer the transport from the registration result?
       // In all honesty this isn't critical so we default to "hybrid" because that's the transport used by passkeys.
@@ -236,8 +236,8 @@ export class PasskeyStamper {
     let passkeyGetfn = this.forcePlatformKey
       ? Passkey.getPlatformKey
       : this.forceSecurityKey
-        ? Passkey.getSecurityKey
-        : Passkey.get;
+      ? Passkey.getSecurityKey
+      : Passkey.get;
     let authenticationResult = await passkeyGetfn(signingOptions);
 
     // See https://github.com/f-23/react-native-passkey/issues/54
@@ -251,10 +251,10 @@ export class PasskeyStamper {
 
     const stamp = {
       authenticatorData: base64Tobase64url(
-        authenticationResult.response.authenticatorData,
+        authenticationResult.response.authenticatorData
       ),
       clientDataJson: base64Tobase64url(
-        authenticationResult.response.clientDataJSON,
+        authenticationResult.response.clientDataJSON
       ),
       credentialId: base64Tobase64url(authenticationResult.id),
       signature: base64Tobase64url(authenticationResult.response.signature),

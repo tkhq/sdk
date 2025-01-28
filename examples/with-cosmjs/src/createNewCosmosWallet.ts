@@ -51,7 +51,7 @@ export async function createNewCosmosWallet() {
         `- Address: ${address}`,
         ``,
         "Now you can take the public key, put it in `.env.local` (`SIGN_WITH=<public key>`), then re-run the script.",
-      ].join("\n"),
+      ].join("\n")
     );
   } catch (error) {
     // If needed, you can read from `TurnkeyActivityError` to find out why the activity didn't succeed

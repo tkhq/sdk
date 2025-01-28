@@ -30,10 +30,10 @@ export interface RegistrationPublicKeyCredential extends PublicKeyCredential {
 }
 
 export async function create(
-  options: CredentialCreationOptions,
+  options: CredentialCreationOptions
 ): Promise<RegistrationPublicKeyCredential> {
   const response = (await navigator.credentials.create(
-    options,
+    options
   )) as RegistrationPublicKeyCredential;
   response.toJSON = () => createResponseToJSON(response);
   return response;
@@ -44,10 +44,10 @@ export interface AuthenticationPublicKeyCredential extends PublicKeyCredential {
 }
 
 export async function get(
-  options: CredentialRequestOptions,
+  options: CredentialRequestOptions
 ): Promise<AuthenticationPublicKeyCredential> {
   const response = (await navigator.credentials.get(
-    options,
+    options
   )) as AuthenticationPublicKeyCredential;
   response.toJSON = () => getResponseToJSON(response);
   return response;

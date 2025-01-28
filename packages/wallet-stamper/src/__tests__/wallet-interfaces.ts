@@ -18,7 +18,7 @@ export class MockSolanaWallet implements SolanaWalletInterface {
 
   async getPublicKey(): Promise<string> {
     const ed25519PublicKey = Buffer.from(
-      this.keypair.publicKey.toBuffer(),
+      this.keypair.publicKey.toBuffer()
     ).toString("hex");
     return ed25519PublicKey;
   }

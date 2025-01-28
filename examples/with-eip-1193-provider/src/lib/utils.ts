@@ -33,14 +33,14 @@ export const truncate = (
   {
     prefixLength = defaultLengths.prefixLength,
     suffixLength = defaultLengths.suffixLength,
-  }: { prefixLength: number; suffixLength: number } = defaultLengths,
+  }: { prefixLength: number; suffixLength: number } = defaultLengths
 ) => {
   if (addr.length <= prefixLength + suffixLength) {
     return addr;
   }
 
   return `${addr.substring(0, prefixLength)}...${addr.substring(
-    addr.length - suffixLength,
+    addr.length - suffixLength
   )}`;
 };
 
@@ -49,12 +49,12 @@ export const getTurnkeyClient = () => {
     { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
     new WebauthnStamper({
       rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RPID!,
-    }),
+    })
   );
 };
 
 export const registerPassKey = async (
-  email: Email,
+  email: Email
 ): Promise<PasskeyRegistrationResult> => {
   if (!process.env.NEXT_PUBLIC_WEBAUTHN_RPID) {
     throw "Error must define NEXT_PUBLIC_WEBAUTHN_RPID in your .env file";

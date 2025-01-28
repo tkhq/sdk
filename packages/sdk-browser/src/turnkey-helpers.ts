@@ -46,7 +46,7 @@ export interface WalletAccount {
 
 // Ethereum
 export const defaultEthereumAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -62,7 +62,7 @@ export const DEFAULT_ETHEREUM_ACCOUNTS: WalletAccount[] = [
 
 // Cosmos
 export const defaultCosmosAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -92,7 +92,7 @@ export const DEFAULT_TRON_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Mainnet P2PKH
 export const defaultBitcoinMainnetP2PKHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -108,7 +108,7 @@ export const DEFAULT_BITCOIN_MAINNET_P2PKH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Mainnet P2WPKH
 export const defaultBitcoinMainnetP2WPKHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -124,7 +124,7 @@ export const DEFAULT_BITCOIN_MAINNET_P2WPKH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Mainnet P2WSH
 export const defaultBitcoinMainnetP2WSHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -140,7 +140,7 @@ export const DEFAULT_BITCOIN_MAINNET_P2WSH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Mainnet P2TR
 export const defaultBitcoinMainnetP2TRAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -156,7 +156,7 @@ export const DEFAULT_BITCOIN_MAINNET_P2TR_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Mainnet P2SH
 export const defaultBitcoinMainnetP2SHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -172,7 +172,7 @@ export const DEFAULT_BITCOIN_MAINNET_P2SH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Testnet P2PKH
 export const defaultBitcoinTestnetP2PKHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -188,7 +188,7 @@ export const DEFAULT_BITCOIN_TESTNET_P2PKH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Testnet P2WPKH
 export const defaultBitcoinTestnetP2WPKHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -204,7 +204,7 @@ export const DEFAULT_BITCOIN_TESTNET_P2WPKH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Testnet P2WSH
 export const defaultBitcoinTestnetP2WSHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -220,7 +220,7 @@ export const DEFAULT_BITCOIN_TESTNET_P2WSH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Testnet P2TR
 export const defaultBitcoinTestnetP2TRAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -236,7 +236,7 @@ export const DEFAULT_BITCOIN_TESTNET_P2TR_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Testnet P2SH
 export const defaultBitcoinTestnetP2SHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -252,7 +252,7 @@ export const DEFAULT_BITCOIN_TESTNET_P2SH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Signet P2PKH
 export const defaultBitcoinSignetP2PKHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -268,7 +268,7 @@ export const DEFAULT_BITCOIN_SIGNET_P2PKH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Signet P2WPKH
 export const defaultBitcoinSignetP2WPKHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -284,7 +284,7 @@ export const DEFAULT_BITCOIN_SIGNET_P2WPKH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Signet P2WSH
 export const defaultBitcoinSignetP2WSHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -300,7 +300,7 @@ export const DEFAULT_BITCOIN_SIGNET_P2WSH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Signet P2TR
 export const defaultBitcoinSignetP2TRAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -316,7 +316,7 @@ export const DEFAULT_BITCOIN_SIGNET_P2TR_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Signet P2SH
 export const defaultBitcoinSignetP2SHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -332,7 +332,7 @@ export const DEFAULT_BITCOIN_SIGNET_P2SH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Regtest P2PKH
 export const defaultBitcoinRegtestP2PKHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -348,7 +348,7 @@ export const DEFAULT_BITCOIN_REGTEST_P2PKH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Regtest P2WPKH
 export const defaultBitcoinRegtestP2WPKHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -364,7 +364,7 @@ export const DEFAULT_BITCOIN_REGTEST_P2WPKH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Regtest P2WSH
 export const defaultBitcoinRegtestP2WSHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -380,7 +380,7 @@ export const DEFAULT_BITCOIN_REGTEST_P2WSH_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Regtest P2TR
 export const defaultBitcoinRegtestP2TRAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -396,7 +396,7 @@ export const DEFAULT_BITCOIN_REGTEST_P2TR_ACCOUNTS: WalletAccount[] = [
 
 // Bitcoin Regtest P2SH
 export const defaultBitcoinRegtestP2SHAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -412,7 +412,7 @@ export const DEFAULT_BITCOIN_REGTEST_P2SH_ACCOUNTS: WalletAccount[] = [
 
 // Dogecoin Mainnet
 export const defaultDogeMainnetAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -428,7 +428,7 @@ export const DEFAULT_DOGE_MAINNET_ACCOUNTS: WalletAccount[] = [
 
 // Dogecoin Testnet
 export const defaultDogeTestnetAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_SECP256K1",
@@ -472,7 +472,7 @@ export const DEFAULT_SEI_ACCOUNTS: WalletAccount[] = [
 
 // Solana
 export const defaultSolanaAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_ED25519",
@@ -502,7 +502,7 @@ export const DEFAULT_SUI_ACCOUNTS: WalletAccount[] = [
 
 // Aptos
 export const defaultAptosAccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_ED25519",
@@ -532,7 +532,7 @@ export const DEFAULT_XLM_ACCOUNTS: WalletAccount[] = [
 
 // TON V3R2
 export const defaultTonV3r2AccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_ED25519",
@@ -548,7 +548,7 @@ export const DEFAULT_TON_V3R2_ACCOUNTS: WalletAccount[] = [
 
 // TON V4R2
 export const defaultTonV4r2AccountAtIndex = (
-  pathIndex: number,
+  pathIndex: number
 ): WalletAccount => {
   return {
     curve: "CURVE_ED25519",

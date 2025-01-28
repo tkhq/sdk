@@ -16,7 +16,7 @@ export function sleep(milliseconds: number) {
 // Helper to update a transaction with increased gas fee params
 export async function getUpdatedTransaction(
   provider: Provider,
-  transaction: TransactionRequest,
+  transaction: TransactionRequest
 ) {
   const feeData = await provider.getFeeData();
 
@@ -24,7 +24,7 @@ export async function getUpdatedTransaction(
   const maxBigInt = (values: bigint[]): bigint =>
     values.reduce(
       (max: bigint, current: bigint) => (current > max ? current : max),
-      0n,
+      0n
     );
 
   const maxFee = maxBigInt([
@@ -40,7 +40,7 @@ export async function getUpdatedTransaction(
   ]);
 
   const multiplier = BigInt(
-    Math.round(parseFloat(DEFAULT_GAS_MULTIPLIER.toString()) * 100),
+    Math.round(parseFloat(DEFAULT_GAS_MULTIPLIER.toString()) * 100)
   );
 
   const maxFeeMultiplied = (maxFee * multiplier) / 100n;
@@ -59,7 +59,7 @@ export function print(header: string, body: string): void {
 
 export function refineNonNull<T>(
   input: T | null | undefined,
-  errorMessage?: string,
+  errorMessage?: string
 ): T {
   if (input == null) {
     throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);

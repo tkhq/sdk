@@ -24,7 +24,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    }),
+    })
   );
 
   // Initialize a Turnkey Signer
@@ -83,14 +83,14 @@ async function main() {
   signature = await connectedSigner.signTypedData(
     typedData.domain,
     typedData.types,
-    typedData.message,
+    typedData.message
   );
 
   recoveredAddress = ethers.verifyTypedData(
     typedData.domain,
     typedData.types,
     typedData.message,
-    signature,
+    signature
   );
 
   print("Turnkey-powered signature - typed data (EIP-712):", `${signature}`);

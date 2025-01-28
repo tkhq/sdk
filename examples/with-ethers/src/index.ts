@@ -55,14 +55,15 @@ async function main() {
   // Bring your own provider (such as Alchemy or Infura: https://docs.ethers.org/v6/api/providers/)
   const network = "sepolia";
   const provider = new ethers.JsonRpcProvider(
-    `https://${network}.infura.io/v3/${process.env.INFURA_KEY}`,
+    `https://${network}.infura.io/v3/${process.env.INFURA_KEY}`
   );
   const connectedSigner = turnkeySigner.connect(provider);
 
   const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
   const address = await connectedSigner.getAddress();
-  const transactionCount =
-    await connectedSigner.provider?.getTransactionCount(address);
+  const transactionCount = await connectedSigner.provider?.getTransactionCount(
+    address
+  );
   let balance = (await connectedSigner.provider?.getBalance(address)) ?? 0;
 
   print("Network:", `${network} (chain ID ${chainId})`);
@@ -91,7 +92,7 @@ async function main() {
         }
 
         return serializeSignature(getSignatureFromActivity(activity));
-      },
+      }
     );
   }
 
@@ -133,7 +134,7 @@ async function main() {
         }
 
         return getSignedTransactionFromActivity(activity);
-      },
+      }
     );
   }
 
@@ -146,7 +147,7 @@ async function main() {
         `- Any online faucet (e.g. https://www.alchemy.com/faucets/)`,
         `\nTo check your balance: https://${network}.etherscan.io/address/${address}`,
         `\n--------`,
-      ].join("\n"),
+      ].join("\n")
     );
 
     const { continue: _ } = await prompts([
@@ -173,15 +174,15 @@ async function main() {
         }
 
         return await connectedSigner.provider?.broadcastTransaction(
-          getSignedTransactionFromActivity(activity),
+          getSignedTransactionFromActivity(activity)
         );
-      },
+      }
     );
   }
 
   print(
     `Sent ${ethers.formatEther(sentTx!.value)} Ether to ${sentTx!.to}:`,
-    `https://${network}.etherscan.io/tx/${sentTx!.hash}`,
+    `https://${network}.etherscan.io/tx/${sentTx!.hash}`
   );
 
   if (network === "sepolia") {
@@ -189,7 +190,7 @@ async function main() {
     const wethContract = new ethers.Contract(
       WETH_TOKEN_ADDRESS_SEPOLIA,
       WETH_TOKEN_ABI,
-      connectedSigner,
+      connectedSigner
     );
 
     // Read from contract
@@ -220,15 +221,15 @@ async function main() {
           }
 
           return await connectedSigner.provider?.broadcastTransaction(
-            getSignedTransactionFromActivity(activity),
+            getSignedTransactionFromActivity(activity)
           );
-        },
+        }
       );
     }
 
     print(
       `Wrapped ${ethers.formatEther(depositTx.value)} ETH:`,
-      `https://${network}.etherscan.io/tx/${depositTx.hash}`,
+      `https://${network}.etherscan.io/tx/${depositTx.hash}`
     );
   }
 

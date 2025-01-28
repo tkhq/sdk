@@ -10,7 +10,7 @@ import {
 export async function broadcastTx(
   provider: ethers.Provider,
   signedTx: string,
-  activityId: string,
+  activityId: string
 ) {
   const network = await provider.getNetwork();
   const txHash = ethers.keccak256(signedTx);
@@ -22,7 +22,7 @@ export async function broadcastTx(
       `- Signed payload: ${signedTx}`,
       `- Hash: ${txHash}`,
       ``,
-    ].join("\n"),
+    ].join("\n")
   );
 
   const confirmations =
@@ -40,7 +40,7 @@ export async function broadcastTx(
 
   print(
     `Broadcasted transaction:`,
-    `https://${network.name}.etherscan.io/tx/${hash}`,
+    `https://${network.name}.etherscan.io/tx/${hash}`
   );
 }
 
@@ -48,7 +48,7 @@ export async function sendEth(
   connectedSigner: ethers.Signer,
   destinationAddress: string,
   value: bigint,
-  precalculatedFeeData: ethers.FeeData | undefined = undefined,
+  precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
   const network = await connectedSigner.provider?.getNetwork();
   const address = await connectedSigner.getAddress();
@@ -97,9 +97,9 @@ export async function sendEth(
       `Sent ${toReadableAmount(
         value.toString(),
         18,
-        12,
+        12
       )} ETH to ${destinationAddress}:`,
-      `https://${network?.name}.etherscan.io/tx/${sentTx.hash}`,
+      `https://${network?.name}.etherscan.io/tx/${sentTx.hash}`
     );
   } catch (error: any) {
     if (error.toString().includes("ACTIVITY_STATUS_CONSENSUS_NEEDED")) {
@@ -109,8 +109,8 @@ export async function sendEth(
         } in order to send ${toReadableAmount(
           value.toString(),
           18,
-          12,
-        )} ETH to ${destinationAddress}.`,
+          12
+        )} ETH to ${destinationAddress}.`
       );
       return;
     }
@@ -125,7 +125,7 @@ export async function sendToken(
   value: bigint,
   token: Token,
   tokenContract: ethers.Contract,
-  precalculatedFeeData: ethers.FeeData | undefined = undefined,
+  precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
   const network = await connectedSigner.provider?.getNetwork();
   const address = await connectedSigner.getAddress();
@@ -150,7 +150,7 @@ export async function sendToken(
 
   if (balance < gasRequired) {
     throw new Error(
-      `Insufficient ETH balance of ${balance}. Needs ${gasRequired} for gas`,
+      `Insufficient ETH balance of ${balance}. Needs ${gasRequired} for gas`
     );
   }
 
@@ -159,7 +159,7 @@ export async function sendToken(
 
   if (tokenBalance < value) {
     throw new Error(
-      `Insufficient funds to perform this trade. Have: ${tokenBalance} ${token.symbol}; Need: ${value} ${token.symbol}.`,
+      `Insufficient funds to perform this trade. Have: ${tokenBalance} ${token.symbol}; Need: ${value} ${token.symbol}.`
     );
   }
 
@@ -170,7 +170,7 @@ export async function sendToken(
   // populate transaction
   const populatedTx = await tokenContract.transfer?.populateTransaction(
     destinationAddress,
-    value,
+    value
   );
 
   try {
@@ -184,7 +184,7 @@ export async function sendToken(
       `Sent ${toReadableAmount(value.toString(), token.decimals, 12)} ${
         token.symbol
       } to ${destinationAddress}:`,
-      `https://${network?.name}.etherscan.io/tx/${submittedTx.hash}`,
+      `https://${network?.name}.etherscan.io/tx/${submittedTx.hash}`
     );
   } catch (error: any) {
     if (error.toString().includes("ACTIVITY_STATUS_CONSENSUS_NEEDED")) {
@@ -194,8 +194,8 @@ export async function sendToken(
         } in order to send ${toReadableAmount(
           value.toString(),
           token.decimals,
-          12,
-        )} ${token.symbol} to ${destinationAddress}.`,
+          12
+        )} ${token.symbol} to ${destinationAddress}.`
       );
       return;
     }
@@ -208,7 +208,7 @@ export async function wrapEth(
   connectedSigner: ethers.Signer,
   value: bigint,
   tokenContract: ethers.Contract,
-  precalculatedFeeData: ethers.FeeData | undefined = undefined,
+  precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
   const network = await connectedSigner.provider?.getNetwork();
   const address = await connectedSigner.getAddress();
@@ -237,8 +237,8 @@ export async function wrapEth(
       `Insufficient ETH balance of ${toReadableAmount(
         balance.toString(),
         18,
-        12,
-      )}. Needs ${toReadableAmount(totalCost.toString(), 18, 12)} ETH.`,
+        12
+      )}. Needs ${toReadableAmount(totalCost.toString(), 18, 12)} ETH.`
     );
   }
 
@@ -247,8 +247,8 @@ export async function wrapEth(
       `Insufficient funds to perform this deposit. Have: ${toReadableAmount(
         balance.toString(),
         18,
-        12,
-      )} ETH; Need: ${toReadableAmount(totalCost.toString(), 18, 12)} ETH.`,
+        12
+      )} ETH; Need: ${toReadableAmount(totalCost.toString(), 18, 12)} ETH.`
     );
   }
 
@@ -269,14 +269,14 @@ export async function wrapEth(
 
     print(
       `Wrapped ${toReadableAmount(value.toString(), 18, 12)} ETH`,
-      `https://${network?.name}.etherscan.io/tx/${submittedTx.hash}`,
+      `https://${network?.name}.etherscan.io/tx/${submittedTx.hash}`
     );
   } catch (error: any) {
     if (error.toString().includes("ACTIVITY_STATUS_CONSENSUS_NEEDED")) {
       console.error(
         `Consensus is required for activity ${
           error.activityId
-        } in order to wrap ${toReadableAmount(value.toString(), 18, 12)} ETH.`,
+        } in order to wrap ${toReadableAmount(value.toString(), 18, 12)} ETH.`
       );
       return;
     }
@@ -289,7 +289,7 @@ export async function unwrapWeth(
   connectedSigner: ethers.Signer,
   value: bigint,
   tokenContract: ethers.Contract,
-  precalculatedFeeData: ethers.FeeData | undefined = undefined,
+  precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
   const provider = connectedSigner.provider!;
   const network = await connectedSigner.provider?.getNetwork();
@@ -319,8 +319,8 @@ export async function unwrapWeth(
       `Insufficient ETH balance of ${toReadableAmount(
         balance.toString(),
         18,
-        12,
-      )}. Needs ${toReadableAmount(totalCost.toString(), 18, 12)} ETH for gas.`,
+        12
+      )}. Needs ${toReadableAmount(totalCost.toString(), 18, 12)} ETH for gas.`
     );
   }
 
@@ -331,8 +331,8 @@ export async function unwrapWeth(
       `Insufficient funds to unwrap. Have: ${toReadableAmount(
         tokenBalance.toString(),
         18,
-        12,
-      )} WETH; Need: ${toReadableAmount(value.toString(), 18, 12)} WETH.`,
+        12
+      )} WETH; Need: ${toReadableAmount(value.toString(), 18, 12)} WETH.`
     );
   }
 
@@ -351,14 +351,14 @@ export async function unwrapWeth(
 
     print(
       `Unwrapped ${toReadableAmount(value.toString(), 18, 12)} ETH`,
-      `https://${network?.name}.etherscan.io/tx/${submittedTx.hash}`,
+      `https://${network?.name}.etherscan.io/tx/${submittedTx.hash}`
     );
   } catch (error: any) {
     if (error.toString().includes("ACTIVITY_STATUS_CONSENSUS_NEEDED")) {
       console.error(
         `Consensus is required for activity ${
           error.activityId
-        } in order to unwrap ${toReadableAmount(value.toString(), 18, 12)} ETH.`,
+        } in order to unwrap ${toReadableAmount(value.toString(), 18, 12)} ETH.`
       );
       return;
     }

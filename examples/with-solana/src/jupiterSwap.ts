@@ -23,7 +23,7 @@ const createSwap = async () => {
   // This RPC endpoint is only for demonstration purposes so that this example will run.
   const connection = new Connection(
     process.env.SOLANA_NODE ??
-      "https://neat-hidden-sanctuary.solana-mainnet.discover.quiknode.pro/2af5315d336f9ae920028bbb90a73b724dc1bbed/",
+      "https://neat-hidden-sanctuary.solana-mainnet.discover.quiknode.pro/2af5315d336f9ae920028bbb90a73b724dc1bbed/"
   );
 
   const turnkeyClient = new Turnkey({
@@ -53,7 +53,7 @@ const createSwap = async () => {
       "https://quote-api.jup.ag/v6/quote?inputMint=So11111111111111111111111111111111111111112\
 &outputMint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\
 &amount=10000000\
-&slippageBps=100",
+&slippageBps=100"
     )
   ).json();
 
@@ -88,7 +88,7 @@ const createSwap = async () => {
   // sign the transaction
   const signedTransaction = await turnkeySigner.signTransaction(
     transaction,
-    solAddress,
+    solAddress
   );
 
   // get the latest block hash
@@ -105,7 +105,7 @@ const createSwap = async () => {
 
   print(
     "Transaction signed ✨",
-    `https://solscan.io/tx/${transactionResponse?.transaction.signatures[0]}`,
+    `https://solscan.io/tx/${transactionResponse?.transaction.signatures[0]}`
   );
   print("Unsigned payload", swapTransactionHex);
 };

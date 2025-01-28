@@ -14,7 +14,7 @@ export const signWithApiKey = async (input: {
 
   if (publicKeyString != input.publicKey) {
     throw new Error(
-      `Bad API key. Expected to get public key ${input.publicKey}, got ${publicKeyString}`,
+      `Bad API key. Expected to get public key ${input.publicKey}, got ${publicKeyString}`
     );
   }
 

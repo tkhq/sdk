@@ -9,7 +9,7 @@ export default async function createUser(
   turnkeyClient: TurnkeyServerClient,
   userName: string,
   apiKeyName: string,
-  publicKey: string,
+  publicKey: string
 ): Promise<string> {
   let userTags: string[] = new Array();
   try {
@@ -37,7 +37,7 @@ export default async function createUser(
         `- Name: ${userName}`,
         `- User ID: ${userId}`,
         ``,
-      ].join("\n"),
+      ].join("\n")
     );
 
     return userId;

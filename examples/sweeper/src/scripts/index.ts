@@ -61,7 +61,7 @@ async function main() {
       network.name,
       tokens,
       address,
-      destinationAddress,
+      destinationAddress
     );
     await sweepEth(connectedSigner, network.name, destinationAddress);
   }
@@ -72,7 +72,7 @@ async function sweepTokens(
   network: string,
   tokens: Token[],
   address: string,
-  destinationAddress: string,
+  destinationAddress: string
 ) {
   for (let t of tokens) {
     let contract = new ethers.Contract(t.address, ERC20_ABI, connectedSigner);
@@ -90,7 +90,7 @@ async function sweepTokens(
         message: `Please confirm: transfer ${toReadableAmount(
           balance.toString(),
           t.decimals,
-          12,
+          12
         )} ${t.symbol || "<missing symbol>"} (token address ${
           t.address
         }) to ${destinationAddress}?`,
@@ -108,7 +108,7 @@ async function sweepTokens(
         `Sent ${toReadableAmount(balance.toString(), t.decimals)} ${
           t.symbol || "<missing symbol>"
         } (token address ${t.address}) to ${destinationAddress}:`,
-        `https://${network}.etherscan.io/tx/${transferTx.hash}`,
+        `https://${network}.etherscan.io/tx/${transferTx.hash}`
       );
     } else {
       print(`Skipping transfer...`, ``);
@@ -119,7 +119,7 @@ async function sweepTokens(
 async function sweepEth(
   connectedSigner: ethers.Signer,
   network: string,
-  destinationAddress: string,
+  destinationAddress: string
 ) {
   const address = await connectedSigner.getAddress();
   const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
@@ -150,15 +150,15 @@ async function sweepEth(
       message: `Please confirm: transfer ${toReadableAmount(
         value.toString(),
         18,
-        12,
+        12
       )} ETH (balance of ${toReadableAmount(
         balance.toString(),
         18,
-        12,
+        12
       )} - ${toReadableAmount(
         gasRequired.toString(),
         18,
-        12,
+        12
       )} for gas) to ${destinationAddress}?`,
     },
   ]);
@@ -174,9 +174,9 @@ async function sweepEth(
       `Sent ${toReadableAmount(
         value.toString(),
         18,
-        12,
+        12
       )} ETH to ${destinationAddress}:`,
-      `https://${network}.etherscan.io/tx/${sentTx.hash}`,
+      `https://${network}.etherscan.io/tx/${sentTx.hash}`
     );
   } else {
     print(`Skipping transfer...`, ``);

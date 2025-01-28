@@ -137,7 +137,7 @@ const telegramCloudStorageKey = "@turnkey/telegramCloudStorageKey";
 await stamper.insertAPIKey(
   apiPublicKey,
   apiPrivateKey,
-  telegramCloudStorageKey,
+  telegramCloudStorageKey
 );
 ```
 

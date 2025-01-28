@@ -5,7 +5,7 @@ import { refineNonNull } from "./utils";
 export default async function createPrivateKey(
   turnkeyClient: Turnkey,
   privateKeyName: string,
-  privateKeyTags: string[],
+  privateKeyTags: string[]
 ): Promise<string> {
   console.log("creating a new Ethereum private key on Turnkey...\n");
 
@@ -33,7 +33,7 @@ export default async function createPrivateKey(
         `- Private key ID: ${privateKeyId}`,
         `- Address: ${address}`,
         ``,
-      ].join("\n"),
+      ].join("\n")
     );
 
     return privateKeyId;

@@ -76,7 +76,7 @@ async function main() {
         `- Any online faucet (e.g. https://faucet.solana.com/)`,
         `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=${network}`,
         `\n--------`,
-      ].join("\n"),
+      ].join("\n")
     );
     // Await user confirmation to continue
     await prompts([
@@ -120,14 +120,14 @@ async function main() {
 
         const { r, s } = getSignatureFromActivity(activity);
         return Buffer.from(`${r}${s}`, "hex");
-      },
+      }
     );
   }
 
   const isValidSignature = nacl.sign.detached.verify(
     messageAsUint8Array,
     signature,
-    bs58.decode(solAddress),
+    bs58.decode(solAddress)
   );
 
   if (!isValidSignature) {
@@ -183,7 +183,7 @@ async function main() {
   try {
     signedTransaction = (await turnkeySigner.signTransaction(
       transaction,
-      solAddress,
+      solAddress
     )) as Transaction;
   } catch (error: any) {
     await handleActivityError(turnkeyClient, error).then(
@@ -194,10 +194,10 @@ async function main() {
 
         const decodedTransaction = Buffer.from(
           getSignedTransactionFromActivity(activity),
-          "hex",
+          "hex"
         );
         signedTransaction = Transaction.from(decodedTransaction);
-      },
+      }
     );
   }
 

@@ -180,7 +180,7 @@ export function getSignaturesFromActivity(activity: TActivity): TSignature[] {
  * @return signed transaction string
  */
 export function getSignedTransactionFromActivity(
-  activity: TActivity,
+  activity: TActivity
 ): TSignedTransaction {
   if (
     ![

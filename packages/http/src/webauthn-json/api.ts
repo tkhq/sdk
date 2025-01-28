@@ -14,51 +14,51 @@ import {
 } from "./schema";
 
 export function createRequestFromJSON(
-  requestJSON: CredentialCreationOptionsJSON,
+  requestJSON: CredentialCreationOptionsJSON
 ): CredentialCreationOptions {
   return convert(base64urlToBuffer, credentialCreationOptions, requestJSON);
 }
 
 export function createResponseToJSON(
-  credential: PublicKeyCredential,
+  credential: PublicKeyCredential
 ): PublicKeyCredentialWithAttestationJSON {
   return convert(
     bufferToBase64url,
     publicKeyCredentialWithAttestation,
-    credential,
+    credential
   );
 }
 
 export async function create(
-  requestJSON: CredentialCreationOptionsJSON,
+  requestJSON: CredentialCreationOptionsJSON
 ): Promise<PublicKeyCredentialWithAttestationJSON> {
   const credential = (await navigator.credentials.create(
-    createRequestFromJSON(requestJSON),
+    createRequestFromJSON(requestJSON)
   )) as PublicKeyCredential;
   return createResponseToJSON(credential);
 }
 
 export function getRequestFromJSON(
-  requestJSON: CredentialRequestOptionsJSON,
+  requestJSON: CredentialRequestOptionsJSON
 ): CredentialRequestOptions {
   return convert(base64urlToBuffer, credentialRequestOptions, requestJSON);
 }
 
 export function getResponseToJSON(
-  credential: PublicKeyCredential,
+  credential: PublicKeyCredential
 ): PublicKeyCredentialWithAssertionJSON {
   return convert(
     bufferToBase64url,
     publicKeyCredentialWithAssertion,
-    credential,
+    credential
   );
 }
 
 export async function get(
-  requestJSON: CredentialRequestOptionsJSON,
+  requestJSON: CredentialRequestOptionsJSON
 ): Promise<PublicKeyCredentialWithAssertionJSON> {
   const credential = (await navigator.credentials.get(
-    getRequestFromJSON(requestJSON),
+    getRequestFromJSON(requestJSON)
   )) as PublicKeyCredential;
   return getResponseToJSON(credential);
 }

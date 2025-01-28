@@ -16,7 +16,7 @@ type ImportWalletProps = {
 export function ImportWallet(props: ImportWalletProps) {
   const [iframeDisplay, setIframeDisplay] = useState("none");
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
-    null,
+    null
   );
   const [walletName, setWalletName] = useState("");
   const [stage, setStage] = useState("init");
@@ -42,7 +42,7 @@ export function ImportWallet(props: ImportWalletProps) {
     const injected = await iframeStamper.injectImportBundle(
       response.data["importBundle"],
       props.organizationId,
-      props.userId,
+      props.userId
     );
     if (injected !== true) {
       alert("Unexpected error while injecting import bundle.");

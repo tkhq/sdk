@@ -69,7 +69,7 @@ const anvil = {
    */
   async setBalance(
     address: Address = EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS,
-    balance: string = EXPECTED_ADDRESS_DEFAULT_BALANCE_ETH,
+    balance: string = EXPECTED_ADDRESS_DEFAULT_BALANCE_ETH
   ) {
     await anvilPublicClient.request({
       body: {
@@ -122,7 +122,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
       new ApiKeyStamper({
         apiPublicKey,
         apiPrivateKey,
-      }),
+      })
     );
     eip1193Provider = await createEIP1193Provider({
       walletId,
@@ -139,7 +139,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
   });
 
   const getEIP1193Provider = (
-    chain: AddEthereumChainParameter = foundryChain,
+    chain: AddEthereumChainParameter = foundryChain
   ) =>
     createEIP1193Provider({
       walletId,
@@ -469,7 +469,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
             expect(balance).not.toBeUndefined();
             expect(balance).toMatch(/^0x.*$/);
             expect(formatEther(BigInt(balance))).toBe(
-              EXPECTED_ADDRESS_DEFAULT_BALANCE_ETH,
+              EXPECTED_ADDRESS_DEFAULT_BALANCE_ETH
             );
           });
         });
@@ -506,7 +506,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
           await expect(
             eip1193Provider?.request({
               method: method as EIP1474Methods[0]["Method"],
-            }),
+            })
           ).rejects.toThrow(MethodNotSupportedRpcError);
         });
       });

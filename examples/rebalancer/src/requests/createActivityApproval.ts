@@ -5,7 +5,7 @@ import { refineNonNull } from "./utils";
 export default async function approveActivity(
   turnkeyClient: Turnkey,
   activityId: string,
-  activityFingerprint: string,
+  activityFingerprint: string
 ): Promise<string> {
   try {
     const response = await turnkeyClient.apiClient().approveActivity({
@@ -20,7 +20,7 @@ export default async function approveActivity(
         `✅ Approved activity!`,
         `- Activity ID: ${result.activity.id}`,
         ``,
-      ].join("\n"),
+      ].join("\n")
     );
 
     return activityId;

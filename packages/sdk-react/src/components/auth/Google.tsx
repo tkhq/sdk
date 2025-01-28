@@ -28,7 +28,7 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
     const nonce = bytesToHex(sha256(iframePublicKey));
     const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!.replace(
       /\/$/,
-      "",
+      ""
     );
     // Construct the Google OIDC URL
     const googleAuthUrl = new URL(GOOGLE_AUTH_URL);
@@ -47,7 +47,7 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
     const authWindow = window.open(
       googleAuthUrl.toString(),
       "_blank",
-      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
+      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
     );
 
     if (!authWindow) {

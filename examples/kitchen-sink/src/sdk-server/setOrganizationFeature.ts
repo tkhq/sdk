@@ -22,7 +22,7 @@ async function main() {
 
   console.log(
     "Successfully set organization feature. Updated features:",
-    features,
+    features
   );
 }
 

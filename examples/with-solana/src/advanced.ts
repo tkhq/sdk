@@ -61,7 +61,7 @@ async function main() {
         `- Any online faucet (e.g. https://faucet.solana.com)`,
         `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=${network}`,
         `\n--------`,
-      ].join("\n"),
+      ].join("\n")
     );
     // Await user confirmation to continue
     await prompts([
@@ -152,14 +152,14 @@ async function main() {
 
   const signedTransactions = (await turnkeySigner.signAllTransactions(
     unsignedTxs,
-    solAddress,
+    solAddress
   )) as VersionedTransaction[];
 
   for (let i = 0; i < signedTransactions.length; i++) {
     const isValidSignature = nacl.sign.detached.verify(
       signedTransactions[i]!.message.serialize(),
       signedTransactions[i]!.signatures[0]!,
-      bs58.decode(solAddress),
+      bs58.decode(solAddress)
     );
 
     if (!isValidSignature) {

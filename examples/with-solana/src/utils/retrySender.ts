@@ -31,7 +31,7 @@ export async function transactionSenderAndConfirmationWaiter({
 > {
   const txid = await connection.sendRawTransaction(
     serializedTransaction,
-    SEND_OPTIONS,
+    SEND_OPTIONS
   );
 
   const controller = new AbortController();
@@ -44,7 +44,7 @@ export async function transactionSenderAndConfirmationWaiter({
       try {
         await connection.sendRawTransaction(
           serializedTransaction,
-          SEND_OPTIONS,
+          SEND_OPTIONS
         );
       } catch (e) {
         console.warn(`Failed to resend transaction: ${e}`);
@@ -66,7 +66,7 @@ export async function transactionSenderAndConfirmationWaiter({
           signature: txid,
           abortSignal,
         },
-        "confirmed",
+        "confirmed"
       ),
       new Promise(async (resolve) => {
         // in case ws socket died
@@ -110,7 +110,7 @@ export async function transactionSenderAndConfirmationWaiter({
     {
       retries: 5,
       minTimeout: 1e3,
-    },
+    }
   );
 
   return response;

@@ -35,7 +35,7 @@ async function main() {
   // Connect it with a Provider (https://docs.ethers.org/v6/api/providers/)
   const network = "goerli";
   const connectedSigner = turnkeySigner.connect(
-    new ethers.InfuraProvider(network),
+    new ethers.InfuraProvider(network)
   );
 
   const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
@@ -76,7 +76,7 @@ async function main() {
 
   print(
     `Contract has been deployed:`,
-    `https://${network}.etherscan.io/tx/${deploymentTransaction?.hash}`,
+    `https://${network}.etherscan.io/tx/${deploymentTransaction?.hash}`
   );
 }
 

@@ -68,7 +68,7 @@ async function main() {
     });
   } else {
     throw new Error(
-      `Invalid export type. Enter "wallet" or "key" or "account"`,
+      `Invalid export type. Enter "wallet" or "key" or "account"`
     );
   }
   const decryptedBundle = await decryptExportBundle({

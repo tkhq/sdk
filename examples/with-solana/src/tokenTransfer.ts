@@ -58,7 +58,7 @@ async function main() {
         `- Any online faucet (e.g. https://faucet.solana.com/)`,
         `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=devnet`,
         `\n--------`,
-      ].join("\n"),
+      ].join("\n")
     );
     // Await user confirmation to continue
     await prompts([
@@ -77,18 +77,18 @@ async function main() {
   const { mintAuthority } = await createToken(
     turnkeySigner,
     connection,
-    solAddress,
+    solAddress
   );
 
   // Create token accounts
   const ataPrimary = await getAssociatedTokenAddress(
     mintAuthority.publicKey, // mint
-    fromKey, // owner
+    fromKey // owner
   );
 
   const ataWarchest = await getAssociatedTokenAddress(
     mintAuthority.publicKey, // mint
-    turnkeyWarchest, // owner
+    turnkeyWarchest // owner
   );
 
   // For warchest
@@ -98,7 +98,7 @@ async function main() {
     solAddress,
     ataWarchest,
     turnkeyWarchest,
-    mintAuthority,
+    mintAuthority
   );
 
   const tokenAccountWarchest = await getAccount(connection, ataWarchest);
@@ -110,7 +110,7 @@ async function main() {
     solAddress,
     ataPrimary,
     fromKey,
-    mintAuthority,
+    mintAuthority
   );
 
   const tokenAccount = await getAccount(connection, ataPrimary);
@@ -121,7 +121,7 @@ async function main() {
     connection,
     solAddress,
     tokenAccount.address,
-    mintAuthority.publicKey,
+    mintAuthority.publicKey
   );
 
   // Transfer token from primary to Warchest
@@ -131,17 +131,18 @@ async function main() {
     solAddress,
     tokenAccount.address,
     mintAuthority.publicKey,
-    tokenAccountWarchest.address,
+    tokenAccountWarchest.address
   );
 
   const tokenBalance = await connection.getTokenAccountBalance(ataPrimary);
   console.log("Token balance for user:", tokenBalance.value.uiAmountString);
 
-  const tokenBalanceWarchest =
-    await connection.getTokenAccountBalance(ataWarchest);
+  const tokenBalanceWarchest = await connection.getTokenAccountBalance(
+    ataWarchest
+  );
   console.log(
     "Token balance for warchest:",
-    tokenBalanceWarchest.value.uiAmountString,
+    tokenBalanceWarchest.value.uiAmountString
   );
 
   process.exit(0);

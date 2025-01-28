@@ -16,7 +16,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    }),
+    })
   );
 
   const activityPoller = createActivityPoller({
@@ -46,7 +46,7 @@ async function main() {
   });
 
   const newApiKeyIds = refineNonNull(
-    activity.result.createApiKeysResult?.apiKeyIds,
+    activity.result.createApiKeysResult?.apiKeyIds
   );
 
   // Success!
@@ -58,7 +58,7 @@ async function main() {
       `- Name: ${apiKeyName}`,
       `- User ID: ${userId}`,
       ``,
-    ].join("\n"),
+    ].join("\n")
   );
 }
 

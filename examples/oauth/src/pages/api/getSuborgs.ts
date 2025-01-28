@@ -14,7 +14,7 @@ type ErrorMessage = {
 
 export default async function getSuborgs(
   req: NextApiRequest,
-  res: NextApiResponse<GetSuborgsResponse | ErrorMessage>,
+  res: NextApiResponse<GetSuborgsResponse | ErrorMessage>
 ) {
   try {
     const request = req.body as GetSuborgsRequest;

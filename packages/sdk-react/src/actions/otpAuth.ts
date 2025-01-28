@@ -17,7 +17,7 @@ type OtpAuthResponse = {
 };
 
 export async function otpAuth(
-  request: OtpAuthRequest,
+  request: OtpAuthRequest
 ): Promise<OtpAuthResponse | undefined> {
   const turnkeyClient = new Turnkey({
     apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,

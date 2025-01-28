@@ -32,27 +32,27 @@ export async function prepareV3Trade(
   connectedSigner: TurnkeySigner,
   inputToken: Token,
   outputToken: Token,
-  inputAmount: bigint,
+  inputAmount: bigint
 ): Promise<TokenTrade> {
   const address = await connectedSigner.getAddress();
 
   const tokenContract = new ethers.Contract(
     inputToken.address,
     ERC20_ABI,
-    connectedSigner,
+    connectedSigner
   );
 
   const tokenBalance = await tokenContract.balanceOf?.(address);
   if (tokenBalance < inputAmount) {
     throw new Error(
-      `Insufficient funds to perform this trade. Have: ${tokenBalance} ${inputToken.symbol}; Need: ${inputAmount} ${inputToken.symbol}.`,
+      `Insufficient funds to perform this trade. Have: ${tokenBalance} ${inputToken.symbol}; Need: ${inputAmount} ${inputToken.symbol}.`
     );
   }
 
   const poolInfo = await getV3PoolInfo(
     connectedSigner.provider!,
     inputToken,
-    outputToken,
+    outputToken
   );
 
   const pool = new Pool(
@@ -61,7 +61,7 @@ export async function prepareV3Trade(
     FEE_AMOUNT,
     poolInfo.sqrtPriceX96.toString(),
     poolInfo.liquidity.toString(),
-    poolInfo.tick,
+    poolInfo.tick
   );
 
   const swapRoute = new Route([pool], inputToken, outputToken);
@@ -70,18 +70,18 @@ export async function prepareV3Trade(
     connectedSigner,
     swapRoute,
     inputToken,
-    inputAmount,
+    inputAmount
   );
 
   const uncheckedTrade = Trade.createUncheckedTrade({
     route: swapRoute,
     inputAmount: CurrencyAmount.fromRawAmount(
       inputToken,
-      inputAmount.toString(),
+      inputAmount.toString()
     ),
     outputAmount: CurrencyAmount.fromRawAmount(
       outputToken,
-      JSBI.BigInt(amountOut),
+      JSBI.BigInt(amountOut)
     ),
     tradeType: TradeType.EXACT_INPUT,
   });
@@ -93,7 +93,7 @@ export async function executeTrade(
   connectedSigner: TurnkeySigner,
   trade: TokenTrade,
   inputToken: Token,
-  inputAmount: bigint,
+  inputAmount: bigint
 ): Promise<ethers.TransactionReceipt | null> {
   const provider = connectedSigner.provider!;
   const address = await connectedSigner.getAddress();
@@ -135,7 +135,7 @@ export async function executeTrade(
 
   const result = await connectedSigner.provider!.waitForTransaction(
     swapTx.hash,
-    1,
+    1
   );
 
   print(`Swap successful:`, `https://goerli.etherscan.io/tx/${swapTx.hash}`);
@@ -149,7 +149,7 @@ async function getOutputQuote(
   connectedSigner: TurnkeySigner,
   route: Route<Currency, Currency>,
   inputToken: Token,
-  inputAmount: bigint,
+  inputAmount: bigint
 ) {
   const provider = connectedSigner.provider!;
 
@@ -163,7 +163,7 @@ async function getOutputQuote(
     TradeType.EXACT_INPUT,
     {
       useQuoterV2: true,
-    },
+    }
   );
 
   const quoteCallReturnData = await provider.call({
@@ -173,14 +173,14 @@ async function getOutputQuote(
 
   return ethers.AbiCoder.defaultAbiCoder().decode(
     ["uint256"],
-    quoteCallReturnData,
+    quoteCallReturnData
   );
 }
 
 export async function getTokenTransferApproval(
   connectedSigner: TurnkeySigner,
   token: Token,
-  amount: bigint,
+  amount: bigint
 ): Promise<boolean> {
   const address = await connectedSigner.getAddress();
   if (!connectedSigner || !address) {
@@ -192,7 +192,7 @@ export async function getTokenTransferApproval(
     const tokenContract = new ethers.Contract(
       token.address,
       ERC20_ABI,
-      connectedSigner,
+      connectedSigner
     );
 
     // Verify that `approve` is an available method on the contract
@@ -200,7 +200,7 @@ export async function getTokenTransferApproval(
 
     const transaction = await tokenContract.approve?.populateTransaction(
       SWAP_ROUTER_ADDRESS,
-      amount.toString(), // double check this
+      amount.toString() // double check this
     );
 
     let approveTx = await connectedSigner.sendTransaction({
@@ -214,7 +214,7 @@ export async function getTokenTransferApproval(
 
     print(
       "Token spending approved:",
-      `https://goerli.etherscan.io/tx/${approveTx.hash}`,
+      `https://goerli.etherscan.io/tx/${approveTx.hash}`
     );
 
     return true;

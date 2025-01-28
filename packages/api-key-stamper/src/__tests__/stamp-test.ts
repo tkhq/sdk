@@ -17,7 +17,7 @@ test("uses provided signature to make stamp", async function () {
 
   // We expect the stamp to be base64url encoded
   const decodedStamp = JSON.parse(
-    Buffer.from(stamp.stampHeaderValue, "base64url").toString(),
+    Buffer.from(stamp.stampHeaderValue, "base64url").toString()
   );
   // ...with 3 keys.
   expect(Object.keys(decodedStamp)).toEqual([

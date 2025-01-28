@@ -53,7 +53,7 @@ export function toHex(bytes: Uint8Array): string {
 export function toBase64(bytes: Uint8Array, opt_webSafe?: boolean): string {
   const encoded = btoa(
     /* padding */
-    toByteString(bytes),
+    toByteString(bytes)
   ).replace(/=/g, "");
   if (opt_webSafe) {
     return encoded.replace(/\+/g, "-").replace(/\//g, "_");

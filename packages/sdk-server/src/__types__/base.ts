@@ -105,7 +105,7 @@ export interface NextApiResponse<T = any> {
 
 export type NextApiHandler = (
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse
 ) => void | Promise<void>;
 
 export interface ApiCredentials {

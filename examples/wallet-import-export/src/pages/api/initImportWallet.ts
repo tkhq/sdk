@@ -15,7 +15,7 @@ type ErrorMessage = {
 
 export default async function initImportWallet(
   req: NextApiRequest,
-  res: NextApiResponse<InitImportWalletResponse | ErrorMessage>,
+  res: NextApiResponse<InitImportWalletResponse | ErrorMessage>
 ) {
   try {
     const request = req.body as InitImportWalletRequest;

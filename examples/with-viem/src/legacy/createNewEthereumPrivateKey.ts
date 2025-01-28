@@ -17,7 +17,7 @@ export async function createNewEthereumPrivateKey() {
       new ApiKeyStamper({
         apiPublicKey: process.env.API_PUBLIC_KEY!,
         apiPrivateKey: process.env.API_PRIVATE_KEY!,
-      }),
+      })
     );
 
     const activityPoller = createActivityPoller({
@@ -42,7 +42,7 @@ export async function createNewEthereumPrivateKey() {
     });
 
     const privateKey = refineNonNull(
-      completedActivity.result.createPrivateKeysResultV2?.privateKeys?.[0],
+      completedActivity.result.createPrivateKeysResultV2?.privateKeys?.[0]
     );
     const privateKeyId = refineNonNull(privateKey.privateKeyId);
     const address = refineNonNull(privateKey.addresses?.[0]?.address);
@@ -56,7 +56,7 @@ export async function createNewEthereumPrivateKey() {
         `- Address: ${address}`,
         ``,
         "Now you can take the private key ID, put it in `.env.local`, then re-run the script.",
-      ].join("\n"),
+      ].join("\n")
     );
   } catch (error) {
     // If needed, you can read from `TurnkeyActivityError` to find out why the activity didn't succeed
@@ -73,7 +73,7 @@ export async function createNewEthereumPrivateKey() {
 
 export function refineNonNull<T>(
   input: T | null | undefined,
-  errorMessage?: string,
+  errorMessage?: string
 ): T {
   if (input == null) {
     throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);

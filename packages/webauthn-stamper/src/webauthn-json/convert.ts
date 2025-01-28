@@ -10,7 +10,7 @@ export const convertValue = "convert";
 export function convert<From, To>(
   conversionFn: (v: From) => To,
   schema: Schema,
-  input: any,
+  input: any
 ): any {
   if (schema === copyValue) {
     return input;
@@ -47,7 +47,7 @@ export function convert<From, To>(
       output[key] = convert<From, To>(
         conversionFn,
         schemaField.schema,
-        input[key],
+        input[key]
       );
     }
     return output;
@@ -56,7 +56,7 @@ export function convert<From, To>(
 
 export function derived(
   schema: Schema,
-  derive: (v: any) => any,
+  derive: (v: any) => any
 ): SchemaProperty {
   return {
     required: true,

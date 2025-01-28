@@ -11,7 +11,7 @@ export async function createTokenTransferAddSignature(
   solAddress: string,
   tokenAccountPubkey: PublicKey,
   mintAuthority: PublicKey,
-  ataRecipient: PublicKey,
+  ataRecipient: PublicKey
 ): Promise<any> {
   const fromKey = new PublicKey(solAddress);
 
@@ -22,8 +22,8 @@ export async function createTokenTransferAddSignature(
       ataRecipient, // to (should be a token account)
       fromKey, // from's owner
       1e4, // amount, if your decimals is 8, send 10^8 for 1 token
-      8, // decimals
-    ),
+      8 // decimals
+    )
   );
 
   // Get a recent block hash
@@ -46,14 +46,14 @@ export async function createTokenTransferSignTransaction(
   solAddress: string,
   tokenAccountPubkey: PublicKey,
   mintAuthority: PublicKey,
-  ataRecipient: PublicKey,
+  ataRecipient: PublicKey
 ): Promise<any> {
   const transferTx = await constructTokenTransfer(
     connection,
     tokenAccountPubkey,
     mintAuthority,
     ataRecipient,
-    solAddress,
+    solAddress
   );
 
   // Use Turnkey's sign transaction endpoint that passes the created transaction through the policy engine
@@ -69,7 +69,7 @@ async function constructTokenTransfer(
   tokenAccountPubkey: PublicKey,
   mintAuthority: PublicKey,
   ataRecipient: PublicKey,
-  solAddress: string,
+  solAddress: string
 ): Promise<Transaction> {
   const fromKey = new PublicKey(solAddress);
 
@@ -80,8 +80,8 @@ async function constructTokenTransfer(
       ataRecipient, // to (should be a token account)
       fromKey, // from's owner
       1e4, // amount, if your decimals is 8, send 10^8 for 1 token
-      8, // decimals
-    ),
+      8 // decimals
+    )
   );
 
   // Get a recent block hash

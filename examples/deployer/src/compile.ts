@@ -4,7 +4,7 @@ const solc = require("solc");
 
 const source = fs.readFileSync(
   path.resolve(__dirname, "./contracts", "HelloWorld.sol"),
-  "utf8",
+  "utf8"
 );
 
 const input = {

@@ -43,7 +43,7 @@ export const createUserSubOrg = async (
     email: Email;
     challenge: string;
     attestation: Attestation;
-  },
+  }
 ) => {
   const activityPoller = createActivityPoller({
     client: turnkeyClient,
@@ -110,14 +110,14 @@ export const createUserSubOrg = async (
 
 export const signUp = async (
   email: Email,
-  passKeyRegistrationResult: PasskeyRegistrationResult,
+  passKeyRegistrationResult: PasskeyRegistrationResult
 ) => {
   const client = new TurnkeyClient(
     { baseUrl: NEXT_PUBLIC_BASE_URL! },
     new ApiKeyStamper({
       apiPublicKey: TURNKEY_API_PUBLIC_KEY!,
       apiPrivateKey: TURNKEY_API_PRIVATE_KEY!,
-    }),
+    })
   );
 
   // Create a new user sub org with email

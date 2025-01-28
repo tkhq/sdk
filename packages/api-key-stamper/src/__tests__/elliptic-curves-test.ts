@@ -10,7 +10,7 @@ test("pointDecode -> uncompressed invalid", async function () {
   const uncompPubKey =
     "0400d2eb47be2006c29db5fe9941dd686d19ddeea85a0328894f08091f6b5be9b366c4872345594c12a7f7c47c62dd8074542934820fce5ee0ddc55d6d1d8dd313";
   expect(() => pointDecode(uint8ArrayFromHexString(uncompPubKey))).toThrow(
-    "invalid uncompressed x and y coordinates",
+    "invalid uncompressed x and y coordinates"
   );
 });
 

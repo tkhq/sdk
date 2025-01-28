@@ -58,7 +58,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   >(undefined);
 
   const [client, setClient] = useState<TurnkeyBrowserClient | undefined>(
-    undefined,
+    undefined
   );
 
   const { session } = useUserSession();
@@ -87,7 +87,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
         if (readWriteSession) {
           const injected = await authIframeClient?.injectCredentialBundle(
-            readWriteSession.credentialBundle,
+            readWriteSession.credentialBundle
           );
           if (injected) {
             await authIframeClient?.getWhoami({
@@ -121,7 +121,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
         const newAuthIframeClient = await newTurnkey.iframeClient({
           iframeContainer: document.getElementById(
-            TurnkeyAuthIframeContainerId,
+            TurnkeyAuthIframeContainerId
           ),
           iframeUrl: config.iframeUrl || "https://auth.turnkey.com",
           iframeElementId: TurnkeyAuthIframeElementId,

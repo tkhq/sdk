@@ -12,7 +12,7 @@ const DEFAULT_REFRESH_INTERVAL_MS = 500;
  */
 export function withAsyncPolling<
   O extends TActivityResponse,
-  I extends { body: unknown },
+  I extends { body: unknown }
 >(params: {
   request: (input: I) => Promise<O>;
   refreshIntervalMs?: number;
@@ -100,7 +100,7 @@ export function withAsyncPolling<
  */
 export function createActivityPoller<
   O extends TActivityResponse,
-  I extends {},
+  I extends {}
 >(params: {
   client: TurnkeyClient;
   requestFn: (input: I) => Promise<O>;
@@ -187,6 +187,6 @@ function sleep(ms: number): Promise<void> {
 
 function assertNever(input: never, message?: string): never {
   throw new Error(
-    message != null ? message : `Unexpected case: ${JSON.stringify(input)}`,
+    message != null ? message : `Unexpected case: ${JSON.stringify(input)}`
   );
 }

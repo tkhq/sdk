@@ -33,7 +33,7 @@ async function main() {
       `- Name: ${userTagName}`,
       `- User tag ID: ${newUserTagId}`,
       ``,
-    ].join("\n"),
+    ].join("\n")
   );
 }
 

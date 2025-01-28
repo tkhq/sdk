@@ -52,21 +52,21 @@ async function main() {
     account: turnkeyAccount as Account,
     chain: sepolia,
     transport: http(
-      `https://${network}.infura.io/v3/${process.env.INFURA_KEY!}`,
+      `https://${network}.infura.io/v3/${process.env.INFURA_KEY!}`
     ),
   });
 
   const publicClient = createPublicClient({
     chain: sepolia,
     transport: http(
-      `https://${network}.infura.io/v3/${process.env.INFURA_KEY!}`,
+      `https://${network}.infura.io/v3/${process.env.INFURA_KEY!}`
     ),
   });
 
   // Connect a TurnkeySigner to a Biconomy Smart Account Client, defaulting to Sepolia
   // Ensure this method is hoisted
   const connect = async (
-    turnkeyClient: WalletClient,
+    turnkeyClient: WalletClient
   ): Promise<BiconomySmartAccountV2> => {
     try {
       const smartAccount = await createSmartAccountClient({
@@ -110,7 +110,7 @@ async function main() {
         `- Any online faucet (e.g. https://www.alchemy.com/faucets/)`,
         `\nTo check your balance: https://${network}.etherscan.io/address/${smartAccountAddress}`,
         `\n--------`,
-      ].join("\n"),
+      ].join("\n")
     );
 
     const { continue: _ } = await prompts([
@@ -152,7 +152,7 @@ async function main() {
     transactionRequest,
     {
       paymasterServiceData: { mode: PaymasterMode.SPONSORED },
-    },
+    }
   );
 
   const { transactionHash } = await userOpResponse.waitForTxHash();
@@ -161,12 +161,12 @@ async function main() {
     `Sent ${formatEther(transactionRequest.value)} Ether to ${
       transactionRequest.to
     }:`,
-    `https://${network}.etherscan.io/tx/${transactionHash}`,
+    `https://${network}.etherscan.io/tx/${transactionHash}`
   );
 
   print(
     `User Ops can be found here:`,
-    `https://v2.jiffyscan.xyz/tx/${transactionHash}?network=${network}&pageNo=0&pageSize=10`,
+    `https://v2.jiffyscan.xyz/tx/${transactionHash}?network=${network}&pageNo=0&pageSize=10`
   );
 }
 

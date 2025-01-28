@@ -36,7 +36,7 @@ const STORAGE_LOCATIONS = {
 };
 
 export const getStorageValue = async <K extends StorageKeys>(
-  storageKey: K,
+  storageKey: K
 ): Promise<StorageValue[K] | undefined> => {
   const storageLocation: StorageLocation = STORAGE_VALUE_LOCATIONS[storageKey];
   const browserStorageLocation: Storage = STORAGE_LOCATIONS[storageLocation];
@@ -46,7 +46,7 @@ export const getStorageValue = async <K extends StorageKeys>(
 
 export const setStorageValue = async <K extends StorageKeys>(
   storageKey: K,
-  storageValue: StorageValue[K],
+  storageValue: StorageValue[K]
 ): Promise<any> => {
   const storageLocation: StorageLocation = STORAGE_VALUE_LOCATIONS[storageKey];
   const browserStorageLocation: Storage = STORAGE_LOCATIONS[storageLocation];
@@ -54,7 +54,7 @@ export const setStorageValue = async <K extends StorageKeys>(
 };
 
 export const removeStorageValue = async <K extends StorageKeys>(
-  storageKey: K,
+  storageKey: K
 ): Promise<void> => {
   const storageLocation: StorageLocation = STORAGE_VALUE_LOCATIONS[storageKey];
   const browserStorageLocation: Storage = STORAGE_LOCATIONS[storageLocation];
@@ -79,7 +79,7 @@ export const saveSession = async (
     username,
     ...sessionResponse
   }: TSessionResponse,
-  authClient?: AuthClient,
+  authClient?: AuthClient
 ): Promise<void> => {
   if (!authClient) {
     throw new Error("Failed to save session: Authentication client not set");

@@ -17,7 +17,7 @@ describe("EthereumWallet", () => {
     const signature = await wallet.signMessage(message);
     const compressedPublicKey = await getCompressedPublicKey(
       signature,
-      message,
+      message
     );
     expect(compressedPublicKey).toBe(EXPECTED_COMPRESSED_PUBLIC_KEY);
     expect(signature).toBe(EXPECTED_SIGNATURE);

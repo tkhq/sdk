@@ -16,7 +16,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    }),
+    })
   );
 
   const activityPoller = createActivityPoller({
@@ -37,7 +37,7 @@ async function main() {
   });
 
   const userTagId = refineNonNull(
-    activity.result.createUserTagResult?.userTagId,
+    activity.result.createUserTagResult?.userTagId
   );
 
   // Success!
@@ -47,7 +47,7 @@ async function main() {
       `- Name: ${userTagName}`,
       `- User tag ID: ${userTagId}`,
       ``,
-    ].join("\n"),
+    ].join("\n")
   );
 }
 

@@ -33,7 +33,7 @@ async function main() {
 
   if (!suiAddress || !suiPublicKeyHex) {
     throw new Error(
-      "Please set your SUI_ADDRESS and SUI_PUBLIC_KEY in the .env.local file.",
+      "Please set your SUI_ADDRESS and SUI_PUBLIC_KEY in the .env.local file."
     );
   }
 
@@ -46,7 +46,7 @@ async function main() {
 
   if (computedAddress !== suiAddress) {
     throw new Error(
-      "The SUI_PUBLIC_KEY does not correspond to the SUI_ADDRESS.",
+      "The SUI_PUBLIC_KEY does not correspond to the SUI_ADDRESS."
     );
   }
 
@@ -58,7 +58,7 @@ async function main() {
   const balance = BigInt(balanceData.totalBalance);
   if (balance === 0n) {
     console.log(
-      `Your balance is zero. Please fund your address ${suiAddress} to proceed.`,
+      `Your balance is zero. Please fund your address ${suiAddress} to proceed.`
     );
     process.exit(1);
   }
@@ -88,7 +88,7 @@ async function main() {
   console.log(
     `\nSending ${amount} MIST (${
       Number(amount) / 1e9
-    } SUI) to ${recipientAddress}`,
+    } SUI) to ${recipientAddress}`
   );
 
   const tx = new TransactionBlock();

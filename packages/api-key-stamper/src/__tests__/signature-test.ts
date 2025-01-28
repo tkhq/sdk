@@ -36,7 +36,7 @@ test.each([
       content,
       pemPublicKey,
       signature: signature,
-    }),
+    })
   ).toBe(true);
 
   // Sanity check
@@ -78,7 +78,7 @@ test.each([
             content,
             pemPublicKey,
             signature: signature,
-          }),
+          })
         ).toBe(true);
 
         // Sanity check
@@ -89,7 +89,7 @@ test.each([
             signature: signature,
           });
         }).toThrow();
-      }),
+      })
     );
   }
 });

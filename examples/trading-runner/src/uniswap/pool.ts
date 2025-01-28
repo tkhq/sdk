@@ -19,7 +19,7 @@ interface PoolInfo {
 export async function getV3PoolInfo(
   provider: ethers.Provider,
   inputToken: Token,
-  outputToken: Token,
+  outputToken: Token
 ): Promise<PoolInfo> {
   const currentPoolAddress = computePoolAddress({
     factoryAddress: POOL_FACTORY_CONTRACT_ADDRESS,
@@ -31,7 +31,7 @@ export async function getV3PoolInfo(
   const poolContract = new ethers.Contract(
     currentPoolAddress,
     IUniswapV3PoolABI.abi,
-    provider,
+    provider
   );
 
   const [token0, token1, fee, tickSpacing, liquidity, slot0] =

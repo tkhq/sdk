@@ -15,7 +15,7 @@ export async function exchangeCodeForToken(
   clientId: string,
   redirectURI: string,
   authCode: string,
-  verifier: string,
+  verifier: string
 ) {
   const response = await fetch(
     `https://graph.facebook.com/v11.0/oauth/access_token`,
@@ -28,7 +28,7 @@ export async function exchangeCodeForToken(
         code: authCode,
         code_verifier: verifier,
       }),
-    },
+    }
   );
 
   const tokenData = await response.json();

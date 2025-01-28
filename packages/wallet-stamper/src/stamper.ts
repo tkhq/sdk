@@ -54,7 +54,7 @@ export class WalletStamper implements TStamper {
         publicKey = secp256k1PublicKey.replace("0x", "");
         const publicKeyBytes = Uint8Array.from(Buffer.from(publicKey, "hex"));
         publicKey = Buffer.from(compressRawPublicKey(publicKeyBytes)).toString(
-          "hex",
+          "hex"
         );
 
         // Convert the signature to DER format which is required by the Turnkey API.

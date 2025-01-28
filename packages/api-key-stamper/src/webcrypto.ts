@@ -35,7 +35,7 @@ async function importTurnkeyApiKey(input: {
       namedCurve: "P-256",
     },
     false, // not extractable
-    ["sign"], // allow signing
+    ["sign"] // allow signing
   );
 }
 
@@ -51,11 +51,11 @@ async function signMessage(input: {
       hash: "SHA-256",
     },
     key,
-    new TextEncoder().encode(content),
+    new TextEncoder().encode(content)
   );
 
   const signatureDer = convertEcdsaIeee1363ToDer(
-    new Uint8Array(signatureIeee1363),
+    new Uint8Array(signatureIeee1363)
   );
 
   return uint8ArrayToHexString(signatureDer);
@@ -78,7 +78,7 @@ async function signMessage(input: {
 function convertEcdsaIeee1363ToDer(ieee: Uint8Array): Uint8Array {
   if (ieee.length % 2 != 0 || ieee.length == 0 || ieee.length > 132) {
     throw new Error(
-      "Invalid IEEE P1363 signature encoding. Length: " + ieee.length,
+      "Invalid IEEE P1363 signature encoding. Length: " + ieee.length
     );
   }
   const r = toUnsignedBigNum(ieee.subarray(0, ieee.length / 2));

@@ -38,7 +38,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    }),
+    })
   );
 
   // Initialize a Turnkey Signer
@@ -71,8 +71,9 @@ async function main() {
   for (let signer of [connectedSigner1, connectedSigner2, connectedSigner3]) {
     const address = await signer.getAddress();
     const balance = (await signer.provider?.getBalance(address)) ?? 0;
-    const transactionCount =
-      await signer.provider?.getTransactionCount(address);
+    const transactionCount = await signer.provider?.getTransactionCount(
+      address
+    );
 
     print("Address:", address);
     print("Balance:", `${ethers.formatEther(balance)} ETH`);
@@ -154,7 +155,7 @@ async function main() {
     `Funding the safe: sent ${ethers.formatEther(sentTx.value)} ETH to ${
       sentTx.to
     }:`,
-    `https://${network}.etherscan.io/tx/${sentTx.hash}`,
+    `https://${network}.etherscan.io/tx/${sentTx.hash}`
   );
 
   // Create Safe transaction using signer 1
@@ -166,13 +167,13 @@ async function main() {
   let txHash = await safeSdk1.getTransactionHash(safeTransaction);
   safeTransaction = await safeSdk1.signTransaction(
     safeTransaction,
-    "eth_signTypedData",
+    "eth_signTypedData"
   );
   print(
     `Signed transaction offchain using signer 1. Signature:`,
     safeTransaction.signatures.get(
-      (await connectedSigner1.getAddress()).toLowerCase(),
-    )?.data ?? "",
+      (await connectedSigner1.getAddress()).toLowerCase()
+    )?.data ?? ""
   );
 
   // Approve safe transaction *offchain* with Signer 2
@@ -180,8 +181,8 @@ async function main() {
   print(
     `Signed transaction offchain using signer 2. Signature:`,
     safeTransaction.signatures.get(
-      (await connectedSigner2.getAddress()).toLowerCase(),
-    )?.data ?? "",
+      (await connectedSigner2.getAddress()).toLowerCase()
+    )?.data ?? ""
   );
 
   // Obtain *onchain* signature from signer 3.
@@ -192,7 +193,7 @@ async function main() {
   await approveTxResponse.transactionResponse?.wait();
   print(
     `Approved transaction onchain using signer 3. Etherscan link:`,
-    `https://${network}.etherscan.io/tx/${approveTxResponse.hash}`,
+    `https://${network}.etherscan.io/tx/${approveTxResponse.hash}`
   );
 
   // Execute transaction using signer 3
@@ -200,7 +201,7 @@ async function main() {
   await executeTxResponse.transactionResponse?.wait();
   print(
     `Executed transaction. Etherscan link:`,
-    `https://${network}.etherscan.io/tx/${executeTxResponse.hash}`,
+    `https://${network}.etherscan.io/tx/${executeTxResponse.hash}`
   );
 }
 

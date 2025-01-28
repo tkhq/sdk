@@ -51,7 +51,7 @@ export async function createTransfer(input: {
         fromPubkey: fromKey,
         toPubkey: toKey,
         lamports: amount,
-      }),
+      })
     );
 
     // Get a recent block hash
@@ -102,7 +102,7 @@ export async function signTransfer(input: {
       fromPubkey: fromKey,
       toPubkey: toKey,
       lamports: amount,
-    }),
+    })
   );
 
   // Get a recent block hash

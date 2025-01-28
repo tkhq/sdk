@@ -18,7 +18,7 @@ export function verifyEthSignatureWithAddress(
   r: string,
   s: string,
   v: string,
-  address: string,
+  address: string
 ): boolean {
   try {
     // Construct the full signature
@@ -45,7 +45,7 @@ export function verifySolSignatureWithAddress(
   message: string,
   r: string,
   s: string,
-  address: string,
+  address: string
 ) {
   try {
     // Combine r and s as the full signature (64 bytes for Solana)
@@ -61,7 +61,7 @@ export function verifySolSignatureWithAddress(
     return nacl.sign.detached.verify(
       messageBuffer,
       signature,
-      pubKey.toBytes(),
+      pubKey.toBytes()
     );
   } catch (error) {
     console.error("Solana signature verification failed:", error);

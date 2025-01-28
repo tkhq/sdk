@@ -35,7 +35,7 @@ const stamper = new WebauthnStamper({
 // Initialize the Turnkey HTTP client
 const turnkeyClient = new TurnkeyClient(
   { baseUrl: "https://api.turnkey.com" },
-  stamper,
+  stamper
 );
 
 // Get the organizationId of the sub-organization connected to the users account

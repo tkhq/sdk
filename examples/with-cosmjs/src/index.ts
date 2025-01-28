@@ -46,13 +46,13 @@ async function main() {
   print("Wallet address:", selfAddress);
   print(
     "Wallet on explorer:",
-    `https://arabica.celenium.io/address/${selfAddress}`,
+    `https://arabica.celenium.io/address/${selfAddress}`
   );
 
   // Connect it to testnet
   const signingClient = await SigningStargateClient.connectWithSigner(
     ENDPOINT,
-    turnkeySigner,
+    turnkeySigner
   );
 
   const allBalances = await signingClient.getAllBalances(selfAddress);
@@ -61,7 +61,7 @@ async function main() {
 
   if (allBalances.length === 0) {
     console.warn(
-      "Unable to send a transaction because your account balance is zero. Get funds at https://faucet.celestia-arabica-11.com/",
+      "Unable to send a transaction because your account balance is zero. Get funds at https://faucet.celestia-arabica-11.com/"
     );
     signingClient.disconnect();
     process.exit(0);
@@ -79,14 +79,14 @@ async function main() {
       amount: [{ denom: "utia", amount: "20000" }],
       gas: "200000",
     },
-    "Hello from Turnkey!",
+    "Hello from Turnkey!"
   );
 
   print(
     `Sent ${
       Number(transactionAmount) / 1_000_000
     } TIA to ${destinationAddress}:`,
-    `https://arabica.celenium.io/tx/${result.transactionHash}`,
+    `https://arabica.celenium.io/tx/${result.transactionHash}`
   );
 
   signingClient.disconnect();

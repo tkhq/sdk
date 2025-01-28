@@ -28,7 +28,7 @@ type ErrorMessage = {
 
 export default async function createUser(
   req: NextApiRequest,
-  res: NextApiResponse<TWalletDetails | ErrorMessage>,
+  res: NextApiResponse<TWalletDetails | ErrorMessage>
 ) {
   const createSubOrgRequest = req.body as CreateSubOrgWithWalletRequest;
 

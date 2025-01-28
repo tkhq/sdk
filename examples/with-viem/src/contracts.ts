@@ -33,7 +33,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    }),
+    })
   );
 
   const turnkeyAccount = await createAccount({
@@ -46,7 +46,7 @@ async function main() {
     account: turnkeyAccount as Account,
     chain: goerli,
     transport: http(
-      `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY!}`,
+      `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY!}`
     ),
   });
 
@@ -71,7 +71,7 @@ async function main() {
 
   print(
     "Successfully wrapped ETH 🥳. Transaction:",
-    `https://goerli.etherscan.io/tx/${hash}`,
+    `https://goerli.etherscan.io/tx/${hash}`
   );
 }
 

@@ -18,7 +18,7 @@ type ErrorMessage = {
 
 export default async function auth(
   req: NextApiRequest,
-  res: NextApiResponse<AuthResponse | ErrorMessage>,
+  res: NextApiResponse<AuthResponse | ErrorMessage>
 ) {
   try {
     const request = req.body as AuthRequest;
@@ -39,7 +39,7 @@ export default async function auth(
 
     if (!credentialBundle || !apiKeyId || !userId) {
       throw new Error(
-        "Expected non-null values for credentialBundle, apiKeyId, and userId.",
+        "Expected non-null values for credentialBundle, apiKeyId, and userId."
       );
     }
 

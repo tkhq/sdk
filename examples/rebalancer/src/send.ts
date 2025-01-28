@@ -4,7 +4,7 @@ import { toReadableAmount, print } from "./utils";
 export async function broadcastTx(
   provider: ethers.Provider,
   signedTx: string,
-  activityId: string,
+  activityId: string
 ) {
   const network = await provider.getNetwork();
   const txHash = ethers.keccak256(signedTx);
@@ -16,7 +16,7 @@ export async function broadcastTx(
       `- Signed payload: ${signedTx}`,
       `- Hash: ${txHash}`,
       ``,
-    ].join("\n"),
+    ].join("\n")
   );
 
   const confirmations =
@@ -34,7 +34,7 @@ export async function broadcastTx(
 
   print(
     `Broadcasted transaction:`,
-    `https://${network.name}.etherscan.io/tx/${hash}`,
+    `https://${network.name}.etherscan.io/tx/${hash}`
   );
 }
 
@@ -42,7 +42,7 @@ export async function sendEth(
   connectedSigner: ethers.Signer,
   destinationAddress: string,
   value: bigint,
-  precalculatedFeeData: ethers.FeeData | undefined = undefined,
+  precalculatedFeeData: ethers.FeeData | undefined = undefined
 ) {
   const network = await connectedSigner.provider?.getNetwork();
   const address = await connectedSigner.getAddress();
@@ -94,9 +94,9 @@ export async function sendEth(
       `Sent ${toReadableAmount(
         value.toString(),
         18,
-        12,
+        12
       )} ETH to ${destinationAddress}:`,
-      `https://${network?.name}.etherscan.io/tx/${sentTx.hash}`,
+      `https://${network?.name}.etherscan.io/tx/${sentTx.hash}`
     );
   } catch (error: any) {
     if (error.toString().includes("ACTIVITY_STATUS_CONSENSUS_NEEDED")) {
@@ -106,8 +106,8 @@ export async function sendEth(
         } in order to send ${toReadableAmount(
           value.toString(),
           18,
-          12,
-        )} ETH to ${destinationAddress}.`,
+          12
+        )} ETH to ${destinationAddress}.`
       );
       return;
     }

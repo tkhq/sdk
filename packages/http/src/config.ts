@@ -45,12 +45,12 @@ export function browserInit(value: TBrowserConfig): void {
 export function init(value: TConfig): void {
   config.apiPublicKey = assertNonEmptyString(
     value.apiPublicKey,
-    "apiPublicKey",
+    "apiPublicKey"
   );
 
   config.apiPrivateKey = assertNonEmptyString(
     value.apiPrivateKey,
-    "apiPrivateKey",
+    "apiPrivateKey"
   );
   config.baseUrl = assertNonEmptyString(value.baseUrl, "baseUrl");
 }

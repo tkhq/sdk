@@ -11,17 +11,17 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 async function main() {
   if (!process.env.ORGANIZATION_ID) {
     console.error(
-      "ORGANIZATION_ID is not set. Please create .env.local and populate it with `ORGANIZATION_ID=<your Turnkey organization ID>`",
+      "ORGANIZATION_ID is not set. Please create .env.local and populate it with `ORGANIZATION_ID=<your Turnkey organization ID>`"
     );
   }
   if (!process.env.API_PUBLIC_KEY) {
     console.error(
-      "API_PUBLIC_KEY is not set. Please create .env.local and populate it with `API_PUBLIC_KEY=<your Turnkey API public key>`",
+      "API_PUBLIC_KEY is not set. Please create .env.local and populate it with `API_PUBLIC_KEY=<your Turnkey API public key>`"
     );
   }
   if (!process.env.API_PRIVATE_KEY) {
     console.error(
-      "API_PRIVATE_KEY is not set. Please create .env.local and populate it with `API_PRIVATE_KEY=<your Turnkey API private key>`",
+      "API_PRIVATE_KEY is not set. Please create .env.local and populate it with `API_PRIVATE_KEY=<your Turnkey API private key>`"
     );
   }
   if (
@@ -30,7 +30,7 @@ async function main() {
     !process.env.API_PRIVATE_KEY
   ) {
     console.error(
-      "Detected one or more missing configuration values (see above). Aborting.",
+      "Detected one or more missing configuration values (see above). Aborting."
     );
     return;
   }
@@ -41,13 +41,13 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    }),
+    })
   );
 
   const organizationId = process.env.ORGANIZATION_ID;
 
   console.log(
-    `Creating a new Private Key for organization ${organizationId} using the configured Turnkey API key...`,
+    `Creating a new Private Key for organization ${organizationId} using the configured Turnkey API key...`
   );
 
   const { privateKeyName } = await prompts([
@@ -79,20 +79,20 @@ async function main() {
   console.log(`\t${signedRequest.url}`);
   console.log("✅ Stamp header name and value");
   console.log(
-    `\t${signedRequest.stamp.stampHeaderName}: ${signedRequest.stamp.stampHeaderValue}`,
+    `\t${signedRequest.stamp.stampHeaderName}: ${signedRequest.stamp.stampHeaderValue}`
   );
   console.log("✅ POST body:");
   console.log(`\t${signedRequest.body}`);
 
   console.log(
-    "\nFor example, you can send this request to Turnkey by running the following cURL command:",
+    "\nFor example, you can send this request to Turnkey by running the following cURL command:"
   );
   console.log(
-    `\tcurl -X POST -d'${signedRequest.body}' -H'${signedRequest.stamp.stampHeaderName}:${signedRequest.stamp.stampHeaderValue}' -v '${signedRequest.url}'`,
+    `\tcurl -X POST -d'${signedRequest.body}' -H'${signedRequest.stamp.stampHeaderName}:${signedRequest.stamp.stampHeaderValue}' -v '${signedRequest.url}'`
   );
 
   console.log(
-    "\nImportant note: this request is only valid for 24hrs. After that, a new request needs to be generated.",
+    "\nImportant note: this request is only valid for 24hrs. After that, a new request needs to be generated."
   );
 }
 

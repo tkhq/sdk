@@ -129,13 +129,13 @@ await createPolicy(
   "Traders can use trading keys to deposit, aka wrap, ETH",
   "EFFECT_ALLOW",
   `approvers.any(user, user.tags.contains('${traderTagId}'))`,
-  `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${DEPOSIT_SELECTOR}'`,
+  `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${DEPOSIT_SELECTOR}'`
 );
 await createPolicy(
   "Traders can use trading keys to withdraw, aka unwrap, WETH",
   "EFFECT_ALLOW",
   `approvers.any(user, user.tags.contains('${traderTagId}'))`,
-  `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${WITHDRAW_SELECTOR}'`,
+  `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] == '${WITHDRAW_SELECTOR}'`
 );
 ```
 
@@ -146,6 +146,6 @@ await createPolicy(
   "Traders can use trading keys to wrap or unwrap ETH",
   "EFFECT_ALLOW",
   `approvers.any(user, user.tags.contains('${traderTagId}'))`,
-  `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] in ['${DEPOSIT_SELECTOR}', '${WITHDRAW_SELECTOR}']`,
+  `private_key.tags.contains('${tradingTagId}') && eth.tx.to == '${WETH_TOKEN_GOERLI.address}' && eth.tx.data[0..10] in ['${DEPOSIT_SELECTOR}', '${WITHDRAW_SELECTOR}']`
 );
 ```

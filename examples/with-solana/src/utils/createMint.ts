@@ -9,7 +9,7 @@ export async function createMint(
   connection: Connection,
   solAddress: string,
   tokenAccountPubkey: PublicKey,
-  mintAuthority: PublicKey,
+  mintAuthority: PublicKey
 ): Promise<any> {
   const fromKey = new PublicKey(solAddress);
 
@@ -19,9 +19,9 @@ export async function createMint(
       tokenAccountPubkey, // receiver (should be a token account)
       fromKey, // mint authority
       1e8, // amount. if your decimals is 8, you mint 10^8 for 1 token.
-      8, // decimals
+      8 // decimals
       // [signer1, signer2 ...], // only multisig account will use
-    ),
+    )
   );
 
   // Get a recent block hash

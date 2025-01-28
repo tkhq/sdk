@@ -42,7 +42,7 @@ async function main() {
       `- Address: ${address}`,
       ``,
       "Now you can take the address, put it in `.env.local`, then re-run the script.",
-    ].join("\n"),
+    ].join("\n")
   );
 }
 

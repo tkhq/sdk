@@ -46,19 +46,19 @@ export async function createV3Trade(): Promise<TokenTrade> {
   const inputToken = UniV3SwapConfig.tokens.in;
   const inputAmount = fromReadableAmount(
     UniV3SwapConfig.tokens.amountIn,
-    inputToken.decimals,
+    inputToken.decimals
   );
 
   const tokenContract = new ethers.Contract(
     inputToken.address,
     ERC20_ABI,
-    connectedSigner,
+    connectedSigner
   );
 
   const tokenBalance = await tokenContract.balanceOf?.(address);
   if (tokenBalance < inputAmount) {
     throw new Error(
-      `Insufficient funds to perform this trade. Have: ${tokenBalance} ${inputToken.symbol}; Need: ${inputAmount} ${inputToken.symbol}.`,
+      `Insufficient funds to perform this trade. Have: ${tokenBalance} ${inputToken.symbol}; Need: ${inputAmount} ${inputToken.symbol}.`
     );
   }
 
@@ -70,7 +70,7 @@ export async function createV3Trade(): Promise<TokenTrade> {
     UniV3SwapConfig.tokens.poolFee,
     poolInfo.sqrtPriceX96.toString(),
     poolInfo.liquidity.toString(),
-    poolInfo.tick,
+    poolInfo.tick
   );
 
   const swapRoute = new Route([pool], inputToken, UniV3SwapConfig.tokens.out);
@@ -81,11 +81,11 @@ export async function createV3Trade(): Promise<TokenTrade> {
     route: swapRoute,
     inputAmount: CurrencyAmount.fromRawAmount(
       inputToken,
-      inputAmount.toString(),
+      inputAmount.toString()
     ),
     outputAmount: CurrencyAmount.fromRawAmount(
       UniV3SwapConfig.tokens.out,
-      JSBI.BigInt(amountOut),
+      JSBI.BigInt(amountOut)
     ),
     tradeType: TradeType.EXACT_INPUT,
   });
@@ -94,7 +94,7 @@ export async function createV3Trade(): Promise<TokenTrade> {
 }
 
 export async function executeTrade(
-  trade: TokenTrade,
+  trade: TokenTrade
 ): Promise<TransactionResponse> {
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(provider);
@@ -107,7 +107,7 @@ export async function executeTrade(
   // Give approval to the router to spend the token
   // TODO: Realistically, we should only do this if necessary (to prevent unnecessary contract calls)
   const tokenApproval = await getTokenTransferApproval(
-    UniV3SwapConfig.tokens.in,
+    UniV3SwapConfig.tokens.in
   );
 
   // Fail if transfer approvals do not go through
@@ -158,13 +158,13 @@ async function getOutputQuote(route: Route<Currency, Currency>) {
       UniV3SwapConfig.tokens.in,
       fromReadableAmount(
         UniV3SwapConfig.tokens.amountIn,
-        UniV3SwapConfig.tokens.in.decimals,
-      ).toString(),
+        UniV3SwapConfig.tokens.in.decimals
+      ).toString()
     ),
     TradeType.EXACT_INPUT,
     {
       useQuoterV2: true,
-    },
+    }
   );
 
   const quoteCallReturnData = await provider.call({
@@ -174,12 +174,12 @@ async function getOutputQuote(route: Route<Currency, Currency>) {
 
   return ethers.AbiCoder.defaultAbiCoder().decode(
     ["uint256"],
-    quoteCallReturnData,
+    quoteCallReturnData
   );
 }
 
 export async function getTokenTransferApproval(
-  token: Token,
+  token: Token
 ): Promise<TransactionState> {
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(provider);
@@ -193,7 +193,7 @@ export async function getTokenTransferApproval(
     const tokenContract = new ethers.Contract(
       token.address,
       ERC20_ABI,
-      connectedSigner,
+      connectedSigner
     );
 
     // Verify that `approve` is an available method on the contract
@@ -204,8 +204,8 @@ export async function getTokenTransferApproval(
       SWAP_ROUTER_ADDRESS,
       fromReadableAmount(
         UniV3SwapConfig.tokens.amountIn,
-        token.decimals,
-      ).toString(),
+        token.decimals
+      ).toString()
     );
 
     let response = await connectedSigner.sendTransaction({

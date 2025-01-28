@@ -54,7 +54,7 @@ interface KeyPair {
  */
 export const getPublicKey = (
   privateKey: Uint8Array | string,
-  isCompressed: boolean = true,
+  isCompressed: boolean = true
 ): Uint8Array => {
   return p256.getPublicKey(privateKey, isCompressed);
 };
@@ -76,7 +76,7 @@ export const hpkeEncrypt = ({
     const ephemeralKeyPair = generateP256KeyPair();
     const senderPrivBuf = uint8ArrayFromHexString(ephemeralKeyPair.privateKey);
     const senderPubBuf = uint8ArrayFromHexString(
-      ephemeralKeyPair.publicKeyUncompressed,
+      ephemeralKeyPair.publicKeyUncompressed
     );
 
     const aad = buildAdditionalAssociatedData(senderPubBuf, targetKeyBuf);
@@ -87,7 +87,7 @@ export const hpkeEncrypt = ({
     // Step 2: Generate the KEM context
     const kemContext = getKemContext(
       senderPubBuf,
-      uint8ArrayToHexString(targetKeyBuf),
+      uint8ArrayToHexString(targetKeyBuf)
     );
 
     // Step 3: Build the HKDF inputs for key derivation
@@ -96,7 +96,7 @@ export const hpkeEncrypt = ({
       LABEL_SHARED_SECRET,
       kemContext,
       SUITE_ID_1,
-      32,
+      32
     );
     const sharedSecret = extractAndExpand(new Uint8Array([]), ikm, info, 32);
 
@@ -115,7 +115,7 @@ export const hpkeEncrypt = ({
     // Step 7: Concatenate the encapsulated key and the encrypted data for output
     const compressedSenderBuf = compressRawPublicKey(senderPubBuf);
     const result = new Uint8Array(
-      compressedSenderBuf.length + encryptedData.length,
+      compressedSenderBuf.length + encryptedData.length
     );
     result.set(compressedSenderBuf, 0);
     result.set(encryptedData, compressedSenderBuf.length);
@@ -152,7 +152,7 @@ export const hpkeAuthEncrypt = ({
     // Step 2: Generate the KEM context
     const kemContext = getKemContext(
       senderPubBuf,
-      uint8ArrayToHexString(targetKeyBuf),
+      uint8ArrayToHexString(targetKeyBuf)
     );
 
     // Step 3: Build the HKDF inputs for key derivation
@@ -161,7 +161,7 @@ export const hpkeAuthEncrypt = ({
       LABEL_SHARED_SECRET,
       kemContext,
       SUITE_ID_1,
-      32,
+      32
     );
     const sharedSecret = extractAndExpand(new Uint8Array([]), ikm, info, 32);
 
@@ -180,7 +180,7 @@ export const hpkeAuthEncrypt = ({
     // Step 7: Concatenate the encapsulated key and the encrypted data for output
     const compressedSenderBuf = compressRawPublicKey(senderPubBuf);
     const result = new Uint8Array(
-      compressedSenderBuf.length + encryptedData.length,
+      compressedSenderBuf.length + encryptedData.length
     );
     result.set(compressedSenderBuf, 0);
     result.set(encryptedData, compressedSenderBuf.length);
@@ -203,7 +203,7 @@ export const formatHpkeBuf = (encryptedBuf: Uint8Array): string => {
   const encryptedData = encryptedBuf.slice(33);
 
   const encappedKeyBufHex = uint8ArrayToHexString(
-    uncompressRawPublicKey(compressedSenderBuf),
+    uncompressRawPublicKey(compressedSenderBuf)
   );
   const ciphertextHex = uint8ArrayToHexString(encryptedData);
 
@@ -230,7 +230,7 @@ export const hpkeDecrypt = ({
     let info: Uint8Array;
     const receiverPubBuf = getPublicKey(
       uint8ArrayFromHexString(receiverPriv),
-      false,
+      false
     );
     const aad = buildAdditionalAssociatedData(encappedKeyBuf, receiverPubBuf); // Eventually we want users to be able to pass in aad as optional
 
@@ -240,7 +240,7 @@ export const hpkeDecrypt = ({
     // Step 2: Generate the KEM context
     const kemContext = getKemContext(
       encappedKeyBuf,
-      uint8ArrayToHexString(receiverPubBuf),
+      uint8ArrayToHexString(receiverPubBuf)
     );
 
     // Step 3: Build the HKDF inputs for key derivation
@@ -274,7 +274,7 @@ export const generateP256KeyPair = (): KeyPair => {
   const privateKey = randomBytes(32);
   const publicKey = getPublicKey(privateKey, true);
   const publicKeyUncompressed = uint8ArrayToHexString(
-    uncompressRawPublicKey(publicKey),
+    uncompressRawPublicKey(publicKey)
   );
   return {
     privateKey: uint8ArrayToHexString(privateKey),
@@ -292,7 +292,7 @@ export const generateP256KeyPair = (): KeyPair => {
  */
 export const buildAdditionalAssociatedData = (
   senderPubBuf: Uint8Array,
-  receiverPubBuf: Uint8Array,
+  receiverPubBuf: Uint8Array
 ): Uint8Array => {
   return new Uint8Array([
     ...Array.from(senderPubBuf),
@@ -307,7 +307,7 @@ export const buildAdditionalAssociatedData = (
  * @return {Uint8Array} - The private key.
  */
 export const extractPrivateKeyFromPKCS8Bytes = (
-  privateKey: Uint8Array,
+  privateKey: Uint8Array
 ): Uint8Array => {
   return privateKey.slice(36, 36 + 32);
 };
@@ -339,7 +339,7 @@ export const compressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
  * @return {Uint8Array} - The uncompressed public key.
  */
 export const uncompressRawPublicKey = (
-  rawPublicKey: Uint8Array,
+  rawPublicKey: Uint8Array
 ): Uint8Array => {
   // point[0] must be 2 (false) or 3 (true).
   // this maps to the initial "02" or "03" prefix
@@ -348,10 +348,10 @@ export const uncompressRawPublicKey = (
 
   // https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf (Appendix D).
   const p = BigInt(
-    "115792089210356248762697446949407573530086143415290314195533631308867097853951",
+    "115792089210356248762697446949407573530086143415290314195533631308867097853951"
   );
   const b = BigInt(
-    "0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b ",
+    "0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b "
   );
   const a = p - BigInt(3);
 
@@ -393,7 +393,7 @@ const randomBytes = (length: number): Uint8Array => {
 const buildLabeledIkm = (
   label: Uint8Array,
   ikm: Uint8Array,
-  suiteId: Uint8Array,
+  suiteId: Uint8Array
 ): Uint8Array => {
   const combinedLength =
     HPKE_VERSION.length + suiteId.length + label.length + ikm.length;
@@ -427,11 +427,11 @@ const buildLabeledInfo = (
   label: Uint8Array,
   info: Uint8Array,
   suiteId: Uint8Array,
-  len: number,
+  len: number
 ): Uint8Array => {
   const suiteIdStartIndex = 9; // first two are reserved for length bytes (unused in this case), the next 7 are for the HPKE_VERSION, then the suiteId starts at 9
   const ret = new Uint8Array(
-    suiteIdStartIndex + suiteId.byteLength + label.byteLength + info.byteLength,
+    suiteIdStartIndex + suiteId.byteLength + label.byteLength + info.byteLength
   );
   ret.set(new Uint8Array([0, len]), 0); // this isn’t an error, we’re starting at index 2 because the first two bytes should be 0. See <https://github.com/dajiaji/hpke-js/blob/1e7fb1372fbcdb6d06bf2f4fa27ff676329d633e/src/kdfs/hkdf.ts#L41> for reference.
   ret.set(HPKE_VERSION, 2);
@@ -448,7 +448,7 @@ const extractAndExpand = (
   sharedSecret: Uint8Array,
   ikm: Uint8Array,
   info: Uint8Array,
-  len: number,
+  len: number
 ): Uint8Array => {
   const prk = hkdf.extract(sha256, ikm, sharedSecret);
   const resp = hkdf.expand(sha256, prk, info, len);
@@ -461,7 +461,7 @@ const extractAndExpand = (
 const deriveSS = (encappedKeyBuf: Uint8Array, priv: string): Uint8Array => {
   const ss = p256.getSharedSecret(
     uint8ArrayFromHexString(priv),
-    encappedKeyBuf,
+    encappedKeyBuf
   );
   return ss.slice(1);
 };
@@ -473,7 +473,7 @@ const aesGcmEncrypt = (
   plainTextData: Uint8Array,
   key: Uint8Array,
   iv: Uint8Array,
-  aad?: Uint8Array,
+  aad?: Uint8Array
 ): Uint8Array => {
   const aes = gcm(key, iv, aad);
   const data = aes.encrypt(plainTextData);
@@ -487,7 +487,7 @@ const aesGcmDecrypt = (
   encryptedData: Uint8Array,
   key: Uint8Array,
   iv: Uint8Array,
-  aad?: Uint8Array,
+  aad?: Uint8Array
 ): Uint8Array => {
   const aes = gcm(key, iv, aad);
   const data = aes.decrypt(encryptedData);
@@ -499,13 +499,13 @@ const aesGcmDecrypt = (
  */
 const getKemContext = (
   encappedKeyBuf: Uint8Array,
-  publicKey: string,
+  publicKey: string
 ): Uint8Array => {
   const encappedKeyArray = new Uint8Array(encappedKeyBuf);
   const publicKeyArray = uint8ArrayFromHexString(publicKey);
 
   const kemContext = new Uint8Array(
-    encappedKeyArray.length + publicKeyArray.length,
+    encappedKeyArray.length + publicKeyArray.length
   );
   kemContext.set(encappedKeyArray);
   kemContext.set(publicKeyArray, encappedKeyArray.length);
@@ -520,7 +520,7 @@ const bigIntToHex = (num: bigint, length: number): string => {
   const hexString = num.toString(16);
   if (hexString.length > length) {
     throw new Error(
-      `number cannot fit in a hex string of ${length} characters`,
+      `number cannot fit in a hex string of ${length} characters`
     );
   }
   return hexString.padStart(length, "0");
@@ -541,7 +541,7 @@ export const fromDerSignature = (derSignature: string) => {
   // Parse 'r' and check for integer tag (0x02)
   if (derSignatureBuf[index] !== 0x02) {
     throw new Error(
-      "failed to convert DER-encoded signature: invalid tag for r",
+      "failed to convert DER-encoded signature: invalid tag for r"
     );
   }
   index++; // Move past the INTEGER tag
@@ -553,7 +553,7 @@ export const fromDerSignature = (derSignature: string) => {
   // Parse 's' and check for integer tag (0x02)
   if (derSignatureBuf[index] !== 0x02) {
     throw new Error(
-      "failed to convert DER-encoded signature: invalid tag for s",
+      "failed to convert DER-encoded signature: invalid tag for s"
     );
   }
   index++; // Move past the INTEGER tag

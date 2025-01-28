@@ -7,7 +7,7 @@ export default async function createUser(
   userName: string,
   userTags: string[],
   apiKeyName: string,
-  publicKey: string,
+  publicKey: string
 ): Promise<string> {
   try {
     const activity = await turnkeyClient.apiClient().createApiOnlyUsers({
@@ -34,7 +34,7 @@ export default async function createUser(
         `- Name: ${userName}`,
         `- User ID: ${userId}`,
         ``,
-      ].join("\n"),
+      ].join("\n")
     );
 
     return userId;

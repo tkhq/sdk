@@ -47,7 +47,7 @@ export function Auth({ onAuth }: AuthProps) {
 
       const { subOrganizationId, walletId, accounts } = await signUp(
         email,
-        registerPasskeyResult,
+        registerPasskeyResult
       );
 
       if (walletId && subOrganizationId) {

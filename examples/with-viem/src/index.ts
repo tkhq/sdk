@@ -73,7 +73,7 @@ async function main() {
     account: turnkeyAccount as Account,
     chain: sepolia,
     transport: http(
-      `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`,
+      `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`
     ),
   });
 
@@ -101,7 +101,7 @@ async function main() {
         }
 
         return serializeSignature(getSignatureFromActivity(activity));
-      },
+      }
     );
   }
 
@@ -147,10 +147,10 @@ async function main() {
 
         return await client.sendRawTransaction({
           serializedTransaction: getSignedTransactionFromActivity(
-            activity,
+            activity
           ) as `0x${string}`,
         });
-      },
+      }
     );
   }
 

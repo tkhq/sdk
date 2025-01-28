@@ -5,7 +5,7 @@ import { refineNonNull } from "./utils";
 export default async function createUserTag(
   turnkeyClient: Turnkey,
   userTagName: string,
-  userIds: string[],
+  userIds: string[]
 ): Promise<string> {
   try {
     const activity = await turnkeyClient.apiClient().createUserTag({
@@ -22,7 +22,7 @@ export default async function createUserTag(
         `- Name: ${userTagName}`,
         `- User tag ID: ${userTagId}`,
         ``,
-      ].join("\n"),
+      ].join("\n")
     );
 
     return userTagId;

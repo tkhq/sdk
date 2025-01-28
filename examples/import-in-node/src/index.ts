@@ -63,7 +63,7 @@ async function main() {
       accounts: [],
     });
     console.log(
-      `Successfully imported wallet with id: ${walletImportResult.walletId}`,
+      `Successfully imported wallet with id: ${walletImportResult.walletId}`
     );
   }
   if (importType == "key") {
@@ -101,7 +101,7 @@ async function main() {
             : ["ADDRESS_FORMAT_ETHEREUM"],
       });
     console.log(
-      `Successfully imported wallet with id: ${privateKeyImportResult.privateKeyId}`,
+      `Successfully imported wallet with id: ${privateKeyImportResult.privateKeyId}`
     );
   }
 }

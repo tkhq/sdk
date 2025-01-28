@@ -16,14 +16,14 @@ export function convertTurnkeyApiKeyToJwk(input: {
     jwk = pointDecode(uint8ArrayFromHexString(compressedPublicKeyHex));
   } catch (e) {
     throw new Error(
-      `unable to load API key: invalid public key. Did you switch your public and private key?`,
+      `unable to load API key: invalid public key. Did you switch your public and private key?`
     );
   }
 
   // Ensure that d is sufficiently padded
   jwk.d = hexStringToBase64url(
     uncompressedPrivateKeyHex,
-    DEFAULT_JWK_MEMBER_BYTE_LENGTH,
+    DEFAULT_JWK_MEMBER_BYTE_LENGTH
   );
 
   return jwk;

@@ -41,7 +41,7 @@ export async function createNewSolanaWallet(client: TurnkeyApiClient) {
         `- Name: ${walletName}`,
         `- Wallet ID: ${walletId}`,
         `- Solana address: ${address}`,
-      ].join("\n"),
+      ].join("\n")
     );
     return address;
   } catch (error) {

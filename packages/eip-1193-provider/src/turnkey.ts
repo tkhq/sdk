@@ -6,10 +6,10 @@ import { pad } from "viem/utils";
 import { TURNKEY_ERROR_CODE } from "./constants";
 
 export function unwrapActivityResult<
-  T extends definitions["v1ActivityResponse"],
+  T extends definitions["v1ActivityResponse"]
 >(
   activityResponse: T,
-  { errorMessage }: { errorMessage: string },
+  { errorMessage }: { errorMessage: string }
 ): T["activity"]["result"] {
   const { activity } = activityResponse;
 

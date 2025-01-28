@@ -16,7 +16,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    }),
+    })
   );
 
   const activityPoller = createActivityPoller({
@@ -55,7 +55,7 @@ async function main() {
       `- Consensus: ${consensus}`,
       `- Condition: ${condition}`,
       ``,
-    ].join("\n"),
+    ].join("\n")
   );
 }
 

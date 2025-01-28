@@ -58,7 +58,7 @@ async function main() {
     console.log(`\nYour new Solana address: "${feePayerAddress}"`);
   } else {
     console.log(
-      `\nUsing existing Solana address from ENV: "${feePayerAddress}"`,
+      `\nUsing existing Solana address from ENV: "${feePayerAddress}"`
     );
   }
 
@@ -72,7 +72,7 @@ async function main() {
         `- Any online faucet (e.g. https://faucet.solana.com/)`,
         `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=${network}`,
         `\n--------`,
-      ].join("\n"),
+      ].join("\n")
     );
     // Await user confirmation to continue
     await prompts([
@@ -139,7 +139,7 @@ async function main() {
   try {
     signedTransaction = (await turnkeySigner.signTransaction(
       transaction,
-      solAddress,
+      solAddress
     )) as VersionedTransaction;
   } catch (error: any) {
     await handleActivityError(turnkeyClient, error).then(
@@ -150,11 +150,11 @@ async function main() {
 
         const decodedTransaction = Buffer.from(
           getSignedTransactionFromActivity(activity),
-          "hex",
+          "hex"
         );
         signedTransaction =
           VersionedTransaction.deserialize(decodedTransaction);
-      },
+      }
     );
   }
 
@@ -162,7 +162,7 @@ async function main() {
   try {
     signedTransaction = (await turnkeySigner.signTransaction(
       signedTransaction!,
-      feePayerAddress,
+      feePayerAddress
     )) as VersionedTransaction;
   } catch (error: any) {
     await handleActivityError(turnkeyClient, error).then(
@@ -173,11 +173,11 @@ async function main() {
 
         const decodedTransaction = Buffer.from(
           getSignedTransactionFromActivity(activity),
-          "hex",
+          "hex"
         );
         signedTransaction =
           VersionedTransaction.deserialize(decodedTransaction);
-      },
+      }
     );
   }
 

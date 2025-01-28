@@ -5,7 +5,7 @@ import { refineNonNull } from "./utils";
 export default async function createPrivateKeyTag(
   turnkeyClient: Turnkey,
   privateKeyTagName: string,
-  privateKeyIds: string[],
+  privateKeyIds: string[]
 ): Promise<string> {
   try {
     const activity = await turnkeyClient.apiClient().createPrivateKeyTag({
@@ -22,7 +22,7 @@ export default async function createPrivateKeyTag(
         `- Name: ${privateKeyTagName}`,
         `- Private key tag ID: ${privateKeyTagId}`,
         ``,
-      ].join("\n"),
+      ].join("\n")
     );
 
     return privateKeyTagId;

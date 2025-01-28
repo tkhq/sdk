@@ -14,7 +14,7 @@ type ErrorMessage = {
 // This can be performed by the parent org since parent orgs have read-only access to all their sub-orgs
 export default async function getWallet(
   req: NextApiRequest,
-  res: NextApiResponse<TFormattedWallet | ErrorMessage>,
+  res: NextApiResponse<TFormattedWallet | ErrorMessage>
 ) {
   const getWalletRequest = req.body as GetWalletRequest;
 

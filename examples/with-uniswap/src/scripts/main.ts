@@ -13,15 +13,16 @@ async function main() {
 
   print(
     "Connected Turnkey signer to provider:",
-    `${JSON.stringify(connectedSigner)}`,
+    `${JSON.stringify(connectedSigner)}`
   );
 
   const network = await provider.getNetwork();
   const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
   const address = await connectedSigner.getAddress();
   const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0;
-  const transactionCount =
-    await connectedSigner.provider?.getTransactionCount(address);
+  const transactionCount = await connectedSigner.provider?.getTransactionCount(
+    address
+  );
 
   // Print relevant config + address info
   print("Network:", `${network.name} (chain ID ${chainId})`);
@@ -42,7 +43,7 @@ async function main() {
 
     print(
       `Successfully executed trade via Uniswap v3:`,
-      `https://${network.name}.etherscan.io/tx/${result.hash}`,
+      `https://${network.name}.etherscan.io/tx/${result.hash}`
     );
   }
 }

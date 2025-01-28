@@ -16,7 +16,7 @@ type OauthResponse = {
 };
 
 export async function oauth(
-  request: OauthRequest,
+  request: OauthRequest
 ): Promise<OauthResponse | undefined> {
   const turnkeyClient = new Turnkey({
     apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
@@ -37,7 +37,7 @@ export async function oauth(
     const { credentialBundle, apiKeyId, userId } = oauthResponse;
     if (!credentialBundle || !apiKeyId || !userId) {
       throw new Error(
-        "Expected non-null values for credentialBundle, apiKeyId, and userId.",
+        "Expected non-null values for credentialBundle, apiKeyId, and userId."
       );
     }
 
