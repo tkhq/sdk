@@ -55,13 +55,13 @@ interface EncryptWalletToBundleParams {
  */
 export const decryptCredentialBundle = (
   credentialBundle: string,
-  embeddedKey: string
+  embeddedKey: string,
 ): string => {
   try {
     const bundleBytes = bs58check.decode(credentialBundle);
     if (bundleBytes.byteLength <= 33) {
       throw new Error(
-        `Bundle size ${bundleBytes.byteLength} is too low. Expecting a compressed public key (33 bytes) and an encrypted credential.`
+        `Bundle size ${bundleBytes.byteLength} is too low. Expecting a compressed public key (33 bytes) and an encrypted credential.`,
       );
     }
 
@@ -111,16 +111,18 @@ export const decryptExportBundle = async ({
       parsedExportBundle.enclaveQuorumPublic,
       parsedExportBundle.dataSignature,
       parsedExportBundle.data,
-      dangerouslyOverrideSignerPublicKey
+      dangerouslyOverrideSignerPublicKey,
     );
     if (!verified) {
       throw new Error(
-        `failed to verify enclave signature: ${parsedExportBundle}`
+        `failed to verify enclave signature: ${parsedExportBundle}`,
       );
     }
 
     const signedData = JSON.parse(
-      new TextDecoder().decode(uint8ArrayFromHexString(parsedExportBundle.data))
+      new TextDecoder().decode(
+        uint8ArrayFromHexString(parsedExportBundle.data),
+      ),
     );
 
     if (
@@ -128,7 +130,7 @@ export const decryptExportBundle = async ({
       signedData.organizationId !== organizationId
     ) {
       throw new Error(
-        `organization id does not match expected value. Expected: ${organizationId}. Found: ${signedData.organizationId}.`
+        `organization id does not match expected value. Expected: ${organizationId}. Found: ${signedData.organizationId}.`,
       );
     }
     if (!signedData.encappedPublic) {
@@ -146,13 +148,13 @@ export const decryptExportBundle = async ({
     if (keyFormat === "SOLANA" && !returnMnemonic) {
       if (decryptedData.length !== 32) {
         throw new Error(
-          `invalid private key length. Expected 32 bytes. Got ${decryptedData.length}.`
+          `invalid private key length. Expected 32 bytes. Got ${decryptedData.length}.`,
         );
       }
       const publicKeyBytes = ed25519.getPublicKey(decryptedData);
       if (publicKeyBytes.length !== 32) {
         throw new Error(
-          `invalid public key length. Expected 32 bytes. Got ${publicKeyBytes.length}.`
+          `invalid public key length. Expected 32 bytes. Got ${publicKeyBytes.length}.`,
         );
       }
       const concatenatedBytes = new Uint8Array(64);
@@ -188,7 +190,7 @@ export const decryptExportBundle = async ({
 export const verifyStampSignature = async (
   publicKey: string,
   signature: string,
-  signedData: string
+  signedData: string,
 ): Promise<boolean> => {
   const publicKeyBuffer = uint8ArrayFromHexString(publicKey);
   const loadedPublicKey = await loadPublicKey(publicKeyBuffer);
@@ -203,7 +205,7 @@ export const verifyStampSignature = async (
     { name: "ECDSA", hash: { name: "SHA-256" } },
     loadedPublicKey,
     publicSignatureBuf,
-    signedDataBuf
+    signedDataBuf,
   );
 };
 
@@ -220,7 +222,7 @@ const verifyEnclaveSignature = async (
   enclaveQuorumPublic: string,
   publicSignature: string,
   signedData: string,
-  dangerouslyOverrideSignerPublicKey?: string
+  dangerouslyOverrideSignerPublicKey?: string,
 ): Promise<boolean> => {
   const expectedSignerPublicKey =
     dangerouslyOverrideSignerPublicKey || PRODUCTION_SIGNER_PUBLIC_KEY;
@@ -228,12 +230,12 @@ const verifyEnclaveSignature = async (
     throw new Error(
       `expected signer key ${
         dangerouslyOverrideSignerPublicKey ?? PRODUCTION_SIGNER_PUBLIC_KEY
-      } does not match signer key from bundle: ${enclaveQuorumPublic}`
+      } does not match signer key from bundle: ${enclaveQuorumPublic}`,
     );
   }
 
   const encryptionQuorumPublicBuf = new Uint8Array(
-    uint8ArrayFromHexString(enclaveQuorumPublic)
+    uint8ArrayFromHexString(enclaveQuorumPublic),
   );
   const quorumKey = await loadPublicKey(encryptionQuorumPublicBuf);
   if (!quorumKey) {
@@ -247,7 +249,7 @@ const verifyEnclaveSignature = async (
     { name: "ECDSA", hash: { name: "SHA-256" } },
     quorumKey,
     publicSignatureBuf,
-    signedDataBuf
+    signedDataBuf,
   );
 };
 
@@ -266,7 +268,7 @@ const loadPublicKey = async (publicKey: Uint8Array): Promise<CryptoKey> => {
       namedCurve: "P-256",
     },
     true,
-    ["verify"]
+    ["verify"],
   );
 };
 
@@ -283,7 +285,7 @@ const decodeKey = (privateKey: string, keyFormat: any): Uint8Array => {
       const decodedKeyBytes = bs58.decode(privateKey);
       if (decodedKeyBytes.length !== 64) {
         throw new Error(
-          `invalid key length. Expected 64 bytes. Got ${decodedKeyBytes.length}.`
+          `invalid key length. Expected 64 bytes. Got ${decodedKeyBytes.length}.`,
         );
       }
       return decodedKeyBytes.subarray(0, 32);
@@ -294,7 +296,7 @@ const decodeKey = (privateKey: string, keyFormat: any): Uint8Array => {
       return uint8ArrayFromHexString(privateKey);
     default:
       console.warn(
-        `invalid key format: ${keyFormat}. Defaulting to HEXADECIMAL.`
+        `invalid key format: ${keyFormat}. Defaulting to HEXADECIMAL.`,
       );
       if (privateKey.startsWith("0x")) {
         return uint8ArrayFromHexString(privateKey.slice(2));
@@ -324,14 +326,14 @@ export const encryptPrivateKeyToBundle = async ({
     parsedImportBundle.enclaveQuorumPublic,
     parsedImportBundle.dataSignature,
     parsedImportBundle.data,
-    dangerouslyOverrideSignerPublicKey
+    dangerouslyOverrideSignerPublicKey,
   );
   if (!verified) {
     throw new Error(`failed to verify enclave signature: ${importBundle}`);
   }
 
   const signedData = JSON.parse(
-    new TextDecoder().decode(uint8ArrayFromHexString(parsedImportBundle.data))
+    new TextDecoder().decode(uint8ArrayFromHexString(parsedImportBundle.data)),
   );
 
   if (
@@ -339,12 +341,12 @@ export const encryptPrivateKeyToBundle = async ({
     signedData.organizationId !== organizationId
   ) {
     throw new Error(
-      `organization id does not match expected value. Expected: ${organizationId}. Found: ${signedData.organizationId}.`
+      `organization id does not match expected value. Expected: ${organizationId}. Found: ${signedData.organizationId}.`,
     );
   }
   if (!signedData.userId || signedData.userId !== userId) {
     throw new Error(
-      `user id does not match expected value. Expected: ${userId}. Found: ${signedData.userId}.`
+      `user id does not match expected value. Expected: ${userId}. Found: ${signedData.userId}.`,
     );
   }
 
@@ -379,14 +381,14 @@ export const encryptWalletToBundle = async ({
     parsedImportBundle.enclaveQuorumPublic,
     parsedImportBundle.dataSignature,
     parsedImportBundle.data,
-    dangerouslyOverrideSignerPublicKey
+    dangerouslyOverrideSignerPublicKey,
   );
   if (!verified) {
     throw new Error(`failed to verify enclave signature: ${importBundle}`);
   }
 
   const signedData = JSON.parse(
-    new TextDecoder().decode(uint8ArrayFromHexString(parsedImportBundle.data))
+    new TextDecoder().decode(uint8ArrayFromHexString(parsedImportBundle.data)),
   );
 
   if (
@@ -394,12 +396,12 @@ export const encryptWalletToBundle = async ({
     signedData.organizationId !== organizationId
   ) {
     throw new Error(
-      `organization id does not match expected value. Expected: ${organizationId}. Found: ${signedData.organizationId}.`
+      `organization id does not match expected value. Expected: ${organizationId}. Found: ${signedData.organizationId}.`,
     );
   }
   if (!signedData.userId || signedData.userId !== userId) {
     throw new Error(
-      `user id does not match expected value. Expected: ${userId}. Found: ${signedData.userId}.`
+      `user id does not match expected value. Expected: ${userId}. Found: ${signedData.userId}.`,
     );
   }
 

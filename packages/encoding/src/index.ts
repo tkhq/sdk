@@ -16,7 +16,7 @@ export function hexStringToBase64url(input: string, length?: number): string {
   const buffer = uint8ArrayFromHexString(hexString, length);
 
   return stringToBase64urlString(
-    buffer.reduce((result, x) => result + String.fromCharCode(x), "")
+    buffer.reduce((result, x) => result + String.fromCharCode(x), ""),
   );
 }
 
@@ -27,23 +27,23 @@ export function base64StringToBase64UrlEncodedString(input: string): string {
 export function uint8ArrayToHexString(input: Uint8Array): string {
   return input.reduce(
     (result, x) => result + x.toString(16).padStart(2, "0"),
-    ""
+    "",
   );
 }
 
 export const uint8ArrayFromHexString = (
   hexString: string,
-  length?: number
+  length?: number,
 ): Uint8Array => {
   const hexRegex = /^[0-9A-Fa-f]+$/;
   if (!hexString || hexString.length % 2 != 0 || !hexRegex.test(hexString)) {
     throw new Error(
-      `cannot create uint8array from invalid hex string: "${hexString}"`
+      `cannot create uint8array from invalid hex string: "${hexString}"`,
     );
   }
 
   const buffer = new Uint8Array(
-    hexString!.match(/../g)!.map((h: string) => parseInt(h, 16))
+    hexString!.match(/../g)!.map((h: string) => parseInt(h, 16)),
   );
 
   if (!length) {
@@ -51,7 +51,7 @@ export const uint8ArrayFromHexString = (
   }
   if (hexString.length / 2 > length) {
     throw new Error(
-      "hex value cannot fit in a buffer of " + length + " byte(s)"
+      "hex value cannot fit in a buffer of " + length + " byte(s)",
     );
   }
 
@@ -83,7 +83,7 @@ export function hexToAscii(hexString: string): string {
  */
 export const normalizePadding = (
   byteArray: Uint8Array,
-  targetLength: number
+  targetLength: number,
 ): Uint8Array => {
   const paddingLength = targetLength - byteArray.length;
 
@@ -105,7 +105,7 @@ export const normalizePadding = (
     // Check if the number of zeros found equals the number of zeroes expected
     if (zeroCount !== expectedZeroCount) {
       throw new Error(
-        `invalid number of starting zeroes. Expected number of zeroes: ${expectedZeroCount}. Found: ${zeroCount}.`
+        `invalid number of starting zeroes. Expected number of zeroes: ${expectedZeroCount}. Found: ${zeroCount}.`,
       );
     }
     return byteArray.slice(expectedZeroCount, expectedZeroCount + targetLength);
@@ -130,8 +130,8 @@ function btoa(s: string): string {
     if (s.charCodeAt(i) > 255) {
       throw new Error(
         `InvalidCharacterError: found code point greater than 255:${s.charCodeAt(
-          i
-        )} at position ${i}`
+          i,
+        )} at position ${i}`,
       );
     }
   }

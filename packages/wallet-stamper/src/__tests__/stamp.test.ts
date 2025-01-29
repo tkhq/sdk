@@ -28,7 +28,7 @@ test("Solana wallet stamping", async function () {
   expect(stamp.stampHeaderName).toBe(STAMP_HEADER_NAME);
 
   const decodedStamp = JSON.parse(
-    Buffer.from(stamp.stampHeaderValue, "base64url").toString()
+    Buffer.from(stamp.stampHeaderValue, "base64url").toString(),
   );
 
   expect(decodedStamp["publicKey"]).toBe(SOLANA_PUBLIC_KEY_DECODED);
@@ -38,8 +38,8 @@ test("Solana wallet stamping", async function () {
     nacl.sign.detached.verify(
       decodeUTF8(messageToSign),
       Buffer.from(decodedStamp["signature"], "hex"),
-      solanaWallet.keypair.publicKey.toBytes()
-    )
+      solanaWallet.keypair.publicKey.toBytes(),
+    ),
   ).toBe(true);
 });
 
@@ -52,7 +52,7 @@ test("Ethereum wallet stamping", async function () {
   expect(stamp.stampHeaderName).toBe(STAMP_HEADER_NAME);
 
   const decodedStamp = JSON.parse(
-    Buffer.from(stamp.stampHeaderValue, "base64url").toString()
+    Buffer.from(stamp.stampHeaderValue, "base64url").toString(),
   );
 
   expect(decodedStamp["publicKey"]).toBe(EXPECTED_COMPRESSED_PUBLIC_KEY);

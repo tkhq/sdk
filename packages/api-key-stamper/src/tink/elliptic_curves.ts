@@ -18,7 +18,7 @@ function getModulus(): bigint {
   // https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf (Appendix D).
   return BigInt(
     "115792089210356248762697446949407573530086143415290314195533631308" +
-      "867097853951"
+      "867097853951",
   );
 }
 
@@ -28,7 +28,7 @@ function getModulus(): bigint {
 function getB(): bigint {
   // https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf (Appendix D).
   return BigInt(
-    "0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b"
+    "0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b",
   );
 }
 
@@ -44,7 +44,7 @@ function integerToByteArray(i: bigint, length: number): Uint8Array {
   let padding = "";
   if (numHexChars < input.length) {
     throw new Error(
-      `cannot pack integer with ${input.length} hex chars into ${length} bytes`
+      `cannot pack integer with ${input.length} hex chars into ${length} bytes`,
     );
   } else {
     padding = "0".repeat(numHexChars - input.length);
@@ -172,7 +172,7 @@ export function pointDecode(point: Uint8Array): JsonWebKey {
     point.length !== uncompressedLength
   ) {
     throw new Error(
-      "Invalid length: point is not in compressed or uncompressed format"
+      "Invalid length: point is not in compressed or uncompressed format",
     );
   }
   // Decodes point if its length and first bit match the compressed format
@@ -196,7 +196,7 @@ export function pointDecode(point: Uint8Array): JsonWebKey {
   } else if (point[0] === 4 && point.length == uncompressedLength) {
     const x = byteArrayToInteger(point.subarray(1, fieldSize + 1));
     const y = byteArrayToInteger(
-      point.subarray(fieldSize + 1, 2 * fieldSize + 1)
+      point.subarray(fieldSize + 1, 2 * fieldSize + 1),
     );
     const p = getModulus();
     if (

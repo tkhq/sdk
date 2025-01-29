@@ -17,6 +17,6 @@ const stamper = new WebAuthnStamper({
 // New HTTP client able to sign with passkeys!
 const httpClient = new TurnkeyClient(
   { baseUrl: "https://api.turnkey.com" },
-  stamper
+  stamper,
 );
 ```

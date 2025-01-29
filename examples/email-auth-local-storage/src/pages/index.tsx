@@ -75,7 +75,7 @@ export default function AuthPage() {
 
       console.log(
         "Using existing target key stored in localStorage: ",
-        parsedKey.publicKeyUncompressed
+        parsedKey.publicKeyUncompressed,
       );
       return;
     }
@@ -86,7 +86,7 @@ export default function AuthPage() {
       setItemWithExpiry(
         TURNKEY_EMBEDDED_KEY,
         JSON.stringify(key),
-        TURNKEY_EMBEDDED_KEY_TTL_IN_MILLIS
+        TURNKEY_EMBEDDED_KEY_TTL_IN_MILLIS,
       );
       setTargetPublicKey(targetPubHex!);
 
@@ -123,7 +123,7 @@ export default function AuthPage() {
       // This is decrypting the user-provided email auth bundle using the locally stored target embedded key
       decryptedData = decryptCredentialBundle(
         data.authBundle,
-        parsed.privateKey
+        parsed.privateKey,
       );
 
       // Save the email auth bundle to local storage as well. This can be reused in order for the
@@ -131,7 +131,7 @@ export default function AuthPage() {
       setItemWithExpiry(
         TURNKEY_CREDENTIAL_BUNDLE,
         data.authBundle,
-        TURNKEY_CREDENTIAL_BUNDLE_TTL_IN_MILLIS
+        TURNKEY_CREDENTIAL_BUNDLE_TTL_IN_MILLIS,
       );
     } catch (e) {
       const msg = `Error while injecting bundle: ${e}`;
@@ -193,13 +193,13 @@ export default function AuthPage() {
       const parsedKey = JSON.parse(embeddedKey);
 
       const localCredentialBundle = getItemWithExpiry(
-        TURNKEY_CREDENTIAL_BUNDLE
+        TURNKEY_CREDENTIAL_BUNDLE,
       );
 
       // This is decrypting the locally stored email auth bundle using the locally stored target embedded key
       decryptedData = decryptCredentialBundle(
         localCredentialBundle,
-        parsedKey.privateKey
+        parsedKey.privateKey,
       );
     } catch (e) {
       const msg = `Error while injecting bundle: ${e}`;
@@ -349,7 +349,7 @@ export default function AuthPage() {
 // ****
 const getPublicKeyFromPrivateKeyHex = (privateKey: string): string => {
   return uint8ArrayToHexString(
-    getPublicKey(uint8ArrayFromHexString(privateKey), true)
+    getPublicKey(uint8ArrayFromHexString(privateKey), true),
   );
 };
 
@@ -397,7 +397,7 @@ const setItemWithExpiry = (key: string, value: string, ttl: number) => {
 
 const refineNonNull = <T,>(
   input: T | null | undefined,
-  errorMessage?: string
+  errorMessage?: string,
 ): T => {
   if (input == null) {
     throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);

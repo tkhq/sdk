@@ -41,7 +41,7 @@ const TurnkeyIframeElementId = "turnkey-import-iframe-element-id";
 
 export function Import(props: ImportProps) {
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
-    null
+    null,
   );
   const [iframeDisplay, setIframeDisplay] = useState<string>("none");
 

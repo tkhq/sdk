@@ -18,7 +18,7 @@ type ErrorMessage = {
 // this getter can be performed by the parent org
 export default async function getActivity(
   req: NextApiRequest,
-  res: NextApiResponse<TActivityResponse | ErrorMessage>
+  res: NextApiResponse<TActivityResponse | ErrorMessage>,
 ) {
   const getActivityRequest = req.body as GetActivityRequest;
 

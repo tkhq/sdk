@@ -23,6 +23,6 @@ export function assertValidSignature({
       `content: ${JSON.stringify(content)}`,
       `pemPublicKey: ${JSON.stringify(pemPublicKey)}`,
       `signature: ${JSON.stringify(signature)}`,
-    ].join("\n")
+    ].join("\n"),
   );
 }

@@ -56,7 +56,7 @@ async function initiate(signer: Signer) {
       `Sent ${ethers.formatEther(sendTx.value)} Ether to ${
         sendTx.to
       } with nonce ${nonce}:`,
-      `https://${network}.etherscan.io/tx/${sendTx.hash}`
+      `https://${network}.etherscan.io/tx/${sendTx.hash}`,
     );
   }
 
@@ -98,7 +98,7 @@ async function monitor(provider: Provider, signer: Signer) {
   while (nonce <= finalExpectedNonce) {
     if (Date.now() - startTime > DEFAULT_TOTAL_WAIT_TIME_MS) {
       console.log(
-        "Exceeded total time allotted for transaction processing. Exiting..."
+        "Exceeded total time allotted for transaction processing. Exiting...",
       );
 
       process.exit(1);
@@ -111,7 +111,7 @@ async function monitor(provider: Provider, signer: Signer) {
       if (Date.now() - startTime > DEFAULT_TX_WAIT_TIME_MS) {
         const updatedTx = await getUpdatedTransaction(
           provider,
-          txMap.get(nonce.toString())!
+          txMap.get(nonce.toString())!,
         );
 
         const sendTx = await signer.sendTransaction(updatedTx!);
@@ -119,9 +119,9 @@ async function monitor(provider: Provider, signer: Signer) {
 
         print(
           `Updated transaction with nonce ${nonce} sent ${ethers.formatEther(
-            sendTx.value
+            sendTx.value,
           )} Ether to ${sendTx.to}:`,
-          `https://${network}.etherscan.io/tx/${sendTx.hash}`
+          `https://${network}.etherscan.io/tx/${sendTx.hash}`,
         );
       }
     } catch (err) {
@@ -166,9 +166,8 @@ async function main() {
   const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0;
   const address = await connectedSigner.getAddress();
   const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0;
-  const transactionCount = await connectedSigner.provider?.getTransactionCount(
-    address
-  );
+  const transactionCount =
+    await connectedSigner.provider?.getTransactionCount(address);
 
   print("Network:", `${network} (chain ID ${chainId})`);
   print("Address:", address);

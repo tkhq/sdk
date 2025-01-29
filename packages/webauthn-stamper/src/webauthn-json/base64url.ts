@@ -1,7 +1,7 @@
 export type Base64urlString = string;
 
 export function base64urlToBuffer(
-  baseurl64String: Base64urlString
+  baseurl64String: Base64urlString,
 ): ArrayBuffer {
   // Base64url to Base64
   const padding = "==".slice(0, (4 - (baseurl64String.length % 4)) % 4);

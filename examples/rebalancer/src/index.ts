@@ -112,38 +112,38 @@ async function setup(_options: any) {
     "Alice",
     [adminTagId],
     "Alice key",
-    keys!.alice!.publicKey!
+    keys!.alice!.publicKey!,
   );
   await createUser(
     turnkeyClient,
     "Bob",
     [managerTagId],
     "Bob key",
-    keys!.bob!.publicKey!
+    keys!.bob!.publicKey!,
   );
   await createUser(
     turnkeyClient,
     "Phil",
     [executorTagId],
     "Phil key",
-    keys!.phil!.publicKey!
+    keys!.phil!.publicKey!,
   );
 
   // setup private key tags
   const distributionTagId = await createPrivateKeyTag(
     turnkeyClient,
     "distribution",
-    []
+    [],
   );
   const shortTermStorageTagId = await createPrivateKeyTag(
     turnkeyClient,
     "short-term-storage",
-    []
+    [],
   );
   const longTermStorageTagId = await createPrivateKeyTag(
     turnkeyClient,
     "long-term-storage",
-    []
+    [],
   );
 
   // setup private keys
@@ -168,21 +168,21 @@ async function setup(_options: any) {
     "Admin users can do everything",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${adminTagId}'))`,
-    "true"
+    "true",
   );
   await createPolicy(
     turnkeyClient,
     "Two Manager or Admin users can use long term storage keys",
     "EFFECT_ALLOW",
     `approvers.filter(user, user.tags.contains('${managerTagId}') || user.tags.contains('${adminTagId}')).count() >= 2`,
-    `private_key.tags.contains('${longTermStorageTagId}')`
+    `private_key.tags.contains('${longTermStorageTagId}')`,
   );
   await createPolicy(
     turnkeyClient,
     "Executor users can use short term storage keys",
     "EFFECT_ALLOW",
     `approvers.any(user, user.tags.contains('${executorTagId}'))`,
-    `private_key.tags.contains('${shortTermStorageTagId}')`
+    `private_key.tags.contains('${shortTermStorageTagId}')`,
   );
 }
 
@@ -191,7 +191,7 @@ async function fund(options: any) {
 
   if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
     console.log(
-      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`
+      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`,
     );
   }
 
@@ -203,20 +203,20 @@ async function fundImpl() {
   // find "Distribution" private key
   const distributionPrivateKeys = await getPrivateKeysForTag(
     turnkeyClient,
-    "distribution"
+    "distribution",
   );
 
   // find "Short Term Storage" private keys
   const shortTermStoragePrivateKeys = await getPrivateKeysForTag(
     turnkeyClient,
-    "short-term-storage"
+    "short-term-storage",
   );
 
   // send from "Distribution" to "Short Term Storage"
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
     provider,
-    distributionPrivateKeys[0]!.privateKeyId
+    distributionPrivateKeys[0]!.privateKeyId,
   );
 
   for (const pk of shortTermStoragePrivateKeys) {
@@ -225,14 +225,14 @@ async function fundImpl() {
     });
     if (!ethAddress || !ethAddress.address) {
       throw new Error(
-        `couldn't lookup ETH address for private key: ${pk.privateKeyId}`
+        `couldn't lookup ETH address for private key: ${pk.privateKeyId}`,
       );
     }
 
     await sendEth(
       connectedSigner,
       ethAddress.address,
-      120000000000000n // 0.00012 ETH
+      120000000000000n, // 0.00012 ETH
     );
   }
 }
@@ -242,7 +242,7 @@ async function sweep(options: any) {
 
   if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
     console.log(
-      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`
+      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`,
     );
   }
 
@@ -254,26 +254,26 @@ async function sweepImpl() {
   // find long term storage private key
   const longTermStoragePrivateKeys = await getPrivateKeysForTag(
     turnkeyClient,
-    "long-term-storage"
+    "long-term-storage",
   );
 
   // find short term storage private keys
   const shortTermStoragePrivateKeys = await getPrivateKeysForTag(
     turnkeyClient,
-    "short-term-storage"
+    "short-term-storage",
   );
 
   // send from short to long term storage
   const longTermStorageAddress = longTermStoragePrivateKeys[0]!.addresses.find(
     (address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
-    }
+    },
   );
   if (!longTermStorageAddress || !longTermStorageAddress.address) {
     throw new Error(
       `couldn't lookup ETH address for private key: ${
         longTermStoragePrivateKeys[0]!.privateKeyId
-      }`
+      }`,
     );
   }
 
@@ -293,7 +293,7 @@ async function sweepImpl() {
     const feeData = new FeeData(
       originalFeeData?.gasPrice,
       updatedMaxFeePerGas,
-      updatedMaxPriorityFeePerGas
+      updatedMaxPriorityFeePerGas,
     );
     const gasRequired =
       feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas
@@ -303,7 +303,7 @@ async function sweepImpl() {
 
     if (balance < SWEEP_THRESHOLD) {
       console.log(
-        `Address ${address} has an insufficient balance for sweep. Moving on...`
+        `Address ${address} has an insufficient balance for sweep. Moving on...`,
       );
       continue;
     }
@@ -312,7 +312,7 @@ async function sweepImpl() {
 
     if (sweepAmount === 0n) {
       console.log(
-        `Address ${address} has an insufficient balance for sweep. Moving on...`
+        `Address ${address} has an insufficient balance for sweep. Moving on...`,
       );
       continue;
     }
@@ -321,7 +321,7 @@ async function sweepImpl() {
       connectedSigner,
       longTermStorageAddress.address,
       sweepAmount,
-      feeData
+      feeData,
     );
   }
 }
@@ -331,7 +331,7 @@ async function recycle(options: any) {
 
   if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
     console.log(
-      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`
+      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`,
     );
   }
 
@@ -343,20 +343,20 @@ async function recycleImpl() {
   // find "Long Term Storage" private key
   const longTermStoragePrivateKeys = await getPrivateKeysForTag(
     turnkeyClient,
-    "long-term-storage"
+    "long-term-storage",
   );
 
   // find "Distribution" private key
   const distributionPrivateKeys = await getPrivateKeysForTag(
     turnkeyClient,
-    "distribution"
+    "distribution",
   );
 
   // send from "Long Term Storage" to "Distribution"
   const provider = getProvider();
   const connectedSigner = getTurnkeySigner(
     provider,
-    longTermStoragePrivateKeys[0]!.privateKeyId
+    longTermStoragePrivateKeys[0]!.privateKeyId,
   );
 
   const longTermStorageAddress = await connectedSigner.getAddress();
@@ -364,13 +364,13 @@ async function recycleImpl() {
   const distributionAddress = distributionPrivateKeys[0]!.addresses.find(
     (address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
-    }
+    },
   );
   if (!distributionAddress || !distributionAddress.address) {
     throw new Error(
       `couldn't lookup ETH address for private key: ${
         distributionPrivateKeys[0]!.privateKeyId
-      }`
+      }`,
     );
   }
 
@@ -388,7 +388,7 @@ async function recycleImpl() {
   const feeData = new FeeData(
     originalFeeData?.gasPrice,
     updatedMaxFeePerGas,
-    updatedMaxPriorityFeePerGas
+    updatedMaxPriorityFeePerGas,
   );
   const gasRequired =
     feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas
@@ -407,7 +407,7 @@ async function recycleImpl() {
     connectedSigner,
     distributionAddress.address,
     recycleAmount,
-    feeData
+    feeData,
   );
 }
 
@@ -420,7 +420,7 @@ function pollAndBroadcast(options: any) {
 
   if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
     console.log(
-      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`
+      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`,
     );
   }
 
@@ -432,7 +432,7 @@ async function pollAndBroadcastImpl() {
   // find "Long Term Storage" private key
   const longTermStoragePrivateKeys = await getPrivateKeysForTag(
     turnkeyClient,
-    "long-term-storage"
+    "long-term-storage",
   );
   const activities = await getActivities(turnkeyClient, ACTIVITIES_LIMIT);
 
@@ -447,7 +447,7 @@ async function pollAndBroadcastImpl() {
 
   if (relevantActivities.length === 0) {
     console.log(
-      "No transactions are ready for broadcasting. Double check activities that need consensus.\n"
+      "No transactions are ready for broadcasting. Double check activities that need consensus.\n",
     );
   }
 
@@ -484,6 +484,6 @@ async function rejectActivity(options: any) {
   await createActivityRejection(
     turnkeyClient,
     activityId,
-    activity.fingerprint
+    activity.fingerprint,
   );
 }

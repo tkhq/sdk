@@ -23,7 +23,7 @@ type ErrorMessage = {
 
 export default async function initRecovery(
   req: NextApiRequest,
-  res: NextApiResponse<InitRecoveryResponse | ErrorMessage>
+  res: NextApiResponse<InitRecoveryResponse | ErrorMessage>,
 ) {
   try {
     const request = req.body as InitRecoveryRequest;
