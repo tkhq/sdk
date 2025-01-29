@@ -51,6 +51,7 @@ export const createUserSubOrg = async ({
   walletId?: string;
   address?: string;
 }> => {
+  console.log({ email, challenge, attestation, chainType, publicKey });
   const stamper = await createAPIKeyStamper();
 
   const client = new TurnkeyClient(
