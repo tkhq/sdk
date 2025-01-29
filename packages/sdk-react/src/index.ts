@@ -7,5 +7,4 @@ import "./components/theme.css";
 import { TurnkeyContext, TurnkeyProvider } from "./contexts/TurnkeyContext";
 import { useTurnkey } from "./hooks/use-turnkey";
 export * from "./components";
-export * from "./actions";
 export { TurnkeyContext, TurnkeyProvider, useTurnkey };
