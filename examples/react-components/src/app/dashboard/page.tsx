@@ -4,12 +4,10 @@ import {
   Export,
   Import,
   useTurnkey,
-  getSuborgs,
-  getVerifiedSuborgs,
   OtpVerification,
   OtpType,
-  initOtpAuth,
 } from "@turnkey/sdk-react";
+import { server } from "@turnkey/sdk-server";
 import { useEffect, useState } from "react";
 import "./dashboard.css";
 import {
@@ -84,31 +82,31 @@ export default function Dashboard() {
     toast.success("Wallet successfully imported");
   };
   const handleResendEmail = async () => {
-    const initAuthResponse = await initOtpAuth({
+    const sendOtpResponse = await server.sendOtp({
       suborgID: suborgId,
       otpType: OtpType.Email,
       contact: emailInput,
       userIdentifier: authIframeClient?.iframePublicKey!,
     });
-    if (!initAuthResponse || !initAuthResponse.otpId!) {
+    if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
       return;
     }
-    setOtpId(initAuthResponse?.otpId!);
+    setOtpId(sendOtpResponse?.otpId!);
   };
   const handleResendSms = async () => {
-    const initAuthResponse = await initOtpAuth({
+    const sendOtpResponse = await server.sendOtp({
       suborgID: suborgId,
       otpType: OtpType.Sms,
       contact: phoneInput,
       customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
       userIdentifier: authIframeClient?.iframePublicKey!,
     });
-    if (!initAuthResponse || !initAuthResponse.otpId!) {
+    if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
       return;
     }
-    setOtpId(initAuthResponse?.otpId!);
+    setOtpId(sendOtpResponse?.otpId!);
   };
 
   const handleOtpSuccess = async (credentialBundle: any) => {
@@ -125,7 +123,7 @@ export default function Dashboard() {
       toast.error("Please enter a valid email address");
       return;
     }
-    const suborgs = await getVerifiedSuborgs({
+    const suborgs = await server.getVerifiedSuborgs({
       filterType: "EMAIL",
       filterValue: emailInput,
     });
@@ -139,17 +137,17 @@ export default function Dashboard() {
       userEmail: emailInput,
       userTagIds: [],
     });
-    const initAuthResponse = await initOtpAuth({
+    const sendOtpResponse = await server.sendOtp({
       suborgID: suborgId,
       otpType: OtpType.Email,
       contact: emailInput,
       userIdentifier: authIframeClient?.iframePublicKey!,
     });
-    if (!initAuthResponse || !initAuthResponse.otpId!) {
+    if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
       return;
     }
-    setOtpId(initAuthResponse?.otpId!);
+    setOtpId(sendOtpResponse?.otpId!);
     setIsEmailModalOpen(false);
     setIsOtpModalOpen(true);
   };
@@ -159,7 +157,7 @@ export default function Dashboard() {
       toast.error("Please enter a valid phone number.");
       return;
     }
-    const suborgs = await getVerifiedSuborgs({
+    const suborgs = await server.getVerifiedSuborgs({
       filterType: "PHONE_NUMBER",
       filterValue: phoneInput,
     });
@@ -173,18 +171,18 @@ export default function Dashboard() {
       userPhoneNumber: phoneInput,
       userTagIds: [],
     });
-    const initAuthResponse = await initOtpAuth({
+    const sendOtpResponse = await server.sendOtp({
       suborgID: suborgId,
       otpType: OtpType.Sms,
       contact: phoneInput,
       customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
       userIdentifier: authIframeClient?.iframePublicKey!,
     });
-    if (!initAuthResponse || !initAuthResponse.otpId!) {
+    if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
       return;
     }
-    setOtpId(initAuthResponse?.otpId!);
+    setOtpId(sendOtpResponse?.otpId!);
     setIsEmailModalOpen(false);
     setIsOtpModalOpen(true);
   };
@@ -223,7 +221,7 @@ export default function Dashboard() {
         console.error(`Unknown OAuth type: ${oauthType}`);
     }
     if (oidcToken) {
-      const suborgs = await getSuborgs({
+      const suborgs = await server.getSuborgs({
         filterType: "OIDC_TOKEN",
         filterValue: oidcToken.idToken,
       });
@@ -323,7 +321,7 @@ export default function Dashboard() {
           });
           setWallets(walletsResponse.wallets);
           if (userResponse.user.userEmail) {
-            const suborgs = await getVerifiedSuborgs({
+            const suborgs = await server.getVerifiedSuborgs({
               filterType: "EMAIL",
               filterValue: userResponse.user.userEmail,
             });
@@ -337,7 +335,7 @@ export default function Dashboard() {
             }
           }
           if (userResponse.user.userPhoneNumber) {
-            const suborgs = await getVerifiedSuborgs({
+            const suborgs = await server.getVerifiedSuborgs({
               filterType: "PHONE_NUMBER",
               filterValue: userResponse.user.userPhoneNumber,
             });

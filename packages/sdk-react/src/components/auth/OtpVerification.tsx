@@ -4,11 +4,11 @@ import React, { useRef, useState } from "react";
 import OtpInput from "./otp";
 import styles from "./OtpVerification.module.css";
 import { formatPhoneNumber } from "./utils";
-import { otpAuth } from "../../actions";
 import EmailIcon from "@mui/icons-material/Email";
 import SmsIcon from "@mui/icons-material/Sms";
 import { CircularProgress } from "@mui/material";
 import { OtpType, FilterType } from "./constants";
+import { server } from "@turnkey/sdk-server";
 
 const resendTimerMs = 15000;
 interface OtpVerificationProps {
@@ -44,7 +44,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     setOtpError(null);
     setIsLoading(true);
     try {
-      const authResponse = await otpAuth({
+      const authResponse = await server.verifyOtp({
         suborgID: suborgId,
         otpId,
         otpCode: otp,
@@ -52,8 +52,8 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         sessionLengthSeconds,
       });
 
-      if (authResponse?.credentialBundle) {
-        await onValidateSuccess(authResponse.credentialBundle);
+      if (authResponse?.token) {
+        await onValidateSuccess(authResponse.token);
       } else {
         setOtpError("Invalid code. Please try again.");
       }

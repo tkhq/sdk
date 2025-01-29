@@ -2,7 +2,6 @@
 
 import styles from "./Auth.module.css";
 import React, { useEffect, useState } from "react";
-import { initOtpAuth, getSuborgs, createSuborg, oauth } from "../../actions/";
 import { MuiPhone } from "./PhoneInput";
 import GoogleAuthButton from "./Google";
 import AppleAuthButton from "./Apple";
@@ -15,9 +14,9 @@ import appleIcon from "assets/apple.svg";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import OtpVerification from "./OtpVerification";
 import { useTurnkey } from "../../hooks/use-turnkey";
-import { getVerifiedSuborgs } from "../../actions/getVerifiedSuborgs";
 import { FilterType, OtpType, authErrors } from "./constants";
 import type { WalletAccount } from "@turnkey/sdk-browser";
+import { server } from "@turnkey/sdk-server";
 
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
@@ -131,7 +130,7 @@ const Auth: React.FC<AuthProps> = ({
       filterType == FilterType.Email ||
       filterType == FilterType.PhoneNumber
     ) {
-      const getVerifiedSuborgsResponse = await getVerifiedSuborgs({
+      const getVerifiedSuborgsResponse = await server.getVerifiedSuborgs({
         filterType,
         filterValue,
       });
@@ -143,7 +142,10 @@ const Auth: React.FC<AuthProps> = ({
       }
       suborgId = getVerifiedSuborgsResponse?.organizationIds[0];
     } else {
-      const getSuborgsResponse = await getSuborgs({ filterType, filterValue });
+      const getSuborgsResponse = await server.getSuborgs({
+        filterType,
+        filterValue,
+      });
       if (!getSuborgsResponse || !getSuborgsResponse.organizationIds) {
         onError(authErrors.suborg.fetchFailed);
       }
@@ -158,7 +160,7 @@ const Auth: React.FC<AuthProps> = ({
       if (customAccounts) {
         createSuborgData.customAccounts = customAccounts;
       }
-      const createSuborgResponse = await createSuborg(createSuborgData);
+      const createSuborgResponse = await server.createSuborg(createSuborgData);
       if (!createSuborgResponse || !createSuborgResponse.subOrganizationId) {
         onError(authErrors.suborg.createFailed);
       }
@@ -197,7 +199,7 @@ const Auth: React.FC<AuthProps> = ({
           })) || {};
 
         if (encodedChallenge && attestation) {
-          const response = await createSuborg({
+          const response = await server.createSuborg({
             email,
             passkey: {
               authenticatorName: "First Passkey",
@@ -253,7 +255,7 @@ const Auth: React.FC<AuthProps> = ({
     otpType: string
   ) => {
     const suborgId = await handleGetOrCreateSuborg(type, value);
-    const initAuthResponse = await initOtpAuth({
+    const initAuthResponse = await server.sendOtp({
       suborgID: suborgId,
       otpType,
       contact: value,
@@ -278,14 +280,14 @@ const Auth: React.FC<AuthProps> = ({
         oauthProviders: [{ providerName, oidcToken: credential }],
       }
     );
-    const oauthResponse = await oauth({
+    const oauthResponse = await server.oauth({
       suborgID: suborgId,
       oidcToken: credential,
       targetPublicKey: authIframeClient?.iframePublicKey!,
       sessionLengthSeconds: authConfig.sessionLengthSeconds,
     });
-    if (oauthResponse && oauthResponse.credentialBundle) {
-      await handleAuthSuccess(oauthResponse!.credentialBundle);
+    if (oauthResponse && oauthResponse.token) {
+      await handleAuthSuccess(oauthResponse!.token);
     } else {
       onError(authErrors.oauth.loginFailed);
     }
