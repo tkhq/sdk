@@ -31,6 +31,14 @@ import type {
 import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
 
 import { fetch } from "./universal";
+import {
+  createSuborg,
+  getSuborgs,
+  getVerifiedSuborgs,
+  sendOtp,
+  oauth,
+  verifyOtp,
+} from "./actions";
 
 // Classes
 export {
@@ -40,6 +48,16 @@ export {
   TurnkeyServerSDK as Turnkey,
   TurnkeyServerClient,
   TurnkeyRequestError,
+};
+
+// Server Actions
+export const server = {
+  verifyOtp,
+  sendOtp,
+  oauth,
+  getSuborgs,
+  getVerifiedSuborgs,
+  createSuborg,
 };
 
 // Types

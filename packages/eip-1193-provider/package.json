@@ -55,6 +55,7 @@
     "@turnkey/http": "workspace:*"
   },
   "devDependencies": {
-    "hardhat": "^2.22.2"
+    "hardhat": "^2.22.2",
+    "typescript": "^5.1.3"
   }
 }

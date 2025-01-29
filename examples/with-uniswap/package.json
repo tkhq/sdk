@@ -17,5 +17,8 @@
     "ethers": "^6.10.0",
     "hardhat": "^2.12.7",
     "jsbi": "^3.2.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.3"
   }
 }
