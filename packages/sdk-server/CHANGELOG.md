@@ -1,5 +1,13 @@
 # @turnkey/sdk-server
 
+## 1.7.3
+
+### Patch Changes
+
+- 053fbfb: Update mono dependencies
+- Updated dependencies [053fbfb]
+  - @turnkey/http@2.17.3
+
 ## 1.7.2
 
 ### Patch Changes

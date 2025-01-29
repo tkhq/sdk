@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.17.3
+
+### Patch Changes
+
+- 053fbfb: Update mono dependencies
+
 ## 2.17.2
 
 ### Patch Changes
