@@ -1,5 +1,16 @@
 # @turnkey/sdk-react
 
+## 2.0.4
+
+### Patch Changes
+
+- 99ebe78: Fixed MUI components not inheriting fonts.
+- Updated dependencies [053fbfb]
+  - @turnkey/sdk-browser@1.11.2
+  - @turnkey/sdk-server@1.7.3
+  - @turnkey/crypto@2.3.0
+  - @turnkey/wallet-stamper@1.0.2
+
 ## 2.0.3
 
 ### Patch Changes

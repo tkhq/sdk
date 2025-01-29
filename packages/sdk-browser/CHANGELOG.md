@@ -1,5 +1,17 @@
 # @turnkey/sdk-browser
 
+## 1.11.2
+
+### Patch Changes
+
+- 053fbfb: Update mono dependencies
+- Updated dependencies [053fbfb]
+- Updated dependencies [a216a47]
+  - @turnkey/http@2.17.3
+  - @turnkey/iframe-stamper@2.2.0
+  - @turnkey/crypto@2.3.0
+  - @turnkey/wallet-stamper@1.0.2
+
 ## 1.11.1
 
 ### Patch Changes
