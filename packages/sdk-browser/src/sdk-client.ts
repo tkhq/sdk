@@ -14,6 +14,7 @@ import {
   type TurnkeyWalletClientConfig,
   TurnkeyRequestError,
   AuthClient,
+  Stamper,
 } from "./__types__/base";
 
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
@@ -42,6 +43,8 @@ const DEFAULT_SESSION_EXPIRATION = "900"; // default to 15 minutes
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
 
+  protected stamper: Stamper | undefined;
+
   constructor(config: TurnkeySDKBrowserConfig) {
     this.config = config;
   }
@@ -58,18 +61,18 @@ export class TurnkeyBrowserSDK {
     rpId?: string,
     timeout?: number,
     userVerification?: UserVerificationRequirement,
-    allowCredentials?: PublicKeyCredentialDescriptor[],
+    allowCredentials?: PublicKeyCredentialDescriptor[]
   ): TurnkeyPasskeyClient => {
     const targetRpId =
       rpId ?? this.config.rpId ?? WindowWrapper.location.hostname;
 
     if (!targetRpId) {
       throw new Error(
-        "Tried to initialize a passkey client with no rpId defined",
+        "Tried to initialize a passkey client with no rpId defined"
       );
     }
 
-    const webauthnStamper = new WebauthnStamper({
+    this.stamper = new WebauthnStamper({
       rpId: targetRpId,
       ...(timeout !== undefined && { timeout }),
       ...(userVerification !== undefined && { userVerification }),
@@ -77,34 +80,34 @@ export class TurnkeyBrowserSDK {
     });
 
     return new TurnkeyPasskeyClient({
-      stamper: webauthnStamper,
+      stamper: this.stamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
     });
   };
 
   iframeClient = async (
-    params: IframeClientParams,
+    params: IframeClientParams
   ): Promise<TurnkeyIframeClient> => {
     if (!params.iframeUrl) {
       throw new Error(
-        "Tried to initialize iframeClient with no iframeUrl defined",
+        "Tried to initialize iframeClient with no iframeUrl defined"
       );
     }
 
     const TurnkeyIframeElementId =
       params.iframeElementId ?? "turnkey-default-iframe-element-id";
 
-    const iframeStamper = new IframeStamper({
+    this.stamper = new IframeStamper({
       iframeContainer: params.iframeContainer,
       iframeUrl: params.iframeUrl,
       iframeElementId: TurnkeyIframeElementId,
     });
 
-    await iframeStamper.init();
+    await this.stamper.init();
 
     return new TurnkeyIframeClient({
-      stamper: iframeStamper,
+      stamper: this.stamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
     });
@@ -122,7 +125,7 @@ export class TurnkeyBrowserSDK {
   serverSign = async <TResponseType>(
     methodName: string,
     params: any[],
-    serverSignUrl?: string,
+    serverSignUrl?: string
   ): Promise<TResponseType> => {
     const targetServerSignUrl = serverSignUrl ?? this.config.serverSignUrl;
 
@@ -193,7 +196,7 @@ export class TurnkeyBrowserSDK {
    */
   getReadWriteSession = async (): Promise<ReadWriteSession | undefined> => {
     const currentUser: User | undefined = await getStorageValue(
-      StorageKeys.UserSession,
+      StorageKeys.UserSession
     );
 
     if (currentUser?.session?.write) {
@@ -266,7 +269,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
     organizationId?: string;
   }): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
     const readOnlySessionResult = await this.createReadOnlySession(
-      config || {},
+      config || {}
     );
 
     await saveSession(readOnlySessionResult, this.authClient);
@@ -287,7 +290,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
   loginWithReadWriteSession = async (
     targetEmbeddedKey: string,
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION,
-    userId?: string,
+    userId?: string
   ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
     const readWriteSessionResult = await this.createReadWriteSession({
       targetPublicKey: targetEmbeddedKey,
@@ -317,7 +320,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
    */
   loginWithAuthBundle = async (
     credentialBundle: string,
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION,
+    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION
   ): Promise<any> => {
     try {
       const whoAmIResult = await this.getWhoami();
@@ -340,7 +343,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
 
   constructor(config: TurnkeySDKClientConfig) {
     super(config, AuthClient.Passkey);
-    this.rpId = (config.stamper as WebauthnStamper)!.rpId;
+    this.rpId = (this.stamper as WebauthnStamper)!.rpId;
   }
 
   /**
@@ -349,7 +352,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
    * @returns {Promise<Passkey>}
    */
   createUserPasskey = async (
-    config: Record<any, any> = {},
+    config: Record<any, any> = {}
   ): Promise<Passkey> => {
     const challenge = generateRandomBuffer();
     const encodedChallenge = base64UrlEncode(challenge);
@@ -429,14 +432,14 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     userId: string,
     targetEmbeddedKey: string,
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION,
-    organizationId?: string,
+    organizationId?: string
   ): Promise<ReadWriteSession> => {
     const user = await getStorageValue(StorageKeys.UserSession);
     organizationId = organizationId ?? user?.organization.organizationId;
 
     if (!organizationId) {
       throw new Error(
-        "Error creating passkey session: Organization ID is required",
+        "Error creating passkey session: Organization ID is required"
       );
     }
 
@@ -470,7 +473,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
         credentialBundle,
         sessionExpiry: expiry,
       },
-      this.authClient,
+      this.authClient
     );
 
     return {
@@ -485,57 +488,57 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
 
   constructor(config: TurnkeySDKClientConfig) {
     super(config, AuthClient.Iframe);
-    this.iframePublicKey = (config.stamper as IframeStamper).iframePublicKey;
+    this.iframePublicKey = (this.stamper as IframeStamper).iframePublicKey;
   }
 
   injectCredentialBundle = async (
-    credentialBundle: string,
+    credentialBundle: string
   ): Promise<boolean> => {
-    const stamper = this.config.stamper as IframeStamper;
-    return await stamper.injectCredentialBundle(credentialBundle);
+    return await (this.stamper as IframeStamper).injectCredentialBundle(
+      credentialBundle
+    );
   };
 
   injectWalletExportBundle = async (
     credentialBundle: string,
-    organizationId: string,
+    organizationId: string
   ): Promise<boolean> => {
-    const stamper = this.config.stamper as IframeStamper;
-    return await stamper.injectWalletExportBundle(
+    return await (this.stamper as IframeStamper).injectWalletExportBundle(
       credentialBundle,
-      organizationId,
+      organizationId
     );
   };
 
   injectKeyExportBundle = async (
     credentialBundle: string,
     organizationId: string,
-    keyFormat?: KeyFormat | undefined,
+    keyFormat?: KeyFormat | undefined
   ): Promise<boolean> => {
-    const stamper = this.config.stamper as IframeStamper;
-    return await stamper.injectKeyExportBundle(
+    return await (this.stamper as IframeStamper).injectKeyExportBundle(
       credentialBundle,
       organizationId,
-      keyFormat,
+      keyFormat
     );
   };
 
   injectImportBundle = async (
     bundle: string,
     organizationId: string,
-    userId: string,
+    userId: string
   ): Promise<boolean> => {
-    const stamper = this.config.stamper as IframeStamper;
-    return await stamper.injectImportBundle(bundle, organizationId, userId);
+    return await (this.stamper as IframeStamper).injectImportBundle(
+      bundle,
+      organizationId,
+      userId
+    );
   };
 
   extractWalletEncryptedBundle = async (): Promise<string> => {
-    const stamper = this.config.stamper as IframeStamper;
-    return await stamper.extractWalletEncryptedBundle();
+    return await (this.stamper as IframeStamper).extractWalletEncryptedBundle();
   };
 
   extractKeyEncryptedBundle = async (): Promise<string> => {
-    const stamper = this.config.stamper as IframeStamper;
-    return await stamper.extractKeyEncryptedBundle();
+    return await (this.stamper as IframeStamper).extractKeyEncryptedBundle();
   };
 }
 

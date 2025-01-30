@@ -27,18 +27,20 @@ const DEFAULT_API_PROXY_ALLOWED_METHODS = [
 export class TurnkeyServerSDK {
   config: TurnkeySDKServerConfig;
 
+  protected stamper: ApiKeyStamper | undefined;
+
   constructor(config: TurnkeySDKServerConfig) {
     this.config = config;
   }
 
   apiClient = (apiCredentials?: ApiCredentials): TurnkeyApiClient => {
-    const apiKeyStamper = new ApiKeyStamper({
+    this.stamper = new ApiKeyStamper({
       apiPublicKey: apiCredentials?.apiPublicKey ?? this.config.apiPublicKey,
       apiPrivateKey: apiCredentials?.apiPrivateKey ?? this.config.apiPrivateKey,
     });
 
     return new TurnkeyApiClient({
-      stamper: apiKeyStamper,
+      stamper: this.stamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
       activityPoller: this.config.activityPoller,
@@ -52,7 +54,7 @@ export class TurnkeyServerSDK {
       return await method(...params);
     } else {
       throw new Error(
-        `Method: ${methodName} does not exist on TurnkeySDKClient`,
+        `Method: ${methodName} does not exist on TurnkeySDKClient`
       );
     }
   };
@@ -92,7 +94,7 @@ export class TurnkeyServerSDK {
 
     return async (
       request: NextApiRequest,
-      response: NextApiResponse,
+      response: NextApiResponse
     ): Promise<void> => {
       const { methodName, params } = request.body;
       if (!methodName || !params) {
