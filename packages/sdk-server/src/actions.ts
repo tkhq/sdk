@@ -36,7 +36,7 @@ type Session = {
   userId: string;
   organizationId: string;
   expiry: number;
-  token: string | undefined;
+  token: string;
 };
 
 type VerifyOtpRequest = {
