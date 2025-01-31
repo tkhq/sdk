@@ -1,6 +1,8 @@
 # Example: `with-eip-1193-provider`
 
-This example shows how to the `@turnkey/eip-1193-provider` package.
+This example shows how to use the `@turnkey/eip-1193-provider` package.
+
+<img src="./img/eip1193.png" alt="primary screenshot" width="1000px">
 
 ## Getting started
 

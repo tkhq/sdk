@@ -1,4 +1,5 @@
 import type { TurnkeyClient } from "@turnkey/http";
+import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { UUID } from "crypto";
 import type {
   AddEthereumChainParameter,
@@ -14,7 +15,7 @@ import type {
 export type TurnkeyEIP1193ProviderOptions = {
   walletId: UUID;
   organizationId: UUID;
-  turnkeyClient: TurnkeyClient;
+  turnkeyClient: TurnkeyClient | TurnkeyBrowserClient;
   chains: AddEthereumChainParameter[];
 };
 

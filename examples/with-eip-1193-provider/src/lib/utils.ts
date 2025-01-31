@@ -65,13 +65,14 @@ export const registerPassKey = async (
   const challenge = generateRandomBuffer();
   const authenticatorUserId = generateRandomBuffer();
   const user = email.split("@")[0];
+  const username = `${user}'s Turnkey EIP-1193 Demo - ${humanReadableDateTime()}`;
   // An example of possible options can be found here:
   // https://www.w3.org/TR/webauthn-2/#sctn-sample-registration
   const attestation = await getWebAuthnAttestation({
     publicKey: {
       rp: {
         id: process.env.NEXT_PUBLIC_WEBAUTHN_RPID,
-        name: "Tunkey Demo Wallet",
+        name: "Turnkey EIP-1193 Demo Wallet",
       },
       challenge,
       pubKeyCredParams: [
@@ -82,8 +83,8 @@ export const registerPassKey = async (
       ],
       user: {
         id: authenticatorUserId,
-        name: user,
-        displayName: user,
+        name: username,
+        displayName: username,
       },
       authenticatorSelection: {
         requireResidentKey: true,
@@ -112,4 +113,8 @@ export const estimateFees = async (chain: Chain) => {
         maxPriorityFeePerGas: numberToHex(maxPriorityFeePerGas * BigInt(2)),
       }
     : {};
+};
+
+const humanReadableDateTime = (): string => {
+  return new Date().toLocaleString().replaceAll("/", "-").replaceAll(":", ".");
 };

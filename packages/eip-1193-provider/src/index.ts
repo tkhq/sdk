@@ -1,3 +1,4 @@
+import { TurnkeyRequestError } from "@turnkey/http";
 import {
   type Address,
   type EIP1193Provider,
@@ -20,14 +21,8 @@ import type {
   TurnkeyEIP1193Provider,
   TurnkeyEIP1193ProviderOptions,
 } from "./types";
-import type { TSignTransactionResponse } from "@turnkey/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher";
-import {
-  signMessage,
-  turnkeyIsDisconnected,
-  unwrapActivityResult,
-} from "./turnkey";
+import { signMessage, signTransaction, turnkeyIsDisconnected } from "./turnkey";
 
-import { TurnkeyRequestError } from "@turnkey/http";
 import { ChainIdMismatchError, UnrecognizedChainError } from "./errors";
 import { VERSION } from "./version";
 
@@ -142,7 +137,7 @@ export const createEIP1193Provider = async (
           const signedMessage = await signMessage({
             organizationId,
             message,
-            signWith,
+            signWith: getAddress(signWith),
             client: turnkeyClient,
           });
           setConnected(true, { chainId: activeChain.chainId });
@@ -155,7 +150,7 @@ export const createEIP1193Provider = async (
           const signedMessage = await signMessage({
             organizationId,
             message,
-            signWith,
+            signWith: getAddress(signWith),
             client: turnkeyClient,
           });
           setConnected(true, { chainId: activeChain.chainId });
@@ -168,10 +163,10 @@ export const createEIP1193Provider = async (
           ];
 
           const message = hashTypedData(typedData);
-          const signedMessage = signMessage({
+          const signedMessage = await signMessage({
             organizationId,
             message,
-            signWith,
+            signWith: getAddress(signWith),
             client: turnkeyClient,
           });
           setConnected(true, { chainId: activeChain.chainId });
@@ -180,22 +175,15 @@ export const createEIP1193Provider = async (
         case "eth_signTransaction": {
           const [transaction] = params as WalletRpcSchema[7]["Parameters"];
           const unsignedTransaction = preprocessTransaction({ ...transaction });
-          const activityResponse = await turnkeyClient.signTransaction({
-            type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
-            organizationId: organizationId,
-            parameters: {
-              signWith: getAddress(transaction.from),
-              type: "TRANSACTION_TYPE_ETHEREUM",
-              unsignedTransaction,
-            },
-            timestampMs: String(Date.now()),
+          const signedTransaction = await signTransaction({
+            organizationId,
+            unsignedTransaction,
+            signWith: getAddress(transaction.from),
+            client: turnkeyClient,
           });
-          const { signTransactionResult } =
-            unwrapActivityResult<TSignTransactionResponse>(activityResponse, {
-              errorMessage: "Error signing transaction",
-            });
           setConnected(true, { chainId: activeChain.chainId });
-          return `0x${signTransactionResult?.signedTransaction}`;
+
+          return `0x${signedTransaction}`;
         }
         case "wallet_addEthereumChain": {
           const [chain] = params as [AddEthereumChainParameter];
