@@ -36,7 +36,7 @@ const modPow = (b: bigint, exp: bigint, p: bigint): bigint => {
   if (exp === BigInt(0)) {
     return BigInt(1);
   }
-  let result = b;
+  let result = b % p;
   const exponentBitString = exp.toString(2);
   for (let i = 1; i < exponentBitString.length; ++i) {
     result = (result * result) % p;

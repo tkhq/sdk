@@ -352,7 +352,7 @@ export const encryptPrivateKeyToBundle = async ({
     throw new Error('missing "targetPublic" in bundle signed data');
   }
 
-  // Load target public key generated from enclave and set in local storage
+  // Load target public key generated from enclave
   const targetKeyBuf = uint8ArrayFromHexString(signedData.targetPublic);
   const privateKeyBundle = hpkeEncrypt({ plainTextBuf, targetKeyBuf });
   return formatHpkeBuf(privateKeyBundle);
@@ -407,7 +407,7 @@ export const encryptWalletToBundle = async ({
     throw new Error('missing "targetPublic" in bundle signed data');
   }
 
-  // Load target public key generated from enclave and set in local storage
+  // Load target public key generated from enclave
   const targetKeyBuf = uint8ArrayFromHexString(signedData.targetPublic);
   const privateKeyBundle = hpkeEncrypt({ plainTextBuf, targetKeyBuf });
   return formatHpkeBuf(privateKeyBundle);
