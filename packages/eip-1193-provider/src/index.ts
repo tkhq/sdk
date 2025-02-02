@@ -200,7 +200,6 @@ export const createEIP1193Provider = async (
           // Verify the specified chain ID matches the return value of eth_chainId from the endpoint
           const rpcChainId = await request({
             method: "eth_chainId",
-            params: undefined,
           });
 
           if (activeChain.chainId !== rpcChainId) {
@@ -231,6 +230,7 @@ export const createEIP1193Provider = async (
           eventEmitter.emit("chainChanged", { chainId: activeChain.chainId });
           return null;
         }
+        // @ts-expect-error - unexpected fallthrough case in switch statement
         case "eth_sendTransaction": {
           const [transaction] = params as WalletRpcSchema[7]["Parameters"];
           const signedTransaction = await request({
@@ -278,6 +278,7 @@ export const createEIP1193Provider = async (
         case "eth_newFilter":
         case "eth_newPendingTransactionFilter":
         case "eth_syncing":
+        // @ts-expect-error - unexpected fallthrough case in switch statement
         case "eth_uninstallFilter":
           const {
             rpcUrls: [rpcUrl],
