@@ -1,16 +1,14 @@
 "use server";
 
 import {
-  ApiKeyStamper,
-  type TApiKeyStamperConfig,
-} from "@turnkey/api-key-stamper";
-import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
+  Turnkey as TurnkeyServerSDK,
+  TurnkeyApiTypes,
+  TurnkeyServerClient,
+} from "@turnkey/sdk-server";
+import { type TApiKeyStamperConfig } from "@turnkey/api-key-stamper";
 import type { Attestation, Email, PasskeyRegistrationResult } from "./types";
 
-import {
-  ETHEREUM_WALLET_DEFAULT_PATH,
-  CURVE_TYPE_SECP256K1,
-} from "./constants";
+import { ETHEREUM_WALLET_DEFAULT_PATH } from "./constants";
 import type { UUID } from "crypto";
 import type { Address } from "viem";
 
@@ -21,7 +19,8 @@ const {
   NEXT_PUBLIC_BASE_URL,
 } = process.env;
 
-export const createAPIKeyStamper = (options?: TApiKeyStamperConfig) => {
+// Note: this is not currently in use
+export const createAPIKeyStamper = async (options?: TApiKeyStamperConfig) => {
   const apiPublicKey = options?.apiPublicKey || TURNKEY_API_PUBLIC_KEY;
   const apiPrivateKey = options?.apiPrivateKey || TURNKEY_API_PRIVATE_KEY;
 
@@ -29,33 +28,27 @@ export const createAPIKeyStamper = (options?: TApiKeyStamperConfig) => {
     throw "Error must provide public and private api key or define API_PUBLIC_KEY API_PRIVATE_KEY in your .env file";
   }
 
-  return new ApiKeyStamper({
+  return new TurnkeyServerSDK({
+    apiBaseUrl: NEXT_PUBLIC_BASE_URL!,
+    defaultOrganizationId: NEXT_PUBLIC_ORGANIZATION_ID!,
     apiPublicKey,
     apiPrivateKey,
   });
 };
 
 export const createUserSubOrg = async (
-  turnkeyClient: TurnkeyClient,
+  turnkeyClient: TurnkeyServerClient,
   {
     email,
-    // if challenge and attestation are provided we are creating a non-custodial wallet using the users provided authenticator
+    // if challenge and attestation are provided we are creating a non-custodial wallet using the user's provided authenticator
     challenge,
     attestation,
   }: {
     email: Email;
     challenge: string;
     attestation: Attestation;
-  },
+  }
 ) => {
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createSubOrganization,
-  });
-
-  const organizationId = NEXT_PUBLIC_ORGANIZATION_ID!;
-  const timestampMs = String(Date.now());
-
   const rootUsersOptions =
     challenge && attestation
       ? {
@@ -67,6 +60,7 @@ export const createUserSubOrg = async (
             },
           ],
           apiKeys: [],
+          oauthProviders: [],
         }
       : {
           authenticators: [],
@@ -74,23 +68,21 @@ export const createUserSubOrg = async (
             {
               apiKeyName: "turnkey-demo",
               publicKey: TURNKEY_API_PUBLIC_KEY!,
-              curveType: CURVE_TYPE_SECP256K1,
+              curveType:
+                "API_KEY_CURVE_P256" as TurnkeyApiTypes["v1ApiKeyCurve"],
             },
           ],
+          oauthProviders: [],
         };
   const userName = email.split("@")[0];
-  const completedActivity = await activityPoller({
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
-    timestampMs,
-    organizationId,
-    parameters: {
+  const createSubOrganizationResult = await turnkeyClient
+    .createSubOrganization({
       subOrganizationName: `Sub Org - ${email}`,
       rootQuorumThreshold: 1,
       rootUsers: [
         {
           userName,
           userEmail: email,
-          oauthProviders: [],
           ...rootUsersOptions,
         },
       ],
@@ -105,30 +97,31 @@ export const createUserSubOrg = async (
           },
         ],
       },
-    },
-  }).catch((error) => {
-    console.error(error);
-  });
+    })
+    .catch((error: any) => {
+      console.error(error);
+    });
 
-  return completedActivity?.result.createSubOrganizationResultV4;
+  return createSubOrganizationResult;
 };
 
 export const signUp = async (
   email: Email,
-  passKeyRegistrationResult: PasskeyRegistrationResult,
+  passKeyRegistrationResult: PasskeyRegistrationResult
 ) => {
-  const client = new TurnkeyClient(
-    { baseUrl: NEXT_PUBLIC_BASE_URL! },
-    new ApiKeyStamper({
-      apiPublicKey: TURNKEY_API_PUBLIC_KEY!,
-      apiPrivateKey: TURNKEY_API_PRIVATE_KEY!,
-    }),
-  );
+  const client = new TurnkeyServerSDK({
+    apiBaseUrl: NEXT_PUBLIC_BASE_URL!,
+    defaultOrganizationId: NEXT_PUBLIC_ORGANIZATION_ID!,
+    apiPublicKey: TURNKEY_API_PUBLIC_KEY!,
+    apiPrivateKey: TURNKEY_API_PRIVATE_KEY!,
+  });
 
   // Create a new user sub org with email
   const { subOrganizationId, wallet } =
-    (await createUserSubOrg(client, { email, ...passKeyRegistrationResult })) ??
-    {};
+    (await createUserSubOrg(client.apiClient(), {
+      email,
+      ...passKeyRegistrationResult,
+    })) ?? {};
 
   return {
     subOrganizationId: subOrganizationId as UUID,

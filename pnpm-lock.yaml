@@ -870,7 +870,7 @@ importers:
         specifier: ^1.1.5
         version: 1.1.5(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@turnkey/api-key-stamper':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/api-key-stamper
       '@turnkey/eip-1193-provider':
         specifier: workspace:*
@@ -878,8 +878,14 @@ importers:
       '@turnkey/http':
         specifier: workspace:^
         version: link:../../packages/http
+      '@turnkey/sdk-react':
+        specifier: workspace:*
+        version: link:../../packages/sdk-react
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
       '@turnkey/webauthn-stamper':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/webauthn-stamper
       class-variance-authority:
         specifier: ^0.7.0
@@ -1721,6 +1727,9 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
+      '@turnkey/sdk-browser':
+        specifier: workspace:*
+        version: link:../sdk-browser
       viem:
         specifier: ^2.7.19
         version: 2.7.19(bufferutil@4.0.7)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.23.8)

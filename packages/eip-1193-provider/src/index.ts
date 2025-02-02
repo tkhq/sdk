@@ -1,3 +1,4 @@
+import { TurnkeyRequestError } from "@turnkey/http";
 import {
   type Address,
   type EIP1193Provider,
@@ -20,22 +21,15 @@ import type {
   TurnkeyEIP1193Provider,
   TurnkeyEIP1193ProviderOptions,
 } from "./types";
+import { signMessage, signTransaction, turnkeyIsDisconnected } from "./turnkey";
 
-import {
-  signMessage,
-  turnkeyIsDisconnected,
-  unwrapActivityResult,
-} from "./turnkey";
-
-import { TurnkeyRequestError } from "@turnkey/http";
 import { ChainIdMismatchError, UnrecognizedChainError } from "./errors";
 import { VERSION } from "./version";
-import { TSignTransactionResponse } from "../../http/src/__generated__/services/coordinator/public/v1/public_api.fetcher";
 
 export { TurnkeyEIP1193Provider };
 
 export const createEIP1193Provider = async (
-  options: TurnkeyEIP1193ProviderOptions,
+  options: TurnkeyEIP1193ProviderOptions
 ) => {
   const { turnkeyClient, organizationId, walletId, chains } = options;
 
@@ -64,13 +58,13 @@ export const createEIP1193Provider = async (
   function setConnected(connected: false, data: ProviderRpcError): void;
   function setConnected(
     connected: boolean,
-    data: ConnectInfo | ProviderRpcError,
+    data: ConnectInfo | ProviderRpcError
   ) {
     if (!isInitialized) return;
 
     // Find the currently selected chain and update its connected status
     addedChains = addedChains.map((chain) =>
-      chain.chainId === activeChain.chainId ? { ...chain, connected } : chain,
+      chain.chainId === activeChain.chainId ? { ...chain, connected } : chain
     );
     if (connected && lastEmittedEvent !== "connect" && isInitialized) {
       // Emit 'connect' event when the provider becomes connected as per EIP-1193
@@ -84,7 +78,7 @@ export const createEIP1193Provider = async (
       // Emit 'disconnect' event when disconnected from all chains
       // See https://eips.ethereum.org/EIPS/eip-1193#disconnect
       const providerDisconnectedError = new ProviderDisconnectedError(
-        data as ProviderRpcError,
+        data as ProviderRpcError
       );
       eventEmitter.emit("disconnect", providerDisconnectedError);
       // Reset 'connect' emitted flag on disconnect
@@ -143,7 +137,7 @@ export const createEIP1193Provider = async (
           const signedMessage = await signMessage({
             organizationId,
             message,
-            signWith,
+            signWith: getAddress(signWith),
             client: turnkeyClient,
           });
           setConnected(true, { chainId: activeChain.chainId });
@@ -156,7 +150,7 @@ export const createEIP1193Provider = async (
           const signedMessage = await signMessage({
             organizationId,
             message,
-            signWith,
+            signWith: getAddress(signWith),
             client: turnkeyClient,
           });
           setConnected(true, { chainId: activeChain.chainId });
@@ -169,10 +163,10 @@ export const createEIP1193Provider = async (
           ];
 
           const message = hashTypedData(typedData);
-          const signedMessage = signMessage({
+          const signedMessage = await signMessage({
             organizationId,
             message,
-            signWith,
+            signWith: getAddress(signWith),
             client: turnkeyClient,
           });
           setConnected(true, { chainId: activeChain.chainId });
@@ -181,22 +175,15 @@ export const createEIP1193Provider = async (
         case "eth_signTransaction": {
           const [transaction] = params as WalletRpcSchema[7]["Parameters"];
           const unsignedTransaction = preprocessTransaction({ ...transaction });
-          const activityResponse = await turnkeyClient.signTransaction({
-            type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
-            organizationId: organizationId,
-            parameters: {
-              signWith: getAddress(transaction.from),
-              type: "TRANSACTION_TYPE_ETHEREUM",
-              unsignedTransaction,
-            },
-            timestampMs: String(Date.now()),
+          const signedTransaction = await signTransaction({
+            organizationId,
+            unsignedTransaction,
+            signWith: getAddress(transaction.from),
+            client: turnkeyClient,
           });
-          const { signTransactionResult } =
-            unwrapActivityResult<TSignTransactionResponse>(activityResponse, {
-              errorMessage: "Error signing transaction",
-            });
           setConnected(true, { chainId: activeChain.chainId });
-          return `0x${signTransactionResult?.signedTransaction}`;
+
+          return `0x${signedTransaction}`;
         }
         case "wallet_addEthereumChain": {
           const [chain] = params as [AddEthereumChainParameter];
@@ -211,12 +198,18 @@ export const createEIP1193Provider = async (
           activeChain = chain;
 
           // Verify the specified chain ID matches the return value of eth_chainId from the endpoint
-          const rpcChainId = await request({ method: "eth_chainId" });
+          const rpcChainId = await request({
+            method: "eth_chainId",
+            params: undefined,
+          });
 
           if (activeChain.chainId !== rpcChainId) {
             // Revert to the previous connected chain or to undefined if no other chain connected
             activeChain = previousActiveChain;
-            throw new ChainIdMismatchError(chain.chainId as Hex, rpcChainId);
+            throw new ChainIdMismatchError(
+              chain.chainId as Hex,
+              rpcChainId as Hex
+            );
           }
 
           addedChains.push({ ...chain, connected: true });
@@ -227,7 +220,7 @@ export const createEIP1193Provider = async (
         case "wallet_switchEthereumChain": {
           const [targetChainId] = params as [string];
           const targetChain = addedChains.find(
-            (chain) => chain.chainId === targetChainId,
+            (chain) => chain.chainId === targetChainId
           );
 
           if (!targetChain) {
@@ -238,7 +231,6 @@ export const createEIP1193Provider = async (
           eventEmitter.emit("chainChanged", { chainId: activeChain.chainId });
           return null;
         }
-        // @ts-expect-error fall through expected
         case "eth_sendTransaction": {
           const [transaction] = params as WalletRpcSchema[7]["Parameters"];
           const signedTransaction = await request({
@@ -286,7 +278,6 @@ export const createEIP1193Provider = async (
         case "eth_newFilter":
         case "eth_newPendingTransactionFilter":
         case "eth_syncing":
-        // @ts-expect-error fall through expected
         case "eth_uninstallFilter":
           const {
             rpcUrls: [rpcUrl],
@@ -316,7 +307,7 @@ export const createEIP1193Provider = async (
           }
         default:
           throw new MethodNotSupportedRpcError(
-            new Error(`Invalid method: ${method}`),
+            new Error(`Invalid method: ${method}`)
           );
       }
     } catch (error: any) {

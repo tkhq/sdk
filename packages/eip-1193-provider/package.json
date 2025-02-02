@@ -52,7 +52,8 @@
   "dependencies": {
     "viem": "^2.7.19",
     "@turnkey/api-key-stamper": "workspace:*",
-    "@turnkey/http": "workspace:*"
+    "@turnkey/http": "workspace:*",
+    "@turnkey/sdk-browser": "workspace:*"
   },
   "devDependencies": {
     "hardhat": "^2.22.2",
