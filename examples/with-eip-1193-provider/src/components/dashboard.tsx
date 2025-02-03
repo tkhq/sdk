@@ -9,6 +9,7 @@ import {
   getAddress,
   Hex,
   numberToHex,
+  hashMessage,
 } from "viem";
 
 import { TurnkeyEIP1193Provider } from "@turnkey/eip-1193-provider";
@@ -26,6 +27,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,9 +45,12 @@ export function Dashboard({ provider }: DashboardProps) {
   const [selectedAccount, setSelectedAccount] = useState<AddressType | "">("");
   const [sendToAddress, setSendToAddress] = useState<AddressType | "">("");
   const [sendAmount, setSendAmount] = useState("");
+  const [message, setMessage] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [transactionDialogOpen, setTransactionDialogOpen] = useState(false);
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState<
-    "default" | "getting-accounts"
+    "default" | "getting-accounts" | "send-transaction" | "sign-message"
   >("default");
 
   useEffect(() => {
@@ -129,10 +134,51 @@ export function Dashboard({ provider }: DashboardProps) {
               );
             },
           },
-          duration: 5000,
+          duration: 10000,
         });
       } catch (error: any) {
         toast.error("Error sending transaction", {
+          description: error.details,
+          duration: 10000,
+        });
+      }
+      setDialogOpen(false);
+    }
+  };
+
+  const handleSignMessage = async () => {
+    if (provider && selectedAccount && message) {
+      const hashedMessage = hashMessage(message);
+
+      try {
+        const signedMessage = await provider.request({
+          method: "personal_sign",
+          params: [hashedMessage, selectedAccount],
+        });
+
+        toast("Verify here:", {
+          description: `Navigate to Etherscan to verify`,
+          action: {
+            label: "Verify",
+            onClick: () => {
+              window.open(`https://etherscan.io/verifiedSignatures#`, "_blank");
+            },
+          },
+          duration: 10000,
+        });
+
+        toast("Signed message! 🎉", {
+          description: `Message ${message} successfully signed: ${signedMessage}`,
+          action: {
+            label: "Copy",
+            onClick: () => {
+              navigator.clipboard.writeText(signedMessage);
+            },
+          },
+          duration: 10000,
+        });
+      } catch (error: any) {
+        toast.error("Error signing message", {
           description: error.details,
           duration: 10000,
         });
@@ -154,11 +200,14 @@ export function Dashboard({ provider }: DashboardProps) {
         </CardHeader>
       </Card>
 
-      <Dialog open={dialogOpen}>
+      <Dialog
+        open={transactionDialogOpen}
+        onOpenChange={setTransactionDialogOpen}
+      >
         <Button
           onClick={() => {
-            setDialogContent("default");
-            setDialogOpen(true);
+            setDialogContent("send-transaction");
+            setTransactionDialogOpen(true);
           }}
           variant="secondary"
           className="w-full mx-auto"
@@ -227,6 +276,72 @@ export function Dashboard({ provider }: DashboardProps) {
               </div>
               <DialogFooter>
                 <Button onClick={handleSendTransaction}>Send</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={messageDialogOpen} onOpenChange={setMessageDialogOpen}>
+        <Button
+          onClick={() => {
+            setDialogContent("sign-message");
+            setMessageDialogOpen(true);
+          }}
+          variant="secondary"
+          className="w-full mx-auto"
+        >
+          Sign Message
+        </Button>
+
+        <DialogContent className="sm:max-w-[425px]">
+          {dialogContent === "getting-accounts" ? (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-center">
+                  Getting Accounts
+                </DialogTitle>
+                <DialogDescription className="flex justify-center h-20 items-center">
+                  <Icons.spinner className="animate-spin w-10" />
+                </DialogDescription>
+              </DialogHeader>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Sign Message</DialogTitle>
+                <DialogDescription>
+                  Enter your message and click sign when you're ready.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="signWith" className="text-right">
+                    Sign With
+                  </Label>
+                  <Input
+                    id="signWith"
+                    value={selectedAccount}
+                    disabled
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="message" className="text-right">
+                    Message
+                  </Label>
+                  <Input
+                    id="message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="col-span-3"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button onClick={handleSignMessage}>Sign</Button>
+                </DialogClose>
               </DialogFooter>
             </>
           )}
