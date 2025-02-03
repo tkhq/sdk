@@ -1,5 +1,20 @@
 # @turnkey/sdk-server
 
+## 2.0.0
+
+### Major Changes
+
+- 1ebd4e2: Add server actions
+
+### Minor Changes
+
+- 6695af2: Update per mono release v2025.1.11
+
+### Patch Changes
+
+- Updated dependencies [6695af2]
+  - @turnkey/http@2.18.0
+
 ## 1.7.3
 
 ### Patch Changes
