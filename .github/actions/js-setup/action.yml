@@ -12,7 +12,7 @@ runs:
         node-version-file: ".nvmrc"
 
     - name: Use corepack to activate pnpm
-      run: corepack enable
+      run: npm i -g corepack@latest && corepack enable
       shell: bash
 
     - name: Audit dependencies (before installing anything)
