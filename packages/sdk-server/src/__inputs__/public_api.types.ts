@@ -308,6 +308,10 @@ export type paths = {
     /** Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
     post: operations["PublicApiService_UpdateUserTag"];
   };
+  "/public/v1/submit/update_wallet": {
+    /** Update a wallet for an organization */
+    post: operations["PublicApiService_UpdateWallet"];
+  };
   "/tkhq/api/v1/noop-codegen-anchor": {
     post: operations["PublicApiService_NOOPCodegenAnchor"];
   };
@@ -552,7 +556,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION"
     | "ACTIVITY_TYPE_INIT_OTP_AUTH"
     | "ACTIVITY_TYPE_OTP_AUTH"
-    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7";
+    | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"
+    | "ACTIVITY_TYPE_UPDATE_WALLET";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1497,6 +1502,8 @@ export type definitions = {
     emailCustomization?: definitions["v1EmailCustomizationParams"];
     /** @description Invalidate all other previously generated Email Auth API keys */
     invalidateExisting?: boolean;
+    /** @description Optional custom email address from which to send the email */
+    sendFromEmailAddress?: string;
   };
   v1EmailAuthIntentV2: {
     /** @description Email of the authenticating user. */
@@ -1511,6 +1518,8 @@ export type definitions = {
     emailCustomization?: definitions["v1EmailCustomizationParams"];
     /** @description Invalidate all other previously generated Email Auth API keys */
     invalidateExisting?: boolean;
+    /** @description Optional custom email address from which to send the email */
+    sendFromEmailAddress?: string;
   };
   v1EmailAuthRequest: {
     /** @enum {string} */
@@ -1945,6 +1954,8 @@ export type definitions = {
     smsCustomization?: definitions["v1SmsCustomizationParams"];
     /** @description Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address. */
     userIdentifier?: string;
+    /** @description Optional custom email address from which to send the OTP email */
+    sendFromEmailAddress?: string;
   };
   v1InitOtpAuthRequest: {
     /** @enum {string} */
@@ -2062,6 +2073,7 @@ export type definitions = {
     initOtpAuthIntent?: definitions["v1InitOtpAuthIntent"];
     otpAuthIntent?: definitions["v1OtpAuthIntent"];
     createSubOrganizationIntentV7?: definitions["v1CreateSubOrganizationIntentV7"];
+    updateWalletIntent?: definitions["v1UpdateWalletIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2420,6 +2432,7 @@ export type definitions = {
     initOtpAuthResult?: definitions["v1InitOtpAuthResult"];
     otpAuthResult?: definitions["v1OtpAuthResult"];
     createSubOrganizationResultV7?: definitions["v1CreateSubOrganizationResultV7"];
+    updateWalletResult?: definitions["v1UpdateWalletResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -2717,6 +2730,25 @@ export type definitions = {
   v1UpdateUserTagResult: {
     /** @description Unique identifier for a given User Tag. */
     userTagId: string;
+  };
+  v1UpdateWalletIntent: {
+    /** @description Unique identifier for a given Wallet. */
+    walletId: string;
+    /** @description Human-readable name for a Wallet. */
+    walletName?: string;
+  };
+  v1UpdateWalletRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_WALLET";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateWalletIntent"];
+  };
+  v1UpdateWalletResult: {
+    /** @description A Wallet ID. */
+    walletId: string;
   };
   v1User: {
     /** @description Unique identifier for a given User. */
@@ -4211,6 +4243,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1UpdateUserTagRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Update a wallet for an organization */
+  PublicApiService_UpdateWallet: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateWalletRequest"];
       };
     };
     responses: {
