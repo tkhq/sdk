@@ -2436,4 +2436,36 @@ export class TurnkeySDKClientBase {
       url: fullUrl,
     };
   };
+
+  updateWallet = async (
+    input: SdkApiTypes.TUpdateWalletBody,
+  ): Promise<SdkApiTypes.TUpdateWalletResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/update_wallet",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_WALLET",
+      },
+      "updateWalletResult",
+    );
+  };
+
+  stampUpdateWallet = async (
+    input: SdkApiTypes.TUpdateWalletBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.config.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.config.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
 }
