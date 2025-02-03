@@ -4,8 +4,8 @@
     "noEmit": true,
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
     "target": "ESNext",
-    "moduleResolution": "bundler",
-    "module": "preserve",
+    "moduleResolution": "node16",
+    "module": "node16",
     "resolveJsonModule": true
   },
   "include": ["**/*.js", "**/*.ts", "**/*.json"]

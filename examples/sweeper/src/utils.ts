@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { SupportedChainId, Token } from "@uniswap/sdk-core";
+import { ChainId, Token } from "@uniswap/sdk-core";
 
 // Environment
 
@@ -11,51 +11,51 @@ export enum Environment {
 // Currencies and Tokens
 
 export const WETH_TOKEN_MAINNET = new Token(
-  SupportedChainId.MAINNET,
+  ChainId.MAINNET,
   "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
   18,
   "WETH",
-  "Wrapped Ether",
+  "Wrapped Ether"
 );
 
 export const WETH_TOKEN_GOERLI = new Token(
-  SupportedChainId.GOERLI,
+  ChainId.GOERLI,
   "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
   18,
   "WETH",
-  "Wrapped Ether",
+  "Wrapped Ether"
 );
 
 export const USDC_TOKEN_MAINNET = new Token(
-  SupportedChainId.MAINNET,
+  ChainId.MAINNET,
   "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
   6,
   "USDC",
-  "USD//C",
+  "USD//C"
 );
 
 export const USDC_TOKEN_GOERLI = new Token(
-  SupportedChainId.GOERLI,
+  ChainId.GOERLI,
   "0x07865c6E87B9F70255377e024ace6630C1Eaa37F",
   6,
   "USDC",
-  "USD//C",
+  "USD//C"
 );
 
 export const UNI_TOKEN_MAINNET = new Token(
-  SupportedChainId.MAINNET,
+  ChainId.MAINNET,
   "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
   18,
   "UNI",
-  "Uniswap",
+  "Uniswap"
 );
 
 export const UNI_TOKEN_GOERLI = new Token(
-  SupportedChainId.GOERLI,
+  ChainId.GOERLI,
   "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
   18,
   "UNI",
-  "Uniswap",
+  "Uniswap"
 );
 
 // ABIs
@@ -85,7 +85,7 @@ export function fromReadableAmount(amount: number, decimals: number): bigint {
 export function toReadableAmount(
   rawAmount: number | string,
   decimals: number,
-  maxDecimals = MAX_DECIMALS,
+  maxDecimals = MAX_DECIMALS
 ): string {
   return ethers.formatUnits(rawAmount, decimals).slice(0, maxDecimals);
 }

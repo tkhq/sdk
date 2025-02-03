@@ -10,7 +10,7 @@
   "dependencies": {
     "@inquirer/prompts": "^2.1.0",
     "@noble/hashes": "1.4.0",
-    "@ton/core": "^0.59.0",
+    "@ton/core": "^0.60.0",
     "@ton/crypto": "^3.3.0",
     "@ton/ton": "^15.1.0",
     "@turnkey/http": "workspace:*",
@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@types/async-retry": "^1.4.8",
-    "tsx": "^3.12.7",
-    "typescript": "^5.0.4"
+    "tsx": "^4.19.2",
+    "typescript": "5.4.2"
   }
 }

@@ -60,6 +60,7 @@
     "sha256-uint8array": "^0.10.7"
   },
   "devDependencies": {
-    "tslib": "^2.8.1"
+    "tslib": "^2.8.1",
+    "typescript": "5.4.2"
   }
 }

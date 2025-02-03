@@ -52,7 +52,8 @@
     "@turnkey/webauthn-stamper": "workspace:*"
   },
   "devDependencies": {
-    "tslib": "2.8.1"
+    "tslib": "2.8.1",
+    "typescript": "5.4.2"
   },
   "engines": {
     "node": ">=22.12.0"

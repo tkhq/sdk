@@ -4,8 +4,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
-    "module": "preserve",
-    "moduleResolution": "bundler"
+    "module": "node16",
+    "moduleResolution": "node16"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],

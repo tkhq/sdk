@@ -36,6 +36,9 @@
     "clean": "rimraf ./dist ./.cache",
     "test": "jest"
   },
+  "devDependencies": {
+    "typescript": "5.4.2"
+  },
   "engines": {
     "node": ">=22.12.0"
   }

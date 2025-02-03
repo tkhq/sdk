@@ -7,7 +7,7 @@
     "lib": ["dom", "esnext"],
     "jsx": "react-jsx",
     "esModuleInterop": true,
-    "module": "preserve",
+    "module": "ES2022",
     "moduleResolution": "bundler"
   },
   "include": [

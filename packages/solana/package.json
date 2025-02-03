@@ -56,7 +56,8 @@
   },
   "devDependencies": {
     "bs58": "^6.0.0",
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "typescript": "5.4.2"
   },
   "engines": {
     "node": ">=22.12.0"

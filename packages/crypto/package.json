@@ -54,6 +54,7 @@
     "@turnkey/encoding": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
-    "tslib": "2.8.1"
+    "tslib": "2.8.1",
+    "typescript": "5.4.2"
   }
 }
