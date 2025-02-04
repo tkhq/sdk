@@ -2500,6 +2500,38 @@
         "tags": ["User Tags"]
       }
     },
+    "/public/v1/submit/update_wallet": {
+      "post": {
+        "summary": "Update Wallet",
+        "description": "Update a wallet for an organization",
+        "operationId": "PublicApiService_UpdateWallet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateWalletRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
+      }
+    },
     "/tkhq/api/v1/noop-codegen-anchor": {
       "post": {
         "operationId": "PublicApiService_NOOPCodegenAnchor",
@@ -2996,7 +3028,8 @@
         "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
         "ACTIVITY_TYPE_INIT_OTP_AUTH",
         "ACTIVITY_TYPE_OTP_AUTH",
-        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"
+        "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
+        "ACTIVITY_TYPE_UPDATE_WALLET"
       ]
     },
     "v1AddressFormat": {
@@ -5375,6 +5408,10 @@
         "invalidateExisting": {
           "type": "boolean",
           "description": "Invalidate all other previously generated Email Auth API keys"
+        },
+        "sendFromEmailAddress": {
+          "type": "string",
+          "description": "Optional custom email address from which to send the email"
         }
       },
       "required": ["email", "targetPublicKey"]
@@ -5405,6 +5442,10 @@
         "invalidateExisting": {
           "type": "boolean",
           "description": "Invalidate all other previously generated Email Auth API keys"
+        },
+        "sendFromEmailAddress": {
+          "type": "string",
+          "description": "Optional custom email address from which to send the email"
         }
       },
       "required": ["email", "targetPublicKey"]
@@ -6473,6 +6514,10 @@
         "userIdentifier": {
           "type": "string",
           "description": "Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address."
+        },
+        "sendFromEmailAddress": {
+          "type": "string",
+          "description": "Optional custom email address from which to send the OTP email"
         }
       },
       "required": ["otpType", "contact"]
@@ -6800,6 +6845,9 @@
         },
         "createSubOrganizationIntentV7": {
           "$ref": "#/definitions/v1CreateSubOrganizationIntentV7"
+        },
+        "updateWalletIntent": {
+          "$ref": "#/definitions/v1UpdateWalletIntent"
         }
       }
     },
@@ -7761,6 +7809,9 @@
         },
         "createSubOrganizationResultV7": {
           "$ref": "#/definitions/v1CreateSubOrganizationResultV7"
+        },
+        "updateWalletResult": {
+          "$ref": "#/definitions/v1UpdateWalletResult"
         }
       }
     },
@@ -8524,6 +8575,51 @@
         }
       },
       "required": ["userTagId"]
+    },
+    "v1UpdateWalletIntent": {
+      "type": "object",
+      "properties": {
+        "walletId": {
+          "type": "string",
+          "description": "Unique identifier for a given Wallet."
+        },
+        "walletName": {
+          "type": "string",
+          "description": "Human-readable name for a Wallet."
+        }
+      },
+      "required": ["walletId"]
+    },
+    "v1UpdateWalletRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_WALLET"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateWalletIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateWalletResult": {
+      "type": "object",
+      "properties": {
+        "walletId": {
+          "type": "string",
+          "description": "A Wallet ID."
+        }
+      },
+      "required": ["walletId"]
     },
     "v1User": {
       "type": "object",

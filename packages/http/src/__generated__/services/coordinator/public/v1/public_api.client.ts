@@ -286,6 +286,10 @@ import type {
   TUpdateUserTagBody,
   TUpdateUserTagResponse,
 } from "./public_api.fetcher";
+import type {
+  TUpdateWalletBody,
+  TUpdateWalletResponse,
+} from "./public_api.fetcher";
 
 export class TurnkeyClient {
   config: THttpConfig;
@@ -2661,6 +2665,37 @@ export class TurnkeyClient {
     input: TUpdateUserTagBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/update_user_tag";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Update a wallet for an organization
+   *
+   * Sign the provided `TUpdateWalletBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_wallet).
+   *
+   * See also {@link stampUpdateWallet}.
+   */
+  updateWallet = async (
+    input: TUpdateWalletBody,
+  ): Promise<TUpdateWalletResponse> => {
+    return this.request("/public/v1/submit/update_wallet", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateWalletBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateWallet}.
+   */
+  stampUpdateWallet = async (
+    input: TUpdateWalletBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/update_wallet";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

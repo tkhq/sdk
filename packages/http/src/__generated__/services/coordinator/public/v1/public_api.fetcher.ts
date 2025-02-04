@@ -3720,6 +3720,52 @@ export const signUpdateUserTag = (
   });
 
 /**
+ * `POST /public/v1/submit/update_wallet`
+ */
+export type TUpdateWalletResponse =
+  operations["PublicApiService_UpdateWallet"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_wallet`
+ */
+export type TUpdateWalletInput = { body: TUpdateWalletBody };
+
+/**
+ * `POST /public/v1/submit/update_wallet`
+ */
+export type TUpdateWalletBody =
+  operations["PublicApiService_UpdateWallet"]["parameters"]["body"]["body"];
+
+/**
+ * Update Wallet
+ *
+ * Update a wallet for an organization
+ *
+ * `POST /public/v1/submit/update_wallet`
+ */
+export const updateWallet = (input: TUpdateWalletInput) =>
+  request<TUpdateWalletResponse, TUpdateWalletBody, never, never, never>({
+    uri: "/public/v1/submit/update_wallet",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateWallet` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateWallet}
+ */
+export const signUpdateWallet = (
+  input: TUpdateWalletInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpdateWalletBody, never, never>({
+    uri: "/public/v1/submit/update_wallet",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /tkhq/api/v1/noop-codegen-anchor`
  */
 export type TNOOPCodegenAnchorResponse =
