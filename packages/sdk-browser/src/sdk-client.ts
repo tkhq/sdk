@@ -61,14 +61,14 @@ export class TurnkeyBrowserSDK {
     rpId?: string,
     timeout?: number,
     userVerification?: UserVerificationRequirement,
-    allowCredentials?: PublicKeyCredentialDescriptor[]
+    allowCredentials?: PublicKeyCredentialDescriptor[],
   ): TurnkeyPasskeyClient => {
     const targetRpId =
       rpId ?? this.config.rpId ?? WindowWrapper.location.hostname;
 
     if (!targetRpId) {
       throw new Error(
-        "Tried to initialize a passkey client with no rpId defined"
+        "Tried to initialize a passkey client with no rpId defined",
       );
     }
 
@@ -87,11 +87,11 @@ export class TurnkeyBrowserSDK {
   };
 
   iframeClient = async (
-    params: IframeClientParams
+    params: IframeClientParams,
   ): Promise<TurnkeyIframeClient> => {
     if (!params.iframeUrl) {
       throw new Error(
-        "Tried to initialize iframeClient with no iframeUrl defined"
+        "Tried to initialize iframeClient with no iframeUrl defined",
       );
     }
 
@@ -125,7 +125,7 @@ export class TurnkeyBrowserSDK {
   serverSign = async <TResponseType>(
     methodName: string,
     params: any[],
-    serverSignUrl?: string
+    serverSignUrl?: string,
   ): Promise<TResponseType> => {
     const targetServerSignUrl = serverSignUrl ?? this.config.serverSignUrl;
 
@@ -196,7 +196,7 @@ export class TurnkeyBrowserSDK {
    */
   getReadWriteSession = async (): Promise<ReadWriteSession | undefined> => {
     const currentUser: User | undefined = await getStorageValue(
-      StorageKeys.UserSession
+      StorageKeys.UserSession,
     );
 
     if (currentUser?.session?.write) {
@@ -269,7 +269,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
     organizationId?: string;
   }): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
     const readOnlySessionResult = await this.createReadOnlySession(
-      config || {}
+      config || {},
     );
 
     await saveSession(readOnlySessionResult, this.authClient);
@@ -290,7 +290,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
   loginWithReadWriteSession = async (
     targetEmbeddedKey: string,
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION,
-    userId?: string
+    userId?: string,
   ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
     const readWriteSessionResult = await this.createReadWriteSession({
       targetPublicKey: targetEmbeddedKey,
@@ -320,7 +320,7 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
    */
   loginWithAuthBundle = async (
     credentialBundle: string,
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION
+    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION,
   ): Promise<any> => {
     try {
       const whoAmIResult = await this.getWhoami();
@@ -353,7 +353,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
    * @returns {Promise<Passkey>}
    */
   createUserPasskey = async (
-    config: Record<any, any> = {}
+    config: Record<any, any> = {},
   ): Promise<Passkey> => {
     const challenge = generateRandomBuffer();
     const encodedChallenge = base64UrlEncode(challenge);
@@ -433,14 +433,14 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     userId: string,
     targetEmbeddedKey: string,
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION,
-    organizationId?: string
+    organizationId?: string,
   ): Promise<ReadWriteSession> => {
     const user = await getStorageValue(StorageKeys.UserSession);
     organizationId = organizationId ?? user?.organization.organizationId;
 
     if (!organizationId) {
       throw new Error(
-        "Error creating passkey session: Organization ID is required"
+        "Error creating passkey session: Organization ID is required",
       );
     }
 
@@ -474,7 +474,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
         credentialBundle,
         sessionExpiry: expiry,
       },
-      this.authClient
+      this.authClient,
     );
 
     return {
@@ -493,44 +493,44 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
   }
 
   injectCredentialBundle = async (
-    credentialBundle: string
+    credentialBundle: string,
   ): Promise<boolean> => {
     return await (this.stamper as IframeStamper).injectCredentialBundle(
-      credentialBundle
+      credentialBundle,
     );
   };
 
   injectWalletExportBundle = async (
     credentialBundle: string,
-    organizationId: string
+    organizationId: string,
   ): Promise<boolean> => {
     return await (this.stamper as IframeStamper).injectWalletExportBundle(
       credentialBundle,
-      organizationId
+      organizationId,
     );
   };
 
   injectKeyExportBundle = async (
     credentialBundle: string,
     organizationId: string,
-    keyFormat?: KeyFormat | undefined
+    keyFormat?: KeyFormat | undefined,
   ): Promise<boolean> => {
     return await (this.stamper as IframeStamper).injectKeyExportBundle(
       credentialBundle,
       organizationId,
-      keyFormat
+      keyFormat,
     );
   };
 
   injectImportBundle = async (
     bundle: string,
     organizationId: string,
-    userId: string
+    userId: string,
   ): Promise<boolean> => {
     return await (this.stamper as IframeStamper).injectImportBundle(
       bundle,
       organizationId,
-      userId
+      userId,
     );
   };
 
