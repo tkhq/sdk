@@ -6,7 +6,7 @@
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
     "lib": ["dom"],
     "target": "ES2022",
-    "module": "ES2022",
+    "module": "preserve",
     "moduleResolution": "bundler"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
