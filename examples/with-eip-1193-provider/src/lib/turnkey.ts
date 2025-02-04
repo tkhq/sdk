@@ -47,7 +47,7 @@ export const createUserSubOrg = async (
     email: Email;
     challenge: string;
     attestation: Attestation;
-  }
+  },
 ) => {
   const rootUsersOptions =
     challenge && attestation
@@ -107,7 +107,7 @@ export const createUserSubOrg = async (
 
 export const signUp = async (
   email: Email,
-  passKeyRegistrationResult: PasskeyRegistrationResult
+  passKeyRegistrationResult: PasskeyRegistrationResult,
 ) => {
   const client = new TurnkeyServerSDK({
     apiBaseUrl: NEXT_PUBLIC_BASE_URL!,
