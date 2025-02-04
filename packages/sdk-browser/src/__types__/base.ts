@@ -1,6 +1,8 @@
 import type { TActivityId, TActivityStatus } from "@turnkey/http";
-import type { WalletInterface } from "@turnkey/wallet-stamper";
+import type { WalletInterface, WalletStamper } from "@turnkey/wallet-stamper";
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
+import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import type { IframeStamper } from "@turnkey/iframe-stamper";
 
 export type GrpcStatus = {
   message: string;
@@ -93,6 +95,8 @@ export interface TurnkeySDKBrowserConfig {
   serverSignUrl?: string;
   iframeUrl?: string;
 }
+
+export type Stamper = WebauthnStamper | IframeStamper | WalletStamper;
 
 export type queryOverrideParams = {
   organizationId?: string;
