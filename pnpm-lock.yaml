@@ -1778,6 +1778,18 @@ importers:
 
   packages/iframe-stamper: {}
 
+  packages/local-storage-stamper:
+    dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../api-key-stamper
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../crypto
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../encoding
+
   packages/react-native-passkey-stamper:
     dependencies:
       '@turnkey/encoding':
