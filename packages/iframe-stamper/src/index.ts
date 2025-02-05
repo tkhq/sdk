@@ -405,6 +405,7 @@ export class IframeStamper {
    * Function to sign a payload with the underlying iframe
    */
   async stamp(payload: string): Promise<TStamp> {
+    console.log("calling stamp");
     if (this.iframePublicKey === null) {
       throw new Error(
         "null iframe public key. Have you called/awaited .init()?",
