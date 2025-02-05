@@ -243,7 +243,6 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
 
   /** @type {Array<string>} */
   const imports = [];
-
   imports.push(
     'import { TERMINAL_ACTIVITY_STATUSES, TActivityResponse, TActivityStatus, TSignedRequest } from "@turnkey/http";',
   );
@@ -253,7 +252,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   );
 
   imports.push(
-    'import { GrpcStatus, TurnkeyRequestError, TurnkeySDKClientConfig } from "../__types__/base";',
+    'import { GrpcStatus, TStamper, TurnkeyRequestError, TurnkeySDKClientConfig } from "../__types__/base";',
   );
 
   imports.push('import { VERSION } from "../__generated__/version";');
@@ -264,8 +263,11 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
 export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;
 
+  protected stamper: TStamper;
+
   constructor(config: TurnkeySDKClientConfig) {
     this.config = config;
+    this.stamper = config.stamper;
   }
 
   async request<TBodyType, TResponseType>(
@@ -274,7 +276,7 @@ export class TurnkeySDKClientBase {
   ): Promise<TResponseType> {
     const fullUrl = this.config.apiBaseUrl + url;
     const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.config.stamper.stamp(stringifiedBody);
+    const stamp = await this.stamper.stamp(stringifiedBody);
 
     const response = await fetch(fullUrl, {
       method: "POST",
@@ -443,12 +445,12 @@ export class TurnkeySDKClientBase {
     // generate a stamping method for each method
     codeBuffer.push(
       `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkApiTypes.${inputType}): Promise<TSignedRequest | undefined> => {
-    if (!this.config.stamper) {
+    if (!this.stamper) {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
     const body = JSON.stringify(input);
-    const stamp = await this.config.stamper.stamp(body);
+    const stamp = await this.stamper.stamp(body);
     return {
       body: body,
       stamp: stamp,

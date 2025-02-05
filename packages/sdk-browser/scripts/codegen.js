@@ -86,7 +86,6 @@ function extractLatestVersions(definitions) {
     const match = key.match(keyVersionRegex);
     if (match) {
       const fullName = match[0];
-      const _defaultPrefix = match[1]; // This is simply the namespace prefix; every field has this "v1"
       const baseName = match[2]; // Field without any version-related prefixes or suffixes
       const versionSuffix = match[3]; // Version (optional)
       const formattedKeyName =
@@ -253,7 +252,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   );
 
   imports.push(
-    'import { GrpcStatus, TurnkeyRequestError, TurnkeySDKClientConfig } from "../__types__/base";',
+    'import { GrpcStatus, TStamper, TurnkeyRequestError, TurnkeySDKClientConfig } from "../__types__/base";',
   );
 
   imports.push('import { VERSION } from "../__generated__/version";');
@@ -266,8 +265,13 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
 export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;
 
+  stamper?: TStamper | undefined;
+
   constructor(config: TurnkeySDKClientConfig) {
     this.config = config;
+    if (config.stamper) {
+      this.stamper = config.stamper;
+    }
   }
 
   async request<TBodyType, TResponseType>(
@@ -279,8 +283,8 @@ export class TurnkeySDKClientBase {
     var headers: Record<string, string> = {
       "X-Client-Version": VERSION
     }
-    if (this.config.stamper) {
-      const stamp = await this.config.stamper.stamp(stringifiedBody);
+    if (this.stamper) {
+      const stamp = await this.stamper.stamp(stringifiedBody);
       headers[stamp.stampHeaderName] = stamp.stampHeaderValue
     }
 
@@ -454,12 +458,12 @@ export class TurnkeySDKClientBase {
     // generate a stamping method for each method
     codeBuffer.push(
       `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkApiTypes.${inputType}): Promise<TSignedRequest | undefined> => {
-    if (!this.config.stamper) {
+    if (!this.stamper) {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
     const body = JSON.stringify(input);
-    const stamp = await this.config.stamper.stamp(body);
+    const stamp = await this.stamper.stamp(body);
     return {
       body: body,
       stamp: stamp,

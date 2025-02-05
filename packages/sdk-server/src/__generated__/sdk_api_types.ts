@@ -801,5 +801,15 @@ export type TUpdateUserTagBody =
   operations["PublicApiService_UpdateUserTag"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TUpdateWalletResponse =
+  operations["PublicApiService_UpdateWallet"]["responses"]["200"]["schema"]["activity"]["result"]["updateWalletResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateWalletInput = { body: TUpdateWalletBody };
+
+export type TUpdateWalletBody =
+  operations["PublicApiService_UpdateWallet"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TNOOPCodegenAnchorResponse =
   operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];
