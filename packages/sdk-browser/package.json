@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/local-storage-stamper": "workspace:*",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/http": "workspace:*",

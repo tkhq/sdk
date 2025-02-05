@@ -559,3 +559,43 @@ export class TurnkeyWalletClient extends TurnkeyBrowserClient {
     return this.wallet;
   }
 }
+
+
+export class TurnkeyLocalStorageClient extends TurnkeyBrowserClient {
+  private localStorageStamper: LocalStorageStamper;
+
+  constructor(config: TurnkeySDKClientConfig) {
+    // Initialize the LocalStorageStamper
+    const localStorageStamper = new LocalStorageStamper();
+
+    // Pass the stamper and config to the parent class
+    super({ ...config, stamper: localStorageStamper }, AuthClient.LocalStorage);
+
+    // Store the LocalStorageStamper instance
+    this.localStorageStamper = localStorageStamper;
+  }
+
+  /**
+   * Initializes the LocalStorageStamper by generating a P-256 key pair and storing it in localStorage.
+   */
+  async init(): Promise<void> {
+    await this.localStorageStamper.init();
+  }
+
+  /**
+   * Injects a credential bundle into localStorage and automatically decrypts it.
+   * The decrypted key is stored in localStorage and used to initialize the `ApiKeyStamper`.
+   */
+  async injectCredentialBundle(encryptedBundle: string): Promise<void> {
+    await this.localStorageStamper.injectCredentialBundle(encryptedBundle);
+  }
+
+  /**
+   * Returns the public key of the embedded key pair, or `null` if no key pair has been generated.
+   */
+  getPublicKey(): string | null {
+    return this.localStorageStamper.getPublicKey();
+  }
+}
+
+
