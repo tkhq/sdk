@@ -23,7 +23,7 @@ runs:
     - name: Get pnpm store directory (for caching)
       id: pnpm-cache-dir
       run: |
-        echo "::set-output name=dir::$(pnpm store path)"
+        echo "dir=$(pnpm store path)" >> $GITHUB_OUTPUT
       shell: bash
 
     # https://github.com/actions/cache
