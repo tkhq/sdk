@@ -6,23 +6,28 @@ import preserveDirectives from "rollup-preserve-directives";
 import url from "@rollup/plugin-url";
 import alias from "@rollup/plugin-alias";
 import copy from "rollup-plugin-copy";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+import { babel } from "@rollup/plugin-babel";
 
 const getFormatConfig = (format) => {
   const pkgPath = path.join(process.cwd(), "package.json");
+  // For __dirname in ES modules:
   const __dirname = path.dirname(new URL(import.meta.url).pathname);
+  const isCjs = format === "cjs";
 
   return {
     input: "src/index.ts",
     output: {
       format,
       dir: "dist",
+      // Use .mjs for ESM builds and .js for CJS builds:
       entryFileNames: `[name].${format === "esm" ? "mjs" : "js"}`,
       preserveModules: true,
       sourcemap: true,
     },
     plugins: [
+      // Resolve alias for assets
       alias({
-        // required for svg assets
         entries: [
           {
             find: "assets",
@@ -30,8 +35,12 @@ const getFormatConfig = (format) => {
           },
         ],
       }),
+      // Resolve modules from node_modules
+      nodeResolve({
+        extensions: [".js", ".jsx", ".ts", ".tsx"],
+      }),
+      // Process CSS/SCSS files
       postcss({
-        // required for css module bundling
         modules: true,
         extensions: [".css", ".scss"],
         use: ["sass"],
@@ -39,24 +48,47 @@ const getFormatConfig = (format) => {
         minimize: true,
         sourceMap: true,
       }),
+      // Compile TypeScript/TSX files
       typescript({
         outputToFilesystem: true,
         tsconfig: "./tsconfig.json",
         compilerOptions: {
           outDir: "dist",
           composite: false,
+          // Emit declarations only for the ESM build
           declaration: format === "esm",
           declarationMap: format === "esm",
           sourceMap: true,
         },
       }),
-      preserveDirectives(), // required for use server and use client directive preservation
+      // Transpile using Babel and ensure ES module syntax is preserved
+      babel({
+        babelHelpers: "bundled",
+        extensions: [".js", ".jsx", ".ts", ".tsx"],
+        include: ["src/**/*", "node_modules/@mui/icons-material/**/*"],
+        presets: [
+          [
+            "@babel/preset-env",
+            {
+              // Disable module transformation so Rollup can handle imports/exports
+              modules: false,
+              targets: isCjs ? { node: "current" } : undefined,
+            },
+          ],
+          "@babel/preset-react",
+        ],
+      }),
+      // Preserve directives such as "use client" or "use server"
+      preserveDirectives(),
+      // Mark most dependencies as external, except @mui/icons-material
       nodeExternals({
         packagePath: pkgPath,
         builtinsPrefix: "ignore",
+        deps: true,
+        include: ["@mui/icons-material"],
       }),
+      // Handle assets like images and fonts
       url({
-        // required for fonts and assets
         include: [
           "**/*.svg",
           "**/*.png",
@@ -71,8 +103,8 @@ const getFormatConfig = (format) => {
         emitFiles: true,
         fileName: "assets/fonts/[name].[hash][extname]",
       }),
+      // Copy fonts from src to dist
       copy({
-        // required for fonts
         targets: [
           {
             src: path.resolve(__dirname, "src/assets/fonts/**/*"),
