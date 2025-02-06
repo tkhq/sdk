@@ -1,4 +1,4 @@
-import { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
+import { type IframeStamper, type KeyFormat } from "@turnkey/iframe-stamper";
 
 import { TurnkeyBrowserClient } from "./browser-client";
 

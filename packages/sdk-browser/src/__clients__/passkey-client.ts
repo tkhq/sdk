@@ -1,4 +1,4 @@
-import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import { type WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
 import { TurnkeyBrowserClient } from "./browser-client";
