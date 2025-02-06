@@ -27,13 +27,12 @@ export {
   WebauthnStamper,
 } from "@turnkey/webauthn-stamper";
 
-export {
-  TurnkeyBrowserSDK as Turnkey,
-  TurnkeyBrowserClient,
-  TurnkeyIframeClient,
-  TurnkeyPasskeyClient,
-  TurnkeyWalletClient,
-} from "./sdk-client";
+export { TurnkeyBrowserSDK as Turnkey } from "./sdk-client";
+
+export { TurnkeyBrowserClient } from "./__clients__/browser-client";
+export { TurnkeyIframeClient } from "./__clients__/iframe-client";
+export { TurnkeyPasskeyClient } from "./__clients__/passkey-client";
+export { TurnkeyWalletClient } from "./__clients__/wallet-client";
 
 export type { User, ReadOnlySession, ReadWriteSession } from "./models";
 
