@@ -33,7 +33,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: "...",
       apiPrivateKey: "...",
-    }),
+    })
   );
 
   // Create the Viem custom account
@@ -70,7 +70,37 @@ main().catch((error) => {
 
 ## Testing (Local)
 
-See `.env.example` to get your local testing environment right. In order to run the tests, run an Anvil node in one shell (via `pnpm anvil`), and run `pnpm jest` in another.
+1. Copy `.env.example` to `.env`
+
+   ```bash
+   $ cp .env.example .env
+   ```
+
+2. Start the Anvil node in one shell:
+
+   - Install [Foundry](https://book.getfoundry.sh/getting-started/installation) & Anvil if you haven't done so already
+   - Add Foundry to your `$PATH`
+     ```bash
+     $ export PATH="$PATH:$HOME/.foundry/bin"
+     ```
+   - Source your env e.g.
+     ```bash
+     $ source ~/.zshrc
+     ```
+   - Run `foundryup` to install `Anvil`
+     ```bash
+     $ foundryup
+     ```
+   - Start Anvil
+     ```
+     $ pnpm anvil
+     ```
+
+3. Run the tests in a new shell:
+
+   ```
+   $ pnpm test
+   ```
 
 ## See also
 
