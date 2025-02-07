@@ -47,7 +47,7 @@ export function Connect({ organizationId, onAccountConnected }: ConnectProps) {
   useEffect(() => {
     const initializeClient = async () => {
       const client = new TurnkeyClient(
-        { baseUrl: process.env.NEXT_PUBLIC_BASE_URL! },
+        { baseUrl: process.env.NEXT_PUBLIC_TURNKEY_BASE_URL! },
         new WebauthnStamper({
           rpId: process.env.NEXT_PUBLIC_WEBAUTHN_RPID!,
         }),

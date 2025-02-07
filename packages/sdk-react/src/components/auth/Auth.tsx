@@ -220,7 +220,7 @@ const Auth: React.FC<AuthProps> = ({
 
       const sessionResponse = await passkeyClient?.createReadWriteSession({
         targetPublicKey: authIframeClient?.iframePublicKey!,
-        organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+        organizationId: process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID!,
       });
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(sessionResponse.credentialBundle);
@@ -236,7 +236,7 @@ const Auth: React.FC<AuthProps> = ({
     try {
       const sessionResponse = await passkeyClient?.createReadWriteSession({
         targetPublicKey: authIframeClient?.iframePublicKey!,
-        organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+        organizationId: process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID!,
       });
 
       if (sessionResponse?.credentialBundle) {

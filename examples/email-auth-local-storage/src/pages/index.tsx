@@ -157,12 +157,12 @@ export default function AuthPage() {
       apiBaseUrl: "https://api.turnkey.com",
       apiPublicKey: turnkeyPublicKey,
       apiPrivateKey: turnkeyPrivateKey,
-      defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      defaultOrganizationId: process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID!,
     });
 
     // Get whoami response for suborg
     const whoamiResponse = await turnkeyClient.apiClient().getWhoami({
-      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      organizationId: process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID!,
     });
 
     const orgID = whoamiResponse.organizationId;

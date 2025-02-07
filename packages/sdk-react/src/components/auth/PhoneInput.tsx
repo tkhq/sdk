@@ -15,11 +15,23 @@ import {
 } from "react-international-phone";
 import { FlagImage as OriginalFlagImage } from "react-international-phone";
 const FlagImage = OriginalFlagImage as React.ElementType;
-const allowedCountries = ["us", "ca"];
+
+// List of unsupported country dial codes
+const unsupported_country_codes = [
+  "+93",  // Afghanistan
+  "+964", // Iraq
+  "+963", // Syria
+  "+249", // Sudan
+  "+98",  // Iran
+  "+850", // North Korea
+  "+53",  // Cuba
+  "+250", // Rwanda
+  "+379", // Vatican City
+];
 
 const countries = defaultCountries.filter((country) => {
-  const { iso2 } = parseCountry(country);
-  return allowedCountries.includes(iso2);
+  const { dialCode } = parseCountry(country);
+  return !unsupported_country_codes.includes(`+${dialCode}`);
 });
 
 export interface MUIPhoneProps extends BaseTextFieldProps {

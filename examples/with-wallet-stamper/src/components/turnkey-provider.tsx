@@ -49,7 +49,7 @@ interface TurnkeyProviderProps {
 }
 
 const clientConfig = {
-  baseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+  baseUrl: process.env.NEXT_PUBLIC_TURNKEY_BASE_URL!,
 };
 
 export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({

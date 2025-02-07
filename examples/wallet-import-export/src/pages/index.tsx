@@ -30,7 +30,7 @@ export default function ExportPage() {
 
   // Get the current user
   const whoami = async () => {
-    const organizationId = process.env.NEXT_PUBLIC_ORGANIZATION_ID!;
+    const organizationId = process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID!;
     const res = await axios.post("/api/whoami", { organizationId });
 
     setUserId(res.data.userId);
@@ -38,7 +38,7 @@ export default function ExportPage() {
 
   // Get the organization's wallets
   const getWallets = async () => {
-    const organizationId = process.env.NEXT_PUBLIC_ORGANIZATION_ID!;
+    const organizationId = process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID!;
     const res = await axios.post("/api/getWallets", { organizationId });
 
     setWallets(res.data.wallets);
@@ -90,7 +90,7 @@ export default function ExportPage() {
           onClose={() => setIsImportModalOpen(false)}
         >
           <ImportWallet
-            organizationId={process.env.NEXT_PUBLIC_ORGANIZATION_ID!}
+            organizationId={process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID!}
             userId={userId}
             getWallets={getWallets}
           />
@@ -104,7 +104,7 @@ export default function ExportPage() {
           onClose={() => setIsExportModalOpen(false)}
         >
           <ExportWallet
-            organizationId={process.env.NEXT_PUBLIC_ORGANIZATION_ID!}
+            organizationId={process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID!}
             walletId={selectedWallet}
           />
         </Modal>
