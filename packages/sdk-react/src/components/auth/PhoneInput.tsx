@@ -18,13 +18,13 @@ const FlagImage = OriginalFlagImage as React.ElementType;
 
 // List of unsupported country dial codes
 const unsupported_country_codes = [
-  "+93",  // Afghanistan
+  "+93", // Afghanistan
   "+964", // Iraq
   "+963", // Syria
   "+249", // Sudan
-  "+98",  // Iran
+  "+98", // Iran
   "+850", // North Korea
-  "+53",  // Cuba
+  "+53", // Cuba
   "+250", // Rwanda
   "+379", // Vatican City
 ];
