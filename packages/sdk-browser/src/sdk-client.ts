@@ -1,5 +1,6 @@
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
+import { LocalStorageStamper } from "@turnkey/local-storage-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
 import { WalletStamper, type WalletInterface } from "@turnkey/wallet-stamper";
 
@@ -111,6 +112,15 @@ export class TurnkeyBrowserSDK {
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
     });
+  };
+
+  localStorageClient = (): TurnkeyLocalStorageClient => {
+    this.stamper = new LocalStorageStamper();
+    return new TurnkeyLocalStorageClient({
+      stamper: this.stamper,
+      apiBaseUrl: this.config.apiBaseUrl,
+      organizationId: this.config.defaultOrganizationId,
+  });
   };
 
   walletClient = (wallet: WalletInterface): TurnkeyWalletClient => {
@@ -568,8 +578,7 @@ export class TurnkeyLocalStorageClient extends TurnkeyBrowserClient {
     // Initialize the LocalStorageStamper
     const localStorageStamper = new LocalStorageStamper();
 
-    // Pass the stamper and config to the parent class
-    super({ ...config, stamper: localStorageStamper }, AuthClient.LocalStorage);
+    super(config, AuthClient.LocalStorage);
 
     // Store the LocalStorageStamper instance
     this.localStorageStamper = localStorageStamper;
@@ -591,11 +600,16 @@ export class TurnkeyLocalStorageClient extends TurnkeyBrowserClient {
   }
 
   /**
+   * Injects an api private key into localStorage to stamp with
+   */
+    async injectApiKey(apiPrivateKey: string): Promise<void> {
+      await this.localStorageStamper.injectApiKey(apiPrivateKey);
+    }
+
+  /**
    * Returns the public key of the embedded key pair, or `null` if no key pair has been generated.
    */
   getPublicKey(): string | null {
     return this.localStorageStamper.getPublicKey();
   }
 }
-
-

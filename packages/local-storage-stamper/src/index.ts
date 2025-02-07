@@ -88,6 +88,23 @@ export class LocalStorageStamper {
     });
   }
 
+    /**
+   * Injects a credential bundle into localStorage and automatically decrypts it.
+   * The decrypted key is stored in localStorage and used to initialize the `ApiKeyStamper`.
+   */
+    async injectApiKey(apiPrivateKey: string): Promise<void> {
+      const publicKey = uint8ArrayToHexString(getPublicKey(apiPrivateKey, true));
+      localStorage.setItem(LOCAL_STORAGE_API_PRIVATE_KEY, apiPrivateKey);
+      localStorage.setItem(LOCAL_STORAGE_API_PUBLIC_KEY, publicKey);
+      this.privateKey = apiPrivateKey;
+  
+      // Initialize the ApiKeyStamper with the decrypted key
+      this.apiKeyStamper = new ApiKeyStamper({
+        apiPublicKey: this.publicKey!,
+        apiPrivateKey: this.privateKey,
+      });
+    }
+
   /**
    * Signs a payload using the `ApiKeyStamper`.
    */

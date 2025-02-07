@@ -8,6 +8,7 @@ import {
   TurnkeySDKBrowserConfig,
   TurnkeyBrowserClient,
   TurnkeyWalletClient,
+  TurnkeyLocalStorageClient,
   AuthClient,
 } from "@turnkey/sdk-browser";
 import type { WalletInterface } from "@turnkey/wallet-stamper";
@@ -17,6 +18,7 @@ export interface TurnkeyClientType {
   client: TurnkeyBrowserClient | undefined;
   turnkey: Turnkey | undefined;
   authIframeClient: TurnkeyIframeClient | undefined;
+  localStorageClient: TurnkeyLocalStorageClient | undefined;
   passkeyClient: TurnkeyPasskeyClient | undefined;
   walletClient: TurnkeyWalletClient | undefined;
   getActiveClient: () => Promise<TurnkeyBrowserClient | undefined>;
@@ -27,6 +29,7 @@ export const TurnkeyContext = createContext<TurnkeyClientType>({
   turnkey: undefined,
   passkeyClient: undefined,
   authIframeClient: undefined,
+  localStorageClient: undefined,
   walletClient: undefined,
   getActiveClient: async () => {
     return undefined;
@@ -47,6 +50,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   children,
 }) => {
   const [turnkey, setTurnkey] = useState<Turnkey | undefined>(undefined);
+  const [localStorageClient, setLocalStorageClient] = useState<
+  TurnkeyLocalStorageClient | undefined
+>(undefined);
   const [passkeyClient, setPasskeyClient] = useState<
     TurnkeyPasskeyClient | undefined
   >(undefined);
@@ -119,6 +125,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           setWalletClient(newTurnkey.walletClient(config.wallet));
         }
 
+        const newLocalStorageClient = await newTurnkey.localStorageClient();
+        setLocalStorageClient(newLocalStorageClient)
         const newAuthIframeClient = await newTurnkey.iframeClient({
           iframeContainer: document.getElementById(
             TurnkeyAuthIframeContainerId,
@@ -148,6 +156,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         [AuthClient.Iframe]: authIframeClient,
         [AuthClient.Passkey]: passkeyClient,
         [AuthClient.Wallet]: walletClient,
+        [AuthClient.LocalStorage]: localStorageClient,
       }[session?.authClient];
       setClient(client);
     }
@@ -160,6 +169,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         turnkey,
         passkeyClient,
         authIframeClient,
+        localStorageClient,
         walletClient,
         getActiveClient,
       }}

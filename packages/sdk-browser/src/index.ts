@@ -32,6 +32,7 @@ export {
   TurnkeyBrowserClient,
   TurnkeyIframeClient,
   TurnkeyPasskeyClient,
+  TurnkeyLocalStorageClient,
   TurnkeyWalletClient,
 } from "./sdk-client";
 

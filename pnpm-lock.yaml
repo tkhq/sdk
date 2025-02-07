@@ -1825,6 +1825,9 @@ importers:
       '@turnkey/iframe-stamper':
         specifier: workspace:*
         version: link:../iframe-stamper
+      '@turnkey/local-storage-stamper':
+        specifier: workspace:*
+        version: link:../local-storage-stamper
       '@turnkey/wallet-stamper':
         specifier: workspace:*
         version: link:../wallet-stamper

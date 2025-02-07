@@ -3,7 +3,7 @@ import type { WalletInterface, WalletStamper } from "@turnkey/wallet-stamper";
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IframeStamper } from "@turnkey/iframe-stamper";
-
+import type { LocalStorageStamper} from "@turnkey/local-storage-stamper";
 export type GrpcStatus = {
   message: string;
   code: number;
@@ -96,7 +96,7 @@ export interface TurnkeySDKBrowserConfig {
   iframeUrl?: string;
 }
 
-export type Stamper = WebauthnStamper | IframeStamper | WalletStamper;
+export type Stamper = WebauthnStamper | IframeStamper | WalletStamper | LocalStorageStamper;
 
 export type queryOverrideParams = {
   organizationId?: string;
@@ -124,6 +124,7 @@ export enum AuthClient {
   Passkey = "passkey",
   Wallet = "wallet",
   Iframe = "iframe",
+  LocalStorage = "local_storage",
 }
 
 export type TSessionResponse = Omit<
