@@ -93,7 +93,7 @@ export default function AuthPage() {
 
     // get whoami for suborg
     const whoamiResponse = await authIframeClient!.getWhoami({
-      organizationId: process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID!,
+      organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
     const orgID = whoamiResponse.organizationId;

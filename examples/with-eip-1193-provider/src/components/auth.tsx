@@ -23,7 +23,7 @@ type AuthProps = {
 };
 
 const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL!;
-const parentOrgId = process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID!;
+const parentOrgId = process.env.NEXT_PUBLIC_ORGANIZATION_ID!;
 
 export function Auth({ onAuth }: AuthProps) {
   const [email, setEmail] = useState<Email | "">("");

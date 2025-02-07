@@ -120,7 +120,7 @@ export function ImportWallet(props: ImportWalletProps) {
           setIframeStamper={setIframeStamper}
           iframeDisplay={iframeDisplay}
           iframeUrl={process.env.NEXT_PUBLIC_IMPORT_IFRAME_URL!}
-          turnkeyBaseUrl={process.env.NEXT_PUBLIC_TURNKEY_BASE_URL!}
+          turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
         />
         <div className={styles.modalSpace}>
           {stage === "init" ? (

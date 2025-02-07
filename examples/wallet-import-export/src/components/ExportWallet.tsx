@@ -106,7 +106,7 @@ export function ExportWallet(props: ExportWalletProps) {
           setIframeStamper={setIframeStamper}
           iframeDisplay={iframeDisplay}
           iframeUrl={process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!}
-          turnkeyBaseUrl={process.env.NEXT_PUBLIC_TURNKEY_BASE_URL!}
+          turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
         />
       </div>
     </div>
