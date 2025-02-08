@@ -1,5 +1,20 @@
 # @turnkey/sdk-react
 
+## 3.0.0
+
+### Major Changes
+
+- 1ebd4e2: Remove references to server actions and import from sdk-server
+
+### Patch Changes
+
+- Updated dependencies [6695af2]
+- Updated dependencies [1ebd4e2]
+  - @turnkey/sdk-browser@1.12.0
+  - @turnkey/sdk-server@2.0.0
+  - @turnkey/crypto@2.3.0
+  - @turnkey/wallet-stamper@1.0.2
+
 ## 2.0.4
 
 ### Patch Changes

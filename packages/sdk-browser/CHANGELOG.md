@@ -1,5 +1,18 @@
 # @turnkey/sdk-browser
 
+## 1.12.0
+
+### Minor Changes
+
+- 6695af2: Update per mono release v2025.1.11
+
+### Patch Changes
+
+- Updated dependencies [6695af2]
+  - @turnkey/http@2.18.0
+  - @turnkey/crypto@2.3.0
+  - @turnkey/wallet-stamper@1.0.2
+
 ## 1.11.2
 
 ### Patch Changes
