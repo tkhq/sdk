@@ -51,14 +51,15 @@
     "@solana/web3.js": "^1.95.8",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
-    "@turnkey/sdk-server": "workspace:*"
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/api-key-stamper": "workspace:*"
   },
   "devDependencies": {
-    "@turnkey/api-key-stamper": "workspace:*",
-    "bs58": "^5.0.0",
-    "tweetnacl": "^1.0.3"
+    "bs58": "^6.0.0",
+    "tweetnacl": "^1.0.3",
+    "typescript": "5.4.2"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
   }
 }

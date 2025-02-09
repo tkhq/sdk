@@ -5,11 +5,7 @@ import {
   TurnkeyApiTypes,
   TurnkeyServerClient,
 } from "@turnkey/sdk-server";
-import {
-  ApiKeyStamper,
-  type TApiKeyStamperConfig,
-} from "@turnkey/api-key-stamper";
-import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
+import { type TApiKeyStamperConfig } from "@turnkey/api-key-stamper";
 import type { Attestation, Email, PasskeyRegistrationResult } from "./types";
 
 import { ETHEREUM_WALLET_DEFAULT_PATH } from "./constants";
@@ -102,7 +98,7 @@ export const createUserSubOrg = async (
         ],
       },
     })
-    .catch((error) => {
+    .catch((error: any) => {
       console.error(error);
     });
 

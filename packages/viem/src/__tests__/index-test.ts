@@ -17,7 +17,8 @@ import { foundry } from "viem/chains";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { createAccount, createAccountWithAddress } from "../";
-import Test721 from "./Test721.json";
+import Test721 from "../__tests__/Test721.json";
+
 import { expect, beforeEach, describe, test } from "@jest/globals";
 
 import fetch from "cross-fetch";

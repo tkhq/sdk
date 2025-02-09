@@ -10,3 +10,4 @@ export const ALG_ES256 = -7;
 export const ALG_RS256 = -257;
 
 export const ETHEREUM_WALLET_DEFAULT_PATH = "m/44'/60'/0'/0/0";
+export const CURVE_TYPE_SECP256K1 = "API_KEY_CURVE_SECP256K1" as const;

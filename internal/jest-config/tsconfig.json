@@ -2,7 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "tsBuildInfoFile": "./.cache/.tsbuildinfo"
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    "target": "ESNext",
+    "moduleResolution": "node16",
+    "module": "node16",
+    "resolveJsonModule": true
   },
-  "include": ["**/*.js"]
+  "include": ["**/*.js", "**/*.ts", "**/*.json"]
 }

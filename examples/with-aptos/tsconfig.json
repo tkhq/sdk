@@ -2,7 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "tsBuildInfoFile": "./.cache/.tsbuildinfo"
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    "moduleResolution": "node16",
+    "module": "node16"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
 }

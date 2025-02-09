@@ -178,7 +178,7 @@ export const createEIP1193Provider = async (
           const signedTransaction = await signTransaction({
             organizationId,
             unsignedTransaction,
-            signWith: getAddress(transaction.from),
+            signWith: getAddress(transaction.from!),
             client: turnkeyClient,
           });
           setConnected(true, { chainId: activeChain.chainId });
@@ -198,12 +198,17 @@ export const createEIP1193Provider = async (
           activeChain = chain;
 
           // Verify the specified chain ID matches the return value of eth_chainId from the endpoint
-          const rpcChainId = await request({ method: "eth_chainId" });
+          const rpcChainId = await request({
+            method: "eth_chainId",
+          });
 
           if (activeChain.chainId !== rpcChainId) {
             // Revert to the previous connected chain or to undefined if no other chain connected
             activeChain = previousActiveChain;
-            throw new ChainIdMismatchError(chain.chainId as Hex, rpcChainId);
+            throw new ChainIdMismatchError(
+              chain.chainId as Hex,
+              rpcChainId as Hex,
+            );
           }
 
           addedChains.push({ ...chain, connected: true });
@@ -225,7 +230,7 @@ export const createEIP1193Provider = async (
           eventEmitter.emit("chainChanged", { chainId: activeChain.chainId });
           return null;
         }
-        // @ts-expect-error fall through expected
+        // @ts-expect-error - unexpected fallthrough case in switch statement
         case "eth_sendTransaction": {
           const [transaction] = params as WalletRpcSchema[7]["Parameters"];
           const signedTransaction = await request({
@@ -273,7 +278,7 @@ export const createEIP1193Provider = async (
         case "eth_newFilter":
         case "eth_newPendingTransactionFilter":
         case "eth_syncing":
-        // @ts-expect-error fall through expected
+        // @ts-expect-error - unexpected fallthrough case in switch statement
         case "eth_uninstallFilter":
           const {
             rpcUrls: [rpcUrl],

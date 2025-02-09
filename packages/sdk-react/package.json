@@ -71,9 +71,10 @@
   },
   "devDependencies": {
     "postcss-import": "^16.1.0",
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "typescript": "5.4.2"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
   }
 }

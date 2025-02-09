@@ -3,7 +3,11 @@
   "compilerOptions": {
     "noEmit": true,
     "tsBuildInfoFile": "./.cache/.typecheck.tsbuildinfo",
-    "ignoreDeprecations": "5.0"
+    "resolveJsonModule": true,
+    "ignoreDeprecations": "5.0",
+    "target": "ES2022",
+    "module": "esnext",
+    "moduleResolution": "node"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
 }

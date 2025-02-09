@@ -6,7 +6,9 @@
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
     "lib": ["dom", "esnext"],
     "jsx": "react-jsx",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "module": "ES2022",
+    "moduleResolution": "bundler"
   },
   "include": [
     "src/**/*.ts",

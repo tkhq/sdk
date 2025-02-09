@@ -1,6 +1,7 @@
 {
-  "extends": "@tsconfig/node16-strictest/tsconfig.json",
+  "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
+    "target": "ES2022",
     "ignoreDeprecations": "5.0",
     "composite": true,
     "declaration": true,
@@ -8,7 +9,6 @@
     "incremental": true,
     "isolatedModules": true,
     "noPropertyAccessFromIndexSignature": false,
-    "resolveJsonModule": true,
     "sourceMap": true
   }
 }

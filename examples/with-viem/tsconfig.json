@@ -3,7 +3,11 @@
   "compilerOptions": {
     "noEmit": true,
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
-    "ignoreDeprecations": "5.0"
+    "ignoreDeprecations": "5.0",
+    "resolveJsonModule": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
 }
