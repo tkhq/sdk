@@ -10,7 +10,6 @@ import Account from "./account";
 import WalletSelector from "./wallet-selector";
 import { WalletName } from "@solana/wallet-adapter-base";
 import { useTurnkey } from "./turnkey-provider";
-import { useSolanaStamper } from "@/hooks/use-solana-stamper";
 
 export function ConnectWallet() {
   const { connection } = useConnection();
@@ -27,8 +26,6 @@ export function ConnectWallet() {
   } = useWallet();
 
   const { setWallet } = useTurnkey();
-
-  const { solanaStamper } = useSolanaStamper();
 
   const [balance, setBalance] = useState<number | null>(null);
   const [userWalletAddress, setUserWalletAddress] = useState<string>("");
@@ -61,7 +58,15 @@ export function ConnectWallet() {
       setUserWalletAddress(publicKey.toBase58()!);
 
       if (signMessage) {
-        // setWallet();
+        setWallet({
+          signMessage: async (message) => {
+            const signedMessage = await signMessage(Buffer.from(message));
+            return Buffer.from(signedMessage).toString("hex");
+          },
+          recoverPublicKey: () =>
+            Buffer.from(publicKey?.toBuffer()).toString("hex"),
+          type: "solana",
+        });
       }
     }
   }, [publicKey, signMessage]);

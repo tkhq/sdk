@@ -14,7 +14,6 @@ import { ChainType } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { ACCOUNT_CONFIG_SOLANA } from "@/lib/constants";
 import { User, Wallet } from "@/lib/types";
-import { useSolanaStamper } from "@/hooks/use-solana-stamper";
 
 // Context for the TurnkeyClient
 const TurnkeyContext = createContext<{
@@ -70,8 +69,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     username: "",
   });
 
-  const { solanaStamper } = useSolanaStamper();
-
   const router = useRouter();
 
   const createTurnkeyClient = async (stamper: TStamper) => {
@@ -81,12 +78,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   };
 
   useEffect(() => {
-    if (solanaStamper) {
-      createTurnkeyClient(new WalletStamper(solanaStamper)).then(
-        setWalletClient
-      );
+    if (wallet) {
+      createTurnkeyClient(new WalletStamper(wallet)).then(setWalletClient);
     }
-  }, [solanaStamper]);
+  }, [wallet]);
 
   useEffect(() => {
     const initPasskeyClient = async () => {
@@ -104,7 +99,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   ) {
     setAuthenticating(true);
     const publicKey = await wallet?.getPublicKey();
-    console.log({ publicKey, wallet });
+
     const res = await createUserSubOrg({
       email,
       publicKey,
