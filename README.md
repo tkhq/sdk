@@ -92,7 +92,6 @@ The below examples will require a local installation of `node.js`. Follow the sp
 | [`passkeyapp`](https://github.com/tkhq/passkeyapp)                     | A React Native + Expo app powered by Turnkey and passkeys                                                                    |
 | [`deployer`](/examples/deployer/)                                      | Compile and deploy a smart contract                                                                                          |
 | [`email-auth`](/examples/email-auth/)                                  | A NextJS app demonstrating a complete email auth flow using Turnkey iframes                                                  |
-| [`email-recovery`](/examples/email-recovery/)                          | A NextJS app demonstrating a complete email recovery flow using Turnkey iframes                                              |
 | [`wallet-import-export`](/examples/wallet-import-export/)              | A NextJS app demonstrating complete wallet import and export flows                                                           |
 | [`rebalancer`](/examples/rebalancer/)                                  | A demo application which showcases an example of how to use Turnkey for managing multiple types of keys & users              |
 | [`sweeper`](/examples/sweeper/)                                        | Sweep funds from one address to a different address                                                                          |
