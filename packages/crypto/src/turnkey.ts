@@ -18,7 +18,10 @@ import {
   uncompressRawPublicKey,
 } from "./crypto";
 
+import { p256 } from "@noble/curves/p256";
 import { ed25519 } from "@noble/curves/ed25519";
+import { ProjPointType } from "@noble/curves/abstract/weierstrass";
+import { sha256 } from "@noble/hashes/sha256";
 
 interface DecryptExportBundleParams {
   exportBundle: string;
@@ -193,7 +196,7 @@ export const verifyStampSignature = async (
   signedData: string,
 ): Promise<boolean> => {
   const publicKeyBuffer = uint8ArrayFromHexString(publicKey);
-  const loadedPublicKey = await loadPublicKey(publicKeyBuffer);
+  const loadedPublicKey = loadPublicKey(publicKeyBuffer);
   if (!loadedPublicKey) {
     throw new Error("failed to load public key");
   }
@@ -201,12 +204,9 @@ export const verifyStampSignature = async (
   // The ECDSA signature is ASN.1 DER encoded but WebCrypto uses raw format
   const publicSignatureBuf = fromDerSignature(signature);
   const signedDataBuf = Buffer.from(signedData);
-  return await crypto.subtle.verify(
-    { name: "ECDSA", hash: { name: "SHA-256" } },
-    loadedPublicKey,
-    publicSignatureBuf,
-    signedDataBuf,
-  );
+  const hashedData = sha256(signedDataBuf);
+  
+  return p256.verify(publicSignatureBuf, hashedData, loadedPublicKey.toHex());
 };
 
 /**
@@ -237,7 +237,7 @@ const verifyEnclaveSignature = async (
   const encryptionQuorumPublicBuf = new Uint8Array(
     uint8ArrayFromHexString(enclaveQuorumPublic),
   );
-  const quorumKey = await loadPublicKey(encryptionQuorumPublicBuf);
+  const quorumKey = loadPublicKey(encryptionQuorumPublicBuf);
   if (!quorumKey) {
     throw new Error("failed to load quorum key");
   }
@@ -245,31 +245,20 @@ const verifyEnclaveSignature = async (
   // The ECDSA signature is ASN.1 DER encoded but WebCrypto uses raw format
   const publicSignatureBuf = fromDerSignature(publicSignature);
   const signedDataBuf = uint8ArrayFromHexString(signedData);
-  return await crypto.subtle.verify(
-    { name: "ECDSA", hash: { name: "SHA-256" } },
-    quorumKey,
-    publicSignatureBuf,
-    signedDataBuf,
-  );
+  const hashedData = sha256(signedDataBuf);
+
+  return p256.verify(publicSignatureBuf, hashedData, quorumKey.toHex());
 };
 
 /**
  * Loads an ECDSA public key from a raw format for signature verification.
  *
- * @param {Uint8Array} publicKey - The raw public key bytes.
- * @returns {Promise<CryptoKey>} - The imported ECDSA public key.
+ * @param {Uint8Array} publicKey - The raw P-256 public key bytes.
+ * @returns {ProjPointType<bigint>} - The parsed ECDSA public key.
+ * @throws {Error} - If the public key is invalid.
  */
-const loadPublicKey = async (publicKey: Uint8Array): Promise<CryptoKey> => {
-  return await crypto.subtle.importKey(
-    "raw",
-    publicKey,
-    {
-      name: "ECDSA",
-      namedCurve: "P-256",
-    },
-    true,
-    ["verify"],
-  );
+const loadPublicKey = (publicKey: Uint8Array): ProjPointType<bigint> => {
+    return p256.ProjectivePoint.fromHex(Buffer.from(publicKey).toString("hex"));
 };
 
 /**

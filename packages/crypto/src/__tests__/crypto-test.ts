@@ -11,6 +11,7 @@ import {
   compressRawPublicKey,
   hpkeDecrypt,
   hpkeEncrypt,
+  decryptExportBundle,
   hpkeAuthEncrypt,
   formatHpkeBuf,
   verifyStampSignature,
@@ -29,7 +30,7 @@ describe("HPKE Encryption and Decryption", () => {
     const senderKeyPair = generateP256KeyPair();
     const receiverKeyPair = generateP256KeyPair();
     const receiverPublicKeyUncompressed = uncompressRawPublicKey(
-      uint8ArrayFromHexString(receiverKeyPair.publicKey),
+      uint8ArrayFromHexString(receiverKeyPair.publicKey)
     );
 
     const textEncoder = new TextEncoder();
@@ -65,7 +66,7 @@ describe("HPKE Standard Encryption and Decryption", () => {
     // Generate a receiver key pair
     const receiverKeyPair = generateP256KeyPair();
     const receiverPublicKeyUncompressed = uncompressRawPublicKey(
-      uint8ArrayFromHexString(receiverKeyPair.publicKey),
+      uint8ArrayFromHexString(receiverKeyPair.publicKey)
     );
 
     // Prepare the plaintext
@@ -103,12 +104,56 @@ describe("HPKE Standard Encryption and Decryption", () => {
   });
 });
 
+describe("decryptExportBundle Tests", () => {
+  const exportBundle = `
+    {
+      "version": "v1.0.0",
+      "data": "7b22656e6361707065645075626c6963223a2230343434313065633837653566653266666461313561313866613337376132316133633431633334373666383631333362343238306164373631303266343064356462326463353362343730303763636139336166666330613535316464353134333937643039373931636664393233306663613330343862313731663364363738222c2263697068657274657874223a22656662303538626633666634626534653232323330326266326636303738363062343237346232623031616339343536643362613638646135613235363236303030613839383262313465306261663061306465323966353434353461333739613362653664633364386339343938376131353638633764393566396663346239316265663232316165356562383432333361323833323131346431373962646664636631643066376164656231353766343131613439383430222c226f7267616e697a6174696f6e4964223a2266396133316336342d643630342d343265342d396265662d613737333039366166616437227d",
+      "dataSignature": "304502203a7dc258590a637e76f6be6ed1a2080eed5614175060b9073f5e36592bdaf610022100ab9955b603df6cf45408067f652da48551652451b91967bf37dd094d13a7bdd4",
+      "enclaveQuorumPublic": "04cf288fe433cc4e1aa0ce1632feac4ea26bf2f5a09dcfe5a42c398e06898710330f0572882f4dbdf0f5304b8fc8703acd69adca9a4bbf7f5d00d20a5e364b2569"
+    }
+  `;
+  const privateKey =
+    "ffc6090f14bcf260e5dfe63f45412e60a477bb905956d7cc90195b71c2a544b3";
+  const organizationId = "f9a31c64-d604-42e4-9bef-a773096afad7";
+
+  test("decryptExportBundle successfully decrypts a valid bundle - mnemonic", async () => {
+    const expectedMnemonic =
+      "leaf lady until indicate praise final route toast cake minimum insect unknown";
+
+    const result = await decryptExportBundle({
+      exportBundle,
+      embeddedKey: privateKey,
+      organizationId,
+      keyFormat: "HEXADECIMAL",
+      returnMnemonic: true,
+    });
+
+    expect(result).toEqual(expectedMnemonic);
+  });
+
+  test("decryptExportBundle successfully decrypts a valid bundle - non-mnemonic", async () => {
+    const expectedNonMnemonic =
+      "6c656166206c61647920756e74696c20696e646963617465207072616973652066696e616c20726f75746520746f6173742063616b65206d696e696d756d20696e7365637420756e6b6e6f776e";
+
+    const result = await decryptExportBundle({
+      exportBundle,
+      embeddedKey: privateKey,
+      organizationId,
+      keyFormat: "HEXADECIMAL",
+      returnMnemonic: false,
+    });
+
+    expect(result).toEqual(expectedNonMnemonic);
+  });
+});
+
 describe("Turnkey Crypto Primitives", () => {
   test("getPublicKey - returns the correct public key", () => {
     const keyPair = generateP256KeyPair();
     const publicKey = getPublicKey(
       uint8ArrayFromHexString(keyPair.privateKey),
-      true,
+      true
     );
     expect(publicKey).toHaveLength(33);
   });
@@ -125,14 +170,14 @@ describe("Turnkey Crypto Primitives", () => {
   test("compressRawPublicKey - returns a valid value", () => {
     const { publicKey, publicKeyUncompressed } = generateP256KeyPair();
     expect(
-      compressRawPublicKey(uint8ArrayFromHexString(publicKeyUncompressed)),
+      compressRawPublicKey(uint8ArrayFromHexString(publicKeyUncompressed))
     ).toEqual(uint8ArrayFromHexString(publicKey));
   });
 
   test("decryptCredentialBundle - successfully decrypts a credential bundle", () => {
     const decryptedData = decryptCredentialBundle(
       mockCredentialBundle,
-      mockPrivateKey,
+      mockPrivateKey
     );
     expect(decryptedData).toBe(mockSenderPrivateKey);
   });
@@ -144,8 +189,8 @@ describe("Turnkey Crypto Primitives", () => {
       "01d95d256f744b2a855fe2036ec1074c726445f1382f53580a17ce3296cc2dec";
     expect(
       extractPrivateKeyFromPKCS8Bytes(
-        uint8ArrayFromHexString(pkcs8PrivateKeyHex),
-      ),
+        uint8ArrayFromHexString(pkcs8PrivateKeyHex)
+      )
     ).toEqual(uint8ArrayFromHexString(expectedRawPrivateKeyHex));
   });
 
@@ -162,7 +207,7 @@ describe("Turnkey Crypto Primitives", () => {
       {
         baseUrl: "https://api.turnkey.com",
       },
-      stamper,
+      stamper
     );
 
     const stampedRequest = await turnkeyClient.stampGetWhoami({
@@ -177,7 +222,7 @@ describe("Turnkey Crypto Primitives", () => {
     const verified = await verifyStampSignature(
       publicKey,
       signature,
-      stampedRequest.body,
+      stampedRequest.body
     );
 
     expect(verified).toEqual(true);
