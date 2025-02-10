@@ -3,7 +3,7 @@ import { p256 } from "@noble/curves/p256";
 import * as hkdf from "@noble/hashes/hkdf";
 import { sha256 } from "@noble/hashes/sha256";
 import { gcm } from "@noble/ciphers/aes";
-import { randomBytes } from '@noble/hashes/utils';
+import { randomBytes } from "@noble/hashes/utils";
 
 import {
   uint8ArrayToHexString,

@@ -205,7 +205,7 @@ export const verifyStampSignature = async (
   const publicSignatureBuf = fromDerSignature(signature);
   const signedDataBuf = Buffer.from(signedData);
   const hashedData = sha256(signedDataBuf);
-  
+
   return p256.verify(publicSignatureBuf, hashedData, loadedPublicKey.toHex());
 };
 
@@ -258,7 +258,7 @@ const verifyEnclaveSignature = async (
  * @throws {Error} - If the public key is invalid.
  */
 const loadPublicKey = (publicKey: Uint8Array): ProjPointType<bigint> => {
-    return p256.ProjectivePoint.fromHex(Buffer.from(publicKey).toString("hex"));
+  return p256.ProjectivePoint.fromHex(Buffer.from(publicKey).toString("hex"));
 };
 
 /**
