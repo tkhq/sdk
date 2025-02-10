@@ -20,7 +20,7 @@ import {
 
 import { p256 } from "@noble/curves/p256";
 import { ed25519 } from "@noble/curves/ed25519";
-import { ProjPointType } from "@noble/curves/abstract/weierstrass";
+import type { ProjPointType } from "@noble/curves/abstract/weierstrass";
 import { sha256 } from "@noble/hashes/sha256";
 
 interface DecryptExportBundleParams {
