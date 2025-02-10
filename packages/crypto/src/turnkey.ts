@@ -201,7 +201,7 @@ export const verifyStampSignature = async (
     throw new Error("failed to load public key");
   }
 
-  // The ECDSA signature is ASN.1 DER encoded but WebCrypto uses raw format
+  // Convert the ASN.1 DER-encoded signature for verification
   const publicSignatureBuf = fromDerSignature(signature);
   const signedDataBuf = Buffer.from(signedData);
   const hashedData = sha256(signedDataBuf);
@@ -242,7 +242,7 @@ const verifyEnclaveSignature = async (
     throw new Error("failed to load quorum key");
   }
 
-  // The ECDSA signature is ASN.1 DER encoded but WebCrypto uses raw format
+  // Convert the ASN.1 DER-encoded signature for verification
   const publicSignatureBuf = fromDerSignature(publicSignature);
   const signedDataBuf = uint8ArrayFromHexString(signedData);
   const hashedData = sha256(signedDataBuf);

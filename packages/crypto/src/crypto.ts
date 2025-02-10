@@ -520,7 +520,7 @@ const bigIntToHex = (num: bigint, length: number): string => {
 };
 
 /**
- * Converts an ASN.1 DER-encoded ECDSA signature to the raw format that WebCrypto uses.
+ * Converts an ASN.1 DER-encoded ECDSA signature to the raw format used for verification.
  *
  * @param {string} derSignature - The DER-encoded signature.
  * @returns {Uint8Array} - The raw signature.
