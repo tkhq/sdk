@@ -62,6 +62,9 @@ interface AuthProps {
     facebookEnabled: boolean;
     googleEnabled: boolean;
     sessionLengthSeconds?: number; // Desired expiration time in seconds for the generated API key
+    googleClientId?: string; // will default to NEXT_PUBLIC_GOOGLE_CLIENT_ID
+    appleClientId?: string; // will default to NEXT_PUBLIC_APPLE_CLIENT_ID
+    facebookClientId?: string; // will default to NEXT_PUBLIC_FACEBOOK_CLIENT_ID
   };
   configOrder: string[];
   customSmsMessage?: string;
@@ -76,7 +79,7 @@ const Auth: React.FC<AuthProps> = ({
   customSmsMessage,
   customAccounts,
 }) => {
-  const { passkeyClient, authIframeClient } = useTurnkey();
+  const { passkeyClient, authIframeClient, turnkey } = useTurnkey();
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
@@ -220,7 +223,9 @@ const Auth: React.FC<AuthProps> = ({
 
       const sessionResponse = await passkeyClient?.createReadWriteSession({
         targetPublicKey: authIframeClient?.iframePublicKey!,
-        organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+        organizationId:
+          turnkey?.config.defaultOrganizationId ??
+          process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       });
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(sessionResponse.credentialBundle);
@@ -236,7 +241,9 @@ const Auth: React.FC<AuthProps> = ({
     try {
       const sessionResponse = await passkeyClient?.createReadWriteSession({
         targetPublicKey: authIframeClient?.iframePublicKey!,
-        organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+        organizationId:
+          turnkey?.config.defaultOrganizationId ??
+          process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       });
 
       if (sessionResponse?.credentialBundle) {
@@ -334,7 +341,10 @@ const Auth: React.FC<AuthProps> = ({
         {googleEnabled && (
           <GoogleAuthButton
             layout={layout}
-            clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+            clientId={
+              authConfig.googleClientId ??
+              process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!
+            }
             iframePublicKey={authIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Google")
@@ -344,7 +354,10 @@ const Auth: React.FC<AuthProps> = ({
         {appleEnabled && (
           <AppleAuthButton
             layout={layout}
-            clientId={process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!}
+            clientId={
+              authConfig.appleClientId ??
+              process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!
+            }
             iframePublicKey={authIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Apple")
@@ -354,7 +367,10 @@ const Auth: React.FC<AuthProps> = ({
         {facebookEnabled && (
           <FacebookAuthButton
             layout={layout}
-            clientId={process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!}
+            clientId={
+              authConfig.facebookClientId ??
+              process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!
+            }
             iframePublicKey={authIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.id_token, "Facebook")
