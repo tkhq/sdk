@@ -1823,6 +1823,9 @@ importers:
       '@types/react':
         specifier: ^18.2.75
         version: 18.2.75
+      '@uidotdev/usehooks':
+        specifier: ^2.4.1
+        version: 2.4.1(react-dom@18.3.1)(react@18.2.0)
       libphonenumber-js:
         specifier: ^1.11.14
         version: 1.11.14
@@ -1835,9 +1838,6 @@ importers:
       react-international-phone:
         specifier: ^4.3.0
         version: 4.3.0(react@18.2.0)
-      usehooks-ts:
-        specifier: ^3.1.0
-        version: 3.1.0(react@18.2.0)
     devDependencies:
       postcss-import:
         specifier: ^16.1.0
@@ -13447,6 +13447,17 @@ packages:
       '@typescript-eslint/types': 7.2.0
       eslint-visitor-keys: 3.4.3
 
+  /@uidotdev/usehooks@2.4.1(react-dom@18.3.1)(react@18.2.0):
+    resolution: {integrity: sha512-1I+RwWyS+kdv3Mv0Vmc+p0dPYH0DTRAo04HLyXReYBL9AeseDWUJyi4THuksBJcu9F0Pih69Ak150VDnqbVnXg==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.3.1(react@18.2.0)
+    dev: false
+
   /@ungap/structured-clone@1.2.1:
     resolution: {integrity: sha512-fEzPV3hSkSMltkw152tJKNARhOupqbH96MZWyRjNaYZOMIzbrTeQDG+MTc6Mr2pgzFQzFxAfmhGDNP5QK++2ZA==}
     dev: false
@@ -24922,16 +24933,6 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      react: 18.2.0
-    dev: false
-
-  /usehooks-ts@3.1.0(react@18.2.0):
-    resolution: {integrity: sha512-bBIa7yUyPhE1BCc0GmR96VU/15l/9gP1Ch5mYdLcFBaFGQsdmXkvjV0TtOqW1yUd6VjIwDunm+flSciCQXujiw==}
-    engines: {node: '>=16.15.0'}
-    peerDependencies:
-      react: ^16.8.0  || ^17 || ^18
-    dependencies:
-      lodash.debounce: 4.0.8
       react: 18.2.0
     dev: false
 

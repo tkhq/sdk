@@ -143,15 +143,31 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
    * updated accordingly.
    */
   useEffect(() => {
-    if (session?.authClient) {
-      const client = {
-        [AuthClient.Iframe]: authIframeClient,
-        [AuthClient.Passkey]: passkeyClient,
-        [AuthClient.Wallet]: walletClient,
-      }[session?.authClient];
-      setClient(client);
+    switch (session?.authClient) {
+      case AuthClient.Iframe:
+        const expiry = session?.write?.expiry || 0;
+        if (expiry > Date.now() && session?.write?.credentialBundle) {
+          authIframeClient
+            ?.injectCredentialBundle(session.write.credentialBundle)
+            .then(() => {
+              setClient(authIframeClient);
+            })
+            .catch((error) => {
+              console.error("Failed to inject credential bundle:", error);
+            });
+        }
+        break;
+      case AuthClient.Passkey:
+        setClient(passkeyClient);
+        break;
+      case AuthClient.Wallet:
+        setClient(walletClient);
+        break;
+      default:
+        // Handle unknown auth client type if needed
+        break;
     }
-  }, [session]);
+  }, [session, authIframeClient, passkeyClient, walletClient]);
 
   return (
     <TurnkeyContext.Provider
