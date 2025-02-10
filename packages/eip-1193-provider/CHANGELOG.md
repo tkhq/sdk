@@ -1,5 +1,17 @@
 # @turnkey/eip-1193-provider
 
+## 3.1.0
+
+### Minor Changes
+
+- 4945c71: Add support for @turnkey/sdk-browser clients
+
+### Patch Changes
+
+- Updated dependencies [6695af2]
+  - @turnkey/sdk-browser@1.12.0
+  - @turnkey/http@2.18.0
+
 ## 3.0.5
 
 ### Patch Changes
