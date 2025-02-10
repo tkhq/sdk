@@ -3,6 +3,7 @@ import { p256 } from "@noble/curves/p256";
 import * as hkdf from "@noble/hashes/hkdf";
 import { sha256 } from "@noble/hashes/sha256";
 import { gcm } from "@noble/ciphers/aes";
+import { randomBytes } from "@noble/hashes/utils";
 
 import {
   uint8ArrayToHexString,
@@ -375,14 +376,6 @@ export const uncompressRawPublicKey = (
 };
 
 /**
- * Generate a random Uint8Array of a specific length. Note that this ultimately depends on the crypto implementation.
- */
-const randomBytes = (length: number): Uint8Array => {
-  const array = new Uint8Array(length);
-  return crypto.getRandomValues(array);
-};
-
-/**
  * Build labeled Initial Key Material (IKM).
  *
  * @param {Uint8Array} label - The label to use.
@@ -527,12 +520,12 @@ const bigIntToHex = (num: bigint, length: number): string => {
 };
 
 /**
- * Converts an ASN.1 DER-encoded ECDSA signature to the raw format that WebCrypto uses.
+ * Converts an ASN.1 DER-encoded ECDSA signature to the raw format used for verification.
  *
  * @param {string} derSignature - The DER-encoded signature.
  * @returns {Uint8Array} - The raw signature.
  */
-export const fromDerSignature = (derSignature: string) => {
+export const fromDerSignature = (derSignature: string): Uint8Array => {
   const derSignatureBuf = uint8ArrayFromHexString(derSignature);
 
   // Check and skip the sequence tag (0x30)
