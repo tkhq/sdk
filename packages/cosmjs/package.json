@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/cosmjs",
-  "version": "0.6.9",
+  "version": "0.6.10",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
