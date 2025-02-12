@@ -1,5 +1,11 @@
 # @turnkey/crypto
 
+## 2.3.1
+
+### Patch Changes
+
+- 2bc0046: Migrated from WebCrypto (crypto.subtle.verify) to Noble for ECDSA signature verification
+
 ## 2.3.0
 
 ### Minor Changes

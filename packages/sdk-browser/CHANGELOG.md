@@ -1,5 +1,14 @@
 # @turnkey/sdk-browser
 
+## 1.12.1
+
+### Patch Changes
+
+- 755833b: refactor stamper out of config object and move it directly onto the client to match @turnkey/http
+- Updated dependencies [2bc0046]
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 1.12.0
 
 ### Minor Changes

@@ -1,5 +1,18 @@
 # @turnkey/sdk-react
 
+## 3.0.1
+
+### Patch Changes
+
+- cb8cf7e: Add all supported country codes to phone input field
+- 2eb2179: Fix bundling issue with sdk-react
+- Updated dependencies [755833b]
+- Updated dependencies [2bc0046]
+  - @turnkey/sdk-browser@1.12.1
+  - @turnkey/sdk-server@2.0.1
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 3.0.0
 
 ### Major Changes

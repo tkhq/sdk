@@ -1,5 +1,11 @@
 # @turnkey/sdk-server
 
+## 2.0.1
+
+### Patch Changes
+
+- 755833b: refactor stamper out of config object and move it directly onto the client to match @turnkey/http
+
 ## 2.0.0
 
 ### Major Changes
