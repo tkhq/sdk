@@ -480,6 +480,32 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getWalletAccount = async (
+    input: SdkApiTypes.TGetWalletAccountBody,
+  ): Promise<SdkApiTypes.TGetWalletAccountResponse> => {
+    return this.request("/public/v1/query/get_wallet_account", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetWalletAccount = async (
+    input: SdkApiTypes.TGetWalletAccountBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_wallet_account";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getActivities = async (
     input: SdkApiTypes.TGetActivitiesBody = {},
   ): Promise<SdkApiTypes.TGetActivitiesResponse> => {

@@ -50,6 +50,10 @@ import type {
 import type { TGetUserBody, TGetUserResponse } from "./public_api.fetcher";
 import type { TGetWalletBody, TGetWalletResponse } from "./public_api.fetcher";
 import type {
+  TGetWalletAccountBody,
+  TGetWalletAccountResponse,
+} from "./public_api.fetcher";
+import type {
   TGetActivitiesBody,
   TGetActivitiesResponse,
 } from "./public_api.fetcher";
@@ -722,6 +726,37 @@ export class TurnkeyClient {
   };
 
   /**
+   * Get a single wallet account
+   *
+   * Sign the provided `TGetWalletAccountBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_wallet_account).
+   *
+   * See also {@link stampGetWalletAccount}.
+   */
+  getWalletAccount = async (
+    input: TGetWalletAccountBody,
+  ): Promise<TGetWalletAccountResponse> => {
+    return this.request("/public/v1/query/get_wallet_account", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetWalletAccountBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetWalletAccount}.
+   */
+  stampGetWalletAccount = async (
+    input: TGetWalletAccountBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/get_wallet_account";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * List all Activities within an Organization
    *
    * Sign the provided `TGetActivitiesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_activities).
@@ -968,7 +1003,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * List all Accounts wirhin a Wallet
+   * List all Accounts within a Wallet
    *
    * Sign the provided `TGetWalletAccountsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_wallet_accounts).
    *
