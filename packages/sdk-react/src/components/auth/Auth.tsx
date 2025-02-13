@@ -142,7 +142,7 @@ const Auth: React.FC<AuthProps> = ({
         !getVerifiedSuborgsResponse.organizationIds
       ) {
         onError(authErrors.suborg.fetchFailed);
-        return
+        return;
       }
       suborgId = getVerifiedSuborgsResponse?.organizationIds[0];
     } else {
@@ -152,7 +152,7 @@ const Auth: React.FC<AuthProps> = ({
       });
       if (!getSuborgsResponse || !getSuborgsResponse.organizationIds) {
         onError(authErrors.suborg.fetchFailed);
-        return
+        return;
       }
       suborgId = getSuborgsResponse?.organizationIds[0];
     }
