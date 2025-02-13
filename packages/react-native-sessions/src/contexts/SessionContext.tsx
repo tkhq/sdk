@@ -22,7 +22,7 @@ export interface SessionContextType {
 }
 
 export const SessionContext = createContext<SessionContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export interface SessionConfig {
@@ -175,7 +175,7 @@ export const SessionProvider: React.FC<{
         {
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
           service: "turnkey-session",
-        }
+        },
       );
       scheduleSessionExpiration(session.expiry);
     } catch (error) {
@@ -196,7 +196,7 @@ export const SessionProvider: React.FC<{
    */
   const createSession = async (
     bundle: string,
-    expirySeconds: number = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS
+    expirySeconds: number = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
   ): Promise<Session> => {
     const embeddedKey = await getEmbeddedKey();
     if (!embeddedKey) {

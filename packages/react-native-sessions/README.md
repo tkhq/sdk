@@ -108,7 +108,7 @@ useEffect(() => {
     });
     const turnkeyClient = new TurnkeyClient(
       { baseUrl: TURNKEY_API_URL },
-      stamper
+      stamper,
     );
     setClient(turnkeyClient);
   }
