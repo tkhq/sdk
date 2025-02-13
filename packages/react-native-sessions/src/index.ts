@@ -1,3 +1,3 @@
-import { SessionContext, SessionProvider } from "./contexts/SessionContext";
-import { useSession } from "./hooks/use-session";
-export { SessionContext, SessionProvider, useSession };
+export type { SessionConfig, Session } from "./contexts/SessionContext";
+export { SessionContext, SessionProvider } from "./contexts/SessionContext";
+export { useSession } from "./hooks/use-session";

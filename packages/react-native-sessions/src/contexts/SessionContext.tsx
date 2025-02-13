@@ -1,11 +1,14 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useRef, useState } from "react";
 import * as Keychain from "react-native-keychain";
-import { getPublicKey, decryptCredentialBundle } from "@turnkey/crypto";
-import { generateP256KeyPair } from "@turnkey/crypto";
+import {
+  generateP256KeyPair,
+  getPublicKey,
+  decryptCredentialBundle,
+} from "@turnkey/crypto";
 import { uint8ArrayToHexString } from "@turnkey/encoding";
 import { OTP_AUTH_DEFAULT_EXPIRATION_SECONDS } from "../constant";
 
-type Session = {
+export type Session = {
   publicKey: string;
   privateKey: string;
   expiry: number;
@@ -19,7 +22,7 @@ export interface SessionContextType {
 }
 
 export const SessionContext = createContext<SessionContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export interface SessionConfig {
@@ -33,20 +36,56 @@ export const SessionProvider: React.FC<{
   config: SessionConfig;
 }> = ({ children, config }) => {
   const [session, setSession] = useState<Session | null>(null);
+  const expiryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Initializes session state from secure storage on mount
-  useEffect(() => {
+  /**
+   * Effect hook that initializes the session state from secure storage.
+   *
+   * - Retrieves the stored session upon component mount.
+   * - If a valid session is found (i.e., not expired), it updates the state, triggers `onSessionCreated`,
+   *   and schedules automatic session expiration handling.
+   * - If the session has expired, it calls `onSessionExpired`.
+   *
+   * This effect runs only once on mount and ensures that the session lifecycle is properly managed.
+   */ useEffect(() => {
     (async () => {
       const session = await getSession();
 
       if (session?.expiry && session.expiry > Date.now()) {
         setSession(session);
         config.onSessionCreated?.(session);
+        scheduleSessionExpiration(session.expiry);
       } else {
         config.onSessionExpired?.();
       }
     })();
   }, []);
+
+  /**
+   * Clears any scheduled expiration timeouts
+   */
+  const clearTimeouts = () => {
+    if (expiryTimeoutRef.current) clearTimeout(expiryTimeoutRef.current);
+  };
+
+  /**
+   * Schedules session expiration callback
+   * @param expiryTime - The Unix timestamp of session expiration
+   */
+  const scheduleSessionExpiration = (expiryTime: number) => {
+    clearTimeouts();
+    const timeUntilExpiry = expiryTime - Date.now();
+
+    if (timeUntilExpiry > 0) {
+      expiryTimeoutRef.current = setTimeout(() => {
+        clearSession();
+        config.onSessionExpired?.();
+      }, timeUntilExpiry);
+    } else {
+      clearSession();
+      config.onSessionExpired?.();
+    }
+  };
 
   /**
    * Retrieves the stored embedded key from secure storage.
@@ -136,8 +175,9 @@ export const SessionProvider: React.FC<{
         {
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
           service: "turnkey-session",
-        },
+        }
       );
+      scheduleSessionExpiration(session.expiry);
     } catch (error) {
       throw new Error("Could not save the session.");
     }
@@ -156,7 +196,7 @@ export const SessionProvider: React.FC<{
    */
   const createSession = async (
     bundle: string,
-    expirySeconds: number = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
+    expirySeconds: number = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS
   ): Promise<Session> => {
     const embeddedKey = await getEmbeddedKey();
     if (!embeddedKey) {
