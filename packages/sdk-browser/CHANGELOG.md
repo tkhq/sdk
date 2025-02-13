@@ -1,5 +1,18 @@
 # @turnkey/sdk-browser
 
+## 1.13.0
+
+### Minor Changes
+
+- 57f9cb0: Update endpoints - surface GetWalletAccount
+
+### Patch Changes
+
+- Updated dependencies [57f9cb0]
+  - @turnkey/http@2.19.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 1.12.1
 
 ### Patch Changes

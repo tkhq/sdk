@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.19.0
+
+### Minor Changes
+
+- 57f9cb0: Update endpoints - surface GetWalletAccount
+
 ## 2.18.0
 
 ### Minor Changes
