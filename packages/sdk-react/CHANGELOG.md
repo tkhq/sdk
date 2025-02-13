@@ -1,5 +1,12 @@
 # @turnkey/sdk-react
 
+## 3.0.2
+
+### Patch Changes
+
+- faa757c: Patch EWK custom session lengths - previously not working as intended (defaulted to 15 minute sessions only) and fix the following useLocalStorage issue when compiling: [Error: useLocalStorage is a client-only hook]
+- a8bd73b: Fix issue with EWK where suborgs were being created on failed fetches
+
 ## 3.0.1
 
 ### Patch Changes
