@@ -18,6 +18,7 @@
     "packages/iframe-stamper",
     "packages/crypto",
     "packages/react-native-passkey-stamper",
+    "packages/react-native-sessions",
     "packages/telegram-cloud-storage-stamper"
   ],
   "sandboxes": [],

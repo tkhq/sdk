@@ -6,8 +6,16 @@ This package provides a secure session management solution for React Native appl
 
 ## **Installation**
 
-- Install both [`react-native-keychain`](https://www.npmjs.com/package/react-native-keychain) and `@turnkey/react-native-sessions` (this package) in your React Native project.
+- Install the following dependencies in your React Native project:
+  - [`react-native-keychain`](https://www.npmjs.com/package/react-native-keychain)
+  - [`@turnkey/crypto`](../crypto/)
+  - `@turnkey/react-native-sessions` (this package)
 - Ensure your app is properly configured for secure storage and authentication.
+- **You must polyfill random byte generation** to ensure `generateP256KeyPair` from `@turnkey/crypto` works properly by importing [`react-native-get-random-values`](https://www.npmjs.com/package/react-native-get-random-values) at the **entry point of your application**:
+
+  ```tsx
+  import "react-native-get-random-values";
+  ```
 
 ---
 
@@ -100,7 +108,7 @@ useEffect(() => {
     });
     const turnkeyClient = new TurnkeyClient(
       { baseUrl: TURNKEY_API_URL },
-      stamper,
+      stamper
     );
     setClient(turnkeyClient);
   }
