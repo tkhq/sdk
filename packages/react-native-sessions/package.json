@@ -60,6 +60,6 @@
     "react-native-keychain": "^8.1.0"
   },
   "devDependencies": {
-    "@types/react": "^19.0.8"
+    "@types/react": "^18.2.6"
   }
 }
