@@ -120,6 +120,7 @@ function AuthPage() {
     googleEnabled: true,
     appleEnabled: false,
     facebookEnabled: false,
+    sessionLengthSeconds: 3600, //1 hour r/w session
   };
 
   const configOrder = ["socials", "email", "phone", "passkey"];

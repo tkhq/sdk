@@ -59,11 +59,11 @@
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
-    "@uidotdev/usehooks": "^2.4.1",
     "libphonenumber-js": "^1.11.14",
     "next": "^15.0.2",
     "react-apple-login": "^1.1.6",
-    "react-international-phone": "^4.3.0"
+    "react-international-phone": "^4.3.0",
+    "usehooks-ts": "^3.1.1"
   },
   "peerDependencies": {
     "@types/react": "^18.2.75",

@@ -1,5 +1,7 @@
+"use client";
+
 import { StorageKeys, User } from "@turnkey/sdk-browser";
-import { useLocalStorage } from "@uidotdev/usehooks";
+import { useLocalStorage } from "usehooks-ts";
 
 interface UserSession {
   user?: Omit<User, "session"> | undefined;
