@@ -115,8 +115,6 @@ export const SessionProvider: React.FC<{
       service: "turnkey-session",
     });
 
-    console.log("credentials", credentials);
-
     if (credentials) {
       return JSON.parse(credentials.password);
     }
