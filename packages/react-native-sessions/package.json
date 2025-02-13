@@ -1,0 +1,65 @@
+{
+  "name": "@turnkey/react-native-sessions",
+  "version": "0.1.0",
+  "description": "Session management for React Native using Turnkey",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "turnkey",
+    "session",
+    "react-native",
+    "expo",
+    "secure-storage"
+  ],
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.com/"
+  },
+  "homepage": "https://github.com/tkhq/sdk",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tkhq/sdk.git",
+    "directory": "packages/react-native-sessions"
+  },
+  "files": [
+    "dist/",
+    "CHANGELOG.md",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepublishOnly": "pnpm -w run clean-all && pnpm -w run build-all",
+    "build": "rollup -c",
+    "clean": "rimraf ./dist ./.cache",
+    "test": "jest",
+    "typecheck": "tsc -p tsconfig.typecheck.json"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@turnkey/crypto": "workspace:*",
+    "@turnkey/encoding": "workspace:*",
+    "react": "18.3.1",
+    "react-native": "^0.76.5",
+    "react-native-keychain": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.8"
+  }
+}
