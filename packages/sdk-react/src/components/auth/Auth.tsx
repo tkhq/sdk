@@ -142,7 +142,7 @@ const Auth: React.FC<AuthProps> = ({
         !getVerifiedSuborgsResponse.organizationIds
       ) {
         onError(authErrors.suborg.fetchFailed);
-        return;
+        return null;
       }
       suborgId = getVerifiedSuborgsResponse?.organizationIds[0];
     } else {
@@ -152,7 +152,7 @@ const Auth: React.FC<AuthProps> = ({
       });
       if (!getSuborgsResponse || !getSuborgsResponse.organizationIds) {
         onError(authErrors.suborg.fetchFailed);
-        return;
+        return null;
       }
       suborgId = getSuborgsResponse?.organizationIds[0];
     }
@@ -265,14 +265,14 @@ const Auth: React.FC<AuthProps> = ({
   ) => {
     const suborgId = await handleGetOrCreateSuborg(type, value);
     const initAuthResponse = await server.sendOtp({
-      suborgID: suborgId,
+      suborgID: suborgId!,
       otpType,
       contact: value,
       ...(customSmsMessage && { customSmsMessage }),
       userIdentifier: authIframeClient?.iframePublicKey!,
     });
     if (initAuthResponse && initAuthResponse.otpId) {
-      setSuborgId(suborgId);
+      setSuborgId(suborgId!);
       setOtpId(initAuthResponse?.otpId!);
       setStep(otpType);
     } else {
@@ -290,7 +290,7 @@ const Auth: React.FC<AuthProps> = ({
       },
     );
     const oauthResponse = await server.oauth({
-      suborgID: suborgId,
+      suborgID: suborgId!,
       oidcToken: credential,
       targetPublicKey: authIframeClient?.iframePublicKey!,
       sessionLengthSeconds: authConfig.sessionLengthSeconds,
