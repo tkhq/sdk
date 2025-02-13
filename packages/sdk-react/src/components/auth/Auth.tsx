@@ -172,10 +172,16 @@ const Auth: React.FC<AuthProps> = ({
     return suborgId;
   };
 
-  const handleAuthSuccess = async (credentialBundle: any) => {
+  const handleAuthSuccess = async (
+    credentialBundle: any,
+    expirationSeconds?: string,
+  ) => {
     if (credentialBundle) {
       await authIframeClient!.injectCredentialBundle(credentialBundle);
-      await authIframeClient!.loginWithAuthBundle(credentialBundle);
+      await authIframeClient!.loginWithAuthBundle(
+        credentialBundle,
+        expirationSeconds,
+      );
       await onAuthSuccess();
     }
   };
@@ -223,12 +229,18 @@ const Auth: React.FC<AuthProps> = ({
 
       const sessionResponse = await passkeyClient?.createReadWriteSession({
         targetPublicKey: authIframeClient?.iframePublicKey!,
+        ...(authConfig.sessionLengthSeconds !== undefined && {
+          expirationSeconds: authConfig.sessionLengthSeconds.toString(),
+        }),
         organizationId:
           turnkey?.config.defaultOrganizationId ??
           process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       });
       if (sessionResponse?.credentialBundle) {
-        await handleAuthSuccess(sessionResponse.credentialBundle);
+        await handleAuthSuccess(
+          sessionResponse.credentialBundle,
+          authConfig.sessionLengthSeconds?.toString(),
+        );
       } else {
         setPasskeySignupError(authErrors.passkey.loginFailed);
       }
@@ -241,13 +253,19 @@ const Auth: React.FC<AuthProps> = ({
     try {
       const sessionResponse = await passkeyClient?.createReadWriteSession({
         targetPublicKey: authIframeClient?.iframePublicKey!,
+        ...(authConfig.sessionLengthSeconds !== undefined && {
+          expirationSeconds: authConfig.sessionLengthSeconds.toString(),
+        }),
         organizationId:
           turnkey?.config.defaultOrganizationId ??
           process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       });
 
       if (sessionResponse?.credentialBundle) {
-        await handleAuthSuccess(sessionResponse.credentialBundle);
+        await handleAuthSuccess(
+          sessionResponse.credentialBundle,
+          authConfig.sessionLengthSeconds?.toString(),
+        );
       } else {
         authErrors.passkey.loginFailed;
       }
@@ -294,7 +312,10 @@ const Auth: React.FC<AuthProps> = ({
       sessionLengthSeconds: authConfig.sessionLengthSeconds,
     });
     if (oauthResponse && oauthResponse.token) {
-      await handleAuthSuccess(oauthResponse!.token);
+      await handleAuthSuccess(
+        oauthResponse!.token,
+        authConfig.sessionLengthSeconds?.toString(),
+      );
     } else {
       onError(authErrors.oauth.loginFailed);
     }
