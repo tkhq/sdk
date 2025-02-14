@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- 57f9cb0: Update endpoints - surface GetWalletAccount
+- 57f9cb0: Update per mono release v2025.2.1 - surface GetWalletAccount
 
 ### Patch Changes
 
