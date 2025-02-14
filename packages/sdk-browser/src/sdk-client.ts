@@ -342,7 +342,6 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
   rpId: string;
 
   constructor(config: TurnkeySDKClientConfig) {
-    console.log("config", config);
     super(config, AuthClient.Passkey);
     this.rpId = (this.stamper as WebauthnStamper)!.rpId;
   }
