@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.19.0
+
+### Minor Changes
+
+- 57f9cb0: Update per mono release v2025.2.1 - surface GetWalletAccount
+
 ## 2.18.0
 
 ### Minor Changes
