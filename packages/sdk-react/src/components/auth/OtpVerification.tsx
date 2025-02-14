@@ -4,8 +4,7 @@ import React, { useRef, useState } from "react";
 import OtpInput from "./otp";
 import styles from "./OtpVerification.module.css";
 import { formatPhoneNumber } from "./utils";
-import EmailIcon from "@mui/icons-material/Email";
-import SmsIcon from "@mui/icons-material/Sms";
+import { Email, Sms } from '@mui/icons-material';
 import { CircularProgress } from "@mui/material";
 import { OtpType, FilterType } from "./constants";
 import { server } from "@turnkey/sdk-server";
@@ -104,14 +103,14 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       >
         <div className={styles.verificationIcon}>
           {type === OtpType.Email ? (
-            <EmailIcon
+            <Email
               sx={{
                 fontSize: "86px",
                 color: "var(--icon-color)",
               }}
             />
           ) : (
-            <SmsIcon
+            <Sms
               sx={{
                 fontSize: "86px",
                 color: "var(--icon-color)",
