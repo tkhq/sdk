@@ -85,7 +85,7 @@ const getFormatConfig = (format) => {
         packagePath: pkgPath,
         builtinsPrefix: "ignore",
         deps: true,
-        include: ["@mui/icons-material"],
+        exclude: ["@mui/icons-material"],
       }),
       // Handle assets like images and fonts
       url({
