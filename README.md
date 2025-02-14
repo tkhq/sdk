@@ -148,11 +148,7 @@ See https://github.com/tkhq/demo-viem-passkeys for the code.
 
 A React Native app that demonstrates how to use the Turnkey's JavaScript packages in a mobile environment to authenticate users, create wallets, export wallets, sign messages, and more
 
-<p style={{ textAlign: "center" }}>
-  <video controls width="400px" style={{ borderRadius: "4px", boxShadow: "0 2px 5px 0 #0003" }}>
-    <source src="https://github.com/tkhq/react-native-demo-wallet/raw/refs/heads/main/assets/videos/demo_video.mov"/>
-  </video>
-</p>
+https://github.com/user-attachments/assets/e4cff012-11e9-4636-b67a-5dbf75355832
 
 See https://github.com/tkhq/react-native-demo-wallet for the code.
 
@@ -160,10 +156,6 @@ See https://github.com/tkhq/react-native-demo-wallet for the code.
 
 A Flutter app that demonstrates how to use the Turnkey's Flutter packages to authenticate users, create wallets, export wallets, sign messages, and more
 
-<p style={{ textAlign: "center" }}>
-  <video controls width="400px" style={{ borderRadius: "4px", boxShadow: "0 2px 5px 0 #0003" }}>
-    <source src="https://github.com/tkhq/dart-sdk/raw/refs/heads/main/examples/flutter-demo-app/assets/videos/flutter-demo.mov"/>
-  </video>
-</p>
+https://github.com/user-attachments/assets/3d583ed8-1eff-4101-ae43-3c76c655e635
 
 See https://github.com/tkhq/dart-sdk/tree/main/examples/flutter-demo-app for the code
