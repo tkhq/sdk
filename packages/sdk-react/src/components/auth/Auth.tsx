@@ -11,7 +11,7 @@ import turnkeyIcon from "assets/turnkey.svg";
 import googleIcon from "assets/google.svg";
 import facebookIcon from "assets/facebook.svg";
 import appleIcon from "assets/apple.svg";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import {ChevronLeft} from "@mui/icons-material";
 import OtpVerification from "./OtpVerification";
 import { useTurnkey } from "../../hooks/use-turnkey";
 import { FilterType, OtpType, authErrors } from "./constants";
@@ -324,7 +324,7 @@ const Auth: React.FC<AuthProps> = ({
   };
 
   const renderBackButton = () => (
-    <ChevronLeftIcon
+    <ChevronLeft
       onClick={() => {
         setPasskeyCreationScreen(false);
         setPasskeySignupError("");
