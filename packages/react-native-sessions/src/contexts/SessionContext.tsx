@@ -113,7 +113,6 @@ export const SessionProvider: React.FC<{
    * Does nothing if `session` is null.
    */
   const initializeClient = () => {
-    console.log("session in initializeClient", session);
     if (session) {
       const stamper = new ApiKeyStamper({
         apiPrivateKey: session.privateKey,
@@ -134,8 +133,6 @@ export const SessionProvider: React.FC<{
    * Does nothing if `session` or `client` is null.
    */
   const fetchUser = async () => {
-    console.log("session in initializeClient", session);
-    console.log("client in initializeClient", client);
     if (session && client) {
       const whoami = await client.getWhoami({
         organizationId: process.env.EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID ?? "",
@@ -356,11 +353,17 @@ export const SessionProvider: React.FC<{
   /**
    * Clears the current session by removing all stored credentials and session data.
    *
+   * - Sets `session`, `client`, and `user` to `null`.
+   * - Removes stored session from secure storage.
+   * - Calls `onSessionCleared` if provided.
+   *
    * @throws If the session cannot be cleared from secure storage.
    */
   const clearSession = async () => {
     try {
       setSession(null);
+      setClient(null);
+      setUser(null);
       await Keychain.resetGenericPassword({ service: "turnkey-session" });
 
       config.onSessionCleared?.();
