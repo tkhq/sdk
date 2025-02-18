@@ -108,6 +108,7 @@ export const SessionProvider: React.FC<{
    * Does nothing if `session` is null.
    */
   const initializeClient = () => {
+    console.log("session in initializeClient", session);
     if (session) {
       const stamper = new ApiKeyStamper({
         apiPrivateKey: session.privateKey,
@@ -128,6 +129,8 @@ export const SessionProvider: React.FC<{
    * Does nothing if `session` or `client` is null.
    */
   const fetchUser = async () => {
+    console.log("session in initializeClient", session);
+    console.log("client in initializeClient", client);
     if (session && client) {
       const whoami = await client.getWhoami({
         organizationId: process.env.EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID ?? "",
