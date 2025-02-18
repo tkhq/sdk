@@ -90,8 +90,12 @@ export const SessionProvider: React.FC<{
    * Runs whenever `session` changes.
    */
   useEffect(() => {
-    initializeClient();
-    fetchUser();
+    const initializeClientAndUser = async () => {
+      initializeClient();
+      await fetchUser();
+    };
+
+    initializeClientAndUser();
   }, [session]);
 
   /**
@@ -335,7 +339,7 @@ export const SessionProvider: React.FC<{
 
     const publicKey = uint8ArrayToHexString(getPublicKey(privateKey));
     const session = { publicKey, privateKey, expiry };
-    saveSession(session);
+    await saveSession(session);
 
     config.onSessionCreated?.(session);
     return session;
