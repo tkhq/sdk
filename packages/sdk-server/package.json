@@ -49,7 +49,7 @@
     "@turnkey/http": "workspace:*",
     "buffer": "^6.0.3",
     "next": "^15.0.2",
-    "elliptic": "^6.5.5"
+    "elliptic": "^6.6.1"
   },
   "devDependencies": {
     "@types/elliptic": "^6.4.18",
