@@ -17,6 +17,7 @@ import { useTurnkey } from "../../hooks/use-turnkey";
 import { FilterType, OtpType, authErrors } from "./constants";
 import type { WalletAccount } from "@turnkey/sdk-browser";
 import { server } from "@turnkey/sdk-server";
+import parsePhoneNumberFromString from "libphonenumber-js";
 
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
@@ -121,7 +122,10 @@ const Auth: React.FC<AuthProps> = ({
   const isValidEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const isValidPhone = (phone: string) => /^\+1\d{10}$/.test(phone);
+  const isValidPhone = (phone: string) => {
+    const phoneNumber = parsePhoneNumberFromString(phone);
+    return phoneNumber?.isValid() ?? false;
+  };
 
   const handleGetOrCreateSuborg = async (
     filterType: string,
