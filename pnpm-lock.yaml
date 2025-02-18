@@ -1742,12 +1742,18 @@ importers:
 
   packages/react-native-sessions:
     dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../api-key-stamper
       '@turnkey/crypto':
         specifier: workspace:*
         version: link:../crypto
       '@turnkey/encoding':
         specifier: workspace:*
         version: link:../encoding
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../http
       react:
         specifier: 18.3.1
         version: 18.3.1

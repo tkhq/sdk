@@ -51,8 +51,10 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/encoding": "workspace:*",
+    "@turnkey/http": "workspace:*",
     "react": "18.3.1",
     "react-native": "^0.76.5",
     "react-native-keychain": "^8.1.0"

@@ -6,7 +6,10 @@ import {
   decryptCredentialBundle,
 } from "@turnkey/crypto";
 import { uint8ArrayToHexString } from "@turnkey/encoding";
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { OTP_AUTH_DEFAULT_EXPIRATION_SECONDS } from "../constant";
+import { Wallet } from "../types";
 
 export type Session = {
   publicKey: string;
@@ -14,8 +17,20 @@ export type Session = {
   expiry: number;
 };
 
+export type User = {
+  id: string;
+  userName: string;
+  email: string | undefined;
+  phoneNumber: string | undefined;
+  organizationId: string;
+  wallets: Wallet[];
+};
+
 export interface SessionContextType {
   session: Session | null;
+  client: TurnkeyClient | null;
+  user: User | null;
+  refreshUser: () => Promise<void>;
   createEmbeddedKey: () => Promise<string>;
   createSession: (bundle: string, expiry?: number) => Promise<Session>;
   clearSession: () => Promise<void>;
@@ -26,6 +41,7 @@ export const SessionContext = createContext<SessionContextType | undefined>(
 );
 
 export interface SessionConfig {
+  apiBaseUrl: string;
   onSessionCreated?: (session: Session) => void;
   onSessionExpired?: () => void;
   onSessionCleared?: () => void;
@@ -36,6 +52,9 @@ export const SessionProvider: React.FC<{
   config: SessionConfig;
 }> = ({ children, config }) => {
   const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [client, setClient] = useState<TurnkeyClient | null>(null);
+
   const expiryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   /**
@@ -47,7 +66,8 @@ export const SessionProvider: React.FC<{
    * - If the session has expired, it calls `onSessionExpired`.
    *
    * This effect runs only once on mount and ensures that the session lifecycle is properly managed.
-   */ useEffect(() => {
+   */
+  useEffect(() => {
     (async () => {
       const session = await getSession();
 
@@ -60,6 +80,112 @@ export const SessionProvider: React.FC<{
       }
     })();
   }, []);
+
+  /**
+   * Effect hook that initializes the client and fetches user data when the session changes.
+   *
+   * - Calls `initializeClient` to configure the API client.
+   * - Calls `fetchUser` to retrieve user data.
+   *
+   * Runs whenever `session` changes.
+   */
+  useEffect(() => {
+    initializeClient();
+    fetchUser();
+  }, [session]);
+
+  /**
+   * Initializes the API client with the current session credentials.
+   *
+   * - Creates an `ApiKeyStamper` using the session keys.
+   * - Instantiates a `TurnkeyClient` with the configured API base URL.
+   * - Updates the client state.
+   *
+   * Does nothing if `session` is null.
+   */
+  const initializeClient = () => {
+    if (session) {
+      const stamper = new ApiKeyStamper({
+        apiPrivateKey: session.privateKey,
+        apiPublicKey: session.publicKey,
+      });
+      const client = new TurnkeyClient({ baseUrl: config.apiBaseUrl }, stamper);
+      setClient(client);
+    }
+  };
+
+  /**
+   * Fetches and updates the user state.
+   *
+   * - Retrieves the user and organization ID.
+   * - Fetches user details and wallets.
+   * - Updates the user state.
+   *
+   * Does nothing if `session` or `client` is null.
+   */
+  const fetchUser = async () => {
+    if (session && client) {
+      const whoami = await client.getWhoami({
+        organizationId: process.env.EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID ?? "",
+      });
+
+      if (whoami.userId && whoami.organizationId) {
+        const [walletsResponse, userResponse] = await Promise.all([
+          client.getWallets({ organizationId: whoami.organizationId }),
+          client.getUser({
+            organizationId: whoami.organizationId,
+            userId: whoami.userId,
+          }),
+        ]);
+
+        const wallets = await Promise.all(
+          walletsResponse.wallets.map(async (wallet) => {
+            const accounts = await client.getWalletAccounts({
+              organizationId: whoami.organizationId,
+              walletId: wallet.walletId,
+            });
+            return {
+              name: wallet.walletName,
+              id: wallet.walletId,
+              accounts: accounts.accounts.map((account) => {
+                return {
+                  id: account.walletAccountId,
+                  curve: account.curve,
+                  pathFormat: account.pathFormat,
+                  path: account.path,
+                  addressFormat: account.addressFormat,
+                  address: account.address,
+                  createdAt: account.createdAt,
+                  updatedAt: account.updatedAt,
+                };
+              }),
+            };
+          }),
+        );
+
+        const user = userResponse.user;
+
+        setUser({
+          id: user.userId,
+          userName: user.userName,
+          email: user.userEmail,
+          phoneNumber: user.userPhoneNumber,
+          organizationId: whoami.organizationId,
+          wallets,
+        });
+      }
+    }
+  };
+
+  /**
+   * Refreshes the user state.
+   *
+   * - Calls `fetchUser` to update user data.
+   * - Should be run when user data changes.
+   */
+  const refreshUser = async () => {
+    await fetchUser();
+  };
 
   /**
    * Clears any scheduled expiration timeouts
@@ -235,6 +361,9 @@ export const SessionProvider: React.FC<{
     <SessionContext.Provider
       value={{
         session,
+        client,
+        user,
+        refreshUser,
         createEmbeddedKey,
         createSession,
         clearSession,
