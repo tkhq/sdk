@@ -1,5 +1,17 @@
 # @turnkey/sdk-react
 
+## 3.0.3
+
+### Patch Changes
+
+- 5f6de98: Fix phone number validation issue causing issues with non +1 country codes
+- Updated dependencies [69d2571]
+- Updated dependencies [57f9cb0]
+  - @turnkey/sdk-browser@1.13.0
+  - @turnkey/sdk-server@2.1.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 3.0.2
 
 ### Patch Changes

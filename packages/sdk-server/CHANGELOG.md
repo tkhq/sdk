@@ -1,5 +1,17 @@
 # @turnkey/sdk-server
 
+## 2.1.0
+
+### Minor Changes
+
+- 57f9cb0: Update endpoints - surface GetWalletAccount
+
+### Patch Changes
+
+- 69d2571: Upgrade elliptic
+- Updated dependencies [57f9cb0]
+  - @turnkey/http@2.19.0
+
 ## 2.0.1
 
 ### Patch Changes
