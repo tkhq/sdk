@@ -1,15 +1,17 @@
-# **@turnkey/react-native-sessions**
+# **@turnkey/sdk-react-native**
 
-[![npm](https://img.shields.io/npm/v/@turnkey/react-native-sessions?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/react-native-sessions)
+[![npm](https://img.shields.io/npm/v/@turnkey/sdk-react-native?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-react-native)
 
-This package provides a secure session management solution for React Native applications using Turnkey. It leverages [`react-native-keychain`](https://github.com/oblador/react-native-keychain) for secure storage and integrates with [`@turnkey/crypto`](../crypto/) to manage cryptographic operations.
+The `@turnkey/sdk-react-native` package simplifies the integration of the Turnkey API into React Native applications. It provides secure session management, authentication, and cryptographic operations using [`react-native-keychain`](https://github.com/oblador/react-native-keychain), [`@turnkey/crypto`](../crypto/), [`@turnkey/api-key-stamper`](../api-key-stamper/), and [`@turnkey/http`](../http/).
 
 ## **Installation**
 
 - Install the following dependencies in your React Native project:
   - [`react-native-keychain`](https://www.npmjs.com/package/react-native-keychain)
   - [`@turnkey/crypto`](../crypto/)
-  - `@turnkey/react-native-sessions` (this package)
+  - [`@turnkey/api-key-stamper`](../api-key-stamper/)
+  - [`@turnkey/http`](../http/)
+  - `@turnkey/sdk-react-native` (this package)
 - Ensure your app is properly configured for secure storage and authentication.
 - **You must polyfill random byte generation** to ensure `generateP256KeyPair` from `@turnkey/crypto` works properly by importing [`react-native-get-random-values`](https://www.npmjs.com/package/react-native-get-random-values) at the **entry point of your application**:
 
@@ -24,14 +26,15 @@ This package provides a secure session management solution for React Native appl
 ### **Wrapping Your App with the Provider**
 
 ```tsx
-import { SessionProvider } from "@turnkey/react-native-sessions";
+import { TurnkeyProvider } from "@turnkey/sdk-react-native";
 import { useRouter } from "expo-router";
 import React from "react";
 
 export const AppProviders = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
-  const sessionConfig = {
+  const turnkeyConfig = {
+    apiBaseUrl: "https://api.turnkey.com",
     onSessionCreated: () => {
       console.log("Session Created");
       router.replace("/dashboard");
@@ -46,7 +49,7 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
     },
   };
 
-  return <SessionProvider config={sessionConfig}>{children}</SessionProvider>;
+  return <TurnkeyProvider config={turnkeyConfig}>{children}</TurnkeyProvider>;
 };
 ```
 
@@ -55,11 +58,11 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
 ### **Creating a new Session**
 
 ```tsx
-import { useSession } from "@turnkey/react-native-sessions";
+import { useTurnkey } from "@turnkey/sdk-react-native";
 import { PasskeyStamper } from "@turnkey/react-native-passkey-stamper";
 import { TurnkeyClient } from "@turnkey/http";
 
-const { createEmbeddedKey, createSession } = useSession();
+const { createEmbeddedKey, createSession } = useTurnkey();
 
 const loginWithPasskey = async () => {
   try {
@@ -93,26 +96,42 @@ const loginWithPasskey = async () => {
 ### **Using a Session**
 
 ```tsx
-import { useSession } from "@turnkey/react-native-sessions";
-import { TurnkeyClient, ApiKeyStamper } from "turnkey-sdk";
-import { useState, useEffect } from "react";
+import { useTurnkey } from "@turnkey/sdk-react-native";
 
-const { session } = useSession();
-const [client, setClient] = useState<TurnkeyClient | null>(null);
+const { user, client, refreshUser } = useTurnkey();
 
-useEffect(() => {
-  if (session) {
-    const stamper = new ApiKeyStamper({
-      apiPublicKey: session.publicKey,
-      apiPrivateKey: session.privateKey,
+const createWallet = async ({
+  walletName,
+  accounts,
+  mnemonicLength,
+}: {
+  walletName: string;
+  accounts: WalletAccountParams[];
+  mnemonicLength?: number;
+}): Promise<void> => {
+  try {
+    if (client == null || user == null) {
+      throw new Error("Client or user not initialized");
+    }
+
+    const response = await client.createWallet({
+      type: "ACTIVITY_TYPE_CREATE_WALLET",
+      timestampMs: Date.now().toString(),
+      organizationId: user.organizationId,
+      parameters: {
+        walletName,
+        accounts,
+        mnemonicLength,
+      },
     });
-    const turnkeyClient = new TurnkeyClient(
-      { baseUrl: TURNKEY_API_URL },
-      stamper,
-    );
-    setClient(turnkeyClient);
+
+    if (response.activity.result.createWalletResult?.walletId != null) {
+      await refreshUser();
+    }
+  } catch (error: any) {
+    throw error;
   }
-}, [session]);
+};
 ```
 
 ---

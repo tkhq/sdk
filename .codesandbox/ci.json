@@ -10,6 +10,7 @@
     "packages/sdk-browser",
     "packages/sdk-server",
     "packages/sdk-react",
+    "packages/sdk-react-native",
     "packages/solana",
     "packages/viem",
     "packages/webauthn-stamper",
@@ -18,7 +19,6 @@
     "packages/iframe-stamper",
     "packages/crypto",
     "packages/react-native-passkey-stamper",
-    "packages/react-native-sessions",
     "packages/telegram-cloud-storage-stamper"
   ],
   "sandboxes": [],

@@ -9,25 +9,9 @@ import { uint8ArrayToHexString } from "@turnkey/encoding";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { OTP_AUTH_DEFAULT_EXPIRATION_SECONDS } from "../constant";
-import { Wallet } from "../types";
+import { Session, User } from "../types";
 
-export type Session = {
-  publicKey: string;
-  privateKey: string;
-  expiry: number;
-};
-
-export type User = {
-  id: string;
-  userName: string;
-  email: string | undefined;
-  phoneNumber: string | undefined;
-  organizationId: string;
-  wallets: Wallet[];
-};
-
-export interface SessionContextType {
-  session: Session | null;
+export interface TurnkeyContextType {
   client: TurnkeyClient | null;
   user: User | null;
   refreshUser: () => Promise<void>;
@@ -36,20 +20,20 @@ export interface SessionContextType {
   clearSession: () => Promise<void>;
 }
 
-export const SessionContext = createContext<SessionContextType | undefined>(
+export const TurnkeyContext = createContext<TurnkeyContextType | undefined>(
   undefined,
 );
 
-export interface SessionConfig {
+export interface TurnkeyConfig {
   apiBaseUrl: string;
   onSessionCreated?: (session: Session) => void;
   onSessionExpired?: () => void;
   onSessionCleared?: () => void;
 }
 
-export const SessionProvider: React.FC<{
+export const TurnkeyProvider: React.FC<{
   children: React.ReactNode;
-  config: SessionConfig;
+  config: TurnkeyConfig;
 }> = ({ children, config }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -373,9 +357,8 @@ export const SessionProvider: React.FC<{
   };
 
   return (
-    <SessionContext.Provider
+    <TurnkeyContext.Provider
       value={{
-        session,
         client,
         user,
         refreshUser,
@@ -385,6 +368,6 @@ export const SessionProvider: React.FC<{
       }}
     >
       {children}
-    </SessionContext.Provider>
+    </TurnkeyContext.Provider>
   );
 };

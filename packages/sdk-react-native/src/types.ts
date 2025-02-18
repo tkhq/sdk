@@ -1,5 +1,20 @@
 import { TurnkeyApiTypes } from "@turnkey/http";
 
+export type Session = {
+  publicKey: string;
+  privateKey: string;
+  expiry: number;
+};
+
+export type User = {
+  id: string;
+  userName: string;
+  email: string | undefined;
+  phoneNumber: string | undefined;
+  organizationId: string;
+  wallets: Wallet[];
+};
+
 export type Wallet = {
   id: string;
   name: string;
