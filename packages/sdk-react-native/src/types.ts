@@ -4,6 +4,7 @@ export type Session = {
   publicKey: string;
   privateKey: string;
   expiry: number;
+  user?: User;
 };
 
 export type User = {

@@ -6,7 +6,6 @@ import {
   useRef,
   useState,
 } from "react";
-
 import * as Keychain from "react-native-keychain";
 import {
   generateP256KeyPair,
@@ -25,9 +24,9 @@ import type { Session, User } from "../types";
 import { TurnkeyReactNativeError } from "../errors";
 
 export interface TurnkeyContextType {
-  session: Session | null;
-  client: TurnkeyClient | null;
-  user: User | null;
+  session: Session | undefined;
+  client: TurnkeyClient | undefined;
+  user: User | undefined;
   refreshUser: () => Promise<void>;
   createEmbeddedKey: () => Promise<string>;
   createSession: (bundle: string, expiry?: number) => Promise<Session>;
@@ -50,9 +49,9 @@ export const TurnkeyProvider: FC<{
   children: ReactNode;
   config: TurnkeyConfig;
 }> = ({ children, config }) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [client, setClient] = useState<TurnkeyClient | null>(null);
+  const [session, setSession] = useState<Session | undefined>(undefined);
+  const [user, setUser] = useState<User | undefined>(undefined);
+  const [client, setClient] = useState<TurnkeyClient | undefined>(undefined);
 
   const expiryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -72,6 +71,10 @@ export const TurnkeyProvider: FC<{
 
       if (session?.expiry && session.expiry > Date.now()) {
         setSession(session);
+        setUser(session?.user);
+
+        initializeClient(session.publicKey, session.privateKey);
+
         config.onSessionCreated?.(session);
         scheduleSessionExpiration(session.expiry);
       } else {
@@ -79,28 +82,6 @@ export const TurnkeyProvider: FC<{
       }
     })();
   }, []);
-
-  /**
-   * Effect hook that initializes the client when the session changes.
-   *
-   * - Calls `initializeClient` to configure the API client.
-   *
-   * Runs whenever `session` changes.
-   */
-  useEffect(() => {
-    initializeClient();
-  }, [session]);
-
-  /**
-   * Effect hook that fetches user data when the client is initialized.
-   *
-   * - Calls `fetchUser` to retrieve user data.
-   *
-   * Runs whenever `client` changes.
-   */
-  useEffect(() => {
-    fetchUser();
-  }, [client]);
 
   /**
    * Initializes the API client with the current session credentials.
@@ -111,15 +92,16 @@ export const TurnkeyProvider: FC<{
    *
    * Does nothing if `session` is null.
    */
-  const initializeClient = () => {
-    if (session) {
-      const stamper = new ApiKeyStamper({
-        apiPrivateKey: session.privateKey,
-        apiPublicKey: session.publicKey,
-      });
-      const client = new TurnkeyClient({ baseUrl: config.apiBaseUrl }, stamper);
-      setClient(client);
-    }
+  const initializeClient = (publicKey: string, privateKey: string) => {
+    const stamper = new ApiKeyStamper({
+      apiPrivateKey: privateKey,
+      apiPublicKey: publicKey,
+    });
+    const clientInstance = new TurnkeyClient(
+      { baseUrl: config.apiBaseUrl },
+      stamper
+    );
+    setClient(clientInstance);
   };
 
   /**
@@ -131,58 +113,60 @@ export const TurnkeyProvider: FC<{
    *
    * Does nothing if `session` or `client` is null.
    */
-  const fetchUser = async () => {
-    if (session && client) {
-      const whoami = await client.getWhoami({
-        organizationId: config.organizationId,
-      });
+  const fetchUser = async (): Promise<User | undefined> => {
+    const whoami = await client!.getWhoami({
+      organizationId: config.organizationId,
+    });
 
-      if (whoami.userId && whoami.organizationId) {
-        const [walletsResponse, userResponse] = await Promise.all([
-          client.getWallets({ organizationId: whoami.organizationId }),
-          client.getUser({
-            organizationId: whoami.organizationId,
-            userId: whoami.userId,
-          }),
-        ]);
-
-        const wallets = await Promise.all(
-          walletsResponse.wallets.map(async (wallet) => {
-            const accounts = await client.getWalletAccounts({
-              organizationId: whoami.organizationId,
-              walletId: wallet.walletId,
-            });
-            return {
-              name: wallet.walletName,
-              id: wallet.walletId,
-              accounts: accounts.accounts.map((account) => {
-                return {
-                  id: account.walletAccountId,
-                  curve: account.curve,
-                  pathFormat: account.pathFormat,
-                  path: account.path,
-                  addressFormat: account.addressFormat,
-                  address: account.address,
-                  createdAt: account.createdAt,
-                  updatedAt: account.updatedAt,
-                };
-              }),
-            };
-          })
-        );
-
-        const user = userResponse.user;
-
-        setUser({
-          id: user.userId,
-          userName: user.userName,
-          email: user.userEmail,
-          phoneNumber: user.userPhoneNumber,
+    if (whoami.userId && whoami.organizationId) {
+      const [walletsResponse, userResponse] = await Promise.all([
+        client!.getWallets({ organizationId: whoami.organizationId }),
+        client!.getUser({
           organizationId: whoami.organizationId,
-          wallets,
-        });
-      }
+          userId: whoami.userId,
+        }),
+      ]);
+
+      const wallets = await Promise.all(
+        walletsResponse.wallets.map(async (wallet) => {
+          const accounts = await client!.getWalletAccounts({
+            organizationId: whoami.organizationId,
+            walletId: wallet.walletId,
+          });
+          return {
+            name: wallet.walletName,
+            id: wallet.walletId,
+            accounts: accounts.accounts.map((account) => {
+              return {
+                id: account.walletAccountId,
+                curve: account.curve,
+                pathFormat: account.pathFormat,
+                path: account.path,
+                addressFormat: account.addressFormat,
+                address: account.address,
+                createdAt: account.createdAt,
+                updatedAt: account.updatedAt,
+              };
+            }),
+          };
+        })
+      );
+
+      const user = userResponse.user;
+      const formattedUser = {
+        id: user.userId,
+        userName: user.userName,
+        email: user.userEmail,
+        phoneNumber: user.userPhoneNumber,
+        organizationId: whoami.organizationId,
+        wallets,
+      };
+
+      setUser(formattedUser);
+
+      return formattedUser;
     }
+    return undefined;
   };
 
   /**
@@ -192,7 +176,9 @@ export const TurnkeyProvider: FC<{
    * - Should be run when user data changes.
    */
   const refreshUser = async () => {
-    await fetchUser();
+    if (session && client) {
+      await fetchUser();
+    }
   };
 
   /**
@@ -341,11 +327,17 @@ export const TurnkeyProvider: FC<{
     }
 
     const privateKey = decryptCredentialBundle(bundle, embeddedKey);
-
     const expiry = Date.now() + expirySeconds * 1000;
-
     const publicKey = uint8ArrayToHexString(getPublicKey(privateKey));
-    const session = { publicKey, privateKey, expiry };
+
+    initializeClient(publicKey, privateKey);
+    const user = await fetchUser();
+
+    if (!user) {
+      throw new TurnkeyReactNativeError("User not found.");
+    }
+    
+    const session = { publicKey, privateKey, expiry, user };
     await saveSession(session);
 
     config.onSessionCreated?.(session);
@@ -363,9 +355,9 @@ export const TurnkeyProvider: FC<{
    */
   const clearSession = async () => {
     try {
-      setSession(null);
-      setClient(null);
-      setUser(null);
+      setSession(undefined);
+      setClient(undefined);
+      setUser(undefined);
       await Keychain.resetGenericPassword({ service: TURNKEY_SESSION_STORAGE });
 
       config.onSessionCleared?.();
