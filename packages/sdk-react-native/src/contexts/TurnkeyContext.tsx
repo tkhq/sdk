@@ -1,4 +1,12 @@
-import React, { createContext, useEffect, useRef, useState } from "react";
+import {
+  type ReactNode,
+  type FC,
+  createContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import * as Keychain from "react-native-keychain";
 import {
   generateP256KeyPair,
@@ -8,10 +16,16 @@ import {
 import { uint8ArrayToHexString } from "@turnkey/encoding";
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { OTP_AUTH_DEFAULT_EXPIRATION_SECONDS } from "../constant";
-import { Session, User } from "../types";
+import {
+  TURNKEY_EMBEDDED_KEY_STORAGE,
+  TURNKEY_SESSION_STORAGE,
+  OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
+} from "../constant";
+import type { Session, User } from "../types";
+import { TurnkeyReactNativeError } from "../errors";
 
 export interface TurnkeyContextType {
+  session: Session | null;
   client: TurnkeyClient | null;
   user: User | null;
   refreshUser: () => Promise<void>;
@@ -21,18 +35,19 @@ export interface TurnkeyContextType {
 }
 
 export const TurnkeyContext = createContext<TurnkeyContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export interface TurnkeyConfig {
   apiBaseUrl: string;
+  organizationId: string;
   onSessionCreated?: (session: Session) => void;
   onSessionExpired?: () => void;
   onSessionCleared?: () => void;
 }
 
-export const TurnkeyProvider: React.FC<{
-  children: React.ReactNode;
+export const TurnkeyProvider: FC<{
+  children: ReactNode;
   config: TurnkeyConfig;
 }> = ({ children, config }) => {
   const [session, setSession] = useState<Session | null>(null);
@@ -119,7 +134,7 @@ export const TurnkeyProvider: React.FC<{
   const fetchUser = async () => {
     if (session && client) {
       const whoami = await client.getWhoami({
-        organizationId: process.env.EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID ?? "",
+        organizationId: config.organizationId,
       });
 
       if (whoami.userId && whoami.organizationId) {
@@ -153,7 +168,7 @@ export const TurnkeyProvider: React.FC<{
                 };
               }),
             };
-          }),
+          })
         );
 
         const user = userResponse.user;
@@ -216,12 +231,12 @@ export const TurnkeyProvider: React.FC<{
    */
   const getEmbeddedKey = async (deleteKey = true) => {
     const credentials = await Keychain.getGenericPassword({
-      service: "turnkey-embedded-key",
+      service: TURNKEY_EMBEDDED_KEY_STORAGE,
     });
     if (credentials) {
       if (deleteKey) {
         await Keychain.resetGenericPassword({
-          service: "turnkey-embedded-key",
+          service: TURNKEY_EMBEDDED_KEY_STORAGE,
         });
       }
       return credentials.password;
@@ -237,12 +252,15 @@ export const TurnkeyProvider: React.FC<{
    */
   const saveEmbeddedKey = async (key: string) => {
     try {
-      await Keychain.setGenericPassword("turnkey-embedded-key", key, {
+      await Keychain.setGenericPassword(TURNKEY_EMBEDDED_KEY_STORAGE, key, {
         accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-        service: "turnkey-embedded-key",
+        service: TURNKEY_EMBEDDED_KEY_STORAGE,
       });
     } catch (error) {
-      throw new Error("Could not save the embedded key.");
+      throw new TurnkeyReactNativeError(
+        "Could not save the embedded key.",
+        error
+      );
     }
   };
 
@@ -270,7 +288,7 @@ export const TurnkeyProvider: React.FC<{
    */
   const getSession = async (): Promise<Session | null> => {
     const credentials = await Keychain.getGenericPassword({
-      service: "turnkey-session",
+      service: TURNKEY_SESSION_STORAGE,
     });
 
     if (credentials) {
@@ -289,16 +307,16 @@ export const TurnkeyProvider: React.FC<{
     try {
       setSession(session);
       await Keychain.setGenericPassword(
-        "turnkey-session",
+        TURNKEY_SESSION_STORAGE,
         JSON.stringify(session),
         {
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-          service: "turnkey-session",
-        },
+          service: TURNKEY_SESSION_STORAGE,
+        }
       );
       scheduleSessionExpiration(session.expiry);
     } catch (error) {
-      throw new Error("Could not save the session.");
+      throw new TurnkeyReactNativeError("Could not save the session", error);
     }
   };
 
@@ -315,11 +333,11 @@ export const TurnkeyProvider: React.FC<{
    */
   const createSession = async (
     bundle: string,
-    expirySeconds: number = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
+    expirySeconds: number = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS
   ): Promise<Session> => {
     const embeddedKey = await getEmbeddedKey();
     if (!embeddedKey) {
-      throw new Error("Embedded key not found.");
+      throw new TurnkeyReactNativeError("Embedded key not found.");
     }
 
     const privateKey = decryptCredentialBundle(bundle, embeddedKey);
@@ -348,17 +366,18 @@ export const TurnkeyProvider: React.FC<{
       setSession(null);
       setClient(null);
       setUser(null);
-      await Keychain.resetGenericPassword({ service: "turnkey-session" });
+      await Keychain.resetGenericPassword({ service: TURNKEY_SESSION_STORAGE });
 
       config.onSessionCleared?.();
     } catch (error) {
-      throw new Error("Could not clear the session.");
+      throw new TurnkeyReactNativeError("Could not clear the session.");
     }
   };
 
   return (
     <TurnkeyContext.Provider
       value={{
+        session,
         client,
         user,
         refreshUser,
