@@ -82,21 +82,26 @@ export const SessionProvider: React.FC<{
   }, []);
 
   /**
-   * Effect hook that initializes the client and fetches user data when the session changes.
+   * Effect hook that initializes the client when the session changes.
    *
    * - Calls `initializeClient` to configure the API client.
-   * - Calls `fetchUser` to retrieve user data.
    *
    * Runs whenever `session` changes.
    */
   useEffect(() => {
-    const initializeClientAndUser = async () => {
-      initializeClient();
-      await fetchUser();
-    };
-
-    initializeClientAndUser();
+    initializeClient();
   }, [session]);
+
+  /**
+   * Effect hook that fetches user data when the client is initialized.
+   *
+   * - Calls `fetchUser` to retrieve user data.
+   *
+   * Runs whenever `client` changes.
+   */
+  useEffect(() => {
+    fetchUser();
+  }, [client]);
 
   /**
    * Initializes the API client with the current session credentials.
