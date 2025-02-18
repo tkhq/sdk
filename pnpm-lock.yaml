@@ -15,6 +15,7 @@ overrides:
   path-to-regexp@<0.1.10: '>=0.1.10'
   secp256k1: '>=4.0.4'
   cross-spawn: '>=7.0.5'
+  elliptic: '>=6.6.1'
 
 importers:
 
@@ -1772,8 +1773,8 @@ importers:
         specifier: ^3.1.5
         version: 3.1.5
       elliptic:
-        specifier: ^6.5.5
-        version: 6.5.5
+        specifier: '>=6.6.1'
+        version: 6.6.1
       hpke-js:
         specifier: ^1.2.7
         version: 1.2.7
@@ -1861,8 +1862,8 @@ importers:
         specifier: ^3.1.5
         version: 3.1.5
       elliptic:
-        specifier: ^6.5.5
-        version: 6.5.5
+        specifier: '>=6.6.1'
+        version: 6.6.1
       next:
         specifier: ^15.0.2
         version: 15.0.2(@babel/core@7.24.5)(react-dom@18.3.1)(react@18.3.1)
@@ -5128,7 +5129,7 @@ packages:
       '@cosmjs/utils': 0.31.0
       '@noble/hashes': 1.4.0
       bn.js: 5.2.1
-      elliptic: 6.5.4
+      elliptic: 6.6.1
       libsodium-wrappers-sumo: 0.7.11
     dev: false
 
@@ -5972,7 +5973,7 @@ packages:
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
       bn.js: 5.2.1
-      elliptic: 6.5.4
+      elliptic: 6.6.1
       hash.js: 1.1.7
 
   /@ethersproject/solidity@5.7.0:
@@ -12323,7 +12324,7 @@ packages:
   /@toruslabs/eccrypto@2.2.1:
     resolution: {integrity: sha512-7sviL0wLYsfA5ogEAOIdb0tu/QAOFXfHc9B8ONYtF04x4Mg3Nr89LL35FhjaEm055q8Ru7cUQhEFSiqJqm9GCw==}
     dependencies:
-      elliptic: 6.5.7
+      elliptic: 6.6.1
     dev: false
 
   /@toruslabs/http-helpers@3.4.0(@babel/runtime@7.26.0):
@@ -12350,7 +12351,7 @@ packages:
       '@babel/runtime': 7.26.0
       '@toruslabs/eccrypto': 2.2.1
       '@toruslabs/http-helpers': 3.4.0(@babel/runtime@7.26.0)
-      elliptic: 6.5.7
+      elliptic: 6.6.1
       ethereum-cryptography: 2.1.3
       json-stable-stringify: 1.1.1
     transitivePeerDependencies:
@@ -15032,7 +15033,7 @@ packages:
       browserify-rsa: 4.1.0
       create-hash: 1.2.0
       create-hmac: 1.1.7
-      elliptic: 6.5.7
+      elliptic: 6.6.1
       hash-base: 3.0.4
       inherits: 2.0.4
       parse-asn1: 5.1.7
@@ -15731,7 +15732,7 @@ packages:
     resolution: {integrity: sha512-mf+TCx8wWc9VpuxfP2ht0iSISLZnt0JgWlrOKZiNqyUZWnjIaCIVNQArMHnCZKfEYRg6IM7A+NeJoN8gf/Ws0A==}
     dependencies:
       bn.js: 4.12.0
-      elliptic: 6.5.7
+      elliptic: 6.6.1
     dev: false
 
   /create-hash@1.2.0:
@@ -16378,31 +16379,8 @@ packages:
   /electron-to-chromium@1.4.650:
     resolution: {integrity: sha512-sYSQhJCJa4aGA1wYol5cMQgekDBlbVfTRavlGZVr3WZpDdOPcp6a6xUnFfrt8TqZhsBYYbDxJZCjGfHuGupCRQ==}
 
-  /elliptic@6.5.4:
-    resolution: {integrity: sha512-iLhC6ULemrljPZb+QutR5TQGB+pdW6KGD5RSegS+8sorOZT+rdQFbsQFJgvN3eRqNALqJer4oQ16YvJHlU8hzQ==}
-    dependencies:
-      bn.js: 4.12.0
-      brorand: 1.1.0
-      hash.js: 1.1.7
-      hmac-drbg: 1.0.1
-      inherits: 2.0.4
-      minimalistic-assert: 1.0.1
-      minimalistic-crypto-utils: 1.0.1
-
-  /elliptic@6.5.5:
-    resolution: {integrity: sha512-7EjbcmUm17NQFu4Pmgmq2olYMj8nwMnpcddByChSUjArp8F5DQWcIcpriwO4ZToLNAJig0yiyjswfyGNje/ixw==}
-    dependencies:
-      bn.js: 4.12.0
-      brorand: 1.1.0
-      hash.js: 1.1.7
-      hmac-drbg: 1.0.1
-      inherits: 2.0.4
-      minimalistic-assert: 1.0.1
-      minimalistic-crypto-utils: 1.0.1
-    dev: false
-
-  /elliptic@6.5.7:
-    resolution: {integrity: sha512-ESVCtTwiA+XhY3wyh24QqRGBoP3rEdDUl3EDUUo9tft074fi19IrdpH7hLCMMP3CIj7jb3W96rn8lt/BqIlt5Q==}
+  /elliptic@6.6.1:
+    resolution: {integrity: sha512-RaddvvMatK2LJHqFJ+YA4WysVN5Ita9E35botqIYspQ4TkRAlCicdzKOjlyv/1Za5RyTNn7di//eEV0uTAfe3g==}
     dependencies:
       bn.js: 4.12.0
       brorand: 1.1.0
@@ -17250,7 +17228,7 @@ packages:
       '@types/bn.js': 4.11.6
       bn.js: 4.12.0
       create-hash: 1.2.0
-      elliptic: 6.5.7
+      elliptic: 6.6.1
       ethereum-cryptography: 0.1.3
       ethjs-util: 0.1.6
       rlp: 2.2.7
@@ -23041,7 +23019,7 @@ packages:
     dependencies:
       bn.js: 5.2.1
       brorand: 1.1.0
-      elliptic: 6.5.7
+      elliptic: 6.6.1
       hash.js: 1.1.7
       ripple-address-codec: 4.3.1
     dev: false
@@ -23301,7 +23279,7 @@ packages:
     engines: {node: '>=18.0.0'}
     requiresBuild: true
     dependencies:
-      elliptic: 6.5.7
+      elliptic: 6.6.1
       node-addon-api: 5.1.0
       node-gyp-build: 4.6.0
 
@@ -24296,7 +24274,7 @@ packages:
       bindings: 1.5.0
       bn.js: 4.12.0
       create-hmac: 1.1.7
-      elliptic: 6.5.7
+      elliptic: 6.6.1
       nan: 2.20.0
     dev: false
 
