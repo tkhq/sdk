@@ -348,6 +348,14 @@ export const TurnkeyProvider: FC<{
     }
   };
 
+  /**
+   *
+   * Updates the user's email and/or phone number.
+   *
+   * @param userDetails - Object containing the new email and/or phone number.
+   * @returns The activity response from the user update.
+   * @throws If the client or user is not initialized.
+   */
   const updateUser = async (userDetails: {
     email?: string;
     phone?: string;
@@ -484,6 +492,17 @@ export const TurnkeyProvider: FC<{
     }
   };
 
+  /**
+   *
+   * Creates a new wallet with the specified name and accounts.
+   *
+   * @param walletName - The name of the wallet.
+   * @param accounts - The list of accounts associated with the wallet.
+   * @param mnemonicLength - (Optional) The length of the mnemonic phrase (defaults to 12).
+   * @returns The activity response from the wallet creation.
+   * @throws If the client or user is not initialized.
+   */
+
   const createWallet = async ({
     walletName,
     accounts,
@@ -525,6 +544,16 @@ export const TurnkeyProvider: FC<{
     return activity;
   };
 
+  /**
+   *
+   * Imports a wallet using a provided mnemonic and creates accounts.
+   *
+   * @param walletName - The name of the wallet.
+   * @param mnemonic - The mnemonic phrase used to restore the wallet.
+   * @param accounts - The list of accounts associated with the wallet.
+   * @returns The activity response from the wallet import.
+   * @throws If the client or user is not initialized.
+   */
   const importWallet = async ({
     walletName,
     mnemonic,
@@ -579,6 +608,14 @@ export const TurnkeyProvider: FC<{
     return activity;
   };
 
+  /**
+   *
+   * Exports an existing wallet by decrypting the stored mnemonic phrase.
+   *
+   * @param walletId - The unique identifier of the wallet to be exported.
+   * @returns The decrypted mnemonic phrase of the wallet.
+   * @throws If the client, user, or export bundle is not initialized.
+   */
   const exportWallet = async ({
     walletId,
   }: {
@@ -614,6 +651,17 @@ export const TurnkeyProvider: FC<{
     });
   };
 
+  /**
+   *
+   * Signs a raw payload using the specified signing key and encoding parameters.
+   *
+   * @param signWith - The identifier of the signing key.
+   * @param payload - The raw payload to be signed.
+   * @param encoding - The encoding format of the payload.
+   * @param hashFunction - The hash function to be used before signing.
+   * @returns The result of the signing operation.
+   * @throws If the client or user is not initialized.
+   */
   const signRawPayload = async ({
     signWith,
     payload,

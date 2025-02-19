@@ -35,6 +35,7 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
 
   const turnkeyConfig = {
     apiBaseUrl: "https://api.turnkey.com",
+    organizationId: <"your organization id">
     onSessionCreated: () => {
       console.log("Session Created");
       router.replace("/dashboard");
@@ -52,6 +53,31 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
   return <TurnkeyProvider config={turnkeyConfig}>{children}</TurnkeyProvider>;
 };
 ```
+
+---
+
+## **Functions Provided by the Turnkey Provider**
+
+### **Session Management**
+
+- `createEmbeddedKey()`: Generates a new embedded key pair and securely stores the private key.
+- `createSession(bundle, expiry?)`: Creates a session from a given credential bundle with an optional expiry time.
+- `clearSession()`: Clears the current session, removing all stored credentials and session data.
+
+### **User Management**
+
+- `updateUser()`: Updates the user's email and/or phone number.
+- `refreshUser()`: Fetches the latest user data and updates the session state.
+
+### **Wallet Management**
+
+- `createWallet()`: Creates a new wallet with the specified name and accounts. Optionally, a mnemonic length can be provided (defaults to 12).
+- `importWallet()`: Imports a wallet using a provided mnemonic and creates accounts.
+- `exportWallet()`: Exports an existing wallet by decrypting the stored mnemonic phrase.
+
+### **Transaction Signing**
+
+- `signRawPayload()`: Signs a raw payload using the specified signing key and encoding parameters.
 
 ---
 
@@ -93,50 +119,7 @@ const loginWithPasskey = async () => {
 
 ---
 
-### **Using a Session**
-
-```tsx
-import { useTurnkey } from "@turnkey/sdk-react-native";
-
-const { user, client, refreshUser } = useTurnkey();
-
-const createWallet = async ({
-  walletName,
-  accounts,
-  mnemonicLength,
-}: {
-  walletName: string;
-  accounts: WalletAccountParams[];
-  mnemonicLength?: number;
-}): Promise<void> => {
-  try {
-    if (client == null || user == null) {
-      throw new Error("Client or user not initialized");
-    }
-
-    const response = await client.createWallet({
-      type: "ACTIVITY_TYPE_CREATE_WALLET",
-      timestampMs: Date.now().toString(),
-      organizationId: user.organizationId,
-      parameters: {
-        walletName,
-        accounts,
-        mnemonicLength,
-      },
-    });
-
-    if (response.activity.result.createWalletResult?.walletId != null) {
-      await refreshUser();
-    }
-  } catch (error: any) {
-    throw error;
-  }
-};
-```
-
----
-
-## **Session Storage**
+### **Session Storage**
 
 To enable secure authentication, two separate keychain entries are used:
 
