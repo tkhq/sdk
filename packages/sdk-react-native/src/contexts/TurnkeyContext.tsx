@@ -14,14 +14,14 @@ import {
 } from "@turnkey/crypto";
 import { uint8ArrayToHexString } from "@turnkey/encoding";
 import { TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import {
   TURNKEY_EMBEDDED_KEY_STORAGE,
   TURNKEY_SESSION_STORAGE,
   OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
 } from "../constant";
-import type { Session, User } from "../types";
+import type { Activity, Session, User, WalletAccountParams } from "../types";
 import { TurnkeyReactNativeError } from "../errors";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 export interface TurnkeyContextType {
   session: Session | undefined;
@@ -31,6 +31,11 @@ export interface TurnkeyContextType {
   createEmbeddedKey: () => Promise<string>;
   createSession: (bundle: string, expiry?: number) => Promise<Session>;
   clearSession: () => Promise<void>;
+  createWallet: (params: {
+    walletName: string;
+    accounts: WalletAccountParams[];
+    mnemonicLength?: number;
+  }) => Promise<Activity>;
 }
 
 export const TurnkeyContext = createContext<TurnkeyContextType | undefined>(
@@ -71,7 +76,11 @@ export const TurnkeyProvider: FC<{
       if (session?.expiry && session.expiry > Date.now()) {
         setSession(session);
 
-        const client = createClient(session.publicKey, session.privateKey);
+        const client = createClient(
+          session.publicKey,
+          session.privateKey,
+          config.apiBaseUrl,
+        );
         setClient(client);
 
         config.onSessionCreated?.(session);
@@ -90,6 +99,32 @@ export const TurnkeyProvider: FC<{
   }, []);
 
   /**
+   * Clears any scheduled expiration timeouts
+   */
+  const clearTimeouts = () => {
+    if (expiryTimeoutRef.current) clearTimeout(expiryTimeoutRef.current);
+  };
+
+  /**
+   * Schedules session expiration callback
+   * @param expiryTime - The Unix timestamp of session expiration
+   */
+  const scheduleSessionExpiration = (expiryTime: number) => {
+    clearTimeouts();
+    const timeUntilExpiry = expiryTime - Date.now();
+
+    if (timeUntilExpiry > 0) {
+      expiryTimeoutRef.current = setTimeout(() => {
+        clearSession();
+        config.onSessionExpired?.();
+      }, timeUntilExpiry);
+    } else {
+      clearSession();
+      config.onSessionExpired?.();
+    }
+  };
+
+  /**
    * Creates an API client instance using the provided session credentials.
    *
    * - Creates an `ApiKeyStamper` using the provided keys.
@@ -102,12 +137,13 @@ export const TurnkeyProvider: FC<{
   const createClient = (
     publicKey: string,
     privateKey: string,
+    apiBaseUrl: string,
   ): TurnkeyClient => {
     const stamper = new ApiKeyStamper({
       apiPrivateKey: privateKey,
       apiPublicKey: publicKey,
     });
-    return new TurnkeyClient({ baseUrl: config.apiBaseUrl }, stamper);
+    return new TurnkeyClient({ baseUrl: apiBaseUrl }, stamper);
   };
 
   /**
@@ -118,9 +154,10 @@ export const TurnkeyProvider: FC<{
    */
   const fetchUser = async (
     client: TurnkeyClient,
+    organizationId: string,
   ): Promise<User | undefined> => {
     const whoami = await client.getWhoami({
-      organizationId: config.organizationId,
+      organizationId: organizationId,
     });
 
     if (whoami.userId && whoami.organizationId) {
@@ -172,49 +209,6 @@ export const TurnkeyProvider: FC<{
   };
 
   /**
-   * Refreshes the user state.
-   *
-   * - Calls `fetchUser` to update user data.
-   * - Should be run when user data changes.
-   */
-  const refreshUser = async () => {
-    if (session && client) {
-      const updatedUser = await fetchUser(client);
-
-      if (updatedUser) {
-        const updatedSession: Session = { ...session, user: updatedUser };
-        await updateSession(updatedSession);
-      }
-    }
-  };
-
-  /**
-   * Clears any scheduled expiration timeouts
-   */
-  const clearTimeouts = () => {
-    if (expiryTimeoutRef.current) clearTimeout(expiryTimeoutRef.current);
-  };
-
-  /**
-   * Schedules session expiration callback
-   * @param expiryTime - The Unix timestamp of session expiration
-   */
-  const scheduleSessionExpiration = (expiryTime: number) => {
-    clearTimeouts();
-    const timeUntilExpiry = expiryTime - Date.now();
-
-    if (timeUntilExpiry > 0) {
-      expiryTimeoutRef.current = setTimeout(() => {
-        clearSession();
-        config.onSessionExpired?.();
-      }, timeUntilExpiry);
-    } else {
-      clearSession();
-      config.onSessionExpired?.();
-    }
-  };
-
-  /**
    * Retrieves the stored embedded key from secure storage.
    * Optionally deletes the key from storage after retrieval.
    *
@@ -258,22 +252,6 @@ export const TurnkeyProvider: FC<{
   };
 
   /**
-   * Generates a new embedded key pair and securely stores the private key in secure storage.
-   *
-   * @returns The public key corresponding to the generated embedded key pair.
-   * @throws If saving the private key fails.
-   */
-  const createEmbeddedKey = async () => {
-    const key = generateP256KeyPair();
-    const embeddedPrivateKey = key.privateKey;
-    const publicKey = key.publicKeyUncompressed;
-
-    await saveEmbeddedKey(embeddedPrivateKey);
-
-    return publicKey;
-  };
-
-  /**
    * Retrieves the stored session from secure storage.
    *
    * @returns The stored session or `null` if not found.
@@ -310,12 +288,72 @@ export const TurnkeyProvider: FC<{
           service: TURNKEY_SESSION_STORAGE,
         },
       );
-      setSession(session);
 
       scheduleSessionExpiration(session.expiry);
     } catch (error) {
       throw new TurnkeyReactNativeError("Could not save the session", error);
     }
+  };
+
+  /**
+   * Updates the current session both in memory and in secure storage.
+   *
+   * - Persists the updated session to secure storage.
+   * - Updates the in-memory session state.
+   * - Reschedules the session expiration as a side effect.
+   *
+   * @param updatedSession The new session object.
+   * @throws If updating the session fails.
+   */
+  const updateSession = async (updatedSession: Session) => {
+    try {
+      await Keychain.setGenericPassword(
+        TURNKEY_SESSION_STORAGE,
+        JSON.stringify(updatedSession),
+        {
+          accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+          service: TURNKEY_SESSION_STORAGE,
+        },
+      );
+
+      scheduleSessionExpiration(updatedSession.expiry);
+    } catch (error) {
+      throw new TurnkeyReactNativeError("Could not update the session.", error);
+    }
+  };
+
+  /**
+   * Refreshes the user state.
+   *
+   * - Calls `fetchUser` to update user data.
+   * - Should be run when user data changes.
+   */
+  const refreshUser = async () => {
+    if (session && client) {
+      const updatedUser = await fetchUser(client, config.organizationId);
+
+      if (updatedUser) {
+        const updatedSession: Session = { ...session, user: updatedUser };
+        await updateSession(updatedSession);
+        setSession(updatedSession);
+      }
+    }
+  };
+
+  /**
+   * Generates a new embedded key pair and securely stores the private key in secure storage.
+   *
+   * @returns The public key corresponding to the generated embedded key pair.
+   * @throws If saving the private key fails.
+   */
+  const createEmbeddedKey = async () => {
+    const key = generateP256KeyPair();
+    const embeddedPrivateKey = key.privateKey;
+    const publicKey = key.publicKeyUncompressed;
+
+    await saveEmbeddedKey(embeddedPrivateKey);
+
+    return publicKey;
   };
 
   /**
@@ -342,10 +380,10 @@ export const TurnkeyProvider: FC<{
     const publicKey = uint8ArrayToHexString(getPublicKey(privateKey));
     const expiry = Date.now() + expirySeconds * 1000;
 
-    const client = createClient(publicKey, privateKey);
+    const client = createClient(publicKey, privateKey, config.apiBaseUrl);
     setClient(client);
 
-    const user = await fetchUser(client);
+    const user = await fetchUser(client, config.organizationId);
 
     if (!user) {
       throw new TurnkeyReactNativeError("User not found.");
@@ -353,37 +391,10 @@ export const TurnkeyProvider: FC<{
 
     const session = { publicKey, privateKey, expiry, user };
     await saveSession(session);
+    setSession(session);
 
     config.onSessionCreated?.(session);
     return session;
-  };
-
-  /**
-   * Updates the current session both in memory and in secure storage.
-   *
-   * - Persists the updated session to secure storage.
-   * - Updates the in-memory session state.
-   * - Reschedules the session expiration as a side effect.
-   *
-   * @param updatedSession The new session object.
-   * @throws If updating the session fails.
-   */
-  const updateSession = async (updatedSession: Session) => {
-    try {
-      await Keychain.setGenericPassword(
-        TURNKEY_SESSION_STORAGE,
-        JSON.stringify(updatedSession),
-        {
-          accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-          service: TURNKEY_SESSION_STORAGE,
-        },
-      );
-      setSession(updatedSession);
-
-      scheduleSessionExpiration(updatedSession.expiry);
-    } catch (error) {
-      throw new TurnkeyReactNativeError("Could not update the session.", error);
-    }
   };
 
   /**
@@ -407,6 +418,47 @@ export const TurnkeyProvider: FC<{
     }
   };
 
+  const createWallet = async ({
+    walletName,
+    accounts,
+    mnemonicLength,
+  }: {
+    walletName: string;
+    accounts: WalletAccountParams[];
+    mnemonicLength?: number;
+  }): Promise<Activity> => {
+    if (client == null || session?.user == null) {
+      throw new TurnkeyReactNativeError("Client or user not initialized");
+    }
+
+    const parameters: {
+      walletName: string;
+      accounts: WalletAccountParams[];
+      mnemonicLength?: number;
+    } = { walletName, accounts };
+    if (mnemonicLength != null) {
+      parameters.mnemonicLength = mnemonicLength;
+    }
+
+    const response = await client.createWallet({
+      type: "ACTIVITY_TYPE_CREATE_WALLET",
+      timestampMs: Date.now().toString(),
+      organizationId: session.user.organizationId,
+      parameters: {
+        walletName,
+        accounts,
+        ...(mnemonicLength != null && { mnemonicLength }),
+      },
+    });
+
+    const activity = response.activity;
+    if (activity.result.createWalletResult?.walletId != null) {
+      await refreshUser();
+    }
+
+    return activity;
+  };
+
   return (
     <TurnkeyContext.Provider
       value={{
@@ -417,6 +469,7 @@ export const TurnkeyProvider: FC<{
         createEmbeddedKey,
         createSession,
         clearSession,
+        createWallet,
       }}
     >
       {children}

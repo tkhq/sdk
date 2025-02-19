@@ -33,7 +33,9 @@ export type WalletAccount = {
   updatedAt: Timestamp;
 };
 
+export type Activity = TurnkeyApiTypes["v1Activity"];
+export type AddressFormat = TurnkeyApiTypes["v1AddressFormat"];
 export type Curve = TurnkeyApiTypes["v1Curve"];
 export type PathFormat = TurnkeyApiTypes["v1PathFormat"];
-export type AddressFormat = TurnkeyApiTypes["v1AddressFormat"];
 export type Timestamp = TurnkeyApiTypes["externaldatav1Timestamp"];
+export type WalletAccountParams = TurnkeyApiTypes["v1WalletAccountParams"];
