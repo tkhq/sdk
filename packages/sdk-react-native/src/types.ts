@@ -1,4 +1,4 @@
-import { TurnkeyApiTypes } from "@turnkey/http";
+import type { TurnkeyApiTypes } from "@turnkey/http";
 
 export type Session = {
   publicKey: string;
