@@ -336,8 +336,106 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
       return false;
     }
   };
-}
 
+
+  /**
+   * Delete authentication from an end user 
+   *
+   * @param userId
+   * @param expirationSeconds
+   * @returns {Promise<boolean>}
+   */
+  deleteUserAuth = async (
+    userId: string,
+    mechanism: "PHONE_NUMBER" | "EMAIL" | "WEB_AUTHN" | "OAUTH_PROVIDERS" | "API_KEYS",
+    phoneNumber?: string,
+
+    
+  ): Promise<any> => {
+    try {
+      const whoAmIResult = await this.getWhoami();
+
+      const readWriteSessionResultWithSession = {
+        ...whoAmIResult,
+        credentialBundle: credentialBundle,
+        sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
+      };
+      await saveSession(readWriteSessionResultWithSession, this.authClient);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+/**
+ * Add authentication to an end user 
+ *
+ * @param userId
+ * @param expirationSeconds
+ * @returns {Promise<boolean>}
+ */
+addUserAuth = async (
+  userId: string,
+  phoneNumber?: string,
+  email?: string,
+  authenticators?: any[],
+  oauthProviders?: any[],
+  apiKeys?: any[],
+): Promise<any> => {
+  if (phoneNumber) {
+    return await this.updateUser({ userId, userPhoneNumber: phoneNumber });
+  }
+
+  if (email) {
+    return await this.updateUser({ userId, userEmail: email });
+  }
+
+  if (authenticators && authenticators.length > 0) {
+    return await this.createAuthenticators({ userId, authenticators });
+  }
+
+  if (oauthProviders && oauthProviders.length > 0) {
+    return await this.createOauthProviders({ userId, oauthProviders });
+  }
+
+  if (apiKeys && apiKeys.length > 0) {
+    return await this.createApiKeys({userId, apiKeys});
+  }
+
+  throw new Error("Invalid authentication mechanism");
+};
+
+    
+
+    /**
+   * Update authentication of an end user 
+   *
+   * @param userId
+   * @param expirationSeconds
+   * @returns {Promise<boolean>}
+   */
+        updateUserAuth = async (
+          userId: string,
+          mechanism: "PHONE_NUMBER" | "EMAIL" | "WEB_AUTHN" | "OAUTH_PROVIDERS" | "API_KEYS",
+          phoneNumber?: string,
+      
+          
+        ): Promise<any> => {
+          try {
+            const whoAmIResult = await this.getWhoami();
+      
+            const readWriteSessionResultWithSession = {
+              ...whoAmIResult,
+              credentialBundle: credentialBundle,
+              sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
+            };
+            await saveSession(readWriteSessionResultWithSession, this.authClient);
+            return true;
+          } catch {
+            return false;
+          }
+        };
+      }
 export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
   rpId: string;
 
