@@ -4,7 +4,19 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
-    "lib": ["dom"]
+    "lib": ["dom"],
+    "paths": {
+      "@base-client": ["./src/__clients__/base-client"],
+      "@browser-client": ["./src/__clients__/browser-client"],
+      "@iframe-client": ["./src/__clients__/iframe-client"],
+      "@passkey-client": ["./src/__clients__/passkey-client"],
+      "@wallet-client": ["./src/__clients__/wallet-client"],
+      "@constants": ["./src/constants"],
+      "@models": ["./src/models"],
+      "@storage": ["./src/storage"],
+      "@types": ["./src/__types__/base"],
+      "@utils": ["./src/utils"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],

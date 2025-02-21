@@ -16,6 +16,11 @@ export enum MethodType {
   Command,
 }
 
+export enum SessionType {
+  READ = "read",
+  READ_WRITE = "read_write",
+}
+
 export type TStamp = {
   stampHeaderName: string;
   stampHeaderValue: string;

@@ -1,6 +1,6 @@
-import type { User, ReadWriteSession } from "./models";
+import type { User, ReadWriteSession } from "@models";
 import WindowWrapper from "./__polyfills__/window";
-import type { AuthClient, TSessionResponse } from "./__types__/base";
+import type { AuthClient, SessionType, TSessionResponse } from "@types";
 
 export enum StorageKeys {
   AuthBundle = "@turnkey/auth_bundle", // DEPRECATED
@@ -12,12 +12,13 @@ export enum StorageKeys {
 }
 
 export type Session = {
-  sessionType: string;
+  sessionType: SessionType;
   userId: string;
   organizationId: string;
   expiry: number;
   token: string;
 };
+
 interface StorageValue {
   [StorageKeys.AuthBundle]: string; // DEPRECATED
   [StorageKeys.CurrentUser]: User; // DEPRECATED
@@ -49,7 +50,7 @@ const STORAGE_LOCATIONS = {
 };
 
 export const getStorageValue = async <K extends StorageKeys>(
-  storageKey: K,
+  storageKey: K
 ): Promise<StorageValue[K] | undefined> => {
   const storageLocation: StorageLocation = STORAGE_VALUE_LOCATIONS[storageKey];
   const browserStorageLocation: Storage = STORAGE_LOCATIONS[storageLocation];
@@ -59,7 +60,7 @@ export const getStorageValue = async <K extends StorageKeys>(
 
 export const setStorageValue = async <K extends StorageKeys>(
   storageKey: K,
-  storageValue: StorageValue[K],
+  storageValue: StorageValue[K]
 ): Promise<any> => {
   const storageLocation: StorageLocation = STORAGE_VALUE_LOCATIONS[storageKey];
   const browserStorageLocation: Storage = STORAGE_LOCATIONS[storageLocation];
@@ -67,7 +68,7 @@ export const setStorageValue = async <K extends StorageKeys>(
 };
 
 export const removeStorageValue = async <K extends StorageKeys>(
-  storageKey: K,
+  storageKey: K
 ): Promise<void> => {
   const storageLocation: StorageLocation = STORAGE_VALUE_LOCATIONS[storageKey];
   const browserStorageLocation: Storage = STORAGE_LOCATIONS[storageLocation];
@@ -107,7 +108,7 @@ export const saveSession = async (
     username,
     ...sessionResponse
   }: TSessionResponse,
-  authClient?: AuthClient,
+  authClient?: AuthClient
 ): Promise<void> => {
   if (!authClient) {
     throw new Error("Failed to save session: Authentication client not set");

@@ -16,12 +16,12 @@ interface OtpVerificationProps {
   contact: string;
   suborgId: string;
   otpId: string;
-  authIframeClient: any;
+  iframeClient: any;
   sessionLengthSeconds?: number | undefined;
   onValidateSuccess: (credentialBundle: any) => Promise<void>;
   onResendCode: (
     type: FilterType.Email | FilterType.PhoneNumber,
-    value: string,
+    value: string
   ) => Promise<void>;
 }
 
@@ -30,7 +30,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   contact,
   suborgId,
   otpId,
-  authIframeClient,
+  iframeClient,
   sessionLengthSeconds,
   onValidateSuccess,
   onResendCode,
@@ -48,7 +48,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         suborgID: suborgId,
         otpId,
         otpCode: otp,
-        targetPublicKey: authIframeClient!.iframePublicKey!,
+        targetPublicKey: iframeClient!.iframePublicKey!,
         sessionLengthSeconds,
       });
 
@@ -69,7 +69,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     try {
       await onResendCode(
         type === OtpType.Email ? FilterType.Email : FilterType.PhoneNumber,
-        contact,
+        contact
       );
       setResendText("Code sent ✓");
 

@@ -76,7 +76,7 @@ const Auth: React.FC<AuthProps> = ({
   customSmsMessage,
   customAccounts,
 }) => {
-  const { passkeyClient, authIframeClient } = useTurnkey();
+  const { passkeyClient, iframeClient } = useTurnkey();
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
@@ -98,10 +98,10 @@ const Auth: React.FC<AuthProps> = ({
   };
 
   useEffect(() => {
-    if (authIframeClient) {
+    if (iframeClient) {
       setLoading(false);
     }
-  }, [authIframeClient]);
+  }, [iframeClient]);
 
   if (loading) {
     return (
@@ -123,7 +123,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleGetOrCreateSuborg = async (
     filterType: string,
     filterValue: string,
-    additionalData = {},
+    additionalData = {}
   ) => {
     let suborgId;
     if (
@@ -171,8 +171,8 @@ const Auth: React.FC<AuthProps> = ({
 
   const handleAuthSuccess = async (credentialBundle: any) => {
     if (credentialBundle) {
-      await authIframeClient!.injectCredentialBundle(credentialBundle);
-      await authIframeClient!.loginWithAuthBundle(credentialBundle);
+      await iframeClient!.injectCredentialBundle(credentialBundle);
+      await iframeClient!.loginWithAuthBundle(credentialBundle);
       await onAuthSuccess();
     }
   };
@@ -219,7 +219,7 @@ const Auth: React.FC<AuthProps> = ({
       }
 
       const sessionResponse = await passkeyClient?.createReadWriteSession({
-        targetPublicKey: authIframeClient?.iframePublicKey!,
+        targetPublicKey: iframeClient?.iframePublicKey!,
         organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       });
       if (sessionResponse?.credentialBundle) {
@@ -235,7 +235,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleLoginWithPasskey = async () => {
     try {
       const sessionResponse = await passkeyClient?.createReadWriteSession({
-        targetPublicKey: authIframeClient?.iframePublicKey!,
+        targetPublicKey: iframeClient?.iframePublicKey!,
         organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       });
 
@@ -252,7 +252,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleOtpLogin = async (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
-    otpType: string,
+    otpType: string
   ) => {
     const suborgId = await handleGetOrCreateSuborg(type, value);
     const initAuthResponse = await server.sendOtp({
@@ -260,7 +260,7 @@ const Auth: React.FC<AuthProps> = ({
       otpType,
       contact: value,
       ...(customSmsMessage && { customSmsMessage }),
-      userIdentifier: authIframeClient?.iframePublicKey!,
+      userIdentifier: iframeClient?.iframePublicKey!,
     });
     if (initAuthResponse && initAuthResponse.otpId) {
       setSuborgId(suborgId);
@@ -278,12 +278,12 @@ const Auth: React.FC<AuthProps> = ({
       credential,
       {
         oauthProviders: [{ providerName, oidcToken: credential }],
-      },
+      }
     );
     const oauthResponse = await server.oauth({
       suborgID: suborgId,
       oidcToken: credential,
-      targetPublicKey: authIframeClient?.iframePublicKey!,
+      targetPublicKey: iframeClient?.iframePublicKey!,
       sessionLengthSeconds: authConfig.sessionLengthSeconds,
     });
     if (oauthResponse && oauthResponse.token) {
@@ -335,7 +335,7 @@ const Auth: React.FC<AuthProps> = ({
           <GoogleAuthButton
             layout={layout}
             clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
-            iframePublicKey={authIframeClient!.iframePublicKey!}
+            iframePublicKey={iframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Google")
             }
@@ -345,7 +345,7 @@ const Auth: React.FC<AuthProps> = ({
           <AppleAuthButton
             layout={layout}
             clientId={process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!}
-            iframePublicKey={authIframeClient!.iframePublicKey!}
+            iframePublicKey={iframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Apple")
             }
@@ -355,7 +355,7 @@ const Auth: React.FC<AuthProps> = ({
           <FacebookAuthButton
             layout={layout}
             clientId={process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!}
-            iframePublicKey={authIframeClient!.iframePublicKey!}
+            iframePublicKey={iframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.id_token, "Facebook")
             }
@@ -588,7 +588,7 @@ const Auth: React.FC<AuthProps> = ({
                     suborgId={suborgId}
                     otpId={otpId!}
                     sessionLengthSeconds={authConfig.sessionLengthSeconds}
-                    authIframeClient={authIframeClient!}
+                    iframeClient={iframeClient!}
                     onValidateSuccess={handleAuthSuccess}
                     onResendCode={handleResendCode}
                   />

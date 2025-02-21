@@ -37,7 +37,7 @@ const rs256 = -257;
 const publicKey = "public-key";
 
 export default function RecoveryPage() {
-  const { passkeyClient, authIframeClient } = useTurnkey();
+  const { passkeyClient, iframeClient } = useTurnkey();
 
   const [initRecoveryResponse, setInitRecoveryResponse] =
     useState<InitRecoveryResponse | null>(null);
@@ -51,19 +51,19 @@ export default function RecoveryPage() {
   } = useForm<RecoverUserFormData>();
 
   const initRecovery = async (data: InitRecoveryFormData) => {
-    if (authIframeClient === null) {
+    if (iframeClient === null) {
       throw new Error("cannot initialize recovery without an iframe");
     }
 
     const response = await axios.post("/api/initRecovery", {
       email: data.email,
-      targetPublicKey: authIframeClient!.iframePublicKey!,
+      targetPublicKey: iframeClient!.iframePublicKey!,
     });
     setInitRecoveryResponse(response.data);
   };
 
   const recoverUser = async (data: RecoverUserFormData) => {
-    if (authIframeClient === null) {
+    if (iframeClient === null) {
       throw new Error("iframe client is null");
     }
     if (initRecoveryResponse === null) {
@@ -71,7 +71,7 @@ export default function RecoveryPage() {
     }
 
     try {
-      await authIframeClient!.injectCredentialBundle(data.recoveryBundle);
+      await iframeClient!.injectCredentialBundle(data.recoveryBundle);
     } catch (e) {
       const msg = `error while injecting bundle: ${e}`;
       console.error(msg);
@@ -97,7 +97,7 @@ export default function RecoveryPage() {
         },
       })!;
 
-    const response = await authIframeClient!.recoverUser({
+    const response = await iframeClient!.recoverUser({
       organizationId: initRecoveryResponse.organizationId, // need to specify the suborg ID
       userId: initRecoveryResponse.userId,
       authenticator: {
@@ -118,7 +118,7 @@ export default function RecoveryPage() {
 
     // Instead of simply alerting, redirect the user to your app's login page.
     alert(
-      "SUCCESS! Authenticator added. Recovery flow complete. Try logging back in!",
+      "SUCCESS! Authenticator added. Recovery flow complete. Try logging back in!"
     );
   };
 
@@ -139,10 +139,10 @@ export default function RecoveryPage() {
         />
       </a>
 
-      {!authIframeClient && <p>Loading...</p>}
+      {!iframeClient && <p>Loading...</p>}
 
-      {authIframeClient &&
-        authIframeClient.iframePublicKey &&
+      {iframeClient &&
+        iframeClient.iframePublicKey &&
         initRecoveryResponse === null && (
           <form
             className={styles.form}
@@ -159,8 +159,8 @@ export default function RecoveryPage() {
             <label className={styles.label}>
               Encryption Target from iframe:
               <br />
-              <code title={authIframeClient.iframePublicKey!}>
-                {authIframeClient.iframePublicKey!.substring(0, 30)}...
+              <code title={iframeClient.iframePublicKey!}>
+                {iframeClient.iframePublicKey!.substring(0, 30)}...
               </code>
             </label>
 
@@ -172,8 +172,8 @@ export default function RecoveryPage() {
           </form>
         )}
 
-      {authIframeClient &&
-        authIframeClient.iframePublicKey &&
+      {iframeClient &&
+        iframeClient.iframePublicKey &&
         initRecoveryResponse !== null && (
           <form
             className={styles.form}
