@@ -16,7 +16,7 @@ import { useUserSession } from "../hooks/use-session";
 export interface TurnkeyClientType {
   client: TurnkeyBrowserClient | undefined;
   turnkey: Turnkey | undefined;
-  authIframeClient: TurnkeyIframeClient | undefined;
+  iframeClient: TurnkeyIframeClient | undefined;
   passkeyClient: TurnkeyPasskeyClient | undefined;
   walletClient: TurnkeyWalletClient | undefined;
   getActiveClient: () => Promise<TurnkeyBrowserClient | undefined>;
@@ -26,7 +26,7 @@ export const TurnkeyContext = createContext<TurnkeyClientType>({
   client: undefined,
   turnkey: undefined,
   passkeyClient: undefined,
-  authIframeClient: undefined,
+  iframeClient: undefined,
   walletClient: undefined,
   getActiveClient: async () => {
     return undefined;
@@ -57,7 +57,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     TurnkeyIframeClient | undefined
   >(undefined);
   const [client, setClient] = useState<TurnkeyBrowserClient | undefined>(
-    undefined,
+    undefined
   );
 
   const { session } = useUserSession();
@@ -73,7 +73,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     const currentUser = await turnkey?.getCurrentUser();
 
     try {
-      // check if the iframeClient is active
+      // check if the authIframeClient is active
       await authIframeClient?.getWhoami({
         organizationId:
           currentUser?.organization.organizationId ??
@@ -122,7 +122,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         // create an instance of TurnkeyIframeClient
         const iframeClient = await turnkeyBrowserSDK.iframeClient({
           iframeContainer: document.getElementById(
-            TurnkeyAuthIframeContainerId,
+            TurnkeyAuthIframeContainerId
           ),
           iframeUrl: config.iframeUrl || "https://auth.turnkey.com",
           ...(config.dangerouslyOverrideIframeKeyTtl && {
@@ -142,7 +142,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
    *
    * This hook listens for changes in the `session` object. If the `session` contains an `authClient`,
    * it determines which client was used for initial authentication by checking the `authClient` key.
-   * It then sets the corresponding client (either `authIframeClient`, `passkeyClient`, or `walletClient`)
+   * It then sets the corresponding client (either `iframeClient`, `passkeyClient`, or `walletClient`)
    * as the active client using the `setClient` function.
    *
    * If the `session` changes, the `authClient` will be recomputed and the active client will be

@@ -15,7 +15,7 @@ type ImportProps = {
 };
 
 const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
-  const { authIframeClient, turnkey } = useTurnkey();
+  const { iframeClient, turnkey } = useTurnkey();
   const [importIframeClient, setImportIframeClient] =
     useState<TurnkeyIframeClient | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,7 +28,7 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
 
     requestAnimationFrame(async () => {
       const iframeContainer = document.getElementById(
-        TurnkeyImportIframeContainerId,
+        TurnkeyImportIframeContainerId
       );
       if (!iframeContainer) {
         console.error("Iframe container not found.");
@@ -41,7 +41,7 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
         try {
           const newImportIframeClient = await turnkey?.iframeClient({
             iframeContainer: document.getElementById(
-              TurnkeyImportIframeContainerId,
+              TurnkeyImportIframeContainerId
             ),
             iframeUrl: process.env.NEXT_PUBLIC_IMPORT_IFRAME_URL!,
           });
@@ -68,12 +68,12 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
 
   const handleImport = async () => {
     try {
-      const whoami = await authIframeClient!.getWhoami();
+      const whoami = await iframeClient!.getWhoami();
       if (!importIframeClient) {
         throw new Error("Import iframe client not initialized");
       }
 
-      const initResult = await authIframeClient!.initImportWallet({
+      const initResult = await iframeClient!.initImportWallet({
         organizationId: whoami.organizationId,
         userId: whoami.userId,
       });
@@ -81,7 +81,7 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
       const injected = await importIframeClient!.injectImportBundle(
         initResult.importBundle,
         whoami.organizationId,
-        whoami.userId,
+        whoami.userId
       );
 
       if (!injected) {
@@ -95,7 +95,7 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
         throw new Error("Encrypted wallet bundle is empty or invalid");
       }
 
-      const response = await authIframeClient?.importWallet({
+      const response = await iframeClient?.importWallet({
         organizationId: whoami.organizationId,
         userId: whoami.userId,
         walletName: walletName,

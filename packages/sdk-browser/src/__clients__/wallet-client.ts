@@ -1,6 +1,7 @@
-import { type WalletInterface } from "@turnkey/wallet-stamper";
-import { TurnkeyBrowserClient } from "./browser-client";
-import { type TurnkeyWalletClientConfig, AuthClient } from "../__types__/base";
+import type { WalletInterface } from "@turnkey/wallet-stamper";
+
+import { type TurnkeyWalletClientConfig, AuthClient } from "@types";
+import { TurnkeyBrowserClient } from "@browser-client";
 
 export class TurnkeyWalletClient extends TurnkeyBrowserClient {
   private wallet: WalletInterface;

@@ -9,8 +9,10 @@ const turnkeyConfig = {
   rpId: process.env.NEXT_PUBLIC_RPID!,
   iframeUrl:
     process.env.NEXT_PUBLIC_AUTH_IFRAME_URL ?? "https://auth.turnkey.com",
+  sessionType: "readWrite",
+  storageType: "localStorage",
 };
-
+console.log("_app.tsx turnkeyConfig", turnkeyConfig);
 function EmailAuth({ Component, pageProps }: AppProps) {
   return (
     <TurnkeyProvider config={turnkeyConfig}>

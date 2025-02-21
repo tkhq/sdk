@@ -68,9 +68,56 @@ export class TurnkeyBrowserSDK {
 
   protected stamper: Stamper | undefined;
 
+  /**
+   * The current client instance. This is set by the `passkeyClient`, `iframeClient`, or `walletClient` methods.
+   * const turnkey = new Turnkey({
+   *   apiBaseUrl: "https://api.turnkey.com",
+   *   apiPublicKey: turnkeyPublicKey,
+   *   apiPrivateKey: turnkeyPrivateKey,
+   *   defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+   * });
+   *
+   * turnkey.client.init(storageType = StorageType.LocalStorage || StorageType.Iframe);
+   *   returns -> string publicKey
+   *
+   * turnkey.client.publicKey() -> string publicKey
+   *
+   * passkeyClient is used exlusively with Read-Only sessions
+   *
+   * passkeyClient needs iframe client when used with Read-Write sessions
+   *
+   * There are several ways to use the Turnkey Browser SDK and get a client instance:
+   *    import { Turnkey } from "@turnkey/sdk-browser";
+   *    const turnkey = new Turnkey({ ... }: TurnkeySDKBrowserConfig); // TurnkeySDKBrowserConfig does not have a stamper
+   *
+   *    turnkey.currentUserSession(); // returns a TurnkeyBrowserClient if there is a valid read session
+   *
+   *    turnkey.passkeyClient({ ... }: PasskeyClientParams); // PasskeyClientParams does not have a stamper
+   *      creates a WebauthnStamper
+   *      creates a TurnkeyPasskeyClient which takes the WebauthnStamper
+   *      returns the TurnkeyPasskeyClient
+   *
+   *    import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
+   *    const stamper = await TelegramCloudStorageStamper.create({
+   *      cloudStorageAPIKey: apiKey
+   *    })
+   *    import { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
+   *    const passkeyClient = new TurnkeyBrowserClient({ ... }: TurnkeySDKClientConfig); // TurnkeySDKClientConfig has a stamper
+   */
+  protected client:
+    | TurnkeyBrowserClient
+    | TurnkeyWalletClient
+    | TurnkeyIframeClient
+    | TurnkeyPasskeyClient
+    | undefined;
+
   constructor(config: TurnkeySDKBrowserConfig) {
     this.config = config;
   }
+
+  init = async (): Promise<void> => {
+    // noop
+  };
 
   /**
    * Creates a passkey client. The parameters override the default values passed to the underlying Turnkey `WebauthnStamper`

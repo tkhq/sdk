@@ -1,10 +1,10 @@
-import { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
+import type { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
+import { AuthClient, SessionType, TurnkeySDKClientConfig } from "@types";
+import { TurnkeyBrowserClient } from "@browser-client";
+import { Session, storeSession } from "@storage";
+import { TurnkeyIframeClient } from "@iframe-client";
 
-import { TurnkeyBrowserClient } from "./browser-client";
-
-import { type TurnkeySDKClientConfig, AuthClient } from "../__types__/base";
-
-export class TurnkeyIframeClient extends TurnkeyBrowserClient {
+export class TurnkeyPasskeyIframeClient extends TurnkeyBrowserClient {
   iframePublicKey: string | null;
 
   constructor(config: TurnkeySDKClientConfig) {
@@ -74,8 +74,14 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
     bundle: string, // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
     expirationSeconds: string // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
   ): Promise<void> => {
-    await this.injectCredentialBundle(bundle);
-
+    if (this! instanceof TurnkeyIframeClient) {
+      await this.injectCredentialBundle(bundle);
+    } else {
+      // Throw an error if the client is not an iframe client
+      throw new Error(
+        "You must use an iframe client to log in with a session."
+      ); //should we default to a "localStorage" client?
+    }
     const whoAmI = await this.getWhoami();
 
     const session: Session = {
