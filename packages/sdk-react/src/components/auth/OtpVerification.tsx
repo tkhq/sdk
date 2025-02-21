@@ -20,11 +20,11 @@ interface OtpVerificationProps {
   sessionLengthSeconds?: number | undefined;
   onValidateSuccess: (
     credentialBundle: any,
-    expirationSeconds?: string,
+    expirationSeconds?: string
   ) => Promise<void>;
   onResendCode: (
     type: FilterType.Email | FilterType.PhoneNumber,
-    value: string,
+    value: string
   ) => Promise<void>;
 }
 
@@ -58,7 +58,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       if (authResponse?.token) {
         await onValidateSuccess(
           authResponse.token,
-          sessionLengthSeconds?.toString(),
+          sessionLengthSeconds?.toString()
         );
       } else {
         setOtpError("Invalid code. Please try again.");
@@ -75,7 +75,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     try {
       await onResendCode(
         type === OtpType.Email ? FilterType.Email : FilterType.PhoneNumber,
-        contact,
+        contact
       );
       setResendText("Code sent ✓");
 

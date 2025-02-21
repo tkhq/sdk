@@ -1,20 +1,20 @@
-import { type WebauthnStamper } from "@turnkey/webauthn-stamper";
+import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
-import { TurnkeyBrowserClient } from "./browser-client";
+import { AuthClient, TurnkeySDKClientConfig } from "@types";
+import { TurnkeyBrowserClient } from "@browser-client";
 
-import { type TurnkeySDKClientConfig, AuthClient } from "../__types__/base";
+import type { ReadWriteSession, Passkey } from "@models";
 
-import type { ReadWriteSession, Passkey } from "../models";
+import { StorageKeys, getStorageValue, saveSession } from "@storage";
 
 import {
   generateRandomBuffer,
   base64UrlEncode,
   createEmbeddedAPIKey,
-} from "../utils";
+} from "@utils";
 
-import { StorageKeys, getStorageValue, saveSession } from "../storage";
-import { DEFAULT_SESSION_EXPIRATION_IN_SECONDS } from "../sdk-client";
+import { DEFAULT_SESSION_EXPIRATION_IN_SECONDS } from "@constants";
 
 export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
   rpId: string;

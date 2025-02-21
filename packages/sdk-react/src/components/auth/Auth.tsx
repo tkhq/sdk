@@ -133,13 +133,13 @@ const Auth: React.FC<AuthProps> = ({
 
   const handleAuthSuccess = async (
     credentialBundle: any,
-    expirationSeconds?: string,
+    expirationSeconds?: string
   ) => {
     if (credentialBundle) {
       await authIframeClient!.injectCredentialBundle(credentialBundle);
       await authIframeClient!.loginWithAuthBundle(
         credentialBundle,
-        expirationSeconds,
+        expirationSeconds
       );
       await onAuthSuccess();
     }
@@ -198,7 +198,7 @@ const Auth: React.FC<AuthProps> = ({
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(
           sessionResponse.credentialBundle,
-          authConfig.sessionLengthSeconds?.toString(),
+          authConfig.sessionLengthSeconds?.toString()
         );
       } else {
         setPasskeySignupError(authErrors.passkey.loginFailed);
@@ -223,7 +223,7 @@ const Auth: React.FC<AuthProps> = ({
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(
           sessionResponse.credentialBundle,
-          authConfig.sessionLengthSeconds?.toString(),
+          authConfig.sessionLengthSeconds?.toString()
         );
       } else {
         authErrors.passkey.loginFailed;
@@ -236,7 +236,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleOtpLogin = async (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
-    otpType: string,
+    otpType: string
   ) => {
     const createSuborgData: Record<string, any> = {};
     if (type === FilterType.Email) createSuborgData.email = value;
@@ -301,7 +301,7 @@ const Auth: React.FC<AuthProps> = ({
     if (oauthResponse && oauthResponse.token) {
       await handleAuthSuccess(
         oauthResponse!.token,
-        authConfig.sessionLengthSeconds?.toString(),
+        authConfig.sessionLengthSeconds?.toString()
       );
     } else {
       onError(authErrors.oauth.loginFailed);
@@ -353,7 +353,7 @@ const Auth: React.FC<AuthProps> = ({
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(
           sessionResponse.credentialBundle,
-          authConfig.sessionLengthSeconds?.toString(),
+          authConfig.sessionLengthSeconds?.toString()
         );
       } else {
         throw new Error(authErrors.wallet.loginFailed);

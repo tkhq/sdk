@@ -1,28 +1,25 @@
-import { WebauthnStamper } from "@turnkey/webauthn-stamper";
-import { IframeStamper } from "@turnkey/iframe-stamper";
 import { WalletStamper, type WalletInterface } from "@turnkey/wallet-stamper";
+import { IframeStamper } from "@turnkey/iframe-stamper";
+import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 
 import { VERSION } from "./__generated__/version";
 import WindowWrapper from "./__polyfills__/window";
-
 import {
   type GrpcStatus,
   type TurnkeySDKBrowserConfig,
-  type IframeClientParams,
   TurnkeyRequestError,
   Stamper,
-} from "./__types__/base";
+  IframeClientParams,
+} from "@types";
 
-import type { User, SubOrganization, ReadWriteSession } from "./models";
+import type { User, SubOrganization, ReadWriteSession } from "@models";
+import { StorageKeys, getStorageValue, removeStorageValue } from "@storage";
 
-import { StorageKeys, getStorageValue, removeStorageValue } from "./storage";
+import { TurnkeyWalletClient } from "@wallet-client";
+import { TurnkeyBrowserClient } from "@browser-client";
 
-import { TurnkeyBrowserClient } from "./__clients__/browser-client";
-import { TurnkeyWalletClient } from "./__clients__/wallet-client";
-import { TurnkeyIframeClient } from "./__clients__/iframe-client";
-import { TurnkeyPasskeyClient } from "./__clients__/passkey-client";
-
-export const DEFAULT_SESSION_EXPIRATION_IN_SECONDS = "900"; // default to 15 minutes
+import { TurnkeyIframeClient } from "@iframe-client";
+import { TurnkeyPasskeyClient } from "@passkey-client";
 
 export interface OauthProvider {
   providerName: string;
@@ -61,9 +58,56 @@ export class TurnkeyBrowserSDK {
 
   protected stamper: Stamper | undefined;
 
+  /**
+   * The current client instance. This is set by the `passkeyClient`, `iframeClient`, or `walletClient` methods.
+   * const turnkey = new Turnkey({
+   *   apiBaseUrl: "https://api.turnkey.com",
+   *   apiPublicKey: turnkeyPublicKey,
+   *   apiPrivateKey: turnkeyPrivateKey,
+   *   defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+   * });
+   *
+   * turnkey.client.init(storageType = StorageType.LocalStorage || StorageType.Iframe);
+   *   returns -> string publicKey
+   *
+   * turnkey.client.publicKey() -> string publicKey
+   *
+   * passkeyClient is used exlusively with Read-Only sessions
+   *
+   * passkeyClient needs iframe client when used with Read-Write sessions
+   *
+   * There are several ways to use the Turnkey Browser SDK and get a client instance:
+   *    import { Turnkey } from "@turnkey/sdk-browser";
+   *    const turnkey = new Turnkey({ ... }: TurnkeySDKBrowserConfig); // TurnkeySDKBrowserConfig does not have a stamper
+   *
+   *    turnkey.currentUserSession(); // returns a TurnkeyBrowserClient if there is a valid read session
+   *
+   *    turnkey.passkeyClient({ ... }: PasskeyClientParams); // PasskeyClientParams does not have a stamper
+   *      creates a WebauthnStamper
+   *      creates a TurnkeyPasskeyClient which takes the WebauthnStamper
+   *      returns the TurnkeyPasskeyClient
+   *
+   *    import TelegramCloudStorageStamper from "@turnkey/telegram-cloud-storage-stamper";
+   *    const stamper = await TelegramCloudStorageStamper.create({
+   *      cloudStorageAPIKey: apiKey
+   *    })
+   *    import { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
+   *    const passkeyClient = new TurnkeyBrowserClient({ ... }: TurnkeySDKClientConfig); // TurnkeySDKClientConfig has a stamper
+   */
+  protected client:
+    | TurnkeyBrowserClient
+    | TurnkeyWalletClient
+    | TurnkeyIframeClient
+    | TurnkeyPasskeyClient
+    | undefined;
+
   constructor(config: TurnkeySDKBrowserConfig) {
     this.config = config;
   }
+
+  init = async (): Promise<void> => {
+    // noop
+  };
 
   /**
    * Creates a passkey client. The parameters are overrides passed to the underlying Turnkey `WebauthnStamper`
@@ -201,7 +245,7 @@ export class TurnkeyBrowserSDK {
           this.config.defaultOrganizationId,
       });
     } else {
-      this.logoutUser();
+      await this.logout();
     }
 
     return;
@@ -229,17 +273,6 @@ export class TurnkeyBrowserSDK {
   };
 
   /**
-   * @deprecated This method is deprecated and will be removed in future versions.
-   * It has been replaced by the `getReadWriteSession` method.
-   * Fetches an auth bundle stored in local storage.
-   *
-   * @returns {Promise<string | undefined>}
-   */
-  getAuthBundle = async (): Promise<string | undefined> => {
-    return await getStorageValue(StorageKeys.AuthBundle);
-  };
-
-  /**
    * Fetches the current user's organization details.
    *
    * @returns {Promise<SubOrganization | undefined>}
@@ -258,20 +291,6 @@ export class TurnkeyBrowserSDK {
    */
   getCurrentUser = async (): Promise<User | undefined> => {
     return await getStorageValue(StorageKeys.UserSession);
-  };
-
-  /** DEPRECATED
-   * Clears out all data pertaining to a user session.
-   *
-   * @returns {Promise<boolean>}
-   */
-  logoutUser = async (): Promise<boolean> => {
-    await removeStorageValue(StorageKeys.AuthBundle); // DEPRECATED
-    await removeStorageValue(StorageKeys.CurrentUser); // DEPRECATED
-    await removeStorageValue(StorageKeys.UserSession); // DEPRECATED
-    await removeStorageValue(StorageKeys.ReadWriteSession); // DEPRECATED
-
-    return true;
   };
 
   /**

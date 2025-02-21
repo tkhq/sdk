@@ -1782,6 +1782,9 @@ importers:
       glob:
         specifier: ^8.0.3
         version: 8.1.0
+      typescript:
+        specifier: ^5.1.5
+        version: 5.1.5
 
   packages/sdk-react:
     dependencies:
