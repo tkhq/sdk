@@ -17,6 +17,7 @@ import { useTurnkey } from "../../hooks/use-turnkey";
 import { FilterType, OtpType, authErrors } from "./constants";
 import type { WalletAccount } from "@turnkey/sdk-browser";
 import { server } from "@turnkey/sdk-server";
+import parsePhoneNumberFromString from "libphonenumber-js";
 
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
@@ -62,6 +63,9 @@ interface AuthProps {
     facebookEnabled: boolean;
     googleEnabled: boolean;
     sessionLengthSeconds?: number; // Desired expiration time in seconds for the generated API key
+    googleClientId?: string; // will default to NEXT_PUBLIC_GOOGLE_CLIENT_ID
+    appleClientId?: string; // will default to NEXT_PUBLIC_APPLE_CLIENT_ID
+    facebookClientId?: string; // will default to NEXT_PUBLIC_FACEBOOK_CLIENT_ID
   };
   configOrder: string[];
   customSmsMessage?: string;
@@ -76,7 +80,7 @@ const Auth: React.FC<AuthProps> = ({
   customSmsMessage,
   customAccounts,
 }) => {
-  const { passkeyClient, iframeClient } = useTurnkey();
+  const { passkeyClient, iframeClient, turnkey } = useTurnkey();
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
@@ -118,7 +122,10 @@ const Auth: React.FC<AuthProps> = ({
   const isValidEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const isValidPhone = (phone: string) => /^\+1\d{10}$/.test(phone);
+  const isValidPhone = (phone: string) => {
+    const phoneNumber = parsePhoneNumberFromString(phone);
+    return phoneNumber?.isValid() ?? false;
+  };
 
   const handleGetOrCreateSuborg = async (
     filterType: string,
@@ -139,6 +146,7 @@ const Auth: React.FC<AuthProps> = ({
         !getVerifiedSuborgsResponse.organizationIds
       ) {
         onError(authErrors.suborg.fetchFailed);
+        return null;
       }
       suborgId = getVerifiedSuborgsResponse?.organizationIds[0];
     } else {
@@ -148,6 +156,7 @@ const Auth: React.FC<AuthProps> = ({
       });
       if (!getSuborgsResponse || !getSuborgsResponse.organizationIds) {
         onError(authErrors.suborg.fetchFailed);
+        return null;
       }
       suborgId = getSuborgsResponse?.organizationIds[0];
     }
@@ -169,10 +178,16 @@ const Auth: React.FC<AuthProps> = ({
     return suborgId;
   };
 
-  const handleAuthSuccess = async (credentialBundle: any) => {
+  const handleAuthSuccess = async (
+    credentialBundle: any,
+    expirationSeconds?: string
+  ) => {
     if (credentialBundle) {
       await iframeClient!.injectCredentialBundle(credentialBundle);
-      await iframeClient!.loginWithAuthBundle(credentialBundle);
+      await iframeClient!.loginWithAuthBundle(
+        credentialBundle,
+        expirationSeconds
+      );
       await onAuthSuccess();
     }
   };
@@ -220,10 +235,18 @@ const Auth: React.FC<AuthProps> = ({
 
       const sessionResponse = await passkeyClient?.createReadWriteSession({
         targetPublicKey: iframeClient?.iframePublicKey!,
-        organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+        ...(authConfig.sessionLengthSeconds !== undefined && {
+          expirationSeconds: authConfig.sessionLengthSeconds.toString(),
+        }),
+        organizationId:
+          turnkey?.config.defaultOrganizationId ??
+          process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       });
       if (sessionResponse?.credentialBundle) {
-        await handleAuthSuccess(sessionResponse.credentialBundle);
+        await handleAuthSuccess(
+          sessionResponse.credentialBundle,
+          authConfig.sessionLengthSeconds?.toString()
+        );
       } else {
         setPasskeySignupError(authErrors.passkey.loginFailed);
       }
@@ -236,11 +259,19 @@ const Auth: React.FC<AuthProps> = ({
     try {
       const sessionResponse = await passkeyClient?.createReadWriteSession({
         targetPublicKey: iframeClient?.iframePublicKey!,
-        organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+        ...(authConfig.sessionLengthSeconds !== undefined && {
+          expirationSeconds: authConfig.sessionLengthSeconds.toString(),
+        }),
+        organizationId:
+          turnkey?.config.defaultOrganizationId ??
+          process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       });
 
       if (sessionResponse?.credentialBundle) {
-        await handleAuthSuccess(sessionResponse.credentialBundle);
+        await handleAuthSuccess(
+          sessionResponse.credentialBundle,
+          authConfig.sessionLengthSeconds?.toString()
+        );
       } else {
         authErrors.passkey.loginFailed;
       }
@@ -256,14 +287,14 @@ const Auth: React.FC<AuthProps> = ({
   ) => {
     const suborgId = await handleGetOrCreateSuborg(type, value);
     const initAuthResponse = await server.sendOtp({
-      suborgID: suborgId,
+      suborgID: suborgId!,
       otpType,
       contact: value,
       ...(customSmsMessage && { customSmsMessage }),
       userIdentifier: iframeClient?.iframePublicKey!,
     });
     if (initAuthResponse && initAuthResponse.otpId) {
-      setSuborgId(suborgId);
+      setSuborgId(suborgId!);
       setOtpId(initAuthResponse?.otpId!);
       setStep(otpType);
     } else {
@@ -281,13 +312,16 @@ const Auth: React.FC<AuthProps> = ({
       }
     );
     const oauthResponse = await server.oauth({
-      suborgID: suborgId,
+      suborgID: suborgId!,
       oidcToken: credential,
       targetPublicKey: iframeClient?.iframePublicKey!,
       sessionLengthSeconds: authConfig.sessionLengthSeconds,
     });
     if (oauthResponse && oauthResponse.token) {
-      await handleAuthSuccess(oauthResponse!.token);
+      await handleAuthSuccess(
+        oauthResponse!.token,
+        authConfig.sessionLengthSeconds?.toString()
+      );
     } else {
       onError(authErrors.oauth.loginFailed);
     }
@@ -334,7 +368,10 @@ const Auth: React.FC<AuthProps> = ({
         {googleEnabled && (
           <GoogleAuthButton
             layout={layout}
-            clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+            clientId={
+              authConfig.googleClientId ??
+              process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!
+            }
             iframePublicKey={iframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Google")
@@ -344,7 +381,10 @@ const Auth: React.FC<AuthProps> = ({
         {appleEnabled && (
           <AppleAuthButton
             layout={layout}
-            clientId={process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!}
+            clientId={
+              authConfig.appleClientId ??
+              process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!
+            }
             iframePublicKey={iframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Apple")
@@ -354,7 +394,10 @@ const Auth: React.FC<AuthProps> = ({
         {facebookEnabled && (
           <FacebookAuthButton
             layout={layout}
-            clientId={process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!}
+            clientId={
+              authConfig.facebookClientId ??
+              process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!
+            }
             iframePublicKey={iframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.id_token, "Facebook")

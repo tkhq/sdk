@@ -640,6 +640,58 @@ export const signGetWallet = (
   });
 
 /**
+ * `POST /public/v1/query/get_wallet_account`
+ */
+export type TGetWalletAccountResponse =
+  operations["PublicApiService_GetWalletAccount"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_wallet_account`
+ */
+export type TGetWalletAccountInput = { body: TGetWalletAccountBody };
+
+/**
+ * `POST /public/v1/query/get_wallet_account`
+ */
+export type TGetWalletAccountBody =
+  operations["PublicApiService_GetWalletAccount"]["parameters"]["body"]["body"];
+
+/**
+ * Get Wallet Account
+ *
+ * Get a single wallet account
+ *
+ * `POST /public/v1/query/get_wallet_account`
+ */
+export const getWalletAccount = (input: TGetWalletAccountInput) =>
+  request<
+    TGetWalletAccountResponse,
+    TGetWalletAccountBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_wallet_account",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetWalletAccount` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetWalletAccount}
+ */
+export const signGetWalletAccount = (
+  input: TGetWalletAccountInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetWalletAccountBody, never, never>({
+    uri: "/public/v1/query/get_wallet_account",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_activities`
  */
 export type TGetActivitiesResponse =
@@ -1039,7 +1091,7 @@ export type TGetWalletAccountsBody =
 /**
  * List Wallets Accounts
  *
- * List all Accounts wirhin a Wallet
+ * List all Accounts within a Wallet
  *
  * `POST /public/v1/query/list_wallet_accounts`
  */

@@ -1,3 +1,5 @@
+"use client";
+
 import { StorageKeys, User } from "@turnkey/sdk-browser";
 import { useLocalStorage } from "usehooks-ts";
 

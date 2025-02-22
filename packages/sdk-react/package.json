@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-react",
-  "version": "2.0.4",
+  "version": "3.0.3",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -63,11 +63,11 @@
     "next": "^15.0.2",
     "react-apple-login": "^1.1.6",
     "react-international-phone": "^4.3.0",
-    "usehooks-ts": "^3.1.0"
+    "usehooks-ts": "^3.1.1"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "@types/react": "^18.2.75"
+    "@types/react": "^18.2.75",
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
   },
   "devDependencies": {
     "postcss-import": "^16.1.0",

@@ -1,5 +1,52 @@
 # @turnkey/sdk-react
 
+## 3.0.3
+
+### Patch Changes
+
+- 5f6de98: Fix phone number validation issue causing issues with non +1 country codes
+- Updated dependencies [69d2571]
+- Updated dependencies [57f9cb0]
+  - @turnkey/sdk-browser@1.13.0
+  - @turnkey/sdk-server@2.1.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
+## 3.0.2
+
+### Patch Changes
+
+- faa757c: Patch EWK custom session lengths - previously not working as intended (defaulted to 15 minute sessions only) and fix the following useLocalStorage issue when compiling: [Error: useLocalStorage is a client-only hook]
+- a8bd73b: Fix issue with EWK where suborgs were being created on failed fetches
+
+## 3.0.1
+
+### Patch Changes
+
+- cb8cf7e: Add all supported country codes to phone input field
+- 2eb2179: Fix bundling issue with sdk-react
+- Updated dependencies [755833b]
+- Updated dependencies [2bc0046]
+  - @turnkey/sdk-browser@1.12.1
+  - @turnkey/sdk-server@2.0.1
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
+## 3.0.0
+
+### Major Changes
+
+- 1ebd4e2: Remove references to server actions and import from sdk-server
+
+### Patch Changes
+
+- Updated dependencies [6695af2]
+- Updated dependencies [1ebd4e2]
+  - @turnkey/sdk-browser@1.12.0
+  - @turnkey/sdk-server@2.0.0
+  - @turnkey/crypto@2.3.0
+  - @turnkey/wallet-stamper@1.0.2
+
 ## 2.0.4
 
 ### Patch Changes

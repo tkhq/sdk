@@ -1,5 +1,38 @@
 # @turnkey/sdk-server
 
+## 2.1.0
+
+### Minor Changes
+
+- 57f9cb0: Update endpoints - surface GetWalletAccount
+
+### Patch Changes
+
+- 69d2571: Upgrade elliptic
+- Updated dependencies [57f9cb0]
+  - @turnkey/http@2.19.0
+
+## 2.0.1
+
+### Patch Changes
+
+- 755833b: refactor stamper out of config object and move it directly onto the client to match @turnkey/http
+
+## 2.0.0
+
+### Major Changes
+
+- 1ebd4e2: Add server actions
+
+### Minor Changes
+
+- 6695af2: Update per mono release v2025.1.11
+
+### Patch Changes
+
+- Updated dependencies [6695af2]
+  - @turnkey/http@2.18.0
+
 ## 1.7.3
 
 ### Patch Changes

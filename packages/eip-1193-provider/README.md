@@ -93,23 +93,37 @@ The following methods also prompt for passkey authentication:
 
 ## Testing (Local)
 
-1. Copy `.env.example` to `.env.local`
+1. Copy `.env.example` to `.env`
 
-```bash
-cp .env.example .env
-```
+   ```bash
+   $ cp .env.example .env
+   ```
 
 2. Start the Anvil node in one shell:
 
-```
-pnpm anvil
-```
+   - Install [Foundry](https://book.getfoundry.sh/getting-started/installation) & Anvil if you haven't done so already
+   - Add Foundry to your `$PATH`
+     ```bash
+     $ export PATH="$PATH:$HOME/.foundry/bin"
+     ```
+   - Source your env e.g.
+     ```bash
+     $ source ~/.zshrc
+     ```
+   - Run `foundryup` to install `Anvil`
+     ```bash
+     $ foundryup
+     ```
+   - Start Anvil
+     ```
+     $ pnpm anvil
+     ```
 
 3. Run the tests in a new shell:
 
-```
-pnpm test
-```
+   ```
+   $ pnpm test
+   ```
 
 ## Contributing
 
