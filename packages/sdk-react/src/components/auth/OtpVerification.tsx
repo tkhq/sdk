@@ -18,7 +18,10 @@ interface OtpVerificationProps {
   otpId: string;
   authIframeClient: any;
   sessionLengthSeconds?: number | undefined;
-  onValidateSuccess: (credentialBundle: any) => Promise<void>;
+  onValidateSuccess: (
+    credentialBundle: any,
+    expirationSeconds?: string,
+  ) => Promise<void>;
   onResendCode: (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
@@ -53,7 +56,10 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       });
 
       if (authResponse?.token) {
-        await onValidateSuccess(authResponse.token);
+        await onValidateSuccess(
+          authResponse.token,
+          sessionLengthSeconds?.toString(),
+        );
       } else {
         setOtpError("Invalid code. Please try again.");
       }

@@ -154,6 +154,17 @@ export type TGetWalletBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetWalletAccountResponse =
+  operations["PublicApiService_GetWalletAccount"]["responses"]["200"]["schema"];
+
+export type TGetWalletAccountInput = { body: TGetWalletAccountBody };
+
+export type TGetWalletAccountBody = Omit<
+  operations["PublicApiService_GetWalletAccount"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetActivitiesResponse =
   operations["PublicApiService_GetActivities"]["responses"]["200"]["schema"];
 

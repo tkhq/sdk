@@ -56,6 +56,10 @@ export type paths = {
     /** Get details about a Wallet */
     post: operations["PublicApiService_GetWallet"];
   };
+  "/public/v1/query/get_wallet_account": {
+    /** Get a single wallet account */
+    post: operations["PublicApiService_GetWalletAccount"];
+  };
   "/public/v1/query/list_activities": {
     /** List all Activities within an Organization */
     post: operations["PublicApiService_GetActivities"];
@@ -89,7 +93,7 @@ export type paths = {
     post: operations["PublicApiService_GetVerifiedSubOrgIds"];
   };
   "/public/v1/query/list_wallet_accounts": {
-    /** List all Accounts wirhin a Wallet */
+    /** List all Accounts within a Wallet */
     post: operations["PublicApiService_GetWalletAccounts"];
   };
   "/public/v1/query/list_wallets": {
@@ -1807,6 +1811,20 @@ export type definitions = {
     /** @description List of unique identifiers for the matching sub-organizations. */
     organizationIds: string[];
   };
+  v1GetWalletAccountRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given Wallet. */
+    walletId: string;
+    /** @description Address corresponding to a Wallet Account. */
+    address?: string;
+    /** @description Path corresponding to a Wallet Account. */
+    path?: string;
+  };
+  v1GetWalletAccountResponse: {
+    /** @description The resulting Wallet Account. */
+    account: definitions["v1WalletAccount"];
+  };
   v1GetWalletAccountsRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -1816,7 +1834,7 @@ export type definitions = {
     paginationOptions?: definitions["v1Pagination"];
   };
   v1GetWalletAccountsResponse: {
-    /** @description A list of Accounts generated from a Wallet that share a common seed */
+    /** @description A list of Accounts generated from a Wallet that share a common seed. */
     accounts: definitions["v1WalletAccount"][];
   };
   v1GetWalletRequest: {
@@ -3122,6 +3140,24 @@ export type operations = {
       };
     };
   };
+  /** Get a single wallet account */
+  PublicApiService_GetWalletAccount: {
+    parameters: {
+      body: {
+        body: definitions["v1GetWalletAccountRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetWalletAccountResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** List all Activities within an Organization */
   PublicApiService_GetActivities: {
     parameters: {
@@ -3266,7 +3302,7 @@ export type operations = {
       };
     };
   };
-  /** List all Accounts wirhin a Wallet */
+  /** List all Accounts within a Wallet */
   PublicApiService_GetWalletAccounts: {
     parameters: {
       body: {

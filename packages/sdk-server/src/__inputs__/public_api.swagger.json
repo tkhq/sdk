@@ -484,6 +484,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/query/get_wallet_account": {
+      "post": {
+        "summary": "Get Wallet Account",
+        "description": "Get a single wallet account",
+        "operationId": "PublicApiService_GetWalletAccount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletAccountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletAccountRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
+      }
+    },
     "/public/v1/query/list_activities": {
       "post": {
         "summary": "List Activities",
@@ -743,7 +775,7 @@
     "/public/v1/query/list_wallet_accounts": {
       "post": {
         "summary": "List Wallets Accounts",
-        "description": "List all Accounts wirhin a Wallet",
+        "description": "List all Accounts within a Wallet",
         "operationId": "PublicApiService_GetWalletAccounts",
         "responses": {
           "200": {
@@ -6151,6 +6183,38 @@
       },
       "required": ["organizationIds"]
     },
+    "v1GetWalletAccountRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "walletId": {
+          "type": "string",
+          "description": "Unique identifier for a given Wallet."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address corresponding to a Wallet Account."
+        },
+        "path": {
+          "type": "string",
+          "description": "Path corresponding to a Wallet Account."
+        }
+      },
+      "required": ["organizationId", "walletId"]
+    },
+    "v1GetWalletAccountResponse": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "$ref": "#/definitions/v1WalletAccount",
+          "description": "The resulting Wallet Account."
+        }
+      },
+      "required": ["account"]
+    },
     "v1GetWalletAccountsRequest": {
       "type": "object",
       "properties": {
@@ -6178,7 +6242,7 @@
             "type": "object",
             "$ref": "#/definitions/v1WalletAccount"
           },
-          "description": "A list of Accounts generated from a Wallet that share a common seed"
+          "description": "A list of Accounts generated from a Wallet that share a common seed."
         }
       },
       "required": ["accounts"]
