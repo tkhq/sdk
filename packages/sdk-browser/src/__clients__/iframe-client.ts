@@ -70,7 +70,7 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
    * @param expirationSeconds
    * @returns {Promise<void>}
    */
-  loginWithBundle = async (
+  override loginWithBundle = async (
     bundle: string, // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
     expirationSeconds: string // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
   ): Promise<void> => {

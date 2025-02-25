@@ -6,8 +6,11 @@ import { DEFAULT_SESSION_EXPIRATION_IN_SECONDS } from "@constants";
 
 export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   constructor(config: TurnkeySDKClientConfig, authClient?: AuthClient) {
+    console.log("TurnkeyBrowserClient config, authClient", config, authClient);
     super(config, authClient);
   }
+
+  //// NEW - BELOW ///
 
   /**
    * Creates a read-write session. This method infers the current user's organization ID and target userId.
@@ -25,6 +28,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS
   ): Promise<void> => {
     if (sessionType === SessionType.READ) {
+      // TODO: how do we check this is a passkey client?
       // if (this! instanceof TurnkeyPasskeyClient) {
       //   throw new Error(
       //     "You must use a passkey client to refresh a read session"
@@ -58,6 +62,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         expiry: Date.now() + Number(expirationSeconds) * 1000, //TODO change this to the actual expiry time from the response in a new version of the activity
         token: readWriteSessionResult.credentialBundle,
       };
+      // TODO: how do we check this is an iframe client?
       // if (this instanceof TurnkeyIframeClient) {
       //   await this.injectCredentialBundle(session.token!);
       // } else {
@@ -70,37 +75,38 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     }
   };
 
-  // /**
-  //  * Log in with a bundle. This method uses a bundle sent to the end user email
-  //  * To be used in conjunction with an `iframeStamper`.
-  //  *
-  //  * @param bundle
-  //  * @param expirationSeconds
-  //  * @returns {Promise<void>}
-  //  */
-  // loginWithBundle = async (
-  //   bundle: string, // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
-  //   expirationSeconds: string // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
-  // ): Promise<void> => {
-  //   // if (this! instanceof TurnkeyIframeClient) {
-  //   //   await this.injectCredentialBundle(bundle);
-  //   // } else {
-  //   //   // Throw an error if the client is not an iframe client
-  //   //   throw new Error(
-  //   //     "You must use an iframe client to log in with a session."
-  //   //   ); //should we default to a "localStorage" client?
-  //   // }
-  //   const whoAmI = await this.getWhoami();
+  /**
+   * Log in with a bundle. This method uses a bundle sent to the end user email
+   * To be used in conjunction with an `iframeStamper`.
+   *
+   * @param bundle
+   * @param expirationSeconds
+   * @returns {Promise<void>}
+   */
+  loginWithBundle = async (
+    bundle: string, // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
+    expirationSeconds: string // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
+  ): Promise<void> => {
+    // TODO: how do we check this is an iframe client?
+    // if (this! instanceof TurnkeyIframeClient) {
+    //   await this.injectCredentialBundle(bundle);
+    // } else {
+    //   // Throw an error if the client is not an iframe client
+    //   throw new Error(
+    //     "You must use an iframe client to log in with a session."
+    //   ); //should we default to a "localStorage" client?
+    // }
+    const whoAmI = await this.getWhoami();
 
-  //   const session: Session = {
-  //     sessionType: SessionType.READ_WRITE,
-  //     userId: whoAmI.userId,
-  //     organizationId: whoAmI.organizationId,
-  //     expiry: Date.now() + Number(expirationSeconds) * 1000, //TODO change this to the actual expiry time
-  //     token: bundle,
-  //   };
-  //   storeSession(session, AuthClient.Iframe);
-  // };
+    const session: Session = {
+      sessionType: SessionType.READ_WRITE,
+      userId: whoAmI.userId,
+      organizationId: whoAmI.organizationId,
+      expiry: Date.now() + Number(expirationSeconds) * 1000, //TODO change this to the actual expiry time
+      token: bundle,
+    };
+    storeSession(session, AuthClient.Iframe);
+  };
 
   /**
    * Log in with a session object. This method uses a session object from server actions and stores it and the active client in local storage
@@ -110,6 +116,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @returns {Promise<SdkApiTypes.void>}
    */
   loginWithSession = async (session: Session): Promise<void> => {
+    // TODO: how do we check this is an iframe client?
     // if (this instanceof TurnkeyIframeClient) {
     //   await this.injectCredentialBundle(session.token!);
     // } else {
@@ -133,6 +140,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     targetPublicKey?: string, //eventually we want to automatically pull this from localStorage/iframe
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS
   ): Promise<void> => {
+    // TODO: how do we check this is a passkey client?
     // if (this! instanceof TurnkeyPasskeyClient) {
     //   throw new Error(
     //     "You must use a passkey client to log in with a passkey."
@@ -169,13 +177,15 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         sessionType: SessionType.READ_WRITE,
         userId: readWriteSessionResult.userId,
         organizationId: readWriteSessionResult.organizationId,
-        expiry: Date.now() + Number(expirationSeconds) * 1000, //TODO change this to the actual expiry time from the response in a new version of the activity
+        expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time from the response in a new version of the activity
         token: readWriteSessionResult.credentialBundle,
       };
-      // TODO we need to inject the credential bundle in the iframe here
+      // TODO: we need to inject the credential bundle in the iframe here
       storeSession(session, AuthClient.Iframe);
     } else {
       throw new Error("Invalid session type passed.");
     }
   };
+
+  //// NEW - ABOVE ///
 }
