@@ -38,6 +38,7 @@ import {
   sendOtp,
   oauth,
   verifyOtp,
+  sendCredential,
 } from "./actions";
 
 // Classes
@@ -58,6 +59,7 @@ export const server = {
   getSuborgs,
   getVerifiedSuborgs,
   createSuborg,
+  sendCredential,
 };
 
 // Types
