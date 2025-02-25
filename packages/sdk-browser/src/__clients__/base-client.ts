@@ -6,6 +6,8 @@ import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import { DEFAULT_SESSION_EXPIRATION_IN_SECONDS } from "@constants";
 
+// TurnkeySDKClientBase is a generated class that provides the base methods for the client
+// This class extends that class and adds additional methods for the browser client
 export abstract class TurnkeyBaseClient extends TurnkeySDKClientBase {
   authClient?: AuthClient | undefined;
 
@@ -25,6 +27,8 @@ export abstract class TurnkeyBaseClient extends TurnkeySDKClientBase {
 
     return readOnlySessionResult!;
   };
+
+  //// NEW - BELOW ///
 
   /**
    * Creates a read-write session. This method infers the current user's organization ID and target userId.
@@ -50,10 +54,10 @@ export abstract class TurnkeyBaseClient extends TurnkeySDKClientBase {
    * @param expirationSeconds
    * @returns {Promise<void>}
    */
-  // abstract loginWithBundle(
-  //   bundle: string, // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
-  //   expirationSeconds: string // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
-  // ): Promise<void>;
+  abstract loginWithBundle(
+    bundle: string, // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
+    expirationSeconds: string // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
+  ): Promise<void>;
 
   /**
    * Log in with a session object. This method uses a session object from server actions and stores it and the active client in local storage
@@ -76,6 +80,8 @@ export abstract class TurnkeyBaseClient extends TurnkeySDKClientBase {
     targetPublicKey?: string, //eventually we want to automatically pull this from localStorage/iframe
     expirationSeconds?: string // TODO = DEFAULT_SESSION_EXPIRATION_IN_SECONDS
   ): Promise<void>;
+
+  //// NEW - ABOVE ///
 
   /**
    * Creates a read-write session. This method infers the current user's organization ID and target userId.
