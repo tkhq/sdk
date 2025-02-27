@@ -2583,6 +2583,38 @@
         },
         "tags": ["PublicApiService"]
       }
+    },
+    "/tkhq/api/v1/test_rate_limits": {
+      "post": {
+        "summary": "Test Rate Limit",
+        "description": "Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite",
+        "operationId": "PublicApiService_TestRateLimits",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1TestRateLimitsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1TestRateLimitsRequest"
+            }
+          }
+        ],
+        "tags": ["RateLimit"]
+      }
     }
   },
   "definitions": {
@@ -3185,7 +3217,7 @@
           "items": {
             "type": "string"
           },
-          "description": "A list of tags assigned to the new API-only User."
+          "description": "A list of tags assigned to the new API-only User. This field, if not needed, should be an empty array in your request body."
         },
         "apiKeys": {
           "type": "array",
@@ -3193,7 +3225,7 @@
             "type": "object",
             "$ref": "#/definitions/apiApiKeyParams"
           },
-          "description": "A list of API Key parameters."
+          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
         }
       },
       "required": ["userName", "userTags", "apiKeys"]
@@ -4765,7 +4797,7 @@
             "type": "object",
             "$ref": "#/definitions/v1WalletAccountParams"
           },
-          "description": "A list of wallet Accounts."
+          "description": "A list of wallet Accounts. This field, if not needed, should be an empty array in your request body."
         },
         "mnemonicLength": {
           "type": "integer",
@@ -6984,7 +7016,7 @@
           "items": {
             "type": "string"
           },
-          "description": "A list of tags assigned to the Invitation recipient."
+          "description": "A list of tags assigned to the Invitation recipient. This field, if not needed, should be an empty array in your request body."
         },
         "accessType": {
           "$ref": "#/definitions/v1AccessType",
@@ -7493,7 +7525,7 @@
           "items": {
             "type": "string"
           },
-          "description": "A list of Private Key Tag IDs."
+          "description": "A list of Private Key Tag IDs. This field, if not needed, should be an empty array in your request body."
         },
         "addressFormats": {
           "type": "array",
@@ -7896,7 +7928,7 @@
             "type": "object",
             "$ref": "#/definitions/apiApiKeyParams"
           },
-          "description": "A list of API Key parameters."
+          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
         },
         "authenticators": {
           "type": "array",
@@ -7904,7 +7936,7 @@
             "type": "object",
             "$ref": "#/definitions/v1AuthenticatorParamsV2"
           },
-          "description": "A list of Authenticator parameters."
+          "description": "A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body."
         }
       },
       "required": ["userName", "apiKeys", "authenticators"]
@@ -7926,7 +7958,7 @@
             "type": "object",
             "$ref": "#/definitions/apiApiKeyParams"
           },
-          "description": "A list of API Key parameters."
+          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
         },
         "authenticators": {
           "type": "array",
@@ -7934,7 +7966,7 @@
             "type": "object",
             "$ref": "#/definitions/v1AuthenticatorParamsV2"
           },
-          "description": "A list of Authenticator parameters."
+          "description": "A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body."
         },
         "oauthProviders": {
           "type": "array",
@@ -7942,7 +7974,7 @@
             "type": "object",
             "$ref": "#/definitions/v1OauthProviderParams"
           },
-          "description": "A list of Oauth providers."
+          "description": "A list of Oauth providers. This field, if not needed, should be an empty array in your request body."
         }
       },
       "required": ["userName", "apiKeys", "authenticators", "oauthProviders"]
@@ -7964,7 +7996,7 @@
             "type": "object",
             "$ref": "#/definitions/v1ApiKeyParamsV2"
           },
-          "description": "A list of API Key parameters."
+          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
         },
         "authenticators": {
           "type": "array",
@@ -7972,7 +8004,7 @@
             "type": "object",
             "$ref": "#/definitions/v1AuthenticatorParamsV2"
           },
-          "description": "A list of Authenticator parameters."
+          "description": "A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body."
         },
         "oauthProviders": {
           "type": "array",
@@ -7980,7 +8012,7 @@
             "type": "object",
             "$ref": "#/definitions/v1OauthProviderParams"
           },
-          "description": "A list of Oauth providers."
+          "description": "A list of Oauth providers. This field, if not needed, should be an empty array in your request body."
         }
       },
       "required": ["userName", "apiKeys", "authenticators", "oauthProviders"]
@@ -8006,7 +8038,7 @@
             "type": "object",
             "$ref": "#/definitions/v1ApiKeyParamsV2"
           },
-          "description": "A list of API Key parameters."
+          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
         },
         "authenticators": {
           "type": "array",
@@ -8014,7 +8046,7 @@
             "type": "object",
             "$ref": "#/definitions/v1AuthenticatorParamsV2"
           },
-          "description": "A list of Authenticator parameters."
+          "description": "A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body."
         },
         "oauthProviders": {
           "type": "array",
@@ -8022,7 +8054,7 @@
             "type": "object",
             "$ref": "#/definitions/v1OauthProviderParams"
           },
-          "description": "A list of Oauth providers."
+          "description": "A list of Oauth providers. This field, if not needed, should be an empty array in your request body."
         }
       },
       "required": ["userName", "apiKeys", "authenticators", "oauthProviders"]
@@ -8339,6 +8371,28 @@
       "type": "string",
       "enum": ["TAG_TYPE_USER", "TAG_TYPE_PRIVATE_KEY"]
     },
+    "v1TestRateLimitsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons."
+        },
+        "isSetLimit": {
+          "type": "boolean",
+          "description": "Whether or not to set a limit on this request."
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Rate limit to set for org, if is_set_limit is set to true"
+        }
+      },
+      "required": ["organizationId", "isSetLimit", "limit"]
+    },
+    "v1TestRateLimitsResponse": {
+      "type": "object"
+    },
     "v1TransactionType": {
       "type": "string",
       "enum": ["TRANSACTION_TYPE_ETHEREUM", "TRANSACTION_TYPE_SOLANA"]
@@ -8541,7 +8595,7 @@
           "items": {
             "type": "string"
           },
-          "description": "An updated list of User Tags to apply to this User."
+          "description": "An updated list of User Tags to apply to this User. This field, if not needed, should be an empty array in your request body."
         },
         "userPhoneNumber": {
           "type": "string",
@@ -8718,7 +8772,7 @@
             "type": "object",
             "$ref": "#/definitions/v1ApiKey"
           },
-          "description": "A list of API Key parameters."
+          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
         },
         "userTags": {
           "type": "array",
@@ -8774,7 +8828,7 @@
             "type": "object",
             "$ref": "#/definitions/apiApiKeyParams"
           },
-          "description": "A list of API Key parameters."
+          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
         },
         "authenticators": {
           "type": "array",
@@ -8782,14 +8836,14 @@
             "type": "object",
             "$ref": "#/definitions/v1AuthenticatorParams"
           },
-          "description": "A list of Authenticator parameters."
+          "description": "A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body."
         },
         "userTags": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "A list of User Tag IDs."
+          "description": "A list of User Tag IDs. This field, if not needed, should be an empty array in your request body."
         }
       },
       "required": [
@@ -8817,7 +8871,7 @@
             "type": "object",
             "$ref": "#/definitions/apiApiKeyParams"
           },
-          "description": "A list of API Key parameters."
+          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
         },
         "authenticators": {
           "type": "array",
@@ -8825,14 +8879,14 @@
             "type": "object",
             "$ref": "#/definitions/v1AuthenticatorParamsV2"
           },
-          "description": "A list of Authenticator parameters."
+          "description": "A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body."
         },
         "userTags": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "A list of User Tag IDs."
+          "description": "A list of User Tag IDs. This field, if not needed, should be an empty array in your request body."
         }
       },
       "required": ["userName", "apiKeys", "authenticators", "userTags"]
@@ -9018,7 +9072,7 @@
             "type": "object",
             "$ref": "#/definitions/v1WalletAccountParams"
           },
-          "description": "A list of wallet Accounts."
+          "description": "A list of wallet Accounts. This field, if not needed, should be an empty array in your request body."
         },
         "mnemonicLength": {
           "type": "integer",
