@@ -3841,3 +3841,49 @@ export const signNOOPCodegenAnchor = () =>
   signedRequest<never, never, never>({
     uri: "/tkhq/api/v1/noop-codegen-anchor",
   });
+
+/**
+ * `POST /tkhq/api/v1/test_rate_limits`
+ */
+export type TTestRateLimitsResponse =
+  operations["PublicApiService_TestRateLimits"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /tkhq/api/v1/test_rate_limits`
+ */
+export type TTestRateLimitsInput = { body: TTestRateLimitsBody };
+
+/**
+ * `POST /tkhq/api/v1/test_rate_limits`
+ */
+export type TTestRateLimitsBody =
+  operations["PublicApiService_TestRateLimits"]["parameters"]["body"]["body"];
+
+/**
+ * Test Rate Limit
+ *
+ * Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite
+ *
+ * `POST /tkhq/api/v1/test_rate_limits`
+ */
+export const testRateLimits = (input: TTestRateLimitsInput) =>
+  request<TTestRateLimitsResponse, TTestRateLimitsBody, never, never, never>({
+    uri: "/tkhq/api/v1/test_rate_limits",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `TestRateLimits` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link TestRateLimits}
+ */
+export const signTestRateLimits = (
+  input: TTestRateLimitsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TTestRateLimitsBody, never, never>({
+    uri: "/tkhq/api/v1/test_rate_limits",
+    body: input.body,
+    options,
+  });
