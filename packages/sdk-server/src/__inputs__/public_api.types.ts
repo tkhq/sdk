@@ -319,6 +319,10 @@ export type paths = {
   "/tkhq/api/v1/noop-codegen-anchor": {
     post: operations["PublicApiService_NOOPCodegenAnchor"];
   };
+  "/tkhq/api/v1/test_rate_limits": {
+    /** Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite */
+    post: operations["PublicApiService_TestRateLimits"];
+  };
 };
 
 export type definitions = {
@@ -634,9 +638,9 @@ export type definitions = {
     userName: string;
     /** @description The email address for this API-only User (optional). */
     userEmail?: string;
-    /** @description A list of tags assigned to the new API-only User. */
+    /** @description A list of tags assigned to the new API-only User. This field, if not needed, should be an empty array in your request body. */
     userTags: string[];
-    /** @description A list of API Key parameters. */
+    /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
     apiKeys: definitions["apiApiKeyParams"][];
   };
   v1ApproveActivityIntent: {
@@ -1237,7 +1241,7 @@ export type definitions = {
   v1CreateWalletIntent: {
     /** @description Human-readable name for a Wallet. */
     walletName: string;
-    /** @description A list of wallet Accounts. */
+    /** @description A list of wallet Accounts. This field, if not needed, should be an empty array in your request body. */
     accounts: definitions["v1WalletAccountParams"][];
     /**
      * Format: int32
@@ -2116,7 +2120,7 @@ export type definitions = {
     receiverUserName: string;
     /** @description The email address of the intended Invitation recipient. */
     receiverUserEmail: string;
-    /** @description A list of tags assigned to the Invitation recipient. */
+    /** @description A list of tags assigned to the Invitation recipient. This field, if not needed, should be an empty array in your request body. */
     receiverUserTags: string[];
     /** @description The User's permissible access method(s). */
     accessType: definitions["v1AccessType"];
@@ -2316,7 +2320,7 @@ export type definitions = {
     privateKeyName: string;
     /** @description Cryptographic Curve used to generate a given Private Key. */
     curve: definitions["v1Curve"];
-    /** @description A list of Private Key Tag IDs. */
+    /** @description A list of Private Key Tag IDs. This field, if not needed, should be an empty array in your request body. */
     privateKeyTags: string[];
     /** @description Cryptocurrency-specific formats for a derived address (e.g., Ethereum). */
     addressFormats: definitions["v1AddressFormat"][];
@@ -2457,9 +2461,9 @@ export type definitions = {
     userName: string;
     /** @description The user's email address. */
     userEmail?: string;
-    /** @description A list of API Key parameters. */
+    /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
     apiKeys: definitions["apiApiKeyParams"][];
-    /** @description A list of Authenticator parameters. */
+    /** @description A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
     authenticators: definitions["v1AuthenticatorParamsV2"][];
   };
   v1RootUserParamsV2: {
@@ -2467,11 +2471,11 @@ export type definitions = {
     userName: string;
     /** @description The user's email address. */
     userEmail?: string;
-    /** @description A list of API Key parameters. */
+    /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
     apiKeys: definitions["apiApiKeyParams"][];
-    /** @description A list of Authenticator parameters. */
+    /** @description A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
     authenticators: definitions["v1AuthenticatorParamsV2"][];
-    /** @description A list of Oauth providers. */
+    /** @description A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
     oauthProviders: definitions["v1OauthProviderParams"][];
   };
   v1RootUserParamsV3: {
@@ -2479,11 +2483,11 @@ export type definitions = {
     userName: string;
     /** @description The user's email address. */
     userEmail?: string;
-    /** @description A list of API Key parameters. */
+    /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
     apiKeys: definitions["v1ApiKeyParamsV2"][];
-    /** @description A list of Authenticator parameters. */
+    /** @description A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
     authenticators: definitions["v1AuthenticatorParamsV2"][];
-    /** @description A list of Oauth providers. */
+    /** @description A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
     oauthProviders: definitions["v1OauthProviderParams"][];
   };
   v1RootUserParamsV4: {
@@ -2493,11 +2497,11 @@ export type definitions = {
     userEmail?: string;
     /** @description The user's phone number in E.164 format e.g. +13214567890 */
     userPhoneNumber?: string;
-    /** @description A list of API Key parameters. */
+    /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
     apiKeys: definitions["v1ApiKeyParamsV2"][];
-    /** @description A list of Authenticator parameters. */
+    /** @description A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
     authenticators: definitions["v1AuthenticatorParamsV2"][];
-    /** @description A list of Oauth providers. */
+    /** @description A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
     oauthProviders: definitions["v1OauthProviderParams"][];
   };
   v1Selector: {
@@ -2625,6 +2629,18 @@ export type definitions = {
   };
   /** @enum {string} */
   v1TagType: "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
+  v1TestRateLimitsRequest: {
+    /** @description Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons. */
+    organizationId: string;
+    /** @description Whether or not to set a limit on this request. */
+    isSetLimit: boolean;
+    /**
+     * Format: int64
+     * @description Rate limit to set for org, if is_set_limit is set to true
+     */
+    limit: number;
+  };
+  v1TestRateLimitsResponse: { [key: string]: unknown };
   /** @enum {string} */
   v1TransactionType: "TRANSACTION_TYPE_ETHEREUM" | "TRANSACTION_TYPE_SOLANA";
   v1UpdateAllowedOriginsIntent: {
@@ -2708,7 +2724,7 @@ export type definitions = {
     userName?: string;
     /** @description The user's email address. */
     userEmail?: string;
-    /** @description An updated list of User Tags to apply to this User. */
+    /** @description An updated list of User Tags to apply to this User. This field, if not needed, should be an empty array in your request body. */
     userTagIds?: string[];
     /** @description The user's phone number in E.164 format e.g. +13214567890 */
     userPhoneNumber?: string;
@@ -2779,7 +2795,7 @@ export type definitions = {
     userPhoneNumber?: string;
     /** @description A list of Authenticator parameters. */
     authenticators: definitions["v1Authenticator"][];
-    /** @description A list of API Key parameters. */
+    /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
     apiKeys: definitions["v1ApiKey"][];
     /** @description A list of User Tag IDs. */
     userTags: string[];
@@ -2795,11 +2811,11 @@ export type definitions = {
     userEmail?: string;
     /** @description The User's permissible access method(s). */
     accessType: definitions["v1AccessType"];
-    /** @description A list of API Key parameters. */
+    /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
     apiKeys: definitions["apiApiKeyParams"][];
-    /** @description A list of Authenticator parameters. */
+    /** @description A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
     authenticators: definitions["v1AuthenticatorParams"][];
-    /** @description A list of User Tag IDs. */
+    /** @description A list of User Tag IDs. This field, if not needed, should be an empty array in your request body. */
     userTags: string[];
   };
   v1UserParamsV2: {
@@ -2807,11 +2823,11 @@ export type definitions = {
     userName: string;
     /** @description The user's email address. */
     userEmail?: string;
-    /** @description A list of API Key parameters. */
+    /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
     apiKeys: definitions["apiApiKeyParams"][];
-    /** @description A list of Authenticator parameters. */
+    /** @description A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
     authenticators: definitions["v1AuthenticatorParamsV2"][];
-    /** @description A list of User Tag IDs. */
+    /** @description A list of User Tag IDs. This field, if not needed, should be an empty array in your request body. */
     userTags: string[];
   };
   v1Vote: {
@@ -2880,7 +2896,7 @@ export type definitions = {
   v1WalletParams: {
     /** @description Human-readable name for a Wallet. */
     walletName: string;
-    /** @description A list of wallet Accounts. */
+    /** @description A list of wallet Accounts. This field, if not needed, should be an empty array in your request body. */
     accounts: definitions["v1WalletAccountParams"][];
     /**
      * Format: int32
@@ -4315,6 +4331,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1NOOPCodegenAnchorResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite */
+  PublicApiService_TestRateLimits: {
+    parameters: {
+      body: {
+        body: definitions["v1TestRateLimitsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1TestRateLimitsResponse"];
       };
       /** An unexpected error response. */
       default: {

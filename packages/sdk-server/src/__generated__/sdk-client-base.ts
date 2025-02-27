@@ -2498,4 +2498,29 @@ export class TurnkeySDKClientBase {
       url: fullUrl,
     };
   };
+
+  testRateLimits = async (
+    input: SdkApiTypes.TTestRateLimitsBody,
+  ): Promise<SdkApiTypes.TTestRateLimitsResponse> => {
+    return this.request("/tkhq/api/v1/test_rate_limits", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampTestRateLimits = async (
+    input: SdkApiTypes.TTestRateLimitsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/tkhq/api/v1/test_rate_limits";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
 }
