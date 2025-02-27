@@ -104,14 +104,9 @@ export class TurnkeyBrowserSDK {
    *    import { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
    *    const passkeyClient = new TurnkeyBrowserClient({ ... }: TurnkeySDKClientConfig); // TurnkeySDKClientConfig has a stamper
    */
-  protected client:
-    | TurnkeyBrowserClient
-    | TurnkeyWalletClient
-    | TurnkeyIframeClient
-    | TurnkeyPasskeyClient
-    | undefined;
 
   constructor(config: TurnkeySDKBrowserConfig) {
+    console.log("sdk-client.ts TurnkeyBrowserSDK config", config);
     this.config = config;
   }
 

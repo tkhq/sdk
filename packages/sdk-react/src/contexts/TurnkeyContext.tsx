@@ -71,7 +71,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     // default the currentClient to the passkeyClient
     let currentClient: TurnkeyBrowserClient | undefined = passkeyClient;
     const currentUser = await turnkey?.getCurrentUser();
-
+    console.log("getActiveClient TurnkeyContext");
     try {
       // check if the authIframeClient is active
       await authIframeClient?.getWhoami({
