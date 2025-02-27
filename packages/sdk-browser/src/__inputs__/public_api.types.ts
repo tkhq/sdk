@@ -998,6 +998,8 @@ export type definitions = {
     apiKeyName?: string;
     /** @description Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used. */
     expirationSeconds?: string;
+    /** @description Invalidate all other previously generated ReadWriteSession API keys */
+    invalidateExisting?: boolean;
   };
   v1CreateReadWriteSessionRequest: {
     /** @enum {string} */
@@ -1275,7 +1277,9 @@ export type definitions = {
     | "CREDENTIAL_TYPE_API_KEY_SECP256K1"
     | "CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"
     | "CREDENTIAL_TYPE_API_KEY_ED25519"
-    | "CREDENTIAL_TYPE_OTP_AUTH_KEY_P256";
+    | "CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"
+    | "CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256"
+    | "CREDENTIAL_TYPE_OAUTH_KEY_P256";
   /** @enum {string} */
   v1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
   v1DeleteApiKeysIntent: {
@@ -2171,6 +2175,8 @@ export type definitions = {
     apiKeyName?: string;
     /** @description Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used. */
     expirationSeconds?: string;
+    /** @description Invalidate all other previously generated Oauth API keys */
+    invalidateExisting?: boolean;
   };
   v1OauthProvider: {
     /** @description Unique identifier for an OAuth Provider */
