@@ -5,15 +5,26 @@ import type { AuthClient, TSessionResponse } from "./__types__/base";
 export enum StorageKeys {
   AuthBundle = "@turnkey/auth_bundle", // DEPRECATED
   CurrentUser = "@turnkey/current_user", // DEPRECATED
-  UserSession = "@turnkey/session/v1",
-  ReadWriteSession = "@turnkey/read_write_session",
+  UserSession = "@turnkey/session/v1", // DEPRECATED
+  ReadWriteSession = "@turnkey/read_write_session", // DEPREACTED
+  Session = "@turnkey/session",
+  Client = "@turnkey/client",
 }
 
+export type Session = {
+  sessionType: string;
+  userId: string;
+  organizationId: string;
+  expiry: number;
+  token: string;
+};
 interface StorageValue {
   [StorageKeys.AuthBundle]: string; // DEPRECATED
   [StorageKeys.CurrentUser]: User; // DEPRECATED
-  [StorageKeys.UserSession]: User;
-  [StorageKeys.ReadWriteSession]: ReadWriteSession;
+  [StorageKeys.UserSession]: User; // DEPRECATED
+  [StorageKeys.ReadWriteSession]: ReadWriteSession; // DEPRECATED
+  [StorageKeys.Session]: Session;
+  [StorageKeys.Client]: AuthClient;
 }
 
 enum StorageLocation {
@@ -27,6 +38,8 @@ const STORAGE_VALUE_LOCATIONS: Record<StorageKeys, StorageLocation> = {
   [StorageKeys.CurrentUser]: StorageLocation.Local,
   [StorageKeys.ReadWriteSession]: StorageLocation.Secure,
   [StorageKeys.UserSession]: StorageLocation.Session,
+  [StorageKeys.Session]: StorageLocation.Session,
+  [StorageKeys.Client]: StorageLocation.Session,
 };
 
 const STORAGE_LOCATIONS = {
@@ -59,6 +72,21 @@ export const removeStorageValue = async <K extends StorageKeys>(
   const storageLocation: StorageLocation = STORAGE_VALUE_LOCATIONS[storageKey];
   const browserStorageLocation: Storage = STORAGE_LOCATIONS[storageLocation];
   browserStorageLocation.removeItem(storageKey);
+};
+
+/**
+ * Saves a session and client to storage.
+ *
+ * @param {Session} session - The session response containing session details.
+ * @param {AuthClient} authClient - The authentication client used for the session.
+ * @throws Will throw an error if the authentication client is not set.
+ * @returns {Promise<void>} A promise that resolves when the session is saved.
+ */
+
+export const storeSession = async (session: Session, client: AuthClient) => {
+  //TODO rename and remove saveSession
+  await setStorageValue(StorageKeys.Session, session);
+  await setStorageValue(StorageKeys.Client, client);
 };
 
 /**
