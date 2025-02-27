@@ -1,5 +1,5 @@
 import { test, expect } from "@jest/globals";
-import TelegramCloudStorageStamper, { CloudStorageAPIKey } from "../index";
+import { TelegramCloudStorageStamper, CloudStorageAPIKey } from "../index";
 import { readFixture } from "../__fixtures__/shared";
 import { assertValidSignature } from "./shared";
 import { fail } from "assert";
