@@ -66,7 +66,8 @@ function methodTypeFromMethodName(methodName) {
   if (methodName.startsWith("nOOP")) {
     return "noop";
   }
-  if (methodName.startsWith("get") || methodName.startsWith("list")) {
+  // TODO: filter out unnecessary client methods, whether here or from the source
+  if (methodName.startsWith("get") || methodName.startsWith("list") || methodName.startsWith("test")) {
     return "query";
   }
   // Rename to submit?
