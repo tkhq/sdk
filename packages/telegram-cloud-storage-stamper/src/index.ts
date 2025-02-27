@@ -23,12 +23,12 @@ export type CloudStorageAPIKey = {
 };
 
 // Constant for default key name
-const DEFAULT_TURNKEY_CLOUD_STORAGE_KEY = "TURNKEY_API_KEY";
+export const DEFAULT_TURNKEY_CLOUD_STORAGE_KEY = "TURNKEY_API_KEY";
 
 /**
  * Stamper to use within a `TurnkeyClient`
  */
-export default class TelegramCloudStorageStamper {
+export class TelegramCloudStorageStamper {
   // This stamper uses a typical @turnkey/api-key-stamper under the hood and abstracts away the storage of the actual API keys
   stamper?: ApiKeyStamper | undefined;
 
