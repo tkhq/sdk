@@ -54,7 +54,7 @@ export class TelegramCloudStorageStamper {
     // check to see that the stamper was initialized
     if (!this.stamper) {
       throw new TelegramCloudStorageStamperError(
-        "Cannot stamp with uninitialized telegram stamper, try running .create() or .setSigningKey()"
+        "Cannot stamp with uninitialized telegram stamper, try running .create() or .setSigningKey()",
       );
     }
 
@@ -94,7 +94,7 @@ export class TelegramCloudStorageStamper {
       await this.insertAPIKey(
         config.cloudStorageAPIKey.apiPublicKey,
         config.cloudStorageAPIKey.apiPrivateKey,
-        DEFAULT_TURNKEY_CLOUD_STORAGE_KEY
+        DEFAULT_TURNKEY_CLOUD_STORAGE_KEY,
       );
 
       this.stamper = new ApiKeyStamper({
@@ -107,7 +107,7 @@ export class TelegramCloudStorageStamper {
       await this.insertAPIKey(
         config.cloudStorageAPIKey.apiPublicKey,
         config.cloudStorageAPIKey.apiPrivateKey,
-        config.cloudStorageKey
+        config.cloudStorageKey,
       );
 
       this.stamper = new ApiKeyStamper({
@@ -117,23 +117,23 @@ export class TelegramCloudStorageStamper {
       return;
     }
     throw new TelegramCloudStorageStamperError(
-      "Invalid configuration received for signing key"
+      "Invalid configuration received for signing key",
     );
   }
 
   async insertAPIKey(
     apiPublicKey: string,
     apiPrivateKey: string,
-    key: string = DEFAULT_TURNKEY_CLOUD_STORAGE_KEY
+    key: string = DEFAULT_TURNKEY_CLOUD_STORAGE_KEY,
   ) {
     return await this.setItem(
       key,
-      this.stringifyAPIKey(apiPublicKey, apiPrivateKey)
+      this.stringifyAPIKey(apiPublicKey, apiPrivateKey),
     );
   }
 
   async getAPIKey(
-    key: string = DEFAULT_TURNKEY_CLOUD_STORAGE_KEY
+    key: string = DEFAULT_TURNKEY_CLOUD_STORAGE_KEY,
   ): Promise<CloudStorageAPIKey | null> {
     try {
       const apiKey = await this.getItem(key);
@@ -151,7 +151,7 @@ export class TelegramCloudStorageStamper {
   checkTelegramContext() {
     if (window?.Telegram?.WebApp?.CloudStorage == null) {
       throw new TelegramCloudStorageStamperError(
-        "Cannot use telegram stamper in non telegram mini-app environment, window.Telegram.WebApp.CloudStorage is not defined"
+        "Cannot use telegram stamper in non telegram mini-app environment, window.Telegram.WebApp.CloudStorage is not defined",
       );
     }
   }
@@ -177,7 +177,7 @@ export class TelegramCloudStorageStamper {
       };
     } catch (err) {
       throw new TelegramCloudStorageStamperError(
-        "Failed parsing API key from Telegram Cloud Storage"
+        "Failed parsing API key from Telegram Cloud Storage",
       );
     }
   }
@@ -200,13 +200,13 @@ export class TelegramCloudStorageStamper {
               new TelegramCloudStorageStamperError(
                 `Failed getting value: ${key} from Telegram Cloud Storage${
                   err && `: ${err}`
-                }`
-              )
+                }`,
+              ),
             );
           }
 
           resolve(value);
-        }
+        },
       );
     });
   }
@@ -222,20 +222,20 @@ export class TelegramCloudStorageStamper {
               new TelegramCloudStorageStamperError(
                 `Failed inserting value: ${value} into Telegram Cloud Storage at key: ${key}${
                   err && `: ${err}`
-                }`
-              )
+                }`,
+              ),
             );
           }
           if (!stored) {
             reject(
               new TelegramSuccessButFalseError(
-                "Telegram indicated success for storing key, but also returned false, see documention: https://core.telegram.org/bots/webapps#cloudstorage"
-              )
+                "Telegram indicated success for storing key, but also returned false, see documention: https://core.telegram.org/bots/webapps#cloudstorage",
+              ),
             );
           }
 
           resolve();
-        }
+        },
       );
     });
   }
@@ -252,20 +252,20 @@ export class TelegramCloudStorageStamper {
           if (err) {
             reject(
               new TelegramCloudStorageStamperError(
-                `Failed removing key: ${key}${err && `: ${err}`}`
-              )
+                `Failed removing key: ${key}${err && `: ${err}`}`,
+              ),
             );
           }
           if (!removed) {
             reject(
               new TelegramSuccessButFalseError(
-                "Telegram indicated success for removing key, but also returned false, see documention: https://core.telegram.org/bots/webapps#cloudstorage"
-              )
+                "Telegram indicated success for removing key, but also returned false, see documention: https://core.telegram.org/bots/webapps#cloudstorage",
+              ),
             );
           }
 
           resolve();
-        }
+        },
       );
     });
   }
