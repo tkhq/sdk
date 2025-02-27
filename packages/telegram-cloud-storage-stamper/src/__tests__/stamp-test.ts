@@ -1,5 +1,5 @@
 import { test, expect } from "@jest/globals";
-import TelegramCloudStorageStamper, { CloudStorageAPIKey } from "../index";
+import { TelegramCloudStorageStamper, CloudStorageAPIKey } from "../index";
 import { readFixture } from "../__fixtures__/shared";
 import { assertValidSignature } from "./shared";
 import { fail } from "assert";
@@ -9,7 +9,7 @@ window.Telegram.WebApp.CloudStorage = {
   async setItem(
     key: string,
     value: string,
-    callback: (error: any, stored: boolean) => void,
+    callback: (error: any, stored: boolean) => void
   ) {
     localStorage.setItem(key, value);
     callback(null, true);
@@ -23,7 +23,7 @@ window.Telegram.WebApp.CloudStorage = {
   },
   async removeItem(
     key: string,
-    callback: (error: any, cleared: boolean) => void,
+    callback: (error: any, cleared: boolean) => void
   ) {
     localStorage.removeItem(key);
     callback(null, true);
@@ -50,7 +50,7 @@ test("uses provided signature to make stamp", async function () {
 
     // We expect the stamp to be base64url encoded
     const decodedStamp = JSON.parse(
-      Buffer.from(stamp.stampHeaderValue, "base64url").toString(),
+      Buffer.from(stamp.stampHeaderValue, "base64url").toString()
     );
     // ...with 3 keys.
     expect(Object.keys(decodedStamp)).toEqual([
