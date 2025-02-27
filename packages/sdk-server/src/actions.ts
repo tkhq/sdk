@@ -7,6 +7,24 @@ import {
   WalletAccount,
 } from "./turnkey-helpers";
 
+type GetOrCreateSuborgRequest = {
+  filterType: FilterType;
+  filterValue: string;
+  additionalData?: {
+    email?: string;
+    phoneNumber?: string;
+    passkey?: Passkey;
+    oauthProviders?: Provider[];
+    customAccounts?: WalletAccount[];
+  };
+};
+
+enum FilterType {
+  Email = "EMAIL",
+  PhoneNumber = "PHONE_NUMBER",
+  OidcToken = "OIDC_TOKEN",
+}
+
 type Session = {
   sessionType: string;
   userId: string;
@@ -82,6 +100,10 @@ type Provider = {
 
 type CreateSuborgResponse = {
   subOrganizationId: string;
+};
+
+type GetOrCreateSuborgResponse = {
+  subOrganizationIds: string[];
 };
 
 const turnkeyClient = new TurnkeyServerSDK({
@@ -282,6 +304,74 @@ export async function createSuborg(
     return { subOrganizationId: response.subOrganizationId };
   } catch (error) {
     console.error(error);
+    return undefined;
+  }
+}
+
+export async function getOrCreateSuborg(
+  request: GetOrCreateSuborgRequest,
+): Promise<GetOrCreateSuborgResponse | undefined> {
+  try {
+    // First try to get existing suborgs
+    let suborgResponse: GetSuborgsResponse | undefined;
+
+    if (
+      request.filterType === FilterType.Email ||
+      request.filterType === FilterType.PhoneNumber
+    ) {
+      suborgResponse = await getVerifiedSuborgs({
+        filterType: request.filterType,
+        filterValue: request.filterValue,
+      });
+    } else {
+      suborgResponse = await getSuborgs({
+        // For OIDC
+        filterType: request.filterType,
+        filterValue: request.filterValue,
+      });
+    }
+
+    // If we found existing suborgs, return the first one
+    if (
+      suborgResponse &&
+      suborgResponse?.organizationIds &&
+      suborgResponse?.organizationIds?.length > 0
+    ) {
+      return {
+        subOrganizationIds: suborgResponse.organizationIds!,
+      };
+    }
+
+    // No existing suborg found - create a new one
+    const createPayload: CreateSuborgRequest = {
+      ...(request.additionalData?.email && {
+        email: request.additionalData.email,
+      }),
+      ...(request.additionalData?.phoneNumber && {
+        phoneNumber: request.additionalData.phoneNumber,
+      }),
+      ...(request.additionalData?.passkey && {
+        passkey: request.additionalData.passkey,
+      }),
+      ...(request.additionalData?.oauthProviders && {
+        oauthProviders: request.additionalData.oauthProviders,
+      }),
+      ...(request.additionalData?.customAccounts && {
+        customAccounts: request.additionalData.customAccounts,
+      }),
+    };
+
+    const creationResponse = await createSuborg(createPayload);
+
+    if (!creationResponse?.subOrganizationId) {
+      throw new Error("Suborg creation failed");
+    }
+
+    return {
+      subOrganizationIds: [creationResponse.subOrganizationId],
+    };
+  } catch (error) {
+    console.error("Error in getOrCreateSuborg:", error);
     return undefined;
   }
 }
