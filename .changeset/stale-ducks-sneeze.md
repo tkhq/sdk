@@ -2,7 +2,7 @@
 "@turnkey/telegram-cloud-storage-stamper": major
 ---
 
-Remove default export and used all named exportsfor consistency
+Remove default export and used all named exports for consistency
 
 ### Package imports for `@turnkey/telegram-cloud-storage-stamper`
 
