@@ -824,3 +824,14 @@ export type TUpdateWalletBody =
 
 export type TNOOPCodegenAnchorResponse =
   operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];
+
+export type TTestRateLimitsResponse =
+  operations["PublicApiService_TestRateLimits"]["responses"]["200"]["schema"];
+
+export type TTestRateLimitsInput = { body: TTestRateLimitsBody };
+
+export type TTestRateLimitsBody = Omit<
+  operations["PublicApiService_TestRateLimits"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;

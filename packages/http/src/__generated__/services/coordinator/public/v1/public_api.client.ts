@@ -294,6 +294,10 @@ import type {
   TUpdateWalletBody,
   TUpdateWalletResponse,
 } from "./public_api.fetcher";
+import type {
+  TTestRateLimitsBody,
+  TTestRateLimitsResponse,
+} from "./public_api.fetcher";
 
 export class TurnkeyClient {
   config: THttpConfig;
@@ -2731,6 +2735,37 @@ export class TurnkeyClient {
     input: TUpdateWalletBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/update_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite
+   *
+   * Sign the provided `TTestRateLimitsBody` with the client's `stamp` function, and submit the request (POST /tkhq/api/v1/test_rate_limits).
+   *
+   * See also {@link stampTestRateLimits}.
+   */
+  testRateLimits = async (
+    input: TTestRateLimitsBody,
+  ): Promise<TTestRateLimitsResponse> => {
+    return this.request("/tkhq/api/v1/test_rate_limits", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TTestRateLimitsBody` by using the client's `stamp` function.
+   *
+   * See also {@link TestRateLimits}.
+   */
+  stampTestRateLimits = async (
+    input: TTestRateLimitsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/tkhq/api/v1/test_rate_limits";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
