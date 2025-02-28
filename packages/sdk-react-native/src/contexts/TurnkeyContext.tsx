@@ -20,6 +20,7 @@ import {
   TURNKEY_EMBEDDED_KEY_STORAGE,
   TURNKEY_SESSION_STORAGE,
   OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
+  TURNKEY_ACTIVE_SESSION,
 } from "../constant";
 import type {
   Activity,
@@ -37,6 +38,7 @@ export interface TurnkeyContextType {
   session: Session | undefined;
   client: TurnkeyClient | undefined;
   user: User | undefined;
+  setActiveSession: (storageKey: string) => Promise<Session | undefined>;
   updateUser: (userDetails: {
     email?: string;
     phone?: string;
@@ -97,7 +99,12 @@ export const TurnkeyProvider: FC<{
    */
   useEffect(() => {
     (async () => {
-      const session = await getSession();
+      const storageKey = await getActiveStorageKey();
+      if (!storageKey) {
+        return;
+      }
+
+      const session = await getSession(storageKey);
 
       if (session?.expiry && session.expiry > Date.now()) {
         setSession(session);
@@ -123,6 +130,57 @@ export const TurnkeyProvider: FC<{
       }
     };
   }, []);
+
+  const setActiveSession = async (storageKey: string) => {
+    const session = await getSession(storageKey);
+
+    if (session?.expiry && session.expiry > Date.now()) {
+      setSession(session);
+
+      const client = createClient(
+        session.publicKey,
+        session.privateKey,
+        config.apiBaseUrl,
+      );
+      setClient(client);
+
+      saveActiveSession(storageKey);
+
+      config.onSessionCreated?.(session);
+      scheduleSessionExpiration(session.expiry);
+
+      return session;
+    } else {
+      await clearSession(storageKey);
+      config.onSessionExpired?.();
+
+      return undefined;
+    }
+  };
+
+  const getActiveStorageKey = async () => {
+    const credentials = await Keychain.getGenericPassword({
+      service: TURNKEY_ACTIVE_SESSION,
+    });
+    if (credentials) {
+      return credentials.password;
+    }
+    return null;
+  };
+
+  const saveActiveSession = async (storageKey: string) => {
+    try {
+      await Keychain.setGenericPassword(TURNKEY_ACTIVE_SESSION, storageKey, {
+        accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+        service: TURNKEY_ACTIVE_SESSION,
+      });
+    } catch (error) {
+      throw new TurnkeyReactNativeError(
+        "Could not save the embedded key.",
+        error,
+      );
+    }
+  };
 
   /**
    * Clears any scheduled expiration timeouts
@@ -283,9 +341,9 @@ export const TurnkeyProvider: FC<{
    * @returns The stored session or `null` if not found.
    * @throws If retrieving the session fails.
    */
-  const getSession = async (): Promise<Session | null> => {
+  const getSession = async (storageKey: string): Promise<Session | null> => {
     const credentials = await Keychain.getGenericPassword({
-      service: TURNKEY_SESSION_STORAGE,
+      service: storageKey,
     });
 
     if (credentials) {
@@ -304,16 +362,12 @@ export const TurnkeyProvider: FC<{
    * @param session The session object to store.
    * @throws If saving the session fails.
    */
-  const saveSession = async (session: Session) => {
+  const saveSession = async (session: Session, storageKey: string) => {
     try {
-      await Keychain.setGenericPassword(
-        TURNKEY_SESSION_STORAGE,
-        JSON.stringify(session),
-        {
-          accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-          service: TURNKEY_SESSION_STORAGE,
-        },
-      );
+      await Keychain.setGenericPassword(storageKey, JSON.stringify(session), {
+        accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+        service: storageKey,
+      });
 
       scheduleSessionExpiration(session.expiry);
     } catch (error) {
@@ -444,6 +498,7 @@ export const TurnkeyProvider: FC<{
   const createSession = async (
     bundle: string,
     expirySeconds: number = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
+    storageKey: string = TURNKEY_SESSION_STORAGE,
   ): Promise<Session> => {
     const embeddedKey = await getEmbeddedKey();
     if (!embeddedKey) {
@@ -463,8 +518,8 @@ export const TurnkeyProvider: FC<{
       throw new TurnkeyReactNativeError("User not found.");
     }
 
-    const session = { publicKey, privateKey, expiry, user };
-    await saveSession(session);
+    const session = { storageKey, publicKey, privateKey, expiry, user };
+    await saveSession(session, storageKey);
     setSession(session);
 
     config.onSessionCreated?.(session);
@@ -480,11 +535,11 @@ export const TurnkeyProvider: FC<{
    *
    * @throws If the session cannot be cleared from secure storage.
    */
-  const clearSession = async () => {
+  const clearSession = async (storageKey: string = TURNKEY_SESSION_STORAGE) => {
     try {
       setSession(undefined);
       setClient(undefined);
-      await Keychain.resetGenericPassword({ service: TURNKEY_SESSION_STORAGE });
+      await Keychain.resetGenericPassword({ service: storageKey });
 
       config.onSessionCleared?.();
     } catch (error) {
@@ -703,6 +758,7 @@ export const TurnkeyProvider: FC<{
         session,
         client,
         user: session?.user,
+        setActiveSession,
         updateUser,
         refreshUser,
         createEmbeddedKey,
