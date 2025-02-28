@@ -1,7 +1,7 @@
 import * as Keychain from "react-native-keychain";
 import { TURNKEY_EMBEDDED_KEY_STORAGE } from "../constant";
 import { TurnkeyReactNativeError } from "../errors";
-import { Session } from "../types";
+import type { Session } from "../types";
 
 export const getEmbeddedKey = async (
   deleteKey = true,
