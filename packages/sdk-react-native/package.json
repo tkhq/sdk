@@ -47,16 +47,18 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^1.23.1",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/encoding": "workspace:*",
-    "@turnkey/http": "workspace:*",
-    "react": "18.3.1",
-    "react-native": "^0.76.5",
+    "@turnkey/http": "workspace:*"
+  },
+  "peerDependencies": {
+    "@types/react": "^18.2.75",
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "@react-native-async-storage/async-storage": "^1.23.1",
     "react-native-keychain": "^8.1.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.6"
+    "react": "^18.2.0"
   }
 }

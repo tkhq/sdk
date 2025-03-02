@@ -163,7 +163,6 @@ export const TurnkeyProvider: FC<{
       await saveSelectedSessionKey(sessionKey);
 
       config.onSessionCreated?.(session);
-      scheduleSessionExpiration(sessionKey, session.expiry);
       return session;
     } else {
       await clearSession(sessionKey);
@@ -343,6 +342,7 @@ export const TurnkeyProvider: FC<{
 
     await saveSelectedSessionKey(sessionKey);
     await addSessionKeyToIndex(sessionKey);
+    scheduleSessionExpiration(sessionKey, expiry);
 
     config.onSessionCreated?.(newSession);
     return newSession;
