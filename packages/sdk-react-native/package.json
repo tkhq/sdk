@@ -55,8 +55,7 @@
   "peerDependencies": {
     "@types/react": "^18.2.75",
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "@react-native-async-storage/async-storage": "^1.23.1",
-    "react-native-keychain": "^8.1.0"
+    "react-native-keychain": "^8.1.0 || ^9.2.2"
   },
   "devDependencies": {
     "react": "^18.2.0"

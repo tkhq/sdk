@@ -31,20 +31,18 @@ import type {
 import { TurnkeyReactNativeError } from "../errors";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import {
-  getSelectedSessionKey,
-  saveSelectedSessionKey,
   addSessionKeyToIndex,
+  clearSelectedSessionKey,
+  getEmbeddedKey,
+  getSelectedSessionKey,
+  getSession,
   getSessionKeysIndex,
   removeSessionKeyFromIndex,
-  clearSelectedSessionKey,
-} from "../storage/asyncStorage";
-import {
-  getEmbeddedKey,
-  getSession,
   resetSession,
   saveEmbeddedKey,
+  saveSelectedSessionKey,
   saveSession,
-} from "../storage/secureStorage";
+} from "../storage";
 
 export interface TurnkeyContextType {
   session: Session | undefined;
