@@ -5,6 +5,8 @@ import {
   useEffect,
   useRef,
   useState,
+  useCallback,
+  useMemo,
 } from "react";
 import {
   generateP256KeyPair,
@@ -29,7 +31,6 @@ import type {
   WalletAccountParams,
 } from "../types";
 import { TurnkeyReactNativeError } from "../errors";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import {
   addSessionKeyToIndex,
   clearSelectedSessionKey,
@@ -43,6 +44,7 @@ import {
   saveSelectedSessionKey,
   saveSession,
 } from "../storage";
+import { createClient, fetchUser } from "../turnkey-helpers";
 
 export interface TurnkeyContextType {
   session: Session | undefined;
@@ -157,28 +159,31 @@ export const TurnkeyProvider: FC<{
     };
   }, []);
 
-  const setSelectedSession = async ({ sessionKey }: { sessionKey: string }) => {
-    const session = await getSession(sessionKey);
+  const setSelectedSession = useCallback(
+    async ({ sessionKey }: { sessionKey: string }) => {
+      const session = await getSession(sessionKey);
 
-    if (session?.expiry && session.expiry > Date.now()) {
-      const clientInstance = createClient(
-        session.publicKey,
-        session.privateKey,
-        config.apiBaseUrl,
-      );
+      if (session?.expiry && session.expiry > Date.now()) {
+        const clientInstance = createClient(
+          session.publicKey,
+          session.privateKey,
+          config.apiBaseUrl,
+        );
 
-      setClient(clientInstance);
-      setSession(session);
-      await saveSelectedSessionKey(sessionKey);
+        setClient(clientInstance);
+        setSession(session);
+        await saveSelectedSessionKey(sessionKey);
 
-      config.onSessionCreated?.(session);
-      return session;
-    } else {
-      await clearSession({ sessionKey });
-      config.onSessionExpired?.(session ?? ({ key: sessionKey } as Session));
-      return undefined;
-    }
-  };
+        config.onSessionCreated?.(session);
+        return session;
+      } else {
+        await clearSession({ sessionKey });
+        config.onSessionExpired?.(session ?? ({ key: sessionKey } as Session));
+        return undefined;
+      }
+    },
+    [createClient, config],
+  );
 
   // clears all scheduled expiration timers.
   const clearTimeouts = () => {
@@ -222,99 +227,7 @@ export const TurnkeyProvider: FC<{
     }
   };
 
-  const createClient = (
-    publicKey: string,
-    privateKey: string,
-    apiBaseUrl: string,
-  ): TurnkeyClient => {
-    const stamper = new ApiKeyStamper({
-      apiPrivateKey: privateKey,
-      apiPublicKey: publicKey,
-    });
-    return new TurnkeyClient({ baseUrl: apiBaseUrl }, stamper);
-  };
-
-  const fetchUser = async (
-    client: TurnkeyClient,
-    organizationId: string,
-  ): Promise<User | undefined> => {
-    const whoami = await client.getWhoami({ organizationId });
-    if (whoami.userId && whoami.organizationId) {
-      const [walletsResponse, userResponse] = await Promise.all([
-        client.getWallets({ organizationId: whoami.organizationId }),
-        client.getUser({
-          organizationId: whoami.organizationId,
-          userId: whoami.userId,
-        }),
-      ]);
-      const wallets = await Promise.all(
-        walletsResponse.wallets.map(async (wallet) => {
-          const accounts = await client.getWalletAccounts({
-            organizationId: whoami.organizationId,
-            walletId: wallet.walletId,
-          });
-          return {
-            name: wallet.walletName,
-            id: wallet.walletId,
-            accounts: accounts.accounts.map((account) => ({
-              id: account.walletAccountId,
-              curve: account.curve,
-              pathFormat: account.pathFormat,
-              path: account.path,
-              addressFormat: account.addressFormat,
-              address: account.address,
-              createdAt: account.createdAt,
-              updatedAt: account.updatedAt,
-            })),
-          };
-        }),
-      );
-      const user = userResponse.user;
-      return {
-        id: user.userId,
-        userName: user.userName,
-        email: user.userEmail,
-        phoneNumber: user.userPhoneNumber,
-        organizationId: whoami.organizationId,
-        wallets,
-      };
-    }
-    return undefined;
-  };
-
-  const updateUser = async ({
-    email,
-    phone,
-  }: {
-    email?: string;
-    phone?: string;
-  }) => {
-    if (client == null || session?.user == null) {
-      throw new TurnkeyReactNativeError("Client or user not initialized");
-    }
-    const parameters = {
-      userId: session.user.id,
-      userTagIds: [] as string[],
-      ...(phone?.trim() && { userPhoneNumber: phone }),
-      ...(email?.trim() && { userEmail: email }),
-    };
-
-    const result = await client.updateUser({
-      type: "ACTIVITY_TYPE_UPDATE_USER",
-      timestampMs: Date.now().toString(),
-      organizationId: session.user.organizationId,
-      parameters,
-    });
-
-    const activity = result.activity;
-    if (activity.result.updateUserResult?.userId) {
-      await refreshUser();
-    }
-
-    return activity;
-  };
-
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     if (session && client) {
       const updatedUser = await fetchUser(client, config.organizationId);
       if (updatedUser) {
@@ -323,239 +236,330 @@ export const TurnkeyProvider: FC<{
         setSession(updatedSession);
       }
     }
-  };
+  }, [session, client, config.organizationId]);
 
-  const createEmbeddedKey = async () => {
+  const updateUser = useCallback(
+    async ({ email, phone }: { email?: string; phone?: string }) => {
+      if (client == null || session?.user == null) {
+        throw new TurnkeyReactNativeError("Client or user not initialized");
+      }
+
+      const parameters = {
+        userId: session.user.id,
+        userTagIds: [] as string[],
+        ...(phone?.trim() && { userPhoneNumber: phone }),
+        ...(email?.trim() && { userEmail: email }),
+      };
+
+      const result = await client.updateUser({
+        type: "ACTIVITY_TYPE_UPDATE_USER",
+        timestampMs: Date.now().toString(),
+        organizationId: session.user.organizationId,
+        parameters,
+      });
+
+      const activity = result.activity;
+      if (activity.result.updateUserResult?.userId) {
+        await refreshUser();
+      }
+
+      return activity;
+    },
+    [client, session, refreshUser],
+  );
+
+  const createEmbeddedKey = useCallback(async () => {
     const key = generateP256KeyPair();
     const embeddedPrivateKey = key.privateKey;
     const publicKey = key.publicKeyUncompressed;
     await saveEmbeddedKey(embeddedPrivateKey);
     return publicKey;
-  };
+  }, []);
 
-  const createSession = async ({
-    bundle,
-    expirySeconds = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
-    sessionKey = TURNKEY_DEFAULT_SESSION_STORAGE,
-  }: {
-    bundle: string;
-    expirySeconds?: number;
-    sessionKey?: string;
-  }): Promise<Session> => {
-    const embeddedKey = await getEmbeddedKey();
-    if (!embeddedKey) {
-      throw new TurnkeyReactNativeError("Embedded key not found.");
-    }
-    const privateKey = decryptCredentialBundle(bundle, embeddedKey);
-    const publicKey = uint8ArrayToHexString(getPublicKey(privateKey));
-    const expiry = Date.now() + expirySeconds * 1000;
-
-    const clientInstance = createClient(
-      publicKey,
-      privateKey,
-      config.apiBaseUrl,
-    );
-    const user = await fetchUser(clientInstance, config.organizationId);
-    if (!user) {
-      throw new TurnkeyReactNativeError("User not found.");
-    }
-
-    const newSession = { key: sessionKey, publicKey, privateKey, expiry, user };
-    await saveSession(newSession, sessionKey);
-
-    await addSessionKeyToIndex(sessionKey);
-
-    scheduleSessionExpiration(sessionKey, newSession.expiry);
-
-    // if this is the first session created we set it as the selected session
-    const sessionKeys = await getSessionKeyIndex();
-    const isFirstSession = sessionKeys.length === 1;
-
-    if (isFirstSession) {
-      await setSelectedSession({ sessionKey });
-    }
-
-    config.onSessionCreated?.(newSession);
-    return newSession;
-  };
-
-  const clearSession = async ({
-    sessionKey = TURNKEY_DEFAULT_SESSION_STORAGE,
-  }: {
-    sessionKey?: string;
-  } = {}): Promise<void> => {
-    try {
-      const clearedSession = await getSession(sessionKey);
-
-      // if selected session is being cleared, clear the local state session and client
-      if (session?.key === sessionKey) {
-        setSession(undefined);
-        setClient(undefined);
-        await clearSelectedSessionKey();
+  const createSession = useCallback(
+    async ({
+      bundle,
+      expirySeconds = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
+      sessionKey = TURNKEY_DEFAULT_SESSION_STORAGE,
+    }: {
+      bundle: string;
+      expirySeconds?: number;
+      sessionKey?: string;
+    }): Promise<Session> => {
+      const embeddedKey = await getEmbeddedKey();
+      if (!embeddedKey) {
+        throw new TurnkeyReactNativeError("Embedded key not found.");
       }
 
-      await resetSession(sessionKey);
-      await removeSessionKeyFromIndex(sessionKey);
-      config.onSessionCleared?.(
-        clearedSession ?? ({ key: sessionKey } as Session),
+      const privateKey = decryptCredentialBundle(bundle, embeddedKey);
+      const publicKey = uint8ArrayToHexString(getPublicKey(privateKey));
+      const expiry = Date.now() + expirySeconds * 1000;
+
+      const clientInstance = createClient(
+        publicKey,
+        privateKey,
+        config.apiBaseUrl,
       );
-    } catch (error) {
-      throw new TurnkeyReactNativeError("Could not clear the session.");
-    }
-  };
+      const user = await fetchUser(clientInstance, config.organizationId);
+      if (!user) {
+        throw new TurnkeyReactNativeError("User not found.");
+      }
 
-  const createWallet = async ({
-    walletName,
-    accounts,
-    mnemonicLength,
-  }: {
-    walletName: string;
-    accounts: WalletAccountParams[];
-    mnemonicLength?: number;
-  }): Promise<Activity> => {
-    if (client == null || session?.user == null) {
-      throw new TurnkeyReactNativeError("Client or user not initialized");
-    }
-    const parameters: any = { walletName, accounts };
-    if (mnemonicLength != null) {
-      parameters.mnemonicLength = mnemonicLength;
-    }
-    const response = await client.createWallet({
-      type: "ACTIVITY_TYPE_CREATE_WALLET",
-      timestampMs: Date.now().toString(),
-      organizationId: session.user.organizationId,
-      parameters,
-    });
-    const activity = response.activity;
-    if (activity.result.createWalletResult?.walletId) {
-      await refreshUser();
-    }
-    return activity;
-  };
+      const newSession = {
+        key: sessionKey,
+        publicKey,
+        privateKey,
+        expiry,
+        user,
+      };
+      await saveSession(newSession, sessionKey);
+      await addSessionKeyToIndex(sessionKey);
+      scheduleSessionExpiration(sessionKey, newSession.expiry);
 
-  const importWallet = async ({
-    walletName,
-    mnemonic,
-    accounts,
-  }: {
-    walletName: string;
-    mnemonic: string;
-    accounts: WalletAccountParams[];
-  }): Promise<Activity> => {
-    if (client == null || session?.user == null) {
-      throw new TurnkeyReactNativeError("Client or user not initialized");
-    }
-    const initResponse = await client.initImportWallet({
-      type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
-      timestampMs: Date.now().toString(),
-      organizationId: session.user.organizationId,
-      parameters: { userId: session.user.id },
-    });
-    const importBundle =
-      initResponse.activity.result.initImportWalletResult?.importBundle;
-    if (importBundle == null) {
-      throw new TurnkeyReactNativeError("Failed to get import bundle");
-    }
-    const encryptedBundle = await encryptWalletToBundle({
+      // if this is the first session created, set it as the selected session
+      const sessionKeys = await getSessionKeyIndex();
+      const isFirstSession = sessionKeys.length === 1;
+
+      if (isFirstSession) {
+        await setSelectedSession({ sessionKey });
+      }
+
+      config.onSessionCreated?.(newSession);
+      return newSession;
+    },
+    [config, setSelectedSession],
+  );
+
+  const clearSession = useCallback(
+    async ({
+      sessionKey = TURNKEY_DEFAULT_SESSION_STORAGE,
+    }: {
+      sessionKey?: string;
+    } = {}): Promise<void> => {
+      try {
+        const clearedSession = await getSession(sessionKey);
+
+        // if selected session is being cleared, clear the local state session and client
+        if (session?.key === sessionKey) {
+          setSession(undefined);
+          setClient(undefined);
+          await clearSelectedSessionKey();
+        }
+
+        await resetSession(sessionKey);
+        await removeSessionKeyFromIndex(sessionKey);
+
+        config.onSessionCleared?.(
+          clearedSession ?? ({ key: sessionKey } as Session),
+        );
+      } catch (error) {
+        throw new TurnkeyReactNativeError("Could not clear the session.");
+      }
+    },
+    [session, config],
+  );
+
+  const createWallet = useCallback(
+    async ({
+      walletName,
+      accounts,
+      mnemonicLength,
+    }: {
+      walletName: string;
+      accounts: WalletAccountParams[];
+      mnemonicLength?: number;
+    }): Promise<Activity> => {
+      if (client == null || session?.user == null) {
+        throw new TurnkeyReactNativeError("Client or user not initialized");
+      }
+
+      const parameters: any = { walletName, accounts };
+      if (mnemonicLength != null) {
+        parameters.mnemonicLength = mnemonicLength;
+      }
+
+      const response = await client.createWallet({
+        type: "ACTIVITY_TYPE_CREATE_WALLET",
+        timestampMs: Date.now().toString(),
+        organizationId: session.user.organizationId,
+        parameters,
+      });
+
+      const activity = response.activity;
+      if (activity.result.createWalletResult?.walletId) {
+        await refreshUser();
+      }
+
+      return activity;
+    },
+    [client, session, refreshUser],
+  );
+
+  const importWallet = useCallback(
+    async ({
+      walletName,
       mnemonic,
-      importBundle,
-      userId: session.user.id,
-      organizationId: session.user.organizationId,
-    });
-    const response = await client.importWallet({
-      type: "ACTIVITY_TYPE_IMPORT_WALLET",
-      timestampMs: Date.now().toString(),
-      organizationId: session.user.organizationId,
-      parameters: {
+      accounts,
+    }: {
+      walletName: string;
+      mnemonic: string;
+      accounts: WalletAccountParams[];
+    }): Promise<Activity> => {
+      if (client == null || session?.user == null) {
+        throw new TurnkeyReactNativeError("Client or user not initialized");
+      }
+
+      const initResponse = await client.initImportWallet({
+        type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
+        timestampMs: Date.now().toString(),
+        organizationId: session.user.organizationId,
+        parameters: { userId: session.user.id },
+      });
+
+      const importBundle =
+        initResponse.activity.result.initImportWalletResult?.importBundle;
+
+      if (importBundle == null) {
+        throw new TurnkeyReactNativeError("Failed to get import bundle");
+      }
+
+      const encryptedBundle = await encryptWalletToBundle({
+        mnemonic,
+        importBundle,
         userId: session.user.id,
-        walletName,
-        encryptedBundle,
-        accounts,
-      },
-    });
-    const activity = response.activity;
-    if (activity.result.importWalletResult?.walletId) {
-      await refreshUser();
-    }
-    return activity;
-  };
+        organizationId: session.user.organizationId,
+      });
 
-  const exportWallet = async ({
-    walletId,
-  }: {
-    walletId: string;
-  }): Promise<string> => {
-    const { publicKeyUncompressed: targetPublicKey, privateKey: embeddedKey } =
-      generateP256KeyPair();
-    if (client == null || session?.user == null) {
-      throw new TurnkeyReactNativeError("Client or user not initialized");
-    }
-    const response = await client.exportWallet({
-      type: "ACTIVITY_TYPE_EXPORT_WALLET",
-      timestampMs: Date.now().toString(),
-      organizationId: session.user.organizationId,
-      parameters: { walletId, targetPublicKey },
-    });
-    const exportBundle =
-      response.activity.result.exportWalletResult?.exportBundle;
-    if (exportBundle == null || embeddedKey == null) {
-      throw new TurnkeyReactNativeError(
-        "Export bundle, embedded key, or user not initialized",
-      );
-    }
-    return await decryptExportBundle({
-      exportBundle,
-      embeddedKey,
-      organizationId: session.user.organizationId,
-      returnMnemonic: true,
-    });
-  };
+      const response = await client.importWallet({
+        type: "ACTIVITY_TYPE_IMPORT_WALLET",
+        timestampMs: Date.now().toString(),
+        organizationId: session.user.organizationId,
+        parameters: {
+          userId: session.user.id,
+          walletName,
+          encryptedBundle,
+          accounts,
+        },
+      });
 
-  const signRawPayload = async ({
-    signWith,
-    payload,
-    encoding,
-    hashFunction,
-  }: {
-    signWith: string;
-    payload: string;
-    encoding: PayloadEncoding;
-    hashFunction: HashFunction;
-  }): Promise<SignRawPayloadResult> => {
-    if (client == null || session?.user == null) {
-      throw new TurnkeyReactNativeError("Client or user not initialized");
-    }
-    const response = await client.signRawPayload({
-      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
-      timestampMs: Date.now().toString(),
-      organizationId: session.user.organizationId,
-      parameters: { signWith, payload, encoding, hashFunction },
-    });
-    const signRawPayloadResult = response.activity.result.signRawPayloadResult;
-    if (signRawPayloadResult == null) {
-      throw new TurnkeyReactNativeError("Failed to sign raw payload");
-    }
-    return signRawPayloadResult;
-  };
+      const activity = response.activity;
+
+      if (activity.result.importWalletResult?.walletId) {
+        await refreshUser();
+      }
+
+      return activity;
+    },
+    [client, session, refreshUser],
+  );
+
+  const exportWallet = useCallback(
+    async ({ walletId }: { walletId: string }): Promise<string> => {
+      const {
+        publicKeyUncompressed: targetPublicKey,
+        privateKey: embeddedKey,
+      } = generateP256KeyPair();
+
+      if (client == null || session?.user == null) {
+        throw new TurnkeyReactNativeError("Client or user not initialized");
+      }
+
+      const response = await client.exportWallet({
+        type: "ACTIVITY_TYPE_EXPORT_WALLET",
+        timestampMs: Date.now().toString(),
+        organizationId: session.user.organizationId,
+        parameters: { walletId, targetPublicKey },
+      });
+
+      const exportBundle =
+        response.activity.result.exportWalletResult?.exportBundle;
+
+      if (exportBundle == null || embeddedKey == null) {
+        throw new TurnkeyReactNativeError(
+          "Export bundle, embedded key, or user not initialized",
+        );
+      }
+
+      return await decryptExportBundle({
+        exportBundle,
+        embeddedKey,
+        organizationId: session.user.organizationId,
+        returnMnemonic: true,
+      });
+    },
+    [client, session],
+  );
+
+  const signRawPayload = useCallback(
+    async ({
+      signWith,
+      payload,
+      encoding,
+      hashFunction,
+    }: {
+      signWith: string;
+      payload: string;
+      encoding: PayloadEncoding;
+      hashFunction: HashFunction;
+    }): Promise<SignRawPayloadResult> => {
+      if (client == null || session?.user == null) {
+        throw new TurnkeyReactNativeError("Client or user not initialized");
+      }
+
+      const response = await client.signRawPayload({
+        type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
+        timestampMs: Date.now().toString(),
+        organizationId: session.user.organizationId,
+        parameters: { signWith, payload, encoding, hashFunction },
+      });
+
+      const signRawPayloadResult =
+        response.activity.result.signRawPayloadResult;
+
+      if (signRawPayloadResult == null) {
+        throw new TurnkeyReactNativeError("Failed to sign raw payload");
+      }
+
+      return signRawPayloadResult;
+    },
+    [client, session],
+  );
+
+  const providerValue = useMemo(
+    () => ({
+      session,
+      client,
+      user: session?.user,
+      setSelectedSession,
+      updateUser,
+      refreshUser,
+      createEmbeddedKey,
+      createSession,
+      clearSession,
+      createWallet,
+      importWallet,
+      exportWallet,
+      signRawPayload,
+    }),
+    [
+      session,
+      client,
+      session?.user,
+      setSelectedSession,
+      updateUser,
+      refreshUser,
+      createEmbeddedKey,
+      createSession,
+      clearSession,
+      createWallet,
+      importWallet,
+      exportWallet,
+      signRawPayload,
+    ],
+  );
 
   return (
-    <TurnkeyContext.Provider
-      value={{
-        session,
-        client,
-        user: session?.user,
-        setSelectedSession,
-        updateUser,
-        refreshUser,
-        createEmbeddedKey,
-        createSession,
-        clearSession,
-        createWallet,
-        importWallet,
-        exportWallet,
-        signRawPayload,
-      }}
-    >
+    <TurnkeyContext.Provider value={providerValue}>
       {children}
     </TurnkeyContext.Provider>
   );
