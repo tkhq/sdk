@@ -56,10 +56,10 @@ export interface TurnkeyContextType {
   createEmbeddedKey: () => Promise<string>;
   createSession: (params: {
     bundle: string;
-    expiry?: number;
+    expirySeconds?: number;
     sessionKey?: string;
   }) => Promise<Session>;
-  clearSession: (params: { sessionKey?: string }) => Promise<void>;
+  clearSession: (params?: { sessionKey?: string }) => Promise<void>;
   createWallet: (params: {
     walletName: string;
     accounts: WalletAccountParams[];
