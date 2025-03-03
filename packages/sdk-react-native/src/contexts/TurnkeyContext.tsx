@@ -365,7 +365,7 @@ export const TurnkeyProvider: FC<{
 
     await addSessionKeyToIndex(sessionKey);
 
-    scheduleSessionExpiration(sessionKey, expiry);
+    scheduleSessionExpiration(sessionKey, newSession.expiry);
 
     // if this is the first session created we set it as the selected session
     const sessionKeys = await getSessionKeyIndex();
