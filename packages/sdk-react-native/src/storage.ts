@@ -110,25 +110,22 @@ export const clearSelectedSessionKey = async (): Promise<void> => {
 
 export const addSessionKeyToIndex = async (
   sessionKey: string,
-  scheduleExpiry: boolean,
 ): Promise<void> => {
   try {
     const credentials = await Keychain.getGenericPassword({
       service: TURNKEY_SESSION_KEYS_INDEX,
     });
 
-    let keys: Record<string, boolean> = credentials
-      ? JSON.parse(credentials.password)
-      : {};
+    let keys: string[] = credentials ? JSON.parse(credentials.password) : [];
 
     // we throw an error if the sessionKey already exists
-    if (sessionKey in keys) {
+    if (keys.includes(sessionKey)) {
       throw new TurnkeyReactNativeError(
         `Session key "${sessionKey}" already exists in the index.`,
       );
     }
 
-    keys[sessionKey] = scheduleExpiry;
+    keys.push(sessionKey);
     await Keychain.setGenericPassword(
       TURNKEY_SESSION_KEYS_INDEX,
       JSON.stringify(keys),
@@ -145,13 +142,13 @@ export const addSessionKeyToIndex = async (
   }
 };
 
-export const getSessionIndex = async (): Promise<Record<string, boolean>> => {
+export const getSessionKeyIndex = async (): Promise<string[]> => {
   try {
     const credentials = await Keychain.getGenericPassword({
       service: TURNKEY_SESSION_KEYS_INDEX,
     });
 
-    return credentials ? JSON.parse(credentials.password) : {};
+    return credentials ? JSON.parse(credentials.password) : [];
   } catch (error) {
     throw new TurnkeyReactNativeError(
       "Failed to get session keys index",
