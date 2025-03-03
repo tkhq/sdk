@@ -2,6 +2,17 @@ import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import type { User } from "./types";
 
+/**
+ * Creates an authenticated Turnkey client instance.
+ *
+ * - Generates an `ApiKeyStamper` using the provided public and private keys.
+ * - Instantiates a `TurnkeyClient` with the configured API base URL.
+ *
+ * @param publicKey The public key used for authentication.
+ * @param privateKey The private key used for authentication.
+ * @param apiBaseUrl The base URL of the Turnkey API.
+ * @returns A new `TurnkeyClient` instance.
+ */
 export const createClient = (
   publicKey: string,
   privateKey: string,
@@ -14,6 +25,19 @@ export const createClient = (
   return new TurnkeyClient({ baseUrl: apiBaseUrl }, stamper);
 };
 
+/**
+ * Fetches user details and associated wallets from the Turnkey API.
+ *
+ * - Retrieves the user's `whoami` information to obtain their ID and organization ID.
+ * - Fetches the user's wallets and account details.
+ * - Fetches the user's profile information.
+ * - Returns a `User` object containing the retrieved details.
+ *
+ * @param client The authenticated `TurnkeyClient` instance.
+ * @param organizationId The ID of the organization to which the user belongs.
+ * @returns The `User` object containing user details and associated wallets, or `undefined` if the user is not found.
+ * @throws If any API request fails.
+ */
 export const fetchUser = async (
   client: TurnkeyClient,
   organizationId: string,
