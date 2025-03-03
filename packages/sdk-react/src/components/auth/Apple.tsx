@@ -3,11 +3,12 @@ import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import appleIcon from "assets/apple.svg";
 import styles from "./Socials.module.css";
-import { popupHeight, popupWidth } from "./constants";
-
-const APPLE_AUTH_SCRIPT_URL =
-  "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
-const APPLE_AUTH_URL = "https://appleid.apple.com/auth/authorize";
+import {
+  APPLE_AUTH_SCRIPT_URL,
+  APPLE_AUTH_URL,
+  popupHeight,
+  popupWidth,
+} from "./constants";
 
 function isMobileBrowser() {
   return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
