@@ -292,7 +292,6 @@ export default function Dashboard() {
   };
 
   const handleLogout: any = async () => {
-    console.log("handleLogout");
     await turnkey?.logout();
     router.push("/");
   };
