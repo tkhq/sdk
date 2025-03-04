@@ -4,6 +4,8 @@
 
 The `@turnkey/sdk-react-native` package simplifies the integration of the Turnkey API into React Native applications. It provides secure session management, authentication, and cryptographic operations using [`react-native-keychain`](https://github.com/oblador/react-native-keychain), [`@turnkey/crypto`](../crypto/), [`@turnkey/api-key-stamper`](../api-key-stamper/), and [`@turnkey/http`](../http/).
 
+---
+
 ## **Installation**
 
 - Install the following dependencies in your React Native project:
@@ -35,17 +37,20 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
 
   const turnkeyConfig = {
     apiBaseUrl: "https://api.turnkey.com",
-    organizationId: <"your organization id">
-    onSessionCreated: () => {
-      console.log("Session Created");
+    organizationId: "<your organization id>",
+    onSessionCreated: (session) => {
+      console.log("Session Created", session);
+    },
+    onSessionSelected: (session) => {
+      console.log("Session Selected", session);
       router.replace("/dashboard");
     },
-    onSessionExpired: () => {
-      console.log("Session Expired");
+    onSessionExpired: (session) => {
+      console.log("Session Expired", session);
       router.push("/");
     },
-    onSessionCleared: () => {
-      console.log("Session Cleared");
+    onSessionCleared: (session) => {
+      console.log("Session Cleared", session);
       router.push("/");
     },
   };
@@ -56,37 +61,11 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
 
 ---
 
-## **Functions Provided by the Turnkey Provider**
-
-### **Session Management**
-
-- `createEmbeddedKey()`: Generates a new embedded key pair and securely stores the private key.
-- `createSession(bundle, expiry?)`: Creates a session from a given credential bundle with an optional expiry time.
-- `clearSession()`: Clears the current session, removing all stored credentials and session data.
-
-### **User Management**
-
-- `updateUser()`: Updates the user's email and/or phone number.
-- `refreshUser()`: Fetches the latest user data and updates the session state.
-
-### **Wallet Management**
-
-- `createWallet()`: Creates a new wallet with the specified name and accounts. Optionally, a mnemonic length can be provided (defaults to 12).
-- `importWallet()`: Imports a wallet using a provided mnemonic and creates accounts.
-- `exportWallet()`: Exports an existing wallet by decrypting the stored mnemonic phrase.
-
-### **Transaction Signing**
-
-- `signRawPayload()`: Signs a raw payload using the specified signing key and encoding parameters.
-
----
-
 ### **Creating a new Session**
 
 ```tsx
-import { useTurnkey } from "@turnkey/sdk-react-native";
+import { TurnkeyClient, useTurnkey } from "@turnkey/sdk-react-native";
 import { PasskeyStamper } from "@turnkey/react-native-passkey-stamper";
-import { TurnkeyClient } from "@turnkey/http";
 
 const { createEmbeddedKey, createSession } = useTurnkey();
 
@@ -109,7 +88,7 @@ const loginWithPasskey = async () => {
         ?.credentialBundle;
 
     if (credentialBundle) {
-      await createSession(credentialBundle);
+      await createSession({ credentialBundle });
     }
   } catch (error) {
     console.error("Error during passkey login:", error);
@@ -119,15 +98,64 @@ const loginWithPasskey = async () => {
 
 ---
 
+## **Functions Provided by the Turnkey Provider**
+
+### **Session Management**
+
+- `createEmbeddedKey()`: Generates a new embedded key pair and securely stores the private key.
+- `createSession({ bundle, expirySeconds?, sessionKey? })`: Creates a session. If `sessionKey` is provided, it will be stored under that key in secure storage. If no session exists, the first session created is automatically selected.
+- `setSelectedSession({ sessionKey })`: Selects a session by its key (Used when handling multiple sessions).
+- `clearSession()`: Clears the current session.
+
+### **User Management**
+
+- `updateUser({ email?, phone? })`: Updates the user's email and/or phone number.
+- `refreshUser()`: Fetches the latest user data.
+
+### **Wallet Management**
+
+- `createWallet({ walletName, accounts, mnemonicLength? })`: Creates a wallet.
+- `importWallet({ walletName, mnemonic, accounts })`: Imports a wallet.
+- `exportWallet({ walletId })`: Exports a wallet mnemonic.
+
+### **Transaction Signing**
+
+- `signRawPayload({ signWith, payload, encoding, hashFunction })`: Signs a payload.
+
+---
+
 ### **Session Storage**
 
-To enable secure authentication, two separate keychain entries are used:
+To enable secure authentication, the following storage keys are used:
 
 - `turnkey-embedded-key`: Stores the private key that corresponds to the public key used when initiating the session request to Turnkey.
-- `turnkey-session`: Stores the session credentials, including the private key, public key, and expiry time, which are decrypted from the credential bundle after a session is created.
+- `turnkey-session`: Default session storage key, storing the session credentials, including the private key, public key, and expiry time, which are decrypted from the credential bundle after a session is created.
+- `turnkey_session_keys_index`: Stores the list of stored session keys.
+- `turnkey-selected-session`: Stores the currently selected session key.
+
+---
+
+## **Handling Multiple Sessions**
+
+Most users won't need multiple sessions, but if your app requires switching between multiple sessions, here’s what you need to know:
+
+This SDK supports **multiple sessions**, allowing you to create and switch between different session keys using `setSelectedSession({ sessionKey })`. When a session is selected, the client, user, and session information are updated accordingly, so that all subsequent function calls (like `updateUser` or `createWallet`) apply to the selected session.
+
+- **Creating a Session with a Custom Key**: You can pass a `sessionKey` when calling `createSession`. If provided, the session will be stored in secure storage under that key, allowing for multiple sessions.
+- **Switching Sessions**: Use `setSelectedSession({ sessionKey })` to switch between stored sessions. The client, user, and session information will automatically update.
+- **Session Expiry Management**: Each session has an expiry time, and expired sessions will be automatically cleared.
+- **Callbacks for Session Events**:
+  - `onSessionCreated`: Called when a session is created.
+  - `onSessionSelected`: Called when a session is selected.
+  - `onSessionExpired`: Called when a session expires.
+  - `onSessionCleared`: Called when a session is cleared.
+
+If you don't need multiple sessions, you can simply use the default behavior where only one session exists at a time.
 
 ---
 
 ## **Demo App**
 
-Check out [this repository](https://github.com/tkhq/react-native-demo-wallet) for a full working example of session management in React Native.
+Check out [this repository](https://github.com/tkhq/react-native-demo-wallet) for a full working example.
+
+---

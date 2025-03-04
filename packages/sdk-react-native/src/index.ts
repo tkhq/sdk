@@ -14,3 +14,4 @@ export { TurnkeyContext, TurnkeyProvider } from "./contexts/TurnkeyContext";
 export { useTurnkey } from "./hooks/use-turnkey";
 
 export { TurnkeyClient } from "@turnkey/http";
+export type { TurnkeyApiTypes } from "@turnkey/http";

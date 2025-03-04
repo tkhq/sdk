@@ -1,6 +1,5 @@
+import type { ReactNode, FC } from "react";
 import {
-  type ReactNode,
-  type FC,
   createContext,
   useEffect,
   useRef,
@@ -89,6 +88,7 @@ export interface TurnkeyConfig {
   apiBaseUrl: string;
   organizationId: string;
   onSessionCreated?: (session: Session) => void;
+  onSessionSelected?: (session: Session) => void;
   onSessionExpired?: (session: Session) => void;
   onSessionCleared?: (session: Session) => void;
 }
@@ -148,7 +148,7 @@ export const TurnkeyProvider: FC<{
           setSession(selectedSession);
           setClient(clientInstance);
 
-          config.onSessionCreated?.(selectedSession);
+          config.onSessionSelected?.(selectedSession);
         } else {
           await clearSession({ sessionKey: selectedSessionKey });
 
@@ -228,7 +228,7 @@ export const TurnkeyProvider: FC<{
    *
    * - Retrieves the session associated with the given `sessionKey`.
    * - If the session is valid, initializes a new `TurnkeyClient` and updates the state.
-   * - Saves the selected session key and triggers `onSessionCreated` if provided.
+   * - Saves the selected session key and triggers `onSessionSelected` if provided.
    * - If the session is expired or invalid, clears the session and triggers `onSessionExpired`.
    *
    * @param sessionKey - The key of the session to set as selected.
@@ -249,7 +249,7 @@ export const TurnkeyProvider: FC<{
         setSession(session);
         await saveSelectedSessionKey(sessionKey);
 
-        config.onSessionCreated?.(session);
+        config.onSessionSelected?.(session);
         return session;
       } else {
         await clearSession({ sessionKey });
