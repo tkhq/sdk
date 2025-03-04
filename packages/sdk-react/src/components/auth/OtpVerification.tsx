@@ -17,6 +17,7 @@ interface OtpVerificationProps {
   suborgId: string;
   otpId: string;
   authIframeClient: any;
+  passkeyIframeClient: any;
   sessionLengthSeconds?: number | undefined;
   onValidateSuccess: (
     credentialBundle: any,
@@ -34,6 +35,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   suborgId,
   otpId,
   authIframeClient,
+  passkeyIframeClient,
   sessionLengthSeconds,
   onValidateSuccess,
   onResendCode,
@@ -51,7 +53,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         suborgID: suborgId,
         otpId,
         otpCode: otp,
-        targetPublicKey: authIframeClient!.iframePublicKey!,
+        targetPublicKey: passkeyIframeClient!.iframePublicKey!,
         sessionLengthSeconds,
       });
 

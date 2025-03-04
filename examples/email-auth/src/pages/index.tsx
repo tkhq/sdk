@@ -30,7 +30,7 @@ type AuthFormData = {
 
 export default function AuthPage() {
   const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
-  const { iframeClient } = useTurnkey();
+  const { passkeyIframeClient } = useTurnkey();
   const { register: authFormRegister, handleSubmit: authFormSubmit } =
     useForm<AuthFormData>();
   const {
@@ -39,14 +39,14 @@ export default function AuthPage() {
   } = useForm<InjectCredentialsFormData>();
 
   const auth = async (data: AuthFormData) => {
-    if (iframeClient === null) {
+    if (passkeyIframeClient === null) {
       throw new Error("cannot initialize auth without an iframe");
     }
 
     const response = await axios.post("/api/auth", {
       suborgID: data.suborgID,
       email: data.email,
-      targetPublicKey: iframeClient!.iframePublicKey,
+      targetPublicKey: passkeyIframeClient!.iframePublicKey,
       invalidateExisting: data.invalidateExisting,
     });
 
@@ -54,14 +54,14 @@ export default function AuthPage() {
   };
 
   const injectCredentials = async (data: InjectCredentialsFormData) => {
-    if (iframeClient === null) {
+    if (passkeyIframeClient === null) {
       throw new Error("iframe client is null");
     }
     if (authResponse === null) {
       throw new Error("authResponse is null");
     }
     try {
-      await iframeClient!.injectCredentialBundle(data.authBundle);
+      await passkeyIframeClient!.injectCredentialBundle(data.authBundle);
     } catch (e) {
       const msg = `error while injecting bundle: ${e}`;
       console.error(msg);
@@ -70,13 +70,13 @@ export default function AuthPage() {
     }
 
     // get whoami for suborg
-    const whoamiResponse = await iframeClient!.getWhoami({
+    const whoamiResponse = await passkeyIframeClient!.getWhoami({
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
     const orgID = whoamiResponse.organizationId;
 
-    const createWalletResponse = await iframeClient!.createWallet({
+    const createWalletResponse = await passkeyIframeClient!.createWallet({
       organizationId: orgID,
       walletName: data.walletName,
       accounts: [
@@ -111,10 +111,10 @@ export default function AuthPage() {
         />
       </a>
 
-      {!iframeClient && <p>Loading...</p>}
+      {!passkeyIframeClient && <p>Loading...</p>}
 
-      {iframeClient &&
-        iframeClient.iframePublicKey &&
+      {passkeyIframeClient &&
+        passkeyIframeClient.iframePublicKey &&
         authResponse === null && (
           <form className={styles.form} onSubmit={authFormSubmit(auth)}>
             <label className={styles.label}>
@@ -145,8 +145,8 @@ export default function AuthPage() {
             <label className={styles.label}>
               Encryption Target from iframe:
               <br />
-              <code title={iframeClient.iframePublicKey!}>
-                {iframeClient.iframePublicKey!.substring(0, 30)}...
+              <code title={passkeyIframeClient.iframePublicKey!}>
+                {passkeyIframeClient.iframePublicKey!.substring(0, 30)}...
               </code>
             </label>
 
@@ -154,8 +154,8 @@ export default function AuthPage() {
           </form>
         )}
 
-      {iframeClient &&
-        iframeClient.iframePublicKey &&
+      {passkeyIframeClient &&
+        passkeyIframeClient.iframePublicKey &&
         authResponse !== null && (
           <form
             className={styles.form}
