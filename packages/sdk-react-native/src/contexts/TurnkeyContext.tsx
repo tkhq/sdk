@@ -15,7 +15,7 @@ import {
   decryptExportBundle,
 } from "@turnkey/crypto";
 import { uint8ArrayToHexString } from "@turnkey/encoding";
-import { TurnkeyClient } from "@turnkey/http";
+import { TurnkeyClient } from "..";
 import {
   TURNKEY_DEFAULT_SESSION_STORAGE,
   OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
