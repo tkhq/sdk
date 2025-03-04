@@ -80,7 +80,7 @@ const Auth: React.FC<AuthProps> = ({
   customSmsMessage,
   customAccounts,
 }) => {
-  const { passkeyClient, iframeClient, turnkey } = useTurnkey();
+  const { passkeyIframeClient, turnkey } = useTurnkey();
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
@@ -102,10 +102,10 @@ const Auth: React.FC<AuthProps> = ({
   };
 
   useEffect(() => {
-    if (iframeClient) {
+    if (passkeyIframeClient) {
       setLoading(false);
     }
-  }, [iframeClient]);
+  }, [passkeyIframeClient]);
 
   if (loading) {
     return (
@@ -183,8 +183,8 @@ const Auth: React.FC<AuthProps> = ({
     expirationSeconds?: string
   ) => {
     if (credentialBundle) {
-      await iframeClient!.injectCredentialBundle(credentialBundle);
-      await iframeClient!.loginWithAuthBundle(
+      await passkeyIframeClient!.injectCredentialBundle(credentialBundle);
+      await passkeyIframeClient!.loginWithAuthBundle(
         credentialBundle,
         expirationSeconds
       );
@@ -209,7 +209,7 @@ const Auth: React.FC<AuthProps> = ({
     try {
       if (!passkeyCreated) {
         const { encodedChallenge, attestation } =
-          (await passkeyClient?.createUserPasskey({
+          (await passkeyIframeClient?.createUserPasskey({
             publicKey: { user: { name: siteInfo, displayName: siteInfo } },
           })) || {};
 
@@ -233,15 +233,17 @@ const Auth: React.FC<AuthProps> = ({
         }
       }
 
-      const sessionResponse = await passkeyClient?.createReadWriteSession({
-        targetPublicKey: iframeClient?.iframePublicKey!,
-        ...(authConfig.sessionLengthSeconds !== undefined && {
-          expirationSeconds: authConfig.sessionLengthSeconds.toString(),
-        }),
-        organizationId:
-          turnkey?.config.defaultOrganizationId ??
-          process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-      });
+      const sessionResponse = await passkeyIframeClient?.createReadWriteSession(
+        {
+          targetPublicKey: passkeyIframeClient?.iframePublicKey!,
+          ...(authConfig.sessionLengthSeconds !== undefined && {
+            expirationSeconds: authConfig.sessionLengthSeconds.toString(),
+          }),
+          organizationId:
+            turnkey?.config.defaultOrganizationId ??
+            process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+        }
+      );
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(
           sessionResponse.credentialBundle,
@@ -257,15 +259,17 @@ const Auth: React.FC<AuthProps> = ({
 
   const handleLoginWithPasskey = async () => {
     try {
-      const sessionResponse = await passkeyClient?.createReadWriteSession({
-        targetPublicKey: iframeClient?.iframePublicKey!,
-        ...(authConfig.sessionLengthSeconds !== undefined && {
-          expirationSeconds: authConfig.sessionLengthSeconds.toString(),
-        }),
-        organizationId:
-          turnkey?.config.defaultOrganizationId ??
-          process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-      });
+      const sessionResponse = await passkeyIframeClient?.createReadWriteSession(
+        {
+          targetPublicKey: passkeyIframeClient?.iframePublicKey!,
+          ...(authConfig.sessionLengthSeconds !== undefined && {
+            expirationSeconds: authConfig.sessionLengthSeconds.toString(),
+          }),
+          organizationId:
+            turnkey?.config.defaultOrganizationId ??
+            process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+        }
+      );
 
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(
@@ -291,7 +295,7 @@ const Auth: React.FC<AuthProps> = ({
       otpType,
       contact: value,
       ...(customSmsMessage && { customSmsMessage }),
-      userIdentifier: iframeClient?.iframePublicKey!,
+      userIdentifier: passkeyIframeClient?.iframePublicKey!,
     });
     if (initAuthResponse && initAuthResponse.otpId) {
       setSuborgId(suborgId!);
@@ -314,7 +318,7 @@ const Auth: React.FC<AuthProps> = ({
     const oauthResponse = await server.oauth({
       suborgID: suborgId!,
       oidcToken: credential,
-      targetPublicKey: iframeClient?.iframePublicKey!,
+      targetPublicKey: passkeyIframeClient?.iframePublicKey!,
       sessionLengthSeconds: authConfig.sessionLengthSeconds,
     });
     if (oauthResponse && oauthResponse.token) {
@@ -372,7 +376,7 @@ const Auth: React.FC<AuthProps> = ({
               authConfig.googleClientId ??
               process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!
             }
-            iframePublicKey={iframeClient!.iframePublicKey!}
+            iframePublicKey={passkeyIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Google")
             }
@@ -385,7 +389,7 @@ const Auth: React.FC<AuthProps> = ({
               authConfig.appleClientId ??
               process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!
             }
-            iframePublicKey={iframeClient!.iframePublicKey!}
+            iframePublicKey={passkeyIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Apple")
             }
@@ -398,7 +402,7 @@ const Auth: React.FC<AuthProps> = ({
               authConfig.facebookClientId ??
               process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!
             }
-            iframePublicKey={iframeClient!.iframePublicKey!}
+            iframePublicKey={passkeyIframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.id_token, "Facebook")
             }
@@ -631,7 +635,7 @@ const Auth: React.FC<AuthProps> = ({
                     suborgId={suborgId}
                     otpId={otpId!}
                     sessionLengthSeconds={authConfig.sessionLengthSeconds}
-                    iframeClient={iframeClient!}
+                    passkeyIframeClient={passkeyIframeClient!}
                     onValidateSuccess={handleAuthSuccess}
                     onResendCode={handleResendCode}
                   />

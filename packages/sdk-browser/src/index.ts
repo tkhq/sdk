@@ -27,78 +27,14 @@ export {
   WebauthnStamper,
 } from "@turnkey/webauthn-stamper";
 
-/**
- * interface BaseSDKClientConfig {
- *   apiBaseUrl: string;
- *   organizationId: string;
- *   activityPoller?: TActivityPollerConfig | undefined;
- * }
- *
- *
- * interface SDKClientConfigWithStamper extends BaseSDKClientConfig {
- *   stamper: TStamper;
- *   readOnlySession?: never;
- * }
- *
- * interface SDKClientConfigWithReadOnlySession extends BaseSDKClientConfig {
- *   stamper?: never;
- *   readOnlySession: string;
- * }
- *
- * export type TurnkeySDKClientConfig =
- *   | SDKClientConfigWithStamper
- *   | SDKClientConfigWithReadOnlySession;
- *
- * export interface TurnkeySDKBrowserConfig {
- *   apiBaseUrl: string;
- *   defaultOrganizationId: string;
- *   rpId?: string;
- *   serverSignUrl?: string;
- *   iframeUrl?: string;
- * }
- */
-
-/**
- *
- * import {
- *   Turnkey,
- *   TurnkeySDKBrowserConfig,
- * } from "@turnkey/sdk-browser";
- *
- * const config: TurnkeySDKBrowserConfig = {
- *   apiBaseUrl: "https://api.turnkey.com",
- *   defaultOrganizationId: <ORGANIZATION_ID>,
- *   apiPublicKey: <API_PUBLIC_KEY>,
- *   apiPrivateKey: <API_PRIVATE>,
- * }
- *
- * const turnkeyBrowserSDK = new Turnkey(config);
- */
-export { TurnkeyBrowserSDK as Turnkey } from "./sdk-client";
-
-/**
- * TurnkeySDKClientConfig is the configuration object for a specific client.
- * TurnkeySDKClientConfig = {
- *
- * }
- *
- * // create a new Telegram Cloud Storage Stamper
- * const stamper = await TelegramCloudStorageStamper.create({
- *   cloudStorageAPIKey: apiKey
- * })
- *
- * // use the stamper in the client config
- * const browserConfig: TurnkeySDKClientConfig = {
- *   stamper: stamper,
- *   apiBaseUrl: "https://api.turnkey.com",
- *   organizationId: <ORGANIZATION_ID>,
- * };
- * const client = new TurnkeyBrowserClient(browserConfig);
- */
-export { TurnkeyBrowserClient } from "@browser-client";
-export { TurnkeyPasskeyClient } from "@passkey-client";
-export { TurnkeyIframeClient } from "@iframe-client";
-export { TurnkeyWalletClient } from "@wallet-client";
+export {
+  TurnkeyBrowserClient,
+  TurnkeyIframeClient,
+  TurnkeyPasskeyClient,
+  TurnkeyPasskeyIframeClient,
+  TurnkeyWalletClient,
+  TurnkeyBrowserSDK as Turnkey,
+} from "./sdk-client";
 
 export type { User, ReadOnlySession, ReadWriteSession } from "@models";
 

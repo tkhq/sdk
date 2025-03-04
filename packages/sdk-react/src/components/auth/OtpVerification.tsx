@@ -16,11 +16,11 @@ interface OtpVerificationProps {
   contact: string;
   suborgId: string;
   otpId: string;
-  iframeClient: any;
+  passkeyIframeClient: any;
   sessionLengthSeconds?: number | undefined;
   onValidateSuccess: (
     credentialBundle: any,
-    expirationSeconds?: string,
+    expirationSeconds?: string
   ) => Promise<void>;
   onResendCode: (
     type: FilterType.Email | FilterType.PhoneNumber,
@@ -33,7 +33,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   contact,
   suborgId,
   otpId,
-  iframeClient,
+  passkeyIframeClient,
   sessionLengthSeconds,
   onValidateSuccess,
   onResendCode,
@@ -51,14 +51,14 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         suborgID: suborgId,
         otpId,
         otpCode: otp,
-        targetPublicKey: iframeClient!.iframePublicKey!,
+        targetPublicKey: passkeyIframeClient!.iframePublicKey!,
         sessionLengthSeconds,
       });
 
       if (authResponse?.token) {
         await onValidateSuccess(
           authResponse.token,
-          sessionLengthSeconds?.toString(),
+          sessionLengthSeconds?.toString()
         );
       } else {
         setOtpError("Invalid code. Please try again.");
