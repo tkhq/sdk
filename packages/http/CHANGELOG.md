@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.20.0
+
+### Minor Changes
+
+- 3c44c4a: Updates per mono release v2025.2.2
+
 ## 2.19.0
 
 ### Minor Changes
