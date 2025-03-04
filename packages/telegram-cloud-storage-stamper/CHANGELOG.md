@@ -1,5 +1,30 @@
 # @turnkey/telegram-cloud-storage-stamper
 
+## 2.0.0
+
+### Major Changes
+
+- 24ca647: Remove default export and used all named exports for consistency
+
+  ### Package imports for `@turnkey/telegram-cloud-storage-stamper`
+
+  #### for versions < v2.0.0
+
+  ```typescript
+  import TelegramCloudStorageStamper, {
+    CloudStorageAPIKey,
+  } from "@turnkey/telegram-cloud-storage-stamper";
+  ```
+
+  #### for versions >= v2.0.0
+
+  ```typescript
+  import {
+    TelegramCloudStorageStamper,
+    CloudStorageAPIKey,
+  } from "@turnkey/telegram-cloud-storage-stamper";
+  ```
+
 ## 1.0.3
 
 ### Patch Changes

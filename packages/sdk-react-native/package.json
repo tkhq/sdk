@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-react-native",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React Native SDK",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
