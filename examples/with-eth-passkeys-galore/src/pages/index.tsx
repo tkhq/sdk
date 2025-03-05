@@ -51,7 +51,7 @@ export default function Home() {
   const [smartAccountAddress, setSmartAccountAddress] = useState<string>("");
   const [signedMessage, setSignedMessage] = useState<TSignedMessage>(null);
   const [signedTransaction, setSignedTransaction] = useState<string | null>(
-    null,
+    null
   );
   const [useViem, setUseViem] = useState(true);
   const [viemClient, setViemClient] = useState<WalletClient | null>(null);
@@ -73,12 +73,14 @@ export default function Home() {
 
   // First, logout user if there is no current wallet set
   useEffect(() => {
-    (async () => {
-      if (!wallet) {
-        await turnkey?.logoutUser();
-      }
-    })();
-  });
+    const logoutUser = async () => {
+      await turnkey?.logout();
+    };
+
+    if (!wallet) {
+      logoutUser();
+    }
+  }, [wallet]);
 
   useEffect(() => {
     const initializeClients = async () => {
@@ -110,7 +112,7 @@ export default function Home() {
         });
 
         const provider = new ethers.JsonRpcProvider(
-          `https://sepolia.infura.io/v3/${process.env.INFURA_KEY}`,
+          `https://sepolia.infura.io/v3/${process.env.INFURA_KEY}`
         );
 
         const connectedSigner = ethersClient.connect(provider);
@@ -129,7 +131,7 @@ export default function Home() {
 
   // Connect a TurnkeySigner to a Biconomy Smart Account Client, defaulting to Sepolia
   const connectEthersClient = async (
-    turnkeyClient: TurnkeySigner,
+    turnkeyClient: TurnkeySigner
   ): Promise<BiconomySmartAccountV2> => {
     try {
       const smartAccount = await createSmartAccountClient({
@@ -150,7 +152,7 @@ export default function Home() {
 
   // Connect a TurnkeySigner to a Biconomy Smart Account Client, defaulting to Sepolia
   const connectViemClient = async (
-    turnkeyClient: WalletClient,
+    turnkeyClient: WalletClient
   ): Promise<BiconomySmartAccountV2> => {
     try {
       const smartAccount = await createSmartAccountClient({
@@ -281,9 +283,9 @@ export default function Home() {
   const signTransactionWithAAClient = async (
     data: signTransactionFormData,
     getSmartAccount: (
-      data: signTransactionFormData,
+      data: signTransactionFormData
     ) => Promise<BiconomySmartAccountV2>,
-    options?: { nonceOptions?: { nonceKey: number } },
+    options?: { nonceOptions?: { nonceKey: number } }
   ) => {
     const { destinationAddress, amount } = data;
 
@@ -299,20 +301,20 @@ export default function Home() {
       {
         ...options,
         paymasterServiceData: { mode: PaymasterMode.SPONSORED },
-      },
+      }
     );
 
     const { transactionHash } = await userOpResponse.waitForTxHash();
 
     setSignedTransaction(
-      `https://v2.jiffyscan.xyz/tx/${transactionHash}?network=sepolia&pageNo=0&pageSize=10`,
+      `https://v2.jiffyscan.xyz/tx/${transactionHash}?network=sepolia&pageNo=0&pageSize=10`
     );
   };
 
   const signTransactionWithClient = async (
     data: signTransactionFormData,
     client: WalletClient | TurnkeySigner,
-    isViem: boolean,
+    isViem: boolean
   ) => {
     const { destinationAddress, amount } = data;
 
@@ -338,7 +340,7 @@ export default function Home() {
   const signTransactionWithProvider = async (
     data: signTransactionFormData,
     client: WalletClient | TurnkeySigner,
-    isViem: boolean,
+    isViem: boolean
   ) => {
     if (supportsAA()) {
       await signTransactionWithAAClient(
@@ -347,7 +349,7 @@ export default function Home() {
           isViem
             ? connectViemClient(client as WalletClient)
             : connectEthersClient(client as TurnkeySigner),
-        { nonceOptions: { nonceKey: Number(0) } },
+        { nonceOptions: { nonceKey: Number(0) } }
       );
     } else {
       await signTransactionWithClient(data, client, isViem);
@@ -362,7 +364,7 @@ export default function Home() {
     await signTransactionWithProvider(
       data,
       useViem ? viemClient! : ethersClient!,
-      useViem,
+      useViem
     );
   };
 

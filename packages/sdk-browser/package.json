@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-browser",
-  "version": "1.13.0",
+  "version": "1.13.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -59,7 +59,8 @@
   },
   "devDependencies": {
     "@types/elliptic": "^6.4.18",
-    "glob": "^8.0.3"
+    "glob": "^8.0.3",
+    "typescript": "^5.1.5"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -1,4 +1,4 @@
-import type { AuthClient } from "./__types__/base";
+import type { AuthClient } from "@types";
 
 /**
  * This interface defines the structure of user data that will be stored in local storage

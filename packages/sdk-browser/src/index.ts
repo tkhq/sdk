@@ -28,16 +28,17 @@ export {
 } from "@turnkey/webauthn-stamper";
 
 export {
-  TurnkeyBrowserSDK as Turnkey,
   TurnkeyBrowserClient,
   TurnkeyIframeClient,
   TurnkeyPasskeyClient,
+  TurnkeyPasskeyIframeClient,
   TurnkeyWalletClient,
+  TurnkeyBrowserSDK as Turnkey,
 } from "./sdk-client";
 
-export type { User, ReadOnlySession, ReadWriteSession } from "./models";
+export type { User, ReadOnlySession, ReadWriteSession } from "@models";
 
-export { getStorageValue, setStorageValue, StorageKeys } from "./storage";
+export { getStorageValue, setStorageValue, StorageKeys } from "@storage";
 
 export {
   defaultEthereumAccountAtIndex,
@@ -112,6 +113,6 @@ export {
   type TurnkeySDKClientConfig,
   type TurnkeySDKBrowserConfig,
   AuthClient,
-} from "./__types__/base";
+} from "@types";
 
 export type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
