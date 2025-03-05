@@ -85,7 +85,7 @@ export const removeStorageValue = async <K extends StorageKeys>(
  */
 
 export const storeSession = async (session: Session, client: AuthClient) => {
-  //TODO rename and remove saveSession
+  // TODO: rename and remove saveSession
   await setStorageValue(StorageKeys.Session, session);
   await setStorageValue(StorageKeys.Client, client);
 };
