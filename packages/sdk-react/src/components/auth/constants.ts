@@ -29,6 +29,12 @@ export const authErrors = {
     loginFailed: "Failed to login with OIDC provider",
   },
 
+  // Wallet-related errors
+  wallet: {
+    loginFailed: "Failed to login with wallet",
+    noPublicKey: "No public key found",
+  },
+
   // Sub-organization-related errors
   suborg: {
     fetchFailed: "Failed to fetch account",
@@ -45,4 +51,5 @@ export enum FilterType {
   Email = "EMAIL",
   PhoneNumber = "PHONE_NUMBER",
   OidcToken = "OIDC_TOKEN",
+  PublicKey = "PUBLIC_KEY",
 }

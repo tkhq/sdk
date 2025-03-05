@@ -37,6 +37,7 @@ interface Config {
   email: boolean;
   passkey: boolean;
   phone: boolean;
+  wallet: boolean;
   socials: SocialConfig;
 }
 
@@ -51,12 +52,14 @@ export default function AuthPage() {
     "email",
     "phone",
     "passkey",
+    "wallet",
   ]);
 
   const [config, setConfig] = useState<Config>({
     email: true,
     phone: false,
     passkey: true,
+    wallet: false,
     socials: {
       enabled: true,
       providers: {
@@ -131,6 +134,7 @@ export default function AuthPage() {
       emailEnabled: config.email,
       passkeyEnabled: config.passkey,
       phoneEnabled: config.phone,
+      walletEnabled: config.wallet,
       appleEnabled: config.socials.providers.apple,
       googleEnabled: config.socials.providers.google,
       facebookEnabled: config.socials.providers.facebook,
@@ -148,6 +152,7 @@ export default function AuthPage() {
     emailEnabled: config.email,
     passkeyEnabled: config.passkey,
     phoneEnabled: config.phone,
+    walletEnabled: config.wallet,
     appleEnabled: config.socials.providers.apple,
     googleEnabled: config.socials.providers.google,
     facebookEnabled: config.socials.providers.facebook,
