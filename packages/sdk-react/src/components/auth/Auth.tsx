@@ -248,7 +248,7 @@ const Auth: React.FC<AuthProps> = ({
     });
     const suborgIds = resp?.subOrganizationIds;
     if (!suborgIds || suborgIds.length === 0) {
-      onError(authErrors.oauth.loginFailed);
+      onError(authErrors.otp.sendFailed);
       return;
     }
 
