@@ -18,6 +18,7 @@ import { FilterType, OtpType, authErrors } from "./constants";
 import type { WalletAccount } from "@turnkey/sdk-browser";
 import { server } from "@turnkey/sdk-server";
 import parsePhoneNumberFromString from "libphonenumber-js";
+import { WalletType } from "@turnkey/wallet-stamper";
 
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
@@ -52,6 +53,7 @@ const passkeyIconError = (
     />
   </svg>
 );
+
 interface AuthProps {
   onAuthSuccess: () => Promise<void>;
   onError: (errorMessage: string) => void;
@@ -62,6 +64,7 @@ interface AuthProps {
     appleEnabled: boolean;
     facebookEnabled: boolean;
     googleEnabled: boolean;
+    walletEnabled: boolean;
     sessionLengthSeconds?: number; // Desired expiration time in seconds for the generated API key
     googleClientId?: string; // will default to NEXT_PUBLIC_GOOGLE_CLIENT_ID
     appleClientId?: string; // will default to NEXT_PUBLIC_APPLE_CLIENT_ID
@@ -80,7 +83,8 @@ const Auth: React.FC<AuthProps> = ({
   customSmsMessage,
   customAccounts,
 }) => {
-  const { passkeyClient, authIframeClient, turnkey } = useTurnkey();
+  const { passkeyClient, authIframeClient, walletClient, turnkey } =
+    useTurnkey();
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
@@ -92,6 +96,7 @@ const Auth: React.FC<AuthProps> = ({
   const [passkeySignupError, setPasskeySignupError] = useState("");
   const [loading, setLoading] = useState(true);
   const [passkeyCreated, setPasskeyCreated] = useState(false);
+  const [walletLoading, setWalletLoading] = useState(false);
 
   const handleResendCode = async () => {
     if (step === OtpType.Email) {
@@ -304,6 +309,61 @@ const Auth: React.FC<AuthProps> = ({
     }
   };
 
+  const handleLoginWithWallet = async () => {
+    setWalletLoading(true);
+    try {
+      if (!walletClient) {
+        throw new Error("Wallet client not initialized");
+      }
+
+      const publicKey = await walletClient.getPublicKey();
+
+      if (!publicKey) {
+        throw new Error(authErrors.wallet.noPublicKey);
+      }
+
+      const resp = await server.getOrCreateSuborg({
+        filterType: FilterType.PublicKey,
+        filterValue: publicKey,
+        additionalData: {
+          wallet: {
+            publicKey,
+            type: WalletType.Ethereum,
+          },
+        },
+      });
+
+      const suborgIds = resp?.subOrganizationIds;
+      if (!suborgIds || suborgIds.length === 0) {
+        onError(authErrors.wallet.loginFailed);
+        return;
+      }
+
+      const suborgId = suborgIds[0];
+
+      const sessionResponse = await walletClient.createReadWriteSession({
+        targetPublicKey: authIframeClient?.iframePublicKey!,
+        ...(suborgId && { organizationId: suborgId }),
+        ...(authConfig.sessionLengthSeconds !== undefined && {
+          expirationSeconds: authConfig.sessionLengthSeconds.toString(),
+        }),
+      });
+
+      if (sessionResponse?.credentialBundle) {
+        await handleAuthSuccess(
+          sessionResponse.credentialBundle,
+          authConfig.sessionLengthSeconds?.toString(),
+        );
+      } else {
+        throw new Error(authErrors.wallet.loginFailed);
+      }
+    } catch (error: any) {
+      onError(error.message || authErrors.wallet.loginFailed);
+    } finally {
+      setWalletLoading(false);
+    }
+  };
+
   const renderBackButton = () => (
     <ChevronLeftIcon
       onClick={() => {
@@ -472,6 +532,28 @@ const Auth: React.FC<AuthProps> = ({
             >
               Sign up with passkey
             </div>
+          </div>
+        ) : null;
+
+      case "wallet":
+        return authConfig.walletEnabled && !otpId ? (
+          <div className={styles.passkeyContainer}>
+            <button
+              className={styles.authButton}
+              type="button"
+              onClick={handleLoginWithWallet}
+              disabled={walletLoading}
+            >
+              {walletLoading ? (
+                <CircularProgress
+                  size={24}
+                  thickness={4}
+                  className={styles.buttonProgress || ""}
+                />
+              ) : (
+                "Login with Wallet"
+              )}
+            </button>
           </div>
         ) : null;
 
