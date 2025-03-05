@@ -40,20 +40,51 @@ import {
 
 const DEFAULT_SESSION_EXPIRATION = "900"; // default to 15 minutes
 
+export interface OauthProvider {
+  providerName: string;
+  oidcToken: string;
+}
+
+export interface ApiKey {
+  apiKeyName: string;
+  publicKey: string;
+  curveType:
+    | "API_KEY_CURVE_P256"
+    | "API_KEY_CURVE_SECP256K1"
+    | "API_KEY_CURVE_ED25519";
+  expirationSeconds?: string;
+}
+
+export interface Authenticator {
+  authenticatorName: string;
+  challenge: string;
+  attestation: {
+    credentialId: string;
+    clientDataJson: string;
+    attestationObject: string;
+    transports: (
+      | "AUTHENTICATOR_TRANSPORT_BLE"
+      | "AUTHENTICATOR_TRANSPORT_INTERNAL"
+      | "AUTHENTICATOR_TRANSPORT_NFC"
+      | "AUTHENTICATOR_TRANSPORT_USB"
+      | "AUTHENTICATOR_TRANSPORT_HYBRID"
+    )[];
+  };
+}
 interface UpdateUserAuthParams {
   userId: string;
   phoneNumber?: string | null; // string to set, null to delete
   email?: string | null; // string to set, null to delete
   authenticators?: {
-    add?: any[]; // Authenticator objects to create
+    add?: Authenticator[]; // Authenticator objects to create
     deleteIds?: string[]; // Authenticator IDs to delete
   };
   oauthProviders?: {
-    add?: any[]; // OAuth provider objects to create
+    add?: OauthProvider[]; // OAuth provider objects to create
     deleteIds?: string[]; // OAuth provider IDs to delete
   };
   apiKeys?: {
-    add?: any[]; // API key objects to create
+    add?: ApiKey[]; // API key objects to create
     deleteIds?: string[]; // API key IDs to delete
   };
 }
@@ -436,9 +467,9 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
     userId: string,
     phoneNumber?: string,
     email?: string,
-    authenticators?: any[],
-    oauthProviders?: any[],
-    apiKeys?: any[],
+    authenticators?: Authenticator[],
+    oauthProviders?: OauthProvider[],
+    apiKeys?: ApiKey[],
   ): Promise<any[]> => {
     const promises: Promise<any>[] = [];
 
