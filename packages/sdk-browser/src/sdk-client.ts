@@ -2,9 +2,7 @@ import { WalletStamper, type WalletInterface } from "@turnkey/wallet-stamper";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 
-import { VERSION } from "./__generated__/version";
-
-import WindowWrapper from "./__polyfills__/window";
+import WindowWrapper from "@polyfills/window";
 
 import {
   type GrpcStatus,
@@ -27,6 +25,7 @@ import {
   TurnkeyPasskeyIframeClient,
   TurnkeyWalletClient,
 } from "./__clients__/browser-clients";
+import { VERSION } from "./__generated__/version";
 
 export interface OauthProvider {
   providerName: string;
