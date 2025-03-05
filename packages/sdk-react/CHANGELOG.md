@@ -1,5 +1,11 @@
 # @turnkey/sdk-react
 
+## 3.0.5
+
+### Patch Changes
+
+- cdf2e6e: Fix issue in EWK preventing sign up flow
+
 ## 3.0.4
 
 ### Patch Changes
