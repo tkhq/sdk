@@ -551,7 +551,7 @@ const Auth: React.FC<AuthProps> = ({
                   className={styles.buttonProgress || ""}
                 />
               ) : (
-                "Login with Wallet"
+                "Continue with Wallet"
               )}
             </button>
           </div>
