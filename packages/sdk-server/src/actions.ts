@@ -333,7 +333,6 @@ export async function getOrCreateSuborg(
   request: GetOrCreateSuborgRequest,
 ): Promise<GetOrCreateSuborgResponse | undefined> {
   try {
-    console.log("request getOrCreateSuborg", request);
     // First try to get existing suborgs
     let suborgResponse: GetSuborgsResponse | undefined;
 
@@ -363,7 +362,6 @@ export async function getOrCreateSuborg(
         subOrganizationIds: suborgResponse.organizationIds!,
       };
     }
-    console.log("suborgResponse", suborgResponse);
     // No existing suborg found - create a new one
     const createPayload: CreateSuborgRequest = {
       ...(request.additionalData?.email && {
@@ -385,7 +383,7 @@ export async function getOrCreateSuborg(
         wallet: request.additionalData.wallet,
       }),
     };
-    console.log("createPayload", createPayload);
+
     const creationResponse = await createSuborg(createPayload);
 
     if (!creationResponse?.subOrganizationId) {
