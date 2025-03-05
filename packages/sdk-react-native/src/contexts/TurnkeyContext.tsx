@@ -63,6 +63,7 @@ export interface TurnkeyContextType {
     sessionKey?: string;
   }) => Promise<Session>;
   clearSession: (params?: { sessionKey?: string }) => Promise<void>;
+  clearAllSessions: () => Promise<void>;
   createWallet: (params: {
     walletName: string;
     accounts: WalletAccountParams[];
@@ -413,7 +414,7 @@ export const TurnkeyProvider: FC<{
       scheduleSessionExpiration(sessionKey, newSession.expiry);
 
       // if this is the first session created, set it as the selected session
-      const isFirstSession = existingSessionKeys.length === 1;
+      const isFirstSession = existingSessionKeys.length === 0;
       if (isFirstSession) {
         await setSelectedSession({ sessionKey });
       }
@@ -462,12 +463,46 @@ export const TurnkeyProvider: FC<{
       await deleteSession(keyToClear);
       await removeSessionKey(keyToClear);
 
+      clearTimeout(expiryTimeoutsRef.current[keyToClear]);
+      delete expiryTimeoutsRef.current[keyToClear];
+
       config.onSessionCleared?.(
         clearedSession ?? ({ key: keyToClear } as Session),
       );
     },
     [session, config],
   );
+
+  /**
+   * Clears all sessions from secure storage.
+   *
+   * - Retrieves all stored session keys.
+   * - For each session key, deletes the associated session and removes the key from the session index.
+   * - Clears the selected session key from secure storage.
+   * - Resets local state (active session and client).
+   * - Clears all scheduled expiration timers.
+   *
+   * @throws {TurnkeyReactNativeError} If any error occurs during the clearing process.
+   */
+  const clearAllSessions = useCallback(async (): Promise<void> => {
+    try {
+      const sessionKeys = await getSessionKeys();
+
+      for (const key of sessionKeys) {
+        await deleteSession(key);
+        await removeSessionKey(key);
+      }
+
+      await clearSelectedSessionKey();
+
+      setSession(undefined);
+      setClient(undefined);
+
+      clearTimeouts();
+    } catch (error) {
+      throw new TurnkeyReactNativeError("Failed to clear all sessions", error);
+    }
+  }, [clearTimeouts]);
 
   /**
    *
@@ -685,6 +720,7 @@ export const TurnkeyProvider: FC<{
       createEmbeddedKey,
       createSession,
       clearSession,
+      clearAllSessions,
       createWallet,
       importWallet,
       exportWallet,
@@ -700,6 +736,7 @@ export const TurnkeyProvider: FC<{
       createEmbeddedKey,
       createSession,
       clearSession,
+      clearAllSessions,
       createWallet,
       importWallet,
       exportWallet,

@@ -83,6 +83,7 @@ To enable secure authentication, the following storage keys are used:
   - If a session with the same `sessionKey` already exists in secure storage, an error is thrown.
 - `setSelectedSession({ sessionKey })`: Selects a session by its key (Used when handling multiple sessions).
 - `clearSession({ sessionKey? })`: Removes the specified session from secure storage. If no `sessionKey` is provided, the currently selected session is removed.
+- `clearAllSessions()`: Clears all sessions from secure storage.
 
 ---
 
