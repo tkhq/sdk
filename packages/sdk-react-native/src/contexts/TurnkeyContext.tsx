@@ -15,7 +15,7 @@ import {
   decryptExportBundle,
 } from "@turnkey/crypto";
 import { uint8ArrayToHexString } from "@turnkey/encoding";
-import { TurnkeyClient } from "..";
+import type { TurnkeyClient } from "..";
 import {
   TURNKEY_DEFAULT_SESSION_STORAGE,
   OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
@@ -31,16 +31,16 @@ import type {
 } from "../types";
 import { TurnkeyReactNativeError } from "../errors";
 import {
-  addSessionKeyToIndex,
-  clearSelectedSessionKey,
+  addSessionIdToIndex,
+  clearSelectedSessionId,
   getEmbeddedKey,
-  getSelectedSessionKey,
+  getSelectedSessionId,
   getSession,
-  getSessionKeyIndex,
-  removeSessionKeyFromIndex,
+  getSessionIdIndex,
+  removeSessionIdFromIndex,
   deleteSession,
   saveEmbeddedKey,
-  saveSelectedSessionKey,
+  saveSelectedSessionId,
   saveSession,
 } from "../storage";
 import { createClient, fetchUser } from "../turnkey-helpers";
@@ -50,7 +50,7 @@ export interface TurnkeyContextType {
   client: TurnkeyClient | undefined;
   user: User | undefined;
   setSelectedSession: (params: {
-    sessionKey: string;
+    sessionId: string;
   }) => Promise<Session | undefined>;
   updateUser: (params: { email?: string; phone?: string }) => Promise<Activity>;
   refreshUser: () => Promise<void>;
@@ -58,9 +58,9 @@ export interface TurnkeyContextType {
   createSession: (params: {
     bundle: string;
     expirySeconds?: number;
-    sessionKey?: string;
+    sessionId?: string;
   }) => Promise<Session>;
-  clearSession: (params?: { sessionKey?: string }) => Promise<void>;
+  clearSession: (params?: { sessionId?: string }) => Promise<void>;
   createWallet: (params: {
     walletName: string;
     accounts: WalletAccountParams[];
@@ -100,13 +100,13 @@ export const TurnkeyProvider: FC<{
   const [session, setSession] = useState<Session | undefined>(undefined);
   const [client, setClient] = useState<TurnkeyClient | undefined>(undefined);
 
-  // map to track expiration timers for each session (keyed by sessionKey)
-  const expiryTimeoutsRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
+  // map to track expiration timers for each session by sessionId
+  const expiryTimeoutsRef = useRef<{ [id: string]: NodeJS.Timeout }>({});
 
   /**
    * Effect hook that initializes stored sessions on mount.
    *
-   * This hook runs once when the component mounts. It retrieves all stored session keys,
+   * This hook runs once when the component mounts. It retrieves all stored session ids,
    * validates their expiration status, removes expired sessions, and schedules expiration
    * timers for active ones. Additionally, it loads the last selected session if it is still valid,
    * otherwise it clears the session and triggers the session expiration callback.
@@ -115,28 +115,28 @@ export const TurnkeyProvider: FC<{
    */
   useEffect(() => {
     const initializeSessions = async () => {
-      const sessionKeys = await getSessionKeyIndex();
+      const sessionIds = await getSessionIdIndex();
 
       await Promise.all(
-        sessionKeys.map(async (sessionKey) => {
-          const session = await getSession(sessionKey);
+        sessionIds.map(async (sessionId) => {
+          const session = await getSession(sessionId);
 
           // if session is invalid, we remove it
           if (!session?.expiry || session.expiry <= Date.now()) {
-            await clearSession({ sessionKey });
-            await removeSessionKeyFromIndex(sessionKey);
+            await clearSession({ sessionId });
+            await removeSessionIdFromIndex(sessionId);
             return;
           }
 
-          scheduleSessionExpiration(sessionKey, session.expiry);
+          scheduleSessionExpiration(sessionId, session.expiry);
         }),
       );
 
       // load the selected session if it's still valid
-      const selectedSessionKey = await getSelectedSessionKey();
+      const selectedSessionId = await getSelectedSessionId();
 
-      if (selectedSessionKey) {
-        const selectedSession = await getSession(selectedSessionKey);
+      if (selectedSessionId) {
+        const selectedSession = await getSession(selectedSessionId);
 
         if (selectedSession?.expiry && selectedSession.expiry > Date.now()) {
           const clientInstance = createClient(
@@ -150,10 +150,10 @@ export const TurnkeyProvider: FC<{
 
           config.onSessionSelected?.(selectedSession);
         } else {
-          await clearSession({ sessionKey: selectedSessionKey });
+          await clearSession({ sessionId: selectedSessionId });
 
           config.onSessionExpired?.(
-            selectedSession ?? ({ key: selectedSessionKey } as Session),
+            selectedSession ?? ({ id: selectedSessionId } as Session),
           );
         }
       }
@@ -188,26 +188,26 @@ export const TurnkeyProvider: FC<{
    * - Otherwise, schedules a timeout to expire the session at the appropriate time.
    * - Calls `clearSession` and invokes the `onSessionExpired` callback when the session expires.
    *
-   * @param sessionKey - The key identifying the session to schedule expiration for.
+   * @param sessionId - The id identifying the session to schedule expiration for.
    * @param expiryTime - The timestamp (in milliseconds) when the session should expire.
    */
   const scheduleSessionExpiration = async (
-    sessionKey: string,
+    sessionId: string,
     expiryTime: number,
   ) => {
     // clear existing timeout if it exists
-    if (expiryTimeoutsRef.current[sessionKey]) {
-      clearTimeout(expiryTimeoutsRef.current[sessionKey]);
+    if (expiryTimeoutsRef.current[sessionId]) {
+      clearTimeout(expiryTimeoutsRef.current[sessionId]);
     }
 
     const expireSession = async () => {
-      const expiredSession = await getSession(sessionKey);
+      const expiredSession = await getSession(sessionId);
       if (!expiredSession) return;
 
-      await clearSession({ sessionKey });
+      await clearSession({ sessionId });
 
       config.onSessionExpired?.(expiredSession);
-      delete expiryTimeoutsRef.current[sessionKey];
+      delete expiryTimeoutsRef.current[sessionId];
     };
 
     const timeUntilExpiry = expiryTime - Date.now();
@@ -216,7 +216,7 @@ export const TurnkeyProvider: FC<{
       await expireSession();
     } else {
       // schedule expiration
-      expiryTimeoutsRef.current[sessionKey] = setTimeout(
+      expiryTimeoutsRef.current[sessionId] = setTimeout(
         expireSession,
         timeUntilExpiry,
       );
@@ -226,17 +226,17 @@ export const TurnkeyProvider: FC<{
   /**
    * Sets the selected session and updates the client instance.
    *
-   * - Retrieves the session associated with the given `sessionKey`.
+   * - Retrieves the session associated with the given `sessionId`.
    * - If the session is valid, initializes a new `TurnkeyClient` and updates the state.
-   * - Saves the selected session key and triggers `onSessionSelected` if provided.
+   * - Saves the selected session id and triggers `onSessionSelected` if provided.
    * - If the session is expired or invalid, clears the session and triggers `onSessionExpired`.
    *
-   * @param sessionKey - The key of the session to set as selected.
+   * @param sessionId - The id of the session to set as selected.
    * @returns The selected session if valid, otherwise `undefined`.
    */
   const setSelectedSession = useCallback(
-    async ({ sessionKey }: { sessionKey: string }) => {
-      const session = await getSession(sessionKey);
+    async ({ sessionId }: { sessionId: string }) => {
+      const session = await getSession(sessionId);
 
       if (session?.expiry && session.expiry > Date.now()) {
         const clientInstance = createClient(
@@ -247,13 +247,13 @@ export const TurnkeyProvider: FC<{
 
         setClient(clientInstance);
         setSession(session);
-        await saveSelectedSessionKey(sessionKey);
+        await saveSelectedSessionId(sessionId);
 
         config.onSessionSelected?.(session);
         return session;
       } else {
-        await clearSession({ sessionKey });
-        config.onSessionExpired?.(session ?? ({ key: sessionKey } as Session));
+        await clearSession({ sessionId });
+        config.onSessionExpired?.(session ?? ({ id: sessionId } as Session));
         return undefined;
       }
     },
@@ -274,7 +274,7 @@ export const TurnkeyProvider: FC<{
       const updatedUser = await fetchUser(client, config.organizationId);
       if (updatedUser) {
         const updatedSession: Session = { ...session, user: updatedUser };
-        await saveSession(updatedSession, updatedSession.key);
+        await saveSession(updatedSession, updatedSession.id);
         setSession(updatedSession);
       }
     }
@@ -350,7 +350,7 @@ export const TurnkeyProvider: FC<{
    *
    * @param bundle - The encrypted credential bundle.
    * @param expirySeconds - Optional expiration time in seconds (defaults to `OTP_AUTH_DEFAULT_EXPIRATION_SECONDS`).
-   * @param sessionKey - Optional session key identifier (defaults to `TURNKEY_DEFAULT_SESSION_STORAGE`).
+   * @param sessionId - Optional session identifier (defaults to `TURNKEY_DEFAULT_SESSION_STORAGE`).
    * @returns The created session.
    * @throws {TurnkeyReactNativeError} If the embedded key or user data cannot be retrieved.
    */
@@ -358,11 +358,11 @@ export const TurnkeyProvider: FC<{
     async ({
       bundle,
       expirySeconds = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
-      sessionKey = TURNKEY_DEFAULT_SESSION_STORAGE,
+      sessionId = TURNKEY_DEFAULT_SESSION_STORAGE,
     }: {
       bundle: string;
       expirySeconds?: number;
-      sessionKey?: string;
+      sessionId?: string;
     }): Promise<Session> => {
       const embeddedKey = await getEmbeddedKey();
       if (!embeddedKey) {
@@ -384,22 +384,22 @@ export const TurnkeyProvider: FC<{
       }
 
       const newSession = {
-        key: sessionKey,
+        id: sessionId,
         publicKey,
         privateKey,
         expiry,
         user,
       };
-      await saveSession(newSession, sessionKey);
-      await addSessionKeyToIndex(sessionKey);
-      scheduleSessionExpiration(sessionKey, newSession.expiry);
+      await saveSession(newSession, sessionId);
+      await addSessionIdToIndex(sessionId);
+      scheduleSessionExpiration(sessionId, newSession.expiry);
 
       // if this is the first session created, set it as the selected session
-      const sessionKeys = await getSessionKeyIndex();
-      const isFirstSession = sessionKeys.length === 1;
+      const sessionIds = await getSessionIdIndex();
+      const isFirstSession = sessionIds.length === 1;
 
       if (isFirstSession) {
-        await setSelectedSession({ sessionKey });
+        await setSelectedSession({ sessionId });
       }
 
       config.onSessionCreated?.(newSession);
@@ -411,35 +411,35 @@ export const TurnkeyProvider: FC<{
   /**
    * Clears a session and removes it from secure storage.
    *
-   * - Retrieves the session associated with the given `sessionKey`.
+   * - Retrieves the session associated with the given `sessionId`.
    * - If the session being cleared is the currently selected session, it resets the state.
    * - Deletes the session from secure storage.
-   * - Removes the session key from the session index.
+   * - Removes the session id from the session index.
    * - Calls `onSessionCleared` callback if provided.
    *
-   * @param sessionKey - The key identifying the session to clear (defaults to `TURNKEY_DEFAULT_SESSION_STORAGE`).
+   * @param sessionId - The id identifying the session to clear (defaults to `TURNKEY_DEFAULT_SESSION_STORAGE`).
    * @throws {TurnkeyReactNativeError} If the session cannot be cleared.
    */
   const clearSession = useCallback(
     async ({
-      sessionKey = TURNKEY_DEFAULT_SESSION_STORAGE,
+      sessionId = TURNKEY_DEFAULT_SESSION_STORAGE,
     }: {
-      sessionKey?: string;
+      sessionId?: string;
     } = {}): Promise<void> => {
-      const clearedSession = await getSession(sessionKey);
+      const clearedSession = await getSession(sessionId);
 
       // if selected session is being cleared, clear the local state session and client
-      if (session?.key === sessionKey) {
+      if (session?.id === sessionId) {
         setSession(undefined);
         setClient(undefined);
-        await clearSelectedSessionKey();
+        await clearSelectedSessionId();
       }
 
-      await deleteSession(sessionKey);
-      await removeSessionKeyFromIndex(sessionKey);
+      await deleteSession(sessionId);
+      await removeSessionIdFromIndex(sessionId);
 
       config.onSessionCleared?.(
-        clearedSession ?? ({ key: sessionKey } as Session),
+        clearedSession ?? ({ id: sessionId } as Session),
       );
     },
     [session, config],

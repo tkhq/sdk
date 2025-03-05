@@ -103,8 +103,8 @@ const loginWithPasskey = async () => {
 ### **Session Management**
 
 - `createEmbeddedKey()`: Generates a new embedded key pair and securely stores the private key.
-- `createSession({ bundle, expirySeconds?, sessionKey? })`: Creates a session. If `sessionKey` is provided, it will be stored under that key in secure storage. If no session exists, the first session created is automatically selected.
-- `setSelectedSession({ sessionKey })`: Selects a session by its key (Used when handling multiple sessions).
+- `createSession({ bundle, expirySeconds?, sessionId? })`: Creates a session. If `sessionId` is provided, it will be stored under that id in secure storage. If no session exists, the first session created is automatically selected.
+- `setSelectedSession({ sessionId })`: Selects a session by its id (Used when handling multiple sessions).
 - `clearSession()`: Clears the current session.
 
 ### **User Management**
@@ -126,12 +126,12 @@ const loginWithPasskey = async () => {
 
 ### **Session Storage**
 
-To enable secure authentication, the following storage keys are used:
+To enable secure authentication, the following storage ids are used:
 
 - `turnkey-embedded-key`: Stores the private key that corresponds to the public key used when initiating the session request to Turnkey.
-- `turnkey-session`: Default session storage key, storing the session credentials, including the private key, public key, and expiry time, which are decrypted from the credential bundle after a session is created.
-- `turnkey_session_keys_index`: Stores the list of stored session keys.
-- `turnkey-selected-session`: Stores the currently selected session key.
+- `turnkey-session`: Default session storage id, storing the session credentials, including the private key, public key, and expiry time, which are decrypted from the credential bundle after a session is created.
+- `turnkey-session-ids-index`: Stores the list of stored session ids.
+- `turnkey-selected-session`: Stores the currently selected session id.
 
 ---
 
@@ -139,10 +139,10 @@ To enable secure authentication, the following storage keys are used:
 
 Most users won't need multiple sessions, but if your app requires switching between multiple sessions, here’s what you need to know:
 
-This SDK supports **multiple sessions**, allowing you to create and switch between different session keys using `setSelectedSession({ sessionKey })`. When a session is selected, the client, user, and session information are updated accordingly, so that all subsequent function calls (like `updateUser` or `createWallet`) apply to the selected session.
+This SDK supports **multiple sessions**, allowing you to create and switch between different session ids using `setSelectedSession({ sessionId })`. When a session is selected, the client, user, and session information are updated accordingly, so that all subsequent function calls (like `updateUser` or `createWallet`) apply to the selected session.
 
-- **Creating a Session with a Custom Key**: You can pass a `sessionKey` when calling `createSession`. If provided, the session will be stored in secure storage under that key, allowing for multiple sessions.
-- **Switching Sessions**: Use `setSelectedSession({ sessionKey })` to switch between stored sessions. The client, user, and session information will automatically update.
+- **Creating a Session with a Custom Id**: You can pass a `sessionId` when calling `createSession`. If provided, the session will be stored in secure storage under that id, allowing for multiple sessions.
+- **Switching Sessions**: Use `setSelectedSession({ sessionId })` to switch between stored sessions. The client, user, and session information will automatically update.
 - **Session Expiry Management**: Each session has an expiry time, and expired sessions will be automatically cleared.
 - **Callbacks for Session Events**:
   - `onSessionCreated`: Called when a session is created.
