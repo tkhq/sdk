@@ -1864,13 +1864,12 @@ importers:
       '@types/react':
         specifier: ^18.2.75
         version: 18.3.3
+      react:
+        specifier: ^16.8.0 || ^17.0.0 || ^18.0.0
+        version: 18.3.1
       react-native-keychain:
         specifier: ^8.1.0 || ^9.2.2
         version: 8.1.0
-    devDependencies:
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
 
   packages/sdk-server:
     dependencies:
@@ -22567,6 +22566,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
+    dev: false
 
   /read-cache@1.0.0:
     resolution: {integrity: sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA==}

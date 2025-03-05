@@ -1,32 +1,28 @@
 import * as Keychain from "react-native-keychain";
-import {
-  TURNKEY_EMBEDDED_KEY_STORAGE,
-  TURNKEY_SELECTED_SESSION,
-  TURNKEY_SESSION_IDS_INDEX,
-} from "./constants";
 import { TurnkeyReactNativeError } from "./errors";
 import type { Session } from "./types";
+import { StorageKeys } from "./constants";
 
 /**
  * Retrieves the stored embedded key from secure storage.
  * Optionally deletes the key from storage after retrieval.
  *
- * @param deleteKey Whether to remove the embedded key after retrieval. Defaults to `true`.
+ * @param deleteKey Whether to remove the embedded key after retrieval. Defaults to `false`.
  * @returns The embedded private key if found, otherwise `null`.
  * @throws If retrieving or deleting the key fails.
  */
 export const getEmbeddedKey = async (
-  deleteKey = true,
+  deleteKey = false,
 ): Promise<string | null> => {
   try {
     const credentials = await Keychain.getGenericPassword({
-      service: TURNKEY_EMBEDDED_KEY_STORAGE,
+      service: StorageKeys.EmbeddedKey,
     });
 
     if (credentials) {
       if (deleteKey) {
         await Keychain.resetGenericPassword({
-          service: TURNKEY_EMBEDDED_KEY_STORAGE,
+          service: StorageKeys.EmbeddedKey,
         });
       }
       return credentials.password;
@@ -38,16 +34,16 @@ export const getEmbeddedKey = async (
 };
 
 /**
- * Saves an embedded key securely in storage.
+ * Saves the private key component of an embedded key securely in storage.
  *
  * @param key The private key to store securely.
  * @throws If saving the key fails.
  */
 export const saveEmbeddedKey = async (key: string): Promise<void> => {
   try {
-    await Keychain.setGenericPassword(TURNKEY_EMBEDDED_KEY_STORAGE, key, {
+    await Keychain.setGenericPassword(StorageKeys.EmbeddedKey, key, {
       accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-      service: TURNKEY_EMBEDDED_KEY_STORAGE,
+      service: StorageKeys.EmbeddedKey,
     });
   } catch (error) {
     throw new TurnkeyReactNativeError(
@@ -60,20 +56,22 @@ export const saveEmbeddedKey = async (key: string): Promise<void> => {
 /**
  * Retrieves a stored session from secure storage.
  *
- * @param sessionId The unique id identifying the session.
+ * @param sessionKey The unique key identifying the session.
  * @returns The session object if found, otherwise `null`.
  * @throws If retrieving the session fails.
  */
-export const getSession = async (sessionId: string): Promise<any | null> => {
+export const getSession = async (
+  sessionKey: string,
+): Promise<Session | null> => {
   try {
     const credentials = await Keychain.getGenericPassword({
-      service: sessionId,
+      service: sessionKey,
     });
 
     return credentials ? JSON.parse(credentials.password) : null;
   } catch (error) {
     throw new TurnkeyReactNativeError(
-      `Failed to get session for sessionId "${sessionId}"`,
+      `Failed to get session for sessionKey "${sessionKey}"`,
       error,
     );
   }
@@ -83,17 +81,17 @@ export const getSession = async (sessionId: string): Promise<any | null> => {
  * Saves a session securely in storage.
  *
  * @param session The session object to store securely.
- * @param sessionId The unique id under which the session is stored.
+ * @param sessionKey The unique key under which the session is stored.
  * @throws If saving the session fails.
  */
 export const saveSession = async (
   session: Session,
-  sessionId: string,
+  sessionKey: string,
 ): Promise<void> => {
   try {
-    await Keychain.setGenericPassword(sessionId, JSON.stringify(session), {
+    await Keychain.setGenericPassword(sessionKey, JSON.stringify(session), {
       accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-      service: sessionId,
+      service: sessionKey,
     });
   } catch (error) {
     throw new TurnkeyReactNativeError("Could not save the session", error);
@@ -103,168 +101,197 @@ export const saveSession = async (
 /**
  * Deletes a session from secure storage.
  *
- * @param sessionId The unique id identifying the session to reset.
+ * @param sessionKey The unique key identifying the session to reset.
  * @throws If deleting the session fails.
  */
-export const deleteSession = async (sessionId: string): Promise<void> => {
+export const deleteSession = async (sessionKey: string): Promise<void> => {
   try {
-    await Keychain.resetGenericPassword({ service: sessionId });
+    await Keychain.resetGenericPassword({ service: sessionKey });
   } catch (error) {
     throw new TurnkeyReactNativeError("Could not delete the session.", error);
   }
 };
 
 /**
- * Retrieves the selected session id from secure storage.
+ * Retrieves the selected session key from secure storage.
  *
- * @returns The selected session id as a string, or `null` if not found.
- * @throws If retrieving the session id fails.
+ * @returns The selected session key as a string, or `null` if not found.
+ * @throws If retrieving the session key fails.
  */
-export const getSelectedSessionId = async (): Promise<string | null> => {
+export const getSelectedSessionKey = async (): Promise<string | null> => {
   try {
     const credentials = await Keychain.getGenericPassword({
-      service: TURNKEY_SELECTED_SESSION,
+      service: StorageKeys.SelectedSession,
     });
     return credentials ? credentials.password : null;
   } catch (error) {
     throw new TurnkeyReactNativeError(
-      "Failed to get selected session id",
+      "Failed to get selected session key",
       error,
     );
   }
 };
 
 /**
- * Saves the selected session id to secure storage.
+ * Saves the selected session key to secure storage.
  *
- * @param sessionId The session id to mark as selected.
- * @throws If saving the session id fails.
+ * @param sessionKey The session key to mark as selected.
+ * @throws If saving the session key fails.
  */
-export const saveSelectedSessionId = async (
-  sessionId: string,
+export const saveSelectedSessionKey = async (
+  sessionKey: string,
 ): Promise<void> => {
   try {
-    await Keychain.setGenericPassword(TURNKEY_SELECTED_SESSION, sessionId, {
+    await Keychain.setGenericPassword(StorageKeys.SelectedSession, sessionKey, {
       accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-      service: TURNKEY_SELECTED_SESSION,
+      service: StorageKeys.SelectedSession,
     });
   } catch (error) {
     throw new TurnkeyReactNativeError(
-      "Failed to save selected session id",
+      "Failed to save selected session key",
       error,
     );
   }
 };
 
 /**
- * Clears the selected session id from secure storage.
+ * Clears the selected session key from secure storage.
  *
- * @throws If deleting the session id fails.
+ * @throws If deleting the session key fails.
  */
-export const clearSelectedSessionId = async (): Promise<void> => {
+export const clearSelectedSessionKey = async (): Promise<void> => {
   try {
-    await Keychain.resetGenericPassword({ service: TURNKEY_SELECTED_SESSION });
+    await Keychain.resetGenericPassword({
+      service: StorageKeys.SelectedSession,
+    });
   } catch (error) {
     throw new TurnkeyReactNativeError(
-      "Failed to clear selected session id",
+      "Failed to clear selected session key",
       error,
     );
   }
 };
 
 /**
- * Adds a session id to the session index in secure storage.
+ * Adds a session key to the session list in secure storage.
  *
- * - Retrieves the existing session id index.
- * - Appends the new session id if it does not already exist.
- * - Stores the updated session index.
+ * - Retrieves the existing session list.
+ * - Appends the new session key if it does not already exist.
+ * - Stores the updated session list.
  *
- * @param sessionId The session id to add to the index.
- * @throws If the session id already exists or saving the index fails.
+ * @param sessionKey The session key to add.
+ * @throws If the session key already exists or saving fails.
  */
-export const addSessionIdToIndex = async (sessionId: string): Promise<void> => {
+export const addSessionKey = async (sessionKey: string): Promise<void> => {
   try {
     const credentials = await Keychain.getGenericPassword({
-      service: TURNKEY_SESSION_IDS_INDEX,
+      service: StorageKeys.SessionKeys,
     });
 
-    let ids: string[] = credentials ? JSON.parse(credentials.password) : [];
+    let keys: string[] = [];
 
-    // we throw an error if the sessionId already exists
-    if (ids.includes(sessionId)) {
-      throw new TurnkeyReactNativeError(
-        `Session id "${sessionId}" already exists in the index.`,
-      );
+    if (credentials) {
+      try {
+        keys = JSON.parse(credentials.password);
+        if (!Array.isArray(keys)) {
+          throw new Error("Session list is corrupted.");
+        }
+      } catch {
+        throw new TurnkeyReactNativeError("Failed to parse session list.");
+      }
     }
 
-    ids.push(sessionId);
+    if (keys.includes(sessionKey)) {
+      return;
+    }
+
+    keys.push(sessionKey);
     await Keychain.setGenericPassword(
-      TURNKEY_SESSION_IDS_INDEX,
-      JSON.stringify(ids),
+      StorageKeys.SessionKeys,
+      JSON.stringify(keys),
       {
         accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-        service: TURNKEY_SESSION_IDS_INDEX,
+        service: StorageKeys.SessionKeys,
       },
     );
   } catch (error) {
+    throw new TurnkeyReactNativeError("Failed to add session key.", error);
+  }
+};
+
+/**
+ * Retrieves all session keys stored in secure storage.
+ *
+ * @returns An array of session keys.
+ * @throws If retrieving the session list fails.
+ */
+export const getSessionKeys = async (): Promise<string[]> => {
+  try {
+    const credentials = await Keychain.getGenericPassword({
+      service: StorageKeys.SessionKeys,
+    });
+
+    if (!credentials) {
+      return [];
+    }
+
+    try {
+      const keys = JSON.parse(credentials.password);
+      if (!Array.isArray(keys)) {
+        throw new Error("Session list is corrupted.");
+      }
+      return keys;
+    } catch {
+      throw new TurnkeyReactNativeError("Failed to parse session list.");
+    }
+  } catch (error) {
     throw new TurnkeyReactNativeError(
-      "Failed to add session id to index",
+      "Failed to retrieve session list.",
       error,
     );
   }
 };
 
 /**
- * Retrieves all session ids stored in the session index.
+ * Removes a session key from the session list in secure storage.
  *
- * @returns An array of session ids stored in secure storage.
- * @throws If retrieving the session index fails.
+ * - Fetches the existing session list.
+ * - Removes the specified session key.
+ * - Saves the updated session list back to secure storage.
+ *
+ * @param sessionKey The session key to remove.
+ * @throws If removing the session key fails.
  */
-export const getSessionIdIndex = async (): Promise<string[]> => {
+export const removeSessionKey = async (sessionKey: string): Promise<void> => {
   try {
     const credentials = await Keychain.getGenericPassword({
-      service: TURNKEY_SESSION_IDS_INDEX,
+      service: StorageKeys.SessionKeys,
     });
 
-    return credentials ? JSON.parse(credentials.password) : [];
-  } catch (error) {
-    throw new TurnkeyReactNativeError("Failed to get session ids index", error);
-  }
-};
+    let keys: string[] = [];
 
-/**
- * Removes a session id from the session index in secure storage.
- *
- * - Fetches the existing session id index.
- * - Removes the specified session id.
- * - Saves the updated session index back to secure storage.
- *
- * @param sessionId The session id to remove from the index.
- * @throws If removing the session id fails.
- */
-export const removeSessionIdFromIndex = async (
-  sessionId: string,
-): Promise<void> => {
-  try {
-    const credentials = await Keychain.getGenericPassword({
-      service: TURNKEY_SESSION_IDS_INDEX,
-    });
-    let ids: string[] = credentials ? JSON.parse(credentials.password) : [];
+    if (credentials) {
+      try {
+        keys = JSON.parse(credentials.password);
+        if (!Array.isArray(keys)) {
+          throw new Error("Session list is corrupted.");
+        }
+      } catch {
+        throw new TurnkeyReactNativeError("Failed to parse session list.");
+      }
+    }
 
-    ids = ids.filter((id) => id !== sessionId);
+    const updatedKeys = keys.filter((key) => key !== sessionKey);
 
     await Keychain.setGenericPassword(
-      TURNKEY_SESSION_IDS_INDEX,
-      JSON.stringify(ids),
+      StorageKeys.SessionKeys,
+      JSON.stringify(updatedKeys),
       {
         accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-        service: TURNKEY_SESSION_IDS_INDEX,
+        service: StorageKeys.SessionKeys,
       },
     );
   } catch (error) {
-    throw new TurnkeyReactNativeError(
-      "Failed to remove session id from index",
-      error,
-    );
+    throw new TurnkeyReactNativeError("Failed to remove session key.", error);
   }
 };

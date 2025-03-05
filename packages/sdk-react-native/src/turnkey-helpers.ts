@@ -1,6 +1,19 @@
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import type { User } from "./types";
+import type { Session, User } from "./types";
+
+/**
+ * Checks if a given session is valid.
+ *
+ * - A session is considered valid if it has a defined expiry time
+ *   and the expiry time is in the future.
+ *
+ * @param session - The session to validate.
+ * @returns `true` if the session is valid, otherwise `false`.
+ */
+export const isValidSession = (session?: Session | null): boolean => {
+  return session?.expiry !== undefined && session.expiry > Date.now();
+};
 
 /**
  * Creates an authenticated Turnkey client instance.
@@ -28,7 +41,7 @@ export const createClient = (
 /**
  * Fetches user details and associated wallets from the Turnkey API.
  *
- * - Retrieves the user's `whoami` information to obtain their ID and organization ID.
+ * - Retrieves the user's `whoami` information to obtain their id and organizationId.
  * - Fetches the user's wallets and account details.
  * - Fetches the user's profile information.
  * - Returns a `User` object containing the retrieved details.
