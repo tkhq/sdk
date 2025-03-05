@@ -234,13 +234,21 @@ const Auth: React.FC<AuthProps> = ({
     value: string,
     otpType: string,
   ) => {
+    const createSuborgData: Record<string, any> = {};
+    if (type === FilterType.Email) createSuborgData.email = value;
+    else if (type === FilterType.PhoneNumber)
+      createSuborgData.phoneNumber = value;
+    if (customAccounts) {
+      createSuborgData.customAccounts = customAccounts;
+    }
     const resp = await server.getOrCreateSuborg({
       filterType: type,
       filterValue: value,
+      additionalData: createSuborgData,
     });
     const suborgIds = resp?.subOrganizationIds;
     if (!suborgIds || suborgIds.length === 0) {
-      onError(authErrors.oauth.loginFailed);
+      onError(authErrors.otp.sendFailed);
       return;
     }
 
@@ -263,12 +271,16 @@ const Auth: React.FC<AuthProps> = ({
 
   const handleOAuthLogin = async (credential: string, providerName: string) => {
     setOauthLoading(providerName);
+    const createSuborgData: Record<string, any> = {
+      oauthProviders: [{ providerName, oidcToken: credential }],
+    };
+    if (customAccounts) {
+      createSuborgData.customAccounts = customAccounts;
+    }
     const resp = await server.getOrCreateSuborg({
       filterType: FilterType.OidcToken,
       filterValue: credential,
-      additionalData: {
-        oauthProviders: [{ providerName, oidcToken: credential }],
-      },
+      additionalData: createSuborgData,
     });
     const suborgIds = resp?.subOrganizationIds;
     if (!suborgIds || suborgIds.length === 0) {
