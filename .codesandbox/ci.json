@@ -21,6 +21,6 @@
     "packages/react-native-passkey-stamper",
     "packages/telegram-cloud-storage-stamper"
   ],
-  "sandboxes": [],
+  "sandboxes": ["/examples/react-components"],
   "node": "18"
 }
