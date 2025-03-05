@@ -182,9 +182,7 @@ export const clearSelectedSessionId = async (): Promise<void> => {
  * @param sessionId The session id to add to the index.
  * @throws If the session id already exists or saving the index fails.
  */
-export const addSessionIdToIndex = async (
-  sessionId: string,
-): Promise<void> => {
+export const addSessionIdToIndex = async (sessionId: string): Promise<void> => {
   try {
     const credentials = await Keychain.getGenericPassword({
       service: TURNKEY_SESSION_IDS_INDEX,
@@ -230,10 +228,7 @@ export const getSessionIdIndex = async (): Promise<string[]> => {
 
     return credentials ? JSON.parse(credentials.password) : [];
   } catch (error) {
-    throw new TurnkeyReactNativeError(
-      "Failed to get session ids index",
-      error,
-    );
+    throw new TurnkeyReactNativeError("Failed to get session ids index", error);
   }
 };
 
