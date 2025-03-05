@@ -34,12 +34,14 @@ import { DEFAULT_SESSION_EXPIRATION_IN_SECONDS } from "@constants";
 
 export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   constructor(config: TurnkeySDKClientConfig, authClient?: AuthClient) {
+    console.log("TurnkeyBrowserClient constructor config", config, authClient);
     super(config, authClient);
   }
 
   login = async (config?: {
     organizationId?: string;
   }): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
+    console.log("TurnkeyBrowserClient login authClient", this.authClient);
     const readOnlySessionResult = await this.createReadOnlySession(
       config || {}
     );
@@ -49,7 +51,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     return readOnlySessionResult!;
   };
 
-  //// NEW ///
+  //// NEW - BELOW ///
 
   /**
    * Creates a read-write session. This method infers the current user's organization ID and target userId.
@@ -223,7 +225,8 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       throw new Error("Invalid session type passed.");
     }
   };
-  //// NEW ///
+
+  //// NEW - ABOVE ///
 
   /**
    * Creates a read-write session. This method infers the current user's organization ID and target userId.
@@ -302,6 +305,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
   createUserPasskey = async (
     config: Record<any, any> = {}
   ): Promise<Passkey> => {
+    console.log("passkeyClient createUserPasskey");
     const challenge = generateRandomBuffer();
     const encodedChallenge = base64UrlEncode(challenge);
     const authenticatorUserId = generateRandomBuffer();
@@ -382,6 +386,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     organizationId?: string
   ): Promise<ReadWriteSession> => {
+    console.log("passkeyClient createPasskeySession");
     const user = await getStorageValue(StorageKeys.UserSession);
     organizationId = organizationId ?? user?.organization.organizationId;
 
@@ -448,6 +453,7 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
   injectCredentialBundle = async (
     credentialBundle: string
   ): Promise<boolean> => {
+    console.log("iframeClient injectCredentialBundle");
     return await (this.stamper as IframeStamper).injectCredentialBundle(
       credentialBundle
     );
@@ -457,6 +463,7 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
     credentialBundle: string,
     organizationId: string
   ): Promise<boolean> => {
+    console.log("iframeClient injectWalletExportBundle");
     return await (this.stamper as IframeStamper).injectWalletExportBundle(
       credentialBundle,
       organizationId
@@ -468,6 +475,7 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
     organizationId: string,
     keyFormat?: KeyFormat | undefined
   ): Promise<boolean> => {
+    console.log("iframeClient injectKeyExportBundle");
     return await (this.stamper as IframeStamper).injectKeyExportBundle(
       credentialBundle,
       organizationId,
@@ -480,6 +488,7 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
     organizationId: string,
     userId: string
   ): Promise<boolean> => {
+    console.log("iframeClient injectImportBundle");
     return await (this.stamper as IframeStamper).injectImportBundle(
       bundle,
       organizationId,
@@ -488,10 +497,12 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
   };
 
   extractWalletEncryptedBundle = async (): Promise<string> => {
+    console.log("iframeClient extractWalletEncryptedBundle");
     return await (this.stamper as IframeStamper).extractWalletEncryptedBundle();
   };
 
   extractKeyEncryptedBundle = async (): Promise<string> => {
+    console.log("iframeClient extractKeyEncryptedBundle");
     return await (this.stamper as IframeStamper).extractKeyEncryptedBundle();
   };
 }
@@ -519,6 +530,7 @@ export class TurnkeyPasskeyIframeClient extends TurnkeyBrowserClient {
   iframePublicKey: string | null;
 
   constructor(config: TurnkeySDKClientPasskeyIframeConfig) {
+    console.log("TurnkeyPasskeyIframeClient config", config);
     super(config, AuthClient.PasskeyIframe);
     this.iframeStamper = config.iframeStamper;
     this.iframePublicKey = this.iframeStamper.iframePublicKey;
@@ -533,6 +545,7 @@ export class TurnkeyPasskeyIframeClient extends TurnkeyBrowserClient {
   createUserPasskey = async (
     config: Record<any, any> = {}
   ): Promise<Passkey> => {
+    console.log("passkeyIframeClient createUserPasskey");
     const challenge = generateRandomBuffer();
     const encodedChallenge = base64UrlEncode(challenge);
     const authenticatorUserId = generateRandomBuffer();
@@ -597,6 +610,7 @@ export class TurnkeyPasskeyIframeClient extends TurnkeyBrowserClient {
   injectCredentialBundle = async (
     credentialBundle: string
   ): Promise<boolean> => {
+    console.log("passkeyIframeClient injectCredentialBundle");
     return await this.iframeStamper.injectCredentialBundle(credentialBundle);
   };
 
@@ -604,6 +618,7 @@ export class TurnkeyPasskeyIframeClient extends TurnkeyBrowserClient {
     credentialBundle: string,
     organizationId: string
   ): Promise<boolean> => {
+    console.log("passkeyIframeClient injectWalletExportBundle");
     return await this.iframeStamper.injectWalletExportBundle(
       credentialBundle,
       organizationId
@@ -615,6 +630,7 @@ export class TurnkeyPasskeyIframeClient extends TurnkeyBrowserClient {
     organizationId: string,
     keyFormat?: KeyFormat | undefined
   ): Promise<boolean> => {
+    console.log("passkeyIframeClient injectKeyExportBundle");
     return await this.iframeStamper.injectKeyExportBundle(
       credentialBundle,
       organizationId,
@@ -627,6 +643,7 @@ export class TurnkeyPasskeyIframeClient extends TurnkeyBrowserClient {
     organizationId: string,
     userId: string
   ): Promise<boolean> => {
+    console.log("passkeyIframeClient injectImportBundle");
     return await this.iframeStamper.injectImportBundle(
       bundle,
       organizationId,
@@ -635,10 +652,12 @@ export class TurnkeyPasskeyIframeClient extends TurnkeyBrowserClient {
   };
 
   extractWalletEncryptedBundle = async (): Promise<string> => {
+    console.log("passkeyIframeClient extractWalletEncryptedBundle");
     return await this.iframeStamper.extractWalletEncryptedBundle();
   };
 
   extractKeyEncryptedBundle = async (): Promise<string> => {
+    console.log("passkeyIframeClient extractKeyEncryptedBundle");
     return await this.iframeStamper.extractKeyEncryptedBundle();
   };
 
@@ -654,6 +673,7 @@ export class TurnkeyPasskeyIframeClient extends TurnkeyBrowserClient {
     bundle: string, // TODO: we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
     expirationSeconds: string // TODO: we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
   ): Promise<void> => {
+    console.log("passkeyIframeClient loginWithBundle");
     if (this! instanceof TurnkeyIframeClient) {
       await this.injectCredentialBundle(bundle);
     } else {

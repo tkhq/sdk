@@ -65,6 +65,7 @@ export class TurnkeyBrowserSDK {
   protected stamper: Stamper | undefined;
 
   constructor(config: TurnkeySDKBrowserConfig) {
+    console.log("TurnkeyBrowserSDK aka Turnkey constructor config", config);
     this.config = config;
   }
 
@@ -161,11 +162,11 @@ export class TurnkeyBrowserSDK {
     }
 
     return new TurnkeyPasskeyIframeClient({
+      stamper: passkeyStamper,
       iframeStamper: iframeStamper,
       passkeyStamper: passkeyStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
-      readOnlySession: params.readOnlySession ?? "",
     });
   };
 

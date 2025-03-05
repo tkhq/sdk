@@ -75,17 +75,18 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const getActiveClient = async () => {
     // default the currentClient to the passkeyClient
-    let currentClient: TurnkeyBrowserClient | undefined = passkeyClient;
+    let currentClient: TurnkeyBrowserClient | undefined = passkeyIframeClient;
     const currentUser = await turnkey?.getCurrentUser();
-    console.log("getActiveClient TurnkeyContext");
+
+    console.log("TurnkeyContext getActiveClient currentUser:", currentUser);
     try {
       // check if the iframeClient is active
-      await iframeClient?.getWhoami({
+      await passkeyIframeClient?.getWhoami({
         organizationId:
           currentUser?.organization.organizationId ??
           turnkey?.config.defaultOrganizationId!,
       });
-      currentClient = iframeClient;
+      currentClient = passkeyIframeClient;
     } catch (error: any) {
       try {
         /**
@@ -124,6 +125,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         iframeInit.current = true;
 
         // create an instance of TurnkeyBrowserSDK
+        console.log("TurnkeyProvider.tsx config:", config);
         const turnkeyBrowserSDK = new Turnkey(config);
         setTurnkey(turnkeyBrowserSDK);
 
@@ -171,6 +173,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
    * updated accordingly.
    */
   useEffect(() => {
+    console.log("TurnkeyProvider.tsx session:", session);
     switch (session?.authClient) {
       case AuthClient.Iframe:
         const expiry = session?.write?.expiry || 0;
