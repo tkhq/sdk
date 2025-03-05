@@ -1,5 +1,5 @@
 import type { User, ReadWriteSession } from "@models";
-import WindowWrapper from "./__polyfills__/window";
+import WindowWrapper from "@polyfills/window";
 import type { AuthClient, SessionType, TSessionResponse } from "@types";
 
 export enum StorageKeys {

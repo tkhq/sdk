@@ -4,7 +4,7 @@
     "noEmit": true,
     "tsBuildInfoFile": "./.cache/.typecheck.tsbuildinfo",
     "paths": {
-      "@base-client": ["./src/__clients__/base-client"],
+      "@polyfills/*": ["./src/__polyfills__/*"],
       "@constants": ["./src/constants"],
       "@models": ["./src/models"],
       "@storage": ["./src/storage"],
