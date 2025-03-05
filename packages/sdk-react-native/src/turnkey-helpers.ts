@@ -1,4 +1,4 @@
-import { TurnkeyClient } from "@turnkey/http";
+import { TurnkeyClient } from "./index";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import type { Session, User } from "./types";
 

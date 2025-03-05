@@ -3,6 +3,14 @@ import { TurnkeyReactNativeError } from "./errors";
 import type { Session } from "./types";
 import { StorageKeys } from "./constants";
 
+// This package leverages `react-native-keychain` to securely store session data.
+// We use `Keychain.getGenericPassword()` to retrieve stored values, where:
+// - `service` is used as a key to reference the stored data.
+// - `credentials.password` is used to hold sensitive data, such as session keys or encrypted session objects.
+//
+// Note: `credentials.password` does not need to contain a literal password;
+// it is simply a secure storage location for sensitive string data.
+
 /**
  * Retrieves the stored embedded key from secure storage.
  * Optionally deletes the key from storage after retrieval.
