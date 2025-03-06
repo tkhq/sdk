@@ -40,6 +40,54 @@ import {
 
 const DEFAULT_SESSION_EXPIRATION = "900"; // default to 15 minutes
 
+export interface OauthProvider {
+  providerName: string;
+  oidcToken: string;
+}
+
+export interface ApiKey {
+  apiKeyName: string;
+  publicKey: string;
+  curveType:
+    | "API_KEY_CURVE_P256"
+    | "API_KEY_CURVE_SECP256K1"
+    | "API_KEY_CURVE_ED25519";
+  expirationSeconds?: string;
+}
+
+export interface Authenticator {
+  authenticatorName: string;
+  challenge: string;
+  attestation: {
+    credentialId: string;
+    clientDataJson: string;
+    attestationObject: string;
+    transports: (
+      | "AUTHENTICATOR_TRANSPORT_BLE"
+      | "AUTHENTICATOR_TRANSPORT_INTERNAL"
+      | "AUTHENTICATOR_TRANSPORT_NFC"
+      | "AUTHENTICATOR_TRANSPORT_USB"
+      | "AUTHENTICATOR_TRANSPORT_HYBRID"
+    )[];
+  };
+}
+interface UpdateUserAuthParams {
+  userId: string;
+  phoneNumber?: string | null; // string to set, null to delete
+  email?: string | null; // string to set, null to delete
+  authenticators?: {
+    add?: Authenticator[]; // Authenticator objects to create
+    deleteIds?: string[]; // Authenticator IDs to delete
+  };
+  oauthProviders?: {
+    add?: OauthProvider[]; // OAuth provider objects to create
+    deleteIds?: string[]; // OAuth provider IDs to delete
+  };
+  apiKeys?: {
+    add?: ApiKey[]; // API key objects to create
+    deleteIds?: string[]; // API key IDs to delete
+  };
+}
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
 
@@ -336,6 +384,228 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
       return false;
     }
   };
+
+  /**
+   * Removes authentication factors from an end user.
+   *
+   * This function allows selectively removing:
+   * - Phone number
+   * - Email
+   * - Authenticators (by ID)
+   * - OAuth providers (by ID)
+   * - API keys (by ID)
+   *
+   * All removal operations are executed in parallel if multiple
+   * parameters are provided.
+   *
+   * @param userId - Unique identifier of the user
+   * @param phoneNumber - If true, removes the user's phone number
+   * @param email - If true, removes the user's email
+   * @param authenticatorIds - Array of authenticator IDs to remove
+   * @param oauthProviderIds - Array of OAuth provider IDs to remove
+   * @param apiKeyIds - Array of API key IDs to remove
+   * @returns A promise that resolves to an array of results from each removal operation
+   */
+  deleteUserAuth = async (
+    userId: string,
+    phoneNumber?: boolean,
+    email?: boolean,
+    authenticatorIds?: string[],
+    oauthProviderIds?: string[],
+    apiKeyIds?: string[],
+  ): Promise<any[]> => {
+    const promises: Promise<any>[] = [];
+
+    if (phoneNumber) {
+      promises.push(this.updateUser({ userId, userPhoneNumber: "" }));
+    }
+
+    if (email) {
+      promises.push(this.updateUser({ userId, userEmail: "" }));
+    }
+
+    if (authenticatorIds && authenticatorIds.length > 0) {
+      promises.push(this.deleteAuthenticators({ userId, authenticatorIds }));
+    }
+
+    if (oauthProviderIds && oauthProviderIds.length > 0) {
+      promises.push(
+        this.deleteOauthProviders({ userId, providerIds: oauthProviderIds }),
+      );
+    }
+
+    if (apiKeyIds && apiKeyIds.length > 0) {
+      promises.push(this.deleteApiKeys({ userId, apiKeyIds }));
+    }
+
+    // Execute all removal operations in parallel
+    return Promise.all(promises);
+  };
+
+  /**
+   * Adds or updates authentication factors for an end user.
+   *
+   * This function allows selectively adding:
+   * - Phone number
+   * - Email
+   * - Authenticators
+   * - OAuth providers
+   * - API keys
+   *
+   * All additions/updates are executed in parallel if multiple
+   * parameters are provided.
+   *
+   * @param userId - Unique identifier of the user
+   * @param phoneNumber - New phone number for the user
+   * @param email - New email address for the user
+   * @param authenticators - Array of authenticator objects to create
+   * @param oauthProviders - Array of OAuth provider objects to create
+   * @param apiKeys - Array of API key objects to create
+   * @returns A promise that resolves to an array of results from each addition or update
+   */
+  addUserAuth = async (
+    userId: string,
+    phoneNumber?: string,
+    email?: string,
+    authenticators?: Authenticator[],
+    oauthProviders?: OauthProvider[],
+    apiKeys?: ApiKey[],
+  ): Promise<any[]> => {
+    const promises: Promise<any>[] = [];
+
+    if (phoneNumber) {
+      promises.push(this.updateUser({ userId, userPhoneNumber: phoneNumber }));
+    }
+
+    if (email) {
+      promises.push(this.updateUser({ userId, userEmail: email }));
+    }
+
+    if (authenticators && authenticators.length > 0) {
+      promises.push(this.createAuthenticators({ userId, authenticators }));
+    }
+
+    if (oauthProviders && oauthProviders.length > 0) {
+      promises.push(this.createOauthProviders({ userId, oauthProviders }));
+    }
+
+    if (apiKeys && apiKeys.length > 0) {
+      promises.push(this.createApiKeys({ userId, apiKeys }));
+    }
+
+    // Execute all additions in parallel
+    return Promise.all(promises);
+  };
+
+  /**
+   * Comprehensive authentication update for an end user.
+   * Combines add/update and delete operations into a single call.
+   *
+   * The behavior is driven by whether values are set to:
+   * - A string/array (to create or update)
+   * - `null` or an array of IDs (to remove)
+   *
+   * All operations are executed in parallel where applicable.
+   *
+   * @param params - A structured object containing all the update parameters
+   *   @param params.userId - Unique identifier of the user
+   *   @param params.phoneNumber - String to set (new phone) or `null` to remove
+   *   @param params.email - String to set (new email) or `null` to remove
+   *   @param params.authenticators - Object describing authenticators to add or remove
+   *   @param params.oauthProviders - Object describing OAuth providers to add or remove
+   *   @param params.apiKeys - Object describing API keys to add or remove
+   *
+   * @returns A promise that resolves to a boolean indicating overall success
+   */
+  async updateUserAuth(params: UpdateUserAuthParams): Promise<boolean> {
+    const {
+      userId,
+      phoneNumber,
+      email,
+      authenticators,
+      oauthProviders,
+      apiKeys,
+    } = params;
+    const promises: Promise<any>[] = [];
+
+    // Handle phone/email in a single updateUser call if both are changing,
+    // or separate calls if only one is changing—either approach is fine.
+    const userUpdates: { userPhoneNumber?: string; userEmail?: string } = {};
+
+    if (phoneNumber !== undefined) {
+      userUpdates.userPhoneNumber = phoneNumber === null ? "" : phoneNumber;
+    }
+    if (email !== undefined) {
+      userUpdates.userEmail = email === null ? "" : email;
+    }
+    if (Object.keys(userUpdates).length > 0) {
+      promises.push(this.updateUser({ userId, ...userUpdates }));
+    }
+
+    // Handle authenticators
+    if (authenticators) {
+      if (authenticators.add?.length) {
+        promises.push(
+          this.createAuthenticators({
+            userId,
+            authenticators: authenticators.add,
+          }),
+        );
+      }
+      if (authenticators.deleteIds?.length) {
+        promises.push(
+          this.deleteAuthenticators({
+            userId,
+            authenticatorIds: authenticators.deleteIds,
+          }),
+        );
+      }
+    }
+
+    // Handle OAuth providers
+    if (oauthProviders) {
+      if (oauthProviders.add?.length) {
+        promises.push(
+          this.createOauthProviders({
+            userId,
+            oauthProviders: oauthProviders.add,
+          }),
+        );
+      }
+      if (oauthProviders.deleteIds?.length) {
+        promises.push(
+          this.deleteOauthProviders({
+            userId,
+            providerIds: oauthProviders.deleteIds,
+          }),
+        );
+      }
+    }
+
+    // Handle API keys
+    if (apiKeys) {
+      if (apiKeys.add?.length) {
+        promises.push(
+          this.createApiKeys({
+            userId,
+            apiKeys: apiKeys.add,
+          }),
+        );
+      }
+      if (apiKeys.deleteIds?.length) {
+        promises.push(
+          this.deleteApiKeys({
+            userId,
+            apiKeyIds: apiKeys.deleteIds,
+          }),
+        );
+      }
+    }
+
+    // Execute all requested operations in parallel
+    await Promise.all(promises);
+    return true;
+  }
 }
 
 export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
