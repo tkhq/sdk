@@ -1,5 +1,24 @@
 # @turnkey/sdk-react
 
+## 3.0.5
+
+### Patch Changes
+
+- cdf2e6e: Fix issue in EWK preventing sign up flow
+
+## 3.0.4
+
+### Patch Changes
+
+- 9256e75: Fix apple login issue on mobile web browser
+- bfc833f: Add getOrCreateSuborg server action
+- Updated dependencies [3c44c4a]
+- Updated dependencies [bfc833f]
+  - @turnkey/sdk-browser@1.14.0
+  - @turnkey/sdk-server@2.2.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 3.0.3
 
 ### Patch Changes

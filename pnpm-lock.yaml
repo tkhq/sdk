@@ -1772,16 +1772,10 @@ importers:
       cross-fetch:
         specifier: ^3.1.5
         version: 3.1.5
-      elliptic:
-        specifier: '>=6.6.1'
-        version: 6.6.1
       hpke-js:
         specifier: ^1.2.7
         version: 1.2.7
     devDependencies:
-      '@types/elliptic':
-        specifier: ^6.4.18
-        version: 6.4.18
       glob:
         specifier: ^8.0.3
         version: 8.1.0
@@ -1861,19 +1855,15 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-native:
-        specifier: ^0.76.5
-        version: 0.76.5(@babel/core@7.26.9)(@babel/preset-env@7.20.2)(@types/react@18.3.3)(react@18.3.1)
-      react-native-keychain:
-        specifier: ^8.1.0
-        version: 8.1.0
-    devDependencies:
       '@types/react':
-        specifier: ^18.2.6
+        specifier: ^18.2.75
         version: 18.3.3
+      react:
+        specifier: ^16.8.0 || ^17.0.0 || ^18.0.0
+        version: 18.3.1
+      react-native-keychain:
+        specifier: ^8.1.0 || ^9.2.2
+        version: 8.1.0
 
   packages/sdk-server:
     dependencies:
@@ -1889,16 +1879,10 @@ importers:
       cross-fetch:
         specifier: ^3.1.5
         version: 3.1.5
-      elliptic:
-        specifier: '>=6.6.1'
-        version: 6.6.1
       next:
         specifier: ^15.0.2
         version: 15.0.2(@babel/core@7.26.9)(react-dom@18.3.1)(react@18.3.1)
     devDependencies:
-      '@types/elliptic':
-        specifier: ^6.4.18
-        version: 6.4.18
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.21
@@ -12838,12 +12822,6 @@ packages:
     dependencies:
       '@types/ms': 0.7.34
     dev: false
-
-  /@types/elliptic@6.4.18:
-    resolution: {integrity: sha512-UseG6H5vjRiNpQvrhy4VF/JXdA3V/Fp5amvveaL+fs28BZ6xIKJBPnUPRlEaZpysD9MbpfaLi8lbl7PGUAkpWw==}
-    dependencies:
-      '@types/bn.js': 5.1.2
-    dev: true
 
   /@types/estree@0.0.39:
     resolution: {integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==}
