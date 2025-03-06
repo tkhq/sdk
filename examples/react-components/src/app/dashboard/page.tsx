@@ -304,12 +304,9 @@ export default function Dashboard() {
           if (!session || Date.now() > session!.expiry) {
             await handleLogout();
           }
-          console.log(
-            "manageSession iframeClient.injectCredentialBundle session",
-            session
-          );
-          // await iframeClient.injectCredentialBundle(session!.credentialBundle);
-          // const whoami = await iframeClient?.getWhoami();
+
+          await iframeClient.injectCredentialBundle(session!.token);
+
           const suborgId = session?.organizationId;
           setSuborgId(suborgId!);
 
