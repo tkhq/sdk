@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-react-native",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "React Native SDK",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -50,12 +50,11 @@
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/encoding": "workspace:*",
-    "@turnkey/http": "workspace:*",
-    "react": "18.3.1",
-    "react-native": "^0.76.5",
-    "react-native-keychain": "^8.1.0"
+    "@turnkey/http": "workspace:*"
   },
-  "devDependencies": {
-    "@types/react": "^18.2.6"
+  "peerDependencies": {
+    "@types/react": "^18.2.75",
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "react-native-keychain": "^8.1.0 || ^9.2.2"
   }
 }

@@ -1,6 +1,7 @@
 import type { TurnkeyApiTypes } from "@turnkey/http";
 
 export type Session = {
+  key: string;
   publicKey: string;
   privateKey: string;
   expiry: number;

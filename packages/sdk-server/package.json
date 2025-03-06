@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-server",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -48,11 +48,9 @@
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
     "buffer": "^6.0.3",
-    "next": "^15.0.2",
-    "elliptic": "^6.6.1"
+    "next": "^15.0.2"
   },
   "devDependencies": {
-    "@types/elliptic": "^6.4.18",
     "@types/express": "^4.17.21",
     "glob": "^8.0.3"
   },

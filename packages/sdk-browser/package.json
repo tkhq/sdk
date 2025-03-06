@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-browser",
-  "version": "1.13.1",
+  "version": "1.14.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -54,7 +54,6 @@
     "bs58check": "^3.0.1",
     "buffer": "^6.0.3",
     "cross-fetch": "^3.1.5",
-    "elliptic": "^6.6.1",
     "hpke-js": "^1.2.7"
   },
   "devDependencies": {

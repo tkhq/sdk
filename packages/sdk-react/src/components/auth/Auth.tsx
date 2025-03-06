@@ -127,57 +127,6 @@ const Auth: React.FC<AuthProps> = ({
     return phoneNumber?.isValid() ?? false;
   };
 
-  const handleGetOrCreateSuborg = async (
-    filterType: string,
-    filterValue: string,
-    additionalData = {}
-  ) => {
-    let suborgId;
-    if (
-      filterType == FilterType.Email ||
-      filterType == FilterType.PhoneNumber
-    ) {
-      const getVerifiedSuborgsResponse = await server.getVerifiedSuborgs({
-        filterType,
-        filterValue,
-      });
-      if (
-        !getVerifiedSuborgsResponse ||
-        !getVerifiedSuborgsResponse.organizationIds
-      ) {
-        onError(authErrors.suborg.fetchFailed);
-        return null;
-      }
-      suborgId = getVerifiedSuborgsResponse?.organizationIds[0];
-    } else {
-      const getSuborgsResponse = await server.getSuborgs({
-        filterType,
-        filterValue,
-      });
-      if (!getSuborgsResponse || !getSuborgsResponse.organizationIds) {
-        onError(authErrors.suborg.fetchFailed);
-        return null;
-      }
-      suborgId = getSuborgsResponse?.organizationIds[0];
-    }
-
-    if (!suborgId) {
-      const createSuborgData: Record<string, any> = { ...additionalData };
-      if (filterType === FilterType.Email) createSuborgData.email = filterValue;
-      else if (filterType === FilterType.PhoneNumber)
-        createSuborgData.phoneNumber = filterValue;
-      if (customAccounts) {
-        createSuborgData.customAccounts = customAccounts;
-      }
-      const createSuborgResponse = await server.createSuborg(createSuborgData);
-      if (!createSuborgResponse || !createSuborgResponse.subOrganizationId) {
-        onError(authErrors.suborg.createFailed);
-      }
-      suborgId = createSuborgResponse?.subOrganizationId!;
-    }
-    return suborgId;
-  };
-
   const handleAuthSuccess = async (
     credentialBundle: any,
     expirationSeconds?: string
@@ -288,7 +237,25 @@ const Auth: React.FC<AuthProps> = ({
     value: string,
     otpType: string
   ) => {
-    const suborgId = await handleGetOrCreateSuborg(type, value);
+    const createSuborgData: Record<string, any> = {};
+    if (type === FilterType.Email) createSuborgData.email = value;
+    else if (type === FilterType.PhoneNumber)
+      createSuborgData.phoneNumber = value;
+    if (customAccounts) {
+      createSuborgData.customAccounts = customAccounts;
+    }
+    const resp = await server.getOrCreateSuborg({
+      filterType: type,
+      filterValue: value,
+      additionalData: createSuborgData,
+    });
+    const suborgIds = resp?.subOrganizationIds;
+    if (!suborgIds || suborgIds.length === 0) {
+      onError(authErrors.otp.sendFailed);
+      return;
+    }
+
+    const suborgId = suborgIds[0];
     const initAuthResponse = await server.sendOtp({
       suborgID: suborgId!,
       otpType,
@@ -307,13 +274,23 @@ const Auth: React.FC<AuthProps> = ({
 
   const handleOAuthLogin = async (credential: string, providerName: string) => {
     setOauthLoading(providerName);
-    const suborgId = await handleGetOrCreateSuborg(
-      FilterType.OidcToken,
-      credential,
-      {
-        oauthProviders: [{ providerName, oidcToken: credential }],
-      }
-    );
+    const createSuborgData: Record<string, any> = {
+      oauthProviders: [{ providerName, oidcToken: credential }],
+    };
+    if (customAccounts) {
+      createSuborgData.customAccounts = customAccounts;
+    }
+    const resp = await server.getOrCreateSuborg({
+      filterType: FilterType.OidcToken,
+      filterValue: credential,
+      additionalData: createSuborgData,
+    });
+    const suborgIds = resp?.subOrganizationIds;
+    if (!suborgIds || suborgIds.length === 0) {
+      onError(authErrors.oauth.loginFailed);
+      return;
+    }
+    const suborgId = suborgIds[0];
     const oauthResponse = await server.oauth({
       suborgID: suborgId!,
       oidcToken: credential,
