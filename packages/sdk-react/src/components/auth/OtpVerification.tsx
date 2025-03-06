@@ -49,8 +49,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     setOtpError(null);
     setIsLoading(true);
     try {
-      // I'm a session
-      const authResponse = await server.verifyOtp({
+      const authSession = await server.verifyOtp({
         suborgID: suborgId,
         otpId,
         otpCode: otp,
@@ -58,8 +57,8 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         sessionLengthSeconds,
       });
 
-      if (authResponse?.token) {
-        await iframeClient!.loginWithSession(authResponse);
+      if (authSession?.token) {
+        await iframeClient!.loginWithSession(authSession);
         router.push("/dashboard");
       } else {
         setOtpError("Invalid code. Please try again.");
