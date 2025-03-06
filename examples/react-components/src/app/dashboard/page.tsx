@@ -300,18 +300,22 @@ export default function Dashboard() {
     const manageSession = async () => {
       try {
         if (turnkey && iframeClient) {
-          const session = await turnkey?.getReadWriteSession();
+          const session = await turnkey?.getSession();
           if (!session || Date.now() > session!.expiry) {
             await handleLogout();
           }
-          await iframeClient.injectCredentialBundle(session!.credentialBundle);
-          const whoami = await iframeClient?.getWhoami();
-          const suborgId = whoami?.organizationId;
+          console.log(
+            "manageSession iframeClient.injectCredentialBundle session",
+            session
+          );
+          // await iframeClient.injectCredentialBundle(session!.credentialBundle);
+          // const whoami = await iframeClient?.getWhoami();
+          const suborgId = session?.organizationId;
           setSuborgId(suborgId!);
 
           const userResponse = await iframeClient!.getUser({
             organizationId: suborgId!,
-            userId: whoami?.userId!,
+            userId: session?.userId!,
           });
 
           setUser(userResponse.user);
@@ -371,7 +375,7 @@ export default function Dashboard() {
     if (iframeClient) {
       manageSession();
     }
-  }, [iframeClient]);
+  }, [iframeClient, turnkey]);
 
   const getWallets = async () => {
     const walletsResponse = await iframeClient!.getWallets({
@@ -1088,7 +1092,6 @@ export default function Dashboard() {
               contact={emailInput ? emailInput : phoneInput}
               suborgId={suborgId}
               otpId={otpId!}
-              iframeClient={iframeClient!}
               onValidateSuccess={handleOtpSuccess}
               onResendCode={emailInput ? handleResendEmail : handleResendSms}
             />

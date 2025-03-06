@@ -116,7 +116,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           "You must use an iframe client to refresh a read-write session"
         ); //should we default to a "localStorage" client?
       }
-      storeSession(session, AuthClient.Iframe);
+      await storeSession(session, AuthClient.Iframe);
     }
   };
 
@@ -151,7 +151,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       token: bundle,
     };
 
-    storeSession(session, AuthClient.Iframe);
+    await storeSession(session, AuthClient.Iframe);
   };
 
   /**
@@ -171,7 +171,8 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         "You must use an iframe client to log in with a session."
       ); //should we default to a "localStorage" client?
     }
-    storeSession(session, AuthClient.Iframe);
+    console.log("TurnkeyBrowserClient loginWithSession storeSession");
+    await storeSession(session, AuthClient.Iframe);
   };
 
   /**
@@ -182,16 +183,18 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @returns {Promise<void>}
    */
   loginWithPasskey = async (
-    sessionType: SessionType,
+    sessionType: SessionType = SessionType.READ_WRITE,
+    iframeClient: TurnkeyIframeClient,
     targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
+
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS
   ): Promise<void> => {
     console.log("TurnkeyBrowserClient loginWithPasskey");
-    if (this! instanceof TurnkeyPasskeyClient) {
-      throw new Error(
-        "You must use a passkey client to log in with a passkey."
-      );
-    }
+    // if (this! instanceof TurnkeyPasskeyClient) {
+    //   throw new Error(
+    //     "You must use a passkey client to log in with a passkey."
+    //   );
+    // }
 
     // Create a read-only session
     if (sessionType === SessionType.READ_ONLY) {
@@ -204,16 +207,21 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         expiry: Number(readOnlySessionResult.sessionExpiry),
         token: readOnlySessionResult.session,
       };
-      storeSession(session, AuthClient.Passkey);
+      await storeSession(session, AuthClient.Passkey);
     }
 
     // Create a read-write session
     if (sessionType === SessionType.READ_WRITE) {
+      console.log(
+        "TurnkeyBrowserClient loginWithPasskey createReadWriteSession targetPublicKey",
+        targetPublicKey
+      );
       if (!targetPublicKey) {
         throw new Error(
           "You must provide a targetPublicKey to create a read-write session."
         );
       }
+      console.log("expirationSeconds", expirationSeconds);
       const readWriteSessionResult = await this.createReadWriteSession({
         targetPublicKey,
         expirationSeconds,
@@ -234,14 +242,15 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
        *
        */
       // TODO: we need to inject the credential bundle in the iframe here
-      if (!this.iframeClient) {
+      console.log("this.iframeClient", this.iframeClient);
+      if (!iframeClient) {
         throw new Error(
           "You must provide an iframe client to log in with a passkey."
         );
       }
-      await this.iframeClient.injectCredentialBundle(session.token!);
+      await iframeClient.injectCredentialBundle(session.token!);
 
-      storeSession(session, AuthClient.Iframe);
+      await storeSession(session, AuthClient.Iframe);
     } else {
       throw new Error("Invalid session type passed.");
     }

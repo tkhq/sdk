@@ -18,6 +18,12 @@ import { FilterType, OtpType, authErrors } from "./constants";
 import type { WalletAccount } from "@turnkey/sdk-browser";
 import { server } from "@turnkey/sdk-server";
 import parsePhoneNumberFromString from "libphonenumber-js";
+import { useRouter } from "next/navigation";
+
+export enum SessionType {
+  READ_ONLY = "SESSION_TYPE_READ_ONLY",
+  READ_WRITE = "SESSION_TYPE_READ_WRITE",
+}
 
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
@@ -81,6 +87,7 @@ const Auth: React.FC<AuthProps> = ({
   customAccounts,
 }) => {
   const { iframeClient, passkeyClient, turnkey } = useTurnkey();
+  const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
@@ -131,6 +138,7 @@ const Auth: React.FC<AuthProps> = ({
     credentialBundle: any,
     expirationSeconds?: string
   ) => {
+    console.log("handleAuthSuccess");
     if (credentialBundle) {
       await iframeClient!.injectCredentialBundle(credentialBundle);
       await iframeClient!.loginWithAuthBundle(
@@ -207,26 +215,18 @@ const Auth: React.FC<AuthProps> = ({
 
   const handleLoginWithPasskey = async () => {
     try {
-      // TODO: swap out with loginWithPasskey
-      // TODO: await passkeyIframeClient?.loginWithPasskey(SessionType.READ_WRITE);
-      const sessionResponse = await passkeyClient?.createReadWriteSession({
-        targetPublicKey: iframeClient?.iframePublicKey!,
-        ...(authConfig.sessionLengthSeconds !== undefined && {
-          expirationSeconds: authConfig.sessionLengthSeconds.toString(),
-        }),
-        organizationId:
-          turnkey?.config.defaultOrganizationId ??
-          process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-      });
-
-      if (sessionResponse?.credentialBundle) {
-        await handleAuthSuccess(
-          sessionResponse.credentialBundle,
-          authConfig.sessionLengthSeconds?.toString()
-        );
-      } else {
-        authErrors.passkey.loginFailed;
-      }
+      await passkeyClient?.loginWithPasskey(
+        SessionType.READ_WRITE,
+        iframeClient!,
+        iframeClient?.iframePublicKey!
+      );
+      router.push("/dashboard");
+      // console.log("passkeySession", passkeySession);
+      // if (passkeySession) {
+      //   router.push("/dashboard");
+      // } else {
+      //   authErrors.passkey.loginFailed;
+      // }
     } catch (error) {
       onError(authErrors.passkey.loginFailed);
     }
@@ -611,7 +611,6 @@ const Auth: React.FC<AuthProps> = ({
                     suborgId={suborgId}
                     otpId={otpId!}
                     sessionLengthSeconds={authConfig.sessionLengthSeconds}
-                    iframeClient={iframeClient!}
                     onValidateSuccess={handleAuthSuccess}
                     onResendCode={handleResendCode}
                   />

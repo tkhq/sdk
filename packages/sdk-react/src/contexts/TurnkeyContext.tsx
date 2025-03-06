@@ -87,21 +87,22 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
          * if the iframeClient is not active, check if there's a readWriteSession in localStorage
          * and try to initialize an iframeClient with it
          */
+        console.log("inside try / catch of getActiveClient");
         const readWriteSession = await turnkey?.getReadWriteSession();
-
-        if (readWriteSession) {
-          const injected = await iframeClient?.injectCredentialBundle(
-            readWriteSession.credentialBundle
-          );
-          if (injected) {
-            await iframeClient?.getWhoami({
-              organizationId:
-                currentUser?.organization.organizationId ??
-                turnkey?.config.defaultOrganizationId!,
-            });
-            currentClient = iframeClient;
-          }
-        }
+        console.log("readWriteSession:", readWriteSession);
+        // if (readWriteSession) {
+        //   const injected = await iframeClient?.injectCredentialBundle(
+        //     readWriteSession.credentialBundle
+        //   );
+        //   if (injected) {
+        //     await iframeClient?.getWhoami({
+        //       organizationId:
+        //         currentUser?.organization.organizationId ??
+        //         turnkey?.config.defaultOrganizationId!,
+        //     });
+        //     currentClient = iframeClient;
+        //   }
+        // }
       } catch (error: any) {
         /**
          * if the iframeClient is not active and there's no readWriteSession in localStorage,
