@@ -9,7 +9,6 @@ import {
   TurnkeyBrowserClient,
   TurnkeyWalletClient,
   AuthClient,
-  TurnkeyPasskeyIframeClient,
 } from "@turnkey/sdk-browser";
 import type { WalletInterface } from "@turnkey/wallet-stamper";
 import { useUserSession } from "../hooks/use-session";
@@ -19,7 +18,6 @@ export interface TurnkeyClientType {
   turnkey: Turnkey | undefined;
   authIframeClient: TurnkeyIframeClient | undefined;
   passkeyClient: TurnkeyPasskeyClient | undefined;
-  passkeyIframeClient: TurnkeyPasskeyIframeClient | undefined;
   walletClient: TurnkeyWalletClient | undefined;
   getActiveClient: () => Promise<TurnkeyBrowserClient | undefined>;
 }
@@ -30,7 +28,6 @@ export const TurnkeyContext = createContext<TurnkeyClientType>({
   passkeyClient: undefined,
   authIframeClient: undefined,
   walletClient: undefined,
-  passkeyIframeClient: undefined,
   getActiveClient: async () => {
     return undefined;
   },
@@ -56,11 +53,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const [walletClient, setWalletClient] = useState<
     TurnkeyWalletClient | undefined
   >(undefined);
-  const [iframeClient, setIframeClient] = useState<
+  const [authIframeClient, setIframeClient] = useState<
     TurnkeyIframeClient | undefined
-  >(undefined);
-  const [passkeyIframeClient, setPasskeyIframeClient] = useState<
-    TurnkeyPasskeyIframeClient | undefined
   >(undefined);
   const [client, setClient] = useState<TurnkeyBrowserClient | undefined>(
     undefined
@@ -75,43 +69,43 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const getActiveClient = async () => {
     // default the currentClient to the passkeyClient
-    let currentClient: TurnkeyBrowserClient | undefined = passkeyIframeClient;
+    let currentClient: TurnkeyBrowserClient | undefined = passkeyClient;
     const currentUser = await turnkey?.getCurrentUser();
 
     console.log("TurnkeyContext getActiveClient currentUser:", currentUser);
     try {
       // check if the iframeClient is active
-      await passkeyIframeClient?.getWhoami({
+      await authIframeClient?.getWhoami({
         organizationId:
           currentUser?.organization.organizationId ??
           turnkey?.config.defaultOrganizationId!,
       });
-      currentClient = passkeyIframeClient;
+      currentClient = authIframeClient;
     } catch (error: any) {
       try {
         /**
-         * if the iframeClient is not active, check if there's a readWriteSession in localStorage
-         * and try to initialize an iframeClient with it
+         * if the authIframeClient is not active, check if there's a readWriteSession in localStorage
+         * and try to initialize an authIframeClient with it
          */
         const readWriteSession = await turnkey?.getReadWriteSession();
 
         if (readWriteSession) {
-          const injected = await iframeClient?.injectCredentialBundle(
+          const injected = await authIframeClient?.injectCredentialBundle(
             readWriteSession.credentialBundle
           );
           if (injected) {
-            await iframeClient?.getWhoami({
+            await authIframeClient?.getWhoami({
               organizationId:
                 currentUser?.organization.organizationId ??
                 turnkey?.config.defaultOrganizationId!,
             });
-            currentClient = iframeClient;
+            currentClient = authIframeClient;
           }
         }
       } catch (error: any) {
         /**
-         * if the iframeClient is not active and there's no readWriteSession in localStorage,
-         * or if injecting the readWriteSession into the iframeClient fails, default to the passkeyClient
+         * if the authIframeClient is not active and there's no readWriteSession in localStorage,
+         * or if injecting the readWriteSession into the authIframeClient fails, default to the passkeyClient
          */
       }
     }
@@ -150,13 +144,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         });
 
         setIframeClient(iframeClient);
-
-        // create an instance of TurnkeyPasskeyIframeClient by re-using the iframeClient and passkeyClient
-        const passkeyIframeClient = await turnkeyBrowserSDK.passkeyIframeClient(
-          { iframeClient: iframeClient, passkeyClient: passkeyClient! }
-        );
-
-        setPasskeyIframeClient(passkeyIframeClient);
       }
     })();
   }, []);
@@ -166,7 +153,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
    *
    * This hook listens for changes in the `session` object. If the `session` contains an `authClient`,
    * it determines which client was used for initial authentication by checking the `authClient` key.
-   * It then sets the corresponding client (either `iframeClient`, `passkeyClient`, or `walletClient`)
+   * It then sets the corresponding client (either `authIframeClient`, `passkeyClient`, or `walletClient`)
    * as the active client using the `setClient` function.
    *
    * If the `session` changes, the `authClient` will be recomputed and the active client will be
@@ -194,9 +181,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       case AuthClient.Wallet:
         setClient(walletClient);
         break;
-      case AuthClient.PasskeyIframe:
-        setClient(passkeyIframeClient);
-        break;
       default:
         // Handle unknown auth client type if needed
         break;
@@ -211,7 +195,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         passkeyClient,
         authIframeClient,
         walletClient,
-        passkeyIframeClient,
         getActiveClient,
       }}
     >

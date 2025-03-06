@@ -11,7 +11,6 @@ import {
   TurnkeySDKClientConfig,
   SessionType,
   TurnkeyWalletClientConfig,
-  TurnkeySDKClientPasskeyIframeConfig,
 } from "@types";
 
 import {
@@ -33,6 +32,8 @@ import {
 import { DEFAULT_SESSION_EXPIRATION_IN_SECONDS } from "@constants";
 
 export class TurnkeyBrowserClient extends TurnkeyBaseClient {
+  iframeClient?: TurnkeyIframeClient;
+
   constructor(config: TurnkeySDKClientConfig, authClient?: AuthClient) {
     console.log("TurnkeyBrowserClient constructor config", config, authClient);
     super(config, authClient);
@@ -45,7 +46,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     const readOnlySessionResult = await this.createReadOnlySession(
       config || {}
     );
-
+    console.log(
+      "TurnkeyBrowserClient login readOnlySessionResult",
+      readOnlySessionResult
+    );
     await saveSession(readOnlySessionResult, this.authClient);
 
     return readOnlySessionResult!;
@@ -68,6 +72,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS
   ): Promise<void> => {
+    console.log("TurnkeyBrowserClient refereshSession");
     if (sessionType === SessionType.READ_ONLY) {
       if (this! instanceof TurnkeyPasskeyClient) {
         throw new Error(
@@ -82,7 +87,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         expiry: Number(readOnlySessionResult.sessionExpiry),
         token: readOnlySessionResult.session,
       };
-      // TODO: AuthClient.PasskeyIframe?
+
       storeSession(session, AuthClient.Passkey);
     }
     if (sessionType === SessionType.READ_WRITE) {
@@ -111,7 +116,6 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           "You must use an iframe client to refresh a read-write session"
         ); //should we default to a "localStorage" client?
       }
-      // TODO: AuthClient.PasskeyIframe?
       storeSession(session, AuthClient.Iframe);
     }
   };
@@ -128,6 +132,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     bundle: string, // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
     expirationSeconds: string // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
   ): Promise<void> => {
+    console.log("TurnkeyBrowserClient loginWithBundle");
     if (this! instanceof TurnkeyIframeClient) {
       await this.injectCredentialBundle(bundle);
     } else {
@@ -145,7 +150,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time
       token: bundle,
     };
-    // TODO: AuthClient.PasskeyIframe?
+
     storeSession(session, AuthClient.Iframe);
   };
 
@@ -157,6 +162,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @returns {Promise<SdkApiTypes.void>}
    */
   loginWithSession = async (session: Session): Promise<void> => {
+    console.log("TurnkeyBrowserClient loginWithSession");
     if (this instanceof TurnkeyIframeClient) {
       await this.injectCredentialBundle(session.token!);
     } else {
@@ -180,6 +186,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS
   ): Promise<void> => {
+    console.log("TurnkeyBrowserClient loginWithPasskey");
     if (this! instanceof TurnkeyPasskeyClient) {
       throw new Error(
         "You must use a passkey client to log in with a passkey."
@@ -219,7 +226,21 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time from the response in a new version of the activity
         token: readWriteSessionResult.credentialBundle,
       };
+      /**
+       * some way to get a handle on the iframeStamper / iframeClient
+       * do clients want a read only session?
+       *   afterthought for now - read only sessions can be used for email OTPs
+       *     the parentOrg has read only access by default
+       *
+       */
       // TODO: we need to inject the credential bundle in the iframe here
+      if (!this.iframeClient) {
+        throw new Error(
+          "You must provide an iframe client to log in with a passkey."
+        );
+      }
+      await this.iframeClient.injectCredentialBundle(session.token!);
+
       storeSession(session, AuthClient.Iframe);
     } else {
       throw new Error("Invalid session type passed.");
@@ -243,6 +264,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     userId?: string
   ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
+    console.log("TurnkeyBrowserClient loginWithReadWriteSession");
     const readWriteSessionResult = await this.createReadWriteSession({
       targetPublicKey: targetEmbeddedKey,
       expirationSeconds,
@@ -255,7 +277,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       credentialBundle: readWriteSessionResult.credentialBundle,
       sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
     };
-
+    console.log(
+      "TurnkeyBrowserClient loginWithReadWriteSession",
+      readWriteSessionResult
+    );
     // store auth bundle in local storage
     await saveSession(readWriteSessionResultWithSession, this.authClient);
 
@@ -273,7 +298,12 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     credentialBundle: string,
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS
   ): Promise<any> => {
+    console.log(
+      "TurnkeyBrowserClient loginWithAuthBundle authClient",
+      this.authClient
+    );
     try {
+      console.log("TurnkeyBrowserClient loginWithAuthBundle before getWhoami");
       const whoAmIResult = await this.getWhoami();
 
       const readWriteSessionResultWithSession = {
@@ -281,6 +311,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         credentialBundle: credentialBundle,
         sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
       };
+      console.log(
+        "TurnkeyBrowserClient loginWithAuthBundle readWriteSessionResultWithSession",
+        readWriteSessionResultWithSession
+      );
       await saveSession(readWriteSessionResultWithSession, this.authClient);
       return true;
     } catch {
@@ -416,7 +450,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     });
 
     const expiry = Date.now() + Number(expirationSeconds) * 1000;
-
+    console.log("passkeyClient createPasskeySession saveSession");
     await saveSession(
       {
         organizationId,
@@ -522,175 +556,4 @@ export class TurnkeyWalletClient extends TurnkeyBrowserClient {
   getWalletInterface(): WalletInterface {
     return this.wallet;
   }
-}
-
-export class TurnkeyPasskeyIframeClient extends TurnkeyBrowserClient {
-  iframeStamper: IframeStamper;
-  passkeyStamper: WebauthnStamper;
-  iframePublicKey: string | null;
-
-  constructor(config: TurnkeySDKClientPasskeyIframeConfig) {
-    console.log("TurnkeyPasskeyIframeClient config", config);
-    super(config, AuthClient.PasskeyIframe);
-    this.iframeStamper = config.iframeStamper;
-    this.iframePublicKey = this.iframeStamper.iframePublicKey;
-    this.passkeyStamper = config.passkeyStamper;
-  }
-
-  /**
-   * Create a passkey for an end-user, taking care of various lower-level details.
-   *
-   * @returns {Promise<Passkey>}
-   */
-  createUserPasskey = async (
-    config: Record<any, any> = {}
-  ): Promise<Passkey> => {
-    console.log("passkeyIframeClient createUserPasskey");
-    const challenge = generateRandomBuffer();
-    const encodedChallenge = base64UrlEncode(challenge);
-    const authenticatorUserId = generateRandomBuffer();
-
-    // WebAuthn credential options options can be found here:
-    // https://www.w3.org/TR/webauthn-2/#sctn-sample-registration
-    //
-    // All pubkey algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
-    // Turnkey only supports ES256 (-7) and RS256 (-257)
-    //
-    // The pubkey type only supports one value, "public-key"
-    // See https://www.w3.org/TR/webauthn-2/#enumdef-publickeycredentialtype for more details
-    // TODO: consider un-nesting these config params
-    const webauthnConfig: CredentialCreationOptions = {
-      publicKey: {
-        rp: {
-          id: config.publicKey?.rp?.id ?? this.passkeyStamper.rpId,
-          name: config.publicKey?.rp?.name ?? "",
-        },
-        challenge: config.publicKey?.challenge ?? challenge,
-        pubKeyCredParams: config.publicKey?.pubKeyCredParams ?? [
-          {
-            type: "public-key",
-            alg: -7,
-          },
-          {
-            type: "public-key",
-            alg: -257,
-          },
-        ],
-        user: {
-          id: config.publicKey?.user?.id ?? authenticatorUserId,
-          name: config.publicKey?.user?.name ?? "Default User",
-          displayName: config.publicKey?.user?.displayName ?? "Default User",
-        },
-        authenticatorSelection: {
-          authenticatorAttachment:
-            config.publicKey?.authenticatorSelection?.authenticatorAttachment ??
-            undefined, // default to empty
-          requireResidentKey:
-            config.publicKey?.authenticatorSelection?.requireResidentKey ??
-            true,
-          residentKey:
-            config.publicKey?.authenticatorSelection?.residentKey ?? "required",
-          userVerification:
-            config.publicKey?.authenticatorSelection?.userVerification ??
-            "preferred",
-        },
-      },
-    };
-
-    const attestation = await getWebAuthnAttestation(webauthnConfig);
-
-    return {
-      encodedChallenge: config.publicKey?.challenge
-        ? base64UrlEncode(config.publicKey?.challenge)
-        : encodedChallenge,
-      attestation,
-    };
-  };
-
-  injectCredentialBundle = async (
-    credentialBundle: string
-  ): Promise<boolean> => {
-    console.log("passkeyIframeClient injectCredentialBundle");
-    return await this.iframeStamper.injectCredentialBundle(credentialBundle);
-  };
-
-  injectWalletExportBundle = async (
-    credentialBundle: string,
-    organizationId: string
-  ): Promise<boolean> => {
-    console.log("passkeyIframeClient injectWalletExportBundle");
-    return await this.iframeStamper.injectWalletExportBundle(
-      credentialBundle,
-      organizationId
-    );
-  };
-
-  injectKeyExportBundle = async (
-    credentialBundle: string,
-    organizationId: string,
-    keyFormat?: KeyFormat | undefined
-  ): Promise<boolean> => {
-    console.log("passkeyIframeClient injectKeyExportBundle");
-    return await this.iframeStamper.injectKeyExportBundle(
-      credentialBundle,
-      organizationId,
-      keyFormat
-    );
-  };
-
-  injectImportBundle = async (
-    bundle: string,
-    organizationId: string,
-    userId: string
-  ): Promise<boolean> => {
-    console.log("passkeyIframeClient injectImportBundle");
-    return await this.iframeStamper.injectImportBundle(
-      bundle,
-      organizationId,
-      userId
-    );
-  };
-
-  extractWalletEncryptedBundle = async (): Promise<string> => {
-    console.log("passkeyIframeClient extractWalletEncryptedBundle");
-    return await this.iframeStamper.extractWalletEncryptedBundle();
-  };
-
-  extractKeyEncryptedBundle = async (): Promise<string> => {
-    console.log("passkeyIframeClient extractKeyEncryptedBundle");
-    return await this.iframeStamper.extractKeyEncryptedBundle();
-  };
-
-  /**
-   * Log in with a bundle. This method uses a bundle sent to the end user email
-   * To be used in conjunction with an `iframeStamper`.
-   *
-   * @param bundle
-   * @param expirationSeconds
-   * @returns {Promise<void>}
-   */
-  override loginWithBundle = async (
-    bundle: string, // TODO: we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
-    expirationSeconds: string // TODO: we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
-  ): Promise<void> => {
-    console.log("passkeyIframeClient loginWithBundle");
-    if (this! instanceof TurnkeyIframeClient) {
-      await this.injectCredentialBundle(bundle);
-    } else {
-      // Throw an error if the client is not an iframe client
-      throw new Error(
-        "You must use an iframe client to log in with a session."
-      ); //should we default to a "localStorage" client?
-    }
-    const whoAmI = await this.getWhoami();
-
-    const session: Session = {
-      sessionType: SessionType.READ_WRITE,
-      userId: whoAmI.userId,
-      organizationId: whoAmI.organizationId,
-      expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time
-      token: bundle,
-    };
-    storeSession(session, AuthClient.Iframe);
-  };
 }

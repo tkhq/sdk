@@ -86,6 +86,7 @@ export const removeStorageValue = async <K extends StorageKeys>(
 
 export const storeSession = async (session: Session, client: AuthClient) => {
   // TODO: rename and remove saveSession
+  console.log("storeSession", session, client);
   await setStorageValue(StorageKeys.Session, session);
   await setStorageValue(StorageKeys.Client, client);
 };
@@ -110,6 +111,11 @@ export const saveSession = async (
   }: TSessionResponse,
   authClient?: AuthClient
 ): Promise<void> => {
+  console.log(
+    "saveSession credentialBundle authClient",
+    credentialBundle,
+    authClient
+  );
   if (!authClient) {
     throw new Error("Failed to save session: Authentication client not set");
   }

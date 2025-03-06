@@ -82,7 +82,7 @@ const Auth: React.FC<AuthProps> = ({
   customSmsMessage,
   customAccounts,
 }) => {
-  const { passkeyIframeClient, turnkey } = useTurnkey();
+  const { iframeClient, passkeyClient, turnkey } = useTurnkey();
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
@@ -105,10 +105,10 @@ const Auth: React.FC<AuthProps> = ({
   };
 
   useEffect(() => {
-    if (passkeyIframeClient) {
+    if (iframeClient) {
       setLoading(false);
     }
-  }, [passkeyIframeClient]);
+  }, [iframeClient]);
 
   if (loading) {
     return (
@@ -135,8 +135,8 @@ const Auth: React.FC<AuthProps> = ({
     expirationSeconds?: string
   ) => {
     if (credentialBundle) {
-      await passkeyIframeClient!.injectCredentialBundle(credentialBundle);
-      await passkeyIframeClient!.loginWithAuthBundle(
+      await iframeClient!.injectCredentialBundle(credentialBundle);
+      await iframeClient!.loginWithAuthBundle(
         credentialBundle,
         expirationSeconds
       );
@@ -161,7 +161,7 @@ const Auth: React.FC<AuthProps> = ({
     try {
       if (!passkeyCreated) {
         const { encodedChallenge, attestation } =
-          (await passkeyIframeClient?.createUserPasskey({
+          (await passkeyClient?.createUserPasskey({
             publicKey: { user: { name: siteInfo, displayName: siteInfo } },
           })) || {};
 
@@ -185,17 +185,16 @@ const Auth: React.FC<AuthProps> = ({
         }
       }
 
-      const sessionResponse = await passkeyIframeClient?.createReadWriteSession(
-        {
-          targetPublicKey: passkeyIframeClient?.iframePublicKey!,
-          ...(authConfig.sessionLengthSeconds !== undefined && {
-            expirationSeconds: authConfig.sessionLengthSeconds.toString(),
-          }),
-          organizationId:
-            turnkey?.config.defaultOrganizationId ??
-            process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-        }
-      );
+      // TODO: loginWithPasskey
+      const sessionResponse = await passkeyClient?.createReadWriteSession({
+        targetPublicKey: iframeClient?.iframePublicKey!,
+        ...(authConfig.sessionLengthSeconds !== undefined && {
+          expirationSeconds: authConfig.sessionLengthSeconds.toString(),
+        }),
+        organizationId:
+          turnkey?.config.defaultOrganizationId ??
+          process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      });
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(
           sessionResponse.credentialBundle,
@@ -211,17 +210,17 @@ const Auth: React.FC<AuthProps> = ({
 
   const handleLoginWithPasskey = async () => {
     try {
-      const sessionResponse = await passkeyIframeClient?.createReadWriteSession(
-        {
-          targetPublicKey: passkeyIframeClient?.iframePublicKey!,
-          ...(authConfig.sessionLengthSeconds !== undefined && {
-            expirationSeconds: authConfig.sessionLengthSeconds.toString(),
-          }),
-          organizationId:
-            turnkey?.config.defaultOrganizationId ??
-            process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-        }
-      );
+      // TODO: swap out with loginWithPasskey
+      // TODO: await passkeyIframeClient?.loginWithPasskey(SessionType.READ_WRITE);
+      const sessionResponse = await passkeyClient?.createReadWriteSession({
+        targetPublicKey: iframeClient?.iframePublicKey!,
+        ...(authConfig.sessionLengthSeconds !== undefined && {
+          expirationSeconds: authConfig.sessionLengthSeconds.toString(),
+        }),
+        organizationId:
+          turnkey?.config.defaultOrganizationId ??
+          process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      });
 
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(
@@ -265,7 +264,7 @@ const Auth: React.FC<AuthProps> = ({
       otpType,
       contact: value,
       ...(customSmsMessage && { customSmsMessage }),
-      userIdentifier: passkeyIframeClient?.iframePublicKey!,
+      userIdentifier: iframeClient?.iframePublicKey!,
     });
     if (initAuthResponse && initAuthResponse.otpId) {
       setSuborgId(suborgId!);
@@ -298,7 +297,7 @@ const Auth: React.FC<AuthProps> = ({
     const oauthResponse = await server.oauth({
       suborgID: suborgId!,
       oidcToken: credential,
-      targetPublicKey: passkeyIframeClient?.iframePublicKey!,
+      targetPublicKey: iframeClient?.iframePublicKey!,
       sessionLengthSeconds: authConfig.sessionLengthSeconds,
     });
     if (oauthResponse && oauthResponse.token) {
@@ -413,7 +412,7 @@ const Auth: React.FC<AuthProps> = ({
               authConfig.googleClientId ??
               process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!
             }
-            iframePublicKey={passkeyIframeClient!.iframePublicKey!}
+            iframePublicKey={iframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Google")
             }
@@ -426,7 +425,7 @@ const Auth: React.FC<AuthProps> = ({
               authConfig.appleClientId ??
               process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!
             }
-            iframePublicKey={passkeyIframeClient!.iframePublicKey!}
+            iframePublicKey={iframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Apple")
             }
@@ -439,7 +438,7 @@ const Auth: React.FC<AuthProps> = ({
               authConfig.facebookClientId ??
               process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!
             }
-            iframePublicKey={passkeyIframeClient!.iframePublicKey!}
+            iframePublicKey={iframeClient!.iframePublicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.id_token, "Facebook")
             }
@@ -694,7 +693,7 @@ const Auth: React.FC<AuthProps> = ({
                     suborgId={suborgId}
                     otpId={otpId!}
                     sessionLengthSeconds={authConfig.sessionLengthSeconds}
-                    passkeyIframeClient={passkeyIframeClient!}
+                    iframeClient={iframeClient!}
                     onValidateSuccess={handleAuthSuccess}
                     onResendCode={handleResendCode}
                   />
