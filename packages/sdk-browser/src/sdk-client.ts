@@ -129,6 +129,7 @@ export class TurnkeyBrowserSDK {
       });
     }
 
+    // TODO: dynamically set the stamper
     return new TurnkeyPasskeyIframeClient({
       stamper: passkeyStamper,
       iframeStamper: iframeStamper,

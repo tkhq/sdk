@@ -135,7 +135,6 @@ export async function getWebAuthnAssertion(
 export async function getWebAuthnAttestation(
   options: TurnkeyCredentialCreationOptions
 ): Promise<TAttestation> {
-  console.log("getWebAuthnAttestation");
   const webAuthnSupported = hasWebAuthnSupport();
 
   if (!webAuthnSupported) {
