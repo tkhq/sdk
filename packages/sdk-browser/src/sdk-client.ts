@@ -11,8 +11,7 @@ import {
   Stamper,
   IframeClientParams,
   PasskeyClientParams,
-  PasskeyIframeClientParams,
-} from "@types";
+} from "./__types__/base";
 
 import type { User, SubOrganization, ReadWriteSession } from "@models";
 
@@ -22,7 +21,6 @@ import {
   TurnkeyBrowserClient,
   TurnkeyIframeClient,
   TurnkeyPasskeyClient,
-  TurnkeyPasskeyIframeClient,
   TurnkeyWalletClient,
 } from "./__clients__/browser-clients";
 import { VERSION } from "./__generated__/version";
@@ -65,75 +63,6 @@ export class TurnkeyBrowserSDK {
 
     return new TurnkeyPasskeyClient({
       stamper: this.stamper,
-      apiBaseUrl: this.config.apiBaseUrl,
-      organizationId: this.config.defaultOrganizationId,
-    });
-  };
-
-  /**
-   * Creates a passkey iframe client
-   * @param PasskeyIframeClientParams
-   * @returns new TurnkeyPasskeyIframeClient
-   */
-  passkeyIframeClient = async (
-    params: PasskeyIframeClientParams
-  ): Promise<TurnkeyPasskeyIframeClient> => {
-    let iframeStamper = params.iframeClient?.stamper as IframeStamper;
-    let passkeyStamper = params.passkeyClient?.stamper as WebauthnStamper;
-
-    // handle the case where the iframeClient is not provided
-    if (!params.iframeClient) {
-      if (!params.iframeUrl) {
-        throw new Error(
-          "Tried to initialize iframeClient with no iframeUrl defined"
-        );
-      }
-      if (!params.iframeContainer) {
-        throw new Error(
-          "Tried to initialize iframeClient with no iframeContainer provided"
-        );
-      }
-      const TurnkeyIframeElementId =
-        params.iframeElementId ?? "turnkey-default-iframe-element-id";
-
-      iframeStamper = new IframeStamper({
-        iframeContainer: params.iframeContainer,
-        iframeUrl: params.iframeUrl,
-        iframeElementId: TurnkeyIframeElementId,
-      });
-
-      // initialize the iframe and insert it into the DOM
-      await iframeStamper.init();
-    }
-
-    // handle the case where the passkeyClient is not provided
-    if (!params.passkeyClient) {
-      const targetRpId =
-        params?.rpId ?? this.config.rpId ?? WindowWrapper.location.hostname;
-
-      if (!targetRpId) {
-        throw new Error(
-          "Tried to initialize a passkey client with no rpId defined"
-        );
-      }
-
-      passkeyStamper = new WebauthnStamper({
-        rpId: targetRpId,
-        ...(params?.timeout !== undefined && { timeout: params?.timeout }),
-        ...(params?.userVerification !== undefined && {
-          userVerification: params?.userVerification,
-        }),
-        ...(params?.allowCredentials !== undefined && {
-          allowCredentials: params?.allowCredentials,
-        }),
-      });
-    }
-
-    // TODO: dynamically set the stamper
-    return new TurnkeyPasskeyIframeClient({
-      stamper: passkeyStamper,
-      iframeStamper: iframeStamper,
-      passkeyStamper: passkeyStamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
     });
@@ -251,7 +180,7 @@ export class TurnkeyBrowserSDK {
     const currentUser: User | undefined = await getStorageValue(
       StorageKeys.UserSession
     );
-
+    console.log("TurnkeyBrowserSDK getReadWriteSession", currentUser);
     if (currentUser?.session?.write) {
       if (currentUser.session.write.expiry > Date.now()) {
         return currentUser.session.write;
@@ -304,6 +233,5 @@ export {
   TurnkeyBrowserClient,
   TurnkeyIframeClient,
   TurnkeyPasskeyClient,
-  TurnkeyPasskeyIframeClient,
   TurnkeyWalletClient,
 };

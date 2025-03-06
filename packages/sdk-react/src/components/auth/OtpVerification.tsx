@@ -16,7 +16,7 @@ interface OtpVerificationProps {
   contact: string;
   suborgId: string;
   otpId: string;
-  passkeyIframeClient: any;
+  iframeClient: any;
   sessionLengthSeconds?: number | undefined;
   onValidateSuccess: (
     credentialBundle: any,
@@ -33,7 +33,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   contact,
   suborgId,
   otpId,
-  passkeyIframeClient,
+  iframeClient,
   sessionLengthSeconds,
   onValidateSuccess,
   onResendCode,
@@ -47,19 +47,21 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     setOtpError(null);
     setIsLoading(true);
     try {
+      // I'm a session
       const authResponse = await server.verifyOtp({
         suborgID: suborgId,
         otpId,
         otpCode: otp,
-        targetPublicKey: passkeyIframeClient!.iframePublicKey!,
+        targetPublicKey: iframeClient!.iframePublicKey!,
         sessionLengthSeconds,
       });
 
       if (authResponse?.token) {
-        await onValidateSuccess(
-          authResponse.token,
-          sessionLengthSeconds?.toString()
-        );
+        iframeClient!.loginWithSession(authResponse.token);
+        // await onValidateSuccess(
+        //   authResponse.token,
+        //   sessionLengthSeconds?.toString()
+        // );
       } else {
         setOtpError("Invalid code. Please try again.");
       }
