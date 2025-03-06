@@ -109,6 +109,11 @@ export const saveSession = async (
   }: TSessionResponse,
   authClient?: AuthClient
 ): Promise<void> => {
+  console.log(
+    "saveSession credentialBundle authClient",
+    credentialBundle,
+    authClient
+  );
   if (!authClient) {
     throw new Error("Failed to save session: Authentication client not set");
   }

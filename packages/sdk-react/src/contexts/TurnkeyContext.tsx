@@ -9,7 +9,6 @@ import {
   TurnkeyBrowserClient,
   TurnkeyWalletClient,
   AuthClient,
-  TurnkeyPasskeyIframeClient,
 } from "@turnkey/sdk-browser";
 import type { WalletInterface } from "@turnkey/wallet-stamper";
 import { useUserSession } from "../hooks/use-session";
@@ -19,7 +18,6 @@ export interface TurnkeyClientType {
   turnkey: Turnkey | undefined;
   iframeClient: TurnkeyIframeClient | undefined;
   passkeyClient: TurnkeyPasskeyClient | undefined;
-  passkeyIframeClient: TurnkeyPasskeyIframeClient | undefined;
   walletClient: TurnkeyWalletClient | undefined;
   getActiveClient: () => Promise<TurnkeyBrowserClient | undefined>;
 }
@@ -30,7 +28,6 @@ export const TurnkeyContext = createContext<TurnkeyClientType>({
   passkeyClient: undefined,
   iframeClient: undefined,
   walletClient: undefined,
-  passkeyIframeClient: undefined,
   getActiveClient: async () => {
     return undefined;
   },

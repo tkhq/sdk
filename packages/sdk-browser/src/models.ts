@@ -21,6 +21,7 @@ export interface User {
   };
 
   // Session information for the user, which can be either read-only or read-write.
+  // we only have a session object now
   session:
     | {
         // Optional read-only session details.

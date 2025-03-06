@@ -3,10 +3,6 @@ import type { WalletInterface, WalletStamper } from "@turnkey/wallet-stamper";
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IframeStamper } from "@turnkey/iframe-stamper";
-import type {
-  TurnkeyIframeClient,
-  TurnkeyPasskeyClient,
-} from "../__clients__/browser-clients";
 
 export type GrpcStatus = {
   message: string;
@@ -145,19 +141,6 @@ export interface PasskeyClientParams {
   allowCredentials?: PublicKeyCredentialDescriptor[];
 }
 
-export interface PasskeyIframeClientParams {
-  rpId?: string;
-  timeout?: number;
-  userVerification?: UserVerificationRequirement;
-  allowCredentials?: PublicKeyCredentialDescriptor[];
-  passkeyClient?: TurnkeyPasskeyClient;
-  iframeClient?: TurnkeyIframeClient;
-  iframeContainer?: HTMLElement | null | undefined;
-  iframeUrl?: string;
-  iframeElementId?: string;
-  readOnlySession?: string;
-}
-
 export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {
   wallet: WalletInterface;
 }
@@ -169,7 +152,6 @@ export enum AuthClient {
   Passkey = "passkey",
   Wallet = "wallet",
   Iframe = "iframe",
-  PasskeyIframe = "passkeyIframe",
 }
 
 export type TSessionResponse = Omit<

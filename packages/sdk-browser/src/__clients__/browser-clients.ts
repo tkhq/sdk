@@ -98,6 +98,8 @@ interface AddUserAuthParams {
   apiKeys?: ApiKey[]; // Array of API key objects to add
 }
 export class TurnkeyBrowserClient extends TurnkeyBaseClient {
+  iframeClient?: TurnkeyIframeClient;
+
   constructor(config: TurnkeySDKClientConfig, authClient?: AuthClient) {
     super(config, authClient);
   }
@@ -128,6 +130,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS
   ): Promise<void> => {
+    console.log("TurnkeyBrowserClient refereshSession");
     if (sessionType === SessionType.READ_ONLY) {
       if (this! instanceof TurnkeyPasskeyClient) {
         throw new Error(
@@ -186,6 +189,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     bundle: string, // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
     expirationSeconds: string // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
   ): Promise<void> => {
+    console.log("TurnkeyBrowserClient loginWithBundle");
     if (this! instanceof TurnkeyIframeClient) {
       await this.injectCredentialBundle(bundle);
     } else {
@@ -215,6 +219,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @returns {Promise<void>}
    */
   loginWithSession = async (session: Session): Promise<void> => {
+    console.log("TurnkeyBrowserClient loginWithSession");
     if (this instanceof TurnkeyIframeClient) {
       await this.injectCredentialBundle(session.token!);
     } else {
@@ -302,6 +307,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     userId?: string
   ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
+    console.log("TurnkeyBrowserClient loginWithReadWriteSession");
     const readWriteSessionResult = await this.createReadWriteSession({
       targetPublicKey: targetEmbeddedKey,
       expirationSeconds,
@@ -314,7 +320,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       credentialBundle: readWriteSessionResult.credentialBundle,
       sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
     };
-
+    console.log(
+      "TurnkeyBrowserClient loginWithReadWriteSession",
+      readWriteSessionResult
+    );
     // store auth bundle in local storage
     await saveSession(readWriteSessionResultWithSession, this.authClient);
 
@@ -333,6 +342,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS
   ): Promise<boolean> => {
     try {
+      console.log("TurnkeyBrowserClient loginWithAuthBundle before getWhoami");
       const whoAmIResult = await this.getWhoami();
 
       const readWriteSessionResultWithSession = {
@@ -340,7 +350,6 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         credentialBundle: credentialBundle,
         sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
       };
-
       await saveSession(readWriteSessionResultWithSession, this.authClient);
       return true;
     } catch {
@@ -724,7 +733,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     });
 
     const expiry = Date.now() + Number(expirationSeconds) * 1000;
-
+    console.log("passkeyClient createPasskeySession saveSession");
     await saveSession(
       {
         organizationId,
