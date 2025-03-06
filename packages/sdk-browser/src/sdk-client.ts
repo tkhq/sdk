@@ -37,7 +37,6 @@ export class TurnkeyBrowserSDK {
   protected stamper: Stamper | undefined;
 
   constructor(config: TurnkeySDKBrowserConfig) {
-    console.log("TurnkeyBrowserSDK aka Turnkey constructor config", config);
     this.config = config;
   }
 
@@ -77,7 +76,6 @@ export class TurnkeyBrowserSDK {
   iframeClient = async (
     params: IframeClientParams
   ): Promise<TurnkeyIframeClient> => {
-    console.log("TurnkeyBrowserSDK iframeClient params", params);
     if (!params.iframeUrl) {
       throw new Error(
         "Tried to initialize iframeClient with no iframeUrl defined"

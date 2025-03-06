@@ -20,7 +20,6 @@ export class TurnkeySDKClientBase {
 
   constructor(config: TurnkeySDKClientConfig) {
     this.config = config;
-    console.log('TurnkeySDKClientBase instantiated with: ', config);
     if (config.stamper) {
       this.stamper = config.stamper;
     }
