@@ -214,7 +214,7 @@ export class TurnkeyBrowserSDK {
 
   /**
    * If there is a valid, current read-session, this will return an auth bundle and its expiration. This auth bundle can be used in conjunction with an iframeStamper to create a read + write session.
-   *
+   * @deprecated use `getSession` instead
    * @returns {Promise<ReadWriteSession | undefined>}
    */
   getReadWriteSession = async (): Promise<ReadWriteSession | undefined> => {
@@ -233,7 +233,7 @@ export class TurnkeyBrowserSDK {
   };
 
   /**
-   * If there is a valid, current session, this will return it
+   * If there is a valid, active READ_WRITE session, this will return it
    *
    * @returns {Promise<Session | undefined>}
    */
