@@ -174,7 +174,7 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
           signWith: this.signWith,
           payload: messageHex,
           encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-          hashFunction: "HASH_FUNCTION_SHA256",
+          hashFunction: "HASH_FUNCTION_NO_OP",
         },
       });
 
