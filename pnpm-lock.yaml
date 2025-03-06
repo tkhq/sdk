@@ -1776,6 +1776,9 @@ importers:
         specifier: ^1.2.7
         version: 1.2.7
     devDependencies:
+      '@types/elliptic':
+        specifier: ^6.4.18
+        version: 6.4.18
       glob:
         specifier: ^8.0.3
         version: 8.1.0
@@ -12825,6 +12828,12 @@ packages:
     dependencies:
       '@types/ms': 0.7.34
     dev: false
+
+  /@types/elliptic@6.4.18:
+    resolution: {integrity: sha512-UseG6H5vjRiNpQvrhy4VF/JXdA3V/Fp5amvveaL+fs28BZ6xIKJBPnUPRlEaZpysD9MbpfaLi8lbl7PGUAkpWw==}
+    dependencies:
+      '@types/bn.js': 5.1.2
+    dev: true
 
   /@types/estree@0.0.39:
     resolution: {integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==}
