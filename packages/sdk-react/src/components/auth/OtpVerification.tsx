@@ -9,6 +9,8 @@ import SmsIcon from "@mui/icons-material/Sms";
 import { CircularProgress } from "@mui/material";
 import { OtpType, FilterType } from "./constants";
 import { server } from "@turnkey/sdk-server";
+import { useTurnkey } from "../../hooks/use-turnkey";
+import { useRouter } from "next/navigation";
 
 const resendTimerMs = 15000;
 interface OtpVerificationProps {
@@ -16,8 +18,6 @@ interface OtpVerificationProps {
   contact: string;
   suborgId: string;
   otpId: string;
-  authIframeClient: any;
-  passkeyIframeClient: any;
   sessionLengthSeconds?: number | undefined;
   onValidateSuccess: (
     credentialBundle: any,
@@ -34,12 +34,12 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   contact,
   suborgId,
   otpId,
-  authIframeClient,
-  passkeyIframeClient,
   sessionLengthSeconds,
   onValidateSuccess,
   onResendCode,
 }) => {
+  const { authIframeClient } = useTurnkey();
+  const router = useRouter();
   const [otpError, setOtpError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [resendText, setResendText] = useState("Resend code");
@@ -59,11 +59,8 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       });
 
       if (authResponse?.token) {
-        authIframeClient!.loginWithSession(authResponse.token);
-        // await onValidateSuccess(
-        //   authResponse.token,
-        //   sessionLengthSeconds?.toString()
-        // );
+        await authIframeClient!.loginWithSession(authResponse);
+        router.push("/dashboard");
       } else {
         setOtpError("Invalid code. Please try again.");
       }

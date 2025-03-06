@@ -11,11 +11,17 @@ import {
   Stamper,
   IframeClientParams,
   PasskeyClientParams,
+  SessionType,
 } from "./__types__/base";
 
 import type { User, SubOrganization, ReadWriteSession } from "@models";
 
-import { StorageKeys, getStorageValue, removeStorageValue } from "@storage";
+import {
+  Session,
+  StorageKeys,
+  getStorageValue,
+  removeStorageValue,
+} from "@storage";
 
 import {
   TurnkeyBrowserClient,
@@ -103,6 +109,7 @@ export class TurnkeyBrowserSDK {
   iframeClient = async (
     params: IframeClientParams
   ): Promise<TurnkeyIframeClient> => {
+    console.log("TurnkeyBrowserSDK iframeClient params", params);
     if (!params.iframeUrl) {
       throw new Error(
         "Tried to initialize iframeClient with no iframeUrl defined"
@@ -214,12 +221,31 @@ export class TurnkeyBrowserSDK {
     const currentUser: User | undefined = await getStorageValue(
       StorageKeys.UserSession
     );
-    console.log("TurnkeyBrowserSDK getReadWriteSession", currentUser);
     if (currentUser?.session?.write) {
       if (currentUser.session.write.expiry > Date.now()) {
         return currentUser.session.write;
       } else {
         await removeStorageValue(StorageKeys.ReadWriteSession);
+      }
+    }
+
+    return;
+  };
+
+  /**
+   * If there is a valid, current session, this will return it
+   *
+   * @returns {Promise<Session | undefined>}
+   */
+  getSession = async (): Promise<Session | undefined> => {
+    const currentSession: Session | undefined = await getStorageValue(
+      StorageKeys.Session
+    );
+    if (currentSession?.sessionType === SessionType.READ_WRITE) {
+      if (currentSession?.expiry > Date.now()) {
+        return currentSession;
+      } else {
+        await removeStorageValue(StorageKeys.Session);
       }
     }
 

@@ -87,6 +87,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
          * if the authIframeClient is not active, check if there's a readWriteSession in localStorage
          * and try to initialize an authIframeClient with it
          */
+        console.log("inside try / catch of getActiveClient");
         const readWriteSession = await turnkey?.getReadWriteSession();
 
         if (readWriteSession) {
