@@ -36,6 +36,11 @@ enum SessionType {
   READ_WRITE = "SESSION_TYPE_READ_WRITE",
 }
 
+enum SessionType {
+  READ_ONLY = "SESSION_TYPE_READ_ONLY",
+  READ_WRITE = "SESSION_TYPE_READ_WRITE",
+}
+
 type Session = {
   sessionType: SessionType;
   userId: string;
@@ -129,7 +134,7 @@ const turnkeyClient = new TurnkeyServerSDK({
 });
 
 export async function sendCredential(
-  request: InitEmailAuthRequest,
+  request: InitEmailAuthRequest
 ): Promise<void> {
   try {
     const response = await turnkeyClient.apiClient().emailAuth({
@@ -154,7 +159,7 @@ export async function sendCredential(
 }
 
 export async function sendOtp(
-  request: SendOtpRequest,
+  request: SendOtpRequest
 ): Promise<SendOtpResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().initOtpAuth({
@@ -177,7 +182,7 @@ export async function sendOtp(
 }
 
 export async function verifyOtp(
-  request: VerifyOtpRequest,
+  request: VerifyOtpRequest
 ): Promise<Session | undefined> {
   try {
     const response = await turnkeyClient.apiClient().otpAuth({
@@ -193,7 +198,7 @@ export async function verifyOtp(
     const { credentialBundle, apiKeyId, userId } = response;
     if (!credentialBundle || !apiKeyId || !userId) {
       throw new Error(
-        "Expected non-null values for credentialBundle, apiKeyId, and userId.",
+        "Expected non-null values for credentialBundle, apiKeyId, and userId."
       );
     }
     const session: Session = {
@@ -211,7 +216,7 @@ export async function verifyOtp(
 }
 
 export async function oauth(
-  request: OauthRequest,
+  request: OauthRequest
 ): Promise<Session | undefined> {
   try {
     const response = await turnkeyClient.apiClient().oauth({
@@ -226,7 +231,7 @@ export async function oauth(
     const { credentialBundle, apiKeyId, userId } = response;
     if (!credentialBundle || !apiKeyId || !userId) {
       throw new Error(
-        "Expected non-null values for credentialBundle, apiKeyId, and userId.",
+        "Expected non-null values for credentialBundle, apiKeyId, and userId."
       );
     }
     const session: Session = {
@@ -245,7 +250,7 @@ export async function oauth(
 }
 
 export async function getSuborgs(
-  request: GetSuborgsRequest,
+  request: GetSuborgsRequest
 ): Promise<GetSuborgsResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().getSubOrgIds({
@@ -265,7 +270,7 @@ export async function getSuborgs(
 }
 
 export async function getVerifiedSuborgs(
-  request: GetSuborgsRequest,
+  request: GetSuborgsRequest
 ): Promise<GetSuborgsResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().getVerifiedSubOrgIds({
@@ -285,7 +290,7 @@ export async function getVerifiedSuborgs(
 }
 
 export async function createSuborg(
-  request: CreateSuborgRequest,
+  request: CreateSuborgRequest
 ): Promise<CreateSuborgResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().createSubOrganization({
@@ -334,7 +339,7 @@ export async function createSuborg(
 }
 
 export async function getOrCreateSuborg(
-  request: GetOrCreateSuborgRequest,
+  request: GetOrCreateSuborgRequest
 ): Promise<GetOrCreateSuborgResponse | undefined> {
   try {
     // First try to get existing suborgs

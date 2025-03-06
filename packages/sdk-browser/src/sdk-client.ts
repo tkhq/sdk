@@ -108,6 +108,7 @@ export class TurnkeyBrowserSDK {
   iframeClient = async (
     params: IframeClientParams
   ): Promise<TurnkeyIframeClient> => {
+    console.log("TurnkeyBrowserSDK iframeClient params", params);
     if (!params.iframeUrl) {
       throw new Error(
         "Tried to initialize iframeClient with no iframeUrl defined"

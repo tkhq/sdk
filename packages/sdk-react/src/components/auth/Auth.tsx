@@ -141,6 +141,7 @@ const Auth: React.FC<AuthProps> = ({
     credentialBundle: any,
     expirationSeconds?: string
   ) => {
+    console.log("handleAuthSuccess");
     if (credentialBundle) {
       await authIframeClient!.injectCredentialBundle(credentialBundle);
       await authIframeClient!.loginWithAuthBundle(

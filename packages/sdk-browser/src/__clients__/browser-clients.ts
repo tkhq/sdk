@@ -242,6 +242,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     sessionType: SessionType = SessionType.READ_WRITE,
     iframeClient: TurnkeyIframeClient,
     targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
+
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS
   ): Promise<void> => {
     // Create a read-only session
@@ -260,12 +261,15 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
     // Create a read-write session
     if (sessionType === SessionType.READ_WRITE) {
+      console.log(
+        "TurnkeyBrowserClient loginWithPasskey createReadWriteSession targetPublicKey",
+        targetPublicKey
+      );
       if (!targetPublicKey) {
         throw new Error(
           "You must provide a targetPublicKey to create a read-write session."
         );
       }
-
       const readWriteSessionResult = await this.createReadWriteSession({
         targetPublicKey,
         expirationSeconds,
@@ -278,7 +282,6 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time from the response in a new version of the activity
         token: readWriteSessionResult.credentialBundle,
       };
-
       if (!iframeClient) {
         throw new Error(
           "You must provide an iframe client to log in with a passkey."
