@@ -1,5 +1,15 @@
 # @turnkey/sdk-react
 
+## 3.0.6
+
+### Patch Changes
+
+- Updated dependencies [56a307e]
+  - @turnkey/sdk-browser@1.15.0
+  - @turnkey/sdk-server@2.3.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 3.0.5
 
 ### Patch Changes

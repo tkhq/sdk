@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.21.0
+
+### Minor Changes
+
+- 56a307e: Update api to mono v2025.3.0
+
 ## 2.20.0
 
 ### Minor Changes

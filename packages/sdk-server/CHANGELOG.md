@@ -1,5 +1,16 @@
 # @turnkey/sdk-server
 
+## 2.3.0
+
+### Minor Changes
+
+- 56a307e: Update api to mono v2025.3.0
+
+### Patch Changes
+
+- Updated dependencies [56a307e]
+  - @turnkey/http@2.21.0
+
 ## 2.2.0
 
 ### Minor Changes
