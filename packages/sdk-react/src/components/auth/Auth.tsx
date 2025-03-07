@@ -60,6 +60,7 @@ const passkeyIconError = (
 );
 
 interface AuthProps {
+  onAuthSuccess: () => Promise<void>;
   onError: (errorMessage: string) => void;
   authConfig: {
     emailEnabled: boolean;
@@ -80,6 +81,7 @@ interface AuthProps {
 }
 
 const Auth: React.FC<AuthProps> = ({
+  onAuthSuccess,
   onError,
   authConfig,
   configOrder,
@@ -133,6 +135,20 @@ const Auth: React.FC<AuthProps> = ({
   const isValidPhone = (phone: string) => {
     const phoneNumber = parsePhoneNumberFromString(phone);
     return phoneNumber?.isValid() ?? false;
+  };
+
+  const handleAuthSuccess = async (
+    credentialBundle: any,
+    expirationSeconds?: string
+  ) => {
+    if (credentialBundle) {
+      await authIframeClient!.injectCredentialBundle(credentialBundle);
+      await authIframeClient!.loginWithAuthBundle(
+        credentialBundle,
+        expirationSeconds
+      );
+      await onAuthSuccess();
+    }
   };
 
   const handleSignupWithPasskey = async () => {
@@ -656,6 +672,7 @@ const Auth: React.FC<AuthProps> = ({
                     suborgId={suborgId}
                     otpId={otpId!}
                     sessionLengthSeconds={authConfig.sessionLengthSeconds}
+                    onValidateSuccess={handleAuthSuccess}
                     onResendCode={handleResendCode}
                   />
                 )}
