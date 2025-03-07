@@ -16,7 +16,7 @@ import { useUserSession } from "../hooks/use-session";
 export interface TurnkeyClientType {
   client: TurnkeyBrowserClient | undefined;
   turnkey: Turnkey | undefined;
-  iframeClient: TurnkeyIframeClient | undefined;
+  authIframeClient: TurnkeyIframeClient | undefined;
   passkeyClient: TurnkeyPasskeyClient | undefined;
   walletClient: TurnkeyWalletClient | undefined;
   getActiveClient: () => Promise<TurnkeyBrowserClient | undefined>;
@@ -26,7 +26,7 @@ export const TurnkeyContext = createContext<TurnkeyClientType>({
   client: undefined,
   turnkey: undefined,
   passkeyClient: undefined,
-  iframeClient: undefined,
+  authIframeClient: undefined,
   walletClient: undefined,
   getActiveClient: async () => {
     return undefined;
@@ -53,11 +53,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const [walletClient, setWalletClient] = useState<
     TurnkeyWalletClient | undefined
   >(undefined);
-  const [iframeClient, setIframeClient] = useState<
+  const [authIframeClient, setAuthIframeClient] = useState<
     TurnkeyIframeClient | undefined
   >(undefined);
   const [client, setClient] = useState<TurnkeyBrowserClient | undefined>(
-    undefined,
+    undefined
   );
 
   const { session } = useUserSession();
@@ -75,12 +75,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     console.log("TurnkeyContext getActiveClient currentUser:", currentUser);
     try {
       // check if the iframeClient is active
-      await iframeClient?.getWhoami({
+      await authIframeClient?.getWhoami({
         organizationId:
           currentUser?.organization.organizationId ??
           turnkey?.config.defaultOrganizationId!,
       });
-      currentClient = iframeClient;
+      currentClient = authIframeClient;
     } catch (error: any) {
       try {
         /**
@@ -134,13 +134,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         // create an instance of TurnkeyIframeClient
         const iframeClient = await turnkeyBrowserSDK.iframeClient({
           iframeContainer: document.getElementById(
-            TurnkeyAuthIframeContainerId,
+            TurnkeyAuthIframeContainerId
           ),
           iframeUrl: config.iframeUrl || "https://auth.turnkey.com",
           iframeElementId: TurnkeyAuthIframeElementId,
         });
 
-        setIframeClient(iframeClient);
+        setAuthIframeClient(iframeClient);
       }
     })();
   }, []);
@@ -162,10 +162,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       case AuthClient.Iframe:
         const expiry = session?.write?.expiry || 0;
         if (expiry > Date.now() && session?.write?.credentialBundle) {
-          iframeClient
+          authIframeClient
             ?.injectCredentialBundle(session.write.credentialBundle)
             .then(() => {
-              setClient(iframeClient);
+              setClient(authIframeClient);
             })
             .catch((error) => {
               console.error("Failed to inject credential bundle:", error);
@@ -182,7 +182,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         // Handle unknown auth client type if needed
         break;
     }
-  }, [session, iframeClient, passkeyClient, walletClient]);
+  }, [session, authIframeClient, passkeyClient, walletClient]);
 
   return (
     <TurnkeyContext.Provider
@@ -190,7 +190,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         client,
         turnkey,
         passkeyClient,
-        iframeClient,
+        authIframeClient,
         walletClient,
         getActiveClient,
       }}

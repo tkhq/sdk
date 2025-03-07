@@ -21,11 +21,11 @@ interface OtpVerificationProps {
   sessionLengthSeconds?: number | undefined;
   onValidateSuccess: (
     credentialBundle: any,
-    expirationSeconds?: string,
+    expirationSeconds?: string
   ) => Promise<void>;
   onResendCode: (
     type: FilterType.Email | FilterType.PhoneNumber,
-    value: string,
+    value: string
   ) => Promise<void>;
 }
 
@@ -37,7 +37,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   sessionLengthSeconds,
   onResendCode,
 }) => {
-  const { iframeClient } = useTurnkey();
+  const { authIframeClient } = useTurnkey();
   const router = useRouter();
   const [otpError, setOtpError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -52,12 +52,12 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         suborgID: suborgId,
         otpId,
         otpCode: otp,
-        targetPublicKey: iframeClient!.iframePublicKey!,
+        targetPublicKey: authIframeClient!.iframePublicKey!,
         sessionLengthSeconds,
       });
 
       if (authSession?.token) {
-        await iframeClient!.loginWithSession(authSession);
+        await authIframeClient!.loginWithSession(authSession);
         router.push("/dashboard");
       } else {
         setOtpError("Invalid code. Please try again.");
@@ -74,7 +74,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     try {
       await onResendCode(
         type === OtpType.Email ? FilterType.Email : FilterType.PhoneNumber,
-        contact,
+        contact
       );
       setResendText("Code sent ✓");
 
