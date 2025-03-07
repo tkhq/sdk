@@ -82,7 +82,7 @@ export default function AuthPage() {
     }
     try {
       await authIframeClient!.injectCredentialBundle(
-        authResponse?.credentialBundle
+        authResponse?.credentialBundle,
       );
     } catch (e) {
       const msg = `error while injecting bundle: ${e}`;
@@ -231,7 +231,7 @@ export default function AuthPage() {
 
 function refineNonNull<T>(
   input: T | null | undefined,
-  errorMessage?: string
+  errorMessage?: string,
 ): T {
   if (input == null) {
     throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
