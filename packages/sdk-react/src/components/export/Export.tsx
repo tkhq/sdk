@@ -34,7 +34,7 @@ const Export: React.FC<ExportProps> = ({
     // Wait for the modal and its content to render
     requestAnimationFrame(async () => {
       const iframeContainer = document.getElementById(
-        TurnkeyExportIframeContainerId
+        TurnkeyExportIframeContainerId,
       );
       if (!iframeContainer) {
         console.error("Iframe container not found.");
@@ -47,7 +47,7 @@ const Export: React.FC<ExportProps> = ({
         try {
           const newExportIframeClient = await turnkey?.iframeClient({
             iframeContainer: document.getElementById(
-              TurnkeyExportIframeContainerId
+              TurnkeyExportIframeContainerId,
             ),
             iframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
           });
@@ -96,7 +96,7 @@ const Export: React.FC<ExportProps> = ({
 
       await exportIframeClient?.injectWalletExportBundle(
         exportResponse.exportBundle,
-        whoami.organizationId
+        whoami.organizationId,
       );
 
       onHandleExportSuccess();

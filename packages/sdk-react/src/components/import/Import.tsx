@@ -28,7 +28,7 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
 
     requestAnimationFrame(async () => {
       const iframeContainer = document.getElementById(
-        TurnkeyImportIframeContainerId
+        TurnkeyImportIframeContainerId,
       );
       if (!iframeContainer) {
         console.error("Iframe container not found.");
@@ -41,7 +41,7 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
         try {
           const newImportIframeClient = await turnkey?.iframeClient({
             iframeContainer: document.getElementById(
-              TurnkeyImportIframeContainerId
+              TurnkeyImportIframeContainerId,
             ),
             iframeUrl: process.env.NEXT_PUBLIC_IMPORT_IFRAME_URL!,
           });
@@ -81,7 +81,7 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
       const injected = await importIframeClient!.injectImportBundle(
         initResult.importBundle,
         whoami.organizationId,
-        whoami.userId
+        whoami.userId,
       );
 
       if (!injected) {
