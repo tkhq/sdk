@@ -6,7 +6,7 @@ The `@turnkey/sdk-react` package simplifies the integration of the Turnkey API i
 
 - **Authentication**: Supports email, passkey, phone, and social logins.
 - **Wallet Operations**: Import and export wallets securely.
-- **Client Utilities**: Includes `passkeyClient`, `iframeClient`, and more.
+- **Client Utilities**: Includes `passkeyClient`, `authIframeClient`, and more.
 - **Components**: Abstracts auth, session, import and export logic away from the developer and provides simple, easy to use plug-and-play components
 - **Customization**: Theming options for your components to align with your application's design
 
@@ -54,7 +54,7 @@ In components nested under the `TurnkeyProvider`, you can access Turnkey utiliti
 import { useTurnkey } from "@turnkey/sdk-react";
 
 function ExampleComponent() {
-  const { turnkey, passkeyClient, iframeClient } = useTurnkey();
+  const { turnkey, passkeyClient, authIframeClient } = useTurnkey();
 
   const loginWithPasskey = async () => {
     // Creates a read only session with passkey
@@ -65,14 +65,14 @@ function ExampleComponent() {
     await turnkey?.serverSign("emailAuth", [
       {
         email: "<target user email>",
-        targetPublicKey: iframeClient.iframePublicKey,
+        targetPublicKey: authIframeClient.iframePublicKey,
         organizationId: "<target user suborg-id>",
       },
     ]);
   };
 
   const loginWithIframe = async (credentialBundle: string) => {
-    await iframeClient?.loginWithAuthBundle(credentialBundle); // Creates a read write session using a credential bundle returned from OTP Auth, Oauth, or Create Read Write session activities
+    await authIframeClient?.loginWithAuthBundle(credentialBundle); // Creates a read write session using a credential bundle returned from OTP Auth, Oauth, or Create Read Write session activities
   };
 
   return (

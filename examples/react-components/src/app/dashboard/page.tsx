@@ -46,7 +46,7 @@ import { Toaster, toast } from "sonner";
 
 export default function Dashboard() {
   const router = useRouter();
-  const { turnkey, iframeClient, passkeyClient } = useTurnkey();
+  const { turnkey, authIframeClient, passkeyClient } = useTurnkey();
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<any>([]);
   const [wallets, setWallets] = useState<any[]>([]);
@@ -56,7 +56,7 @@ export default function Dashboard() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isPasskeyModalOpen, setIsPasskeyModalOpen] = useState(false);
   const [messageToSign, setMessageToSign] = useState(
-    "Signing within Turnkey Demo.",
+    "Signing within Turnkey Demo."
   );
   const [signature, setSignature] = useState<any>(null);
   const [suborgId, setSuborgId] = useState<string>("");
@@ -87,7 +87,7 @@ export default function Dashboard() {
       suborgID: suborgId,
       otpType: OtpType.Email,
       contact: emailInput,
-      userIdentifier: iframeClient?.iframePublicKey!,
+      userIdentifier: authIframeClient?.iframePublicKey!,
     });
     if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
@@ -101,7 +101,7 @@ export default function Dashboard() {
       otpType: OtpType.Sms,
       contact: phoneInput,
       customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
-      userIdentifier: iframeClient?.iframePublicKey!,
+      userIdentifier: authIframeClient?.iframePublicKey!,
     });
     if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
@@ -132,7 +132,7 @@ export default function Dashboard() {
       toast.error("Email is already connected to another account");
       return;
     }
-    await iframeClient?.updateUser({
+    await authIframeClient?.updateUser({
       organizationId: suborgId,
       userId: user.userId,
       email: emailInput,
@@ -142,7 +142,7 @@ export default function Dashboard() {
       suborgID: suborgId,
       otpType: OtpType.Email,
       contact: emailInput,
-      userIdentifier: iframeClient?.iframePublicKey!,
+      userIdentifier: authIframeClient?.iframePublicKey!,
     });
     if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
@@ -166,7 +166,7 @@ export default function Dashboard() {
       toast.error("Phone Number is already connected to another account");
       return;
     }
-    await iframeClient?.updateUser({
+    await authIframeClient?.updateUser({
       organizationId: suborgId,
       userId: user.userId,
       phoneNumber: phoneInput,
@@ -177,7 +177,7 @@ export default function Dashboard() {
       otpType: OtpType.Sms,
       contact: phoneInput,
       customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
-      userIdentifier: iframeClient?.iframePublicKey!,
+      userIdentifier: authIframeClient?.iframePublicKey!,
     });
     if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
@@ -193,7 +193,7 @@ export default function Dashboard() {
     switch (oauthType) {
       case "Apple":
         oidcToken = await appleOidcToken({
-          iframePublicKey: iframeClient?.iframePublicKey!,
+          iframePublicKey: authIframeClient?.iframePublicKey!,
           clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!,
           redirectURI: `${process.env
             .NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`,
@@ -202,7 +202,7 @@ export default function Dashboard() {
 
       case "Facebook":
         oidcToken = await facebookOidcToken({
-          iframePublicKey: iframeClient?.iframePublicKey!,
+          iframePublicKey: authIframeClient?.iframePublicKey!,
           clientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!,
           redirectURI: `${process.env
             .NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`,
@@ -211,7 +211,7 @@ export default function Dashboard() {
 
       case "Google":
         oidcToken = await googleOidcToken({
-          iframePublicKey: iframeClient?.iframePublicKey!,
+          iframePublicKey: authIframeClient?.iframePublicKey!,
           clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
           redirectURI: `${process.env
             .NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`,
@@ -230,7 +230,7 @@ export default function Dashboard() {
         toast.error("Social login is already connected to another account");
         return;
       }
-      await iframeClient?.createOauthProviders({
+      await authIframeClient?.createOauthProviders({
         organizationId: suborgId,
         userId: user.userId,
         oauthProviders: [
@@ -261,7 +261,7 @@ export default function Dashboard() {
       })) || {};
 
     if (encodedChallenge && attestation) {
-      await iframeClient?.createAuthenticators({
+      await authIframeClient?.createAuthenticators({
         organizationId: suborgId,
         userId: user.userId,
         authenticators: [
@@ -286,7 +286,7 @@ export default function Dashboard() {
   };
 
   const handleDeleteAccount: any = async () => {
-    await iframeClient?.deleteSubOrganization({
+    await authIframeClient?.deleteSubOrganization({
       organizationId: suborgId,
       deleteWithoutExport: true,
     });
@@ -301,24 +301,24 @@ export default function Dashboard() {
   useEffect(() => {
     const manageSession = async () => {
       try {
-        if (turnkey && iframeClient) {
+        if (turnkey && authIframeClient) {
           const session = await turnkey?.getSession();
           if (!session || Date.now() > session!.expiry) {
             await handleLogout();
           }
 
-          await iframeClient.injectCredentialBundle(session!.token);
+          await authIframeClient.injectCredentialBundle(session!.token);
 
           const suborgId = session?.organizationId;
           setSuborgId(suborgId!);
 
-          const userResponse = await iframeClient!.getUser({
+          const userResponse = await authIframeClient!.getUser({
             organizationId: suborgId!,
             userId: session?.userId!,
           });
 
           setUser(userResponse.user);
-          const walletsResponse = await iframeClient!.getWallets({
+          const walletsResponse = await authIframeClient!.getWallets({
             organizationId: suborgId!,
           });
           setWallets(walletsResponse.wallets);
@@ -355,7 +355,7 @@ export default function Dashboard() {
             const defaultWalletId = walletsResponse.wallets[0].walletId;
             setSelectedWallet(defaultWalletId);
 
-            const accountsResponse = await iframeClient!.getWalletAccounts({
+            const accountsResponse = await authIframeClient!.getWalletAccounts({
               organizationId: suborgId!,
               walletId: defaultWalletId,
             });
@@ -371,13 +371,13 @@ export default function Dashboard() {
         setLoading(false);
       }
     };
-    if (iframeClient) {
+    if (authIframeClient) {
       manageSession();
     }
-  }, [iframeClient, turnkey]);
+  }, [authIframeClient, turnkey]);
 
   const getWallets = async () => {
-    const walletsResponse = await iframeClient!.getWallets({
+    const walletsResponse = await authIframeClient!.getWallets({
       organizationId: suborgId!,
     });
     setWallets(walletsResponse.wallets);
@@ -405,7 +405,7 @@ export default function Dashboard() {
     setAnchorEl(null);
 
     // Fetch accounts for the selected wallet
-    const accountsResponse = await iframeClient!.getWalletAccounts({
+    const accountsResponse = await authIframeClient!.getWalletAccounts({
       organizationId: suborgId!,
       walletId,
     });
@@ -425,7 +425,7 @@ export default function Dashboard() {
           ? keccak256(toUtf8Bytes(messageToSign)) // Ethereum requires keccak256 hash
           : Buffer.from(messageToSign, "utf8").toString("hex"); // Solana doesn't require hashing
 
-      const resp = await iframeClient?.signRawPayload({
+      const resp = await authIframeClient?.signRawPayload({
         organizationId: suborgId!,
         signWith: selectedAccount!,
         payload: hashedMessage,
@@ -452,19 +452,19 @@ export default function Dashboard() {
             signature.r,
             signature.s,
             signature.v,
-            selectedAccount!,
+            selectedAccount!
           )
         : verifySolSignatureWithAddress(
             messageToSign,
             signature.r,
             signature.s,
-            selectedAccount!,
+            selectedAccount!
           );
 
     setMessageSigningResult(
       verificationPassed
         ? "Verified! The address used to sign the message matches your wallet address."
-        : "Verification failed.",
+        : "Verification failed."
     );
   };
   if (loading) {
@@ -548,13 +548,13 @@ export default function Dashboard() {
               {user &&
                 user.oauthProviders &&
                 user.oauthProviders.some((provider: { issuer: string }) =>
-                  provider.issuer.toLowerCase().includes("google"),
+                  provider.issuer.toLowerCase().includes("google")
                 ) && <span className="loginMethodDetails">{}</span>}
             </div>
             {user &&
             user.oauthProviders &&
             user.oauthProviders.some((provider: { issuer: string }) =>
-              provider.issuer.toLowerCase().includes("google"),
+              provider.issuer.toLowerCase().includes("google")
             ) ? (
               <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
@@ -571,7 +571,7 @@ export default function Dashboard() {
             {user &&
             user.oauthProviders &&
             user.oauthProviders.some((provider: { issuer: string }) =>
-              provider.issuer.toLowerCase().includes("apple"),
+              provider.issuer.toLowerCase().includes("apple")
             ) ? (
               <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
@@ -588,7 +588,7 @@ export default function Dashboard() {
             {user &&
             user.oauthProviders &&
             user.oauthProviders.some((provider: { issuer: string }) =>
-              provider.issuer.toLowerCase().includes("facebook"),
+              provider.issuer.toLowerCase().includes("facebook")
             ) ? (
               <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
@@ -664,7 +664,7 @@ export default function Dashboard() {
                         account.addressFormat === "ADDRESS_FORMAT_ETHEREUM"
                           ? `https://etherscan.io/address/${account.address}`
                           : `https://solscan.io/account/${account.address}`,
-                        "_blank",
+                        "_blank"
                       )
                     }
                     style={{
@@ -681,7 +681,7 @@ export default function Dashboard() {
                     )}
                     <span className="accountAddress">{`${account.address.slice(
                       0,
-                      5,
+                      5
                     )}...${account.address.slice(-5)}`}</span>
                     <LaunchIcon className="launchIcon" />
                   </div>

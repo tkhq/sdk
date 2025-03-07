@@ -30,7 +30,7 @@ type AuthFormData = {
 
 export default function AuthPage() {
   const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
-  const { iframeClient } = useTurnkey();
+  const { authIframeClient } = useTurnkey();
   const { register: authFormRegister, handleSubmit: authFormSubmit } =
     useForm<AuthFormData>();
   const {
@@ -60,14 +60,14 @@ export default function AuthPage() {
   const auth = async (
     data: AuthFormData,
     oidcCredential: string,
-    suborgID: string,
+    suborgID: string
   ) => {
-    if (iframeClient === null) {
+    if (authIframeClient === null) {
       throw new Error("cannot initialize auth without an iframe");
     }
     const response = await axios.post("/api/auth", {
       suborgID,
-      targetPublicKey: iframeClient!.iframePublicKey!,
+      targetPublicKey: authIframeClient!.iframePublicKey!,
       oidcToken: oidcCredential,
       invalidateExisting: data.invalidateExisting,
     });
@@ -76,7 +76,7 @@ export default function AuthPage() {
   };
 
   const injectCredentials = async (data: InjectCredentialsFormData) => {
-    if (iframeClient === null) {
+    if (authIframeClient === null) {
       throw new Error("iframe client is null");
     }
     if (authResponse === null) {
@@ -84,7 +84,9 @@ export default function AuthPage() {
     }
 
     try {
-      await iframeClient!.injectCredentialBundle(authResponse.credentialBundle);
+      await authIframeClient!.injectCredentialBundle(
+        authResponse.credentialBundle
+      );
     } catch (e) {
       const msg = `error while injecting bundle: ${e}`;
       console.error(msg);
@@ -93,13 +95,13 @@ export default function AuthPage() {
     }
 
     // get whoami for suborg
-    const whoamiResponse = await iframeClient!.getWhoami({
+    const whoamiResponse = await authIframeClient!.getWhoami({
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
     const orgID = whoamiResponse.organizationId;
 
-    const createWalletResponse = await iframeClient!.createWallet({
+    const createWalletResponse = await authIframeClient!.createWallet({
       organizationId: orgID,
       walletName: data.walletName,
       accounts: [
@@ -134,10 +136,10 @@ export default function AuthPage() {
         />
       </a>
 
-      {!iframeClient && <p>Loading...</p>}
+      {!authIframeClient && <p>Loading...</p>}
 
-      {iframeClient &&
-        iframeClient.iframePublicKey &&
+      {authIframeClient &&
+        authIframeClient.iframePublicKey &&
         authResponse === null && (
           <form className={styles.form}>
             <label className={styles.label}>
@@ -151,8 +153,8 @@ export default function AuthPage() {
             <label className={styles.label}>
               Encryption Target from iframe:
               <br />
-              <code title={iframeClient.iframePublicKey!}>
-                {iframeClient.iframePublicKey!.substring(0, 30)}...
+              <code title={authIframeClient.iframePublicKey!}>
+                {authIframeClient.iframePublicKey!.substring(0, 30)}...
               </code>
             </label>
 
@@ -160,7 +162,7 @@ export default function AuthPage() {
               clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
             >
               <GoogleLogin
-                nonce={bytesToHex(sha256(iframeClient.iframePublicKey!))}
+                nonce={bytesToHex(sha256(authIframeClient.iframePublicKey!))}
                 onSuccess={handleGoogleLogin}
                 useOneTap
               />
@@ -168,8 +170,8 @@ export default function AuthPage() {
           </form>
         )}
 
-      {iframeClient &&
-        iframeClient.iframePublicKey &&
+      {authIframeClient &&
+        authIframeClient.iframePublicKey &&
         authResponse !== null && (
           <form
             className={styles.form}
@@ -197,7 +199,7 @@ export default function AuthPage() {
 
 function refineNonNull<T>(
   input: T | null | undefined,
-  errorMessage?: string,
+  errorMessage?: string
 ): T {
   if (input == null) {
     throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
