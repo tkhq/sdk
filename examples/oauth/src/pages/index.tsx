@@ -60,7 +60,7 @@ export default function AuthPage() {
   const auth = async (
     data: AuthFormData,
     oidcCredential: string,
-    suborgID: string
+    suborgID: string,
   ) => {
     if (iframeClient === null) {
       throw new Error("cannot initialize auth without an iframe");
@@ -197,7 +197,7 @@ export default function AuthPage() {
 
 function refineNonNull<T>(
   input: T | null | undefined,
-  errorMessage?: string
+  errorMessage?: string,
 ): T {
   if (input == null) {
     throw new Error(errorMessage ?? `Unexpected ${JSON.stringify(input)}`);
