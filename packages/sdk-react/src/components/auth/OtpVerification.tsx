@@ -35,7 +35,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   suborgId,
   otpId,
   sessionLengthSeconds,
-  onValidateSuccess,
   onResendCode,
 }) => {
   const { iframeClient } = useTurnkey();
