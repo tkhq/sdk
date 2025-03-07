@@ -19,6 +19,10 @@ interface OtpVerificationProps {
   suborgId: string;
   otpId: string;
   sessionLengthSeconds?: number | undefined;
+  onValidateSuccess: (
+    credentialBundle: any,
+    expirationSeconds?: string
+  ) => Promise<void>;
   onResendCode: (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string
