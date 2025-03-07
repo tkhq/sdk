@@ -57,7 +57,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     TurnkeyIframeClient | undefined
   >(undefined);
   const [client, setClient] = useState<TurnkeyBrowserClient | undefined>(
-    undefined
+    undefined,
   );
 
   const { session } = useUserSession();
@@ -134,7 +134,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         // create an instance of TurnkeyIframeClient
         const iframeClient = await turnkeyBrowserSDK.iframeClient({
           iframeContainer: document.getElementById(
-            TurnkeyAuthIframeContainerId
+            TurnkeyAuthIframeContainerId,
           ),
           iframeUrl: config.iframeUrl || "https://auth.turnkey.com",
           iframeElementId: TurnkeyAuthIframeElementId,

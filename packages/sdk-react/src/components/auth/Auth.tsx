@@ -136,14 +136,14 @@ const Auth: React.FC<AuthProps> = ({
 
   const handleAuthSuccess = async (
     credentialBundle: any,
-    expirationSeconds?: string
+    expirationSeconds?: string,
   ) => {
     console.log("handleAuthSuccess");
     if (credentialBundle) {
       await iframeClient!.injectCredentialBundle(credentialBundle);
       await iframeClient!.loginWithAuthBundle(
         credentialBundle,
-        expirationSeconds
+        expirationSeconds,
       );
       await onAuthSuccess();
     }
@@ -193,7 +193,7 @@ const Auth: React.FC<AuthProps> = ({
       await passkeyClient?.loginWithPasskey(
         SessionType.READ_WRITE,
         iframeClient!,
-        iframeClient?.iframePublicKey!
+        iframeClient?.iframePublicKey!,
       );
       router.push("/dashboard");
     } catch {
@@ -206,7 +206,7 @@ const Auth: React.FC<AuthProps> = ({
       await passkeyClient?.loginWithPasskey(
         SessionType.READ_WRITE,
         iframeClient!,
-        iframeClient?.iframePublicKey!
+        iframeClient?.iframePublicKey!,
       );
       router.push("/dashboard");
     } catch (error) {
@@ -217,7 +217,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleOtpLogin = async (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
-    otpType: string
+    otpType: string,
   ) => {
     const createSuborgData: Record<string, any> = {};
     if (type === FilterType.Email) createSuborgData.email = value;
