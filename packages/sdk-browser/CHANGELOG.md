@@ -1,5 +1,18 @@
 # @turnkey/sdk-browser
 
+## 1.15.0
+
+### Minor Changes
+
+- 56a307e: Update api to mono v2025.3.0
+
+### Patch Changes
+
+- Updated dependencies [56a307e]
+  - @turnkey/http@2.21.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 1.14.0
 
 ### Minor Changes
