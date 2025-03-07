@@ -59,7 +59,6 @@ const passkeyIconError = (
   </svg>
 );
 interface AuthProps {
-  onAuthSuccess: () => Promise<void>;
   onError: (errorMessage: string) => void;
   authConfig: {
     emailEnabled: boolean;
@@ -79,7 +78,6 @@ interface AuthProps {
 }
 
 const Auth: React.FC<AuthProps> = ({
-  onAuthSuccess,
   onError,
   authConfig,
   configOrder,
@@ -134,21 +132,6 @@ const Auth: React.FC<AuthProps> = ({
     return phoneNumber?.isValid() ?? false;
   };
 
-  const handleAuthSuccess = async (
-    credentialBundle: any,
-    expirationSeconds?: string,
-  ) => {
-    console.log("handleAuthSuccess");
-    if (credentialBundle) {
-      await authIframeClient!.injectCredentialBundle(credentialBundle);
-      await authIframeClient!.loginWithAuthBundle(
-        credentialBundle,
-        expirationSeconds,
-      );
-      await onAuthSuccess();
-    }
-  };
-
   const handleSignupWithPasskey = async () => {
     setPasskeySignupError("");
     const siteInfo = `${
@@ -193,7 +176,7 @@ const Auth: React.FC<AuthProps> = ({
       await passkeyClient?.loginWithPasskey(
         SessionType.READ_WRITE,
         authIframeClient!,
-        authIframeClient?.iframePublicKey!,
+        authIframeClient?.iframePublicKey!
       );
       router.push("/dashboard");
     } catch {
@@ -206,7 +189,7 @@ const Auth: React.FC<AuthProps> = ({
       await passkeyClient?.loginWithPasskey(
         SessionType.READ_WRITE,
         authIframeClient!,
-        authIframeClient?.iframePublicKey!,
+        authIframeClient?.iframePublicKey!
       );
       router.push("/dashboard");
     } catch (error) {
@@ -217,7 +200,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleOtpLogin = async (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
-    otpType: string,
+    otpType: string
   ) => {
     const createSuborgData: Record<string, any> = {};
     if (type === FilterType.Email) createSuborgData.email = value;
@@ -591,7 +574,6 @@ const Auth: React.FC<AuthProps> = ({
                     suborgId={suborgId}
                     otpId={otpId!}
                     sessionLengthSeconds={authConfig.sessionLengthSeconds}
-                    onValidateSuccess={handleAuthSuccess}
                     onResendCode={handleResendCode}
                   />
                 )}
