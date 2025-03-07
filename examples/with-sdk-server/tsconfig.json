@@ -9,7 +9,8 @@
     "sourceMap": true,
     "target": "es2022",
     "types": ["node"],
-    "outDir": "dist"
+    "outDir": "dist",
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
