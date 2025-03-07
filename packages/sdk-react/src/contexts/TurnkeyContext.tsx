@@ -16,7 +16,7 @@ import { useUserSession } from "../hooks/use-session";
 export interface TurnkeyClientType {
   client: TurnkeyBrowserClient | undefined;
   turnkey: Turnkey | undefined;
-  iframeClient: TurnkeyIframeClient | undefined;
+  authIframeClient: TurnkeyIframeClient | undefined;
   passkeyClient: TurnkeyPasskeyClient | undefined;
   walletClient: TurnkeyWalletClient | undefined;
   getActiveClient: () => Promise<TurnkeyBrowserClient | undefined>;
@@ -26,7 +26,7 @@ export const TurnkeyContext = createContext<TurnkeyClientType>({
   client: undefined,
   turnkey: undefined,
   passkeyClient: undefined,
-  iframeClient: undefined,
+  authIframeClient: undefined,
   walletClient: undefined,
   getActiveClient: async () => {
     return undefined;
@@ -57,7 +57,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     TurnkeyIframeClient | undefined
   >(undefined);
   const [client, setClient] = useState<TurnkeyBrowserClient | undefined>(
-    undefined,
+    undefined
   );
 
   const { session } = useUserSession();
@@ -122,7 +122,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         // create an instance of TurnkeyIframeClient
         const iframeClient = await turnkeyBrowserSDK.iframeClient({
           iframeContainer: document.getElementById(
-            TurnkeyAuthIframeContainerId,
+            TurnkeyAuthIframeContainerId
           ),
           iframeUrl: config.iframeUrl || "https://auth.turnkey.com",
           ...(config.dangerouslyOverrideIframeKeyTtl && {
