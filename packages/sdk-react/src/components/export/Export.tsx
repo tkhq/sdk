@@ -20,7 +20,7 @@ const Export: React.FC<ExportProps> = ({
   onHandleExportSuccess,
   onError,
 }) => {
-  const { authIframeClient, turnkey } = useTurnkey();
+  const { iframeClient, turnkey } = useTurnkey();
   const [exportIframeClient, setExportIframeClient] =
     useState<TurnkeyIframeClient | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -82,9 +82,9 @@ const Export: React.FC<ExportProps> = ({
 
   const exportWallet = async () => {
     try {
-      const whoami = await authIframeClient!.getWhoami();
+      const whoami = await iframeClient!.getWhoami();
 
-      const exportResponse = await authIframeClient?.exportWallet({
+      const exportResponse = await iframeClient?.exportWallet({
         organizationId: whoami.organizationId,
         walletId: walletId!,
         targetPublicKey: exportIframeClient!.iframePublicKey!,

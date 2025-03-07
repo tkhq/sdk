@@ -1,6 +1,6 @@
-import type { User, ReadWriteSession } from "./models";
-import WindowWrapper from "./__polyfills__/window";
-import type { AuthClient, TSessionResponse } from "./__types__/base";
+import type { User, ReadWriteSession } from "@models";
+import WindowWrapper from "@polyfills/window";
+import type { AuthClient, SessionType, TSessionResponse } from "@types";
 
 export enum StorageKeys {
   AuthBundle = "@turnkey/auth_bundle", // DEPRECATED
@@ -12,12 +12,13 @@ export enum StorageKeys {
 }
 
 export type Session = {
-  sessionType: string;
+  sessionType: SessionType;
   userId: string;
   organizationId: string;
   expiry: number;
   token: string;
 };
+
 interface StorageValue {
   [StorageKeys.AuthBundle]: string; // DEPRECATED
   [StorageKeys.CurrentUser]: User; // DEPRECATED
@@ -84,7 +85,8 @@ export const removeStorageValue = async <K extends StorageKeys>(
  */
 
 export const storeSession = async (session: Session, client: AuthClient) => {
-  //TODO rename and remove saveSession
+  // TODO: rename and remove saveSession
+  console.log("storeSession", session, client);
   await setStorageValue(StorageKeys.Session, session);
   await setStorageValue(StorageKeys.Client, client);
 };
@@ -109,6 +111,11 @@ export const saveSession = async (
   }: TSessionResponse,
   authClient?: AuthClient,
 ): Promise<void> => {
+  console.log(
+    "saveSession credentialBundle authClient",
+    credentialBundle,
+    authClient,
+  );
   if (!authClient) {
     throw new Error("Failed to save session: Authentication client not set");
   }

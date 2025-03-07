@@ -45,7 +45,7 @@ import { Toaster, toast } from "sonner";
 
 export default function Dashboard() {
   const router = useRouter();
-  const { turnkey, authIframeClient, passkeyClient } = useTurnkey();
+  const { turnkey, iframeClient, passkeyClient } = useTurnkey();
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<any>([]);
   const [wallets, setWallets] = useState<any[]>([]);
@@ -86,7 +86,7 @@ export default function Dashboard() {
       suborgID: suborgId,
       otpType: OtpType.Email,
       contact: emailInput,
-      userIdentifier: authIframeClient?.iframePublicKey!,
+      userIdentifier: iframeClient?.iframePublicKey!,
     });
     if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
@@ -100,7 +100,7 @@ export default function Dashboard() {
       otpType: OtpType.Sms,
       contact: phoneInput,
       customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
-      userIdentifier: authIframeClient?.iframePublicKey!,
+      userIdentifier: iframeClient?.iframePublicKey!,
     });
     if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
@@ -131,7 +131,7 @@ export default function Dashboard() {
       toast.error("Email is already connected to another account");
       return;
     }
-    await authIframeClient?.updateUser({
+    await iframeClient?.updateUser({
       organizationId: suborgId,
       userId: user.userId,
       userEmail: emailInput,
@@ -141,7 +141,7 @@ export default function Dashboard() {
       suborgID: suborgId,
       otpType: OtpType.Email,
       contact: emailInput,
-      userIdentifier: authIframeClient?.iframePublicKey!,
+      userIdentifier: iframeClient?.iframePublicKey!,
     });
     if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
@@ -165,7 +165,7 @@ export default function Dashboard() {
       toast.error("Phone Number is already connected to another account");
       return;
     }
-    await authIframeClient?.updateUser({
+    await iframeClient?.updateUser({
       organizationId: suborgId,
       userId: user.userId,
       userPhoneNumber: phoneInput,
@@ -176,7 +176,7 @@ export default function Dashboard() {
       otpType: OtpType.Sms,
       contact: phoneInput,
       customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
-      userIdentifier: authIframeClient?.iframePublicKey!,
+      userIdentifier: iframeClient?.iframePublicKey!,
     });
     if (!sendOtpResponse || !sendOtpResponse.otpId!) {
       toast.error("Failed to send OTP");
@@ -192,7 +192,7 @@ export default function Dashboard() {
     switch (oauthType) {
       case "Apple":
         oidcToken = await appleOidcToken({
-          iframePublicKey: authIframeClient?.iframePublicKey!,
+          iframePublicKey: iframeClient?.iframePublicKey!,
           clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!,
           redirectURI: `${process.env
             .NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`,
@@ -201,7 +201,7 @@ export default function Dashboard() {
 
       case "Facebook":
         oidcToken = await facebookOidcToken({
-          iframePublicKey: authIframeClient?.iframePublicKey!,
+          iframePublicKey: iframeClient?.iframePublicKey!,
           clientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!,
           redirectURI: `${process.env
             .NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`,
@@ -210,7 +210,7 @@ export default function Dashboard() {
 
       case "Google":
         oidcToken = await googleOidcToken({
-          iframePublicKey: authIframeClient?.iframePublicKey!,
+          iframePublicKey: iframeClient?.iframePublicKey!,
           clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
           redirectURI: `${process.env
             .NEXT_PUBLIC_OAUTH_REDIRECT_URI!}dashboard`,
@@ -229,7 +229,7 @@ export default function Dashboard() {
         toast.error("Social login is already connected to another account");
         return;
       }
-      await authIframeClient?.createOauthProviders({
+      await iframeClient?.createOauthProviders({
         organizationId: suborgId,
         userId: user.userId,
         oauthProviders: [
@@ -260,7 +260,7 @@ export default function Dashboard() {
       })) || {};
 
     if (encodedChallenge && attestation) {
-      await authIframeClient?.createAuthenticators({
+      await iframeClient?.createAuthenticators({
         organizationId: suborgId,
         userId: user.userId,
         authenticators: [
@@ -284,7 +284,7 @@ export default function Dashboard() {
   };
 
   const handleDeleteAccount: any = async () => {
-    await authIframeClient?.deleteSubOrganization({
+    await iframeClient?.deleteSubOrganization({
       organizationId: suborgId,
       deleteWithoutExport: true,
     });
@@ -292,31 +292,31 @@ export default function Dashboard() {
   };
 
   const handleLogout: any = async () => {
-    turnkey?.logoutUser();
+    await turnkey?.logout();
     router.push("/");
   };
+
   useEffect(() => {
     const manageSession = async () => {
       try {
-        if (turnkey && authIframeClient) {
-          const session = await turnkey?.getReadWriteSession();
+        if (turnkey && iframeClient) {
+          const session = await turnkey?.getSession();
           if (!session || Date.now() > session!.expiry) {
             await handleLogout();
           }
-          await authIframeClient.injectCredentialBundle(
-            session!.credentialBundle,
-          );
-          const whoami = await authIframeClient?.getWhoami();
-          const suborgId = whoami?.organizationId;
+
+          await iframeClient.injectCredentialBundle(session!.token);
+
+          const suborgId = session?.organizationId;
           setSuborgId(suborgId!);
 
-          const userResponse = await authIframeClient!.getUser({
+          const userResponse = await iframeClient!.getUser({
             organizationId: suborgId!,
-            userId: whoami?.userId!,
+            userId: session?.userId!,
           });
 
           setUser(userResponse.user);
-          const walletsResponse = await authIframeClient!.getWallets({
+          const walletsResponse = await iframeClient!.getWallets({
             organizationId: suborgId!,
           });
           setWallets(walletsResponse.wallets);
@@ -353,7 +353,7 @@ export default function Dashboard() {
             const defaultWalletId = walletsResponse.wallets[0].walletId;
             setSelectedWallet(defaultWalletId);
 
-            const accountsResponse = await authIframeClient!.getWalletAccounts({
+            const accountsResponse = await iframeClient!.getWalletAccounts({
               organizationId: suborgId!,
               walletId: defaultWalletId,
             });
@@ -369,13 +369,13 @@ export default function Dashboard() {
         setLoading(false);
       }
     };
-    if (authIframeClient) {
+    if (iframeClient) {
       manageSession();
     }
-  }, [authIframeClient, turnkey]);
+  }, [iframeClient, turnkey]);
 
   const getWallets = async () => {
-    const walletsResponse = await authIframeClient!.getWallets({
+    const walletsResponse = await iframeClient!.getWallets({
       organizationId: suborgId!,
     });
     setWallets(walletsResponse.wallets);
@@ -403,7 +403,7 @@ export default function Dashboard() {
     setAnchorEl(null);
 
     // Fetch accounts for the selected wallet
-    const accountsResponse = await authIframeClient!.getWalletAccounts({
+    const accountsResponse = await iframeClient!.getWalletAccounts({
       organizationId: suborgId!,
       walletId,
     });
@@ -423,7 +423,7 @@ export default function Dashboard() {
           ? keccak256(toUtf8Bytes(messageToSign)) // Ethereum requires keccak256 hash
           : Buffer.from(messageToSign, "utf8").toString("hex"); // Solana doesn't require hashing
 
-      const resp = await authIframeClient?.signRawPayload({
+      const resp = await iframeClient?.signRawPayload({
         organizationId: suborgId!,
         signWith: selectedAccount!,
         payload: hashedMessage,
@@ -1089,7 +1089,6 @@ export default function Dashboard() {
               contact={emailInput ? emailInput : phoneInput}
               suborgId={suborgId}
               otpId={otpId!}
-              authIframeClient={authIframeClient!}
               onValidateSuccess={handleOtpSuccess}
               onResendCode={emailInput ? handleResendEmail : handleResendSms}
             />

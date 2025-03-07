@@ -1,4 +1,4 @@
-import type { AuthClient } from "./__types__/base";
+import type { AuthClient } from "@types";
 
 /**
  * This interface defines the structure of user data that will be stored in local storage
@@ -21,6 +21,7 @@ export interface User {
   };
 
   // Session information for the user, which can be either read-only or read-write.
+  // we only have a session object now
   session:
     | {
         // Optional read-only session details.
