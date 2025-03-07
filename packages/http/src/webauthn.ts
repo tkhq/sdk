@@ -46,7 +46,7 @@ const defaultSigningOptions: TurnkeyCredentialRequestOptions = {
 
 async function getCredentialRequestOptions(
   payload: string,
-  tkSigningOptions: TurnkeyCredentialRequestOptions = defaultSigningOptions
+  tkSigningOptions: TurnkeyCredentialRequestOptions = defaultSigningOptions,
 ): Promise<CredentialRequestOptions> {
   const challenge = await getChallengeFromPayload(payload);
 
@@ -72,7 +72,7 @@ async function getChallengeFromPayload(payload: string): Promise<Uint8Array> {
 
 /* Pulled from https://www.w3.org/TR/webauthn-2/#enum-transport */
 export function protocolTransportEnumToInternalEnum(
-  protocolEnum: ExternalAuthenticatorTransports
+  protocolEnum: ExternalAuthenticatorTransports,
 ): InternalAuthenticatorTransports {
   switch (protocolEnum) {
     case "internal": {
@@ -97,21 +97,21 @@ export function protocolTransportEnumToInternalEnum(
 }
 
 function toInternalAttestation(
-  attestation: PublicKeyCredentialWithAttestationJSON
+  attestation: PublicKeyCredentialWithAttestationJSON,
 ): TAttestation {
   return {
     credentialId: attestation.rawId,
     attestationObject: attestation.response.attestationObject,
     clientDataJson: attestation.response.clientDataJSON,
     transports: attestation.response.transports.map(
-      protocolTransportEnumToInternalEnum
+      protocolTransportEnumToInternalEnum,
     ),
   };
 }
 
 export async function getWebAuthnAssertion(
   payload: string,
-  options?: TurnkeyCredentialRequestOptions
+  options?: TurnkeyCredentialRequestOptions,
 ): Promise<string> {
   const webAuthnSupported = hasWebAuthnSupport();
 
@@ -133,7 +133,7 @@ export async function getWebAuthnAssertion(
 }
 
 export async function getWebAuthnAttestation(
-  options: TurnkeyCredentialCreationOptions
+  options: TurnkeyCredentialCreationOptions,
 ): Promise<TAttestation> {
   const webAuthnSupported = hasWebAuthnSupport();
 
