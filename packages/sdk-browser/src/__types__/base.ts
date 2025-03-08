@@ -16,6 +16,11 @@ export enum MethodType {
   Command,
 }
 
+export enum SessionType {
+  READ_ONLY = "SESSION_TYPE_READ_ONLY",
+  READ_WRITE = "SESSION_TYPE_READ_WRITE",
+}
+
 export type TStamp = {
   stampHeaderName: string;
   stampHeaderValue: string;
@@ -88,6 +93,13 @@ export type TurnkeySDKClientConfig =
   | SDKClientConfigWithStamper
   | SDKClientConfigWithReadOnlySession;
 
+export interface TurnkeySDKClientPasskeyIframeConfig
+  extends BaseSDKClientConfig {
+  stamper: TStamper;
+  iframeStamper: IframeStamper;
+  passkeyStamper: WebauthnStamper;
+}
+
 export interface TurnkeySDKBrowserConfig {
   apiBaseUrl: string;
   defaultOrganizationId: string;
@@ -111,6 +123,13 @@ export interface IframeClientParams {
   iframeContainer: HTMLElement | null | undefined;
   iframeUrl: string;
   iframeElementId?: string;
+}
+
+export interface PasskeyClientParams {
+  rpId?: string;
+  timeout?: number;
+  userVerification?: UserVerificationRequirement;
+  allowCredentials?: PublicKeyCredentialDescriptor[];
 }
 
 export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {

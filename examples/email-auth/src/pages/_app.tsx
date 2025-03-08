@@ -13,14 +13,12 @@ const turnkeyConfig = {
 
 function EmailAuth({ Component, pageProps }: AppProps) {
   return (
-    <div>
-      <TurnkeyProvider config={turnkeyConfig}>
-        <Head>
-          <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        </Head>
-        <Component {...pageProps} />
-      </TurnkeyProvider>
-    </div>
+    <TurnkeyProvider config={turnkeyConfig}>
+      <Head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      </Head>
+      <Component {...pageProps} />
+    </TurnkeyProvider>
   );
 }
 

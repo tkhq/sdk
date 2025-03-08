@@ -56,7 +56,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const [authIframeClient, setAuthIframeClient] = useState<
     TurnkeyIframeClient | undefined
   >(undefined);
-
   const [client, setClient] = useState<TurnkeyBrowserClient | undefined>(
     undefined,
   );
@@ -69,6 +68,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const TurnkeyAuthIframeElementId = "turnkey-auth-iframe-element-id";
 
   const getActiveClient = async () => {
+    // default the currentClient to the passkeyClient
     let currentClient: TurnkeyBrowserClient | undefined = passkeyClient;
     const currentUser = await turnkey?.getCurrentUser();
 
@@ -82,24 +82,21 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       currentClient = authIframeClient;
     } catch (error: any) {
       try {
-        // if not, check if there's a readWriteSession in localStorage, and try to initialize an iframeClient with it
-        const readWriteSession = await turnkey?.getReadWriteSession();
+        /**
+         * if the iframeClient is not active, check if there's a readWriteSession in localStorage
+         * and try to initialize an iframeClient with it
+         */
+        const readWriteSession = await turnkey?.getSession();
 
         if (readWriteSession) {
-          const injected = await authIframeClient?.injectCredentialBundle(
-            readWriteSession.credentialBundle,
-          );
-          if (injected) {
-            await authIframeClient?.getWhoami({
-              organizationId:
-                currentUser?.organization.organizationId ??
-                turnkey?.config.defaultOrganizationId!,
-            });
-            currentClient = authIframeClient;
-          }
+          await authIframeClient?.loginWithSession(readWriteSession);
+          currentClient = authIframeClient;
         }
       } catch (error: any) {
-        // default to using the passkeyClient
+        /**
+         * if the iframeClient is not active and there's no readWriteSession in localStorage,
+         * or if injecting the readWriteSession into the iframeClient fails, default to the passkeyClient
+         */
       }
     }
 
@@ -111,22 +108,27 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       if (!iframeInit.current) {
         iframeInit.current = true;
 
-        const newTurnkey = new Turnkey(config);
-        setTurnkey(newTurnkey);
-        setPasskeyClient(newTurnkey.passkeyClient());
+        // create an instance of TurnkeyBrowserSDK
+        const turnkeyBrowserSDK = new Turnkey(config);
+        setTurnkey(turnkeyBrowserSDK);
+
+        // create an instance of TurnkeyPasskeyClient
+        setPasskeyClient(turnkeyBrowserSDK.passkeyClient());
 
         if (config.wallet) {
-          setWalletClient(newTurnkey.walletClient(config.wallet));
+          setWalletClient(turnkeyBrowserSDK.walletClient(config.wallet));
         }
 
-        const newAuthIframeClient = await newTurnkey.iframeClient({
+        // create an instance of TurnkeyIframeClient
+        const iframeClient = await turnkeyBrowserSDK.iframeClient({
           iframeContainer: document.getElementById(
             TurnkeyAuthIframeContainerId,
           ),
           iframeUrl: config.iframeUrl || "https://auth.turnkey.com",
           iframeElementId: TurnkeyAuthIframeElementId,
         });
-        setAuthIframeClient(newAuthIframeClient);
+
+        setAuthIframeClient(iframeClient);
       }
     })();
   }, []);
@@ -136,7 +138,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
    *
    * This hook listens for changes in the `session` object. If the `session` contains an `authClient`,
    * it determines which client was used for initial authentication by checking the `authClient` key.
-   * It then sets the corresponding client (either `authIframeClient`, `passkeyClient`, or `walletClient`)
+   * It then sets the corresponding client (either `iframeClient`, `passkeyClient`, or `walletClient`)
    * as the active client using the `setClient` function.
    *
    * If the `session` changes, the `authClient` will be recomputed and the active client will be

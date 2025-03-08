@@ -73,12 +73,14 @@ export default function Home() {
 
   // First, logout user if there is no current wallet set
   useEffect(() => {
-    (async () => {
-      if (!wallet) {
-        await turnkey?.logoutUser();
-      }
-    })();
-  });
+    const logoutUser = async () => {
+      await turnkey?.logout();
+    };
+
+    if (!wallet) {
+      logoutUser();
+    }
+  }, [wallet]);
 
   useEffect(() => {
     const initializeClients = async () => {
