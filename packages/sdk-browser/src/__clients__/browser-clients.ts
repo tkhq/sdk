@@ -189,7 +189,6 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     bundle: string, // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
     expirationSeconds: string // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
   ): Promise<void> => {
-    console.log("TurnkeyBrowserClient loginWithBundle");
     if (this! instanceof TurnkeyIframeClient) {
       await this.injectCredentialBundle(bundle);
     } else {
@@ -219,7 +218,6 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @returns {Promise<void>}
    */
   loginWithSession = async (session: Session): Promise<void> => {
-    console.log("TurnkeyBrowserClient loginWithSession");
     if (this instanceof TurnkeyIframeClient) {
       await this.injectCredentialBundle(session.token!);
     } else {
