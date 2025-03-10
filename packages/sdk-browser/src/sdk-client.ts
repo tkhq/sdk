@@ -88,6 +88,25 @@ interface UpdateUserAuthParams {
     deleteIds?: string[]; // API key IDs to delete
   };
 }
+
+interface DeleteUserAuthParams {
+  userId: string; // Unique identifier of the user
+  phoneNumber?: boolean; // true to remove the phone number
+  email?: boolean; // true to remove the email
+  authenticatorIds?: string[]; // Array of authenticator IDs to remove
+  oauthProviderIds?: string[]; // Array of OAuth provider IDs to remove
+  apiKeyIds?: string[]; // Array of API key IDs to remove
+}
+
+interface AddUserAuthParams {
+  userId: string; // Unique identifier of the user
+  phoneNumber?: string; // New phone number to set
+  email?: string; // New email address to set
+  authenticators?: Authenticator[]; // Array of authenticator objects to add
+  oauthProviders?: OauthProvider[]; // Array of OAuth provider objects to add
+  apiKeys?: ApiKey[]; // Array of API key objects to add
+}
+
 export class TurnkeyBrowserSDK {
   config: TurnkeySDKBrowserConfig;
 
@@ -397,43 +416,45 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
    * All removal operations are executed in parallel if multiple
    * parameters are provided.
    *
-   * @param userId - Unique identifier of the user
-   * @param phoneNumber - If true, removes the user's phone number
-   * @param email - If true, removes the user's email
-   * @param authenticatorIds - Array of authenticator IDs to remove
-   * @param oauthProviderIds - Array of OAuth provider IDs to remove
-   * @param apiKeyIds - Array of API key IDs to remove
+   * @param params - A structured object containing all the removal parameters
+   *   @param params.userId - Unique identifier of the user
+   *   @param params.phoneNumber - true to remove the phone number
+   *   @param params.email - true to remove the email
+   *   @param params.authenticatorIds - Array of authenticator IDs to remove
+   *   @param params.oauthProviderIds - Array of OAuth provider IDs to remove
+   *   @param params.apiKeyIds - Array of API key IDs to remove
    * @returns A promise that resolves to an array of results from each removal operation
    */
-  deleteUserAuth = async (
-    userId: string,
-    phoneNumber?: boolean,
-    email?: boolean,
-    authenticatorIds?: string[],
-    oauthProviderIds?: string[],
-    apiKeyIds?: string[],
-  ): Promise<any[]> => {
+  deleteUserAuth = async (params: DeleteUserAuthParams): Promise<any[]> => {
     try {
+      const {
+        userId,
+        phoneNumber,
+        email,
+        authenticatorIds,
+        oauthProviderIds,
+        apiKeyIds,
+      } = params;
       const promises: Promise<any>[] = [];
 
       if (phoneNumber) {
-        promises.push(this.updateUser({ userId, userPhoneNumber: "" }));
+        promises.push(
+          this.updateUser({ userId, userPhoneNumber: "", userTagIds: [] }),
+        );
       }
-
       if (email) {
-        promises.push(this.updateUser({ userId, userEmail: "" }));
+        promises.push(
+          this.updateUser({ userId, userEmail: "", userTagIds: [] }),
+        );
       }
-
       if (authenticatorIds && authenticatorIds.length > 0) {
         promises.push(this.deleteAuthenticators({ userId, authenticatorIds }));
       }
-
       if (oauthProviderIds && oauthProviderIds.length > 0) {
         promises.push(
           this.deleteOauthProviders({ userId, providerIds: oauthProviderIds }),
         );
       }
-
       if (apiKeyIds && apiKeyIds.length > 0) {
         promises.push(this.deleteApiKeys({ userId, apiKeyIds }));
       }
@@ -459,43 +480,47 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
    * All additions/updates are executed in parallel if multiple
    * parameters are provided.
    *
-   * @param userId - Unique identifier of the user
-   * @param phoneNumber - New phone number for the user
-   * @param email - New email address for the user
-   * @param authenticators - Array of authenticator objects to create
-   * @param oauthProviders - Array of OAuth provider objects to create
-   * @param apiKeys - Array of API key objects to create
+   * @param params - A structured object containing all the addition/update parameters
+   *   @param params.userId - Unique identifier of the user
+   *   @param params.phoneNumber - New phone number for the user
+   *   @param params.email - New email address for the user
+   *   @param params.authenticators - Array of authenticator objects to create
+   *   @param params.oauthProviders - Array of OAuth provider objects to create
+   *   @param params.apiKeys - Array of API key objects to create
    * @returns A promise that resolves to an array of results from each addition or update
    */
-  addUserAuth = async (
-    userId: string,
-    phoneNumber?: string,
-    email?: string,
-    authenticators?: Authenticator[],
-    oauthProviders?: OauthProvider[],
-    apiKeys?: ApiKey[],
-  ): Promise<any[]> => {
+  addUserAuth = async (params: AddUserAuthParams): Promise<any[]> => {
     try {
+      const {
+        userId,
+        phoneNumber,
+        email,
+        authenticators,
+        oauthProviders,
+        apiKeys,
+      } = params;
       const promises: Promise<any>[] = [];
 
       if (phoneNumber) {
         promises.push(
-          this.updateUser({ userId, userPhoneNumber: phoneNumber }),
+          this.updateUser({
+            userId,
+            userPhoneNumber: phoneNumber,
+            userTagIds: [],
+          }),
         );
       }
-
       if (email) {
-        promises.push(this.updateUser({ userId, userEmail: email }));
+        promises.push(
+          this.updateUser({ userId, userEmail: email, userTagIds: [] }),
+        );
       }
-
       if (authenticators && authenticators.length > 0) {
         promises.push(this.createAuthenticators({ userId, authenticators }));
       }
-
       if (oauthProviders && oauthProviders.length > 0) {
         promises.push(this.createOauthProviders({ userId, oauthProviders }));
       }
-
       if (apiKeys && apiKeys.length > 0) {
         promises.push(this.createApiKeys({ userId, apiKeys }));
       }
@@ -551,7 +576,9 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
         userUpdates.userEmail = email === null ? "" : email;
       }
       if (Object.keys(userUpdates).length > 0) {
-        promises.push(this.updateUser({ userId, ...userUpdates }));
+        promises.push(
+          this.updateUser({ userId, ...userUpdates, userTagIds: [] }),
+        );
       }
 
       // Handle authenticators
