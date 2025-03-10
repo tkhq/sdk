@@ -6,6 +6,7 @@ import {
   DEFAULT_SOLANA_ACCOUNTS,
   WalletAccount,
 } from "./turnkey-helpers";
+import { WalletType } from "@turnkey/wallet-stamper";
 
 type GetOrCreateSuborgRequest = {
   filterType: FilterType;
@@ -16,6 +17,10 @@ type GetOrCreateSuborgRequest = {
     passkey?: Passkey;
     oauthProviders?: Provider[];
     customAccounts?: WalletAccount[];
+    wallet?: {
+      publicKey: string;
+      type: WalletType;
+    };
   };
 };
 
@@ -23,6 +28,7 @@ enum FilterType {
   Email = "EMAIL",
   PhoneNumber = "PHONE_NUMBER",
   OidcToken = "OIDC_TOKEN",
+  PublicKey = "PUBLIC_KEY",
 }
 
 type Session = {
@@ -85,6 +91,10 @@ type CreateSuborgRequest = {
   phoneNumber?: string | undefined;
   passkey?: Passkey | undefined;
   customAccounts?: WalletAccount[] | undefined;
+  wallet?: {
+    publicKey: string;
+    type: WalletType;
+  };
 };
 
 type Passkey = {
@@ -284,7 +294,18 @@ export async function createSuborg(
           ...(request.phoneNumber
             ? { userPhoneNumber: request.phoneNumber }
             : {}),
-          apiKeys: [],
+          apiKeys: request.wallet
+            ? [
+                {
+                  apiKeyName: `wallet-auth:${request.wallet.publicKey}`,
+                  publicKey: request.wallet.publicKey,
+                  curveType:
+                    request.wallet.type === WalletType.Ethereum
+                      ? ("API_KEY_CURVE_SECP256K1" as const)
+                      : ("API_KEY_CURVE_ED25519" as const),
+                },
+              ]
+            : [],
           authenticators: request.passkey ? [request.passkey] : [],
           oauthProviders: request.oauthProviders ?? [],
         },
@@ -341,7 +362,6 @@ export async function getOrCreateSuborg(
         subOrganizationIds: suborgResponse.organizationIds!,
       };
     }
-
     // No existing suborg found - create a new one
     const createPayload: CreateSuborgRequest = {
       ...(request.additionalData?.email && {
@@ -358,6 +378,9 @@ export async function getOrCreateSuborg(
       }),
       ...(request.additionalData?.customAccounts && {
         customAccounts: request.additionalData.customAccounts,
+      }),
+      ...(request.additionalData?.wallet && {
+        wallet: request.additionalData.wallet,
       }),
     };
 

@@ -452,6 +452,9 @@ importers:
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server
+      '@turnkey/wallet-stamper':
+        specifier: workspace:*
+        version: link:../../packages/wallet-stamper
       '@types/node':
         specifier: 20.3.1
         version: 20.3.1
@@ -1873,6 +1876,9 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
+      '@turnkey/wallet-stamper':
+        specifier: workspace:*
+        version: link:../wallet-stamper
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
