@@ -18,7 +18,6 @@ import { FilterType, OtpType, authErrors } from "./constants";
 import type { WalletAccount } from "@turnkey/sdk-browser";
 import { server } from "@turnkey/sdk-server";
 import parsePhoneNumberFromString from "libphonenumber-js";
-import { WalletType } from "@turnkey/wallet-stamper";
 
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
