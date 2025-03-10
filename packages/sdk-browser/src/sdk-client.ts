@@ -384,7 +384,6 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
       return false;
     }
   };
-
   /**
    * Removes authentication factors from an end user.
    *
@@ -414,32 +413,37 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
     oauthProviderIds?: string[],
     apiKeyIds?: string[],
   ): Promise<any[]> => {
-    const promises: Promise<any>[] = [];
+    try {
+      const promises: Promise<any>[] = [];
 
-    if (phoneNumber) {
-      promises.push(this.updateUser({ userId, userPhoneNumber: "" }));
+      if (phoneNumber) {
+        promises.push(this.updateUser({ userId, userPhoneNumber: "" }));
+      }
+
+      if (email) {
+        promises.push(this.updateUser({ userId, userEmail: "" }));
+      }
+
+      if (authenticatorIds && authenticatorIds.length > 0) {
+        promises.push(this.deleteAuthenticators({ userId, authenticatorIds }));
+      }
+
+      if (oauthProviderIds && oauthProviderIds.length > 0) {
+        promises.push(
+          this.deleteOauthProviders({ userId, providerIds: oauthProviderIds }),
+        );
+      }
+
+      if (apiKeyIds && apiKeyIds.length > 0) {
+        promises.push(this.deleteApiKeys({ userId, apiKeyIds }));
+      }
+
+      // Execute all removal operations in parallel
+      return await Promise.all(promises);
+    } catch (error) {
+      // Surface error
+      throw error;
     }
-
-    if (email) {
-      promises.push(this.updateUser({ userId, userEmail: "" }));
-    }
-
-    if (authenticatorIds && authenticatorIds.length > 0) {
-      promises.push(this.deleteAuthenticators({ userId, authenticatorIds }));
-    }
-
-    if (oauthProviderIds && oauthProviderIds.length > 0) {
-      promises.push(
-        this.deleteOauthProviders({ userId, providerIds: oauthProviderIds }),
-      );
-    }
-
-    if (apiKeyIds && apiKeyIds.length > 0) {
-      promises.push(this.deleteApiKeys({ userId, apiKeyIds }));
-    }
-
-    // Execute all removal operations in parallel
-    return Promise.all(promises);
   };
 
   /**
@@ -471,30 +475,37 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
     oauthProviders?: OauthProvider[],
     apiKeys?: ApiKey[],
   ): Promise<any[]> => {
-    const promises: Promise<any>[] = [];
+    try {
+      const promises: Promise<any>[] = [];
 
-    if (phoneNumber) {
-      promises.push(this.updateUser({ userId, userPhoneNumber: phoneNumber }));
+      if (phoneNumber) {
+        promises.push(
+          this.updateUser({ userId, userPhoneNumber: phoneNumber }),
+        );
+      }
+
+      if (email) {
+        promises.push(this.updateUser({ userId, userEmail: email }));
+      }
+
+      if (authenticators && authenticators.length > 0) {
+        promises.push(this.createAuthenticators({ userId, authenticators }));
+      }
+
+      if (oauthProviders && oauthProviders.length > 0) {
+        promises.push(this.createOauthProviders({ userId, oauthProviders }));
+      }
+
+      if (apiKeys && apiKeys.length > 0) {
+        promises.push(this.createApiKeys({ userId, apiKeys }));
+      }
+
+      // Execute all additions/updates operations in parallel
+      return await Promise.all(promises);
+    } catch (error) {
+      // Surface error
+      throw error;
     }
-
-    if (email) {
-      promises.push(this.updateUser({ userId, userEmail: email }));
-    }
-
-    if (authenticators && authenticators.length > 0) {
-      promises.push(this.createAuthenticators({ userId, authenticators }));
-    }
-
-    if (oauthProviders && oauthProviders.length > 0) {
-      promises.push(this.createOauthProviders({ userId, oauthProviders }));
-    }
-
-    if (apiKeys && apiKeys.length > 0) {
-      promises.push(this.createApiKeys({ userId, apiKeys }));
-    }
-
-    // Execute all additions in parallel
-    return Promise.all(promises);
   };
 
   /**
@@ -518,93 +529,98 @@ export class TurnkeyBrowserClient extends TurnkeySDKClientBase {
    * @returns A promise that resolves to a boolean indicating overall success
    */
   async updateUserAuth(params: UpdateUserAuthParams): Promise<boolean> {
-    const {
-      userId,
-      phoneNumber,
-      email,
-      authenticators,
-      oauthProviders,
-      apiKeys,
-    } = params;
-    const promises: Promise<any>[] = [];
+    try {
+      const {
+        userId,
+        phoneNumber,
+        email,
+        authenticators,
+        oauthProviders,
+        apiKeys,
+      } = params;
+      const promises: Promise<any>[] = [];
 
-    // Handle phone/email in a single updateUser call if both are changing,
-    // or separate calls if only one is changing—either approach is fine.
-    const userUpdates: { userPhoneNumber?: string; userEmail?: string } = {};
+      // Handle phone/email in a single updateUser call if both are changing,
+      // or separate calls if only one is changing.
+      const userUpdates: { userPhoneNumber?: string; userEmail?: string } = {};
 
-    if (phoneNumber !== undefined) {
-      userUpdates.userPhoneNumber = phoneNumber === null ? "" : phoneNumber;
-    }
-    if (email !== undefined) {
-      userUpdates.userEmail = email === null ? "" : email;
-    }
-    if (Object.keys(userUpdates).length > 0) {
-      promises.push(this.updateUser({ userId, ...userUpdates }));
-    }
+      if (phoneNumber !== undefined) {
+        userUpdates.userPhoneNumber = phoneNumber === null ? "" : phoneNumber;
+      }
+      if (email !== undefined) {
+        userUpdates.userEmail = email === null ? "" : email;
+      }
+      if (Object.keys(userUpdates).length > 0) {
+        promises.push(this.updateUser({ userId, ...userUpdates }));
+      }
 
-    // Handle authenticators
-    if (authenticators) {
-      if (authenticators.add?.length) {
-        promises.push(
-          this.createAuthenticators({
-            userId,
-            authenticators: authenticators.add,
-          }),
-        );
+      // Handle authenticators
+      if (authenticators) {
+        if (authenticators.add?.length) {
+          promises.push(
+            this.createAuthenticators({
+              userId,
+              authenticators: authenticators.add,
+            }),
+          );
+        }
+        if (authenticators.deleteIds?.length) {
+          promises.push(
+            this.deleteAuthenticators({
+              userId,
+              authenticatorIds: authenticators.deleteIds,
+            }),
+          );
+        }
       }
-      if (authenticators.deleteIds?.length) {
-        promises.push(
-          this.deleteAuthenticators({
-            userId,
-            authenticatorIds: authenticators.deleteIds,
-          }),
-        );
-      }
-    }
 
-    // Handle OAuth providers
-    if (oauthProviders) {
-      if (oauthProviders.add?.length) {
-        promises.push(
-          this.createOauthProviders({
-            userId,
-            oauthProviders: oauthProviders.add,
-          }),
-        );
+      // Handle OAuth providers
+      if (oauthProviders) {
+        if (oauthProviders.add?.length) {
+          promises.push(
+            this.createOauthProviders({
+              userId,
+              oauthProviders: oauthProviders.add,
+            }),
+          );
+        }
+        if (oauthProviders.deleteIds?.length) {
+          promises.push(
+            this.deleteOauthProviders({
+              userId,
+              providerIds: oauthProviders.deleteIds,
+            }),
+          );
+        }
       }
-      if (oauthProviders.deleteIds?.length) {
-        promises.push(
-          this.deleteOauthProviders({
-            userId,
-            providerIds: oauthProviders.deleteIds,
-          }),
-        );
-      }
-    }
 
-    // Handle API keys
-    if (apiKeys) {
-      if (apiKeys.add?.length) {
-        promises.push(
-          this.createApiKeys({
-            userId,
-            apiKeys: apiKeys.add,
-          }),
-        );
+      // Handle API keys
+      if (apiKeys) {
+        if (apiKeys.add?.length) {
+          promises.push(
+            this.createApiKeys({
+              userId,
+              apiKeys: apiKeys.add,
+            }),
+          );
+        }
+        if (apiKeys.deleteIds?.length) {
+          promises.push(
+            this.deleteApiKeys({
+              userId,
+              apiKeyIds: apiKeys.deleteIds,
+            }),
+          );
+        }
       }
-      if (apiKeys.deleteIds?.length) {
-        promises.push(
-          this.deleteApiKeys({
-            userId,
-            apiKeyIds: apiKeys.deleteIds,
-          }),
-        );
-      }
-    }
 
-    // Execute all requested operations in parallel
-    await Promise.all(promises);
-    return true;
+      // Execute all requested operations in parallel
+      await Promise.all(promises);
+      return true;
+    } catch (error) {
+      // Surface error
+      throw error;
+    }
   }
 }
 
