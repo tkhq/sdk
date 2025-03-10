@@ -7,6 +7,7 @@ import {
   OtpVerification,
   OtpType,
 } from "@turnkey/sdk-react";
+
 import { server } from "@turnkey/sdk-server";
 import { useEffect, useState } from "react";
 import "./dashboard.css";
@@ -131,12 +132,12 @@ export default function Dashboard() {
       toast.error("Email is already connected to another account");
       return;
     }
-    await authIframeClient?.updateUser({
-      organizationId: suborgId,
+
+    await authIframeClient?.addUserAuth({
       userId: user.userId,
-      userEmail: emailInput,
-      userTagIds: [],
+      email: emailInput,
     });
+
     const sendOtpResponse = await server.sendOtp({
       suborgID: suborgId,
       otpType: OtpType.Email,
@@ -165,12 +166,12 @@ export default function Dashboard() {
       toast.error("Phone Number is already connected to another account");
       return;
     }
-    await authIframeClient?.updateUser({
-      organizationId: suborgId,
+
+    await authIframeClient?.addUserAuth({
       userId: user.userId,
-      userPhoneNumber: phoneInput,
-      userTagIds: [],
+      phoneNumber: phoneInput,
     });
+
     const sendOtpResponse = await server.sendOtp({
       suborgID: suborgId,
       otpType: OtpType.Sms,
@@ -229,8 +230,8 @@ export default function Dashboard() {
         toast.error("Social login is already connected to another account");
         return;
       }
-      await authIframeClient?.createOauthProviders({
-        organizationId: suborgId,
+
+      await authIframeClient?.addUserAuth({
         userId: user.userId,
         oauthProviders: [
           {
@@ -260,8 +261,7 @@ export default function Dashboard() {
       })) || {};
 
     if (encodedChallenge && attestation) {
-      await authIframeClient?.createAuthenticators({
-        organizationId: suborgId,
+      await authIframeClient?.addUserAuth({
         userId: user.userId,
         authenticators: [
           {
@@ -271,6 +271,7 @@ export default function Dashboard() {
           },
         ],
       });
+
       window.location.reload();
     }
   };
