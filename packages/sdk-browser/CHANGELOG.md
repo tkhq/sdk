@@ -1,5 +1,15 @@
 # @turnkey/sdk-browser
 
+## 1.16.0
+
+### Minor Changes
+
+- 233ae71: Add updateUserAuth, addUserAuth, deleteUserAuth helper functions
+
+### Patch Changes
+
+- @turnkey/crypto@2.3.1
+
 ## 1.15.0
 
 ### Minor Changes
