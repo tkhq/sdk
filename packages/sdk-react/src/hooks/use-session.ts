@@ -1,6 +1,13 @@
 "use client";
 
-import { StorageKeys, User } from "@turnkey/sdk-browser";
+import {
+  AuthClient,
+  Session,
+  SessionType,
+  StorageKeys,
+  User,
+} from "@turnkey/sdk-browser";
+
 import { useLocalStorage } from "usehooks-ts";
 
 interface UserSession {
@@ -42,22 +49,43 @@ interface UserSession {
  * }
  */
 export function useUserSession(): UserSession {
-  const [user] = useLocalStorage<User | undefined>(
-    StorageKeys.UserSession,
-    undefined,
+  const [session] = useLocalStorage<Session | undefined>(
+    StorageKeys.Session,
+    undefined
   );
-
-  const { session, userId, username, organization } = user ?? {};
+  const [authClient] = useLocalStorage<AuthClient | undefined>(
+    StorageKeys.Client,
+    undefined
+  );
 
   return {
     user:
-      userId && organization
+      session?.userId && session?.organizationId
         ? {
-            userId: userId ?? "",
-            username: username ?? "",
-            organization: organization ?? "",
+            userId: session?.userId ?? "",
+            username: "",
+            organization: {
+              organizationId: session?.organizationId ?? "",
+              organizationName: "",
+            },
           }
         : undefined,
-    session: session ?? undefined,
+    session: session?.sessionType
+      ? {
+          ...(session?.sessionType === SessionType.READ_ONLY && {
+            read: {
+              token: session?.token ?? "",
+              expiry: session?.expiry ?? 0,
+            },
+          }),
+          ...(session?.sessionType === SessionType.READ_WRITE && {
+            write: {
+              credentialBundle: session?.token ?? "",
+              expiry: session?.expiry ?? 0,
+            },
+          }),
+          authClient: authClient!,
+        }
+      : undefined,
   };
 }
