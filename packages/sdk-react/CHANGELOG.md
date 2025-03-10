@@ -1,5 +1,19 @@
 # @turnkey/sdk-react
 
+## 3.1.0
+
+### Minor Changes
+
+- 9317588: Adds wallet as an authentication option in the Embedded Wallet Kit components for sdk-react
+
+### Patch Changes
+
+- Updated dependencies [233ae71]
+- Updated dependencies [9317588]
+  - @turnkey/sdk-browser@1.16.0
+  - @turnkey/sdk-server@2.4.0
+  - @turnkey/crypto@2.3.1
+
 ## 3.0.6
 
 ### Patch Changes

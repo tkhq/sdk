@@ -1,5 +1,11 @@
 # @turnkey/sdk-server
 
+## 2.4.0
+
+### Minor Changes
+
+- 9317588: Adds wallet as an authentication option in the Embedded Wallet Kit components for sdk-react
+
 ## 2.3.0
 
 ### Minor Changes

@@ -1,5 +1,12 @@
 # @turnkey/eip-1193-provider
 
+## 3.1.5
+
+### Patch Changes
+
+- Updated dependencies [233ae71]
+  - @turnkey/sdk-browser@1.16.0
+
 ## 3.1.4
 
 ### Patch Changes
