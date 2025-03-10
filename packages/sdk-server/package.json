@@ -46,7 +46,7 @@
   "dependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
-    "@turnkey/wallet-stamper": "workspace:^",
+    "@turnkey/wallet-stamper": "workspace:*",
     "buffer": "^6.0.3",
     "cross-fetch": "^3.1.5",
     "next": "^15.0.2"
