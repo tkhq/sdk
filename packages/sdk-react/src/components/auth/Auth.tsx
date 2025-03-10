@@ -322,13 +322,15 @@ const Auth: React.FC<AuthProps> = ({
         throw new Error(authErrors.wallet.noPublicKey);
       }
 
+      const { type } = walletClient.getWalletInterface();
+
       const resp = await server.getOrCreateSuborg({
         filterType: FilterType.PublicKey,
         filterValue: publicKey,
         additionalData: {
           wallet: {
             publicKey,
-            type: WalletType.Ethereum,
+            type,
           },
         },
       });

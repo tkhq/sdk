@@ -20,7 +20,7 @@
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-react": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
-    "@turnkey/wallet-stamper": "workspace:^",
+    "@turnkey/wallet-stamper": "workspace:*",
     "@types/node": "20.3.1",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
