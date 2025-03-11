@@ -13,7 +13,7 @@
   "dependencies": {
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/iframe-stamper": "workspace:*",
-    "axios": "^1.7.4",
+    "axios": "^1.8.2",
     "classnames": "^2.3.2",
     "encoding": "^0.1.13",
     "eslint": "8.56.0",
