@@ -7,7 +7,6 @@ const turnkeyConfig = {
   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
   defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
   rpId: process.env.NEXT_PUBLIC_RPID!,
-  dangerouslyOverrideIframeKeyTtl: 60 * 60 * 1000,
   iframeUrl:
     process.env.NEXT_PUBLIC_AUTH_IFRAME_URL ?? "https://auth.turnkey.com",
 };

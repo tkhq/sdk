@@ -171,12 +171,7 @@ export class TurnkeyBrowserSDK {
       iframeElementId: TurnkeyIframeElementId,
     });
 
-    await this.stamper.init();
-    if (params.dangerouslyOverrideIframeKeyTtl) {
-      await this.stamper.applySettings({
-        dangerouslyOverrideIframeKeyTtl: this.config.dangerouslyOverrideIframeKeyTtl!,
-      });
-    }
+    await this.stamper.init(params.dangerouslyOverrideIframeKeyTtl ?? undefined);
 
     return new TurnkeyIframeClient({
       stamper: this.stamper,
