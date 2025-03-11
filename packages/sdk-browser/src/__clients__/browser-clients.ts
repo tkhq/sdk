@@ -31,6 +31,72 @@ import {
 
 import { DEFAULT_SESSION_EXPIRATION_IN_SECONDS } from "@constants";
 
+export interface OauthProvider {
+  providerName: string;
+  oidcToken: string;
+}
+
+export interface ApiKey {
+  apiKeyName: string;
+  publicKey: string;
+  curveType:
+    | "API_KEY_CURVE_P256"
+    | "API_KEY_CURVE_SECP256K1"
+    | "API_KEY_CURVE_ED25519";
+  expirationSeconds?: string;
+}
+
+export interface Authenticator {
+  authenticatorName: string;
+  challenge: string;
+  attestation: {
+    credentialId: string;
+    clientDataJson: string;
+    attestationObject: string;
+    transports: (
+      | "AUTHENTICATOR_TRANSPORT_BLE"
+      | "AUTHENTICATOR_TRANSPORT_INTERNAL"
+      | "AUTHENTICATOR_TRANSPORT_NFC"
+      | "AUTHENTICATOR_TRANSPORT_USB"
+      | "AUTHENTICATOR_TRANSPORT_HYBRID"
+    )[];
+  };
+}
+interface UpdateUserAuthParams {
+  userId: string;
+  phoneNumber?: string | null; // string to set, null to delete
+  email?: string | null; // string to set, null to delete
+  authenticators?: {
+    add?: Authenticator[]; // Authenticator objects to create
+    deleteIds?: string[]; // Authenticator IDs to delete
+  };
+  oauthProviders?: {
+    add?: OauthProvider[]; // OAuth provider objects to create
+    deleteIds?: string[]; // OAuth provider IDs to delete
+  };
+  apiKeys?: {
+    add?: ApiKey[]; // API key objects to create
+    deleteIds?: string[]; // API key IDs to delete
+  };
+}
+
+interface DeleteUserAuthParams {
+  userId: string; // Unique identifier of the user
+  phoneNumber?: boolean; // true to remove the phone number
+  email?: boolean; // true to remove the email
+  authenticatorIds?: string[]; // Array of authenticator IDs to remove
+  oauthProviderIds?: string[]; // Array of OAuth provider IDs to remove
+  apiKeyIds?: string[]; // Array of API key IDs to remove
+}
+
+interface AddUserAuthParams {
+  userId: string; // Unique identifier of the user
+  phoneNumber?: string; // New phone number to set
+  email?: string; // New email address to set
+  authenticators?: Authenticator[]; // Array of authenticator objects to add
+  oauthProviders?: OauthProvider[]; // Array of OAuth provider objects to add
+  apiKeys?: ApiKey[]; // Array of API key objects to add
+}
 export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   constructor(config: TurnkeySDKClientConfig, authClient?: AuthClient) {
     super(config, authClient);
@@ -40,7 +106,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     organizationId?: string;
   }): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
     const readOnlySessionResult = await this.createReadOnlySession(
-      config || {},
+      config || {}
     );
     await saveSession(readOnlySessionResult, this.authClient);
 
@@ -60,12 +126,12 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   refereshSession = async (
     sessionType: SessionType = SessionType.READ_WRITE,
     targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS
   ): Promise<void> => {
     if (sessionType === SessionType.READ_ONLY) {
       if (this! instanceof TurnkeyPasskeyClient) {
         throw new Error(
-          "You must use a passkey client to refresh a read session",
+          "You must use a passkey client to refresh a read session"
         ); // TODO: support wallet clients perhaps?
       }
       const readOnlySessionResult = await this.createReadOnlySession({});
@@ -82,7 +148,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     if (sessionType === SessionType.READ_WRITE) {
       if (!targetPublicKey) {
         throw new Error(
-          "You must provide a targetPublicKey to refresh a read-write session.",
+          "You must provide a targetPublicKey to refresh a read-write session."
         );
       }
       const readWriteSessionResult = await this.createReadWriteSession({
@@ -102,7 +168,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       } else {
         // Throw an error if the client is not an iframe client
         throw new Error(
-          "You must use an iframe client to refresh a read-write session",
+          "You must use an iframe client to refresh a read-write session"
         ); //should we default to a "localStorage" client?
       }
       await storeSession(session, AuthClient.Iframe);
@@ -119,14 +185,14 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    */
   loginWithBundle = async (
     bundle: string, // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
-    expirationSeconds: string, // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
+    expirationSeconds: string // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
   ): Promise<void> => {
     if (this! instanceof TurnkeyIframeClient) {
       await this.injectCredentialBundle(bundle);
     } else {
       // Throw an error if the client is not an iframe client
       throw new Error(
-        "You must use an iframe client to log in with a session.",
+        "You must use an iframe client to log in with a session."
       ); //should we default to a "localStorage" client?
     }
     const whoAmI = await this.getWhoami();
@@ -155,7 +221,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     } else {
       // Throw an error if the client is not an iframe client
       throw new Error(
-        "You must use an iframe client to log in with a session.",
+        "You must use an iframe client to log in with a session."
       ); //should we default to a "localStorage" client?
     }
     await storeSession(session, AuthClient.Iframe);
@@ -173,7 +239,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     iframeClient: TurnkeyIframeClient,
     targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
 
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS
   ): Promise<void> => {
     // Create a read-only session
     if (sessionType === SessionType.READ_ONLY) {
@@ -193,7 +259,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     if (sessionType === SessionType.READ_WRITE) {
       if (!targetPublicKey) {
         throw new Error(
-          "You must provide a targetPublicKey to create a read-write session.",
+          "You must provide a targetPublicKey to create a read-write session."
         );
       }
 
@@ -212,7 +278,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
       if (!iframeClient) {
         throw new Error(
-          "You must provide an iframe client to log in with a passkey.",
+          "You must provide an iframe client to log in with a passkey."
         );
       }
       await iframeClient.injectCredentialBundle(session.token!);
@@ -236,7 +302,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   loginWithReadWriteSession = async (
     targetEmbeddedKey: string,
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-    userId?: string,
+    userId?: string
   ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
     const readWriteSessionResult = await this.createReadWriteSession({
       targetPublicKey: targetEmbeddedKey,
@@ -266,7 +332,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    */
   loginWithAuthBundle = async (
     credentialBundle: string,
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS
   ): Promise<any> => {
     try {
       const whoAmIResult = await this.getWhoami();
@@ -283,6 +349,253 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       return false;
     }
   };
+
+  /**
+   * Removes authentication factors from an end user.
+   *
+   * This function allows selectively removing:
+   * - Phone number
+   * - Email
+   * - Authenticators (by ID)
+   * - OAuth providers (by ID)
+   * - API keys (by ID)
+   *
+   * All removal operations are executed in parallel if multiple
+   * parameters are provided.
+   *
+   * @param params - A structured object containing all the removal parameters
+   *   @param params.userId - Unique identifier of the user
+   *   @param params.phoneNumber - true to remove the phone number
+   *   @param params.email - true to remove the email
+   *   @param params.authenticatorIds - Array of authenticator IDs to remove
+   *   @param params.oauthProviderIds - Array of OAuth provider IDs to remove
+   *   @param params.apiKeyIds - Array of API key IDs to remove
+   * @returns A promise that resolves to an array of results from each removal operation
+   */
+  deleteUserAuth = async (params: DeleteUserAuthParams): Promise<any[]> => {
+    try {
+      const {
+        userId,
+        phoneNumber,
+        email,
+        authenticatorIds,
+        oauthProviderIds,
+        apiKeyIds,
+      } = params;
+      const promises: Promise<any>[] = [];
+
+      if (phoneNumber) {
+        promises.push(
+          this.updateUser({ userId, userPhoneNumber: "", userTagIds: [] })
+        );
+      }
+      if (email) {
+        promises.push(
+          this.updateUser({ userId, userEmail: "", userTagIds: [] })
+        );
+      }
+      if (authenticatorIds && authenticatorIds.length > 0) {
+        promises.push(this.deleteAuthenticators({ userId, authenticatorIds }));
+      }
+      if (oauthProviderIds && oauthProviderIds.length > 0) {
+        promises.push(
+          this.deleteOauthProviders({ userId, providerIds: oauthProviderIds })
+        );
+      }
+      if (apiKeyIds && apiKeyIds.length > 0) {
+        promises.push(this.deleteApiKeys({ userId, apiKeyIds }));
+      }
+
+      // Execute all removal operations in parallel
+      return await Promise.all(promises);
+    } catch (error) {
+      // Surface error
+      throw error;
+    }
+  };
+
+  /**
+   * Adds or updates authentication factors for an end user.
+   *
+   * This function allows selectively adding:
+   * - Phone number
+   * - Email
+   * - Authenticators
+   * - OAuth providers
+   * - API keys
+   *
+   * All additions/updates are executed in parallel if multiple
+   * parameters are provided.
+   *
+   * @param params - A structured object containing all the addition/update parameters
+   *   @param params.userId - Unique identifier of the user
+   *   @param params.phoneNumber - New phone number for the user
+   *   @param params.email - New email address for the user
+   *   @param params.authenticators - Array of authenticator objects to create
+   *   @param params.oauthProviders - Array of OAuth provider objects to create
+   *   @param params.apiKeys - Array of API key objects to create
+   * @returns A promise that resolves to an array of results from each addition or update
+   */
+  addUserAuth = async (params: AddUserAuthParams): Promise<any[]> => {
+    try {
+      const {
+        userId,
+        phoneNumber,
+        email,
+        authenticators,
+        oauthProviders,
+        apiKeys,
+      } = params;
+      const promises: Promise<any>[] = [];
+
+      if (phoneNumber) {
+        promises.push(
+          this.updateUser({
+            userId,
+            userPhoneNumber: phoneNumber,
+            userTagIds: [],
+          })
+        );
+      }
+      if (email) {
+        promises.push(
+          this.updateUser({ userId, userEmail: email, userTagIds: [] })
+        );
+      }
+      if (authenticators && authenticators.length > 0) {
+        promises.push(this.createAuthenticators({ userId, authenticators }));
+      }
+      if (oauthProviders && oauthProviders.length > 0) {
+        promises.push(this.createOauthProviders({ userId, oauthProviders }));
+      }
+      if (apiKeys && apiKeys.length > 0) {
+        promises.push(this.createApiKeys({ userId, apiKeys }));
+      }
+
+      // Execute all additions/updates operations in parallel
+      return await Promise.all(promises);
+    } catch (error) {
+      // Surface error
+      throw error;
+    }
+  };
+
+  /**
+   * Comprehensive authentication update for an end user.
+   * Combines add/update and delete operations into a single call.
+   *
+   * The behavior is driven by whether values are set to:
+   * - A string/array (to create or update)
+   * - `null` or an array of IDs (to remove)
+   *
+   * All operations are executed in parallel where applicable.
+   *
+   * @param params - A structured object containing all the update parameters
+   *   @param params.userId - Unique identifier of the user
+   *   @param params.phoneNumber - String to set (new phone) or `null` to remove
+   *   @param params.email - String to set (new email) or `null` to remove
+   *   @param params.authenticators - Object describing authenticators to add or remove
+   *   @param params.oauthProviders - Object describing OAuth providers to add or remove
+   *   @param params.apiKeys - Object describing API keys to add or remove
+   *
+   * @returns A promise that resolves to a boolean indicating overall success
+   */
+  async updateUserAuth(params: UpdateUserAuthParams): Promise<boolean> {
+    try {
+      const {
+        userId,
+        phoneNumber,
+        email,
+        authenticators,
+        oauthProviders,
+        apiKeys,
+      } = params;
+      const promises: Promise<any>[] = [];
+
+      // Handle phone/email in a single updateUser call if both are changing,
+      // or separate calls if only one is changing.
+      const userUpdates: { userPhoneNumber?: string; userEmail?: string } = {};
+
+      if (phoneNumber !== undefined) {
+        userUpdates.userPhoneNumber = phoneNumber === null ? "" : phoneNumber;
+      }
+      if (email !== undefined) {
+        userUpdates.userEmail = email === null ? "" : email;
+      }
+      if (Object.keys(userUpdates).length > 0) {
+        promises.push(
+          this.updateUser({ userId, ...userUpdates, userTagIds: [] })
+        );
+      }
+
+      // Handle authenticators
+      if (authenticators) {
+        if (authenticators.add?.length) {
+          promises.push(
+            this.createAuthenticators({
+              userId,
+              authenticators: authenticators.add,
+            })
+          );
+        }
+        if (authenticators.deleteIds?.length) {
+          promises.push(
+            this.deleteAuthenticators({
+              userId,
+              authenticatorIds: authenticators.deleteIds,
+            })
+          );
+        }
+      }
+
+      // Handle OAuth providers
+      if (oauthProviders) {
+        if (oauthProviders.add?.length) {
+          promises.push(
+            this.createOauthProviders({
+              userId,
+              oauthProviders: oauthProviders.add,
+            })
+          );
+        }
+        if (oauthProviders.deleteIds?.length) {
+          promises.push(
+            this.deleteOauthProviders({
+              userId,
+              providerIds: oauthProviders.deleteIds,
+            })
+          );
+        }
+      }
+
+      // Handle API keys
+      if (apiKeys) {
+        if (apiKeys.add?.length) {
+          promises.push(
+            this.createApiKeys({
+              userId,
+              apiKeys: apiKeys.add,
+            })
+          );
+        }
+        if (apiKeys.deleteIds?.length) {
+          promises.push(
+            this.deleteApiKeys({
+              userId,
+              apiKeyIds: apiKeys.deleteIds,
+            })
+          );
+        }
+      }
+
+      // Execute all requested operations in parallel
+      await Promise.all(promises);
+      return true;
+    } catch (error) {
+      // Surface error
+      throw error;
+    }
+  }
 }
 
 export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
@@ -299,7 +612,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
    * @returns {Promise<Passkey>}
    */
   createUserPasskey = async (
-    config: Record<any, any> = {},
+    config: Record<any, any> = {}
   ): Promise<Passkey> => {
     const challenge = generateRandomBuffer();
     const encodedChallenge = base64UrlEncode(challenge);
@@ -379,18 +692,21 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     userId: string,
     targetEmbeddedKey: string,
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-    organizationId?: string,
+    organizationId?: string
   ): Promise<ReadWriteSession> => {
     const user = await getStorageValue(StorageKeys.UserSession);
     organizationId = organizationId ?? user?.organization.organizationId;
+    userId = userId ?? user?.userId;
 
     if (!organizationId) {
       throw new Error(
-        "Error creating passkey session: Organization ID is required",
+        "Error creating passkey session: Organization ID is required"
       );
     }
 
-    userId = userId ?? user?.userId;
+    if (!userId) {
+      throw new Error("Error creating passkey session: User ID is required");
+    }
 
     const { authBundle: credentialBundle, publicKey } =
       await createEmbeddedAPIKey(targetEmbeddedKey);
@@ -420,7 +736,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
         credentialBundle,
         sessionExpiry: expiry,
       },
-      this.authClient,
+      this.authClient
     );
 
     return {
@@ -445,44 +761,44 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
   }
 
   injectCredentialBundle = async (
-    credentialBundle: string,
+    credentialBundle: string
   ): Promise<boolean> => {
     return await (this.stamper as IframeStamper).injectCredentialBundle(
-      credentialBundle,
+      credentialBundle
     );
   };
 
   injectWalletExportBundle = async (
     credentialBundle: string,
-    organizationId: string,
+    organizationId: string
   ): Promise<boolean> => {
     return await (this.stamper as IframeStamper).injectWalletExportBundle(
       credentialBundle,
-      organizationId,
+      organizationId
     );
   };
 
   injectKeyExportBundle = async (
     credentialBundle: string,
     organizationId: string,
-    keyFormat?: KeyFormat | undefined,
+    keyFormat?: KeyFormat | undefined
   ): Promise<boolean> => {
     return await (this.stamper as IframeStamper).injectKeyExportBundle(
       credentialBundle,
       organizationId,
-      keyFormat,
+      keyFormat
     );
   };
 
   injectImportBundle = async (
     bundle: string,
     organizationId: string,
-    userId: string,
+    userId: string
   ): Promise<boolean> => {
     return await (this.stamper as IframeStamper).injectImportBundle(
       bundle,
       organizationId,
-      userId,
+      userId
     );
   };
 
