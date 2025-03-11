@@ -101,6 +101,7 @@ export type TIframeStyles = {
 
 export type TIframeSettings = {
   styles?: TIframeStyles;
+  dangerouslyOverrideIframeKeyTtl?: number;
 };
 
 interface PendingRequest {

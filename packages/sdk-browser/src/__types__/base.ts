@@ -94,6 +94,7 @@ export interface TurnkeySDKBrowserConfig {
   rpId?: string;
   serverSignUrl?: string;
   iframeUrl?: string;
+  dangerouslyOverrideIframeKeyTtl?: number;
 }
 
 export type Stamper = WebauthnStamper | IframeStamper | WalletStamper;
@@ -111,6 +112,7 @@ export interface IframeClientParams {
   iframeContainer: HTMLElement | null | undefined;
   iframeUrl: string;
   iframeElementId?: string;
+  dangerouslyOverrideIframeKeyTtl?: number;
 }
 
 export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {
