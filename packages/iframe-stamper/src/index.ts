@@ -220,6 +220,7 @@ export class IframeStamper {
 
   /**
    * Inserts the iframe on the page and returns a promise resolving to the iframe's public key
+   * @param dangerouslyOverrideIframeKeyTtl Optional TTL override for the iframe's embedded key (default 48 hours). Only use this if you are intentional about the security implications.
    */
   async init(
     dangerouslyOverrideIframeKeyTtl?: number | undefined,
