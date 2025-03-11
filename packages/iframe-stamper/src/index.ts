@@ -221,7 +221,9 @@ export class IframeStamper {
   /**
    * Inserts the iframe on the page and returns a promise resolving to the iframe's public key
    */
-  async init(dangerouslyOverrideIframeKeyTtl?: number | undefined): Promise<string> {
+  async init(
+    dangerouslyOverrideIframeKeyTtl?: number | undefined,
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       this.container.appendChild(this.iframe);
 
@@ -236,7 +238,10 @@ export class IframeStamper {
         }
 
         this.iframe.contentWindow.postMessage(
-          { type: IframeEventType.TurnkeyInitMessageChannel, dangerouslyOverrideIframeKeyTtl: dangerouslyOverrideIframeKeyTtl},
+          {
+            type: IframeEventType.TurnkeyInitMessageChannel,
+            dangerouslyOverrideIframeKeyTtl: dangerouslyOverrideIframeKeyTtl,
+          },
           this.iframeOrigin,
           [this.messageChannel.port2],
         );
