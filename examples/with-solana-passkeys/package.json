@@ -20,7 +20,7 @@
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/solana": "workspace:*",
     "@turnkey/webauthn-stamper": "workspace:*",
-    "axios": "^1.4.0",
+    "axios": "^1.8.2",
     "bs58": "^5.0.0",
     "encoding": "^0.1.13",
     "eslint": "8.56.0",
