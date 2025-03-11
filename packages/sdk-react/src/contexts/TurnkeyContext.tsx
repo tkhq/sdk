@@ -141,7 +141,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
    *
    * This hook listens for changes in the `session` object. If the `session` contains an `authClient`,
    * it determines which client was used for initial authentication by checking the `authClient` key.
-   * It then sets the corresponding client (either `iframeClient`, `passkeyClient`, or `walletClient`)
+   * It then sets the corresponding client (either `authIframeClient`, `passkeyClient`, or `walletClient`)
    * as the active client using the `setClient` function.
    *
    * If the `session` changes, the `authClient` will be recomputed and the active client will be
