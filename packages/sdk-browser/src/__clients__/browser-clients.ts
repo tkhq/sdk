@@ -702,9 +702,9 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     organizationId?: string
   ): Promise<ReadWriteSession> => {
-    const user = await getStorageValue(StorageKeys.UserSession);
-    organizationId = organizationId ?? user?.organization.organizationId;
-    userId = userId ?? user?.userId;
+    const session = await getStorageValue(StorageKeys.Session);
+    organizationId = organizationId ?? session?.organizationId;
+    userId = userId ?? session?.userId;
 
     if (!organizationId) {
       throw new Error(
@@ -738,9 +738,9 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     await saveSession(
       {
         organizationId,
-        organizationName: user?.organization.organizationName ?? "",
+        organizationName: whoAmI.organizationName ?? "",
         userId,
-        username: user?.username ?? "",
+        username: whoAmI.username ?? "",
         credentialBundle,
         sessionExpiry: expiry,
       },
