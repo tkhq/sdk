@@ -7,6 +7,7 @@ import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex } from "@noble/hashes/utils";
 import facebookIcon from "assets/facebook.svg";
 import { FACEBOOK_AUTH_URL, popupHeight, popupWidth } from "./constants";
+import { CircularProgress } from "@mui/material";
 
 interface FacebookAuthButtonProps {
   iframePublicKey: string;
@@ -21,10 +22,13 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
   clientId,
   layout,
 }) => {
+  const [loading, setLoading] = useState(false);
+
   const [tokenExchanged, setTokenExchanged] = useState<boolean>(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
 
   const initiateFacebookLogin = async () => {
+    setLoading(true);
     const { verifier, codeChallenge } = await generateChallengePair();
     sessionStorage.setItem("facebook_verifier", verifier);
 
@@ -57,6 +61,7 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
       const interval = setInterval(async () => {
         try {
           if (popup.closed) {
+            setLoading(false);
             clearInterval(interval);
             return;
           }
@@ -65,6 +70,7 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
           const authCode = popupUrl.searchParams.get("code");
 
           if (authCode) {
+            setLoading(false);
             popup.close();
             clearInterval(interval);
             handleTokenExchange(authCode);
@@ -107,13 +113,25 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
   return (
     <div
       className={layout === "inline" ? styles.iconButton : styles.socialButton}
-      onClick={initiateFacebookLogin}
+      onClick={loading ? undefined : initiateFacebookLogin}
     >
-      <img
-        src={facebookIcon}
-        className={layout === "inline" ? styles.iconLarge : styles.iconSmall}
-      />
-      {layout === "stacked" && <span>Continue with Facebook</span>}
+      {loading ? (
+        <CircularProgress
+          size={24}
+          thickness={4}
+          className={styles.buttonProgress || ""}
+        />
+      ) : (
+        <>
+          <img
+            src={facebookIcon}
+            className={
+              layout === "inline" ? styles.iconLarge : styles.iconSmall
+            }
+          />
+          {layout === "stacked" && <span>Continue with Facebook</span>}
+        </>
+      )}
     </div>
   );
 };

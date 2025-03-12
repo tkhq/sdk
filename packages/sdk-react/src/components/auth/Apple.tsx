@@ -9,6 +9,7 @@ import {
   popupHeight,
   popupWidth,
 } from "./constants";
+import { CircularProgress } from "@mui/material";
 
 function isMobileBrowser() {
   return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
@@ -35,6 +36,8 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
   onSuccess,
   layout,
 }) => {
+  const [loading, setLoading] = useState(false);
+
   const [appleSDKLoaded, setAppleSDKLoaded] = useState(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
 
@@ -71,6 +74,7 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
   }, [onSuccess]);
 
   const handleLogin = () => {
+    setLoading(true);
     const nonce = bytesToHex(sha256(iframePublicKey));
     const appleAuthUrl = new URL(APPLE_AUTH_URL);
     appleAuthUrl.searchParams.set("client_id", clientId);
@@ -104,6 +108,7 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
       const interval = setInterval(() => {
         try {
           if (authWindow.closed) {
+            setLoading(false);
             clearInterval(interval);
             return;
           }
@@ -113,6 +118,7 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
             const idToken = hashParams.get("id_token");
             if (idToken) {
               authWindow.close();
+              setLoading(false);
               clearInterval(interval);
               onSuccess({ idToken });
             }
@@ -123,6 +129,7 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
           // Due to browser security policies (Same-Origin Policy), accessing properties like location.href on a window that is on a different domain will throw an exception.
           // Once the popup redirects to the same origin as the parent window, these errors will no longer occur, and the script can safely access the popup's location to extract parameters.
           if (authWindow?.closed) {
+            setLoading(false);
             clearInterval(interval);
           }
         }
@@ -137,13 +144,26 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
   return (
     <div
       className={layout === "inline" ? styles.iconButton : styles.socialButton}
-      onClick={handleLogin}
+      onClick={loading ? undefined : handleLogin}
     >
-      <img
-        src={appleIcon}
-        className={layout === "inline" ? styles.iconLarge : styles.iconSmall}
-      />
-      {layout === "stacked" && <span>Continue with Apple</span>}
+      {loading ? (
+        <CircularProgress
+          size={24}
+          thickness={4}
+          className={styles.buttonProgress || ""}
+        />
+      ) : (
+        <>
+          <img
+            src={appleIcon}
+            className={
+              layout === "inline" ? styles.iconLarge : styles.iconSmall
+            }
+            alt="Apple"
+          />
+          {layout === "stacked" && <span>Continue with Apple</span>}
+        </>
+      )}
     </div>
   );
 };

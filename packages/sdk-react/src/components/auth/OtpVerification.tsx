@@ -62,6 +62,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       otpInputRef.current.resetOtp();
     } catch (error) {
       setOtpError("An error occurred. Please try again.");
+      console.error("Error validating otp code: ", error);
     }
     setIsLoading(false);
   };
@@ -78,8 +79,9 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       setTimeout(() => {
         setResendText("Resend code");
       }, resendTimerMs);
-    } catch {
+    } catch (error) {
       setOtpError("Failed to resend the code. Please try again.");
+      console.error("Error resending code: ", error);
     }
   };
 
