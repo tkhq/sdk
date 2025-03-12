@@ -124,6 +124,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             TurnkeyAuthIframeContainerId,
           ),
           iframeUrl: config.iframeUrl || "https://auth.turnkey.com",
+          ...(config.dangerouslyOverrideIframeKeyTtl && {
+            dangerouslyOverrideIframeKeyTtl:
+              config.dangerouslyOverrideIframeKeyTtl,
+          }),
           iframeElementId: TurnkeyAuthIframeElementId,
         });
         setAuthIframeClient(newAuthIframeClient);
