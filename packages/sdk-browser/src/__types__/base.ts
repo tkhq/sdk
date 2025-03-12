@@ -16,6 +16,11 @@ export enum MethodType {
   Command,
 }
 
+export enum SessionType {
+  READ_ONLY = "SESSION_TYPE_READ_ONLY",
+  READ_WRITE = "SESSION_TYPE_READ_WRITE",
+}
+
 export type TStamp = {
   stampHeaderName: string;
   stampHeaderValue: string;
@@ -113,6 +118,13 @@ export interface IframeClientParams {
   iframeUrl: string;
   iframeElementId?: string;
   dangerouslyOverrideIframeKeyTtl?: number;
+}
+
+export interface PasskeyClientParams {
+  rpId?: string;
+  timeout?: number;
+  userVerification?: UserVerificationRequirement;
+  allowCredentials?: PublicKeyCredentialDescriptor[];
 }
 
 export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {

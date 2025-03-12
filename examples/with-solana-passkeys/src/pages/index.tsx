@@ -71,10 +71,10 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       if (!wallet) {
-        await turnkey?.logoutUser();
+        await turnkey?.logout();
       }
     })();
-  });
+  }, [wallet]);
 
   const signMessage = async (data: TSignMessageFormData) => {
     if (!wallet) {

@@ -31,12 +31,17 @@ enum FilterType {
   PublicKey = "PUBLIC_KEY",
 }
 
+enum SessionType {
+  READ_ONLY = "SESSION_TYPE_READ_ONLY",
+  READ_WRITE = "SESSION_TYPE_READ_WRITE",
+}
+
 type Session = {
-  sessionType: string;
+  sessionType: SessionType;
   userId: string;
   organizationId: string;
   expiry: number;
-  token: string | undefined;
+  token: string;
 };
 
 type VerifyOtpRequest = {
@@ -192,11 +197,10 @@ export async function verifyOtp(
       );
     }
     const session: Session = {
-      sessionType: "rw",
+      sessionType: SessionType.READ_WRITE,
       userId: userId,
       organizationId: request.suborgID,
-      expiry:
-        Math.floor(Date.now() / 1000) + (request.sessionLengthSeconds ?? 900), //TODO change this to the actual expiry time from the response,
+      expiry: Date.now() + Number(900) * 1000, // TODO: change this to the actual expiry time from the response,
       token: credentialBundle,
     };
     return session;
@@ -226,7 +230,7 @@ export async function oauth(
       );
     }
     const session: Session = {
-      sessionType: "rw",
+      sessionType: SessionType.READ_WRITE,
       userId: userId,
       organizationId: request.suborgID,
       expiry:

@@ -57,7 +57,8 @@
     "hpke-js": "^1.2.7"
   },
   "devDependencies": {
-    "glob": "^8.0.3"
+    "glob": "^8.0.3",
+    "typescript": "^5.1.5"
   },
   "engines": {
     "node": ">=18.0.0"

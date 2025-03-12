@@ -1647,6 +1647,9 @@ importers:
 
   packages/eip-1193-provider:
     dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../api-key-stamper
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
@@ -1657,9 +1660,6 @@ importers:
         specifier: ^2.7.19
         version: 2.7.19(typescript@5.1.5)
     devDependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../api-key-stamper
       hardhat:
         specifier: ^2.22.2
         version: 2.22.2(typescript@5.1.5)
@@ -1783,6 +1783,9 @@ importers:
       glob:
         specifier: ^8.0.3
         version: 8.1.0
+      typescript:
+        specifier: ^5.1.5
+        version: 5.1.5
 
   packages/sdk-react:
     dependencies:

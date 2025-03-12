@@ -116,7 +116,7 @@ export const createEIP1193Provider = async (
             organizationId,
             walletId,
           });
-          walletAccounts.accounts.map(({ address }) => {
+          walletAccounts.accounts.map(({ address }: { address: string }) => {
             accounts.add(address as Address);
           });
           setConnected(true, { chainId: activeChain.chainId });

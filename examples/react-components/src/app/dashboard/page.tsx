@@ -132,10 +132,10 @@ export default function Dashboard() {
       toast.error("Email is already connected to another account");
       return;
     }
-
-    await authIframeClient?.addUserAuth({
+    await authIframeClient?.updateUser({
+      organizationId: suborgId,
       userId: user.userId,
-      email: emailInput,
+      userEmail: emailInput,
     });
 
     const sendOtpResponse = await server.sendOtp({
@@ -166,10 +166,10 @@ export default function Dashboard() {
       toast.error("Phone Number is already connected to another account");
       return;
     }
-
-    await authIframeClient?.addUserAuth({
+    await authIframeClient?.updateUser({
+      organizationId: suborgId,
       userId: user.userId,
-      phoneNumber: phoneInput,
+      userPhoneNumber: phoneInput,
     });
 
     const sendOtpResponse = await server.sendOtp({
@@ -230,8 +230,8 @@ export default function Dashboard() {
         toast.error("Social login is already connected to another account");
         return;
       }
-
-      await authIframeClient?.addUserAuth({
+      await authIframeClient?.createOauthProviders({
+        organizationId: suborgId,
         userId: user.userId,
         oauthProviders: [
           {
@@ -261,7 +261,8 @@ export default function Dashboard() {
       })) || {};
 
     if (encodedChallenge && attestation) {
-      await authIframeClient?.addUserAuth({
+      await authIframeClient?.createAuthenticators({
+        organizationId: suborgId,
         userId: user.userId,
         authenticators: [
           {
@@ -293,27 +294,27 @@ export default function Dashboard() {
   };
 
   const handleLogout: any = async () => {
-    turnkey?.logoutUser();
+    await turnkey?.logout();
     router.push("/");
   };
+
   useEffect(() => {
     const manageSession = async () => {
       try {
         if (turnkey && authIframeClient) {
-          const session = await turnkey?.getReadWriteSession();
-          if (!session || Date.now() > session!.expiry) {
+          const session = await turnkey?.getSession();
+          if (!session || Date.now() > session.expiry) {
             await handleLogout();
           }
-          await authIframeClient.injectCredentialBundle(
-            session!.credentialBundle,
-          );
-          const whoami = await authIframeClient?.getWhoami();
-          const suborgId = whoami?.organizationId;
+
+          await authIframeClient.injectCredentialBundle(session.token);
+
+          const suborgId = session?.organizationId;
           setSuborgId(suborgId!);
 
           const userResponse = await authIframeClient!.getUser({
             organizationId: suborgId!,
-            userId: whoami?.userId!,
+            userId: session?.userId!,
           });
 
           setUser(userResponse.user);
@@ -1090,7 +1091,6 @@ export default function Dashboard() {
               contact={emailInput ? emailInput : phoneInput}
               suborgId={suborgId}
               otpId={otpId!}
-              authIframeClient={authIframeClient!}
               onValidateSuccess={handleOtpSuccess}
               onResendCode={emailInput ? handleResendEmail : handleResendSms}
             />
