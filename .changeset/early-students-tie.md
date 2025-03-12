@@ -13,10 +13,10 @@
   - `TurnkeyBrowserClient`, `TurnkeyIframeClient`, `TurnkeyPasskeyClient`, and `TurnkeyWalletClient` all extend `TurnkeyBaseClient`
 - TurnkeyBrowserClient
   - Session Management
-    - `refreshSession` - attempts to refresh an existing session and will extend the session expiry using the `expirationSeconds` parameter
-    - loginWithBundle - authenticate a user via a credential bundle and creates a session
+    - `refreshSession` - attempts to refresh an existing, active session and will extend the session expiry using the `expirationSeconds` parameter
+    - loginWithBundle - authenticate a user via a credential bundle and creates a read-write session
     - loginWithPasskey - attempts to authenticate a user via passkey and create a read-only or read-write session
-    - loginWithSession - takes a `Session` created via a server action and attempts to authenticate the user
+    - loginWithSession - takes a `Session`, which can be either read-only or read-write, created via a server action and attempts to authenticate the user
 - TurnkeyPasskeyClient
   - Session Management
     - createPasskeySession - leverages passkey authentication to create a read-write session. Once authenticated, the user will not be prompted for additional passkey taps.
@@ -36,8 +36,10 @@
 
 ### @turnkey/eip-1193-provider
 
-- add dependencies
-  - `"@turnkey/api-key-stamper": "workspace:*"`
-  - `"@turnkey/http": "workspace:*"`
-  - `"@turnkey/sdk-browser": "workspace:*"`
+- update dependencies in `package.json`
+  - moved from `peerDependencies` to `dependencies`
+    - `"@turnkey/http": "workspace:*"`
+    - `"@turnkey/sdk-browser": "workspace:*"`
+  - moved from `devDependencies` to `dependencies`
+    - `"@turnkey/api-key-stamper": "workspace:*"`
 - specify TypeScript version ^5.1.5
