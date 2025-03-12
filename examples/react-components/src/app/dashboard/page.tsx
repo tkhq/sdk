@@ -303,7 +303,7 @@ export default function Dashboard() {
       try {
         if (turnkey && authIframeClient) {
           const session = await turnkey?.getSession();
-          if (!session || Date.now() > session!.expiry) {
+          if (!session || Date.now() > session.expiry) {
             await handleLogout();
           }
 
