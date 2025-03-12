@@ -13,7 +13,7 @@
   - `TurnkeyBrowserClient`, `TurnkeyIframeClient`, `TurnkeyPasskeyClient`, and `TurnkeyWalletClient` all extend `TurnkeyBaseClient`
 - TurnkeyBrowserClient
   - Session Management
-    - refreshSession - attempts to refresh an existing session and will extend the session expiry using the expirationSeconds parameter
+    - `refreshSession` - attempts to refresh an existing session and will extend the session expiry using the `expirationSeconds` parameter
     - loginWithBundle - authenticate a user via a credential bundle and creates a session
     - loginWithPasskey - attempts to authenticate a user via passkey and create a read-only or read-write session
     - loginWithSession - takes a `Session` created via a server action and attempts to authenticate the user
