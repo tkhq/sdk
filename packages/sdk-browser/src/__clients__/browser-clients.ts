@@ -121,7 +121,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @param targetEmbeddedKey
    * @param expirationSeconds
    * @param userId
-   * @returns {Promise<SdkApiTypes.TCreateReadWriteSessionResponse>}
+   * @returns {Promise<void>}
    */
   refereshSession = async (
     sessionType: SessionType = SessionType.READ_WRITE,
@@ -132,7 +132,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       if (this! instanceof TurnkeyPasskeyClient) {
         throw new Error(
           "You must use a passkey client to refresh a read session",
-        ); // TODO: support wallet clients perhaps?
+        ); // TODO: support wallet client
       }
       const readOnlySessionResult = await this.createReadOnlySession({});
       const session: Session = {
@@ -160,7 +160,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         sessionType: SessionType.READ_WRITE,
         userId: readWriteSessionResult.userId,
         organizationId: readWriteSessionResult.organizationId,
-        expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time from the response in a new version of the activity
+        expiry: Date.now() + Number(expirationSeconds) * 1000,
         token: readWriteSessionResult.credentialBundle,
       };
       if (this instanceof TurnkeyIframeClient) {
@@ -169,7 +169,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         // Throw an error if the client is not an iframe client
         throw new Error(
           "You must use an iframe client to refresh a read-write session",
-        ); //should we default to a "localStorage" client?
+        ); 
       }
       await storeSession(session, AuthClient.Iframe);
     }
@@ -332,7 +332,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   loginWithAuthBundle = async (
     credentialBundle: string,
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-  ): Promise<any> => {
+  ): Promise<boolean> => {
     try {
       const whoAmIResult = await this.getWhoami();
 
