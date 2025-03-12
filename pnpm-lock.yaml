@@ -16,6 +16,7 @@ overrides:
   secp256k1: '>=4.0.4'
   cross-spawn: '>=7.0.5'
   elliptic: '>=6.6.1'
+  axios: '>1.8.2'
 
 importers:
 
@@ -121,8 +122,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       axios:
-        specifier: ^1.8.2
-        version: 1.8.2
+        specifier: '>1.8.2'
+        version: 1.8.3
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -181,8 +182,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       axios:
-        specifier: ^1.8.2
-        version: 1.8.2
+        specifier: '>1.8.2'
+        version: 1.8.3
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -330,8 +331,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       axios:
-        specifier: ^1.8.2
-        version: 1.8.2
+        specifier: '>1.8.2'
+        version: 1.8.3
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -384,8 +385,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       axios:
-        specifier: ^1.8.2
-        version: 1.8.2
+        specifier: '>1.8.2'
+        version: 1.8.3
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -465,8 +466,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       axios:
-        specifier: ^1.8.2
-        version: 1.8.2
+        specifier: '>1.8.2'
+        version: 1.8.3
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -605,8 +606,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-server
       axios:
-        specifier: ^1.8.2
-        version: 1.8.2
+        specifier: '>1.8.2'
+        version: 1.8.3
       classnames:
         specifier: ^2.3.2
         version: 2.3.2
@@ -928,8 +929,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       axios:
-        specifier: ^1.8.2
-        version: 1.8.2
+        specifier: '>1.8.2'
+        version: 1.8.3
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -1028,8 +1029,8 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
       axios:
-        specifier: ^1.8.2
-        version: 1.8.2
+        specifier: '>1.8.2'
+        version: 1.8.3
       encoding:
         specifier: ^0.1.13
         version: 0.1.13
@@ -1201,8 +1202,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/webauthn-stamper
       axios:
-        specifier: ^1.8.2
-        version: 1.8.2
+        specifier: '>1.8.2'
+        version: 1.8.3
       bs58:
         specifier: ^5.0.0
         version: 5.0.0
@@ -2046,7 +2047,7 @@ packages:
     resolution: {integrity: sha512-kJsoy4fAPTOhzVr7Vwq8s/AUg6BQiJDa7WOqRzev4zsuIS3+JCuIZ6vUd7UBsjnxtmguJJulMRs9qWCzVBt2XA==}
     engines: {node: '>=15.10.0'}
     dependencies:
-      axios: 1.7.4
+      axios: 1.8.3
       got: 11.8.6
     transitivePeerDependencies:
       - debug
@@ -5431,7 +5432,7 @@ packages:
       '@cosmjs/socket': 0.33.0
       '@cosmjs/stream': 0.33.0
       '@cosmjs/utils': 0.33.0
-      axios: 1.8.2
+      axios: 1.8.3
       readonly-date: 1.0.0
       xstream: 11.14.0
     transitivePeerDependencies:
@@ -12272,7 +12273,7 @@ packages:
     dependencies:
       '@ton/core': 0.59.0(@ton/crypto@3.3.0)
       '@ton/crypto': 3.3.0
-      axios: 1.8.2
+      axios: 1.8.3
       dataloader: 2.2.3
       symbol.inspect: 1.0.1
       teslabot: 1.5.0
@@ -14448,18 +14449,8 @@ packages:
     resolution: {integrity: sha512-zIURGIS1E1Q4pcrMjp+nnEh+16G56eG/MUllJH8yEvw7asDo7Ac9uhC9KIH5jzpITueEZolfYglnCGIuSBz39g==}
     engines: {node: '>=4'}
 
-  /axios@1.7.4:
-    resolution: {integrity: sha512-DukmaFRnY6AzAALSH4J2M3k6PkaC+MfaAGdEERRWcC9q3/TWQwLpHR8ZRLKTdQ3aBDL64EdluRDjJqKw+BPZEw==}
-    dependencies:
-      follow-redirects: 1.15.4(debug@4.3.4)
-      form-data: 4.0.0
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios@1.8.2:
-    resolution: {integrity: sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==}
+  /axios@1.8.3:
+    resolution: {integrity: sha512-iP4DebzoNlP/YN2dpwCgb8zoCmhtkajzS48JvwmkSkXvPI3DHc7m+XYL5tGnSlJtR6nImXZmdCuN5aP8dh1d8A==}
     dependencies:
       follow-redirects: 1.15.4(debug@4.3.4)
       form-data: 4.0.0
