@@ -169,7 +169,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         // Throw an error if the client is not an iframe client
         throw new Error(
           "You must use an iframe client to refresh a read-write session",
-        ); 
+        );
       }
       await storeSession(session, AuthClient.Iframe);
     }

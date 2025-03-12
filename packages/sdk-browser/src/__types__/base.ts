@@ -93,13 +93,6 @@ export type TurnkeySDKClientConfig =
   | SDKClientConfigWithStamper
   | SDKClientConfigWithReadOnlySession;
 
-export interface TurnkeySDKClientPasskeyIframeConfig
-  extends BaseSDKClientConfig {
-  stamper: TStamper;
-  iframeStamper: IframeStamper;
-  passkeyStamper: WebauthnStamper;
-}
-
 export interface TurnkeySDKBrowserConfig {
   apiBaseUrl: string;
   defaultOrganizationId: string;
