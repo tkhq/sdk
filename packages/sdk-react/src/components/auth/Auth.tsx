@@ -334,7 +334,7 @@ const Auth: React.FC<AuthProps> = ({
       if (sessionResponse?.credentialBundle) {
         await handleAuthSuccess(
           sessionResponse.credentialBundle,
-          authConfig.sessionLengthSeconds?.toString()
+          authConfig.sessionLengthSeconds?.toString(),
         );
       } else {
         throw new Error(authErrors.wallet.loginFailed);

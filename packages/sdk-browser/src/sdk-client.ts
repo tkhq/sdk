@@ -83,7 +83,7 @@ export class TurnkeyBrowserSDK {
 
     if (!targetRpId) {
       throw new Error(
-        "Tried to initialize a passkey client with no rpId defined"
+        "Tried to initialize a passkey client with no rpId defined",
       );
     }
 
@@ -106,12 +106,11 @@ export class TurnkeyBrowserSDK {
   };
 
   iframeClient = async (
-    params: IframeClientParams
+    params: IframeClientParams,
   ): Promise<TurnkeyIframeClient> => {
-    console.log("TurnkeyBrowserSDK iframeClient params", params);
     if (!params.iframeUrl) {
       throw new Error(
-        "Tried to initialize iframeClient with no iframeUrl defined"
+        "Tried to initialize iframeClient with no iframeUrl defined",
       );
     }
 
@@ -125,7 +124,7 @@ export class TurnkeyBrowserSDK {
     });
 
     await this.stamper.init(
-      params.dangerouslyOverrideIframeKeyTtl ?? undefined
+      params.dangerouslyOverrideIframeKeyTtl ?? undefined,
     );
 
     return new TurnkeyIframeClient({
@@ -147,7 +146,7 @@ export class TurnkeyBrowserSDK {
   serverSign = async <TResponseType>(
     methodName: string,
     params: any[],
-    serverSignUrl?: string
+    serverSignUrl?: string,
   ): Promise<TResponseType> => {
     const targetServerSignUrl = serverSignUrl ?? this.config.serverSignUrl;
 
@@ -218,7 +217,7 @@ export class TurnkeyBrowserSDK {
    */
   getReadWriteSession = async (): Promise<ReadWriteSession | undefined> => {
     const currentUser: User | undefined = await getStorageValue(
-      StorageKeys.UserSession
+      StorageKeys.UserSession,
     );
     if (currentUser?.session?.write) {
       if (currentUser.session.write.expiry > Date.now()) {
@@ -238,12 +237,7 @@ export class TurnkeyBrowserSDK {
    */
   getSession = async (): Promise<Session | undefined> => {
     const currentSession: Session | undefined = await getStorageValue(
-      StorageKeys.Session
-    );
-    console.log("getSession currentSession", currentSession);
-    console.log(
-      "getSession currentSession is active",
-      currentSession?.expiry ? currentSession?.expiry > Date.now() : false
+      StorageKeys.Session,
     );
     if (currentSession?.sessionType === SessionType.READ_WRITE) {
       if (currentSession?.expiry > Date.now()) {
@@ -274,10 +268,36 @@ export class TurnkeyBrowserSDK {
    * @returns {Promise<User | undefined>}
    */
   getCurrentUser = async (): Promise<User | undefined> => {
-    console.log("getCurrentUser");
-    const session = await getStorageValue(StorageKeys.Session);
-    console.log("getCurrentUser session", session);
-    return await getStorageValue(StorageKeys.UserSession);
+    try {
+      const session = await getStorageValue(StorageKeys.Session);
+      if (session?.userId && session?.organizationId) {
+        return {
+          userId: session.userId,
+          organization: {
+            organizationId: session.organizationId,
+            organizationName: "",
+          },
+          session: {
+            ...(session.sessionType === SessionType.READ_ONLY && {
+              read: {
+                token: session.token,
+                expiry: session.expiry,
+              },
+            }),
+            ...(session.sessionType === SessionType.READ_WRITE && {
+              write: {
+                credentialBundle: session.token,
+                expiry: session.expiry,
+              },
+            }),
+          },
+        } as User;
+      } else {
+        return undefined;
+      }
+    } catch (error) {
+      return;
+    }
   };
 
   /**

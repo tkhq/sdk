@@ -51,11 +51,11 @@ interface UserSession {
 export function useUserSession(): UserSession {
   const [session] = useLocalStorage<Session | undefined>(
     StorageKeys.Session,
-    undefined
+    undefined,
   );
   const [authClient] = useLocalStorage<AuthClient | undefined>(
     StorageKeys.Client,
-    undefined
+    undefined,
   );
 
   return {
