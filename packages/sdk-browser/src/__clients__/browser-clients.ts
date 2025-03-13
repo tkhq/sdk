@@ -98,8 +98,6 @@ interface AddUserAuthParams {
   apiKeys?: ApiKey[]; // Array of API key objects to add
 }
 export class TurnkeyBrowserClient extends TurnkeyBaseClient {
-  iframeClient?: TurnkeyIframeClient;
-
   constructor(config: TurnkeySDKClientConfig, authClient?: AuthClient) {
     super(config, authClient);
   }
