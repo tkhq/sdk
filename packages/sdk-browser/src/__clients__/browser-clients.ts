@@ -130,7 +130,6 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   ): Promise<void> => {
-    console.log("TurnkeyBrowserClient refereshSession");
     if (sessionType === SessionType.READ_ONLY) {
       if (this! instanceof TurnkeyPasskeyClient) {
         throw new Error(

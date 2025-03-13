@@ -93,13 +93,6 @@ export type TurnkeySDKClientConfig =
   | SDKClientConfigWithStamper
   | SDKClientConfigWithReadOnlySession;
 
-export interface TurnkeySDKClientPasskeyIframeConfig
-  extends BaseSDKClientConfig {
-  iframeStamper: IframeStamper;
-  passkeyStamper: WebauthnStamper;
-  readOnlySession: string;
-}
-
 export interface TurnkeySDKBrowserConfig {
   apiBaseUrl: string;
   defaultOrganizationId: string;
@@ -125,13 +118,6 @@ export interface IframeClientParams {
   iframeUrl: string;
   iframeElementId?: string;
   dangerouslyOverrideIframeKeyTtl?: number;
-}
-
-export interface PasskeyClientParams {
-  rpId?: string;
-  timeout?: number;
-  userVerification?: UserVerificationRequirement;
-  allowCredentials?: PublicKeyCredentialDescriptor[];
 }
 
 export interface PasskeyClientParams {
