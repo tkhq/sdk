@@ -185,7 +185,7 @@ const Auth: React.FC<AuthProps> = ({
         SessionType.READ_WRITE,
         authIframeClient!,
         authIframeClient?.iframePublicKey!,
-        authConfig.sessionLengthSeconds?.toString()
+        authConfig.sessionLengthSeconds?.toString(),
       );
 
       await onAuthSuccess();
@@ -202,7 +202,7 @@ const Auth: React.FC<AuthProps> = ({
         SessionType.READ_WRITE,
         authIframeClient!,
         authIframeClient?.iframePublicKey!,
-        authConfig.sessionLengthSeconds?.toString()
+        authConfig.sessionLengthSeconds?.toString(),
       );
       await onAuthSuccess();
     } catch (error) {
@@ -216,7 +216,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleOtpLogin = async (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
-    otpType: string
+    otpType: string,
   ) => {
     setLoading(otpType);
     const createSuborgData: Record<string, any> = {};
@@ -327,7 +327,7 @@ const Auth: React.FC<AuthProps> = ({
         SessionType.READ_WRITE,
         authIframeClient!,
         authIframeClient?.iframePublicKey!,
-        authConfig.sessionLengthSeconds?.toString()
+        authConfig.sessionLengthSeconds?.toString(),
       );
       await onAuthSuccess();
     } catch (error: any) {
