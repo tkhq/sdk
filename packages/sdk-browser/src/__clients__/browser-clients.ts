@@ -289,6 +289,66 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   };
 
   /**
+   * Log in with a browser wallet.
+   *
+   * @param session
+   * @returns {Promise<void>}
+   */
+  loginWithWallet = async (
+    sessionType: SessionType = SessionType.READ_WRITE,
+    iframeClient: TurnkeyIframeClient,
+    targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
+    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+  ): Promise<void> => {
+    // Create a read-only session
+    if (sessionType === SessionType.READ_ONLY) {
+      const readOnlySessionResult = await this.createReadOnlySession({});
+
+      const session: Session = {
+        sessionType: SessionType.READ_ONLY,
+        userId: readOnlySessionResult.userId,
+        organizationId: readOnlySessionResult.organizationId,
+        expiry: Number(readOnlySessionResult.sessionExpiry),
+        token: readOnlySessionResult.session,
+      };
+      await storeSession(session, AuthClient.Wallet);
+    }
+
+    // Create a read-write session
+    if (sessionType === SessionType.READ_WRITE) {
+      if (!targetPublicKey) {
+        throw new Error(
+          "You must provide a targetPublicKey to create a read-write session.",
+        );
+      }
+
+      const readWriteSessionResult = await this.createReadWriteSession({
+        targetPublicKey,
+        expirationSeconds,
+      });
+
+      const session: Session = {
+        sessionType: SessionType.READ_WRITE,
+        userId: readWriteSessionResult.userId,
+        organizationId: readWriteSessionResult.organizationId,
+        expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time from the response in a new version of the activity
+        token: readWriteSessionResult.credentialBundle,
+      };
+
+      if (!iframeClient) {
+        throw new Error(
+          "You must provide an iframe client to log in with a wallet.",
+        );
+      }
+      await iframeClient.injectCredentialBundle(session.token!);
+
+      await storeSession(session, AuthClient.Iframe);
+    } else {
+      throw new Error("Invalid session type passed.");
+    }
+  };
+
+  /**
    * Creates a read-write session. This method infers the current user's organization ID and target userId.
    * To be used in conjunction with an `iframeStamper`: the resulting session's credential bundle can be
    * injected into an iframeStamper to create a session that enables both read and write requests.

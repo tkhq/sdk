@@ -10,7 +10,6 @@ import { CircularProgress } from "@mui/material";
 import { OtpType, FilterType } from "./constants";
 import { server } from "@turnkey/sdk-server";
 import { useTurnkey } from "../../hooks/use-turnkey";
-import { useRouter } from "next/navigation";
 
 const resendTimerMs = 15000;
 interface OtpVerificationProps {
@@ -19,10 +18,7 @@ interface OtpVerificationProps {
   suborgId: string;
   otpId: string;
   sessionLengthSeconds?: number | undefined;
-  onValidateSuccess: (
-    credentialBundle: any,
-    expirationSeconds?: string,
-  ) => Promise<void>;
+  onValidateSuccess: () => Promise<void>;
   onResendCode: (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
@@ -35,10 +31,11 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   suborgId,
   otpId,
   sessionLengthSeconds,
+  onValidateSuccess,
   onResendCode,
 }) => {
   const { authIframeClient } = useTurnkey();
-  const router = useRouter();
+
   const [otpError, setOtpError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [resendText, setResendText] = useState("Resend code");
@@ -58,7 +55,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 
       if (authSession?.token) {
         await authIframeClient!.loginWithSession(authSession);
-        router.push("/dashboard");
+        await onValidateSuccess();
       } else {
         setOtpError("Invalid code. Please try again.");
       }
