@@ -128,50 +128,54 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   ): Promise<void> => {
-    if (sessionType === SessionType.READ_ONLY) {
-      if (this! instanceof TurnkeyPasskeyClient) {
-        throw new Error(
-          "You must use a passkey client to refresh a read session",
-        ); // TODO: support wallet client
-      }
-      const readOnlySessionResult = await this.createReadOnlySession({});
-      const session: Session = {
-        sessionType: SessionType.READ_ONLY,
-        userId: readOnlySessionResult.userId,
-        organizationId: readOnlySessionResult.organizationId,
-        expiry: Number(readOnlySessionResult.sessionExpiry),
-        token: readOnlySessionResult.session,
-      };
+    try {
+      if (sessionType === SessionType.READ_ONLY) {
+        if (this! instanceof TurnkeyPasskeyClient) {
+          throw new Error(
+            "You must use a passkey client to refresh a read session",
+          ); // TODO: support wallet client
+        }
+        const readOnlySessionResult = await this.createReadOnlySession({});
+        const session: Session = {
+          sessionType: SessionType.READ_ONLY,
+          userId: readOnlySessionResult.userId,
+          organizationId: readOnlySessionResult.organizationId,
+          expiry: Number(readOnlySessionResult.sessionExpiry),
+          token: readOnlySessionResult.session,
+        };
 
-      storeSession(session, AuthClient.Passkey);
-    }
-    if (sessionType === SessionType.READ_WRITE) {
-      if (!targetPublicKey) {
-        throw new Error(
-          "You must provide a targetPublicKey to refresh a read-write session.",
-        );
+        await storeSession(session, AuthClient.Passkey);
       }
-      const readWriteSessionResult = await this.createReadWriteSession({
-        targetPublicKey,
-        expirationSeconds,
-        invalidateExisting: true,
-      });
-      const session: Session = {
-        sessionType: SessionType.READ_WRITE,
-        userId: readWriteSessionResult.userId,
-        organizationId: readWriteSessionResult.organizationId,
-        expiry: Date.now() + Number(expirationSeconds) * 1000,
-        token: readWriteSessionResult.credentialBundle,
-      };
-      if (this instanceof TurnkeyIframeClient) {
-        await this.injectCredentialBundle(session.token!);
-      } else {
-        // Throw an error if the client is not an iframe client
-        throw new Error(
-          "You must use an iframe client to refresh a read-write session",
-        );
+      if (sessionType === SessionType.READ_WRITE) {
+        if (!targetPublicKey) {
+          throw new Error(
+            "You must provide a targetPublicKey to refresh a read-write session.",
+          );
+        }
+        const readWriteSessionResult = await this.createReadWriteSession({
+          targetPublicKey,
+          expirationSeconds,
+          invalidateExisting: true,
+        });
+        const session: Session = {
+          sessionType: SessionType.READ_WRITE,
+          userId: readWriteSessionResult.userId,
+          organizationId: readWriteSessionResult.organizationId,
+          expiry: Date.now() + Number(expirationSeconds) * 1000,
+          token: readWriteSessionResult.credentialBundle,
+        };
+        if (this instanceof TurnkeyIframeClient) {
+          await this.injectCredentialBundle(session.token!);
+        } else {
+          // Throw an error if the client is not an iframe client
+          throw new Error(
+            "You must use an iframe client to refresh a read-write session",
+          );
+        }
+        await storeSession(session, AuthClient.Iframe);
       }
-      await storeSession(session, AuthClient.Iframe);
+    } catch (error) {
+      throw new Error("Unable to refresh session.");
     }
   };
 
@@ -240,51 +244,55 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   ): Promise<void> => {
-    // Create a read-only session
-    if (sessionType === SessionType.READ_ONLY) {
-      const readOnlySessionResult = await this.createReadOnlySession({});
+    try {
+      // Create a read-only session
+      if (sessionType === SessionType.READ_ONLY) {
+        const readOnlySessionResult = await this.createReadOnlySession({});
 
-      const session: Session = {
-        sessionType: SessionType.READ_ONLY,
-        userId: readOnlySessionResult.userId,
-        organizationId: readOnlySessionResult.organizationId,
-        expiry: Number(readOnlySessionResult.sessionExpiry),
-        token: readOnlySessionResult.session,
-      };
-      await storeSession(session, AuthClient.Passkey);
-    }
-
-    // Create a read-write session
-    if (sessionType === SessionType.READ_WRITE) {
-      if (!targetPublicKey) {
-        throw new Error(
-          "You must provide a targetPublicKey to create a read-write session.",
-        );
+        const session: Session = {
+          sessionType: SessionType.READ_ONLY,
+          userId: readOnlySessionResult.userId,
+          organizationId: readOnlySessionResult.organizationId,
+          expiry: Number(readOnlySessionResult.sessionExpiry),
+          token: readOnlySessionResult.session,
+        };
+        await storeSession(session, AuthClient.Passkey);
       }
 
-      const readWriteSessionResult = await this.createReadWriteSession({
-        targetPublicKey,
-        expirationSeconds,
-      });
+      // Create a read-write session
+      if (sessionType === SessionType.READ_WRITE) {
+        if (!targetPublicKey) {
+          throw new Error(
+            "You must provide a targetPublicKey to create a read-write session.",
+          );
+        }
 
-      const session: Session = {
-        sessionType: SessionType.READ_WRITE,
-        userId: readWriteSessionResult.userId,
-        organizationId: readWriteSessionResult.organizationId,
-        expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time from the response in a new version of the activity
-        token: readWriteSessionResult.credentialBundle,
-      };
+        const readWriteSessionResult = await this.createReadWriteSession({
+          targetPublicKey,
+          expirationSeconds,
+        });
 
-      if (!iframeClient) {
-        throw new Error(
-          "You must provide an iframe client to log in with a passkey.",
-        );
+        const session: Session = {
+          sessionType: SessionType.READ_WRITE,
+          userId: readWriteSessionResult.userId,
+          organizationId: readWriteSessionResult.organizationId,
+          expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time from the response in a new version of the activity
+          token: readWriteSessionResult.credentialBundle,
+        };
+
+        if (!iframeClient) {
+          throw new Error(
+            "You must provide an iframe client to log in with a passkey.",
+          );
+        }
+        await iframeClient.injectCredentialBundle(session.token!);
+
+        await storeSession(session, AuthClient.Iframe);
+      } else {
+        throw new Error("Invalid session type passed.");
       }
-      await iframeClient.injectCredentialBundle(session.token!);
-
-      await storeSession(session, AuthClient.Iframe);
-    } else {
-      throw new Error("Invalid session type passed.");
+    } catch (error) {
+      throw new Error("Unable to log in with the provided passkey.");
     }
   };
 
@@ -363,23 +371,27 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     userId?: string,
   ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
-    const readWriteSessionResult = await this.createReadWriteSession({
-      targetPublicKey: targetEmbeddedKey,
-      expirationSeconds,
-      userId: userId!,
-    });
+    try {
+      const readWriteSessionResult = await this.createReadWriteSession({
+        targetPublicKey: targetEmbeddedKey,
+        expirationSeconds,
+        userId: userId!,
+      });
 
-    // Ensure session and sessionExpiry are included in the object
-    const readWriteSessionResultWithSession = {
-      ...readWriteSessionResult,
-      credentialBundle: readWriteSessionResult.credentialBundle,
-      sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
-    };
+      // Ensure session and sessionExpiry are included in the object
+      const readWriteSessionResultWithSession = {
+        ...readWriteSessionResult,
+        credentialBundle: readWriteSessionResult.credentialBundle,
+        sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
+      };
 
-    // store auth bundle in local storage
-    await saveSession(readWriteSessionResultWithSession, this.authClient);
+      // store auth bundle in local storage
+      await saveSession(readWriteSessionResultWithSession, this.authClient);
 
-    return readWriteSessionResultWithSession;
+      return readWriteSessionResultWithSession;
+    } catch (error) {
+      throw new Error("Unable to log in with the provided read-write session.");
+    }
   };
 
   /**
@@ -753,55 +765,60 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     organizationId?: string,
   ): Promise<ReadWriteSession> => {
-    const user = await getStorageValue(StorageKeys.UserSession);
-    organizationId = organizationId ?? user?.organization.organizationId;
-    userId = userId ?? user?.userId;
+    try {
+      const session = await getStorageValue(StorageKeys.Session);
+      organizationId = organizationId ?? session?.organizationId;
+      userId = userId ?? session?.userId;
 
-    if (!organizationId) {
-      throw new Error(
-        "Error creating passkey session: Organization ID is required",
-      );
-    }
+      if (!organizationId) {
+        throw new Error(
+          "Error creating passkey session: Organization ID is required",
+        );
+      }
 
-    if (!userId) {
-      throw new Error("Error creating passkey session: User ID is required");
-    }
+      if (!userId) {
+        throw new Error("Error creating passkey session: User ID is required");
+      }
 
-    const { authBundle: credentialBundle, publicKey } =
-      await createEmbeddedAPIKey(targetEmbeddedKey);
+      const { authBundle: credentialBundle, publicKey } =
+        await createEmbeddedAPIKey(targetEmbeddedKey);
 
-    // add API key to Turnkey User
-    await this.createApiKeys({
-      organizationId,
-      userId,
-      apiKeys: [
-        {
-          apiKeyName: `Session Key ${String(Date.now())}`,
-          publicKey,
-          expirationSeconds,
-          curveType: "API_KEY_CURVE_P256",
-        },
-      ],
-    });
-
-    const expiry = Date.now() + Number(expirationSeconds) * 1000;
-
-    await saveSession(
-      {
+      // add API key to Turnkey User
+      await this.createApiKeys({
         organizationId,
-        organizationName: user?.organization.organizationName ?? "",
         userId,
-        username: user?.username ?? "",
-        credentialBundle,
-        sessionExpiry: expiry,
-      },
-      this.authClient,
-    );
+        apiKeys: [
+          {
+            apiKeyName: `Session Key ${String(Date.now())}`,
+            publicKey,
+            expirationSeconds,
+            curveType: "API_KEY_CURVE_P256",
+          },
+        ],
+      });
 
-    return {
-      credentialBundle,
-      expiry,
-    };
+      const whoAmI = await this.getWhoami();
+      const expiry = Date.now() + Number(expirationSeconds) * 1000;
+
+      await saveSession(
+        {
+          organizationId,
+          organizationName: whoAmI?.organizationName ?? "",
+          userId,
+          username: whoAmI?.username ?? "",
+          credentialBundle,
+          sessionExpiry: expiry,
+        },
+        this.authClient,
+      );
+
+      return {
+        credentialBundle,
+        expiry,
+      };
+    } catch (error) {
+      throw new Error("Unable to create passkey session.");
+    }
   };
 }
 
