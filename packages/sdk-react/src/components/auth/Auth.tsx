@@ -18,7 +18,6 @@ import { FilterType, OtpType, authErrors } from "./constants";
 import type { WalletAccount } from "@turnkey/sdk-browser";
 import { server } from "@turnkey/sdk-server";
 import parsePhoneNumberFromString from "libphonenumber-js";
-import { useRouter } from "next/navigation";
 
 export enum SessionType {
   READ_ONLY = "SESSION_TYPE_READ_ONLY",
@@ -89,7 +88,7 @@ const Auth: React.FC<AuthProps> = ({
   customAccounts,
 }) => {
   const { authIframeClient, passkeyClient, walletClient } = useTurnkey();
-  const router = useRouter();
+
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
@@ -137,20 +136,6 @@ const Auth: React.FC<AuthProps> = ({
     return phoneNumber?.isValid() ?? false;
   };
 
-  const handleAuthSuccess = async (
-    credentialBundle: any,
-    expirationSeconds?: string,
-  ) => {
-    if (credentialBundle) {
-      await authIframeClient!.injectCredentialBundle(credentialBundle);
-      await authIframeClient!.loginWithAuthBundle(
-        credentialBundle,
-        expirationSeconds,
-      );
-      await onAuthSuccess();
-    }
-  };
-
   const handleSignupWithPasskey = async () => {
     setPasskeySignupError("");
     const siteInfo = `${
@@ -196,8 +181,10 @@ const Auth: React.FC<AuthProps> = ({
         SessionType.READ_WRITE,
         authIframeClient!,
         authIframeClient?.iframePublicKey!,
+        authConfig.sessionLengthSeconds?.toString(),
       );
-      router.push("/dashboard");
+
+      await onAuthSuccess();
     } catch {
       setPasskeySignupError(authErrors.passkey.timeoutOrNotAllowed);
     }
@@ -209,8 +196,9 @@ const Auth: React.FC<AuthProps> = ({
         SessionType.READ_WRITE,
         authIframeClient!,
         authIframeClient?.iframePublicKey!,
+        authConfig.sessionLengthSeconds?.toString(),
       );
-      router.push("/dashboard");
+      await onAuthSuccess();
     } catch (error) {
       onError(authErrors.passkey.loginFailed);
     }
@@ -275,6 +263,7 @@ const Auth: React.FC<AuthProps> = ({
       return;
     }
     const suborgId = suborgIds[0];
+
     const oauthSession = await server.oauth({
       suborgID: suborgId!,
       oidcToken: credential,
@@ -283,7 +272,7 @@ const Auth: React.FC<AuthProps> = ({
     });
     if (oauthSession && oauthSession.token) {
       await authIframeClient!.loginWithSession(oauthSession);
-      router.push("/dashboard");
+      await onAuthSuccess();
     } else {
       onError(authErrors.oauth.loginFailed);
     }
@@ -321,24 +310,13 @@ const Auth: React.FC<AuthProps> = ({
         return;
       }
 
-      const suborgId = suborgIds[0];
-
-      const sessionResponse = await walletClient.createReadWriteSession({
-        targetPublicKey: authIframeClient?.iframePublicKey!,
-        ...(suborgId && { organizationId: suborgId }),
-        ...(authConfig.sessionLengthSeconds !== undefined && {
-          expirationSeconds: authConfig.sessionLengthSeconds.toString(),
-        }),
-      });
-
-      if (sessionResponse?.credentialBundle) {
-        await handleAuthSuccess(
-          sessionResponse.credentialBundle,
-          authConfig.sessionLengthSeconds?.toString(),
-        );
-      } else {
-        throw new Error(authErrors.wallet.loginFailed);
-      }
+      await walletClient!.loginWithWallet(
+        SessionType.READ_WRITE,
+        authIframeClient!,
+        authIframeClient?.iframePublicKey!,
+        authConfig.sessionLengthSeconds?.toString(),
+      );
+      await onAuthSuccess();
     } catch (error: any) {
       onError(error.message || authErrors.wallet.loginFailed);
     } finally {
@@ -672,7 +650,7 @@ const Auth: React.FC<AuthProps> = ({
                     suborgId={suborgId}
                     otpId={otpId!}
                     sessionLengthSeconds={authConfig.sessionLengthSeconds}
-                    onValidateSuccess={handleAuthSuccess}
+                    onValidateSuccess={onAuthSuccess}
                     onResendCode={handleResendCode}
                   />
                 )}

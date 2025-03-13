@@ -434,10 +434,10 @@ export class TurnkeySDKClientBase {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const currentUser = await getStorageValue(StorageKeys.UserSession);
+    const session = await getStorageValue(StorageKeys.Session);
     return this.command("${endpointPath}", {
       parameters: rest,
-      organizationId: organizationId ?? (currentUser?.organization?.organizationId ?? this.config.organizationId),
+      organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
       type: "${versionedActivityType ?? unversionedActivityType}"
     }, "${versionedMethodName}");
@@ -447,11 +447,11 @@ export class TurnkeySDKClientBase {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const currentUser = await getStorageValue(StorageKeys.UserSession);
+    const session = await getStorageValue(StorageKeys.Session);
     return this.activityDecision("${endpointPath}",
       {
         parameters: rest,
-        organizationId: organizationId ?? (currentUser?.organization?.organizationId ?? this.config.organizationId),
+        organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_${operationNameWithoutNamespace
           .replace(/([a-z])([A-Z])/g, "$1_$2")

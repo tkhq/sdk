@@ -200,7 +200,7 @@ export async function verifyOtp(
       sessionType: SessionType.READ_WRITE,
       userId: userId,
       organizationId: request.suborgID,
-      expiry: Date.now() + Number(900) * 1000, // TODO: change this to the actual expiry time from the response,
+      expiry: Date.now() + (request.sessionLengthSeconds ?? 900) * 1000, // 900 is the default expiry time if you don't pass in a sessionLengthSeconds to the request. Request should probably return the expiry time, instead of hardcoding it.
       token: credentialBundle,
     };
     return session;
@@ -233,8 +233,7 @@ export async function oauth(
       sessionType: SessionType.READ_WRITE,
       userId: userId,
       organizationId: request.suborgID,
-      expiry:
-        Math.floor(Date.now() / 1000) + (request.sessionLengthSeconds ?? 900), //TODO change this to the actual expiry time from the response,
+      expiry: Date.now() + (request.sessionLengthSeconds ?? 900) * 1000, // 900 is the default expiry time if you don't pass in a sessionLengthSeconds to the request. Request should probably return the expiry time, instead of hardcoding it.
       token: credentialBundle,
     };
     return session;

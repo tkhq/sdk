@@ -110,7 +110,7 @@ export default function Dashboard() {
     setOtpId(sendOtpResponse?.otpId!);
   };
 
-  const handleOtpSuccess = async (credentialBundle: any) => {
+  const handleOtpSuccess = async () => {
     window.location.reload();
   };
   const handleOpenEmailModal = () => {
@@ -132,10 +132,10 @@ export default function Dashboard() {
       toast.error("Email is already connected to another account");
       return;
     }
-    await authIframeClient?.updateUser({
-      organizationId: suborgId,
+
+    await authIframeClient?.addUserAuth({
       userId: user.userId,
-      userEmail: emailInput,
+      email: emailInput,
     });
 
     const sendOtpResponse = await server.sendOtp({
@@ -166,10 +166,10 @@ export default function Dashboard() {
       toast.error("Phone Number is already connected to another account");
       return;
     }
-    await authIframeClient?.updateUser({
-      organizationId: suborgId,
+
+    await authIframeClient?.addUserAuth({
       userId: user.userId,
-      userPhoneNumber: phoneInput,
+      phoneNumber: phoneInput,
     });
 
     const sendOtpResponse = await server.sendOtp({
