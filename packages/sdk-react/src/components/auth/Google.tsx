@@ -5,6 +5,8 @@ import { bytesToHex } from "@noble/hashes/utils";
 import styles from "./Socials.module.css";
 import googleIcon from "assets/google.svg";
 import { GOOGLE_AUTH_URL, popupHeight, popupWidth } from "./constants";
+import { useState } from "react";
+import { CircularProgress } from "@mui/material";
 
 interface GoogleAuthButtonProps {
   iframePublicKey: string;
@@ -24,7 +26,10 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
   onSuccess,
   layout,
 }) => {
+  const [loading, setLoading] = useState(false);
+
   const handleLogin = async () => {
+    setLoading(true);
     const nonce = bytesToHex(sha256(iframePublicKey));
     const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!.replace(
       /\/$/,
@@ -76,6 +81,7 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
       }
 
       if (authWindow?.closed) {
+        setLoading(false);
         clearInterval(interval);
       }
     }, 500);
@@ -84,14 +90,26 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
   return (
     <div
       className={layout === "inline" ? styles.iconButton : styles.socialButton}
-      onClick={handleLogin}
+      onClick={loading ? undefined : handleLogin}
     >
-      <img
-        src={googleIcon}
-        className={layout === "inline" ? styles.iconLarge : styles.iconSmall}
-        alt="Google"
-      />
-      {layout === "stacked" && <span>Continue with Google</span>}
+      {loading ? (
+        <CircularProgress
+          size={24}
+          thickness={4}
+          className={styles.buttonProgress || ""}
+        />
+      ) : (
+        <>
+          <img
+            src={googleIcon}
+            className={
+              layout === "inline" ? styles.iconLarge : styles.iconSmall
+            }
+            alt="Google"
+          />
+          {layout === "stacked" && <span>Continue with Google</span>}
+        </>
+      )}
     </div>
   );
 };

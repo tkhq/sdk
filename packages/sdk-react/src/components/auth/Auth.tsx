@@ -15,7 +15,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import OtpVerification from "./OtpVerification";
 import { useTurnkey } from "../../hooks/use-turnkey";
 import { FilterType, OtpType, authErrors } from "./constants";
-import type { WalletAccount } from "@turnkey/sdk-browser";
+import type { TurnkeyApiTypes, WalletAccount } from "@turnkey/sdk-browser";
 import { server } from "@turnkey/sdk-server";
 import parsePhoneNumberFromString from "libphonenumber-js";
 
@@ -75,6 +75,8 @@ interface AuthProps {
     facebookClientId?: string; // will default to NEXT_PUBLIC_FACEBOOK_CLIENT_ID
   };
   configOrder: string[];
+  emailCustomization?: TurnkeyApiTypes["v1EmailCustomizationParams"];
+  sendFromEmailAddress?: string;
   customSmsMessage?: string;
   customAccounts?: WalletAccount[];
 }
@@ -84,6 +86,8 @@ const Auth: React.FC<AuthProps> = ({
   onError,
   authConfig,
   configOrder,
+  emailCustomization,
+  sendFromEmailAddress,
   customSmsMessage,
   customAccounts,
 }) => {
@@ -93,14 +97,14 @@ const Auth: React.FC<AuthProps> = ({
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
   const [step, setStep] = useState<string>("auth");
+  const [loading, setLoading] = useState<string | undefined>();
   const [oauthLoading, setOauthLoading] = useState<string>("");
   const [suborgId, setSuborgId] = useState<string>("");
   const [passkeySignupScreen, setPasskeySignupScreen] = useState(false);
   const [passkeyCreationScreen, setPasskeyCreationScreen] = useState(false);
   const [passkeySignupError, setPasskeySignupError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [componentReady, setComponentReady] = useState(false);
   const [passkeyCreated, setPasskeyCreated] = useState(false);
-  const [walletLoading, setWalletLoading] = useState(false);
 
   const handleResendCode = async () => {
     if (step === OtpType.Email) {
@@ -112,11 +116,11 @@ const Auth: React.FC<AuthProps> = ({
 
   useEffect(() => {
     if (authIframeClient) {
-      setLoading(false);
+      setComponentReady(true);
     }
   }, [authIframeClient]);
 
-  if (loading) {
+  if (!componentReady) {
     return (
       <div className={styles.defaultLoader}>
         <CircularProgress
@@ -185,13 +189,15 @@ const Auth: React.FC<AuthProps> = ({
       );
 
       await onAuthSuccess();
-    } catch {
+    } catch (error) {
       setPasskeySignupError(authErrors.passkey.timeoutOrNotAllowed);
+      console.error("Error during passkey signup: ", error);
     }
   };
 
   const handleLoginWithPasskey = async () => {
     try {
+      setLoading("passkey");
       await passkeyClient?.loginWithPasskey(
         SessionType.READ_WRITE,
         authIframeClient!,
@@ -201,6 +207,9 @@ const Auth: React.FC<AuthProps> = ({
       await onAuthSuccess();
     } catch (error) {
       onError(authErrors.passkey.loginFailed);
+      console.error("Error during passkey login: ", error);
+    } finally {
+      setLoading(undefined);
     }
   };
 
@@ -209,6 +218,7 @@ const Auth: React.FC<AuthProps> = ({
     value: string,
     otpType: string,
   ) => {
+    setLoading(otpType);
     const createSuborgData: Record<string, any> = {};
     if (type === FilterType.Email) createSuborgData.email = value;
     else if (type === FilterType.PhoneNumber)
@@ -232,6 +242,8 @@ const Auth: React.FC<AuthProps> = ({
       suborgID: suborgId!,
       otpType,
       contact: value,
+      ...(emailCustomization && { emailCustomization }),
+      ...(sendFromEmailAddress && { sendFromEmailAddress }),
       ...(customSmsMessage && { customSmsMessage }),
       userIdentifier: authIframeClient?.iframePublicKey!,
     });
@@ -242,6 +254,7 @@ const Auth: React.FC<AuthProps> = ({
     } else {
       onError(authErrors.otp.sendFailed);
     }
+    setLoading(undefined);
   };
 
   const handleOAuthLogin = async (credential: string, providerName: string) => {
@@ -279,7 +292,7 @@ const Auth: React.FC<AuthProps> = ({
   };
 
   const handleLoginWithWallet = async () => {
-    setWalletLoading(true);
+    setLoading("wallet");
     try {
       if (!walletClient) {
         throw new Error("Wallet client not initialized");
@@ -319,8 +332,9 @@ const Auth: React.FC<AuthProps> = ({
       await onAuthSuccess();
     } catch (error: any) {
       onError(error.message || authErrors.wallet.loginFailed);
+      console.error("Error during wallet login: ", error);
     } finally {
-      setWalletLoading(false);
+      setLoading(undefined);
     }
   };
 
@@ -448,9 +462,17 @@ const Auth: React.FC<AuthProps> = ({
             <button
               className={styles.authButton}
               type="submit"
-              disabled={!isValidEmail(email)}
+              disabled={!isValidEmail(email) || loading === OtpType.Email}
             >
-              Continue
+              {loading === OtpType.Email ? (
+                <CircularProgress
+                  size={24}
+                  thickness={4}
+                  className={styles.buttonProgress || ""}
+                />
+              ) : (
+                "Continue"
+              )}
             </button>
           </form>
         ) : null;
@@ -469,9 +491,17 @@ const Auth: React.FC<AuthProps> = ({
             <button
               className={styles.authButton}
               type="submit"
-              disabled={!isValidPhone(phone)}
+              disabled={!isValidPhone(phone) || loading === OtpType.Sms}
             >
-              Continue
+              {loading === OtpType.Sms ? (
+                <CircularProgress
+                  size={24}
+                  thickness={4}
+                  className={styles.buttonProgress || ""}
+                />
+              ) : (
+                "Continue"
+              )}
             </button>
           </form>
         ) : null;
@@ -483,8 +513,17 @@ const Auth: React.FC<AuthProps> = ({
               className={styles.authButton}
               type="button"
               onClick={handleLoginWithPasskey}
+              disabled={loading === "passkey"}
             >
-              Log in with passkey
+              {loading === "passkey" ? (
+                <CircularProgress
+                  size={24}
+                  thickness={4}
+                  className={styles.buttonProgress || ""}
+                />
+              ) : (
+                "Log in with passkey"
+              )}
             </button>
             <div
               className={styles.noPasskeyLink}
@@ -502,9 +541,9 @@ const Auth: React.FC<AuthProps> = ({
               className={styles.authButton}
               type="button"
               onClick={handleLoginWithWallet}
-              disabled={walletLoading}
+              disabled={loading === "wallet"}
             >
-              {walletLoading ? (
+              {loading === "wallet" ? (
                 <CircularProgress
                   size={24}
                   thickness={4}

@@ -1,5 +1,6 @@
 "use server";
 
+import type { TurnkeyApiTypes } from "@turnkey/http";
 import { TurnkeyServerSDK } from "./sdk-client";
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
@@ -63,6 +64,8 @@ type SendOtpRequest = {
   suborgID: string;
   otpType: string;
   contact: string;
+  emailCustomization?: EmailCustomization | undefined;
+  sendFromEmailAddress?: string | undefined;
   customSmsMessage?: string | undefined;
   userIdentifier?: string | undefined;
 };
@@ -79,6 +82,8 @@ type InitEmailAuthRequest = {
   userIdentifier?: string | undefined;
   sessionLengthSeconds?: number | undefined;
   invalidateExisting?: boolean | undefined;
+  emailCustomization?: EmailCustomization | undefined;
+  sendFromEmailAddress?: string | undefined;
 };
 
 type GetSuborgsRequest = {
@@ -121,6 +126,8 @@ type GetOrCreateSuborgResponse = {
   subOrganizationIds: string[];
 };
 
+type EmailCustomization = TurnkeyApiTypes["v1EmailCustomizationParams"];
+
 const turnkeyClient = new TurnkeyServerSDK({
   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
   defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
@@ -143,6 +150,12 @@ export async function sendCredential(
       ...(request.invalidateExisting && {
         invalidateExisting: request.invalidateExisting,
       }),
+      ...(request.emailCustomization && {
+        emailCustomization: request.emailCustomization,
+      }),
+      ...(request.sendFromEmailAddress && {
+        sendFromEmailAddress: request.sendFromEmailAddress,
+      }),
     });
     if (!response.userId) {
       throw new Error("Expected a non-null userId.");
@@ -161,6 +174,12 @@ export async function sendOtp(
       contact: request.contact,
       otpType: request.otpType,
       organizationId: request.suborgID,
+      ...(request.emailCustomization && {
+        emailCustomization: request.emailCustomization,
+      }),
+      ...(request.sendFromEmailAddress && {
+        sendFromEmailAddress: request.sendFromEmailAddress,
+      }),
       ...(request.userIdentifier && { userIdentifier: request.userIdentifier }),
       ...(request.customSmsMessage && {
         smsCustomization: { template: request.customSmsMessage },
