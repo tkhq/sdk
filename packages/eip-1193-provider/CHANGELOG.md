@@ -1,5 +1,54 @@
 # @turnkey/eip-1193-provider
 
+## 3.3.0
+
+### Minor Changes
+
+- 93540e7: ## Major Package Updates
+
+  ### @turnkey/sdk-browser
+
+  - create abstract `TurnkeyBaseClient` class which extends `TurnkeySDKClientBase`
+    - `TurnkeyBrowserClient`, `TurnkeyIframeClient`, `TurnkeyPasskeyClient`, and `TurnkeyWalletClient` all extend `TurnkeyBaseClient`
+  - TurnkeyBrowserClient
+    - Session Management
+      - `refreshSession` - attempts to refresh an existing, active session and will extend the session expiry using the `expirationSeconds` parameter
+      - loginWithBundle - authenticate a user via a credential bundle and creates a read-write session
+      - loginWithPasskey - attempts to authenticate a user via passkey and create a read-only or read-write session
+      - loginWithSession - takes a `Session`, which can be either read-only or read-write, created via a server action and attempts to authenticate the user
+  - TurnkeyPasskeyClient
+    - Session Management
+      - createPasskeySession - leverages passkey authentication to create a read-write session. Once authenticated, the user will not be prompted for additional passkey taps.
+
+  ### @turnkey/sdk-react
+
+  - update `TurnkeyContext` to use new `.getSession()` method to check if there is an active session
+  - `OTPVerification` component no longer receives `authIframeClient` or `onValidateSuccess` props
+
+  ## Minor Package Updates
+
+  ### @turnkey/sdk-server
+
+  - expose `sendCredential` server action
+  - add `SessionType` enum
+    - `READ_ONLY` & `READ_WRITE`
+
+  ### @turnkey/eip-1193-provider
+
+  - update dependencies in `package.json`
+    - moved from `peerDependencies` to `dependencies`
+      - `"@turnkey/http": "workspace:*"`
+      - `"@turnkey/sdk-browser": "workspace:*"`
+    - moved from `devDependencies` to `dependencies`
+      - `"@turnkey/api-key-stamper": "workspace:*"`
+  - specify TypeScript version ^5.1.5
+
+### Patch Changes
+
+- Updated dependencies [93540e7]
+- Updated dependencies [9147962]
+  - @turnkey/sdk-browser@2.0.0
+
 ## 3.1.5
 
 ### Patch Changes
