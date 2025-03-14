@@ -268,7 +268,36 @@ export class TurnkeyBrowserSDK {
    * @returns {Promise<User | undefined>}
    */
   getCurrentUser = async (): Promise<User | undefined> => {
-    return await getStorageValue(StorageKeys.UserSession);
+    try {
+      const session = await getStorageValue(StorageKeys.Session);
+      if (session?.userId && session?.organizationId) {
+        return {
+          userId: session.userId,
+          organization: {
+            organizationId: session.organizationId,
+            organizationName: "",
+          },
+          session: {
+            ...(session.sessionType === SessionType.READ_ONLY && {
+              read: {
+                token: session.token,
+                expiry: session.expiry,
+              },
+            }),
+            ...(session.sessionType === SessionType.READ_WRITE && {
+              write: {
+                credentialBundle: session.token,
+                expiry: session.expiry,
+              },
+            }),
+          },
+        } as User;
+      } else {
+        return undefined;
+      }
+    } catch (error) {
+      return;
+    }
   };
 
   /**
