@@ -35,14 +35,7 @@ export {
   TurnkeyBrowserSDK as Turnkey,
 } from "./sdk-client";
 
-export type { User, ReadOnlySession, ReadWriteSession } from "@models";
-
-export {
-  getStorageValue,
-  setStorageValue,
-  StorageKeys,
-  type Session,
-} from "@storage";
+export { getStorageValue, setStorageValue, StorageKeys } from "@storage";
 
 export {
   defaultEthereumAccountAtIndex,
@@ -116,6 +109,10 @@ export type { WalletAccount } from "./turnkey-helpers";
 export {
   type TurnkeySDKClientConfig,
   type TurnkeySDKBrowserConfig,
+  type User,
+  type ReadOnlySession,
+  type ReadWriteSession,
+  type Session,
   SessionType,
   AuthClient,
 } from "./__types__/base";
