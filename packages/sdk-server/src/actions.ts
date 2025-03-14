@@ -1,132 +1,27 @@
 "use server";
 
-import type { TurnkeyApiTypes } from "@turnkey/http";
+import {
+  CreateSuborgRequest,
+  CreateSuborgResponse,
+  FilterType,
+  GetOrCreateSuborgRequest,
+  GetOrCreateSuborgResponse,
+  GetSuborgsRequest,
+  GetSuborgsResponse,
+  InitEmailAuthRequest,
+  OauthRequest,
+  SendOtpRequest,
+  SendOtpResponse,
+  Session,
+  SessionType,
+  VerifyOtpRequest,
+} from "./__types__/base";
 import { TurnkeyServerSDK } from "./sdk-client";
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   DEFAULT_SOLANA_ACCOUNTS,
-  WalletAccount,
 } from "./turnkey-helpers";
 import { WalletType } from "@turnkey/wallet-stamper";
-
-type GetOrCreateSuborgRequest = {
-  filterType: FilterType;
-  filterValue: string;
-  additionalData?: {
-    email?: string;
-    phoneNumber?: string;
-    passkey?: Passkey;
-    oauthProviders?: Provider[];
-    customAccounts?: WalletAccount[];
-    wallet?: {
-      publicKey: string;
-      type: WalletType;
-    };
-  };
-};
-
-enum FilterType {
-  Email = "EMAIL",
-  PhoneNumber = "PHONE_NUMBER",
-  OidcToken = "OIDC_TOKEN",
-  PublicKey = "PUBLIC_KEY",
-}
-
-enum SessionType {
-  READ_ONLY = "SESSION_TYPE_READ_ONLY",
-  READ_WRITE = "SESSION_TYPE_READ_WRITE",
-}
-
-type Session = {
-  sessionType: SessionType;
-  userId: string;
-  organizationId: string;
-  expiry: number;
-  token: string;
-};
-
-type VerifyOtpRequest = {
-  suborgID: string;
-  otpId: string;
-  otpCode: string;
-  targetPublicKey: string;
-  sessionLengthSeconds?: number | undefined;
-};
-
-type OauthRequest = {
-  suborgID: string;
-  oidcToken: string;
-  targetPublicKey: string;
-  sessionLengthSeconds?: number | undefined;
-};
-
-type SendOtpRequest = {
-  suborgID: string;
-  otpType: string;
-  contact: string;
-  emailCustomization?: EmailCustomization | undefined;
-  sendFromEmailAddress?: string | undefined;
-  customSmsMessage?: string | undefined;
-  userIdentifier?: string | undefined;
-};
-
-type SendOtpResponse = {
-  otpId: string;
-};
-
-type InitEmailAuthRequest = {
-  suborgID: string;
-  email: string;
-  targetPublicKey: string;
-  apiKeyName?: string | undefined;
-  userIdentifier?: string | undefined;
-  sessionLengthSeconds?: number | undefined;
-  invalidateExisting?: boolean | undefined;
-  emailCustomization?: EmailCustomization | undefined;
-  sendFromEmailAddress?: string | undefined;
-};
-
-type GetSuborgsRequest = {
-  filterValue: string;
-  filterType: string;
-};
-
-type GetSuborgsResponse = {
-  organizationIds: string[];
-};
-
-type CreateSuborgRequest = {
-  oauthProviders?: Provider[] | undefined;
-  email?: string | undefined;
-  phoneNumber?: string | undefined;
-  passkey?: Passkey | undefined;
-  customAccounts?: WalletAccount[] | undefined;
-  wallet?: {
-    publicKey: string;
-    type: WalletType;
-  };
-};
-
-type Passkey = {
-  authenticatorName: string;
-  challenge: any;
-  attestation: any;
-};
-
-type Provider = {
-  providerName: string;
-  oidcToken: string;
-};
-
-type CreateSuborgResponse = {
-  subOrganizationId: string;
-};
-
-type GetOrCreateSuborgResponse = {
-  subOrganizationIds: string[];
-};
-
-type EmailCustomization = TurnkeyApiTypes["v1EmailCustomizationParams"];
 
 const turnkeyClient = new TurnkeyServerSDK({
   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,

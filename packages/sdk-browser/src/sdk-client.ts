@@ -7,6 +7,9 @@ import WindowWrapper from "@polyfills/window";
 import {
   type GrpcStatus,
   type TurnkeySDKBrowserConfig,
+  type User,
+  type ReadWriteSession,
+  Session,
   TurnkeyRequestError,
   Stamper,
   IframeClientParams,
@@ -14,14 +17,9 @@ import {
   SessionType,
 } from "./__types__/base";
 
-import type { User, SubOrganization, ReadWriteSession } from "@models";
+import type { SubOrganization } from "@models";
 
-import {
-  Session,
-  StorageKeys,
-  getStorageValue,
-  removeStorageValue,
-} from "@storage";
+import { StorageKeys, getStorageValue, removeStorageValue } from "@storage";
 
 import {
   TurnkeyBrowserClient,

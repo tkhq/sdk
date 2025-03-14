@@ -26,6 +26,7 @@ import type {
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
   TurnkeyProxyHandlerConfig,
+  WalletAccount,
 } from "./__types__/base";
 
 import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
@@ -67,6 +68,7 @@ export const server = {
 // Types
 export type {
   TActivity,
+  WalletAccount,
   TApiKeyStamperConfig,
   TSignedRequest,
   TurnkeyApiTypes,
@@ -153,7 +155,6 @@ export {
   defaultTonV4r2AccountAtIndex,
   DEFAULT_TON_V4R2_ACCOUNTS,
 } from "./turnkey-helpers";
-export type { WalletAccount } from "./turnkey-helpers";
 
 // Base Turnkey API
 export { TurnkeyApi };

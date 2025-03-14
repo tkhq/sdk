@@ -7,10 +7,16 @@ import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import { TurnkeyBaseClient } from "../__clients__/base-client";
 
 import {
+  Session,
   AuthClient,
   TurnkeySDKClientConfig,
   SessionType,
   TurnkeyWalletClientConfig,
+  ReadWriteSession,
+  LoginWithBundleParams,
+  LoginWithPasskeyParams,
+  LoginWithWalletParams,
+  RefreshSessionParams,
 } from "@types";
 
 import {
@@ -19,10 +25,9 @@ import {
   createEmbeddedAPIKey,
 } from "@utils";
 
-import type { ReadWriteSession, Passkey } from "@models";
+import type { Passkey } from "@models";
 
 import {
-  Session,
   StorageKeys,
   getStorageValue,
   saveSession,
@@ -118,16 +123,19 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * To be used in conjunction with an `iframeStamper`: the resulting session's credential bundle can be
    * injected into an iframeStamper to create a session that enables both read and write requests.
    *
-   * @param targetEmbeddedKey
-   * @param expirationSeconds
-   * @param userId
+   * @param RefreshSessionParams
+   *   @param params.sessionType - The type of session that is being refreshed
+   *   @param params.targetPublicKey - The public key of the target user
+   *   @param params.expirationSeconds - Specify how long to extend the session. Defaults to 900 seconds or 15 minutes.
    * @returns {Promise<void>}
    */
-  refereshSession = async (
-    sessionType: SessionType = SessionType.READ_WRITE,
-    targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-  ): Promise<void> => {
+  refreshSession = async (params: RefreshSessionParams): Promise<void> => {
+    const {
+      sessionType,
+      targetPublicKey,
+      expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+    } = params;
+
     try {
       if (sessionType === SessionType.READ_ONLY) {
         if (this! instanceof TurnkeyPasskeyClient) {
@@ -183,14 +191,16 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * Log in with a bundle. This method uses a bundle sent to the end user email
    * To be used in conjunction with an `iframeStamper`.
    *
-   * @param bundle
-   * @param expirationSeconds
+   * @param LoginWithBundleParams
+   *   @param params.bundle - Credential bundle to log in with
+   *   @param params.expirationSeconds - Expiration time for the session in seconds. Defaults to 900 seconds or 15 minutes.
    * @returns {Promise<void>}
    */
-  loginWithBundle = async (
-    bundle: string, // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
-    expirationSeconds: string, // we need a way to get the expiry of this token. Either it lives in the token itself or is returned from the server action and passed again here
-  ): Promise<void> => {
+  loginWithBundle = async (params: LoginWithBundleParams): Promise<void> => {
+    const {
+      bundle,
+      expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+    } = params;
     if (this! instanceof TurnkeyIframeClient) {
       await this.injectCredentialBundle(bundle);
     } else {
@@ -235,16 +245,21 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * Log in with a passkey.
    * To be used in conjunction with a `passkeyStamper`
    *
-   * @param session
+   * @param LoginWithPasskeyParams
+   *   @param params.sessionType - The type of session to create
+   *   @param params.iframeClient - The iframe client to use to inject the credential bundle
+   *   @param params.targetPublicKey - The public key of the target user
+   *   @param params.expirationSeconds - Specify how long to extend the session. Defaults to 900 seconds or 15 minutes.
    * @returns {Promise<void>}
    */
-  loginWithPasskey = async (
-    sessionType: SessionType = SessionType.READ_WRITE,
-    iframeClient: TurnkeyIframeClient,
-    targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-  ): Promise<void> => {
+  loginWithPasskey = async (params: LoginWithPasskeyParams): Promise<void> => {
     try {
+      const {
+        sessionType,
+        iframeClient,
+        targetPublicKey,
+        expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+      } = params;
       // Create a read-only session
       if (sessionType === SessionType.READ_ONLY) {
         const readOnlySessionResult = await this.createReadOnlySession({});
@@ -299,60 +314,69 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   /**
    * Log in with a browser wallet.
    *
-   * @param session
+   * @param LoginWithWalletParams
+   *   @param params.sessionType - The type of session to create
+   *   @param params.iframeClient - The iframe client to use to inject the credential bundle
+   *   @param params.targetPublicKey - The public key of the target user
+   *   @param params.expirationSeconds - The expiration time for the session in seconds
    * @returns {Promise<void>}
    */
-  loginWithWallet = async (
-    sessionType: SessionType = SessionType.READ_WRITE,
-    iframeClient: TurnkeyIframeClient,
-    targetPublicKey?: string, // TODO: eventually we want to automatically pull this from localStorage/iframe
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-  ): Promise<void> => {
-    // Create a read-only session
-    if (sessionType === SessionType.READ_ONLY) {
-      const readOnlySessionResult = await this.createReadOnlySession({});
-
-      const session: Session = {
-        sessionType: SessionType.READ_ONLY,
-        userId: readOnlySessionResult.userId,
-        organizationId: readOnlySessionResult.organizationId,
-        expiry: Number(readOnlySessionResult.sessionExpiry),
-        token: readOnlySessionResult.session,
-      };
-      await storeSession(session, AuthClient.Wallet);
-    }
-
-    // Create a read-write session
-    if (sessionType === SessionType.READ_WRITE) {
-      if (!targetPublicKey) {
-        throw new Error(
-          "You must provide a targetPublicKey to create a read-write session.",
-        );
-      }
-
-      const readWriteSessionResult = await this.createReadWriteSession({
+  loginWithWallet = async (params: LoginWithWalletParams): Promise<void> => {
+    try {
+      const {
+        sessionType,
+        iframeClient,
         targetPublicKey,
-        expirationSeconds,
-      });
+        expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+      } = params;
+      // Create a read-only session
+      if (sessionType === SessionType.READ_ONLY) {
+        const readOnlySessionResult = await this.createReadOnlySession({});
 
-      const session: Session = {
-        sessionType: SessionType.READ_WRITE,
-        userId: readWriteSessionResult.userId,
-        organizationId: readWriteSessionResult.organizationId,
-        expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time from the response in a new version of the activity
-        token: readWriteSessionResult.credentialBundle,
-      };
-
-      if (!iframeClient) {
-        throw new Error(
-          "You must provide an iframe client to log in with a wallet.",
-        );
+        const session: Session = {
+          sessionType: SessionType.READ_ONLY,
+          userId: readOnlySessionResult.userId,
+          organizationId: readOnlySessionResult.organizationId,
+          expiry: Number(readOnlySessionResult.sessionExpiry),
+          token: readOnlySessionResult.session,
+        };
+        await storeSession(session, AuthClient.Wallet);
       }
-      await iframeClient.injectCredentialBundle(session.token!);
 
-      await storeSession(session, AuthClient.Iframe);
-    } else {
-      throw new Error("Invalid session type passed.");
+      // Create a read-write session
+      if (sessionType === SessionType.READ_WRITE) {
+        if (!targetPublicKey) {
+          throw new Error(
+            "You must provide a targetPublicKey to create a read-write session.",
+          );
+        }
+
+        const readWriteSessionResult = await this.createReadWriteSession({
+          targetPublicKey,
+          expirationSeconds,
+        });
+
+        const session: Session = {
+          sessionType: SessionType.READ_WRITE,
+          userId: readWriteSessionResult.userId,
+          organizationId: readWriteSessionResult.organizationId,
+          expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time from the response in a new version of the activity
+          token: readWriteSessionResult.credentialBundle,
+        };
+
+        if (!iframeClient) {
+          throw new Error(
+            "You must provide an iframe client to log in with a wallet.",
+          );
+        }
+        await iframeClient.injectCredentialBundle(session.token!);
+
+        await storeSession(session, AuthClient.Iframe);
+      } else {
+        throw new Error("Invalid session type passed.");
+      }
+    } catch (error) {
+      throw new Error("Unable to log in with the provided wallet.");
     }
   };
 

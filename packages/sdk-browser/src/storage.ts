@@ -1,6 +1,11 @@
-import type { User, ReadWriteSession } from "@models";
 import WindowWrapper from "@polyfills/window";
-import type { AuthClient, SessionType, TSessionResponse } from "@types";
+import type {
+  AuthClient,
+  Session,
+  User,
+  ReadWriteSession,
+  TSessionResponse,
+} from "./__types__/base";
 
 export enum StorageKeys {
   AuthBundle = "@turnkey/auth_bundle", // DEPRECATED
@@ -10,14 +15,6 @@ export enum StorageKeys {
   Session = "@turnkey/session/v2",
   Client = "@turnkey/client",
 }
-
-export type Session = {
-  sessionType: SessionType;
-  userId: string;
-  organizationId: string;
-  expiry: number; // Unix timestamp representing the expiry of the session set by the server
-  token: string; // credentialBundle (read-write) or read token
-};
 
 interface StorageValue {
   [StorageKeys.AuthBundle]: string; // DEPRECATED

@@ -181,12 +181,12 @@ const Auth: React.FC<AuthProps> = ({
         }
       }
 
-      await passkeyClient?.loginWithPasskey(
-        SessionType.READ_WRITE,
-        authIframeClient!,
-        authIframeClient?.iframePublicKey!,
-        authConfig.sessionLengthSeconds?.toString(),
-      );
+      await passkeyClient?.loginWithPasskey({
+        sessionType: SessionType.READ_WRITE,
+        iframeClient: authIframeClient!,
+        targetPublicKey: authIframeClient?.iframePublicKey!,
+        expirationSeconds: authConfig.sessionLengthSeconds?.toString(),
+      });
 
       await onAuthSuccess();
     } catch (error) {
@@ -198,12 +198,12 @@ const Auth: React.FC<AuthProps> = ({
   const handleLoginWithPasskey = async () => {
     try {
       setLoading("passkey");
-      await passkeyClient?.loginWithPasskey(
-        SessionType.READ_WRITE,
-        authIframeClient!,
-        authIframeClient?.iframePublicKey!,
-        authConfig.sessionLengthSeconds?.toString(),
-      );
+      await passkeyClient?.loginWithPasskey({
+        sessionType: SessionType.READ_WRITE,
+        iframeClient: authIframeClient!,
+        targetPublicKey: authIframeClient?.iframePublicKey!,
+        expirationSeconds: authConfig.sessionLengthSeconds?.toString(),
+      });
       await onAuthSuccess();
     } catch (error) {
       onError(authErrors.passkey.loginFailed);
@@ -323,12 +323,12 @@ const Auth: React.FC<AuthProps> = ({
         return;
       }
 
-      await walletClient!.loginWithWallet(
-        SessionType.READ_WRITE,
-        authIframeClient!,
-        authIframeClient?.iframePublicKey!,
-        authConfig.sessionLengthSeconds?.toString(),
-      );
+      await walletClient!.loginWithWallet({
+        sessionType: SessionType.READ_WRITE,
+        iframeClient: authIframeClient!,
+        targetPublicKey: authIframeClient?.iframePublicKey!,
+        expirationSeconds: authConfig.sessionLengthSeconds?.toString(),
+      });
       await onAuthSuccess();
     } catch (error: any) {
       onError(error.message || authErrors.wallet.loginFailed);
