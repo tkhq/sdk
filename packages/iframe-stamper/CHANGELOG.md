@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 2.3.0
+
+### Minor Changes
+
+- 9147962: add dangerouslyOverrideIframeKeyTtl option to override iframe embedded key TTL (for longer lived read/write sessions)
+
 ## 2.2.0
 
 ### Minor Changes

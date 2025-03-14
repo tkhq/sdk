@@ -1,5 +1,19 @@
 # @turnkey/cosmjs
 
+## 0.7.0
+
+### Minor Changes
+
+- a7b5ce3: Update @cosmos/\* dependencies from v0.31.0 to v0.33.0 and cosmjs-types from v0.8.0 to v0.9.0
+
+### Patch Changes
+
+- Updated dependencies [93540e7]
+- Updated dependencies [fdb8bf0]
+- Updated dependencies [9147962]
+  - @turnkey/sdk-browser@2.0.0
+  - @turnkey/sdk-server@2.5.0
+
 ## 0.6.14
 
 ### Patch Changes
