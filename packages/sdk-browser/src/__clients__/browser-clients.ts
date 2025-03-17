@@ -182,7 +182,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         await storeSession(session, AuthClient.Iframe);
       }
     } catch (error) {
-      throw new Error("Unable to refresh session." + error);
+      throw new Error(`Unable to refresh session: ${error}`);
     }
   };
 
@@ -306,7 +306,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
     } catch (error) {
-      throw new Error("Unable to log in with the provided passkey." + error);
+      throw new Error(`Unable to log in with the provided passkey: ${error}`);
     }
   };
 
@@ -375,7 +375,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
     } catch (error) {
-      throw new Error("Unable to log in with the provided wallet." + error);
+      throw new Error(`Unable to log in with the provided wallet: ${error}`);
     }
   };
 
@@ -414,7 +414,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       return readWriteSessionResultWithSession;
     } catch (error) {
       throw new Error(
-        "Unable to log in with the provided read-write session." + error,
+        `Unable to log in with the provided read-write session: ${error}`,
       );
     }
   };
@@ -443,7 +443,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       return true;
     } catch (error) {
       throw new Error(
-        "Unable to log in with the provided auth bundle." + error,
+        `Unable to log in with the provided auth bundle: ${error}`,
       );
     }
   };
