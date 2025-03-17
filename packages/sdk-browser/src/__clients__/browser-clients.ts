@@ -183,7 +183,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         await storeSession(session, AuthClient.Iframe);
       }
     } catch (error) {
-      throw new Error("Unable to refresh session.");
+      throw new Error("Unable to refresh session." + error);
     }
   };
 
@@ -249,7 +249,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    *   @param params.sessionType - The type of session to create
    *   @param params.iframeClient - The iframe client to use to inject the credential bundle
    *   @param params.targetPublicKey - The public key of the target user
-   *   @param params.expirationSeconds - Specify how long to extend the session. Defaults to 900 seconds or 15 minutes.
+   *   @param params.expirationSeconds - Expiration time for the session in seconds. Defaults to 900 seconds or 15 minutes.
    * @returns {Promise<void>}
    */
   loginWithPasskey = async (params: LoginWithPasskeyParams): Promise<void> => {
@@ -291,7 +291,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           sessionType: SessionType.READ_WRITE,
           userId: readWriteSessionResult.userId,
           organizationId: readWriteSessionResult.organizationId,
-          expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time from the response in a new version of the activity
+          expiry: Date.now() + Number(expirationSeconds) * 1000,
           token: readWriteSessionResult.credentialBundle,
         };
 
@@ -304,10 +304,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
         await storeSession(session, AuthClient.Iframe);
       } else {
-        throw new Error("Invalid session type passed.");
+        throw new Error(`Invalid session type passed: ${sessionType}`);
       }
     } catch (error) {
-      throw new Error("Unable to log in with the provided passkey.");
+      throw new Error("Unable to log in with the provided passkey." + error);
     }
   };
 
@@ -360,7 +360,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           sessionType: SessionType.READ_WRITE,
           userId: readWriteSessionResult.userId,
           organizationId: readWriteSessionResult.organizationId,
-          expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time from the response in a new version of the activity
+          expiry: Date.now() + Number(expirationSeconds) * 1000,
           token: readWriteSessionResult.credentialBundle,
         };
 
@@ -373,10 +373,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
         await storeSession(session, AuthClient.Iframe);
       } else {
-        throw new Error("Invalid session type passed.");
+        throw new Error(`Invalid session type passed: ${sessionType}`);
       }
     } catch (error) {
-      throw new Error("Unable to log in with the provided wallet.");
+      throw new Error("Unable to log in with the provided wallet." + error);
     }
   };
 
@@ -414,7 +414,9 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
       return readWriteSessionResultWithSession;
     } catch (error) {
-      throw new Error("Unable to log in with the provided read-write session.");
+      throw new Error(
+        "Unable to log in with the provided read-write session." + error,
+      );
     }
   };
 
@@ -440,8 +442,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
       await saveSession(readWriteSessionResultWithSession, this.authClient);
       return true;
-    } catch {
-      throw new Error("Unable to log in with the provided auth bundle.");
+    } catch (error) {
+      throw new Error(
+        "Unable to log in with the provided auth bundle." + error,
+      );
     }
   };
 

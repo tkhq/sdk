@@ -17,7 +17,7 @@
 
 - `Auth.tsx`
   - updated `passkeyClient?.loginWithPasskey()` to implement new method signature
-  - updated `walletClient!.loginWithWallet()` to implement new method signature
+  - updated `walletClient?.loginWithWallet()` to implement new method signature
 
 ### @turnkey/sdk-server
 
