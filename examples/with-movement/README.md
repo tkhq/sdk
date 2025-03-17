@@ -38,7 +38,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `BASE_URL`
 - `ORGANIZATION_ID`
-- `MOVEMENT_ADDRESS`
+- `MOVEMENT_ADDRESS` - Use ADDRESS_FORMAT_APTOS to generate this
 - `MOVEMENT_PUBLIC_KEY` - The compressed ED25519 public key with the same path used to generate the movement address
 
 ### 3/ Running the script

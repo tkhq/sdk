@@ -4,10 +4,16 @@ import { AptosClient, TxnBuilderTypes, BCS, TransactionBuilder } from "aptos";
 import prompts from "prompts";
 import { Turnkey } from "@turnkey/sdk-server";
 import { bytesToHex } from "@noble/hashes/utils";
+import { createNewWallet } from "./createNewWallet";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 async function main() {
+  if (!process.env.MOVEMENT_ADDRESS || !process.env.MOVEMENT_PUBLIC_KEY) {
+    // If you don't specify a `MOVEMENT ADDRESS` or you don't specify a MOVEMENT_PUBLIC_KEY, we'll create a new wallet for you via calling the Turnkey API.
+    await createNewWallet();
+    return;
+  }
   const organizationId = process.env.ORGANIZATION_ID!;
   const turnkeyClient = new Turnkey({
     apiBaseUrl: process.env.BASE_URL!,
