@@ -254,7 +254,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   loginWithPasskey = async (params: LoginWithPasskeyParams): Promise<void> => {
     try {
       const {
-        sessionType,
+        sessionType = SessionType.READ_WRITE,
         iframeClient,
         targetPublicKey,
         expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
