@@ -119,13 +119,12 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   };
 
   /**
-   * Creates a read-write session. This method infers the current user's organization ID and target userId.
-   * To be used in conjunction with an `iframeStamper`: the resulting session's credential bundle can be
-   * injected into an iframeStamper to create a session that enables both read and write requests.
+   * Attempts to refresh an existing Session. This method infers the current user's organization ID and target userId.
+   * This will use a passkeyStamper for `READ_ONLY` sessions or an `iframeStamper` for `READ_WRITE` sessions.
    *
    * @param RefreshSessionParams
    *   @param params.sessionType - The type of session that is being refreshed
-   *   @param params.targetPublicKey - The public key of the target user
+   *   @param params.targetPublicKey - The public key of the target client
    *   @param params.expirationSeconds - Specify how long to extend the session. Defaults to 900 seconds or 15 minutes.
    * @returns {Promise<void>}
    */
@@ -215,7 +214,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       sessionType: SessionType.READ_WRITE,
       userId: whoAmI.userId,
       organizationId: whoAmI.organizationId,
-      expiry: Date.now() + Number(expirationSeconds) * 1000, // TODO: change this to the actual expiry time
+      expiry: Date.now() + Number(expirationSeconds) * 1000,
       token: bundle,
     };
 
@@ -248,7 +247,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @param LoginWithPasskeyParams
    *   @param params.sessionType - The type of session to create
    *   @param params.iframeClient - The iframe client to use to inject the credential bundle
-   *   @param params.targetPublicKey - The public key of the target user
+   *   @param params.targetPublicKey - The public key of the target client
    *   @param params.expirationSeconds - Expiration time for the session in seconds. Defaults to 900 seconds or 15 minutes.
    * @returns {Promise<void>}
    */
@@ -317,7 +316,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @param LoginWithWalletParams
    *   @param params.sessionType - The type of session to create
    *   @param params.iframeClient - The iframe client to use to inject the credential bundle
-   *   @param params.targetPublicKey - The public key of the target user
+   *   @param params.targetPublicKey - The public key of the target iframe
    *   @param params.expirationSeconds - The expiration time for the session in seconds
    * @returns {Promise<void>}
    */
