@@ -130,7 +130,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    */
   refreshSession = async (params: RefreshSessionParams): Promise<void> => {
     const {
-      sessionType,
+      sessionType = SessionType.READ_WRITE,
       targetPublicKey,
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     } = params;
@@ -323,7 +323,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   loginWithWallet = async (params: LoginWithWalletParams): Promise<void> => {
     try {
       const {
-        sessionType,
+        sessionType = SessionType.READ_WRITE,
         iframeClient,
         targetPublicKey,
         expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
