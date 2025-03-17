@@ -16,8 +16,9 @@ async function main() {
     defaultOrganizationId: organizationId,
   });
 
-  
-  const client = new AptosClient("https://testnet.bardock.movementnetwork.xyz/v1");
+  const client = new AptosClient(
+    "https://testnet.bardock.movementnetwork.xyz/v1",
+  );
   const movementAddress = process.env.MOVEMENT_ADDRESS!;
   const movementPublicKeyHex = process.env.MOVEMENT_PUBLIC_KEY!;
 
@@ -28,7 +29,9 @@ async function main() {
   }
 
   console.log(`Using Movement address: ${movementAddress}`);
-  const publicKeyBytes = Uint8Array.from(Buffer.from(movementPublicKeyHex, "hex"));
+  const publicKeyBytes = Uint8Array.from(
+    Buffer.from(movementPublicKeyHex, "hex"),
+  );
 
   // Check if account exists
   let accountData = await client.getAccount(movementAddress).catch(() => null);
