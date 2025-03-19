@@ -403,6 +403,7 @@ async function signTransactionImpl(
     );
   } else {
     const { activity, signedTransaction } = await client.signTransaction({
+      organizationId,
       signWith,
       type: "TRANSACTION_TYPE_ETHEREUM",
       unsignedTransaction: unsignedTransaction,
@@ -480,6 +481,7 @@ async function signMessageImpl(
     result = assertNonNull(activity?.result?.signRawPayloadResult);
   } else {
     const { activity, r, s, v } = await client.signRawPayload({
+      organizationId,
       signWith,
       payload: message,
       encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
