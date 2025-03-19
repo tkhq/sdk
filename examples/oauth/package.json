@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/example-otp-auth",
+  "name": "@turnkey/example-oauth",
   "version": "0.1.0",
   "private": true,
   "scripts": {

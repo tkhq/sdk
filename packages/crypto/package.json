@@ -51,7 +51,6 @@
   "devDependencies": {
     "jest": "29.7.0",
     "@turnkey/encoding": "workspace:*",
-    "@turnkey/http": "workspace:*",
-    "@turnkey/sdk-server": "workspace:*"
+    "@turnkey/http": "workspace:*"
   }
 }
