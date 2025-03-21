@@ -44,7 +44,6 @@
     "@noble/ciphers": "0.5.3",
     "@noble/curves": "1.4.0",
     "@noble/hashes": "1.4.0",
-    "@turnkey/encoding": "workspace:*",
     "bs58check": "3.0.1",
     "bs58": "^5.0.0"
   },
@@ -52,6 +51,6 @@
     "jest": "29.7.0",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/http": "workspace:*",
-    "@turnkey/sdk-server": "workspace:*"
+    "@turnkey/api-key-stamper": "workspace:*"
   }
 }
