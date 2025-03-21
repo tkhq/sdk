@@ -1,0 +1,77 @@
+name: turbo-build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch: # Allows manual invocation
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      # Install and cache JS toolchain and dependencies (node_modules)
+      - name: Setup JS
+        uses: ./.github/actions/js-setup
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Typecheck
+        run: pnpm run typecheck-all
+
+      - name: Test (prod)
+        run: anvil & pnpm run test-all
+        env:
+          API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
+          API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
+          BASE_URL: "https://api.turnkey.com"
+          ORGANIZATION_ID: ${{ secrets.ORGANIZATION_ID }}
+          PRIVATE_KEY_ID: ${{ secrets.PRIVATE_KEY_ID }}
+          EXPECTED_ETH_ADDRESS: ${{ secrets.EXPECTED_ETH_ADDRESS }}
+          EXPECTED_PRIVATE_KEY_ETH_ADDRESS: ${{ secrets.EXPECTED_PRIVATE_KEY_ETH_ADDRESS }}
+          EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: ${{ secrets.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS }}
+          BANNED_TO_ADDRESS: "0x6F72eDB2429820c2A0606a9FC3cA364f5E9b2375"
+          SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
+          WALLET_ID: ${{ secrets.WALLET_ID }}
+
+      - name: Test (preprod)
+        run: pnpm run test-all # anvil is already running on the port, from the step above
+        env:
+          API_PUBLIC_KEY: ${{ secrets.PREPROD_API_PUBLIC_KEY }}
+          API_PRIVATE_KEY: ${{ secrets.PREPROD_API_PRIVATE_KEY }}
+          BASE_URL: ${{ secrets.PREPROD_BASE_URL }}
+          ORGANIZATION_ID: ${{ secrets.PREPROD_ORGANIZATION_ID }}
+          PRIVATE_KEY_ID: ${{ secrets.PREPROD_PRIVATE_KEY_ID }}
+          EXPECTED_ETH_ADDRESS: ${{ secrets.PREPROD_EXPECTED_ETH_ADDRESS }}
+          EXPECTED_PRIVATE_KEY_ETH_ADDRESS: ${{ secrets.PREPROD_EXPECTED_PRIVATE_KEY_ETH_ADDRESS }}
+          EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: ${{ secrets.PREPROD_EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS }}
+          BANNED_TO_ADDRESS: ${{ secrets.PREPROD_BANNED_TO_ADDRESS }}
+          SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
+          WALLET_ID: ${{ secrets.PREPROD_WALLET_ID }}
+
+      - name: Prettier
+        run: pnpm run prettier-all:check
+
+      # This is to catch when someone forgets to run `pnpm run version` after bumping package versions
+      # If this happens this script will run and make git dirty
+      - name: Run version script
+        run: pnpm run version
+
+      - name: Ensure git is clean
+        run: |
+          if [ -z "$( git status --porcelain )" ]; then
+            echo "Git is clean!"
+            exit 0
+          else
+            echo "Git is dirty!"
+            git add -A
+            git --no-pager diff HEAD
+            exit 1
+          fi
