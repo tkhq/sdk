@@ -2513,7 +2513,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_POLICY",
+        type: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
       },
       "updatePolicyResult",
     );
