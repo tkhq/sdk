@@ -152,8 +152,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         };
 
         await storeSession(session, AuthClient.Passkey);
-      }
-      if (sessionType === SessionType.READ_WRITE) {
+      } else if (sessionType === SessionType.READ_WRITE) {
         if (!targetPublicKey) {
           throw new Error(
             "You must provide a targetPublicKey to refresh a read-write session.",
@@ -180,6 +179,8 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           );
         }
         await storeSession(session, AuthClient.Iframe);
+      } else {
+        throw new Error(`Invalid session type passed: ${sessionType}`);
       }
     } catch (error) {
       throw new Error(`Unable to refresh session: ${error}`);
@@ -271,10 +272,8 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           token: readOnlySessionResult.session,
         };
         await storeSession(session, AuthClient.Passkey);
-      }
-
-      // Create a read-write session
-      if (sessionType === SessionType.READ_WRITE) {
+        // Create a read-write session
+      } else if (sessionType === SessionType.READ_WRITE) {
         if (!targetPublicKey) {
           throw new Error(
             "You must provide a targetPublicKey to create a read-write session.",
@@ -340,10 +339,8 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           token: readOnlySessionResult.session,
         };
         await storeSession(session, AuthClient.Wallet);
-      }
-
-      // Create a read-write session
-      if (sessionType === SessionType.READ_WRITE) {
+        // Create a read-write session
+      } else if (sessionType === SessionType.READ_WRITE) {
         if (!targetPublicKey) {
           throw new Error(
             "You must provide a targetPublicKey to create a read-write session.",
