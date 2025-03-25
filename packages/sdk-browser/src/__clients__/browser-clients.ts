@@ -113,9 +113,16 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     const readOnlySessionResult = await this.createReadOnlySession(
       config || {},
     );
-    await saveSession(readOnlySessionResult, this.authClient);
+    const session: Session = {
+      sessionType: SessionType.READ_ONLY,
+      userId: readOnlySessionResult.userId,
+      organizationId: readOnlySessionResult.organizationId,
+      expiry: Number(readOnlySessionResult.sessionExpiry),
+      token: readOnlySessionResult.session,
+    };
+    await storeSession(session, this.authClient);
 
-    return readOnlySessionResult!;
+    return readOnlySessionResult;
   };
 
   /**
