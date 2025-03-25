@@ -649,7 +649,7 @@ export type TInitImportWalletBody =
     commandOverrideParams;
 
 export type TInitOtpAuthResponse =
-  operations["PublicApiService_InitOtpAuth"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpAuthResult"] &
+  operations["PublicApiService_InitOtpAuth"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpAuthResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TInitOtpAuthInput = { body: TInitOtpAuthBody };
@@ -763,7 +763,7 @@ export type TSignTransactionBody =
     commandOverrideParams;
 
 export type TUpdatePolicyResponse =
-  operations["PublicApiService_UpdatePolicy"]["responses"]["200"]["schema"]["activity"]["result"]["updatePolicyResult"] &
+  operations["PublicApiService_UpdatePolicy"]["responses"]["200"]["schema"]["activity"]["result"]["updatePolicyResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TUpdatePolicyInput = { body: TUpdatePolicyBody };

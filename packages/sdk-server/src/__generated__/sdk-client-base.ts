@@ -1241,7 +1241,7 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_USERS_V2",
+        type: "ACTIVITY_TYPE_CREATE_USERS_V3",
       },
       "createUsersResult",
     );
@@ -1961,7 +1961,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_INIT_OTP_AUTH",
       },
-      "initOtpAuthResult",
+      "initOtpAuthResultV2",
     );
   };
 
@@ -2316,7 +2316,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
       },
-      "updatePolicyResult",
+      "updatePolicyResultV2",
     );
   };
 
