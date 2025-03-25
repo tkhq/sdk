@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 2.22.0
+
+### Minor Changes
+
+- ecdb29a: Update API as per mono v2025.3.2 - Add CREATE_USERS_V3
+
 ## 2.21.0
 
 ### Minor Changes

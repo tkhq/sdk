@@ -1,5 +1,44 @@
 # @turnkey/sdk-server
 
+## 2.6.0
+
+### Minor Changes
+
+- ecdb29a: Update API as per mono v2025.3.2 - Add CREATE_USERS_V3
+
+### Patch Changes
+
+- 0e4e959: bump update policy activity to v2
+- c9ae537: Update nextJs to >= 15.2.3 as per github advisory: https://github.com/advisories/GHSA-f82v-jwr5-mffw
+
+  For Next.js 15.x, this issue is fixed in 15.2.3
+  For Next.js 14.x, this issue is fixed in 14.2.25
+  For Next.js 13.x, this issue is fixed in 13.5.9
+  For Next.js 12.x, this issue is fixed in 12.3.5
+
+- 72890f5: ### @turnkey/sdk-browser
+
+  - Move all type definitions to [`./__types__/base.ts`](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts)
+  - `TurnkeyBrowserClient`
+    - `refereshSession()` now consumes a [RefreshSessionParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L213) parameter
+    - `loginWithBundle()` now consumes a [LoginWithBundleParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L219) parameter
+    - `loginWithPasskey()` now consumes a [LoginWithPasskeyParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L224) parameter
+    - `loginWithWallet()` now consumes a [LoginWithWalletParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L231) parameter
+
+  ### @turnkey/sdk-react
+
+  - `Auth.tsx`
+    - updated `passkeyClient?.loginWithPasskey()` to implement new method signature
+    - updated `walletClient?.loginWithWallet()` to implement new method signature
+
+  ### @turnkey/sdk-server
+
+  - Move all type definitions to [`./__types__/base.ts`](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-server/src/__types__/base.ts)
+
+- Updated dependencies [ecdb29a]
+  - @turnkey/http@2.22.0
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 2.5.0
 
 ### Minor Changes
