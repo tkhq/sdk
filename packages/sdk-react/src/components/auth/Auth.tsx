@@ -28,6 +28,11 @@ export interface PasskeyConfig {
   name?: string;
 }
 
+export interface OtpConfig {
+  otpLength?: number;
+  alphaNumeric?: boolean;
+}
+
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
     <path
@@ -84,6 +89,7 @@ interface AuthProps {
   customSmsMessage?: string;
   customAccounts?: WalletAccount[];
   passkeyConfig?: PasskeyConfig;
+  otpConfig?: OtpConfig;
 }
 
 const Auth: React.FC<AuthProps> = ({
@@ -96,6 +102,7 @@ const Auth: React.FC<AuthProps> = ({
   customSmsMessage,
   customAccounts,
   passkeyConfig,
+  otpConfig,
 }) => {
   const { authIframeClient, passkeyClient, walletClient } = useTurnkey();
 
@@ -256,6 +263,8 @@ const Auth: React.FC<AuthProps> = ({
       ...(emailCustomization && { emailCustomization }),
       ...(sendFromEmailAddress && { sendFromEmailAddress }),
       ...(customSmsMessage && { customSmsMessage }),
+      ...(otpConfig?.otpLength && { otpLength: otpConfig.otpLength }),
+      ...(otpConfig?.alphaNumeric && { alphaNumeric: otpConfig.alphaNumeric }),
       userIdentifier: authIframeClient?.iframePublicKey!,
     });
     if (initAuthResponse && initAuthResponse.otpId) {
@@ -702,6 +711,7 @@ const Auth: React.FC<AuthProps> = ({
                     sessionLengthSeconds={authConfig.sessionLengthSeconds}
                     onValidateSuccess={onAuthSuccess}
                     onResendCode={handleResendCode}
+                    numBoxes={otpConfig?.otpLength}
                   />
                 )}
 
