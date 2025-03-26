@@ -16,7 +16,7 @@ import {
   decryptExportBundle,
 } from "@turnkey/crypto";
 import { uint8ArrayToHexString } from "@turnkey/encoding";
-import type { TurnkeyClient } from "../index";
+import type { TurnkeyClient } from "@turnkey/http";
 import type {
   Activity,
   HashFunction,
