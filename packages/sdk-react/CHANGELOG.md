@@ -1,5 +1,20 @@
 # @turnkey/sdk-react
 
+## 4.1.1
+
+### Patch Changes
+
+- 2b8de45: Add passkeyConfig to EWK
+
+  You can do this by passing optional `passkeyConfig` of interface `PasskeyConfig` to the `<Auth>` component
+
+  ```
+  export interface PasskeyConfig {
+    displayName?: string;
+    name?: string;
+  }
+  ```
+
 ## 4.1.0
 
 ### Minor Changes
