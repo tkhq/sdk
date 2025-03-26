@@ -1,5 +1,11 @@
 # @turnkey/sdk-react-native
 
+## 1.0.3
+
+### Minor Changes
+
+- a7e7de0: Fixed compatibility issue with `@turnkey/viem`
+
 ## 1.0.2
 
 ### Patch Changes
