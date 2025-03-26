@@ -4,15 +4,16 @@ import { TextField, Box } from "@mui/material";
 interface OtpInputProps {
   onComplete: (otp: string) => void;
   hasError: boolean;
+  numBoxes?: number | undefined;
 }
 
 const OtpInput = forwardRef<unknown, OtpInputProps>(
-  ({ onComplete, hasError }, ref) => {
-    const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
+  ({ onComplete, hasError, numBoxes }, ref) => {
+    const [otp, setOtp] = useState<string[]>(Array(numBoxes ?? 9).fill(""));
 
     useImperativeHandle(ref, () => ({
       resetOtp() {
-        setOtp(Array(6).fill(""));
+        setOtp(Array(numBoxes ?? 9).fill(""));
         const firstInput = document.getElementById("otp-input-0");
         if (firstInput) (firstInput as HTMLInputElement).focus();
       },
@@ -46,7 +47,7 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
 
     const handlePaste = (event: React.ClipboardEvent) => {
       const pasteData = event.clipboardData.getData("Text").replace(/\D/g, ""); // Ensure only digits are pasted
-      if (pasteData.length === 6) {
+      if (pasteData.length === (numBoxes ?? 9)) {
         const newOtp = pasteData.split("");
         setOtp(newOtp);
         onComplete(newOtp.join(""));

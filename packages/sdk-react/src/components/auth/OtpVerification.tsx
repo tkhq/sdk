@@ -18,6 +18,7 @@ interface OtpVerificationProps {
   suborgId: string;
   otpId: string;
   sessionLengthSeconds?: number | undefined;
+  numBoxes?: number | undefined;
   onValidateSuccess: () => Promise<void>;
   onResendCode: (
     type: FilterType.Email | FilterType.PhoneNumber,
@@ -33,6 +34,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   sessionLengthSeconds,
   onValidateSuccess,
   onResendCode,
+  numBoxes,
 }) => {
   const { authIframeClient } = useTurnkey();
 
@@ -130,6 +132,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
           <OtpInput
             ref={otpInputRef}
             onComplete={handleValidateOtp}
+            numBoxes={numBoxes}
             hasError={!!otpError}
           />
         </div>

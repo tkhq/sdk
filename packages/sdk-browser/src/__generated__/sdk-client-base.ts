@@ -2116,7 +2116,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_OTP_AUTH",
+        type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
       },
       "initOtpAuthResult",
     );
