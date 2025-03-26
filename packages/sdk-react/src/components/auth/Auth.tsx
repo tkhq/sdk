@@ -23,6 +23,10 @@ export enum SessionType {
   READ_ONLY = "SESSION_TYPE_READ_ONLY",
   READ_WRITE = "SESSION_TYPE_READ_WRITE",
 }
+export interface PasskeyConfig {
+  displayName?: string;
+  name?: string;
+}
 
 const passkeyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="43" height="48" fill="none">
@@ -79,6 +83,7 @@ interface AuthProps {
   sendFromEmailAddress?: string;
   customSmsMessage?: string;
   customAccounts?: WalletAccount[];
+  passkeyConfig?: PasskeyConfig;
 }
 
 const Auth: React.FC<AuthProps> = ({
@@ -90,6 +95,7 @@ const Auth: React.FC<AuthProps> = ({
   sendFromEmailAddress,
   customSmsMessage,
   customAccounts,
+  passkeyConfig,
 }) => {
   const { authIframeClient, passkeyClient, walletClient } = useTurnkey();
 
@@ -158,7 +164,12 @@ const Auth: React.FC<AuthProps> = ({
       if (!passkeyCreated) {
         const { encodedChallenge, attestation } =
           (await passkeyClient?.createUserPasskey({
-            publicKey: { user: { name: siteInfo, displayName: siteInfo } },
+            publicKey: {
+              user: {
+                name: passkeyConfig?.name ?? siteInfo,
+                displayName: passkeyConfig?.displayName ?? siteInfo,
+              },
+            },
           })) || {};
 
         if (encodedChallenge && attestation) {
