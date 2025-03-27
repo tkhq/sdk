@@ -1,5 +1,13 @@
 # @turnkey/cosmjs
 
+## 0.7.2
+
+### Patch Changes
+
+- Updated dependencies [5ec5187]
+  - @turnkey/sdk-browser@3.0.1
+  - @turnkey/sdk-server@2.6.1
+
 ## 0.7.1
 
 ### Patch Changes

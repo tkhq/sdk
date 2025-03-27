@@ -1,5 +1,11 @@
 # @turnkey/sdk-browser
 
+## 3.0.1
+
+### Patch Changes
+
+- 5ec5187: Fix initOtpAuth bug with improper version result (to be updated to V2 following release r2025.3.8)
+
 ## 3.0.0
 
 ### Major Changes
