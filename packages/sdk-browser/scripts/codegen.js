@@ -354,7 +354,7 @@ export class TurnkeySDKClientBase {
       }
 
       attempts += 1;
-      
+
       if (!TERMINAL_ACTIVITY_STATUSES.includes(pollData.activity.status as TActivityStatus)) {
         await sleep(pollingDuration);
         return pollStatus(activityId);
@@ -364,7 +364,7 @@ export class TurnkeySDKClientBase {
     };
 
     const responseData = await this.request<TBodyType, TResponseType>(url, body) as TActivityResponse;
-    
+
     if (!TERMINAL_ACTIVITY_STATUSES.includes(responseData.activity.status as TActivityStatus)) {
       return pollStatus(responseData.activity.id);
     }
@@ -435,7 +435,7 @@ export class TurnkeySDKClientBase {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    const session = getStorageValue(StorageKeys.Session);
     return this.command("${endpointPath}", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -448,7 +448,7 @@ export class TurnkeySDKClientBase {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    const session = getStorageValue(StorageKeys.Session);
     return this.activityDecision("${endpointPath}",
       {
         parameters: rest,
