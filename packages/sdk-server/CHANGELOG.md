@@ -1,5 +1,11 @@
 # @turnkey/sdk-server
 
+## 2.6.1
+
+### Patch Changes
+
+- 5ec5187: Fix initOtpAuth bug with improper version result (to be updated to V2 following release r2025.3.8)
+
 ## 2.6.0
 
 ### Minor Changes
