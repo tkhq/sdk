@@ -27,13 +27,6 @@ export { withAsyncPolling, createActivityPoller } from "./async";
 
 export { TurnkeyApi };
 
-/**
- * @deprecated use `TurnkeyApi` instead
- */
-const PublicApiService = TurnkeyApi;
-
-export { PublicApiService };
-
 export { sealAndStampRequestBody } from "./base";
 
 export { VERSION } from "./version";
