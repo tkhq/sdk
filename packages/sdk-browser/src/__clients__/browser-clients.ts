@@ -120,7 +120,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       expiry: Number(readOnlySessionResult.sessionExpiry),
       token: readOnlySessionResult.session,
     };
-    await storeSession(session, this.authClient);
+    storeSession(session, this.authClient);
 
     return readOnlySessionResult;
   };
@@ -158,7 +158,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           token: readOnlySessionResult.session,
         };
 
-        await storeSession(session, AuthClient.Passkey);
+        storeSession(session, AuthClient.Passkey);
       } else if (sessionType === SessionType.READ_WRITE) {
         if (!targetPublicKey) {
           throw new Error(
@@ -185,7 +185,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
             "You must use an iframe client to refresh a read-write session",
           );
         }
-        await storeSession(session, AuthClient.Iframe);
+        storeSession(session, AuthClient.Iframe);
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
@@ -226,7 +226,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       token: bundle,
     };
 
-    await storeSession(session, AuthClient.Iframe);
+    storeSession(session, AuthClient.Iframe);
   };
 
   /**
@@ -245,7 +245,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         "You must use an iframe client to log in with a session.",
       ); //should we default to a "localStorage" client?
     }
-    await storeSession(session, AuthClient.Iframe);
+    storeSession(session, AuthClient.Iframe);
   };
 
   /**
@@ -278,7 +278,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           expiry: Number(readOnlySessionResult.sessionExpiry),
           token: readOnlySessionResult.session,
         };
-        await storeSession(session, AuthClient.Passkey);
+        storeSession(session, AuthClient.Passkey);
         // Create a read-write session
       } else if (sessionType === SessionType.READ_WRITE) {
         if (!targetPublicKey) {
@@ -307,7 +307,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         }
         await iframeClient.injectCredentialBundle(session.token!);
 
-        await storeSession(session, AuthClient.Iframe);
+        storeSession(session, AuthClient.Iframe);
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
@@ -345,7 +345,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           expiry: Number(readOnlySessionResult.sessionExpiry),
           token: readOnlySessionResult.session,
         };
-        await storeSession(session, AuthClient.Wallet);
+        storeSession(session, AuthClient.Wallet);
         // Create a read-write session
       } else if (sessionType === SessionType.READ_WRITE) {
         if (!targetPublicKey) {
@@ -374,7 +374,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         }
         await iframeClient.injectCredentialBundle(session.token!);
 
-        await storeSession(session, AuthClient.Iframe);
+        storeSession(session, AuthClient.Iframe);
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
@@ -413,7 +413,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       };
 
       // store auth bundle in local storage
-      await saveSession(readWriteSessionResultWithSession, this.authClient);
+      saveSession(readWriteSessionResultWithSession, this.authClient);
 
       return readWriteSessionResultWithSession;
     } catch (error) {
@@ -443,7 +443,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
       };
 
-      await saveSession(readWriteSessionResultWithSession, this.authClient);
+      saveSession(readWriteSessionResultWithSession, this.authClient);
       return true;
     } catch (error) {
       throw new Error(
@@ -797,7 +797,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
     organizationId?: string,
   ): Promise<ReadWriteSession> => {
     try {
-      const session = await getStorageValue(StorageKeys.Session);
+      const session = getStorageValue(StorageKeys.Session);
       organizationId = organizationId ?? session?.organizationId;
       userId = userId ?? session?.userId;
 
@@ -831,7 +831,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
       const whoAmI = await this.getWhoami();
       const expiry = Date.now() + Number(expirationSeconds) * 1000;
 
-      await saveSession(
+      saveSession(
         {
           organizationId,
           organizationName: whoAmI?.organizationName ?? "",
