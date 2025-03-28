@@ -79,6 +79,12 @@ export async function sendOtp(
       ...(request.customSmsMessage && {
         smsCustomization: { template: request.customSmsMessage },
       }),
+      ...(request.otpLength && {
+        otpLength: request.otpLength,
+      }),
+      ...(request.alphaNumeric && {
+        alphaNumeric: request.alphaNumeric,
+      }),
     });
     if (!response.otpId) {
       throw new Error("Expected a non-null otpId.");
