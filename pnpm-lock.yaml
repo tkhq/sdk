@@ -1428,15 +1428,15 @@ importers:
       '@turnkey/viem':
         specifier: workspace:*
         version: link:../../packages/viem
-      c-kzg:
-        specifier: ^2.1.2
-        version: 2.1.2
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
       fetch:
         specifier: ^1.1.0
         version: 1.1.0
+      kzg-wasm:
+        specifier: 0.5.0
+        version: 0.5.0
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
@@ -15205,14 +15205,6 @@ packages:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
 
-  /c-kzg@2.1.2:
-    resolution: {integrity: sha512-QmP4vTp5H2hN4mkKXF9VXtZ7k7oH1kmBxLiFT/7LcyE78RgX32zvPGfwtRAsrq/b3T6RZFIsHZvQEN7JdzoNOg==}
-    requiresBuild: true
-    dependencies:
-      bindings: 1.5.0
-      node-addon-api: 5.1.0
-    dev: false
-
   /cacheable-lookup@5.0.4:
     resolution: {integrity: sha512-2/kNscPhpcxrOigMZzbiWF7dz8ilhb/nIHU3EyZiXWXpeq/au8qJ8VhdftMkty3n7Gj6HIGalQG8oiBNB3AJgA==}
     engines: {node: '>=10.6.0'}
@@ -19803,6 +19795,10 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
     dev: true
+
+  /kzg-wasm@0.5.0:
+    resolution: {integrity: sha512-LK1M0dm62NKEyhaM6S0pMHKzyAB+KySUlbT+z/+N6fZvcg0jEqSAiz6YHPk8MWIadlT0vFx1uT6Pf9dLzhTn4g==}
+    dev: false
 
   /language-subtag-registry@0.3.22:
     resolution: {integrity: sha512-tN0MCzyWnoz/4nHS6uxdlFWoUZT7ABptwKPQ52Ea7URk6vll88bWBVhodtnlfEuCcKWNGoc+uGbw1cwa9IKh/w==}

@@ -8,6 +8,9 @@
     "start-contracts": "tsx src/contracts.ts",
     "start-legacy": "tsx src/legacy/index.ts",
     "start-4844-sign-raw": "tsx src/eip4844/signRawTransaction.ts",
+    "start-4844": "tsx src/eip4844.ts",
+    "start-4844-raw": "tsx src/eip4844-raw.ts",
+    "start-1559-raw": "tsx src/eip1559-raw.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -19,11 +22,11 @@
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/viem": "workspace:*",
-    "c-kzg": "^2.1.2",
     "dotenv": "^16.0.3",
     "fetch": "^1.1.0",
     "prompts": "^2.4.2",
-    "viem": "2.23.13"
+    "viem": "2.23.13",
+    "kzg-wasm": "0.5.0"
   },
   "devDependencies": {
     "@types/prompts": "^2.4.2",
