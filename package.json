@@ -15,7 +15,8 @@
     "prettier-all:check": "prettier --check \"**/*.{css,html,js,json,md,ts,tsx,yaml,yml,mjs}\" --ignore-path ./.prettierignore",
     "prettier-all:write": "prettier --write \"**/*.{css,html,js,json,md,ts,tsx,yaml,yml,mjs}\" --ignore-path ./.prettierignore",
     "test-all": "pnpm run -r --no-bail test",
-    "typecheck-all": "pnpm run -r typecheck"
+    "typecheck-all": "pnpm run -r typecheck",
+    "vercel-build": "pnpm i -g node-gyp"
   },
   "license": "Apache-2.0",
   "engines": {
