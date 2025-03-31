@@ -52,7 +52,7 @@ export enum IframeEventType {
   TurnkeyInitMessageChannel = "TURNKEY_INIT_MESSAGE_CHANNEL",
   // Event sent by the parent to get the target embedded key's public key.
   // Value: public key
-  EmbeddedKey = "EMBEDDED_KEY",
+  EmbeddedPublicKey = "EMBEDDED_PUBLIC_KEY",
   // Event sent by the iframe to communicate an error
   // Value: serialized error
   Error = "ERROR",
@@ -283,10 +283,10 @@ export class IframeStamper {
 
   /**
    * Returns the public key, or `null` if the underlying iframe isn't properly initialized.
-   * This differs from the above in that it reaches out to the iframe to see if an embedded key exists.
+   * This differs from the above in that it reaches out to the live iframe to see if an embedded key exists.
    */
-  async getLivePublicKey(): Promise<string | null> {
-    return this.createRequest<string | null>(IframeEventType.EmbeddedKey);
+  async getEmbeddedPublicKey(): Promise<string | null> {
+    return this.createRequest<string | null>(IframeEventType.EmbeddedPublicKey);
   }
 
   /**
