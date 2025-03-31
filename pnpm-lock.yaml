@@ -702,13 +702,13 @@ importers:
     dependencies:
       '@biconomy/account':
         specifier: ^4.5.6
-        version: 4.5.6(typescript@5.1.5)(viem@2.21.29)
+        version: 4.5.6(typescript@5.1.5)(viem@2.23.13)
       '@biconomy/sdk':
         specifier: ^0.0.10
-        version: 0.0.10(@rhinestone/module-sdk@0.1.28)(typescript@5.1.5)(viem@2.21.29)
+        version: 0.0.10(@rhinestone/module-sdk@0.1.28)(typescript@5.1.5)(viem@2.23.13)
       '@rhinestone/module-sdk':
         specifier: ^0.1.28
-        version: 0.1.28(viem@2.21.29)
+        version: 0.1.28(viem@2.23.13)
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
@@ -728,8 +728,8 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
       viem:
-        specifier: ^2.21.29
-        version: 2.21.29(typescript@5.1.5)
+        specifier: ^2.23.13
+        version: 2.23.13(typescript@5.1.5)
     devDependencies:
       '@types/prompts':
         specifier: ^2.4.2
@@ -5109,7 +5109,7 @@ packages:
       - zod
     dev: false
 
-  /@biconomy/account@4.5.6(typescript@5.1.5)(viem@2.21.29):
+  /@biconomy/account@4.5.6(typescript@5.1.5)(viem@2.23.13):
     resolution: {integrity: sha512-Mq0X9HF4fsPTkf87eXklJJE/Hl3GQwQHN/2/D1fCA4Q4o4AM9HV7Tzpb+hBsh8cUJ+s2j0Q9wORXA1c0onAImQ==}
     peerDependencies:
       typescript: ^5
@@ -5118,24 +5118,24 @@ packages:
       '@silencelaboratories/walletprovider-sdk': 0.1.0(typescript@5.1.5)
       merkletreejs: 0.4.0
       typescript: 5.1.5
-      viem: 2.21.29(typescript@5.1.5)
+      viem: 2.23.13(typescript@5.1.5)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
       - zod
     dev: false
 
-  /@biconomy/sdk@0.0.10(@rhinestone/module-sdk@0.1.28)(typescript@5.1.5)(viem@2.21.29):
+  /@biconomy/sdk@0.0.10(@rhinestone/module-sdk@0.1.28)(typescript@5.1.5)(viem@2.23.13):
     resolution: {integrity: sha512-HolZ2V95/Z/oE75qbbm2X+cGcWwh4S0oTgyDzd8XQBnnRDOGKlQuf5gxAz0AFvZTCfkjLqZe8E9cVhYPBI+2yQ==}
     peerDependencies:
       '@rhinestone/module-sdk': ^0.1.25
       typescript: ^5
       viem: ^2.20.0
     dependencies:
-      '@rhinestone/module-sdk': 0.1.28(viem@2.21.29)
+      '@rhinestone/module-sdk': 0.1.28(viem@2.23.13)
       '@silencelaboratories/walletprovider-sdk': 0.3.0(typescript@5.1.5)
       typescript: 5.1.5
-      viem: 2.21.29(typescript@5.1.5)
+      viem: 2.23.13(typescript@5.1.5)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -10618,14 +10618,14 @@ packages:
       react-dom: 18.3.1(react@18.2.0)
     dev: false
 
-  /@rhinestone/module-sdk@0.1.28(viem@2.21.29):
+  /@rhinestone/module-sdk@0.1.28(viem@2.23.13):
     resolution: {integrity: sha512-Ob9qMs/scBrk6/X0dvb02kWqiCdP3Vau6PRNr3PP7PGxIIBFunJoVHuLWg4Tb/DHS3dCUXhuTk+XhObH1HjH+w==}
     peerDependencies:
       viem: ^2.0.0
     dependencies:
       solady: 0.0.235
       tslib: 2.8.1
-      viem: 2.21.29(typescript@5.1.5)
+      viem: 2.23.13(typescript@5.1.5)
     dev: false
 
   /@rollup/plugin-alias@5.1.1(rollup@4.22.4):
@@ -24978,30 +24978,6 @@ packages:
       isows: 1.0.4(ws@8.17.1)
       typescript: 5.1.5
       webauthn-p256: 0.0.5
-      ws: 8.17.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-    dev: false
-
-  /viem@2.21.29(typescript@5.1.5):
-    resolution: {integrity: sha512-n9LoCJjmI1XsE33nl+M4p3Wy5hczv7YC682RpX4Qk9cw8s9HJU+hUi5eDcNDPBcAwIHGCPKsf8yFBEYnE2XYVg==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.0
-      '@noble/curves': 1.6.0
-      '@noble/hashes': 1.5.0
-      '@scure/bip32': 1.5.0
-      '@scure/bip39': 1.4.0
-      abitype: 1.0.6(typescript@5.1.5)
-      isows: 1.0.6(ws@8.17.1)
-      typescript: 5.1.5
-      webauthn-p256: 0.0.10
       ws: 8.17.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil

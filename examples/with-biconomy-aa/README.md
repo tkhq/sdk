@@ -50,6 +50,7 @@ Now open `.env.local` and add the missing environment variables:
 - `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 - `BICONOMY_BUNDLER_URL`
 - `BICONOMY_PAYMASTER_API_KEY`
+- `BICONOMY_PAYMASTER_URL` -- optional: if using Nexus, this parameter is necessary
 
 ### 3/ Running the scripts
 
