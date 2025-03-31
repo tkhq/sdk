@@ -5,7 +5,7 @@ This example shows a complete email auth flow using a locally stored target embe
 - a frontend application
 - a backend application
 
- For general information about email auth, [check out our documentation](https://docs.turnkey.com/authentication/email).
+For general information about email auth, [check out our documentation](https://docs.turnkey.com/authentication/email).
 
 This example contains an auth page and enables you to create wallets using an email auth credential. Unlike our other [email auth example](https://github.com/tkhq/sdk/tree/main/examples/email-auth), this does not use an iframe. Instead of being in an iframe, the target embedded key is created within the application itself and stored in local storage.
 
