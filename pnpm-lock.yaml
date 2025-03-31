@@ -1441,7 +1441,7 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
       viem:
-        specifier: 2.23.13
+        specifier: ^2.23.13
         version: 2.23.13(typescript@5.1.5)
     devDependencies:
       '@types/prompts':

@@ -1,13 +1,11 @@
 import fs from "fs";
 import { resolve } from "path";
 import * as dotenv from "dotenv";
-// import * as cKzg from "c-kzg";
 import { loadKZG } from "kzg-wasm";
 
 import {
   createWalletClient,
   http,
-  // setupKzg,
   parseGwei,
   stringToHex,
   toBlobs,
@@ -25,8 +23,6 @@ import { print } from "../util";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
-
-const mainnetTrustedSetupPath = resolve("./src/eip4844/trusted-setups.json");
 
 const turnkeyClient = new TurnkeyServerSDK({
   apiBaseUrl: process.env.BASE_URL!,
@@ -56,43 +52,51 @@ async function main() {
     account: turnkeyAccount,
     chain: sepolia,
     transport: http(
-      `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`
+      `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`,
     ),
   });
 
-  // const kzg = setupKzg(cKzg, mainnetTrustedSetupPath);
+  /**
+   * Note: if you'd prefer to use `c-kzg` instead of `kzg-wasm`, you'll need the following:
+   *
+   * import * as cKzg from "c-kzg";
+   * import { setupKzg } from "viem";
+   *
+   * // This file has been included in this example folder already; it's more reliable than using the one exported by Viem
+   * const mainnetTrustedSetupPath = resolve("./src/eip4844/trusted-setups.json");
+   *
+   * const kzg = setupKzg(cKzg, mainnetTrustedSetupPath);
+   *
+   * ...
+   *
+   * // `kzg` can then be used in requests such as `await client.prepareTransactionRequest({
+   *   ...
+   *   kzg,
+   *   ...
+   * });
+   */
   const kzg = await loadKZG();
-  // const common = new Common({
-  //     chain: Chain.Mainnet,
-  //     hardfork: Hardfork.Cancun,
-  //     customCrypto: { kzg },
-  // })
-  // console.log(common.customCrypto.kzg) // Should print the initialized KZG interface
   const blobs = toBlobs({ data: stringToHex("hello world") });
 
+  // These adaptations are required in order to use `kzg-wasm`, in order for types to resolve.
+  // Why `kzg-wasm` over `c-kzg`? No particular reason, but makes builds simpler in certain environments.
   const blobToKzgCommitmentAdapter = (blob: ByteArray): ByteArray => {
-    // Convert the ByteArray to a hex string (without the '0x' prefix if needed)
     const hexInput = bytesToHex(blob);
-    // Call the original function, which returns a prefixed hex string
     const commitmentHex = kzg.blobToKZGCommitment(hexInput);
-    // Convert the returned hex string back to a ByteArray
     return hexToBytes(commitmentHex as `0x${string}`);
   };
 
-  // Adapter function that conforms to (blob: ByteArray, commitment: ByteArray) => ByteArray
-const computeBlobKzgProofAdapter = (blob: ByteArray, commitment: ByteArray): ByteArray => {
-  // Convert the ByteArray inputs to hex strings
-  const hexBlob = bytesToHex(blob)
-  const hexCommitment = bytesToHex(commitment)
-  
-  // Use the original dependency function to compute the proof (in hex format)
-  const proofHex = kzg.computeBlobKZGProof(hexBlob, hexCommitment)
-  
-  // Convert the resulting hex string back into a ByteArray and return it
-  return hexToBytes(proofHex as `0x${string}`)
-}
+  const computeBlobKzgProofAdapter = (
+    blob: ByteArray,
+    commitment: ByteArray,
+  ): ByteArray => {
+    const hexBlob = bytesToHex(blob);
+    const hexCommitment = bytesToHex(commitment);
+    const proofHex = kzg.computeBlobKZGProof(hexBlob, hexCommitment);
+    return hexToBytes(proofHex as `0x${string}`);
+  };
 
-  const renewedKzg = {
+  const adaptedKzg = {
     ...kzg,
     computeBlobKzgProof: computeBlobKzgProofAdapter,
     blobToKzgCommitment: blobToKzgCommitmentAdapter,
@@ -102,7 +106,7 @@ const computeBlobKzgProofAdapter = (blob: ByteArray, commitment: ByteArray): Byt
   const request = await client.prepareTransactionRequest({
     account: turnkeyAccount,
     blobs,
-    kzg: renewedKzg,
+    kzg: adaptedKzg,
     maxFeePerBlobGas: parseGwei("30"),
     to: "0x0000000000000000000000000000000000000000",
     type: "eip4844",
@@ -133,7 +137,7 @@ const computeBlobKzgProofAdapter = (blob: ByteArray, commitment: ByteArray): Byt
   fs.writeFileSync("./src/eip4844/signed-tx.hex", serializedTx);
 
   console.log(
-    "Raw signed transaction written to ./src/eip4844/signed-tx.hex\n"
+    "Raw signed transaction written to ./src/eip4844/signed-tx.hex\n",
   );
 
   const txHash = await client.sendRawTransaction({
