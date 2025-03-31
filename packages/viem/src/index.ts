@@ -27,6 +27,7 @@ import type { TurnkeyServerClient } from "@turnkey/sdk-server";
 export type TTurnkeyConsensusNeededErrorType = TurnkeyConsensusNeededError & {
   name: "TurnkeyConsensusNeededError";
 };
+
 export class TurnkeyConsensusNeededError extends BaseError {
   override name = "TurnkeyConsensusNeededError";
 
@@ -113,14 +114,15 @@ export function createAccountWithAddress(input: {
       TTransactionSerializable extends TransactionSerializable,
     >(
       transaction: TTransactionSerializable,
-      args?:
-        | { serializer?: SerializeTransactionFn<TTransactionSerializable> }
-        | undefined,
+      options?: {
+        serializer?:
+          | SerializeTransactionFn<TTransactionSerializable>
+          | undefined;
+      },
     ): Promise<Hex> {
-      const serializer = !args?.serializer
-        ? serializeTransaction
-        : args.serializer;
-
+      const serializer: SerializeTransactionFn<TTransactionSerializable> =
+        options?.serializer ??
+        (serializeTransaction as SerializeTransactionFn<TTransactionSerializable>);
       return signTransaction(
         client,
         transaction,
@@ -263,14 +265,15 @@ export async function createApiKeyAccount(
       TTransactionSerializable extends TransactionSerializable,
     >(
       transaction: TTransactionSerializable,
-      args?:
-        | { serializer?: SerializeTransactionFn<TTransactionSerializable> }
-        | undefined,
+      options?: {
+        serializer?:
+          | SerializeTransactionFn<TTransactionSerializable>
+          | undefined;
+      },
     ): Promise<Hex> {
-      const serializer = !args?.serializer
-        ? serializeTransaction
-        : args.serializer;
-
+      const serializer: SerializeTransactionFn<TTransactionSerializable> =
+        options?.serializer ??
+        (serializeTransaction as SerializeTransactionFn<TTransactionSerializable>);
       return signTransaction(
         client,
         transaction,
@@ -499,6 +502,7 @@ async function signMessageImpl(
 }
 
 export function serializeSignature(sig: TSignature) {
+  // TODO: update this deprecated method
   return signatureToHex({
     r: `0x${sig.r}`,
     s: `0x${sig.s}`,
