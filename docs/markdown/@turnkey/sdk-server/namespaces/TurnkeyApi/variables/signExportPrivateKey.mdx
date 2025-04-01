@@ -1,0 +1,29 @@
+[**SDK Documentation**](../../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../../packages.mdx) / [@turnkey/sdk-server](../../../README.mdx) / [TurnkeyApi](../README.mdx) / signExportPrivateKey
+
+# Variable: signExportPrivateKey()
+
+> `const` **signExportPrivateKey**: (`input`, `options`?) => `Promise`\<[`SignedRequest`](../../../../http/type-aliases/SignedRequest.mdx)\>
+
+Defined in: packages/http/dist/\_\_generated\_\_/services/coordinator/public/v1/public\_api.fetcher.d.ts:40924
+
+Request a WebAuthn assertion and return a signed `ExportPrivateKey` request, ready to be POSTed to Turnkey.
+
+See ExportPrivateKey
+
+## Parameters
+
+### input
+
+[`TExportPrivateKeyInput`](../type-aliases/TExportPrivateKeyInput.mdx)
+
+### options?
+
+`TurnkeyCredentialRequestOptions`
+
+## Returns
+
+`Promise`\<[`SignedRequest`](../../../../http/type-aliases/SignedRequest.mdx)\>

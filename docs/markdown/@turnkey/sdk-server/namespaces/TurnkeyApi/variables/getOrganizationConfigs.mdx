@@ -1,0 +1,27 @@
+[**SDK Documentation**](../../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../../packages.mdx) / [@turnkey/sdk-server](../../../README.mdx) / [TurnkeyApi](../README.mdx) / getOrganizationConfigs
+
+# Variable: getOrganizationConfigs()
+
+> `const` **getOrganizationConfigs**: (`input`) => `Promise`\<\{ `configs`: \{ `features`: `object`[]; `quorum`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; \}; \}\>
+
+Defined in: packages/http/dist/\_\_generated\_\_/services/coordinator/public/v1/public\_api.fetcher.d.ts:1726
+
+Get Configs
+
+Get quorum settings and features for an organization
+
+`POST /public/v1/query/get_organization_configs`
+
+## Parameters
+
+### input
+
+[`TGetOrganizationConfigsInput`](../type-aliases/TGetOrganizationConfigsInput.mdx)
+
+## Returns
+
+`Promise`\<\{ `configs`: \{ `features`: `object`[]; `quorum`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; \}; \}\>

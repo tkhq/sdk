@@ -1,0 +1,257 @@
+[**SDK Documentation**](../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../packages.mdx) / [@turnkey/telegram-cloud-storage-stamper](../README.mdx) / TelegramCloudStorageStamper
+
+# Class: TelegramCloudStorageStamper
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:31](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L31)
+
+Stamper to use within a `TurnkeyClient`
+
+## Constructors
+
+### Constructor
+
+> **new TelegramCloudStorageStamper**(): `TelegramCloudStorageStamper`
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:36](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L36)
+
+#### Returns
+
+`TelegramCloudStorageStamper`
+
+## Properties
+
+### stamper?
+
+> `optional` **stamper**: [`ApiKeyStamper`](../../api-key-stamper/classes/ApiKeyStamper.mdx)
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:33](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L33)
+
+## Methods
+
+### checkTelegramContext()
+
+> **checkTelegramContext**(): `void`
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:151](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L151)
+
+#### Returns
+
+`void`
+
+***
+
+### clearItem()
+
+> **clearItem**(`key`): `Promise`\<`void`\>
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:244](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L244)
+
+#### Parameters
+
+##### key
+
+`string`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### getAPIKey()
+
+> **getAPIKey**(`key`): `Promise`\<`null` \| [`CloudStorageAPIKey`](../type-aliases/CloudStorageAPIKey.mdx)\>
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:135](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L135)
+
+#### Parameters
+
+##### key
+
+`string` = `DEFAULT_TURNKEY_CLOUD_STORAGE_KEY`
+
+#### Returns
+
+`Promise`\<`null` \| [`CloudStorageAPIKey`](../type-aliases/CloudStorageAPIKey.mdx)\>
+
+***
+
+### getItem()
+
+> **getItem**(`key`): `Promise`\<`string`\>
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:193](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L193)
+
+#### Parameters
+
+##### key
+
+`string`
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### insertAPIKey()
+
+> **insertAPIKey**(`apiPublicKey`, `apiPrivateKey`, `key`): `Promise`\<`void`\>
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:124](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L124)
+
+#### Parameters
+
+##### apiPublicKey
+
+`string`
+
+##### apiPrivateKey
+
+`string`
+
+##### key
+
+`string` = `DEFAULT_TURNKEY_CLOUD_STORAGE_KEY`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### isCloudStorageAPIKey()
+
+> **isCloudStorageAPIKey**(`apiKey`): `boolean`
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:186](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L186)
+
+#### Parameters
+
+##### apiKey
+
+[`CloudStorageAPIKey`](../type-aliases/CloudStorageAPIKey.mdx)
+
+#### Returns
+
+`boolean`
+
+***
+
+### parseAPIKey()
+
+> **parseAPIKey**(`apiKey`): `null` \| \{ `apiPrivateKey`: `any`; `apiPublicKey`: `any`; \}
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:166](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L166)
+
+#### Parameters
+
+##### apiKey
+
+`string`
+
+#### Returns
+
+`null` \| \{ `apiPrivateKey`: `any`; `apiPublicKey`: `any`; \}
+
+***
+
+### setItem()
+
+> **setItem**(`key`, `value`): `Promise`\<`void`\>
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:214](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L214)
+
+#### Parameters
+
+##### key
+
+`string`
+
+##### value
+
+`string`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### setSigningKey()
+
+> **setSigningKey**(`config`?): `Promise`\<`void`\>
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:65](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L65)
+
+#### Parameters
+
+##### config?
+
+[`TTelegramCloudStorageStamperConfig`](../type-aliases/TTelegramCloudStorageStamperConfig.mdx)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### stamp()
+
+> **stamp**(`payload`): `Promise`\<\{ `stampHeaderName`: `string`; `stampHeaderValue`: `string`; \}\>
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:50](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L50)
+
+#### Parameters
+
+##### payload
+
+`string`
+
+#### Returns
+
+`Promise`\<\{ `stampHeaderName`: `string`; `stampHeaderValue`: `string`; \}\>
+
+***
+
+### stringifyAPIKey()
+
+> **stringifyAPIKey**(`apiPublicKey`, `apiPrivateKey`): `string`
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:159](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L159)
+
+#### Parameters
+
+##### apiPublicKey
+
+`string`
+
+##### apiPrivateKey
+
+`string`
+
+#### Returns
+
+`string`
+
+***
+
+### create()
+
+> `static` **create**(`config`?): `Promise`\<`TelegramCloudStorageStamper`\>
+
+Defined in: [telegram-cloud-storage-stamper/src/index.ts:42](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/telegram-cloud-storage-stamper/src/index.ts#L42)
+
+#### Parameters
+
+##### config?
+
+[`TTelegramCloudStorageStamperConfig`](../type-aliases/TTelegramCloudStorageStamperConfig.mdx)
+
+#### Returns
+
+`Promise`\<`TelegramCloudStorageStamper`\>
