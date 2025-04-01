@@ -10,19 +10,19 @@
 
 ### Minor Changes
 
-- 9147962: add dangerouslyOverrideIframeKeyTtl option to override iframe embedded key TTL (for longer lived read/write sessions)
+- 9147962: Add `dangerouslyOverrideIframeKeyTtl` option to override iframe embedded key TTL (for longer lived read/write sessions)
 
 ## 2.2.0
 
 ### Minor Changes
 
-- a216a47: Add request ID to iframe requests
+- a216a47: Add `requestId` to iframe requests. This allows developers to send multiple requests at once to an iframe, and have the corresponding responses be handled correctly (in order)
 
 ## 2.1.0
 
 ### Minor Changes
 
-- fad7c37: @turnkey/iframe-stamper - Implemented MessageChannel API for secure communication between the parent and iframe.
+- fad7c37: `@turnkey/iframe-stamper` - Implemented MessageChannel API for secure communication between the parent and iframe.
 
   @turnkey/sdk-browser - fixed spelling in package.json
   @turnkey/sdk-server - fixed spelling in package.json
@@ -31,11 +31,13 @@
 
 ### Major Changes
 
-- 5d0bfde: Include organizationId and userId in injected import and export bundles.
+- 5d0bfde: Include `organizationId` and `userId` in injected import and export bundles.
 
 ### Minor Changes
 
-- 2f2d09a: Add applySettings.
+- 2f2d09a: Add implementation for `applySettings()`
+  - This is a function to apply settings on allowed parameters in the iframe.
+  - Ultimately, this is used to style the HTML element used for plaintext in wallet and private key import.
 
 ### Patch Changes
 

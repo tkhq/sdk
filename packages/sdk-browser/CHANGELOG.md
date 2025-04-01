@@ -9,13 +9,23 @@
   Usage may look like the following:
 
   ```javascript
-  import { useTurnkey } from "@turnkey/sdk-react";
+  import { Turnkey } from "@turnkey/sdk-browser";
+
+  // create an instance of TurnkeyBrowserSDK
+  const turnkeyBrowserSDK = new Turnkey(config);
+
+  // create an instance of TurnkeyIframeClient
+  const iframeClient = await turnkeyBrowserSDK.iframeClient({
+    iframeContainer: document.getElementById(
+      "turnkey-auth-iframe-container-id",
+    ),
+    iframeUrl: "https://auth.turnkey.com",
+    iframeElementId: "turnkey-auth-iframe-element-id",
+  });
 
   ...
 
-  const { authIframeClient } = useTurnkey();
-
-  const publicKey = await authIframeClient!.getEmbeddedPublicKey();
+  const publicKey = await iframeClient.getEmbeddedPublicKey();
   ```
 
   Functionally, this can be useful for scenarios where the developer would like to verify whether an iframe has a live embedded key within it. This contrasts from the static `iframeStamper.iframePublicKey` exposed by `@turnkey/iframe-stamper`'s `publicKey()` method.
