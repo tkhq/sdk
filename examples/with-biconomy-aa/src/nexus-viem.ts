@@ -42,10 +42,8 @@ async function main() {
 
   // Network must be base-sepolia at the moment
   const network = "base-sepolia";
-  const bundlerUrl =
-    "https://bundler.biconomy.io/api/v3/84532/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44";
-  const paymasterUrl =
-    "https://paymaster.biconomy.io/api/v2/84532/F7wyL1clz.75a64804-3e97-41fa-ba1e-33e98c2cc703";
+  const bundlerUrl = process.env.BICONOMY_BUNDLER_URL!;
+  const paymasterUrl = process.env.BICONOMY_PAYMASTER_URL!;
   const providerUrl = `https://${network}.infura.io/v3/${process.env
     .INFURA_KEY!}`;
 
@@ -73,10 +71,8 @@ async function main() {
 
   const smartAccount = nexusClient.account;
   const smartAccountAddress = nexusClient.account.address;
-
-  const chainId = client.chain.id;
   const signerAddress = client.account.address; // signer
-
+  const chainId = client.chain.id;
   const transactionCount = await publicClient.getTransactionCount({
     address: smartAccountAddress,
   });

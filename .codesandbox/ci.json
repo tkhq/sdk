@@ -22,5 +22,5 @@
     "packages/telegram-cloud-storage-stamper"
   ],
   "sandboxes": ["/examples/react-components"],
-  "node": "18"
+  "node": "20"
 }

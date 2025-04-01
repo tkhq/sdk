@@ -19,7 +19,7 @@
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0",
     "prompts": "^2.4.2",
-    "viem": "^2.21.29"
+    "viem": "^2.23.13"
   },
   "devDependencies": {
     "@types/prompts": "^2.4.2"

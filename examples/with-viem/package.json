@@ -7,6 +7,7 @@
     "start-advanced": "tsx src/advanced.ts",
     "start-contracts": "tsx src/contracts.ts",
     "start-legacy": "tsx src/legacy/index.ts",
+    "start-4844-sign-raw": "tsx src/eip4844/signRawTransaction.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -21,7 +22,8 @@
     "dotenv": "^16.0.3",
     "fetch": "^1.1.0",
     "prompts": "^2.4.2",
-    "viem": "^1.16.6"
+    "viem": "^2.23.13",
+    "kzg-wasm": "0.5.0"
   },
   "devDependencies": {
     "@types/prompts": "^2.4.2",
