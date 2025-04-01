@@ -1,0 +1,334 @@
+[**SDK Documentation**](../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../packages.mdx) / [@turnkey/iframe-stamper](../README.mdx) / IframeStamper
+
+# Class: IframeStamper
+
+Defined in: [index.ts:120](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L120)
+
+Stamper to use with `@turnkey/http`'s `TurnkeyClient`
+Creating a stamper inserts an iframe in the current page.
+
+## Constructors
+
+### Constructor
+
+> **new IframeStamper**(`config`): `IframeStamper`
+
+Defined in: [index.ts:133](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L133)
+
+Creates a new iframe stamper. This function _does not_ insert the iframe in the DOM.
+Call `.init()` to insert the iframe element in the DOM.
+
+#### Parameters
+
+##### config
+
+[`TIframeStamperConfig`](../type-aliases/TIframeStamperConfig.mdx)
+
+#### Returns
+
+`IframeStamper`
+
+## Properties
+
+### container
+
+> **container**: `HTMLElement`
+
+Defined in: [index.ts:121](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L121)
+
+***
+
+### iframe
+
+> **iframe**: `HTMLIFrameElement`
+
+Defined in: [index.ts:122](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L122)
+
+***
+
+### iframeOrigin
+
+> **iframeOrigin**: `string`
+
+Defined in: [index.ts:123](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L123)
+
+***
+
+### iframePublicKey
+
+> **iframePublicKey**: `null` \| `string`
+
+Defined in: [index.ts:124](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L124)
+
+***
+
+### messageChannel
+
+> **messageChannel**: `MessageChannel`
+
+Defined in: [index.ts:125](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L125)
+
+## Methods
+
+### applySettings()
+
+> **applySettings**(`settings`): `Promise`\<`boolean`\>
+
+Defined in: [index.ts:404](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L404)
+
+Function to apply settings on allowed parameters in the iframe
+This is used to style the HTML element used for plaintext in wallet and private key import.
+
+#### Parameters
+
+##### settings
+
+[`TIframeSettings`](../type-aliases/TIframeSettings.mdx)
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+***
+
+### clear()
+
+> **clear**(): `void`
+
+Defined in: [index.ts:267](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L267)
+
+Removes the iframe from the DOM
+
+#### Returns
+
+`void`
+
+***
+
+### extractKeyEncryptedBundle()
+
+> **extractKeyEncryptedBundle**(`keyFormat`?): `Promise`\<`string`\>
+
+Defined in: [index.ts:393](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L393)
+
+Function to extract an encrypted bundle from the iframe
+The bundle should be encrypted to Turnkey's Signer enclave's initial public key
+Encryption should be performed with HPKE (RFC 9180).
+The key format to encode the private key in before it's encrypted and imported: HEXADECIMAL or SOLANA. Defaults to HEXADECIMAL.
+This is used during the private key import flow.
+
+#### Parameters
+
+##### keyFormat?
+
+[`KeyFormat`](../enumerations/KeyFormat.mdx)
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### extractWalletEncryptedBundle()
+
+> **extractWalletEncryptedBundle**(): `Promise`\<`string`\>
+
+Defined in: [index.ts:380](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L380)
+
+Function to extract an encrypted bundle from the iframe
+The bundle should be encrypted to Turnkey's Signer enclave's initial public key
+Encryption should be performed with HPKE (RFC 9180).
+This is used during the wallet import flow.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### init()
+
+> **init**(`dangerouslyOverrideIframeKeyTtl`?): `Promise`\<`string`\>
+
+Defined in: [index.ts:225](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L225)
+
+Inserts the iframe on the page and returns a promise resolving to the iframe's public key
+
+#### Parameters
+
+##### dangerouslyOverrideIframeKeyTtl?
+
+`number`
+
+Optional TTL override for the iframe's embedded key (default 48 hours). Only use this if you are intentional about the security implications.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### injectCredentialBundle()
+
+> **injectCredentialBundle**(`bundle`): `Promise`\<`boolean`\>
+
+Defined in: [index.ts:314](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L314)
+
+Function to inject a new credential into the iframe
+The bundle should be encrypted to the iframe's initial public key
+Encryption should be performed with HPKE (RFC 9180).
+This is used during recovery and auth flows.
+
+#### Parameters
+
+##### bundle
+
+`string`
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+***
+
+### injectImportBundle()
+
+> **injectImportBundle**(`bundle`, `organizationId`, `userId`): `Promise`\<`boolean`\>
+
+Defined in: [index.ts:362](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L362)
+
+Function to inject an import bundle into the iframe
+This is used to initiate either the wallet import flow or the private key import flow.
+
+#### Parameters
+
+##### bundle
+
+`string`
+
+##### organizationId
+
+`string`
+
+##### userId
+
+`string`
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+***
+
+### injectKeyExportBundle()
+
+> **injectKeyExportBundle**(`bundle`, `organizationId`, `keyFormat`?): `Promise`\<`boolean`\>
+
+Defined in: [index.ts:327](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L327)
+
+Function to inject an export bundle into the iframe
+The bundle should be encrypted to the iframe's initial public key
+Encryption should be performed with HPKE (RFC 9180).
+The key format to encode the private key in after it's exported and decrypted: HEXADECIMAL or SOLANA. Defaults to HEXADECIMAL.
+This is used during the private key export flow.
+
+#### Parameters
+
+##### bundle
+
+`string`
+
+##### organizationId
+
+`string`
+
+##### keyFormat?
+
+[`KeyFormat`](../enumerations/KeyFormat.mdx)
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+***
+
+### injectWalletExportBundle()
+
+> **injectWalletExportBundle**(`bundle`, `organizationId`): `Promise`\<`boolean`\>
+
+Defined in: [index.ts:345](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L345)
+
+Function to inject an export bundle into the iframe
+The bundle should be encrypted to the iframe's initial public key
+Encryption should be performed with HPKE (RFC 9180).
+This is used during the wallet export flow.
+
+#### Parameters
+
+##### bundle
+
+`string`
+
+##### organizationId
+
+`string`
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+***
+
+### onMessageHandler()
+
+> **onMessageHandler**(`event`): `void`
+
+Defined in: [index.ts:182](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L182)
+
+#### Parameters
+
+##### event
+
+`MessageEvent`
+
+#### Returns
+
+`void`
+
+***
+
+### publicKey()
+
+> **publicKey**(): `null` \| `string`
+
+Defined in: [index.ts:277](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L277)
+
+Returns the public key, or `null` if the underlying iframe isn't properly initialized.
+
+#### Returns
+
+`null` \| `string`
+
+***
+
+### stamp()
+
+> **stamp**(`payload`): `Promise`\<`TStamp`\>
+
+Defined in: [index.ts:413](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/iframe-stamper/src/index.ts#L413)
+
+Function to sign a payload with the underlying iframe
+
+#### Parameters
+
+##### payload
+
+`string`
+
+#### Returns
+
+`Promise`\<`TStamp`\>

@@ -1,0 +1,27 @@
+[**SDK Documentation**](../../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../../packages.mdx) / [@turnkey/http](../../../README.mdx) / [TurnkeyApi](../README.mdx) / getApiKey
+
+# Function: getApiKey()
+
+> **getApiKey**(`input`): `Promise`\<\{ `apiKey`: \{ `apiKeyId`: `string`; `apiKeyName`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `credential`: \{ `publicKey`: `string`; `type`: `"CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"` \| `"CREDENTIAL_TYPE_API_KEY_P256"` \| `"CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_SECP256K1"` \| `"CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_ED25519"` \| `"CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256"` \| `"CREDENTIAL_TYPE_OAUTH_KEY_P256"`; \}; `expirationSeconds`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+Defined in: [packages/http/src/\_\_generated\_\_/services/coordinator/public/v1/public\_api.fetcher.ts:80](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher.ts#L80)
+
+Get API key
+
+Get details about an API key
+
+`POST /public/v1/query/get_api_key`
+
+## Parameters
+
+### input
+
+[`TGetApiKeyInput`](../type-aliases/TGetApiKeyInput.mdx)
+
+## Returns
+
+`Promise`\<\{ `apiKey`: \{ `apiKeyId`: `string`; `apiKeyName`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `credential`: \{ `publicKey`: `string`; `type`: `"CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"` \| `"CREDENTIAL_TYPE_API_KEY_P256"` \| `"CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_SECP256K1"` \| `"CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_ED25519"` \| `"CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256"` \| `"CREDENTIAL_TYPE_OAUTH_KEY_P256"`; \}; `expirationSeconds`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>

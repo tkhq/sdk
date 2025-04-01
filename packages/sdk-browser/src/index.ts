@@ -1,3 +1,5 @@
+// marked as internal to prevent inclusion in the sdk-browser docs
+/** @internal */
 export {
   createActivityPoller,
   getWebAuthnAttestation,
@@ -10,18 +12,24 @@ export {
   type TurnkeyApiTypes,
 } from "@turnkey/http";
 
+// marked as internal to prevent inclusion in the sdk-browser docs
+/** @internal */
 export {
   ApiKeyStamper,
   signWithApiKey,
   type TApiKeyStamperConfig,
 } from "@turnkey/api-key-stamper";
 
+// marked as internal to prevent inclusion in the sdk-browser docs
+/** @internal */
 export {
   IframeEventType,
   IframeStamper,
   type TIframeStamperConfig,
 } from "@turnkey/iframe-stamper";
 
+// marked as internal to prevent inclusion in the sdk-browser docs
+/** @internal */
 export {
   type TWebauthnStamperConfig,
   WebauthnStamper,
@@ -37,6 +45,8 @@ export {
 
 export { getStorageValue, setStorageValue, StorageKeys } from "@storage";
 
+// marked as internal to prevent inclusion in the sdk-browser docs
+/** @internal */
 export {
   defaultEthereumAccountAtIndex,
   DEFAULT_ETHEREUM_ACCOUNTS,
@@ -104,6 +114,9 @@ export {
   defaultTonV4r2AccountAtIndex,
   DEFAULT_TON_V4R2_ACCOUNTS,
 } from "./turnkey-helpers";
+
+// marked as internal to prevent inclusion in the sdk-browser docs
+/** @internal */
 export type { WalletAccount } from "./turnkey-helpers";
 
 export {
@@ -117,4 +130,6 @@ export {
   AuthClient,
 } from "./__types__/base";
 
+// marked as internal to prevent inclusion in the sdk-browser docs
+/** @internal */
 export type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";

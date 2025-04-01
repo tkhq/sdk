@@ -1,0 +1,127 @@
+[**SDK Documentation**](../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../packages.mdx) / [@turnkey/cosmjs](../README.mdx) / TurnkeyDirectWallet
+
+# Class: TurnkeyDirectWallet
+
+Defined in: [packages/cosmjs/src/index.ts:41](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/cosmjs/src/index.ts#L41)
+
+## Implements
+
+- `OfflineDirectSigner`
+
+## Properties
+
+### organizationId
+
+> `readonly` **organizationId**: `string`
+
+Defined in: [packages/cosmjs/src/index.ts:90](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/cosmjs/src/index.ts#L90)
+
+***
+
+### prefix
+
+> `readonly` **prefix**: `string`
+
+Defined in: [packages/cosmjs/src/index.ts:89](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/cosmjs/src/index.ts#L89)
+
+***
+
+### signWith
+
+> `readonly` **signWith**: `string`
+
+Defined in: [packages/cosmjs/src/index.ts:91](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/cosmjs/src/index.ts#L91)
+
+## Methods
+
+### getAccounts()
+
+> **getAccounts**(): `Promise`\<readonly `AccountData`[]\>
+
+Defined in: [packages/cosmjs/src/index.ts:122](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/cosmjs/src/index.ts#L122)
+
+#### Returns
+
+`Promise`\<readonly `AccountData`[]\>
+
+#### Implementation of
+
+`OfflineDirectSigner.getAccounts`
+
+***
+
+### signDirect()
+
+> **signDirect**(`address`, `signDoc`): `Promise`\<`DirectSignResponse`\>
+
+Defined in: [packages/cosmjs/src/index.ts:132](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/cosmjs/src/index.ts#L132)
+
+#### Parameters
+
+##### address
+
+`string`
+
+##### signDoc
+
+`SignDoc`
+
+#### Returns
+
+`Promise`\<`DirectSignResponse`\>
+
+#### Implementation of
+
+`OfflineDirectSigner.signDirect`
+
+***
+
+### init()
+
+> `static` **init**(`input`): `Promise`\<`TurnkeyDirectWallet`\>
+
+Defined in: [packages/cosmjs/src/index.ts:42](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/cosmjs/src/index.ts#L42)
+
+#### Parameters
+
+##### input
+
+###### config
+
+`TConfig`
+
+###### prefix?
+
+`string`
+
+#### Returns
+
+`Promise`\<`TurnkeyDirectWallet`\>
+
+***
+
+### initWithPublicKey()
+
+> `static` **initWithPublicKey**(`input`): `TurnkeyDirectWallet`
+
+Defined in: [packages/cosmjs/src/index.ts:73](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/cosmjs/src/index.ts#L73)
+
+#### Parameters
+
+##### input
+
+###### config
+
+`TConfig`
+
+###### prefix?
+
+`string`
+
+#### Returns
+
+`TurnkeyDirectWallet`
