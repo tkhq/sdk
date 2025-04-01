@@ -286,7 +286,9 @@ export class IframeStamper {
    * This differs from the above in that it reaches out to the live iframe to see if an embedded key exists.
    */
   async getEmbeddedPublicKey(): Promise<string | null> {
-    return this.createRequest<string | null>(IframeEventType.GetEmbeddedPublicKey);
+    return this.createRequest<string | null>(
+      IframeEventType.GetEmbeddedPublicKey,
+    );
   }
 
   /**
