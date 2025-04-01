@@ -12,7 +12,12 @@
       "@storage": ["./src/storage"],
       "@types": ["./src/__types__/base"],
       "@utils": ["./src/utils"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "eslint-plugin-tsdoc"
+      }
+    ]
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],

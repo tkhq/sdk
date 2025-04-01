@@ -1,0 +1,27 @@
+[**SDK Documentation**](../../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../../packages.mdx) / [@turnkey/sdk-server](../../../README.mdx) / [TurnkeyApi](../README.mdx) / getWhoami
+
+# Variable: getWhoami()
+
+> `const` **getWhoami**: (`input`) => `Promise`\<\{ `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}\>
+
+Defined in: packages/http/dist/\_\_generated\_\_/services/coordinator/public/v1/public\_api.fetcher.d.ts:3713
+
+Who am I?
+
+Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users.
+
+`POST /public/v1/query/whoami`
+
+## Parameters
+
+### input
+
+[`TGetWhoamiInput`](../type-aliases/TGetWhoamiInput.mdx)
+
+## Returns
+
+`Promise`\<\{ `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}\>
