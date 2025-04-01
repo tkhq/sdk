@@ -1,0 +1,31 @@
+[**SDK Documentation**](../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../packages.mdx) / [@turnkey/crypto](../README.mdx) / encryptPrivateKeyToBundle
+
+# Function: encryptPrivateKeyToBundle()
+
+> **encryptPrivateKeyToBundle**(`params`): `Promise`\<`string`\>
+
+Defined in: [turnkey.ts:304](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/crypto/src/turnkey.ts#L304)
+
+Encrypts a private key bundle using HPKE and verifies the enclave signature.
+
+## Parameters
+
+### params
+
+`EncryptPrivateKeyToBundleParams`
+
+An object containing the private key, key format, bundle, user, and organization details. Optionally, you can override the default signer key (for testing purposes)
+
+## Returns
+
+`Promise`\<`string`\>
+
+- A promise that resolves to a JSON string representing the encrypted bundle.
+
+## Throws
+
+- If enclave signature verification or any other validation fails.

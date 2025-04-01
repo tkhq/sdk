@@ -1,0 +1,3651 @@
+[**SDK Documentation**](../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../packages.mdx) / [@turnkey/sdk-server](../README.mdx) / TurnkeyApiClient
+
+# Class: TurnkeyApiClient
+
+Defined in: [packages/sdk-server/src/sdk-client.ts:132](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/sdk-client.ts#L132)
+
+## Extends
+
+- [`TurnkeyServerClient`](TurnkeyServerClient.mdx)
+
+## Indexable
+
+\[`methodName`: `string`\]: `any`
+
+## Constructors
+
+### Constructor
+
+> **new TurnkeyApiClient**(`config`): `TurnkeyApiClient`
+
+Defined in: [packages/sdk-server/src/sdk-client.ts:133](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/sdk-client.ts#L133)
+
+#### Parameters
+
+##### config
+
+[`TurnkeySDKClientConfig`](../interfaces/TurnkeySDKClientConfig.mdx)
+
+#### Returns
+
+`TurnkeyApiClient`
+
+#### Overrides
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`constructor`](TurnkeyServerClient.mdx#constructor)
+
+## Properties
+
+### config
+
+> **config**: [`TurnkeySDKClientConfig`](../interfaces/TurnkeySDKClientConfig.mdx)
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:24](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L24)
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`config`](TurnkeyServerClient.mdx#config)
+
+***
+
+### stamper
+
+> `protected` **stamper**: `TStamper`
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:26](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L26)
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stamper`](TurnkeyServerClient.mdx#stamper)
+
+## Methods
+
+### activityDecision()
+
+> **activityDecision**\<`TBodyType`, `TResponseType`\>(`url`, `body`): `Promise`\<`TResponseType`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:130](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L130)
+
+#### Type Parameters
+
+##### TBodyType
+
+`TBodyType`
+
+##### TResponseType
+
+`TResponseType`
+
+#### Parameters
+
+##### url
+
+`string`
+
+##### body
+
+`TBodyType`
+
+#### Returns
+
+`Promise`\<`TResponseType`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`activityDecision`](TurnkeyServerClient.mdx#activitydecision)
+
+***
+
+### approveActivity()
+
+> **approveActivity**(`input`): `Promise`\<[`TApproveActivityResponse`](../namespaces/TurnkeySDKApiTypes/type-aliases/TApproveActivityResponse.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:777](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L777)
+
+#### Parameters
+
+##### input
+
+[`TApproveActivityBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TApproveActivityBody.mdx)
+
+#### Returns
+
+`Promise`\<[`TApproveActivityResponse`](../namespaces/TurnkeySDKApiTypes/type-aliases/TApproveActivityResponse.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`approveActivity`](TurnkeyServerClient.mdx#approveactivity)
+
+***
+
+### command()
+
+> **command**\<`TBodyType`, `TResponseType`\>(`url`, `body`, `resultKey`): `Promise`\<`TResponseType`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:66](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L66)
+
+#### Type Parameters
+
+##### TBodyType
+
+`TBodyType`
+
+##### TResponseType
+
+`TResponseType`
+
+#### Parameters
+
+##### url
+
+`string`
+
+##### body
+
+`TBodyType`
+
+##### resultKey
+
+`string`
+
+#### Returns
+
+`Promise`\<`TResponseType`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`command`](TurnkeyServerClient.mdx#command)
+
+***
+
+### createApiKeys()
+
+> **createApiKeys**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:806](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L806)
+
+#### Parameters
+
+##### input
+
+[`TCreateApiKeysBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateApiKeysBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createApiKeys`](TurnkeyServerClient.mdx#createapikeys)
+
+***
+
+### createApiOnlyUsers()
+
+> **createApiOnlyUsers**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:839](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L839)
+
+#### Parameters
+
+##### input
+
+[`TCreateApiOnlyUsersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateApiOnlyUsersBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createApiOnlyUsers`](TurnkeyServerClient.mdx#createapionlyusers)
+
+***
+
+### createAuthenticators()
+
+> **createAuthenticators**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:872](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L872)
+
+#### Parameters
+
+##### input
+
+[`TCreateAuthenticatorsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateAuthenticatorsBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createAuthenticators`](TurnkeyServerClient.mdx#createauthenticators)
+
+***
+
+### createInvitations()
+
+> **createInvitations**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:905](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L905)
+
+#### Parameters
+
+##### input
+
+[`TCreateInvitationsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateInvitationsBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createInvitations`](TurnkeyServerClient.mdx#createinvitations)
+
+***
+
+### createOauthProviders()
+
+> **createOauthProviders**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:938](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L938)
+
+#### Parameters
+
+##### input
+
+[`TCreateOauthProvidersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateOauthProvidersBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createOauthProviders`](TurnkeyServerClient.mdx#createoauthproviders)
+
+***
+
+### createPolicies()
+
+> **createPolicies**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:971](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L971)
+
+#### Parameters
+
+##### input
+
+[`TCreatePoliciesBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreatePoliciesBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createPolicies`](TurnkeyServerClient.mdx#createpolicies)
+
+***
+
+### createPolicy()
+
+> **createPolicy**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1004](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1004)
+
+#### Parameters
+
+##### input
+
+[`TCreatePolicyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreatePolicyBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createPolicy`](TurnkeyServerClient.mdx#createpolicy)
+
+***
+
+### createPrivateKeys()
+
+> **createPrivateKeys**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1069](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1069)
+
+#### Parameters
+
+##### input
+
+[`TCreatePrivateKeysBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreatePrivateKeysBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createPrivateKeys`](TurnkeyServerClient.mdx#createprivatekeys)
+
+***
+
+### createPrivateKeyTag()
+
+> **createPrivateKeyTag**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1036](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1036)
+
+#### Parameters
+
+##### input
+
+[`TCreatePrivateKeyTagBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreatePrivateKeyTagBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createPrivateKeyTag`](TurnkeyServerClient.mdx#createprivatekeytag)
+
+***
+
+### createReadOnlySession()
+
+> **createReadOnlySession**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1102](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1102)
+
+#### Parameters
+
+##### input
+
+[`TCreateReadOnlySessionBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateReadOnlySessionBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createReadOnlySession`](TurnkeyServerClient.mdx#createreadonlysession)
+
+***
+
+### createReadWriteSession()
+
+> **createReadWriteSession**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1135](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1135)
+
+#### Parameters
+
+##### input
+
+[`TCreateReadWriteSessionBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateReadWriteSessionBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createReadWriteSession`](TurnkeyServerClient.mdx#createreadwritesession)
+
+***
+
+### createSubOrganization()
+
+> **createSubOrganization**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1168](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1168)
+
+#### Parameters
+
+##### input
+
+[`TCreateSubOrganizationBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateSubOrganizationBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createSubOrganization`](TurnkeyServerClient.mdx#createsuborganization)
+
+***
+
+### createUsers()
+
+> **createUsers**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1234](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1234)
+
+#### Parameters
+
+##### input
+
+[`TCreateUsersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateUsersBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createUsers`](TurnkeyServerClient.mdx#createusers)
+
+***
+
+### createUserTag()
+
+> **createUserTag**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1201](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1201)
+
+#### Parameters
+
+##### input
+
+[`TCreateUserTagBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateUserTagBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createUserTag`](TurnkeyServerClient.mdx#createusertag)
+
+***
+
+### createWallet()
+
+> **createWallet**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1266](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1266)
+
+#### Parameters
+
+##### input
+
+[`TCreateWalletBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateWalletBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createWallet`](TurnkeyServerClient.mdx#createwallet)
+
+***
+
+### createWalletAccounts()
+
+> **createWalletAccounts**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1298](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1298)
+
+#### Parameters
+
+##### input
+
+[`TCreateWalletAccountsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateWalletAccountsBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`createWalletAccounts`](TurnkeyServerClient.mdx#createwalletaccounts)
+
+***
+
+### deleteApiKeys()
+
+> **deleteApiKeys**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1331](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1331)
+
+#### Parameters
+
+##### input
+
+[`TDeleteApiKeysBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteApiKeysBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`deleteApiKeys`](TurnkeyServerClient.mdx#deleteapikeys)
+
+***
+
+### deleteAuthenticators()
+
+> **deleteAuthenticators**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1364](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1364)
+
+#### Parameters
+
+##### input
+
+[`TDeleteAuthenticatorsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteAuthenticatorsBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`deleteAuthenticators`](TurnkeyServerClient.mdx#deleteauthenticators)
+
+***
+
+### deleteInvitation()
+
+> **deleteInvitation**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1397](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1397)
+
+#### Parameters
+
+##### input
+
+[`TDeleteInvitationBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteInvitationBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`deleteInvitation`](TurnkeyServerClient.mdx#deleteinvitation)
+
+***
+
+### deleteOauthProviders()
+
+> **deleteOauthProviders**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1430](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1430)
+
+#### Parameters
+
+##### input
+
+[`TDeleteOauthProvidersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteOauthProvidersBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`deleteOauthProviders`](TurnkeyServerClient.mdx#deleteoauthproviders)
+
+***
+
+### deletePolicy()
+
+> **deletePolicy**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1463](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1463)
+
+#### Parameters
+
+##### input
+
+[`TDeletePolicyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeletePolicyBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`deletePolicy`](TurnkeyServerClient.mdx#deletepolicy)
+
+***
+
+### deletePrivateKeys()
+
+> **deletePrivateKeys**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1528](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1528)
+
+#### Parameters
+
+##### input
+
+[`TDeletePrivateKeysBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeletePrivateKeysBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`deletePrivateKeys`](TurnkeyServerClient.mdx#deleteprivatekeys)
+
+***
+
+### deletePrivateKeyTags()
+
+> **deletePrivateKeyTags**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1495](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1495)
+
+#### Parameters
+
+##### input
+
+[`TDeletePrivateKeyTagsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeletePrivateKeyTagsBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`deletePrivateKeyTags`](TurnkeyServerClient.mdx#deleteprivatekeytags)
+
+***
+
+### deleteSubOrganization()
+
+> **deleteSubOrganization**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1561](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1561)
+
+#### Parameters
+
+##### input
+
+[`TDeleteSubOrganizationBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteSubOrganizationBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`deleteSubOrganization`](TurnkeyServerClient.mdx#deletesuborganization)
+
+***
+
+### deleteUsers()
+
+> **deleteUsers**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1627](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1627)
+
+#### Parameters
+
+##### input
+
+[`TDeleteUsersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteUsersBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`deleteUsers`](TurnkeyServerClient.mdx#deleteusers)
+
+***
+
+### deleteUserTags()
+
+> **deleteUserTags**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1594](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1594)
+
+#### Parameters
+
+##### input
+
+[`TDeleteUserTagsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteUserTagsBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`deleteUserTags`](TurnkeyServerClient.mdx#deleteusertags)
+
+***
+
+### deleteWallets()
+
+> **deleteWallets**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1659](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1659)
+
+#### Parameters
+
+##### input
+
+[`TDeleteWalletsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteWalletsBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`deleteWallets`](TurnkeyServerClient.mdx#deletewallets)
+
+***
+
+### emailAuth()
+
+> **emailAuth**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1691](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1691)
+
+#### Parameters
+
+##### input
+
+[`TEmailAuthBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TEmailAuthBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`emailAuth`](TurnkeyServerClient.mdx#emailauth)
+
+***
+
+### exportPrivateKey()
+
+> **exportPrivateKey**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1723](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1723)
+
+#### Parameters
+
+##### input
+
+[`TExportPrivateKeyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TExportPrivateKeyBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`exportPrivateKey`](TurnkeyServerClient.mdx#exportprivatekey)
+
+***
+
+### exportWallet()
+
+> **exportWallet**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1756](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1756)
+
+#### Parameters
+
+##### input
+
+[`TExportWalletBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TExportWalletBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`exportWallet`](TurnkeyServerClient.mdx#exportwallet)
+
+***
+
+### exportWalletAccount()
+
+> **exportWalletAccount**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1788](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1788)
+
+#### Parameters
+
+##### input
+
+[`TExportWalletAccountBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TExportWalletAccountBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`exportWalletAccount`](TurnkeyServerClient.mdx#exportwalletaccount)
+
+***
+
+### getActivities()
+
+> **getActivities**(`input`): `Promise`\<\{ `activities`: `object`[]; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:498](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L498)
+
+#### Parameters
+
+##### input
+
+[`TGetActivitiesBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetActivitiesBody.mdx) = `{}`
+
+#### Returns
+
+`Promise`\<\{ `activities`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getActivities`](TurnkeyServerClient.mdx#getactivities)
+
+***
+
+### getActivity()
+
+> **getActivity**(`input`): `Promise`\<\{ `activity`: \{ `canApprove`: `boolean`; `canReject`: `boolean`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `failure`: \{ `code`: `number`; `details`: `object` & `object`[]; `message`: `string`; \}; `fingerprint`: `string`; `id`: `string`; `intent`: \{ `acceptInvitationIntent`: \{ `authenticator`: \{ `attestation`: \{ `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientExtensionResults`: \{ `appid`: `boolean`; `appidExclude`: `boolean`; `credProps`: \{ `rk`: ...; \}; \}; `id`: `string`; `rawId`: `string`; `response`: \{ `attestationObject`: `string`; `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientDataJson`: `string`; `transports`: ...[]; \}; `type`: `"public-key"`; \}; `authenticatorName`: `string`; `challenge`: `string`; `userId`: `string`; \}; `invitationId`: `string`; `userId`: `string`; \}; `acceptInvitationIntentV2`: \{ `authenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; `invitationId`: `string`; `userId`: `string`; \}; `activateBillingTierIntent`: \{ `productId`: `string`; \}; `approveActivityIntent`: \{ `fingerprint`: `string`; \}; `createApiKeysIntent`: \{ `apiKeys`: `object`[]; `userId`: `string`; \}; `createApiKeysIntentV2`: \{ `apiKeys`: `object`[]; `userId`: `string`; \}; `createApiOnlyUsersIntent`: \{ `apiOnlyUsers`: `object`[]; \}; `createAuthenticatorsIntent`: \{ `authenticators`: `object`[]; `userId`: `string`; \}; `createAuthenticatorsIntentV2`: \{ `authenticators`: `object`[]; `userId`: `string`; \}; `createInvitationsIntent`: \{ `invitations`: `object`[]; \}; `createOauthProvidersIntent`: \{ `oauthProviders`: `object`[]; `userId`: `string`; \}; `createOrganizationIntent`: \{ `organizationName`: `string`; `rootAuthenticator`: \{ `attestation`: \{ `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientExtensionResults`: \{ `appid`: `boolean`; `appidExclude`: `boolean`; `credProps`: \{ `rk`: ...; \}; \}; `id`: `string`; `rawId`: `string`; `response`: \{ `attestationObject`: `string`; `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientDataJson`: `string`; `transports`: ...[]; \}; `type`: `"public-key"`; \}; `authenticatorName`: `string`; `challenge`: `string`; `userId`: `string`; \}; `rootEmail`: `string`; `rootUserId`: `string`; \}; `createOrganizationIntentV2`: \{ `organizationName`: `string`; `rootAuthenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; `rootEmail`: `string`; `rootUserId`: `string`; \}; `createPoliciesIntent`: \{ `policies`: `object`[]; \}; `createPolicyIntent`: \{ `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyName`: `string`; `selectors`: `object`[]; \}; `createPolicyIntentV2`: \{ `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyName`: `string`; `selectors`: `object`[]; \}; `createPolicyIntentV3`: \{ `condition`: `string`; `consensus`: `string`; `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyName`: `string`; \}; `createPrivateKeysIntent`: \{ `privateKeys`: `object`[]; \}; `createPrivateKeysIntentV2`: \{ `privateKeys`: `object`[]; \}; `createPrivateKeyTagIntent`: \{ `privateKeyIds`: `string`[]; `privateKeyTagName`: `string`; \}; `createReadOnlySessionIntent`: \{\}; `createReadWriteSessionIntent`: \{ `apiKeyName`: `string`; `email`: `string`; `expirationSeconds`: `string`; `targetPublicKey`: `string`; \}; `createReadWriteSessionIntentV2`: \{ `apiKeyName`: `string`; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `targetPublicKey`: `string`; `userId`: `string`; \}; `createSubOrganizationIntent`: \{ `name`: `string`; `rootAuthenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; \}; `createSubOrganizationIntentV2`: \{ `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; \}; `createSubOrganizationIntentV3`: \{ `privateKeys`: `object`[]; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; \}; `createSubOrganizationIntentV4`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createSubOrganizationIntentV5`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createSubOrganizationIntentV6`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createSubOrganizationIntentV7`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `disableOtpEmailAuth`: `boolean`; `disableSmsAuth`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createUsersIntent`: \{ `users`: `object`[]; \}; `createUsersIntentV2`: \{ `users`: `object`[]; \}; `createUserTagIntent`: \{ `userIds`: `string`[]; `userTagName`: `string`; \}; `createWalletAccountsIntent`: \{ `accounts`: `object`[]; `walletId`: `string`; \}; `createWalletIntent`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; `deleteApiKeysIntent`: \{ `apiKeyIds`: `string`[]; `userId`: `string`; \}; `deleteAuthenticatorsIntent`: \{ `authenticatorIds`: `string`[]; `userId`: `string`; \}; `deleteInvitationIntent`: \{ `invitationId`: `string`; \}; `deleteOauthProvidersIntent`: \{ `providerIds`: `string`[]; `userId`: `string`; \}; `deleteOrganizationIntent`: \{ `organizationId`: `string`; \}; `deletePaymentMethodIntent`: \{ `paymentMethodId`: `string`; \}; `deletePolicyIntent`: \{ `policyId`: `string`; \}; `deletePrivateKeysIntent`: \{ `deleteWithoutExport`: `boolean`; `privateKeyIds`: `string`[]; \}; `deletePrivateKeyTagsIntent`: \{ `privateKeyTagIds`: `string`[]; \}; `deleteSubOrganizationIntent`: \{ `deleteWithoutExport`: `boolean`; \}; `deleteUsersIntent`: \{ `userIds`: `string`[]; \}; `deleteUserTagsIntent`: \{ `userTagIds`: `string`[]; \}; `deleteWalletsIntent`: \{ `deleteWithoutExport`: `boolean`; `walletIds`: `string`[]; \}; `disablePrivateKeyIntent`: \{ `privateKeyId`: `string`; \}; `emailAuthIntent`: \{ `apiKeyName`: `string`; `email`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `sendFromEmailAddress`: `string`; `targetPublicKey`: `string`; \}; `emailAuthIntentV2`: \{ `apiKeyName`: `string`; `email`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `sendFromEmailAddress`: `string`; `targetPublicKey`: `string`; \}; `exportPrivateKeyIntent`: \{ `privateKeyId`: `string`; `targetPublicKey`: `string`; \}; `exportWalletAccountIntent`: \{ `address`: `string`; `targetPublicKey`: `string`; \}; `exportWalletIntent`: \{ `language`: `"MNEMONIC_LANGUAGE_ENGLISH"` \| `"MNEMONIC_LANGUAGE_SIMPLIFIED_CHINESE"` \| `"MNEMONIC_LANGUAGE_TRADITIONAL_CHINESE"` \| `"MNEMONIC_LANGUAGE_CZECH"` \| `"MNEMONIC_LANGUAGE_FRENCH"` \| `"MNEMONIC_LANGUAGE_ITALIAN"` \| `"MNEMONIC_LANGUAGE_JAPANESE"` \| `"MNEMONIC_LANGUAGE_KOREAN"` \| `"MNEMONIC_LANGUAGE_SPANISH"`; `targetPublicKey`: `string`; `walletId`: `string`; \}; `importPrivateKeyIntent`: \{ `addressFormats`: (`"ADDRESS_FORMAT_ETHEREUM"` \| `"ADDRESS_FORMAT_UNCOMPRESSED"` \| `"ADDRESS_FORMAT_COMPRESSED"` \| `"ADDRESS_FORMAT_SOLANA"` \| `"ADDRESS_FORMAT_COSMOS"` \| `"ADDRESS_FORMAT_TRON"` \| `"ADDRESS_FORMAT_SEI"` \| `"ADDRESS_FORMAT_XLM"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"` \| `"ADDRESS_FORMAT_DOGE_MAINNET"` \| `"ADDRESS_FORMAT_DOGE_TESTNET"` \| `"ADDRESS_FORMAT_SUI"` \| `"ADDRESS_FORMAT_APTOS"` \| `"ADDRESS_FORMAT_XRP"` \| `"ADDRESS_FORMAT_TON_V3R2"` \| `"ADDRESS_FORMAT_TON_V4R2"`)[]; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `encryptedBundle`: `string`; `privateKeyName`: `string`; `userId`: `string`; \}; `importWalletIntent`: \{ `accounts`: `object`[]; `encryptedBundle`: `string`; `userId`: `string`; `walletName`: `string`; \}; `initImportPrivateKeyIntent`: \{ `userId`: `string`; \}; `initImportWalletIntent`: \{ `userId`: `string`; \}; `initOtpAuthIntent`: \{ `contact`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `otpType`: `string`; `sendFromEmailAddress`: `string`; `smsCustomization`: \{ `template`: `string`; \}; `userIdentifier`: `string`; \}; `initUserEmailRecoveryIntent`: \{ `email`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `expirationSeconds`: `string`; `targetPublicKey`: `string`; \}; `oauthIntent`: \{ `apiKeyName`: `string`; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `oidcToken`: `string`; `targetPublicKey`: `string`; \}; `otpAuthIntent`: \{ `apiKeyName`: `string`; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `otpCode`: `string`; `otpId`: `string`; `targetPublicKey`: `string`; \}; `recoverUserIntent`: \{ `authenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; `userId`: `string`; \}; `rejectActivityIntent`: \{ `fingerprint`: `string`; \}; `removeOrganizationFeatureIntent`: \{ `name`: `"FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBAUTHN_ORIGINS"` \| `"FEATURE_NAME_EMAIL_AUTH"` \| `"FEATURE_NAME_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBHOOK"` \| `"FEATURE_NAME_SMS_AUTH"` \| `"FEATURE_NAME_OTP_EMAIL_AUTH"`; \}; `setOrganizationFeatureIntent`: \{ `name`: `"FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBAUTHN_ORIGINS"` \| `"FEATURE_NAME_EMAIL_AUTH"` \| `"FEATURE_NAME_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBHOOK"` \| `"FEATURE_NAME_SMS_AUTH"` \| `"FEATURE_NAME_OTP_EMAIL_AUTH"`; `value`: `string`; \}; `setPaymentMethodIntent`: \{ `cardHolderEmail`: `string`; `cardHolderName`: `string`; `cvv`: `string`; `expiryMonth`: `string`; `expiryYear`: `string`; `number`: `string`; \}; `setPaymentMethodIntentV2`: \{ `cardHolderEmail`: `string`; `cardHolderName`: `string`; `paymentMethodId`: `string`; \}; `signRawPayloadIntent`: \{ `encoding`: `"PAYLOAD_ENCODING_HEXADECIMAL"` \| `"PAYLOAD_ENCODING_TEXT_UTF8"`; `hashFunction`: `"HASH_FUNCTION_NO_OP"` \| `"HASH_FUNCTION_SHA256"` \| `"HASH_FUNCTION_KECCAK256"` \| `"HASH_FUNCTION_NOT_APPLICABLE"`; `payload`: `string`; `privateKeyId`: `string`; \}; `signRawPayloadIntentV2`: \{ `encoding`: `"PAYLOAD_ENCODING_HEXADECIMAL"` \| `"PAYLOAD_ENCODING_TEXT_UTF8"`; `hashFunction`: `"HASH_FUNCTION_NO_OP"` \| `"HASH_FUNCTION_SHA256"` \| `"HASH_FUNCTION_KECCAK256"` \| `"HASH_FUNCTION_NOT_APPLICABLE"`; `payload`: `string`; `signWith`: `string`; \}; `signRawPayloadsIntent`: \{ `encoding`: `"PAYLOAD_ENCODING_HEXADECIMAL"` \| `"PAYLOAD_ENCODING_TEXT_UTF8"`; `hashFunction`: `"HASH_FUNCTION_NO_OP"` \| `"HASH_FUNCTION_SHA256"` \| `"HASH_FUNCTION_KECCAK256"` \| `"HASH_FUNCTION_NOT_APPLICABLE"`; `payloads`: `string`[]; `signWith`: `string`; \}; `signTransactionIntent`: \{ `privateKeyId`: `string`; `type`: `"TRANSACTION_TYPE_ETHEREUM"` \| `"TRANSACTION_TYPE_SOLANA"`; `unsignedTransaction`: `string`; \}; `signTransactionIntentV2`: \{ `signWith`: `string`; `type`: `"TRANSACTION_TYPE_ETHEREUM"` \| `"TRANSACTION_TYPE_SOLANA"`; `unsignedTransaction`: `string`; \}; `updateAllowedOriginsIntent`: \{ `allowedOrigins`: `string`[]; \}; `updatePolicyIntent`: \{ `policyCondition`: `string`; `policyConsensus`: `string`; `policyEffect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `policyId`: `string`; `policyName`: `string`; `policyNotes`: `string`; \}; `updatePrivateKeyTagIntent`: \{ `addPrivateKeyIds`: `string`[]; `newPrivateKeyTagName`: `string`; `privateKeyTagId`: `string`; `removePrivateKeyIds`: `string`[]; \}; `updateRootQuorumIntent`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; `updateUserIntent`: \{ `userEmail`: `string`; `userId`: `string`; `userName`: `string`; `userPhoneNumber`: `string`; `userTagIds`: `string`[]; \}; `updateUserTagIntent`: \{ `addUserIds`: `string`[]; `newUserTagName`: `string`; `removeUserIds`: `string`[]; `userTagId`: `string`; \}; `updateWalletIntent`: \{ `walletId`: `string`; `walletName`: `string`; \}; \}; `organizationId`: `string`; `result`: \{ `acceptInvitationResult`: \{ `invitationId`: `string`; `userId`: `string`; \}; `activateBillingTierResult`: \{ `productId`: `string`; \}; `createApiKeysResult`: \{ `apiKeyIds`: `string`[]; \}; `createApiOnlyUsersResult`: \{ `userIds`: `string`[]; \}; `createAuthenticatorsResult`: \{ `authenticatorIds`: `string`[]; \}; `createInvitationsResult`: \{ `invitationIds`: `string`[]; \}; `createOauthProvidersResult`: \{ `providerIds`: `string`[]; \}; `createOrganizationResult`: \{ `organizationId`: `string`; \}; `createPoliciesResult`: \{ `policyIds`: `string`[]; \}; `createPolicyResult`: \{ `policyId`: `string`; \}; `createPrivateKeysResult`: \{ `privateKeyIds`: `string`[]; \}; `createPrivateKeysResultV2`: \{ `privateKeys`: `object`[]; \}; `createPrivateKeyTagResult`: \{ `privateKeyIds`: `string`[]; `privateKeyTagId`: `string`; \}; `createReadOnlySessionResult`: \{ `organizationId`: `string`; `organizationName`: `string`; `session`: `string`; `sessionExpiry`: `string`; `userId`: `string`; `username`: `string`; \}; `createReadWriteSessionResult`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}; `createReadWriteSessionResultV2`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}; `createSubOrganizationResult`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; \}; `createSubOrganizationResultV3`: \{ `privateKeys`: `object`[]; `rootUserIds`: `string`[]; `subOrganizationId`: `string`; \}; `createSubOrganizationResultV4`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createSubOrganizationResultV5`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createSubOrganizationResultV6`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createSubOrganizationResultV7`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createUsersResult`: \{ `userIds`: `string`[]; \}; `createUserTagResult`: \{ `userIds`: `string`[]; `userTagId`: `string`; \}; `createWalletAccountsResult`: \{ `addresses`: `string`[]; \}; `createWalletResult`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; `deleteApiKeysResult`: \{ `apiKeyIds`: `string`[]; \}; `deleteAuthenticatorsResult`: \{ `authenticatorIds`: `string`[]; \}; `deleteInvitationResult`: \{ `invitationId`: `string`; \}; `deleteOauthProvidersResult`: \{ `providerIds`: `string`[]; \}; `deleteOrganizationResult`: \{ `organizationId`: `string`; \}; `deletePaymentMethodResult`: \{ `paymentMethodId`: `string`; \}; `deletePolicyResult`: \{ `policyId`: `string`; \}; `deletePrivateKeysResult`: \{ `privateKeyIds`: `string`[]; \}; `deletePrivateKeyTagsResult`: \{ `privateKeyIds`: `string`[]; `privateKeyTagIds`: `string`[]; \}; `deleteSubOrganizationResult`: \{ `subOrganizationUuid`: `string`; \}; `deleteUsersResult`: \{ `userIds`: `string`[]; \}; `deleteUserTagsResult`: \{ `userIds`: `string`[]; `userTagIds`: `string`[]; \}; `deleteWalletsResult`: \{ `walletIds`: `string`[]; \}; `disablePrivateKeyResult`: \{ `privateKeyId`: `string`; \}; `emailAuthResult`: \{ `apiKeyId`: `string`; `userId`: `string`; \}; `exportPrivateKeyResult`: \{ `exportBundle`: `string`; `privateKeyId`: `string`; \}; `exportWalletAccountResult`: \{ `address`: `string`; `exportBundle`: `string`; \}; `exportWalletResult`: \{ `exportBundle`: `string`; `walletId`: `string`; \}; `importPrivateKeyResult`: \{ `addresses`: `object`[]; `privateKeyId`: `string`; \}; `importWalletResult`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; `initImportPrivateKeyResult`: \{ `importBundle`: `string`; \}; `initImportWalletResult`: \{ `importBundle`: `string`; \}; `initOtpAuthResult`: \{ `otpId`: `string`; \}; `initUserEmailRecoveryResult`: \{ `userId`: `string`; \}; `oauthResult`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `userId`: `string`; \}; `otpAuthResult`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `userId`: `string`; \}; `recoverUserResult`: \{ `authenticatorId`: `string`[]; \}; `removeOrganizationFeatureResult`: \{ `features`: `object`[]; \}; `setOrganizationFeatureResult`: \{ `features`: `object`[]; \}; `setPaymentMethodResult`: \{ `cardHolderEmail`: `string`; `cardHolderName`: `string`; `lastFour`: `string`; \}; `signRawPayloadResult`: \{ `r`: `string`; `s`: `string`; `v`: `string`; \}; `signRawPayloadsResult`: \{ `signatures`: `object`[]; \}; `signTransactionResult`: \{ `signedTransaction`: `string`; \}; `updateAllowedOriginsResult`: \{\}; `updatePolicyResult`: \{ `policyId`: `string`; \}; `updatePrivateKeyTagResult`: \{ `privateKeyTagId`: `string`; \}; `updateRootQuorumResult`: \{\}; `updateUserResult`: \{ `userId`: `string`; \}; `updateUserTagResult`: \{ `userTagId`: `string`; \}; `updateWalletResult`: \{ `walletId`: `string`; \}; \}; `status`: `"ACTIVITY_STATUS_CREATED"` \| `"ACTIVITY_STATUS_PENDING"` \| `"ACTIVITY_STATUS_COMPLETED"` \| `"ACTIVITY_STATUS_FAILED"` \| `"ACTIVITY_STATUS_CONSENSUS_NEEDED"` \| `"ACTIVITY_STATUS_REJECTED"`; `type`: `"ACTIVITY_TYPE_CREATE_API_KEYS"` \| `"ACTIVITY_TYPE_CREATE_USERS"` \| `"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"` \| `"ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"` \| `"ACTIVITY_TYPE_CREATE_INVITATIONS"` \| `"ACTIVITY_TYPE_ACCEPT_INVITATION"` \| `"ACTIVITY_TYPE_CREATE_POLICY"` \| `"ACTIVITY_TYPE_DISABLE_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_DELETE_USERS"` \| `"ACTIVITY_TYPE_DELETE_API_KEYS"` \| `"ACTIVITY_TYPE_DELETE_INVITATION"` \| `"ACTIVITY_TYPE_DELETE_ORGANIZATION"` \| `"ACTIVITY_TYPE_DELETE_POLICY"` \| `"ACTIVITY_TYPE_CREATE_USER_TAG"` \| `"ACTIVITY_TYPE_DELETE_USER_TAGS"` \| `"ACTIVITY_TYPE_CREATE_ORGANIZATION"` \| `"ACTIVITY_TYPE_SIGN_TRANSACTION"` \| `"ACTIVITY_TYPE_APPROVE_ACTIVITY"` \| `"ACTIVITY_TYPE_REJECT_ACTIVITY"` \| `"ACTIVITY_TYPE_DELETE_AUTHENTICATORS"` \| `"ACTIVITY_TYPE_CREATE_AUTHENTICATORS"` \| `"ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"` \| `"ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"` \| `"ACTIVITY_TYPE_SET_PAYMENT_METHOD"` \| `"ACTIVITY_TYPE_ACTIVATE_BILLING_TIER"` \| `"ACTIVITY_TYPE_DELETE_PAYMENT_METHOD"` \| `"ACTIVITY_TYPE_CREATE_POLICY_V2"` \| `"ACTIVITY_TYPE_CREATE_POLICY_V3"` \| `"ACTIVITY_TYPE_CREATE_API_ONLY_USERS"` \| `"ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"` \| `"ACTIVITY_TYPE_UPDATE_USER_TAG"` \| `"ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"` \| `"ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"` \| `"ACTIVITY_TYPE_CREATE_ORGANIZATION_V2"` \| `"ACTIVITY_TYPE_CREATE_USERS_V2"` \| `"ACTIVITY_TYPE_ACCEPT_INVITATION_V2"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2"` \| `"ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS"` \| `"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"` \| `"ACTIVITY_TYPE_UPDATE_USER"` \| `"ACTIVITY_TYPE_UPDATE_POLICY"` \| `"ACTIVITY_TYPE_SET_PAYMENT_METHOD_V2"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3"` \| `"ACTIVITY_TYPE_CREATE_WALLET"` \| `"ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"` \| `"ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY"` \| `"ACTIVITY_TYPE_RECOVER_USER"` \| `"ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"` \| `"ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"` \| `"ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"` \| `"ACTIVITY_TYPE_SIGN_TRANSACTION_V2"` \| `"ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_EXPORT_WALLET"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4"` \| `"ACTIVITY_TYPE_EMAIL_AUTH"` \| `"ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"` \| `"ACTIVITY_TYPE_INIT_IMPORT_WALLET"` \| `"ACTIVITY_TYPE_IMPORT_WALLET"` \| `"ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_CREATE_POLICIES"` \| `"ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"` \| `"ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"` \| `"ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS"` \| `"ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5"` \| `"ACTIVITY_TYPE_OAUTH"` \| `"ACTIVITY_TYPE_CREATE_API_KEYS_V2"` \| `"ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION"` \| `"ACTIVITY_TYPE_EMAIL_AUTH_V2"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6"` \| `"ACTIVITY_TYPE_DELETE_PRIVATE_KEYS"` \| `"ACTIVITY_TYPE_DELETE_WALLETS"` \| `"ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2"` \| `"ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION"` \| `"ACTIVITY_TYPE_INIT_OTP_AUTH"` \| `"ACTIVITY_TYPE_OTP_AUTH"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"` \| `"ACTIVITY_TYPE_UPDATE_WALLET"`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `votes`: `object`[]; \}; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:142](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L142)
+
+#### Parameters
+
+##### input
+
+[`TGetActivityBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetActivityBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `activity`: \{ `canApprove`: `boolean`; `canReject`: `boolean`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `failure`: \{ `code`: `number`; `details`: `object` & `object`[]; `message`: `string`; \}; `fingerprint`: `string`; `id`: `string`; `intent`: \{ `acceptInvitationIntent`: \{ `authenticator`: \{ `attestation`: \{ `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientExtensionResults`: \{ `appid`: `boolean`; `appidExclude`: `boolean`; `credProps`: \{ `rk`: ...; \}; \}; `id`: `string`; `rawId`: `string`; `response`: \{ `attestationObject`: `string`; `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientDataJson`: `string`; `transports`: ...[]; \}; `type`: `"public-key"`; \}; `authenticatorName`: `string`; `challenge`: `string`; `userId`: `string`; \}; `invitationId`: `string`; `userId`: `string`; \}; `acceptInvitationIntentV2`: \{ `authenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; `invitationId`: `string`; `userId`: `string`; \}; `activateBillingTierIntent`: \{ `productId`: `string`; \}; `approveActivityIntent`: \{ `fingerprint`: `string`; \}; `createApiKeysIntent`: \{ `apiKeys`: `object`[]; `userId`: `string`; \}; `createApiKeysIntentV2`: \{ `apiKeys`: `object`[]; `userId`: `string`; \}; `createApiOnlyUsersIntent`: \{ `apiOnlyUsers`: `object`[]; \}; `createAuthenticatorsIntent`: \{ `authenticators`: `object`[]; `userId`: `string`; \}; `createAuthenticatorsIntentV2`: \{ `authenticators`: `object`[]; `userId`: `string`; \}; `createInvitationsIntent`: \{ `invitations`: `object`[]; \}; `createOauthProvidersIntent`: \{ `oauthProviders`: `object`[]; `userId`: `string`; \}; `createOrganizationIntent`: \{ `organizationName`: `string`; `rootAuthenticator`: \{ `attestation`: \{ `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientExtensionResults`: \{ `appid`: `boolean`; `appidExclude`: `boolean`; `credProps`: \{ `rk`: ...; \}; \}; `id`: `string`; `rawId`: `string`; `response`: \{ `attestationObject`: `string`; `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientDataJson`: `string`; `transports`: ...[]; \}; `type`: `"public-key"`; \}; `authenticatorName`: `string`; `challenge`: `string`; `userId`: `string`; \}; `rootEmail`: `string`; `rootUserId`: `string`; \}; `createOrganizationIntentV2`: \{ `organizationName`: `string`; `rootAuthenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; `rootEmail`: `string`; `rootUserId`: `string`; \}; `createPoliciesIntent`: \{ `policies`: `object`[]; \}; `createPolicyIntent`: \{ `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyName`: `string`; `selectors`: `object`[]; \}; `createPolicyIntentV2`: \{ `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyName`: `string`; `selectors`: `object`[]; \}; `createPolicyIntentV3`: \{ `condition`: `string`; `consensus`: `string`; `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyName`: `string`; \}; `createPrivateKeysIntent`: \{ `privateKeys`: `object`[]; \}; `createPrivateKeysIntentV2`: \{ `privateKeys`: `object`[]; \}; `createPrivateKeyTagIntent`: \{ `privateKeyIds`: `string`[]; `privateKeyTagName`: `string`; \}; `createReadOnlySessionIntent`: \{\}; `createReadWriteSessionIntent`: \{ `apiKeyName`: `string`; `email`: `string`; `expirationSeconds`: `string`; `targetPublicKey`: `string`; \}; `createReadWriteSessionIntentV2`: \{ `apiKeyName`: `string`; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `targetPublicKey`: `string`; `userId`: `string`; \}; `createSubOrganizationIntent`: \{ `name`: `string`; `rootAuthenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; \}; `createSubOrganizationIntentV2`: \{ `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; \}; `createSubOrganizationIntentV3`: \{ `privateKeys`: `object`[]; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; \}; `createSubOrganizationIntentV4`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createSubOrganizationIntentV5`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createSubOrganizationIntentV6`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createSubOrganizationIntentV7`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `disableOtpEmailAuth`: `boolean`; `disableSmsAuth`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createUsersIntent`: \{ `users`: `object`[]; \}; `createUsersIntentV2`: \{ `users`: `object`[]; \}; `createUserTagIntent`: \{ `userIds`: `string`[]; `userTagName`: `string`; \}; `createWalletAccountsIntent`: \{ `accounts`: `object`[]; `walletId`: `string`; \}; `createWalletIntent`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; `deleteApiKeysIntent`: \{ `apiKeyIds`: `string`[]; `userId`: `string`; \}; `deleteAuthenticatorsIntent`: \{ `authenticatorIds`: `string`[]; `userId`: `string`; \}; `deleteInvitationIntent`: \{ `invitationId`: `string`; \}; `deleteOauthProvidersIntent`: \{ `providerIds`: `string`[]; `userId`: `string`; \}; `deleteOrganizationIntent`: \{ `organizationId`: `string`; \}; `deletePaymentMethodIntent`: \{ `paymentMethodId`: `string`; \}; `deletePolicyIntent`: \{ `policyId`: `string`; \}; `deletePrivateKeysIntent`: \{ `deleteWithoutExport`: `boolean`; `privateKeyIds`: `string`[]; \}; `deletePrivateKeyTagsIntent`: \{ `privateKeyTagIds`: `string`[]; \}; `deleteSubOrganizationIntent`: \{ `deleteWithoutExport`: `boolean`; \}; `deleteUsersIntent`: \{ `userIds`: `string`[]; \}; `deleteUserTagsIntent`: \{ `userTagIds`: `string`[]; \}; `deleteWalletsIntent`: \{ `deleteWithoutExport`: `boolean`; `walletIds`: `string`[]; \}; `disablePrivateKeyIntent`: \{ `privateKeyId`: `string`; \}; `emailAuthIntent`: \{ `apiKeyName`: `string`; `email`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `sendFromEmailAddress`: `string`; `targetPublicKey`: `string`; \}; `emailAuthIntentV2`: \{ `apiKeyName`: `string`; `email`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `sendFromEmailAddress`: `string`; `targetPublicKey`: `string`; \}; `exportPrivateKeyIntent`: \{ `privateKeyId`: `string`; `targetPublicKey`: `string`; \}; `exportWalletAccountIntent`: \{ `address`: `string`; `targetPublicKey`: `string`; \}; `exportWalletIntent`: \{ `language`: `"MNEMONIC_LANGUAGE_ENGLISH"` \| `"MNEMONIC_LANGUAGE_SIMPLIFIED_CHINESE"` \| `"MNEMONIC_LANGUAGE_TRADITIONAL_CHINESE"` \| `"MNEMONIC_LANGUAGE_CZECH"` \| `"MNEMONIC_LANGUAGE_FRENCH"` \| `"MNEMONIC_LANGUAGE_ITALIAN"` \| `"MNEMONIC_LANGUAGE_JAPANESE"` \| `"MNEMONIC_LANGUAGE_KOREAN"` \| `"MNEMONIC_LANGUAGE_SPANISH"`; `targetPublicKey`: `string`; `walletId`: `string`; \}; `importPrivateKeyIntent`: \{ `addressFormats`: (`"ADDRESS_FORMAT_ETHEREUM"` \| `"ADDRESS_FORMAT_UNCOMPRESSED"` \| `"ADDRESS_FORMAT_COMPRESSED"` \| `"ADDRESS_FORMAT_SOLANA"` \| `"ADDRESS_FORMAT_COSMOS"` \| `"ADDRESS_FORMAT_TRON"` \| `"ADDRESS_FORMAT_SEI"` \| `"ADDRESS_FORMAT_XLM"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"` \| `"ADDRESS_FORMAT_DOGE_MAINNET"` \| `"ADDRESS_FORMAT_DOGE_TESTNET"` \| `"ADDRESS_FORMAT_SUI"` \| `"ADDRESS_FORMAT_APTOS"` \| `"ADDRESS_FORMAT_XRP"` \| `"ADDRESS_FORMAT_TON_V3R2"` \| `"ADDRESS_FORMAT_TON_V4R2"`)[]; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `encryptedBundle`: `string`; `privateKeyName`: `string`; `userId`: `string`; \}; `importWalletIntent`: \{ `accounts`: `object`[]; `encryptedBundle`: `string`; `userId`: `string`; `walletName`: `string`; \}; `initImportPrivateKeyIntent`: \{ `userId`: `string`; \}; `initImportWalletIntent`: \{ `userId`: `string`; \}; `initOtpAuthIntent`: \{ `contact`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `otpType`: `string`; `sendFromEmailAddress`: `string`; `smsCustomization`: \{ `template`: `string`; \}; `userIdentifier`: `string`; \}; `initUserEmailRecoveryIntent`: \{ `email`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `expirationSeconds`: `string`; `targetPublicKey`: `string`; \}; `oauthIntent`: \{ `apiKeyName`: `string`; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `oidcToken`: `string`; `targetPublicKey`: `string`; \}; `otpAuthIntent`: \{ `apiKeyName`: `string`; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `otpCode`: `string`; `otpId`: `string`; `targetPublicKey`: `string`; \}; `recoverUserIntent`: \{ `authenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; `userId`: `string`; \}; `rejectActivityIntent`: \{ `fingerprint`: `string`; \}; `removeOrganizationFeatureIntent`: \{ `name`: `"FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBAUTHN_ORIGINS"` \| `"FEATURE_NAME_EMAIL_AUTH"` \| `"FEATURE_NAME_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBHOOK"` \| `"FEATURE_NAME_SMS_AUTH"` \| `"FEATURE_NAME_OTP_EMAIL_AUTH"`; \}; `setOrganizationFeatureIntent`: \{ `name`: `"FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBAUTHN_ORIGINS"` \| `"FEATURE_NAME_EMAIL_AUTH"` \| `"FEATURE_NAME_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBHOOK"` \| `"FEATURE_NAME_SMS_AUTH"` \| `"FEATURE_NAME_OTP_EMAIL_AUTH"`; `value`: `string`; \}; `setPaymentMethodIntent`: \{ `cardHolderEmail`: `string`; `cardHolderName`: `string`; `cvv`: `string`; `expiryMonth`: `string`; `expiryYear`: `string`; `number`: `string`; \}; `setPaymentMethodIntentV2`: \{ `cardHolderEmail`: `string`; `cardHolderName`: `string`; `paymentMethodId`: `string`; \}; `signRawPayloadIntent`: \{ `encoding`: `"PAYLOAD_ENCODING_HEXADECIMAL"` \| `"PAYLOAD_ENCODING_TEXT_UTF8"`; `hashFunction`: `"HASH_FUNCTION_NO_OP"` \| `"HASH_FUNCTION_SHA256"` \| `"HASH_FUNCTION_KECCAK256"` \| `"HASH_FUNCTION_NOT_APPLICABLE"`; `payload`: `string`; `privateKeyId`: `string`; \}; `signRawPayloadIntentV2`: \{ `encoding`: `"PAYLOAD_ENCODING_HEXADECIMAL"` \| `"PAYLOAD_ENCODING_TEXT_UTF8"`; `hashFunction`: `"HASH_FUNCTION_NO_OP"` \| `"HASH_FUNCTION_SHA256"` \| `"HASH_FUNCTION_KECCAK256"` \| `"HASH_FUNCTION_NOT_APPLICABLE"`; `payload`: `string`; `signWith`: `string`; \}; `signRawPayloadsIntent`: \{ `encoding`: `"PAYLOAD_ENCODING_HEXADECIMAL"` \| `"PAYLOAD_ENCODING_TEXT_UTF8"`; `hashFunction`: `"HASH_FUNCTION_NO_OP"` \| `"HASH_FUNCTION_SHA256"` \| `"HASH_FUNCTION_KECCAK256"` \| `"HASH_FUNCTION_NOT_APPLICABLE"`; `payloads`: `string`[]; `signWith`: `string`; \}; `signTransactionIntent`: \{ `privateKeyId`: `string`; `type`: `"TRANSACTION_TYPE_ETHEREUM"` \| `"TRANSACTION_TYPE_SOLANA"`; `unsignedTransaction`: `string`; \}; `signTransactionIntentV2`: \{ `signWith`: `string`; `type`: `"TRANSACTION_TYPE_ETHEREUM"` \| `"TRANSACTION_TYPE_SOLANA"`; `unsignedTransaction`: `string`; \}; `updateAllowedOriginsIntent`: \{ `allowedOrigins`: `string`[]; \}; `updatePolicyIntent`: \{ `policyCondition`: `string`; `policyConsensus`: `string`; `policyEffect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `policyId`: `string`; `policyName`: `string`; `policyNotes`: `string`; \}; `updatePrivateKeyTagIntent`: \{ `addPrivateKeyIds`: `string`[]; `newPrivateKeyTagName`: `string`; `privateKeyTagId`: `string`; `removePrivateKeyIds`: `string`[]; \}; `updateRootQuorumIntent`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; `updateUserIntent`: \{ `userEmail`: `string`; `userId`: `string`; `userName`: `string`; `userPhoneNumber`: `string`; `userTagIds`: `string`[]; \}; `updateUserTagIntent`: \{ `addUserIds`: `string`[]; `newUserTagName`: `string`; `removeUserIds`: `string`[]; `userTagId`: `string`; \}; `updateWalletIntent`: \{ `walletId`: `string`; `walletName`: `string`; \}; \}; `organizationId`: `string`; `result`: \{ `acceptInvitationResult`: \{ `invitationId`: `string`; `userId`: `string`; \}; `activateBillingTierResult`: \{ `productId`: `string`; \}; `createApiKeysResult`: \{ `apiKeyIds`: `string`[]; \}; `createApiOnlyUsersResult`: \{ `userIds`: `string`[]; \}; `createAuthenticatorsResult`: \{ `authenticatorIds`: `string`[]; \}; `createInvitationsResult`: \{ `invitationIds`: `string`[]; \}; `createOauthProvidersResult`: \{ `providerIds`: `string`[]; \}; `createOrganizationResult`: \{ `organizationId`: `string`; \}; `createPoliciesResult`: \{ `policyIds`: `string`[]; \}; `createPolicyResult`: \{ `policyId`: `string`; \}; `createPrivateKeysResult`: \{ `privateKeyIds`: `string`[]; \}; `createPrivateKeysResultV2`: \{ `privateKeys`: `object`[]; \}; `createPrivateKeyTagResult`: \{ `privateKeyIds`: `string`[]; `privateKeyTagId`: `string`; \}; `createReadOnlySessionResult`: \{ `organizationId`: `string`; `organizationName`: `string`; `session`: `string`; `sessionExpiry`: `string`; `userId`: `string`; `username`: `string`; \}; `createReadWriteSessionResult`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}; `createReadWriteSessionResultV2`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}; `createSubOrganizationResult`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; \}; `createSubOrganizationResultV3`: \{ `privateKeys`: `object`[]; `rootUserIds`: `string`[]; `subOrganizationId`: `string`; \}; `createSubOrganizationResultV4`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createSubOrganizationResultV5`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createSubOrganizationResultV6`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createSubOrganizationResultV7`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createUsersResult`: \{ `userIds`: `string`[]; \}; `createUserTagResult`: \{ `userIds`: `string`[]; `userTagId`: `string`; \}; `createWalletAccountsResult`: \{ `addresses`: `string`[]; \}; `createWalletResult`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; `deleteApiKeysResult`: \{ `apiKeyIds`: `string`[]; \}; `deleteAuthenticatorsResult`: \{ `authenticatorIds`: `string`[]; \}; `deleteInvitationResult`: \{ `invitationId`: `string`; \}; `deleteOauthProvidersResult`: \{ `providerIds`: `string`[]; \}; `deleteOrganizationResult`: \{ `organizationId`: `string`; \}; `deletePaymentMethodResult`: \{ `paymentMethodId`: `string`; \}; `deletePolicyResult`: \{ `policyId`: `string`; \}; `deletePrivateKeysResult`: \{ `privateKeyIds`: `string`[]; \}; `deletePrivateKeyTagsResult`: \{ `privateKeyIds`: `string`[]; `privateKeyTagIds`: `string`[]; \}; `deleteSubOrganizationResult`: \{ `subOrganizationUuid`: `string`; \}; `deleteUsersResult`: \{ `userIds`: `string`[]; \}; `deleteUserTagsResult`: \{ `userIds`: `string`[]; `userTagIds`: `string`[]; \}; `deleteWalletsResult`: \{ `walletIds`: `string`[]; \}; `disablePrivateKeyResult`: \{ `privateKeyId`: `string`; \}; `emailAuthResult`: \{ `apiKeyId`: `string`; `userId`: `string`; \}; `exportPrivateKeyResult`: \{ `exportBundle`: `string`; `privateKeyId`: `string`; \}; `exportWalletAccountResult`: \{ `address`: `string`; `exportBundle`: `string`; \}; `exportWalletResult`: \{ `exportBundle`: `string`; `walletId`: `string`; \}; `importPrivateKeyResult`: \{ `addresses`: `object`[]; `privateKeyId`: `string`; \}; `importWalletResult`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; `initImportPrivateKeyResult`: \{ `importBundle`: `string`; \}; `initImportWalletResult`: \{ `importBundle`: `string`; \}; `initOtpAuthResult`: \{ `otpId`: `string`; \}; `initUserEmailRecoveryResult`: \{ `userId`: `string`; \}; `oauthResult`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `userId`: `string`; \}; `otpAuthResult`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `userId`: `string`; \}; `recoverUserResult`: \{ `authenticatorId`: `string`[]; \}; `removeOrganizationFeatureResult`: \{ `features`: `object`[]; \}; `setOrganizationFeatureResult`: \{ `features`: `object`[]; \}; `setPaymentMethodResult`: \{ `cardHolderEmail`: `string`; `cardHolderName`: `string`; `lastFour`: `string`; \}; `signRawPayloadResult`: \{ `r`: `string`; `s`: `string`; `v`: `string`; \}; `signRawPayloadsResult`: \{ `signatures`: `object`[]; \}; `signTransactionResult`: \{ `signedTransaction`: `string`; \}; `updateAllowedOriginsResult`: \{\}; `updatePolicyResult`: \{ `policyId`: `string`; \}; `updatePrivateKeyTagResult`: \{ `privateKeyTagId`: `string`; \}; `updateRootQuorumResult`: \{\}; `updateUserResult`: \{ `userId`: `string`; \}; `updateUserTagResult`: \{ `userTagId`: `string`; \}; `updateWalletResult`: \{ `walletId`: `string`; \}; \}; `status`: `"ACTIVITY_STATUS_CREATED"` \| `"ACTIVITY_STATUS_PENDING"` \| `"ACTIVITY_STATUS_COMPLETED"` \| `"ACTIVITY_STATUS_FAILED"` \| `"ACTIVITY_STATUS_CONSENSUS_NEEDED"` \| `"ACTIVITY_STATUS_REJECTED"`; `type`: `"ACTIVITY_TYPE_CREATE_API_KEYS"` \| `"ACTIVITY_TYPE_CREATE_USERS"` \| `"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"` \| `"ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"` \| `"ACTIVITY_TYPE_CREATE_INVITATIONS"` \| `"ACTIVITY_TYPE_ACCEPT_INVITATION"` \| `"ACTIVITY_TYPE_CREATE_POLICY"` \| `"ACTIVITY_TYPE_DISABLE_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_DELETE_USERS"` \| `"ACTIVITY_TYPE_DELETE_API_KEYS"` \| `"ACTIVITY_TYPE_DELETE_INVITATION"` \| `"ACTIVITY_TYPE_DELETE_ORGANIZATION"` \| `"ACTIVITY_TYPE_DELETE_POLICY"` \| `"ACTIVITY_TYPE_CREATE_USER_TAG"` \| `"ACTIVITY_TYPE_DELETE_USER_TAGS"` \| `"ACTIVITY_TYPE_CREATE_ORGANIZATION"` \| `"ACTIVITY_TYPE_SIGN_TRANSACTION"` \| `"ACTIVITY_TYPE_APPROVE_ACTIVITY"` \| `"ACTIVITY_TYPE_REJECT_ACTIVITY"` \| `"ACTIVITY_TYPE_DELETE_AUTHENTICATORS"` \| `"ACTIVITY_TYPE_CREATE_AUTHENTICATORS"` \| `"ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"` \| `"ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"` \| `"ACTIVITY_TYPE_SET_PAYMENT_METHOD"` \| `"ACTIVITY_TYPE_ACTIVATE_BILLING_TIER"` \| `"ACTIVITY_TYPE_DELETE_PAYMENT_METHOD"` \| `"ACTIVITY_TYPE_CREATE_POLICY_V2"` \| `"ACTIVITY_TYPE_CREATE_POLICY_V3"` \| `"ACTIVITY_TYPE_CREATE_API_ONLY_USERS"` \| `"ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"` \| `"ACTIVITY_TYPE_UPDATE_USER_TAG"` \| `"ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"` \| `"ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"` \| `"ACTIVITY_TYPE_CREATE_ORGANIZATION_V2"` \| `"ACTIVITY_TYPE_CREATE_USERS_V2"` \| `"ACTIVITY_TYPE_ACCEPT_INVITATION_V2"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2"` \| `"ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS"` \| `"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"` \| `"ACTIVITY_TYPE_UPDATE_USER"` \| `"ACTIVITY_TYPE_UPDATE_POLICY"` \| `"ACTIVITY_TYPE_SET_PAYMENT_METHOD_V2"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3"` \| `"ACTIVITY_TYPE_CREATE_WALLET"` \| `"ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"` \| `"ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY"` \| `"ACTIVITY_TYPE_RECOVER_USER"` \| `"ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"` \| `"ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"` \| `"ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"` \| `"ACTIVITY_TYPE_SIGN_TRANSACTION_V2"` \| `"ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_EXPORT_WALLET"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4"` \| `"ACTIVITY_TYPE_EMAIL_AUTH"` \| `"ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"` \| `"ACTIVITY_TYPE_INIT_IMPORT_WALLET"` \| `"ACTIVITY_TYPE_IMPORT_WALLET"` \| `"ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_CREATE_POLICIES"` \| `"ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"` \| `"ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"` \| `"ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS"` \| `"ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5"` \| `"ACTIVITY_TYPE_OAUTH"` \| `"ACTIVITY_TYPE_CREATE_API_KEYS_V2"` \| `"ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION"` \| `"ACTIVITY_TYPE_EMAIL_AUTH_V2"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6"` \| `"ACTIVITY_TYPE_DELETE_PRIVATE_KEYS"` \| `"ACTIVITY_TYPE_DELETE_WALLETS"` \| `"ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2"` \| `"ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION"` \| `"ACTIVITY_TYPE_INIT_OTP_AUTH"` \| `"ACTIVITY_TYPE_OTP_AUTH"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"` \| `"ACTIVITY_TYPE_UPDATE_WALLET"`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `votes`: `object`[]; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getActivity`](TurnkeyServerClient.mdx#getactivity)
+
+***
+
+### getApiKey()
+
+> **getApiKey**(`input`): `Promise`\<\{ `apiKey`: \{ `apiKeyId`: `string`; `apiKeyName`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `credential`: \{ `publicKey`: `string`; `type`: `"CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"` \| `"CREDENTIAL_TYPE_API_KEY_P256"` \| `"CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_SECP256K1"` \| `"CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_ED25519"` \| `"CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256"` \| `"CREDENTIAL_TYPE_OAUTH_KEY_P256"`; \}; `expirationSeconds`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:167](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L167)
+
+#### Parameters
+
+##### input
+
+[`TGetApiKeyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetApiKeyBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `apiKey`: \{ `apiKeyId`: `string`; `apiKeyName`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `credential`: \{ `publicKey`: `string`; `type`: `"CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"` \| `"CREDENTIAL_TYPE_API_KEY_P256"` \| `"CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_SECP256K1"` \| `"CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_ED25519"` \| `"CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256"` \| `"CREDENTIAL_TYPE_OAUTH_KEY_P256"`; \}; `expirationSeconds`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getApiKey`](TurnkeyServerClient.mdx#getapikey)
+
+***
+
+### getApiKeys()
+
+> **getApiKeys**(`input`): `Promise`\<\{ `apiKeys`: `object`[]; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:192](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L192)
+
+#### Parameters
+
+##### input
+
+[`TGetApiKeysBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetApiKeysBody.mdx) = `{}`
+
+#### Returns
+
+`Promise`\<\{ `apiKeys`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getApiKeys`](TurnkeyServerClient.mdx#getapikeys)
+
+***
+
+### getAttestationDocument()
+
+> **getAttestationDocument**(`input`): `Promise`\<\{ `attestationDocument`: `string`; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:217](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L217)
+
+#### Parameters
+
+##### input
+
+[`TGetAttestationDocumentBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetAttestationDocumentBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `attestationDocument`: `string`; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getAttestationDocument`](TurnkeyServerClient.mdx#getattestationdocument)
+
+***
+
+### getAuthenticator()
+
+> **getAuthenticator**(`input`): `Promise`\<\{ `authenticator`: \{ `aaguid`: `string`; `attestationType`: `string`; `authenticatorId`: `string`; `authenticatorName`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `credential`: \{ `publicKey`: `string`; `type`: `"CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"` \| `"CREDENTIAL_TYPE_API_KEY_P256"` \| `"CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_SECP256K1"` \| `"CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_ED25519"` \| `"CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256"` \| `"CREDENTIAL_TYPE_OAUTH_KEY_P256"`; \}; `credentialId`: `string`; `model`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:242](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L242)
+
+#### Parameters
+
+##### input
+
+[`TGetAuthenticatorBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetAuthenticatorBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `authenticator`: \{ `aaguid`: `string`; `attestationType`: `string`; `authenticatorId`: `string`; `authenticatorName`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `credential`: \{ `publicKey`: `string`; `type`: `"CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"` \| `"CREDENTIAL_TYPE_API_KEY_P256"` \| `"CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_SECP256K1"` \| `"CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_ED25519"` \| `"CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256"` \| `"CREDENTIAL_TYPE_OAUTH_KEY_P256"`; \}; `credentialId`: `string`; `model`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getAuthenticator`](TurnkeyServerClient.mdx#getauthenticator)
+
+***
+
+### getAuthenticators()
+
+> **getAuthenticators**(`input`): `Promise`\<\{ `authenticators`: `object`[]; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:268](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L268)
+
+#### Parameters
+
+##### input
+
+[`TGetAuthenticatorsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetAuthenticatorsBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `authenticators`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getAuthenticators`](TurnkeyServerClient.mdx#getauthenticators)
+
+***
+
+### getOauthProviders()
+
+> **getOauthProviders**(`input`): `Promise`\<\{ `oauthProviders`: `object`[]; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:294](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L294)
+
+#### Parameters
+
+##### input
+
+[`TGetOauthProvidersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetOauthProvidersBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `oauthProviders`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getOauthProviders`](TurnkeyServerClient.mdx#getoauthproviders)
+
+***
+
+### getOrganization()
+
+> **getOrganization**(`input`): `Promise`\<\{ `organizationData`: \{ `features`: `object`[]; `invitations`: `object`[]; `name`: `string`; `organizationId`: `string`; `policies`: `object`[]; `privateKeys`: `object`[]; `rootQuorum`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; `tags`: `object`[]; `users`: `object`[]; `wallets`: `object`[]; \}; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:320](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L320)
+
+#### Parameters
+
+##### input
+
+[`TGetOrganizationBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetOrganizationBody.mdx) = `{}`
+
+#### Returns
+
+`Promise`\<\{ `organizationData`: \{ `features`: `object`[]; `invitations`: `object`[]; `name`: `string`; `organizationId`: `string`; `policies`: `object`[]; `privateKeys`: `object`[]; `rootQuorum`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; `tags`: `object`[]; `users`: `object`[]; `wallets`: `object`[]; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getOrganization`](TurnkeyServerClient.mdx#getorganization)
+
+***
+
+### getOrganizationConfigs()
+
+> **getOrganizationConfigs**(`input`): `Promise`\<\{ `configs`: \{ `features`: `object`[]; `quorum`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; \}; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:346](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L346)
+
+#### Parameters
+
+##### input
+
+[`TGetOrganizationConfigsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetOrganizationConfigsBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `configs`: \{ `features`: `object`[]; `quorum`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getOrganizationConfigs`](TurnkeyServerClient.mdx#getorganizationconfigs)
+
+***
+
+### getPolicies()
+
+> **getPolicies**(`input`): `Promise`\<\{ `policies`: `object`[]; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:523](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L523)
+
+#### Parameters
+
+##### input
+
+[`TGetPoliciesBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetPoliciesBody.mdx) = `{}`
+
+#### Returns
+
+`Promise`\<\{ `policies`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getPolicies`](TurnkeyServerClient.mdx#getpolicies)
+
+***
+
+### getPolicy()
+
+> **getPolicy**(`input`): `Promise`\<\{ `policy`: \{ `condition`: `string`; `consensus`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyId`: `string`; `policyName`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:372](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L372)
+
+#### Parameters
+
+##### input
+
+[`TGetPolicyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetPolicyBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `policy`: \{ `condition`: `string`; `consensus`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyId`: `string`; `policyName`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getPolicy`](TurnkeyServerClient.mdx#getpolicy)
+
+***
+
+### getPrivateKey()
+
+> **getPrivateKey**(`input`): `Promise`\<\{ `privateKey`: \{ `addresses`: `object`[]; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `exported`: `boolean`; `imported`: `boolean`; `privateKeyId`: `string`; `privateKeyName`: `string`; `privateKeyTags`: `string`[]; `publicKey`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:397](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L397)
+
+#### Parameters
+
+##### input
+
+[`TGetPrivateKeyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetPrivateKeyBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `privateKey`: \{ `addresses`: `object`[]; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `exported`: `boolean`; `imported`: `boolean`; `privateKeyId`: `string`; `privateKeyName`: `string`; `privateKeyTags`: `string`[]; `publicKey`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getPrivateKey`](TurnkeyServerClient.mdx#getprivatekey)
+
+***
+
+### getPrivateKeys()
+
+> **getPrivateKeys**(`input`): `Promise`\<\{ `privateKeys`: `object`[]; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:574](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L574)
+
+#### Parameters
+
+##### input
+
+[`TGetPrivateKeysBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetPrivateKeysBody.mdx) = `{}`
+
+#### Returns
+
+`Promise`\<\{ `privateKeys`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getPrivateKeys`](TurnkeyServerClient.mdx#getprivatekeys)
+
+***
+
+### getSubOrgIds()
+
+> **getSubOrgIds**(`input`): `Promise`\<\{ `organizationIds`: `string`[]; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:600](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L600)
+
+#### Parameters
+
+##### input
+
+[`TGetSubOrgIdsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetSubOrgIdsBody.mdx) = `{}`
+
+#### Returns
+
+`Promise`\<\{ `organizationIds`: `string`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getSubOrgIds`](TurnkeyServerClient.mdx#getsuborgids)
+
+***
+
+### getUser()
+
+> **getUser**(`input`): `Promise`\<\{ `user`: \{ `apiKeys`: `object`[]; `authenticators`: `object`[]; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `oauthProviders`: `object`[]; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `userEmail`: `string`; `userId`: `string`; `userName`: `string`; `userPhoneNumber`: `string`; `userTags`: `string`[]; \}; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:422](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L422)
+
+#### Parameters
+
+##### input
+
+[`TGetUserBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetUserBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `user`: \{ `apiKeys`: `object`[]; `authenticators`: `object`[]; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `oauthProviders`: `object`[]; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `userEmail`: `string`; `userId`: `string`; `userName`: `string`; `userPhoneNumber`: `string`; `userTags`: `string`[]; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getUser`](TurnkeyServerClient.mdx#getuser)
+
+***
+
+### getUsers()
+
+> **getUsers**(`input`): `Promise`\<\{ `users`: `object`[]; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:650](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L650)
+
+#### Parameters
+
+##### input
+
+[`TGetUsersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetUsersBody.mdx) = `{}`
+
+#### Returns
+
+`Promise`\<\{ `users`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getUsers`](TurnkeyServerClient.mdx#getusers)
+
+***
+
+### getVerifiedSubOrgIds()
+
+> **getVerifiedSubOrgIds**(`input`): `Promise`\<\{ `organizationIds`: `string`[]; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:675](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L675)
+
+#### Parameters
+
+##### input
+
+[`TGetVerifiedSubOrgIdsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetVerifiedSubOrgIdsBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `organizationIds`: `string`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getVerifiedSubOrgIds`](TurnkeyServerClient.mdx#getverifiedsuborgids)
+
+***
+
+### getWallet()
+
+> **getWallet**(`input`): `Promise`\<\{ `wallet`: \{ `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `exported`: `boolean`; `imported`: `boolean`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `walletId`: `string`; `walletName`: `string`; \}; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:447](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L447)
+
+#### Parameters
+
+##### input
+
+[`TGetWalletBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetWalletBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `wallet`: \{ `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `exported`: `boolean`; `imported`: `boolean`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `walletId`: `string`; `walletName`: `string`; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getWallet`](TurnkeyServerClient.mdx#getwallet)
+
+***
+
+### getWalletAccount()
+
+> **getWalletAccount**(`input`): `Promise`\<\{ `account`: \{ `address`: `string`; `addressFormat`: `"ADDRESS_FORMAT_ETHEREUM"` \| `"ADDRESS_FORMAT_UNCOMPRESSED"` \| `"ADDRESS_FORMAT_COMPRESSED"` \| `"ADDRESS_FORMAT_SOLANA"` \| `"ADDRESS_FORMAT_COSMOS"` \| `"ADDRESS_FORMAT_TRON"` \| `"ADDRESS_FORMAT_SEI"` \| `"ADDRESS_FORMAT_XLM"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"` \| `"ADDRESS_FORMAT_DOGE_MAINNET"` \| `"ADDRESS_FORMAT_DOGE_TESTNET"` \| `"ADDRESS_FORMAT_SUI"` \| `"ADDRESS_FORMAT_APTOS"` \| `"ADDRESS_FORMAT_XRP"` \| `"ADDRESS_FORMAT_TON_V3R2"` \| `"ADDRESS_FORMAT_TON_V4R2"`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `organizationId`: `string`; `path`: `string`; `pathFormat`: `"PATH_FORMAT_BIP32"`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `walletAccountId`: `string`; `walletId`: `string`; \}; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:472](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L472)
+
+#### Parameters
+
+##### input
+
+[`TGetWalletAccountBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetWalletAccountBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `account`: \{ `address`: `string`; `addressFormat`: `"ADDRESS_FORMAT_ETHEREUM"` \| `"ADDRESS_FORMAT_UNCOMPRESSED"` \| `"ADDRESS_FORMAT_COMPRESSED"` \| `"ADDRESS_FORMAT_SOLANA"` \| `"ADDRESS_FORMAT_COSMOS"` \| `"ADDRESS_FORMAT_TRON"` \| `"ADDRESS_FORMAT_SEI"` \| `"ADDRESS_FORMAT_XLM"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"` \| `"ADDRESS_FORMAT_DOGE_MAINNET"` \| `"ADDRESS_FORMAT_DOGE_TESTNET"` \| `"ADDRESS_FORMAT_SUI"` \| `"ADDRESS_FORMAT_APTOS"` \| `"ADDRESS_FORMAT_XRP"` \| `"ADDRESS_FORMAT_TON_V3R2"` \| `"ADDRESS_FORMAT_TON_V4R2"`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `organizationId`: `string`; `path`: `string`; `pathFormat`: `"PATH_FORMAT_BIP32"`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `walletAccountId`: `string`; `walletId`: `string`; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getWalletAccount`](TurnkeyServerClient.mdx#getwalletaccount)
+
+***
+
+### getWalletAccounts()
+
+> **getWalletAccounts**(`input`): `Promise`\<\{ `accounts`: `object`[]; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:701](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L701)
+
+#### Parameters
+
+##### input
+
+[`TGetWalletAccountsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetWalletAccountsBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `accounts`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getWalletAccounts`](TurnkeyServerClient.mdx#getwalletaccounts)
+
+***
+
+### getWallets()
+
+> **getWallets**(`input`): `Promise`\<\{ `wallets`: `object`[]; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:727](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L727)
+
+#### Parameters
+
+##### input
+
+[`TGetWalletsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetWalletsBody.mdx) = `{}`
+
+#### Returns
+
+`Promise`\<\{ `wallets`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getWallets`](TurnkeyServerClient.mdx#getwallets)
+
+***
+
+### getWhoami()
+
+> **getWhoami**(`input`): `Promise`\<\{ `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:752](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L752)
+
+#### Parameters
+
+##### input
+
+[`TGetWhoamiBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetWhoamiBody.mdx) = `{}`
+
+#### Returns
+
+`Promise`\<\{ `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`getWhoami`](TurnkeyServerClient.mdx#getwhoami)
+
+***
+
+### importPrivateKey()
+
+> **importPrivateKey**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1821](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1821)
+
+#### Parameters
+
+##### input
+
+[`TImportPrivateKeyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TImportPrivateKeyBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`importPrivateKey`](TurnkeyServerClient.mdx#importprivatekey)
+
+***
+
+### importWallet()
+
+> **importWallet**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1854](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1854)
+
+#### Parameters
+
+##### input
+
+[`TImportWalletBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TImportWalletBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`importWallet`](TurnkeyServerClient.mdx#importwallet)
+
+***
+
+### initImportPrivateKey()
+
+> **initImportPrivateKey**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1886](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1886)
+
+#### Parameters
+
+##### input
+
+[`TInitImportPrivateKeyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TInitImportPrivateKeyBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`initImportPrivateKey`](TurnkeyServerClient.mdx#initimportprivatekey)
+
+***
+
+### initImportWallet()
+
+> **initImportWallet**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1919](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1919)
+
+#### Parameters
+
+##### input
+
+[`TInitImportWalletBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TInitImportWalletBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`initImportWallet`](TurnkeyServerClient.mdx#initimportwallet)
+
+***
+
+### initOtpAuth()
+
+> **initOtpAuth**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1952](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1952)
+
+#### Parameters
+
+##### input
+
+[`TInitOtpAuthBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TInitOtpAuthBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`initOtpAuth`](TurnkeyServerClient.mdx#initotpauth)
+
+***
+
+### initUserEmailRecovery()
+
+> **initUserEmailRecovery**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1984](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1984)
+
+#### Parameters
+
+##### input
+
+[`TInitUserEmailRecoveryBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TInitUserEmailRecoveryBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`initUserEmailRecovery`](TurnkeyServerClient.mdx#inituseremailrecovery)
+
+***
+
+### listPrivateKeyTags()
+
+> **listPrivateKeyTags**(`input`): `Promise`\<\{ `privateKeyTags`: `object`[]; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:548](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L548)
+
+#### Parameters
+
+##### input
+
+[`TListPrivateKeyTagsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TListPrivateKeyTagsBody.mdx)
+
+#### Returns
+
+`Promise`\<\{ `privateKeyTags`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`listPrivateKeyTags`](TurnkeyServerClient.mdx#listprivatekeytags)
+
+***
+
+### listUserTags()
+
+> **listUserTags**(`input`): `Promise`\<\{ `userTags`: `object`[]; \}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:625](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L625)
+
+#### Parameters
+
+##### input
+
+[`TListUserTagsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TListUserTagsBody.mdx) = `{}`
+
+#### Returns
+
+`Promise`\<\{ `userTags`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`listUserTags`](TurnkeyServerClient.mdx#listusertags)
+
+***
+
+### oauth()
+
+> **oauth**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2017](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2017)
+
+#### Parameters
+
+##### input
+
+[`TOauthBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TOauthBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`oauth`](TurnkeyServerClient.mdx#oauth)
+
+***
+
+### otpAuth()
+
+> **otpAuth**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2049](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2049)
+
+#### Parameters
+
+##### input
+
+[`TOtpAuthBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TOtpAuthBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`otpAuth`](TurnkeyServerClient.mdx#otpauth)
+
+***
+
+### recoverUser()
+
+> **recoverUser**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2081](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2081)
+
+#### Parameters
+
+##### input
+
+[`TRecoverUserBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TRecoverUserBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`recoverUser`](TurnkeyServerClient.mdx#recoveruser)
+
+***
+
+### rejectActivity()
+
+> **rejectActivity**(`input`): `Promise`\<[`TRejectActivityResponse`](../namespaces/TurnkeySDKApiTypes/type-aliases/TRejectActivityResponse.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2113](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2113)
+
+#### Parameters
+
+##### input
+
+[`TRejectActivityBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TRejectActivityBody.mdx)
+
+#### Returns
+
+`Promise`\<[`TRejectActivityResponse`](../namespaces/TurnkeySDKApiTypes/type-aliases/TRejectActivityResponse.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`rejectActivity`](TurnkeyServerClient.mdx#rejectactivity)
+
+***
+
+### removeOrganizationFeature()
+
+> **removeOrganizationFeature**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2142](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2142)
+
+#### Parameters
+
+##### input
+
+[`TRemoveOrganizationFeatureBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TRemoveOrganizationFeatureBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`removeOrganizationFeature`](TurnkeyServerClient.mdx#removeorganizationfeature)
+
+***
+
+### request()
+
+> **request**\<`TBodyType`, `TResponseType`\>(`url`, `body`): `Promise`\<`TResponseType`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:33](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L33)
+
+#### Type Parameters
+
+##### TBodyType
+
+`TBodyType`
+
+##### TResponseType
+
+`TResponseType`
+
+#### Parameters
+
+##### url
+
+`string`
+
+##### body
+
+`TBodyType`
+
+#### Returns
+
+`Promise`\<`TResponseType`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`request`](TurnkeyServerClient.mdx#request)
+
+***
+
+### setOrganizationFeature()
+
+> **setOrganizationFeature**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2175](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2175)
+
+#### Parameters
+
+##### input
+
+[`TSetOrganizationFeatureBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TSetOrganizationFeatureBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`setOrganizationFeature`](TurnkeyServerClient.mdx#setorganizationfeature)
+
+***
+
+### signRawPayload()
+
+> **signRawPayload**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2208](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2208)
+
+#### Parameters
+
+##### input
+
+[`TSignRawPayloadBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TSignRawPayloadBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`signRawPayload`](TurnkeyServerClient.mdx#signrawpayload)
+
+***
+
+### signRawPayloads()
+
+> **signRawPayloads**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2241](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2241)
+
+#### Parameters
+
+##### input
+
+[`TSignRawPayloadsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TSignRawPayloadsBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`signRawPayloads`](TurnkeyServerClient.mdx#signrawpayloads)
+
+***
+
+### signTransaction()
+
+> **signTransaction**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2274](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2274)
+
+#### Parameters
+
+##### input
+
+[`TSignTransactionBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TSignTransactionBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`signTransaction`](TurnkeyServerClient.mdx#signtransaction)
+
+***
+
+### stampApproveActivity()
+
+> **stampApproveActivity**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:789](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L789)
+
+#### Parameters
+
+##### input
+
+[`TApproveActivityBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TApproveActivityBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampApproveActivity`](TurnkeyServerClient.mdx#stampapproveactivity)
+
+***
+
+### stampCreateApiKeys()
+
+> **stampCreateApiKeys**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:822](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L822)
+
+#### Parameters
+
+##### input
+
+[`TCreateApiKeysBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateApiKeysBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreateApiKeys`](TurnkeyServerClient.mdx#stampcreateapikeys)
+
+***
+
+### stampCreateApiOnlyUsers()
+
+> **stampCreateApiOnlyUsers**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:855](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L855)
+
+#### Parameters
+
+##### input
+
+[`TCreateApiOnlyUsersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateApiOnlyUsersBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreateApiOnlyUsers`](TurnkeyServerClient.mdx#stampcreateapionlyusers)
+
+***
+
+### stampCreateAuthenticators()
+
+> **stampCreateAuthenticators**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:888](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L888)
+
+#### Parameters
+
+##### input
+
+[`TCreateAuthenticatorsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateAuthenticatorsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreateAuthenticators`](TurnkeyServerClient.mdx#stampcreateauthenticators)
+
+***
+
+### stampCreateInvitations()
+
+> **stampCreateInvitations**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:921](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L921)
+
+#### Parameters
+
+##### input
+
+[`TCreateInvitationsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateInvitationsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreateInvitations`](TurnkeyServerClient.mdx#stampcreateinvitations)
+
+***
+
+### stampCreateOauthProviders()
+
+> **stampCreateOauthProviders**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:954](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L954)
+
+#### Parameters
+
+##### input
+
+[`TCreateOauthProvidersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateOauthProvidersBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreateOauthProviders`](TurnkeyServerClient.mdx#stampcreateoauthproviders)
+
+***
+
+### stampCreatePolicies()
+
+> **stampCreatePolicies**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:987](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L987)
+
+#### Parameters
+
+##### input
+
+[`TCreatePoliciesBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreatePoliciesBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreatePolicies`](TurnkeyServerClient.mdx#stampcreatepolicies)
+
+***
+
+### stampCreatePolicy()
+
+> **stampCreatePolicy**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1020](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1020)
+
+#### Parameters
+
+##### input
+
+[`TCreatePolicyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreatePolicyBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreatePolicy`](TurnkeyServerClient.mdx#stampcreatepolicy)
+
+***
+
+### stampCreatePrivateKeys()
+
+> **stampCreatePrivateKeys**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1085](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1085)
+
+#### Parameters
+
+##### input
+
+[`TCreatePrivateKeysBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreatePrivateKeysBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreatePrivateKeys`](TurnkeyServerClient.mdx#stampcreateprivatekeys)
+
+***
+
+### stampCreatePrivateKeyTag()
+
+> **stampCreatePrivateKeyTag**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1052](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1052)
+
+#### Parameters
+
+##### input
+
+[`TCreatePrivateKeyTagBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreatePrivateKeyTagBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreatePrivateKeyTag`](TurnkeyServerClient.mdx#stampcreateprivatekeytag)
+
+***
+
+### stampCreateReadOnlySession()
+
+> **stampCreateReadOnlySession**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1118](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1118)
+
+#### Parameters
+
+##### input
+
+[`TCreateReadOnlySessionBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateReadOnlySessionBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreateReadOnlySession`](TurnkeyServerClient.mdx#stampcreatereadonlysession)
+
+***
+
+### stampCreateReadWriteSession()
+
+> **stampCreateReadWriteSession**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1151](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1151)
+
+#### Parameters
+
+##### input
+
+[`TCreateReadWriteSessionBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateReadWriteSessionBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreateReadWriteSession`](TurnkeyServerClient.mdx#stampcreatereadwritesession)
+
+***
+
+### stampCreateSubOrganization()
+
+> **stampCreateSubOrganization**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1184](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1184)
+
+#### Parameters
+
+##### input
+
+[`TCreateSubOrganizationBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateSubOrganizationBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreateSubOrganization`](TurnkeyServerClient.mdx#stampcreatesuborganization)
+
+***
+
+### stampCreateUsers()
+
+> **stampCreateUsers**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1250](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1250)
+
+#### Parameters
+
+##### input
+
+[`TCreateUsersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateUsersBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreateUsers`](TurnkeyServerClient.mdx#stampcreateusers)
+
+***
+
+### stampCreateUserTag()
+
+> **stampCreateUserTag**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1217](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1217)
+
+#### Parameters
+
+##### input
+
+[`TCreateUserTagBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateUserTagBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreateUserTag`](TurnkeyServerClient.mdx#stampcreateusertag)
+
+***
+
+### stampCreateWallet()
+
+> **stampCreateWallet**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1282](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1282)
+
+#### Parameters
+
+##### input
+
+[`TCreateWalletBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateWalletBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreateWallet`](TurnkeyServerClient.mdx#stampcreatewallet)
+
+***
+
+### stampCreateWalletAccounts()
+
+> **stampCreateWalletAccounts**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1314](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1314)
+
+#### Parameters
+
+##### input
+
+[`TCreateWalletAccountsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TCreateWalletAccountsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampCreateWalletAccounts`](TurnkeyServerClient.mdx#stampcreatewalletaccounts)
+
+***
+
+### stampDeleteApiKeys()
+
+> **stampDeleteApiKeys**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1347](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1347)
+
+#### Parameters
+
+##### input
+
+[`TDeleteApiKeysBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteApiKeysBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampDeleteApiKeys`](TurnkeyServerClient.mdx#stampdeleteapikeys)
+
+***
+
+### stampDeleteAuthenticators()
+
+> **stampDeleteAuthenticators**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1380](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1380)
+
+#### Parameters
+
+##### input
+
+[`TDeleteAuthenticatorsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteAuthenticatorsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampDeleteAuthenticators`](TurnkeyServerClient.mdx#stampdeleteauthenticators)
+
+***
+
+### stampDeleteInvitation()
+
+> **stampDeleteInvitation**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1413](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1413)
+
+#### Parameters
+
+##### input
+
+[`TDeleteInvitationBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteInvitationBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampDeleteInvitation`](TurnkeyServerClient.mdx#stampdeleteinvitation)
+
+***
+
+### stampDeleteOauthProviders()
+
+> **stampDeleteOauthProviders**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1446](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1446)
+
+#### Parameters
+
+##### input
+
+[`TDeleteOauthProvidersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteOauthProvidersBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampDeleteOauthProviders`](TurnkeyServerClient.mdx#stampdeleteoauthproviders)
+
+***
+
+### stampDeletePolicy()
+
+> **stampDeletePolicy**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1479](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1479)
+
+#### Parameters
+
+##### input
+
+[`TDeletePolicyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeletePolicyBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampDeletePolicy`](TurnkeyServerClient.mdx#stampdeletepolicy)
+
+***
+
+### stampDeletePrivateKeys()
+
+> **stampDeletePrivateKeys**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1544](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1544)
+
+#### Parameters
+
+##### input
+
+[`TDeletePrivateKeysBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeletePrivateKeysBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampDeletePrivateKeys`](TurnkeyServerClient.mdx#stampdeleteprivatekeys)
+
+***
+
+### stampDeletePrivateKeyTags()
+
+> **stampDeletePrivateKeyTags**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1511](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1511)
+
+#### Parameters
+
+##### input
+
+[`TDeletePrivateKeyTagsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeletePrivateKeyTagsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampDeletePrivateKeyTags`](TurnkeyServerClient.mdx#stampdeleteprivatekeytags)
+
+***
+
+### stampDeleteSubOrganization()
+
+> **stampDeleteSubOrganization**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1577](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1577)
+
+#### Parameters
+
+##### input
+
+[`TDeleteSubOrganizationBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteSubOrganizationBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampDeleteSubOrganization`](TurnkeyServerClient.mdx#stampdeletesuborganization)
+
+***
+
+### stampDeleteUsers()
+
+> **stampDeleteUsers**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1643](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1643)
+
+#### Parameters
+
+##### input
+
+[`TDeleteUsersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteUsersBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampDeleteUsers`](TurnkeyServerClient.mdx#stampdeleteusers)
+
+***
+
+### stampDeleteUserTags()
+
+> **stampDeleteUserTags**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1610](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1610)
+
+#### Parameters
+
+##### input
+
+[`TDeleteUserTagsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteUserTagsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampDeleteUserTags`](TurnkeyServerClient.mdx#stampdeleteusertags)
+
+***
+
+### stampDeleteWallets()
+
+> **stampDeleteWallets**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1675](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1675)
+
+#### Parameters
+
+##### input
+
+[`TDeleteWalletsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TDeleteWalletsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampDeleteWallets`](TurnkeyServerClient.mdx#stampdeletewallets)
+
+***
+
+### stampEmailAuth()
+
+> **stampEmailAuth**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1707](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1707)
+
+#### Parameters
+
+##### input
+
+[`TEmailAuthBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TEmailAuthBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampEmailAuth`](TurnkeyServerClient.mdx#stampemailauth)
+
+***
+
+### stampExportPrivateKey()
+
+> **stampExportPrivateKey**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1739](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1739)
+
+#### Parameters
+
+##### input
+
+[`TExportPrivateKeyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TExportPrivateKeyBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampExportPrivateKey`](TurnkeyServerClient.mdx#stampexportprivatekey)
+
+***
+
+### stampExportWallet()
+
+> **stampExportWallet**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1772](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1772)
+
+#### Parameters
+
+##### input
+
+[`TExportWalletBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TExportWalletBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampExportWallet`](TurnkeyServerClient.mdx#stampexportwallet)
+
+***
+
+### stampExportWalletAccount()
+
+> **stampExportWalletAccount**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1804](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1804)
+
+#### Parameters
+
+##### input
+
+[`TExportWalletAccountBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TExportWalletAccountBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampExportWalletAccount`](TurnkeyServerClient.mdx#stampexportwalletaccount)
+
+***
+
+### stampGetActivities()
+
+> **stampGetActivities**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:507](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L507)
+
+#### Parameters
+
+##### input
+
+[`TGetActivitiesBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetActivitiesBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetActivities`](TurnkeyServerClient.mdx#stampgetactivities)
+
+***
+
+### stampGetActivity()
+
+> **stampGetActivity**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:151](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L151)
+
+#### Parameters
+
+##### input
+
+[`TGetActivityBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetActivityBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetActivity`](TurnkeyServerClient.mdx#stampgetactivity)
+
+***
+
+### stampGetApiKey()
+
+> **stampGetApiKey**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:176](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L176)
+
+#### Parameters
+
+##### input
+
+[`TGetApiKeyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetApiKeyBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetApiKey`](TurnkeyServerClient.mdx#stampgetapikey)
+
+***
+
+### stampGetApiKeys()
+
+> **stampGetApiKeys**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:201](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L201)
+
+#### Parameters
+
+##### input
+
+[`TGetApiKeysBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetApiKeysBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetApiKeys`](TurnkeyServerClient.mdx#stampgetapikeys)
+
+***
+
+### stampGetAttestationDocument()
+
+> **stampGetAttestationDocument**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:226](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L226)
+
+#### Parameters
+
+##### input
+
+[`TGetAttestationDocumentBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetAttestationDocumentBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetAttestationDocument`](TurnkeyServerClient.mdx#stampgetattestationdocument)
+
+***
+
+### stampGetAuthenticator()
+
+> **stampGetAuthenticator**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:251](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L251)
+
+#### Parameters
+
+##### input
+
+[`TGetAuthenticatorBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetAuthenticatorBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetAuthenticator`](TurnkeyServerClient.mdx#stampgetauthenticator)
+
+***
+
+### stampGetAuthenticators()
+
+> **stampGetAuthenticators**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:277](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L277)
+
+#### Parameters
+
+##### input
+
+[`TGetAuthenticatorsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetAuthenticatorsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetAuthenticators`](TurnkeyServerClient.mdx#stampgetauthenticators)
+
+***
+
+### stampGetOauthProviders()
+
+> **stampGetOauthProviders**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:303](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L303)
+
+#### Parameters
+
+##### input
+
+[`TGetOauthProvidersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetOauthProvidersBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetOauthProviders`](TurnkeyServerClient.mdx#stampgetoauthproviders)
+
+***
+
+### stampGetOrganization()
+
+> **stampGetOrganization**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:329](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L329)
+
+#### Parameters
+
+##### input
+
+[`TGetOrganizationBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetOrganizationBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetOrganization`](TurnkeyServerClient.mdx#stampgetorganization)
+
+***
+
+### stampGetOrganizationConfigs()
+
+> **stampGetOrganizationConfigs**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:355](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L355)
+
+#### Parameters
+
+##### input
+
+[`TGetOrganizationConfigsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetOrganizationConfigsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetOrganizationConfigs`](TurnkeyServerClient.mdx#stampgetorganizationconfigs)
+
+***
+
+### stampGetPolicies()
+
+> **stampGetPolicies**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:532](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L532)
+
+#### Parameters
+
+##### input
+
+[`TGetPoliciesBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetPoliciesBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetPolicies`](TurnkeyServerClient.mdx#stampgetpolicies)
+
+***
+
+### stampGetPolicy()
+
+> **stampGetPolicy**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:381](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L381)
+
+#### Parameters
+
+##### input
+
+[`TGetPolicyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetPolicyBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetPolicy`](TurnkeyServerClient.mdx#stampgetpolicy)
+
+***
+
+### stampGetPrivateKey()
+
+> **stampGetPrivateKey**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:406](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L406)
+
+#### Parameters
+
+##### input
+
+[`TGetPrivateKeyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetPrivateKeyBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetPrivateKey`](TurnkeyServerClient.mdx#stampgetprivatekey)
+
+***
+
+### stampGetPrivateKeys()
+
+> **stampGetPrivateKeys**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:583](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L583)
+
+#### Parameters
+
+##### input
+
+[`TGetPrivateKeysBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetPrivateKeysBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetPrivateKeys`](TurnkeyServerClient.mdx#stampgetprivatekeys)
+
+***
+
+### stampGetSubOrgIds()
+
+> **stampGetSubOrgIds**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:609](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L609)
+
+#### Parameters
+
+##### input
+
+[`TGetSubOrgIdsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetSubOrgIdsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetSubOrgIds`](TurnkeyServerClient.mdx#stampgetsuborgids)
+
+***
+
+### stampGetUser()
+
+> **stampGetUser**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:431](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L431)
+
+#### Parameters
+
+##### input
+
+[`TGetUserBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetUserBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetUser`](TurnkeyServerClient.mdx#stampgetuser)
+
+***
+
+### stampGetUsers()
+
+> **stampGetUsers**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:659](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L659)
+
+#### Parameters
+
+##### input
+
+[`TGetUsersBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetUsersBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetUsers`](TurnkeyServerClient.mdx#stampgetusers)
+
+***
+
+### stampGetVerifiedSubOrgIds()
+
+> **stampGetVerifiedSubOrgIds**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:684](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L684)
+
+#### Parameters
+
+##### input
+
+[`TGetVerifiedSubOrgIdsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetVerifiedSubOrgIdsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetVerifiedSubOrgIds`](TurnkeyServerClient.mdx#stampgetverifiedsuborgids)
+
+***
+
+### stampGetWallet()
+
+> **stampGetWallet**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:456](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L456)
+
+#### Parameters
+
+##### input
+
+[`TGetWalletBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetWalletBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetWallet`](TurnkeyServerClient.mdx#stampgetwallet)
+
+***
+
+### stampGetWalletAccount()
+
+> **stampGetWalletAccount**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:481](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L481)
+
+#### Parameters
+
+##### input
+
+[`TGetWalletAccountBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetWalletAccountBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetWalletAccount`](TurnkeyServerClient.mdx#stampgetwalletaccount)
+
+***
+
+### stampGetWalletAccounts()
+
+> **stampGetWalletAccounts**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:710](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L710)
+
+#### Parameters
+
+##### input
+
+[`TGetWalletAccountsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetWalletAccountsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetWalletAccounts`](TurnkeyServerClient.mdx#stampgetwalletaccounts)
+
+***
+
+### stampGetWallets()
+
+> **stampGetWallets**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:736](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L736)
+
+#### Parameters
+
+##### input
+
+[`TGetWalletsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetWalletsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetWallets`](TurnkeyServerClient.mdx#stampgetwallets)
+
+***
+
+### stampGetWhoami()
+
+> **stampGetWhoami**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:761](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L761)
+
+#### Parameters
+
+##### input
+
+[`TGetWhoamiBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TGetWhoamiBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampGetWhoami`](TurnkeyServerClient.mdx#stampgetwhoami)
+
+***
+
+### stampImportPrivateKey()
+
+> **stampImportPrivateKey**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1837](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1837)
+
+#### Parameters
+
+##### input
+
+[`TImportPrivateKeyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TImportPrivateKeyBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampImportPrivateKey`](TurnkeyServerClient.mdx#stampimportprivatekey)
+
+***
+
+### stampImportWallet()
+
+> **stampImportWallet**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1870](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1870)
+
+#### Parameters
+
+##### input
+
+[`TImportWalletBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TImportWalletBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampImportWallet`](TurnkeyServerClient.mdx#stampimportwallet)
+
+***
+
+### stampInitImportPrivateKey()
+
+> **stampInitImportPrivateKey**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1902](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1902)
+
+#### Parameters
+
+##### input
+
+[`TInitImportPrivateKeyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TInitImportPrivateKeyBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampInitImportPrivateKey`](TurnkeyServerClient.mdx#stampinitimportprivatekey)
+
+***
+
+### stampInitImportWallet()
+
+> **stampInitImportWallet**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1935](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1935)
+
+#### Parameters
+
+##### input
+
+[`TInitImportWalletBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TInitImportWalletBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampInitImportWallet`](TurnkeyServerClient.mdx#stampinitimportwallet)
+
+***
+
+### stampInitOtpAuth()
+
+> **stampInitOtpAuth**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:1968](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L1968)
+
+#### Parameters
+
+##### input
+
+[`TInitOtpAuthBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TInitOtpAuthBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampInitOtpAuth`](TurnkeyServerClient.mdx#stampinitotpauth)
+
+***
+
+### stampInitUserEmailRecovery()
+
+> **stampInitUserEmailRecovery**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2000](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2000)
+
+#### Parameters
+
+##### input
+
+[`TInitUserEmailRecoveryBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TInitUserEmailRecoveryBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampInitUserEmailRecovery`](TurnkeyServerClient.mdx#stampinituseremailrecovery)
+
+***
+
+### stampListPrivateKeyTags()
+
+> **stampListPrivateKeyTags**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:557](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L557)
+
+#### Parameters
+
+##### input
+
+[`TListPrivateKeyTagsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TListPrivateKeyTagsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampListPrivateKeyTags`](TurnkeyServerClient.mdx#stamplistprivatekeytags)
+
+***
+
+### stampListUserTags()
+
+> **stampListUserTags**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:634](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L634)
+
+#### Parameters
+
+##### input
+
+[`TListUserTagsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TListUserTagsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampListUserTags`](TurnkeyServerClient.mdx#stamplistusertags)
+
+***
+
+### stampOauth()
+
+> **stampOauth**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2033](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2033)
+
+#### Parameters
+
+##### input
+
+[`TOauthBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TOauthBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampOauth`](TurnkeyServerClient.mdx#stampoauth)
+
+***
+
+### stampOtpAuth()
+
+> **stampOtpAuth**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2065](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2065)
+
+#### Parameters
+
+##### input
+
+[`TOtpAuthBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TOtpAuthBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampOtpAuth`](TurnkeyServerClient.mdx#stampotpauth)
+
+***
+
+### stampRecoverUser()
+
+> **stampRecoverUser**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2097](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2097)
+
+#### Parameters
+
+##### input
+
+[`TRecoverUserBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TRecoverUserBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampRecoverUser`](TurnkeyServerClient.mdx#stamprecoveruser)
+
+***
+
+### stampRejectActivity()
+
+> **stampRejectActivity**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2125](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2125)
+
+#### Parameters
+
+##### input
+
+[`TRejectActivityBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TRejectActivityBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampRejectActivity`](TurnkeyServerClient.mdx#stamprejectactivity)
+
+***
+
+### stampRemoveOrganizationFeature()
+
+> **stampRemoveOrganizationFeature**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2158](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2158)
+
+#### Parameters
+
+##### input
+
+[`TRemoveOrganizationFeatureBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TRemoveOrganizationFeatureBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampRemoveOrganizationFeature`](TurnkeyServerClient.mdx#stampremoveorganizationfeature)
+
+***
+
+### stampSetOrganizationFeature()
+
+> **stampSetOrganizationFeature**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2191](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2191)
+
+#### Parameters
+
+##### input
+
+[`TSetOrganizationFeatureBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TSetOrganizationFeatureBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampSetOrganizationFeature`](TurnkeyServerClient.mdx#stampsetorganizationfeature)
+
+***
+
+### stampSignRawPayload()
+
+> **stampSignRawPayload**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2224](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2224)
+
+#### Parameters
+
+##### input
+
+[`TSignRawPayloadBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TSignRawPayloadBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampSignRawPayload`](TurnkeyServerClient.mdx#stampsignrawpayload)
+
+***
+
+### stampSignRawPayloads()
+
+> **stampSignRawPayloads**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2257](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2257)
+
+#### Parameters
+
+##### input
+
+[`TSignRawPayloadsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TSignRawPayloadsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampSignRawPayloads`](TurnkeyServerClient.mdx#stampsignrawpayloads)
+
+***
+
+### stampSignTransaction()
+
+> **stampSignTransaction**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2290](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2290)
+
+#### Parameters
+
+##### input
+
+[`TSignTransactionBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TSignTransactionBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampSignTransaction`](TurnkeyServerClient.mdx#stampsigntransaction)
+
+***
+
+### stampTestRateLimits()
+
+> **stampTestRateLimits**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2511](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2511)
+
+#### Parameters
+
+##### input
+
+[`TTestRateLimitsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TTestRateLimitsBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampTestRateLimits`](TurnkeyServerClient.mdx#stamptestratelimits)
+
+***
+
+### stampUpdatePolicy()
+
+> **stampUpdatePolicy**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2323](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2323)
+
+#### Parameters
+
+##### input
+
+[`TUpdatePolicyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TUpdatePolicyBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampUpdatePolicy`](TurnkeyServerClient.mdx#stampupdatepolicy)
+
+***
+
+### stampUpdatePrivateKeyTag()
+
+> **stampUpdatePrivateKeyTag**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2355](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2355)
+
+#### Parameters
+
+##### input
+
+[`TUpdatePrivateKeyTagBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TUpdatePrivateKeyTagBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampUpdatePrivateKeyTag`](TurnkeyServerClient.mdx#stampupdateprivatekeytag)
+
+***
+
+### stampUpdateRootQuorum()
+
+> **stampUpdateRootQuorum**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2388](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2388)
+
+#### Parameters
+
+##### input
+
+[`TUpdateRootQuorumBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TUpdateRootQuorumBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampUpdateRootQuorum`](TurnkeyServerClient.mdx#stampupdaterootquorum)
+
+***
+
+### stampUpdateUser()
+
+> **stampUpdateUser**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2421](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2421)
+
+#### Parameters
+
+##### input
+
+[`TUpdateUserBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TUpdateUserBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampUpdateUser`](TurnkeyServerClient.mdx#stampupdateuser)
+
+***
+
+### stampUpdateUserTag()
+
+> **stampUpdateUserTag**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2453](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2453)
+
+#### Parameters
+
+##### input
+
+[`TUpdateUserTagBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TUpdateUserTagBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampUpdateUserTag`](TurnkeyServerClient.mdx#stampupdateusertag)
+
+***
+
+### stampUpdateWallet()
+
+> **stampUpdateWallet**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2486](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2486)
+
+#### Parameters
+
+##### input
+
+[`TUpdateWalletBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TUpdateWalletBody.mdx)
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`stampUpdateWallet`](TurnkeyServerClient.mdx#stampupdatewallet)
+
+***
+
+### testRateLimits()
+
+> **testRateLimits**(`input`): `Promise`\<\{\}\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2502](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2502)
+
+#### Parameters
+
+##### input
+
+[`TTestRateLimitsBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TTestRateLimitsBody.mdx)
+
+#### Returns
+
+`Promise`\<\{\}\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`testRateLimits`](TurnkeyServerClient.mdx#testratelimits)
+
+***
+
+### updatePolicy()
+
+> **updatePolicy**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2307](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2307)
+
+#### Parameters
+
+##### input
+
+[`TUpdatePolicyBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TUpdatePolicyBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`updatePolicy`](TurnkeyServerClient.mdx#updatepolicy)
+
+***
+
+### updatePrivateKeyTag()
+
+> **updatePrivateKeyTag**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2339](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2339)
+
+#### Parameters
+
+##### input
+
+[`TUpdatePrivateKeyTagBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TUpdatePrivateKeyTagBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`updatePrivateKeyTag`](TurnkeyServerClient.mdx#updateprivatekeytag)
+
+***
+
+### updateRootQuorum()
+
+> **updateRootQuorum**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2372](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2372)
+
+#### Parameters
+
+##### input
+
+[`TUpdateRootQuorumBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TUpdateRootQuorumBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`updateRootQuorum`](TurnkeyServerClient.mdx#updaterootquorum)
+
+***
+
+### updateUser()
+
+> **updateUser**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2405](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2405)
+
+#### Parameters
+
+##### input
+
+[`TUpdateUserBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TUpdateUserBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`updateUser`](TurnkeyServerClient.mdx#updateuser)
+
+***
+
+### updateUserTag()
+
+> **updateUserTag**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2437](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2437)
+
+#### Parameters
+
+##### input
+
+[`TUpdateUserTagBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TUpdateUserTagBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`updateUserTag`](TurnkeyServerClient.mdx#updateusertag)
+
+***
+
+### updateWallet()
+
+> **updateWallet**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-server/src/\_\_generated\_\_/sdk-client-base.ts:2470](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/sdk-server/src/__generated__/sdk-client-base.ts#L2470)
+
+#### Parameters
+
+##### input
+
+[`TUpdateWalletBody`](../namespaces/TurnkeySDKApiTypes/type-aliases/TUpdateWalletBody.mdx)
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyServerClient`](TurnkeyServerClient.mdx).[`updateWallet`](TurnkeyServerClient.mdx#updatewallet)

@@ -1,0 +1,43 @@
+[**SDK Documentation**](../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../packages.mdx) / [@turnkey/viem](../README.mdx) / signTransaction
+
+# Function: signTransaction()
+
+> **signTransaction**\<`TTransactionSerializable`\>(`client`, `transaction`, `serializer`, `organizationId`, `signWith`): `Promise`\<`` `0x${string}` ``\>
+
+Defined in: [packages/viem/src/index.ts:306](https://github.com/tkhq/sdk/blob/e1b1a69bdd608320aaf03cc2dbbf68dc0c52b28d/packages/viem/src/index.ts#L306)
+
+## Type Parameters
+
+### TTransactionSerializable
+
+`TTransactionSerializable` *extends* `TransactionSerializable`
+
+## Parameters
+
+### client
+
+[`TurnkeyClient`](../../http/classes/TurnkeyClient.mdx) | [`TurnkeyBrowserClient`](../../sdk-browser/index/classes/TurnkeyBrowserClient.mdx) | [`TurnkeyServerClient`](../../sdk-server/classes/TurnkeyServerClient.mdx)
+
+### transaction
+
+`TTransactionSerializable`
+
+### serializer
+
+`SerializeTransactionFn`\<`TTransactionSerializable`\>
+
+### organizationId
+
+`string`
+
+### signWith
+
+`string`
+
+## Returns
+
+`Promise`\<`` `0x${string}` ``\>
