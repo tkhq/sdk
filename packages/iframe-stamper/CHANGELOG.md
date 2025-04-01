@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 2.4.0
+
+### Minor Changes
+
+- a833088: Add `getEmbeddedPublicKey()` async function to get the public key of the live embedded key within the iframe
+
 ## 2.3.0
 
 ### Minor Changes

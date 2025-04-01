@@ -1,5 +1,16 @@
 # @turnkey/viem
 
+## 0.7.0
+
+### Minor Changes
+
+- d99fe40: Upgrade upstream viem dependency
+
+### Patch Changes
+
+- Updated dependencies [bf87774]
+  - @turnkey/sdk-browser@3.1.0
+
 ## 0.6.18
 
 ### Patch Changes
