@@ -41,7 +41,7 @@
     "access": "public"
   },
   "scripts": {
-    "prepublishOnly": "pnpm -w run clean-all && pnpm -w run build-all",
+    "prepublishOnly": "pnpm run clean && pnpm run build",
     "build": "rollup -c",
     "clean": "rimraf ./dist ./.cache",
     "test": "DOTENV_CONFIG_PATH=.env.test jest --passWithNoTests",
