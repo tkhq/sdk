@@ -4,13 +4,38 @@
 
 ### Minor Changes
 
-- ecdb29a: Update API as per mono v2025.3.2 - Add CREATE_USERS_V3
+- ecdb29a: Update API as per mono v2025.3.2
+
+  - This release introduces the `CREATE_USERS_V3` activity. The difference between it and `CREATE_USERS_V2` is that it can now accept `userPhoneNumber` and `oauthProviders`. In total, it accepts the following parameters:
+
+  ```javascript
+  /** @description A list of Users. */
+  users: {
+    /** @description Human-readable name for a User. */
+    userName: string;
+    /** @description The user's email address. */
+    userEmail?: string;
+    /** @description The user's phone number in E.164 format e.g. +13214567890 */
+    userPhoneNumber?: string;
+    /** @description A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
+    apiKeys: definitions["v1ApiKeyParamsV2"][];
+    /** @description A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
+    authenticators: definitions["v1AuthenticatorParamsV2"][];
+    /** @description A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
+    oauthProviders: definitions["v1OauthProviderParams"][];
+    /** @description A list of User Tag IDs. This field, if not needed, should be an empty array in your request body. */
+    userTags: string[];
+  }
+  ```
+
+  See [source code](https://github.com/tkhq/sdk/blob/60c0c03440785b841d1f6f393612046423dc665f/packages/http/src/__generated__/services/coordinator/public/v1/public_api.types.ts#L2894-L2909) to view details on the nested types.
 
 ## 2.21.0
 
 ### Minor Changes
 
-- 56a307e: Update api to mono v2025.3.0
+- 56a307e: Update API to mono v2025.3.0
+  - This release introduces an `invalidateExisting` flag to the `CreateReadWriteSession` and `Oauth` activities. If enabled, this will invalidate existing read-write and oauth API keys. This is useful in scenarios where a user attempts to create numerous `ReadWrite` or `Oauth` sessions. Because our API caps the number of session keys associated with a user, this flag can clear all other existing session keys of that specific type (e.g. setting `invalidateExisting: true` for `CreateReadWriteSession` will invalidate all previously created read-write session keys)
 
 ## 2.20.0
 
@@ -22,7 +47,17 @@
 
 ### Minor Changes
 
-- 57f9cb0: Update endpoints - surface GetWalletAccount
+- 57f9cb0: Update endpoints - surface `GetWalletAccount`. This endpoint takes in the following args:
+  ```javascript
+  /** @description Unique identifier for a given Organization. */
+  organizationId: string;
+  /** @description Unique identifier for a given Wallet. */
+  walletId: string;
+  /** @description Address corresponding to a Wallet Account. */
+  address?: string;
+  /** @description Path corresponding to a Wallet Account. */
+  path?: string;
+  ```
 
 ## 2.18.0
 
