@@ -300,12 +300,13 @@ export class IframeStamper {
   /**
    * Resets the embedded key within an iframe by clearing the existing one.
    */
-  async resetEmbeddedKey(): Promise<string | null> {
-    return this.createRequest<string | null>(IframeEventType.ResetEmbeddedKey);
+  async resetEmbeddedKey(): Promise<null> {
+    return this.createRequest<null>(IframeEventType.ResetEmbeddedKey);
   }
 
   /**
    * Reinitializes the embedded key within an iframe.
+   * @return {string | null} the newly created embedded public key.
    */
   async initEmbeddedKey(): Promise<string | null> {
     return this.createRequest<string | null>(IframeEventType.InitEmbeddedKey);
