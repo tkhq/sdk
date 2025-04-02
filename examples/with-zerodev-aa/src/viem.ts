@@ -1,58 +1,53 @@
+// Note: this is a Turnkey-specific adaptation of https://github.com/zerodevapp/zerodev-examples/blob/9d348ae55000fb8417551361bc15ea7a3971aaaf/tutorial/completed.ts
+// Following along in the tutorial here: https://docs.zerodev.app/sdk/getting-started/tutorial
 import * as path from "path";
 import * as dotenv from "dotenv";
-import prompts, { PromptType } from "prompts";
 
-import {
-  createWalletClient,
-  createPublicClient,
-  http,
-  type Account,
-  formatEther,
-} from "viem";
+import { createPublicClient, encodeFunctionData, http, parseAbi } from "viem";
 import { sepolia } from "viem/chains";
-
 import { signerToEcdsaValidator } from "@zerodev/ecdsa-validator";
-import { KERNEL_V3_1 } from "@zerodev/sdk/constants";
 import {
   createKernelAccount,
-  createZeroDevPaymasterClient,
   createKernelAccountClient,
+  createZeroDevPaymasterClient,
 } from "@zerodev/sdk";
-import {
-  walletClientToSmartAccountSigner,
-  createBundlerClient,
-  ENTRYPOINT_ADDRESS_V07,
-} from "permissionless";
+import { getEntryPoint, KERNEL_V3_1 } from "@zerodev/sdk/constants";
+
+import { createAccount } from "@turnkey/viem";
+import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
+
+import { print } from "./util";
+import { createNewWallet } from "./createNewWallet";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { createAccount } from "@turnkey/viem";
-import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
-import { createNewWallet } from "./createNewWallet";
-import { print } from "./util";
+if (!process.env.ZERODEV_RPC) {
+  throw new Error("ZERODEV_RPC is not set");
+}
 
-async function main() {
+const ZERODEV_RPC = process.env.ZERODEV_RPC;
+
+// The NFT contract we will be interacting with
+const contractAddress = "0x34bE7f35132E97915633BC1fc020364EA5134863";
+const contractABI = parseAbi([
+  "function mint(address _to) public",
+  "function balanceOf(address owner) external view returns (uint256 balance)",
+]);
+
+const turnkeyClient = new TurnkeyServerSDK({
+  apiBaseUrl: process.env.BASE_URL!,
+  apiPrivateKey: process.env.API_PRIVATE_KEY!,
+  apiPublicKey: process.env.API_PUBLIC_KEY!,
+  defaultOrganizationId: process.env.ORGANIZATION_ID!,
+});
+
+const main = async () => {
   if (!process.env.SIGN_WITH) {
     // If you don't specify a `SIGN_WITH`, we'll create a new wallet for you via calling the Turnkey API.
     await createNewWallet();
     return;
   }
-
-  const BUNDLER_RPC = process.env.ZERODEV_BUNDLER_RPC!;
-  const PAYMASTER_RPC = process.env.ZERODEV_PAYMASTER_RPC!;
-
-  const chain = sepolia;
-  const network = "sepolia";
-  const entryPoint = ENTRYPOINT_ADDRESS_V07;
-  const kernelVersion = KERNEL_V3_1;
-
-  const turnkeyClient = new TurnkeyServerSDK({
-    apiBaseUrl: process.env.BASE_URL!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    defaultOrganizationId: process.env.ORGANIZATION_ID!,
-  });
 
   // Initialize a Turnkey-powered Viem Account
   const turnkeyAccount = await createAccount({
@@ -61,160 +56,94 @@ async function main() {
     signWith: process.env.SIGN_WITH!,
   });
 
-  // Create Viem client for signer
-  const client = createWalletClient({
-    account: turnkeyAccount as Account,
-    chain: sepolia,
-    transport: http(BUNDLER_RPC),
-  });
-
-  // Create public client for fetching chain data
+  // Construct a public client
+  const chain = sepolia;
   const publicClient = createPublicClient({
-    chain: sepolia,
-    transport: http(BUNDLER_RPC),
+    transport: http(ZERODEV_RPC),
+    chain,
   });
-
-  const smartAccountSigner = walletClientToSmartAccountSigner(client);
+  const entryPoint = getEntryPoint("0.7");
 
   // Construct a validator
   const ecdsaValidator = await signerToEcdsaValidator(publicClient, {
-    signer: smartAccountSigner,
+    signer: turnkeyAccount,
     entryPoint,
-    kernelVersion,
+    kernelVersion: KERNEL_V3_1,
   });
 
   // Construct a Kernel account
   const account = await createKernelAccount(publicClient, {
+    entryPoint,
     plugins: {
       sudo: ecdsaValidator,
     },
-    entryPoint,
-    kernelVersion,
+    kernelVersion: KERNEL_V3_1,
+  });
+
+  const zerodevPaymaster = createZeroDevPaymasterClient({
+    chain,
+    transport: http(ZERODEV_RPC),
   });
 
   // Construct a Kernel account client
   const kernelClient = createKernelAccountClient({
     account,
     chain,
-    entryPoint,
-    bundlerTransport: http(BUNDLER_RPC),
-    middleware: {
-      sponsorUserOperation: async ({ userOperation }) => {
-        const zerodevPaymaster = createZeroDevPaymasterClient({
-          chain,
-          entryPoint,
-          transport: http(PAYMASTER_RPC),
-        });
-        return zerodevPaymaster.sponsorUserOperation({
-          userOperation,
-          entryPoint,
-        });
+    bundlerTransport: http(ZERODEV_RPC),
+    paymaster: {
+      getPaymasterData(userOperation) {
+        return zerodevPaymaster.sponsorUserOperation({ userOperation });
       },
     },
   });
 
-  const chainId = client.chain.id;
-  const signerAddress = client.account.address;
-  const smartAccountAddress = kernelClient.account.address;
+  const accountAddress = kernelClient.account.address;
 
-  const transactionCount = await publicClient.getTransactionCount({
-    address: smartAccountAddress,
-  });
+  print("My account:", accountAddress);
 
-  const nonce = await kernelClient.account.getNonce();
-  let balance =
-    (await publicClient.getBalance({ address: smartAccountAddress })) ?? 0;
-
-  print("Network:", `${network} (chain ID ${chainId})`);
-  print("Signer address:", signerAddress);
-  print("Smart wallet address:", smartAccountAddress);
-  print("Balance:", `${formatEther(balance)} Ether`);
-  print("Transaction count:", `${transactionCount}`);
-  print("Nonce:", `${nonce}`);
-
-  while (balance === BigInt(0)) {
-    console.log(
-      [
-        `\n💸 Your onchain balance is at 0! To continue this demo you'll need testnet funds! You can use:`,
-        `- Any online faucet (e.g. https://www.alchemy.com/faucets/)`,
-        `\nTo check your balance: https://${network}.etherscan.io/address/${smartAccountAddress}`,
-        `\n--------`,
-      ].join("\n")
-    );
-
-    const { continue: _ } = await prompts([
-      {
-        type: "text" as PromptType,
-        name: "continue",
-        message: "Ready to continue? y/n",
-        initial: "y",
-      },
-    ]);
-
-    balance = await publicClient.getBalance({ address: smartAccountAddress });
-  }
-
-  const { amount, destination } = await prompts([
-    {
-      type: "number" as PromptType,
-      name: "amount",
-      message: "Amount to send (wei). Default to 0.0000001 ETH",
-      initial: 100000000000,
-    },
-    {
-      type: "text" as PromptType,
-      name: "destination",
-      message: "Destination address (default to TKHQ warchest)",
-      initial: "0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7",
-    },
-  ]);
-
-  const transactionRequest = {
-    to: destination,
-    value: amount,
-    type: 2,
-  };
-
-  // Make a simple send tx (which calls `signTransaction` under the hood)
+  // Send a UserOp
   const userOpHash = await kernelClient.sendUserOperation({
-    userOperation: {
-      callData: await account.encodeCallData({
-        to: transactionRequest.to,
-        value: transactionRequest.value,
-        data: "0x",
-      }),
-    },
+    callData: await kernelClient.account.encodeCalls([
+      {
+        to: contractAddress,
+        value: BigInt(0),
+        data: encodeFunctionData({
+          abi: contractABI,
+          functionName: "mint",
+          args: [accountAddress],
+        }),
+      },
+    ]),
   });
 
-  const bundlerClient = createBundlerClient({
-    entryPoint,
-    transport: http(BUNDLER_RPC),
-  });
+  print("Submitted UserOp:", userOpHash);
 
-  const { receipt } = await bundlerClient.waitForUserOperationReceipt({
+  // Wait for the UserOp to be included on-chain
+  const receipt = await kernelClient.waitForUserOperationReceipt({
     hash: userOpHash,
-    timeout: 60_000, // 1 minute
   });
 
   print(
-    `Sent ${formatEther(transactionRequest.value)} Ether to ${
-      transactionRequest.to
-    }:`,
-    `https://${network}.etherscan.io/tx/${receipt.transactionHash}`
+    "UserOp confirmed:",
+    `https://v2.jiffyscan.xyz/userOpHash/${receipt.userOpHash}?network=sepolia&section=overview`,
   );
 
   print(
-    `Bundle can be found here:`,
-    `https://jiffyscan.xyz/bundle/${receipt.transactionHash}?network=${network}&pageNo=0&pageSize=10`
+    "TxHash:",
+    `https://sepolia.etherscan.io/tx/${receipt.receipt.transactionHash}`,
   );
 
-  print(
-    `User Ops can be found here:`,
-    `https://jiffyscan.xyz/userOpHash/${receipt.transactionHash}?network=${network}&pageNo=0&pageSize=10`
-  );
-}
+  // Print NFT balance
+  const nftBalance = await publicClient.readContract({
+    address: contractAddress,
+    abi: contractABI,
+    functionName: "balanceOf",
+    args: [accountAddress],
+  });
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+  print("NFT balance:", `${nftBalance}`);
+
+  process.exit(0);
+};
+
+main();

@@ -27,12 +27,9 @@ The first step is to set up your Turnkey organization and account. By following 
 - An organization ID
 - A Turnkey wallet account (address), private key address, or a private key ID
 
-### 2b/ Setting up Zerodev
+### 2b/ Setting up ZeroDev
 
-The next step is to navigate to Zerodev to create an account. Visit the [Zerodev Dashboard](https://dashboard.zerodev.app/) to create a your paymaster and find the following:
-
-- Bundler RPC
-- Paymaster RPC
+The next step is to navigate to ZeroDev to create an account. Visit the [ZeroDev Dashboard](https://dashboard.zerodev.app/) to create a paymaster and find your bundler RPC. You can find more details on the tutorial page here: https://docs.zerodev.app/sdk/getting-started/tutorial.
 
 Once you've gathered these values, add them to a new `.env.local` file. Notice that your private key should be securely managed and **_never_** be committed to git.
 
@@ -47,14 +44,13 @@ Now open `.env.local` and add the missing environment variables:
 - `BASE_URL`
 - `ORGANIZATION_ID`
 - `SIGN_WITH` -- a Turnkey wallet account address, private key address, or private key ID. If you leave this blank, we'll create a wallet for you.
-- `ZERODEV_BUNDLER_RPC`
-- `ZERODEV_PAYMASTER_RPC`
+- `ZERODEV_RPC`
 
 ### 3/ Running the scripts
 
-Note: there are two included — one for Viem and another for Ethers (WIP). See `package.json` for more details.
+Note: only Viem is supported in this example at this time. Ethers is currently a WIP.
 
-These scripts construct transactions via Turnkey and broadcast them via Infura. If the scripts exit because your account isn't funded, you can request funds on https://sepoliafaucet.com/ or https://faucet.paradigm.xyz/.
+These scripts construct transactions via Turnkey and broadcast them via Infura. If the scripts exit because your account isn't funded, you can request funds on https://sepoliafaucet.com/, via Coinbase Wallet, etc.
 
 #### Viem
 
@@ -66,41 +62,27 @@ This script will do the following:
 
 1. instantiate a Turnkey Viem wallet client
 2. instantiate a Viem public client (to be used to fetch onchain data)
-3. create a Zerodev Kernel Client (with Paymaster support)
-4. create a Zerodev Bundler Client
-5. send ETH (via type 2 EIP-1559 transaction)
+3. create a ZeroDev Validator
+4. create a ZeroDev Kernel Client (with Paymaster support)
+5. send a UserOp to mint an NFT
 
 See the following for a sample output:
 
 ```
-Network:
-        sepolia (chain ID 11155111)
+My account:
+        0x71799300bc4b2F16a1377E119169543B3D3Da382
 
-Signer address:
-        0xbcb87Df08A6a4409B28a85Af41f32Da75bD442e9
+Submitted UserOp:
+        0x5bda54f67d2d5fe51f5d5950c6ea66cdf9e7fd071bc2f61db6bedec2d442e4fa
 
-Smart wallet address:
-        0xDbf9297467030aFf40E0D9cd43D088696596B841
+UserOp confirmed:
+        https://v2.jiffyscan.xyz/userOpHash/0x5bda54f67d2d5fe51f5d5950c6ea66cdf9e7fd071bc2f61db6bedec2d442e4fa?network=sepolia&section=overview
 
-Balance:
-        0.0099995 Ether
+TxHash:
+        https://sepolia.etherscan.io/tx/0xe9e1cbf4e6c1b88a3725585e408616a906114ad7b1b52d40c46fb3bef2adf684
 
-Transaction count:
-        1
-
-Nonce:
-        913479994650515257524606220465835134743662536739504622017003723935449093
-
-✔ Amount to send (wei). Default to 0.0000001 ETH … 100000000000
-✔ Destination address (default to TKHQ warchest) … 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7
-Sent 0.0000001 Ether to 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7:
-        https://sepolia.etherscan.io/tx/0xe70fd04de98bc47595fba282f172ff0fa75949a7b0e16647cf423e8db7fb9ed1
-
-Bundle can be found here:
-        https://jiffyscan.xyz/bundle/0xe70fd04de98bc47595fba282f172ff0fa75949a7b0e16647cf423e8db7fb9ed1?network=sepolia&pageNo=0&pageSize=10
-
-User Ops can be found here:
-        https://jiffyscan.xyz/userOpHash/0xe70fd04de98bc47595fba282f172ff0fa75949a7b0e16647cf423e8db7fb9ed1?network=sepolia&pageNo=0&pageSize=10
+NFT balance:
+        3
 ```
 
 #### Ethers

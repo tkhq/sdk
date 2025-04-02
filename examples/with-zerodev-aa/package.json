@@ -11,13 +11,13 @@
     "@turnkey/ethers": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/viem": "workspace:*",
-    "@zerodev/ecdsa-validator": "^5.3.3",
-    "@zerodev/sdk": "^5.3.22",
+    "@zerodev/ecdsa-validator": "^5.4.5",
+    "@zerodev/sdk": "^5.4.28",
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0",
     "permissionless": "^0.1.45",
     "prompts": "^2.4.2",
-    "viem": "2.16.3"
+    "viem": "2.23.13"
   },
   "devDependencies": {
     "@types/node": "^22.7.7",
