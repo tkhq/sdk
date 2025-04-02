@@ -50,9 +50,15 @@ export enum IframeEventType {
   // Event sent by the parent to establish secure communication via MessageChannel API.
   // Value: MessageChannel port
   TurnkeyInitMessageChannel = "TURNKEY_INIT_MESSAGE_CHANNEL",
-  // Event sent by the parent to get the target embedded key's public key.
-  // Value: public key
+  // Event sent by the parent to get the iframe target embedded key's public key.
+  // Value: none
   GetEmbeddedPublicKey = "GET_EMBEDDED_PUBLIC_KEY",
+  // Event sent by the parent to reset the iframe's embedded key.
+  // Value: none
+  ResetEmbeddedKey = "RESET_EMBEDDED_KEY",
+  // Event sent by the parent to initialize a new embedded key.
+  // Value: none
+  InitEmbeddedKey = "INIT_EMBEDDED_KEY",
   // Event sent by the iframe to communicate an error
   // Value: serialized error
   Error = "ERROR",
@@ -289,6 +295,20 @@ export class IframeStamper {
     return this.createRequest<string | null>(
       IframeEventType.GetEmbeddedPublicKey,
     );
+  }
+
+  /**
+   * Resets the embedded key within an iframe by clearing the existing one.
+   */
+  async resetEmbeddedKey(): Promise<string | null> {
+    return this.createRequest<string | null>(IframeEventType.ResetEmbeddedKey);
+  }
+
+  /**
+   * Reinitializes the embedded key within an iframe.
+   */
+  async initEmbeddedKey(): Promise<string | null> {
+    return this.createRequest<string | null>(IframeEventType.InitEmbeddedKey);
   }
 
   /**
