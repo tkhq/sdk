@@ -921,8 +921,8 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
     return await (this.stamper as IframeStamper).getEmbeddedPublicKey();
   };
 
-  resetEmbeddedKey = async (): Promise<null> => {
-    return await (this.stamper as IframeStamper).resetEmbeddedKey();
+  clearEmbeddedKey = async (): Promise<null> => {
+    return await (this.stamper as IframeStamper).clearEmbeddedKey();
   };
 
   initEmbeddedKey = async (): Promise<string | null> => {

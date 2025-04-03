@@ -53,9 +53,9 @@ export enum IframeEventType {
   // Event sent by the parent to get the iframe target embedded key's public key.
   // Value: none
   GetEmbeddedPublicKey = "GET_EMBEDDED_PUBLIC_KEY",
-  // Event sent by the parent to reset the iframe's embedded key.
+  // Event sent by the parent to clear the iframe's embedded key.
   // Value: none
-  ResetEmbeddedKey = "RESET_EMBEDDED_KEY",
+  ClearEmbeddedKey = "RESET_EMBEDDED_KEY",
   // Event sent by the parent to initialize a new embedded key.
   // Value: none
   InitEmbeddedKey = "INIT_EMBEDDED_KEY",
@@ -298,10 +298,10 @@ export class IframeStamper {
   }
 
   /**
-   * Resets the embedded key within an iframe by clearing the existing one.
+   * Clears the embedded key within an iframe.
    */
-  async resetEmbeddedKey(): Promise<null> {
-    return this.createRequest<null>(IframeEventType.ResetEmbeddedKey);
+  async clearEmbeddedKey(): Promise<null> {
+    return this.createRequest<null>(IframeEventType.ClearEmbeddedKey);
   }
 
   /**
