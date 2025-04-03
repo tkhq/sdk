@@ -1,30 +1,27 @@
 {
-  "name": "@turnkey/example-with-biconomy-aa",
-  "version": "0.2.0",
+  "name": "@turnkey/example-with-zerodev-aa",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start-ethers": "tsx src/ethers.ts",
     "start-viem": "tsx src/viem.ts",
-    "start-nexus-viem": "tsx src/nexus-viem.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@biconomy/account": "^4.5.6",
-    "@biconomy/sdk": "^0.0.10",
-    "@rhinestone/module-sdk": "^0.1.28",
     "@turnkey/ethers": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/viem": "workspace:*",
+    "@zerodev/ecdsa-validator": "^5.4.5",
+    "@zerodev/sdk": "^5.4.28",
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0",
+    "permissionless": "^0.1.45",
     "prompts": "^2.4.2",
     "viem": "2.23.13"
   },
   "devDependencies": {
-    "@types/prompts": "^2.4.2"
-  },
-  "peerDependencies": {
-    "viem": "2.23.13"
+    "@types/node": "^22.7.7",
+    "@types/prompts": "^2.4.2",
+    "tslib": "^2.8.0"
   }
 }

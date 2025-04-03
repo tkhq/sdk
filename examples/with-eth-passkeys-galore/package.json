@@ -38,6 +38,9 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.45.1",
     "typescript": "5.1.3",
-    "viem": "^2.21.9"
+    "viem": "2.23.13"
+  },
+  "peerDependencies": {
+    "viem": "2.23.13"
   }
 }
