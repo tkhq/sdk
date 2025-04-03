@@ -292,24 +292,37 @@ export class IframeStamper {
    * This differs from the above in that it reaches out to the live iframe to see if an embedded key exists.
    */
   async getEmbeddedPublicKey(): Promise<string | null> {
-    return this.createRequest<string | null>(
+    const publicKey = await this.createRequest<string | null>(
       IframeEventType.GetEmbeddedPublicKey,
     );
+    this.iframePublicKey = publicKey;
+
+    return publicKey;
   }
 
   /**
    * Clears the embedded key within an iframe.
    */
   async clearEmbeddedKey(): Promise<null> {
-    return this.createRequest<null>(IframeEventType.ClearEmbeddedKey);
+    await this.createRequest<null>(IframeEventType.ClearEmbeddedKey);
+    this.iframePublicKey = "";
+
+    return null;
   }
 
   /**
-   * Reinitializes the embedded key within an iframe.
+   * Creates a new embedded key within an iframe. If an embedded key already exists, this will return it.
+   * This is primarily to be used in conjunction with `clearEmbeddedKey()`: after an embedded key is cleared,
+   * this can be used to create a new one.
    * @return {string | null} the newly created embedded public key.
    */
   async initEmbeddedKey(): Promise<string | null> {
-    return this.createRequest<string | null>(IframeEventType.InitEmbeddedKey);
+    const publicKey = await this.createRequest<string | null>(
+      IframeEventType.InitEmbeddedKey,
+    );
+    this.iframePublicKey = publicKey;
+
+    return publicKey;
   }
 
   /**
