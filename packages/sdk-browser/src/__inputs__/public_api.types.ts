@@ -1523,6 +1523,8 @@ export type definitions = {
     invalidateExisting?: boolean;
     /** @description Optional custom email address from which to send the email */
     sendFromEmailAddress?: string;
+    /** @description Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+    sendFromEmailSenderName?: string;
   };
   v1EmailAuthIntentV2: {
     /** @description Email of the authenticating user. */
@@ -1539,6 +1541,8 @@ export type definitions = {
     invalidateExisting?: boolean;
     /** @description Optional custom email address from which to send the email */
     sendFromEmailAddress?: string;
+    /** @description Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+    sendFromEmailSenderName?: string;
   };
   v1EmailAuthRequest: {
     /** @enum {string} */
@@ -1989,6 +1993,8 @@ export type definitions = {
     userIdentifier?: string;
     /** @description Optional custom email address from which to send the OTP email */
     sendFromEmailAddress?: string;
+    /** @description Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+    sendFromEmailSenderName?: string;
   };
   v1InitOtpAuthIntentV2: {
     /** @description Enum to specifiy whether to send OTP via SMS or email */
@@ -2010,6 +2016,8 @@ export type definitions = {
     sendFromEmailAddress?: string;
     /** @description Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). Default = true */
     alphanumeric?: boolean;
+    /** @description Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+    sendFromEmailSenderName?: string;
   };
   v1InitOtpAuthRequest: {
     /** @enum {string} */

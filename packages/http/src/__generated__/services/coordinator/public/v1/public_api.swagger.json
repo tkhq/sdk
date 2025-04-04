@@ -5499,6 +5499,10 @@
         "sendFromEmailAddress": {
           "type": "string",
           "description": "Optional custom email address from which to send the email"
+        },
+        "sendFromEmailSenderName": {
+          "type": "string",
+          "description": "Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'"
         }
       },
       "required": ["email", "targetPublicKey"]
@@ -5533,6 +5537,10 @@
         "sendFromEmailAddress": {
           "type": "string",
           "description": "Optional custom email address from which to send the email"
+        },
+        "sendFromEmailSenderName": {
+          "type": "string",
+          "description": "Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'"
         }
       },
       "required": ["email", "targetPublicKey"]
@@ -6637,6 +6645,10 @@
         "sendFromEmailAddress": {
           "type": "string",
           "description": "Optional custom email address from which to send the OTP email"
+        },
+        "sendFromEmailSenderName": {
+          "type": "string",
+          "description": "Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'"
         }
       },
       "required": ["otpType", "contact"]
@@ -6676,6 +6688,10 @@
         "alphanumeric": {
           "type": "boolean",
           "description": "Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). Default = true"
+        },
+        "sendFromEmailSenderName": {
+          "type": "string",
+          "description": "Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'"
         }
       },
       "required": ["otpType", "contact"]

@@ -177,6 +177,8 @@ export type SendOtpRequest = {
   sendFromEmailAddress?: string | undefined;
   customSmsMessage?: string | undefined;
   userIdentifier?: string | undefined;
+  otpLength?: number | undefined;
+  alphanumeric?: boolean | undefined;
 };
 
 export type SendOtpResponse = {
