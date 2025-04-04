@@ -16,24 +16,40 @@ import {
 import { FlagImage as OriginalFlagImage } from "react-international-phone";
 const FlagImage = OriginalFlagImage as React.ElementType;
 
-// List of unsupported country dial codes
-const unsupported_country_codes = [
-  "+93", // Afghanistan
-  "+964", // Iraq
-  "+963", // Syria
-  "+249", // Sudan
-  "+98", // Iran
-  "+850", // North Korea
-  "+53", // Cuba
-  "+250", // Rwanda
-  "+379", // Vatican City
+// Supported country dial codes
+const supported_country_codes = [
+  "+1", // USA, Canada, Mexico
+  "+33", // France
+  "+420", // Czech Republic
+  "+358", // Finland
+  "+49", // Germany
+  "+30", // Greece
+  "+36", // Hungary
+  "+354", // Iceland
+  "+353", // Ireland
+  "+39", // Italy
+  "+371", // Latvia
+  "+370", // Lithuania
+  "+352", // Luxembourg
+  "+356", // Malta
+  "+373", // Moldova
+  "+382", // Montenegro
+  "+31", // Netherlands
+  "+47", // Norway
+  "+48", // Poland
+  "+351", // Portugal
+  "+40", // Romania
+  "+381", // Serbia
+  "+386", // Slovenia
+  "+34", // Spain
+  "+46", // Sweden
+  "+41", // Switzerland
 ];
 
 const countries = defaultCountries.filter((country) => {
   const { dialCode } = parseCountry(country);
-  return !unsupported_country_codes.includes(`+${dialCode}`);
+  return supported_country_codes.includes(`+${dialCode}`);
 });
-
 export interface MUIPhoneProps extends BaseTextFieldProps {
   value: string;
   onChange: (phone: string) => void;
