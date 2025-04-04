@@ -1,5 +1,12 @@
 # @turnkey/viem
 
+## 0.7.2
+
+### Patch Changes
+
+- Updated dependencies [7b72769]
+  - @turnkey/sdk-server@3.0.1
+
 ## 0.7.1
 
 ### Patch Changes

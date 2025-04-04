@@ -1,5 +1,11 @@
 # @turnkey/sdk-server
 
+## 3.0.1
+
+### Patch Changes
+
+- 7b72769: Add sendFromEmailSenderName to sendOtp server action
+
 ## 3.0.0
 
 ### Major Changes

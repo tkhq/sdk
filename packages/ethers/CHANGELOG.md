@@ -1,5 +1,12 @@
 # @turnkey/ethers
 
+## 1.1.22
+
+### Patch Changes
+
+- Updated dependencies [7b72769]
+  - @turnkey/sdk-server@3.0.1
+
 ## 1.1.21
 
 ### Patch Changes
