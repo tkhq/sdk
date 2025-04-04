@@ -20,7 +20,8 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
     }));
 
     const handleChange = (value: string, index: number) => {
-      if (/^\d*$/.test(value)) {
+      value = value.toUpperCase();
+      if (/^[a-zA-Z0-9]*$/.test(value)) {
         const newOtp = [...otp];
         newOtp[index] = value;
         setOtp(newOtp);
@@ -31,7 +32,8 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
         }
 
         // Move focus to the next box if current is filled
-        if (value && index < 5) {
+        const count = numBoxes ? numBoxes - 1 : 8;
+        if (value && index < count) {
           const nextInput = document.getElementById(`otp-input-${index + 1}`);
           if (nextInput) (nextInput as HTMLInputElement).focus();
         }
@@ -46,7 +48,9 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
     };
 
     const handlePaste = (event: React.ClipboardEvent) => {
-      const pasteData = event.clipboardData.getData("Text").replace(/\D/g, ""); // Ensure only digits are pasted
+      const pasteData = event.clipboardData
+        .getData("Text")
+        .replace(/[^a-zA-Z0-9]/g, "");
       if (pasteData.length === (numBoxes ?? 9)) {
         const newOtp = pasteData.split("");
         setOtp(newOtp);
@@ -74,8 +78,8 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
             inputProps={{
               maxLength: 1,
               style: {
+                fontSize: "clamp(1rem, 2vw, 1.25rem)",
                 textAlign: "center",
-                fontSize: "1.5rem",
                 height: "20px",
                 width: "100%",
                 background: "var(--input-bg)",

@@ -178,7 +178,7 @@ export type SendOtpRequest = {
   customSmsMessage?: string | undefined;
   userIdentifier?: string | undefined;
   otpLength?: number | undefined;
-  alphaNumeric?: boolean | undefined;
+  alphanumeric?: boolean | undefined;
 };
 
 export type SendOtpResponse = {

@@ -30,7 +30,7 @@ export interface PasskeyConfig {
 
 export interface OtpConfig {
   otpLength?: number;
-  alphaNumeric?: boolean;
+  alphanumeric?: boolean;
 }
 
 const passkeyIcon = (
@@ -263,8 +263,8 @@ const Auth: React.FC<AuthProps> = ({
       ...(emailCustomization && { emailCustomization }),
       ...(sendFromEmailAddress && { sendFromEmailAddress }),
       ...(customSmsMessage && { customSmsMessage }),
-      ...(otpConfig?.otpLength && { otpLength: otpConfig.otpLength }),
-      ...(otpConfig?.alphaNumeric && { alphaNumeric: otpConfig.alphaNumeric }),
+      otpLength: otpConfig?.otpLength ?? 6,
+      alphanumeric: otpConfig?.alphanumeric ?? false,
       userIdentifier: authIframeClient?.iframePublicKey!,
     });
     if (initAuthResponse && initAuthResponse.otpId) {
@@ -711,7 +711,7 @@ const Auth: React.FC<AuthProps> = ({
                     sessionLengthSeconds={authConfig.sessionLengthSeconds}
                     onValidateSuccess={onAuthSuccess}
                     onResendCode={handleResendCode}
-                    numBoxes={otpConfig?.otpLength}
+                    numBoxes={otpConfig?.otpLength ?? 6}
                   />
                 )}
 
