@@ -315,7 +315,7 @@ const browserClient = new TurnkeyBrowserClient(config);
 const readWriteSession = await browserClient.loginWithReadWriteSession(
   "target-embedded-key",
   "900", // Session expires in 15 minutes
-  "user-id"
+  "user-id",
 );
 ```
 
@@ -377,7 +377,7 @@ const session = await passkeyClient.createPasskeySession(
   "user-id",
   "target-embedded-key",
   "1800", // Expire in 30 minutes
-  "org-id"
+  "org-id",
 );
 ```
 
@@ -409,7 +409,7 @@ const iframeClient = turnkeySDK.iframeClient();
 
 // Injects a credential bundle into the iframe for session management
 const success = await iframeClient.injectCredentialBundle(
-  "your-credential-bundle"
+  "your-credential-bundle",
 );
 ```
 
@@ -434,7 +434,7 @@ const iframeClient = turnkeySDK.iframeClient();
 // Injects a credential bundle into the iframe for session management
 const success = await iframeClient.injectWalletExportBundle(
   "wallet-bundle",
-  "org-id"
+  "org-id",
 );
 ```
 
@@ -460,7 +460,7 @@ const iframeClient = turnkeySDK.iframeClient();
 const success = await iframeClient.injectKeyExportBundle(
   "key-bundle",
   "org-id",
-  "PEM"
+  "PEM",
 );
 ```
 
@@ -486,7 +486,7 @@ const iframeClient = turnkeySDK.iframeClient();
 const success = await iframeClient.injectImportBundle(
   "import-bundle",
   "org-id",
-  "user-id"
+  "user-id",
 );
 ```
 
@@ -623,7 +623,7 @@ const iframeClient = await turnkeySDK.iframeClient({
   iframeUrl: "https://auth.turnkey.com",
 });
 const response = await iframeClient.injectCredentialBundle(
-  "<Credential from Email>"
+  "<Credential from Email>",
 );
 if (response) {
   await iframeClient.getWallets();
