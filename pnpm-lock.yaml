@@ -61,9 +61,6 @@ importers:
       '@types/node':
         specifier: ^18.18.2
         version: 18.18.2
-      eslint-plugin-tsdoc:
-        specifier: ^0.4.0
-        version: 0.4.0
       jest:
         specifier: ^29.3.1
         version: 29.4.3(@types/node@18.18.2)
@@ -743,7 +740,7 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
       viem:
-        specifier: ^2.23.13
+        specifier: 2.23.13
         version: 2.23.13(typescript@5.4.3)
     devDependencies:
       '@types/prompts':
@@ -13191,7 +13188,7 @@ packages:
   /@types/prompts@2.4.2:
     resolution: {integrity: sha512-TwNx7qsjvRIUv/BCx583tqF5IINEVjCNqg9ofKHRlSoUHE62WBHrem4B1HGXcIrG511v29d1kJ9a/t2Esz7MIg==}
     dependencies:
-      '@types/node': 22.7.7
+      '@types/node': 20.3.1
       kleur: 3.0.3
     dev: true
 
@@ -14197,20 +14194,6 @@ packages:
     dependencies:
       typescript: 5.1.5
       zod: 3.23.8
-    dev: false
-
-  /abitype@1.0.6(typescript@5.1.3):
-    resolution: {integrity: sha512-MMSqYh4+C/aVqI2RQaWqbvI4Kxo5cQV40WQ4QFtDnNzCkqChm8MuENhElmynZlO0qUy/ObkEUaXtKqYnx1Kp3A==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-      zod: ^3 >=3.22.0
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-      zod:
-        optional: true
-    dependencies:
-      typescript: 5.1.3
     dev: false
 
   /abitype@1.0.6(typescript@5.4.3):
@@ -17177,13 +17160,6 @@ packages:
       semver: 7.5.4
       string.prototype.matchall: 4.0.11
     dev: false
-
-  /eslint-plugin-tsdoc@0.4.0:
-    resolution: {integrity: sha512-MT/8b4aKLdDClnS8mP3R/JNjg29i0Oyqd/0ym6NnQf+gfKbJJ4ZcSh2Bs1H0YiUMTBwww5JwXGTWot/RwyJ7aQ==}
-    dependencies:
-      '@microsoft/tsdoc': 0.15.1
-      '@microsoft/tsdoc-config': 0.17.1
-    dev: true
 
   /eslint-scope@7.2.1:
     resolution: {integrity: sha512-CvefSOsDdaYYvxChovdrPo/ZGt8d5lrJWleAc1diXRKhHGiTYEI26cvo8Kle/wGnsizoCJjK73FMg1/IkIwiNA==}
@@ -25305,7 +25281,6 @@ packages:
       - bufferutil
       - utf-8-validate
       - zod
-    dev: false
 
   /viem@2.23.13(typescript@5.4.3):
     resolution: {integrity: sha512-f3RkcrzGhU79GfBb9GHUL0m3e3LUsNudXIQTFp4fit5hUGb0ew9KOYZ6cCY5d4Melj3noBy2zq0K2fV+mp+Cpg==}
