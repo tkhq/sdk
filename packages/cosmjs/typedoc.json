@@ -9,7 +9,7 @@
     {
       // requires typedoc-plugin-markdown
       "name": "markdown",
-      "path": "./docs_markdown",
+      "path": "./docs/markdown",
       "fileExtension": ".mdx"
     }
   ]
