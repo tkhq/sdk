@@ -1,0 +1,27 @@
+[**SDK Documentation**](../../../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../../../packages.mdx) / [@turnkey/http](../../../../README.mdx) / [index](../../../README.mdx) / [TurnkeyApi](../README.mdx) / getOrganizationConfigs
+
+# Function: getOrganizationConfigs()
+
+> **getOrganizationConfigs**(`input`): `Promise`\<\{ `configs`: \{ `features`: `object`[]; `quorum`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; \}; \}\>
+
+Defined in: [packages/http/src/\_\_generated\_\_/services/coordinator/public/v1/public\_api.fetcher.ts:430](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher.ts#L430)
+
+Get Configs
+
+Get quorum settings and features for an organization
+
+`POST /public/v1/query/get_organization_configs`
+
+## Parameters
+
+### input
+
+[`TGetOrganizationConfigsInput`](../type-aliases/TGetOrganizationConfigsInput.mdx)
+
+## Returns
+
+`Promise`\<\{ `configs`: \{ `features`: `object`[]; `quorum`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; \}; \}\>

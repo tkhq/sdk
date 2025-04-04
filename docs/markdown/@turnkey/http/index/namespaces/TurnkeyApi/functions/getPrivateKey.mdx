@@ -1,0 +1,27 @@
+[**SDK Documentation**](../../../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../../../packages.mdx) / [@turnkey/http](../../../../README.mdx) / [index](../../../README.mdx) / [TurnkeyApi](../README.mdx) / getPrivateKey
+
+# Function: getPrivateKey()
+
+> **getPrivateKey**(`input`): `Promise`\<\{ `privateKey`: \{ `addresses`: `object`[]; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `exported`: `boolean`; `imported`: `boolean`; `privateKeyId`: `string`; `privateKeyName`: `string`; `privateKeyTags`: `string`[]; `publicKey`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+Defined in: [packages/http/src/\_\_generated\_\_/services/coordinator/public/v1/public\_api.fetcher.ts:528](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher.ts#L528)
+
+Get Private Key
+
+Get details about a Private Key
+
+`POST /public/v1/query/get_private_key`
+
+## Parameters
+
+### input
+
+[`TGetPrivateKeyInput`](../type-aliases/TGetPrivateKeyInput.mdx)
+
+## Returns
+
+`Promise`\<\{ `privateKey`: \{ `addresses`: `object`[]; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `exported`: `boolean`; `imported`: `boolean`; `privateKeyId`: `string`; `privateKeyName`: `string`; `privateKeyTags`: `string`[]; `publicKey`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>

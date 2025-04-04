@@ -1,0 +1,519 @@
+[**SDK Documentation**](../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../packages.mdx) / [@turnkey/ethers](../../README.mdx) / [index](../README.mdx) / TurnkeySigner
+
+# Class: TurnkeySigner
+
+Defined in: [packages/ethers/src/index.ts:46](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L46)
+
+## Extends
+
+- `AbstractSigner`
+
+## Implements
+
+- `Signer`
+
+## Constructors
+
+### Constructor
+
+> **new TurnkeySigner**(`config`, `provider`?): `TurnkeySigner`
+
+Defined in: [packages/ethers/src/index.ts:55](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L55)
+
+#### Parameters
+
+##### config
+
+`TConfig`
+
+##### provider?
+
+`Provider`
+
+#### Returns
+
+`TurnkeySigner`
+
+#### Overrides
+
+`AbstractSigner.constructor`
+
+## Properties
+
+### \_signTypedData()
+
+> **\_signTypedData**: (`domain`, `types`, `value`) => `Promise`\<`string`\>
+
+Defined in: [packages/ethers/src/index.ts:297](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L297)
+
+#### Parameters
+
+##### domain
+
+`TypedDataDomain`
+
+##### types
+
+`Record`\<`string`, `TypedDataField`[]\>
+
+##### value
+
+`Record`\<`string`, `any`\>
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### organizationId
+
+> `readonly` **organizationId**: `string`
+
+Defined in: [packages/ethers/src/index.ts:52](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L52)
+
+***
+
+### provider
+
+> `readonly` **provider**: `null` \| `Provider`
+
+Defined in: node\_modules/.pnpm/ethers@6.10.0/node\_modules/ethers/lib.commonjs/providers/abstract-signer.d.ts:15
+
+The provider this signer is connected to.
+
+#### Implementation of
+
+`ethers.Signer.provider`
+
+#### Inherited from
+
+`AbstractSigner.provider`
+
+***
+
+### signWith
+
+> `readonly` **signWith**: `string`
+
+Defined in: [packages/ethers/src/index.ts:53](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L53)
+
+## Methods
+
+### \_signMessageImpl()
+
+> **\_signMessageImpl**(`message`): `Promise`\<`string`\>
+
+Defined in: [packages/ethers/src/index.ts:234](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L234)
+
+#### Parameters
+
+##### message
+
+`string`
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### \_signMessageWithErrorWrapping()
+
+> **\_signMessageWithErrorWrapping**(`message`): `Promise`\<`string`\>
+
+Defined in: [packages/ethers/src/index.ts:213](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L213)
+
+#### Parameters
+
+##### message
+
+`string`
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### call()
+
+> **call**(`tx`): `Promise`\<`string`\>
+
+Defined in: node\_modules/.pnpm/ethers@6.10.0/node\_modules/ethers/lib.commonjs/providers/abstract-signer.d.ts:35
+
+Evaluates the //tx// by running it against the current Blockchain state. This
+ cannot change state and has no cost in ether, as it is effectively simulating
+ execution.
+
+ This can be used to have the Blockchain perform computations based on its state
+ (e.g. running a Contract's getters) or to simulate the effect of a transaction
+ before actually performing an operation.
+
+#### Parameters
+
+##### tx
+
+`TransactionRequest`
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Implementation of
+
+`ethers.Signer.call`
+
+#### Inherited from
+
+`AbstractSigner.call`
+
+***
+
+### connect()
+
+> **connect**(`provider`): `TurnkeySigner`
+
+Defined in: [packages/ethers/src/index.ts:63](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L63)
+
+Returns the signer connected to %%provider%%.
+
+ This may throw, for example, a Signer connected over a Socket or
+ to a specific instance of a node may not be transferrable.
+
+#### Parameters
+
+##### provider
+
+`Provider`
+
+#### Returns
+
+`TurnkeySigner`
+
+#### Implementation of
+
+`ethers.Signer.connect`
+
+#### Overrides
+
+`AbstractSigner.connect`
+
+***
+
+### estimateGas()
+
+> **estimateGas**(`tx`): `Promise`\<`bigint`\>
+
+Defined in: node\_modules/.pnpm/ethers@6.10.0/node\_modules/ethers/lib.commonjs/providers/abstract-signer.d.ts:34
+
+Estimates the required gas required to execute //tx// on the Blockchain. This
+ will be the expected amount a transaction will require as its ``gasLimit``
+ to successfully run all the necessary computations and store the needed state
+ that the transaction intends.
+
+ Keep in mind that this is **best efforts**, since the state of the Blockchain
+ is in flux, which could affect transaction gas requirements.
+
+#### Parameters
+
+##### tx
+
+`TransactionRequest`
+
+#### Returns
+
+`Promise`\<`bigint`\>
+
+#### Throws
+
+UNPREDICTABLE_GAS_LIMIT A transaction that is believed by the node to likely
+         fail will throw an error during gas estimation. This could indicate that it
+         will actually fail or that the circumstances are simply too complex for the
+         node to take into account. In these cases, a manually determined ``gasLimit``
+         will need to be made.
+
+#### Implementation of
+
+`ethers.Signer.estimateGas`
+
+#### Inherited from
+
+`AbstractSigner.estimateGas`
+
+***
+
+### getAddress()
+
+> **getAddress**(): `Promise`\<`string`\>
+
+Defined in: [packages/ethers/src/index.ts:77](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L77)
+
+Resolves to the Signer address.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Implementation of
+
+`ethers.Signer.getAddress`
+
+#### Overrides
+
+`AbstractSigner.getAddress`
+
+***
+
+### getNonce()
+
+> **getNonce**(`blockTag`?): `Promise`\<`number`\>
+
+Defined in: node\_modules/.pnpm/ethers@6.10.0/node\_modules/ethers/lib.commonjs/providers/abstract-signer.d.ts:31
+
+Gets the next nonce required for this Signer to send a transaction.
+
+#### Parameters
+
+##### blockTag?
+
+`BlockTag`
+
+The blocktag to base the transaction count on, keep in mind
+        many nodes do not honour this value and silently ignore it [default: ``"latest"``]
+
+#### Returns
+
+`Promise`\<`number`\>
+
+#### Implementation of
+
+`ethers.Signer.getNonce`
+
+#### Inherited from
+
+`AbstractSigner.getNonce`
+
+***
+
+### populateCall()
+
+> **populateCall**(`tx`): `Promise`\<`TransactionLike`\<`string`\>\>
+
+Defined in: node\_modules/.pnpm/ethers@6.10.0/node\_modules/ethers/lib.commonjs/providers/abstract-signer.d.ts:32
+
+Prepares a TransactionRequest for calling:
+ - resolves ``to`` and ``from`` addresses
+ - if ``from`` is specified , check that it matches this Signer
+
+#### Parameters
+
+##### tx
+
+`TransactionRequest`
+
+The call to prepare
+
+#### Returns
+
+`Promise`\<`TransactionLike`\<`string`\>\>
+
+#### Implementation of
+
+`ethers.Signer.populateCall`
+
+#### Inherited from
+
+`AbstractSigner.populateCall`
+
+***
+
+### populateTransaction()
+
+> **populateTransaction**(`tx`): `Promise`\<`TransactionLike`\<`string`\>\>
+
+Defined in: node\_modules/.pnpm/ethers@6.10.0/node\_modules/ethers/lib.commonjs/providers/abstract-signer.d.ts:33
+
+Prepares a TransactionRequest for sending to the network by
+ populating any missing properties:
+ - resolves ``to`` and ``from`` addresses
+ - if ``from`` is specified , check that it matches this Signer
+ - populates ``nonce`` via ``signer.getNonce("pending")``
+ - populates ``gasLimit`` via ``signer.estimateGas(tx)``
+ - populates ``chainId`` via ``signer.provider.getNetwork()``
+ - populates ``type`` and relevant fee data for that type (``gasPrice``
+   for legacy transactions, ``maxFeePerGas`` for EIP-1559, etc)
+
+#### Parameters
+
+##### tx
+
+`TransactionRequest`
+
+The call to prepare
+
+#### Returns
+
+`Promise`\<`TransactionLike`\<`string`\>\>
+
+#### Note
+
+Some Signer implementations may skip populating properties that
+       are populated downstream; for example JsonRpcSigner defers to the
+       node to populate the nonce and fee data.
+
+#### Implementation of
+
+`ethers.Signer.populateTransaction`
+
+#### Inherited from
+
+`AbstractSigner.populateTransaction`
+
+***
+
+### resolveName()
+
+> **resolveName**(`name`): `Promise`\<`null` \| `string`\>
+
+Defined in: node\_modules/.pnpm/ethers@6.10.0/node\_modules/ethers/lib.commonjs/providers/abstract-signer.d.ts:36
+
+Resolves an ENS Name to an address.
+
+#### Parameters
+
+##### name
+
+`string`
+
+#### Returns
+
+`Promise`\<`null` \| `string`\>
+
+#### Implementation of
+
+`ethers.Signer.resolveName`
+
+#### Inherited from
+
+`AbstractSigner.resolveName`
+
+***
+
+### sendTransaction()
+
+> **sendTransaction**(`tx`): `Promise`\<`TransactionResponse`\>
+
+Defined in: node\_modules/.pnpm/ethers@6.10.0/node\_modules/ethers/lib.commonjs/providers/abstract-signer.d.ts:37
+
+Sends %%tx%% to the Network. The ``signer.populateTransaction(tx)``
+ is called first to ensure all necessary properties for the
+ transaction to be valid have been popualted first.
+
+#### Parameters
+
+##### tx
+
+`TransactionRequest`
+
+#### Returns
+
+`Promise`\<`TransactionResponse`\>
+
+#### Implementation of
+
+`ethers.Signer.sendTransaction`
+
+#### Inherited from
+
+`AbstractSigner.sendTransaction`
+
+***
+
+### signMessage()
+
+> **signMessage**(`message`): `Promise`\<`string`\>
+
+Defined in: [packages/ethers/src/index.ts:206](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L206)
+
+#### Parameters
+
+##### message
+
+`string` | `Uint8Array`
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Implementation of
+
+`ethers.Signer.signMessage`
+
+#### Overrides
+
+`AbstractSigner.signMessage`
+
+***
+
+### signTransaction()
+
+> **signTransaction**(`transaction`): `Promise`\<`string`\>
+
+Defined in: [packages/ethers/src/index.ts:166](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L166)
+
+#### Parameters
+
+##### transaction
+
+`TransactionRequest`
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Implementation of
+
+`ethers.Signer.signTransaction`
+
+#### Overrides
+
+`AbstractSigner.signTransaction`
+
+***
+
+### signTypedData()
+
+> **signTypedData**(`domain`, `types`, `value`): `Promise`\<`string`\>
+
+Defined in: [packages/ethers/src/index.ts:273](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L273)
+
+#### Parameters
+
+##### domain
+
+`TypedDataDomain`
+
+##### types
+
+`Record`\<`string`, `TypedDataField`[]\>
+
+##### value
+
+`Record`\<`string`, `any`\>
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Implementation of
+
+`ethers.Signer.signTypedData`
+
+#### Overrides
+
+`AbstractSigner.signTypedData`

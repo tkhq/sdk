@@ -1,0 +1,27 @@
+[**SDK Documentation**](../../../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../../../packages.mdx) / [@turnkey/http](../../../../README.mdx) / [index](../../../README.mdx) / [TurnkeyApi](../README.mdx) / getWallet
+
+# Function: getWallet()
+
+> **getWallet**(`input`): `Promise`\<\{ `wallet`: \{ `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `exported`: `boolean`; `imported`: `boolean`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `walletId`: `string`; `walletName`: `string`; \}; \}\>
+
+Defined in: [packages/http/src/\_\_generated\_\_/services/coordinator/public/v1/public\_api.fetcher.ts:620](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher.ts#L620)
+
+Get Wallet
+
+Get details about a Wallet
+
+`POST /public/v1/query/get_wallet`
+
+## Parameters
+
+### input
+
+[`TGetWalletInput`](../type-aliases/TGetWalletInput.mdx)
+
+## Returns
+
+`Promise`\<\{ `wallet`: \{ `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `exported`: `boolean`; `imported`: `boolean`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `walletId`: `string`; `walletName`: `string`; \}; \}\>

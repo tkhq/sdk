@@ -1,0 +1,54 @@
+[**SDK Documentation**](../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../packages.mdx) / [@turnkey/http](../../README.mdx) / [index](../README.mdx) / withAsyncPolling
+
+# Function: ~~withAsyncPolling()~~
+
+> **withAsyncPolling**\<`O`, `I`\>(`params`): (`input`) => `Promise`\<`O`\[`"activity"`\]\>
+
+Defined in: [packages/http/src/async.ts:13](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/http/src/async.ts#L13)
+
+Wraps a request to create a fetcher with built-in async polling support.
+
+## Type Parameters
+
+### O
+
+`O` *extends* `object`
+
+### I
+
+`I` *extends* `object`
+
+## Parameters
+
+### params
+
+#### refreshIntervalMs?
+
+`number`
+
+#### request
+
+(`input`) => `Promise`\<`O`\>
+
+## Returns
+
+`Function`
+
+### Parameters
+
+#### input
+
+`I`
+
+### Returns
+
+`Promise`\<`O`\[`"activity"`\]\>
+
+## Deprecated
+
+this function only works with [TurnkeyApi](../namespaces/TurnkeyApi/README.mdx).
+Use [TurnkeyClient](../classes/TurnkeyClient.mdx) and [createActivityPoller](createActivityPoller.mdx) instead.

@@ -1,0 +1,37 @@
+[**SDK Documentation**](../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../packages.mdx) / [@turnkey/http](../../README.mdx) / [index](../README.mdx) / sealAndStampRequestBody
+
+# Function: sealAndStampRequestBody()
+
+> **sealAndStampRequestBody**(`input`): `Promise`\<\{ `sealedBody`: `string`; `xStamp`: `string`; \}\>
+
+Defined in: [packages/http/src/base.ts:216](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/http/src/base.ts#L216)
+
+Seals and stamps the request body with your Turnkey API credentials.
+
+You can either:
+- Before calling `sealAndStampRequestBody(...)`, initialize with your Turnkey API credentials via `init(...)`
+- Or, provide `apiPublicKey` and `apiPrivateKey` here as arguments
+
+## Parameters
+
+### input
+
+#### apiPrivateKey?
+
+`string`
+
+#### apiPublicKey?
+
+`string`
+
+#### body
+
+`Record`\<`string`, `any`\>
+
+## Returns
+
+`Promise`\<\{ `sealedBody`: `string`; `xStamp`: `string`; \}\>
