@@ -1,5 +1,5 @@
 {
-  "extends": "@tsconfig/node16-strictest/tsconfig.json",
+  "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
     "ignoreDeprecations": "5.0",
     "composite": true,

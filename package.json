@@ -35,7 +35,7 @@
     "@rollup/plugin-node-resolve": "16.0.0",
     "@rollup/plugin-typescript": "^11.1.5",
     "@rollup/plugin-url": "8.0.2",
-    "@tsconfig/node16-strictest": "^1.0.4",
+    "@tsconfig/strictest": "^2.0.5",
     "@turnkey/jest-config": "workspace:*",
     "@types/node": "^18.18.2",
     "eslint-plugin-tsdoc": "^0.4.0",
