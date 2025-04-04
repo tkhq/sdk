@@ -75,6 +75,9 @@ export async function sendOtp(
       ...(request.sendFromEmailAddress && {
         sendFromEmailAddress: request.sendFromEmailAddress,
       }),
+      ...(request.sendFromEmailSenderName && {
+        sendFromEmailSenderName: request.sendFromEmailSenderName,
+      }),
       ...(request.userIdentifier && { userIdentifier: request.userIdentifier }),
       ...(request.customSmsMessage && {
         smsCustomization: { template: request.customSmsMessage },
