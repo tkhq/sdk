@@ -175,6 +175,7 @@ export type SendOtpRequest = {
   contact: string;
   emailCustomization?: EmailCustomization | undefined;
   sendFromEmailAddress?: string | undefined;
+  sendFromEmailSenderName?: string | undefined;
   customSmsMessage?: string | undefined;
   userIdentifier?: string | undefined;
   otpLength?: number | undefined;
