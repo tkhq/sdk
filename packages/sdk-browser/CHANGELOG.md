@@ -4,10 +4,39 @@
 
 ### Minor Changes
 
-- e501690: Add new utility functions
+- e501690: Add new utility functions:
 
   - Add `clearEmbeddedKey()` async function, which clears the embedded key within an iframe
   - Add `initEmbeddedKey()` async function, which reinitializes the embedded key within an iframe
+
+  These can be used in tandem to reset the embedded key within an iframe. See demo video in this PR's description: https://github.com/tkhq/sdk/pull/571
+
+  Usage may look like the following:
+
+  ```javascript
+  import { Turnkey } from "@turnkey/sdk-browser";
+
+  ...
+
+  // create an instance of TurnkeyBrowserSDK
+  const turnkeyBrowserSDK = new Turnkey(config);
+
+  // create an instance of TurnkeyIframeClient
+  const iframeClient = await turnkeyBrowserSDK.iframeClient({
+    iframeContainer: document.getElementById(
+      "turnkey-auth-iframe-container-id",
+    ),
+    iframeUrl: "https://auth.turnkey.com",
+    iframeElementId: "turnkey-auth-iframe-element-id",
+  });
+
+  ...
+
+  // Clear the existing embedded key
+  await iframeClient.clearEmbeddedKey();
+
+  const newPublicKey = await iframeClient.initEmbeddedKey();
+  ```
 
 ### Patch Changes
 
@@ -24,6 +53,8 @@
 
   ```javascript
   import { Turnkey } from "@turnkey/sdk-browser";
+
+  ...
 
   // create an instance of TurnkeyBrowserSDK
   const turnkeyBrowserSDK = new Turnkey(config);
