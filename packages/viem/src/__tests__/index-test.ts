@@ -365,6 +365,12 @@ describe("TurnkeyAccount", () => {
 
         expect(mintHash).toMatch(/^0x/);
 
+        const mintTx = await walletClient.waitForTransactionReceipt({
+          hash: mintHash,
+        });
+
+        expect(mintTx.blockHash).toMatch(/^0x/);
+
         // Approve
         // @ts-expect-error
         const approveHash = await contract.write.approve([
@@ -373,6 +379,12 @@ describe("TurnkeyAccount", () => {
         ]);
 
         expect(approveHash).toMatch(/^0x/);
+
+        const approveTx = await walletClient.waitForTransactionReceipt({
+          hash: approveHash,
+        });
+
+        expect(approveTx.blockHash).toMatch(/^0x/);
       });
     });
   });
