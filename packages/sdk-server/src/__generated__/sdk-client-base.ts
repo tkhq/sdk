@@ -1961,7 +1961,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
       },
-      "initOtpAuthResult",
+      "initOtpAuthResultV2",
     );
   };
 
