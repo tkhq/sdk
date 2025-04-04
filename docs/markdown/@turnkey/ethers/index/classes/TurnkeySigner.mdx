@@ -6,7 +6,7 @@
 
 # Class: TurnkeySigner
 
-Defined in: [packages/ethers/src/index.ts:46](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L46)
+Defined in: [packages/ethers/src/index.ts:46](https://github.com/tkhq/sdk/blob/3a88af7d1d927c6022706911d6af0f92f1440e00/packages/ethers/src/index.ts#L46)
 
 ## Extends
 
@@ -22,7 +22,7 @@ Defined in: [packages/ethers/src/index.ts:46](https://github.com/tkhq/sdk/blob/0
 
 > **new TurnkeySigner**(`config`, `provider`?): `TurnkeySigner`
 
-Defined in: [packages/ethers/src/index.ts:55](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L55)
+Defined in: [packages/ethers/src/index.ts:55](https://github.com/tkhq/sdk/blob/3a88af7d1d927c6022706911d6af0f92f1440e00/packages/ethers/src/index.ts#L55)
 
 #### Parameters
 
@@ -48,7 +48,7 @@ Defined in: [packages/ethers/src/index.ts:55](https://github.com/tkhq/sdk/blob/0
 
 > **\_signTypedData**: (`domain`, `types`, `value`) => `Promise`\<`string`\>
 
-Defined in: [packages/ethers/src/index.ts:297](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L297)
+Defined in: [packages/ethers/src/index.ts:297](https://github.com/tkhq/sdk/blob/3a88af7d1d927c6022706911d6af0f92f1440e00/packages/ethers/src/index.ts#L297)
 
 #### Parameters
 
@@ -74,7 +74,7 @@ Defined in: [packages/ethers/src/index.ts:297](https://github.com/tkhq/sdk/blob/
 
 > `readonly` **organizationId**: `string`
 
-Defined in: [packages/ethers/src/index.ts:52](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L52)
+Defined in: [packages/ethers/src/index.ts:52](https://github.com/tkhq/sdk/blob/3a88af7d1d927c6022706911d6af0f92f1440e00/packages/ethers/src/index.ts#L52)
 
 ***
 
@@ -100,7 +100,7 @@ The provider this signer is connected to.
 
 > `readonly` **signWith**: `string`
 
-Defined in: [packages/ethers/src/index.ts:53](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L53)
+Defined in: [packages/ethers/src/index.ts:53](https://github.com/tkhq/sdk/blob/3a88af7d1d927c6022706911d6af0f92f1440e00/packages/ethers/src/index.ts#L53)
 
 ## Methods
 
@@ -108,7 +108,7 @@ Defined in: [packages/ethers/src/index.ts:53](https://github.com/tkhq/sdk/blob/0
 
 > **\_signMessageImpl**(`message`): `Promise`\<`string`\>
 
-Defined in: [packages/ethers/src/index.ts:234](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L234)
+Defined in: [packages/ethers/src/index.ts:234](https://github.com/tkhq/sdk/blob/3a88af7d1d927c6022706911d6af0f92f1440e00/packages/ethers/src/index.ts#L234)
 
 #### Parameters
 
@@ -126,7 +126,7 @@ Defined in: [packages/ethers/src/index.ts:234](https://github.com/tkhq/sdk/blob/
 
 > **\_signMessageWithErrorWrapping**(`message`): `Promise`\<`string`\>
 
-Defined in: [packages/ethers/src/index.ts:213](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L213)
+Defined in: [packages/ethers/src/index.ts:213](https://github.com/tkhq/sdk/blob/3a88af7d1d927c6022706911d6af0f92f1440e00/packages/ethers/src/index.ts#L213)
 
 #### Parameters
 
@@ -178,7 +178,7 @@ Evaluates the //tx// by running it against the current Blockchain state. This
 
 > **connect**(`provider`): `TurnkeySigner`
 
-Defined in: [packages/ethers/src/index.ts:63](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L63)
+Defined in: [packages/ethers/src/index.ts:63](https://github.com/tkhq/sdk/blob/3a88af7d1d927c6022706911d6af0f92f1440e00/packages/ethers/src/index.ts#L63)
 
 Returns the signer connected to %%provider%%.
 
@@ -251,7 +251,7 @@ UNPREDICTABLE_GAS_LIMIT A transaction that is believed by the node to likely
 
 > **getAddress**(): `Promise`\<`string`\>
 
-Defined in: [packages/ethers/src/index.ts:77](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L77)
+Defined in: [packages/ethers/src/index.ts:77](https://github.com/tkhq/sdk/blob/3a88af7d1d927c6022706911d6af0f92f1440e00/packages/ethers/src/index.ts#L77)
 
 Resolves to the Signer address.
 
@@ -438,7 +438,7 @@ Sends %%tx%% to the Network. The ``signer.populateTransaction(tx)``
 
 > **signMessage**(`message`): `Promise`\<`string`\>
 
-Defined in: [packages/ethers/src/index.ts:206](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L206)
+Defined in: [packages/ethers/src/index.ts:206](https://github.com/tkhq/sdk/blob/3a88af7d1d927c6022706911d6af0f92f1440e00/packages/ethers/src/index.ts#L206)
 
 #### Parameters
 
@@ -464,7 +464,7 @@ Defined in: [packages/ethers/src/index.ts:206](https://github.com/tkhq/sdk/blob/
 
 > **signTransaction**(`transaction`): `Promise`\<`string`\>
 
-Defined in: [packages/ethers/src/index.ts:166](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L166)
+Defined in: [packages/ethers/src/index.ts:166](https://github.com/tkhq/sdk/blob/3a88af7d1d927c6022706911d6af0f92f1440e00/packages/ethers/src/index.ts#L166)
 
 #### Parameters
 
@@ -490,7 +490,7 @@ Defined in: [packages/ethers/src/index.ts:166](https://github.com/tkhq/sdk/blob/
 
 > **signTypedData**(`domain`, `types`, `value`): `Promise`\<`string`\>
 
-Defined in: [packages/ethers/src/index.ts:273](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/ethers/src/index.ts#L273)
+Defined in: [packages/ethers/src/index.ts:273](https://github.com/tkhq/sdk/blob/3a88af7d1d927c6022706911d6af0f92f1440e00/packages/ethers/src/index.ts#L273)
 
 #### Parameters
 
