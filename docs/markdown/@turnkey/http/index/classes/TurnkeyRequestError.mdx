@@ -1,0 +1,159 @@
+[**SDK Documentation**](../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../packages.mdx) / [@turnkey/http](../../README.mdx) / [index](../README.mdx) / TurnkeyRequestError
+
+# Class: TurnkeyRequestError
+
+Defined in: [packages/http/src/base.ts:294](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/http/src/base.ts#L294)
+
+## Extends
+
+- `Error`
+
+## Constructors
+
+### Constructor
+
+> **new TurnkeyRequestError**(`input`): `TurnkeyRequestError`
+
+Defined in: [packages/http/src/base.ts:298](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/http/src/base.ts#L298)
+
+#### Parameters
+
+##### input
+
+`GrpcStatus`
+
+#### Returns
+
+`TurnkeyRequestError`
+
+#### Overrides
+
+`Error.constructor`
+
+## Properties
+
+### code
+
+> **code**: `number`
+
+Defined in: [packages/http/src/base.ts:296](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/http/src/base.ts#L296)
+
+***
+
+### details
+
+> **details**: `null` \| `any`[]
+
+Defined in: [packages/http/src/base.ts:295](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/http/src/base.ts#L295)
+
+***
+
+### message
+
+> **message**: `string`
+
+Defined in: node\_modules/.pnpm/typescript@5.1.5/node\_modules/typescript/lib/lib.es5.d.ts:1068
+
+#### Inherited from
+
+`Error.message`
+
+***
+
+### name
+
+> **name**: `string`
+
+Defined in: node\_modules/.pnpm/typescript@5.1.5/node\_modules/typescript/lib/lib.es5.d.ts:1067
+
+#### Inherited from
+
+`Error.name`
+
+***
+
+### stack?
+
+> `optional` **stack**: `string`
+
+Defined in: node\_modules/.pnpm/typescript@5.1.5/node\_modules/typescript/lib/lib.es5.d.ts:1069
+
+#### Inherited from
+
+`Error.stack`
+
+***
+
+### prepareStackTrace()?
+
+> `static` `optional` **prepareStackTrace**: (`err`, `stackTraces`) => `any`
+
+Defined in: node\_modules/.pnpm/@types+node@18.18.2/node\_modules/@types/node/globals.d.ts:11
+
+Optional override for formatting stack traces
+
+#### Parameters
+
+##### err
+
+`Error`
+
+##### stackTraces
+
+`CallSite`[]
+
+#### Returns
+
+`any`
+
+#### See
+
+https://v8.dev/docs/stack-trace-api#customizing-stack-traces
+
+#### Inherited from
+
+`Error.prepareStackTrace`
+
+***
+
+### stackTraceLimit
+
+> `static` **stackTraceLimit**: `number`
+
+Defined in: node\_modules/.pnpm/@types+node@18.18.2/node\_modules/@types/node/globals.d.ts:13
+
+#### Inherited from
+
+`Error.stackTraceLimit`
+
+## Methods
+
+### captureStackTrace()
+
+> `static` **captureStackTrace**(`targetObject`, `constructorOpt`?): `void`
+
+Defined in: node\_modules/.pnpm/@types+node@18.18.2/node\_modules/@types/node/globals.d.ts:4
+
+Create .stack property on a target object
+
+#### Parameters
+
+##### targetObject
+
+`object`
+
+##### constructorOpt?
+
+`Function`
+
+#### Returns
+
+`void`
+
+#### Inherited from
+
+`Error.captureStackTrace`

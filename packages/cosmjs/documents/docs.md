@@ -1,0 +1,19 @@
+---
+title: "CosmJS"
+description: "[`@turnkey/cosmjs`](https://www.npmjs.com/package/@turnkey/cosmjs) exports a `TurnkeyDirectWallet` that serves as a drop-in replacement for a CosmJS direct wallet. It includes support for `signDirect`. See full implementation [here](https://github.com/tkhq/sdk/tree/main/packages/cosmjs) for more details and examples."
+mode: wide
+---
+
+```js
+// Initialize a Turnkey Signer
+const turnkeySigner = await TurnkeyDirectWallet.init({
+  config: {
+    ...
+  },
+  prefix: "celestia", // can be replaced with other Cosmos chains
+});
+
+const account = refineNonNull((await turnkeySigner.getAccounts())[0]);
+const compressedPublicKey = toHex(account.pubkey);
+const selfAddress = account.address;
+```

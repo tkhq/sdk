@@ -6,7 +6,7 @@
 
 # Class: IframeStamper
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:62
+Defined in: packages/iframe-stamper/dist/index.d.ts:63
 
 Stamper to use with `@turnkey/http`'s `TurnkeyClient`
 Creating a stamper inserts an iframe in the current page.
@@ -17,7 +17,7 @@ Creating a stamper inserts an iframe in the current page.
 
 > **new IframeStamper**(`config`): `IframeStamper`
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:73
+Defined in: packages/iframe-stamper/dist/index.d.ts:74
 
 Creates a new iframe stamper. This function _does not_ insert the iframe in the DOM.
 Call `.init()` to insert the iframe element in the DOM.
@@ -38,7 +38,7 @@ Call `.init()` to insert the iframe element in the DOM.
 
 > **container**: `HTMLElement`
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:63
+Defined in: packages/iframe-stamper/dist/index.d.ts:64
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: packages/iframe-stamper/dist/index.d.ts:63
 
 > **iframe**: `HTMLIFrameElement`
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:64
+Defined in: packages/iframe-stamper/dist/index.d.ts:65
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: packages/iframe-stamper/dist/index.d.ts:64
 
 > **iframeOrigin**: `string`
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:65
+Defined in: packages/iframe-stamper/dist/index.d.ts:66
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: packages/iframe-stamper/dist/index.d.ts:65
 
 > **iframePublicKey**: `null` \| `string`
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:66
+Defined in: packages/iframe-stamper/dist/index.d.ts:67
 
 ***
 
@@ -70,7 +70,7 @@ Defined in: packages/iframe-stamper/dist/index.d.ts:66
 
 > **messageChannel**: `MessageChannel`
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:67
+Defined in: packages/iframe-stamper/dist/index.d.ts:68
 
 ## Methods
 
@@ -78,7 +78,7 @@ Defined in: packages/iframe-stamper/dist/index.d.ts:67
 
 > **applySettings**(`settings`): `Promise`\<`boolean`\>
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:141
+Defined in: packages/iframe-stamper/dist/index.d.ts:147
 
 Function to apply settings on allowed parameters in the iframe
 This is used to style the HTML element used for plaintext in wallet and private key import.
@@ -87,7 +87,7 @@ This is used to style the HTML element used for plaintext in wallet and private 
 
 ##### settings
 
-[`TIframeSettings`](../../../iframe-stamper/type-aliases/TIframeSettings.mdx)
+[`TIframeSettings`](../../../iframe-stamper/index/type-aliases/TIframeSettings.mdx)
 
 #### Returns
 
@@ -99,7 +99,7 @@ This is used to style the HTML element used for plaintext in wallet and private 
 
 > **clear**(): `void`
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:83
+Defined in: packages/iframe-stamper/dist/index.d.ts:84
 
 Removes the iframe from the DOM
 
@@ -113,7 +113,7 @@ Removes the iframe from the DOM
 
 > **extractKeyEncryptedBundle**(`keyFormat`?): `Promise`\<`string`\>
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:136
+Defined in: packages/iframe-stamper/dist/index.d.ts:142
 
 Function to extract an encrypted bundle from the iframe
 The bundle should be encrypted to Turnkey's Signer enclave's initial public key
@@ -125,7 +125,7 @@ This is used during the private key import flow.
 
 ##### keyFormat?
 
-[`KeyFormat`](../../../iframe-stamper/enumerations/KeyFormat.mdx)
+[`KeyFormat`](../../../iframe-stamper/index/enumerations/KeyFormat.mdx)
 
 #### Returns
 
@@ -137,7 +137,7 @@ This is used during the private key import flow.
 
 > **extractWalletEncryptedBundle**(): `Promise`\<`string`\>
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:128
+Defined in: packages/iframe-stamper/dist/index.d.ts:134
 
 Function to extract an encrypted bundle from the iframe
 The bundle should be encrypted to Turnkey's Signer enclave's initial public key
@@ -150,11 +150,26 @@ This is used during the wallet import flow.
 
 ***
 
+### getEmbeddedPublicKey()
+
+> **getEmbeddedPublicKey**(): `Promise`\<`null` \| `string`\>
+
+Defined in: packages/iframe-stamper/dist/index.d.ts:93
+
+Returns the public key, or `null` if the underlying iframe isn't properly initialized.
+This differs from the above in that it reaches out to the live iframe to see if an embedded key exists.
+
+#### Returns
+
+`Promise`\<`null` \| `string`\>
+
+***
+
 ### init()
 
 > **init**(`dangerouslyOverrideIframeKeyTtl`?): `Promise`\<`string`\>
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:79
+Defined in: packages/iframe-stamper/dist/index.d.ts:80
 
 Inserts the iframe on the page and returns a promise resolving to the iframe's public key
 
@@ -176,7 +191,7 @@ Optional TTL override for the iframe's embedded key (default 48 hours). Only use
 
 > **injectCredentialBundle**(`bundle`): `Promise`\<`boolean`\>
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:101
+Defined in: packages/iframe-stamper/dist/index.d.ts:107
 
 Function to inject a new credential into the iframe
 The bundle should be encrypted to the iframe's initial public key
@@ -199,7 +214,7 @@ This is used during recovery and auth flows.
 
 > **injectImportBundle**(`bundle`, `organizationId`, `userId`): `Promise`\<`boolean`\>
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:121
+Defined in: packages/iframe-stamper/dist/index.d.ts:127
 
 Function to inject an import bundle into the iframe
 This is used to initiate either the wallet import flow or the private key import flow.
@@ -228,7 +243,7 @@ This is used to initiate either the wallet import flow or the private key import
 
 > **injectKeyExportBundle**(`bundle`, `organizationId`, `keyFormat`?): `Promise`\<`boolean`\>
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:109
+Defined in: packages/iframe-stamper/dist/index.d.ts:115
 
 Function to inject an export bundle into the iframe
 The bundle should be encrypted to the iframe's initial public key
@@ -248,7 +263,7 @@ This is used during the private key export flow.
 
 ##### keyFormat?
 
-[`KeyFormat`](../../../iframe-stamper/enumerations/KeyFormat.mdx)
+[`KeyFormat`](../../../iframe-stamper/index/enumerations/KeyFormat.mdx)
 
 #### Returns
 
@@ -260,7 +275,7 @@ This is used during the private key export flow.
 
 > **injectWalletExportBundle**(`bundle`, `organizationId`): `Promise`\<`boolean`\>
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:116
+Defined in: packages/iframe-stamper/dist/index.d.ts:122
 
 Function to inject an export bundle into the iframe
 The bundle should be encrypted to the iframe's initial public key
@@ -287,7 +302,7 @@ This is used during the wallet export flow.
 
 > **onMessageHandler**(`event`): `void`
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:74
+Defined in: packages/iframe-stamper/dist/index.d.ts:75
 
 #### Parameters
 
@@ -305,7 +320,7 @@ Defined in: packages/iframe-stamper/dist/index.d.ts:74
 
 > **publicKey**(): `null` \| `string`
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:87
+Defined in: packages/iframe-stamper/dist/index.d.ts:88
 
 Returns the public key, or `null` if the underlying iframe isn't properly initialized.
 
@@ -319,7 +334,7 @@ Returns the public key, or `null` if the underlying iframe isn't properly initia
 
 > **stamp**(`payload`): `Promise`\<`TStamp`\>
 
-Defined in: packages/iframe-stamper/dist/index.d.ts:145
+Defined in: packages/iframe-stamper/dist/index.d.ts:151
 
 Function to sign a payload with the underlying iframe
 

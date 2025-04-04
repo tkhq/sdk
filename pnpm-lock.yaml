@@ -62,9 +62,6 @@ importers:
       '@types/node':
         specifier: ^18.18.2
         version: 18.18.2
-      eslint-plugin-tsdoc:
-        specifier: ^0.4.0
-        version: 0.4.0
       jest:
         specifier: ^29.3.1
         version: 29.4.3(@types/node@18.18.2)
@@ -718,10 +715,10 @@ importers:
     dependencies:
       '@biconomy/account':
         specifier: ^4.5.6
-        version: 4.5.6(typescript@5.1.5)(viem@2.23.13)
+        version: 4.5.6(typescript@5.4.3)(viem@2.23.13)
       '@biconomy/sdk':
         specifier: ^0.0.10
-        version: 0.0.10(@rhinestone/module-sdk@0.1.28)(typescript@5.1.5)(viem@2.23.13)
+        version: 0.0.10(@rhinestone/module-sdk@0.1.28)(typescript@5.4.3)(viem@2.23.13)
       '@rhinestone/module-sdk':
         specifier: ^0.1.28
         version: 0.1.28(viem@2.23.13)
@@ -744,8 +741,8 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
       viem:
-        specifier: 2.23.13
-        version: 2.23.13(typescript@5.1.5)
+        specifier: ^2.23.13
+        version: 2.23.13(typescript@5.4.3)
     devDependencies:
       '@types/prompts':
         specifier: ^2.4.2
@@ -1088,7 +1085,7 @@ importers:
     dependencies:
       '@safe-global/protocol-kit':
         specifier: ^3.0.1
-        version: 3.0.1(typescript@5.1.5)
+        version: 3.0.1(typescript@5.4.3)
       '@safe-global/safe-core-sdk-types':
         specifier: ^4.0.1
         version: 4.0.1
@@ -1195,7 +1192,7 @@ importers:
         version: 0.26.0
       '@solana/spl-token':
         specifier: ^0.4.8
-        version: 0.4.8(@solana/web3.js@1.95.8)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5)
+        version: 0.4.8(@solana/web3.js@1.95.8)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)
       '@solana/web3.js':
         specifier: ^1.95.8
         version: 1.95.8(encoding@0.1.13)
@@ -1800,7 +1797,7 @@ importers:
         version: 4.9.0
       '@typechain/ethers-v6':
         specifier: ^0.5.1
-        version: 0.5.1(ethers@6.10.0)(typechain@8.3.2)(typescript@5.1.5)
+        version: 0.5.1(ethers@6.10.0)(typechain@8.3.2)(typescript@5.4.3)
       '@typechain/hardhat':
         specifier: ^9.1.0
         version: 9.1.0(@typechain/ethers-v6@0.5.1)(ethers@6.10.0)(hardhat@2.19.4)(typechain@8.3.2)
@@ -1809,10 +1806,10 @@ importers:
         version: 6.10.0
       hardhat:
         specifier: ^2.19.4
-        version: 2.19.4(typescript@5.1.5)
+        version: 2.19.4(typescript@5.4.3)
       typechain:
         specifier: ^8.3.2
-        version: 8.3.2(typescript@5.1.5)
+        version: 8.3.2(typescript@5.4.3)
 
   packages/http:
     dependencies:
@@ -2004,64 +2001,6 @@ importers:
       glob:
         specifier: ^8.0.3
         version: 8.1.0
-
-  packages/sdk-types:
-    dependencies:
-      '@emotion/react':
-        specifier: ^11.13.3
-        version: 11.13.3(@types/react@18.2.75)(react@18.2.0)
-      '@emotion/styled':
-        specifier: ^11.13.0
-        version: 11.13.0(@emotion/react@11.13.3)(@types/react@18.2.75)(react@18.2.0)
-      '@icons-pack/react-simple-icons':
-        specifier: ^10.1.0
-        version: 10.1.0(react@18.3.1)
-      '@mui/icons-material':
-        specifier: ^6.1.5
-        version: 6.1.5(@mui/material@6.1.5)(@types/react@18.2.75)(react@18.2.0)
-      '@mui/material':
-        specifier: ^6.1.5
-        version: 6.1.5(@emotion/react@11.13.3)(@emotion/styled@11.13.0)(@types/react@18.2.75)(react-dom@18.3.1)(react@18.2.0)
-      '@noble/hashes':
-        specifier: 1.4.0
-        version: 1.4.0
-      '@react-oauth/google':
-        specifier: ^0.12.1
-        version: 0.12.1(react-dom@18.3.1)(react@18.3.1)
-      '@turnkey/crypto':
-        specifier: workspace:*
-        version: link:../crypto
-      '@turnkey/sdk-browser':
-        specifier: workspace:*
-        version: link:../sdk-browser
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../sdk-server
-      '@turnkey/wallet-stamper':
-        specifier: workspace:*
-        version: link:../wallet-stamper
-      libphonenumber-js:
-        specifier: ^1.11.14
-        version: 1.11.14
-      next:
-        specifier: ^15.0.2
-        version: 15.0.2(@babel/core@7.26.9)(react-dom@18.3.1)(react@18.3.1)
-      react-apple-login:
-        specifier: ^1.1.6
-        version: 1.1.6(prop-types@15.8.1)(react-dom@18.3.1)(react@18.3.1)
-      react-international-phone:
-        specifier: ^4.3.0
-        version: 4.3.0(react@18.3.1)
-      usehooks-ts:
-        specifier: ^3.1.1
-        version: 3.1.1(react@18.3.1)
-    devDependencies:
-      postcss-import:
-        specifier: ^16.1.0
-        version: 16.1.0(postcss@8.4.38)
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
 
   packages/solana:
     dependencies:
@@ -5226,23 +5165,23 @@ packages:
       - zod
     dev: false
 
-  /@biconomy/account@4.5.6(typescript@5.1.5)(viem@2.23.13):
+  /@biconomy/account@4.5.6(typescript@5.4.3)(viem@2.23.13):
     resolution: {integrity: sha512-Mq0X9HF4fsPTkf87eXklJJE/Hl3GQwQHN/2/D1fCA4Q4o4AM9HV7Tzpb+hBsh8cUJ+s2j0Q9wORXA1c0onAImQ==}
     peerDependencies:
       typescript: ^5
       viem: ^2
     dependencies:
-      '@silencelaboratories/walletprovider-sdk': 0.1.0(typescript@5.1.5)
+      '@silencelaboratories/walletprovider-sdk': 0.1.0(typescript@5.4.3)
       merkletreejs: 0.4.0
-      typescript: 5.1.5
-      viem: 2.23.13(typescript@5.1.5)
+      typescript: 5.4.3
+      viem: 2.23.13(typescript@5.4.3)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
       - zod
     dev: false
 
-  /@biconomy/sdk@0.0.10(@rhinestone/module-sdk@0.1.28)(typescript@5.1.5)(viem@2.23.13):
+  /@biconomy/sdk@0.0.10(@rhinestone/module-sdk@0.1.28)(typescript@5.4.3)(viem@2.23.13):
     resolution: {integrity: sha512-HolZ2V95/Z/oE75qbbm2X+cGcWwh4S0oTgyDzd8XQBnnRDOGKlQuf5gxAz0AFvZTCfkjLqZe8E9cVhYPBI+2yQ==}
     peerDependencies:
       '@rhinestone/module-sdk': ^0.1.25
@@ -5250,9 +5189,9 @@ packages:
       viem: ^2.20.0
     dependencies:
       '@rhinestone/module-sdk': 0.1.28(viem@2.23.13)
-      '@silencelaboratories/walletprovider-sdk': 0.3.0(typescript@5.1.5)
-      typescript: 5.1.5
-      viem: 2.23.13(typescript@5.1.5)
+      '@silencelaboratories/walletprovider-sdk': 0.3.0(typescript@5.4.3)
+      typescript: 5.4.3
+      viem: 2.23.13(typescript@5.4.3)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -6571,14 +6510,6 @@ packages:
       react: ^16.13 || ^17 || ^18
     dependencies:
       react: 18.2.0
-    dev: false
-
-  /@icons-pack/react-simple-icons@10.1.0(react@18.3.1):
-    resolution: {integrity: sha512-sZ2oDkYaVAci7GuNL8okERJn4Ej0INbeCwtIDVuwWfO5zILW7j5frvKQbozTB+fLtZqEwAP9KkNp7oR8WeHaIg==}
-    peerDependencies:
-      react: ^16.13 || ^17 || ^18
-    dependencies:
-      react: 18.3.1
     dev: false
 
   /@img/sharp-darwin-arm64@0.33.5:
@@ -8503,7 +8434,7 @@ packages:
     dependencies:
       debug: 4.3.4(supports-color@8.1.1)
       ethers: 6.10.0
-      hardhat: 2.19.4(typescript@5.1.5)
+      hardhat: 2.19.4(typescript@5.4.3)
       lodash.isequal: 4.5.0
     transitivePeerDependencies:
       - supports-color
@@ -8515,7 +8446,7 @@ packages:
       hardhat: ^2.9.5
     dependencies:
       ethereumjs-util: 7.1.5
-      hardhat: 2.19.4(typescript@5.1.5)
+      hardhat: 2.19.4(typescript@5.4.3)
     dev: true
 
   /@nomicfoundation/solidity-analyzer-darwin-arm64@0.1.0:
@@ -9587,7 +9518,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.1
+      '@babel/runtime': 7.24.8
       '@radix-ui/react-primitive': 1.0.3(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)
       '@types/react': 18.2.14
       '@types/react-dom': 18.2.6
@@ -10764,24 +10695,14 @@ packages:
       react-dom: 18.3.1(react@18.2.0)
     dev: false
 
-  /@react-oauth/google@0.12.1(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-qagsy22t+7UdkYAiT5ZhfM4StXi9PPNvw0zuwNmabrWyMKddczMtBIOARflbaIj+wHiQjnMAsZmzsUYuXeyoSg==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-    dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    dev: false
-
-  /@rhinestone/module-sdk@0.1.28(viem@2.21.29):
+  /@rhinestone/module-sdk@0.1.28(viem@2.23.13):
     resolution: {integrity: sha512-Ob9qMs/scBrk6/X0dvb02kWqiCdP3Vau6PRNr3PP7PGxIIBFunJoVHuLWg4Tb/DHS3dCUXhuTk+XhObH1HjH+w==}
     peerDependencies:
       viem: ^2.0.0
     dependencies:
       solady: 0.0.235
       tslib: 2.8.1
-      viem: 2.23.13(typescript@5.1.5)
+      viem: 2.23.13(typescript@5.4.3)
     dev: false
 
   /@rollup/plugin-alias@5.1.1(rollup@4.22.4):
@@ -11024,7 +10945,7 @@ packages:
   /@rushstack/eslint-patch@1.9.0:
     resolution: {integrity: sha512-AAWymnpvHbGty1BmgbdfbqQDboXs6xN6h2yAacO4yKVyyUUBnpYkp+P9jjPrV9zrAGw7JVVriRtGOHPInnfjZQ==}
 
-  /@safe-global/protocol-kit@3.0.1(typescript@5.1.5):
+  /@safe-global/protocol-kit@3.0.1(typescript@5.4.3):
     resolution: {integrity: sha512-7S2QCvIDw3NsErF0f8tIfiTBz32btCAkw7IYuQFPc+G7clLrvDNhDaZYSoDsa8F0EoEhn+605VA7XP//iL6AIg==}
     dependencies:
       '@noble/hashes': 1.4.0
@@ -11032,7 +10953,7 @@ packages:
       ethereumjs-util: 7.1.5
       ethers: 6.10.0
       semver: 7.5.4
-      web3: 4.7.0(typescript@5.1.5)
+      web3: 4.7.0(typescript@5.4.3)
       web3-core: 4.3.2
       web3-utils: 4.2.1
     transitivePeerDependencies:
@@ -11289,11 +11210,11 @@ packages:
       - zod
     dev: false
 
-  /@silencelaboratories/walletprovider-sdk@0.1.0(typescript@5.1.5):
+  /@silencelaboratories/walletprovider-sdk@0.1.0(typescript@5.4.3):
     resolution: {integrity: sha512-53fV1noQJDUN9JNydDohyzsFl4+QYoWNkkkAfRzmIgtv+6DR+Dksb0fKmme2WdtA8MPEw/HsRwN3Lr6YC3iF7A==}
     dependencies:
       '@noble/curves': 1.8.1
-      viem: 2.23.13(typescript@5.1.5)
+      viem: 2.23.13(typescript@5.4.3)
     transitivePeerDependencies:
       - bufferutil
       - typescript
@@ -11301,12 +11222,12 @@ packages:
       - zod
     dev: false
 
-  /@silencelaboratories/walletprovider-sdk@0.3.0(typescript@5.1.5):
+  /@silencelaboratories/walletprovider-sdk@0.3.0(typescript@5.4.3):
     resolution: {integrity: sha512-5+yS95DwIufP0qOPuk81cXZ8gepcARXwuKRDAtjtf50JVX0MOMy6pR8f/1j5PATPdImzgI8905x3ZBgXfi+FKw==}
     dependencies:
       '@noble/curves': 1.8.1
       js-base64: 3.7.7
-      viem: 2.21.32(typescript@5.1.5)
+      viem: 2.21.32(typescript@5.4.3)
     transitivePeerDependencies:
       - bufferutil
       - typescript
@@ -11420,13 +11341,13 @@ packages:
       '@solana/errors': 2.0.0-preview.2
     dev: false
 
-  /@solana/codecs-core@2.0.0-preview.4(typescript@5.1.5):
+  /@solana/codecs-core@2.0.0-preview.4(typescript@5.4.3):
     resolution: {integrity: sha512-A0VVuDDA5kNKZUinOqHxJQK32aKTucaVbvn31YenGzHX1gPqq+SOnFwgaEY6pq4XEopSmaK16w938ZQS8IvCnw==}
     peerDependencies:
       typescript: '>=5'
     dependencies:
-      '@solana/errors': 2.0.0-preview.4(typescript@5.1.5)
-      typescript: 5.1.5
+      '@solana/errors': 2.0.0-preview.4(typescript@5.4.3)
+      typescript: 5.4.3
     dev: false
 
   /@solana/codecs-data-structures@2.0.0-preview.2:
@@ -11437,15 +11358,15 @@ packages:
       '@solana/errors': 2.0.0-preview.2
     dev: false
 
-  /@solana/codecs-data-structures@2.0.0-preview.4(typescript@5.1.5):
+  /@solana/codecs-data-structures@2.0.0-preview.4(typescript@5.4.3):
     resolution: {integrity: sha512-nt2k2eTeyzlI/ccutPcG36M/J8NAYfxBPI9h/nQjgJ+M+IgOKi31JV8StDDlG/1XvY0zyqugV3I0r3KAbZRJpA==}
     peerDependencies:
       typescript: '>=5'
     dependencies:
-      '@solana/codecs-core': 2.0.0-preview.4(typescript@5.1.5)
-      '@solana/codecs-numbers': 2.0.0-preview.4(typescript@5.1.5)
-      '@solana/errors': 2.0.0-preview.4(typescript@5.1.5)
-      typescript: 5.1.5
+      '@solana/codecs-core': 2.0.0-preview.4(typescript@5.4.3)
+      '@solana/codecs-numbers': 2.0.0-preview.4(typescript@5.4.3)
+      '@solana/errors': 2.0.0-preview.4(typescript@5.4.3)
+      typescript: 5.4.3
     dev: false
 
   /@solana/codecs-numbers@2.0.0-preview.2:
@@ -11455,14 +11376,14 @@ packages:
       '@solana/errors': 2.0.0-preview.2
     dev: false
 
-  /@solana/codecs-numbers@2.0.0-preview.4(typescript@5.1.5):
+  /@solana/codecs-numbers@2.0.0-preview.4(typescript@5.4.3):
     resolution: {integrity: sha512-Q061rLtMadsO7uxpguT+Z7G4UHnjQ6moVIxAQxR58nLxDPCC7MB1Pk106/Z7NDhDLHTcd18uO6DZ7ajHZEn2XQ==}
     peerDependencies:
       typescript: '>=5'
     dependencies:
-      '@solana/codecs-core': 2.0.0-preview.4(typescript@5.1.5)
-      '@solana/errors': 2.0.0-preview.4(typescript@5.1.5)
-      typescript: 5.1.5
+      '@solana/codecs-core': 2.0.0-preview.4(typescript@5.4.3)
+      '@solana/errors': 2.0.0-preview.4(typescript@5.4.3)
+      typescript: 5.4.3
     dev: false
 
   /@solana/codecs-strings@2.0.0-preview.2(fastestsmallesttextencoderdecoder@1.0.22):
@@ -11476,17 +11397,17 @@ packages:
       fastestsmallesttextencoderdecoder: 1.0.22
     dev: false
 
-  /@solana/codecs-strings@2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5):
+  /@solana/codecs-strings@2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3):
     resolution: {integrity: sha512-YDbsQePRWm+xnrfS64losSGRg8Wb76cjK1K6qfR8LPmdwIC3787x9uW5/E4icl/k+9nwgbIRXZ65lpF+ucZUnw==}
     peerDependencies:
       fastestsmallesttextencoderdecoder: ^1.0.22
       typescript: '>=5'
     dependencies:
-      '@solana/codecs-core': 2.0.0-preview.4(typescript@5.1.5)
-      '@solana/codecs-numbers': 2.0.0-preview.4(typescript@5.1.5)
-      '@solana/errors': 2.0.0-preview.4(typescript@5.1.5)
+      '@solana/codecs-core': 2.0.0-preview.4(typescript@5.4.3)
+      '@solana/codecs-numbers': 2.0.0-preview.4(typescript@5.4.3)
+      '@solana/errors': 2.0.0-preview.4(typescript@5.4.3)
       fastestsmallesttextencoderdecoder: 1.0.22
-      typescript: 5.1.5
+      typescript: 5.4.3
     dev: false
 
   /@solana/codecs@2.0.0-preview.2(fastestsmallesttextencoderdecoder@1.0.22):
@@ -11501,17 +11422,17 @@ packages:
       - fastestsmallesttextencoderdecoder
     dev: false
 
-  /@solana/codecs@2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5):
+  /@solana/codecs@2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3):
     resolution: {integrity: sha512-gLMupqI4i+G4uPi2SGF/Tc1aXcviZF2ybC81x7Q/fARamNSgNOCUUoSCg9nWu1Gid6+UhA7LH80sWI8XjKaRog==}
     peerDependencies:
       typescript: '>=5'
     dependencies:
-      '@solana/codecs-core': 2.0.0-preview.4(typescript@5.1.5)
-      '@solana/codecs-data-structures': 2.0.0-preview.4(typescript@5.1.5)
-      '@solana/codecs-numbers': 2.0.0-preview.4(typescript@5.1.5)
-      '@solana/codecs-strings': 2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5)
-      '@solana/options': 2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5)
-      typescript: 5.1.5
+      '@solana/codecs-core': 2.0.0-preview.4(typescript@5.4.3)
+      '@solana/codecs-data-structures': 2.0.0-preview.4(typescript@5.4.3)
+      '@solana/codecs-numbers': 2.0.0-preview.4(typescript@5.4.3)
+      '@solana/codecs-strings': 2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)
+      '@solana/options': 2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)
+      typescript: 5.4.3
     transitivePeerDependencies:
       - fastestsmallesttextencoderdecoder
     dev: false
@@ -11524,7 +11445,7 @@ packages:
       commander: 12.1.0
     dev: false
 
-  /@solana/errors@2.0.0-preview.4(typescript@5.1.5):
+  /@solana/errors@2.0.0-preview.4(typescript@5.4.3):
     resolution: {integrity: sha512-kadtlbRv2LCWr8A9V22On15Us7Nn8BvqNaOB4hXsTB3O0fU40D1ru2l+cReqLcRPij4znqlRzW9Xi0m6J5DIhA==}
     hasBin: true
     peerDependencies:
@@ -11532,7 +11453,7 @@ packages:
     dependencies:
       chalk: 5.3.0
       commander: 12.1.0
-      typescript: 5.1.5
+      typescript: 5.4.3
     dev: false
 
   /@solana/options@2.0.0-preview.2:
@@ -11542,28 +11463,28 @@ packages:
       '@solana/codecs-numbers': 2.0.0-preview.2
     dev: false
 
-  /@solana/options@2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5):
+  /@solana/options@2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3):
     resolution: {integrity: sha512-tv2O/Frxql/wSe3jbzi5nVicIWIus/BftH+5ZR+r9r3FO0/htEllZS5Q9XdbmSboHu+St87584JXeDx3xm4jaA==}
     peerDependencies:
       typescript: '>=5'
     dependencies:
-      '@solana/codecs-core': 2.0.0-preview.4(typescript@5.1.5)
-      '@solana/codecs-data-structures': 2.0.0-preview.4(typescript@5.1.5)
-      '@solana/codecs-numbers': 2.0.0-preview.4(typescript@5.1.5)
-      '@solana/codecs-strings': 2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5)
-      '@solana/errors': 2.0.0-preview.4(typescript@5.1.5)
-      typescript: 5.1.5
+      '@solana/codecs-core': 2.0.0-preview.4(typescript@5.4.3)
+      '@solana/codecs-data-structures': 2.0.0-preview.4(typescript@5.4.3)
+      '@solana/codecs-numbers': 2.0.0-preview.4(typescript@5.4.3)
+      '@solana/codecs-strings': 2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)
+      '@solana/errors': 2.0.0-preview.4(typescript@5.4.3)
+      typescript: 5.4.3
     transitivePeerDependencies:
       - fastestsmallesttextencoderdecoder
     dev: false
 
-  /@solana/spl-token-group@0.0.5(@solana/web3.js@1.95.8)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5):
+  /@solana/spl-token-group@0.0.5(@solana/web3.js@1.95.8)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3):
     resolution: {integrity: sha512-CLJnWEcdoUBpQJfx9WEbX3h6nTdNiUzswfFdkABUik7HVwSNA98u5AYvBVK2H93d9PGMOHAak2lHW9xr+zAJGQ==}
     engines: {node: '>=16'}
     peerDependencies:
       '@solana/web3.js': ^1.94.0
     dependencies:
-      '@solana/codecs': 2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5)
+      '@solana/codecs': 2.0.0-preview.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)
       '@solana/spl-type-length-value': 0.1.0
       '@solana/web3.js': 1.95.8(encoding@0.1.13)
     transitivePeerDependencies:
@@ -11584,7 +11505,7 @@ packages:
       - fastestsmallesttextencoderdecoder
     dev: false
 
-  /@solana/spl-token@0.4.8(@solana/web3.js@1.95.8)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5):
+  /@solana/spl-token@0.4.8(@solana/web3.js@1.95.8)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3):
     resolution: {integrity: sha512-RO0JD9vPRi4LsAbMUdNbDJ5/cv2z11MGhtAvFeRzT4+hAGE/FUzRi0tkkWtuCfSIU3twC6CtmAihRp/+XXjWsA==}
     engines: {node: '>=16'}
     peerDependencies:
@@ -11592,7 +11513,7 @@ packages:
     dependencies:
       '@solana/buffer-layout': 4.0.1
       '@solana/buffer-layout-utils': 0.2.0
-      '@solana/spl-token-group': 0.0.5(@solana/web3.js@1.95.8)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.1.5)
+      '@solana/spl-token-group': 0.0.5(@solana/web3.js@1.95.8)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)
       '@solana/spl-token-metadata': 0.1.4(@solana/web3.js@1.95.8)(fastestsmallesttextencoderdecoder@1.0.22)
       '@solana/web3.js': 1.95.8(encoding@0.1.13)
       buffer: 6.0.3
@@ -12966,9 +12887,10 @@ packages:
 
   /@tsconfig/node16-strictest@1.0.4:
     resolution: {integrity: sha512-kp6/DuAoKzHVv5U+p0uOesYbjrEvrYVNdQMl163a+yXXUv9twabvkCGEn3pmVxKXB45JU5MPGolDDWnONZL5ZQ==}
+    deprecated: TypeScript 5.0 supports combining TSConfigs using array syntax in extends
     dev: true
 
-  /@typechain/ethers-v6@0.5.1(ethers@6.10.0)(typechain@8.3.2)(typescript@5.1.5):
+  /@typechain/ethers-v6@0.5.1(ethers@6.10.0)(typechain@8.3.2)(typescript@5.4.3):
     resolution: {integrity: sha512-F+GklO8jBWlsaVV+9oHaPh5NJdd6rAKN4tklGfInX1Q7h0xPgVLP39Jl3eCulPB5qexI71ZFHwbljx4ZXNfouA==}
     peerDependencies:
       ethers: 6.x
@@ -12977,9 +12899,9 @@ packages:
     dependencies:
       ethers: 6.10.0
       lodash: 4.17.21
-      ts-essentials: 7.0.3(typescript@5.1.5)
-      typechain: 8.3.2(typescript@5.1.5)
-      typescript: 5.1.5
+      ts-essentials: 7.0.3(typescript@5.4.3)
+      typechain: 8.3.2(typescript@5.4.3)
+      typescript: 5.4.3
     dev: true
 
   /@typechain/hardhat@9.1.0(@typechain/ethers-v6@0.5.1)(ethers@6.10.0)(hardhat@2.19.4)(typechain@8.3.2):
@@ -12990,11 +12912,11 @@ packages:
       hardhat: ^2.9.9
       typechain: ^8.3.2
     dependencies:
-      '@typechain/ethers-v6': 0.5.1(ethers@6.10.0)(typechain@8.3.2)(typescript@5.1.5)
+      '@typechain/ethers-v6': 0.5.1(ethers@6.10.0)(typechain@8.3.2)(typescript@5.4.3)
       ethers: 6.10.0
       fs-extra: 9.1.0
-      hardhat: 2.19.4(typescript@5.1.5)
-      typechain: 8.3.2(typescript@5.1.5)
+      hardhat: 2.19.4(typescript@5.4.3)
+      typechain: 8.3.2(typescript@5.4.3)
     dev: true
 
   /@types/async-eventemitter@0.2.1:
@@ -14229,7 +14151,7 @@ packages:
     deprecated: Use your platform's native atob() and btoa() methods instead
     dev: true
 
-  /abitype@0.7.1(typescript@5.1.5):
+  /abitype@0.7.1(typescript@5.4.3):
     resolution: {integrity: sha512-VBkRHTDZf9Myaek/dO3yMmOzB/y2s3Zo6nVU7yaw1G+TvCHAjwaJzNGN9yo4K5D8bU/VZXKP1EJpRhFr862PlQ==}
     peerDependencies:
       typescript: '>=4.9.4'
@@ -14238,7 +14160,7 @@ packages:
       zod:
         optional: true
     dependencies:
-      typescript: 5.1.5
+      typescript: 5.4.3
     dev: false
 
   /abitype@1.0.0(typescript@5.1.5):
@@ -14270,7 +14192,7 @@ packages:
       zod: 3.23.8
     dev: false
 
-  /abitype@1.0.6(typescript@5.1.5):
+  /abitype@1.0.6(typescript@5.1.3):
     resolution: {integrity: sha512-MMSqYh4+C/aVqI2RQaWqbvI4Kxo5cQV40WQ4QFtDnNzCkqChm8MuENhElmynZlO0qUy/ObkEUaXtKqYnx1Kp3A==}
     peerDependencies:
       typescript: '>=5.0.4'
@@ -14281,7 +14203,21 @@ packages:
       zod:
         optional: true
     dependencies:
-      typescript: 5.1.5
+      typescript: 5.1.3
+    dev: false
+
+  /abitype@1.0.6(typescript@5.4.3):
+    resolution: {integrity: sha512-MMSqYh4+C/aVqI2RQaWqbvI4Kxo5cQV40WQ4QFtDnNzCkqChm8MuENhElmynZlO0qUy/ObkEUaXtKqYnx1Kp3A==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+      zod: ^3 >=3.22.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      zod:
+        optional: true
+    dependencies:
+      typescript: 5.4.3
     dev: false
 
   /abitype@1.0.8(typescript@5.1.3):
@@ -14310,6 +14246,20 @@ packages:
         optional: true
     dependencies:
       typescript: 5.1.5
+
+  /abitype@1.0.8(typescript@5.4.3):
+    resolution: {integrity: sha512-ZeiI6h3GnW06uYDLx0etQtX/p8E24UaHHBj57RSjK7YBFe7iuVn07EDpOeP451D06sF27VOz9JJPlIKJmXgkEg==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+      zod: ^3 >=3.22.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      zod:
+        optional: true
+    dependencies:
+      typescript: 5.4.3
+    dev: false
 
   /abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -17221,13 +17171,6 @@ packages:
       string.prototype.matchall: 4.0.11
     dev: false
 
-  /eslint-plugin-tsdoc@0.4.0:
-    resolution: {integrity: sha512-MT/8b4aKLdDClnS8mP3R/JNjg29i0Oyqd/0ym6NnQf+gfKbJJ4ZcSh2Bs1H0YiUMTBwww5JwXGTWot/RwyJ7aQ==}
-    dependencies:
-      '@microsoft/tsdoc': 0.15.1
-      '@microsoft/tsdoc-config': 0.17.1
-    dev: true
-
   /eslint-scope@7.2.1:
     resolution: {integrity: sha512-CvefSOsDdaYYvxChovdrPo/ZGt8d5lrJWleAc1diXRKhHGiTYEI26cvo8Kle/wGnsizoCJjK73FMg1/IkIwiNA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -18276,7 +18219,7 @@ packages:
       - utf-8-validate
     dev: false
 
-  /hardhat@2.19.4(typescript@5.1.5):
+  /hardhat@2.19.4(typescript@5.4.3):
     resolution: {integrity: sha512-fTQJpqSt3Xo9Mn/WrdblNGAfcANM6XC3tAEi6YogB4s02DmTf93A8QsGb8uR0KR8TFcpcS8lgiW4ugAIYpnbrQ==}
     hasBin: true
     peerDependencies:
@@ -18333,7 +18276,7 @@ packages:
       source-map-support: 0.5.21
       stacktrace-parser: 0.1.10
       tsort: 0.0.1
-      typescript: 5.1.5
+      typescript: 5.4.3
       undici: 5.24.0
       uuid: 8.3.2
       ws: 8.17.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
@@ -21461,6 +21404,26 @@ packages:
     transitivePeerDependencies:
       - zod
 
+  /ox@0.6.9(typescript@5.4.3):
+    resolution: {integrity: sha512-wi5ShvzE4eOcTwQVsIPdFr+8ycyX+5le/96iAJutaZAvCes1J0+RvpEPg5QDPDiaR0XQQAvZVl7AwqQcINuUug==}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/curves': 1.8.1
+      '@noble/hashes': 1.7.1
+      '@scure/bip32': 1.6.2
+      '@scure/bip39': 1.5.4
+      abitype: 1.0.8(typescript@5.4.3)
+      eventemitter3: 5.0.1
+      typescript: 5.4.3
+    transitivePeerDependencies:
+      - zod
+    dev: false
+
   /p-cancelable@2.1.1:
     resolution: {integrity: sha512-BZOr3nRQHOntUjTrH8+Lh54smKHoHyur8We1V8DSMVrl5A2malOOwuJRnKRDjSnkoeBh4at6BwEnb5I7Jl31wg==}
     engines: {node: '>=8'}
@@ -22519,19 +22482,6 @@ packages:
       react-dom: 18.3.1(react@18.2.0)
     dev: false
 
-  /react-apple-login@1.1.6(prop-types@15.8.1)(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-ySV6ax0aB+ksA7lKzhr4MvsgjwSH068VtdHJXS+7rL380IJnNQNl14SszR31k3UqB8q8C1H1oyjJFGq4MyO6tw==}
-    engines: {node: '>=8', npm: '>=5'}
-    peerDependencies:
-      prop-types: ^15.5.4
-      react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-    dependencies:
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    dev: false
-
   /react-devtools-core@5.3.2:
     resolution: {integrity: sha512-crr9HkVrDiJ0A4zot89oS0Cgv0Oa4OG1Em4jit3P3ZxZSKPMYyMjfwMqgcJna9o625g8oN87rBm8SWWrSTBZxg==}
     dependencies:
@@ -22599,14 +22549,6 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 18.2.0
-    dev: false
-
-  /react-international-phone@4.3.0(react@18.3.1):
-    resolution: {integrity: sha512-lIntIkwq2j0m3j4RsRiGJl/buHMLBd+mQ9S9RfiX3KbiUCUtbawoPCV2r8BvyeRMZI0cDtovoukBCuZ+70QzJA==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    dependencies:
-      react: 18.3.1
     dev: false
 
   /react-is@16.13.1:
@@ -22898,6 +22840,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
+    dev: false
 
   /read-cache@1.0.0:
     resolution: {integrity: sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA==}
@@ -24555,12 +24498,12 @@ packages:
       string-format: 2.0.0
     dev: true
 
-  /ts-essentials@7.0.3(typescript@5.1.5):
+  /ts-essentials@7.0.3(typescript@5.4.3):
     resolution: {integrity: sha512-8+gr5+lqO3G84KdiTSMRLtuyJ+nTBVRKuCrK4lidMPdVeEp0uqC875uE5NMcaA7YYMN7XsNiFQuMvasF8HT/xQ==}
     peerDependencies:
       typescript: '>=3.7.0'
     dependencies:
-      typescript: 5.1.5
+      typescript: 5.4.3
     dev: true
 
   /ts-interface-checker@0.1.13:
@@ -24741,7 +24684,7 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /typechain@8.3.2(typescript@5.1.5):
+  /typechain@8.3.2(typescript@5.4.3):
     resolution: {integrity: sha512-x/sQYr5w9K7yv3es7jo4KTX05CLxOf7TRWwoHlrjRh8H82G64g+k7VuWPJlgMo6qrjfCulOdfBjiaDtmhFYD/Q==}
     hasBin: true
     peerDependencies:
@@ -24756,8 +24699,8 @@ packages:
       mkdirp: 1.0.4
       prettier: 2.8.8
       ts-command-line-args: 2.5.1
-      ts-essentials: 7.0.3(typescript@5.1.5)
-      typescript: 5.1.5
+      ts-essentials: 7.0.3(typescript@5.4.3)
+      typescript: 5.4.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -24844,6 +24787,11 @@ packages:
 
   /typescript@5.1.5:
     resolution: {integrity: sha512-FOH+WN/DQjUvN6WgW+c4Ml3yi0PH+a/8q+kNIfRehv1wLhWONedw85iu+vQ39Wp49IzTJEsZ2lyLXpBF7mkF1g==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+  /typescript@5.4.3:
+    resolution: {integrity: sha512-KrPd3PKaCLr78MalgiwJnA25Nm8HAmdwN3mYUYZgG/wizIo9EainNVQI9/yDavtVFRN2h3k8uf3GLHuhDMgEHg==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -25180,16 +25128,6 @@ packages:
       react: 18.2.0
     dev: false
 
-  /usehooks-ts@3.1.1(react@18.3.1):
-    resolution: {integrity: sha512-I4diPp9Cq6ieSUH2wu+fDAVQO43xwtulo+fKEidHUwZPnYImbtkTjzIJYcDcJqxgmX31GVqNFURodvcgHcW0pA==}
-    engines: {node: '>=16.15.0'}
-    peerDependencies:
-      react: ^16.8.0  || ^17 || ^18 || ^19 || ^19.0.0-rc
-    dependencies:
-      lodash.debounce: 4.0.8
-      react: 18.3.1
-    dev: false
-
   /utf-8-validate@5.0.10:
     resolution: {integrity: sha512-Z6czzLq4u8fPOyx7TU6X3dvUZVvoJmxSQ+IcrlmagKhilxlhZgxPK6C5Jqbkw1IDUmFTM+cz9QDnnLTwDz/2gQ==}
     engines: {node: '>=6.14.2'}
@@ -25277,7 +25215,7 @@ packages:
       - zod
     dev: false
 
-  /viem@2.21.32(typescript@5.1.5):
+  /viem@2.21.32(typescript@5.4.3):
     resolution: {integrity: sha512-2oXt5JNIb683oy7C8wuIJ/SeL3XtHVMEQpy1U2TA6WMnJQ4ScssRvyPwYLcaP6mKlrGXE/cR/V7ncWpvLUVPYQ==}
     peerDependencies:
       typescript: '>=5.0.4'
@@ -25290,9 +25228,9 @@ packages:
       '@noble/hashes': 1.5.0
       '@scure/bip32': 1.5.0
       '@scure/bip39': 1.4.0
-      abitype: 1.0.6(typescript@5.1.5)
+      abitype: 1.0.6(typescript@5.4.3)
       isows: 1.0.6(ws@8.17.1)
-      typescript: 5.1.5
+      typescript: 5.4.3
       webauthn-p256: 0.0.10
       ws: 8.17.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
@@ -25345,6 +25283,29 @@ packages:
       - bufferutil
       - utf-8-validate
       - zod
+
+  /viem@2.23.13(typescript@5.4.3):
+    resolution: {integrity: sha512-f3RkcrzGhU79GfBb9GHUL0m3e3LUsNudXIQTFp4fit5hUGb0ew9KOYZ6cCY5d4Melj3noBy2zq0K2fV+mp+Cpg==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@noble/curves': 1.8.1
+      '@noble/hashes': 1.7.1
+      '@scure/bip32': 1.6.2
+      '@scure/bip39': 1.5.4
+      abitype: 1.0.8(typescript@5.4.3)
+      isows: 1.0.6(ws@8.17.1)
+      ox: 0.6.9(typescript@5.4.3)
+      typescript: 5.4.3
+      ws: 8.17.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+    dev: false
 
   /viem@2.7.19(typescript@5.1.5):
     resolution: {integrity: sha512-UOMeqy+8p2709ra2j9HEOL1NfjsXZzlJ8gwR6YO/zXH8KIZvyzW07t4iQARF5+ShVZ/7+/1ec8oPjVi1M//33A==}
@@ -25447,11 +25408,11 @@ packages:
       web3-types: 1.5.0
     dev: false
 
-  /web3-eth-abi@4.2.0(typescript@5.1.5):
+  /web3-eth-abi@4.2.0(typescript@5.4.3):
     resolution: {integrity: sha512-x7dUCmk6th+5N63s5kUusoNtsDJKUUQgl9+jECvGTBOTiyHe/V6aOY0120FUjaAGaapOnR7BImQdhqHv6yT2YQ==}
     engines: {node: '>=14', npm: '>=6.12.0'}
     dependencies:
-      abitype: 0.7.1(typescript@5.1.5)
+      abitype: 0.7.1(typescript@5.4.3)
       web3-errors: 1.1.4
       web3-types: 1.5.0
       web3-utils: 4.2.1
@@ -25474,14 +25435,14 @@ packages:
       web3-validator: 2.0.5
     dev: false
 
-  /web3-eth-contract@4.3.0(typescript@5.1.5):
+  /web3-eth-contract@4.3.0(typescript@5.4.3):
     resolution: {integrity: sha512-4fzSklA65zUn6SthU3T3tbVJacfP8/wkJmCuvmPaf2ZTFdnhsF96G5IQtCRf0+wASb4yk0A6IBvXZfk1B4R4HA==}
     engines: {node: '>=14', npm: '>=6.12.0'}
     dependencies:
       web3-core: 4.3.2
       web3-errors: 1.1.4
-      web3-eth: 4.5.0(typescript@5.1.5)
-      web3-eth-abi: 4.2.0(typescript@5.1.5)
+      web3-eth: 4.5.0(typescript@5.4.3)
+      web3-eth-abi: 4.2.0(typescript@5.4.3)
       web3-types: 1.5.0
       web3-utils: 4.2.1
       web3-validator: 2.0.5
@@ -25493,15 +25454,15 @@ packages:
       - zod
     dev: false
 
-  /web3-eth-ens@4.2.0(typescript@5.1.5):
+  /web3-eth-ens@4.2.0(typescript@5.4.3):
     resolution: {integrity: sha512-qYj34te2UctoObt8rlEIY/t2MuTMiMiiHhO2JAHRGqSLCQ7b8DM3RpvkiiSB0N0ZyEn+CetZqJCTYb8DNKBS/g==}
     engines: {node: '>=14', npm: '>=6.12.0'}
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       web3-core: 4.3.2
       web3-errors: 1.1.4
-      web3-eth: 4.5.0(typescript@5.1.5)
-      web3-eth-contract: 4.3.0(typescript@5.1.5)
+      web3-eth: 4.5.0(typescript@5.4.3)
+      web3-eth-contract: 4.3.0(typescript@5.4.3)
       web3-net: 4.0.7
       web3-types: 1.5.0
       web3-utils: 4.2.1
@@ -25524,12 +25485,12 @@ packages:
       web3-validator: 2.0.5
     dev: false
 
-  /web3-eth-personal@4.0.8(typescript@5.1.5):
+  /web3-eth-personal@4.0.8(typescript@5.4.3):
     resolution: {integrity: sha512-sXeyLKJ7ddQdMxz1BZkAwImjqh7OmKxhXoBNF3isDmD4QDpMIwv/t237S3q4Z0sZQamPa/pHebJRWVuvP8jZdw==}
     engines: {node: '>=14', npm: '>=6.12.0'}
     dependencies:
       web3-core: 4.3.2
-      web3-eth: 4.5.0(typescript@5.1.5)
+      web3-eth: 4.5.0(typescript@5.4.3)
       web3-rpc-methods: 1.2.0
       web3-types: 1.5.0
       web3-utils: 4.2.1
@@ -25542,14 +25503,14 @@ packages:
       - zod
     dev: false
 
-  /web3-eth@4.5.0(typescript@5.1.5):
+  /web3-eth@4.5.0(typescript@5.4.3):
     resolution: {integrity: sha512-crisE46o/SHMVm+XHAXEaR8k76NCImq+hi0QQEJ+VaLZbDobI/Gvog1HwTukDUDRgnYSAFGqD0cTRyAwDurwpA==}
     engines: {node: '>=14', npm: '>=6.12.0'}
     dependencies:
       setimmediate: 1.0.5
       web3-core: 4.3.2
       web3-errors: 1.1.4
-      web3-eth-abi: 4.2.0(typescript@5.1.5)
+      web3-eth-abi: 4.2.0(typescript@5.4.3)
       web3-eth-accounts: 4.1.1
       web3-net: 4.0.7
       web3-providers-ws: 4.0.7
@@ -25657,19 +25618,19 @@ packages:
       zod: 3.23.8
     dev: false
 
-  /web3@4.7.0(typescript@5.1.5):
+  /web3@4.7.0(typescript@5.4.3):
     resolution: {integrity: sha512-3g+1e7B/IW0Nw9WP1dotrZKWD9o5IBfl27dxEnE1LxBZBax6ZkviiAwf18utIhlNBD07RgI+PPfKDXxfDBlHWA==}
     engines: {node: '>=14.0.0', npm: '>=6.12.0'}
     dependencies:
       web3-core: 4.3.2
       web3-errors: 1.1.4
-      web3-eth: 4.5.0(typescript@5.1.5)
-      web3-eth-abi: 4.2.0(typescript@5.1.5)
+      web3-eth: 4.5.0(typescript@5.4.3)
+      web3-eth-abi: 4.2.0(typescript@5.4.3)
       web3-eth-accounts: 4.1.1
-      web3-eth-contract: 4.3.0(typescript@5.1.5)
-      web3-eth-ens: 4.2.0(typescript@5.1.5)
+      web3-eth-contract: 4.3.0(typescript@5.4.3)
+      web3-eth-ens: 4.2.0(typescript@5.4.3)
       web3-eth-iban: 4.0.7
-      web3-eth-personal: 4.0.8(typescript@5.1.5)
+      web3-eth-personal: 4.0.8(typescript@5.4.3)
       web3-net: 4.0.7
       web3-providers-http: 4.1.0
       web3-providers-ws: 4.0.7

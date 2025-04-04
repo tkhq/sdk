@@ -7,10 +7,6 @@
   "projectDocuments": ["documents/*.md"],
   "outputs": [
     {
-      "name": "html",
-      "path": "./docs/html"
-    },
-    {
       // requires typedoc-plugin-markdown
       "name": "markdown",
       "path": "./docs/markdown",

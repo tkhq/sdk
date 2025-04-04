@@ -1,0 +1,27 @@
+[**SDK Documentation**](../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../packages.mdx) / [@turnkey/viem](../../README.mdx) / [index](../README.mdx) / createApiKeyAccount
+
+# Function: ~~createApiKeyAccount()~~
+
+> **createApiKeyAccount**(`config`): `Promise`\<\{ `address`: `` `0x${string}` ``; `experimental_signAuthorization`: (`parameters`) => `Promise`\<`SignAuthorizationReturnType`\>; `nonceManager`: `NonceManager`; `publicKey`: `` `0x${string}` ``; `sign`: (`parameters`) => `Promise`\<`` `0x${string}` ``\>; `signMessage`: (`__namedParameters`) => `Promise`\<`` `0x${string}` ``\>; `signTransaction`: \<`serializer`, `transaction`\>(`transaction`, `options`?) => `Promise`\<`IsNarrowable`\<`TransactionSerialized`\<`GetTransactionType`\<`transaction`\>\>, `` `0x${string}` ``\> *extends* `true` ? `TransactionSerialized`\<`GetTransactionType`\<`transaction`\>\> : `` `0x${string}` ``\>; `signTypedData`: \<`typedData`, `primaryType`\>(`parameters`) => `Promise`\<`` `0x${string}` ``\>; `source`: `string`; `type`: `"local"`; \}\>
+
+Defined in: [packages/viem/src/index.ts:222](https://github.com/tkhq/sdk/blob/078f5423e923fbd1d7fd39440402d7f01d09c3d0/packages/viem/src/index.ts#L222)
+
+Creates a new Custom Account backed by a Turnkey API key.
+
+## Parameters
+
+### config
+
+`TApiKeyAccountConfig`
+
+## Returns
+
+`Promise`\<\{ `address`: `` `0x${string}` ``; `experimental_signAuthorization`: (`parameters`) => `Promise`\<`SignAuthorizationReturnType`\>; `nonceManager`: `NonceManager`; `publicKey`: `` `0x${string}` ``; `sign`: (`parameters`) => `Promise`\<`` `0x${string}` ``\>; `signMessage`: (`__namedParameters`) => `Promise`\<`` `0x${string}` ``\>; `signTransaction`: \<`serializer`, `transaction`\>(`transaction`, `options`?) => `Promise`\<`IsNarrowable`\<`TransactionSerialized`\<`GetTransactionType`\<`transaction`\>\>, `` `0x${string}` ``\> *extends* `true` ? `TransactionSerialized`\<`GetTransactionType`\<`transaction`\>\> : `` `0x${string}` ``\>; `signTypedData`: \<`typedData`, `primaryType`\>(`parameters`) => `Promise`\<`` `0x${string}` ``\>; `source`: `string`; `type`: `"local"`; \}\>
+
+## Deprecated
+
+use [createAccount](createAccount.mdx) instead.

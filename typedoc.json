@@ -8,43 +8,10 @@
   "plugin": ["typedoc-plugin-markdown"],
   "outputs": [
     {
-      "name": "html",
-      "path": "./docs/html"
-    },
-    // {
-    //   "name": "html",
-    //   "path": "./docs_html_full_nav",
-    //   "options": {
-    //     "navigation": {
-    //       "includeCategories": true,
-    //       "includeGroups": true,
-    //       "excludeReferences": false,
-    //       "includeFolders": true
-    //     }
-    //   }
-    // },
-    // {
-    //   "name": "json",
-    //   "path": "./docs.json"
-    // },
-    {
       // requires typedoc-plugin-markdown
       "name": "markdown",
       "path": "./docs/markdown",
       "fileExtension": ".mdx"
     }
   ]
-
-  // In TypeDoc 0.26 it is possible to specify options which should be inherited
-  // by packages here, instead of in a separate file which is extended by each
-  // package. We don't use this here as relying on it would prevent us from running
-  // TypeDoc individually in each package, which is required for the advanced method
-  // of generating monorepo documentation.
-  // "packageOptions": {
-  //   "includeVersion": true,
-  //   "entryPoints": ["src/index.ts"]
-  // }
-
-  // Potentially useful for debugging
-  // "logLevel": "Verbose"
 }
