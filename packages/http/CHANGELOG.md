@@ -8,7 +8,11 @@
 
 ### Minor Changes
 
-- d1083bd: InitOtpV2 allows alphanumeric boolean and otpLength (6-9) to be passed + associated updates to EWK
+- d1083bd: New activity `INIT_OTP_AUTH_V2` which allows alphanumeric boolean and otpLength (6-9) to be passed
+
+- This release introduces the `INIT_OTP_AUTH_V2` activity. The difference between it and `INIT_OTP_AUTH` is that it can now accept `alphanumeric` and `otpLength` for selecting crockford bech32 alphanumeric codes and the length of those codes. By default alphanumeric = true, otpLength = 9
+
+- This release introduces `sendFromEmailSenderName` to `INIT_OTP_AUTH`, `INIT_OTP_AUTH_V2`, `EMAIL_AUTH` and `EMAIL_AUTH_V2`. This is an optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'.
 
 ## 2.22.0
 

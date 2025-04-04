@@ -8,7 +8,7 @@
 
   USA, Canada, France, Czech Republic, Finland, Germany, Greece, Hungary, Iceland, Ireland, Italy, Latvia (with a 1 min delay), Lithuania, Luxembourg, Malta, Mexico, Moldova, Montenegro, Netherlands, Norway, Poland, Portugal, Romania, Serbia, Slovenia, Spain, Sweden, Switzerland.
 
-- d1083bd: InitOtpV2 allows alphanumeric boolean and otpLength (6-9) to be passed + associated updates to EWK
+- d1083bd: Add `otpConfig` param to `Auth` component that allows you to pass in `alphanumeric` and `otpLength` default for the Auth component is still false, 6 respectively (non breaking)
 
 ### Patch Changes
 
