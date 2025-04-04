@@ -920,6 +920,14 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
   getEmbeddedPublicKey = async (): Promise<string | null> => {
     return await (this.stamper as IframeStamper).getEmbeddedPublicKey();
   };
+
+  clearEmbeddedKey = async (): Promise<null> => {
+    return await (this.stamper as IframeStamper).clearEmbeddedKey();
+  };
+
+  initEmbeddedKey = async (): Promise<string | null> => {
+    return await (this.stamper as IframeStamper).initEmbeddedKey();
+  };
 }
 
 export class TurnkeyWalletClient extends TurnkeyBrowserClient {

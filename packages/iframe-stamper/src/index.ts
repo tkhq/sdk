@@ -50,9 +50,15 @@ export enum IframeEventType {
   // Event sent by the parent to establish secure communication via MessageChannel API.
   // Value: MessageChannel port
   TurnkeyInitMessageChannel = "TURNKEY_INIT_MESSAGE_CHANNEL",
-  // Event sent by the parent to get the target embedded key's public key.
-  // Value: public key
+  // Event sent by the parent to get the iframe target embedded key's public key.
+  // Value: none
   GetEmbeddedPublicKey = "GET_EMBEDDED_PUBLIC_KEY",
+  // Event sent by the parent to clear the iframe's embedded key.
+  // Value: none
+  ClearEmbeddedKey = "RESET_EMBEDDED_KEY",
+  // Event sent by the parent to initialize a new embedded key.
+  // Value: none
+  InitEmbeddedKey = "INIT_EMBEDDED_KEY",
   // Event sent by the iframe to communicate an error
   // Value: serialized error
   Error = "ERROR",
@@ -286,9 +292,37 @@ export class IframeStamper {
    * This differs from the above in that it reaches out to the live iframe to see if an embedded key exists.
    */
   async getEmbeddedPublicKey(): Promise<string | null> {
-    return this.createRequest<string | null>(
+    const publicKey = await this.createRequest<string | null>(
       IframeEventType.GetEmbeddedPublicKey,
     );
+    this.iframePublicKey = publicKey;
+
+    return publicKey;
+  }
+
+  /**
+   * Clears the embedded key within an iframe.
+   */
+  async clearEmbeddedKey(): Promise<null> {
+    await this.createRequest<null>(IframeEventType.ClearEmbeddedKey);
+    this.iframePublicKey = "";
+
+    return null;
+  }
+
+  /**
+   * Creates a new embedded key within an iframe. If an embedded key already exists, this will return it.
+   * This is primarily to be used in conjunction with `clearEmbeddedKey()`: after an embedded key is cleared,
+   * this can be used to create a new one.
+   * @return {string | null} the newly created embedded public key.
+   */
+  async initEmbeddedKey(): Promise<string | null> {
+    const publicKey = await this.createRequest<string | null>(
+      IframeEventType.InitEmbeddedKey,
+    );
+    this.iframePublicKey = publicKey;
+
+    return publicKey;
   }
 
   /**

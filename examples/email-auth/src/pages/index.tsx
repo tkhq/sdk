@@ -4,7 +4,7 @@ import { useTurnkey } from "@turnkey/sdk-react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 /**
  * Type definition for the server response coming back from `/api/auth`
@@ -31,6 +31,7 @@ type AuthFormData = {
 export default function AuthPage() {
   const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
   const { authIframeClient } = useTurnkey();
+  const [publicKey, setPublicKey] = useState<string | null>("");
   const { register: authFormRegister, handleSubmit: authFormSubmit } =
     useForm<AuthFormData>();
   const {
@@ -38,15 +39,41 @@ export default function AuthPage() {
     handleSubmit: injectCredentialsFormSubmit,
   } = useForm<InjectCredentialsFormData>();
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const pk = (await authIframeClient?.getEmbeddedPublicKey()) ?? "";
+        setPublicKey(pk);
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+
+    fetchData();
+  }, [authIframeClient]);
+
+  const handleReset = async () => {
+    let publicKey = await authIframeClient!.getEmbeddedPublicKey();
+
+    // Reset embedded key
+    await authIframeClient!.clearEmbeddedKey();
+
+    publicKey = await authIframeClient!.initEmbeddedKey();
+
+    setPublicKey(publicKey);
+  };
+
   const auth = async (data: AuthFormData) => {
     if (authIframeClient === null) {
       throw new Error("cannot initialize auth without an iframe");
     }
 
+    const target = await authIframeClient!.getEmbeddedPublicKey();
+
     const response = await axios.post("/api/auth", {
       suborgID: data.suborgID,
       email: data.email,
-      targetPublicKey: authIframeClient!.iframePublicKey,
+      targetPublicKey: target,
       invalidateExisting: data.invalidateExisting,
     });
 
@@ -113,9 +140,8 @@ export default function AuthPage() {
 
       {!authIframeClient && <p>Loading...</p>}
 
-      {authIframeClient &&
-        authIframeClient.iframePublicKey &&
-        authResponse === null && (
+      {authIframeClient && publicKey && authResponse === null && (
+        <div className={styles.form}>
           <form className={styles.form} onSubmit={authFormSubmit(auth)}>
             <label className={styles.label}>
               Email
@@ -145,46 +171,48 @@ export default function AuthPage() {
             <label className={styles.label}>
               Encryption Target from iframe:
               <br />
-              <code title={authIframeClient.iframePublicKey!}>
-                {authIframeClient.iframePublicKey!.substring(0, 30)}...
+              <code title={publicKey!}>
+                {(publicKey ?? "").substring(0, 30)}...
               </code>
             </label>
 
             <input className={styles.button} type="submit" value="Auth" />
           </form>
-        )}
+          <button className={styles.button} onClick={handleReset}>
+            Reset Embedded Key
+          </button>
+        </div>
+      )}
 
-      {authIframeClient &&
-        authIframeClient.iframePublicKey &&
-        authResponse !== null && (
-          <form
-            className={styles.form}
-            onSubmit={injectCredentialsFormSubmit(injectCredentials)}
-          >
-            <label className={styles.label}>
-              Auth Bundle
-              <input
-                className={styles.input}
-                {...injectCredentialsFormRegister("authBundle")}
-                placeholder="Paste your auth bundle here"
-              />
-            </label>
-            <label className={styles.label}>
-              New wallet name
-              <input
-                className={styles.input}
-                {...injectCredentialsFormRegister("walletName")}
-                placeholder="Wallet name"
-              />
-            </label>
-
+      {authIframeClient && publicKey && authResponse !== null && (
+        <form
+          className={styles.form}
+          onSubmit={injectCredentialsFormSubmit(injectCredentials)}
+        >
+          <label className={styles.label}>
+            Auth Bundle
             <input
-              className={styles.button}
-              type="submit"
-              value="Create Wallet"
+              className={styles.input}
+              {...injectCredentialsFormRegister("authBundle")}
+              placeholder="Paste your auth bundle here"
             />
-          </form>
-        )}
+          </label>
+          <label className={styles.label}>
+            New wallet name
+            <input
+              className={styles.input}
+              {...injectCredentialsFormRegister("walletName")}
+              placeholder="Wallet name"
+            />
+          </label>
+
+          <input
+            className={styles.button}
+            type="submit"
+            value="Create Wallet"
+          />
+        </form>
+      )}
     </main>
   );
 }
