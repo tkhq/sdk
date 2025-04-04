@@ -1,5 +1,14 @@
 # @turnkey/sdk-react-native
 
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies [d1083bd]
+- Updated dependencies [f94d36e]
+  - @turnkey/http@3.0.0
+  - @turnkey/crypto@2.3.1
+
 ## 1.0.3
 
 ### Minor Changes

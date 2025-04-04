@@ -1,5 +1,61 @@
 # @turnkey/sdk-browser
 
+## 4.0.0
+
+### Major Changes
+
+- d1083bd: InitOtpV2 allows alphanumeric boolean and otpLength (6-9) to be passed + associated updates to EWK. More details below
+
+- This release introduces the `INIT_OTP_AUTH_V2` activity. The difference between it and `INIT_OTP_AUTH` is that it can now accept `alphanumeric` and `otpLength` for selecting crockford bech32 alphanumeric codes and the length of those codes. By default alphanumeric = true, otpLength = 9
+
+- This release introduces `send_from_email_sender_name` to `INIT_OTP_AUTH`, `INIT_OTP_AUTH_V2`, `EMAIL_AUTH` and `EMAIL_AUTH_V2`. This is an optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'.
+
+### Minor Changes
+
+- e501690: Add new utility functions:
+
+  - Add `clearEmbeddedKey()` async function, which clears the embedded key within an iframe
+  - Add `initEmbeddedKey()` async function, which reinitializes the embedded key within an iframe
+
+  These can be used in tandem to reset the embedded key within an iframe. See demo video in this PR's description: https://github.com/tkhq/sdk/pull/571
+
+  Usage may look like the following:
+
+  ```javascript
+  import { Turnkey } from "@turnkey/sdk-browser";
+
+  ...
+
+  // create an instance of TurnkeyBrowserSDK
+  const turnkeyBrowserSDK = new Turnkey(config);
+
+  // create an instance of TurnkeyIframeClient
+  const iframeClient = await turnkeyBrowserSDK.iframeClient({
+    iframeContainer: document.getElementById(
+      "turnkey-auth-iframe-container-id",
+    ),
+    iframeUrl: "https://auth.turnkey.com",
+    iframeElementId: "turnkey-auth-iframe-element-id",
+  });
+
+  ...
+
+  // Clear the existing embedded key
+  await iframeClient.clearEmbeddedKey();
+
+  const newPublicKey = await iframeClient.initEmbeddedKey();
+  ```
+
+### Patch Changes
+
+- Updated dependencies [e501690]
+- Updated dependencies [d1083bd]
+- Updated dependencies [f94d36e]
+  - @turnkey/iframe-stamper@2.5.0
+  - @turnkey/http@3.0.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 3.1.0
 
 ### Minor Changes

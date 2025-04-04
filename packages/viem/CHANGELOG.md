@@ -1,5 +1,17 @@
 # @turnkey/viem
 
+## 0.7.1
+
+### Patch Changes
+
+- 123406b: The organizationId parameter is ignored when using a client other than TurnkeyClient (e.g., passkeyClient). Consequently, the SDK calls the client without the specified organizationId, which is unintended. This patch resolves the issue
+- Updated dependencies [e501690]
+- Updated dependencies [d1083bd]
+- Updated dependencies [f94d36e]
+  - @turnkey/sdk-browser@4.0.0
+  - @turnkey/sdk-server@3.0.0
+  - @turnkey/http@3.0.0
+
 ## 0.7.0
 
 ### Minor Changes

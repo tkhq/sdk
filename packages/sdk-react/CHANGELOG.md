@@ -1,5 +1,24 @@
 # @turnkey/sdk-react
 
+## 4.2.0
+
+### Minor Changes
+
+- de59993: Update default country codes to supported deliveries:
+
+  USA, Canada, France, Czech Republic, Finland, Germany, Greece, Hungary, Iceland, Ireland, Italy, Latvia (with a 1 min delay), Lithuania, Luxembourg, Malta, Mexico, Moldova, Montenegro, Netherlands, Norway, Poland, Portugal, Romania, Serbia, Slovenia, Spain, Sweden, Switzerland.
+
+- d1083bd: InitOtpV2 allows alphanumeric boolean and otpLength (6-9) to be passed + associated updates to EWK
+
+### Patch Changes
+
+- Updated dependencies [e501690]
+- Updated dependencies [d1083bd]
+  - @turnkey/sdk-browser@4.0.0
+  - @turnkey/sdk-server@3.0.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 4.1.3
 
 ### Patch Changes

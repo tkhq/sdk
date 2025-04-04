@@ -1,5 +1,15 @@
 # @turnkey/http
 
+## 3.0.0
+
+### Major Changes
+
+- f94d36e: Remove deprecated TurnkeyApiService. TurnkeyApi should be used instead.
+
+### Minor Changes
+
+- d1083bd: InitOtpV2 allows alphanumeric boolean and otpLength (6-9) to be passed + associated updates to EWK
+
 ## 2.22.0
 
 ### Minor Changes
