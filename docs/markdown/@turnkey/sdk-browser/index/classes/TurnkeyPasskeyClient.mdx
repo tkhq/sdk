@@ -1,0 +1,4044 @@
+[**SDK Documentation**](../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../packages.mdx) / [@turnkey/sdk-browser](../../README.mdx) / [index](../README.mdx) / TurnkeyPasskeyClient
+
+# Class: TurnkeyPasskeyClient
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:703](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L703)
+
+## Extends
+
+- [`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx)
+
+## Constructors
+
+### Constructor
+
+> **new TurnkeyPasskeyClient**(`config`): `TurnkeyPasskeyClient`
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:706](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L706)
+
+#### Parameters
+
+##### config
+
+[`TurnkeySDKClientConfig`](../type-aliases/TurnkeySDKClientConfig.mdx)
+
+#### Returns
+
+`TurnkeyPasskeyClient`
+
+#### Overrides
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`constructor`](TurnkeyBrowserClient.mdx#constructor)
+
+## Properties
+
+### authClient?
+
+> `optional` **authClient**: [`AuthClient`](../enumerations/AuthClient.mdx)
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/base-client.ts:5](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/base-client.ts#L5)
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`authClient`](TurnkeyBrowserClient.mdx#authclient)
+
+***
+
+### config
+
+> **config**: [`TurnkeySDKClientConfig`](../type-aliases/TurnkeySDKClientConfig.mdx)
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:26](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L26)
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`config`](TurnkeyBrowserClient.mdx#config)
+
+***
+
+### rpId
+
+> **rpId**: `string`
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:704](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L704)
+
+***
+
+### stamper?
+
+> `optional` **stamper**: `TStamper`
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:28](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L28)
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stamper`](TurnkeyBrowserClient.mdx#stamper)
+
+## Methods
+
+### activityDecision()
+
+> **activityDecision**\<`TBodyType`, `TResponseType`\>(`url`, `body`): `Promise`\<`TResponseType`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:141](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L141)
+
+#### Type Parameters
+
+##### TBodyType
+
+`TBodyType`
+
+##### TResponseType
+
+`TResponseType`
+
+#### Parameters
+
+##### url
+
+`string`
+
+##### body
+
+`TBodyType`
+
+#### Returns
+
+`Promise`\<`TResponseType`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`activityDecision`](TurnkeyBrowserClient.mdx#activitydecision)
+
+***
+
+### addUserAuth()
+
+> **addUserAuth**(`params`): `Promise`\<`any`[]\>
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:541](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L541)
+
+Adds or updates authentication factors for an end user.
+
+This function allows selectively adding:
+- Phone number
+- Email
+- Authenticators
+- OAuth providers
+- API keys
+
+All additions/updates are executed in parallel if multiple
+parameters are provided.
+
+#### Parameters
+
+##### params
+
+`AddUserAuthParams`
+
+A structured object containing all the addition/update parameters
+
+#### Returns
+
+`Promise`\<`any`[]\>
+
+A promise that resolves to an array of results from each addition or update
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`addUserAuth`](TurnkeyBrowserClient.mdx#adduserauth)
+
+***
+
+### approveActivity()
+
+> **approveActivity**(`input`): `Promise`\<`TApproveActivityResponse`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:788](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L788)
+
+#### Parameters
+
+##### input
+
+`TApproveActivityBody`
+
+#### Returns
+
+`Promise`\<`TApproveActivityResponse`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`approveActivity`](TurnkeyBrowserClient.mdx#approveactivity)
+
+***
+
+### command()
+
+> **command**\<`TBodyType`, `TResponseType`\>(`url`, `body`, `resultKey`): `Promise`\<`TResponseType`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:77](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L77)
+
+#### Type Parameters
+
+##### TBodyType
+
+`TBodyType`
+
+##### TResponseType
+
+`TResponseType`
+
+#### Parameters
+
+##### url
+
+`string`
+
+##### body
+
+`TBodyType`
+
+##### resultKey
+
+`string`
+
+#### Returns
+
+`Promise`\<`TResponseType`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`command`](TurnkeyBrowserClient.mdx#command)
+
+***
+
+### createApiKeys()
+
+> **createApiKeys**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:819](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L819)
+
+#### Parameters
+
+##### input
+
+`TCreateApiKeysBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createApiKeys`](TurnkeyBrowserClient.mdx#createapikeys)
+
+***
+
+### createApiOnlyUsers()
+
+> **createApiOnlyUsers**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:856](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L856)
+
+#### Parameters
+
+##### input
+
+`TCreateApiOnlyUsersBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createApiOnlyUsers`](TurnkeyBrowserClient.mdx#createapionlyusers)
+
+***
+
+### createAuthenticators()
+
+> **createAuthenticators**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:893](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L893)
+
+#### Parameters
+
+##### input
+
+`TCreateAuthenticatorsBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createAuthenticators`](TurnkeyBrowserClient.mdx#createauthenticators)
+
+***
+
+### createInvitations()
+
+> **createInvitations**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:930](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L930)
+
+#### Parameters
+
+##### input
+
+`TCreateInvitationsBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createInvitations`](TurnkeyBrowserClient.mdx#createinvitations)
+
+***
+
+### createOauthProviders()
+
+> **createOauthProviders**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:967](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L967)
+
+#### Parameters
+
+##### input
+
+`TCreateOauthProvidersBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createOauthProviders`](TurnkeyBrowserClient.mdx#createoauthproviders)
+
+***
+
+### createPasskeySession()
+
+> **createPasskeySession**(`userId`, `targetEmbeddedKey`, `expirationSeconds`, `organizationId`?): `Promise`\<[`ReadWriteSession`](../interfaces/ReadWriteSession.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:793](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L793)
+
+Uses passkey authentication to create a read-write session, via an embedded API key,
+and stores + returns the resulting auth bundle that contains the encrypted API key.
+This auth bundle (also referred to as a credential bundle) can be injected into an `iframeStamper`,
+resulting in a touch-free authenticator. Unlike `loginWithReadWriteSession`, this method
+assumes the end-user's organization ID (i.e. the sub-organization ID) is already known.
+
+#### Parameters
+
+##### userId
+
+`string`
+
+##### targetEmbeddedKey
+
+`string`
+
+##### expirationSeconds
+
+`string` = `DEFAULT_SESSION_EXPIRATION_IN_SECONDS`
+
+##### organizationId?
+
+`string`
+
+#### Returns
+
+`Promise`\<[`ReadWriteSession`](../interfaces/ReadWriteSession.mdx)\>
+
+***
+
+### createPolicies()
+
+> **createPolicies**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1004](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1004)
+
+#### Parameters
+
+##### input
+
+`TCreatePoliciesBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createPolicies`](TurnkeyBrowserClient.mdx#createpolicies)
+
+***
+
+### createPolicy()
+
+> **createPolicy**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1041](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1041)
+
+#### Parameters
+
+##### input
+
+`TCreatePolicyBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createPolicy`](TurnkeyBrowserClient.mdx#createpolicy)
+
+***
+
+### createPrivateKeys()
+
+> **createPrivateKeys**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1114](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1114)
+
+#### Parameters
+
+##### input
+
+`TCreatePrivateKeysBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createPrivateKeys`](TurnkeyBrowserClient.mdx#createprivatekeys)
+
+***
+
+### createPrivateKeyTag()
+
+> **createPrivateKeyTag**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1077](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1077)
+
+#### Parameters
+
+##### input
+
+`TCreatePrivateKeyTagBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createPrivateKeyTag`](TurnkeyBrowserClient.mdx#createprivatekeytag)
+
+***
+
+### createReadOnlySession()
+
+> **createReadOnlySession**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1151](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1151)
+
+#### Parameters
+
+##### input
+
+`TCreateReadOnlySessionBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createReadOnlySession`](TurnkeyBrowserClient.mdx#createreadonlysession)
+
+***
+
+### createReadWriteSession()
+
+> **createReadWriteSession**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1188](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1188)
+
+#### Parameters
+
+##### input
+
+`TCreateReadWriteSessionBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createReadWriteSession`](TurnkeyBrowserClient.mdx#createreadwritesession)
+
+***
+
+### createSubOrganization()
+
+> **createSubOrganization**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1225](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1225)
+
+#### Parameters
+
+##### input
+
+`TCreateSubOrganizationBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createSubOrganization`](TurnkeyBrowserClient.mdx#createsuborganization)
+
+***
+
+### createUserPasskey()
+
+> **createUserPasskey**(`config`): `Promise`\<`Passkey`\>
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:716](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L716)
+
+Create a passkey for an end-user, taking care of various lower-level details.
+
+#### Parameters
+
+##### config
+
+`Record`\<`any`, `any`\> = `{}`
+
+#### Returns
+
+`Promise`\<`Passkey`\>
+
+***
+
+### createUsers()
+
+> **createUsers**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1299](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1299)
+
+#### Parameters
+
+##### input
+
+`TCreateUsersBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createUsers`](TurnkeyBrowserClient.mdx#createusers)
+
+***
+
+### createUserTag()
+
+> **createUserTag**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1262](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1262)
+
+#### Parameters
+
+##### input
+
+`TCreateUserTagBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createUserTag`](TurnkeyBrowserClient.mdx#createusertag)
+
+***
+
+### createWallet()
+
+> **createWallet**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1335](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1335)
+
+#### Parameters
+
+##### input
+
+`TCreateWalletBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createWallet`](TurnkeyBrowserClient.mdx#createwallet)
+
+***
+
+### createWalletAccounts()
+
+> **createWalletAccounts**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1371](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1371)
+
+#### Parameters
+
+##### input
+
+`TCreateWalletAccountsBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`createWalletAccounts`](TurnkeyBrowserClient.mdx#createwalletaccounts)
+
+***
+
+### deleteApiKeys()
+
+> **deleteApiKeys**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1408](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1408)
+
+#### Parameters
+
+##### input
+
+`TDeleteApiKeysBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`deleteApiKeys`](TurnkeyBrowserClient.mdx#deleteapikeys)
+
+***
+
+### deleteAuthenticators()
+
+> **deleteAuthenticators**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1445](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1445)
+
+#### Parameters
+
+##### input
+
+`TDeleteAuthenticatorsBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`deleteAuthenticators`](TurnkeyBrowserClient.mdx#deleteauthenticators)
+
+***
+
+### deleteInvitation()
+
+> **deleteInvitation**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1482](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1482)
+
+#### Parameters
+
+##### input
+
+`TDeleteInvitationBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`deleteInvitation`](TurnkeyBrowserClient.mdx#deleteinvitation)
+
+***
+
+### deleteOauthProviders()
+
+> **deleteOauthProviders**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1519](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1519)
+
+#### Parameters
+
+##### input
+
+`TDeleteOauthProvidersBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`deleteOauthProviders`](TurnkeyBrowserClient.mdx#deleteoauthproviders)
+
+***
+
+### deletePolicy()
+
+> **deletePolicy**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1556](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1556)
+
+#### Parameters
+
+##### input
+
+`TDeletePolicyBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`deletePolicy`](TurnkeyBrowserClient.mdx#deletepolicy)
+
+***
+
+### deletePrivateKeys()
+
+> **deletePrivateKeys**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1629](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1629)
+
+#### Parameters
+
+##### input
+
+`TDeletePrivateKeysBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`deletePrivateKeys`](TurnkeyBrowserClient.mdx#deleteprivatekeys)
+
+***
+
+### deletePrivateKeyTags()
+
+> **deletePrivateKeyTags**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1592](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1592)
+
+#### Parameters
+
+##### input
+
+`TDeletePrivateKeyTagsBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`deletePrivateKeyTags`](TurnkeyBrowserClient.mdx#deleteprivatekeytags)
+
+***
+
+### deleteSubOrganization()
+
+> **deleteSubOrganization**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1666](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1666)
+
+#### Parameters
+
+##### input
+
+`TDeleteSubOrganizationBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`deleteSubOrganization`](TurnkeyBrowserClient.mdx#deletesuborganization)
+
+***
+
+### deleteUserAuth()
+
+> **deleteUserAuth**(`params`): `Promise`\<`any`[]\>
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:477](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L477)
+
+Removes authentication factors from an end user.
+
+This function allows selectively removing:
+- Phone number
+- Email
+- Authenticators (by ID)
+- OAuth providers (by ID)
+- API keys (by ID)
+
+All removal operations are executed in parallel if multiple
+parameters are provided.
+
+#### Parameters
+
+##### params
+
+`DeleteUserAuthParams`
+
+A structured object containing all the removal parameters
+
+#### Returns
+
+`Promise`\<`any`[]\>
+
+A promise that resolves to an array of results from each removal operation
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`deleteUserAuth`](TurnkeyBrowserClient.mdx#deleteuserauth)
+
+***
+
+### deleteUsers()
+
+> **deleteUsers**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1740](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1740)
+
+#### Parameters
+
+##### input
+
+`TDeleteUsersBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`deleteUsers`](TurnkeyBrowserClient.mdx#deleteusers)
+
+***
+
+### deleteUserTags()
+
+> **deleteUserTags**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1703](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1703)
+
+#### Parameters
+
+##### input
+
+`TDeleteUserTagsBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`deleteUserTags`](TurnkeyBrowserClient.mdx#deleteusertags)
+
+***
+
+### deleteWallets()
+
+> **deleteWallets**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1776](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1776)
+
+#### Parameters
+
+##### input
+
+`TDeleteWalletsBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`deleteWallets`](TurnkeyBrowserClient.mdx#deletewallets)
+
+***
+
+### emailAuth()
+
+> **emailAuth**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1812](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1812)
+
+#### Parameters
+
+##### input
+
+`TEmailAuthBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`emailAuth`](TurnkeyBrowserClient.mdx#emailauth)
+
+***
+
+### exportPrivateKey()
+
+> **exportPrivateKey**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1848](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1848)
+
+#### Parameters
+
+##### input
+
+`TExportPrivateKeyBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`exportPrivateKey`](TurnkeyBrowserClient.mdx#exportprivatekey)
+
+***
+
+### exportWallet()
+
+> **exportWallet**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1885](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1885)
+
+#### Parameters
+
+##### input
+
+`TExportWalletBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`exportWallet`](TurnkeyBrowserClient.mdx#exportwallet)
+
+***
+
+### exportWalletAccount()
+
+> **exportWalletAccount**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1921](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1921)
+
+#### Parameters
+
+##### input
+
+`TExportWalletAccountBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`exportWalletAccount`](TurnkeyBrowserClient.mdx#exportwalletaccount)
+
+***
+
+### getActivities()
+
+> **getActivities**(`input`): `Promise`\<\{ `activities`: `object`[]; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:509](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L509)
+
+#### Parameters
+
+##### input
+
+`TGetActivitiesBody` = `{}`
+
+#### Returns
+
+`Promise`\<\{ `activities`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getActivities`](TurnkeyBrowserClient.mdx#getactivities)
+
+***
+
+### getActivity()
+
+> **getActivity**(`input`): `Promise`\<\{ `activity`: \{ `canApprove`: `boolean`; `canReject`: `boolean`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `failure`: \{ `code`: `number`; `details`: `object` & `object`[]; `message`: `string`; \}; `fingerprint`: `string`; `id`: `string`; `intent`: \{ `acceptInvitationIntent`: \{ `authenticator`: \{ `attestation`: \{ `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientExtensionResults`: \{ `appid`: `boolean`; `appidExclude`: `boolean`; `credProps`: \{ `rk`: ...; \}; \}; `id`: `string`; `rawId`: `string`; `response`: \{ `attestationObject`: `string`; `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientDataJson`: `string`; `transports`: ...[]; \}; `type`: `"public-key"`; \}; `authenticatorName`: `string`; `challenge`: `string`; `userId`: `string`; \}; `invitationId`: `string`; `userId`: `string`; \}; `acceptInvitationIntentV2`: \{ `authenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; `invitationId`: `string`; `userId`: `string`; \}; `activateBillingTierIntent`: \{ `productId`: `string`; \}; `approveActivityIntent`: \{ `fingerprint`: `string`; \}; `createApiKeysIntent`: \{ `apiKeys`: `object`[]; `userId`: `string`; \}; `createApiKeysIntentV2`: \{ `apiKeys`: `object`[]; `userId`: `string`; \}; `createApiOnlyUsersIntent`: \{ `apiOnlyUsers`: `object`[]; \}; `createAuthenticatorsIntent`: \{ `authenticators`: `object`[]; `userId`: `string`; \}; `createAuthenticatorsIntentV2`: \{ `authenticators`: `object`[]; `userId`: `string`; \}; `createInvitationsIntent`: \{ `invitations`: `object`[]; \}; `createOauthProvidersIntent`: \{ `oauthProviders`: `object`[]; `userId`: `string`; \}; `createOrganizationIntent`: \{ `organizationName`: `string`; `rootAuthenticator`: \{ `attestation`: \{ `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientExtensionResults`: \{ `appid`: `boolean`; `appidExclude`: `boolean`; `credProps`: \{ `rk`: ...; \}; \}; `id`: `string`; `rawId`: `string`; `response`: \{ `attestationObject`: `string`; `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientDataJson`: `string`; `transports`: ...[]; \}; `type`: `"public-key"`; \}; `authenticatorName`: `string`; `challenge`: `string`; `userId`: `string`; \}; `rootEmail`: `string`; `rootUserId`: `string`; \}; `createOrganizationIntentV2`: \{ `organizationName`: `string`; `rootAuthenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; `rootEmail`: `string`; `rootUserId`: `string`; \}; `createPoliciesIntent`: \{ `policies`: `object`[]; \}; `createPolicyIntent`: \{ `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyName`: `string`; `selectors`: `object`[]; \}; `createPolicyIntentV2`: \{ `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyName`: `string`; `selectors`: `object`[]; \}; `createPolicyIntentV3`: \{ `condition`: `string`; `consensus`: `string`; `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyName`: `string`; \}; `createPrivateKeysIntent`: \{ `privateKeys`: `object`[]; \}; `createPrivateKeysIntentV2`: \{ `privateKeys`: `object`[]; \}; `createPrivateKeyTagIntent`: \{ `privateKeyIds`: `string`[]; `privateKeyTagName`: `string`; \}; `createReadOnlySessionIntent`: \{\}; `createReadWriteSessionIntent`: \{ `apiKeyName`: `string`; `email`: `string`; `expirationSeconds`: `string`; `targetPublicKey`: `string`; \}; `createReadWriteSessionIntentV2`: \{ `apiKeyName`: `string`; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `targetPublicKey`: `string`; `userId`: `string`; \}; `createSubOrganizationIntent`: \{ `name`: `string`; `rootAuthenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; \}; `createSubOrganizationIntentV2`: \{ `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; \}; `createSubOrganizationIntentV3`: \{ `privateKeys`: `object`[]; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; \}; `createSubOrganizationIntentV4`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createSubOrganizationIntentV5`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createSubOrganizationIntentV6`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createSubOrganizationIntentV7`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `disableOtpEmailAuth`: `boolean`; `disableSmsAuth`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createUsersIntent`: \{ `users`: `object`[]; \}; `createUsersIntentV2`: \{ `users`: `object`[]; \}; `createUsersIntentV3`: \{ `users`: `object`[]; \}; `createUserTagIntent`: \{ `userIds`: `string`[]; `userTagName`: `string`; \}; `createWalletAccountsIntent`: \{ `accounts`: `object`[]; `walletId`: `string`; \}; `createWalletIntent`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; `deleteApiKeysIntent`: \{ `apiKeyIds`: `string`[]; `userId`: `string`; \}; `deleteAuthenticatorsIntent`: \{ `authenticatorIds`: `string`[]; `userId`: `string`; \}; `deleteInvitationIntent`: \{ `invitationId`: `string`; \}; `deleteOauthProvidersIntent`: \{ `providerIds`: `string`[]; `userId`: `string`; \}; `deleteOrganizationIntent`: \{ `organizationId`: `string`; \}; `deletePaymentMethodIntent`: \{ `paymentMethodId`: `string`; \}; `deletePolicyIntent`: \{ `policyId`: `string`; \}; `deletePrivateKeysIntent`: \{ `deleteWithoutExport`: `boolean`; `privateKeyIds`: `string`[]; \}; `deletePrivateKeyTagsIntent`: \{ `privateKeyTagIds`: `string`[]; \}; `deleteSubOrganizationIntent`: \{ `deleteWithoutExport`: `boolean`; \}; `deleteUsersIntent`: \{ `userIds`: `string`[]; \}; `deleteUserTagsIntent`: \{ `userTagIds`: `string`[]; \}; `deleteWalletsIntent`: \{ `deleteWithoutExport`: `boolean`; `walletIds`: `string`[]; \}; `disablePrivateKeyIntent`: \{ `privateKeyId`: `string`; \}; `emailAuthIntent`: \{ `apiKeyName`: `string`; `email`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `sendFromEmailAddress`: `string`; `sendFromEmailSenderName`: `string`; `targetPublicKey`: `string`; \}; `emailAuthIntentV2`: \{ `apiKeyName`: `string`; `email`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `sendFromEmailAddress`: `string`; `sendFromEmailSenderName`: `string`; `targetPublicKey`: `string`; \}; `exportPrivateKeyIntent`: \{ `privateKeyId`: `string`; `targetPublicKey`: `string`; \}; `exportWalletAccountIntent`: \{ `address`: `string`; `targetPublicKey`: `string`; \}; `exportWalletIntent`: \{ `language`: `"MNEMONIC_LANGUAGE_ENGLISH"` \| `"MNEMONIC_LANGUAGE_SIMPLIFIED_CHINESE"` \| `"MNEMONIC_LANGUAGE_TRADITIONAL_CHINESE"` \| `"MNEMONIC_LANGUAGE_CZECH"` \| `"MNEMONIC_LANGUAGE_FRENCH"` \| `"MNEMONIC_LANGUAGE_ITALIAN"` \| `"MNEMONIC_LANGUAGE_JAPANESE"` \| `"MNEMONIC_LANGUAGE_KOREAN"` \| `"MNEMONIC_LANGUAGE_SPANISH"`; `targetPublicKey`: `string`; `walletId`: `string`; \}; `importPrivateKeyIntent`: \{ `addressFormats`: (`"ADDRESS_FORMAT_UNCOMPRESSED"` \| `"ADDRESS_FORMAT_COMPRESSED"` \| `"ADDRESS_FORMAT_ETHEREUM"` \| `"ADDRESS_FORMAT_SOLANA"` \| `"ADDRESS_FORMAT_COSMOS"` \| `"ADDRESS_FORMAT_TRON"` \| `"ADDRESS_FORMAT_SUI"` \| `"ADDRESS_FORMAT_APTOS"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"` \| `"ADDRESS_FORMAT_SEI"` \| `"ADDRESS_FORMAT_XLM"` \| `"ADDRESS_FORMAT_DOGE_MAINNET"` \| `"ADDRESS_FORMAT_DOGE_TESTNET"` \| `"ADDRESS_FORMAT_TON_V3R2"` \| `"ADDRESS_FORMAT_TON_V4R2"` \| `"ADDRESS_FORMAT_XRP"`)[]; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `encryptedBundle`: `string`; `privateKeyName`: `string`; `userId`: `string`; \}; `importWalletIntent`: \{ `accounts`: `object`[]; `encryptedBundle`: `string`; `userId`: `string`; `walletName`: `string`; \}; `initImportPrivateKeyIntent`: \{ `userId`: `string`; \}; `initImportWalletIntent`: \{ `userId`: `string`; \}; `initOtpAuthIntent`: \{ `contact`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `otpType`: `string`; `sendFromEmailAddress`: `string`; `sendFromEmailSenderName`: `string`; `smsCustomization`: \{ `template`: `string`; \}; `userIdentifier`: `string`; \}; `initOtpAuthIntentV2`: \{ `alphanumeric`: `boolean`; `contact`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `otpLength`: `number`; `otpType`: `string`; `sendFromEmailAddress`: `string`; `sendFromEmailSenderName`: `string`; `smsCustomization`: \{ `template`: `string`; \}; `userIdentifier`: `string`; \}; `initUserEmailRecoveryIntent`: \{ `email`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `expirationSeconds`: `string`; `targetPublicKey`: `string`; \}; `oauthIntent`: \{ `apiKeyName`: `string`; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `oidcToken`: `string`; `targetPublicKey`: `string`; \}; `otpAuthIntent`: \{ `apiKeyName`: `string`; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `otpCode`: `string`; `otpId`: `string`; `targetPublicKey`: `string`; \}; `recoverUserIntent`: \{ `authenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; `userId`: `string`; \}; `rejectActivityIntent`: \{ `fingerprint`: `string`; \}; `removeOrganizationFeatureIntent`: \{ `name`: `"FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBAUTHN_ORIGINS"` \| `"FEATURE_NAME_EMAIL_AUTH"` \| `"FEATURE_NAME_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBHOOK"` \| `"FEATURE_NAME_SMS_AUTH"` \| `"FEATURE_NAME_OTP_EMAIL_AUTH"`; \}; `setOrganizationFeatureIntent`: \{ `name`: `"FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBAUTHN_ORIGINS"` \| `"FEATURE_NAME_EMAIL_AUTH"` \| `"FEATURE_NAME_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBHOOK"` \| `"FEATURE_NAME_SMS_AUTH"` \| `"FEATURE_NAME_OTP_EMAIL_AUTH"`; `value`: `string`; \}; `setPaymentMethodIntent`: \{ `cardHolderEmail`: `string`; `cardHolderName`: `string`; `cvv`: `string`; `expiryMonth`: `string`; `expiryYear`: `string`; `number`: `string`; \}; `setPaymentMethodIntentV2`: \{ `cardHolderEmail`: `string`; `cardHolderName`: `string`; `paymentMethodId`: `string`; \}; `signRawPayloadIntent`: \{ `encoding`: `"PAYLOAD_ENCODING_HEXADECIMAL"` \| `"PAYLOAD_ENCODING_TEXT_UTF8"`; `hashFunction`: `"HASH_FUNCTION_NO_OP"` \| `"HASH_FUNCTION_SHA256"` \| `"HASH_FUNCTION_KECCAK256"` \| `"HASH_FUNCTION_NOT_APPLICABLE"`; `payload`: `string`; `privateKeyId`: `string`; \}; `signRawPayloadIntentV2`: \{ `encoding`: `"PAYLOAD_ENCODING_HEXADECIMAL"` \| `"PAYLOAD_ENCODING_TEXT_UTF8"`; `hashFunction`: `"HASH_FUNCTION_NO_OP"` \| `"HASH_FUNCTION_SHA256"` \| `"HASH_FUNCTION_KECCAK256"` \| `"HASH_FUNCTION_NOT_APPLICABLE"`; `payload`: `string`; `signWith`: `string`; \}; `signRawPayloadsIntent`: \{ `encoding`: `"PAYLOAD_ENCODING_HEXADECIMAL"` \| `"PAYLOAD_ENCODING_TEXT_UTF8"`; `hashFunction`: `"HASH_FUNCTION_NO_OP"` \| `"HASH_FUNCTION_SHA256"` \| `"HASH_FUNCTION_KECCAK256"` \| `"HASH_FUNCTION_NOT_APPLICABLE"`; `payloads`: `string`[]; `signWith`: `string`; \}; `signTransactionIntent`: \{ `privateKeyId`: `string`; `type`: `"TRANSACTION_TYPE_ETHEREUM"` \| `"TRANSACTION_TYPE_SOLANA"`; `unsignedTransaction`: `string`; \}; `signTransactionIntentV2`: \{ `signWith`: `string`; `type`: `"TRANSACTION_TYPE_ETHEREUM"` \| `"TRANSACTION_TYPE_SOLANA"`; `unsignedTransaction`: `string`; \}; `updateAllowedOriginsIntent`: \{ `allowedOrigins`: `string`[]; \}; `updatePolicyIntent`: \{ `policyCondition`: `string`; `policyConsensus`: `string`; `policyEffect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `policyId`: `string`; `policyName`: `string`; `policyNotes`: `string`; \}; `updatePolicyIntentV2`: \{ `policyCondition`: `string`; `policyConsensus`: `string`; `policyEffect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `policyId`: `string`; `policyName`: `string`; `policyNotes`: `string`; \}; `updatePrivateKeyTagIntent`: \{ `addPrivateKeyIds`: `string`[]; `newPrivateKeyTagName`: `string`; `privateKeyTagId`: `string`; `removePrivateKeyIds`: `string`[]; \}; `updateRootQuorumIntent`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; `updateUserIntent`: \{ `userEmail`: `string`; `userId`: `string`; `userName`: `string`; `userPhoneNumber`: `string`; `userTagIds`: `string`[]; \}; `updateUserTagIntent`: \{ `addUserIds`: `string`[]; `newUserTagName`: `string`; `removeUserIds`: `string`[]; `userTagId`: `string`; \}; `updateWalletIntent`: \{ `walletId`: `string`; `walletName`: `string`; \}; \}; `organizationId`: `string`; `result`: \{ `acceptInvitationResult`: \{ `invitationId`: `string`; `userId`: `string`; \}; `activateBillingTierResult`: \{ `productId`: `string`; \}; `createApiKeysResult`: \{ `apiKeyIds`: `string`[]; \}; `createApiOnlyUsersResult`: \{ `userIds`: `string`[]; \}; `createAuthenticatorsResult`: \{ `authenticatorIds`: `string`[]; \}; `createInvitationsResult`: \{ `invitationIds`: `string`[]; \}; `createOauthProvidersResult`: \{ `providerIds`: `string`[]; \}; `createOrganizationResult`: \{ `organizationId`: `string`; \}; `createPoliciesResult`: \{ `policyIds`: `string`[]; \}; `createPolicyResult`: \{ `policyId`: `string`; \}; `createPrivateKeysResult`: \{ `privateKeyIds`: `string`[]; \}; `createPrivateKeysResultV2`: \{ `privateKeys`: `object`[]; \}; `createPrivateKeyTagResult`: \{ `privateKeyIds`: `string`[]; `privateKeyTagId`: `string`; \}; `createReadOnlySessionResult`: \{ `organizationId`: `string`; `organizationName`: `string`; `session`: `string`; `sessionExpiry`: `string`; `userId`: `string`; `username`: `string`; \}; `createReadWriteSessionResult`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}; `createReadWriteSessionResultV2`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}; `createSubOrganizationResult`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; \}; `createSubOrganizationResultV3`: \{ `privateKeys`: `object`[]; `rootUserIds`: `string`[]; `subOrganizationId`: `string`; \}; `createSubOrganizationResultV4`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createSubOrganizationResultV5`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createSubOrganizationResultV6`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createSubOrganizationResultV7`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createUsersResult`: \{ `userIds`: `string`[]; \}; `createUserTagResult`: \{ `userIds`: `string`[]; `userTagId`: `string`; \}; `createWalletAccountsResult`: \{ `addresses`: `string`[]; \}; `createWalletResult`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; `deleteApiKeysResult`: \{ `apiKeyIds`: `string`[]; \}; `deleteAuthenticatorsResult`: \{ `authenticatorIds`: `string`[]; \}; `deleteInvitationResult`: \{ `invitationId`: `string`; \}; `deleteOauthProvidersResult`: \{ `providerIds`: `string`[]; \}; `deleteOrganizationResult`: \{ `organizationId`: `string`; \}; `deletePaymentMethodResult`: \{ `paymentMethodId`: `string`; \}; `deletePolicyResult`: \{ `policyId`: `string`; \}; `deletePrivateKeysResult`: \{ `privateKeyIds`: `string`[]; \}; `deletePrivateKeyTagsResult`: \{ `privateKeyIds`: `string`[]; `privateKeyTagIds`: `string`[]; \}; `deleteSubOrganizationResult`: \{ `subOrganizationUuid`: `string`; \}; `deleteUsersResult`: \{ `userIds`: `string`[]; \}; `deleteUserTagsResult`: \{ `userIds`: `string`[]; `userTagIds`: `string`[]; \}; `deleteWalletsResult`: \{ `walletIds`: `string`[]; \}; `disablePrivateKeyResult`: \{ `privateKeyId`: `string`; \}; `emailAuthResult`: \{ `apiKeyId`: `string`; `userId`: `string`; \}; `exportPrivateKeyResult`: \{ `exportBundle`: `string`; `privateKeyId`: `string`; \}; `exportWalletAccountResult`: \{ `address`: `string`; `exportBundle`: `string`; \}; `exportWalletResult`: \{ `exportBundle`: `string`; `walletId`: `string`; \}; `importPrivateKeyResult`: \{ `addresses`: `object`[]; `privateKeyId`: `string`; \}; `importWalletResult`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; `initImportPrivateKeyResult`: \{ `importBundle`: `string`; \}; `initImportWalletResult`: \{ `importBundle`: `string`; \}; `initOtpAuthResult`: \{ `otpId`: `string`; \}; `initOtpAuthResultV2`: \{ `otpId`: `string`; \}; `initUserEmailRecoveryResult`: \{ `userId`: `string`; \}; `oauthResult`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `userId`: `string`; \}; `otpAuthResult`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `userId`: `string`; \}; `recoverUserResult`: \{ `authenticatorId`: `string`[]; \}; `removeOrganizationFeatureResult`: \{ `features`: `object`[]; \}; `setOrganizationFeatureResult`: \{ `features`: `object`[]; \}; `setPaymentMethodResult`: \{ `cardHolderEmail`: `string`; `cardHolderName`: `string`; `lastFour`: `string`; \}; `signRawPayloadResult`: \{ `r`: `string`; `s`: `string`; `v`: `string`; \}; `signRawPayloadsResult`: \{ `signatures`: `object`[]; \}; `signTransactionResult`: \{ `signedTransaction`: `string`; \}; `updateAllowedOriginsResult`: \{\}; `updatePolicyResult`: \{ `policyId`: `string`; \}; `updatePolicyResultV2`: \{ `policyId`: `string`; \}; `updatePrivateKeyTagResult`: \{ `privateKeyTagId`: `string`; \}; `updateRootQuorumResult`: \{\}; `updateUserResult`: \{ `userId`: `string`; \}; `updateUserTagResult`: \{ `userTagId`: `string`; \}; `updateWalletResult`: \{ `walletId`: `string`; \}; \}; `status`: `"ACTIVITY_STATUS_CREATED"` \| `"ACTIVITY_STATUS_PENDING"` \| `"ACTIVITY_STATUS_COMPLETED"` \| `"ACTIVITY_STATUS_FAILED"` \| `"ACTIVITY_STATUS_CONSENSUS_NEEDED"` \| `"ACTIVITY_STATUS_REJECTED"`; `type`: `"ACTIVITY_TYPE_CREATE_API_KEYS"` \| `"ACTIVITY_TYPE_CREATE_USERS"` \| `"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"` \| `"ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"` \| `"ACTIVITY_TYPE_CREATE_INVITATIONS"` \| `"ACTIVITY_TYPE_ACCEPT_INVITATION"` \| `"ACTIVITY_TYPE_CREATE_POLICY"` \| `"ACTIVITY_TYPE_DISABLE_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_DELETE_USERS"` \| `"ACTIVITY_TYPE_DELETE_API_KEYS"` \| `"ACTIVITY_TYPE_DELETE_INVITATION"` \| `"ACTIVITY_TYPE_DELETE_ORGANIZATION"` \| `"ACTIVITY_TYPE_DELETE_POLICY"` \| `"ACTIVITY_TYPE_CREATE_USER_TAG"` \| `"ACTIVITY_TYPE_DELETE_USER_TAGS"` \| `"ACTIVITY_TYPE_CREATE_ORGANIZATION"` \| `"ACTIVITY_TYPE_SIGN_TRANSACTION"` \| `"ACTIVITY_TYPE_APPROVE_ACTIVITY"` \| `"ACTIVITY_TYPE_REJECT_ACTIVITY"` \| `"ACTIVITY_TYPE_DELETE_AUTHENTICATORS"` \| `"ACTIVITY_TYPE_CREATE_AUTHENTICATORS"` \| `"ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"` \| `"ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"` \| `"ACTIVITY_TYPE_SET_PAYMENT_METHOD"` \| `"ACTIVITY_TYPE_ACTIVATE_BILLING_TIER"` \| `"ACTIVITY_TYPE_DELETE_PAYMENT_METHOD"` \| `"ACTIVITY_TYPE_CREATE_POLICY_V2"` \| `"ACTIVITY_TYPE_CREATE_POLICY_V3"` \| `"ACTIVITY_TYPE_CREATE_API_ONLY_USERS"` \| `"ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"` \| `"ACTIVITY_TYPE_UPDATE_USER_TAG"` \| `"ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"` \| `"ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"` \| `"ACTIVITY_TYPE_CREATE_ORGANIZATION_V2"` \| `"ACTIVITY_TYPE_CREATE_USERS_V2"` \| `"ACTIVITY_TYPE_ACCEPT_INVITATION_V2"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2"` \| `"ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS"` \| `"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"` \| `"ACTIVITY_TYPE_UPDATE_USER"` \| `"ACTIVITY_TYPE_UPDATE_POLICY"` \| `"ACTIVITY_TYPE_SET_PAYMENT_METHOD_V2"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3"` \| `"ACTIVITY_TYPE_CREATE_WALLET"` \| `"ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"` \| `"ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY"` \| `"ACTIVITY_TYPE_RECOVER_USER"` \| `"ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"` \| `"ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"` \| `"ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"` \| `"ACTIVITY_TYPE_SIGN_TRANSACTION_V2"` \| `"ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_EXPORT_WALLET"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4"` \| `"ACTIVITY_TYPE_EMAIL_AUTH"` \| `"ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"` \| `"ACTIVITY_TYPE_INIT_IMPORT_WALLET"` \| `"ACTIVITY_TYPE_IMPORT_WALLET"` \| `"ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_CREATE_POLICIES"` \| `"ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"` \| `"ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"` \| `"ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS"` \| `"ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5"` \| `"ACTIVITY_TYPE_OAUTH"` \| `"ACTIVITY_TYPE_CREATE_API_KEYS_V2"` \| `"ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION"` \| `"ACTIVITY_TYPE_EMAIL_AUTH_V2"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6"` \| `"ACTIVITY_TYPE_DELETE_PRIVATE_KEYS"` \| `"ACTIVITY_TYPE_DELETE_WALLETS"` \| `"ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2"` \| `"ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION"` \| `"ACTIVITY_TYPE_INIT_OTP_AUTH"` \| `"ACTIVITY_TYPE_OTP_AUTH"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"` \| `"ACTIVITY_TYPE_UPDATE_WALLET"` \| `"ACTIVITY_TYPE_UPDATE_POLICY_V2"` \| `"ACTIVITY_TYPE_CREATE_USERS_V3"` \| `"ACTIVITY_TYPE_INIT_OTP_AUTH_V2"`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `votes`: `object`[]; \}; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:153](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L153)
+
+#### Parameters
+
+##### input
+
+`TGetActivityBody`
+
+#### Returns
+
+`Promise`\<\{ `activity`: \{ `canApprove`: `boolean`; `canReject`: `boolean`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `failure`: \{ `code`: `number`; `details`: `object` & `object`[]; `message`: `string`; \}; `fingerprint`: `string`; `id`: `string`; `intent`: \{ `acceptInvitationIntent`: \{ `authenticator`: \{ `attestation`: \{ `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientExtensionResults`: \{ `appid`: `boolean`; `appidExclude`: `boolean`; `credProps`: \{ `rk`: ...; \}; \}; `id`: `string`; `rawId`: `string`; `response`: \{ `attestationObject`: `string`; `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientDataJson`: `string`; `transports`: ...[]; \}; `type`: `"public-key"`; \}; `authenticatorName`: `string`; `challenge`: `string`; `userId`: `string`; \}; `invitationId`: `string`; `userId`: `string`; \}; `acceptInvitationIntentV2`: \{ `authenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; `invitationId`: `string`; `userId`: `string`; \}; `activateBillingTierIntent`: \{ `productId`: `string`; \}; `approveActivityIntent`: \{ `fingerprint`: `string`; \}; `createApiKeysIntent`: \{ `apiKeys`: `object`[]; `userId`: `string`; \}; `createApiKeysIntentV2`: \{ `apiKeys`: `object`[]; `userId`: `string`; \}; `createApiOnlyUsersIntent`: \{ `apiOnlyUsers`: `object`[]; \}; `createAuthenticatorsIntent`: \{ `authenticators`: `object`[]; `userId`: `string`; \}; `createAuthenticatorsIntentV2`: \{ `authenticators`: `object`[]; `userId`: `string`; \}; `createInvitationsIntent`: \{ `invitations`: `object`[]; \}; `createOauthProvidersIntent`: \{ `oauthProviders`: `object`[]; `userId`: `string`; \}; `createOrganizationIntent`: \{ `organizationName`: `string`; `rootAuthenticator`: \{ `attestation`: \{ `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientExtensionResults`: \{ `appid`: `boolean`; `appidExclude`: `boolean`; `credProps`: \{ `rk`: ...; \}; \}; `id`: `string`; `rawId`: `string`; `response`: \{ `attestationObject`: `string`; `authenticatorAttachment`: `null` \| `"cross-platform"` \| `"platform"`; `clientDataJson`: `string`; `transports`: ...[]; \}; `type`: `"public-key"`; \}; `authenticatorName`: `string`; `challenge`: `string`; `userId`: `string`; \}; `rootEmail`: `string`; `rootUserId`: `string`; \}; `createOrganizationIntentV2`: \{ `organizationName`: `string`; `rootAuthenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; `rootEmail`: `string`; `rootUserId`: `string`; \}; `createPoliciesIntent`: \{ `policies`: `object`[]; \}; `createPolicyIntent`: \{ `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyName`: `string`; `selectors`: `object`[]; \}; `createPolicyIntentV2`: \{ `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyName`: `string`; `selectors`: `object`[]; \}; `createPolicyIntentV3`: \{ `condition`: `string`; `consensus`: `string`; `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyName`: `string`; \}; `createPrivateKeysIntent`: \{ `privateKeys`: `object`[]; \}; `createPrivateKeysIntentV2`: \{ `privateKeys`: `object`[]; \}; `createPrivateKeyTagIntent`: \{ `privateKeyIds`: `string`[]; `privateKeyTagName`: `string`; \}; `createReadOnlySessionIntent`: \{\}; `createReadWriteSessionIntent`: \{ `apiKeyName`: `string`; `email`: `string`; `expirationSeconds`: `string`; `targetPublicKey`: `string`; \}; `createReadWriteSessionIntentV2`: \{ `apiKeyName`: `string`; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `targetPublicKey`: `string`; `userId`: `string`; \}; `createSubOrganizationIntent`: \{ `name`: `string`; `rootAuthenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; \}; `createSubOrganizationIntentV2`: \{ `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; \}; `createSubOrganizationIntentV3`: \{ `privateKeys`: `object`[]; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; \}; `createSubOrganizationIntentV4`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createSubOrganizationIntentV5`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createSubOrganizationIntentV6`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createSubOrganizationIntentV7`: \{ `disableEmailAuth`: `boolean`; `disableEmailRecovery`: `boolean`; `disableOtpEmailAuth`: `boolean`; `disableSmsAuth`: `boolean`; `rootQuorumThreshold`: `number`; `rootUsers`: `object`[]; `subOrganizationName`: `string`; `wallet`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; \}; `createUsersIntent`: \{ `users`: `object`[]; \}; `createUsersIntentV2`: \{ `users`: `object`[]; \}; `createUsersIntentV3`: \{ `users`: `object`[]; \}; `createUserTagIntent`: \{ `userIds`: `string`[]; `userTagName`: `string`; \}; `createWalletAccountsIntent`: \{ `accounts`: `object`[]; `walletId`: `string`; \}; `createWalletIntent`: \{ `accounts`: `object`[]; `mnemonicLength`: `number`; `walletName`: `string`; \}; `deleteApiKeysIntent`: \{ `apiKeyIds`: `string`[]; `userId`: `string`; \}; `deleteAuthenticatorsIntent`: \{ `authenticatorIds`: `string`[]; `userId`: `string`; \}; `deleteInvitationIntent`: \{ `invitationId`: `string`; \}; `deleteOauthProvidersIntent`: \{ `providerIds`: `string`[]; `userId`: `string`; \}; `deleteOrganizationIntent`: \{ `organizationId`: `string`; \}; `deletePaymentMethodIntent`: \{ `paymentMethodId`: `string`; \}; `deletePolicyIntent`: \{ `policyId`: `string`; \}; `deletePrivateKeysIntent`: \{ `deleteWithoutExport`: `boolean`; `privateKeyIds`: `string`[]; \}; `deletePrivateKeyTagsIntent`: \{ `privateKeyTagIds`: `string`[]; \}; `deleteSubOrganizationIntent`: \{ `deleteWithoutExport`: `boolean`; \}; `deleteUsersIntent`: \{ `userIds`: `string`[]; \}; `deleteUserTagsIntent`: \{ `userTagIds`: `string`[]; \}; `deleteWalletsIntent`: \{ `deleteWithoutExport`: `boolean`; `walletIds`: `string`[]; \}; `disablePrivateKeyIntent`: \{ `privateKeyId`: `string`; \}; `emailAuthIntent`: \{ `apiKeyName`: `string`; `email`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `sendFromEmailAddress`: `string`; `sendFromEmailSenderName`: `string`; `targetPublicKey`: `string`; \}; `emailAuthIntentV2`: \{ `apiKeyName`: `string`; `email`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `sendFromEmailAddress`: `string`; `sendFromEmailSenderName`: `string`; `targetPublicKey`: `string`; \}; `exportPrivateKeyIntent`: \{ `privateKeyId`: `string`; `targetPublicKey`: `string`; \}; `exportWalletAccountIntent`: \{ `address`: `string`; `targetPublicKey`: `string`; \}; `exportWalletIntent`: \{ `language`: `"MNEMONIC_LANGUAGE_ENGLISH"` \| `"MNEMONIC_LANGUAGE_SIMPLIFIED_CHINESE"` \| `"MNEMONIC_LANGUAGE_TRADITIONAL_CHINESE"` \| `"MNEMONIC_LANGUAGE_CZECH"` \| `"MNEMONIC_LANGUAGE_FRENCH"` \| `"MNEMONIC_LANGUAGE_ITALIAN"` \| `"MNEMONIC_LANGUAGE_JAPANESE"` \| `"MNEMONIC_LANGUAGE_KOREAN"` \| `"MNEMONIC_LANGUAGE_SPANISH"`; `targetPublicKey`: `string`; `walletId`: `string`; \}; `importPrivateKeyIntent`: \{ `addressFormats`: (`"ADDRESS_FORMAT_UNCOMPRESSED"` \| `"ADDRESS_FORMAT_COMPRESSED"` \| `"ADDRESS_FORMAT_ETHEREUM"` \| `"ADDRESS_FORMAT_SOLANA"` \| `"ADDRESS_FORMAT_COSMOS"` \| `"ADDRESS_FORMAT_TRON"` \| `"ADDRESS_FORMAT_SUI"` \| `"ADDRESS_FORMAT_APTOS"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"` \| `"ADDRESS_FORMAT_SEI"` \| `"ADDRESS_FORMAT_XLM"` \| `"ADDRESS_FORMAT_DOGE_MAINNET"` \| `"ADDRESS_FORMAT_DOGE_TESTNET"` \| `"ADDRESS_FORMAT_TON_V3R2"` \| `"ADDRESS_FORMAT_TON_V4R2"` \| `"ADDRESS_FORMAT_XRP"`)[]; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `encryptedBundle`: `string`; `privateKeyName`: `string`; `userId`: `string`; \}; `importWalletIntent`: \{ `accounts`: `object`[]; `encryptedBundle`: `string`; `userId`: `string`; `walletName`: `string`; \}; `initImportPrivateKeyIntent`: \{ `userId`: `string`; \}; `initImportWalletIntent`: \{ `userId`: `string`; \}; `initOtpAuthIntent`: \{ `contact`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `otpType`: `string`; `sendFromEmailAddress`: `string`; `sendFromEmailSenderName`: `string`; `smsCustomization`: \{ `template`: `string`; \}; `userIdentifier`: `string`; \}; `initOtpAuthIntentV2`: \{ `alphanumeric`: `boolean`; `contact`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `otpLength`: `number`; `otpType`: `string`; `sendFromEmailAddress`: `string`; `sendFromEmailSenderName`: `string`; `smsCustomization`: \{ `template`: `string`; \}; `userIdentifier`: `string`; \}; `initUserEmailRecoveryIntent`: \{ `email`: `string`; `emailCustomization`: \{ `appName`: `string`; `logoUrl`: `string`; `magicLinkTemplate`: `string`; `templateId`: `string`; `templateVariables`: `string`; \}; `expirationSeconds`: `string`; `targetPublicKey`: `string`; \}; `oauthIntent`: \{ `apiKeyName`: `string`; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `oidcToken`: `string`; `targetPublicKey`: `string`; \}; `otpAuthIntent`: \{ `apiKeyName`: `string`; `expirationSeconds`: `string`; `invalidateExisting`: `boolean`; `otpCode`: `string`; `otpId`: `string`; `targetPublicKey`: `string`; \}; `recoverUserIntent`: \{ `authenticator`: \{ `attestation`: \{ `attestationObject`: `string`; `clientDataJson`: `string`; `credentialId`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; \}; `authenticatorName`: `string`; `challenge`: `string`; \}; `userId`: `string`; \}; `rejectActivityIntent`: \{ `fingerprint`: `string`; \}; `removeOrganizationFeatureIntent`: \{ `name`: `"FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBAUTHN_ORIGINS"` \| `"FEATURE_NAME_EMAIL_AUTH"` \| `"FEATURE_NAME_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBHOOK"` \| `"FEATURE_NAME_SMS_AUTH"` \| `"FEATURE_NAME_OTP_EMAIL_AUTH"`; \}; `setOrganizationFeatureIntent`: \{ `name`: `"FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBAUTHN_ORIGINS"` \| `"FEATURE_NAME_EMAIL_AUTH"` \| `"FEATURE_NAME_EMAIL_RECOVERY"` \| `"FEATURE_NAME_WEBHOOK"` \| `"FEATURE_NAME_SMS_AUTH"` \| `"FEATURE_NAME_OTP_EMAIL_AUTH"`; `value`: `string`; \}; `setPaymentMethodIntent`: \{ `cardHolderEmail`: `string`; `cardHolderName`: `string`; `cvv`: `string`; `expiryMonth`: `string`; `expiryYear`: `string`; `number`: `string`; \}; `setPaymentMethodIntentV2`: \{ `cardHolderEmail`: `string`; `cardHolderName`: `string`; `paymentMethodId`: `string`; \}; `signRawPayloadIntent`: \{ `encoding`: `"PAYLOAD_ENCODING_HEXADECIMAL"` \| `"PAYLOAD_ENCODING_TEXT_UTF8"`; `hashFunction`: `"HASH_FUNCTION_NO_OP"` \| `"HASH_FUNCTION_SHA256"` \| `"HASH_FUNCTION_KECCAK256"` \| `"HASH_FUNCTION_NOT_APPLICABLE"`; `payload`: `string`; `privateKeyId`: `string`; \}; `signRawPayloadIntentV2`: \{ `encoding`: `"PAYLOAD_ENCODING_HEXADECIMAL"` \| `"PAYLOAD_ENCODING_TEXT_UTF8"`; `hashFunction`: `"HASH_FUNCTION_NO_OP"` \| `"HASH_FUNCTION_SHA256"` \| `"HASH_FUNCTION_KECCAK256"` \| `"HASH_FUNCTION_NOT_APPLICABLE"`; `payload`: `string`; `signWith`: `string`; \}; `signRawPayloadsIntent`: \{ `encoding`: `"PAYLOAD_ENCODING_HEXADECIMAL"` \| `"PAYLOAD_ENCODING_TEXT_UTF8"`; `hashFunction`: `"HASH_FUNCTION_NO_OP"` \| `"HASH_FUNCTION_SHA256"` \| `"HASH_FUNCTION_KECCAK256"` \| `"HASH_FUNCTION_NOT_APPLICABLE"`; `payloads`: `string`[]; `signWith`: `string`; \}; `signTransactionIntent`: \{ `privateKeyId`: `string`; `type`: `"TRANSACTION_TYPE_ETHEREUM"` \| `"TRANSACTION_TYPE_SOLANA"`; `unsignedTransaction`: `string`; \}; `signTransactionIntentV2`: \{ `signWith`: `string`; `type`: `"TRANSACTION_TYPE_ETHEREUM"` \| `"TRANSACTION_TYPE_SOLANA"`; `unsignedTransaction`: `string`; \}; `updateAllowedOriginsIntent`: \{ `allowedOrigins`: `string`[]; \}; `updatePolicyIntent`: \{ `policyCondition`: `string`; `policyConsensus`: `string`; `policyEffect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `policyId`: `string`; `policyName`: `string`; `policyNotes`: `string`; \}; `updatePolicyIntentV2`: \{ `policyCondition`: `string`; `policyConsensus`: `string`; `policyEffect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `policyId`: `string`; `policyName`: `string`; `policyNotes`: `string`; \}; `updatePrivateKeyTagIntent`: \{ `addPrivateKeyIds`: `string`[]; `newPrivateKeyTagName`: `string`; `privateKeyTagId`: `string`; `removePrivateKeyIds`: `string`[]; \}; `updateRootQuorumIntent`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; `updateUserIntent`: \{ `userEmail`: `string`; `userId`: `string`; `userName`: `string`; `userPhoneNumber`: `string`; `userTagIds`: `string`[]; \}; `updateUserTagIntent`: \{ `addUserIds`: `string`[]; `newUserTagName`: `string`; `removeUserIds`: `string`[]; `userTagId`: `string`; \}; `updateWalletIntent`: \{ `walletId`: `string`; `walletName`: `string`; \}; \}; `organizationId`: `string`; `result`: \{ `acceptInvitationResult`: \{ `invitationId`: `string`; `userId`: `string`; \}; `activateBillingTierResult`: \{ `productId`: `string`; \}; `createApiKeysResult`: \{ `apiKeyIds`: `string`[]; \}; `createApiOnlyUsersResult`: \{ `userIds`: `string`[]; \}; `createAuthenticatorsResult`: \{ `authenticatorIds`: `string`[]; \}; `createInvitationsResult`: \{ `invitationIds`: `string`[]; \}; `createOauthProvidersResult`: \{ `providerIds`: `string`[]; \}; `createOrganizationResult`: \{ `organizationId`: `string`; \}; `createPoliciesResult`: \{ `policyIds`: `string`[]; \}; `createPolicyResult`: \{ `policyId`: `string`; \}; `createPrivateKeysResult`: \{ `privateKeyIds`: `string`[]; \}; `createPrivateKeysResultV2`: \{ `privateKeys`: `object`[]; \}; `createPrivateKeyTagResult`: \{ `privateKeyIds`: `string`[]; `privateKeyTagId`: `string`; \}; `createReadOnlySessionResult`: \{ `organizationId`: `string`; `organizationName`: `string`; `session`: `string`; `sessionExpiry`: `string`; `userId`: `string`; `username`: `string`; \}; `createReadWriteSessionResult`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}; `createReadWriteSessionResultV2`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}; `createSubOrganizationResult`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; \}; `createSubOrganizationResultV3`: \{ `privateKeys`: `object`[]; `rootUserIds`: `string`[]; `subOrganizationId`: `string`; \}; `createSubOrganizationResultV4`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createSubOrganizationResultV5`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createSubOrganizationResultV6`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createSubOrganizationResultV7`: \{ `rootUserIds`: `string`[]; `subOrganizationId`: `string`; `wallet`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; \}; `createUsersResult`: \{ `userIds`: `string`[]; \}; `createUserTagResult`: \{ `userIds`: `string`[]; `userTagId`: `string`; \}; `createWalletAccountsResult`: \{ `addresses`: `string`[]; \}; `createWalletResult`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; `deleteApiKeysResult`: \{ `apiKeyIds`: `string`[]; \}; `deleteAuthenticatorsResult`: \{ `authenticatorIds`: `string`[]; \}; `deleteInvitationResult`: \{ `invitationId`: `string`; \}; `deleteOauthProvidersResult`: \{ `providerIds`: `string`[]; \}; `deleteOrganizationResult`: \{ `organizationId`: `string`; \}; `deletePaymentMethodResult`: \{ `paymentMethodId`: `string`; \}; `deletePolicyResult`: \{ `policyId`: `string`; \}; `deletePrivateKeysResult`: \{ `privateKeyIds`: `string`[]; \}; `deletePrivateKeyTagsResult`: \{ `privateKeyIds`: `string`[]; `privateKeyTagIds`: `string`[]; \}; `deleteSubOrganizationResult`: \{ `subOrganizationUuid`: `string`; \}; `deleteUsersResult`: \{ `userIds`: `string`[]; \}; `deleteUserTagsResult`: \{ `userIds`: `string`[]; `userTagIds`: `string`[]; \}; `deleteWalletsResult`: \{ `walletIds`: `string`[]; \}; `disablePrivateKeyResult`: \{ `privateKeyId`: `string`; \}; `emailAuthResult`: \{ `apiKeyId`: `string`; `userId`: `string`; \}; `exportPrivateKeyResult`: \{ `exportBundle`: `string`; `privateKeyId`: `string`; \}; `exportWalletAccountResult`: \{ `address`: `string`; `exportBundle`: `string`; \}; `exportWalletResult`: \{ `exportBundle`: `string`; `walletId`: `string`; \}; `importPrivateKeyResult`: \{ `addresses`: `object`[]; `privateKeyId`: `string`; \}; `importWalletResult`: \{ `addresses`: `string`[]; `walletId`: `string`; \}; `initImportPrivateKeyResult`: \{ `importBundle`: `string`; \}; `initImportWalletResult`: \{ `importBundle`: `string`; \}; `initOtpAuthResult`: \{ `otpId`: `string`; \}; `initOtpAuthResultV2`: \{ `otpId`: `string`; \}; `initUserEmailRecoveryResult`: \{ `userId`: `string`; \}; `oauthResult`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `userId`: `string`; \}; `otpAuthResult`: \{ `apiKeyId`: `string`; `credentialBundle`: `string`; `userId`: `string`; \}; `recoverUserResult`: \{ `authenticatorId`: `string`[]; \}; `removeOrganizationFeatureResult`: \{ `features`: `object`[]; \}; `setOrganizationFeatureResult`: \{ `features`: `object`[]; \}; `setPaymentMethodResult`: \{ `cardHolderEmail`: `string`; `cardHolderName`: `string`; `lastFour`: `string`; \}; `signRawPayloadResult`: \{ `r`: `string`; `s`: `string`; `v`: `string`; \}; `signRawPayloadsResult`: \{ `signatures`: `object`[]; \}; `signTransactionResult`: \{ `signedTransaction`: `string`; \}; `updateAllowedOriginsResult`: \{\}; `updatePolicyResult`: \{ `policyId`: `string`; \}; `updatePolicyResultV2`: \{ `policyId`: `string`; \}; `updatePrivateKeyTagResult`: \{ `privateKeyTagId`: `string`; \}; `updateRootQuorumResult`: \{\}; `updateUserResult`: \{ `userId`: `string`; \}; `updateUserTagResult`: \{ `userTagId`: `string`; \}; `updateWalletResult`: \{ `walletId`: `string`; \}; \}; `status`: `"ACTIVITY_STATUS_CREATED"` \| `"ACTIVITY_STATUS_PENDING"` \| `"ACTIVITY_STATUS_COMPLETED"` \| `"ACTIVITY_STATUS_FAILED"` \| `"ACTIVITY_STATUS_CONSENSUS_NEEDED"` \| `"ACTIVITY_STATUS_REJECTED"`; `type`: `"ACTIVITY_TYPE_CREATE_API_KEYS"` \| `"ACTIVITY_TYPE_CREATE_USERS"` \| `"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"` \| `"ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"` \| `"ACTIVITY_TYPE_CREATE_INVITATIONS"` \| `"ACTIVITY_TYPE_ACCEPT_INVITATION"` \| `"ACTIVITY_TYPE_CREATE_POLICY"` \| `"ACTIVITY_TYPE_DISABLE_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_DELETE_USERS"` \| `"ACTIVITY_TYPE_DELETE_API_KEYS"` \| `"ACTIVITY_TYPE_DELETE_INVITATION"` \| `"ACTIVITY_TYPE_DELETE_ORGANIZATION"` \| `"ACTIVITY_TYPE_DELETE_POLICY"` \| `"ACTIVITY_TYPE_CREATE_USER_TAG"` \| `"ACTIVITY_TYPE_DELETE_USER_TAGS"` \| `"ACTIVITY_TYPE_CREATE_ORGANIZATION"` \| `"ACTIVITY_TYPE_SIGN_TRANSACTION"` \| `"ACTIVITY_TYPE_APPROVE_ACTIVITY"` \| `"ACTIVITY_TYPE_REJECT_ACTIVITY"` \| `"ACTIVITY_TYPE_DELETE_AUTHENTICATORS"` \| `"ACTIVITY_TYPE_CREATE_AUTHENTICATORS"` \| `"ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"` \| `"ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"` \| `"ACTIVITY_TYPE_SET_PAYMENT_METHOD"` \| `"ACTIVITY_TYPE_ACTIVATE_BILLING_TIER"` \| `"ACTIVITY_TYPE_DELETE_PAYMENT_METHOD"` \| `"ACTIVITY_TYPE_CREATE_POLICY_V2"` \| `"ACTIVITY_TYPE_CREATE_POLICY_V3"` \| `"ACTIVITY_TYPE_CREATE_API_ONLY_USERS"` \| `"ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"` \| `"ACTIVITY_TYPE_UPDATE_USER_TAG"` \| `"ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"` \| `"ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"` \| `"ACTIVITY_TYPE_CREATE_ORGANIZATION_V2"` \| `"ACTIVITY_TYPE_CREATE_USERS_V2"` \| `"ACTIVITY_TYPE_ACCEPT_INVITATION_V2"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2"` \| `"ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS"` \| `"ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"` \| `"ACTIVITY_TYPE_UPDATE_USER"` \| `"ACTIVITY_TYPE_UPDATE_POLICY"` \| `"ACTIVITY_TYPE_SET_PAYMENT_METHOD_V2"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3"` \| `"ACTIVITY_TYPE_CREATE_WALLET"` \| `"ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"` \| `"ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY"` \| `"ACTIVITY_TYPE_RECOVER_USER"` \| `"ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"` \| `"ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"` \| `"ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"` \| `"ACTIVITY_TYPE_SIGN_TRANSACTION_V2"` \| `"ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_EXPORT_WALLET"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4"` \| `"ACTIVITY_TYPE_EMAIL_AUTH"` \| `"ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"` \| `"ACTIVITY_TYPE_INIT_IMPORT_WALLET"` \| `"ACTIVITY_TYPE_IMPORT_WALLET"` \| `"ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"` \| `"ACTIVITY_TYPE_CREATE_POLICIES"` \| `"ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"` \| `"ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"` \| `"ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS"` \| `"ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5"` \| `"ACTIVITY_TYPE_OAUTH"` \| `"ACTIVITY_TYPE_CREATE_API_KEYS_V2"` \| `"ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION"` \| `"ACTIVITY_TYPE_EMAIL_AUTH_V2"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6"` \| `"ACTIVITY_TYPE_DELETE_PRIVATE_KEYS"` \| `"ACTIVITY_TYPE_DELETE_WALLETS"` \| `"ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2"` \| `"ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION"` \| `"ACTIVITY_TYPE_INIT_OTP_AUTH"` \| `"ACTIVITY_TYPE_OTP_AUTH"` \| `"ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"` \| `"ACTIVITY_TYPE_UPDATE_WALLET"` \| `"ACTIVITY_TYPE_UPDATE_POLICY_V2"` \| `"ACTIVITY_TYPE_CREATE_USERS_V3"` \| `"ACTIVITY_TYPE_INIT_OTP_AUTH_V2"`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `votes`: `object`[]; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getActivity`](TurnkeyBrowserClient.mdx#getactivity)
+
+***
+
+### getApiKey()
+
+> **getApiKey**(`input`): `Promise`\<\{ `apiKey`: \{ `apiKeyId`: `string`; `apiKeyName`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `credential`: \{ `publicKey`: `string`; `type`: `"CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"` \| `"CREDENTIAL_TYPE_API_KEY_P256"` \| `"CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_SECP256K1"` \| `"CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_ED25519"` \| `"CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256"` \| `"CREDENTIAL_TYPE_OAUTH_KEY_P256"`; \}; `expirationSeconds`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:178](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L178)
+
+#### Parameters
+
+##### input
+
+`TGetApiKeyBody`
+
+#### Returns
+
+`Promise`\<\{ `apiKey`: \{ `apiKeyId`: `string`; `apiKeyName`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `credential`: \{ `publicKey`: `string`; `type`: `"CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"` \| `"CREDENTIAL_TYPE_API_KEY_P256"` \| `"CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_SECP256K1"` \| `"CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_ED25519"` \| `"CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256"` \| `"CREDENTIAL_TYPE_OAUTH_KEY_P256"`; \}; `expirationSeconds`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getApiKey`](TurnkeyBrowserClient.mdx#getapikey)
+
+***
+
+### getApiKeys()
+
+> **getApiKeys**(`input`): `Promise`\<\{ `apiKeys`: `object`[]; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:203](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L203)
+
+#### Parameters
+
+##### input
+
+`TGetApiKeysBody` = `{}`
+
+#### Returns
+
+`Promise`\<\{ `apiKeys`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getApiKeys`](TurnkeyBrowserClient.mdx#getapikeys)
+
+***
+
+### getAttestationDocument()
+
+> **getAttestationDocument**(`input`): `Promise`\<\{ `attestationDocument`: `string`; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:228](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L228)
+
+#### Parameters
+
+##### input
+
+`TGetAttestationDocumentBody`
+
+#### Returns
+
+`Promise`\<\{ `attestationDocument`: `string`; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getAttestationDocument`](TurnkeyBrowserClient.mdx#getattestationdocument)
+
+***
+
+### getAuthenticator()
+
+> **getAuthenticator**(`input`): `Promise`\<\{ `authenticator`: \{ `aaguid`: `string`; `attestationType`: `string`; `authenticatorId`: `string`; `authenticatorName`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `credential`: \{ `publicKey`: `string`; `type`: `"CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"` \| `"CREDENTIAL_TYPE_API_KEY_P256"` \| `"CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_SECP256K1"` \| `"CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_ED25519"` \| `"CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256"` \| `"CREDENTIAL_TYPE_OAUTH_KEY_P256"`; \}; `credentialId`: `string`; `model`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:253](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L253)
+
+#### Parameters
+
+##### input
+
+`TGetAuthenticatorBody`
+
+#### Returns
+
+`Promise`\<\{ `authenticator`: \{ `aaguid`: `string`; `attestationType`: `string`; `authenticatorId`: `string`; `authenticatorName`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `credential`: \{ `publicKey`: `string`; `type`: `"CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"` \| `"CREDENTIAL_TYPE_API_KEY_P256"` \| `"CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_SECP256K1"` \| `"CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_API_KEY_ED25519"` \| `"CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"` \| `"CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256"` \| `"CREDENTIAL_TYPE_OAUTH_KEY_P256"`; \}; `credentialId`: `string`; `model`: `string`; `transports`: (`"AUTHENTICATOR_TRANSPORT_BLE"` \| `"AUTHENTICATOR_TRANSPORT_INTERNAL"` \| `"AUTHENTICATOR_TRANSPORT_NFC"` \| `"AUTHENTICATOR_TRANSPORT_USB"` \| `"AUTHENTICATOR_TRANSPORT_HYBRID"`)[]; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getAuthenticator`](TurnkeyBrowserClient.mdx#getauthenticator)
+
+***
+
+### getAuthenticators()
+
+> **getAuthenticators**(`input`): `Promise`\<\{ `authenticators`: `object`[]; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:279](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L279)
+
+#### Parameters
+
+##### input
+
+`TGetAuthenticatorsBody`
+
+#### Returns
+
+`Promise`\<\{ `authenticators`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getAuthenticators`](TurnkeyBrowserClient.mdx#getauthenticators)
+
+***
+
+### getOauthProviders()
+
+> **getOauthProviders**(`input`): `Promise`\<\{ `oauthProviders`: `object`[]; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:305](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L305)
+
+#### Parameters
+
+##### input
+
+`TGetOauthProvidersBody`
+
+#### Returns
+
+`Promise`\<\{ `oauthProviders`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getOauthProviders`](TurnkeyBrowserClient.mdx#getoauthproviders)
+
+***
+
+### getOrganization()
+
+> **getOrganization**(`input`): `Promise`\<\{ `organizationData`: \{ `features`: `object`[]; `invitations`: `object`[]; `name`: `string`; `organizationId`: `string`; `policies`: `object`[]; `privateKeys`: `object`[]; `rootQuorum`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; `tags`: `object`[]; `users`: `object`[]; `wallets`: `object`[]; \}; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:331](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L331)
+
+#### Parameters
+
+##### input
+
+`TGetOrganizationBody` = `{}`
+
+#### Returns
+
+`Promise`\<\{ `organizationData`: \{ `features`: `object`[]; `invitations`: `object`[]; `name`: `string`; `organizationId`: `string`; `policies`: `object`[]; `privateKeys`: `object`[]; `rootQuorum`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; `tags`: `object`[]; `users`: `object`[]; `wallets`: `object`[]; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getOrganization`](TurnkeyBrowserClient.mdx#getorganization)
+
+***
+
+### getOrganizationConfigs()
+
+> **getOrganizationConfigs**(`input`): `Promise`\<\{ `configs`: \{ `features`: `object`[]; `quorum`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; \}; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:357](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L357)
+
+#### Parameters
+
+##### input
+
+`TGetOrganizationConfigsBody`
+
+#### Returns
+
+`Promise`\<\{ `configs`: \{ `features`: `object`[]; `quorum`: \{ `threshold`: `number`; `userIds`: `string`[]; \}; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getOrganizationConfigs`](TurnkeyBrowserClient.mdx#getorganizationconfigs)
+
+***
+
+### getPolicies()
+
+> **getPolicies**(`input`): `Promise`\<\{ `policies`: `object`[]; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:534](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L534)
+
+#### Parameters
+
+##### input
+
+`TGetPoliciesBody` = `{}`
+
+#### Returns
+
+`Promise`\<\{ `policies`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getPolicies`](TurnkeyBrowserClient.mdx#getpolicies)
+
+***
+
+### getPolicy()
+
+> **getPolicy**(`input`): `Promise`\<\{ `policy`: \{ `condition`: `string`; `consensus`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyId`: `string`; `policyName`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:383](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L383)
+
+#### Parameters
+
+##### input
+
+`TGetPolicyBody`
+
+#### Returns
+
+`Promise`\<\{ `policy`: \{ `condition`: `string`; `consensus`: `string`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `effect`: `"EFFECT_ALLOW"` \| `"EFFECT_DENY"`; `notes`: `string`; `policyId`: `string`; `policyName`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getPolicy`](TurnkeyBrowserClient.mdx#getpolicy)
+
+***
+
+### getPrivateKey()
+
+> **getPrivateKey**(`input`): `Promise`\<\{ `privateKey`: \{ `addresses`: `object`[]; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `exported`: `boolean`; `imported`: `boolean`; `privateKeyId`: `string`; `privateKeyName`: `string`; `privateKeyTags`: `string`[]; `publicKey`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:408](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L408)
+
+#### Parameters
+
+##### input
+
+`TGetPrivateKeyBody`
+
+#### Returns
+
+`Promise`\<\{ `privateKey`: \{ `addresses`: `object`[]; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `exported`: `boolean`; `imported`: `boolean`; `privateKeyId`: `string`; `privateKeyName`: `string`; `privateKeyTags`: `string`[]; `publicKey`: `string`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getPrivateKey`](TurnkeyBrowserClient.mdx#getprivatekey)
+
+***
+
+### getPrivateKeys()
+
+> **getPrivateKeys**(`input`): `Promise`\<\{ `privateKeys`: `object`[]; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:585](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L585)
+
+#### Parameters
+
+##### input
+
+`TGetPrivateKeysBody` = `{}`
+
+#### Returns
+
+`Promise`\<\{ `privateKeys`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getPrivateKeys`](TurnkeyBrowserClient.mdx#getprivatekeys)
+
+***
+
+### getSubOrgIds()
+
+> **getSubOrgIds**(`input`): `Promise`\<\{ `organizationIds`: `string`[]; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:611](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L611)
+
+#### Parameters
+
+##### input
+
+`TGetSubOrgIdsBody` = `{}`
+
+#### Returns
+
+`Promise`\<\{ `organizationIds`: `string`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getSubOrgIds`](TurnkeyBrowserClient.mdx#getsuborgids)
+
+***
+
+### getUser()
+
+> **getUser**(`input`): `Promise`\<\{ `user`: \{ `apiKeys`: `object`[]; `authenticators`: `object`[]; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `oauthProviders`: `object`[]; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `userEmail`: `string`; `userId`: `string`; `userName`: `string`; `userPhoneNumber`: `string`; `userTags`: `string`[]; \}; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:433](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L433)
+
+#### Parameters
+
+##### input
+
+`TGetUserBody`
+
+#### Returns
+
+`Promise`\<\{ `user`: \{ `apiKeys`: `object`[]; `authenticators`: `object`[]; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `oauthProviders`: `object`[]; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `userEmail`: `string`; `userId`: `string`; `userName`: `string`; `userPhoneNumber`: `string`; `userTags`: `string`[]; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getUser`](TurnkeyBrowserClient.mdx#getuser)
+
+***
+
+### getUsers()
+
+> **getUsers**(`input`): `Promise`\<\{ `users`: `object`[]; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:661](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L661)
+
+#### Parameters
+
+##### input
+
+`TGetUsersBody` = `{}`
+
+#### Returns
+
+`Promise`\<\{ `users`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getUsers`](TurnkeyBrowserClient.mdx#getusers)
+
+***
+
+### getVerifiedSubOrgIds()
+
+> **getVerifiedSubOrgIds**(`input`): `Promise`\<\{ `organizationIds`: `string`[]; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:686](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L686)
+
+#### Parameters
+
+##### input
+
+`TGetVerifiedSubOrgIdsBody`
+
+#### Returns
+
+`Promise`\<\{ `organizationIds`: `string`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getVerifiedSubOrgIds`](TurnkeyBrowserClient.mdx#getverifiedsuborgids)
+
+***
+
+### getWallet()
+
+> **getWallet**(`input`): `Promise`\<\{ `wallet`: \{ `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `exported`: `boolean`; `imported`: `boolean`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `walletId`: `string`; `walletName`: `string`; \}; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:458](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L458)
+
+#### Parameters
+
+##### input
+
+`TGetWalletBody`
+
+#### Returns
+
+`Promise`\<\{ `wallet`: \{ `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `exported`: `boolean`; `imported`: `boolean`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `walletId`: `string`; `walletName`: `string`; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getWallet`](TurnkeyBrowserClient.mdx#getwallet)
+
+***
+
+### getWalletAccount()
+
+> **getWalletAccount**(`input`): `Promise`\<\{ `account`: \{ `address`: `string`; `addressFormat`: `"ADDRESS_FORMAT_UNCOMPRESSED"` \| `"ADDRESS_FORMAT_COMPRESSED"` \| `"ADDRESS_FORMAT_ETHEREUM"` \| `"ADDRESS_FORMAT_SOLANA"` \| `"ADDRESS_FORMAT_COSMOS"` \| `"ADDRESS_FORMAT_TRON"` \| `"ADDRESS_FORMAT_SUI"` \| `"ADDRESS_FORMAT_APTOS"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"` \| `"ADDRESS_FORMAT_SEI"` \| `"ADDRESS_FORMAT_XLM"` \| `"ADDRESS_FORMAT_DOGE_MAINNET"` \| `"ADDRESS_FORMAT_DOGE_TESTNET"` \| `"ADDRESS_FORMAT_TON_V3R2"` \| `"ADDRESS_FORMAT_TON_V4R2"` \| `"ADDRESS_FORMAT_XRP"`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `organizationId`: `string`; `path`: `string`; `pathFormat`: `"PATH_FORMAT_BIP32"`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `walletAccountId`: `string`; `walletId`: `string`; \}; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:483](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L483)
+
+#### Parameters
+
+##### input
+
+`TGetWalletAccountBody`
+
+#### Returns
+
+`Promise`\<\{ `account`: \{ `address`: `string`; `addressFormat`: `"ADDRESS_FORMAT_UNCOMPRESSED"` \| `"ADDRESS_FORMAT_COMPRESSED"` \| `"ADDRESS_FORMAT_ETHEREUM"` \| `"ADDRESS_FORMAT_SOLANA"` \| `"ADDRESS_FORMAT_COSMOS"` \| `"ADDRESS_FORMAT_TRON"` \| `"ADDRESS_FORMAT_SUI"` \| `"ADDRESS_FORMAT_APTOS"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"` \| `"ADDRESS_FORMAT_SEI"` \| `"ADDRESS_FORMAT_XLM"` \| `"ADDRESS_FORMAT_DOGE_MAINNET"` \| `"ADDRESS_FORMAT_DOGE_TESTNET"` \| `"ADDRESS_FORMAT_TON_V3R2"` \| `"ADDRESS_FORMAT_TON_V4R2"` \| `"ADDRESS_FORMAT_XRP"`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `organizationId`: `string`; `path`: `string`; `pathFormat`: `"PATH_FORMAT_BIP32"`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `walletAccountId`: `string`; `walletId`: `string`; \}; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getWalletAccount`](TurnkeyBrowserClient.mdx#getwalletaccount)
+
+***
+
+### getWalletAccounts()
+
+> **getWalletAccounts**(`input`): `Promise`\<\{ `accounts`: `object`[]; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:712](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L712)
+
+#### Parameters
+
+##### input
+
+`TGetWalletAccountsBody`
+
+#### Returns
+
+`Promise`\<\{ `accounts`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getWalletAccounts`](TurnkeyBrowserClient.mdx#getwalletaccounts)
+
+***
+
+### getWallets()
+
+> **getWallets**(`input`): `Promise`\<\{ `wallets`: `object`[]; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:738](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L738)
+
+#### Parameters
+
+##### input
+
+`TGetWalletsBody` = `{}`
+
+#### Returns
+
+`Promise`\<\{ `wallets`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getWallets`](TurnkeyBrowserClient.mdx#getwallets)
+
+***
+
+### getWhoami()
+
+> **getWhoami**(`input`): `Promise`\<\{ `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:763](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L763)
+
+#### Parameters
+
+##### input
+
+`TGetWhoamiBody` = `{}`
+
+#### Returns
+
+`Promise`\<\{ `organizationId`: `string`; `organizationName`: `string`; `userId`: `string`; `username`: `string`; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`getWhoami`](TurnkeyBrowserClient.mdx#getwhoami)
+
+***
+
+### importPrivateKey()
+
+> **importPrivateKey**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1958](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1958)
+
+#### Parameters
+
+##### input
+
+`TImportPrivateKeyBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`importPrivateKey`](TurnkeyBrowserClient.mdx#importprivatekey)
+
+***
+
+### importWallet()
+
+> **importWallet**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1995](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1995)
+
+#### Parameters
+
+##### input
+
+`TImportWalletBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`importWallet`](TurnkeyBrowserClient.mdx#importwallet)
+
+***
+
+### initImportPrivateKey()
+
+> **initImportPrivateKey**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2031](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2031)
+
+#### Parameters
+
+##### input
+
+`TInitImportPrivateKeyBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`initImportPrivateKey`](TurnkeyBrowserClient.mdx#initimportprivatekey)
+
+***
+
+### initImportWallet()
+
+> **initImportWallet**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2068](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2068)
+
+#### Parameters
+
+##### input
+
+`TInitImportWalletBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`initImportWallet`](TurnkeyBrowserClient.mdx#initimportwallet)
+
+***
+
+### initOtpAuth()
+
+> **initOtpAuth**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2105](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2105)
+
+#### Parameters
+
+##### input
+
+`TInitOtpAuthBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`initOtpAuth`](TurnkeyBrowserClient.mdx#initotpauth)
+
+***
+
+### initUserEmailRecovery()
+
+> **initUserEmailRecovery**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2141](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2141)
+
+#### Parameters
+
+##### input
+
+`TInitUserEmailRecoveryBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`initUserEmailRecovery`](TurnkeyBrowserClient.mdx#inituseremailrecovery)
+
+***
+
+### listPrivateKeyTags()
+
+> **listPrivateKeyTags**(`input`): `Promise`\<\{ `privateKeyTags`: `object`[]; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:559](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L559)
+
+#### Parameters
+
+##### input
+
+`TListPrivateKeyTagsBody`
+
+#### Returns
+
+`Promise`\<\{ `privateKeyTags`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`listPrivateKeyTags`](TurnkeyBrowserClient.mdx#listprivatekeytags)
+
+***
+
+### listUserTags()
+
+> **listUserTags**(`input`): `Promise`\<\{ `userTags`: `object`[]; \}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:636](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L636)
+
+#### Parameters
+
+##### input
+
+`TListUserTagsBody` = `{}`
+
+#### Returns
+
+`Promise`\<\{ `userTags`: `object`[]; \}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`listUserTags`](TurnkeyBrowserClient.mdx#listusertags)
+
+***
+
+### login()
+
+> **login**(`config`?): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:110](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L110)
+
+#### Parameters
+
+##### config?
+
+###### organizationId?
+
+`string`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`login`](TurnkeyBrowserClient.mdx#login)
+
+***
+
+### loginWithAuthBundle()
+
+> **loginWithAuthBundle**(`credentialBundle`, `expirationSeconds`): `Promise`\<`boolean`\>
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:433](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L433)
+
+Logs in with an existing auth bundle. this bundle enables both read and write requests.
+
+#### Parameters
+
+##### credentialBundle
+
+`string`
+
+##### expirationSeconds
+
+`string` = `DEFAULT_SESSION_EXPIRATION_IN_SECONDS`
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`loginWithAuthBundle`](TurnkeyBrowserClient.mdx#loginwithauthbundle)
+
+***
+
+### loginWithBundle()
+
+> **loginWithBundle**(`params`): `Promise`\<`void`\>
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:206](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L206)
+
+Log in with a bundle. This method uses a bundle sent to the end user email
+To be used in conjunction with an `iframeStamper`.
+
+#### Parameters
+
+##### params
+
+`LoginWithBundleParams`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`loginWithBundle`](TurnkeyBrowserClient.mdx#loginwithbundle)
+
+***
+
+### loginWithPasskey()
+
+> **loginWithPasskey**(`params`): `Promise`\<`void`\>
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:262](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L262)
+
+Log in with a passkey.
+To be used in conjunction with a `passkeyStamper`
+
+#### Parameters
+
+##### params
+
+`LoginWithPasskeyParams`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`loginWithPasskey`](TurnkeyBrowserClient.mdx#loginwithpasskey)
+
+***
+
+### loginWithReadWriteSession()
+
+> **loginWithReadWriteSession**(`targetEmbeddedKey`, `expirationSeconds`, `userId`?): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:396](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L396)
+
+Creates a read-write session. This method infers the current user's organization ID and target userId.
+To be used in conjunction with an `iframeStamper`: the resulting session's credential bundle can be
+injected into an iframeStamper to create a session that enables both read and write requests.
+
+#### Parameters
+
+##### targetEmbeddedKey
+
+`string`
+
+##### expirationSeconds
+
+`string` = `DEFAULT_SESSION_EXPIRATION_IN_SECONDS`
+
+##### userId?
+
+`string`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`loginWithReadWriteSession`](TurnkeyBrowserClient.mdx#loginwithreadwritesession)
+
+***
+
+### loginWithSession()
+
+> **loginWithSession**(`session`): `Promise`\<`void`\>
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:239](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L239)
+
+Log in with a session object. This method uses a session object from server actions and stores it and the active client in local storage
+To be used in conjunction with an `iframeStamper`.
+
+#### Parameters
+
+##### session
+
+[`Session`](../type-aliases/Session.mdx)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`loginWithSession`](TurnkeyBrowserClient.mdx#loginwithsession)
+
+***
+
+### loginWithWallet()
+
+> **loginWithWallet**(`params`): `Promise`\<`void`\>
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:329](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L329)
+
+Log in with a browser wallet.
+
+#### Parameters
+
+##### params
+
+`LoginWithWalletParams`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`loginWithWallet`](TurnkeyBrowserClient.mdx#loginwithwallet)
+
+***
+
+### oauth()
+
+> **oauth**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2178](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2178)
+
+#### Parameters
+
+##### input
+
+`TOauthBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`oauth`](TurnkeyBrowserClient.mdx#oauth)
+
+***
+
+### otpAuth()
+
+> **otpAuth**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2214](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2214)
+
+#### Parameters
+
+##### input
+
+`TOtpAuthBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`otpAuth`](TurnkeyBrowserClient.mdx#otpauth)
+
+***
+
+### recoverUser()
+
+> **recoverUser**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2250](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2250)
+
+#### Parameters
+
+##### input
+
+`TRecoverUserBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`recoverUser`](TurnkeyBrowserClient.mdx#recoveruser)
+
+***
+
+### refreshSession()
+
+> **refreshSession**(`params`): `Promise`\<`void`\>
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:138](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L138)
+
+Attempts to refresh an existing Session. This method infers the current user's organization ID and target userId.
+This will use a passkeyStamper for `READ_ONLY` sessions or an `iframeStamper` for `READ_WRITE` sessions.
+
+#### Parameters
+
+##### params
+
+`RefreshSessionParams`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`refreshSession`](TurnkeyBrowserClient.mdx#refreshsession)
+
+***
+
+### rejectActivity()
+
+> **rejectActivity**(`input`): `Promise`\<`TRejectActivityResponse`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2286](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2286)
+
+#### Parameters
+
+##### input
+
+`TRejectActivityBody`
+
+#### Returns
+
+`Promise`\<`TRejectActivityResponse`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`rejectActivity`](TurnkeyBrowserClient.mdx#rejectactivity)
+
+***
+
+### removeOrganizationFeature()
+
+> **removeOrganizationFeature**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2317](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2317)
+
+#### Parameters
+
+##### input
+
+`TRemoveOrganizationFeatureBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`removeOrganizationFeature`](TurnkeyBrowserClient.mdx#removeorganizationfeature)
+
+***
+
+### request()
+
+> **request**\<`TBodyType`, `TResponseType`\>(`url`, `body`): `Promise`\<`TResponseType`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:37](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L37)
+
+#### Type Parameters
+
+##### TBodyType
+
+`TBodyType`
+
+##### TResponseType
+
+`TResponseType`
+
+#### Parameters
+
+##### url
+
+`string`
+
+##### body
+
+`TBodyType`
+
+#### Returns
+
+`Promise`\<`TResponseType`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`request`](TurnkeyBrowserClient.mdx#request)
+
+***
+
+### setOrganizationFeature()
+
+> **setOrganizationFeature**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2354](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2354)
+
+#### Parameters
+
+##### input
+
+`TSetOrganizationFeatureBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`setOrganizationFeature`](TurnkeyBrowserClient.mdx#setorganizationfeature)
+
+***
+
+### signRawPayload()
+
+> **signRawPayload**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2391](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2391)
+
+#### Parameters
+
+##### input
+
+`TSignRawPayloadBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`signRawPayload`](TurnkeyBrowserClient.mdx#signrawpayload)
+
+***
+
+### signRawPayloads()
+
+> **signRawPayloads**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2428](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2428)
+
+#### Parameters
+
+##### input
+
+`TSignRawPayloadsBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`signRawPayloads`](TurnkeyBrowserClient.mdx#signrawpayloads)
+
+***
+
+### signTransaction()
+
+> **signTransaction**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2465](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2465)
+
+#### Parameters
+
+##### input
+
+`TSignTransactionBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`signTransaction`](TurnkeyBrowserClient.mdx#signtransaction)
+
+***
+
+### stampApproveActivity()
+
+> **stampApproveActivity**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:802](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L802)
+
+#### Parameters
+
+##### input
+
+`TApproveActivityBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampApproveActivity`](TurnkeyBrowserClient.mdx#stampapproveactivity)
+
+***
+
+### stampCreateApiKeys()
+
+> **stampCreateApiKeys**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:839](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L839)
+
+#### Parameters
+
+##### input
+
+`TCreateApiKeysBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreateApiKeys`](TurnkeyBrowserClient.mdx#stampcreateapikeys)
+
+***
+
+### stampCreateApiOnlyUsers()
+
+> **stampCreateApiOnlyUsers**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:876](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L876)
+
+#### Parameters
+
+##### input
+
+`TCreateApiOnlyUsersBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreateApiOnlyUsers`](TurnkeyBrowserClient.mdx#stampcreateapionlyusers)
+
+***
+
+### stampCreateAuthenticators()
+
+> **stampCreateAuthenticators**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:913](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L913)
+
+#### Parameters
+
+##### input
+
+`TCreateAuthenticatorsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreateAuthenticators`](TurnkeyBrowserClient.mdx#stampcreateauthenticators)
+
+***
+
+### stampCreateInvitations()
+
+> **stampCreateInvitations**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:950](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L950)
+
+#### Parameters
+
+##### input
+
+`TCreateInvitationsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreateInvitations`](TurnkeyBrowserClient.mdx#stampcreateinvitations)
+
+***
+
+### stampCreateOauthProviders()
+
+> **stampCreateOauthProviders**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:987](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L987)
+
+#### Parameters
+
+##### input
+
+`TCreateOauthProvidersBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreateOauthProviders`](TurnkeyBrowserClient.mdx#stampcreateoauthproviders)
+
+***
+
+### stampCreatePolicies()
+
+> **stampCreatePolicies**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1024](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1024)
+
+#### Parameters
+
+##### input
+
+`TCreatePoliciesBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreatePolicies`](TurnkeyBrowserClient.mdx#stampcreatepolicies)
+
+***
+
+### stampCreatePolicy()
+
+> **stampCreatePolicy**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1061](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1061)
+
+#### Parameters
+
+##### input
+
+`TCreatePolicyBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreatePolicy`](TurnkeyBrowserClient.mdx#stampcreatepolicy)
+
+***
+
+### stampCreatePrivateKeys()
+
+> **stampCreatePrivateKeys**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1134](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1134)
+
+#### Parameters
+
+##### input
+
+`TCreatePrivateKeysBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreatePrivateKeys`](TurnkeyBrowserClient.mdx#stampcreateprivatekeys)
+
+***
+
+### stampCreatePrivateKeyTag()
+
+> **stampCreatePrivateKeyTag**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1097](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1097)
+
+#### Parameters
+
+##### input
+
+`TCreatePrivateKeyTagBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreatePrivateKeyTag`](TurnkeyBrowserClient.mdx#stampcreateprivatekeytag)
+
+***
+
+### stampCreateReadOnlySession()
+
+> **stampCreateReadOnlySession**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1171](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1171)
+
+#### Parameters
+
+##### input
+
+`TCreateReadOnlySessionBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreateReadOnlySession`](TurnkeyBrowserClient.mdx#stampcreatereadonlysession)
+
+***
+
+### stampCreateReadWriteSession()
+
+> **stampCreateReadWriteSession**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1208](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1208)
+
+#### Parameters
+
+##### input
+
+`TCreateReadWriteSessionBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreateReadWriteSession`](TurnkeyBrowserClient.mdx#stampcreatereadwritesession)
+
+***
+
+### stampCreateSubOrganization()
+
+> **stampCreateSubOrganization**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1245](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1245)
+
+#### Parameters
+
+##### input
+
+`TCreateSubOrganizationBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreateSubOrganization`](TurnkeyBrowserClient.mdx#stampcreatesuborganization)
+
+***
+
+### stampCreateUsers()
+
+> **stampCreateUsers**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1319](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1319)
+
+#### Parameters
+
+##### input
+
+`TCreateUsersBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreateUsers`](TurnkeyBrowserClient.mdx#stampcreateusers)
+
+***
+
+### stampCreateUserTag()
+
+> **stampCreateUserTag**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1282](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1282)
+
+#### Parameters
+
+##### input
+
+`TCreateUserTagBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreateUserTag`](TurnkeyBrowserClient.mdx#stampcreateusertag)
+
+***
+
+### stampCreateWallet()
+
+> **stampCreateWallet**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1355](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1355)
+
+#### Parameters
+
+##### input
+
+`TCreateWalletBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreateWallet`](TurnkeyBrowserClient.mdx#stampcreatewallet)
+
+***
+
+### stampCreateWalletAccounts()
+
+> **stampCreateWalletAccounts**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1391](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1391)
+
+#### Parameters
+
+##### input
+
+`TCreateWalletAccountsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampCreateWalletAccounts`](TurnkeyBrowserClient.mdx#stampcreatewalletaccounts)
+
+***
+
+### stampDeleteApiKeys()
+
+> **stampDeleteApiKeys**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1428](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1428)
+
+#### Parameters
+
+##### input
+
+`TDeleteApiKeysBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampDeleteApiKeys`](TurnkeyBrowserClient.mdx#stampdeleteapikeys)
+
+***
+
+### stampDeleteAuthenticators()
+
+> **stampDeleteAuthenticators**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1465](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1465)
+
+#### Parameters
+
+##### input
+
+`TDeleteAuthenticatorsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampDeleteAuthenticators`](TurnkeyBrowserClient.mdx#stampdeleteauthenticators)
+
+***
+
+### stampDeleteInvitation()
+
+> **stampDeleteInvitation**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1502](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1502)
+
+#### Parameters
+
+##### input
+
+`TDeleteInvitationBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampDeleteInvitation`](TurnkeyBrowserClient.mdx#stampdeleteinvitation)
+
+***
+
+### stampDeleteOauthProviders()
+
+> **stampDeleteOauthProviders**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1539](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1539)
+
+#### Parameters
+
+##### input
+
+`TDeleteOauthProvidersBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampDeleteOauthProviders`](TurnkeyBrowserClient.mdx#stampdeleteoauthproviders)
+
+***
+
+### stampDeletePolicy()
+
+> **stampDeletePolicy**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1576](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1576)
+
+#### Parameters
+
+##### input
+
+`TDeletePolicyBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampDeletePolicy`](TurnkeyBrowserClient.mdx#stampdeletepolicy)
+
+***
+
+### stampDeletePrivateKeys()
+
+> **stampDeletePrivateKeys**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1649](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1649)
+
+#### Parameters
+
+##### input
+
+`TDeletePrivateKeysBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampDeletePrivateKeys`](TurnkeyBrowserClient.mdx#stampdeleteprivatekeys)
+
+***
+
+### stampDeletePrivateKeyTags()
+
+> **stampDeletePrivateKeyTags**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1612](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1612)
+
+#### Parameters
+
+##### input
+
+`TDeletePrivateKeyTagsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampDeletePrivateKeyTags`](TurnkeyBrowserClient.mdx#stampdeleteprivatekeytags)
+
+***
+
+### stampDeleteSubOrganization()
+
+> **stampDeleteSubOrganization**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1686](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1686)
+
+#### Parameters
+
+##### input
+
+`TDeleteSubOrganizationBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampDeleteSubOrganization`](TurnkeyBrowserClient.mdx#stampdeletesuborganization)
+
+***
+
+### stampDeleteUsers()
+
+> **stampDeleteUsers**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1760](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1760)
+
+#### Parameters
+
+##### input
+
+`TDeleteUsersBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampDeleteUsers`](TurnkeyBrowserClient.mdx#stampdeleteusers)
+
+***
+
+### stampDeleteUserTags()
+
+> **stampDeleteUserTags**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1723](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1723)
+
+#### Parameters
+
+##### input
+
+`TDeleteUserTagsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampDeleteUserTags`](TurnkeyBrowserClient.mdx#stampdeleteusertags)
+
+***
+
+### stampDeleteWallets()
+
+> **stampDeleteWallets**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1796](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1796)
+
+#### Parameters
+
+##### input
+
+`TDeleteWalletsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampDeleteWallets`](TurnkeyBrowserClient.mdx#stampdeletewallets)
+
+***
+
+### stampEmailAuth()
+
+> **stampEmailAuth**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1832](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1832)
+
+#### Parameters
+
+##### input
+
+`TEmailAuthBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampEmailAuth`](TurnkeyBrowserClient.mdx#stampemailauth)
+
+***
+
+### stampExportPrivateKey()
+
+> **stampExportPrivateKey**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1868](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1868)
+
+#### Parameters
+
+##### input
+
+`TExportPrivateKeyBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampExportPrivateKey`](TurnkeyBrowserClient.mdx#stampexportprivatekey)
+
+***
+
+### stampExportWallet()
+
+> **stampExportWallet**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1905](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1905)
+
+#### Parameters
+
+##### input
+
+`TExportWalletBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampExportWallet`](TurnkeyBrowserClient.mdx#stampexportwallet)
+
+***
+
+### stampExportWalletAccount()
+
+> **stampExportWalletAccount**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1941](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1941)
+
+#### Parameters
+
+##### input
+
+`TExportWalletAccountBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampExportWalletAccount`](TurnkeyBrowserClient.mdx#stampexportwalletaccount)
+
+***
+
+### stampGetActivities()
+
+> **stampGetActivities**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:518](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L518)
+
+#### Parameters
+
+##### input
+
+`TGetActivitiesBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetActivities`](TurnkeyBrowserClient.mdx#stampgetactivities)
+
+***
+
+### stampGetActivity()
+
+> **stampGetActivity**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:162](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L162)
+
+#### Parameters
+
+##### input
+
+`TGetActivityBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetActivity`](TurnkeyBrowserClient.mdx#stampgetactivity)
+
+***
+
+### stampGetApiKey()
+
+> **stampGetApiKey**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:187](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L187)
+
+#### Parameters
+
+##### input
+
+`TGetApiKeyBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetApiKey`](TurnkeyBrowserClient.mdx#stampgetapikey)
+
+***
+
+### stampGetApiKeys()
+
+> **stampGetApiKeys**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:212](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L212)
+
+#### Parameters
+
+##### input
+
+`TGetApiKeysBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetApiKeys`](TurnkeyBrowserClient.mdx#stampgetapikeys)
+
+***
+
+### stampGetAttestationDocument()
+
+> **stampGetAttestationDocument**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:237](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L237)
+
+#### Parameters
+
+##### input
+
+`TGetAttestationDocumentBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetAttestationDocument`](TurnkeyBrowserClient.mdx#stampgetattestationdocument)
+
+***
+
+### stampGetAuthenticator()
+
+> **stampGetAuthenticator**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:262](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L262)
+
+#### Parameters
+
+##### input
+
+`TGetAuthenticatorBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetAuthenticator`](TurnkeyBrowserClient.mdx#stampgetauthenticator)
+
+***
+
+### stampGetAuthenticators()
+
+> **stampGetAuthenticators**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:288](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L288)
+
+#### Parameters
+
+##### input
+
+`TGetAuthenticatorsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetAuthenticators`](TurnkeyBrowserClient.mdx#stampgetauthenticators)
+
+***
+
+### stampGetOauthProviders()
+
+> **stampGetOauthProviders**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:314](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L314)
+
+#### Parameters
+
+##### input
+
+`TGetOauthProvidersBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetOauthProviders`](TurnkeyBrowserClient.mdx#stampgetoauthproviders)
+
+***
+
+### stampGetOrganization()
+
+> **stampGetOrganization**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:340](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L340)
+
+#### Parameters
+
+##### input
+
+`TGetOrganizationBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetOrganization`](TurnkeyBrowserClient.mdx#stampgetorganization)
+
+***
+
+### stampGetOrganizationConfigs()
+
+> **stampGetOrganizationConfigs**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:366](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L366)
+
+#### Parameters
+
+##### input
+
+`TGetOrganizationConfigsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetOrganizationConfigs`](TurnkeyBrowserClient.mdx#stampgetorganizationconfigs)
+
+***
+
+### stampGetPolicies()
+
+> **stampGetPolicies**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:543](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L543)
+
+#### Parameters
+
+##### input
+
+`TGetPoliciesBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetPolicies`](TurnkeyBrowserClient.mdx#stampgetpolicies)
+
+***
+
+### stampGetPolicy()
+
+> **stampGetPolicy**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:392](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L392)
+
+#### Parameters
+
+##### input
+
+`TGetPolicyBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetPolicy`](TurnkeyBrowserClient.mdx#stampgetpolicy)
+
+***
+
+### stampGetPrivateKey()
+
+> **stampGetPrivateKey**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:417](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L417)
+
+#### Parameters
+
+##### input
+
+`TGetPrivateKeyBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetPrivateKey`](TurnkeyBrowserClient.mdx#stampgetprivatekey)
+
+***
+
+### stampGetPrivateKeys()
+
+> **stampGetPrivateKeys**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:594](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L594)
+
+#### Parameters
+
+##### input
+
+`TGetPrivateKeysBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetPrivateKeys`](TurnkeyBrowserClient.mdx#stampgetprivatekeys)
+
+***
+
+### stampGetSubOrgIds()
+
+> **stampGetSubOrgIds**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:620](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L620)
+
+#### Parameters
+
+##### input
+
+`TGetSubOrgIdsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetSubOrgIds`](TurnkeyBrowserClient.mdx#stampgetsuborgids)
+
+***
+
+### stampGetUser()
+
+> **stampGetUser**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:442](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L442)
+
+#### Parameters
+
+##### input
+
+`TGetUserBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetUser`](TurnkeyBrowserClient.mdx#stampgetuser)
+
+***
+
+### stampGetUsers()
+
+> **stampGetUsers**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:670](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L670)
+
+#### Parameters
+
+##### input
+
+`TGetUsersBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetUsers`](TurnkeyBrowserClient.mdx#stampgetusers)
+
+***
+
+### stampGetVerifiedSubOrgIds()
+
+> **stampGetVerifiedSubOrgIds**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:695](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L695)
+
+#### Parameters
+
+##### input
+
+`TGetVerifiedSubOrgIdsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetVerifiedSubOrgIds`](TurnkeyBrowserClient.mdx#stampgetverifiedsuborgids)
+
+***
+
+### stampGetWallet()
+
+> **stampGetWallet**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:467](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L467)
+
+#### Parameters
+
+##### input
+
+`TGetWalletBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetWallet`](TurnkeyBrowserClient.mdx#stampgetwallet)
+
+***
+
+### stampGetWalletAccount()
+
+> **stampGetWalletAccount**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:492](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L492)
+
+#### Parameters
+
+##### input
+
+`TGetWalletAccountBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetWalletAccount`](TurnkeyBrowserClient.mdx#stampgetwalletaccount)
+
+***
+
+### stampGetWalletAccounts()
+
+> **stampGetWalletAccounts**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:721](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L721)
+
+#### Parameters
+
+##### input
+
+`TGetWalletAccountsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetWalletAccounts`](TurnkeyBrowserClient.mdx#stampgetwalletaccounts)
+
+***
+
+### stampGetWallets()
+
+> **stampGetWallets**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:747](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L747)
+
+#### Parameters
+
+##### input
+
+`TGetWalletsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetWallets`](TurnkeyBrowserClient.mdx#stampgetwallets)
+
+***
+
+### stampGetWhoami()
+
+> **stampGetWhoami**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:772](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L772)
+
+#### Parameters
+
+##### input
+
+`TGetWhoamiBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampGetWhoami`](TurnkeyBrowserClient.mdx#stampgetwhoami)
+
+***
+
+### stampImportPrivateKey()
+
+> **stampImportPrivateKey**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:1978](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L1978)
+
+#### Parameters
+
+##### input
+
+`TImportPrivateKeyBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampImportPrivateKey`](TurnkeyBrowserClient.mdx#stampimportprivatekey)
+
+***
+
+### stampImportWallet()
+
+> **stampImportWallet**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2015](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2015)
+
+#### Parameters
+
+##### input
+
+`TImportWalletBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampImportWallet`](TurnkeyBrowserClient.mdx#stampimportwallet)
+
+***
+
+### stampInitImportPrivateKey()
+
+> **stampInitImportPrivateKey**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2051](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2051)
+
+#### Parameters
+
+##### input
+
+`TInitImportPrivateKeyBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampInitImportPrivateKey`](TurnkeyBrowserClient.mdx#stampinitimportprivatekey)
+
+***
+
+### stampInitImportWallet()
+
+> **stampInitImportWallet**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2088](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2088)
+
+#### Parameters
+
+##### input
+
+`TInitImportWalletBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampInitImportWallet`](TurnkeyBrowserClient.mdx#stampinitimportwallet)
+
+***
+
+### stampInitOtpAuth()
+
+> **stampInitOtpAuth**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2125](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2125)
+
+#### Parameters
+
+##### input
+
+`TInitOtpAuthBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampInitOtpAuth`](TurnkeyBrowserClient.mdx#stampinitotpauth)
+
+***
+
+### stampInitUserEmailRecovery()
+
+> **stampInitUserEmailRecovery**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2161](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2161)
+
+#### Parameters
+
+##### input
+
+`TInitUserEmailRecoveryBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampInitUserEmailRecovery`](TurnkeyBrowserClient.mdx#stampinituseremailrecovery)
+
+***
+
+### stampListPrivateKeyTags()
+
+> **stampListPrivateKeyTags**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:568](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L568)
+
+#### Parameters
+
+##### input
+
+`TListPrivateKeyTagsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampListPrivateKeyTags`](TurnkeyBrowserClient.mdx#stamplistprivatekeytags)
+
+***
+
+### stampListUserTags()
+
+> **stampListUserTags**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:645](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L645)
+
+#### Parameters
+
+##### input
+
+`TListUserTagsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampListUserTags`](TurnkeyBrowserClient.mdx#stamplistusertags)
+
+***
+
+### stampOauth()
+
+> **stampOauth**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2198](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2198)
+
+#### Parameters
+
+##### input
+
+`TOauthBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampOauth`](TurnkeyBrowserClient.mdx#stampoauth)
+
+***
+
+### stampOtpAuth()
+
+> **stampOtpAuth**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2234](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2234)
+
+#### Parameters
+
+##### input
+
+`TOtpAuthBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampOtpAuth`](TurnkeyBrowserClient.mdx#stampotpauth)
+
+***
+
+### stampRecoverUser()
+
+> **stampRecoverUser**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2270](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2270)
+
+#### Parameters
+
+##### input
+
+`TRecoverUserBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampRecoverUser`](TurnkeyBrowserClient.mdx#stamprecoveruser)
+
+***
+
+### stampRejectActivity()
+
+> **stampRejectActivity**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2300](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2300)
+
+#### Parameters
+
+##### input
+
+`TRejectActivityBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampRejectActivity`](TurnkeyBrowserClient.mdx#stamprejectactivity)
+
+***
+
+### stampRemoveOrganizationFeature()
+
+> **stampRemoveOrganizationFeature**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2337](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2337)
+
+#### Parameters
+
+##### input
+
+`TRemoveOrganizationFeatureBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampRemoveOrganizationFeature`](TurnkeyBrowserClient.mdx#stampremoveorganizationfeature)
+
+***
+
+### stampSetOrganizationFeature()
+
+> **stampSetOrganizationFeature**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2374](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2374)
+
+#### Parameters
+
+##### input
+
+`TSetOrganizationFeatureBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampSetOrganizationFeature`](TurnkeyBrowserClient.mdx#stampsetorganizationfeature)
+
+***
+
+### stampSignRawPayload()
+
+> **stampSignRawPayload**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2411](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2411)
+
+#### Parameters
+
+##### input
+
+`TSignRawPayloadBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampSignRawPayload`](TurnkeyBrowserClient.mdx#stampsignrawpayload)
+
+***
+
+### stampSignRawPayloads()
+
+> **stampSignRawPayloads**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2448](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2448)
+
+#### Parameters
+
+##### input
+
+`TSignRawPayloadsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampSignRawPayloads`](TurnkeyBrowserClient.mdx#stampsignrawpayloads)
+
+***
+
+### stampSignTransaction()
+
+> **stampSignTransaction**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2485](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2485)
+
+#### Parameters
+
+##### input
+
+`TSignTransactionBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampSignTransaction`](TurnkeyBrowserClient.mdx#stampsigntransaction)
+
+***
+
+### stampTestRateLimits()
+
+> **stampTestRateLimits**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2730](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2730)
+
+#### Parameters
+
+##### input
+
+`TTestRateLimitsBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampTestRateLimits`](TurnkeyBrowserClient.mdx#stamptestratelimits)
+
+***
+
+### stampUpdatePolicy()
+
+> **stampUpdatePolicy**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2522](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2522)
+
+#### Parameters
+
+##### input
+
+`TUpdatePolicyBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampUpdatePolicy`](TurnkeyBrowserClient.mdx#stampupdatepolicy)
+
+***
+
+### stampUpdatePrivateKeyTag()
+
+> **stampUpdatePrivateKeyTag**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2558](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2558)
+
+#### Parameters
+
+##### input
+
+`TUpdatePrivateKeyTagBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampUpdatePrivateKeyTag`](TurnkeyBrowserClient.mdx#stampupdateprivatekeytag)
+
+***
+
+### stampUpdateRootQuorum()
+
+> **stampUpdateRootQuorum**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2595](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2595)
+
+#### Parameters
+
+##### input
+
+`TUpdateRootQuorumBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampUpdateRootQuorum`](TurnkeyBrowserClient.mdx#stampupdaterootquorum)
+
+***
+
+### stampUpdateUser()
+
+> **stampUpdateUser**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2632](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2632)
+
+#### Parameters
+
+##### input
+
+`TUpdateUserBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampUpdateUser`](TurnkeyBrowserClient.mdx#stampupdateuser)
+
+***
+
+### stampUpdateUserTag()
+
+> **stampUpdateUserTag**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2668](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2668)
+
+#### Parameters
+
+##### input
+
+`TUpdateUserTagBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampUpdateUserTag`](TurnkeyBrowserClient.mdx#stampupdateusertag)
+
+***
+
+### stampUpdateWallet()
+
+> **stampUpdateWallet**(`input`): `Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2705](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2705)
+
+#### Parameters
+
+##### input
+
+`TUpdateWalletBody`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TSignedRequest`](../type-aliases/TSignedRequest.mdx)\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`stampUpdateWallet`](TurnkeyBrowserClient.mdx#stampupdatewallet)
+
+***
+
+### testRateLimits()
+
+> **testRateLimits**(`input`): `Promise`\<\{\}\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2721](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2721)
+
+#### Parameters
+
+##### input
+
+`TTestRateLimitsBody`
+
+#### Returns
+
+`Promise`\<\{\}\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`testRateLimits`](TurnkeyBrowserClient.mdx#testratelimits)
+
+***
+
+### updatePolicy()
+
+> **updatePolicy**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2502](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2502)
+
+#### Parameters
+
+##### input
+
+`TUpdatePolicyBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`updatePolicy`](TurnkeyBrowserClient.mdx#updatepolicy)
+
+***
+
+### updatePrivateKeyTag()
+
+> **updatePrivateKeyTag**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2538](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2538)
+
+#### Parameters
+
+##### input
+
+`TUpdatePrivateKeyTagBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`updatePrivateKeyTag`](TurnkeyBrowserClient.mdx#updateprivatekeytag)
+
+***
+
+### updateRootQuorum()
+
+> **updateRootQuorum**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2575](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2575)
+
+#### Parameters
+
+##### input
+
+`TUpdateRootQuorumBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`updateRootQuorum`](TurnkeyBrowserClient.mdx#updaterootquorum)
+
+***
+
+### updateUser()
+
+> **updateUser**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2612](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2612)
+
+#### Parameters
+
+##### input
+
+`TUpdateUserBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`updateUser`](TurnkeyBrowserClient.mdx#updateuser)
+
+***
+
+### updateUserAuth()
+
+> **updateUserAuth**(`params`): `Promise`\<`boolean`\>
+
+Defined in: [packages/sdk-browser/src/\_\_clients\_\_/browser-clients.ts:605](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__clients__/browser-clients.ts#L605)
+
+Comprehensive authentication update for an end user.
+Combines add/update and delete operations into a single call.
+
+The behavior is driven by whether values are set to:
+- A string/array (to create or update)
+- `null` or an array of IDs (to remove)
+
+All operations are executed in parallel where applicable.
+
+#### Parameters
+
+##### params
+
+`UpdateUserAuthParams`
+
+A structured object containing all the update parameters
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+A promise that resolves to a boolean indicating overall success
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`updateUserAuth`](TurnkeyBrowserClient.mdx#updateuserauth)
+
+***
+
+### updateUserTag()
+
+> **updateUserTag**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2648](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2648)
+
+#### Parameters
+
+##### input
+
+`TUpdateUserTagBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`updateUserTag`](TurnkeyBrowserClient.mdx#updateusertag)
+
+***
+
+### updateWallet()
+
+> **updateWallet**(`input`): `Promise`\<`object` & `object`\>
+
+Defined in: [packages/sdk-browser/src/\_\_generated\_\_/sdk-client-base.ts:2685](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/sdk-browser/src/__generated__/sdk-client-base.ts#L2685)
+
+#### Parameters
+
+##### input
+
+`TUpdateWalletBody`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](TurnkeyBrowserClient.mdx).[`updateWallet`](TurnkeyBrowserClient.mdx#updatewallet)

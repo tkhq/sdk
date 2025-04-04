@@ -1,0 +1,17 @@
+{
+  "entryPoints": ["packages/*"],
+  "name": "SDK Documentation",
+  "entryPointStrategy": "packages",
+  "includeVersion": false,
+  "excludeExternals": true,
+  "fileExtension": ".mdx",
+  "plugin": ["typedoc-plugin-markdown"],
+  "outputs": [
+    {
+      // requires typedoc-plugin-markdown
+      "name": "markdown",
+      "path": "./docs/markdown",
+      "fileExtension": ".mdx"
+    }
+  ]
+}
