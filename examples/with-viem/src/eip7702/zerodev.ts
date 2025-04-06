@@ -1,13 +1,17 @@
+import fs from "fs";
 import { resolve } from "path";
 import * as dotenv from "dotenv";
 
 import {
   createPublicClient,
   createWalletClient,
+  Hex,
   http,
   zeroAddress,
 } from "viem";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { sepolia } from "viem/chains";
+import { eip7702Actions } from "viem/experimental";
 import {
   getEntryPoint,
   KERNEL_V3_3_BETA,
@@ -42,21 +46,21 @@ const publicClient = createPublicClient({
 });
 
 const turnkeyClient = new TurnkeyServerSDK({
-  apiBaseUrl: process.env.BASE_URL!,
-  apiPrivateKey: process.env.API_PRIVATE_KEY!,
-  apiPublicKey: process.env.API_PUBLIC_KEY!,
-  defaultOrganizationId: process.env.ORGANIZATION_ID!,
-  // The following config is useful in contexts where an activity requires consensus.
-  // By default, if the activity is not initially successful, it will poll a maximum
-  // of 3 times with an interval of 10000 milliseconds.
-  //
-  // -----
-  //
-  // activityPoller: {
-  //   intervalMs: 10_000,
-  //   numRetries: 5,
-  // },
-});
+    apiBaseUrl: process.env.BASE_URL!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    defaultOrganizationId: process.env.ORGANIZATION_ID!,
+    // The following config is useful in contexts where an activity requires consensus.
+    // By default, if the activity is not initially successful, it will poll a maximum
+    // of 3 times with an interval of 10000 milliseconds.
+    //
+    // -----
+    //
+    // activityPoller: {
+    //   intervalMs: 10_000,
+    //   numRetries: 5,
+    // },
+  });
 
 const main = async () => {
   const turnkeyAccount = await createAccount({
@@ -70,55 +74,20 @@ const main = async () => {
     account: turnkeyAccount,
     chain,
     transport: http(),
-  });
+  }).extend(eip7702Actions());
 
-<<<<<<< HEAD
-=======
-  console.log("eoa address", turnkeyAccount.address);
-
-  console.log("authorization params", {
-    contractAddress:
-      KernelVersionToAddressesMap[kernelVersion].accountImplementationAddress,
-    account: turnkeyAccount,
-  });
-
->>>>>>> 9f543a5e (checkpoint)
   const authorization = await walletClient.signAuthorization({
     contractAddress:
       KernelVersionToAddressesMap[kernelVersion].accountImplementationAddress,
-    account: turnkeyAccount,
+    delegate: true,
   });
 
-<<<<<<< HEAD
-=======
-  console.log("validator params", {
-    signer: turnkeyAccount,
-    entryPoint,
-    kernelVersion,
-  });
-
->>>>>>> 9f543a5e (checkpoint)
   const ecdsaValidator = await signerToEcdsaValidator(publicClient, {
     signer: turnkeyAccount,
     entryPoint,
     kernelVersion,
   });
 
-<<<<<<< HEAD
-=======
-  console.log("account params", {
-    plugins: {
-      sudo: ecdsaValidator,
-    },
-    entryPoint,
-    kernelVersion,
-    // Set the address of the smart account to the EOA address
-    address: turnkeyAccount.address,
-    // Set the 7702 authorization
-    eip7702Auth: authorization,
-  });
-
->>>>>>> 9f543a5e (checkpoint)
   const account = await createKernelAccount(publicClient, {
     plugins: {
       sudo: ecdsaValidator,
@@ -172,11 +141,7 @@ const main = async () => {
   });
   console.log(
     "UserOp completed",
-<<<<<<< HEAD
-    `${chain.blockExplorers.default.url}/tx/${receipt.transactionHash}`,
-=======
     `${chain.blockExplorers.default.url}/tx/${receipt.transactionHash}`
->>>>>>> 9f543a5e (checkpoint)
   );
 
   process.exit(0);
