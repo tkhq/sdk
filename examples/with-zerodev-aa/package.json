@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start-viem": "tsx src/viem.ts",
+    "start-7702": "tsx src/eip7702.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -18,7 +19,7 @@
     "permissionless": "^0.1.45",
     "prompts": "^2.4.2",
     "typescript": "5.1.5",
-    "viem": "2.23.13"
+    "viem": "^2.24.2"
   },
   "devDependencies": {
     "@types/node": "^22.7.7",
