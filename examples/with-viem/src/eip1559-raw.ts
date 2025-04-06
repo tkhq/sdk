@@ -1,31 +1,15 @@
+import { createWalletClient, http } from "viem";
+import { serializeTransaction, hashMessage } from "viem";
+import { sepolia } from "viem/chains";
+
 import { resolve } from "path";
 import * as dotenv from "dotenv";
-
-import {
-  SignedAuthorization,
-  createWalletClient,
-  http,
-  serializeTransaction,
-} from "viem";
-import {
-  KERNEL_V3_3_BETA,
-  KernelVersionToAddressesMap,
-} from "@zerodev/sdk/constants";
-import { sepolia } from "viem/chains";
 
 import { createAccount } from "@turnkey/viem";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 
-import { print } from "../util";
-
 // Load environment variables from `.env.local`
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
-
-const kernelVersion = KERNEL_V3_3_BETA;
-
-// We use the Sepolia testnet here, but you can use any network that
-// supports EIP-7702.
-const chain = sepolia;
 
 const turnkeyClient = new TurnkeyServerSDK({
   apiBaseUrl: process.env.BASE_URL!,
@@ -44,44 +28,45 @@ const turnkeyClient = new TurnkeyServerSDK({
   // },
 });
 
-const main = async () => {
+async function main() {
   const turnkeyAccount = await createAccount({
     client: turnkeyClient.apiClient(),
     organizationId: process.env.ORGANIZATION_ID!,
     signWith: process.env.SIGN_WITH!,
   });
 
-  const walletClient = createWalletClient({
+  const client = createWalletClient({
     account: turnkeyAccount,
-    chain,
-    transport: http(),
-  });
-
-  const authorization = await walletClient.signAuthorization({
-    contractAddress:
-      KernelVersionToAddressesMap[kernelVersion].accountImplementationAddress,
-    account: turnkeyAccount,
+    chain: sepolia,
+    transport: http(
+      `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`,
+    ),
   });
 
   // Prepare the transaction first
-  const request = (await walletClient.prepareTransactionRequest({
-    from: "0x0000000000000000000000000000000000000000",
-    gas: BigInt(200000),
-    authorizationList: [authorization as SignedAuthorization],
-    to: "0x0000000000000000000000000000000000000000",
-    type: "eip7702",
+  const request = await client.prepareTransactionRequest({
+    to: process.env.SIGN_WITH! as `0x${string}`, // self
     account: turnkeyAccount,
-  })) as any;
+    type: "eip1559",
+    nonce: 100,
+  });
+
+  console.log("request", request);
 
   // Get the serialized unsigned transaction
   const serializedUnsignedTx = serializeTransaction(request);
+  // console.log("Raw unsigned transaction:", serializedUnsignedTx);
 
-  const { r, s, v } = await turnkeyClient.apiClient().signRawPayload({
+  const { activity, r, s, v } = await turnkeyClient.apiClient().signRawPayload({
     signWith: process.env.SIGN_WITH!,
     payload: serializedUnsignedTx,
     encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
     hashFunction: "HASH_FUNCTION_KECCAK256",
   });
+
+  // combine signature with original transaction
+  // serialized signature
+  // console.log("signed message", signedPayload);
 
   const serializedTx = serializeTransaction(request, {
     r: r as `0x${string}`,
@@ -89,11 +74,14 @@ const main = async () => {
     v: BigInt(v),
   });
 
-  const txHash = await walletClient.sendRawTransaction({
+  console.log("signed serialized tx", serializedTx);
+
+  // // const hash = await client.sendTransacwtion(request);
+  const hash = await client.sendRawTransaction({
     serializedTransaction: serializedTx,
   });
 
-  print("Transaction sent", `https://sepolia.etherscan.io/tx/${txHash}`);
-};
+  console.log("resulting hash", hash);
+}
 
 main();
