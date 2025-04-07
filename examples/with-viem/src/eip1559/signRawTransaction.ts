@@ -1,5 +1,5 @@
 import { createWalletClient, http } from "viem";
-import { serializeTransaction, hashMessage } from "viem";
+import { serializeTransaction } from "viem";
 import { sepolia } from "viem/chains";
 
 import { resolve } from "path";
@@ -7,6 +7,8 @@ import * as dotenv from "dotenv";
 
 import { createAccount } from "@turnkey/viem";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
+
+import { print } from "../util";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
@@ -48,40 +50,30 @@ async function main() {
     to: process.env.SIGN_WITH! as `0x${string}`, // self
     account: turnkeyAccount,
     type: "eip1559",
-    nonce: 100,
   });
-
-  console.log("request", request);
 
   // Get the serialized unsigned transaction
   const serializedUnsignedTx = serializeTransaction(request);
-  // console.log("Raw unsigned transaction:", serializedUnsignedTx);
 
-  const { activity, r, s, v } = await turnkeyClient.apiClient().signRawPayload({
+  const { r, s, v } = await turnkeyClient.apiClient().signRawPayload({
     signWith: process.env.SIGN_WITH!,
     payload: serializedUnsignedTx,
     encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
     hashFunction: "HASH_FUNCTION_KECCAK256",
   });
 
-  // combine signature with original transaction
-  // serialized signature
-  // console.log("signed message", signedPayload);
-
+  // Combine signature with transaction
   const serializedTx = serializeTransaction(request, {
     r: r as `0x${string}`,
     s: s as `0x${string}`,
     v: BigInt(v),
   });
 
-  console.log("signed serialized tx", serializedTx);
-
-  // // const hash = await client.sendTransacwtion(request);
-  const hash = await client.sendRawTransaction({
+  const txHash = await client.sendRawTransaction({
     serializedTransaction: serializedTx,
   });
 
-  console.log("resulting hash", hash);
+  print("Transaction sent", `https://sepolia.etherscan.io/tx/${txHash}`);
 }
 
 main();

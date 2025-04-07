@@ -1453,9 +1453,6 @@ importers:
       '@turnkey/viem':
         specifier: workspace:*
         version: link:../../packages/viem
-      '@zerodev/ecdsa-validator':
-        specifier: ^5.4.5
-        version: 5.4.5(@zerodev/sdk@5.4.28)(viem@2.26.2)
       '@zerodev/sdk':
         specifier: ^5.4.28
         version: 5.4.28(viem@2.26.2)
