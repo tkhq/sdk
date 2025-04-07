@@ -343,6 +343,12 @@ describe("TurnkeyAccount", () => {
           useCreate2: false,
         });
 
+        const deployTx = await walletClient.waitForTransactionReceipt({
+          hash: deployHash,
+        });
+
+        expect(deployTx.blockHash).toMatch(/^0x/);
+
         const contractAddress = getContractAddress({
           from: signingConfig.expectedEthAddress,
           nonce: transactionCount,
