@@ -46,4 +46,4 @@ runs:
       shell: bash
 
     - name: Install Foundry
-      uses: foundry-rs/foundry-toolchain@cb603ca0abb544f301eaed59ac0baf579aa6aecf
+      uses: foundry-rs/foundry-toolchain@de808b1eea699e761c404bda44ba8f21aba30b2c # v1.3.1
