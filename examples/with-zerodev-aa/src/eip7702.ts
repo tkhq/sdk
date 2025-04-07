@@ -72,42 +72,16 @@ const main = async () => {
     transport: http(),
   });
 
-  console.log("eoa address", turnkeyAccount.address);
-
-  console.log("authorization params", {
-    contractAddress:
-      KernelVersionToAddressesMap[kernelVersion].accountImplementationAddress,
-    account: turnkeyAccount,
-  });
-
   const authorization = await walletClient.signAuthorization({
     contractAddress:
       KernelVersionToAddressesMap[kernelVersion].accountImplementationAddress,
     account: turnkeyAccount,
   });
 
-  console.log("validator params", {
-    signer: turnkeyAccount,
-    entryPoint,
-    kernelVersion,
-  });
-
   const ecdsaValidator = await signerToEcdsaValidator(publicClient, {
     signer: turnkeyAccount,
     entryPoint,
     kernelVersion,
-  });
-
-  console.log("account params", {
-    plugins: {
-      sudo: ecdsaValidator,
-    },
-    entryPoint,
-    kernelVersion,
-    // Set the address of the smart account to the EOA address
-    address: turnkeyAccount.address,
-    // Set the 7702 authorization
-    eip7702Auth: authorization,
   });
 
   const account = await createKernelAccount(publicClient, {
@@ -163,7 +137,7 @@ const main = async () => {
   });
   console.log(
     "UserOp completed",
-    `${chain.blockExplorers.default.url}/tx/${receipt.transactionHash}`
+    `${chain.blockExplorers.default.url}/tx/${receipt.transactionHash}`,
   );
 
   process.exit(0);

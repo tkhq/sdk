@@ -1,12 +1,7 @@
 import { resolve } from "path";
 import * as dotenv from "dotenv";
 
-import {
-  SignedAuthorization,
-  createWalletClient,
-  http,
-  serializeTransaction,
-} from "viem";
+import { SignedAuthorization, createWalletClient, http } from "viem";
 import { sepolia } from "viem/chains";
 import {
   KERNEL_V3_3_BETA,
@@ -63,34 +58,13 @@ const main = async () => {
     account: turnkeyAccount,
   });
 
-  // Prepare the transaction first
-  const request = (await walletClient.prepareTransactionRequest({
+  const txHash = await walletClient.sendTransaction({
     from: "0x0000000000000000000000000000000000000000",
     gas: BigInt(200000),
     authorizationList: [authorization as SignedAuthorization],
     to: "0x0000000000000000000000000000000000000000",
     type: "eip7702",
     account: turnkeyAccount,
-  })) as any;
-
-  // Get the serialized unsigned transaction
-  const serializedUnsignedTx = serializeTransaction(request);
-
-  const { r, s, v } = await turnkeyClient.apiClient().signRawPayload({
-    signWith: process.env.SIGN_WITH!,
-    payload: serializedUnsignedTx,
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_KECCAK256",
-  });
-
-  const serializedTx = serializeTransaction(request, {
-    r: r as `0x${string}`,
-    s: s as `0x${string}`,
-    v: BigInt(v),
-  });
-
-  const txHash = await walletClient.sendRawTransaction({
-    serializedTransaction: serializedTx,
   });
 
   print("Transaction sent", `https://sepolia.etherscan.io/tx/${txHash}`);
