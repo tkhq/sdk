@@ -340,6 +340,7 @@ describe("TurnkeyAccount", () => {
           chain,
           account: turnkeyAccount,
           bytecode: bytecode as Hex,
+          useCreate2: false,
         });
 
         const contractAddress = getContractAddress({
