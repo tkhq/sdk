@@ -3,7 +3,7 @@
 A sample application that quickly configures a Delegated Access setup (see https://docs.turnkey.com/concepts/policies/delegated-access):
 - Creates a Sub-Organization with a Delegated user account and an End User account
 - Creates a new Policy for the Delegated account
-- Removed the Delegated account from the Root Quorum
+- Removes the Delegated account from the Root Quorum
 
 **Note:** The end user is created without any authenticators, it will need to be updated during the sign-up flow
 
@@ -52,4 +52,4 @@ Now open `.env.local` and add the missing environment variables:
 pnpm start
 ```
 
-**Note:** Recommended to test out that the Delegated account API keys are highly scoped to sending ETH transactions only to the specified RECIPIENT_ADDRESS and tx's to other addresses (and all other actions) are not possible. In order to cary such tests one could use [Turkney CLI](https://github.com/tkhq/tkcli) or [this](https://github.com/tkhq/tkcli) signTransaction example.
+**Note:** It's recommended to test out that the Delegated account API keys are highly scoped to sending ETH transactions only to the specified RECIPIENT_ADDRESS and transactions to other addresses (and all other actions) are not possible. In order to cary such tests one could use [Turkney CLI](https://github.com/tkhq/tkcli) or [this](https://github.com/tkhq/tkcli) signTransaction example.
