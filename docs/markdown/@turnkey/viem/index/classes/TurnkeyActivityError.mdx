@@ -1,0 +1,267 @@
+[**SDK Documentation**](../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../packages.mdx) / [@turnkey/viem](../../README.mdx) / [index](../README.mdx) / TurnkeyActivityError
+
+# Class: TurnkeyActivityError
+
+Defined in: [packages/viem/src/index.ts:56](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/viem/src/index.ts#L56)
+
+## Extends
+
+- `BaseError`
+
+## Constructors
+
+### Constructor
+
+> **new TurnkeyActivityError**(`__namedParameters`): `TurnkeyActivityError`
+
+Defined in: [packages/viem/src/index.ts:62](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/viem/src/index.ts#L62)
+
+#### Parameters
+
+##### \_\_namedParameters
+
+###### activityId?
+
+`string`
+
+###### activityStatus?
+
+`"ACTIVITY_STATUS_CREATED"` \| `"ACTIVITY_STATUS_PENDING"` \| `"ACTIVITY_STATUS_COMPLETED"` \| `"ACTIVITY_STATUS_FAILED"` \| `"ACTIVITY_STATUS_CONSENSUS_NEEDED"` \| `"ACTIVITY_STATUS_REJECTED"`
+
+###### message?
+
+`string` = `"Received unexpected Turnkey activity status."`
+
+#### Returns
+
+`TurnkeyActivityError`
+
+#### Overrides
+
+`BaseError.constructor`
+
+## Properties
+
+### activityId
+
+> **activityId**: `undefined` \| `string`
+
+Defined in: [packages/viem/src/index.ts:59](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/viem/src/index.ts#L59)
+
+***
+
+### activityStatus
+
+> **activityStatus**: `undefined` \| `"ACTIVITY_STATUS_CREATED"` \| `"ACTIVITY_STATUS_PENDING"` \| `"ACTIVITY_STATUS_COMPLETED"` \| `"ACTIVITY_STATUS_FAILED"` \| `"ACTIVITY_STATUS_CONSENSUS_NEEDED"` \| `"ACTIVITY_STATUS_REJECTED"`
+
+Defined in: [packages/viem/src/index.ts:60](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/viem/src/index.ts#L60)
+
+***
+
+### details
+
+> **details**: `string`
+
+Defined in: node\_modules/.pnpm/viem@2.23.13\_typescript@5.1.5/node\_modules/viem/\_types/errors/base.d.ts:19
+
+#### Inherited from
+
+`BaseError.details`
+
+***
+
+### docsPath?
+
+> `optional` **docsPath**: `string`
+
+Defined in: node\_modules/.pnpm/viem@2.23.13\_typescript@5.1.5/node\_modules/viem/\_types/errors/base.d.ts:20
+
+#### Inherited from
+
+`BaseError.docsPath`
+
+***
+
+### message
+
+> **message**: `string`
+
+Defined in: node\_modules/.pnpm/typescript@5.1.5/node\_modules/typescript/lib/lib.es5.d.ts:1068
+
+#### Inherited from
+
+`BaseError.message`
+
+***
+
+### metaMessages?
+
+> `optional` **metaMessages**: `string`[]
+
+Defined in: node\_modules/.pnpm/viem@2.23.13\_typescript@5.1.5/node\_modules/viem/\_types/errors/base.d.ts:21
+
+#### Inherited from
+
+`BaseError.metaMessages`
+
+***
+
+### name
+
+> **name**: `string` = `"TurnkeyActivityError"`
+
+Defined in: [packages/viem/src/index.ts:57](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/viem/src/index.ts#L57)
+
+#### Overrides
+
+`BaseError.name`
+
+***
+
+### shortMessage
+
+> **shortMessage**: `string`
+
+Defined in: node\_modules/.pnpm/viem@2.23.13\_typescript@5.1.5/node\_modules/viem/\_types/errors/base.d.ts:22
+
+#### Inherited from
+
+`BaseError.shortMessage`
+
+***
+
+### stack?
+
+> `optional` **stack**: `string`
+
+Defined in: node\_modules/.pnpm/typescript@5.1.5/node\_modules/typescript/lib/lib.es5.d.ts:1069
+
+#### Inherited from
+
+`BaseError.stack`
+
+***
+
+### version
+
+> **version**: `string`
+
+Defined in: node\_modules/.pnpm/viem@2.23.13\_typescript@5.1.5/node\_modules/viem/\_types/errors/base.d.ts:23
+
+#### Inherited from
+
+`BaseError.version`
+
+***
+
+### prepareStackTrace()?
+
+> `static` `optional` **prepareStackTrace**: (`err`, `stackTraces`) => `any`
+
+Defined in: node\_modules/.pnpm/@types+node@18.18.2/node\_modules/@types/node/globals.d.ts:11
+
+Optional override for formatting stack traces
+
+#### Parameters
+
+##### err
+
+`Error`
+
+##### stackTraces
+
+`CallSite`[]
+
+#### Returns
+
+`any`
+
+#### See
+
+https://v8.dev/docs/stack-trace-api#customizing-stack-traces
+
+#### Inherited from
+
+`BaseError.prepareStackTrace`
+
+***
+
+### stackTraceLimit
+
+> `static` **stackTraceLimit**: `number`
+
+Defined in: node\_modules/.pnpm/@types+node@18.18.2/node\_modules/@types/node/globals.d.ts:13
+
+#### Inherited from
+
+`BaseError.stackTraceLimit`
+
+## Methods
+
+### walk()
+
+#### Call Signature
+
+> **walk**(): `Error`
+
+Defined in: node\_modules/.pnpm/viem@2.23.13\_typescript@5.1.5/node\_modules/viem/\_types/errors/base.d.ts:26
+
+##### Returns
+
+`Error`
+
+##### Inherited from
+
+`BaseError.walk`
+
+#### Call Signature
+
+> **walk**(`fn`): `null` \| `Error`
+
+Defined in: node\_modules/.pnpm/viem@2.23.13\_typescript@5.1.5/node\_modules/viem/\_types/errors/base.d.ts:27
+
+##### Parameters
+
+###### fn
+
+(`err`) => `boolean`
+
+##### Returns
+
+`null` \| `Error`
+
+##### Inherited from
+
+`BaseError.walk`
+
+***
+
+### captureStackTrace()
+
+> `static` **captureStackTrace**(`targetObject`, `constructorOpt`?): `void`
+
+Defined in: node\_modules/.pnpm/@types+node@18.18.2/node\_modules/@types/node/globals.d.ts:4
+
+Create .stack property on a target object
+
+#### Parameters
+
+##### targetObject
+
+`object`
+
+##### constructorOpt?
+
+`Function`
+
+#### Returns
+
+`void`
+
+#### Inherited from
+
+`BaseError.captureStackTrace`

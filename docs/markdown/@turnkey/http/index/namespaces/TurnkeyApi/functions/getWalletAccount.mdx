@@ -1,0 +1,27 @@
+[**SDK Documentation**](../../../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../../../packages.mdx) / [@turnkey/http](../../../../README.mdx) / [index](../../../README.mdx) / [TurnkeyApi](../README.mdx) / getWalletAccount
+
+# Function: getWalletAccount()
+
+> **getWalletAccount**(`input`): `Promise`\<\{ `account`: \{ `address`: `string`; `addressFormat`: `"ADDRESS_FORMAT_UNCOMPRESSED"` \| `"ADDRESS_FORMAT_COMPRESSED"` \| `"ADDRESS_FORMAT_ETHEREUM"` \| `"ADDRESS_FORMAT_SOLANA"` \| `"ADDRESS_FORMAT_COSMOS"` \| `"ADDRESS_FORMAT_TRON"` \| `"ADDRESS_FORMAT_SUI"` \| `"ADDRESS_FORMAT_APTOS"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"` \| `"ADDRESS_FORMAT_SEI"` \| `"ADDRESS_FORMAT_XLM"` \| `"ADDRESS_FORMAT_DOGE_MAINNET"` \| `"ADDRESS_FORMAT_DOGE_TESTNET"` \| `"ADDRESS_FORMAT_TON_V3R2"` \| `"ADDRESS_FORMAT_TON_V4R2"` \| `"ADDRESS_FORMAT_XRP"`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `organizationId`: `string`; `path`: `string`; `pathFormat`: `"PATH_FORMAT_BIP32"`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `walletAccountId`: `string`; `walletId`: `string`; \}; \}\>
+
+Defined in: [packages/http/src/\_\_generated\_\_/services/coordinator/public/v1/public\_api.fetcher.ts:666](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/http/src/__generated__/services/coordinator/public/v1/public_api.fetcher.ts#L666)
+
+Get Wallet Account
+
+Get a single wallet account
+
+`POST /public/v1/query/get_wallet_account`
+
+## Parameters
+
+### input
+
+[`TGetWalletAccountInput`](../type-aliases/TGetWalletAccountInput.mdx)
+
+## Returns
+
+`Promise`\<\{ `account`: \{ `address`: `string`; `addressFormat`: `"ADDRESS_FORMAT_UNCOMPRESSED"` \| `"ADDRESS_FORMAT_COMPRESSED"` \| `"ADDRESS_FORMAT_ETHEREUM"` \| `"ADDRESS_FORMAT_SOLANA"` \| `"ADDRESS_FORMAT_COSMOS"` \| `"ADDRESS_FORMAT_TRON"` \| `"ADDRESS_FORMAT_SUI"` \| `"ADDRESS_FORMAT_APTOS"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"` \| `"ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"` \| `"ADDRESS_FORMAT_SEI"` \| `"ADDRESS_FORMAT_XLM"` \| `"ADDRESS_FORMAT_DOGE_MAINNET"` \| `"ADDRESS_FORMAT_DOGE_TESTNET"` \| `"ADDRESS_FORMAT_TON_V3R2"` \| `"ADDRESS_FORMAT_TON_V4R2"` \| `"ADDRESS_FORMAT_XRP"`; `createdAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `curve`: `"CURVE_SECP256K1"` \| `"CURVE_ED25519"`; `organizationId`: `string`; `path`: `string`; `pathFormat`: `"PATH_FORMAT_BIP32"`; `updatedAt`: \{ `nanos`: `string`; `seconds`: `string`; \}; `walletAccountId`: `string`; `walletId`: `string`; \}; \}\>

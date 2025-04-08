@@ -1,0 +1,78 @@
+[**SDK Documentation**](../../../../README.mdx)
+
+***
+
+[SDK Documentation](../../../../packages.mdx) / [@turnkey/wallet-stamper](../../README.mdx) / [index](../README.mdx) / EthereumWalletInterface
+
+# Interface: EthereumWalletInterface
+
+Defined in: [packages/wallet-stamper/src/types.ts:53](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/wallet-stamper/src/types.ts#L53)
+
+Ethereum wallets require a signed message to derive the public key.
+
+## Remarks
+
+This is the SECP256K1 public key of the Ethereum wallet, not the address.
+This requires that the wallet signs a message in order to derive the public key.
+
+ EthereumWalletInterface
+
+## Extends
+
+- [`BaseWalletInterface`](BaseWalletInterface.mdx)
+
+## Properties
+
+### getPublicKey()
+
+> **getPublicKey**: () => `Promise`\<`string`\>
+
+Defined in: [packages/wallet-stamper/src/types.ts:28](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/wallet-stamper/src/types.ts#L28)
+
+Returns the public key, which is the SECP256K1 hex encoded public key from your Ethereum wallet.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Inherited from
+
+[`BaseWalletInterface`](BaseWalletInterface.mdx).[`getPublicKey`](BaseWalletInterface.mdx#getpublickey)
+
+***
+
+### signMessage()
+
+> **signMessage**: (`message`) => `Promise`\<`string`\>
+
+Defined in: [packages/wallet-stamper/src/types.ts:27](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/wallet-stamper/src/types.ts#L27)
+
+Signs a message and returns the hex signature as a string.
+
+#### Parameters
+
+##### message
+
+`string`
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Inherited from
+
+[`BaseWalletInterface`](BaseWalletInterface.mdx).[`signMessage`](BaseWalletInterface.mdx#signmessage)
+
+***
+
+### type
+
+> **type**: [`Ethereum`](../enumerations/WalletType.mdx#ethereum)
+
+Defined in: [packages/wallet-stamper/src/types.ts:54](https://github.com/tkhq/sdk/blob/fd49bfe86475c8603b3eb385aa101efa36fa32fc/packages/wallet-stamper/src/types.ts#L54)
+
+The type of the wallet.
+
+#### Overrides
+
+[`BaseWalletInterface`](BaseWalletInterface.mdx).[`type`](BaseWalletInterface.mdx#type)
