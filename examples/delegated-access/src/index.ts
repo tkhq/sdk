@@ -1,7 +1,9 @@
 import { Turnkey } from "@turnkey/sdk-server";
 import * as dotenv from "dotenv";
+import * as path from "path";
 
-dotenv.config();
+// Load environment variables from `.env.local`
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 async function main() {
 // Initialize a Turnkey client using the parent organization
@@ -15,28 +17,31 @@ const turnkeyClient = new Turnkey({
 
 // for extra clarity, using a separate API key than the one used by the parent org
 // make sure to have both DELEGATOR_API_PUBLIC_KEY and DELEGATOR_API_PRIVATE_KEY added in .env
+  
+  const apiKeyName = "Delegated - API Key";
+  const publicKey = process.env.DELEGATED_API_PUBLIC_KEY!;
   const curveType = "API_KEY_CURVE_P256";
-  const apiKeys = [
-    {
-      apiKeyName: "Delegated - API Key",
-      publicKey: process.env.DELEGATOR_API_PUBLIC_KEY!,
-      curveType,
-    },
-  ];
+  
 
   const subOrg = await turnkeyClient.createSubOrganization({
     organizationId: process.env.TURNKEY_ORGANIZATION_ID!,
-    subOrganizationName: `Sub Org - With Delegator`,
+    subOrganizationName: `Sub Org - With Delegated`,
     rootUsers: [
       {
-        userName: "Delegator User",
-        apiKeys,
+        userName: "Delegated User",
+        apiKeys: [
+          {
+            apiKeyName,
+            publicKey,
+            curveType,
+          },
+        ],
         authenticators: [],
         oauthProviders: []
       },
       {
           userName: "End User",
-          userEmail: "<some-email>",
+          userEmail: "<email_address>",
           apiKeys: [],
           authenticators: [],
           oauthProviders: []
@@ -56,26 +61,26 @@ const turnkeyClient = new Turnkey({
     },
   });
 
-  console.log("sub-org id:", subOrg.subOrganizationId);
+  console.log("Sub-organization id:", subOrg.subOrganizationId);
 
-  // Initializing the Turkey client used by the Delegator activities
+  // Initializing the Turkey client used by the Delegated account activities
   // Notice the subOrganizationId created above 
-  const turnkeyDelegator = new Turnkey({
+  const turnkeyDelegated = new Turnkey({
     apiBaseUrl: "https://api.turnkey.com",
-    apiPrivateKey: process.env.DELEGATOR_API_PRIVATE_KEY!,
-    apiPublicKey: process.env.DELEGATOR_API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.DELEGATED_API_PRIVATE_KEY!,
+    apiPublicKey: process.env.DELEGATED_API_PUBLIC_KEY!,
     defaultOrganizationId: subOrg.subOrganizationId,
   }).apiClient();
 
   // Creating a policy for the Delegated account 
-  const delegator_userid = subOrg.rootUserIds[0];
+  const delegated_userid = subOrg.rootUserIds[0];
   const policyName = "Allow Delegated Account to sign transactions to specific address";
   const effect = "EFFECT_ALLOW";
-  const consensus = `approvers.any(user, user.id == '${delegator_userid}')`;
+  const consensus = `approvers.any(user, user.id == '${delegated_userid}')`;
   const condition = `eth.tx.to == '${process.env.RECIPIENT_ADDRESS}'`;
   const notes = "";
 
-  const { policyId } = await turnkeyDelegator.createPolicy({
+  const { policyId } = await turnkeyDelegated.createPolicy({
     policyName,
     condition,
     consensus,
@@ -96,7 +101,7 @@ const turnkeyClient = new Turnkey({
   );
 
   // Remove the Delegated Account from the root quorum
-  const RootQuorum = await turnkeyDelegator.updateRootQuorum({
+  const RootQuorum = await turnkeyDelegated.updateRootQuorum({
     threshold: 1,
     userIds: [subOrg.rootUserIds[1]], // retain the end user
   });
