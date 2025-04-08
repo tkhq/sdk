@@ -1,0 +1,19 @@
+{
+  "name": "@turnkey/delegated-access",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -w run build-all",
+    "start": "tsx src/index.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/sdk-server": "workspace:*",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.2",
+    "typescript": "^5.1.3"
+  }
+}
