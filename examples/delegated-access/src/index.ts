@@ -16,14 +16,12 @@ const turnkeyClient = new Turnkey({
   }).apiClient();
 
 // for extra clarity, using a separate API key than the one used by the parent org
-// make sure to have both DELEGATOR_API_PUBLIC_KEY and DELEGATOR_API_PRIVATE_KEY added in .env
+// make sure to have both DELEGATED_API_PUBLIC_KEY and DELEGATED_API_PRIVATE_KEY added in .env.local
+const apiKeyName = "Delegated - API Key";
+const publicKey = process.env.DELEGATED_API_PUBLIC_KEY!;
+const curveType = "API_KEY_CURVE_P256";
   
-  const apiKeyName = "Delegated - API Key";
-  const publicKey = process.env.DELEGATED_API_PUBLIC_KEY!;
-  const curveType = "API_KEY_CURVE_P256";
-  
-
-  const subOrg = await turnkeyClient.createSubOrganization({
+const subOrg = await turnkeyClient.createSubOrganization({
     organizationId: process.env.TURNKEY_ORGANIZATION_ID!,
     subOrganizationName: `Sub Org - With Delegated`,
     rootUsers: [
