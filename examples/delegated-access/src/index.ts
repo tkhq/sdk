@@ -30,14 +30,13 @@ const turnkeyClient = new Turnkey({
     rootUsers: [
       {
         userName: "Delegator User",
-        userEmail: "traian+delegator@turnkey.io",
         apiKeys,
         authenticators: [],
         oauthProviders: []
       },
       {
           userName: "End User",
-          userEmail: "traian+3@turnkey.io",
+          userEmail: "<some-email>",
           apiKeys: [],
           authenticators: [],
           oauthProviders: []
