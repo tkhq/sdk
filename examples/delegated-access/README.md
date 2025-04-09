@@ -52,4 +52,4 @@ Now open `.env.local` and add the missing environment variables:
 pnpm start
 ```
 
-**Note:** It's recommended to test out that the Delegated account API keys are highly scoped to sending ETH transactions only to the specified RECIPIENT_ADDRESS and transactions to other addresses (and all other actions) are not possible. In order to cary such tests one could use [Turkney CLI](https://github.com/tkhq/tkcli) or [this](https://github.com/tkhq/tkcli) signTransaction example.
+**Note:** It's recommended to test out that the Delegated account API keys are highly scoped to sending ETH transactions only to the specified RECIPIENT_ADDRESS and transactions to other addresses (and all other actions) are not possible. In order to carry such tests one could use [Turkney CLI](https://github.com/tkhq/tkcli) or [this](https://github.com/tkhq/sdk/blob/main/examples/kitchen-sink/src/sdk-server/signTransaction.ts) signTransaction example.
