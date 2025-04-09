@@ -101,7 +101,7 @@ const subOrg = await turnkeyClient.createSubOrganization({
   // Remove the Delegated Account from the root quorum
   const RootQuorum = await turnkeyDelegated.updateRootQuorum({
     threshold: 1,
-    userIds: [subOrg.rootUserIds?.[1]], // retain the end user
+    userIds: [subOrg.rootUserIds?.[1] as string], // retain the end user
   });
 
   console.log("Root Quorum updated! :", RootQuorum);
