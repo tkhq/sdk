@@ -145,7 +145,7 @@ export function createAccountWithAddress(input: {
         serializer?:
           | SerializeTransactionFn<TTransactionSerializable>
           | undefined;
-      }
+      },
     ): Promise<Hex> {
       const serializer: SerializeTransactionFn<TTransactionSerializable> =
         options?.serializer ??
@@ -155,11 +155,11 @@ export function createAccountWithAddress(input: {
         transaction,
         serializer,
         organizationId,
-        signWith
+        signWith,
       );
     },
     signTypedData: function (
-      typedData: TypedData | { [key: string]: unknown }
+      typedData: TypedData | { [key: string]: unknown },
     ): Promise<Hex> {
       return signTypedData(client, typedData, organizationId, signWith);
     },
@@ -202,7 +202,7 @@ export async function createAccount(input: {
     });
 
     ethereumAddress = data.privateKey.addresses.find(
-      (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM"
+      (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM",
     )?.address;
 
     if (typeof ethereumAddress !== "string" || !ethereumAddress) {
@@ -252,7 +252,7 @@ type TApiKeyAccountConfig = {
  * @deprecated use {@link createAccount} instead.
  */
 export async function createApiKeyAccount(
-  config: TApiKeyAccountConfig
+  config: TApiKeyAccountConfig,
 ): Promise<LocalAccount> {
   const { apiPublicKey, apiPrivateKey, baseUrl, organizationId, privateKeyId } =
     config;
@@ -266,7 +266,7 @@ export async function createApiKeyAccount(
     {
       baseUrl: baseUrl,
     },
-    stamper
+    stamper,
   );
 
   const data = await client.getPrivateKey({
@@ -275,7 +275,7 @@ export async function createApiKeyAccount(
   });
 
   const ethereumAddress = data.privateKey.addresses.find(
-    (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM"
+    (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM",
   )?.address;
 
   if (typeof ethereumAddress !== "string" || !ethereumAddress) {
@@ -301,7 +301,7 @@ export async function createApiKeyAccount(
         serializer?:
           | SerializeTransactionFn<TTransactionSerializable>
           | undefined;
-      }
+      },
     ): Promise<Hex> {
       const serializer: SerializeTransactionFn<TTransactionSerializable> =
         options?.serializer ??
@@ -311,11 +311,11 @@ export async function createApiKeyAccount(
         transaction,
         serializer,
         organizationId,
-        privateKeyId
+        privateKeyId,
       );
     },
     signTypedData: function (
-      typedData: TypedData | { [key: string]: unknown }
+      typedData: TypedData | { [key: string]: unknown },
     ): Promise<Hex> {
       return signTypedData(client, typedData, organizationId, privateKeyId);
     },
@@ -376,14 +376,14 @@ export async function signMessage(
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   message: SignableMessage,
   organizationId: string,
-  signWith: string
+  signWith: string,
 ): Promise<Hex> {
   const hashedMessage = hashMessage(message);
   const signedMessage = await signMessageWithErrorWrapping(
     client,
     hashedMessage,
     organizationId,
-    signWith
+    signWith,
   );
   return `${signedMessage}` as Hex;
 }
@@ -395,7 +395,7 @@ export async function signTransaction<
   transaction: TTransactionSerializable,
   serializer: SerializeTransactionFn<TTransactionSerializable>,
   organizationId: string,
-  signWith: string
+  signWith: string,
 ): Promise<Hex> {
   const serializedTx = serializer(transaction);
   const nonHexPrefixedSerializedTx = serializedTx.replace(/^0x/, "");
@@ -403,7 +403,7 @@ export async function signTransaction<
     client,
     nonHexPrefixedSerializedTx,
     organizationId,
-    signWith
+    signWith,
   );
 }
 
@@ -411,7 +411,7 @@ export async function signTypedData(
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   data: TypedData | { [key: string]: unknown },
   organizationId: string,
-  signWith: string
+  signWith: string,
 ): Promise<Hex> {
   const hashToSign = hashTypedData(data as HashTypedDataParameters);
 
@@ -428,7 +428,7 @@ async function signTransactionWithErrorWrapping(
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   unsignedTransaction: string,
   organizationId: string,
-  signWith: string
+  signWith: string,
 ): Promise<Hex> {
   let signedTx: string;
   try {
@@ -436,7 +436,7 @@ async function signTransactionWithErrorWrapping(
       client,
       unsignedTransaction,
       organizationId,
-      signWith
+      signWith,
     );
   } catch (error: any) {
     // Wrap Turnkey error in Viem-specific error
@@ -468,7 +468,7 @@ async function signTransactionImpl(
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
   unsignedTransaction: string,
   organizationId: string,
-  signWith: string
+  signWith: string,
 ): Promise<string> {
   if (client instanceof TurnkeyClient) {
     const { activity } = await client.signTransaction({
@@ -485,7 +485,7 @@ async function signTransactionImpl(
     assertActivityCompleted(activity);
 
     return assertNonNull(
-      activity?.result?.signTransactionResult?.signedTransaction
+      activity?.result?.signTransactionResult?.signedTransaction,
     );
   } else {
     const { activity, signedTransaction } = await client.signTransaction({
