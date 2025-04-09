@@ -178,7 +178,7 @@ export const createEIP1193Provider = async (
           const signedTransaction = await signTransaction({
             organizationId,
             unsignedTransaction,
-            signWith: getAddress(transaction.from),
+            signWith: getAddress(transaction.from!),
             client: turnkeyClient,
           });
           setConnected(true, { chainId: activeChain.chainId });

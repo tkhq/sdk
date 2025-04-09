@@ -17,6 +17,7 @@
     "ethers": "^6.10.0",
     "permissionless": "^0.1.45",
     "prompts": "^2.4.2",
+    "typescript": "5.1.5",
     "viem": "2.23.13"
   },
   "devDependencies": {
