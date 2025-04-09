@@ -44,7 +44,7 @@ export const preprocessTransaction = ({
     ...transaction,
     // @ts-ignore
     chainId: parseInt(transaction.chainId, 16),
-    type: (transaction.type && typeMapping[transaction.type]) || "legacy",
+    type: (transaction.type && typeMapping[transaction.type]) || "eip1559",
     maxPriorityFeePerGas: convertValue(
       transaction.maxPriorityFeePerGas,
       BigInt,
