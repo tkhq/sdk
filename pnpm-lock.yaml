@@ -1638,6 +1638,9 @@ importers:
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
+      typescript:
+        specifier: 5.1.5
+        version: 5.1.5
       viem:
         specifier: 2.23.13
         version: 2.23.13(typescript@5.1.5)
@@ -1759,7 +1762,7 @@ importers:
         specifier: workspace:*
         version: link:../sdk-browser
       viem:
-        specifier: ^2.7.19
+        specifier: 2.7.19
         version: 2.7.19(typescript@5.1.5)
     devDependencies:
       hardhat:

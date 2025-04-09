@@ -50,7 +50,7 @@
     "access": "public"
   },
   "dependencies": {
-    "viem": "^2.7.19",
+    "viem": "2.7.19",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*"

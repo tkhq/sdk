@@ -6,7 +6,7 @@ import {
   serializeTransaction,
 } from "viem";
 
-import type { WalletAddEthereumChain } from "./types";
+import type { WalletAddEthereumChain, TransactionType } from "./types";
 import {
   BlockExplorerUrlError,
   RpcUrlsRequiredError,
@@ -31,16 +31,20 @@ export const preprocessTransaction = ({
     defaultValue: T,
   ): T => (value !== undefined ? converter(value) : defaultValue);
 
-  const typeMapping: { [key: string]: string } = {
-    "0x0": "",
+  const typeMapping: { [key: string]: TransactionType } = {
+    "0x0": "legacy",
     "0x1": "eip2930",
     "0x2": "eip1559",
+    // TODO: enable these once ready
+    // "0x3": "eip4844",
+    // "0x4": "eip7702",
   };
+
   const processedTransaction: TransactionSerializable = {
     ...transaction,
     // @ts-ignore
     chainId: parseInt(transaction.chainId, 16),
-    type: typeMapping[transaction.type ?? ""] ?? "eip1559",
+    type: (transaction.type && typeMapping[transaction.type]) || "legacy",
     maxPriorityFeePerGas: convertValue(
       transaction.maxPriorityFeePerGas,
       BigInt,
@@ -57,6 +61,7 @@ export const preprocessTransaction = ({
 
     gas: convertValue(transaction.gas, BigInt, 0n),
   };
+
   const serializedTransaction = serializeTransaction(processedTransaction);
 
   return serializedTransaction.replace(/^0x/, "");
