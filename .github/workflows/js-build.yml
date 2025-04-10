@@ -27,14 +27,13 @@ jobs:
         run: pnpm run typecheck-all
 
       - name: Test (prod)
-        run: anvil & pnpm run test-all
+        run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
         env:
           API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
           BASE_URL: "https://api.turnkey.com"
           ORGANIZATION_ID: ${{ secrets.ORGANIZATION_ID }}
           PRIVATE_KEY_ID: ${{ secrets.PRIVATE_KEY_ID }}
-          EXPECTED_ETH_ADDRESS: ${{ secrets.EXPECTED_ETH_ADDRESS }}
           EXPECTED_PRIVATE_KEY_ETH_ADDRESS: ${{ secrets.EXPECTED_PRIVATE_KEY_ETH_ADDRESS }}
           EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2: ${{ secrets.EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2 }}
           EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: ${{ secrets.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS }}
@@ -44,14 +43,13 @@ jobs:
           WALLET_ID: ${{ secrets.WALLET_ID }}
 
       - name: Test (preprod)
-        run: pnpm run test-all # anvil is already running on the port, from the step above
+        run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
         env:
           API_PUBLIC_KEY: ${{ secrets.PREPROD_API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.PREPROD_API_PRIVATE_KEY }}
           BASE_URL: ${{ secrets.PREPROD_BASE_URL }}
           ORGANIZATION_ID: ${{ secrets.PREPROD_ORGANIZATION_ID }}
           PRIVATE_KEY_ID: ${{ secrets.PREPROD_PRIVATE_KEY_ID }}
-          EXPECTED_ETH_ADDRESS: ${{ secrets.PREPROD_EXPECTED_ETH_ADDRESS }}
           EXPECTED_PRIVATE_KEY_ETH_ADDRESS: ${{ secrets.PREPROD_EXPECTED_PRIVATE_KEY_ETH_ADDRESS }}
           EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2: ${{ secrets.PREPROD_EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2 }}
           EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: ${{ secrets.PREPROD_EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS }}
@@ -59,9 +57,6 @@ jobs:
           BANNED_TO_ADDRESS: ${{ secrets.PREPROD_BANNED_TO_ADDRESS }}
           SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
           WALLET_ID: ${{ secrets.PREPROD_WALLET_ID }}
-
-      - name: Teardown
-        run: lsof -t -i tcp:8545 | xargs kill # kill anvil
 
       - name: Prettier
         run: pnpm run prettier-all:check
