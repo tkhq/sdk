@@ -8,7 +8,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 async function main() {
 
-// Initializing the Turkey client used by the Delegated account activities
+// Initializing the Turnkey client used by the Delegated account activities
 // Notice the subOrganizationId created above 
 const turnkeyDelegated = new Turnkey({
     apiBaseUrl: "https://api.turnkey.com",
@@ -35,7 +35,7 @@ async function signTx(raw_tx: string, label: string) {
     console.log("=".repeat(40));
 }
 
-//generate a tx https://build.tx.xyz/ from your sib-org wallet address to the RECIPIENT_ADDRESS
+//generate a tx https://build.tx.xyz/ from your sub-org wallet address to the RECIPIENT_ADDRESS
 const valid_tx = "<unsigned_tx>";
 const invalid_tx = "<unsigned_tx>";
 // this activity should be allowed by the Turnkey Policy engine

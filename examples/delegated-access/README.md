@@ -55,7 +55,7 @@ pnpm start
 ### 3/ Testing the Delegated account permissions
 
 We want to make sure that the Delegated account API keys are highly scoped to sending ETH transactions only to the specified RECIPIENT_ADDRESS and transactions to other addresses (and all other actions) are not possible.
-You could run various ad-hoc tests by using the [Turkney CLI](https://github.com/tkhq/tkcli) or try the provided validate.ts script which runs three tests using the Delegated account API keys:
+You could run various ad-hoc tests by using the [Turnkey CLI](https://github.com/tkhq/tkcli) or try the provided validate.ts script which runs three tests using the Delegated account API keys:
 
 - Send a tx from the Delegated account sub-organization wallet address to the allowed Ethereum RECIPIENT_ADDRESS
 - Send a tx from the Delegated account sub-organization wallet address to a different Ethereum address
