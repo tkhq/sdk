@@ -1985,6 +1985,9 @@ importers:
       react:
         specifier: ^16.8.0 || ^17.0.0 || ^18.0.0
         version: 18.3.1
+      react-native-inappbrowser-reborn:
+        specifier: ^3.7.0
+        version: 3.7.0(react-native@0.76.5)
       react-native-keychain:
         specifier: ^8.1.0 || ^9.2.2
         version: 8.1.0
@@ -2097,7 +2100,7 @@ importers:
     optionalDependencies:
       viem:
         specifier: ^2.21.35
-        version: 2.23.13(typescript@5.1.5)
+        version: 2.21.35(typescript@5.1.5)
     devDependencies:
       '@solana/web3.js':
         specifier: ^1.95.8
@@ -21333,6 +21336,11 @@ packages:
       is-inside-container: 1.0.0
       is-wsl: 2.2.0
 
+  /opencollective-postinstall@2.0.3:
+    resolution: {integrity: sha512-8AV/sCtuzUeTo8gQK5qDZzARrulB3egtLzFgteqB2tcT4Mw7B8Kt7JcDHmltjz6FOAHsvTevk70gZEbhM4ZS9Q==}
+    hasBin: true
+    dev: false
+
   /optionator@0.9.3:
     resolution: {integrity: sha512-JjCoypp+jKn1ttEFExxhetCKeJt9zhAgAve5FXHixTvFDW/5aEktX9bufBKLRRMdU7bNtpLfcGu94B3cdEJgjg==}
     engines: {node: '>= 0.8.0'}
@@ -22541,6 +22549,17 @@ packages:
       react-dom: 16.13.1(react@16.13.1)
       react-lifecycles-compat: 3.0.4
       warning: 4.0.3
+    dev: false
+
+  /react-native-inappbrowser-reborn@3.7.0(react-native@0.76.5):
+    resolution: {integrity: sha512-Ia53jYNtFcbNaX5W3QfOmN25I7bcvuDiQmSY5zABXjy4+WI20bPc9ua09li55F8yDCjv3C99jX6vKms68mBV7g==}
+    requiresBuild: true
+    peerDependencies:
+      react-native: '>=0.56'
+    dependencies:
+      invariant: 2.2.4
+      opencollective-postinstall: 2.0.3
+      react-native: 0.76.5(@babel/core@7.26.9)(@babel/preset-env@7.20.2)(@types/react@18.3.3)(react@18.3.1)
     dev: false
 
   /react-native-keychain@8.1.0:
@@ -25200,6 +25219,32 @@ packages:
       - utf-8-validate
       - zod
     dev: false
+
+  /viem@2.21.35(typescript@5.1.5):
+    resolution: {integrity: sha512-f3EFc5JILeA9veuNymUN8HG/nKP9ykC0NCgwFrZWuxcCc822GaP0IEnkRBsHGqmjwbz//FxJFmvtx7TBcdVs0A==}
+    requiresBuild: true
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/curves': 1.6.0
+      '@noble/hashes': 1.5.0
+      '@scure/bip32': 1.5.0
+      '@scure/bip39': 1.4.0
+      abitype: 1.0.6(typescript@5.1.5)
+      isows: 1.0.6(ws@8.17.1)
+      typescript: 5.1.5
+      webauthn-p256: 0.0.10
+      ws: 8.17.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+    dev: false
+    optional: true
 
   /viem@2.23.13(typescript@5.1.3):
     resolution: {integrity: sha512-f3RkcrzGhU79GfBb9GHUL0m3e3LUsNudXIQTFp4fit5hUGb0ew9KOYZ6cCY5d4Melj3noBy2zq0K2fV+mp+Cpg==}

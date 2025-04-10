@@ -48,6 +48,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "react-native-inappbrowser-reborn": "^3.7.0",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/encoding": "workspace:*",

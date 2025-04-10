@@ -45,8 +45,10 @@ import {
   MAX_SESSIONS,
   OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
   SESSION_WARNING_THRESHOLD_SECONDS,
+  TURNKEY_OAUTH_PROXY_URL,
   StorageKeys,
 } from "../constants";
+import InAppBrowser from "react-native-inappbrowser-reborn";
 
 export interface TurnkeyContextType {
   session: Session | undefined;
@@ -86,6 +88,13 @@ export interface TurnkeyContextType {
     encoding: PayloadEncoding;
     hashFunction: HashFunction;
   }) => Promise<SignRawPayloadResult>;
+  handleGoogleOAuth: (params: {
+    clientId: string;
+    redirectUri: string;
+    nonce: string;
+    scheme: string;
+    onIdToken: (idToken: string) => void;
+  }) => Promise<void>;
 }
 
 export const TurnkeyContext = createContext<TurnkeyContextType | undefined>(
@@ -866,6 +875,72 @@ export const TurnkeyProvider: FC<{
     [client, session],
   );
 
+  /**
+   * Handles the Google OAuth authentication flow.
+   *
+   * Initiates an InAppBrowser OAuth flow with the provided credentials and parameters.
+   * After the OAuth flow completes successfully, it extracts the id_token from the callback URL
+   * and invokes the provided onIdToken callback.
+   *
+   * @param clientId - The client ID for Google OAuth.
+   * @param redirectUri - The redirect URI for the OAuth flow.
+   * @param nonce - A random nonce for the OAuth flow.
+   * @param scheme - The app's custom URL scheme (e.g., "react-native-demo-wallet://").
+   * @param onIdToken - Callback function that receives the id_token upon successful OAuth authentication.
+   * @throws {TurnkeyReactNativeError} If InAppBrowser is not available, the OAuth flow fails, or the id_token is missing.
+   */
+  const handleGoogleOAuth = useCallback(
+    async ({
+      clientId,
+      redirectUri,
+      nonce,
+      scheme,
+      onIdToken,
+    }: {
+      clientId: string;
+      redirectUri: string;
+      nonce: string;
+      scheme: string;
+      onIdToken: (idToken: string) => void;
+    }): Promise<void> => {
+      if (!(await InAppBrowser.isAvailable())) {
+        throw new TurnkeyReactNativeError("InAppBrowser is not available");
+      }
+
+      const url = `${TURNKEY_OAUTH_PROXY_URL}?provider=google&clientId=${encodeURIComponent(
+        clientId,
+      )}&redirectUri=${encodeURIComponent(redirectUri)}&nonce=${encodeURIComponent(nonce)}`;
+
+      const result = await InAppBrowser.openAuth(url, scheme, {
+        dismissButtonStyle: "cancel",
+        animated: true,
+        modalPresentationStyle: "fullScreen",
+        modalTransitionStyle: "coverVertical",
+        modalEnabled: true,
+        enableBarCollapsing: false,
+        showTitle: true,
+        enableUrlBarHiding: true,
+        enableDefaultShare: true,
+      });
+
+      if (!result || result.type !== "success" || !result.url) {
+        throw new TurnkeyReactNativeError(
+          "OAuth flow did not complete successfully",
+        );
+      }
+
+      const resultUrl = new URL(result.url);
+      const idToken = resultUrl.searchParams.get("id_token");
+
+      if (!idToken) {
+        throw new TurnkeyReactNativeError("id_token not found in the response");
+      }
+
+      onIdToken(idToken);
+    },
+    [],
+  );
+
   const providerValue = useMemo(
     () => ({
       session,
@@ -883,6 +958,7 @@ export const TurnkeyProvider: FC<{
       importWallet,
       exportWallet,
       signRawPayload,
+      handleGoogleOAuth,
     }),
     [
       session,
@@ -900,6 +976,7 @@ export const TurnkeyProvider: FC<{
       importWallet,
       exportWallet,
       signRawPayload,
+      handleGoogleOAuth,
     ],
   );
 
