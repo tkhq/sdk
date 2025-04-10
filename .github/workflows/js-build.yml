@@ -42,7 +42,7 @@ jobs:
           WALLET_ID: ${{ secrets.WALLET_ID }}
 
       - name: Test (preprod)
-        run: pnpm run test-all
+        run: pnpm run test-all # anvil is already running on the port, from the step above
         env:
           API_PUBLIC_KEY: ${{ secrets.PREPROD_API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.PREPROD_API_PRIVATE_KEY }}
@@ -57,7 +57,7 @@ jobs:
           WALLET_ID: ${{ secrets.PREPROD_WALLET_ID }}
 
       - name: Teardown
-        run: lsof -t -i tcp:8545 | xargs kill
+        run: lsof -t -i tcp:8545 | xargs kill # kill anvil
 
       - name: Prettier
         run: pnpm run prettier-all:check

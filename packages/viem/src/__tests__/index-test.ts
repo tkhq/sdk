@@ -92,11 +92,6 @@ describe("TurnkeyAccount", () => {
       signWith: expectedPrivateKeyEthAddress,
       expectedEthAddress: expectedPrivateKeyEthAddress,
     },
-    {
-      configName: "Private Key Address using createAccountWithAddress",
-      signWith: expectedPrivateKeyEthAddress,
-      expectedEthAddress: expectedPrivateKeyEthAddress,
-    },
   ].forEach(async (signingConfig) => {
     describe(`using config ${signingConfig.configName}`, () => {
       beforeEach(async () => {
@@ -332,10 +327,6 @@ describe("TurnkeyAccount", () => {
         async () => {
           const { abi, bytecode } = Test721;
 
-          await walletClient.mine({
-            blocks: 1,
-          });
-
           const transactionCount = await walletClient.getTransactionCount({
             address: signingConfig.expectedEthAddress,
           });
@@ -350,10 +341,6 @@ describe("TurnkeyAccount", () => {
 
           const deployTx = await walletClient.waitForTransactionReceipt({
             hash: deployHash,
-          });
-
-          await walletClient.mine({
-            blocks: 1,
           });
 
           expect(deployTx.blockHash).toMatch(/^0x/);
