@@ -47,7 +47,7 @@ import {
   TURNKEY_OAUTH_PROXY_URL,
   StorageKeys,
 } from "../constants";
-import InAppBrowser from "react-native-inappbrowser-reborn";
+import { InAppBrowser } from "react-native-inappbrowser-reborn";
 
 export interface TurnkeyContextType {
   session: Session | undefined;
