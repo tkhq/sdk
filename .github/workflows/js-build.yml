@@ -27,26 +27,7 @@ jobs:
         run: pnpm run typecheck-all
 
       - name: Test (prod)
-        run: |
-          # Start anvil in the background.
-          anvil &
-          ANVIL_PID=$!
-
-          # Optionally, wait a few seconds for anvil to initialize.
-          # sleep 5
-
-          # Run tests.
-          pnpm run test-all
-          TEST_EXIT_CODE=$?
-
-          # Kill the anvil process explicitly.
-          kill $ANVIL_PID
-
-          # Wait for anvil to terminate (optional).
-          wait $ANVIL_PID 2>/dev/null
-
-          # Exit this step with the test command's exit code.
-          exit $TEST_EXIT_CODE
+        run: anvil --port 8181 & pnpm run test-all
         env:
           API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
@@ -61,26 +42,7 @@ jobs:
           WALLET_ID: ${{ secrets.WALLET_ID }}
 
       - name: Test (preprod)
-        run: |
-          # Start anvil in the background.
-          anvil &
-          ANVIL_PID=$!
-
-          # Optionally, wait a few seconds for anvil to initialize.
-          # sleep 5
-
-          # Run tests.
-          pnpm run test-all
-          TEST_EXIT_CODE=$?
-
-          # Kill the anvil process explicitly.
-          kill $ANVIL_PID
-
-          # Wait for anvil to terminate (optional).
-          wait $ANVIL_PID 2>/dev/null
-
-          # Exit this step with the test command's exit code.
-          exit $TEST_EXIT_CODE
+        run: pnpm run test-all
         env:
           API_PUBLIC_KEY: ${{ secrets.PREPROD_API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.PREPROD_API_PRIVATE_KEY }}
@@ -93,6 +55,9 @@ jobs:
           BANNED_TO_ADDRESS: ${{ secrets.PREPROD_BANNED_TO_ADDRESS }}
           SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
           WALLET_ID: ${{ secrets.PREPROD_WALLET_ID }}
+
+      - name: Teardown
+        run: lsof -t -i tcp:8181 | xargs kill
 
       - name: Prettier
         run: pnpm run prettier-all:check
