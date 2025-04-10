@@ -12,6 +12,6 @@
   "dependencies": {
     "@turnkey/sdk-server": "workspace:*",
     "dotenv": "^16.0.3",
-    "viem": "2.23.13"
+    "viem": "^2.23.13"
   }
 }
