@@ -330,6 +330,10 @@ describe("TurnkeyAccount", () => {
       testCase("ERC-721", async () => {
         const { abi, bytecode } = Test721;
 
+        await walletClient.mine({
+          blocks: 1,
+        });
+
         const transactionCount = await walletClient.getTransactionCount({
           address: signingConfig.expectedEthAddress,
         });
@@ -340,11 +344,14 @@ describe("TurnkeyAccount", () => {
           chain,
           account: turnkeyAccount,
           bytecode: bytecode as Hex,
-          useCreate2: false,
         });
 
         const deployTx = await walletClient.waitForTransactionReceipt({
           hash: deployHash,
+        });
+
+        await walletClient.mine({
+          blocks: 1,
         });
 
         expect(deployTx.blockHash).toMatch(/^0x/);
