@@ -1,6 +1,7 @@
 # Example: `delegated-access`
 
 A sample application that quickly configures a Delegated Access setup (see https://docs.turnkey.com/concepts/policies/delegated-access):
+
 - Creates a Sub-Organization with a Delegated user account and an End User account
 - Creates a new Policy for the Delegated account
 - Removes the Delegated account from the Root Quorum
