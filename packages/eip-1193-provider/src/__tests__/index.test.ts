@@ -239,7 +239,7 @@ describe("Test Turnkey EIP-1193 Provider", () => {
               method: "eth_requestAccounts",
             });
             expect(Array.isArray(accounts)).toBeTruthy();
-            expect(accounts).toHaveLength(1);
+            expect(accounts).toHaveLength(2);
             expect(accounts).toContain(expectedWalletAddress);
           });
         });
