@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+      - "v*.*.*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0 # Full history for changelog generation
+
+      - name: Setup Node.js
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: Use corepack to activate pnpm
+        run: npm i -g corepack@0.31.0 && corepack enable
+        shell: bash
+
+      - name: Audit dependencies (before installing anything)
+        # Ignore "low" and "moderate" advisories for now.
+        run: pnpm audit --audit-level high
+        shell: bash
+
+      - name: Get pnpm store directory (for caching)
+        id: pnpm-cache-dir
+        run: |
+          echo "dir=$(pnpm store path)" >> $GITHUB_OUTPUT
+        shell: bash
+
+      # https://github.com/actions/cache
+      - name: Setup pnpm store cache
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: ${{ steps.pnpm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
+
+      - name: Audit the lockfiles to catch peer dependency issues
+        run: pnpm install -r --lockfile-only
+        shell: bash
+
+      - name: Install dependencies
+        run: pnpm install -r --frozen-lockfile
+        shell: bash
+
+      - name: Create PR with changelog
+        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
+        with:
+          version: pnpm run changeset version # Updates versions and changelog
+          # publish: pnpm run changeset publish # Publishes to npm
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For changelog links
+          # NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # For npm publish
