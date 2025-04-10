@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 lockfileVersion: '6.0'
 
 overrides:
@@ -26061,3 +26062,5 @@ packages:
   /zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
     dev: false
+=======
+>>>>>>> 43e7521f (wip stamper)
