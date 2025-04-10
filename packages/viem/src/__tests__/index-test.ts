@@ -327,79 +327,83 @@ describe("TurnkeyAccount", () => {
       // });
 
       // Use `pnpm run compile:contracts` to update the ABI if needed
-      testCase("ERC-721", async () => {
-        const { abi, bytecode } = Test721;
+      testCase(
+        "ERC-721",
+        async () => {
+          const { abi, bytecode } = Test721;
 
-        await walletClient.mine({
-          blocks: 1,
-        });
+          await walletClient.mine({
+            blocks: 1,
+          });
 
-        const transactionCount = await walletClient.getTransactionCount({
-          address: signingConfig.expectedEthAddress,
-        });
+          const transactionCount = await walletClient.getTransactionCount({
+            address: signingConfig.expectedEthAddress,
+          });
 
-        // Deploy
-        const deployHash = await walletClient.deployContract({
-          abi,
-          chain,
-          account: turnkeyAccount,
-          bytecode: bytecode as Hex,
-        });
+          // Deploy
+          const deployHash = await walletClient.deployContract({
+            abi,
+            chain,
+            account: turnkeyAccount,
+            bytecode: bytecode as Hex,
+          });
 
-        const deployTx = await walletClient.waitForTransactionReceipt({
-          hash: deployHash,
-        });
+          const deployTx = await walletClient.waitForTransactionReceipt({
+            hash: deployHash,
+          });
 
-        await walletClient.mine({
-          blocks: 1,
-        });
+          await walletClient.mine({
+            blocks: 1,
+          });
 
-        expect(deployTx.blockHash).toMatch(/^0x/);
+          expect(deployTx.blockHash).toMatch(/^0x/);
 
-        const contractAddress = getContractAddress({
-          from: signingConfig.expectedEthAddress,
-          nonce: transactionCount,
-        });
+          const contractAddress = getContractAddress({
+            from: signingConfig.expectedEthAddress,
+            nonce: transactionCount,
+          });
 
-        expect(deployHash).toMatch(/^0x/);
-        expect(contractAddress).toMatch(/^0x/);
+          expect(deployHash).toMatch(/^0x/);
+          expect(contractAddress).toMatch(/^0x/);
 
-        // Create contract instance
-        const contract = getContract({
-          address: contractAddress,
-          abi,
-          client: walletClient,
-        });
+          // Create contract instance
+          const contract = getContract({
+            address: contractAddress,
+            abi,
+            client: walletClient,
+          });
 
-        // Mint
-        // @ts-expect-error
-        const mintHash = await contract.write.safeMint([
-          signingConfig.expectedEthAddress,
-        ]);
+          // Mint
+          // @ts-expect-error
+          const mintHash = await contract.write.safeMint([
+            signingConfig.expectedEthAddress,
+          ]);
 
-        expect(mintHash).toMatch(/^0x/);
+          expect(mintHash).toMatch(/^0x/);
 
-        const mintTx = await walletClient.waitForTransactionReceipt({
-          hash: mintHash,
-        });
+          const mintTx = await walletClient.waitForTransactionReceipt({
+            hash: mintHash,
+          });
 
-        expect(mintTx.blockHash).toMatch(/^0x/);
+          expect(mintTx.blockHash).toMatch(/^0x/);
 
-        // Approve
-        // @ts-expect-error
-        const approveHash = await contract.write.approve([
-          "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
-          0, // `tokenId` is `0` because we've only minted once
-        ]);
+          // Approve
+          // @ts-expect-error
+          const approveHash = await contract.write.approve([
+            "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
+            0, // `tokenId` is `0` because we've only minted once
+          ]);
 
-        expect(approveHash).toMatch(/^0x/);
+          expect(approveHash).toMatch(/^0x/);
 
-        const approveTx = await walletClient.waitForTransactionReceipt({
-          hash: approveHash,
-        });
+          const approveTx = await walletClient.waitForTransactionReceipt({
+            hash: approveHash,
+          });
 
-        expect(approveTx.blockHash).toMatch(/^0x/);
-      });
+          expect(approveTx.blockHash).toMatch(/^0x/);
+        },
+        10000,
+      );
     });
   });
 });
