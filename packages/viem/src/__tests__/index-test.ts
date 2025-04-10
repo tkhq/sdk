@@ -184,6 +184,12 @@ describe("TurnkeyAccount", () => {
         });
 
         expect(txHash).toMatch(/^0x/);
+
+        const tx = await walletClient.waitForTransactionReceipt({
+          hash: txHash,
+        });
+
+        expect(tx.blockHash).toMatch(/^0x/);
       });
 
       testCase(
