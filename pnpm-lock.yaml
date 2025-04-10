@@ -2017,6 +2017,12 @@ importers:
         specifier: ^8.0.3
         version: 8.1.0
 
+  packages/sdk-types:
+    devDependencies:
+      typescript:
+        specifier: ^5.4.3
+        version: 5.4.3
+
   packages/solana:
     dependencies:
       '@solana/web3.js':
@@ -13199,7 +13205,7 @@ packages:
   /@types/prompts@2.4.2:
     resolution: {integrity: sha512-TwNx7qsjvRIUv/BCx583tqF5IINEVjCNqg9ofKHRlSoUHE62WBHrem4B1HGXcIrG511v29d1kJ9a/t2Esz7MIg==}
     dependencies:
-      '@types/node': 22.7.7
+      '@types/node': 20.3.1
       kleur: 3.0.3
     dev: true
 
