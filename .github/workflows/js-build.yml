@@ -27,7 +27,7 @@ jobs:
         run: pnpm run typecheck-all
 
       - name: Test (prod)
-        run: anvil --port 8181 & pnpm run test-all
+        run: anvil --port 8181 --disable-default-create2-deployer & pnpm run test-all
         env:
           API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
