@@ -62,9 +62,17 @@ describe("TurnkeyAccount", () => {
     process.env.EXPECTED_PRIVATE_KEY_ETH_ADDRESS,
     `process.env.EXPECTED_PRIVATE_KEY_ETH_ADDRESS`,
   ) as Hex;
+  const expectedPrivateKeyEthAddress2 = assertNonEmptyString(
+    process.env.EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2,
+    `process.env.EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2`,
+  ) as Hex;
   const expectedWalletAccountEthAddress = assertNonEmptyString(
     process.env.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS,
     `process.env.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS`,
+  ) as Hex;
+  const expectedWalletAccountEthAddress2 = assertNonEmptyString(
+    process.env.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2,
+    `process.env.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2`,
   ) as Hex;
   const bannedToAddress = assertNonEmptyString(
     process.env.BANNED_TO_ADDRESS,
@@ -79,8 +87,8 @@ describe("TurnkeyAccount", () => {
     },
     {
       configName: "Wallet Account using createAccountWithAddress",
-      signWith: expectedWalletAccountEthAddress,
-      expectedEthAddress: expectedWalletAccountEthAddress,
+      signWith: expectedWalletAccountEthAddress2,
+      expectedEthAddress: expectedWalletAccountEthAddress2,
     },
     {
       configName: "Private Key ID",
@@ -89,8 +97,8 @@ describe("TurnkeyAccount", () => {
     },
     {
       configName: "Private Key Address",
-      signWith: expectedPrivateKeyEthAddress,
-      expectedEthAddress: expectedPrivateKeyEthAddress,
+      signWith: expectedPrivateKeyEthAddress2,
+      expectedEthAddress: expectedPrivateKeyEthAddress2,
     },
   ].forEach(async (signingConfig) => {
     describe(`using config ${signingConfig.configName}`, () => {
