@@ -27,7 +27,26 @@ jobs:
         run: pnpm run typecheck-all
 
       - name: Test (prod)
-        run: anvil & pnpm run test-all
+        run: |
+          # Start anvil in the background.
+          anvil &
+          ANVIL_PID=$!
+
+          # Optionally, wait a few seconds for anvil to initialize.
+          # sleep 5
+
+          # Run tests.
+          pnpm run test-all
+          TEST_EXIT_CODE=$?
+
+          # Kill the anvil process explicitly.
+          kill $ANVIL_PID
+
+          # Wait for anvil to terminate (optional).
+          wait $ANVIL_PID 2>/dev/null
+
+          # Exit this step with the test command's exit code.
+          exit $TEST_EXIT_CODE
         env:
           API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
@@ -42,7 +61,26 @@ jobs:
           WALLET_ID: ${{ secrets.WALLET_ID }}
 
       - name: Test (preprod)
-        run: pnpm run test-all # anvil is already running on the port, from the step above
+        run: |
+          # Start anvil in the background.
+          anvil &
+          ANVIL_PID=$!
+
+          # Optionally, wait a few seconds for anvil to initialize.
+          # sleep 5
+
+          # Run tests.
+          pnpm run test-all
+          TEST_EXIT_CODE=$?
+
+          # Kill the anvil process explicitly.
+          kill $ANVIL_PID
+
+          # Wait for anvil to terminate (optional).
+          wait $ANVIL_PID 2>/dev/null
+
+          # Exit this step with the test command's exit code.
+          exit $TEST_EXIT_CODE
         env:
           API_PUBLIC_KEY: ${{ secrets.PREPROD_API_PUBLIC_KEY }}
           API_PRIVATE_KEY: ${{ secrets.PREPROD_API_PRIVATE_KEY }}
