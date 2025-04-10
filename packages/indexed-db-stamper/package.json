@@ -1,0 +1,61 @@
+{
+  "name": "@turnkey/indexed-db-stamper",
+  "version": "0.0.1",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "license": "Apache-2.0",
+  "description": "IndexedDB-based stamper for @turnkey/http",
+  "keywords": [
+    "Turnkey",
+    "http",
+    "stamper"
+  ],
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.com/"
+  },
+  "homepage": "https://github.com/tkhq/sdk",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tkhq/sdk.git",
+    "directory": "packages/indexed-db-stamper"
+  },
+  "files": [
+    "dist/",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepublishOnly": "pnpm run clean && pnpm run build",
+    "build": "rollup -c",
+    "clean": "rimraf ./dist ./.cache",
+    "test": "jest",
+    "typecheck": "tsc -p tsconfig.typecheck.json"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/encoding": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.3",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.1"
+  }
+}
