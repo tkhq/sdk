@@ -103,7 +103,7 @@ importers:
         version: 5.1.5
 
   examples/delegated-access:
-    devDependencies:
+    dependencies:
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server
@@ -11217,7 +11217,7 @@ packages:
     resolution: {integrity: sha512-53fV1noQJDUN9JNydDohyzsFl4+QYoWNkkkAfRzmIgtv+6DR+Dksb0fKmme2WdtA8MPEw/HsRwN3Lr6YC3iF7A==}
     dependencies:
       '@noble/curves': 1.8.1
-      viem: 2.23.13(typescript@5.1.3)
+      viem: 2.26.2(typescript@5.1.3)
     transitivePeerDependencies:
       - bufferutil
       - typescript
@@ -11229,7 +11229,7 @@ packages:
     resolution: {integrity: sha512-53fV1noQJDUN9JNydDohyzsFl4+QYoWNkkkAfRzmIgtv+6DR+Dksb0fKmme2WdtA8MPEw/HsRwN3Lr6YC3iF7A==}
     dependencies:
       '@noble/curves': 1.8.1
-      viem: 2.23.13(typescript@5.1.5)
+      viem: 2.26.2(typescript@5.1.5)
     transitivePeerDependencies:
       - bufferutil
       - typescript
@@ -25245,6 +25245,52 @@ packages:
       - bufferutil
       - utf-8-validate
       - zod
+
+  /viem@2.26.2(typescript@5.1.3):
+    resolution: {integrity: sha512-+yXSl1n+jV/Kn/zpETiNq0WOcINXti29nxdPIONvvNh+Es0VfeusW8bb2okVfa55pmuc8kOCOpB5wq3ZIUCTSA==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@noble/curves': 1.8.1
+      '@noble/hashes': 1.7.1
+      '@scure/bip32': 1.6.2
+      '@scure/bip39': 1.5.4
+      abitype: 1.0.8(typescript@5.1.3)
+      isows: 1.0.6(ws@8.17.1)
+      ox: 0.6.9(typescript@5.1.3)
+      typescript: 5.1.3
+      ws: 8.17.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+    dev: false
+
+  /viem@2.26.2(typescript@5.1.5):
+    resolution: {integrity: sha512-+yXSl1n+jV/Kn/zpETiNq0WOcINXti29nxdPIONvvNh+Es0VfeusW8bb2okVfa55pmuc8kOCOpB5wq3ZIUCTSA==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@noble/curves': 1.8.1
+      '@noble/hashes': 1.7.1
+      '@scure/bip32': 1.6.2
+      '@scure/bip39': 1.5.4
+      abitype: 1.0.8(typescript@5.1.5)
+      isows: 1.0.6(ws@8.17.1)
+      ox: 0.6.9(typescript@5.1.5)
+      typescript: 5.1.5
+      ws: 8.17.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+    dev: false
 
   /viem@2.7.19(typescript@5.1.5):
     resolution: {integrity: sha512-UOMeqy+8p2709ra2j9HEOL1NfjsXZzlJ8gwR6YO/zXH8KIZvyzW07t4iQARF5+ShVZ/7+/1ec8oPjVi1M//33A==}
