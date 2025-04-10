@@ -111,8 +111,8 @@ importers:
         specifier: ^16.0.3
         version: 16.0.3
       viem:
-        specifier: ^2.23.13
-        version: 2.23.13(typescript@5.1.5)
+        specifier: ^2.26.2
+        version: 2.26.2(typescript@5.1.5)
 
   examples/deployer:
     dependencies:
