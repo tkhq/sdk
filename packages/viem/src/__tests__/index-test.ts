@@ -143,6 +143,11 @@ describe("TurnkeyAccount", () => {
           address: signingConfig.expectedEthAddress,
           value: parseEther("999999"),
         });
+
+        await walletClient.setNonce({
+          address: signingConfig.expectedEthAddress,
+          nonce: 0,
+        });
       });
 
       testCase("it is connected to the right address", async () => {
