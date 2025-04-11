@@ -336,17 +336,14 @@ describe("TurnkeyAccount", () => {
       // });
 
       // Use `pnpm run compile:contracts` to update the ABI if needed
-      testCase(
-        "ERC-721",
-        async () => {
-          const { abi, bytecode } = Test721;
+      describe("ERC-721", () => {
+        const { abi, bytecode } = Test721;
 
-          const transactionCount = await walletClient.getTransactionCount({
-            address: signingConfig.expectedEthAddress,
-          });
+        let deployHash = "";
 
+        testCase("Deploy contract", async () => {
           // Deploy
-          const deployHash = await walletClient.deployContract({
+          deployHash = await walletClient.deployContract({
             abi,
             chain,
             account: turnkeyAccount,
@@ -358,6 +355,12 @@ describe("TurnkeyAccount", () => {
           });
 
           expect(deployTx.blockHash).toMatch(/^0x/);
+        });
+
+        testCase("Mint", async () => {
+          const transactionCount = await walletClient.getTransactionCount({
+            address: signingConfig.expectedEthAddress,
+          });
 
           const contractAddress = getContractAddress({
             from: signingConfig.expectedEthAddress,
@@ -387,6 +390,27 @@ describe("TurnkeyAccount", () => {
           });
 
           expect(mintTx.blockHash).toMatch(/^0x/);
+        });
+
+        testCase("Approve", async () => {
+          const transactionCount = await walletClient.getTransactionCount({
+            address: signingConfig.expectedEthAddress,
+          });
+
+          const contractAddress = getContractAddress({
+            from: signingConfig.expectedEthAddress,
+            nonce: transactionCount,
+          });
+
+          expect(deployHash).toMatch(/^0x/);
+          expect(contractAddress).toMatch(/^0x/);
+
+          // Create contract instance
+          const contract = getContract({
+            address: contractAddress,
+            abi,
+            client: walletClient,
+          });
 
           // Approve
           // @ts-expect-error
@@ -402,9 +426,8 @@ describe("TurnkeyAccount", () => {
           });
 
           expect(approveTx.blockHash).toMatch(/^0x/);
-        },
-        10000,
-      );
+        });
+      });
     });
   });
 });
