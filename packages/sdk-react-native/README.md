@@ -55,7 +55,6 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
     },
     onSessionExpiryWarning: (session) => {
       console.log("Session is expiring in 15 seconds", session);
-      refreshSession({ sessionKey: session.key });
     },
   };
 
