@@ -148,6 +148,10 @@ describe("TurnkeyAccount", () => {
           address: signingConfig.expectedEthAddress,
           nonce: 0,
         });
+
+        await walletClient.mine({
+          blocks: 1,
+        });
       });
 
       testCase("it is connected to the right address", async () => {
