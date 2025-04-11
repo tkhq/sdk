@@ -1,5 +1,11 @@
 # @turnkey/eip-1193-provider
 
+## 3.3.5
+
+### Patch Changes
+
+- 7a89040: Fix type resolution
+
 ## 3.3.4
 
 ### Patch Changes

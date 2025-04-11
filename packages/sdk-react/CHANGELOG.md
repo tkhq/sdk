@@ -1,5 +1,11 @@
 # @turnkey/sdk-react
 
+## 4.2.2
+
+### Patch Changes
+
+- 7755413: Ensure that iframe has an embedded key
+
 ## 4.2.1
 
 ### Patch Changes
