@@ -47,11 +47,13 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     setOtpError(null);
     setIsLoading(true);
     try {
+      const iframePublicKey = await authIframeClient!.initEmbeddedKey();
+
       const authSession = await server.verifyOtp({
         suborgID: suborgId,
         otpId,
         otpCode: otp,
-        targetPublicKey: authIframeClient!.iframePublicKey!,
+        targetPublicKey: iframePublicKey!,
         sessionLengthSeconds,
       });
 

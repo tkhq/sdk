@@ -130,6 +130,12 @@ const Auth: React.FC<AuthProps> = ({
   useEffect(() => {
     if (authIframeClient) {
       setComponentReady(true);
+
+      const updateIframeKey = async () => {
+        await authIframeClient.initEmbeddedKey();
+      };
+
+      updateIframeKey();
     }
   }, [authIframeClient]);
 
@@ -199,10 +205,11 @@ const Auth: React.FC<AuthProps> = ({
         }
       }
 
+      const iframePublicKey = await authIframeClient!.initEmbeddedKey();
       await passkeyClient?.loginWithPasskey({
         sessionType: SessionType.READ_WRITE,
         iframeClient: authIframeClient!,
-        targetPublicKey: authIframeClient?.iframePublicKey!,
+        targetPublicKey: iframePublicKey!,
         expirationSeconds: authConfig.sessionLengthSeconds?.toString(),
       });
 
@@ -216,10 +223,12 @@ const Auth: React.FC<AuthProps> = ({
   const handleLoginWithPasskey = async () => {
     try {
       setLoading("passkey");
+
+      const iframePublicKey = await authIframeClient!.initEmbeddedKey();
       await passkeyClient?.loginWithPasskey({
         sessionType: SessionType.READ_WRITE,
         iframeClient: authIframeClient!,
-        targetPublicKey: authIframeClient?.iframePublicKey!,
+        targetPublicKey: iframePublicKey!,
         expirationSeconds: authConfig.sessionLengthSeconds?.toString(),
       });
       await onAuthSuccess();
@@ -238,17 +247,22 @@ const Auth: React.FC<AuthProps> = ({
   ) => {
     setLoading(otpType);
     const createSuborgData: Record<string, any> = {};
-    if (type === FilterType.Email) createSuborgData.email = value;
-    else if (type === FilterType.PhoneNumber)
+    if (type === FilterType.Email) {
+      createSuborgData.email = value;
+    } else if (type === FilterType.PhoneNumber) {
       createSuborgData.phoneNumber = value;
+    }
+
     if (customAccounts) {
       createSuborgData.customAccounts = customAccounts;
     }
+
     const resp = await server.getOrCreateSuborg({
       filterType: type,
       filterValue: value,
       additionalData: createSuborgData,
     });
+
     const suborgIds = resp?.subOrganizationIds;
     if (!suborgIds || suborgIds.length === 0) {
       onError(authErrors.otp.sendFailed);
@@ -256,6 +270,7 @@ const Auth: React.FC<AuthProps> = ({
     }
 
     const suborgId = suborgIds[0];
+    const iframePublicKey = await authIframeClient!.initEmbeddedKey();
     const initAuthResponse = await server.sendOtp({
       suborgID: suborgId!,
       otpType,
@@ -265,7 +280,7 @@ const Auth: React.FC<AuthProps> = ({
       ...(customSmsMessage && { customSmsMessage }),
       otpLength: otpConfig?.otpLength ?? 6,
       alphanumeric: otpConfig?.alphanumeric ?? false,
-      userIdentifier: authIframeClient?.iframePublicKey!,
+      userIdentifier: iframePublicKey!,
     });
     if (initAuthResponse && initAuthResponse.otpId) {
       setSuborgId(suborgId!);
@@ -285,22 +300,25 @@ const Auth: React.FC<AuthProps> = ({
     if (customAccounts) {
       createSuborgData.customAccounts = customAccounts;
     }
+
     const resp = await server.getOrCreateSuborg({
       filterType: FilterType.OidcToken,
       filterValue: credential,
       additionalData: createSuborgData,
     });
+
     const suborgIds = resp?.subOrganizationIds;
     if (!suborgIds || suborgIds.length === 0) {
       onError(authErrors.oauth.loginFailed);
       return;
     }
-    const suborgId = suborgIds[0];
 
+    const suborgId = suborgIds[0];
+    const iframePublicKey = await authIframeClient!.initEmbeddedKey();
     const oauthSession = await server.oauth({
       suborgID: suborgId!,
       oidcToken: credential,
-      targetPublicKey: authIframeClient?.iframePublicKey!,
+      targetPublicKey: iframePublicKey!,
       sessionLengthSeconds: authConfig.sessionLengthSeconds,
     });
     if (oauthSession && oauthSession.token) {
@@ -319,7 +337,6 @@ const Auth: React.FC<AuthProps> = ({
       }
 
       const publicKey = await walletClient.getPublicKey();
-
       if (!publicKey) {
         throw new Error(authErrors.wallet.noPublicKey);
       }
@@ -343,10 +360,11 @@ const Auth: React.FC<AuthProps> = ({
         return;
       }
 
+      const iframePublicKey = await authIframeClient!.initEmbeddedKey();
       await walletClient!.loginWithWallet({
         sessionType: SessionType.READ_WRITE,
         iframeClient: authIframeClient!,
-        targetPublicKey: authIframeClient?.iframePublicKey!,
+        targetPublicKey: iframePublicKey!,
         expirationSeconds: authConfig.sessionLengthSeconds?.toString(),
       });
       await onAuthSuccess();
