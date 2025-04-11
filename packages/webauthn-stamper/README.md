@@ -1,3 +1,7 @@
+---
+title: "WebAuthn Stamper"
+---
+
 # @turnkey/webauthn-stamper
 
 [![npm](https://img.shields.io/npm/v/@turnkey/webauthn-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/webauthn-stamper)
@@ -17,6 +21,6 @@ const stamper = new WebAuthnStamper({
 // New HTTP client able to sign with passkeys!
 const httpClient = new TurnkeyClient(
   { baseUrl: "https://api.turnkey.com" },
-  stamper,
+  stamper
 );
 ```

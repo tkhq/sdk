@@ -1,6 +1,5 @@
 {
   "entryPoints": ["packages/*"],
-  "name": "SDK Documentation",
   "entryPointStrategy": "packages",
   "includeVersion": false,
   "excludeExternals": true,
@@ -13,5 +12,6 @@
       "path": "./docs/markdown",
       "fileExtension": ".mdx"
     }
-  ]
+  ],
+  "router": "structure"
 }
