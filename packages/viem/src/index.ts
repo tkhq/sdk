@@ -397,7 +397,18 @@ export async function signTransaction<
   organizationId: string,
   signWith: string,
 ): Promise<Hex> {
-  const serializedTx = serializer(transaction);
+  let signableTransaction = transaction;
+
+  // Note: for Type 3 transactions, we are specifically handling parsing for payloads containing only the transaction payload body, without any wrappers around blobs, commitments, or proofs.
+  // See more: https://github.com/wevm/viem/blob/3ef19eac4963014fb20124d1e46d1715bed5509f/src/accounts/utils/signTransaction.ts#L54-L55
+  if (transaction.type === "eip4844") {
+    signableTransaction = {
+      ...transaction,
+      sidecars: false,
+    };
+  }
+
+  const serializedTx = serializer(signableTransaction);
   const nonHexPrefixedSerializedTx = serializedTx.replace(/^0x/, "");
   return await signTransactionWithErrorWrapping(
     client,
