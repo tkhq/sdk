@@ -44,6 +44,7 @@ import { createClient, fetchUser, isValidSession } from "../turnkey-helpers";
 import {
   MAX_SESSIONS,
   OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
+  SESSION_WARNING_THRESHOLD_SECONDS,
   StorageKeys,
 } from "../constants";
 
@@ -59,6 +60,10 @@ export interface TurnkeyContextType {
   createEmbeddedKey: (params?: { sessionKey?: string }) => Promise<string>;
   createSession: (params: {
     bundle: string;
+    expirationSeconds?: number;
+    sessionKey?: string;
+  }) => Promise<Session>;
+  refreshSession: (params: {
     expirationSeconds?: number;
     sessionKey?: string;
   }) => Promise<Session>;
@@ -84,7 +89,7 @@ export interface TurnkeyContextType {
 }
 
 export const TurnkeyContext = createContext<TurnkeyContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export interface TurnkeyConfig {
@@ -94,6 +99,7 @@ export interface TurnkeyConfig {
   onSessionSelected?: (session: Session) => void;
   onSessionExpired?: (session: Session) => void;
   onSessionCleared?: (session: Session) => void;
+  onSessionExpiryWarning?: (session: Session) => void;
 }
 
 export const TurnkeyProvider: FC<{
@@ -132,7 +138,7 @@ export const TurnkeyProvider: FC<{
           }
 
           scheduleSessionExpiration(sessionKey, session!.expiry);
-        })
+        }),
       );
 
       // load the selected session if it's still valid
@@ -145,7 +151,7 @@ export const TurnkeyProvider: FC<{
           const clientInstance = createClient(
             selectedSession!.publicKey,
             selectedSession!.privateKey,
-            config.apiBaseUrl
+            config.apiBaseUrl,
           );
 
           setSession(selectedSession!);
@@ -156,7 +162,7 @@ export const TurnkeyProvider: FC<{
           await clearSession({ sessionKey: selectedSessionKey });
 
           config.onSessionExpired?.(
-            selectedSession ?? ({ key: selectedSessionKey } as Session)
+            selectedSession ?? ({ key: selectedSessionKey } as Session),
           );
         }
       }
@@ -177,31 +183,49 @@ export const TurnkeyProvider: FC<{
    */
   const clearTimeouts = () => {
     Object.values(expiryTimeoutsRef.current).forEach((timer) =>
-      clearTimeout(timer)
+      clearTimeout(timer),
     );
     expiryTimeoutsRef.current = {};
   };
 
   /**
-   * Schedules the expiration of a session.
+   * Schedules the expiration and pre-expiration warning of a session.
    *
-   * - Clears any existing timeout for the session to prevent duplicate timers.
-   * - Determines the time remaining until the session expires.
-   * - If the session is already expired, it triggers expiration immediately.
-   * - Otherwise, schedules a timeout to expire the session at the appropriate time.
-   * - Calls `clearSession` and invokes the `onSessionExpired` callback when the session expires.
+   * - Clears any existing expiration and warning timeouts for the session.
+   * - Computes the remaining time until the session expires.
+   * - If the session is already expired, triggers expiration immediately.
+   * - If the remaining time is less than or equal to the warning threshold (30 seconds),
+   *   triggers the warning callback immediately; otherwise, schedules the warning to fire 30 seconds before expiration.
+   * - Always schedules a timeout to expire the session at the appropriate time.
+   * - Upon expiration, invokes clearSession and the onSessionExpired callback.
    *
-   * @param sessionKey - The key identifying the session to schedule expiration for.
-   * @param expiryTime - The timestamp (in milliseconds) when the session should expire.
+   * @param sessionKey - The key identifying the session for which to schedule expiration.
+   * @param expiryTime - The expiration timestamp (in milliseconds) of the session.
    */
   const scheduleSessionExpiration = async (
     sessionKey: string,
-    expiryTime: number
+    expiryTime: number,
   ) => {
     // clear existing timeout if it exists
     if (expiryTimeoutsRef.current[sessionKey]) {
       clearTimeout(expiryTimeoutsRef.current[sessionKey]);
     }
+
+    // clear existing warning timeouts if it exists
+    if (expiryTimeoutsRef.current[`${sessionKey}-warning`]) {
+      clearTimeout(expiryTimeoutsRef.current[`${sessionKey}-warning`]);
+    }
+
+    const timeUntilExpiry = expiryTime - Date.now();
+    const warningThreshold = SESSION_WARNING_THRESHOLD_SECONDS * 1000;
+
+    const warnBeforeExpiry = async () => {
+      const session = await getSession(sessionKey);
+      if (!session) return;
+
+      config.onSessionExpiryWarning?.(session);
+      delete expiryTimeoutsRef.current[`${sessionKey}-warning`];
+    };
 
     const expireSession = async () => {
       const expiredSession = await getSession(sessionKey);
@@ -211,19 +235,30 @@ export const TurnkeyProvider: FC<{
 
       config.onSessionExpired?.(expiredSession);
       delete expiryTimeoutsRef.current[sessionKey];
+      delete expiryTimeoutsRef.current[`${sessionKey}-warning`];
     };
-
-    const timeUntilExpiry = expiryTime - Date.now();
 
     if (timeUntilExpiry <= 0) {
       await expireSession();
+      return;
+    }
+
+    // if it is less than warning threshold, we warn immediately
+    if (timeUntilExpiry <= warningThreshold) {
+      warnBeforeExpiry();
     } else {
-      // schedule expiration
-      expiryTimeoutsRef.current[sessionKey] = setTimeout(
-        expireSession,
-        timeUntilExpiry
+      // schedule warning
+      expiryTimeoutsRef.current[`${sessionKey}-warning`] = setTimeout(
+        warnBeforeExpiry,
+        timeUntilExpiry - warningThreshold,
       );
     }
+
+    // schedule expiration
+    expiryTimeoutsRef.current[sessionKey] = setTimeout(
+      expireSession,
+      timeUntilExpiry,
+    );
   };
 
   /**
@@ -245,7 +280,7 @@ export const TurnkeyProvider: FC<{
         const clientInstance = createClient(
           session!.publicKey,
           session!.privateKey,
-          config.apiBaseUrl
+          config.apiBaseUrl,
         );
 
         setClient(clientInstance);
@@ -260,7 +295,7 @@ export const TurnkeyProvider: FC<{
         return undefined;
       }
     },
-    [createClient, config]
+    [createClient, config],
   );
 
   /**
@@ -321,7 +356,7 @@ export const TurnkeyProvider: FC<{
 
       return activity;
     },
-    [client, session, refreshUser]
+    [client, session, refreshUser],
   );
 
   /**
@@ -342,7 +377,7 @@ export const TurnkeyProvider: FC<{
       await saveEmbeddedKey(embeddedPrivateKey, sessionKey);
       return publicKey;
     },
-    []
+    [],
   );
 
   /**
@@ -381,13 +416,13 @@ export const TurnkeyProvider: FC<{
 
       if (existingSessionKeys.length >= MAX_SESSIONS) {
         throw new TurnkeyReactNativeError(
-          `Maximum session limit of ${MAX_SESSIONS} reached. Please clear an existing session before creating a new one.`
+          `Maximum session limit of ${MAX_SESSIONS} reached. Please clear an existing session before creating a new one.`,
         );
       }
 
       if (existingSessionKeys.includes(sessionKey)) {
         throw new TurnkeyReactNativeError(
-          `session key "${sessionKey}" already exists. Please choose a unique session key or clear the existing session.`
+          `session key "${sessionKey}" already exists. Please choose a unique session key or clear the existing session.`,
         );
       }
 
@@ -403,7 +438,7 @@ export const TurnkeyProvider: FC<{
       const clientInstance = createClient(
         publicKey,
         privateKey,
-        config.apiBaseUrl
+        config.apiBaseUrl,
       );
       const user = await fetchUser(clientInstance, config.organizationId);
       if (!user) {
@@ -430,7 +465,117 @@ export const TurnkeyProvider: FC<{
       config.onSessionCreated?.(newSession);
       return newSession;
     },
-    [config, setSelectedSession]
+    [config, setSelectedSession],
+  );
+
+  /**
+   * Refreshes an existing session by creating a new read/write session.
+   *
+   * This function refreshes an existing session by:
+   *  - Retrieving the session using the provided or selected session key.
+   *  - Verifying that the session is still valid.
+   *  - Generating a new embedded key (stored under StorageKeys.RefreshEmbeddedKey) for refreshing.
+   *  - Creating a new read/write session via the current session client.
+   *  - Decrypting the returned credential bundle to derive new keys and expiry.
+   *  - Fetching updated user information using the new credentials.
+   *  - Updating local state (if this is the currently selected session),
+   *    saving the refreshed session, and scheduling its expiration.
+   *
+   * @param expirationSeconds - Optional expiration time in seconds for the new session. Defaults to OTP_AUTH_DEFAULT_EXPIRATION_SECONDS.
+   * @param sessionKey - Optional the session key to refresh; if not provided, the currently selected session key is used.
+   * @returns The refreshed Session.
+   * @throws {TurnkeyReactNativeError} If the session is not found, already expired, or any step in the refresh fails.
+   */
+  const refreshSession = useCallback(
+    async ({
+      expirationSeconds = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
+      sessionKey,
+    }: {
+      expirationSeconds?: number;
+      sessionKey?: string;
+    }): Promise<Session> => {
+      const keyToRefresh = sessionKey ?? (await getSelectedSessionKey());
+      if (!keyToRefresh) {
+        throw new TurnkeyReactNativeError(
+          "Session not found. Either the provided sessionKey is invalid, or no session is currently selected.",
+        );
+      }
+
+      const sessionToRefresh = await getSession(keyToRefresh);
+      if (!isValidSession(sessionToRefresh)) {
+        throw new TurnkeyReactNativeError(
+          `You cannot refresh session with key "${keyToRefresh}" because it is already expired.`,
+        );
+      }
+
+      const targetPublicKey = await createEmbeddedKey({
+        sessionKey: StorageKeys.RefreshEmbeddedKey,
+      });
+      const currentClient = createClient(
+        sessionToRefresh!.publicKey,
+        sessionToRefresh!.privateKey,
+        config.apiBaseUrl,
+      );
+      const sessionResponse = await currentClient.createReadWriteSession({
+        type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
+        timestampMs: Date.now().toString(),
+        organizationId: config.organizationId,
+        parameters: {
+          targetPublicKey,
+          expirationSeconds: expirationSeconds.toString(),
+        },
+      });
+      const bundle =
+        sessionResponse.activity.result.createReadWriteSessionResultV2
+          ?.credentialBundle;
+      if (!bundle) {
+        throw new TurnkeyReactNativeError(
+          "Failed to create read/write session.",
+        );
+      }
+
+      const embeddedKey = await getEmbeddedKey(
+        true,
+        StorageKeys.RefreshEmbeddedKey,
+      );
+      if (!embeddedKey) {
+        throw new TurnkeyReactNativeError("Embedded key not found.");
+      }
+
+      const newPrivateKey = decryptCredentialBundle(bundle, embeddedKey);
+      const newPublicKey = uint8ArrayToHexString(getPublicKey(newPrivateKey));
+      const newExpiry = Date.now() + expirationSeconds * 1000;
+
+      const newClient = createClient(
+        newPublicKey,
+        newPrivateKey,
+        config.apiBaseUrl,
+      );
+      const user = await fetchUser(newClient, config.organizationId);
+      if (!user) {
+        throw new TurnkeyReactNativeError("User not found.");
+      }
+
+      const newSession: Session = {
+        key: keyToRefresh,
+        publicKey: newPublicKey,
+        privateKey: newPrivateKey,
+        expiry: newExpiry,
+        user,
+      };
+
+      // if selected session is being refreshed, we update the local state session and client
+      if (session?.key === keyToRefresh) {
+        setSession(newSession);
+        setClient(newClient);
+      }
+
+      await saveSession(newSession, keyToRefresh);
+      scheduleSessionExpiration(keyToRefresh, newSession.expiry);
+
+      return newSession;
+    },
+    [config, session],
   );
 
   /**
@@ -455,7 +600,7 @@ export const TurnkeyProvider: FC<{
 
       if (!keyToClear) {
         throw new TurnkeyReactNativeError(
-          "Session not found. Either the provided sessionKey is invalid, or no session is currently selected."
+          "Session not found. Either the provided sessionKey is invalid, or no session is currently selected.",
         );
       }
 
@@ -475,10 +620,10 @@ export const TurnkeyProvider: FC<{
       delete expiryTimeoutsRef.current[keyToClear];
 
       config.onSessionCleared?.(
-        clearedSession ?? ({ key: keyToClear } as Session)
+        clearedSession ?? ({ key: keyToClear } as Session),
       );
     },
-    [session, config]
+    [session, config],
   );
 
   /**
@@ -555,7 +700,7 @@ export const TurnkeyProvider: FC<{
 
       return activity;
     },
-    [client, session, refreshUser]
+    [client, session, refreshUser],
   );
 
   /**
@@ -623,7 +768,7 @@ export const TurnkeyProvider: FC<{
 
       return activity;
     },
-    [client, session, refreshUser]
+    [client, session, refreshUser],
   );
 
   /**
@@ -657,7 +802,7 @@ export const TurnkeyProvider: FC<{
 
       if (exportBundle == null || embeddedKey == null) {
         throw new TurnkeyReactNativeError(
-          "Export bundle or embedded key not initialized"
+          "Export bundle or embedded key not initialized",
         );
       }
 
@@ -668,7 +813,7 @@ export const TurnkeyProvider: FC<{
         returnMnemonic: true,
       });
     },
-    [client, session]
+    [client, session],
   );
 
   /**
@@ -714,7 +859,7 @@ export const TurnkeyProvider: FC<{
 
       return signRawPayloadResult;
     },
-    [client, session]
+    [client, session],
   );
 
   const providerValue = useMemo(
@@ -727,6 +872,7 @@ export const TurnkeyProvider: FC<{
       updateUser,
       createEmbeddedKey,
       createSession,
+      refreshSession,
       clearSession,
       clearAllSessions,
       createWallet,
@@ -743,13 +889,14 @@ export const TurnkeyProvider: FC<{
       updateUser,
       createEmbeddedKey,
       createSession,
+      refreshSession,
       clearSession,
       clearAllSessions,
       createWallet,
       importWallet,
       exportWallet,
       signRawPayload,
-    ]
+    ],
   );
 
   return (

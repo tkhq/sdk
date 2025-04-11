@@ -53,6 +53,10 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
       console.log("Session Cleared", session);
       router.push("/");
     },
+    onSessionExpiryWarning: (session) => {
+      console.log("Session is expiring in 15 seconds", session);
+      refreshSession({ sessionKey: session.key });
+    },
   };
 
   return <TurnkeyProvider config={turnkeyConfig}>{children}</TurnkeyProvider>;
@@ -76,11 +80,17 @@ To enable secure authentication, the following storage keys are used:
 
 ### **Session Management**
 
-- `createEmbeddedKey()`: Generates a new embedded key pair and securely stores the private key.
+- `createEmbeddedKey({ sessionKey? })`: Generates a new embedded key pair and securely stores the private key.
+  - If `sessionKey` is provided, the embedded key will be stored under that key in secure storage.
+  - This allows for creating different embedded keys for different sessions, which is useful when initiating multiple authentication flows simultaneously.
 - `createSession({ bundle, expirationSeconds?, sessionKey? })`: Creates a session. [(API Docs)](https://docs.turnkey.com/api#tag/Sessions/operation/CreateReadWriteSession)
   - If `sessionKey` is provided, the session will be stored under that key in secure storage.
   - If no session exists, the first session created is **automatically selected**.
   - If a session with the same `sessionKey` already exists in secure storage, an error is thrown.
+- `refreshSession({ expirationSeconds?, sessionKey? })`: Refreshes and extends the expiration time of an existing session.
+  - Uses the current session to create a new session with an updated expiration time.
+  - If `sessionKey` is not provided, the currently selected session is refreshed.
+  - If `expirationSeconds` is not provided, the default expiration time is used.
 - `setSelectedSession({ sessionKey })`: Selects a session by its key (Used when handling multiple sessions).
 - `clearSession({ sessionKey? })`: Removes the specified session from secure storage. If no `sessionKey` is provided, the currently selected session is removed.
 - `clearAllSessions()`: Clears all sessions from secure storage.
@@ -120,6 +130,7 @@ This SDK supports **multiple sessions**, allowing you to create and switch betwe
   - `onSessionSelected`: Called when a session is selected.
   - `onSessionExpired`: Called when a session expires.
   - `onSessionCleared`: Called when a session is cleared.
+  - `onSessionExpiryWarning`: Called 15 seconds before a session expires, giving you an opportunity to refresh the session or notify the user.
 
 **When are multiple sessions useful?**
 
