@@ -47,11 +47,11 @@ export const getEmbeddedKey = async (
  * @param key The private key to store securely.
  * @throws If saving the key fails.
  */
-export const saveEmbeddedKey = async (key: string): Promise<void> => {
+export const saveEmbeddedKey = async (key: string, sessionKey: string): Promise<void> => {
   try {
-    await Keychain.setGenericPassword(StorageKeys.EmbeddedKey, key, {
+    await Keychain.setGenericPassword(sessionKey, key, {
       accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-      service: StorageKeys.EmbeddedKey,
+      service: sessionKey,
     });
   } catch (error) {
     throw new TurnkeyReactNativeError(

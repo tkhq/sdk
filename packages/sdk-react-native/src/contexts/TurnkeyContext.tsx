@@ -56,7 +56,7 @@ export interface TurnkeyContextType {
   }) => Promise<Session | undefined>;
   updateUser: (params: { email?: string; phone?: string }) => Promise<Activity>;
   refreshUser: () => Promise<void>;
-  createEmbeddedKey: () => Promise<string>;
+  createEmbeddedKey: (params?: { sessionKey?: string }) => Promise<string>;
   createSession: (params: {
     bundle: string;
     expirationSeconds?: number;
@@ -84,7 +84,7 @@ export interface TurnkeyContextType {
 }
 
 export const TurnkeyContext = createContext<TurnkeyContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export interface TurnkeyConfig {
@@ -132,7 +132,7 @@ export const TurnkeyProvider: FC<{
           }
 
           scheduleSessionExpiration(sessionKey, session!.expiry);
-        }),
+        })
       );
 
       // load the selected session if it's still valid
@@ -145,7 +145,7 @@ export const TurnkeyProvider: FC<{
           const clientInstance = createClient(
             selectedSession!.publicKey,
             selectedSession!.privateKey,
-            config.apiBaseUrl,
+            config.apiBaseUrl
           );
 
           setSession(selectedSession!);
@@ -156,7 +156,7 @@ export const TurnkeyProvider: FC<{
           await clearSession({ sessionKey: selectedSessionKey });
 
           config.onSessionExpired?.(
-            selectedSession ?? ({ key: selectedSessionKey } as Session),
+            selectedSession ?? ({ key: selectedSessionKey } as Session)
           );
         }
       }
@@ -177,7 +177,7 @@ export const TurnkeyProvider: FC<{
    */
   const clearTimeouts = () => {
     Object.values(expiryTimeoutsRef.current).forEach((timer) =>
-      clearTimeout(timer),
+      clearTimeout(timer)
     );
     expiryTimeoutsRef.current = {};
   };
@@ -196,7 +196,7 @@ export const TurnkeyProvider: FC<{
    */
   const scheduleSessionExpiration = async (
     sessionKey: string,
-    expiryTime: number,
+    expiryTime: number
   ) => {
     // clear existing timeout if it exists
     if (expiryTimeoutsRef.current[sessionKey]) {
@@ -221,7 +221,7 @@ export const TurnkeyProvider: FC<{
       // schedule expiration
       expiryTimeoutsRef.current[sessionKey] = setTimeout(
         expireSession,
-        timeUntilExpiry,
+        timeUntilExpiry
       );
     }
   };
@@ -245,7 +245,7 @@ export const TurnkeyProvider: FC<{
         const clientInstance = createClient(
           session!.publicKey,
           session!.privateKey,
-          config.apiBaseUrl,
+          config.apiBaseUrl
         );
 
         setClient(clientInstance);
@@ -260,7 +260,7 @@ export const TurnkeyProvider: FC<{
         return undefined;
       }
     },
-    [createClient, config],
+    [createClient, config]
   );
 
   /**
@@ -321,7 +321,7 @@ export const TurnkeyProvider: FC<{
 
       return activity;
     },
-    [client, session, refreshUser],
+    [client, session, refreshUser]
   );
 
   /**
@@ -330,13 +330,21 @@ export const TurnkeyProvider: FC<{
    * @returns The public key corresponding to the generated embedded key pair.
    * @throws If saving the private key fails.
    */
-  const createEmbeddedKey = useCallback(async () => {
-    const key = generateP256KeyPair();
-    const embeddedPrivateKey = key.privateKey;
-    const publicKey = key.publicKeyUncompressed;
-    await saveEmbeddedKey(embeddedPrivateKey);
-    return publicKey;
-  }, []);
+  const createEmbeddedKey = useCallback(
+    async ({
+      sessionKey = StorageKeys.EmbeddedKey,
+    }: {
+      sessionKey?: string;
+    } = {}) => {
+      const key = generateP256KeyPair();
+      const embeddedPrivateKey = key.privateKey;
+      const publicKey = key.publicKeyUncompressed;
+      await saveEmbeddedKey(embeddedPrivateKey, sessionKey);
+      return publicKey;
+    },
+    []
+  );
+
   /**
    * Creates a new session and securely stores it.
    *
@@ -373,13 +381,13 @@ export const TurnkeyProvider: FC<{
 
       if (existingSessionKeys.length >= MAX_SESSIONS) {
         throw new TurnkeyReactNativeError(
-          `Maximum session limit of ${MAX_SESSIONS} reached. Please clear an existing session before creating a new one.`,
+          `Maximum session limit of ${MAX_SESSIONS} reached. Please clear an existing session before creating a new one.`
         );
       }
 
       if (existingSessionKeys.includes(sessionKey)) {
         throw new TurnkeyReactNativeError(
-          `session key "${sessionKey}" already exists. Please choose a unique session key or clear the existing session.`,
+          `session key "${sessionKey}" already exists. Please choose a unique session key or clear the existing session.`
         );
       }
 
@@ -395,7 +403,7 @@ export const TurnkeyProvider: FC<{
       const clientInstance = createClient(
         publicKey,
         privateKey,
-        config.apiBaseUrl,
+        config.apiBaseUrl
       );
       const user = await fetchUser(clientInstance, config.organizationId);
       if (!user) {
@@ -422,7 +430,7 @@ export const TurnkeyProvider: FC<{
       config.onSessionCreated?.(newSession);
       return newSession;
     },
-    [config, setSelectedSession],
+    [config, setSelectedSession]
   );
 
   /**
@@ -447,7 +455,7 @@ export const TurnkeyProvider: FC<{
 
       if (!keyToClear) {
         throw new TurnkeyReactNativeError(
-          "Session not found. Either the provided sessionKey is invalid, or no session is currently selected.",
+          "Session not found. Either the provided sessionKey is invalid, or no session is currently selected."
         );
       }
 
@@ -467,10 +475,10 @@ export const TurnkeyProvider: FC<{
       delete expiryTimeoutsRef.current[keyToClear];
 
       config.onSessionCleared?.(
-        clearedSession ?? ({ key: keyToClear } as Session),
+        clearedSession ?? ({ key: keyToClear } as Session)
       );
     },
-    [session, config],
+    [session, config]
   );
 
   /**
@@ -547,7 +555,7 @@ export const TurnkeyProvider: FC<{
 
       return activity;
     },
-    [client, session, refreshUser],
+    [client, session, refreshUser]
   );
 
   /**
@@ -615,7 +623,7 @@ export const TurnkeyProvider: FC<{
 
       return activity;
     },
-    [client, session, refreshUser],
+    [client, session, refreshUser]
   );
 
   /**
@@ -649,7 +657,7 @@ export const TurnkeyProvider: FC<{
 
       if (exportBundle == null || embeddedKey == null) {
         throw new TurnkeyReactNativeError(
-          "Export bundle or embedded key not initialized",
+          "Export bundle or embedded key not initialized"
         );
       }
 
@@ -660,7 +668,7 @@ export const TurnkeyProvider: FC<{
         returnMnemonic: true,
       });
     },
-    [client, session],
+    [client, session]
   );
 
   /**
@@ -706,7 +714,7 @@ export const TurnkeyProvider: FC<{
 
       return signRawPayloadResult;
     },
-    [client, session],
+    [client, session]
   );
 
   const providerValue = useMemo(
@@ -741,7 +749,7 @@ export const TurnkeyProvider: FC<{
       importWallet,
       exportWallet,
       signRawPayload,
-    ],
+    ]
   );
 
   return (
