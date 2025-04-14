@@ -4,6 +4,7 @@ import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IframeStamper } from "@turnkey/iframe-stamper";
 import type { TurnkeyIframeClient } from "../sdk-client";
+import { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 
 export type GrpcStatus = {
   message: string;
@@ -185,7 +186,7 @@ export interface TurnkeySDKBrowserConfig {
   dangerouslyOverrideIframeKeyTtl?: number;
 }
 
-export type Stamper = WebauthnStamper | IframeStamper | WalletStamper;
+export type Stamper = WebauthnStamper | IframeStamper | WalletStamper | IndexedDbStamper;
 
 export type queryOverrideParams = {
   organizationId?: string;
@@ -246,6 +247,7 @@ export enum AuthClient {
   Passkey = "passkey",
   Wallet = "wallet",
   Iframe = "iframe",
+  IndexedDb = "indexed-db",
 }
 
 export type TSessionResponse = Omit<

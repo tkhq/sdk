@@ -1,6 +1,7 @@
 import type { WalletInterface } from "@turnkey/wallet-stamper";
 import type { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import type {IndexedDbStamper} from "@turnkey/indexed-db-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
@@ -946,3 +947,29 @@ export class TurnkeyWalletClient extends TurnkeyBrowserClient {
     return this.wallet;
   }
 }
+
+
+/**
+ * TurnkeyIndexedDbClient is a client that uses IndexedDb to interact with the Turnkey API.
+ * @extends TurnkeyBrowserClient
+ */
+export class TurnkeyIndexedDbClient extends TurnkeyBrowserClient {
+
+  constructor(config: TurnkeySDKClientConfig) {
+    super(config, AuthClient.IndexedDb);
+  }
+
+  clear = async (): Promise<void | null> => {
+    return await (this.stamper as IndexedDbStamper).clear();
+  };
+
+  getPublicKey = async (): Promise<string | null> => {
+    return await (this.stamper as IndexedDbStamper).getPublicKey();
+  };
+
+  init = async (): Promise<void | null> => {
+    return await (this.stamper as IndexedDbStamper).init();
+  };
+}
+
+
