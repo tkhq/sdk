@@ -25,9 +25,11 @@ import {
   TurnkeyBrowserClient,
   TurnkeyIframeClient,
   TurnkeyPasskeyClient,
+  TurnkeyIndexedDbClient,
   TurnkeyWalletClient,
 } from "./__clients__/browser-clients";
 import { VERSION } from "./__generated__/version";
+import { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 
 export interface OauthProvider {
   providerName: string;
@@ -136,6 +138,16 @@ export class TurnkeyBrowserSDK {
     return new TurnkeyWalletClient({
       stamper: new WalletStamper(wallet),
       wallet,
+      apiBaseUrl: this.config.apiBaseUrl,
+      organizationId: this.config.defaultOrganizationId,
+    });
+  };
+
+  indexedDbClient = async (): Promise<TurnkeyIndexedDbClient> => {
+    this.stamper = new IndexedDbStamper();
+
+    return new TurnkeyIndexedDbClient({
+      stamper: this.stamper,
       apiBaseUrl: this.config.apiBaseUrl,
       organizationId: this.config.defaultOrganizationId,
     });
