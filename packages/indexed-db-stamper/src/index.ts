@@ -3,7 +3,6 @@ import { uint8ArrayToHexString, stringToBase64urlString } from "@turnkey/encodin
 const DB_NAME = "TurnkeyStamperDB";
 const DB_STORE = "KeyStore";
 const DB_KEY = "turnkeyKeyPair";
-// Header name for an API key stamp
 const stampHeaderName = "X-Stamp";
 
 export class IndexedDbStamper {
@@ -20,30 +19,29 @@ export class IndexedDbStamper {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, 1);
 
-      request.onupgradeneeded = () => {
-        request.result.createObjectStore(DB_STORE);
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        db.createObjectStore(DB_STORE);
       };
 
-      request.onsuccess = () => {
-        resolve(request.result);
-      };
-
-      request.onerror = () => {
-        reject(request.error);
-      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
     });
   }
 
   private async storeKeyPair(publicKey: string, privateKey: CryptoKey): Promise<void> {
     const db = await this.openDb();
-    const tx = db.transaction(DB_STORE, "readwrite");
-    const store = tx.objectStore(DB_STORE);
-
-    store.put(publicKey, `${DB_KEY}-pub`);
-    store.put(privateKey, `${DB_KEY}-priv`);
-
     return new Promise((resolve, reject) => {
-      tx.oncomplete = () => resolve();
+      const tx = db.transaction(DB_STORE, "readwrite");
+      const store = tx.objectStore(DB_STORE);
+
+      store.put(publicKey, `${DB_KEY}-pub`);
+      store.put(privateKey, `${DB_KEY}-priv`);
+
+      tx.oncomplete = () => {
+        db.close();
+        resolve();
+      };
       tx.onerror = () => reject(tx.error);
       tx.onabort = () => reject(tx.error);
     });
@@ -54,47 +52,55 @@ export class IndexedDbStamper {
     privateKey: CryptoKey | null;
   }> {
     const db = await this.openDb();
-    const tx = db.transaction(DB_STORE, "readonly");
-    const store = tx.objectStore(DB_STORE);
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(DB_STORE, "readonly");
+      const store = tx.objectStore(DB_STORE);
 
-    return new Promise((resolve) => {
       const getPub = store.get(`${DB_KEY}-pub`);
       const getPriv = store.get(`${DB_KEY}-priv`);
 
-      getPriv.onsuccess = () => {
-        getPub.onsuccess = () => {
-          resolve({
-            publicKey: getPub.result || null,
-            privateKey: getPriv.result || null,
-          });
-        };
+      let publicKey: string | null = null;
+      let privateKey: CryptoKey | null = null;
+
+      getPub.onsuccess = () => (publicKey = getPub.result || null);
+      getPriv.onsuccess = () => (privateKey = getPriv.result || null);
+
+      tx.oncomplete = () => {
+        db.close();
+        resolve({ publicKey, privateKey });
       };
+      tx.onerror = () => reject(tx.error);
     });
   }
 
   async init(): Promise<void> {
-    const { publicKey, privateKey } = await this.getStoredKeys();
+    try {
+      const { publicKey, privateKey } = await this.getStoredKeys();
 
-    if (publicKey && privateKey) {
-      this.publicKeyHex = publicKey;
-      this.privateKey = privateKey;
-    } else {
-      const keyPair = await crypto.subtle.generateKey(
-        {
-          name: "ECDSA",
-          namedCurve: "P-256",
-        },
-        false, // unextractable
-        ["sign", "verify"]
-      );
+      if (publicKey && privateKey) {
+        this.publicKeyHex = publicKey;
+        this.privateKey = privateKey;
+      } else {
+        const keyPair = await crypto.subtle.generateKey(
+          {
+            name: "ECDSA",
+            namedCurve: "P-256",
+          },
+          false, // unextractable
+          ["sign", "verify"]
+        );
 
-      const rawPubKey = await crypto.subtle.exportKey("raw", keyPair.publicKey);
-      const pubKeyHex = uint8ArrayToHexString(new Uint8Array(rawPubKey));
+        const rawPubKey = await crypto.subtle.exportKey("raw", keyPair.publicKey);
+        const pubKeyHex = uint8ArrayToHexString(new Uint8Array(rawPubKey));
 
-      await this.storeKeyPair(pubKeyHex, keyPair.privateKey);
+        await this.storeKeyPair(pubKeyHex, keyPair.privateKey);
 
-      this.publicKeyHex = pubKeyHex;
-      this.privateKey = keyPair.privateKey;
+        this.publicKeyHex = pubKeyHex;
+        this.privateKey = keyPair.privateKey;
+      }
+    } catch (error) {
+      console.error("Init failed:", error);
+      throw error;
     }
   }
 
@@ -141,6 +147,24 @@ export class IndexedDbStamper {
       stampHeaderValue: stringToBase64urlString(JSON.stringify(stamp)),
     };
   }
+
+  // Optional: Clear stored keys for debugging
+  async clear(): Promise<void> {
+    const db = await this.openDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(DB_STORE, "readwrite");
+      const store = tx.objectStore(DB_STORE);
+
+      store.delete(`${DB_KEY}-pub`);
+      store.delete(`${DB_KEY}-priv`);
+
+      tx.oncomplete = () => {
+        db.close();
+        this.publicKeyHex = null;
+        this.privateKey = null;
+        resolve();
+      };
+      tx.onerror = () => reject(tx.error);
+    });
+  }
 }
-
-
