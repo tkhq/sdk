@@ -497,7 +497,7 @@ export const TurnkeyProvider: FC<{
       const keyToRefresh = sessionKey ?? (await getSelectedSessionKey());
       if (!keyToRefresh) {
         throw new TurnkeyReactNativeError(
-          "Session not found. Either the provided sessionKey is invalid, or no session is currently selected.",
+          "Session not found when refreshing the session. Either the provided sessionKey is invalid, or no session is currently selected.",
         );
       }
 
@@ -530,7 +530,7 @@ export const TurnkeyProvider: FC<{
           ?.credentialBundle;
       if (!bundle) {
         throw new TurnkeyReactNativeError(
-          "Failed to create read/write session.",
+          "Failed to create read/write session when refreshing the session",
         );
       }
 
@@ -539,7 +539,7 @@ export const TurnkeyProvider: FC<{
         StorageKeys.RefreshEmbeddedKey,
       );
       if (!embeddedKey) {
-        throw new TurnkeyReactNativeError("Embedded key not found.");
+        throw new TurnkeyReactNativeError("Embedded key not found when refreshing the session");
       }
 
       const newPrivateKey = decryptCredentialBundle(bundle, embeddedKey);
@@ -553,7 +553,7 @@ export const TurnkeyProvider: FC<{
       );
       const user = await fetchUser(newClient, config.organizationId);
       if (!user) {
-        throw new TurnkeyReactNativeError("User not found.");
+        throw new TurnkeyReactNativeError("User not found when refreshing the session");
       }
 
       const newSession: Session = {
