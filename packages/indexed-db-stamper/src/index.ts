@@ -148,7 +148,6 @@ export class IndexedDbStamper {
     };
   }
 
-  // Optional: Clear stored keys for debugging
   async clear(): Promise<void> {
     const db = await this.openDb();
     return new Promise((resolve, reject) => {
