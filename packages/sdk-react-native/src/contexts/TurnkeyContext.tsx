@@ -539,7 +539,9 @@ export const TurnkeyProvider: FC<{
         StorageKeys.RefreshEmbeddedKey,
       );
       if (!embeddedKey) {
-        throw new TurnkeyReactNativeError("Embedded key not found when refreshing the session");
+        throw new TurnkeyReactNativeError(
+          "Embedded key not found when refreshing the session",
+        );
       }
 
       const newPrivateKey = decryptCredentialBundle(bundle, embeddedKey);
@@ -553,7 +555,9 @@ export const TurnkeyProvider: FC<{
       );
       const user = await fetchUser(newClient, config.organizationId);
       if (!user) {
-        throw new TurnkeyReactNativeError("User not found when refreshing the session");
+        throw new TurnkeyReactNativeError(
+          "User not found when refreshing the session",
+        );
       }
 
       const newSession: Session = {
