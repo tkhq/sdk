@@ -1,0 +1,33 @@
+---
+title: "GetPublicKey"
+mode: wide
+---
+  
+# Function: getPublicKey()
+
+> **getPublicKey**(`privateKey`, `isCompressed`): `Uint8Array`
+
+Defined in: [crypto.ts:56](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/crypto/src/crypto.ts#L56)
+
+Get PublicKey function
+Derives public key from Uint8Array or hexstring private key
+
+## Parameters
+
+### privateKey
+
+The Uint8Array or hexstring representation of a compressed private key.
+
+`string` | `Uint8Array`
+
+### isCompressed
+
+`boolean` = `true`
+
+Specifies whether to return a compressed or uncompressed public key. Defaults to true.
+
+## Returns
+
+`Uint8Array`
+
+- The public key in Uin8Array representation.

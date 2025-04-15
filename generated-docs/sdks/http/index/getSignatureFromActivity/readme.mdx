@@ -1,0 +1,25 @@
+---
+title: "GetSignatureFromActivity"
+mode: wide
+---
+  
+# Function: getSignatureFromActivity()
+
+> **getSignatureFromActivity**(`activity`): `object`
+
+Defined in: [shared.ts:131](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/http/src/shared.ts#L131)
+
+This function is a helper method to easily extract a signature string from a completed signing activity.
+Particularly useful for scenarios where a signature requires consensus
+
+## Parameters
+
+### activity
+
+the signing activity
+
+## Returns
+
+`object`
+
+signature {r, s, v}

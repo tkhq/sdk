@@ -1,0 +1,27 @@
+---
+title: "FormatHpkeBuf"
+mode: wide
+---
+  
+# Function: formatHpkeBuf()
+
+> **formatHpkeBuf**(`encryptedBuf`): `string`
+
+Defined in: [crypto.ts:202](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/crypto/src/crypto.ts#L202)
+
+Format HPKE Buffer Function
+Returns a JSON string of an encrypted bundle, separating out the cipher text and the sender public key
+
+## Parameters
+
+### encryptedBuf
+
+`Uint8Array`
+
+The result of hpkeAuthEncrypt or hpkeEncrypt
+
+## Returns
+
+`string`
+
+- A JSON string with "encappedPublic" and "ciphertext"

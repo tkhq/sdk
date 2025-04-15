@@ -1,0 +1,356 @@
+---
+title: "Docs"
+mode: wide
+---
+  
+## Overview
+
+It exposes a ready-made API client class which manages the process of constructing requests to the Turnkey API and authenticating them with a valid API key. Furthermore, it exposes API proxies that forward requests from your application's client that need to be signed by parent organizations API key.
+
+Use the [`@turnkey/sdk-server`](https://www.npmjs.com/package/@turnkey/sdk-server) package to handle server-side interactions for applications that interact with the Turnkey API.
+
+## Installation
+
+<CodeGroup>
+
+```bash npm
+npm install @turnkey/sdk-server
+```
+
+```bash Yarn
+yarn add @turnkey/sdk-server
+```
+
+</CodeGroup>
+
+## Initializing
+
+```js
+import { Turnkey } from "@turnkey/sdk-server";
+
+const turnkey = new Turnkey({
+  defaultOrganizationId: process.env.TURNKEY_ORGANIZATION_ID,
+  apiBaseUrl: "https://api.turnkey.com",
+  apiPrivateKey: process.env.TURNKEY_API_PRIVATE_KEY,
+  apiPublicKey: process.env.TURNKEY_API_PUBLIC_KEY,
+});
+```
+
+#### Parameters
+
+<ParamField
+body="config"
+type="TurnkeySDKServerConfig"
+required
+
+>
+
+An object containing configuration settings for the Server Client.
+
+</ParamField>
+
+<ParamField
+body="defaultOrganizationId"
+type="string"
+required
+
+>
+
+The root organization that requests will be made from unless otherwise specified
+
+</ParamField>
+<ParamField
+  body="apiBaseUrl"
+  type="string"
+  required
+>
+
+The base URL that API requests will be sent to (use [https://api.turnkey.com](https://api.turnkey.com) when making requests to Turnkey's API)
+
+</ParamField>
+<ParamField
+  body="apiPrivateKey"
+  type="string"
+>
+
+The API Private Key to sign requests with (this will normally be the API Private Key to your root organization)
+
+</ParamField>
+<ParamField
+  body="apiPublicKey"
+  type="string"
+>
+
+The API Public Key associated with the configured API Private Key above
+
+</ParamField>
+## Creating Clients
+
+Calls to Turnkey's API must be signed with a valid credential (often referred to in the docs as [stamping](https://docs-git-omkar-sdk-docs-turnkey.vercel.app/api-overview/stamps)) from the user initiating the API call. When using the Server SDK, the user initiating the API call is normally your root organization, and the API call is authenticated with the API keypair you create on the Turnkey dashboard.
+
+#### `apiClient()`
+
+The `apiClient` method returns an instance of the `TurnkeyApiClient` which will sign requests with the injected `apiPrivateKey`, and `apiPublicKey` credentials.
+
+```js
+const apiClient = turnkey.apiClient();
+const walletsResponse = await apiClient.getWallets();
+
+// this will sign the request with the configured api credentials
+```
+
+## Creating API Proxies
+
+There are certain actions that are initiated by users, but require the activity to be signed by the root organization itself. Examples of this include the initial creation of the user `subOrganization` or sending an email to a user with a login credential as part of an `emailAuth` flow.
+
+These can be implemented in your backend by creating an `apiClient` and handling requests from your browser application at different routes, but we have also provided a convenience method for doing this by having allowing a single `apiProxy` to handle requests at a single route and automatically sign specific user actions with the root organization's credentials.
+
+#### expressProxyHandler()
+
+The `expressProxyHandler()` method creates a proxy handler designed as a middleware for Express applications. It provides an API endpoint that forwards requests to the Turnkey API server.
+
+```js
+const turnkeyProxyHandler = turnkey.expressProxyHandler({
+  allowedMethods: ["createSubOrganization", "emailAuth", "getSubOrgIds"],
+});
+
+app.post("/apiProxy", turnkeyProxyHandler);
+
+// this will sign requests made with the client-side `serverSign` function with the root organization's API key for the allowedMethods in the config
+```
+
+#### 2. nextProxyHandler()
+
+The `nextProxyHandler()` method creates a proxy handler designed as a middleware for Next.js applications. It provides an API endpoint that forwards requests to the Turnkey API server.
+
+```js
+// Configure the Next.js handler with allowed methods
+const turnkeyProxyHandler = turnkey.nextProxyHandler({
+  allowedMethods: ["createSubOrganization", "emailAuth", "getSubOrgIds"],
+});
+
+export default turnkeyProxyHandler;
+
+// this will sign requests made with the client-side `serverSign` function with the root organization's API key for the allowedMethods in the config
+```
+
+## TurnkeyServerClient
+
+The `@turnkey/sdk-server` exposes NextJS Server Actions. These server actions can be used to facilitate implementing common authentication flows.
+
+### `sendOtp()`
+
+Initiate an OTP authentication flow for either an `EMAIL` or `SMS`.
+
+```typescript
+import { server } from "@turnkey/sdk-server";
+
+const initAuthResponse = await server.sendOtp({
+  suborgID: suborgId!,
+  otpType,
+  contact: value,
+  ...(emailCustomization && { emailCustomization }),
+  ...(sendFromEmailAddress && { sendFromEmailAddress }),
+  ...(customSmsMessage && { customSmsMessage }),
+  userIdentifier: authIframeClient?.iframePublicKey!,
+});
+
+if (initAuthResponse && initAuthResponse.otpId) {
+  // proceed to verifyOtp
+} else {
+  // error handling
+}
+```
+
+#### Parameters
+
+<ParamField body="request" type="SendOtpRequest" required>
+  An object containing the parameters to initiate an `EMAIL` or `SMS` OTP
+  authentication flow.
+</ParamField>
+
+<ParamField body="suborgID" type="string" required>
+  The ID of the sub organization for the given request.
+</ParamField>
+
+<ParamField body="otpType" type="string" required>
+  The type of OTP request, either `EMAIL` or `SMS`.
+</ParamField>
+
+<ParamField body="contact" type="string" required>
+  The contact information (email or phone number) where the OTP will be sent.
+</ParamField>
+
+<ParamField body="customSmsMessage" type="string">
+  Use to customize the SMS message.
+</ParamField>
+
+<ParamField body="userIdentifier" type="string">
+  IP Address, iframePublicKey, or other unique identifier used for rate
+  limiting.
+</ParamField>
+
+### `verifyOtp()`
+
+Verify the OTP Code sent to the user via `EMAIL` or `SMS`. If verification is successful, a Session is returned which is used to log in with.
+
+```typescript
+import { server } from "@turnkey/sdk-server";
+
+const authSession = await server.verifyOtp({
+  suborgID: suborgId,
+  otpId,
+  otpCode: otp,
+  targetPublicKey: authIframeClient!.iframePublicKey!,
+  sessionLengthSeconds,
+});
+
+if (authSession?.token) {
+  // log in with Session
+  await authIframeClient!.loginWithSession(authSession);
+  // call onValidateSuccess callback
+  await onValidateSuccess();
+} else {
+  // error handling
+}
+```
+
+#### Parameters
+
+<ParamField body="request" type="VerifyOtpRequest" required>
+  An object containing the parameters to verify an OTP authentication attempt.
+</ParamField>
+
+<ParamField body="suborgID" type="string" required>
+  The ID of the sub organization for the given request.
+</ParamField>
+
+<ParamField body="otpId" type="string" required>
+  The ID for the given OTP request. This ID is returned in the `SendOtpResponse`
+  from `sendOtp()`.
+</ParamField>
+
+<ParamField body="otpCode" type="string" required>
+  The OTP Code sent to the user.
+</ParamField>
+
+<ParamField body="targetPublicKey" type="string" required>
+  The public key of the target user.
+</ParamField>
+
+<ParamField body="sessionLengthSeconds" type="number">
+  Specify the length of the session in seconds. Defaults to 900 seconds or 15
+  minutes.
+</ParamField>
+
+### `oauth()`
+
+Complete an OAuth authentication flow once the OIDC Token has been obtained from the OAuth provider.
+
+```typescript
+import { server } from "@turnkey/sdk-server";
+
+const oauthSession = await server.oauth({
+  suborgID: suborgId!,
+  oidcToken: credential,
+  targetPublicKey: authIframeClient?.iframePublicKey!,
+  sessionLengthSeconds: authConfig.sessionLengthSeconds,
+});
+
+if (oauthSession && oauthSession.token) {
+  // log in with Session
+  await authIframeClient!.loginWithSession(oauthSession);
+  // call onAuthSuccess callback
+  await onAuthSuccess();
+} else {
+  // error handling
+}
+```
+
+#### Parameters
+
+<ParamField body="request" type="OauthRequest" required>
+  An object containing the parameters to complete an OAuth authentication flow.
+</ParamField>
+
+<ParamField body="suborgID" type="string" required>
+  The ID of the sub organization for the given request.
+</ParamField>
+
+<ParamField body="oidcToken" type="string" required>
+  The OIDC (OpenID Connect) Token issued by the OAuth provider which contains
+  basic profile information about the user.
+</ParamField>
+
+<ParamField body="targetPublicKey" type="string" required>
+  The public key of the target user.
+</ParamField>
+
+<ParamField body="sessionLengthSeconds" type="number">
+  Specify the length of the session in seconds. Defaults to 900 seconds or 15
+  minutes.
+</ParamField>
+
+### `sendCredential()`
+
+Send a login credential to a user's email address.
+
+```typescript
+import { server } from "@turnkey/sdk-server";
+
+const sendCredentialResponse = await server.sendCredential({
+  email,
+  targetPublicKey: authIframeClient?.iframePublicKey!,
+  organizationId: suborgId!,
+  ...(apiKeyName && { apiKeyName }),
+  ...(sendFromEmailAddress && { sendFromEmailAddress }),
+  ...(sessionLengthSeconds && { sessionLengthSeconds }),
+  ...(invalidateExisting && { invalidateExisting }),
+  ...(emailCustomization && { emailCustomization }),
+  ...(sendFromEmailAddress && { sendFromEmailAddress }),
+});
+```
+
+#### Parameters
+
+<ParamField body="request" type="InitEmailAuthRequest" required>
+  An object containing the parameters to send a login credential via email.
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  The email address provided by the user.
+</ParamField>
+
+<ParamField body="targetPublicKey" type="string" required>
+  The public key of the target user.
+</ParamField>
+
+<ParamField body="organizationId" type="string" required>
+  The ID of the sub organization for the given request.
+</ParamField>
+
+<ParamField body="apiKeyName" type="string">
+  The name of the API Key.
+</ParamField>
+
+<ParamField body="userIdentifier" type="string">
+  IP Address, iframePublicKey, or other unique identifier used for rate
+  limiting.
+</ParamField>
+
+<ParamField body="sessionLengthSeconds" type="number">
+  Specify the length of the session in seconds. Defaults to 900 seconds or 15
+  minutes.
+</ParamField>
+
+<ParamField body="invalidateExisting" type="boolean">
+  Invalidate all pre-existing sessions. Defaults to `false`.
+</ParamField>
+
+<ParamField body="emailCustomization" type="EmailCustomization">
+  An option to customize the email.
+</ParamField>
+
+<ParamField body="sendFromEmailAddress" type="string">
+  Provide a custom email address which will be used as the sender of the email.
+</ParamField>

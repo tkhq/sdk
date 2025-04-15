@@ -1,0 +1,78 @@
+---
+title: "WebauthnStamper"
+mode: wide
+---
+  
+# Class: WebauthnStamper
+
+Defined in: webauthn-stamper/dist/index.d.ts:11
+
+Stamper to use with `@turnkey/http`'s `TurnkeyClient`
+
+## Constructors
+
+### Constructor
+
+> **new WebauthnStamper**(`config`): `WebauthnStamper`
+
+Defined in: webauthn-stamper/dist/index.d.ts:16
+
+#### Parameters
+
+##### config
+
+[`TWebauthnStamperConfig`](../TWebauthnStamperConfig/readme)
+
+#### Returns
+
+`WebauthnStamper`
+
+## Properties
+
+### allowCredentials
+
+> **allowCredentials**: `PublicKeyCredentialDescriptor`[]
+
+Defined in: webauthn-stamper/dist/index.d.ts:15
+
+***
+
+### rpId
+
+> **rpId**: `string`
+
+Defined in: webauthn-stamper/dist/index.d.ts:12
+
+***
+
+### timeout
+
+> **timeout**: `number`
+
+Defined in: webauthn-stamper/dist/index.d.ts:13
+
+***
+
+### userVerification
+
+> **userVerification**: `UserVerificationRequirement`
+
+Defined in: webauthn-stamper/dist/index.d.ts:14
+
+## Methods
+
+### stamp()
+
+> **stamp**(`payload`): `Promise`\<\{ `stampHeaderName`: `string`; `stampHeaderValue`: `string`; \}\>
+
+Defined in: webauthn-stamper/dist/index.d.ts:17
+
+#### Parameters
+
+##### payload
+
+`string`
+
+#### Returns
+
+`Promise`\<\{ `stampHeaderName`: `string`; `stampHeaderValue`: `string`; \}\>

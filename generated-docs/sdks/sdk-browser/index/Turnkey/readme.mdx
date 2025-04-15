@@ -1,0 +1,220 @@
+---
+title: "Turnkey"
+mode: wide
+---
+  
+# Class: Turnkey
+
+Defined in: [sdk-browser/src/sdk-client.ts:64](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L64)
+
+## Constructors
+
+### Constructor
+
+> **new Turnkey**(`config`): `TurnkeyBrowserSDK`
+
+Defined in: [sdk-browser/src/sdk-client.ts:69](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L69)
+
+#### Parameters
+
+##### config
+
+`TurnkeySDKBrowserConfig`
+
+#### Returns
+
+`TurnkeyBrowserSDK`
+
+## Properties
+
+### config
+
+> **config**: `TurnkeySDKBrowserConfig`
+
+Defined in: [sdk-browser/src/sdk-client.ts:65](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L65)
+
+***
+
+### stamper
+
+> `protected` **stamper**: `undefined` \| `Stamper`
+
+Defined in: [sdk-browser/src/sdk-client.ts:67](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L67)
+
+## Methods
+
+### currentUserSession()
+
+> **currentUserSession**(): `Promise`\<`undefined` \| [`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme)\>
+
+Defined in: [sdk-browser/src/sdk-client.ts:190](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L190)
+
+If there is a valid, current user session, this will return a read-enabled TurnkeyBrowserClient that can make read requests to Turnkey without additional authentication. This is powered by a session header resulting from a prior successful `login` call.
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme)\>
+
+***
+
+### getCurrentSubOrganization()
+
+> **getCurrentSubOrganization**(): `Promise`\<`undefined` \| `SubOrganization`\>
+
+Defined in: [sdk-browser/src/sdk-client.ts:256](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L256)
+
+Fetches the current user's organization details.
+
+#### Returns
+
+`Promise`\<`undefined` \| `SubOrganization`\>
+
+***
+
+### getCurrentUser()
+
+> **getCurrentUser**(): `Promise`\<`undefined` \| `User`\>
+
+Defined in: [sdk-browser/src/sdk-client.ts:268](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L268)
+
+Fetches the currently active user.
+
+#### Returns
+
+`Promise`\<`undefined` \| `User`\>
+
+***
+
+### ~~getReadWriteSession()~~
+
+> **getReadWriteSession**(): `Promise`\<`undefined` \| `ReadWriteSession`\>
+
+Defined in: [sdk-browser/src/sdk-client.ts:216](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L216)
+
+If there is a valid, current read-session, this will return an auth bundle and its expiration. This auth bundle can be used in conjunction with an iframeStamper to create a read + write session.
+
+#### Returns
+
+`Promise`\<`undefined` \| `ReadWriteSession`\>
+
+#### Deprecated
+
+use `getSession` instead
+
+***
+
+### getSession()
+
+> **getSession**(): `Promise`\<`undefined` \| `Session`\>
+
+Defined in: [sdk-browser/src/sdk-client.ts:236](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L236)
+
+If there is a valid, active READ_WRITE session, this will return it
+
+#### Returns
+
+`Promise`\<`undefined` \| `Session`\>
+
+***
+
+### iframeClient()
+
+> **iframeClient**(`params`): `Promise`\<[`TurnkeyIframeClient`](../TurnkeyIframeClient/readme)\>
+
+Defined in: [sdk-browser/src/sdk-client.ts:106](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L106)
+
+#### Parameters
+
+##### params
+
+`IframeClientParams`
+
+#### Returns
+
+`Promise`\<[`TurnkeyIframeClient`](../TurnkeyIframeClient/readme)\>
+
+***
+
+### logout()
+
+> **logout**(): `Promise`\<`boolean`\>
+
+Defined in: [sdk-browser/src/sdk-client.ts:306](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L306)
+
+Clears out all data pertaining to an end user session.
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+***
+
+### passkeyClient()
+
+> **passkeyClient**(`params`?): [`TurnkeyPasskeyClient`](../TurnkeyPasskeyClient/readme)
+
+Defined in: [sdk-browser/src/sdk-client.ts:78](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L78)
+
+Creates a passkey client. The parameters override the default values passed to the underlying Turnkey `WebauthnStamper`
+
+#### Parameters
+
+##### params?
+
+`PasskeyClientParams`
+
+#### Returns
+
+[`TurnkeyPasskeyClient`](../TurnkeyPasskeyClient/readme)
+
+new TurnkeyPasskeyClient
+
+***
+
+### serverSign()
+
+> **serverSign**\<`TResponseType`\>(`methodName`, `params`, `serverSignUrl`?): `Promise`\<`TResponseType`\>
+
+Defined in: [sdk-browser/src/sdk-client.ts:144](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L144)
+
+#### Type Parameters
+
+##### TResponseType
+
+`TResponseType`
+
+#### Parameters
+
+##### methodName
+
+`string`
+
+##### params
+
+`any`[]
+
+##### serverSignUrl?
+
+`string`
+
+#### Returns
+
+`Promise`\<`TResponseType`\>
+
+***
+
+### walletClient()
+
+> **walletClient**(`wallet`): [`TurnkeyWalletClient`](../TurnkeyWalletClient/readme)
+
+Defined in: [sdk-browser/src/sdk-client.ts:135](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/sdk-client.ts#L135)
+
+#### Parameters
+
+##### wallet
+
+[`WalletInterface`](../../../wallet-stamper/index/WalletInterface/readme)
+
+#### Returns
+
+[`TurnkeyWalletClient`](../TurnkeyWalletClient/readme)

@@ -1,0 +1,26 @@
+---
+title: "ExtractPrivateKeyFromPKCS8Bytes"
+mode: wide
+---
+  
+# Function: extractPrivateKeyFromPKCS8Bytes()
+
+> **extractPrivateKeyFromPKCS8Bytes**(`privateKey`): `Uint8Array`
+
+Defined in: [crypto.ts:310](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/crypto/src/crypto.ts#L310)
+
+Accepts a private key Uint8Array in the PKCS8 format, and returns the encapsulated private key.
+
+## Parameters
+
+### privateKey
+
+`Uint8Array`
+
+A PKCS#8 private key structured with the key data at a specific position. The actual key starts at byte 36 and is 32 bytes long.
+
+## Returns
+
+`Uint8Array`
+
+- The private key.

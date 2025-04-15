@@ -1,0 +1,124 @@
+---
+title: "Server"
+mode: wide
+---
+  
+# Variable: server
+
+> `const` **server**: `object`
+
+Defined in: [packages/sdk-server/src/index.ts:57](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-server/src/index.ts#L57)
+
+## Type declaration
+
+### createSuborg()
+
+> **createSuborg**: (`request`) => `Promise`\<`undefined` \| `CreateSuborgResponse`\>
+
+#### Parameters
+
+##### request
+
+`CreateSuborgRequest`
+
+#### Returns
+
+`Promise`\<`undefined` \| `CreateSuborgResponse`\>
+
+### getOrCreateSuborg()
+
+> **getOrCreateSuborg**: (`request`) => `Promise`\<`undefined` \| `GetOrCreateSuborgResponse`\>
+
+#### Parameters
+
+##### request
+
+`GetOrCreateSuborgRequest`
+
+#### Returns
+
+`Promise`\<`undefined` \| `GetOrCreateSuborgResponse`\>
+
+### getSuborgs()
+
+> **getSuborgs**: (`request`) => `Promise`\<`undefined` \| `GetSuborgsResponse`\>
+
+#### Parameters
+
+##### request
+
+`GetSuborgsRequest`
+
+#### Returns
+
+`Promise`\<`undefined` \| `GetSuborgsResponse`\>
+
+### getVerifiedSuborgs()
+
+> **getVerifiedSuborgs**: (`request`) => `Promise`\<`undefined` \| `GetSuborgsResponse`\>
+
+#### Parameters
+
+##### request
+
+`GetSuborgsRequest`
+
+#### Returns
+
+`Promise`\<`undefined` \| `GetSuborgsResponse`\>
+
+### oauth()
+
+> **oauth**: (`request`) => `Promise`\<`undefined` \| `Session`\>
+
+#### Parameters
+
+##### request
+
+`OauthRequest`
+
+#### Returns
+
+`Promise`\<`undefined` \| `Session`\>
+
+### sendCredential()
+
+> **sendCredential**: (`request`) => `Promise`\<`void`\>
+
+#### Parameters
+
+##### request
+
+`InitEmailAuthRequest`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+### sendOtp()
+
+> **sendOtp**: (`request`) => `Promise`\<`undefined` \| `SendOtpResponse`\>
+
+#### Parameters
+
+##### request
+
+`SendOtpRequest`
+
+#### Returns
+
+`Promise`\<`undefined` \| `SendOtpResponse`\>
+
+### verifyOtp()
+
+> **verifyOtp**: (`request`) => `Promise`\<`undefined` \| `Session`\>
+
+#### Parameters
+
+##### request
+
+`VerifyOtpRequest`
+
+#### Returns
+
+`Promise`\<`undefined` \| `Session`\>

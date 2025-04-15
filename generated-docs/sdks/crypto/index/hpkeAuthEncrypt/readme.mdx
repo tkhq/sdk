@@ -1,0 +1,27 @@
+---
+title: "HpkeAuthEncrypt"
+mode: wide
+---
+  
+# Function: hpkeAuthEncrypt()
+
+> **hpkeAuthEncrypt**(`params`): `Uint8Array`
+
+Defined in: [crypto.ts:138](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/crypto/src/crypto.ts#L138)
+
+HPKE Encrypt Function
+Encrypts data using Authenticated ,Hybrid Public Key Encryption (HPKE) standard https://datatracker.ietf.org/doc/rfc9180/.
+
+## Parameters
+
+### params
+
+`HpkeAuthEncryptParams`
+
+The encryption parameters including plain text, encapsulated key, and sender private key.
+
+## Returns
+
+`Uint8Array`
+
+- The encrypted data.

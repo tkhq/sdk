@@ -1,0 +1,49 @@
+---
+title: "VerifyStampSignature"
+mode: wide
+---
+  
+# Function: verifyStampSignature()
+
+> **verifyStampSignature**(`publicKey`, `signature`, `signedData`): `Promise`\<`boolean`\>
+
+Defined in: [turnkey.ts:193](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/crypto/src/turnkey.ts#L193)
+
+Verifies a signature from a Turnkey stamp using ECDSA and SHA-256.
+
+## Parameters
+
+### publicKey
+
+`string`
+
+The public key of the authenticator (e.g. WebAuthn or P256 API key).
+
+### signature
+
+`string`
+
+The ECDSA signature in DER format.
+
+### signedData
+
+`string`
+
+The data that was signed (e.g. JSON-stringified Turnkey request body).
+
+## Returns
+
+`Promise`\<`boolean`\>
+
+- Returns true if the signature is valid, otherwise throws an error.
+
+## Example
+
+```ts
+const stampedRequest = await turnkeyClient.stampGetWhoami(...);
+const decodedStampContents = atob(stampedRequest.stamp.stampHeaderValue);
+const parsedStampContents = JSON.parse(decodedStampContents);
+const signature = parsedStampContents.signature;
+
+await verifyStampSignature(publicKey, signature, stampedRequest.body)
+```

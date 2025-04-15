@@ -1,0 +1,391 @@
+---
+title: "TurnkeyWalletClient"
+mode: wide
+---
+  
+# Class: TurnkeyWalletClient
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:933](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L933)
+
+## Extends
+
+- [`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme)
+
+## Constructors
+
+### Constructor
+
+> **new TurnkeyWalletClient**(`config`): `TurnkeyWalletClient`
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:936](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L936)
+
+#### Parameters
+
+##### config
+
+`TurnkeyWalletClientConfig`
+
+#### Returns
+
+`TurnkeyWalletClient`
+
+#### Overrides
+
+[`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme).[`constructor`](../TurnkeyBrowserClient/readme#constructor)
+
+## Properties
+
+### authClient?
+
+> `optional` **authClient**: `AuthClient`
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/base-client.ts:5](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/base-client.ts#L5)
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme).[`authClient`](../TurnkeyBrowserClient/readme#authclient)
+
+## Methods
+
+### addUserAuth()
+
+> **addUserAuth**(`params`): `Promise`\<`any`[]\>
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:541](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L541)
+
+Adds or updates authentication factors for an end user.
+
+This function allows selectively adding:
+- Phone number
+- Email
+- Authenticators
+- OAuth providers
+- API keys
+
+All additions/updates are executed in parallel if multiple
+parameters are provided.
+
+#### Parameters
+
+##### params
+
+`AddUserAuthParams`
+
+A structured object containing all the addition/update parameters
+
+#### Returns
+
+`Promise`\<`any`[]\>
+
+A promise that resolves to an array of results from each addition or update
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme).[`addUserAuth`](../TurnkeyBrowserClient/readme#adduserauth)
+
+***
+
+### deleteUserAuth()
+
+> **deleteUserAuth**(`params`): `Promise`\<`any`[]\>
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:477](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L477)
+
+Removes authentication factors from an end user.
+
+This function allows selectively removing:
+- Phone number
+- Email
+- Authenticators (by ID)
+- OAuth providers (by ID)
+- API keys (by ID)
+
+All removal operations are executed in parallel if multiple
+parameters are provided.
+
+#### Parameters
+
+##### params
+
+`DeleteUserAuthParams`
+
+A structured object containing all the removal parameters
+
+#### Returns
+
+`Promise`\<`any`[]\>
+
+A promise that resolves to an array of results from each removal operation
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme).[`deleteUserAuth`](../TurnkeyBrowserClient/readme#deleteuserauth)
+
+***
+
+### getPublicKey()
+
+> **getPublicKey**(): `Promise`\<`string`\>
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:941](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L941)
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### getWalletInterface()
+
+> **getWalletInterface**(): [`WalletInterface`](../../../wallet-stamper/index/WalletInterface/readme)
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:945](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L945)
+
+#### Returns
+
+[`WalletInterface`](../../../wallet-stamper/index/WalletInterface/readme)
+
+***
+
+### login()
+
+> **login**(`config`?): `Promise`\<`object` & `object`\>
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:110](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L110)
+
+#### Parameters
+
+##### config?
+
+###### organizationId?
+
+`string`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme).[`login`](../TurnkeyBrowserClient/readme#login)
+
+***
+
+### loginWithAuthBundle()
+
+> **loginWithAuthBundle**(`credentialBundle`, `expirationSeconds`): `Promise`\<`boolean`\>
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:433](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L433)
+
+Logs in with an existing auth bundle. this bundle enables both read and write requests.
+
+#### Parameters
+
+##### credentialBundle
+
+`string`
+
+##### expirationSeconds
+
+`string` = `DEFAULT_SESSION_EXPIRATION_IN_SECONDS`
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme).[`loginWithAuthBundle`](../TurnkeyBrowserClient/readme#loginwithauthbundle)
+
+***
+
+### loginWithBundle()
+
+> **loginWithBundle**(`params`): `Promise`\<`void`\>
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:206](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L206)
+
+Log in with a bundle. This method uses a bundle sent to the end user email
+To be used in conjunction with an `iframeStamper`.
+
+#### Parameters
+
+##### params
+
+`LoginWithBundleParams`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme).[`loginWithBundle`](../TurnkeyBrowserClient/readme#loginwithbundle)
+
+***
+
+### loginWithPasskey()
+
+> **loginWithPasskey**(`params`): `Promise`\<`void`\>
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:262](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L262)
+
+Log in with a passkey.
+To be used in conjunction with a `passkeyStamper`
+
+#### Parameters
+
+##### params
+
+`LoginWithPasskeyParams`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme).[`loginWithPasskey`](../TurnkeyBrowserClient/readme#loginwithpasskey)
+
+***
+
+### loginWithReadWriteSession()
+
+> **loginWithReadWriteSession**(`targetEmbeddedKey`, `expirationSeconds`, `userId`?): `Promise`\<`object` & `object`\>
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:396](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L396)
+
+Creates a read-write session. This method infers the current user's organization ID and target userId.
+To be used in conjunction with an `iframeStamper`: the resulting session's credential bundle can be
+injected into an iframeStamper to create a session that enables both read and write requests.
+
+#### Parameters
+
+##### targetEmbeddedKey
+
+`string`
+
+##### expirationSeconds
+
+`string` = `DEFAULT_SESSION_EXPIRATION_IN_SECONDS`
+
+##### userId?
+
+`string`
+
+#### Returns
+
+`Promise`\<`object` & `object`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme).[`loginWithReadWriteSession`](../TurnkeyBrowserClient/readme#loginwithreadwritesession)
+
+***
+
+### loginWithSession()
+
+> **loginWithSession**(`session`): `Promise`\<`void`\>
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:239](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L239)
+
+Log in with a session object. This method uses a session object from server actions and stores it and the active client in local storage
+To be used in conjunction with an `iframeStamper`.
+
+#### Parameters
+
+##### session
+
+`Session`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme).[`loginWithSession`](../TurnkeyBrowserClient/readme#loginwithsession)
+
+***
+
+### loginWithWallet()
+
+> **loginWithWallet**(`params`): `Promise`\<`void`\>
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:329](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L329)
+
+Log in with a browser wallet.
+
+#### Parameters
+
+##### params
+
+`LoginWithWalletParams`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme).[`loginWithWallet`](../TurnkeyBrowserClient/readme#loginwithwallet)
+
+***
+
+### refreshSession()
+
+> **refreshSession**(`params`): `Promise`\<`void`\>
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:138](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L138)
+
+Attempts to refresh an existing Session. This method infers the current user's organization ID and target userId.
+This will use a passkeyStamper for `READ_ONLY` sessions or an `iframeStamper` for `READ_WRITE` sessions.
+
+#### Parameters
+
+##### params
+
+`RefreshSessionParams`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme).[`refreshSession`](../TurnkeyBrowserClient/readme#refreshsession)
+
+***
+
+### updateUserAuth()
+
+> **updateUserAuth**(`params`): `Promise`\<`boolean`\>
+
+Defined in: [sdk-browser/src/\_\_clients\_\_/browser-clients.ts:605](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-browser/src/__clients__/browser-clients.ts#L605)
+
+Comprehensive authentication update for an end user.
+Combines add/update and delete operations into a single call.
+
+The behavior is driven by whether values are set to:
+- A string/array (to create or update)
+- `null` or an array of IDs (to remove)
+
+All operations are executed in parallel where applicable.
+
+#### Parameters
+
+##### params
+
+`UpdateUserAuthParams`
+
+A structured object containing all the update parameters
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+A promise that resolves to a boolean indicating overall success
+
+#### Inherited from
+
+[`TurnkeyBrowserClient`](../TurnkeyBrowserClient/readme).[`updateUserAuth`](../TurnkeyBrowserClient/readme#updateuserauth)

@@ -1,0 +1,35 @@
+---
+title: "EncryptWalletToBundle"
+mode: wide
+---
+  
+# Function: encryptWalletToBundle()
+
+> **encryptWalletToBundle**(`params`): `Promise`\<`string`\>
+
+Defined in: [turnkey.ts:360](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/crypto/src/turnkey.ts#L360)
+
+/**
+ * Encrypts a mnemonic wallet bundle using HPKE and verifies the enclave signature.
+ *
+ *
+
+## Parameters
+
+### params
+
+`EncryptWalletToBundleParams`
+
+An object containing the mnemonic, bundle, user, and organization details. Optionally, you can override the default signer key (for testing purposes).
+ *
+
+## Returns
+
+`Promise`\<`string`\>
+
+- A promise that resolves to a JSON string representing the encrypted wallet bundle.
+ *
+
+## Throws
+
+- If enclave signature verification or any other validation fails.

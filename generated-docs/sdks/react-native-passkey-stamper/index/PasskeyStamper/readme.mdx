@@ -1,0 +1,102 @@
+---
+title: "PasskeyStamper"
+mode: wide
+---
+  
+# Class: PasskeyStamper
+
+Defined in: [react-native-passkey-stamper/src/index.ts:205](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/react-native-passkey-stamper/src/index.ts#L205)
+
+Stamper to use with `@turnkey/http`'s `TurnkeyClient`
+
+## Constructors
+
+### Constructor
+
+> **new PasskeyStamper**(`config`): `PasskeyStamper`
+
+Defined in: [react-native-passkey-stamper/src/index.ts:214](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/react-native-passkey-stamper/src/index.ts#L214)
+
+#### Parameters
+
+##### config
+
+[`TPasskeyStamperConfig`](../TPasskeyStamperConfig/readme)
+
+#### Returns
+
+`PasskeyStamper`
+
+## Properties
+
+### allowCredentials
+
+> **allowCredentials**: [`PublicKeyCredentialDescriptor`](../PublicKeyCredentialDescriptor/readme)[]
+
+Defined in: [react-native-passkey-stamper/src/index.ts:209](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/react-native-passkey-stamper/src/index.ts#L209)
+
+***
+
+### extensions
+
+> **extensions**: `Record`\<`string`, `unknown`\>
+
+Defined in: [react-native-passkey-stamper/src/index.ts:210](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/react-native-passkey-stamper/src/index.ts#L210)
+
+***
+
+### forcePlatformKey
+
+> **forcePlatformKey**: `boolean`
+
+Defined in: [react-native-passkey-stamper/src/index.ts:211](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/react-native-passkey-stamper/src/index.ts#L211)
+
+***
+
+### forceSecurityKey
+
+> **forceSecurityKey**: `boolean`
+
+Defined in: [react-native-passkey-stamper/src/index.ts:212](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/react-native-passkey-stamper/src/index.ts#L212)
+
+***
+
+### rpId
+
+> **rpId**: `string`
+
+Defined in: [react-native-passkey-stamper/src/index.ts:206](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/react-native-passkey-stamper/src/index.ts#L206)
+
+***
+
+### timeout
+
+> **timeout**: `number`
+
+Defined in: [react-native-passkey-stamper/src/index.ts:207](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/react-native-passkey-stamper/src/index.ts#L207)
+
+***
+
+### userVerification
+
+> **userVerification**: `UserVerificationRequirement`
+
+Defined in: [react-native-passkey-stamper/src/index.ts:208](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/react-native-passkey-stamper/src/index.ts#L208)
+
+## Methods
+
+### stamp()
+
+> **stamp**(`payload`): `Promise`\<\{ `stampHeaderName`: `string`; `stampHeaderValue`: `string`; \}\>
+
+Defined in: [react-native-passkey-stamper/src/index.ts:224](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/react-native-passkey-stamper/src/index.ts#L224)
+
+#### Parameters
+
+##### payload
+
+`string`
+
+#### Returns
+
+`Promise`\<\{ `stampHeaderName`: `string`; `stampHeaderValue`: `string`; \}\>

@@ -1,0 +1,53 @@
+---
+title: "WithAsyncPolling"
+mode: wide
+---
+  
+# Function: ~~withAsyncPolling()~~
+
+> **withAsyncPolling**\<`O`, `I`\>(`params`): (`input`) => `Promise`\<`O`\[`"activity"`\]\>
+
+Defined in: [async.ts:13](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/http/src/async.ts#L13)
+
+Wraps a request to create a fetcher with built-in async polling support.
+
+## Type Parameters
+
+### O
+
+`O` *extends* `object`
+
+### I
+
+`I` *extends* `object`
+
+## Parameters
+
+### params
+
+#### refreshIntervalMs?
+
+`number`
+
+#### request
+
+(`input`) => `Promise`\<`O`\>
+
+## Returns
+
+`Function`
+
+### Parameters
+
+#### input
+
+`I`
+
+### Returns
+
+`Promise`\<`O`\[`"activity"`\]\>
+
+## Deprecated
+
+this function only works with TurnkeyApi.
+Use [TurnkeyClient](../../TurnkeyClient/readme) and [createActivityPoller](../createActivityPoller/readme) instead.

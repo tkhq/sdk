@@ -1,0 +1,26 @@
+---
+title: "TurnkeyThemeProvider"
+mode: wide
+---
+  
+# Variable: TurnkeyThemeProvider
+
+> `const` **TurnkeyThemeProvider**: `React.FC`\<`ThemeProviderProps`\>
+
+Defined in: [components/auth/TurnkeyThemeProvider.tsx:31](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-react/src/components/auth/TurnkeyThemeProvider.tsx#L31)
+
+A provider component for dynamically applying and managing CSS custom properties (variables) as themes.
+
+- Applies the provided `theme` to the root `<html>` element via CSS variables.
+- Makes the `theme` object accessible to child components through React context. These themes will apply to all Turnkey components used in your app
+
+Example usage:
+```tsx
+const theme = {
+  "--text-primary": "#333",
+};
+
+<TurnkeyThemeProvider theme={theme}>
+  <App />
+</TurnkeyThemeProvider>
+```

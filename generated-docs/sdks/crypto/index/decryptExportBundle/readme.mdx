@@ -1,0 +1,40 @@
+---
+title: "DecryptExportBundle"
+mode: wide
+---
+  
+# Function: decryptExportBundle()
+
+> **decryptExportBundle**(`params`): `Promise`\<`string`\>
+
+Defined in: [turnkey.ts:103](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/crypto/src/turnkey.ts#L103)
+
+Decrypt an encrypted export bundle (such as a private key or wallet account bundle).
+
+This function verifies the enclave signature to ensure the authenticity of the encrypted data.
+It uses HPKE (Hybrid Public Key Encryption) to decrypt the contents of the bundle and returns
+either the decrypted mnemonic or the decrypted data in hexadecimal format, based on the
+`returnMnemonic` flag.
+
+## Parameters
+
+### params
+
+`DecryptExportBundleParams`
+
+An object containing the following properties:
+  - exportBundle {string}: The encrypted export bundle in JSON format.
+  - organizationId {string}: The expected organization ID to verify against the signed data.
+  - embeddedKey {string}: The private key used for decrypting the data.
+  - dangerouslyOverrideSignerPublicKey {string} [Optional]: Optionally override the default signer public key used for verifying the signature. This should only be done for testing
+  - returnMnemonic {boolean}: If true, returns the decrypted data as a mnemonic string; otherwise, returns it in hexadecimal format.
+
+## Returns
+
+`Promise`\<`string`\>
+
+- A promise that resolves to the decrypted mnemonic or decrypted hexadecimal data.
+
+## Throws
+
+- If decryption or signature verification fails, throws an error with details.

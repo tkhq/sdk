@@ -16,18 +16,15 @@
   "excludeInternal": true,
   "includeVersion": true,
   "fileExtension": ".mdx",
+  "alwaysCreateEntryPointModule": true,
   "plugin": ["typedoc-plugin-markdown"],
-  "projectDocuments": ["documents/*.md"],
+  "projectDocuments": ["documents/*.md", "CHANGELOG.md"],
   "outputs": [
     {
       // requires typedoc-plugin-markdown
       "name": "markdown",
-      "path": "./docs/markdown",
+      "path": "./generated-docs/sdks",
       "fileExtension": ".mdx"
-    },
-    {
-      "name": "json",
-      "path": "./docs/docs.json"
     }
   ]
 }

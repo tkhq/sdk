@@ -1,0 +1,120 @@
+---
+title: "SDK Browser"
+mode: wide
+---
+  
+# @turnkey/sdk-browser
+
+[![npm](https://img.shields.io/npm/v/@turnkey/http?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-browser)
+
+A SDK client with browser-specific abstractions for interacting with [Turnkey](https://turnkey.com) API. Also includes [@turnkey/http](https://www.npmjs.com/package/@turnkey/http), a lower-level, fully typed HTTP client.
+
+Turnkey API documentation lives here: https://docs.turnkey.com.
+
+## Getting started
+
+```bash
+$ npm install @turnkey/sdk-browser
+```
+
+### Initialize
+
+```typescript
+import { Turnkey } from "@turnkey/sdk-browser";
+
+const turnkey = new Turnkey({
+  apiBaseUrl: "https://api.turnkey.com",
+  defaultOrganizationId: process.env.TURNKEY_ORGANIZATION_ID,
+  // Optional: Your relying party ID - for use with Passkey authentication
+  rpId: process.env.TURNKEY_RP_ID,
+});
+```
+
+### Turnkey Clients
+
+#### Passkey
+
+The Passkey client allows for authentication to Turnkey's API using Passkeys.
+
+```typescript
+const passkeyClient = turnkey.passkeyClient();
+
+// User will be prompted to login with their passkey
+await passkeyClient.login();
+
+// Make authenticated requests to Turnkey API, such as listing user's wallets
+const walletsResponse = await passkeyClient.getWallets();
+```
+
+#### Iframe
+
+The Iframe client can be initialized to interact with Turnkey's hosted iframes for sensitive operations.
+The `iframeContainer` parameter is required, and should be a reference to the DOM element that will host the iframe.
+The `iframeUrl` is the URL of the iframe you wish to interact with.
+
+The example below demonstrates how to initialize the Iframe client for use with [Email Auth](https://docs.turnkey.com/embedded-wallets/sub-organization-auth)
+by passing in `https://auth.turnkey.com` as the `iframeUrl`.
+
+```typescript
+const iframeClient = await turnkey.iframeClient({
+  // The container element that will host the iframe
+  iframeContainer: document.getElementById("<iframe container id>"),
+  iframeUrl: "https://auth.turnkey.com",
+});
+
+const injectedResponse = await iframeClient.injectCredentialBundle(
+  "<Credential from Email>",
+);
+if (injectedResponse) {
+  await iframeClient.getWallets();
+}
+```
+
+##### IFrame URLs:
+
+| Flow                                                                                  | URL                                                  |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| [Email Auth](https://docs.turnkey.com/embedded-wallets/sub-organization-auth)         | [auth.turnkey.com](https://auth.turnkey.com)         |
+| [Email Recovery](https://docs.turnkey.com/embedded-wallets/sub-organization-recovery) | [recovery.turnkey.com](https://recovery.turnkey.com) |
+| [Import Wallet](https://docs.turnkey.com/features/import-wallets)                     | [import.turnkey.com](https://import.turnkey.com)     |
+| [Export Wallet](https://docs.turnkey.com/features/export-wallets)                     | [export.turnkey.com](https://export.turnkey.com)     |
+
+#### Wallet
+
+The Wallet client is designed for using your Solana or EVM wallet to stamp and approve activity requests for Turnkey's API.
+This stamping process leverages the wallet's signature to authenticate requests.
+
+The example below showcases how to use an injected Ethereum wallet to stamp requests to Turnkey's API.
+The user will be prompted to sign a message containing the activity request payload to be sent to Turnkey.
+
+```typescript
+import {
+  createWalletClient,
+  custom,
+  recoverPublicKey,
+  hashMessage,
+} from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { mainnet } from "viem/chains";
+
+import { WalletStamper, EthereumWallet } from "@turnkey/wallet-stamper";
+
+const walletClient = turnkey.walletClient(new EthereumWallet());
+
+// Make authenticated requests to Turnkey API, such as listing user's wallets
+// User will be prompted to sign a message to authenticate the request
+const walletsResponse = await walletClient.getWallets();
+```
+
+## Helpers
+
+`@turnkey/sdk-browser` provides `TurnkeySDKBrowserClient`, which offers wrappers around commonly used Turnkey activities, such as creating new wallets and wallet accounts.
+
+## Documents
+
+- [JavaScript Browser](JavaScript_Browser/readme)
+
+
+## Modules
+
+- [index](index/readme)

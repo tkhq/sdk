@@ -1,0 +1,42 @@
+---
+title: "React_Native"
+mode: wide
+---
+  
+## React Native Compatible Packages
+
+| Package Name                          | Description                                                                                                                                                                                     | Link                                                                                                         |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| @turnkey/http                         | A lower-level, fully typed HTTP client for interacting with the Turnkey API.                                                                                                                    | [@turnkey/http](https://www.npmjs.com/package/@turnkey/http)                                                 |
+| @turnkey/crypto                       | This package consolidates common cryptographic utilities used across our applications, particularly primitives related to keys, encryption, and decryption in a pure JavaScript implementation. | [@turnkey/crypto](https://www.npmjs.com/package/@turnkey/crypto)                                             |
+| @turnkey/api-key-stamper              | A JavaScript package for API stamping functionalities. It is meant to be used with Turnkey's HTTP package.                                                                                      | [@turnkey/api-key-stamper](https://www.npmjs.com/package/@turnkey/api-key-stamper)                           |
+| @turnkey/encoding                     | This package contains decoding and encoding functions used by other Turnkey packages.                                                                                                           | [@turnkey/encoding](https://www.npmjs.com/package/@turnkey/encoding)                                         |
+| @turnkey/react-native-passkey-stamper | A React Native package for stamping payloads with passkeys. It is meant to be used with Turnkey's HTTP package.                                                                                 | [@turnkey/react-native-passkey-stamper](https://www.npmjs.com/package/@turnkey/react-native-passkey-stamper) |
+| @turnkey/react-native-sessions        | This package provides developers with an easy way to manage sessions and securely store public-private key pairs on iOS and Android devices.                                                    | [@turnkey/react-native-sessions](https://www.npmjs.com/package/@turnkey/react-native-sessions)               |
+| @turnkey/ethers                       | A package for integrating Turnkey signers with the Ethers.js library.                                                                                                                           | [@turnkey/ethers](https://www.npmjs.com/package/@turnkey/ethers)                                             |
+| @turnkey/solana                       | A package for integrating Turnkey signers with the Solana blockchain.                                                                                                                           | [@turnkey/solana](https://www.npmjs.com/package/@turnkey/solana)                                             |
+| @turnkey/cosmjs                       | A package for integrating Turnkey Signers with the CosmJS library.                                                                                                                              | [@turnkey/cosmjs](https://www.npmjs.com/package/@turnkey/cosmjs)                                             |
+| @turnkey/viem                         | Contains helpers to use Viem with Turnkey.                                                                                                                                                      | [@turnkey/viem](https://www.npmjs.com/package/@turnkey/viem)                                                 |
+
+You can see all of Turnkey's JavaScript packages on [npmjs](https://www.npmjs.com/search?q=keywords:Turnkey).
+
+## Getting Started
+
+The easiest way to build a React Native app with Turnkey is to use our [React Native demo wallet](https://github.com/tkhq/react-native-demo-wallet) as a starter. This app is a fully-featured example that demonstrates how to use the Turnkey's JavaScript packages to authenticate users, create wallets, export wallets, sign messages, and more.
+
+The app includes a backend [JavaScript server](https://github.com/tkhq/react-native-demo-wallet/blob/main/app/turnkey%2Bapi.ts) which uses [@turnkey/sdk-server](https://www.npmjs.com/package/@turnkey/sdk-server) to make requests to Turnkey that must be signed by the parent organization. An example of a request that must be signed by the parent organization is creating a [sub-organization](/concepts/sub-organizations). [(code reference)](https://github.com/tkhq/react-native-demo-wallet/blob/6200e34563ed5076a1f7305c9aaa8f65d9242b53/app/turnkey%2Bapi.ts#L132-L192)
+
+Some requests made to Turnkey must be signed by the sub-organization. These are ran by the app directly. You can find these requests in the app's [TurnkeyProvider](https://github.com/tkhq/react-native-demo-wallet/blob/main/providers/turnkey.tsx). An example of a request that must be signed by the sub-organization is creating a wallet. [(code reference)](https://github.com/tkhq/react-native-demo-wallet/blob/6200e34563ed5076a1f7305c9aaa8f65d9242b53/providers/turnkey.tsx#L609-L642)
+
+## Video
+
+<Frame>
+  <video
+  src="https://github.com/tkhq/react-native-demo-wallet/raw/refs/heads/main/assets/videos/demo_video.mov"
+  width="100%"
+  height="420"
+  controls
+></video>
+</Frame>
+
+**Complete the installation and setup by following the instructions in the [readme](https://github.com/tkhq/react-native-demo-wallet/blob/main/readme.md) file.**

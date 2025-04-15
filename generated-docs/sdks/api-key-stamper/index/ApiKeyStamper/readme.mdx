@@ -1,0 +1,62 @@
+---
+title: "ApiKeyStamper"
+mode: wide
+---
+  
+# Class: ApiKeyStamper
+
+Defined in: [index.ts:53](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/api-key-stamper/src/index.ts#L53)
+
+Stamper to use with `@turnkey/http`'s `TurnkeyClient`
+
+## Constructors
+
+### Constructor
+
+> **new ApiKeyStamper**(`config`): `ApiKeyStamper`
+
+Defined in: [index.ts:57](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/api-key-stamper/src/index.ts#L57)
+
+#### Parameters
+
+##### config
+
+[`TApiKeyStamperConfig`](../TApiKeyStamperConfig/readme)
+
+#### Returns
+
+`ApiKeyStamper`
+
+## Properties
+
+### apiPrivateKey
+
+> **apiPrivateKey**: `string`
+
+Defined in: [index.ts:55](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/api-key-stamper/src/index.ts#L55)
+
+***
+
+### apiPublicKey
+
+> **apiPublicKey**: `string`
+
+Defined in: [index.ts:54](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/api-key-stamper/src/index.ts#L54)
+
+## Methods
+
+### stamp()
+
+> **stamp**(`payload`): `Promise`\<\{ `stampHeaderName`: `string`; `stampHeaderValue`: `string`; \}\>
+
+Defined in: [index.ts:62](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/api-key-stamper/src/index.ts#L62)
+
+#### Parameters
+
+##### payload
+
+`string`
+
+#### Returns
+
+`Promise`\<\{ `stampHeaderName`: `string`; `stampHeaderValue`: `string`; \}\>

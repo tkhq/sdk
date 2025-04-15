@@ -1,0 +1,96 @@
+---
+title: "BaseEthereumWallet"
+mode: wide
+---
+  
+# Class: `abstract` BaseEthereumWallet
+
+Defined in: [packages/wallet-stamper/src/ethereum.ts:23](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/wallet-stamper/src/ethereum.ts#L23)
+
+Abstract class representing a base Ethereum wallet.
+This class is used for stamping requests with an Ethereum wallet.
+
+To use this class, extend it and implement the `signMessage` method
+to provide a custom signing function. The `signMessage` method should
+return a promise that resolves to a hexadecimal string representing
+the signature of the provided message.
+
+## Extended by
+
+- [`EthereumWallet`](../EthereumWallet/readme)
+
+## Implements
+
+- [`EthereumWalletInterface`](../EthereumWalletInterface/readme)
+
+## Constructors
+
+### Constructor
+
+> **new BaseEthereumWallet**(): `BaseEthereumWallet`
+
+#### Returns
+
+`BaseEthereumWallet`
+
+## Properties
+
+### type
+
+> **type**: [`Ethereum`](../WalletType/readme#ethereum) = `WalletType.Ethereum`
+
+Defined in: [packages/wallet-stamper/src/ethereum.ts:24](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/wallet-stamper/src/ethereum.ts#L24)
+
+The type of the wallet.
+
+#### Implementation of
+
+[`EthereumWalletInterface`](../EthereumWalletInterface/readme).[`type`](../EthereumWalletInterface/readme#type)
+
+## Methods
+
+### getPublicKey()
+
+> **getPublicKey**(): `Promise`\<`string`\>
+
+Defined in: [packages/wallet-stamper/src/ethereum.ts:40](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/wallet-stamper/src/ethereum.ts#L40)
+
+Returns the public key, which is the SECP256K1 hex encoded public key from your Ethereum wallet.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to a string representing the compressed public key.
+
+#### Implementation of
+
+[`EthereumWalletInterface`](../EthereumWalletInterface/readme).[`getPublicKey`](../EthereumWalletInterface/readme#getpublickey)
+
+***
+
+### signMessage()
+
+> `abstract` **signMessage**(`message`): `Promise`\<`` `0x${string}` ``\>
+
+Defined in: [packages/wallet-stamper/src/ethereum.ts:33](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/wallet-stamper/src/ethereum.ts#L33)
+
+Signs a message and returns the hex signature as a string.
+
+#### Parameters
+
+##### message
+
+`string`
+
+The message to be signed, either as a string or a Hex.
+
+#### Returns
+
+`Promise`\<`` `0x${string}` ``\>
+
+A promise that resolves to a Hex string representing the signature.
+
+#### Implementation of
+
+[`EthereumWalletInterface`](../EthereumWalletInterface/readme).[`signMessage`](../EthereumWalletInterface/readme#signmessage)

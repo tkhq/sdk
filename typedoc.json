@@ -1,17 +1,23 @@
 {
   "entryPoints": ["packages/*"],
   "entryPointStrategy": "packages",
-  "includeVersion": false,
+  "includeVersion": true,
   "excludeExternals": true,
   "fileExtension": ".mdx",
   "plugin": ["typedoc-plugin-markdown"],
+  "alwaysCreateEntryPointModule": true,
   "outputs": [
     {
       // requires typedoc-plugin-markdown
       "name": "markdown",
-      "path": "./docs/markdown",
+      "path": "./generated-docs/sdks",
       "fileExtension": ".mdx"
     }
   ],
-  "router": "structure"
+  "router": "structure-dir",
+  "hideGenerator": true,
+  "headings": {
+    "readme": false,
+    "document": false
+  }
 }

@@ -1,0 +1,36 @@
+---
+title: "DecryptCredentialBundle"
+mode: wide
+---
+  
+# Function: decryptCredentialBundle()
+
+> **decryptCredentialBundle**(`credentialBundle`, `embeddedKey`): `string`
+
+Defined in: [turnkey.ts:59](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/crypto/src/turnkey.ts#L59)
+
+Decrypt an encrypted email auth/recovery or oauth credential bundle.
+
+## Parameters
+
+### credentialBundle
+
+`string`
+
+The encrypted credential bundle.
+
+### embeddedKey
+
+`string`
+
+The private key for decryption.
+
+## Returns
+
+`string`
+
+- The decrypted data or null if decryption fails.
+
+## Throws
+
+- If unable to decrypt the credential bundle

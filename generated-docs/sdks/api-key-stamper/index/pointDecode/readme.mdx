@@ -1,0 +1,25 @@
+---
+title: "PointDecode"
+mode: wide
+---
+  
+# Function: pointDecode()
+
+> **pointDecode**(`point`): `JsonWebKey`
+
+Defined in: [tink/elliptic\_curves.ts:166](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/api-key-stamper/src/tink/elliptic_curves.ts#L166)
+
+Decodes a public key in _compressed_ OR _uncompressed_ format.
+Augmented to ensure that the x and y components are padded to fit 32 bytes.
+
+P-256 only
+
+## Parameters
+
+### point
+
+`Uint8Array`
+
+## Returns
+
+`JsonWebKey`

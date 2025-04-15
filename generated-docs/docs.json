@@ -1,0 +1,92 @@
+{
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "SDK Reference",
+        "groups": [
+          {
+            "group": "SDK Reference",
+            "pages": [
+              "sdks/introduction",
+              "sdks/javascript-browser",
+              "sdks/javascript-server",
+              "sdks/react",
+              "sdks/react-native",
+              "sdks/golang",
+              "sdks/rust",
+              "sdks/Ruby",
+              "sdks/cli",
+              "sdks/flutter",
+              {
+                "group": "Swift",
+                "pages": [
+                  "sdks/swift",
+                  "sdks/swift/proxy-middleware",
+                  "sdks/swift/register-passkey"
+                ]
+              },
+              {
+                "group": "Web3 Libraries",
+                "pages": [
+                  "category/web3-libraries",
+                  "sdks/web3/ethers",
+                  "sdks/web3/viem",
+                  "sdks/web3/cosmjs",
+                  "sdks/web3/eip-1193",
+                  "sdks/web3/solana"
+                ]
+              },
+              {
+                "group": "Advanced",
+                "pages": [
+                  "category/advanced",
+                  "sdks/advanced/turnkey-client",
+                  "sdks/advanced/api-key-stamper",
+                  "sdks/advanced/wallet-stamper",
+                  "sdks/advanced/webauthn-stamper",
+                  "sdks/advanced/iframe-stamper"
+                ]
+              },
+              "sdks/migration-path"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Changelogs",
+        "pages": [
+          {
+            "group": "Changelogs",
+            "pages": [
+              {
+                "group": "SDK changelogs",
+                "pages": [
+                  "changelogs/api-key-stamper/readme",
+                  "changelogs/cosmjs/readme",
+                  "changelogs/crypto/readme",
+                  "changelogs/eip-1193-provider/readme",
+                  "changelogs/encoding/readme",
+                  "changelogs/ethers/readme",
+                  "changelogs/http/readme",
+                  "changelogs/iframe-stamper/readme",
+                  "changelogs/react-native-passkey-stamper/readme",
+                  "changelogs/sdk-browser/readme",
+                  "changelogs/sdk-react/readme",
+                  "changelogs/sdk-react-native/readme",
+                  "changelogs/sdk-server/readme",
+                  "changelogs/solana/readme",
+                  "changelogs/telegram-cloud-storage-stamper/readme",
+                  "changelogs/viem/readme",
+                  "changelogs/wallet-stamper/readme",
+                  "changelogs/webauthn-stamper/readme",
+                  "changelogs/golang/readme",
+                  "changelogs/dart/readme"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+---
+title: "BuildAdditionalAssociatedData"
+mode: wide
+---
+  
+# Function: buildAdditionalAssociatedData()
+
+> **buildAdditionalAssociatedData**(`senderPubBuf`, `receiverPubBuf`): `Uint8Array`
+
+Defined in: [crypto.ts:294](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/crypto/src/crypto.ts#L294)
+
+Create additional associated data (AAD) for AES-GCM decryption.
+
+## Parameters
+
+### senderPubBuf
+
+`Uint8Array`
+
+### receiverPubBuf
+
+`Uint8Array`
+
+## Returns
+
+`Uint8Array`
+
+- The resulting concatenation of sender and receiver pubkeys.

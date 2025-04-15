@@ -1,0 +1,118 @@
+---
+title: "Turnkey"
+mode: wide
+---
+  
+# Class: Turnkey
+
+Defined in: [packages/sdk-server/src/sdk-client.ts:27](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-server/src/sdk-client.ts#L27)
+
+## Constructors
+
+### Constructor
+
+> **new Turnkey**(`config`): `TurnkeyServerSDK`
+
+Defined in: [packages/sdk-server/src/sdk-client.ts:32](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-server/src/sdk-client.ts#L32)
+
+#### Parameters
+
+##### config
+
+`TurnkeySDKServerConfig`
+
+#### Returns
+
+`TurnkeyServerSDK`
+
+## Properties
+
+### config
+
+> **config**: `TurnkeySDKServerConfig`
+
+Defined in: [packages/sdk-server/src/sdk-client.ts:28](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-server/src/sdk-client.ts#L28)
+
+***
+
+### stamper
+
+> `protected` **stamper**: `undefined` \| [`ApiKeyStamper`](../ApiKeyStamper/readme)
+
+Defined in: [packages/sdk-server/src/sdk-client.ts:30](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-server/src/sdk-client.ts#L30)
+
+## Methods
+
+### apiClient()
+
+> **apiClient**(`apiCredentials`?): [`TurnkeyApiClient`](../TurnkeyApiClient/readme)
+
+Defined in: [packages/sdk-server/src/sdk-client.ts:36](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-server/src/sdk-client.ts#L36)
+
+#### Parameters
+
+##### apiCredentials?
+
+`ApiCredentials`
+
+#### Returns
+
+[`TurnkeyApiClient`](../TurnkeyApiClient/readme)
+
+***
+
+### apiProxy()
+
+> **apiProxy**(`methodName`, `params`): `Promise`\<`any`\>
+
+Defined in: [packages/sdk-server/src/sdk-client.ts:50](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-server/src/sdk-client.ts#L50)
+
+#### Parameters
+
+##### methodName
+
+`string`
+
+##### params
+
+`any`[]
+
+#### Returns
+
+`Promise`\<`any`\>
+
+***
+
+### expressProxyHandler()
+
+> **expressProxyHandler**(`config`): `RequestHandler`
+
+Defined in: [packages/sdk-server/src/sdk-client.ts:62](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-server/src/sdk-client.ts#L62)
+
+#### Parameters
+
+##### config
+
+`TurnkeyProxyHandlerConfig`
+
+#### Returns
+
+`RequestHandler`
+
+***
+
+### nextProxyHandler()
+
+> **nextProxyHandler**(`config`): `NextApiHandler`
+
+Defined in: [packages/sdk-server/src/sdk-client.ts:91](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/sdk-server/src/sdk-client.ts#L91)
+
+#### Parameters
+
+##### config
+
+`TurnkeyProxyHandlerConfig`
+
+#### Returns
+
+`NextApiHandler`

@@ -1,0 +1,177 @@
+---
+title: "TurnkeySigner"
+mode: wide
+---
+  
+# Class: TurnkeySigner
+
+Defined in: [solana/src/index.ts:13](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/solana/src/index.ts#L13)
+
+## Constructors
+
+### Constructor
+
+> **new TurnkeySigner**(`input`): `TurnkeySigner`
+
+Defined in: [solana/src/index.ts:17](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/solana/src/index.ts#L17)
+
+#### Parameters
+
+##### input
+
+###### client
+
+`TClient`
+
+###### organizationId
+
+`string`
+
+#### Returns
+
+`TurnkeySigner`
+
+## Properties
+
+### client
+
+> `readonly` **client**: `TClient`
+
+Defined in: [solana/src/index.ts:15](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/solana/src/index.ts#L15)
+
+***
+
+### organizationId
+
+> `readonly` **organizationId**: `string`
+
+Defined in: [solana/src/index.ts:14](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/solana/src/index.ts#L14)
+
+## Methods
+
+### addSignature()
+
+> **addSignature**(`tx`, `fromAddress`, `organizationId`?): `Promise`\<`void`\>
+
+Defined in: [solana/src/index.ts:60](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/solana/src/index.ts#L60)
+
+This function takes a Solana transaction and adds a signature with Turnkey
+
+#### Parameters
+
+##### tx
+
+Transaction | VersionedTransaction object (native @solana/web3.js type)
+
+`Transaction` | `VersionedTransaction`
+
+##### fromAddress
+
+`string`
+
+Solana address (base58 encoded)
+
+##### organizationId?
+
+`string`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### signAllTransactions()
+
+> **signAllTransactions**(`txs`, `fromAddress`, `organizationId`?): `Promise`\<(`Transaction` \| `VersionedTransaction`)[]\>
+
+Defined in: [solana/src/index.ts:28](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/solana/src/index.ts#L28)
+
+This function takes an array of Solana transactions and adds a signature with Turnkey to each of them
+
+#### Parameters
+
+##### txs
+
+(`Transaction` \| `VersionedTransaction`)[]
+
+array of Transaction | VersionedTransaction (native @solana/web3.js type)
+
+##### fromAddress
+
+`string`
+
+Solana address (base58 encoded)
+
+##### organizationId?
+
+`string`
+
+#### Returns
+
+`Promise`\<(`Transaction` \| `VersionedTransaction`)[]\>
+
+***
+
+### signMessage()
+
+> **signMessage**(`message`, `fromAddress`, `organizationId`?): `Promise`\<`Uint8Array`\>
+
+Defined in: [solana/src/index.ts:83](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/solana/src/index.ts#L83)
+
+This function takes a message and returns it after being signed with Turnkey
+
+#### Parameters
+
+##### message
+
+`Uint8Array`
+
+The message to sign (Uint8Array)
+
+##### fromAddress
+
+`string`
+
+Solana address (base58 encoded)
+
+##### organizationId?
+
+`string`
+
+#### Returns
+
+`Promise`\<`Uint8Array`\>
+
+***
+
+### signTransaction()
+
+> **signTransaction**(`tx`, `fromAddress`, `organizationId`?): `Promise`\<`Transaction` \| `VersionedTransaction`\>
+
+Defined in: [solana/src/index.ts:106](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/solana/src/index.ts#L106)
+
+This function takes a Solana transaction, adds a signature via Turnkey,
+and returns a new transaction
+
+#### Parameters
+
+##### tx
+
+Transaction | VersionedTransaction object (native @solana/web3.js type)
+
+`Transaction` | `VersionedTransaction`
+
+##### fromAddress
+
+`string`
+
+Solana address (base58 encoded)
+
+##### organizationId?
+
+`string`
+
+#### Returns
+
+`Promise`\<`Transaction` \| `VersionedTransaction`\>

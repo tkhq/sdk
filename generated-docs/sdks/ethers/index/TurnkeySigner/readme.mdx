@@ -1,0 +1,259 @@
+---
+title: "TurnkeySigner"
+mode: wide
+---
+  
+# Class: TurnkeySigner
+
+Defined in: [ethers/src/index.ts:46](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/ethers/src/index.ts#L46)
+
+## Extends
+
+- `AbstractSigner`
+
+## Implements
+
+- `Signer`
+
+## Constructors
+
+### Constructor
+
+> **new TurnkeySigner**(`config`, `provider`?): `TurnkeySigner`
+
+Defined in: [ethers/src/index.ts:55](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/ethers/src/index.ts#L55)
+
+#### Parameters
+
+##### config
+
+`TConfig`
+
+##### provider?
+
+`Provider`
+
+#### Returns
+
+`TurnkeySigner`
+
+#### Overrides
+
+`AbstractSigner.constructor`
+
+## Properties
+
+### \_signTypedData()
+
+> **\_signTypedData**: (`domain`, `types`, `value`) => `Promise`\<`string`\>
+
+Defined in: [ethers/src/index.ts:297](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/ethers/src/index.ts#L297)
+
+#### Parameters
+
+##### domain
+
+`TypedDataDomain`
+
+##### types
+
+`Record`\<`string`, `TypedDataField`[]\>
+
+##### value
+
+`Record`\<`string`, `any`\>
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### organizationId
+
+> `readonly` **organizationId**: `string`
+
+Defined in: [ethers/src/index.ts:52](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/ethers/src/index.ts#L52)
+
+***
+
+### signWith
+
+> `readonly` **signWith**: `string`
+
+Defined in: [ethers/src/index.ts:53](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/ethers/src/index.ts#L53)
+
+## Methods
+
+### \_signMessageImpl()
+
+> **\_signMessageImpl**(`message`): `Promise`\<`string`\>
+
+Defined in: [ethers/src/index.ts:234](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/ethers/src/index.ts#L234)
+
+#### Parameters
+
+##### message
+
+`string`
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### \_signMessageWithErrorWrapping()
+
+> **\_signMessageWithErrorWrapping**(`message`): `Promise`\<`string`\>
+
+Defined in: [ethers/src/index.ts:213](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/ethers/src/index.ts#L213)
+
+#### Parameters
+
+##### message
+
+`string`
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### connect()
+
+> **connect**(`provider`): `TurnkeySigner`
+
+Defined in: [ethers/src/index.ts:63](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/ethers/src/index.ts#L63)
+
+Returns the signer connected to %%provider%%.
+
+ This may throw, for example, a Signer connected over a Socket or
+ to a specific instance of a node may not be transferrable.
+
+#### Parameters
+
+##### provider
+
+`Provider`
+
+#### Returns
+
+`TurnkeySigner`
+
+#### Implementation of
+
+`ethers.Signer.connect`
+
+#### Overrides
+
+`AbstractSigner.connect`
+
+***
+
+### getAddress()
+
+> **getAddress**(): `Promise`\<`string`\>
+
+Defined in: [ethers/src/index.ts:77](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/ethers/src/index.ts#L77)
+
+Resolves to the Signer address.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Implementation of
+
+`ethers.Signer.getAddress`
+
+#### Overrides
+
+`AbstractSigner.getAddress`
+
+***
+
+### signMessage()
+
+> **signMessage**(`message`): `Promise`\<`string`\>
+
+Defined in: [ethers/src/index.ts:206](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/ethers/src/index.ts#L206)
+
+#### Parameters
+
+##### message
+
+`string` | `Uint8Array`
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Implementation of
+
+`ethers.Signer.signMessage`
+
+#### Overrides
+
+`AbstractSigner.signMessage`
+
+***
+
+### signTransaction()
+
+> **signTransaction**(`transaction`): `Promise`\<`string`\>
+
+Defined in: [ethers/src/index.ts:166](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/ethers/src/index.ts#L166)
+
+#### Parameters
+
+##### transaction
+
+`TransactionRequest`
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Implementation of
+
+`ethers.Signer.signTransaction`
+
+#### Overrides
+
+`AbstractSigner.signTransaction`
+
+***
+
+### signTypedData()
+
+> **signTypedData**(`domain`, `types`, `value`): `Promise`\<`string`\>
+
+Defined in: [ethers/src/index.ts:273](https://github.com/tkhq/sdk/blob/ee72856c3f450731d7501ab05001215768b71500/packages/ethers/src/index.ts#L273)
+
+#### Parameters
+
+##### domain
+
+`TypedDataDomain`
+
+##### types
+
+`Record`\<`string`, `TypedDataField`[]\>
+
+##### value
+
+`Record`\<`string`, `any`\>
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Implementation of
+
+`ethers.Signer.signTypedData`
+
+#### Overrides
+
+`AbstractSigner.signTypedData`
