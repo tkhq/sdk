@@ -4,6 +4,7 @@ import { ReactNode, createContext, useState, useEffect, useRef } from "react";
 import {
   Turnkey,
   TurnkeyIframeClient,
+  TurnkeyIndexedDbClient,
   TurnkeyPasskeyClient,
   TurnkeySDKBrowserConfig,
   TurnkeyBrowserClient,
@@ -19,6 +20,7 @@ export interface TurnkeyClientType {
   authIframeClient: TurnkeyIframeClient | undefined;
   passkeyClient: TurnkeyPasskeyClient | undefined;
   walletClient: TurnkeyWalletClient | undefined;
+  indexedDbClient: TurnkeyIndexedDbClient | undefined;
   getActiveClient: () => Promise<TurnkeyBrowserClient | undefined>;
 }
 
@@ -28,6 +30,7 @@ export const TurnkeyContext = createContext<TurnkeyClientType>({
   passkeyClient: undefined,
   authIframeClient: undefined,
   walletClient: undefined,
+  indexedDbClient: undefined,
   getActiveClient: async () => {
     return undefined;
   },
@@ -47,6 +50,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   children,
 }) => {
   const [turnkey, setTurnkey] = useState<Turnkey | undefined>(undefined);
+  const [indexedDbClient, setIndexedDbClient] = useState<
+  TurnkeyIndexedDbClient | undefined
+>(undefined);
   const [passkeyClient, setPasskeyClient] = useState<
     TurnkeyPasskeyClient | undefined
   >(undefined);
@@ -131,8 +137,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           }),
           iframeElementId: TurnkeyAuthIframeElementId,
         });
-
         setAuthIframeClient(iframeClient);
+
+        // create an instance of TurnkeyIndexedDbClient
+        const indexedDbClient = await turnkeyBrowserSDK.indexedDbClient();
+        setIndexedDbClient(indexedDbClient);
+
       }
     })();
   }, []);
@@ -169,11 +179,14 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       case AuthClient.Wallet:
         setClient(walletClient);
         break;
+      case AuthClient.IndexedDb:
+        setClient(indexedDbClient);
+        break;
       default:
         // Handle unknown auth client type if needed
         break;
     }
-  }, [session, authIframeClient, passkeyClient, walletClient]);
+  }, [session, authIframeClient, passkeyClient, walletClient, indexedDbClient]);
 
   return (
     <TurnkeyContext.Provider
@@ -182,6 +195,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         turnkey,
         passkeyClient,
         authIframeClient,
+        indexedDbClient,
         walletClient,
         getActiveClient,
       }}

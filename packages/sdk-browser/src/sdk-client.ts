@@ -330,5 +330,6 @@ export {
   TurnkeyBrowserClient,
   TurnkeyIframeClient,
   TurnkeyPasskeyClient,
+  TurnkeyIndexedDbClient,
   TurnkeyWalletClient,
 };

@@ -4,7 +4,7 @@ import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IframeStamper } from "@turnkey/iframe-stamper";
 import type { TurnkeyIframeClient } from "../sdk-client";
-import { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
+import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 
 export type GrpcStatus = {
   message: string;
