@@ -2,7 +2,6 @@ const fs = require("fs").promises;
 const path = require("path");
 
 const changelogDirectoryPaths = [];
-// const pages = [];
 
 async function addFrontmatterToMdxFiles(dir, directoryName) {
   try {
@@ -102,9 +101,6 @@ mode: wide
 
         await fs.writeFile(formattedFilePath, formattedContent);
         await fs.rename(fullPath, formattedFilePath); // rename the file to lowercase
-        // pages.push(
-        //   formattedFilePath.replace("generated-docs/", "").replace(".mdx", "")
-        // );
       }
     }
   } catch (error) {
@@ -185,12 +181,12 @@ async function createDocsStructure(outputDir) {
     for (const file of files) {
       const fullPath = path.join(dir, file.name);
       if (file.isDirectory()) {
-        // ignore the changelogs directory
-        // if (file.name === "changelogs") return;
+        // recurse into subdirectories
         let _pageGroup = await buildPageGroup(fullPath, {
           group: file.name,
           pages: [],
-        }); // recurse into subdirectories
+        });
+
         pageGroup.pages.push(_pageGroup);
       } else if (file.isFile() && fullPath.endsWith(".mdx")) {
         pageGroup.pages.push(
@@ -211,11 +207,13 @@ async function createDocsStructure(outputDir) {
       const fullPath = path.join(outputDir, file.name);
 
       if (file.isDirectory()) {
+        // ignore the changelogs directory
         if (file.name !== "changelogs") {
+          // recurse into subdirectories
           let _pageGroup = await buildPageGroup(fullPath, {
             group: file.name,
             pages: [],
-          }); // recurse into subdirectories
+          });
 
           pageGroup.pages.push(_pageGroup);
         }
@@ -225,50 +223,249 @@ async function createDocsStructure(outputDir) {
     }
     pageGroups.push(pageGroup);
 
-    const docsJson = await fs.readFile(`${outputDir}/docs.json`, "utf8");
-    const docsObject = JSON.parse(docsJson);
-    const navigationTabs = docsObject.navigation.tabs.map((tab) => {
-      if (tab.tab === "SDK Reference") {
-        return {
-          ...tab,
-          groups: tab.groups.map((group) => {
-            if (group.group === "SDK Reference") {
-              return {
-                ...group,
-                pages: group.pages.map((page) => {
-                  if (!page.group) {
-                    return page;
-                  }
-                  const filteredPageGroup = pageGroups[0].pages[0].pages.find(
-                    (p) => p.group === page.group
-                  );
-
-                  if (filteredPageGroup) {
-                    return {
-                      ...page,
-                      pages: filteredPageGroup.pages,
-                    };
-                  }
-                  return { ...page };
-                }),
-              };
-            }
-            return { ...group };
-          }),
-        };
-      }
-      return { ...tab };
-    });
-
-    // update the navigation tabs in generated-docs/docs.json with generated sdk pages
-    docsObject.navigation.tabs = navigationTabs;
     await fs.writeFile(
-      `${outputDir}/docs.json`,
-      JSON.stringify(docsObject),
+      `${outputDir}/sdk-docs.json`,
+      JSON.stringify(pageGroups),
       "utf8"
     );
   } catch (error) {
     console.error(`Error createDocsStructure ${outputDir}:`, error);
+  }
+}
+
+async function mergeSdkReferenceGroups(outputDir = "generated-docs") {
+  try {
+    // docs.json represents the mintlify structure in tkhq/docs
+    const docsData = JSON.parse(
+      await fs.readFile(`${outputDir}/docs.json`, "utf8")
+    );
+
+    // sdk-docs.json represents the structure generated TypeDoc
+    const sdkDocsData = JSON.parse(
+      await fs.readFile(`${outputDir}/sdk-docs.json`, "utf8")
+    );
+
+    // extract the "SDK Reference" tab group from docs.json
+    const docsSdkRef = docsData.navigation.tabs
+      .find((tab) => tab.tab === "SDK Reference")
+      ?.groups.find((group) => group.group === "SDK Reference");
+    if (!docsSdkRef) {
+      throw new Error("SDK Reference group not found in docs.json");
+    }
+
+    // extract the "SDK Reference" tab group from sdk-docs.json
+    const sdkDocsSdkRef = sdkDocsData.find(
+      (group) => group.group === "SDK Reference"
+    );
+    if (!sdkDocsSdkRef) {
+      throw new Error("SDK Reference group not found in sdk-docs.json");
+    }
+
+    // collect string pages and groups, separating top-level and nested / grouped pages
+    function collectPagesAndGroups(pages) {
+      const topLevelStringPages = new Set();
+      const groupContainedPages = new Set();
+      const nestedGroups = [];
+
+      function processPages(items, isTopLevel = true) {
+        if (!Array.isArray(items)) {
+          console.warn(`Expected pages to be an array, got ${typeof items}`);
+          return;
+        }
+
+        for (const item of items) {
+          // some pages are string paths e.g. "sdks/migration-path"
+          if (typeof item === "string") {
+            if (isTopLevel) {
+              topLevelStringPages.add(item);
+            } else {
+              groupContainedPages.add(item);
+            }
+          } else if (item.group && Array.isArray(item.pages)) {
+            nestedGroups.push({
+              group: item.group,
+              pages: item.pages,
+            });
+            processPages(item.pages, false);
+          }
+        }
+      }
+
+      processPages(pages);
+      return {
+        topLevelStringPages: Array.from(topLevelStringPages),
+        groupContainedPages: Array.from(groupContainedPages),
+        nestedGroups,
+      };
+    }
+
+    // get pages from docs.json
+    const docsPages = collectPagesAndGroups(docsSdkRef.pages);
+
+    // get pages from sdk-docs.json
+    const sdkDocsPages = collectPagesAndGroups(sdkDocsSdkRef.pages);
+
+    // Start with sdk-docs.json's pages to preserve its structure
+    const mergedPages = [...sdkDocsSdkRef.pages]; // includes { group: "sdks", pages: [...] }
+
+    // merge top-level string pages from docs.json, excluding those in sdk-docs.json or docs.json groups
+    const allSdkDocsPages = new Set([
+      ...sdkDocsPages.topLevelStringPages,
+      ...sdkDocsPages.groupContainedPages,
+    ]);
+    const docsUniquePages = docsPages.topLevelStringPages.filter(
+      (page) =>
+        !allSdkDocsPages.has(page) &&
+        !docsPages.groupContainedPages.includes(page)
+    );
+
+    // add unique top-level string pages from docs.json, ensuring no duplicates
+    const mergedStringPages = new Set(docsUniquePages);
+    mergedPages.forEach((page) => {
+      if (typeof page === "string") {
+        mergedStringPages.add(page);
+      }
+    });
+
+    // replace top-level string pages with deduplicated set
+    const finalMergedPages = mergedPages.filter(
+      (page) => typeof page !== "string"
+    );
+    finalMergedPages.push(...Array.from(mergedStringPages));
+
+    // merge nested groups from docs.json, preserving structure and deduplicating pages
+    const sdkDocsGroupNames = new Set(
+      sdkDocsPages.nestedGroups.map((g) => g.group)
+    );
+    for (const docsGroup of docsPages.nestedGroups) {
+      if (!sdkDocsGroupNames.has(docsGroup.group)) {
+        // preserve unique groups as-is (e.g., Swift, Web3 Libraries, Advanced) from docs.json
+        finalMergedPages.push({
+          group: docsGroup.group,
+          pages: docsGroup.pages,
+        });
+      } else {
+        // merge pages from overlapping groups, preserving sdk-docs.json's structure
+        let targetGroup = null;
+        // check for the group in mergedPages (top level or under "sdks")
+        for (const page of finalMergedPages) {
+          if (typeof page !== "string" && page.group === docsGroup.group) {
+            targetGroup = page;
+            break;
+          }
+          if (typeof page !== "string" && page.group === "sdks") {
+            targetGroup = page.pages.find(
+              (p) => typeof p !== "string" && p.group === docsGroup.group
+            );
+            if (targetGroup) break;
+          }
+        }
+        if (targetGroup) {
+          // deduplicate pages within the target group
+          const existingPages = new Set(
+            collectPagesAndGroups(targetGroup.pages).groupContainedPages
+          );
+          const newPages = [];
+          for (const item of docsGroup.pages) {
+            if (typeof item === "string") {
+              if (!existingPages.has(item)) {
+                newPages.push(item);
+                existingPages.add(item);
+              }
+            } else if (item.group && Array.isArray(item.pages)) {
+              // check if subgroup exists
+              const existingSubgroup = targetGroup.pages.find(
+                (p) => typeof p !== "string" && p.group === item.group
+              );
+              if (!existingSubgroup) {
+                newPages.push(item);
+              } else {
+                // merge subgroup pages and deduplicate
+                const subExistingPages = new Set(
+                  collectPagesAndGroups(
+                    existingSubgroup.pages
+                  ).groupContainedPages
+                );
+                const subNewPages = item.pages.filter(
+                  (subItem) =>
+                    typeof subItem !== "string" ||
+                    !subExistingPages.has(subItem)
+                );
+                existingSubgroup.pages.push(...subNewPages);
+              }
+            }
+          }
+          targetGroup.pages.push(...newPages);
+        }
+      }
+    }
+
+    // deduplicate pages within each group in finalMergedPages
+    function deduplicateGroupPages(group) {
+      if (!group.pages) return;
+      const seenPages = new Set();
+      const deduplicatedPages = [];
+      for (const item of group.pages) {
+        if (typeof item === "string") {
+          if (!seenPages.has(item)) {
+            seenPages.add(item);
+            deduplicatedPages.push(item);
+          }
+        } else if (item.group && Array.isArray(item.pages)) {
+          deduplicateGroupPages(item); // recursively deduplicate subgroups
+          const groupKey = JSON.stringify({
+            group: item.group,
+            pages: item.pages,
+          });
+          if (!seenPages.has(groupKey)) {
+            seenPages.add(groupKey);
+            deduplicatedPages.push(item);
+          }
+        }
+      }
+      group.pages = deduplicatedPages;
+    }
+
+    finalMergedPages.forEach((page) => {
+      if (typeof page !== "string") {
+        deduplicateGroupPages(page);
+      }
+    });
+
+    // Create merged group structure
+    const mergedGroup = {
+      group: "SDK Reference",
+      pages: finalMergedPages,
+    };
+
+    // wrap generated sdk output in docs.json-compatible structure
+    const mergedOutput = {
+      navigation: {
+        tabs: [
+          {
+            tab: "SDK Reference",
+            groups: [mergedGroup],
+          },
+          // preserve Changelogs tab and any others
+          ...docsData.navigation.tabs.filter(
+            (tab) => tab.tab !== "SDK Reference"
+          ),
+        ],
+      },
+    };
+
+    // write to output file
+    const outputJsonPath = path.join(outputDir, "docs.json");
+    const dir = path.dirname(outputJsonPath);
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(
+      outputJsonPath,
+      JSON.stringify(mergedOutput, null, 2),
+      "utf8"
+    );
+  } catch (error) {
+    console.error(`Error merging SDK Reference groups: ${error.message}`);
+    throw error;
   }
 }
 
@@ -286,6 +483,9 @@ async function main() {
 
     await createDocsStructure(outputDir);
     console.log("Docs structure created successfully.");
+
+    await mergeSdkReferenceGroups(outputDir);
+    console.log("SDK Reference groups merged successfully.");
   } catch (err) {
     console.error("Error:", err);
   }
