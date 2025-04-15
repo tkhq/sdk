@@ -18,11 +18,8 @@ import { FilterType, OtpType, authErrors } from "./constants";
 import type { TurnkeyApiTypes, WalletAccount } from "@turnkey/sdk-browser";
 import { server } from "@turnkey/sdk-server";
 import parsePhoneNumberFromString from "libphonenumber-js";
+import { SessionType } from "@turnkey/sdk-types";
 
-export enum SessionType {
-  READ_ONLY = "SESSION_TYPE_READ_ONLY",
-  READ_WRITE = "SESSION_TYPE_READ_WRITE",
-}
 export interface PasskeyConfig {
   displayName?: string;
   name?: string;
@@ -244,7 +241,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleOtpLogin = async (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
-    otpType: string,
+    otpType: string
   ) => {
     setLoading(otpType);
     const createSuborgData: Record<string, any> = {};

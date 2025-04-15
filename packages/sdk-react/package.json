@@ -60,6 +60,7 @@
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*",
     "libphonenumber-js": "^1.11.14",
     "next": "^15.2.3 ",
     "react-apple-login": "^1.1.6",
