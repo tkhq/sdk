@@ -59,7 +59,7 @@ jobs:
         uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
         with:
           version: pnpm run changeset version # Updates versions and changelog
-          # publish: pnpm run changeset publish # Publishes to npm
+          publish: pnpm run changeset publish # Publishes to npm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For changelog links
-          # NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # For npm publish
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # For npm publish
