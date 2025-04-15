@@ -3,7 +3,102 @@ import { uint8ArrayToHexString, stringToBase64urlString } from "@turnkey/encodin
 const DB_NAME = "TurnkeyStamperDB";
 const DB_STORE = "KeyStore";
 const DB_KEY = "turnkeyKeyPair";
+const DB_EXPIRY_KEY = `${DB_KEY}-expiry`;
 const stampHeaderName = "X-Stamp";
+
+function pointEncode(raw: Uint8Array): Uint8Array {
+  if (raw.length !== 65 || raw[0] !== 0x04) {
+    throw new Error("Invalid uncompressed P-256 key");
+  }
+
+  const x = raw.slice(1, 33);
+  const y = raw.slice(33, 65);
+
+  if (x.length !== 32 || y.length !== 32) {
+    throw new Error("Invalid x or y length");
+  }
+
+  const prefix = (y[31]! & 1) === 0 ? 0x02 : 0x03;
+
+  const compressed = new Uint8Array(33);
+  compressed[0] = prefix;
+  compressed.set(x, 1);
+  return compressed;
+}
+
+/**
+ * `SubtleCrypto.sign(...)` outputs signature in IEEE P1363 format:
+ * - https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/sign#ecdsa
+ *
+ * Turnkey expects the signature encoding to be DER-encoded ASN.1:
+ * - https://github.com/tkhq/tkcli/blob/7f0159af5a73387ff050647180d1db4d3a3aa033/src/internal/apikey/apikey.go#L149
+ *
+ * Code modified from https://github.com/google/tink/blob/6f74b99a2bfe6677e3670799116a57268fd067fa/javascript/subtle/elliptic_curves.ts#L114
+ *
+ * Transform an ECDSA signature in IEEE 1363 encoding to DER encoding.
+ *
+ * @param ieee the ECDSA signature in IEEE encoding
+ * @return ECDSA signature in DER encoding
+ */
+function convertEcdsaIeee1363ToDer(ieee: Uint8Array): Uint8Array {
+  if (ieee.length % 2 != 0 || ieee.length == 0 || ieee.length > 132) {
+    throw new Error(
+      "Invalid IEEE P1363 signature encoding. Length: " + ieee.length,
+    );
+  }
+  const r = toUnsignedBigNum(ieee.subarray(0, ieee.length / 2));
+  const s = toUnsignedBigNum(ieee.subarray(ieee.length / 2, ieee.length));
+  let offset = 0;
+  const length = 1 + 1 + r.length + 1 + 1 + s.length;
+  let der;
+  if (length >= 128) {
+    der = new Uint8Array(length + 3);
+    der[offset++] = 48;
+    der[offset++] = 128 + 1;
+    der[offset++] = length;
+  } else {
+    der = new Uint8Array(length + 2);
+    der[offset++] = 48;
+    der[offset++] = length;
+  }
+  der[offset++] = 2;
+  der[offset++] = r.length;
+  der.set(r, offset);
+  offset += r.length;
+  der[offset++] = 2;
+  der[offset++] = s.length;
+  der.set(s, offset);
+  return der;
+}
+
+/**
+ * Code modified from https://github.com/google/tink/blob/6f74b99a2bfe6677e3670799116a57268fd067fa/javascript/subtle/elliptic_curves.ts#L311
+ *
+ * Transform a big integer in big endian to minimal unsigned form which has
+ * no extra zero at the beginning except when the highest bit is set.
+ */
+function toUnsignedBigNum(bytes: Uint8Array): Uint8Array {
+  // Remove zero prefixes.
+  let start = 0;
+  while (start < bytes.length && bytes[start] == 0) {
+    start++;
+  }
+  if (start == bytes.length) {
+    start = bytes.length - 1;
+  }
+  let extraZero = 0;
+
+  // If the 1st bit is not zero, add 1 zero byte.
+  if ((bytes[start]! & 128) == 128) {
+    // Add extra zero.
+    extraZero = 1;
+  }
+  const res = new Uint8Array(bytes.length - start + extraZero);
+  res.set(bytes.subarray(start), extraZero);
+  return res;
+}
+
+
 
 export class IndexedDbStamper {
   private publicKeyHex: string | null = null;
@@ -29,7 +124,7 @@ export class IndexedDbStamper {
     });
   }
 
-  private async storeKeyPair(publicKey: string, privateKey: CryptoKey): Promise<void> {
+  private async storeKeyPair(publicKey: string, privateKey: CryptoKey, expiresAt: number): Promise<void> {
     const db = await this.openDb();
     return new Promise((resolve, reject) => {
       const tx = db.transaction(DB_STORE, "readwrite");
@@ -37,6 +132,7 @@ export class IndexedDbStamper {
 
       store.put(publicKey, `${DB_KEY}-pub`);
       store.put(privateKey, `${DB_KEY}-priv`);
+      store.put(expiresAt, DB_EXPIRY_KEY);
 
       tx.oncomplete = () => {
         db.close();
@@ -73,36 +169,68 @@ export class IndexedDbStamper {
     });
   }
 
-  async init(): Promise<void> {
-    try {
-      const { publicKey, privateKey } = await this.getStoredKeys();
+  async hasValidKey(): Promise<boolean> {
+    const expiry = await this.getExpiry();
+    return expiry !== null && Date.now() <= expiry;
+  }
 
-      if (publicKey && privateKey) {
-        this.publicKeyHex = publicKey;
-        this.privateKey = privateKey;
-      } else {
-        const keyPair = await crypto.subtle.generateKey(
-          {
-            name: "ECDSA",
-            namedCurve: "P-256",
-          },
-          false, // unextractable
-          ["sign", "verify"]
-        );
+  async getExpiry(): Promise<number | null> {
+    const db = await this.openDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(DB_STORE, "readonly");
+      const store = tx.objectStore(DB_STORE);
 
-        const rawPubKey = await crypto.subtle.exportKey("raw", keyPair.publicKey);
-        const pubKeyHex = uint8ArrayToHexString(new Uint8Array(rawPubKey));
+      const getExpiry = store.get(DB_EXPIRY_KEY);
+      getExpiry.onsuccess = () => resolve(getExpiry.result ?? null);
+      getExpiry.onerror = () => reject(getExpiry.error);
+    });
+  }
 
-        await this.storeKeyPair(pubKeyHex, keyPair.privateKey);
-
-        this.publicKeyHex = pubKeyHex;
-        this.privateKey = keyPair.privateKey;
-      }
-    } catch (error) {
-      console.error("Init failed:", error);
-      throw error;
+  private async clearKeysIfExpired(): Promise<void> {
+    const expiry = await this.getExpiry();
+    if (expiry !== null && Date.now() > expiry) {
+      console.log("Key expired, clearing...");
+      await this.clear();
     }
   }
+
+// default expiry is 15 minutes
+async init(expirySeconds: number = 900): Promise<void> {
+  try {
+    await this.clearKeysIfExpired();
+
+    const { publicKey, privateKey } = await this.getStoredKeys();
+
+    if (publicKey && privateKey) {
+      this.publicKeyHex = publicKey;
+      this.privateKey = privateKey;
+    } else {
+      const keyPair = await crypto.subtle.generateKey(
+        {
+          name: "ECDSA",
+          namedCurve: "P-256",
+        },
+        false, // not extractable
+        ["sign", "verify"]
+      );
+
+      const rawPubKey = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair.publicKey));
+
+      const compressedPubKey = pointEncode(rawPubKey);
+      const compressedHex = uint8ArrayToHexString(compressedPubKey);
+      const expiresAt = Date.now() + expirySeconds * 1000;
+
+      await this.storeKeyPair(compressedHex, keyPair.privateKey, expiresAt);
+
+      this.publicKeyHex = compressedHex;
+      this.privateKey = keyPair.privateKey;
+    }
+  } catch (error) {
+    console.error("Init failed:", error);
+    throw error;
+  }
+}
+
 
   getPublicKey(): string | null {
     return this.publicKeyHex;
@@ -112,9 +240,9 @@ export class IndexedDbStamper {
     if (!this.privateKey) {
       throw new Error("Key not initialized. Call init() first.");
     }
-
+  
     const encodedPayload = new TextEncoder().encode(payload);
-    const signature = await crypto.subtle.sign(
+    const signatureIeee1363 = await crypto.subtle.sign(
       {
         name: "ECDSA",
         hash: { name: "SHA-256" },
@@ -122,8 +250,9 @@ export class IndexedDbStamper {
       this.privateKey,
       encodedPayload
     );
-
-    return uint8ArrayToHexString(new Uint8Array(signature));
+  
+    const signatureDer = convertEcdsaIeee1363ToDer(new Uint8Array(signatureIeee1363));
+    return uint8ArrayToHexString(signatureDer);
   }
 
   async stamp(payload: string): Promise<{
@@ -156,6 +285,7 @@ export class IndexedDbStamper {
 
       store.delete(`${DB_KEY}-pub`);
       store.delete(`${DB_KEY}-priv`);
+      store.delete(DB_EXPIRY_KEY);
 
       tx.oncomplete = () => {
         db.close();

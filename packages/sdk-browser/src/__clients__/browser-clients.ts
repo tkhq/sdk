@@ -1,7 +1,7 @@
 import type { WalletInterface } from "@turnkey/wallet-stamper";
 import type { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
-import type {IndexedDbStamper} from "@turnkey/indexed-db-stamper";
+import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
@@ -959,7 +959,7 @@ export class TurnkeyIndexedDbClient extends TurnkeyBrowserClient {
     super(config, AuthClient.IndexedDb);
   }
 
-  clear = async (): Promise<void | null> => {
+  clear = async (): Promise<void> => {
     return await (this.stamper as IndexedDbStamper).clear();
   };
 
@@ -967,9 +967,14 @@ export class TurnkeyIndexedDbClient extends TurnkeyBrowserClient {
     return await (this.stamper as IndexedDbStamper).getPublicKey();
   };
 
-  init = async (): Promise<void | null> => {
-    return await (this.stamper as IndexedDbStamper).init();
+  init = async (expirySeconds?: number): Promise<void> => {
+    return await (this.stamper as IndexedDbStamper).init(expirySeconds);
+  };
+  hasValidKey = async (): Promise<boolean> => {
+    return await (this.stamper as IndexedDbStamper).hasValidKey();
+  };
+  getExpiry = async (): Promise<number | null> => {
+    return await (this.stamper as IndexedDbStamper).getExpiry();
   };
 }
-
 
