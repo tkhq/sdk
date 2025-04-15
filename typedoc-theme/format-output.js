@@ -164,7 +164,7 @@ async function createChangelogDirectories(outputDir) {
     docsObject.navigation.tabs = navigationTabs;
     await fs.writeFile(
       `${outputDir}/docs.json`,
-      JSON.stringify(docsObject),
+      JSON.stringify(docsObject, null, 2) + "\n",
       "utf8"
     );
   } catch (error) {
@@ -225,7 +225,7 @@ async function createDocsStructure(outputDir) {
 
     await fs.writeFile(
       `${outputDir}/sdk-docs.json`,
-      JSON.stringify(pageGroups),
+      JSON.stringify(pageGroups, null, 2) + "\n",
       "utf8"
     );
   } catch (error) {
@@ -460,7 +460,7 @@ async function mergeSdkReferenceGroups(outputDir = "generated-docs") {
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(
       outputJsonPath,
-      JSON.stringify(mergedOutput, null, 2),
+      JSON.stringify(mergedOutput, null, 2) + "\n",
       "utf8"
     );
   } catch (error) {

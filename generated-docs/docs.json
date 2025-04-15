@@ -19,7 +19,9 @@
                     "pages": [
                       {
                         "group": "ApiKeyStamper",
-                        "pages": ["sdks/api-key-stamper/ApiKeyStamper/readme"]
+                        "pages": [
+                          "sdks/api-key-stamper/ApiKeyStamper/readme"
+                        ]
                       },
                       {
                         "group": "index",
@@ -62,7 +64,9 @@
                         "pages": [
                           {
                             "group": "docs",
-                            "pages": ["sdks/cosmjs/documents/docs/readme"]
+                            "pages": [
+                              "sdks/cosmjs/documents/docs/readme"
+                            ]
                           }
                         ]
                       },
@@ -149,7 +153,9 @@
                           },
                           {
                             "group": "formatHpkeBuf",
-                            "pages": ["sdks/crypto/index/formatHpkeBuf/readme"]
+                            "pages": [
+                              "sdks/crypto/index/formatHpkeBuf/readme"
+                            ]
                           },
                           {
                             "group": "fromDerSignature",
@@ -165,7 +171,9 @@
                           },
                           {
                             "group": "getPublicKey",
-                            "pages": ["sdks/crypto/index/getPublicKey/readme"]
+                            "pages": [
+                              "sdks/crypto/index/getPublicKey/readme"
+                            ]
                           },
                           {
                             "group": "hpkeAuthEncrypt",
@@ -175,16 +183,22 @@
                           },
                           {
                             "group": "hpkeDecrypt",
-                            "pages": ["sdks/crypto/index/hpkeDecrypt/readme"]
+                            "pages": [
+                              "sdks/crypto/index/hpkeDecrypt/readme"
+                            ]
                           },
                           {
                             "group": "hpkeEncrypt",
-                            "pages": ["sdks/crypto/index/hpkeEncrypt/readme"]
+                            "pages": [
+                              "sdks/crypto/index/hpkeEncrypt/readme"
+                            ]
                           },
                           "sdks/crypto/index/readme",
                           {
                             "group": "toDerSignature",
-                            "pages": ["sdks/crypto/index/toDerSignature/readme"]
+                            "pages": [
+                              "sdks/crypto/index/toDerSignature/readme"
+                            ]
                           },
                           {
                             "group": "uncompressRawPublicKey",
@@ -264,7 +278,9 @@
                           },
                           {
                             "group": "hexToAscii",
-                            "pages": ["sdks/encoding/index/hexToAscii/readme"]
+                            "pages": [
+                              "sdks/encoding/index/hexToAscii/readme"
+                            ]
                           },
                           {
                             "group": "normalizePadding",
@@ -304,7 +320,9 @@
                         "pages": [
                           {
                             "group": "docs",
-                            "pages": ["sdks/ethers/documents/docs/readme"]
+                            "pages": [
+                              "sdks/ethers/documents/docs/readme"
+                            ]
                           }
                         ]
                       },
@@ -325,7 +343,9 @@
                           },
                           {
                             "group": "TurnkeySigner",
-                            "pages": ["sdks/ethers/index/TurnkeySigner/readme"]
+                            "pages": [
+                              "sdks/ethers/index/TurnkeySigner/readme"
+                            ]
                           },
                           "sdks/ethers/index/readme",
                           {
@@ -344,7 +364,9 @@
                     "pages": [
                       {
                         "group": "TurnkeyClient",
-                        "pages": ["sdks/http/TurnkeyClient/readme"]
+                        "pages": [
+                          "sdks/http/TurnkeyClient/readme"
+                        ]
                       },
                       {
                         "group": "index",
@@ -357,15 +379,21 @@
                           },
                           {
                             "group": "SignedRequest",
-                            "pages": ["sdks/http/index/SignedRequest/readme"]
+                            "pages": [
+                              "sdks/http/index/SignedRequest/readme"
+                            ]
                           },
                           {
                             "group": "TActivity",
-                            "pages": ["sdks/http/index/TActivity/readme"]
+                            "pages": [
+                              "sdks/http/index/TActivity/readme"
+                            ]
                           },
                           {
                             "group": "TActivityId",
-                            "pages": ["sdks/http/index/TActivityId/readme"]
+                            "pages": [
+                              "sdks/http/index/TActivityId/readme"
+                            ]
                           },
                           {
                             "group": "TActivityResponse",
@@ -375,11 +403,15 @@
                           },
                           {
                             "group": "TActivityStatus",
-                            "pages": ["sdks/http/index/TActivityStatus/readme"]
+                            "pages": [
+                              "sdks/http/index/TActivityStatus/readme"
+                            ]
                           },
                           {
                             "group": "TActivityType",
-                            "pages": ["sdks/http/index/TActivityType/readme"]
+                            "pages": [
+                              "sdks/http/index/TActivityType/readme"
+                            ]
                           },
                           {
                             "group": "TERMINAL_ACTIVITY_STATUSES",
@@ -389,11 +421,15 @@
                           },
                           {
                             "group": "TSignature",
-                            "pages": ["sdks/http/index/TSignature/readme"]
+                            "pages": [
+                              "sdks/http/index/TSignature/readme"
+                            ]
                           },
                           {
                             "group": "TSignedRequest",
-                            "pages": ["sdks/http/index/TSignedRequest/readme"]
+                            "pages": [
+                              "sdks/http/index/TSignedRequest/readme"
+                            ]
                           },
                           {
                             "group": "TurnkeyActivityConsensusNeededError",
@@ -415,7 +451,9 @@
                           },
                           {
                             "group": "VERSION",
-                            "pages": ["sdks/http/index/VERSION/readme"]
+                            "pages": [
+                              "sdks/http/index/VERSION/readme"
+                            ]
                           },
                           {
                             "group": "assertActivityCompleted",
@@ -425,11 +463,15 @@
                           },
                           {
                             "group": "assertNonNull",
-                            "pages": ["sdks/http/index/assertNonNull/readme"]
+                            "pages": [
+                              "sdks/http/index/assertNonNull/readme"
+                            ]
                           },
                           {
                             "group": "browserInit",
-                            "pages": ["sdks/http/index/browserInit/readme"]
+                            "pages": [
+                              "sdks/http/index/browserInit/readme"
+                            ]
                           },
                           {
                             "group": "createActivityPoller",
@@ -463,7 +505,9 @@
                           },
                           {
                             "group": "init",
-                            "pages": ["sdks/http/index/init/readme"]
+                            "pages": [
+                              "sdks/http/index/init/readme"
+                            ]
                           },
                           "sdks/http/index/readme",
                           {
@@ -474,7 +518,9 @@
                           },
                           {
                             "group": "withAsyncPolling",
-                            "pages": ["sdks/http/index/withAsyncPolling/readme"]
+                            "pages": [
+                              "sdks/http/index/withAsyncPolling/readme"
+                            ]
                           }
                         ]
                       },
@@ -486,7 +532,9 @@
                     "pages": [
                       {
                         "group": "IframeStamper",
-                        "pages": ["sdks/iframe-stamper/IframeStamper/readme"]
+                        "pages": [
+                          "sdks/iframe-stamper/IframeStamper/readme"
+                        ]
                       },
                       {
                         "group": "index",
@@ -600,7 +648,9 @@
                     "pages": [
                       {
                         "group": "JavaScript_Browser",
-                        "pages": ["sdks/sdk-browser/JavaScript_Browser/readme"]
+                        "pages": [
+                          "sdks/sdk-browser/JavaScript_Browser/readme"
+                        ]
                       },
                       {
                         "group": "index",
@@ -823,7 +873,9 @@
                           },
                           {
                             "group": "TActivity",
-                            "pages": ["sdks/sdk-browser/index/TActivity/readme"]
+                            "pages": [
+                              "sdks/sdk-browser/index/TActivity/readme"
+                            ]
                           },
                           {
                             "group": "TApiKeyStamperConfig",
@@ -851,7 +903,9 @@
                           },
                           {
                             "group": "Turnkey",
-                            "pages": ["sdks/sdk-browser/index/Turnkey/readme"]
+                            "pages": [
+                              "sdks/sdk-browser/index/Turnkey/readme"
+                            ]
                           },
                           {
                             "group": "TurnkeyActivityError",
@@ -1146,30 +1200,42 @@
                     "pages": [
                       {
                         "group": "React",
-                        "pages": ["sdks/sdk-react/React/readme"]
+                        "pages": [
+                          "sdks/sdk-react/React/readme"
+                        ]
                       },
                       {
                         "group": "index",
                         "pages": [
                           {
                             "group": "Auth",
-                            "pages": ["sdks/sdk-react/index/Auth/readme"]
+                            "pages": [
+                              "sdks/sdk-react/index/Auth/readme"
+                            ]
                           },
                           {
                             "group": "Export",
-                            "pages": ["sdks/sdk-react/index/Export/readme"]
+                            "pages": [
+                              "sdks/sdk-react/index/Export/readme"
+                            ]
                           },
                           {
                             "group": "FilterType",
-                            "pages": ["sdks/sdk-react/index/FilterType/readme"]
+                            "pages": [
+                              "sdks/sdk-react/index/FilterType/readme"
+                            ]
                           },
                           {
                             "group": "Import",
-                            "pages": ["sdks/sdk-react/index/Import/readme"]
+                            "pages": [
+                              "sdks/sdk-react/index/Import/readme"
+                            ]
                           },
                           {
                             "group": "OtpType",
-                            "pages": ["sdks/sdk-react/index/OtpType/readme"]
+                            "pages": [
+                              "sdks/sdk-react/index/OtpType/readme"
+                            ]
                           },
                           {
                             "group": "OtpVerification",
@@ -1198,7 +1264,9 @@
                           "sdks/sdk-react/index/readme",
                           {
                             "group": "useTurnkey",
-                            "pages": ["sdks/sdk-react/index/useTurnkey/readme"]
+                            "pages": [
+                              "sdks/sdk-react/index/useTurnkey/readme"
+                            ]
                           }
                         ]
                       },
@@ -1210,7 +1278,9 @@
                     "pages": [
                       {
                         "group": "React_Native",
-                        "pages": ["sdks/sdk-react-native/React_Native/readme"]
+                        "pages": [
+                          "sdks/sdk-react-native/React_Native/readme"
+                        ]
                       },
                       {
                         "group": "index",
@@ -1277,7 +1347,9 @@
                           },
                           {
                             "group": "User",
-                            "pages": ["sdks/sdk-react-native/index/User/readme"]
+                            "pages": [
+                              "sdks/sdk-react-native/index/User/readme"
+                            ]
                           },
                           {
                             "group": "Wallet",
@@ -1311,7 +1383,9 @@
                         "pages": [
                           {
                             "group": "docs",
-                            "pages": ["sdks/sdk-server/documents/docs/readme"]
+                            "pages": [
+                              "sdks/sdk-server/documents/docs/readme"
+                            ]
                           }
                         ]
                       },
@@ -1518,7 +1592,9 @@
                           },
                           {
                             "group": "TActivity",
-                            "pages": ["sdks/sdk-server/index/TActivity/readme"]
+                            "pages": [
+                              "sdks/sdk-server/index/TActivity/readme"
+                            ]
                           },
                           {
                             "group": "TApiKeyStamperConfig",
@@ -1534,7 +1610,9 @@
                           },
                           {
                             "group": "Turnkey",
-                            "pages": ["sdks/sdk-server/index/Turnkey/readme"]
+                            "pages": [
+                              "sdks/sdk-server/index/Turnkey/readme"
+                            ]
                           },
                           {
                             "group": "TurnkeyActivityError",
@@ -1766,7 +1844,9 @@
                           },
                           {
                             "group": "fetch",
-                            "pages": ["sdks/sdk-server/index/fetch/readme"]
+                            "pages": [
+                              "sdks/sdk-server/index/fetch/readme"
+                            ]
                           },
                           {
                             "group": "getWebAuthnAttestation",
@@ -1783,7 +1863,9 @@
                           },
                           {
                             "group": "server",
-                            "pages": ["sdks/sdk-server/index/server/readme"]
+                            "pages": [
+                              "sdks/sdk-server/index/server/readme"
+                            ]
                           },
                           {
                             "group": "signWithApiKey",
@@ -1804,7 +1886,9 @@
                         "pages": [
                           {
                             "group": "docs",
-                            "pages": ["sdks/solana/documents/docs/readme"]
+                            "pages": [
+                              "sdks/solana/documents/docs/readme"
+                            ]
                           }
                         ]
                       },
@@ -1813,7 +1897,9 @@
                         "pages": [
                           {
                             "group": "TurnkeySigner",
-                            "pages": ["sdks/solana/index/TurnkeySigner/readme"]
+                            "pages": [
+                              "sdks/solana/index/TurnkeySigner/readme"
+                            ]
                           },
                           "sdks/solana/index/readme"
                         ]
@@ -1865,7 +1951,9 @@
                         "pages": [
                           {
                             "group": "docs",
-                            "pages": ["sdks/viem/documents/docs/readme"]
+                            "pages": [
+                              "sdks/viem/documents/docs/readme"
+                            ]
                           }
                         ]
                       },
@@ -1898,7 +1986,9 @@
                           },
                           {
                             "group": "createAccount",
-                            "pages": ["sdks/viem/index/createAccount/readme"]
+                            "pages": [
+                              "sdks/viem/index/createAccount/readme"
+                            ]
                           },
                           {
                             "group": "createAccountWithAddress",
@@ -1933,15 +2023,21 @@
                           },
                           {
                             "group": "signMessage",
-                            "pages": ["sdks/viem/index/signMessage/readme"]
+                            "pages": [
+                              "sdks/viem/index/signMessage/readme"
+                            ]
                           },
                           {
                             "group": "signTransaction",
-                            "pages": ["sdks/viem/index/signTransaction/readme"]
+                            "pages": [
+                              "sdks/viem/index/signTransaction/readme"
+                            ]
                           },
                           {
                             "group": "signTypedData",
-                            "pages": ["sdks/viem/index/signTypedData/readme"]
+                            "pages": [
+                              "sdks/viem/index/signTypedData/readme"
+                            ]
                           }
                         ]
                       },
@@ -1953,7 +2049,9 @@
                     "pages": [
                       {
                         "group": "WalletStamper",
-                        "pages": ["sdks/wallet-stamper/WalletStamper/readme"]
+                        "pages": [
+                          "sdks/wallet-stamper/WalletStamper/readme"
+                        ]
                       },
                       {
                         "group": "index",
@@ -2008,7 +2106,9 @@
                           },
                           {
                             "group": "TStamp",
-                            "pages": ["sdks/wallet-stamper/index/TStamp/readme"]
+                            "pages": [
+                              "sdks/wallet-stamper/index/TStamp/readme"
+                            ]
                           },
                           {
                             "group": "TStamper",
