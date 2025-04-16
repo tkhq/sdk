@@ -91,9 +91,9 @@ export interface TurnkeyContextType {
   }) => Promise<SignRawPayloadResult>;
   handleGoogleOAuth: (params: {
     clientId: string;
-    redirectUri: string;
     nonce: string;
     scheme: string;
+    redirectUri?: string;
     onIdToken: (idToken: string) => void;
   }) => Promise<void>;
 }
