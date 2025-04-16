@@ -16,6 +16,9 @@
   "excludeInternal": true,
   "includeVersion": true,
   "fileExtension": ".mdx",
+  "alwaysCreateEntryPointModule": true,
+  "gitRevision": "main",
+  "router": "structure-dir",
   "plugin": ["typedoc-plugin-markdown"],
   "projectDocuments": ["documents/*.md", "CHANGELOG.md"],
   "outputs": [

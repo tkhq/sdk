@@ -6,6 +6,8 @@
   "fileExtension": ".mdx",
   "plugin": ["typedoc-plugin-markdown"],
   "alwaysCreateEntryPointModule": true,
+  "gitRevision": "main",
+  "router": "structure-dir",
   "outputs": [
     {
       // requires typedoc-plugin-markdown
@@ -14,7 +16,6 @@
       "fileExtension": ".mdx"
     }
   ],
-  "router": "structure-dir",
   "hideGenerator": true,
   "headings": {
     "readme": false,
