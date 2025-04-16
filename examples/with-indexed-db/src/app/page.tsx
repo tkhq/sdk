@@ -6,13 +6,29 @@ import { useTurnkey } from "@turnkey/sdk-react";
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { server } from "@turnkey/sdk-server"
+import { SessionType, type Session } from "@turnkey/sdk-browser";
 
 export default function AuthPage() {
+  const { indexedDbClient, passkeyClient, turnkey } = useTurnkey();
   const [authResponse, setAuthResponse] = useState<any | null>(null);
-  const { indexedDbClient, passkeyClient } = useTurnkey();
   const [publicKey, setPublicKey] = useState<any | null>(null);
   const [whoAmiResponse, setWhoAmiResponse] = useState<any | null>(null);
 
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const session = await turnkey?.getSession();
+      if (!session || Date.now() > session.expiry) {
+        await handleLogout();
+      }
+    };
+  
+    checkSession();
+  }, []);
+
+  const handleLogout = async () => {
+
+  }
   const login = async () => {
     await indexedDbClient?.clear();
     await indexedDbClient?.init(900); // create session for 15 mins
@@ -33,8 +49,17 @@ export default function AuthPage() {
         },
       ],
     });
-  
+
+    const session: Session = {
+      sessionType: SessionType.READ_WRITE,
+      expiry: Date.now() + 900 * 1000, // 15 minutes from now
+      userId: whoamiResponse?.userId!,
+      organizationId: whoamiResponse?.organizationId!,
+      token: publicKey!,
+
+    }
     setAuthResponse(response);
+    await indexedDbClient!.loginWithSession(session);
   };
 
   const create = async () => {
@@ -76,6 +101,8 @@ export default function AuthPage() {
 
   }
 
+
+  
   return (
     <main className={styles.main}>
       <a
