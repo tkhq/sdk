@@ -83,7 +83,7 @@ mode: wide
         if (formattedContent.includes("CHANGELOG")) {
           formattedContent = formattedContent.replaceAll(
             "CHANGELOG",
-            "changelog"
+            "changelog",
           );
         }
 
@@ -91,7 +91,7 @@ mode: wide
         if (formattedContent.includes("- [changelog](changelog/readme)")) {
           formattedContent = formattedContent.replaceAll(
             "- [changelog](changelog/readme)",
-            ""
+            "",
           );
         }
 
@@ -125,7 +125,7 @@ async function createChangelogDirectories(outputDir) {
         await fs.rename(changelogDir, newChangelogDir);
 
         changelogPaths.push(
-          `${newChangelogDir.replace("generated-docs/", "")}/readme`
+          `${newChangelogDir.replace("generated-docs/", "")}/readme`,
         );
       } catch (error) {
         console.error(`Error accessing ${changelogDir}: ${error.message}`);
@@ -165,7 +165,7 @@ async function createChangelogDirectories(outputDir) {
     await fs.writeFile(
       `${outputDir}/docs.json`,
       JSON.stringify(docsObject, null, 2) + "\n",
-      "utf8"
+      "utf8",
     );
   } catch (error) {
     console.error("Error creating changelog directories:", error);
@@ -190,7 +190,7 @@ async function createDocsStructure(outputDir) {
         pageGroup.pages.push(_pageGroup);
       } else if (file.isFile() && fullPath.endsWith(".mdx")) {
         pageGroup.pages.push(
-          fullPath.replace("generated-docs/", "").replace(".mdx", "")
+          fullPath.replace("generated-docs/", "").replace(".mdx", ""),
         );
       }
     }
@@ -226,7 +226,7 @@ async function createDocsStructure(outputDir) {
     await fs.writeFile(
       `${outputDir}/sdk-docs.json`,
       JSON.stringify(pageGroups, null, 2) + "\n",
-      "utf8"
+      "utf8",
     );
   } catch (error) {
     console.error(`Error createDocsStructure ${outputDir}:`, error);
@@ -237,12 +237,12 @@ async function mergeSdkReferenceGroups(outputDir = "generated-docs") {
   try {
     // docs.json represents the mintlify structure in tkhq/docs
     const docsData = JSON.parse(
-      await fs.readFile(`${outputDir}/docs.json`, "utf8")
+      await fs.readFile(`${outputDir}/docs.json`, "utf8"),
     );
 
     // sdk-docs.json represents the structure generated TypeDoc
     const sdkDocsData = JSON.parse(
-      await fs.readFile(`${outputDir}/sdk-docs.json`, "utf8")
+      await fs.readFile(`${outputDir}/sdk-docs.json`, "utf8"),
     );
 
     // extract the "SDK Reference" tab group from docs.json
@@ -255,7 +255,7 @@ async function mergeSdkReferenceGroups(outputDir = "generated-docs") {
 
     // extract the "SDK Reference" tab group from sdk-docs.json
     const sdkDocsSdkRef = sdkDocsData.find(
-      (group) => group.group === "SDK Reference"
+      (group) => group.group === "SDK Reference",
     );
     if (!sdkDocsSdkRef) {
       throw new Error("SDK Reference group not found in sdk-docs.json");
@@ -316,7 +316,7 @@ async function mergeSdkReferenceGroups(outputDir = "generated-docs") {
     const docsUniquePages = docsPages.topLevelStringPages.filter(
       (page) =>
         !allSdkDocsPages.has(page) &&
-        !docsPages.groupContainedPages.includes(page)
+        !docsPages.groupContainedPages.includes(page),
     );
 
     // add unique top-level string pages from docs.json, ensuring no duplicates
@@ -329,13 +329,13 @@ async function mergeSdkReferenceGroups(outputDir = "generated-docs") {
 
     // replace top-level string pages with deduplicated set
     const finalMergedPages = mergedPages.filter(
-      (page) => typeof page !== "string"
+      (page) => typeof page !== "string",
     );
     finalMergedPages.push(...Array.from(mergedStringPages));
 
     // merge nested groups from docs.json, preserving structure and deduplicating pages
     const sdkDocsGroupNames = new Set(
-      sdkDocsPages.nestedGroups.map((g) => g.group)
+      sdkDocsPages.nestedGroups.map((g) => g.group),
     );
     for (const docsGroup of docsPages.nestedGroups) {
       if (!sdkDocsGroupNames.has(docsGroup.group)) {
@@ -355,7 +355,7 @@ async function mergeSdkReferenceGroups(outputDir = "generated-docs") {
           }
           if (typeof page !== "string" && page.group === "sdks") {
             targetGroup = page.pages.find(
-              (p) => typeof p !== "string" && p.group === docsGroup.group
+              (p) => typeof p !== "string" && p.group === docsGroup.group,
             );
             if (targetGroup) break;
           }
@@ -363,7 +363,7 @@ async function mergeSdkReferenceGroups(outputDir = "generated-docs") {
         if (targetGroup) {
           // deduplicate pages within the target group
           const existingPages = new Set(
-            collectPagesAndGroups(targetGroup.pages).groupContainedPages
+            collectPagesAndGroups(targetGroup.pages).groupContainedPages,
           );
           const newPages = [];
           for (const item of docsGroup.pages) {
@@ -375,7 +375,7 @@ async function mergeSdkReferenceGroups(outputDir = "generated-docs") {
             } else if (item.group && Array.isArray(item.pages)) {
               // check if subgroup exists
               const existingSubgroup = targetGroup.pages.find(
-                (p) => typeof p !== "string" && p.group === item.group
+                (p) => typeof p !== "string" && p.group === item.group,
               );
               if (!existingSubgroup) {
                 newPages.push(item);
@@ -383,13 +383,13 @@ async function mergeSdkReferenceGroups(outputDir = "generated-docs") {
                 // merge subgroup pages and deduplicate
                 const subExistingPages = new Set(
                   collectPagesAndGroups(
-                    existingSubgroup.pages
-                  ).groupContainedPages
+                    existingSubgroup.pages,
+                  ).groupContainedPages,
                 );
                 const subNewPages = item.pages.filter(
                   (subItem) =>
                     typeof subItem !== "string" ||
-                    !subExistingPages.has(subItem)
+                    !subExistingPages.has(subItem),
                 );
                 existingSubgroup.pages.push(...subNewPages);
               }
@@ -448,7 +448,7 @@ async function mergeSdkReferenceGroups(outputDir = "generated-docs") {
           },
           // preserve Changelogs tab and any others
           ...docsData.navigation.tabs.filter(
-            (tab) => tab.tab !== "SDK Reference"
+            (tab) => tab.tab !== "SDK Reference",
           ),
         ],
       },
@@ -461,7 +461,7 @@ async function mergeSdkReferenceGroups(outputDir = "generated-docs") {
     await fs.writeFile(
       outputJsonPath,
       JSON.stringify(mergedOutput, null, 2) + "\n",
-      "utf8"
+      "utf8",
     );
   } catch (error) {
     console.error(`Error merging SDK Reference groups: ${error.message}`);

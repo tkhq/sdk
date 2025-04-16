@@ -21,6 +21,6 @@ const stamper = new ApiKeyStamper({
 
 const httpClient = new TurnkeyClient(
   { baseUrl: "https://api.turnkey.com" },
-  stamper
+  stamper,
 );
 ```
