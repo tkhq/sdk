@@ -231,6 +231,18 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   };
 
   /**
+   * @experimental
+   * Log in with a session object. This method uses a session object from server actions and stores it and the active client in local storage
+   * To be used in conjunction with an `iframeStamper`.
+   *
+   * @param session
+   * @returns {Promise<void>}
+   */
+    loginWithSessionIndexedDb = async (session: Session): Promise<void> => {
+      await storeSession(session, AuthClient.IndexedDb);
+    };
+
+  /**
    * Log in with a session object. This method uses a session object from server actions and stores it and the active client in local storage
    * To be used in conjunction with an `iframeStamper`.
    *
