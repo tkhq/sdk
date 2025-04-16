@@ -45,8 +45,9 @@ import {
   MAX_SESSIONS,
   OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
   SESSION_WARNING_THRESHOLD_SECONDS,
-  TURNKEY_OAUTH_PROXY_URL,
   StorageKeys,
+  TURNKEY_OAUTH_ORIGIN_URL,
+  TURNKEY_REDIRECT_ORIGIN_URL,
 } from "../constants";
 import { InAppBrowser } from "react-native-inappbrowser-reborn";
 
@@ -892,22 +893,22 @@ export const TurnkeyProvider: FC<{
   const handleGoogleOAuth = useCallback(
     async ({
       clientId,
-      redirectUri,
       nonce,
       scheme,
       onIdToken,
+      redirectUri = TURNKEY_REDIRECT_ORIGIN_URL,
     }: {
       clientId: string;
-      redirectUri: string;
       nonce: string;
       scheme: string;
+      redirectUri?: string;
       onIdToken: (idToken: string) => void;
     }): Promise<void> => {
       if (!(await InAppBrowser.isAvailable())) {
         throw new TurnkeyReactNativeError("InAppBrowser is not available");
       }
 
-      const url = `${TURNKEY_OAUTH_PROXY_URL}?provider=google&clientId=${encodeURIComponent(
+      const url = `${TURNKEY_OAUTH_ORIGIN_URL}?provider=google&clientId=${encodeURIComponent(
         clientId,
       )}&redirectUri=${encodeURIComponent(redirectUri)}&nonce=${encodeURIComponent(nonce)}`;
 
