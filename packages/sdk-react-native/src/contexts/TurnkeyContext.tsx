@@ -95,7 +95,7 @@ export interface TurnkeyContextType {
     scheme: string;
     originUri?: string;
     redirectUri?: string;
-    onIdToken: (idToken: string) => void;
+    onSuccess: (oidcToken: string) => void;
   }) => Promise<void>;
 }
 
@@ -881,17 +881,17 @@ export const TurnkeyProvider: FC<{
    * Handles the Google OAuth authentication flow.
    *
    * Initiates an InAppBrowser OAuth flow with the provided credentials and parameters.
-   * After the OAuth flow completes successfully, it extracts the id_token from the callback URL
-   * and invokes the provided onIdToken callback.
+   * After the OAuth flow completes successfully, it extracts the oidcToken from the callback URL
+   * and invokes the provided onSuccess callback.
    *
    * @param clientId    The client ID for Google OAuth.
    * @param nonce       A random nonce for the OAuth flow.
    * @param scheme      The app’s custom URL scheme (e.g., `"myapp"`).
-   * @param originUri   (Optional) The base URL to start the OAuth flow. Defaults to `TURNKEY_OAUTH_ORIGIN_URL`.
+   * @param originUri   (Optional) The base URI to start the OAuth flow. Defaults to `TURNKEY_OAUTH_ORIGIN_URL`.
    * @param redirectUri (Optional) The redirect URI for the OAuth flow. Defaults to `TURNKEY_OAUTH_REDIRECT_URL?scheme={scheme}`.
-   * @param onIdToken   Callback function that receives the `id_token` upon successful OAuth authentication.
+   * @param onSuccess   Callback function that receives the oidcToken upon successful OAuth authentication.
    * @returns           A promise that resolves once the OAuth flow completes.
-   * @throws {TurnkeyReactNativeError} If InAppBrowser is unavailable, the OAuth flow fails, or the `id_token` is missing.
+   * @throws {TurnkeyReactNativeError} If InAppBrowser is unavailable, the OAuth flow fails, or the oidcToken is missing.
    */
   const handleGoogleOAuth = useCallback(
     async ({
@@ -900,14 +900,14 @@ export const TurnkeyProvider: FC<{
       scheme,
       originUri = TURNKEY_OAUTH_ORIGIN_URL,
       redirectUri,
-      onIdToken,
+      onSuccess,
     }: {
       clientId: string;
       nonce: string;
       scheme: string;
       originUri?: string;
       redirectUri?: string;
-      onIdToken: (idToken: string) => void;
+      onSuccess: (oidcToken: string) => void;
     }): Promise<void> => {
       if (!(await InAppBrowser.isAvailable())) {
         throw new TurnkeyReactNativeError("InAppBrowser is not available");
@@ -943,13 +943,15 @@ export const TurnkeyProvider: FC<{
       }
 
       const resultUrl = new URL(result.url);
-      const idToken = resultUrl.searchParams.get("id_token");
+      const oidcToken = resultUrl.searchParams.get("id_token");
 
-      if (!idToken) {
-        throw new TurnkeyReactNativeError("id_token not found in the response");
+      if (!oidcToken) {
+        throw new TurnkeyReactNativeError(
+          "oidcToken not found in the response",
+        );
       }
 
-      onIdToken(idToken);
+      onSuccess(oidcToken);
     },
     [],
   );
