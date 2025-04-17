@@ -917,15 +917,12 @@ export const TurnkeyProvider: FC<{
         ? redirectUri
         : `${TURNKEY__OAUTH_REDIRECT_URL}?scheme=${encodeURIComponent(scheme)}`;
 
-      const oauthUrl = [
-        originUri,
-        `provider=google`,
-        `clientId=${encodeURIComponent(clientId)}`,
-        `redirectUri=${encodeURIComponent(finalRedirectUri)}`,
-        `nonce=${encodeURIComponent(nonce)}`,
-      ].join(originUri.includes("?") ? "&" : "?");
-
-      console.log("OAuth URL:", oauthUrl);
+      const oauthUrl =
+        originUri +
+        `?provider=google` +
+        `&clientId=${encodeURIComponent(clientId)}` +
+        `&redirectUri=${encodeURIComponent(finalRedirectUri)}` +
+        `&nonce=${encodeURIComponent(nonce)}`;
 
       const result = await InAppBrowser.openAuth(oauthUrl, scheme, {
         dismissButtonStyle: "cancel",
