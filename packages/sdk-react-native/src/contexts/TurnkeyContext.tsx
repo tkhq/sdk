@@ -93,6 +93,7 @@ export interface TurnkeyContextType {
     clientId: string;
     nonce: string;
     scheme: string;
+    originUri?: string;
     redirectUri?: string;
     onIdToken: (idToken: string) => void;
   }) => Promise<void>;
@@ -923,6 +924,8 @@ export const TurnkeyProvider: FC<{
         `redirectUri=${encodeURIComponent(finalRedirectUri)}`,
         `nonce=${encodeURIComponent(nonce)}`,
       ].join(originUri.includes("?") ? "&" : "?");
+
+      console.log("OAuth URL:", oauthUrl);
 
       const result = await InAppBrowser.openAuth(oauthUrl, scheme, {
         dismissButtonStyle: "cancel",
