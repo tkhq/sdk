@@ -979,14 +979,12 @@ export class TurnkeyIndexedDbClient extends TurnkeyBrowserClient {
     return await (this.stamper as IndexedDbStamper).getPublicKey();
   };
 
-  init = async (expirySeconds?: number): Promise<void> => {
-    return await (this.stamper as IndexedDbStamper).init(expirySeconds);
+  init = async (): Promise<void> => {
+    return await (this.stamper as IndexedDbStamper).init();
   };
-  hasValidKey = async (): Promise<boolean> => {
-    return await (this.stamper as IndexedDbStamper).hasValidKey();
-  };
-  getExpiry = async (): Promise<number | null> => {
-    return await (this.stamper as IndexedDbStamper).getExpiry();
+
+  resetKeyPair = async (): Promise<void> => {
+    return await (this.stamper as IndexedDbStamper).resetKeyPair();
   };
 }
 

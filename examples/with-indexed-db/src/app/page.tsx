@@ -10,34 +10,40 @@ import { SessionType, type Session } from "@turnkey/sdk-browser";
 
 export default function AuthPage() {
   const { indexedDbClient, passkeyClient, turnkey } = useTurnkey();
-  const [authResponse, setAuthResponse] = useState<any | null>(null);
-  const [publicKey, setPublicKey] = useState<any | null>(null);
-  const [whoAmiResponse, setWhoAmiResponse] = useState<any | null>(null);
-
-
+  const [session, setSession] = useState<any | null>(null)
+  const [whoamI, setWhoAmI] = useState<any | null>(null)
   useEffect(() => {
     const checkSession = async () => {
       const session = await turnkey?.getSession();
+      console.log(session)
       if (!session || Date.now() > session.expiry) {
         await handleLogout();
       }
+      else {
+        setSession(session);
+      }
     };
-  
     checkSession();
-  }, []);
+  }, [turnkey]);
+
+  const getWhoAmi = async () => {
+    const response = await indexedDbClient?.getWhoami({organizationId: session.organizationId});
+    setWhoAmI(JSON.stringify(response))
+}
 
   const handleLogout = async () => {
-
+      turnkey?.logout()
+      indexedDbClient?.clear();
+      setSession(false)
   }
   const login = async () => {
-    await indexedDbClient?.clear();
-    await indexedDbClient?.init(900); // create session for 15 mins
+    await indexedDbClient?.resetKeyPair(); 
   
     const publicKey = await indexedDbClient!.getPublicKey();
     console.log("Public Key: ", publicKey);
   
     const whoamiResponse = await passkeyClient?.getWhoami({});
-    const response = await passkeyClient!.createApiKeys({
+    await passkeyClient!.createApiKeys({
       organizationId: whoamiResponse?.organizationId!,
       userId: whoamiResponse?.userId!,
       apiKeys: [
@@ -58,8 +64,8 @@ export default function AuthPage() {
       token: publicKey!,
 
     }
-    setAuthResponse(response);
-    await indexedDbClient!.loginWithSession(session);
+    await indexedDbClient!.loginWithSessionIndexedDb(session);
+    setSession(session)
   };
 
   const create = async () => {
@@ -88,65 +94,53 @@ export default function AuthPage() {
     console.log(resp)
   };
     
-
-  const clear = async () => {
-    await indexedDbClient?.clear();
-  }
-
-  const whoami = async () => {
-    await indexedDbClient?.init(900)
-    const whoamiResponse = await indexedDbClient?.getWhoami({});  
-    setPublicKey(indexedDbClient?.getPublicKey());
-    setWhoAmiResponse(whoamiResponse);
-
-  }
-
-
-  
   return (
-    <main className={styles.main}>
-      <a
-        href="https://www.turnkey.com"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Image
-          src="/logo.svg"
-          alt="Turnkey Logo"
-          className={styles.turnkeyLogo}
-          width={100}
-          height={24}
-          priority
-        />
-      </a>
+<main className={styles.main}>
+  <a
+    href="https://www.turnkey.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <Image
+      src="/logo.svg"
+      alt="Turnkey Logo"
+      className={styles.turnkeyLogo}
+      width={100}
+      height={24}
+      priority
+    />
+  </a>
 
-      {(!indexedDbClient || !passkeyClient) && <p>Loading...</p>}
+  {(!indexedDbClient || !passkeyClient) && <p>Loading...</p>}
 
-      {indexedDbClient && passkeyClient && (
+  {indexedDbClient && passkeyClient && (
+    <div>
+      {!session ? (
         <div>
-            <button className={styles.button} onClick={login}>
-              Login With Passkey
-            </button>
-            <button className={styles.button} onClick={create}>
-              Create Suborg
-            </button>
-            <button className={styles.button} onClick={clear}>
-              Clear IndexedDb
-            </button>
-            <button className={styles.button} onClick={whoami}>
-              Is my IndexedDb api key active?
-            </button>
-        {
-          whoAmiResponse && <div>
-            <p>User ID with valid session {whoAmiResponse.userId}</p>
-            <div>
-            Public Key: {publicKey}
-              </div>
-          </div>        }
+          <button className={styles.button} onClick={login}>
+            Login With Passkey
+          </button>
+          <button className={styles.button} onClick={create}>
+            Create Suborg
+          </button>
         </div>
-        
+      ) : (
+        <div>
+          <p>Session is active!</p>
+          <button className={styles.button} onClick={handleLogout}>
+            Log out
+          </button>
+          <button className={styles.button} onClick={getWhoAmi}>
+            Who am I?
+          </button>
+          <div>
+          {whoamI && whoamI}
+          </div>
+        </div>
       )}
+    </div>
+  )}
+</main>
 
-    </main>
   );
 }
