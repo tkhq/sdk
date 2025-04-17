@@ -1,5 +1,11 @@
 # @turnkey/sdk-react
 
+## 4.2.3
+
+### Patch Changes
+
+- 0e630b2: Update supported countries for SMS deliverability in EWK
+
 ## 4.2.2
 
 ### Patch Changes

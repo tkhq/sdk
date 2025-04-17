@@ -1,5 +1,25 @@
 # @turnkey/sdk-react-native
 
+## 1.1.0
+
+### Minor Changes
+
+- e8bc05b: Introduces handleGoogleOAuth(): Adds a utility function to handle the Google OAuth authentication flow in React Native.
+
+**Usage Summary**:  
+`handleGoogleOAuth` launches an InAppBrowser to initiate the OAuth flow using your client ID, nonce, and app scheme. After a successful login, it extracts the `oidcToken` from the redirect URL and calls your `onSuccess` callback with the token.
+
+```ts
+handleGoogleOAuth({
+  clientId: string,           // Google OAuth client ID
+  nonce: string,              // Random nonce
+  scheme: string,             // App’s custom URL scheme (e.g., "myapp")
+  originUri?: string,         // Optional custom origin URI - defaults to Turnkey proxies
+  redirectUri?: string,       // Optional custom redirect URI - defaults to Turnkey proxies
+  onSuccess: (oidcToken: string) => void, // Called with token on success
+});
+```
+
 ## 1.0.5
 
 ### Patch Changes
