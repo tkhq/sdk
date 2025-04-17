@@ -124,7 +124,7 @@ export class IndexedDbStamper {
     });
   }
 
-  private async storeKeyPair(publicKey: string, privateKey: CryptoKey, expiresAt: number): Promise<void> {
+  private async storeKeyPair(publicKey: string, privateKey: CryptoKey): Promise<void> {
     const db = await this.openDb();
     return new Promise((resolve, reject) => {
       const tx = db.transaction(DB_STORE, "readwrite");
@@ -132,7 +132,6 @@ export class IndexedDbStamper {
 
       store.put(publicKey, `${DB_KEY}-pub`);
       store.put(privateKey, `${DB_KEY}-priv`);
-      store.put(expiresAt, DB_EXPIRY_KEY);
 
       tx.oncomplete = () => {
         db.close();
@@ -169,68 +168,36 @@ export class IndexedDbStamper {
     });
   }
 
-  async hasValidKey(): Promise<boolean> {
-    const expiry = await this.getExpiry();
-    return expiry !== null && Date.now() <= expiry;
-  }
-
-  async getExpiry(): Promise<number | null> {
-    const db = await this.openDb();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(DB_STORE, "readonly");
-      const store = tx.objectStore(DB_STORE);
-
-      const getExpiry = store.get(DB_EXPIRY_KEY);
-      getExpiry.onsuccess = () => resolve(getExpiry.result ?? null);
-      getExpiry.onerror = () => reject(getExpiry.error);
-    });
-  }
-
-  private async clearKeysIfExpired(): Promise<void> {
-    const expiry = await this.getExpiry();
-    if (expiry !== null && Date.now() > expiry) {
-      console.log("Key expired, clearing...");
-      await this.clear();
-    }
-  }
-
-// default expiry is 15 minutes
-async init(expirySeconds: number = 900): Promise<void> {
-  try {
-    await this.clearKeysIfExpired();
-
+  async init(): Promise<void> {
     const { publicKey, privateKey } = await this.getStoredKeys();
 
     if (publicKey && privateKey) {
       this.publicKeyHex = publicKey;
       this.privateKey = privateKey;
     } else {
-      const keyPair = await crypto.subtle.generateKey(
-        {
-          name: "ECDSA",
-          namedCurve: "P-256",
-        },
-        false, // not extractable
-        ["sign", "verify"]
-      );
-
-      const rawPubKey = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair.publicKey));
-
-      const compressedPubKey = pointEncode(rawPubKey);
-      const compressedHex = uint8ArrayToHexString(compressedPubKey);
-      const expiresAt = Date.now() + expirySeconds * 1000;
-
-      await this.storeKeyPair(compressedHex, keyPair.privateKey, expiresAt);
-
-      this.publicKeyHex = compressedHex;
-      this.privateKey = keyPair.privateKey;
+      await this.resetKeyPair();
     }
-  } catch (error) {
-    console.error("Init failed:", error);
-    throw error;
   }
-}
 
+  async resetKeyPair(): Promise<void> {
+    const keyPair = await crypto.subtle.generateKey(
+      {
+        name: "ECDSA",
+        namedCurve: "P-256",
+      },
+      false,
+      ["sign", "verify"]
+    );
+
+    const rawPubKey = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair.publicKey));
+    const compressedPubKey = pointEncode(rawPubKey);
+    const compressedHex = uint8ArrayToHexString(compressedPubKey);
+
+    await this.storeKeyPair(compressedHex, keyPair.privateKey);
+
+    this.publicKeyHex = compressedHex;
+    this.privateKey = keyPair.privateKey;
+  }
 
   getPublicKey(): string | null {
     return this.publicKeyHex;
@@ -240,7 +207,7 @@ async init(expirySeconds: number = 900): Promise<void> {
     if (!this.privateKey) {
       throw new Error("Key not initialized. Call init() first.");
     }
-  
+
     const encodedPayload = new TextEncoder().encode(payload);
     const signatureIeee1363 = await crypto.subtle.sign(
       {
@@ -250,7 +217,7 @@ async init(expirySeconds: number = 900): Promise<void> {
       this.privateKey,
       encodedPayload
     );
-  
+
     const signatureDer = convertEcdsaIeee1363ToDer(new Uint8Array(signatureIeee1363));
     return uint8ArrayToHexString(signatureDer);
   }
@@ -285,7 +252,6 @@ async init(expirySeconds: number = 900): Promise<void> {
 
       store.delete(`${DB_KEY}-pub`);
       store.delete(`${DB_KEY}-priv`);
-      store.delete(DB_EXPIRY_KEY);
 
       tx.oncomplete = () => {
         db.close();

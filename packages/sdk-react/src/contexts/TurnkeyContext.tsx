@@ -141,6 +141,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
         // create an instance of TurnkeyIndexedDbClient
         const indexedDbClient = await turnkeyBrowserSDK.indexedDbClient();
+        await indexedDbClient?.init();
         setIndexedDbClient(indexedDbClient);
 
       }
