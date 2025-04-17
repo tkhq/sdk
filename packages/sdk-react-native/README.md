@@ -10,6 +10,7 @@ The `@turnkey/sdk-react-native` package simplifies the integration of the Turnke
 
 - Install the following dependencies in your React Native project:
   - [`react-native-keychain`](https://www.npmjs.com/package/react-native-keychain)
+  - [`react-native-inappbrowser-reborn`](https://www.npmjs.com/package/react-native-inappbrowser-reborn)
   - [`@turnkey/crypto`](../crypto/)
   - [`@turnkey/api-key-stamper`](../api-key-stamper/)
   - [`@turnkey/http`](../http/)
@@ -110,9 +111,17 @@ To enable secure authentication, the following storage keys are used:
 - `importWallet({ walletName, mnemonic, accounts })`: Imports a wallet. [(API Docs)](https://docs.turnkey.com/api#tag/Wallets/operation/ImportWallet)
 - `exportWallet({ walletId })`: Exports a wallet mnemonic. [(API Docs)](https://docs.turnkey.com/api#tag/Wallets/operation/ExportWallet)
 
+---
+
 ### **Transaction Signing**
 
 - `signRawPayload({ signWith, payload, encoding, hashFunction })`: Signs a payload. [(API Docs)](https://docs.turnkey.com/api#tag/Signing/operation/SignRawPayload)
+
+---
+
+### **OAuth**
+
+- `handleGoogleOAuth({ clientId, redirectUri, nonce, scheme, onIdToken })`: Handles the Google OAuth authentication flow.
 
 ---
 

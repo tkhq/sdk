@@ -46,7 +46,10 @@ import {
   OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
   SESSION_WARNING_THRESHOLD_SECONDS,
   StorageKeys,
+  TURNKEY_OAUTH_ORIGIN_URL,
+  TURNKEY__OAUTH_REDIRECT_URL,
 } from "../constants";
+import { InAppBrowser } from "react-native-inappbrowser-reborn";
 
 export interface TurnkeyContextType {
   session: Session | undefined;
@@ -86,6 +89,14 @@ export interface TurnkeyContextType {
     encoding: PayloadEncoding;
     hashFunction: HashFunction;
   }) => Promise<SignRawPayloadResult>;
+  handleGoogleOAuth: (params: {
+    clientId: string;
+    nonce: string;
+    scheme: string;
+    originUri?: string;
+    redirectUri?: string;
+    onSuccess: (oidcToken: string) => void;
+  }) => Promise<void>;
 }
 
 export const TurnkeyContext = createContext<TurnkeyContextType | undefined>(
@@ -324,8 +335,8 @@ export const TurnkeyProvider: FC<{
    * - Sends a request to update the user's email and/or phone number.
    * - If the update is successful, refreshes the user data to reflect changes.
    *
-   * @param email - The new email address (optional).
-   * @param phone - The new phone number (optional).
+   * @param email - (Optional) The new email address.
+   * @param phone - (Optional) The new phone number.
    * @returns The update user activity result.
    * @throws If the client or session is not initialized.
    */
@@ -395,8 +406,8 @@ export const TurnkeyProvider: FC<{
    * - Calls `onSessionCreated` callback if provided.
    *
    * @param bundle - The encrypted credential bundle.
-   * @param expirationSeconds - Optional expiration time in seconds (defaults to `OTP_AUTH_DEFAULT_EXPIRATION_SECONDS`).
-   * @param sessionKey - Optional session identifier (defaults to `TURNKEY_DEFAULT_SESSION_STORAGE`).
+   * @param expirationSeconds - (Optional) The expiration time in seconds (defaults to `OTP_AUTH_DEFAULT_EXPIRATION_SECONDS`).
+   * @param sessionKey - (Optional) The session identifier (defaults to `TURNKEY_DEFAULT_SESSION_STORAGE`).
    * @returns The created session.
    * @throws {TurnkeyReactNativeError} If the embedded key or user data cannot be retrieved,
    *         if the sessionKey already exists, or if the maximum session limit is reached.
@@ -481,8 +492,8 @@ export const TurnkeyProvider: FC<{
    *  - Updating local state (if this is the currently selected session),
    *    saving the refreshed session, and scheduling its expiration.
    *
-   * @param expirationSeconds - Optional expiration time in seconds for the new session. Defaults to OTP_AUTH_DEFAULT_EXPIRATION_SECONDS.
-   * @param sessionKey - Optional the session key to refresh; if not provided, the currently selected session key is used.
+   * @param expirationSeconds - (Optional) The expiration time in seconds for the new session. Defaults to OTP_AUTH_DEFAULT_EXPIRATION_SECONDS.
+   * @param sessionKey - (Optional) The session key to refresh; if not provided, the currently selected session key is used.
    * @returns The refreshed Session.
    * @throws {TurnkeyReactNativeError} If the session is not found, already expired, or any step in the refresh fails.
    */
@@ -866,6 +877,85 @@ export const TurnkeyProvider: FC<{
     [client, session],
   );
 
+  /**
+   * Handles the Google OAuth authentication flow.
+   *
+   * Initiates an InAppBrowser OAuth flow with the provided credentials and parameters.
+   * After the OAuth flow completes successfully, it extracts the oidcToken from the callback URL
+   * and invokes the provided onSuccess callback.
+   *
+   * @param clientId    The client ID for Google OAuth.
+   * @param nonce       A random nonce for the OAuth flow.
+   * @param scheme      The app’s custom URL scheme (e.g., `"myapp"`).
+   * @param originUri   (Optional) The base URI to start the OAuth flow. Defaults to `TURNKEY_OAUTH_ORIGIN_URL`.
+   * @param redirectUri (Optional) The redirect URI for the OAuth flow. Defaults to `TURNKEY_OAUTH_REDIRECT_URL?scheme={scheme}`.
+   * @param onSuccess   Callback function that receives the oidcToken upon successful OAuth authentication.
+   * @returns           A promise that resolves once the OAuth flow completes.
+   * @throws {TurnkeyReactNativeError} If InAppBrowser is unavailable, the OAuth flow fails, or the oidcToken is missing.
+   */
+  const handleGoogleOAuth = useCallback(
+    async ({
+      clientId,
+      nonce,
+      scheme,
+      originUri = TURNKEY_OAUTH_ORIGIN_URL,
+      redirectUri,
+      onSuccess,
+    }: {
+      clientId: string;
+      nonce: string;
+      scheme: string;
+      originUri?: string;
+      redirectUri?: string;
+      onSuccess: (oidcToken: string) => void;
+    }): Promise<void> => {
+      if (!(await InAppBrowser.isAvailable())) {
+        throw new TurnkeyReactNativeError("InAppBrowser is not available");
+      }
+
+      const finalRedirectUri = redirectUri
+        ? redirectUri
+        : `${TURNKEY__OAUTH_REDIRECT_URL}?scheme=${encodeURIComponent(scheme)}`;
+
+      const oauthUrl =
+        originUri +
+        `?provider=google` +
+        `&clientId=${encodeURIComponent(clientId)}` +
+        `&redirectUri=${encodeURIComponent(finalRedirectUri)}` +
+        `&nonce=${encodeURIComponent(nonce)}`;
+
+      const result = await InAppBrowser.openAuth(oauthUrl, scheme, {
+        dismissButtonStyle: "cancel",
+        animated: true,
+        modalPresentationStyle: "fullScreen",
+        modalTransitionStyle: "coverVertical",
+        modalEnabled: true,
+        enableBarCollapsing: false,
+        showTitle: true,
+        enableUrlBarHiding: true,
+        enableDefaultShare: true,
+      });
+
+      if (!result || result.type !== "success" || !result.url) {
+        throw new TurnkeyReactNativeError(
+          "OAuth flow did not complete successfully",
+        );
+      }
+
+      const resultUrl = new URL(result.url);
+      const oidcToken = resultUrl.searchParams.get("id_token");
+
+      if (!oidcToken) {
+        throw new TurnkeyReactNativeError(
+          "oidcToken not found in the response",
+        );
+      }
+
+      onSuccess(oidcToken);
+    },
+    [],
+  );
+
   const providerValue = useMemo(
     () => ({
       session,
@@ -883,6 +973,7 @@ export const TurnkeyProvider: FC<{
       importWallet,
       exportWallet,
       signRawPayload,
+      handleGoogleOAuth,
     }),
     [
       session,
@@ -900,6 +991,7 @@ export const TurnkeyProvider: FC<{
       importWallet,
       exportWallet,
       signRawPayload,
+      handleGoogleOAuth,
     ],
   );
 
