@@ -1939,9 +1939,6 @@ importers:
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../sdk-server
-      '@turnkey/sdk-types':
-        specifier: workspace:*
-        version: link:../sdk-types
       '@turnkey/wallet-stamper':
         specifier: workspace:*
         version: link:../wallet-stamper
