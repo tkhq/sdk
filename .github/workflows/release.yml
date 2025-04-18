@@ -1,65 +1,112 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - "*.*.*"
-      - "v*.*.*"
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  workflow_dispatch: # Allows manual invocation
+
+permissions:
+  contents: write
+  actions: read
+  checks: write
+  pull-requests: write
 
 jobs:
-  release:
+  check-release-label:
     runs-on: ubuntu-latest
-    environment: production
+    outputs:
+      has-release-label: ${{ steps.check-release-label.outputs.has-release-label }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          fetch-depth: 0 # Full history for changelog generation
-
-      - name: Setup Node.js
-        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
-        with:
-          node-version-file: ".nvmrc"
-
-      - name: Use corepack to activate pnpm
-        run: npm i -g corepack@0.31.0 && corepack enable
-        shell: bash
-
-      - name: Audit dependencies (before installing anything)
-        # Ignore "low" and "moderate" advisories for now.
-        run: pnpm audit --audit-level high
-        shell: bash
-
-      - name: Get pnpm store directory (for caching)
-        id: pnpm-cache-dir
+      - name: Check for run-ci label
+        id: check-release-label
         run: |
-          echo "dir=$(pnpm store path)" >> $GITHUB_OUTPUT
-        shell: bash
+          if [[ "${{ contains(github.event.pull_request.labels.*.name, 'run-ci-release') }}" == "true" ]]; then
+            echo "has-release-label=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-release-label=false" >> $GITHUB_OUTPUT
+          fi
 
-      # https://github.com/actions/cache
-      - name: Setup pnpm store cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        with:
-          path: ${{ steps.pnpm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+  build:
+    needs: check-release-label
+    if: needs.check-release-label.outputs.has-release-label == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      # Install and cache JS toolchain and dependencies (node_modules)
+      - name: Setup JS
+        uses: ./.github/actions/js-setup
+
+      - name: Build
+        run: pnpm run build-all
+
+      - name: Typecheck
+        run: pnpm run typecheck-all
+
+      - name: Prettier
+        run: pnpm run prettier-all:check
+
+  test-pre-prod:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Test (preprod)
+        run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
         env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
+          API_PUBLIC_KEY: ${{ secrets.PREPROD_API_PUBLIC_KEY }}
+          API_PRIVATE_KEY: ${{ secrets.PREPROD_API_PRIVATE_KEY }}
+          BASE_URL: ${{ secrets.PREPROD_BASE_URL }}
+          ORGANIZATION_ID: ${{ secrets.PREPROD_ORGANIZATION_ID }}
+          PRIVATE_KEY_ID: ${{ secrets.PREPROD_PRIVATE_KEY_ID }}
+          EXPECTED_PRIVATE_KEY_ETH_ADDRESS: ${{ secrets.PREPROD_EXPECTED_PRIVATE_KEY_ETH_ADDRESS }}
+          EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2: ${{ secrets.PREPROD_EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2 }}
+          EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: ${{ secrets.PREPROD_EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS }}
+          EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2: ${{ secrets.PREPROD_EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2 }}
+          BANNED_TO_ADDRESS: ${{ secrets.PREPROD_BANNED_TO_ADDRESS }}
+          SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
+          WALLET_ID: ${{ secrets.PREPROD_WALLET_ID }}
 
-      - name: Audit the lockfiles to catch peer dependency issues
-        run: pnpm install -r --lockfile-only
-        shell: bash
+  test-prod:
+    runs-on: ubuntu-latest
+    needs: test-pre-prod
+    steps:
+      - name: Test (prod)
+        run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
+        env:
+          API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
+          API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
+          BASE_URL: "https://api.turnkey.com"
+          ORGANIZATION_ID: ${{ secrets.ORGANIZATION_ID }}
+          PRIVATE_KEY_ID: ${{ secrets.PRIVATE_KEY_ID }}
+          EXPECTED_PRIVATE_KEY_ETH_ADDRESS: ${{ secrets.EXPECTED_PRIVATE_KEY_ETH_ADDRESS }}
+          EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2: ${{ secrets.EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2 }}
+          EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: ${{ secrets.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS }}
+          EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2: ${{ secrets.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2 }}
+          BANNED_TO_ADDRESS: "0x6F72eDB2429820c2A0606a9FC3cA364f5E9b2375"
+          SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
+          WALLET_ID: ${{ secrets.WALLET_ID }}
 
-      - name: Install dependencies
-        run: pnpm install -r --frozen-lockfile
-        shell: bash
-
-      - name: Create PR with changelog
+  publish:
+    runs-on: ubuntu-latest
+    environment: production # require manual approval for production deployments
+    needs: test-prod
+    steps:
+      - name: Publish @turnkey/sdk-types to npm
         uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
         with:
-          version: pnpm run changeset version # Updates versions and changelog
-          publish: pnpm run changeset publish # Publishes to npm
+          version: pnpm --filter @turnkey/sdk-types run changeset version # Updates versions and changelog
+          publish: pnpm --filter @turnkey/sdk-types publish --dry-run # dry run publish to npm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For changelog links
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # For npm publish
+          NPM_TOKEN: ${{ env.NPM_TOKEN }} # for npm publish
+      - name: Publish to npm (Push)
+        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
+        with:
+          version: pnpm --filter @turnkey/sdk-types run changeset version
+          publish: pnpm --filter @turnkey/sdk-types publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ env.NPM_TOKEN }}
