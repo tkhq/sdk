@@ -1,0 +1,36 @@
+---
+title: "SealAndStampRequestBody"
+mode: wide
+---
+  
+# Function: sealAndStampRequestBody()
+
+> **sealAndStampRequestBody**(`input`): `Promise`\<\{ `sealedBody`: `string`; `xStamp`: `string`; \}\>
+
+Defined in: packages/http/dist/base.d.ts:44
+
+Seals and stamps the request body with your Turnkey API credentials.
+
+You can either:
+- Before calling `sealAndStampRequestBody(...)`, initialize with your Turnkey API credentials via `init(...)`
+- Or, provide `apiPublicKey` and `apiPrivateKey` here as arguments
+
+## Parameters
+
+### input
+
+#### apiPrivateKey?
+
+`string`
+
+#### apiPublicKey?
+
+`string`
+
+#### body
+
+`Record`\<`string`, `any`\>
+
+## Returns
+
+`Promise`\<\{ `sealedBody`: `string`; `xStamp`: `string`; \}\>

@@ -1,3 +1,7 @@
+---
+title: "Turnkey SDK"
+---
+
 # Turnkey SDK
 
 [![js-build](https://github.com/tkhq/sdk/actions/workflows/js-build.yml/badge.svg)](https://github.com/tkhq/sdk/actions/workflows/js-build.yml)
@@ -12,7 +16,7 @@ The Turnkey SDK includes functionality to interact with Turnkey in various conte
 
 The diagram below helps visualize the packages in our SDK organized by the functionality they expose.
 
-<img src="./img/sdk-map.png" alt="homepage screenshot" width="1000px">
+<img src="./img/sdk-map.png" alt="homepage screenshot" width="1000px" />
 
 ## Primary Turnkey Web SDK Packages
 
@@ -30,7 +34,7 @@ Our main web SDK packages are as follows:
 
 The diagram below helps visualize how each package can be used to devlop the appropriate service in your Turnkey Powered Application, and how Turnkey requests would flow between those services.
 
-<img src="./img/sdk-web-diagram.png" alt="homepage screenshot" width="1000px">
+<img src="./img/sdk-web-diagram.png" alt="homepage screenshot" width="1000px" />
 
 ## Chain/Ecosystem-Specific Signing SDK Packages
 
@@ -126,7 +130,7 @@ See https://github.com/tkhq/demo-consumer-wallet for the code.
 A wallet application showing how users can register and authenticate using passkeys.
 This demo uses the Turnkey API to create a new [Turnkey Sub-Organization](https://docs.turnkey.com/concepts/sub-organizations) for each user, create a testnet Ethereum address and send a transaction on Sepolia (ETH testnet).
 
-<img src="./img/demo-passkey-wallet.png" alt="homepage screenshot" width="800px">
+<img src="./img/demo-passkey-wallet.png" alt="homepage screenshot" width="800px" />
 
 See https://wallet.tx.xyz (and https://github.com/tkhq/demo-passkey-wallet for the code).
 
@@ -134,7 +138,7 @@ See https://wallet.tx.xyz (and https://github.com/tkhq/demo-passkey-wallet for t
 
 A simple application demonstrating how to create sub-organizations, create private keys, and sign with the [`@turnkey/ethers`](https://github.com/tkhq/sdk/tree/main/packages/ethers) signer, using passkeys.
 
-<img src="./img/ethers-ui-screenshot.png" alt="homepage screenshot" width="800px">
+<img src="./img/ethers-ui-screenshot.png" alt="homepage screenshot" width="800px" />
 
 See https://github.com/tkhq/demo-ethers-passkeys for the code.
 
@@ -142,7 +146,7 @@ See https://github.com/tkhq/demo-ethers-passkeys for the code.
 
 A similar, simple application demonstrating how to create sub-organizations, create private keys, and sign with the [`@turnkey/viem`](https://github.com/tkhq/sdk/tree/main/packages/viem) signer, using passkeys.
 
-<img src="./img/viem-ui-screenshot.png" alt="homepage screenshot" width="800px">
+<img src="./img/viem-ui-screenshot.png" alt="homepage screenshot" width="800px" />
 
 See https://github.com/tkhq/demo-viem-passkeys for the code.
 

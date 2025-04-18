@@ -9,7 +9,7 @@
     "build-all": "pnpm run --r --filter \"./packages/**\" build",
     "build:watch": "tsc --build tsconfig.mono.json --watch",
     "build": "turbo --filter \"./packages/**\" build",
-    "docs": "typedoc --options typedoc.json",
+    "generate-docs": "typedoc --options typedoc.json && node typedoc-theme/format-output.js",
     "csb:install": "corepack enable && pnpm install -r",
     "csb:build": "pnpm run build-all",
     "clean-all": "pnpm run -r clean",

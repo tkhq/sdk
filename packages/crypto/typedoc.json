@@ -1,15 +1,31 @@
 {
   "entryPoints": ["src/index.ts"],
+  "name": "crypto",
+  "exclude": [
+    "src/turnkey-helpers.ts",
+    "**/__generated__/**",
+    "**/__inputs__/**",
+    "**/__types__/**",
+    "**/node_modules/**",
+    "src/__generated__/sdk_api_types.ts",
+    "src/__generated__/sdk-client-base.ts",
+    "src/__inputs__/public_api.types.ts",
+    "src/__inputs__/public_api.swagger.json",
+    "src/__types__/base.ts"
+  ],
   "excludeInternal": true,
   "includeVersion": true,
   "fileExtension": ".mdx",
+  "alwaysCreateEntryPointModule": true,
+  "gitRevision": "main",
+  "router": "structure-dir",
   "plugin": ["typedoc-plugin-markdown"],
-  "projectDocuments": ["documents/*.md"],
+  "projectDocuments": ["documents/*.md", "CHANGELOG.md"],
   "outputs": [
     {
       // requires typedoc-plugin-markdown
       "name": "markdown",
-      "path": "./docs/markdown",
+      "path": "./generated-docs/sdks",
       "fileExtension": ".mdx"
     }
   ]

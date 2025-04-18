@@ -1,0 +1,112 @@
+---
+title: "React"
+mode: wide
+---
+  
+## Overview
+
+The [`@turnkey/sdk-react`](https://www.npmjs.com/package/@turnkey/sdk-react) package wraps the functionality from the [`@turnkey/sdk-browser`](https://www.npmjs.com/package/@turnkey/sdk-browser) package to allow developers to build React-based applications that interact with the Turnkey API with different types of authentication.
+
+It allows developers to use the same clients exposed in [`@turnkey/sdk-browser`](https://www.npmjs.com/package/@turnkey/sdk-browser) that enable requests to the API authenticated via different auth methods powered by passkeys or user sessions (using iframes)​. It also contains the same methods to manage information and state related to authentication like auth bundles and sessions, retrieving user information and server signing API requests.
+
+Use the [`@turnkey/sdk-react`](https://www.npmjs.com/package/@turnkey/sdk-react) package when you’re building React-based frontend applications that interact with the Turnkey API.
+
+## Installation
+
+<CodeGroup>
+
+```bash npm
+npm install @turnkey/sdk-react
+```
+
+```bash Yarn
+yarn add @turnkey/sdk-react
+```
+
+</CodeGroup>
+
+## Initializing
+
+In `App.tsx` (or equivalent file)
+
+```ts
+import { TurnkeyProvider } from "@turnkey/sdk-react";
+
+const turnkeyConfig = {
+  apiBaseUrl: "https://api.turnkey.com",
+  // prefix with NEXT_PUBLIC for NextJS
+  defaultOrganizationId: process.env.TURNKEY_ORGANIZATION_ID,
+  // your application's domain
+  rpId: process.env.RPID,
+  iframeUrl: "https://auth.turnkey.com",
+  // The URL that the Turnkey SDK will send requests to for signing operations.
+  // This should be a backend endpoint that your application controls.
+  serverSignUrl: "http://localhost:3000/api"
+}
+
+For further context on RPID's for passkeys, used in the above example, [look here](/authentication/passkeys/options#rp).
+
+<div className="App">
+  <TurnkeyProvider config={turnkeyConfig}>
+    // Rest of app ...
+  </TurnkeyProvider>
+</div>
+```
+
+#### Parameters
+
+<ParamField body="config" type="TurnkeySDKBrowserConfig" required >
+
+An object containing configuration settings for the Browser Client.
+
+</ParamField>
+
+<ParamField body="defaultOrganizationId" type="string" required >
+
+The root organization that requests will be made from unless otherwise specified. For example, if you are using methods that require signing with an auth credential from a sub-organization, you will need to specify the sub-organization's ID in your client's config.
+</ParamField>
+<ParamField body="apiBaseUrl" type="string" required >
+
+The base URL that API requests will be sent to (use [https://api.turnkey.com](https://api.turnkey.com) when making requests to Turnkey's API)
+</ParamField>
+
+<ParamField body="rpId" type="string" >
+
+The [Relying Party](https://developer.mozilla.org/en-US/docs/Glossary/Relying_party) ID used for WebAuthn flows (will default to the value returned from `window.location.hostname` unless otherwise specified)
+</ParamField>
+<ParamField body="serverSignUrl" type="string" >
+
+The URL to send requests that need to be signed from a backend codebase by the root organization's API key if using the `serverSign` flow
+</ParamField>
+
+## Using the React SDK to interact with Turnkey
+
+The [`@turnkey/sdk-react`](https://www.npmjs.com/package/@turnkey/sdk-react) is a package that provides abstractions on top of the [`@turnkey/sdk-browser`](https://www.npmjs.com/package/@turnkey/sdk-browser) package, for usage in React-based applications.
+
+In any React component nested under the `TurnkeyProvider`, you'll be able to call `useTurnkey()` as in the following example. You can also instantiate clients like `passkeyClient` and `authIframeClient` by pulling them out of the provider directly as [such](/sdks/migration-path#turnkey-on-the-client-1).
+
+```ts
+import { useTurnkey } from "@turnkey/sdk-react";
+const { turnkey, passkeyClient, authIframeClient } = useTurnkey();
+
+const loginWithPasskey = async () => {
+  await passkeyClient?.login();
+};
+
+const initEmailAuth = async () => {
+  await turnkey?.serverSign("emailAuth", [
+    {
+      email: "<target user email>",
+      targetPublicKey: authIframeClient.iframePublicKey,
+      organizationId: "<target user suborg-id>",
+    },
+  ]);
+};
+
+const loginWithIframe = async (credentialBundle: string) => {
+  await authIframeClient?.injectCredentialBundle(credentialBundle);
+  await authIframeClient?.login();
+};
+```
+
+For more complete and in depth examples using the [`@turnkey/sdk-react`](https://www.npmjs.com/package/@turnkey/sdk-react) package, check out our [Code Examples](/category/code-examples) section.
