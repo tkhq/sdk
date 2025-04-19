@@ -1,0 +1,111 @@
+---
+title: "TurnkeyClient"
+mode: wide
+---
+  
+## Introduction
+
+The [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http) package is a fully-typed lower-level HTTP client for developers integrating with Turnkey.
+
+## Installing
+
+To get started install the [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http) client.
+
+<CodeGroup>
+
+```bash npm
+npm i @turnkey/http
+```
+
+```bash pnpm
+pnpm i @turnkey/http
+```
+
+```bash yarn
+yarn add @turnkey/http
+```
+
+</CodeGroup>
+
+## Initializing
+
+Create a new client for use in your JavaScript/Typescript applications.
+
+You can initialize a new **`TurnkeyClient`** using the **`TurnkeyClient`** constructor. The **`TurnkeyClient`** serves as your entry point to interact with the Turnkey API.
+
+### Parameters
+
+<ParamField
+body="config"
+type="THttpConfig"
+required
+
+>
+
+An object containing configuration settings for the client.
+
+</ParamField>
+
+<ParamField
+body="baseUrl"
+type="string"
+required
+
+>
+
+The base URL for the Turnkey API. Note: An error `Missing base URL. Please verify env vars.` will be thrown if a value is not provided.
+
+</ParamField>
+
+<ParamField
+body="stamper"
+type="TStamper"
+required
+
+>
+
+An instance of a stamper class (e.g. [**`ApiKeyStamper`**](/sdks/advanced/api-key-stamper)) used to create signatures for authenticating API requests.
+</ParamField>
+Currently Turnkey provides 3 stampers:
+
+- applications signing requests with Passkeys or webauthn devices should use [`@turnkey/webauthn-stamper`](/sdks/advanced/webauthn-stamper)
+- applications signing requests with API keys should use [`@turnkey/api-key-stamper`](/sdks/advanced/api-key-stamper)
+- applications that need to sign requests within an iframe, particularly when handling sensitive operations like Auth, or Key or Wallet Export, should use the [`@turnkey/iframe-stamper`](/sdks/advanced/iframe-stamper).
+
+You can also implement the TStamper interface yourself. For more information on implementing a custom stamper checkout the [API Design](/developer-reference/api-overview/intro) docs.
+
+### Types
+
+#### `THttpConfig`
+
+```bash
+type THttpConfig = {
+  baseUrl: string;
+};
+```
+
+#### `TStamper`
+
+```bash
+interface TStamper {
+  stamp: (input: string) => Promise<TStamp>;
+}
+```
+
+### Example
+
+```js
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+
+// Following best practices, define parameters in your .env file
+const baseUrl = process.env.TURNKEY_BASE_URL || "https://api.turnkey.com";
+const apiPublicKey = process.env.TURNKEY_API_PUBLIC_KEY;
+const apiPrivateKey = process.env.TURNKEY_API_PRIVATE_KEY;
+
+// Initialize the API key stamper
+const stamper = new ApiKeyStamper({ apiPublicKey, apiPrivateKey });
+
+// Initialize the Turnkey client and then you're ready to use the Turnkey client! 🎉
+const client = new TurnkeyClient({ baseUrl }, stamper);
+```

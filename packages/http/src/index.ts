@@ -1,5 +1,13 @@
+// marked as internal to prevent inclusion in the http docs
+/** @internal */
 import { PublicApiService as TurnkeyApi } from "./__generated__/barrel";
+
+// marked as internal to prevent inclusion in the http docs
+/** @internal */
 export type { definitions as TurnkeyApiTypes } from "./__generated__/services/coordinator/public/v1/public_api.types";
+
+// marked as internal to prevent inclusion in the http docs
+/** @internal */
 export { TurnkeyClient } from "./__generated__/services/coordinator/public/v1/public_api.client";
 
 export { init, browserInit } from "./config";

@@ -1,0 +1,62 @@
+---
+title: "ApiKeyStamper"
+mode: wide
+---
+  
+# Class: ApiKeyStamper
+
+Defined in: packages/api-key-stamper/dist/index.d.ts:17
+
+Stamper to use with `@turnkey/http`'s `TurnkeyClient`
+
+## Constructors
+
+### Constructor
+
+> **new ApiKeyStamper**(`config`): `ApiKeyStamper`
+
+Defined in: packages/api-key-stamper/dist/index.d.ts:20
+
+#### Parameters
+
+##### config
+
+[`TApiKeyStamperConfig`](../TApiKeyStamperConfig/readme)
+
+#### Returns
+
+`ApiKeyStamper`
+
+## Properties
+
+### apiPrivateKey
+
+> **apiPrivateKey**: `string`
+
+Defined in: packages/api-key-stamper/dist/index.d.ts:19
+
+***
+
+### apiPublicKey
+
+> **apiPublicKey**: `string`
+
+Defined in: packages/api-key-stamper/dist/index.d.ts:18
+
+## Methods
+
+### stamp()
+
+> **stamp**(`payload`): `Promise`\<\{ `stampHeaderName`: `string`; `stampHeaderValue`: `string`; \}\>
+
+Defined in: packages/api-key-stamper/dist/index.d.ts:21
+
+#### Parameters
+
+##### payload
+
+`string`
+
+#### Returns
+
+`Promise`\<\{ `stampHeaderName`: `string`; `stampHeaderValue`: `string`; \}\>

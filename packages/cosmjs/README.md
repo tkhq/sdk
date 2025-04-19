@@ -1,3 +1,7 @@
+---
+title: "Cosmjs"
+---
+
 # @turnkey/cosmjs
 
 [![npm](https://img.shields.io/npm/v/@turnkey/cosmjs?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/cosmjs)

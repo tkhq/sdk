@@ -1,0 +1,594 @@
+---
+title: "SDK Browser"
+mode: wide
+---
+  
+# @turnkey/sdk-browser
+
+## 4.0.0
+
+### Major Changes
+
+- d1083bd: initOtpAuth now defaults to v2 (breaking) which allows alphanumeric boolean and otpLength (6-9) to be passed. More details below.
+
+- This release introduces the `INIT_OTP_AUTH_V2` activity. The difference between it and `INIT_OTP_AUTH` is that it can now accept `alphanumeric` and `otpLength` for selecting crockford bech32 alphanumeric codes and the length of those codes. By default alphanumeric = true, otpLength = 9
+
+- This release introduces `sendFromEmailSenderName` to `INIT_OTP_AUTH`, `INIT_OTP_AUTH_V2`, `EMAIL_AUTH` and `EMAIL_AUTH_V2`. This is an optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'.
+
+### Minor Changes
+
+- e501690: Add new utility functions:
+
+  - Add `clearEmbeddedKey()` async function, which clears the embedded key within an iframe
+  - Add `initEmbeddedKey()` async function, which reinitializes the embedded key within an iframe
+
+  These can be used in tandem to reset the embedded key within an iframe. See demo video in this PR's description: https://github.com/tkhq/sdk/pull/571
+
+  Usage may look like the following:
+
+  ```javascript
+  import { Turnkey } from "@turnkey/sdk-browser";
+
+  ...
+
+  // create an instance of TurnkeyBrowserSDK
+  const turnkeyBrowserSDK = new Turnkey(config);
+
+  // create an instance of TurnkeyIframeClient
+  const iframeClient = await turnkeyBrowserSDK.iframeClient({
+    iframeContainer: document.getElementById(
+      "turnkey-auth-iframe-container-id",
+    ),
+    iframeUrl: "https://auth.turnkey.com",
+    iframeElementId: "turnkey-auth-iframe-element-id",
+  });
+
+  ...
+
+  // Clear the existing embedded key
+  await iframeClient.clearEmbeddedKey();
+
+  const newPublicKey = await iframeClient.initEmbeddedKey();
+  ```
+
+### Patch Changes
+
+- Updated dependencies [e501690]
+- Updated dependencies [d1083bd]
+- Updated dependencies [f94d36e]
+  - @turnkey/iframe-stamper@2.5.0
+  - @turnkey/http@3.0.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
+## 3.1.0
+
+### Minor Changes
+
+- bf87774: Expose `getEmbeddedPublicKey()` via `TurnkeyIframeClient`. This can be used to fetch the live public key of the target embedded key living within an iframe.
+
+  Usage may look like the following:
+
+  ```javascript
+  import { Turnkey } from "@turnkey/sdk-browser";
+
+  // create an instance of TurnkeyBrowserSDK
+  const turnkeyBrowserSDK = new Turnkey(config);
+
+  // create an instance of TurnkeyIframeClient
+  const iframeClient = await turnkeyBrowserSDK.iframeClient({
+    iframeContainer: document.getElementById(
+      "turnkey-auth-iframe-container-id",
+    ),
+    iframeUrl: "https://auth.turnkey.com",
+    iframeElementId: "turnkey-auth-iframe-element-id",
+  });
+
+  ...
+
+  const publicKey = await iframeClient.getEmbeddedPublicKey();
+  ```
+
+  Functionally, this can be useful for scenarios where the developer would like to verify whether an iframe has a live embedded key within it. This contrasts from the static `iframeStamper.iframePublicKey` exposed by `@turnkey/iframe-stamper`'s `publicKey()` method.
+
+### Patch Changes
+
+- Updated dependencies [a833088]
+  - @turnkey/iframe-stamper@2.4.0
+
+## 3.0.1
+
+### Patch Changes
+
+- 5ec5187: Fix initOtpAuth bug with improper version result (to be updated to V2 following release r2025.3.8)
+
+## 3.0.0
+
+### Major Changes
+
+- 72890f5: ### @turnkey/sdk-browser
+
+  - Move all type definitions to [`./__types__/base.ts`](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts)
+  - `TurnkeyBrowserClient`
+    - `refereshSession()` now consumes a [RefreshSessionParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L213) parameter
+    - `loginWithBundle()` now consumes a [LoginWithBundleParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L219) parameter
+    - `loginWithPasskey()` now consumes a [LoginWithPasskeyParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L224) parameter
+    - `loginWithWallet()` now consumes a [LoginWithWalletParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L231) parameter
+
+  ### @turnkey/sdk-react
+
+  - `Auth.tsx`
+    - updated `passkeyClient?.loginWithPasskey()` to implement new method signature
+    - updated `walletClient?.loginWithWallet()` to implement new method signature
+
+  ### @turnkey/sdk-server
+
+  - Move all type definitions to [`./__types__/base.ts`](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-server/src/__types__/base.ts)
+
+### Minor Changes
+
+- ecdb29a: Update API as per mono v2025.3.2 - Add CREATE_USERS_V3
+
+### Patch Changes
+
+- 0e4e959: bump update policy activity to v2
+- 856f449: update `TurnkeyBrowserClient.login()` to align with other functions like `loginWithPasskey()` and `loginWithWallet()`
+- d4ce5fa: fix unexpected error when using read-only session type when calling loginWithPasskey & loginWithWallet
+- Updated dependencies [ecdb29a]
+  - @turnkey/http@2.22.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
+## 2.0.0
+
+### Major Changes
+
+- 93540e7: ## Major Package Updates
+
+  ### @turnkey/sdk-browser
+
+  - create abstract `TurnkeyBaseClient` class which extends `TurnkeySDKClientBase`
+    - `TurnkeyBrowserClient`, `TurnkeyIframeClient`, `TurnkeyPasskeyClient`, and `TurnkeyWalletClient` all extend `TurnkeyBaseClient`
+  - TurnkeyBrowserClient
+    - Session Management
+      - `refreshSession` - attempts to refresh an existing, active session and will extend the session expiry using the `expirationSeconds` parameter
+      - loginWithBundle - authenticate a user via a credential bundle and creates a read-write session
+      - loginWithPasskey - attempts to authenticate a user via passkey and create a read-only or read-write session
+      - loginWithSession - takes a `Session`, which can be either read-only or read-write, created via a server action and attempts to authenticate the user
+  - TurnkeyPasskeyClient
+    - Session Management
+      - createPasskeySession - leverages passkey authentication to create a read-write session. Once authenticated, the user will not be prompted for additional passkey taps.
+
+  ### @turnkey/sdk-react
+
+  - update `TurnkeyContext` to use new `.getSession()` method to check if there is an active session
+  - `OTPVerification` component no longer receives `authIframeClient` or `onValidateSuccess` props
+
+  ## Minor Package Updates
+
+  ### @turnkey/sdk-server
+
+  - expose `sendCredential` server action
+  - add `SessionType` enum
+    - `READ_ONLY` & `READ_WRITE`
+
+  ### @turnkey/eip-1193-provider
+
+  - update dependencies in `package.json`
+    - moved from `peerDependencies` to `dependencies`
+      - `"@turnkey/http": "workspace:*"`
+      - `"@turnkey/sdk-browser": "workspace:*"`
+    - moved from `devDependencies` to `dependencies`
+      - `"@turnkey/api-key-stamper": "workspace:*"`
+  - specify TypeScript version ^5.1.5
+
+### Minor Changes
+
+- 9147962: add dangerouslyOverrideIframeKeyTtl option to override iframe embedded key TTL (for longer lived read/write sessions)
+
+### Patch Changes
+
+- Updated dependencies [9147962]
+  - @turnkey/iframe-stamper@2.3.0
+  - @turnkey/crypto@2.3.1
+
+## 1.16.0
+
+### Minor Changes
+
+- 233ae71: Add updateUserAuth, addUserAuth, deleteUserAuth helper functions
+
+### Patch Changes
+
+- @turnkey/crypto@2.3.1
+
+## 1.15.0
+
+### Minor Changes
+
+- 56a307e: Update api to mono v2025.3.0
+
+### Patch Changes
+
+- Updated dependencies [56a307e]
+  - @turnkey/http@2.21.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
+## 1.14.0
+
+### Minor Changes
+
+- 3c44c4a: Updates per mono release v2025.2.2
+
+### Patch Changes
+
+- Updated dependencies [3c44c4a]
+  - @turnkey/http@2.20.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
+## 1.13.0
+
+### Minor Changes
+
+- 57f9cb0: Update endpoints - surface GetWalletAccount
+
+### Patch Changes
+
+- 69d2571: Upgrade elliptic
+- Updated dependencies [57f9cb0]
+  - @turnkey/http@2.19.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
+## 1.12.1
+
+### Patch Changes
+
+- 755833b: refactor stamper out of config object and move it directly onto the client to match @turnkey/http
+- Updated dependencies [2bc0046]
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
+## 1.12.0
+
+### Minor Changes
+
+- 6695af2: Update per mono release v2025.1.11
+
+### Patch Changes
+
+- Updated dependencies [6695af2]
+  - @turnkey/http@2.18.0
+  - @turnkey/crypto@2.3.0
+  - @turnkey/wallet-stamper@1.0.2
+
+## 1.11.2
+
+### Patch Changes
+
+- 053fbfb: Update mono dependencies
+- Updated dependencies [053fbfb]
+- Updated dependencies [a216a47]
+  - @turnkey/http@2.17.3
+  - @turnkey/iframe-stamper@2.2.0
+  - @turnkey/crypto@2.3.0
+  - @turnkey/wallet-stamper@1.0.2
+
+## 1.11.1
+
+### Patch Changes
+
+- 328d6aa: Add defaultXrpAccountAtIndex helper
+- b90947e: Update default account exports, surface WalletAccount type
+- 2d5977b: Update error messaging around api key and target public key usage
+- fad7c37: @turnkey/iframe-stamper - Implemented MessageChannel API for secure communication between the parent and iframe.
+
+  @turnkey/sdk-browser - fixed spelling in package.json
+  @turnkey/sdk-server - fixed spelling in package.json
+
+- Updated dependencies [2d5977b]
+- Updated dependencies [fad7c37]
+  - @turnkey/api-key-stamper@0.4.4
+  - @turnkey/iframe-stamper@2.1.0
+  - @turnkey/crypto@2.3.0
+  - @turnkey/http@2.17.2
+  - @turnkey/wallet-stamper@1.0.2
+
+## 1.11.0
+
+### Minor Changes
+
+- 7988bc1: Fix readWrite session to use credentialBundle and add loginWithAuthBundle to create a session when you already have a credentialBundle
+
+### Patch Changes
+
+- 538d4fc: Update api endpoints - NEW: User verification, SMS customization params
+- 12d5aaa: Update TurnkeySDKBrowserConfig type with an optional iframeUrl field. The TurnkeyContext provider will check for an iframeUrl otherwise it will fallback to the default.
+- Updated dependencies [c895c8f]
+- Updated dependencies [538d4fc]
+  - @turnkey/wallet-stamper@1.0.2
+  - @turnkey/http@2.17.1
+  - @turnkey/crypto@2.3.0
+
+## 1.10.2
+
+### Patch Changes
+
+- Updated dependencies [668edfa]
+  - @turnkey/crypto@2.3.0
+  - @turnkey/wallet-stamper@1.0.1
+
+## 1.10.1
+
+### Patch Changes
+
+- Updated dependencies [78bc39c]
+  - @turnkey/http@2.17.0
+  - @turnkey/crypto@2.2.0
+  - @turnkey/wallet-stamper@1.0.0
+
+## 1.10.0
+
+### Minor Changes
+
+##### `TurnkeyWalletClient`
+
+- Added new `TurnkeyWalletClient` to the `@turnkey/sdk-browser`
+  **Reason**: Allows using the `WalletStamper` with the browser sdk
+- Added `getPublicKey` method to `TurnkeyWalletClient`
+  **Reason**: Enables easy access to wallet public key for sub-organization creation and future authentication flows
+- Updated `TurnkeyWalletClient` to use new `WalletInterface`
+  **Reason**: Ensures compatibility with the updated Wallet Stamper interfaces
+
+##### `AuthClient` (new enum)
+
+- Introduced a new enum to track which client is authenticated (Passkey, Wallet, Iframe)
+
+##### `TurnkeyBrowserClient`, `TurnkeyIframeClient`, `TurnkeyPasskeyClient`, `TurnkeyWalletClient`
+
+- Added a static `authClient` property to base `TurnkeyBrowserClient` to be used by the child classes to track which client was used for the initial authentication
+
+##### `UserSession` interface
+
+- Added a new `UserSession` interface which is to be stored in local storage to track the authentication state of the user and to eliminate the need to store the write and read sessions separately.
+- Added `authClient` in the session object to store the authentication method used in the user's session data. Will be used in the `@turnkey/sdk-react` to determine which client to return.
+- Added new versioned `UserSession` key: `"@turnkey/session/v1"`
+
+##### `login` and `loginWithReadWriteSession` methods
+
+- Updated to use the new `authClient` property to track and store the authentication method used during login
+
+### Patch Changes
+
+- Updated dependencies [8bea78f]
+  - @turnkey/wallet-stamper@2.0.0
+  - @turnkey/crypto@2.2.0
+
+## 1.9.0
+
+### Minor Changes
+
+- 3dd74ac: Added functionality for constructing and returning stamped requests for all packages
+- 1e36edf: Support RS256 by default when invoking createUserPasskey
+- 4df8914: Version bump corresponding to mono release v2024.10.10. More detailed changelog to follow
+- 11a9e2f: Allow override of WebauthnStamper configuration
+
+### Patch Changes
+
+- Updated dependencies [33e8e03]
+- Updated dependencies [d989d46]
+- Updated dependencies [4df8914]
+  - @turnkey/crypto@2.1.0
+  - @turnkey/http@2.16.0
+
+## 1.8.0
+
+### Minor Changes
+
+- 9ebd062: Release OTP functionality
+
+### Patch Changes
+
+- Updated dependencies [9ebd062]
+  - @turnkey/http@2.15.0
+
+## 1.7.1
+
+### Patch Changes
+
+- 96d7f99: Update dependencies
+- Updated dependencies [e5c4fe9]
+- Updated dependencies [96d7f99]
+  - @turnkey/crypto@2.0.0
+  - @turnkey/encoding@0.4.0
+  - @turnkey/http@2.14.2
+  - @turnkey/api-key-stamper@0.4.3
+
+## 1.7.0
+
+### Minor Changes
+
+- ff059d5: Add ability to create a read + write session
+
+### Patch Changes
+
+- Updated dependencies [ff059d5]
+- Updated dependencies [93666ff]
+  - @turnkey/http@2.14.1
+  - @turnkey/crypto@1.0.0
+  - @turnkey/encoding@0.3.0
+  - @turnkey/api-key-stamper@0.4.2
+
+## 1.6.0
+
+### Minor Changes
+
+- c988ed0: Support activity polling (e.g. for awaiting consensus)
+
+  - [Breaking] Update the `activityPoller` parameter for configuring polling behavior
+  - Polling continues until either a max number of retries is reached, or if the activity hits a terminal status
+
+  The shape of the parameter has gone from:
+
+  ```
+  {
+    duration: number;
+    timeout: number;
+  }
+  ```
+
+  to
+
+  ```
+  {
+    intervalMs: number;
+    numRetries: number;
+  }
+  ```
+
+### Patch Changes
+
+- Updated dependencies [848f8d3]
+  - @turnkey/http@2.14.0
+
+## 1.5.0
+
+### Minor Changes
+
+- 1813ed5: Allow `organizationId` override for `TurnkeyBrowserClient.login` with an extra `config` argument
+
+## 1.4.0
+
+### Minor Changes
+
+- bab5393: Add keyformat to key export bundle injection
+
+### Patch Changes
+
+- a16073c: Exposes storage APIs used by the sdk for managing users & sessions
+- 7e7d209: Add authenticatorAttachment option
+
+## 1.3.0
+
+### Minor Changes
+
+- 93dee46: Add create read write session v2 which allows for user targeting directly from stamp or optional userId in intent
+
+### Patch Changes
+
+- Updated dependencies [93dee46]
+  - @turnkey/http@2.13.0
+
+## 1.2.4
+
+### Patch Changes
+
+- Updated dependencies [e2f2e0b]
+  - @turnkey/http@2.12.3
+
+## 1.2.3
+
+### Patch Changes
+
+- Fix activity versioning for CREATE_SUB_ORGANIZATION (V5=>V6)
+
+## 1.2.2
+
+### Patch Changes
+
+- f4b607f: Verify and pad uncompressed public keys while creating passkey sessions
+
+- Updated dependencies
+  - @turnkey/api-key-stamper@0.4.1
+  - @turnkey/encoding@0.2.1
+  - @turnkey/http@2.12.2
+  - @turnkey/crypto@0.2.1
+
+## 1.2.1
+
+### Patch Changes
+
+- f17a229: Update to oauth related endpoints to drop jwks uri from oauth providers
+- Updated dependencies [f17a229]
+  - @turnkey/http@2.12.1
+
+## 1.2.0
+
+### Minor Changes
+
+- Add Email Auth V2 - Optional invalidate exisiting Email Authentication API keys
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@2.12.0
+
+## 1.1.0
+
+### Minor Changes
+
+- Update to use new endpoints. Including CREATE_READ_WRITE_SESSION which allows one shot passkey sessions (returns org information and a credential bundle) and CREATE_API_KEYS_V2 which allows a curve type to be passed (SECP256K1 or P256)
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/http@2.11.0
+
+## 1.0.0
+
+### Major Changes
+
+- Stable Release: Add Oauth integration. New suborg creation version will now require an oauthProviders field under root users.
+
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @turnkey/crypto@0.2.0
+
+## 0.4.0
+
+### Minor Changes
+
+- e4b29da: Deprecate the `getAuthBundle()` path for passkey sessions and replace it with `getReadWriteSession()` to store authBundles with their expirationTimestamps so applications can better manually manage active writing sessions
+
+## 0.3.0
+
+### Minor Changes
+
+- d409d81: Add support for Passkey Sessions
+
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [5d0bfde]
+- Updated dependencies [2f2d09a]
+- Updated dependencies [976663e]
+  - @turnkey/iframe-stamper@2.0.0
+
+## 0.2.0
+
+### Minor Changes
+
+- updated syntax
+
+### Patch Changes
+
+- Updated dependencies [5d0bfde]
+- Updated dependencies [2f2d09a]
+- Updated dependencies [976663e]
+  - @turnkey/iframe-stamper@2.0.0
+
+## 0.1.0
+
+### Minor Changes
+
+- Ready for 0.1.0
+
+## 0.0.1
+
+Initial (experimental) release! This is an alpha release and subject to change.

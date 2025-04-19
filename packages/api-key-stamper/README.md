@@ -1,3 +1,7 @@
+---
+title: "API Key Stamper"
+---
+
 # @turnkey/api-key-stamper
 
 [![npm](https://img.shields.io/npm/v/@turnkey/api-key-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/api-key-stamper)

@@ -1,0 +1,64 @@
+---
+title: "CreateActivityPoller"
+mode: wide
+---
+  
+# Function: createActivityPoller()
+
+> **createActivityPoller**\<`O`, `I`\>(`params`): (`input`) => `Promise`\<`O`\[`"activity"`\]\>
+
+Defined in: packages/http/dist/async.d.ts:27
+
+Wraps a client request function (e.g. `client.createPrivateKeys`) in a poller.
+The default refresh interval is 500ms.
+
+The returned poller will poll until the activity becomes `COMPLETED`.
+If the activity becomes `FAILED` or `REJECTED` or is flagged as `NEEDS_CONSENSUS`, an error is thrown.
+
+## Type Parameters
+
+### O
+
+`O` *extends* `object`
+
+### I
+
+`I` *extends* `object`
+
+## Parameters
+
+### params
+
+#### client
+
+`TurnkeyClient`
+
+#### refreshIntervalMs?
+
+`number`
+
+#### requestFn
+
+(`input`) => `Promise`\<`O`\>
+
+## Returns
+
+`Function`
+
+### Parameters
+
+#### input
+
+`I`
+
+### Returns
+
+`Promise`\<`O`\[`"activity"`\]\>
+
+## Example
+
+```ts
+const activityPoller = createActivityPoller(client, client.createPrivateKeys);
+const activity = await activityPoller(input);
+console.log(activity.result); // activity is completed
+```
