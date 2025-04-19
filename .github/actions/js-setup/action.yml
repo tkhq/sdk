@@ -49,3 +49,7 @@ runs:
       uses: foundry-rs/foundry-toolchain@de808b1eea699e761c404bda44ba8f21aba30b2c # v1.3.1
       with:
         version: stable
+        cache: true
+        cache-key: ${{ runner.os }}-foundry-stable-${{ hashFiles('**/pnpm-lock.yaml') }}
+        cache-restore-keys: |
+          ${{ runner.os }}-foundry-stable-
