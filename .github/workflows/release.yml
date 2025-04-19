@@ -102,11 +102,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For changelog links
           NPM_TOKEN: ${{ env.NPM_TOKEN }} # for npm publish
-      - name: Publish to npm (Push)
-        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
-        with:
-          version: pnpm --filter @turnkey/sdk-types run changeset version
-          publish: pnpm --filter @turnkey/sdk-types publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ env.NPM_TOKEN }}
+      # - name: Publish to npm (Push)
+      #   uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
+      #   with:
+      #     version: pnpm --filter @turnkey/sdk-types run changeset version
+      #     publish: pnpm --filter @turnkey/sdk-types publish
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     NPM_TOKEN: ${{ env.NPM_TOKEN }}
