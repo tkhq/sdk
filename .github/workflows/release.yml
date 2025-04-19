@@ -64,6 +64,9 @@ jobs:
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
+      - name: Build
+        run: pnpm run build-all
+
       - name: Debug Foundry
         run: anvil --version || echo "anvil not found"
 
@@ -94,6 +97,9 @@ jobs:
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
+
+      - name: Build
+        run: pnpm run build-all
 
       - name: Debug Foundry
         run: anvil --version || echo "anvil not found"
