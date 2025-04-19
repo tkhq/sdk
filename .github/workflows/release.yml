@@ -138,6 +138,7 @@ jobs:
         with:
           version: pnpm --filter @turnkey/sdk-types run changeset version # Updates versions and changelog
           publish: pnpm --filter @turnkey/sdk-types publish --dry-run # dry run publish to npm
+          createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For changelog links
           NPM_TOKEN: ${{ env.NPM_TOKEN }} # for npm publish
@@ -146,6 +147,7 @@ jobs:
       #   with:
       #     version: pnpm --filter @turnkey/sdk-types run changeset version
       #     publish: pnpm --filter @turnkey/sdk-types publish
+      #     createGithubReleases: false
       #   env:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #     NPM_TOKEN: ${{ env.NPM_TOKEN }}
