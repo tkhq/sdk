@@ -244,7 +244,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleOtpLogin = async (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
-    otpType: string
+    otpType: string,
   ) => {
     setLoading(otpType);
     const createSuborgData: Record<string, any> = {};
