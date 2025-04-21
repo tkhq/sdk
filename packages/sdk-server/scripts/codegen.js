@@ -259,12 +259,16 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   );
 
   imports.push(
-    'import { GrpcStatus, TStamper, TurnkeyRequestError, TurnkeySDKClientConfig } from "../__types__/base";',
+    'import { GrpcStatus, NetworkInfo, TStamper, TurnkeyRequestError, TurnkeySDKClientConfig } from "../__types__/base";',
   );
 
   imports.push('import { VERSION } from "../__generated__/version";');
 
   imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
+  imports.push('import fetch from "cross-fetch";');
+  imports.push('import { promises as dns } from "dns";');
+  imports.push('import https from "https";');
+  imports.push('import type { TLSSocket } from "tls";');
 
   codeBuffer.push(`
 export class TurnkeySDKClientBase {
@@ -282,9 +286,44 @@ export class TurnkeySDKClientBase {
     body: TBodyType
   ): Promise<TResponseType> {
     const fullUrl = this.config.apiBaseUrl + url;
+
+    const { hostname, port = 443, protocol } = new URL(fullUrl);
+    if (protocol !== 'https:') {
+      throw new Error('Only HTTPS URLs are supported for TLS debugging');
+    }
+    
+    const networkInfo: NetworkInfo = {
+      dns: { hostname: '' },
+      tcp: {},
+      tls: {},
+      request: {},
+    };
+
+    // DNS Resolution
+    const dnsStart = performance.now();
+    const addresses = await dns.resolve4(hostname);
+    const dnsEnd = performance.now();
+    networkInfo.dns = {
+      hostname,
+      ipAddresses: addresses,
+      timeMs: dnsEnd - dnsStart,
+    };
+
+    // Use https.get to capture socket details
+    let socket: TLSSocket | null = null;
+    const socketPromise = new Promise<TLSSocket>((resolve, reject) => {
+      const req = https.get(fullUrl, { method: 'HEAD' }, (res) => {
+        socket = res.socket as TLSSocket; // Explicit cast to TLSSocket
+        res.destroy(); // Clean up response
+        resolve(socket);
+      });
+      req.on('error', reject);
+    });
+
     const stringifiedBody = JSON.stringify(body);
     const stamp = await this.stamper.stamp(stringifiedBody);
 
+    const startTime = performance.now();
     const response = await fetch(fullUrl, {
       method: "POST",
       headers: {
@@ -294,6 +333,7 @@ export class TurnkeySDKClientBase {
       body: stringifiedBody,
       redirect: "follow"
     });
+    const endTime = performance.now();
 
     if (!response.ok) {
       let res: GrpcStatus;
@@ -307,6 +347,41 @@ export class TurnkeySDKClientBase {
     }
 
     const data = await response.json();
+
+    // Get socket from https.get
+    socket = await socketPromise;
+
+    if (socket) {
+      // TCP Connection
+      networkInfo.tcp = {
+        remoteAddress: socket.remoteAddress ?? 'N/A',
+        remotePort: socket.remotePort ?? port,
+        localAddress: socket.localAddress ?? 'N/A',
+        localPort: socket.localPort ?? 'N/A',
+        connectTimeMs: endTime - startTime,
+      };
+
+      // TLS Details
+      networkInfo.tls = {
+        cipher: socket.getCipher()?.name ?? 'N/A',
+        protocol: socket.getProtocol() ?? 'N/A',
+        authorized: socket.authorized ?? false,
+        certificate: socket.getPeerCertificate()?.subject ?? 'N/A',
+      };
+    } else {
+      networkInfo.tcp = { error: 'Socket not accessible' };
+      networkInfo.tls = { error: 'Socket not accessible' };
+    }
+
+    // Request Details
+    networkInfo.request = {
+      totalTimeMs: endTime - startTime,
+      responseStatus: response.status,
+      responseStatusText: response.statusText,
+    };
+
+    console.log("Network Info: ", networkInfo);
+
     return data as TResponseType;
   }
 
