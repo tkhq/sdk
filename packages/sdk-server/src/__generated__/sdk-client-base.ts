@@ -32,7 +32,7 @@ export class TurnkeySDKClientBase {
 
   async request<TBodyType, TResponseType>(
     url: string,
-    body: TBodyType,
+    body: TBodyType
   ): Promise<TResponseType> {
     const fullUrl = this.config.apiBaseUrl + url;
     const stringifiedBody = JSON.stringify(body);
@@ -66,7 +66,7 @@ export class TurnkeySDKClientBase {
   async command<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
-    resultKey: string,
+    resultKey: string
   ): Promise<TResponseType> {
     const pollingDuration = this.config.activityPoller?.intervalMs ?? 1000;
     const maxRetries = this.config.activityPoller?.numRetries ?? 3;
@@ -101,7 +101,7 @@ export class TurnkeySDKClientBase {
 
       if (
         !TERMINAL_ACTIVITY_STATUSES.includes(
-          pollData.activity.status as TActivityStatus,
+          pollData.activity.status as TActivityStatus
         )
       ) {
         await sleep(pollingDuration);
@@ -113,12 +113,12 @@ export class TurnkeySDKClientBase {
 
     const responseData = (await this.request<TBodyType, TResponseType>(
       url,
-      body,
+      body
     )) as TActivityResponse;
 
     if (
       !TERMINAL_ACTIVITY_STATUSES.includes(
-        responseData.activity.status as TActivityStatus,
+        responseData.activity.status as TActivityStatus
       )
     ) {
       return pollStatus(responseData.activity.id);
@@ -129,7 +129,7 @@ export class TurnkeySDKClientBase {
 
   async activityDecision<TBodyType, TResponseType>(
     url: string,
-    body: TBodyType,
+    body: TBodyType
   ): Promise<TResponseType> {
     const activityData = (await this.request(url, body)) as TActivityResponse;
 
@@ -140,7 +140,7 @@ export class TurnkeySDKClientBase {
   }
 
   getActivity = async (
-    input: SdkApiTypes.TGetActivityBody,
+    input: SdkApiTypes.TGetActivityBody
   ): Promise<SdkApiTypes.TGetActivityResponse> => {
     return this.request("/public/v1/query/get_activity", {
       ...input,
@@ -149,7 +149,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetActivity = async (
-    input: SdkApiTypes.TGetActivityBody,
+    input: SdkApiTypes.TGetActivityBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -165,7 +165,7 @@ export class TurnkeySDKClientBase {
   };
 
   getApiKey = async (
-    input: SdkApiTypes.TGetApiKeyBody,
+    input: SdkApiTypes.TGetApiKeyBody
   ): Promise<SdkApiTypes.TGetApiKeyResponse> => {
     return this.request("/public/v1/query/get_api_key", {
       ...input,
@@ -174,7 +174,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetApiKey = async (
-    input: SdkApiTypes.TGetApiKeyBody,
+    input: SdkApiTypes.TGetApiKeyBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -190,7 +190,7 @@ export class TurnkeySDKClientBase {
   };
 
   getApiKeys = async (
-    input: SdkApiTypes.TGetApiKeysBody = {},
+    input: SdkApiTypes.TGetApiKeysBody = {}
   ): Promise<SdkApiTypes.TGetApiKeysResponse> => {
     return this.request("/public/v1/query/get_api_keys", {
       ...input,
@@ -199,7 +199,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetApiKeys = async (
-    input: SdkApiTypes.TGetApiKeysBody,
+    input: SdkApiTypes.TGetApiKeysBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -215,7 +215,7 @@ export class TurnkeySDKClientBase {
   };
 
   getAttestationDocument = async (
-    input: SdkApiTypes.TGetAttestationDocumentBody,
+    input: SdkApiTypes.TGetAttestationDocumentBody
   ): Promise<SdkApiTypes.TGetAttestationDocumentResponse> => {
     return this.request("/public/v1/query/get_attestation", {
       ...input,
@@ -224,7 +224,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetAttestationDocument = async (
-    input: SdkApiTypes.TGetAttestationDocumentBody,
+    input: SdkApiTypes.TGetAttestationDocumentBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -240,7 +240,7 @@ export class TurnkeySDKClientBase {
   };
 
   getAuthenticator = async (
-    input: SdkApiTypes.TGetAuthenticatorBody,
+    input: SdkApiTypes.TGetAuthenticatorBody
   ): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
     return this.request("/public/v1/query/get_authenticator", {
       ...input,
@@ -249,7 +249,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetAuthenticator = async (
-    input: SdkApiTypes.TGetAuthenticatorBody,
+    input: SdkApiTypes.TGetAuthenticatorBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -266,7 +266,7 @@ export class TurnkeySDKClientBase {
   };
 
   getAuthenticators = async (
-    input: SdkApiTypes.TGetAuthenticatorsBody,
+    input: SdkApiTypes.TGetAuthenticatorsBody
   ): Promise<SdkApiTypes.TGetAuthenticatorsResponse> => {
     return this.request("/public/v1/query/get_authenticators", {
       ...input,
@@ -275,7 +275,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetAuthenticators = async (
-    input: SdkApiTypes.TGetAuthenticatorsBody,
+    input: SdkApiTypes.TGetAuthenticatorsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -292,7 +292,7 @@ export class TurnkeySDKClientBase {
   };
 
   getOauthProviders = async (
-    input: SdkApiTypes.TGetOauthProvidersBody,
+    input: SdkApiTypes.TGetOauthProvidersBody
   ): Promise<SdkApiTypes.TGetOauthProvidersResponse> => {
     return this.request("/public/v1/query/get_oauth_providers", {
       ...input,
@@ -301,7 +301,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetOauthProviders = async (
-    input: SdkApiTypes.TGetOauthProvidersBody,
+    input: SdkApiTypes.TGetOauthProvidersBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -318,7 +318,7 @@ export class TurnkeySDKClientBase {
   };
 
   getOrganization = async (
-    input: SdkApiTypes.TGetOrganizationBody = {},
+    input: SdkApiTypes.TGetOrganizationBody = {}
   ): Promise<SdkApiTypes.TGetOrganizationResponse> => {
     return this.request("/public/v1/query/get_organization", {
       ...input,
@@ -327,7 +327,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetOrganization = async (
-    input: SdkApiTypes.TGetOrganizationBody,
+    input: SdkApiTypes.TGetOrganizationBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -344,7 +344,7 @@ export class TurnkeySDKClientBase {
   };
 
   getOrganizationConfigs = async (
-    input: SdkApiTypes.TGetOrganizationConfigsBody,
+    input: SdkApiTypes.TGetOrganizationConfigsBody
   ): Promise<SdkApiTypes.TGetOrganizationConfigsResponse> => {
     return this.request("/public/v1/query/get_organization_configs", {
       ...input,
@@ -353,7 +353,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetOrganizationConfigs = async (
-    input: SdkApiTypes.TGetOrganizationConfigsBody,
+    input: SdkApiTypes.TGetOrganizationConfigsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -370,7 +370,7 @@ export class TurnkeySDKClientBase {
   };
 
   getPolicy = async (
-    input: SdkApiTypes.TGetPolicyBody,
+    input: SdkApiTypes.TGetPolicyBody
   ): Promise<SdkApiTypes.TGetPolicyResponse> => {
     return this.request("/public/v1/query/get_policy", {
       ...input,
@@ -379,7 +379,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetPolicy = async (
-    input: SdkApiTypes.TGetPolicyBody,
+    input: SdkApiTypes.TGetPolicyBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -395,7 +395,7 @@ export class TurnkeySDKClientBase {
   };
 
   getPrivateKey = async (
-    input: SdkApiTypes.TGetPrivateKeyBody,
+    input: SdkApiTypes.TGetPrivateKeyBody
   ): Promise<SdkApiTypes.TGetPrivateKeyResponse> => {
     return this.request("/public/v1/query/get_private_key", {
       ...input,
@@ -404,7 +404,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetPrivateKey = async (
-    input: SdkApiTypes.TGetPrivateKeyBody,
+    input: SdkApiTypes.TGetPrivateKeyBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -420,7 +420,7 @@ export class TurnkeySDKClientBase {
   };
 
   getUser = async (
-    input: SdkApiTypes.TGetUserBody,
+    input: SdkApiTypes.TGetUserBody
   ): Promise<SdkApiTypes.TGetUserResponse> => {
     return this.request("/public/v1/query/get_user", {
       ...input,
@@ -429,7 +429,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetUser = async (
-    input: SdkApiTypes.TGetUserBody,
+    input: SdkApiTypes.TGetUserBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -445,7 +445,7 @@ export class TurnkeySDKClientBase {
   };
 
   getWallet = async (
-    input: SdkApiTypes.TGetWalletBody,
+    input: SdkApiTypes.TGetWalletBody
   ): Promise<SdkApiTypes.TGetWalletResponse> => {
     return this.request("/public/v1/query/get_wallet", {
       ...input,
@@ -454,7 +454,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetWallet = async (
-    input: SdkApiTypes.TGetWalletBody,
+    input: SdkApiTypes.TGetWalletBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -470,7 +470,7 @@ export class TurnkeySDKClientBase {
   };
 
   getWalletAccount = async (
-    input: SdkApiTypes.TGetWalletAccountBody,
+    input: SdkApiTypes.TGetWalletAccountBody
   ): Promise<SdkApiTypes.TGetWalletAccountResponse> => {
     return this.request("/public/v1/query/get_wallet_account", {
       ...input,
@@ -479,7 +479,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetWalletAccount = async (
-    input: SdkApiTypes.TGetWalletAccountBody,
+    input: SdkApiTypes.TGetWalletAccountBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -496,7 +496,7 @@ export class TurnkeySDKClientBase {
   };
 
   getActivities = async (
-    input: SdkApiTypes.TGetActivitiesBody = {},
+    input: SdkApiTypes.TGetActivitiesBody = {}
   ): Promise<SdkApiTypes.TGetActivitiesResponse> => {
     return this.request("/public/v1/query/list_activities", {
       ...input,
@@ -505,7 +505,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetActivities = async (
-    input: SdkApiTypes.TGetActivitiesBody,
+    input: SdkApiTypes.TGetActivitiesBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -521,7 +521,7 @@ export class TurnkeySDKClientBase {
   };
 
   getPolicies = async (
-    input: SdkApiTypes.TGetPoliciesBody = {},
+    input: SdkApiTypes.TGetPoliciesBody = {}
   ): Promise<SdkApiTypes.TGetPoliciesResponse> => {
     return this.request("/public/v1/query/list_policies", {
       ...input,
@@ -530,7 +530,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetPolicies = async (
-    input: SdkApiTypes.TGetPoliciesBody,
+    input: SdkApiTypes.TGetPoliciesBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -546,7 +546,7 @@ export class TurnkeySDKClientBase {
   };
 
   listPrivateKeyTags = async (
-    input: SdkApiTypes.TListPrivateKeyTagsBody,
+    input: SdkApiTypes.TListPrivateKeyTagsBody
   ): Promise<SdkApiTypes.TListPrivateKeyTagsResponse> => {
     return this.request("/public/v1/query/list_private_key_tags", {
       ...input,
@@ -555,7 +555,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampListPrivateKeyTags = async (
-    input: SdkApiTypes.TListPrivateKeyTagsBody,
+    input: SdkApiTypes.TListPrivateKeyTagsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -572,7 +572,7 @@ export class TurnkeySDKClientBase {
   };
 
   getPrivateKeys = async (
-    input: SdkApiTypes.TGetPrivateKeysBody = {},
+    input: SdkApiTypes.TGetPrivateKeysBody = {}
   ): Promise<SdkApiTypes.TGetPrivateKeysResponse> => {
     return this.request("/public/v1/query/list_private_keys", {
       ...input,
@@ -581,7 +581,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetPrivateKeys = async (
-    input: SdkApiTypes.TGetPrivateKeysBody,
+    input: SdkApiTypes.TGetPrivateKeysBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -598,7 +598,7 @@ export class TurnkeySDKClientBase {
   };
 
   getSubOrgIds = async (
-    input: SdkApiTypes.TGetSubOrgIdsBody = {},
+    input: SdkApiTypes.TGetSubOrgIdsBody = {}
   ): Promise<SdkApiTypes.TGetSubOrgIdsResponse> => {
     return this.request("/public/v1/query/list_suborgs", {
       ...input,
@@ -607,7 +607,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetSubOrgIds = async (
-    input: SdkApiTypes.TGetSubOrgIdsBody,
+    input: SdkApiTypes.TGetSubOrgIdsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -623,7 +623,7 @@ export class TurnkeySDKClientBase {
   };
 
   listUserTags = async (
-    input: SdkApiTypes.TListUserTagsBody = {},
+    input: SdkApiTypes.TListUserTagsBody = {}
   ): Promise<SdkApiTypes.TListUserTagsResponse> => {
     return this.request("/public/v1/query/list_user_tags", {
       ...input,
@@ -632,7 +632,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampListUserTags = async (
-    input: SdkApiTypes.TListUserTagsBody,
+    input: SdkApiTypes.TListUserTagsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -648,7 +648,7 @@ export class TurnkeySDKClientBase {
   };
 
   getUsers = async (
-    input: SdkApiTypes.TGetUsersBody = {},
+    input: SdkApiTypes.TGetUsersBody = {}
   ): Promise<SdkApiTypes.TGetUsersResponse> => {
     return this.request("/public/v1/query/list_users", {
       ...input,
@@ -657,7 +657,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetUsers = async (
-    input: SdkApiTypes.TGetUsersBody,
+    input: SdkApiTypes.TGetUsersBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -673,7 +673,7 @@ export class TurnkeySDKClientBase {
   };
 
   getVerifiedSubOrgIds = async (
-    input: SdkApiTypes.TGetVerifiedSubOrgIdsBody,
+    input: SdkApiTypes.TGetVerifiedSubOrgIdsBody
   ): Promise<SdkApiTypes.TGetVerifiedSubOrgIdsResponse> => {
     return this.request("/public/v1/query/list_verified_suborgs", {
       ...input,
@@ -682,7 +682,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetVerifiedSubOrgIds = async (
-    input: SdkApiTypes.TGetVerifiedSubOrgIdsBody,
+    input: SdkApiTypes.TGetVerifiedSubOrgIdsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -699,7 +699,7 @@ export class TurnkeySDKClientBase {
   };
 
   getWalletAccounts = async (
-    input: SdkApiTypes.TGetWalletAccountsBody,
+    input: SdkApiTypes.TGetWalletAccountsBody
   ): Promise<SdkApiTypes.TGetWalletAccountsResponse> => {
     return this.request("/public/v1/query/list_wallet_accounts", {
       ...input,
@@ -708,7 +708,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetWalletAccounts = async (
-    input: SdkApiTypes.TGetWalletAccountsBody,
+    input: SdkApiTypes.TGetWalletAccountsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -725,7 +725,7 @@ export class TurnkeySDKClientBase {
   };
 
   getWallets = async (
-    input: SdkApiTypes.TGetWalletsBody = {},
+    input: SdkApiTypes.TGetWalletsBody = {}
   ): Promise<SdkApiTypes.TGetWalletsResponse> => {
     return this.request("/public/v1/query/list_wallets", {
       ...input,
@@ -734,7 +734,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetWallets = async (
-    input: SdkApiTypes.TGetWalletsBody,
+    input: SdkApiTypes.TGetWalletsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -750,7 +750,7 @@ export class TurnkeySDKClientBase {
   };
 
   getWhoami = async (
-    input: SdkApiTypes.TGetWhoamiBody = {},
+    input: SdkApiTypes.TGetWhoamiBody = {}
   ): Promise<SdkApiTypes.TGetWhoamiResponse> => {
     return this.request("/public/v1/query/whoami", {
       ...input,
@@ -759,7 +759,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampGetWhoami = async (
-    input: SdkApiTypes.TGetWhoamiBody,
+    input: SdkApiTypes.TGetWhoamiBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -775,7 +775,7 @@ export class TurnkeySDKClientBase {
   };
 
   approveActivity = async (
-    input: SdkApiTypes.TApproveActivityBody,
+    input: SdkApiTypes.TApproveActivityBody
   ): Promise<SdkApiTypes.TApproveActivityResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.activityDecision("/public/v1/submit/approve_activity", {
@@ -787,7 +787,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampApproveActivity = async (
-    input: SdkApiTypes.TApproveActivityBody,
+    input: SdkApiTypes.TApproveActivityBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -804,7 +804,7 @@ export class TurnkeySDKClientBase {
   };
 
   createApiKeys = async (
-    input: SdkApiTypes.TCreateApiKeysBody,
+    input: SdkApiTypes.TCreateApiKeysBody
   ): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -815,12 +815,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
       },
-      "createApiKeysResult",
+      "createApiKeysResult"
     );
   };
 
   stampCreateApiKeys = async (
-    input: SdkApiTypes.TCreateApiKeysBody,
+    input: SdkApiTypes.TCreateApiKeysBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -837,7 +837,7 @@ export class TurnkeySDKClientBase {
   };
 
   createApiOnlyUsers = async (
-    input: SdkApiTypes.TCreateApiOnlyUsersBody,
+    input: SdkApiTypes.TCreateApiOnlyUsersBody
   ): Promise<SdkApiTypes.TCreateApiOnlyUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -848,12 +848,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
       },
-      "createApiOnlyUsersResult",
+      "createApiOnlyUsersResult"
     );
   };
 
   stampCreateApiOnlyUsers = async (
-    input: SdkApiTypes.TCreateApiOnlyUsersBody,
+    input: SdkApiTypes.TCreateApiOnlyUsersBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -870,7 +870,7 @@ export class TurnkeySDKClientBase {
   };
 
   createAuthenticators = async (
-    input: SdkApiTypes.TCreateAuthenticatorsBody,
+    input: SdkApiTypes.TCreateAuthenticatorsBody
   ): Promise<SdkApiTypes.TCreateAuthenticatorsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -881,12 +881,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
       },
-      "createAuthenticatorsResult",
+      "createAuthenticatorsResult"
     );
   };
 
   stampCreateAuthenticators = async (
-    input: SdkApiTypes.TCreateAuthenticatorsBody,
+    input: SdkApiTypes.TCreateAuthenticatorsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -903,7 +903,7 @@ export class TurnkeySDKClientBase {
   };
 
   createInvitations = async (
-    input: SdkApiTypes.TCreateInvitationsBody,
+    input: SdkApiTypes.TCreateInvitationsBody
   ): Promise<SdkApiTypes.TCreateInvitationsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -914,12 +914,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_INVITATIONS",
       },
-      "createInvitationsResult",
+      "createInvitationsResult"
     );
   };
 
   stampCreateInvitations = async (
-    input: SdkApiTypes.TCreateInvitationsBody,
+    input: SdkApiTypes.TCreateInvitationsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -936,7 +936,7 @@ export class TurnkeySDKClientBase {
   };
 
   createOauthProviders = async (
-    input: SdkApiTypes.TCreateOauthProvidersBody,
+    input: SdkApiTypes.TCreateOauthProvidersBody
   ): Promise<SdkApiTypes.TCreateOauthProvidersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -947,12 +947,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
       },
-      "createOauthProvidersResult",
+      "createOauthProvidersResult"
     );
   };
 
   stampCreateOauthProviders = async (
-    input: SdkApiTypes.TCreateOauthProvidersBody,
+    input: SdkApiTypes.TCreateOauthProvidersBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -969,7 +969,7 @@ export class TurnkeySDKClientBase {
   };
 
   createPolicies = async (
-    input: SdkApiTypes.TCreatePoliciesBody,
+    input: SdkApiTypes.TCreatePoliciesBody
   ): Promise<SdkApiTypes.TCreatePoliciesResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -980,12 +980,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_POLICIES",
       },
-      "createPoliciesResult",
+      "createPoliciesResult"
     );
   };
 
   stampCreatePolicies = async (
-    input: SdkApiTypes.TCreatePoliciesBody,
+    input: SdkApiTypes.TCreatePoliciesBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1002,7 +1002,7 @@ export class TurnkeySDKClientBase {
   };
 
   createPolicy = async (
-    input: SdkApiTypes.TCreatePolicyBody,
+    input: SdkApiTypes.TCreatePolicyBody
   ): Promise<SdkApiTypes.TCreatePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1013,12 +1013,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
       },
-      "createPolicyResult",
+      "createPolicyResult"
     );
   };
 
   stampCreatePolicy = async (
-    input: SdkApiTypes.TCreatePolicyBody,
+    input: SdkApiTypes.TCreatePolicyBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1034,7 +1034,7 @@ export class TurnkeySDKClientBase {
   };
 
   createPrivateKeyTag = async (
-    input: SdkApiTypes.TCreatePrivateKeyTagBody,
+    input: SdkApiTypes.TCreatePrivateKeyTagBody
   ): Promise<SdkApiTypes.TCreatePrivateKeyTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1045,12 +1045,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
       },
-      "createPrivateKeyTagResult",
+      "createPrivateKeyTagResult"
     );
   };
 
   stampCreatePrivateKeyTag = async (
-    input: SdkApiTypes.TCreatePrivateKeyTagBody,
+    input: SdkApiTypes.TCreatePrivateKeyTagBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1067,7 +1067,7 @@ export class TurnkeySDKClientBase {
   };
 
   createPrivateKeys = async (
-    input: SdkApiTypes.TCreatePrivateKeysBody,
+    input: SdkApiTypes.TCreatePrivateKeysBody
   ): Promise<SdkApiTypes.TCreatePrivateKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1078,12 +1078,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
       },
-      "createPrivateKeysResultV2",
+      "createPrivateKeysResultV2"
     );
   };
 
   stampCreatePrivateKeys = async (
-    input: SdkApiTypes.TCreatePrivateKeysBody,
+    input: SdkApiTypes.TCreatePrivateKeysBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1100,7 +1100,7 @@ export class TurnkeySDKClientBase {
   };
 
   createReadOnlySession = async (
-    input: SdkApiTypes.TCreateReadOnlySessionBody,
+    input: SdkApiTypes.TCreateReadOnlySessionBody
   ): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1111,12 +1111,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION",
       },
-      "createReadOnlySessionResult",
+      "createReadOnlySessionResult"
     );
   };
 
   stampCreateReadOnlySession = async (
-    input: SdkApiTypes.TCreateReadOnlySessionBody,
+    input: SdkApiTypes.TCreateReadOnlySessionBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1133,7 +1133,7 @@ export class TurnkeySDKClientBase {
   };
 
   createReadWriteSession = async (
-    input: SdkApiTypes.TCreateReadWriteSessionBody,
+    input: SdkApiTypes.TCreateReadWriteSessionBody
   ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1144,12 +1144,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
       },
-      "createReadWriteSessionResultV2",
+      "createReadWriteSessionResultV2"
     );
   };
 
   stampCreateReadWriteSession = async (
-    input: SdkApiTypes.TCreateReadWriteSessionBody,
+    input: SdkApiTypes.TCreateReadWriteSessionBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1166,7 +1166,7 @@ export class TurnkeySDKClientBase {
   };
 
   createSubOrganization = async (
-    input: SdkApiTypes.TCreateSubOrganizationBody,
+    input: SdkApiTypes.TCreateSubOrganizationBody
   ): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1177,12 +1177,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
       },
-      "createSubOrganizationResultV7",
+      "createSubOrganizationResultV7"
     );
   };
 
   stampCreateSubOrganization = async (
-    input: SdkApiTypes.TCreateSubOrganizationBody,
+    input: SdkApiTypes.TCreateSubOrganizationBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1199,7 +1199,7 @@ export class TurnkeySDKClientBase {
   };
 
   createUserTag = async (
-    input: SdkApiTypes.TCreateUserTagBody,
+    input: SdkApiTypes.TCreateUserTagBody
   ): Promise<SdkApiTypes.TCreateUserTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1210,12 +1210,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_USER_TAG",
       },
-      "createUserTagResult",
+      "createUserTagResult"
     );
   };
 
   stampCreateUserTag = async (
-    input: SdkApiTypes.TCreateUserTagBody,
+    input: SdkApiTypes.TCreateUserTagBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1232,7 +1232,7 @@ export class TurnkeySDKClientBase {
   };
 
   createUsers = async (
-    input: SdkApiTypes.TCreateUsersBody,
+    input: SdkApiTypes.TCreateUsersBody
   ): Promise<SdkApiTypes.TCreateUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1243,12 +1243,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_USERS_V3",
       },
-      "createUsersResult",
+      "createUsersResult"
     );
   };
 
   stampCreateUsers = async (
-    input: SdkApiTypes.TCreateUsersBody,
+    input: SdkApiTypes.TCreateUsersBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1264,7 +1264,7 @@ export class TurnkeySDKClientBase {
   };
 
   createWallet = async (
-    input: SdkApiTypes.TCreateWalletBody,
+    input: SdkApiTypes.TCreateWalletBody
   ): Promise<SdkApiTypes.TCreateWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1275,12 +1275,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_WALLET",
       },
-      "createWalletResult",
+      "createWalletResult"
     );
   };
 
   stampCreateWallet = async (
-    input: SdkApiTypes.TCreateWalletBody,
+    input: SdkApiTypes.TCreateWalletBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1296,7 +1296,7 @@ export class TurnkeySDKClientBase {
   };
 
   createWalletAccounts = async (
-    input: SdkApiTypes.TCreateWalletAccountsBody,
+    input: SdkApiTypes.TCreateWalletAccountsBody
   ): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1307,12 +1307,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
       },
-      "createWalletAccountsResult",
+      "createWalletAccountsResult"
     );
   };
 
   stampCreateWalletAccounts = async (
-    input: SdkApiTypes.TCreateWalletAccountsBody,
+    input: SdkApiTypes.TCreateWalletAccountsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1329,7 +1329,7 @@ export class TurnkeySDKClientBase {
   };
 
   deleteApiKeys = async (
-    input: SdkApiTypes.TDeleteApiKeysBody,
+    input: SdkApiTypes.TDeleteApiKeysBody
   ): Promise<SdkApiTypes.TDeleteApiKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1340,12 +1340,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_DELETE_API_KEYS",
       },
-      "deleteApiKeysResult",
+      "deleteApiKeysResult"
     );
   };
 
   stampDeleteApiKeys = async (
-    input: SdkApiTypes.TDeleteApiKeysBody,
+    input: SdkApiTypes.TDeleteApiKeysBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1362,7 +1362,7 @@ export class TurnkeySDKClientBase {
   };
 
   deleteAuthenticators = async (
-    input: SdkApiTypes.TDeleteAuthenticatorsBody,
+    input: SdkApiTypes.TDeleteAuthenticatorsBody
   ): Promise<SdkApiTypes.TDeleteAuthenticatorsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1373,12 +1373,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS",
       },
-      "deleteAuthenticatorsResult",
+      "deleteAuthenticatorsResult"
     );
   };
 
   stampDeleteAuthenticators = async (
-    input: SdkApiTypes.TDeleteAuthenticatorsBody,
+    input: SdkApiTypes.TDeleteAuthenticatorsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1395,7 +1395,7 @@ export class TurnkeySDKClientBase {
   };
 
   deleteInvitation = async (
-    input: SdkApiTypes.TDeleteInvitationBody,
+    input: SdkApiTypes.TDeleteInvitationBody
   ): Promise<SdkApiTypes.TDeleteInvitationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1406,12 +1406,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_DELETE_INVITATION",
       },
-      "deleteInvitationResult",
+      "deleteInvitationResult"
     );
   };
 
   stampDeleteInvitation = async (
-    input: SdkApiTypes.TDeleteInvitationBody,
+    input: SdkApiTypes.TDeleteInvitationBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1428,7 +1428,7 @@ export class TurnkeySDKClientBase {
   };
 
   deleteOauthProviders = async (
-    input: SdkApiTypes.TDeleteOauthProvidersBody,
+    input: SdkApiTypes.TDeleteOauthProvidersBody
   ): Promise<SdkApiTypes.TDeleteOauthProvidersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1439,12 +1439,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS",
       },
-      "deleteOauthProvidersResult",
+      "deleteOauthProvidersResult"
     );
   };
 
   stampDeleteOauthProviders = async (
-    input: SdkApiTypes.TDeleteOauthProvidersBody,
+    input: SdkApiTypes.TDeleteOauthProvidersBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1461,7 +1461,7 @@ export class TurnkeySDKClientBase {
   };
 
   deletePolicy = async (
-    input: SdkApiTypes.TDeletePolicyBody,
+    input: SdkApiTypes.TDeletePolicyBody
   ): Promise<SdkApiTypes.TDeletePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1472,12 +1472,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_DELETE_POLICY",
       },
-      "deletePolicyResult",
+      "deletePolicyResult"
     );
   };
 
   stampDeletePolicy = async (
-    input: SdkApiTypes.TDeletePolicyBody,
+    input: SdkApiTypes.TDeletePolicyBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1493,7 +1493,7 @@ export class TurnkeySDKClientBase {
   };
 
   deletePrivateKeyTags = async (
-    input: SdkApiTypes.TDeletePrivateKeyTagsBody,
+    input: SdkApiTypes.TDeletePrivateKeyTagsBody
   ): Promise<SdkApiTypes.TDeletePrivateKeyTagsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1504,12 +1504,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS",
       },
-      "deletePrivateKeyTagsResult",
+      "deletePrivateKeyTagsResult"
     );
   };
 
   stampDeletePrivateKeyTags = async (
-    input: SdkApiTypes.TDeletePrivateKeyTagsBody,
+    input: SdkApiTypes.TDeletePrivateKeyTagsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1526,7 +1526,7 @@ export class TurnkeySDKClientBase {
   };
 
   deletePrivateKeys = async (
-    input: SdkApiTypes.TDeletePrivateKeysBody,
+    input: SdkApiTypes.TDeletePrivateKeysBody
   ): Promise<SdkApiTypes.TDeletePrivateKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1537,12 +1537,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS",
       },
-      "deletePrivateKeysResult",
+      "deletePrivateKeysResult"
     );
   };
 
   stampDeletePrivateKeys = async (
-    input: SdkApiTypes.TDeletePrivateKeysBody,
+    input: SdkApiTypes.TDeletePrivateKeysBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1559,7 +1559,7 @@ export class TurnkeySDKClientBase {
   };
 
   deleteSubOrganization = async (
-    input: SdkApiTypes.TDeleteSubOrganizationBody,
+    input: SdkApiTypes.TDeleteSubOrganizationBody
   ): Promise<SdkApiTypes.TDeleteSubOrganizationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1570,12 +1570,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
       },
-      "deleteSubOrganizationResult",
+      "deleteSubOrganizationResult"
     );
   };
 
   stampDeleteSubOrganization = async (
-    input: SdkApiTypes.TDeleteSubOrganizationBody,
+    input: SdkApiTypes.TDeleteSubOrganizationBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1592,7 +1592,7 @@ export class TurnkeySDKClientBase {
   };
 
   deleteUserTags = async (
-    input: SdkApiTypes.TDeleteUserTagsBody,
+    input: SdkApiTypes.TDeleteUserTagsBody
   ): Promise<SdkApiTypes.TDeleteUserTagsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1603,12 +1603,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_DELETE_USER_TAGS",
       },
-      "deleteUserTagsResult",
+      "deleteUserTagsResult"
     );
   };
 
   stampDeleteUserTags = async (
-    input: SdkApiTypes.TDeleteUserTagsBody,
+    input: SdkApiTypes.TDeleteUserTagsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1625,7 +1625,7 @@ export class TurnkeySDKClientBase {
   };
 
   deleteUsers = async (
-    input: SdkApiTypes.TDeleteUsersBody,
+    input: SdkApiTypes.TDeleteUsersBody
   ): Promise<SdkApiTypes.TDeleteUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1636,12 +1636,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_DELETE_USERS",
       },
-      "deleteUsersResult",
+      "deleteUsersResult"
     );
   };
 
   stampDeleteUsers = async (
-    input: SdkApiTypes.TDeleteUsersBody,
+    input: SdkApiTypes.TDeleteUsersBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1657,7 +1657,7 @@ export class TurnkeySDKClientBase {
   };
 
   deleteWallets = async (
-    input: SdkApiTypes.TDeleteWalletsBody,
+    input: SdkApiTypes.TDeleteWalletsBody
   ): Promise<SdkApiTypes.TDeleteWalletsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1668,12 +1668,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_DELETE_WALLETS",
       },
-      "deleteWalletsResult",
+      "deleteWalletsResult"
     );
   };
 
   stampDeleteWallets = async (
-    input: SdkApiTypes.TDeleteWalletsBody,
+    input: SdkApiTypes.TDeleteWalletsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1689,7 +1689,7 @@ export class TurnkeySDKClientBase {
   };
 
   emailAuth = async (
-    input: SdkApiTypes.TEmailAuthBody,
+    input: SdkApiTypes.TEmailAuthBody
   ): Promise<SdkApiTypes.TEmailAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1700,12 +1700,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_EMAIL_AUTH_V2",
       },
-      "emailAuthResult",
+      "emailAuthResult"
     );
   };
 
   stampEmailAuth = async (
-    input: SdkApiTypes.TEmailAuthBody,
+    input: SdkApiTypes.TEmailAuthBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1721,7 +1721,7 @@ export class TurnkeySDKClientBase {
   };
 
   exportPrivateKey = async (
-    input: SdkApiTypes.TExportPrivateKeyBody,
+    input: SdkApiTypes.TExportPrivateKeyBody
   ): Promise<SdkApiTypes.TExportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1732,12 +1732,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY",
       },
-      "exportPrivateKeyResult",
+      "exportPrivateKeyResult"
     );
   };
 
   stampExportPrivateKey = async (
-    input: SdkApiTypes.TExportPrivateKeyBody,
+    input: SdkApiTypes.TExportPrivateKeyBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1754,7 +1754,7 @@ export class TurnkeySDKClientBase {
   };
 
   exportWallet = async (
-    input: SdkApiTypes.TExportWalletBody,
+    input: SdkApiTypes.TExportWalletBody
   ): Promise<SdkApiTypes.TExportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1765,12 +1765,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_EXPORT_WALLET",
       },
-      "exportWalletResult",
+      "exportWalletResult"
     );
   };
 
   stampExportWallet = async (
-    input: SdkApiTypes.TExportWalletBody,
+    input: SdkApiTypes.TExportWalletBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1786,7 +1786,7 @@ export class TurnkeySDKClientBase {
   };
 
   exportWalletAccount = async (
-    input: SdkApiTypes.TExportWalletAccountBody,
+    input: SdkApiTypes.TExportWalletAccountBody
   ): Promise<SdkApiTypes.TExportWalletAccountResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1797,12 +1797,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT",
       },
-      "exportWalletAccountResult",
+      "exportWalletAccountResult"
     );
   };
 
   stampExportWalletAccount = async (
-    input: SdkApiTypes.TExportWalletAccountBody,
+    input: SdkApiTypes.TExportWalletAccountBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1819,7 +1819,7 @@ export class TurnkeySDKClientBase {
   };
 
   importPrivateKey = async (
-    input: SdkApiTypes.TImportPrivateKeyBody,
+    input: SdkApiTypes.TImportPrivateKeyBody
   ): Promise<SdkApiTypes.TImportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1830,12 +1830,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
       },
-      "importPrivateKeyResult",
+      "importPrivateKeyResult"
     );
   };
 
   stampImportPrivateKey = async (
-    input: SdkApiTypes.TImportPrivateKeyBody,
+    input: SdkApiTypes.TImportPrivateKeyBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1852,7 +1852,7 @@ export class TurnkeySDKClientBase {
   };
 
   importWallet = async (
-    input: SdkApiTypes.TImportWalletBody,
+    input: SdkApiTypes.TImportWalletBody
   ): Promise<SdkApiTypes.TImportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1863,12 +1863,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_IMPORT_WALLET",
       },
-      "importWalletResult",
+      "importWalletResult"
     );
   };
 
   stampImportWallet = async (
-    input: SdkApiTypes.TImportWalletBody,
+    input: SdkApiTypes.TImportWalletBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1884,7 +1884,7 @@ export class TurnkeySDKClientBase {
   };
 
   initImportPrivateKey = async (
-    input: SdkApiTypes.TInitImportPrivateKeyBody,
+    input: SdkApiTypes.TInitImportPrivateKeyBody
   ): Promise<SdkApiTypes.TInitImportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1895,12 +1895,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY",
       },
-      "initImportPrivateKeyResult",
+      "initImportPrivateKeyResult"
     );
   };
 
   stampInitImportPrivateKey = async (
-    input: SdkApiTypes.TInitImportPrivateKeyBody,
+    input: SdkApiTypes.TInitImportPrivateKeyBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1917,7 +1917,7 @@ export class TurnkeySDKClientBase {
   };
 
   initImportWallet = async (
-    input: SdkApiTypes.TInitImportWalletBody,
+    input: SdkApiTypes.TInitImportWalletBody
   ): Promise<SdkApiTypes.TInitImportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1928,12 +1928,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
       },
-      "initImportWalletResult",
+      "initImportWalletResult"
     );
   };
 
   stampInitImportWallet = async (
-    input: SdkApiTypes.TInitImportWalletBody,
+    input: SdkApiTypes.TInitImportWalletBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1950,7 +1950,7 @@ export class TurnkeySDKClientBase {
   };
 
   initOtpAuth = async (
-    input: SdkApiTypes.TInitOtpAuthBody,
+    input: SdkApiTypes.TInitOtpAuthBody
   ): Promise<SdkApiTypes.TInitOtpAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1961,12 +1961,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
       },
-      "initOtpAuthResultV2",
+      "initOtpAuthResultV2"
     );
   };
 
   stampInitOtpAuth = async (
-    input: SdkApiTypes.TInitOtpAuthBody,
+    input: SdkApiTypes.TInitOtpAuthBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -1982,7 +1982,7 @@ export class TurnkeySDKClientBase {
   };
 
   initUserEmailRecovery = async (
-    input: SdkApiTypes.TInitUserEmailRecoveryBody,
+    input: SdkApiTypes.TInitUserEmailRecoveryBody
   ): Promise<SdkApiTypes.TInitUserEmailRecoveryResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -1993,12 +1993,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
       },
-      "initUserEmailRecoveryResult",
+      "initUserEmailRecoveryResult"
     );
   };
 
   stampInitUserEmailRecovery = async (
-    input: SdkApiTypes.TInitUserEmailRecoveryBody,
+    input: SdkApiTypes.TInitUserEmailRecoveryBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2015,7 +2015,7 @@ export class TurnkeySDKClientBase {
   };
 
   oauth = async (
-    input: SdkApiTypes.TOauthBody,
+    input: SdkApiTypes.TOauthBody
   ): Promise<SdkApiTypes.TOauthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2026,12 +2026,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_OAUTH",
       },
-      "oauthResult",
+      "oauthResult"
     );
   };
 
   stampOauth = async (
-    input: SdkApiTypes.TOauthBody,
+    input: SdkApiTypes.TOauthBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2047,7 +2047,7 @@ export class TurnkeySDKClientBase {
   };
 
   otpAuth = async (
-    input: SdkApiTypes.TOtpAuthBody,
+    input: SdkApiTypes.TOtpAuthBody
   ): Promise<SdkApiTypes.TOtpAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2058,12 +2058,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_OTP_AUTH",
       },
-      "otpAuthResult",
+      "otpAuthResult"
     );
   };
 
   stampOtpAuth = async (
-    input: SdkApiTypes.TOtpAuthBody,
+    input: SdkApiTypes.TOtpAuthBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2079,7 +2079,7 @@ export class TurnkeySDKClientBase {
   };
 
   recoverUser = async (
-    input: SdkApiTypes.TRecoverUserBody,
+    input: SdkApiTypes.TRecoverUserBody
   ): Promise<SdkApiTypes.TRecoverUserResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2090,12 +2090,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_RECOVER_USER",
       },
-      "recoverUserResult",
+      "recoverUserResult"
     );
   };
 
   stampRecoverUser = async (
-    input: SdkApiTypes.TRecoverUserBody,
+    input: SdkApiTypes.TRecoverUserBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2111,7 +2111,7 @@ export class TurnkeySDKClientBase {
   };
 
   rejectActivity = async (
-    input: SdkApiTypes.TRejectActivityBody,
+    input: SdkApiTypes.TRejectActivityBody
   ): Promise<SdkApiTypes.TRejectActivityResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.activityDecision("/public/v1/submit/reject_activity", {
@@ -2123,7 +2123,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampRejectActivity = async (
-    input: SdkApiTypes.TRejectActivityBody,
+    input: SdkApiTypes.TRejectActivityBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2140,7 +2140,7 @@ export class TurnkeySDKClientBase {
   };
 
   removeOrganizationFeature = async (
-    input: SdkApiTypes.TRemoveOrganizationFeatureBody,
+    input: SdkApiTypes.TRemoveOrganizationFeatureBody
   ): Promise<SdkApiTypes.TRemoveOrganizationFeatureResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2151,12 +2151,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE",
       },
-      "removeOrganizationFeatureResult",
+      "removeOrganizationFeatureResult"
     );
   };
 
   stampRemoveOrganizationFeature = async (
-    input: SdkApiTypes.TRemoveOrganizationFeatureBody,
+    input: SdkApiTypes.TRemoveOrganizationFeatureBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2173,7 +2173,7 @@ export class TurnkeySDKClientBase {
   };
 
   setOrganizationFeature = async (
-    input: SdkApiTypes.TSetOrganizationFeatureBody,
+    input: SdkApiTypes.TSetOrganizationFeatureBody
   ): Promise<SdkApiTypes.TSetOrganizationFeatureResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2184,12 +2184,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE",
       },
-      "setOrganizationFeatureResult",
+      "setOrganizationFeatureResult"
     );
   };
 
   stampSetOrganizationFeature = async (
-    input: SdkApiTypes.TSetOrganizationFeatureBody,
+    input: SdkApiTypes.TSetOrganizationFeatureBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2206,7 +2206,7 @@ export class TurnkeySDKClientBase {
   };
 
   signRawPayload = async (
-    input: SdkApiTypes.TSignRawPayloadBody,
+    input: SdkApiTypes.TSignRawPayloadBody
   ): Promise<SdkApiTypes.TSignRawPayloadResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2217,12 +2217,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
       },
-      "signRawPayloadResult",
+      "signRawPayloadResult"
     );
   };
 
   stampSignRawPayload = async (
-    input: SdkApiTypes.TSignRawPayloadBody,
+    input: SdkApiTypes.TSignRawPayloadBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2239,7 +2239,7 @@ export class TurnkeySDKClientBase {
   };
 
   signRawPayloads = async (
-    input: SdkApiTypes.TSignRawPayloadsBody,
+    input: SdkApiTypes.TSignRawPayloadsBody
   ): Promise<SdkApiTypes.TSignRawPayloadsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2250,12 +2250,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
       },
-      "signRawPayloadsResult",
+      "signRawPayloadsResult"
     );
   };
 
   stampSignRawPayloads = async (
-    input: SdkApiTypes.TSignRawPayloadsBody,
+    input: SdkApiTypes.TSignRawPayloadsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2272,7 +2272,7 @@ export class TurnkeySDKClientBase {
   };
 
   signTransaction = async (
-    input: SdkApiTypes.TSignTransactionBody,
+    input: SdkApiTypes.TSignTransactionBody
   ): Promise<SdkApiTypes.TSignTransactionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2283,20 +2283,24 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       },
-      "signTransactionResult",
+      "signTransactionResult"
     );
   };
 
   stampSignTransaction = async (
-    input: SdkApiTypes.TSignTransactionBody,
+    input: SdkApiTypes.TSignTransactionBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
+    console.time("stampSignTransaction");
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_transaction";
+    console.time("stampSignTransactionJsonify");
     const body = JSON.stringify(input);
+    console.timeEnd("stampSignTransactionJsonify");
     const stamp = await this.stamper.stamp(body);
+    console.timeEnd("stampSignTransaction");
     return {
       body: body,
       stamp: stamp,
@@ -2305,7 +2309,7 @@ export class TurnkeySDKClientBase {
   };
 
   updatePolicy = async (
-    input: SdkApiTypes.TUpdatePolicyBody,
+    input: SdkApiTypes.TUpdatePolicyBody
   ): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2316,12 +2320,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
       },
-      "updatePolicyResultV2",
+      "updatePolicyResultV2"
     );
   };
 
   stampUpdatePolicy = async (
-    input: SdkApiTypes.TUpdatePolicyBody,
+    input: SdkApiTypes.TUpdatePolicyBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2337,7 +2341,7 @@ export class TurnkeySDKClientBase {
   };
 
   updatePrivateKeyTag = async (
-    input: SdkApiTypes.TUpdatePrivateKeyTagBody,
+    input: SdkApiTypes.TUpdatePrivateKeyTagBody
   ): Promise<SdkApiTypes.TUpdatePrivateKeyTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2348,12 +2352,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG",
       },
-      "updatePrivateKeyTagResult",
+      "updatePrivateKeyTagResult"
     );
   };
 
   stampUpdatePrivateKeyTag = async (
-    input: SdkApiTypes.TUpdatePrivateKeyTagBody,
+    input: SdkApiTypes.TUpdatePrivateKeyTagBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2370,7 +2374,7 @@ export class TurnkeySDKClientBase {
   };
 
   updateRootQuorum = async (
-    input: SdkApiTypes.TUpdateRootQuorumBody,
+    input: SdkApiTypes.TUpdateRootQuorumBody
   ): Promise<SdkApiTypes.TUpdateRootQuorumResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2381,12 +2385,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM",
       },
-      "updateRootQuorumResult",
+      "updateRootQuorumResult"
     );
   };
 
   stampUpdateRootQuorum = async (
-    input: SdkApiTypes.TUpdateRootQuorumBody,
+    input: SdkApiTypes.TUpdateRootQuorumBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2403,7 +2407,7 @@ export class TurnkeySDKClientBase {
   };
 
   updateUser = async (
-    input: SdkApiTypes.TUpdateUserBody,
+    input: SdkApiTypes.TUpdateUserBody
   ): Promise<SdkApiTypes.TUpdateUserResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2414,12 +2418,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_USER",
       },
-      "updateUserResult",
+      "updateUserResult"
     );
   };
 
   stampUpdateUser = async (
-    input: SdkApiTypes.TUpdateUserBody,
+    input: SdkApiTypes.TUpdateUserBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2435,7 +2439,7 @@ export class TurnkeySDKClientBase {
   };
 
   updateUserTag = async (
-    input: SdkApiTypes.TUpdateUserTagBody,
+    input: SdkApiTypes.TUpdateUserTagBody
   ): Promise<SdkApiTypes.TUpdateUserTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2446,12 +2450,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_USER_TAG",
       },
-      "updateUserTagResult",
+      "updateUserTagResult"
     );
   };
 
   stampUpdateUserTag = async (
-    input: SdkApiTypes.TUpdateUserTagBody,
+    input: SdkApiTypes.TUpdateUserTagBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2468,7 +2472,7 @@ export class TurnkeySDKClientBase {
   };
 
   updateWallet = async (
-    input: SdkApiTypes.TUpdateWalletBody,
+    input: SdkApiTypes.TUpdateWalletBody
   ): Promise<SdkApiTypes.TUpdateWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     return this.command(
@@ -2479,12 +2483,12 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_WALLET",
       },
-      "updateWalletResult",
+      "updateWalletResult"
     );
   };
 
   stampUpdateWallet = async (
-    input: SdkApiTypes.TUpdateWalletBody,
+    input: SdkApiTypes.TUpdateWalletBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
@@ -2500,7 +2504,7 @@ export class TurnkeySDKClientBase {
   };
 
   testRateLimits = async (
-    input: SdkApiTypes.TTestRateLimitsBody,
+    input: SdkApiTypes.TTestRateLimitsBody
   ): Promise<SdkApiTypes.TTestRateLimitsResponse> => {
     return this.request("/tkhq/api/v1/test_rate_limits", {
       ...input,
@@ -2509,7 +2513,7 @@ export class TurnkeySDKClientBase {
   };
 
   stampTestRateLimits = async (
-    input: SdkApiTypes.TTestRateLimitsBody,
+    input: SdkApiTypes.TTestRateLimitsBody
   ): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
