@@ -281,3 +281,33 @@ export type GetOrCreateSuborgResponse = {
 };
 
 export type EmailCustomization = TurnkeyApiTypes["v1EmailCustomizationParams"];
+
+export interface NetworkInfo {
+  dns: {
+    hostname: string;
+    ipAddresses?: string[];
+    timeMs?: number;
+    error?: string;
+  };
+  tcp: {
+    remoteAddress?: string;
+    remotePort?: string | number;
+    localAddress?: string;
+    localPort?: string | number;
+    connectTimeMs?: number;
+    error?: string;
+  };
+  tls: {
+    cipher?: string;
+    protocol?: string;
+    authorized?: boolean;
+    servername?: string;
+    certificate?: Record<string, any>;
+    error?: string;
+  };
+  request: {
+    totalTimeMs?: number;
+    responseStatus?: number;
+    responseStatusText?: string;
+  };
+}
