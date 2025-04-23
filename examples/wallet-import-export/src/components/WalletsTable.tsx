@@ -2,6 +2,7 @@ import Image from "next/image";
 import * as React from "react";
 import { Dispatch, SetStateAction } from "react";
 import cx from "classnames";
+import { useRouter } from "next/router";
 
 import styles from "../pages/index.module.css";
 
@@ -18,9 +19,16 @@ type WalletsTableProps = {
 };
 
 export function WalletsTable(props: WalletsTableProps) {
-  const openExportModal = (walletId: string) => {
+  const router = useRouter();
+  
+  const openExportModal = (walletId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent row click when clicking export button
     props.setSelectedWallet(walletId);
     props.setIsExportModalOpen(true);
+  };
+
+  const navigateToWalletDetails = (walletId: string) => {
+    router.push(`/wallet/${walletId}`);
   };
 
   return (
@@ -41,12 +49,16 @@ export function WalletsTable(props: WalletsTableProps) {
           {props.wallets.length > 0 ? (
             props.wallets.map((val, key) => {
               return (
-                <tr className={styles.tableRow} key={key}>
+                <tr 
+                  className={cx(styles.tableRow, styles.tableRowClickable)} 
+                  key={key}
+                  onClick={() => navigateToWalletDetails(val.walletId)}
+                >
                   <td className={styles.cell}>
                     <button
                       className={styles.exportButton}
-                      onClick={() => {
-                        openExportModal(val.walletId);
+                      onClick={(e) => {
+                        openExportModal(val.walletId, e);
                       }}
                     >
                       <Image
