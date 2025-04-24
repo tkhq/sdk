@@ -20,7 +20,7 @@ type WalletsTableProps = {
 
 export function WalletsTable(props: WalletsTableProps) {
   const router = useRouter();
-  
+
   const openExportModal = (walletId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent row click when clicking export button
     props.setSelectedWallet(walletId);
@@ -49,8 +49,8 @@ export function WalletsTable(props: WalletsTableProps) {
           {props.wallets.length > 0 ? (
             props.wallets.map((val, key) => {
               return (
-                <tr 
-                  className={cx(styles.tableRow, styles.tableRowClickable)} 
+                <tr
+                  className={cx(styles.tableRow, styles.tableRowClickable)}
                   key={key}
                   onClick={() => navigateToWalletDetails(val.walletId)}
                 >

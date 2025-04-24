@@ -31,10 +31,12 @@ export default async function getWalletAccounts(
   const { organizationId, walletId } = getWalletAccountsRequest;
 
   try {
-    const walletAccountsResponse = await turnkeyClient.apiClient().getWalletAccounts({
-      organizationId,
-      walletId,
-    });
+    const walletAccountsResponse = await turnkeyClient
+      .apiClient()
+      .getWalletAccounts({
+        organizationId,
+        walletId,
+      });
 
     res.status(200).json({
       accounts: walletAccountsResponse.accounts,
