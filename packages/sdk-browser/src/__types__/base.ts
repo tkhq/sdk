@@ -25,9 +25,16 @@ export enum SessionType {
 export type Session = {
   sessionType: SessionType;
   userId: string;
+  username?: string;
   organizationId: string;
+  organizationName?: string;
   expiry: number; // Unix timestamp representing the expiry of the session set by the server
   token: string; // credentialBundle (read-write) or read token
+};
+
+export type ActiveSession = {
+  session: Session;
+  client: AuthClient;
 };
 
 /**

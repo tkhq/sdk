@@ -17,6 +17,7 @@ import {
   LoginWithPasskeyParams,
   LoginWithWalletParams,
   RefreshSessionParams,
+  ActiveSession,
 } from "@types";
 
 import {
@@ -133,9 +134,11 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    *   @param params.sessionType - The type of session that is being refreshed
    *   @param params.targetPublicKey - The public key of the target client
    *   @param params.expirationSeconds - Specify how long to extend the session. Defaults to 900 seconds or 15 minutes.
-   * @returns {Promise<void>}
+   * @returns {Promise<ActiveSession>}
    */
-  refreshSession = async (params: RefreshSessionParams): Promise<void> => {
+  refreshSession = async (
+    params: RefreshSessionParams,
+  ): Promise<ActiveSession> => {
     const {
       sessionType = SessionType.READ_WRITE,
       targetPublicKey,
@@ -159,6 +162,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         };
 
         await storeSession(session, AuthClient.Passkey);
+        return {
+          session,
+          client: AuthClient.Passkey,
+        } as ActiveSession;
       } else if (sessionType === SessionType.READ_WRITE) {
         if (!targetPublicKey) {
           throw new Error(
@@ -186,6 +193,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           );
         }
         await storeSession(session, AuthClient.Iframe);
+        return {
+          session,
+          client: AuthClient.Iframe,
+        } as ActiveSession;
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
@@ -201,9 +212,11 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @param LoginWithBundleParams
    *   @param params.bundle - Credential bundle to log in with
    *   @param params.expirationSeconds - Expiration time for the session in seconds. Defaults to 900 seconds or 15 minutes.
-   * @returns {Promise<void>}
+   * @returns {Promise<ActiveSession>}
    */
-  loginWithBundle = async (params: LoginWithBundleParams): Promise<void> => {
+  loginWithBundle = async (
+    params: LoginWithBundleParams,
+  ): Promise<ActiveSession> => {
     const {
       bundle,
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -227,6 +240,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     };
 
     await storeSession(session, AuthClient.Iframe);
+    return {
+      session,
+      client: AuthClient.Iframe,
+    } as ActiveSession;
   };
 
   /**
@@ -234,9 +251,9 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * To be used in conjunction with an `iframeStamper`.
    *
    * @param session
-   * @returns {Promise<void>}
+   * @returns {Promise<ActiveSession>}
    */
-  loginWithSession = async (session: Session): Promise<void> => {
+  loginWithSession = async (session: Session): Promise<ActiveSession> => {
     if (this instanceof TurnkeyIframeClient) {
       await this.injectCredentialBundle(session.token!);
     } else {
@@ -246,6 +263,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       ); //should we default to a "localStorage" client?
     }
     await storeSession(session, AuthClient.Iframe);
+    return {
+      session,
+      client: AuthClient.Iframe,
+    } as ActiveSession;
   };
 
   /**
@@ -257,9 +278,11 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    *   @param params.iframeClient - The iframe client to use to inject the credential bundle
    *   @param params.targetPublicKey - The public key of the target client
    *   @param params.expirationSeconds - Expiration time for the session in seconds. Defaults to 900 seconds or 15 minutes.
-   * @returns {Promise<void>}
+   * @returns {Promise<ActiveSession>}
    */
-  loginWithPasskey = async (params: LoginWithPasskeyParams): Promise<void> => {
+  loginWithPasskey = async (
+    params: LoginWithPasskeyParams,
+  ): Promise<ActiveSession> => {
     try {
       const {
         sessionType = SessionType.READ_WRITE,
@@ -267,8 +290,8 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         targetPublicKey,
         expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
       } = params;
-      // Create a read-only session
       if (sessionType === SessionType.READ_ONLY) {
+        // create a read-only session
         const readOnlySessionResult = await this.createReadOnlySession({});
 
         const session: Session = {
@@ -279,8 +302,12 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           token: readOnlySessionResult.session,
         };
         await storeSession(session, AuthClient.Passkey);
-        // Create a read-write session
+        return {
+          session,
+          client: AuthClient.Passkey,
+        } as ActiveSession;
       } else if (sessionType === SessionType.READ_WRITE) {
+        // create a read-write session
         if (!targetPublicKey) {
           throw new Error(
             "You must provide a targetPublicKey to create a read-write session.",
@@ -308,6 +335,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         await iframeClient.injectCredentialBundle(session.token!);
 
         await storeSession(session, AuthClient.Iframe);
+        return {
+          session,
+          client: AuthClient.Iframe,
+        } as ActiveSession;
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
@@ -324,9 +355,11 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    *   @param params.iframeClient - The iframe client to use to inject the credential bundle
    *   @param params.targetPublicKey - The public key of the target iframe
    *   @param params.expirationSeconds - The expiration time for the session in seconds
-   * @returns {Promise<void>}
+   * @returns {Promise<ActiveSession>}
    */
-  loginWithWallet = async (params: LoginWithWalletParams): Promise<void> => {
+  loginWithWallet = async (
+    params: LoginWithWalletParams,
+  ): Promise<ActiveSession> => {
     try {
       const {
         sessionType = SessionType.READ_WRITE,
@@ -334,8 +367,9 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         targetPublicKey,
         expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
       } = params;
-      // Create a read-only session
+
       if (sessionType === SessionType.READ_ONLY) {
+        // create a read-only session
         const readOnlySessionResult = await this.createReadOnlySession({});
 
         const session: Session = {
@@ -346,8 +380,12 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           token: readOnlySessionResult.session,
         };
         await storeSession(session, AuthClient.Wallet);
-        // Create a read-write session
+        return {
+          session,
+          client: AuthClient.Wallet,
+        };
       } else if (sessionType === SessionType.READ_WRITE) {
+        // create a read-write session
         if (!targetPublicKey) {
           throw new Error(
             "You must provide a targetPublicKey to create a read-write session.",
@@ -375,6 +413,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         await iframeClient.injectCredentialBundle(session.token!);
 
         await storeSession(session, AuthClient.Iframe);
+        return {
+          session,
+          client: AuthClient.Iframe,
+        };
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
@@ -391,13 +433,13 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @param targetEmbeddedKey
    * @param expirationSeconds
    * @param userId
-   * @returns {Promise<SdkApiTypes.TCreateReadWriteSessionResponse>}
+   * @returns {Promise<ActiveSession>}
    */
   loginWithReadWriteSession = async (
     targetEmbeddedKey: string,
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     userId?: string,
-  ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
+  ): Promise<ActiveSession> => {
     try {
       const readWriteSessionResult = await this.createReadWriteSession({
         targetPublicKey: targetEmbeddedKey,
@@ -415,7 +457,16 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       // store auth bundle in local storage
       await saveSession(readWriteSessionResultWithSession, this.authClient);
 
-      return readWriteSessionResultWithSession;
+      return {
+        session: {
+          sessionType: SessionType.READ_WRITE,
+          userId: readWriteSessionResultWithSession.userId,
+          organizationId: readWriteSessionResultWithSession.organizationId,
+          expiry: readWriteSessionResultWithSession.sessionExpiry,
+          token: readWriteSessionResultWithSession.credentialBundle,
+        },
+        client: this.authClient ?? AuthClient.Iframe,
+      } as ActiveSession;
     } catch (error) {
       throw new Error(
         `Unable to log in with the provided read-write session: ${error}`,
@@ -428,12 +479,12 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    *
    * @param credentialBundle
    * @param expirationSeconds
-   * @returns {Promise<boolean>}
+   * @returns {Promise<ActiveSession>}
    */
   loginWithAuthBundle = async (
     credentialBundle: string,
     expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-  ): Promise<boolean> => {
+  ): Promise<ActiveSession> => {
     try {
       const whoAmIResult = await this.getWhoami();
 
@@ -444,7 +495,17 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       };
 
       await saveSession(readWriteSessionResultWithSession, this.authClient);
-      return true;
+
+      return {
+        session: {
+          sessionType: SessionType.READ_WRITE,
+          userId: readWriteSessionResultWithSession.userId,
+          organizationId: readWriteSessionResultWithSession.organizationId,
+          expiry: readWriteSessionResultWithSession.sessionExpiry,
+          token: readWriteSessionResultWithSession.credentialBundle,
+        },
+        client: this.authClient ?? AuthClient.Iframe,
+      } as ActiveSession;
     } catch (error) {
       throw new Error(
         `Unable to log in with the provided auth bundle: ${error}`,

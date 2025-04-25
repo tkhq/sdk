@@ -308,7 +308,7 @@ export default function Dashboard() {
             return;
           }
 
-          await authIframeClient.injectCredentialBundle(session!.token);
+          await authIframeClient?.loginWithSession(session);
 
           const suborgId = session?.organizationId;
           setSuborgId(suborgId!);
