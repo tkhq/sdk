@@ -2961,12 +2961,14 @@ export type definitions = {
     pathFormat: definitions["v1PathFormat"];
     /** @description Path used to generate the Account. */
     path: string;
-    /** @description Address format used to generate the Acccount. */
+    /** @description Address format used to generate the Account. */
     addressFormat: definitions["v1AddressFormat"];
     /** @description Address generated using the Wallet seed and Account parameters. */
     address: string;
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
+    /** @description The public component of this wallet account's underlying cryptographic key pair. */
+    publicKey?: string;
   };
   v1WalletAccountParams: {
     /** @description Cryptographic curve used to generate a wallet Account. */
