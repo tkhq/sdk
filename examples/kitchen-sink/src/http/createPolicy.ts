@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
+import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 import { refineNonNull } from "../utils";
@@ -19,18 +19,13 @@ async function main() {
     }),
   );
 
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createPolicy,
-  });
-
   const policyName = "<your new policy name";
   const effect = "EFFECT_ALLOW"; // "EFFECT_ALLOW" | "EFFECT_DENY"
   const consensus = ""; // desired consensus. See https://docs.turnkey.com/concepts/policies/overview
   const condition = ""; // desired condition. See https://docs.turnkey.com/concepts/policies/overview
   const notes = "";
 
-  const activity = await activityPoller({
+  const { activity } = await turnkeyClient.createPolicy({
     type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
     organizationId: process.env.ORGANIZATION_ID!,
     parameters: {

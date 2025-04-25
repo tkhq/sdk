@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
+import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 async function main() {
@@ -17,12 +17,7 @@ async function main() {
     }),
   );
 
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.signTransaction,
-  });
-
-  const activityResponse = await activityPoller({
+  const { activity } = await turnkeyClient.signTransaction({
     type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
     timestampMs: String(Date.now()),
     organizationId: process.env.ORGANIZATION_ID!,
@@ -35,7 +30,7 @@ async function main() {
 
   console.log(
     "Successfully signed transaction:",
-    activityResponse.result.signTransactionResult?.signedTransaction,
+    activity.result.signTransactionResult?.signedTransaction,
   );
 }
 

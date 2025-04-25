@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
+import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import * as crypto from "crypto";
 import { refineNonNull } from "../utils";
@@ -22,12 +22,7 @@ async function main() {
     }),
   );
 
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createWallet,
-  });
-
-  const completedActivity = await activityPoller({
+  const { activity } = await turnkeyClient.createWallet({
     type: "ACTIVITY_TYPE_CREATE_WALLET",
     timestampMs: String(Date.now()),
     organizationId: process.env.ORGANIZATION_ID!,
@@ -44,7 +39,7 @@ async function main() {
     },
   });
 
-  const wallet = refineNonNull(completedActivity.result.createWalletResult);
+  const wallet = refineNonNull(activity.result.createWalletResult);
   const walletId = refineNonNull(wallet.walletId);
   const address = refineNonNull(wallet.addresses[0]);
 

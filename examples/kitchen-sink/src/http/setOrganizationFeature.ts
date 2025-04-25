@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
+import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 async function main() {
@@ -17,12 +17,7 @@ async function main() {
     }),
   );
 
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.setOrganizationFeature,
-  });
-
-  const activityResponse = await activityPoller({
+  const { activity } = await turnkeyClient.setOrganizationFeature({
     type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE",
     timestampMs: String(Date.now()),
     organizationId: process.env.ORGANIZATION_ID!,
@@ -34,7 +29,7 @@ async function main() {
 
   console.log(
     "Successfully set organization feature. Updated features:",
-    activityResponse.result.setOrganizationFeatureResult?.features,
+    activity.result.setOrganizationFeatureResult?.features,
   );
 }
 

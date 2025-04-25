@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
+import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 import * as crypto from "crypto";
@@ -22,14 +22,9 @@ async function main() {
 
   console.log("creating a new Solana private key on Turnkey...");
 
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createPrivateKeys,
-  });
-
   const privateKeyName = `SOL Key ${crypto.randomBytes(2).toString("hex")}`;
 
-  const activity = await activityPoller({
+  const { activity } = await turnkeyClient.createPrivateKeys({
     type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
     organizationId: process.env.ORGANIZATION_ID!,
     parameters: {
