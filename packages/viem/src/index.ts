@@ -1,6 +1,17 @@
-import { hashTypedData, serializeTransaction, signatureToHex } from "viem";
-import { toAccount } from "viem/accounts";
-import { BaseError, hashMessage, isAddress } from "viem";
+import {
+  BaseError,
+  hashMessage,
+  isAddress,
+  hashTypedData,
+  serializeTransaction,
+  hexToBigInt,
+  hexToBytes,
+} from "viem";
+import {
+  SignAuthorizationReturnType,
+  toAccount,
+  SignAuthorizationParameters,
+} from "viem/accounts";
 import type {
   Hex,
   HashTypedDataParameters,
@@ -10,6 +21,9 @@ import type {
   TransactionSerializable,
   TypedData,
 } from "viem";
+import { hashAuthorization } from "viem/utils";
+import { secp256k1 } from "@noble/curves/secp256k1";
+
 import {
   assertNonNull,
   assertActivityCompleted,
@@ -27,6 +41,23 @@ import type { TurnkeyServerClient } from "@turnkey/sdk-server";
 export type TTurnkeyConsensusNeededErrorType = TurnkeyConsensusNeededError & {
   name: "TurnkeyConsensusNeededError";
 };
+
+export type TTurnkeyActivityErrorType = TurnkeyActivityError & {
+  name: "TurnkeyActivityError";
+};
+
+type TSignAuthorizationParameters = Omit<
+  SignAuthorizationParameters,
+  "privateKey" // unnecessary as we are signing using Turnkey keys
+>;
+
+type TSignatureFormat = "object" | "bytes" | "hex";
+
+type TSignatureExtended = Omit<TSignature, "v"> & {
+  v: string | BigInt;
+};
+
+type TSignMessageResult = Uint8Array | Hex | TSignatureExtended;
 
 export class TurnkeyConsensusNeededError extends BaseError {
   override name = "TurnkeyConsensusNeededError";
@@ -48,10 +79,6 @@ export class TurnkeyConsensusNeededError extends BaseError {
     this.activityStatus = activityStatus;
   }
 }
-
-export type TTurnkeyActivityErrorType = TurnkeyActivityError & {
-  name: "TurnkeyActivityError";
-};
 
 export class TurnkeyActivityError extends BaseError {
   override name = "TurnkeyActivityError";
@@ -135,6 +162,11 @@ export function createAccountWithAddress(input: {
       typedData: TypedData | { [key: string]: unknown },
     ): Promise<Hex> {
       return signTypedData(client, typedData, organizationId, signWith);
+    },
+    signAuthorization: function (
+      parameters: TSignAuthorizationParameters,
+    ): Promise<SignAuthorizationReturnType> {
+      return signAuthorization(client, parameters, organizationId, signWith);
     },
   });
 }
@@ -287,7 +319,57 @@ export async function createApiKeyAccount(
     ): Promise<Hex> {
       return signTypedData(client, typedData, organizationId, privateKeyId);
     },
+    signAuthorization: function (
+      parameters: TSignAuthorizationParameters,
+    ): Promise<SignAuthorizationReturnType> {
+      return signAuthorization(
+        client,
+        parameters,
+        organizationId,
+        privateKeyId,
+      );
+    },
   });
+}
+
+export async function signAuthorization(
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
+  parameters: TSignAuthorizationParameters,
+  organizationId: string,
+  signWith: string,
+): Promise<SignAuthorizationReturnType> {
+  const { chainId, nonce, to = "object" } = parameters;
+  const address = parameters.contractAddress ?? parameters.address;
+
+  if (!address) {
+    throw new TurnkeyActivityError({
+      message: "Unable to sign authorization: address is undefined.",
+    });
+  }
+
+  const hashedAuthorization = hashAuthorization({
+    address: address,
+    chainId,
+    nonce,
+  });
+
+  const signature = await signMessageWithErrorWrapping(
+    client,
+    hashedAuthorization,
+    organizationId,
+    signWith,
+    to,
+  );
+
+  if (to === "object")
+    return {
+      address,
+      chainId,
+      nonce,
+      ...(signature as TSignature),
+    } as any;
+
+  return signature as any;
 }
 
 export async function signMessage(
@@ -333,12 +415,13 @@ export async function signTypedData(
 ): Promise<Hex> {
   const hashToSign = hashTypedData(data as HashTypedDataParameters);
 
-  return await signMessageWithErrorWrapping(
+  return (await signMessageWithErrorWrapping(
     client,
     hashToSign,
     organizationId,
     signWith,
-  );
+    "hex",
+  )) as Hex;
 }
 
 async function signTransactionWithErrorWrapping(
@@ -423,14 +506,17 @@ async function signMessageWithErrorWrapping(
   message: string,
   organizationId: string,
   signWith: string,
-): Promise<Hex> {
-  let signedMessage: string;
+  to?: TSignatureFormat,
+): Promise<TSignMessageResult> {
+  let signedMessage: TSignMessageResult;
+
   try {
     signedMessage = await signMessageImpl(
       client,
       message,
       organizationId,
       signWith,
+      to,
     );
   } catch (error: any) {
     // Wrap Turnkey error in Viem-specific error
@@ -455,7 +541,7 @@ async function signMessageWithErrorWrapping(
     });
   }
 
-  return signedMessage as Hex;
+  return signedMessage;
 }
 
 async function signMessageImpl(
@@ -463,8 +549,9 @@ async function signMessageImpl(
   message: string,
   organizationId: string,
   signWith: string,
-): Promise<string> {
-  let result;
+  to?: TSignatureFormat,
+): Promise<TSignMessageResult> {
+  let result: TSignature;
 
   if (client instanceof TurnkeyClient) {
     const { activity } = await client.signRawPayload({
@@ -500,16 +587,39 @@ async function signMessageImpl(
     };
   }
 
-  return assertNonNull(serializeSignature(result));
+  if (to === "object") {
+    return {
+      r: `0x${result.r}`,
+      s: `0x${result.s}`,
+      v: BigInt(result.v),
+    };
+  }
+
+  return assertNonNull(serializeSignature(result, to));
 }
 
-export function serializeSignature(sig: TSignature) {
-  // TODO: update this deprecated method
-  return signatureToHex({
-    r: `0x${sig.r}`,
-    s: `0x${sig.s}`,
-    v: sig.v === "00" ? 27n : 28n,
-  });
+// Modified from Viem implementation:
+// https://github.com/wevm/viem/blob/c8378d22f692f48edde100693159874702f36330/src/utils/signature/serializeSignature.ts#L38-L39
+export function serializeSignature(
+  sig: TSignature,
+  to: TSignatureFormat = "hex",
+) {
+  const { r: rString, s: sString, v: vString } = sig;
+
+  const r: `0x${string}` = `0x${rString}`;
+  const s: `0x${string}` = `0x${sString}`;
+  const v = BigInt(vString);
+
+  // Turnkey's `v` returned can be used as a proxy for yParity
+  const yParity_ = v;
+
+  const signature = `0x${new secp256k1.Signature(
+    hexToBigInt(r),
+    hexToBigInt(s),
+  ).toCompactHex()}${yParity_ === 0n ? "1b" : "1c"}` as const;
+
+  if (to === "hex") return signature;
+  return hexToBytes(signature);
 }
 
 export function isTurnkeyActivityConsensusNeededError(error: any) {
