@@ -15,17 +15,12 @@ async function main() {
   });
 
   const { walletIds } = await turnkeyClient.apiClient().deleteWallets({
-    deleteWithoutExport: true,
-    walletIds: ["50990151-4aa8-53fb-88ad-7400a56cafcc", "23990864-5f5d-5d13-a355-aedd9c327367", "2f0ec19f-700d-50d6-9901-aa9090c1485c", "a10ffbad-8e97-5b92-95cd-f5c39d4ea55b", "5298e9f8-dbda-5e7c-af03-570b8f21fac6"]
+    deleteWithoutExport: true, // this is an optional field. If this flag is not set, and the wallet has not yet been exported, this will error
+    walletIds: ["<wallet ID to delete>"],
   });
 
   // Success!
-  console.log(
-    [
-      `Wallets deleted!`,
-      `- Wallet IDs: ${walletIds}`,
-    ].join("\n"),
-  );
+  console.log([`Wallets deleted!`, `- Wallet IDs: ${walletIds}`].join("\n"));
 }
 
 main().catch((error) => {
