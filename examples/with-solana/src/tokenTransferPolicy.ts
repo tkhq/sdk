@@ -52,14 +52,14 @@ async function main() {
   } else if (command == "attempt-transfer") {
     if (args.length != 1) {
       throw new Error(
-        `attempt-transfer comand should have no initial arguments -- you will be prompted`,
+        `attempt-transfer command should have no initial arguments -- you will be prompted`,
       );
     }
     await attemptTransferToken();
   } else if (command == "create-token-policy") {
     if (args.length != 1) {
       throw new Error(
-        `create-token-policy comand should have no initial arguments -- you will be prompted`,
+        `create-token-policy command should have no initial arguments -- you will be prompted`,
       );
     }
     await createTokenPolicy();
