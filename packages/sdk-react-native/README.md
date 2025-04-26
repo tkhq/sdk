@@ -88,6 +88,10 @@ To enable secure authentication, the following storage keys are used:
   - If `sessionKey` is provided, the session will be stored under that key in secure storage.
   - If no session exists, the first session created is **automatically selected**.
   - If a session with the same `sessionKey` already exists in secure storage, an error is thrown.
+- `createSessionFromEmbeddedKey({ expirationSeconds?, sessionKey? })`: Creates a session directly using the embedded private key. [(API Docs)](https://docs.turnkey.com/api#tag/Sessions/operation/CreateReadWriteSession)
+  - If `sessionKey` is provided, the session will be stored under that key in secure storage.
+  - If no session exists, the first session created is **automatically selected**.
+  - If a session with the same `sessionKey` already exists in secure storage, an error is thrown.
 - `refreshSession({ expirationSeconds?, sessionKey? })`: Refreshes and extends the expiration time of an existing session.
   - Uses the current session to create a new session with an updated expiration time.
   - If `sessionKey` is not provided, the currently selected session is refreshed.

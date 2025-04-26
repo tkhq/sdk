@@ -66,6 +66,10 @@ export interface TurnkeyContextType {
     expirationSeconds?: number;
     sessionKey?: string;
   }) => Promise<Session>;
+  createSessionFromEmbeddedKey: (params: {
+    expirationSeconds?: number;
+    sessionKey?: string;
+  }) => Promise<Session>;
   refreshSession: (params: {
     expirationSeconds?: number;
     sessionKey?: string;
@@ -460,6 +464,88 @@ export const TurnkeyProvider: FC<{
         key: sessionKey,
         publicKey,
         privateKey,
+        expiry,
+        user,
+      };
+      await saveSession(newSession, sessionKey);
+      await addSessionKey(sessionKey);
+      scheduleSessionExpiration(sessionKey, newSession.expiry);
+
+      // if this is the first session created, set it as the selected session
+      const isFirstSession = existingSessionKeys.length === 0;
+      if (isFirstSession) {
+        await setSelectedSession({ sessionKey });
+      }
+
+      config.onSessionCreated?.(newSession);
+      return newSession;
+    },
+    [config, setSelectedSession],
+  );
+
+  /**
+   * Creates a new session using an embedded private key and securely stores it.
+   *
+   * - Enforces a maximum limit of `MAX_SESSIONS` to prevent excessive resource usage.
+   * - Retrieves the embedded private key from secure storage.
+   * - Extracts the public key from the embedded private key.
+   * - Creates a new Turnkey API client using the derived credentials.
+   * - Fetches user information associated with the session.
+   * - Constructs and saves the session in secure storage.
+   * - Schedules session expiration handling.
+   * - If this is the first session created, it is automatically set as the selected session.
+   * - Calls `onSessionCreated` callback if provided.
+   *
+   * @param expirationSeconds - (Optional) The expiration time in seconds (defaults to `OTP_AUTH_DEFAULT_EXPIRATION_SECONDS`).
+   * @param sessionKey - (Optional) The session identifier (defaults to `TURNKEY_DEFAULT_SESSION_STORAGE`).
+   * @returns The created session.
+   * @throws {TurnkeyReactNativeError} If the embedded key or user data cannot be retrieved,
+   *         if the sessionKey already exists, or if the maximum session limit is reached.
+   */
+  const createSessionFromEmbeddedKey = useCallback(
+    async ({
+      expirationSeconds = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
+      sessionKey = StorageKeys.DefaultSession,
+    }: {
+      expirationSeconds?: number;
+      sessionKey?: string;
+    }): Promise<Session> => {
+      // we throw an error if a session with this sessionKey already exists
+      const existingSessionKeys = await getSessionKeys();
+
+      if (existingSessionKeys.length >= MAX_SESSIONS) {
+        throw new TurnkeyReactNativeError(
+          `Maximum session limit of ${MAX_SESSIONS} reached. Please clear an existing session before creating a new one.`,
+        );
+      }
+
+      if (existingSessionKeys.includes(sessionKey)) {
+        throw new TurnkeyReactNativeError(
+          `session key "${sessionKey}" already exists. Please choose a unique session key or clear the existing session.`,
+        );
+      }
+
+      const embeddedKey = await getEmbeddedKey(true);
+      if (!embeddedKey) {
+        throw new TurnkeyReactNativeError("Embedded key not found.");
+      }
+      const publicKey = uint8ArrayToHexString(getPublicKey(embeddedKey));
+      const expiry = Date.now() + expirationSeconds * 1000;
+
+      const clientInstance = createClient(
+        publicKey,
+        embeddedKey,
+        config.apiBaseUrl,
+      );
+      const user = await fetchUser(clientInstance, config.organizationId);
+      if (!user) {
+        throw new TurnkeyReactNativeError("User not found.");
+      }
+
+      const newSession = {
+        key: sessionKey,
+        publicKey,
+        privateKey: embeddedKey,
         expiry,
         user,
       };
@@ -966,6 +1052,7 @@ export const TurnkeyProvider: FC<{
       updateUser,
       createEmbeddedKey,
       createSession,
+      createSessionFromEmbeddedKey,
       refreshSession,
       clearSession,
       clearAllSessions,
@@ -984,6 +1071,7 @@ export const TurnkeyProvider: FC<{
       updateUser,
       createEmbeddedKey,
       createSession,
+      createSessionFromEmbeddedKey,
       refreshSession,
       clearSession,
       clearAllSessions,
