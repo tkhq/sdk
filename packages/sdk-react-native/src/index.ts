@@ -17,3 +17,13 @@ export {
 export { useTurnkey } from "./hooks/use-turnkey";
 
 export { type TurnkeyApiTypes, TurnkeyClient } from "@turnkey/http";
+export {
+  type TPasskeyStamperConfig,
+  type TPasskeyRegistrationConfig,
+  type TurnkeyAuthenticatorParams,
+  type PublicKeyCredentialDescriptor,
+  AuthenticatorTransport,
+  PasskeyStamper,
+  createPasskey,
+  isSupported,
+} from "@turnkey/react-native-passkey-stamper";

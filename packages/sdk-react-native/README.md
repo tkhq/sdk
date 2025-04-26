@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@turnkey/sdk-react-native?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-react-native)
 
-The `@turnkey/sdk-react-native` package simplifies the integration of the Turnkey API into React Native applications. It provides secure session management, authentication, and cryptographic operations using [`react-native-keychain`](https://github.com/oblador/react-native-keychain), [`@turnkey/crypto`](../crypto/), [`@turnkey/api-key-stamper`](../api-key-stamper/), and [`@turnkey/http`](../http/).
+The `@turnkey/sdk-react-native` package simplifies the integration of the Turnkey API into React Native applications. It provides secure session management, authentication, and cryptographic operations.
 
 ---
 
@@ -11,9 +11,11 @@ The `@turnkey/sdk-react-native` package simplifies the integration of the Turnke
 - Install the following dependencies in your React Native project:
   - [`react-native-keychain`](https://www.npmjs.com/package/react-native-keychain)
   - [`react-native-inappbrowser-reborn`](https://www.npmjs.com/package/react-native-inappbrowser-reborn)
-  - [`@turnkey/crypto`](../crypto/)
+  - [`react-native-passkey`](https://www.npmjs.com/package/react-native-passkey)
   - [`@turnkey/api-key-stamper`](../api-key-stamper/)
+  - [`@turnkey/crypto`](../crypto/)
   - [`@turnkey/http`](../http/)
+  - [`@turnkey/react-native-passkey-stamper`](../react-native-passkey-stamper/)
   - `@turnkey/sdk-react-native` (this package)
 - Ensure your app is properly configured for secure storage and authentication.
 - **You must polyfill random byte generation** to ensure `generateP256KeyPair` from `@turnkey/crypto` works properly by importing [`react-native-get-random-values`](https://www.npmjs.com/package/react-native-get-random-values) at the **entry point of your application**:
@@ -81,14 +83,16 @@ To enable secure authentication, the following storage keys are used:
 
 ### **Session Management**
 
-- `createEmbeddedKey({ sessionKey? })`: Generates a new embedded key pair and securely stores the private key.
+- `createEmbeddedKey({ sessionKey?, isCompressed? })`: Generates a new embedded key pair and securely stores the private key.
   - If `sessionKey` is provided, the embedded key will be stored under that key in secure storage.
+  - If `isCompressed` is set to `true`, the compressed public key is returned; otherwise, the uncompressed public key is returned.
   - This allows for creating different embedded keys for different sessions, which is useful when initiating multiple authentication flows simultaneously.
 - `createSession({ bundle, expirationSeconds?, sessionKey? })`: Creates a session. [(API Docs)](https://docs.turnkey.com/api#tag/Sessions/operation/CreateReadWriteSession)
   - If `sessionKey` is provided, the session will be stored under that key in secure storage.
   - If no session exists, the first session created is **automatically selected**.
   - If a session with the same `sessionKey` already exists in secure storage, an error is thrown.
-- `createSessionFromEmbeddedKey({ expirationSeconds?, sessionKey? })`: Creates a session directly using the embedded private key. [(API Docs)](https://docs.turnkey.com/api#tag/Sessions/operation/CreateReadWriteSession)
+- `createSessionFromEmbeddedKey({ subOrganizationId, embeddedKey?, expirationSeconds?, sessionKey? })`: Creates a session directly using the embedded private key. [(API Docs)](https://docs.turnkey.com/api#tag/Sessions/operation/CreateReadWriteSession)
+  - If `embeddedKey` is provided, it will be used directly; otherwise, the embedded key will be retrieved from secure storage.
   - If `sessionKey` is provided, the session will be stored under that key in secure storage.
   - If no session exists, the first session created is **automatically selected**.
   - If a session with the same `sessionKey` already exists in secure storage, an error is thrown.
