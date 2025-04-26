@@ -532,7 +532,7 @@ export const TurnkeyProvider: FC<{
       if (!embeddedKey) {
         throw new TurnkeyReactNativeError("Embedded key not found.");
       }
-      const publicKey = uint8ArrayToHexString(getPublicKey(embeddedKey));
+      const publicKey = uint8ArrayToHexString(getPublicKey(embeddedKey, false));
       const expiry = Date.now() + expirationSeconds * 1000;
 
       const clientInstance = createClient(
