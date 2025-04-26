@@ -60,7 +60,7 @@ export interface TurnkeyContextType {
   }) => Promise<Session | undefined>;
   updateUser: (params: { email?: string; phone?: string }) => Promise<Activity>;
   refreshUser: () => Promise<void>;
-  createEmbeddedKey: (params?: { sessionKey?: string }) => Promise<string>;
+  createEmbeddedKey: (params?: { sessionKey?: string; isCompressed?: boolean }) => Promise<string>;
   createSession: (params: {
     bundle: string;
     expirationSeconds?: number;
@@ -384,14 +384,20 @@ export const TurnkeyProvider: FC<{
   const createEmbeddedKey = useCallback(
     async ({
       sessionKey = StorageKeys.EmbeddedKey,
+      isCompressed = false,
     }: {
       sessionKey?: string;
+      isCompressed?: boolean;
     } = {}) => {
       const key = generateP256KeyPair();
+
       const embeddedPrivateKey = key.privateKey;
-      const publicKey = key.publicKeyUncompressed;
+      const publicKey = key.publicKey
+      const publicKeyUncompressed = key.publicKeyUncompressed;
+
       await saveEmbeddedKey(embeddedPrivateKey, sessionKey);
-      return publicKey;
+
+      return isCompressed ? publicKey : publicKeyUncompressed;
     },
     [],
   );
@@ -532,7 +538,7 @@ export const TurnkeyProvider: FC<{
       if (!embeddedKey) {
         throw new TurnkeyReactNativeError("Embedded key not found.");
       }
-      const publicKey = uint8ArrayToHexString(getPublicKey(embeddedKey, false));
+      const publicKey = uint8ArrayToHexString(getPublicKey(embeddedKey));
       const expiry = Date.now() + expirationSeconds * 1000;
 
       const clientInstance = createClient(
