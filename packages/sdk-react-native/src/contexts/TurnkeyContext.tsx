@@ -66,7 +66,7 @@ export interface TurnkeyContextType {
     expirationSeconds?: number;
     sessionKey?: string;
   }) => Promise<Session>;
-  createSessionFromEmbeddedKey: (params: {
+  createSessionFromEmbeddedKey: (params?: {
     expirationSeconds?: number;
     sessionKey?: string;
   }) => Promise<Session>;
@@ -509,7 +509,7 @@ export const TurnkeyProvider: FC<{
     }: {
       expirationSeconds?: number;
       sessionKey?: string;
-    }): Promise<Session> => {
+    } = {}): Promise<Session> => {
       // we throw an error if a session with this sessionKey already exists
       const existingSessionKeys = await getSessionKeys();
 
