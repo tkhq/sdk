@@ -66,7 +66,8 @@ export interface TurnkeyContextType {
     expirationSeconds?: number;
     sessionKey?: string;
   }) => Promise<Session>;
-  createSessionFromEmbeddedKey: (params?: {
+  createSessionFromEmbeddedKey: (params: {
+    subOrganizationId: string;
     expirationSeconds?: number;
     sessionKey?: string;
   }) => Promise<Session>;
@@ -504,12 +505,14 @@ export const TurnkeyProvider: FC<{
    */
   const createSessionFromEmbeddedKey = useCallback(
     async ({
+      subOrganizationId,
       expirationSeconds = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
       sessionKey = StorageKeys.DefaultSession,
     }: {
+      subOrganizationId: string;
       expirationSeconds?: number;
       sessionKey?: string;
-    } = {}): Promise<Session> => {
+    }): Promise<Session> => {
       // we throw an error if a session with this sessionKey already exists
       const existingSessionKeys = await getSessionKeys();
 
@@ -537,7 +540,7 @@ export const TurnkeyProvider: FC<{
         embeddedKey,
         config.apiBaseUrl,
       );
-      const user = await fetchUser(clientInstance, config.organizationId);
+      const user = await fetchUser(clientInstance, subOrganizationId);
       if (!user) {
         throw new TurnkeyReactNativeError("User not found.");
       }
