@@ -60,9 +60,18 @@ export interface TurnkeyContextType {
   }) => Promise<Session | undefined>;
   updateUser: (params: { email?: string; phone?: string }) => Promise<Activity>;
   refreshUser: () => Promise<void>;
-  createEmbeddedKey: (params?: { sessionKey?: string }) => Promise<string>;
+  createEmbeddedKey: (params?: {
+    sessionKey?: string;
+    isCompressed?: boolean;
+  }) => Promise<string>;
   createSession: (params: {
     bundle: string;
+    expirationSeconds?: number;
+    sessionKey?: string;
+  }) => Promise<Session>;
+  createSessionFromEmbeddedKey: (params: {
+    subOrganizationId: string;
+    embeddedKey?: string;
     expirationSeconds?: number;
     sessionKey?: string;
   }) => Promise<Session>;
@@ -373,20 +382,31 @@ export const TurnkeyProvider: FC<{
   /**
    * Generates a new embedded key pair and securely stores the private key in secure storage.
    *
-   * @returns The public key corresponding to the generated embedded key pair.
-   * @throws If saving the private key fails.
+   * - By default, returns the uncompressed public key.
+   * - If `isCompressed` is set to `true`, returns the compressed public key instead.
+   *
+   * @param sessionKey - (Optional) The key under which to store the private key (defaults to `@turnkey/embedded-key`).
+   * @param isCompressed - (Optional) Whether to return the compressed public key (defaults to `false`).
+   * @returns The public key (compressed or uncompressed) corresponding to the generated embedded key pair.
+   * @throws {TurnkeyReactNativeError} If saving the private key fails.
    */
   const createEmbeddedKey = useCallback(
     async ({
       sessionKey = StorageKeys.EmbeddedKey,
+      isCompressed = false,
     }: {
       sessionKey?: string;
+      isCompressed?: boolean;
     } = {}) => {
       const key = generateP256KeyPair();
+
       const embeddedPrivateKey = key.privateKey;
-      const publicKey = key.publicKeyUncompressed;
+      const publicKey = key.publicKey;
+      const publicKeyUncompressed = key.publicKeyUncompressed;
+
       await saveEmbeddedKey(embeddedPrivateKey, sessionKey);
-      return publicKey;
+
+      return isCompressed ? publicKey : publicKeyUncompressed;
     },
     [],
   );
@@ -452,6 +472,94 @@ export const TurnkeyProvider: FC<{
         config.apiBaseUrl,
       );
       const user = await fetchUser(clientInstance, config.organizationId);
+      if (!user) {
+        throw new TurnkeyReactNativeError("User not found.");
+      }
+
+      const newSession = {
+        key: sessionKey,
+        publicKey,
+        privateKey,
+        expiry,
+        user,
+      };
+      await saveSession(newSession, sessionKey);
+      await addSessionKey(sessionKey);
+      scheduleSessionExpiration(sessionKey, newSession.expiry);
+
+      // if this is the first session created, set it as the selected session
+      const isFirstSession = existingSessionKeys.length === 0;
+      if (isFirstSession) {
+        await setSelectedSession({ sessionKey });
+      }
+
+      config.onSessionCreated?.(newSession);
+      return newSession;
+    },
+    [config, setSelectedSession],
+  );
+
+  /**
+   * Creates a new session using an embedded private key and securely stores it.
+   *
+   * - Enforces a maximum limit of `MAX_SESSIONS` to prevent excessive resource usage.
+   * - Retrieves the embedded private key from secure storage or uses the provided one.
+   * - Extracts the public key from the private key.
+   * - Creates a new Turnkey API client using the derived credentials.
+   * - Fetches user information associated with the session.
+   * - Constructs and saves the session in secure storage.
+   * - Schedules session expiration handling.
+   * - If this is the first session created, it is automatically set as the selected session.
+   * - Calls `onSessionCreated` callback if provided.
+   *
+   * @param subOrganizationId - The sub-organization ID used to fetch user information.
+   * @param embeddedKey - (Optional) A private key to use instead of fetching from secure storage.
+   * @param expirationSeconds - (Optional) The expiration time in seconds (defaults to `OTP_AUTH_DEFAULT_EXPIRATION_SECONDS`).
+   * @param sessionKey - (Optional) The session identifier (defaults to `TURNKEY_DEFAULT_SESSION_STORAGE`).
+   * @returns The created session.
+   * @throws {TurnkeyReactNativeError} If the embedded key or user data cannot be retrieved,
+   *         if the sessionKey already exists, or if the maximum session limit is reached.
+   */
+  const createSessionFromEmbeddedKey = useCallback(
+    async ({
+      subOrganizationId,
+      embeddedKey,
+      expirationSeconds = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
+      sessionKey = StorageKeys.DefaultSession,
+    }: {
+      subOrganizationId: string;
+      embeddedKey?: string;
+      expirationSeconds?: number;
+      sessionKey?: string;
+    }): Promise<Session> => {
+      // we throw an error if a session with this sessionKey already exists
+      const existingSessionKeys = await getSessionKeys();
+
+      if (existingSessionKeys.length >= MAX_SESSIONS) {
+        throw new TurnkeyReactNativeError(
+          `Maximum session limit of ${MAX_SESSIONS} reached. Please clear an existing session before creating a new one.`,
+        );
+      }
+
+      if (existingSessionKeys.includes(sessionKey)) {
+        throw new TurnkeyReactNativeError(
+          `session key "${sessionKey}" already exists. Please choose a unique session key or clear the existing session.`,
+        );
+      }
+
+      const privateKey = embeddedKey ?? (await getEmbeddedKey(true));
+      if (!privateKey) {
+        throw new TurnkeyReactNativeError("Embedded key not found.");
+      }
+      const publicKey = uint8ArrayToHexString(getPublicKey(privateKey));
+      const expiry = Date.now() + expirationSeconds * 1000;
+
+      const clientInstance = createClient(
+        publicKey,
+        privateKey,
+        config.apiBaseUrl,
+      );
+      const user = await fetchUser(clientInstance, subOrganizationId);
       if (!user) {
         throw new TurnkeyReactNativeError("User not found.");
       }
@@ -966,6 +1074,7 @@ export const TurnkeyProvider: FC<{
       updateUser,
       createEmbeddedKey,
       createSession,
+      createSessionFromEmbeddedKey,
       refreshSession,
       clearSession,
       clearAllSessions,
@@ -984,6 +1093,7 @@ export const TurnkeyProvider: FC<{
       updateUser,
       createEmbeddedKey,
       createSession,
+      createSessionFromEmbeddedKey,
       refreshSession,
       clearSession,
       clearAllSessions,
