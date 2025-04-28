@@ -117,7 +117,7 @@ export type TGetApiKeysBody =
   operations["PublicApiService_GetApiKeys"]["parameters"]["body"]["body"];
 
 /**
- * Get API key
+ * Get API keys
  *
  * Get details about API keys for a user
  *
