@@ -5,6 +5,8 @@
 ### Minor Changes
 
 - 2f75cf1: Add support for signing Type 3 (EIP-4844) transactions
+  - Note the inline comments on the `signTransaction` [implementation](https://github.com/tkhq/sdk/blob/5e5666aba978f756e2021c261830effc5559811f/packages/viem/src/index.ts#L392): when signing Type 3 transactions, our Viem implementation will extract the transaction payload (not including blobs, commitments, or proofs), sign it, extract the signature, and then reassemble the entire transaction payload.
+  - See [with-viem](https://github.com/tkhq/sdk/tree/main/examples/with-viem/) for examples.
 
 ### Patch Changes
 
