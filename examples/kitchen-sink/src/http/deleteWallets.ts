@@ -7,6 +7,8 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
+import { refineNonNull } from "../utils";
+
 async function main() {
   // Initialize a Turnkey client
   const turnkeyClient = new TurnkeyClient(
@@ -17,21 +19,22 @@ async function main() {
     }),
   );
 
-  const { activity } = await turnkeyClient.signTransaction({
-    type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
-    timestampMs: String(Date.now()),
+  const { activity } = await turnkeyClient.deleteWallets({
+    type: "ACTIVITY_TYPE_DELETE_WALLETS",
     organizationId: process.env.ORGANIZATION_ID!,
     parameters: {
-      signWith: "<your signing resource>",
-      type: "TRANSACTION_TYPE_ETHEREUM",
-      unsignedTransaction: "<your unsigned transaction>",
+      deleteWithoutExport: true, // this is an optional field. If this flag is not set, and the wallet has not yet been exported, this will error
+      walletIds: ["<wallet ID to delete>"],
     },
+    timestampMs: String(Date.now()), // millisecond timestamp
   });
 
-  console.log(
-    "Successfully signed transaction:",
-    activity.result.signTransactionResult?.signedTransaction,
+  const walletIds = refineNonNull(
+    activity.result.deleteWalletsResult?.walletIds,
   );
+
+  // Success!
+  console.log([`Wallets deleted!`, `- Wallet IDs: ${walletIds}`].join("\n"));
 }
 
 main().catch((error) => {

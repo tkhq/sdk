@@ -7,7 +7,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
-import { refineNonNull } from "../utils";
+import { refineNonNull } from "../../utils";
 
 async function main() {
   // Initialize a Turnkey client
@@ -19,36 +19,41 @@ async function main() {
     }),
   );
 
-  const policyName = "<your new policy name";
-  const effect = "EFFECT_ALLOW"; // "EFFECT_ALLOW" | "EFFECT_DENY"
-  const consensus = ""; // desired consensus. See https://docs.turnkey.com/concepts/policies/overview
-  const condition = ""; // desired condition. See https://docs.turnkey.com/concepts/policies/overview
-  const notes = "";
+  const userName = "<user name>";
+  const userTags = ["<your user tag>"];
+  const apiKeyName = "<API key name>";
+  const publicKey = "<API public key>";
 
-  const { activity } = await turnkeyClient.createPolicy({
-    type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
+  const { activity } = await turnkeyClient.createApiOnlyUsers({
+    type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
     organizationId: process.env.ORGANIZATION_ID!,
     parameters: {
-      policyName,
-      condition,
-      consensus,
-      effect,
-      notes,
+      apiOnlyUsers: [
+        {
+          userName,
+          userTags,
+          apiKeys: [
+            {
+              apiKeyName,
+              publicKey,
+            },
+          ],
+        },
+      ],
     },
     timestampMs: String(Date.now()), // millisecond timestamp
   });
 
-  const policyId = refineNonNull(activity.result.createPolicyResult?.policyId);
+  const userId = refineNonNull(
+    activity.result.createApiOnlyUsersResult?.userIds?.[0],
+  );
 
   // Success!
   console.log(
     [
-      `New policy created!`,
-      `- Name: ${policyName}`,
-      `- Policy ID: ${policyId}`,
-      `- Effect: ${effect}`,
-      `- Consensus: ${consensus}`,
-      `- Condition: ${condition}`,
+      `New user created!`,
+      `- Name: ${userName}`,
+      `- User ID: ${userId}`,
       ``,
     ].join("\n"),
   );

@@ -7,7 +7,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
-import { refineNonNull } from "../utils";
+import { refineNonNull } from "../../utils";
 
 async function main() {
   // Initialize a Turnkey client

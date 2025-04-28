@@ -5,7 +5,6 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeyClient } from "@turnkey/http";
-import { createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import * as crypto from "crypto";
 import { refineNonNull } from "../utils";
@@ -21,14 +20,9 @@ async function main() {
     }),
   );
 
-  const activityPoller = createActivityPoller({
-    client: turnkeyClient,
-    requestFn: turnkeyClient.createPrivateKeys,
-  });
-
   const privateKeyName = `ETH Key ${crypto.randomBytes(2).toString("hex")}`;
 
-  const activity = await activityPoller({
+  const { activity } = await turnkeyClient.createPrivateKeys({
     type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
     organizationId: process.env.ORGANIZATION_ID!,
     parameters: {

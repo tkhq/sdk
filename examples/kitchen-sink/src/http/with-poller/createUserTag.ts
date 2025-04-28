@@ -7,6 +7,8 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
+import { refineNonNull } from "../../utils";
+
 async function main() {
   // Initialize a Turnkey client
   const turnkeyClient = new TurnkeyClient(
@@ -17,20 +19,30 @@ async function main() {
     }),
   );
 
-  const { activity } = await turnkeyClient.signTransaction({
-    type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
-    timestampMs: String(Date.now()),
+  const userTagName = "<desired tag name>";
+
+  const { activity } = await turnkeyClient.createUserTag({
+    type: "ACTIVITY_TYPE_CREATE_USER_TAG",
     organizationId: process.env.ORGANIZATION_ID!,
     parameters: {
-      signWith: "<your signing resource>",
-      type: "TRANSACTION_TYPE_ETHEREUM",
-      unsignedTransaction: "<your unsigned transaction>",
+      userTagName,
+      userIds: [], // relevant user IDs
     },
+    timestampMs: String(Date.now()), // millisecond timestamp
   });
 
+  const userTagId = refineNonNull(
+    activity.result.createUserTagResult?.userTagId,
+  );
+
+  // Success!
   console.log(
-    "Successfully signed transaction:",
-    activity.result.signTransactionResult?.signedTransaction,
+    [
+      `New user tag created!`,
+      `- Name: ${userTagName}`,
+      `- User tag ID: ${userTagId}`,
+      ``,
+    ].join("\n"),
   );
 }
 

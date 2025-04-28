@@ -9,7 +9,7 @@ import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 import * as crypto from "crypto";
 
-import { refineNonNull } from "../utils";
+import { refineNonNull } from "../../utils";
 
 async function main() {
   const turnkeyClient = new TurnkeyClient(

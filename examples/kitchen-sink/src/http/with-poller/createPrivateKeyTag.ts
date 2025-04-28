@@ -7,6 +7,8 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
+import { refineNonNull } from "../../utils";
+
 async function main() {
   // Initialize a Turnkey client
   const turnkeyClient = new TurnkeyClient(
@@ -17,20 +19,31 @@ async function main() {
     }),
   );
 
-  const { activity } = await turnkeyClient.signTransaction({
-    type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
-    timestampMs: String(Date.now()),
+  const privateKeyTagName = "<your desired private key tag name>";
+  const privateKeyIds = ["<relevant private key ID>"];
+
+  const { activity } = await turnkeyClient.createPrivateKeyTag({
+    type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
     organizationId: process.env.ORGANIZATION_ID!,
     parameters: {
-      signWith: "<your signing resource>",
-      type: "TRANSACTION_TYPE_ETHEREUM",
-      unsignedTransaction: "<your unsigned transaction>",
+      privateKeyTagName,
+      privateKeyIds,
     },
+    timestampMs: String(Date.now()), // millisecond timestamp
   });
 
+  const privateKeyTagId = refineNonNull(
+    activity.result.createPrivateKeyTagResult?.privateKeyTagId,
+  );
+
+  // Success!
   console.log(
-    "Successfully signed transaction:",
-    activity.result.signTransactionResult?.signedTransaction,
+    [
+      `New private key tag created!`,
+      `- Name: ${privateKeyTagName}`,
+      `- Private key tag ID: ${privateKeyTagId}`,
+      ``,
+    ].join("\n"),
   );
 }
 

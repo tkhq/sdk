@@ -6,11 +6,11 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { TurnkeyClient } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-
-import { refineNonNull } from "../utils";
+import { refineNonNull } from "../../utils";
 
 async function main() {
-  // Initialize a Turnkey client
+  console.log("creating a new private key on Turnkey...\n");
+
   const turnkeyClient = new TurnkeyClient(
     { baseUrl: process.env.BASE_URL! },
     new ApiKeyStamper({
@@ -19,40 +19,38 @@ async function main() {
     }),
   );
 
-  const userName = "<user name>";
-  const userTags = ["<your user tag>"];
+  const userId = "<user id>";
   const apiKeyName = "<API key name>";
   const publicKey = "<API public key>";
+  const curveType = "API_KEY_CURVE_P256"; // this is the default
 
-  const { activity } = await turnkeyClient.createApiOnlyUsers({
-    type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
+  const { activity } = await turnkeyClient.createApiKeys({
+    type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
     organizationId: process.env.ORGANIZATION_ID!,
     parameters: {
-      apiOnlyUsers: [
+      userId,
+      apiKeys: [
         {
-          userName,
-          userTags,
-          apiKeys: [
-            {
-              apiKeyName,
-              publicKey,
-            },
-          ],
+          apiKeyName,
+          publicKey,
+          curveType,
         },
       ],
     },
     timestampMs: String(Date.now()), // millisecond timestamp
   });
 
-  const userId = refineNonNull(
-    activity.result.createApiOnlyUsersResult?.userIds?.[0],
+  const newApiKeyIds = refineNonNull(
+    activity.result.createApiKeysResult?.apiKeyIds,
   );
 
   // Success!
   console.log(
     [
-      `New user created!`,
-      `- Name: ${userName}`,
+      `New API key created!`,
+      `- ID: ${newApiKeyIds[0]}`,
+      `- Public Key: ${publicKey}`,
+      `- Name: ${apiKeyName}`,
       `- User ID: ${userId}`,
       ``,
     ].join("\n"),
