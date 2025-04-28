@@ -7,11 +7,11 @@ import {
   http,
   serializeTransaction,
 } from "viem";
-import { sepolia } from "viem/chains";
 import {
   KERNEL_V3_3_BETA,
   KernelVersionToAddressesMap,
 } from "@zerodev/sdk/constants";
+import { sepolia } from "viem/chains";
 
 import { createAccount } from "@turnkey/viem";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";

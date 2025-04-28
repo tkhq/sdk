@@ -6,6 +6,7 @@ import {
   serializeTransaction,
   hexToBigInt,
   hexToBytes,
+  parseTransaction,
 } from "viem";
 import {
   SignAuthorizationReturnType,
@@ -397,14 +398,35 @@ export async function signTransaction<
   organizationId: string,
   signWith: string,
 ): Promise<Hex> {
-  const serializedTx = serializer(transaction);
+  // Note: for Type 3 transactions, we are specifically handling parsing for payloads containing only the transaction payload body, without any wrappers around blobs, commitments, or proofs.
+  // See more: https://github.com/wevm/viem/blob/3ef19eac4963014fb20124d1e46d1715bed5509f/src/accounts/utils/signTransaction.ts#L54-L55
+  const signableTransaction =
+    transaction.type === "eip4844"
+      ? { ...transaction, sidecars: false }
+      : transaction;
+
+  const serializedTx = serializer(signableTransaction);
   const nonHexPrefixedSerializedTx = serializedTx.replace(/^0x/, "");
-  return await signTransactionWithErrorWrapping(
+  const signedTx = await signTransactionWithErrorWrapping(
     client,
     nonHexPrefixedSerializedTx,
     organizationId,
     signWith,
   );
+
+  if (transaction.type === "eip4844") {
+    // Grab components of the signature
+    const { r, s, v } = parseTransaction(signedTx);
+
+    // Recombine with the original transaction
+    return serializeTransaction(transaction, {
+      r: r!,
+      s: s!,
+      v: v!,
+    });
+  }
+
+  return signedTx;
 }
 
 export async function signTypedData(

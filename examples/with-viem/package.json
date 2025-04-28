@@ -8,6 +8,7 @@
     "start-contracts": "tsx src/contracts.ts",
     "start-legacy": "tsx src/legacy/index.ts",
     "start-1559-sign-raw": "tsx src/eip1559/signRawTransaction.ts",
+    "start-4844": "tsx src/eip4844/signTransaction.ts",
     "start-4844-sign-raw": "tsx src/eip4844/signRawTransaction.ts",
     "start-7702": "tsx src/eip7702/signTransaction.ts",
     "start-7702-sign-raw": "tsx src/eip7702/signRawTransaction.ts",
