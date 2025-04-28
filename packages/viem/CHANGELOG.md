@@ -1,5 +1,18 @@
 # @turnkey/viem
 
+## 0.9.0
+
+### Minor Changes
+
+- 2f75cf1: Add support for signing Type 3 (EIP-4844) transactions
+
+### Patch Changes
+
+- Updated dependencies [3e4a482]
+  - @turnkey/sdk-browser@4.1.0
+  - @turnkey/sdk-server@3.1.0
+  - @turnkey/http@3.1.0
+
 ## 0.8.0
 
 ### Minor Changes

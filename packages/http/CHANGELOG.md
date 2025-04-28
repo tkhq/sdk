@@ -1,5 +1,13 @@
 # @turnkey/http
 
+## 3.1.0
+
+### Minor Changes
+
+- 3e4a482: Release per mono v2025.4.4
+  - Adds parsing and policy engine support for Ethereum Type 3 (EIP-4844) and Type 4 (EIP-7702) transactions. There is no change to any signing interface or API; you simply can now use Turnkey's signing endpoints to sign those transaction types. See [with-viem](https://github.com/tkhq/sdk/blob/main/examples/with-viem/) for examples.
+  - New wallet account creations will now automatically derive the underlying derived account's public key. For example: previously, if derived an Ethereum wallet account, you would get the resulting Ethereum address (`0x...`). If you also wanted the public key associated with that underlying key, you would've had to derive an additional wallet account with `ADDRESS_FORMAT_COMPRESSED`. Now, this will automatically be derived for you. It is now a property that has been added to the wallet account primitive (i.e. accessible via `walletAccount.publicKey`).
+
 ## 3.0.0
 
 ### Major Changes
