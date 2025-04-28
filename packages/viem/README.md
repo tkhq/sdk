@@ -108,3 +108,7 @@ main().catch((error) => {
 - [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http): lower-level fully typed HTTP client for interacting with Turnkey API
 - [`@turnkey/api-key-stamper`](https://www.npmjs.com/package/@turnkey/api-key-stamper): package to authenticate to Turnkey using API key credentials
 - [`@turnkey/webauthn-stamper`](https://www.npmjs.com/package/@turnkey/webauthn-stamper): package to authenticate to Turnkey using Webauthn/passkeys.
+
+## Transaction types supported
+
+- Turnkey's Viem implementation now supports all transaction types: legacy, EIP-2930 (Type 1), EIP-1559 (Type 2), EIP-4844 (Type 3), and EIP-7702 (Type 4). See [with-viem](https://github.com/tkhq/sdk/tree/main/examples/with-viem/) for examples of scripts that sign using those various types.

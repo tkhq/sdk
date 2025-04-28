@@ -1,5 +1,14 @@
 # @turnkey/sdk-react-native
 
+## 1.2.1
+
+### Patch Changes
+
+- Updated dependencies [3e4a482]
+  - @turnkey/http@3.1.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/react-native-passkey-stamper@1.0.11
+
 ## 1.2.0
 
 ### Minor Changes
