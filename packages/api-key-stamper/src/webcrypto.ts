@@ -16,6 +16,14 @@ export const signWithApiKey = async (input: {
   return await signMessage({ key, content });
 };
 
+/**
+ * Imports a P-256 Turnkey API key into a WebCrypto `CryptoKey`.
+ *
+ * @param {Object} input - The Turnkey API key components.
+ * @param {string} input.uncompressedPrivateKeyHex - Hexadecimal-encoded uncompressed private key (32-byte scalar).
+ * @param {string} input.compressedPublicKeyHex - Hexadecimal-encoded compressed public key (33 bytes).
+ * @returns {Promise<CryptoKey>} A `CryptoKey` object representing a P-256 key.
+ */
 async function importTurnkeyApiKey(input: {
   uncompressedPrivateKeyHex: string;
   compressedPublicKeyHex: string;
