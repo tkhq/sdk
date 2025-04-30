@@ -1,6 +1,7 @@
 import type { WalletInterface } from "@turnkey/wallet-stamper";
 import type { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
@@ -228,6 +229,18 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
     await storeSession(session, AuthClient.Iframe);
   };
+
+  /**
+   * @experimental
+   * Log in with a session object. This method uses a session object from server actions and stores it and the active client in local storage
+   * To be used in conjunction with an `iframeStamper`.
+   *
+   * @param session
+   * @returns {Promise<void>}
+   */
+    loginWithSessionIndexedDb = async (session: Session): Promise<void> => {
+      await storeSession(session, AuthClient.IndexedDb);
+    };
 
   /**
    * Log in with a session object. This method uses a session object from server actions and stores it and the active client in local storage
@@ -946,3 +959,32 @@ export class TurnkeyWalletClient extends TurnkeyBrowserClient {
     return this.wallet;
   }
 }
+
+
+/**
+ * TurnkeyIndexedDbClient is a client that uses IndexedDb to interact with the Turnkey API.
+ * @extends TurnkeyBrowserClient
+ */
+export class TurnkeyIndexedDbClient extends TurnkeyBrowserClient {
+
+  constructor(config: TurnkeySDKClientConfig) {
+    super(config, AuthClient.IndexedDb);
+  }
+
+  clear = async (): Promise<void> => {
+    return await (this.stamper as IndexedDbStamper).clear();
+  };
+
+  getPublicKey = async (): Promise<string | null> => {
+    return await (this.stamper as IndexedDbStamper).getPublicKey();
+  };
+
+  init = async (): Promise<void> => {
+    return await (this.stamper as IndexedDbStamper).init();
+  };
+
+  resetKeyPair = async (): Promise<void> => {
+    return await (this.stamper as IndexedDbStamper).resetKeyPair();
+  };
+}
+

@@ -1,0 +1,86 @@
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../public/fonts/inter/Inter-Regular.woff2?v=3.19")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../../public/fonts/inter/Inter-SemiBold.woff2?v=3.19")
+    format("woff2");
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6rem;
+  gap: 60px;
+}
+
+.input {
+  display: block;
+  width: 240px;
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(216, 219, 227, 1);
+  font-family: "Inter";
+  margin: 0 auto;
+}
+
+.input_checkbox {
+  display: block;
+  margin: 0 auto;
+}
+
+.label {
+  font-family: "Inter";
+  display: block;
+  text-align: center;
+}
+
+.prompt {
+  font-family: "Inter";
+}
+
+.base {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border-width: 1px;
+  border-style: solid;
+  cursor: pointer;
+  color: white;
+  background-color: rgba(43, 47, 51, 1);
+  border-color: rgba(63, 70, 75, 1);
+  font-family: "Inter";
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  min-width: 400px;
+}
