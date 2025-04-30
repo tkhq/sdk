@@ -17,6 +17,7 @@ interface OtpVerificationProps {
   contact: string;
   suborgId: string;
   otpId: string;
+  alphanumeric?: boolean | undefined;
   sessionLengthSeconds?: number | undefined;
   numBoxes?: number | undefined;
   onValidateSuccess: () => Promise<void>;
@@ -31,6 +32,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   contact,
   suborgId,
   otpId,
+  alphanumeric = false,
   sessionLengthSeconds,
   onValidateSuccess,
   onResendCode,
@@ -135,6 +137,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
             ref={otpInputRef}
             onComplete={handleValidateOtp}
             numBoxes={numBoxes}
+            alphanumeric={alphanumeric}
             hasError={!!otpError}
           />
         </div>

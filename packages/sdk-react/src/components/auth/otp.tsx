@@ -4,11 +4,12 @@ import { TextField, Box } from "@mui/material";
 interface OtpInputProps {
   onComplete: (otp: string) => void;
   hasError: boolean;
+  alphanumeric?: boolean | undefined;
   numBoxes?: number | undefined;
 }
 
 const OtpInput = forwardRef<unknown, OtpInputProps>(
-  ({ onComplete, hasError, numBoxes }, ref) => {
+  ({ onComplete, hasError, alphanumeric, numBoxes }, ref) => {
     const [otp, setOtp] = useState<string[]>(Array(numBoxes ?? 9).fill(""));
 
     useImperativeHandle(ref, () => ({
@@ -71,6 +72,7 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
             autoComplete="off"
             key={index}
             id={`otp-input-${index}`}
+            type={alphanumeric ? "text" : "number"}
             value={digit}
             onChange={(e) => handleChange(e.target.value, index)}
             onKeyDown={(e) => handleKeyDown(e, index)}

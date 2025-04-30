@@ -22,6 +22,7 @@ interface AppleAuthButtonProps {
   clientId: string;
   onSuccess: (response: { idToken: string }) => void;
   layout: "inline" | "stacked";
+  openInPage?: boolean | undefined;
 }
 
 declare global {
@@ -35,6 +36,7 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
   clientId,
   onSuccess,
   layout,
+  openInPage = false,
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -60,7 +62,10 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
     if (window.location.hash) {
       const hashParams = new URLSearchParams(window.location.hash.slice(1));
       const idToken = hashParams.get("id_token");
-      if (idToken) {
+      const state = hashParams.get("state");
+      const provider = state?.split("=")[1];
+
+      if (idToken && provider === "apple") {
         // We have the token from Apple. Let the parent know.
         onSuccess({ idToken });
         // Clear the hash so it doesn’t re-trigger on page refresh
@@ -82,9 +87,10 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
     appleAuthUrl.searchParams.set("response_type", "code id_token");
     appleAuthUrl.searchParams.set("response_mode", "fragment");
     appleAuthUrl.searchParams.set("nonce", nonce);
+    appleAuthUrl.searchParams.set("state", "provider=apple");
 
-    if (isMobileBrowser()) {
-      // Mobile: redirect the entire window
+    if (isMobileBrowser() || openInPage) {
+      // Redirect the entire window
       window.location.href = appleAuthUrl.toString();
     } else {
       // Desktop: open a popup
