@@ -17,6 +17,7 @@ This package contains a React Native passkey stamper. It uses [`react-native-pas
 
 ```ts
 import { createPasskey } from "@turnkey/react-native-passkey-stamper";
+import { v4 as uuidv4 } from "uuid";
 
 // Returns authenticator params that can be used with sub-org creation, user creation, etc.
 const authenticatorParams = await createPasskey({
@@ -28,7 +29,8 @@ const authenticatorParams = await createPasskey({
   },
   user: {
     // This ID isn't visible to users
-    id: String(Date.now()),
+    // NOTE: For Android, this must be a valid base64-encoded string
+    id: uuidv4(),
     // ...but name and display names are. This is what's shown in the passkey prompt
     name: "Some Name",
     // displayName should be the same as "name"
