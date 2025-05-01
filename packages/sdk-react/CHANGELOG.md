@@ -1,5 +1,17 @@
 # @turnkey/sdk-react
 
+## 4.2.5
+
+### Patch Changes
+
+- 1cf9243: - Added `openOAuthInPage` to the `authConfig`. This makes the Google, Apple and Facebook login pages replace the current URL, rather than opening in a popup.
+  - Fixed keyboard input type on mobile. Now, the keyboard will correctly default to "number" input for numeric OTP codes and "text" input for alphanumeric OTP codes.
+- Updated dependencies [3f6e415]
+  - @turnkey/sdk-browser@4.2.0
+  - @turnkey/sdk-server@3.2.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 4.2.4
 
 ### Patch Changes

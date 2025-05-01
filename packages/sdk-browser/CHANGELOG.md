@@ -1,5 +1,20 @@
 # @turnkey/sdk-browser
 
+## 4.2.0
+
+### Minor Changes
+
+- 3f6e415: Update per mono v2025.4.5
+
+### Patch Changes
+
+- Updated dependencies [3f6e415]
+- Updated dependencies [4d1d775]
+  - @turnkey/http@3.2.0
+  - @turnkey/api-key-stamper@0.4.5
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 4.1.0
 
 ### Minor Changes
