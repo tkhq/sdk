@@ -627,9 +627,11 @@ export const TurnkeyProvider: FC<{
         );
       }
 
-      const targetPublicKey = await createEmbeddedKey({
-        sessionKey: StorageKeys.RefreshEmbeddedKey,
-      });
+      const {
+        publicKeyUncompressed: targetPublicKey,
+        privateKey: embeddedKey,
+      } = generateP256KeyPair();
+
       const currentClient = createClient(
         sessionToRefresh!.publicKey,
         sessionToRefresh!.privateKey,
@@ -650,16 +652,6 @@ export const TurnkeyProvider: FC<{
       if (!bundle) {
         throw new TurnkeyReactNativeError(
           "Failed to create read/write session when refreshing the session",
-        );
-      }
-
-      const embeddedKey = await getEmbeddedKey(
-        true,
-        StorageKeys.RefreshEmbeddedKey,
-      );
-      if (!embeddedKey) {
-        throw new TurnkeyReactNativeError(
-          "Embedded key not found when refreshing the session",
         );
       }
 
