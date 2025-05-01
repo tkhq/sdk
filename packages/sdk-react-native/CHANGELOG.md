@@ -1,5 +1,24 @@
 # @turnkey/sdk-react-native
 
+## 1.2.2
+
+### Patch Changes
+
+- ef399e1: - Eliminated a race condition in `refreshSession` that could throw:
+  `TurnkeyReactNativeError: Embedded key not found when refreshing the session`
+
+  - The embedded key is now generated entirely in memory using `generateP256KeyPair`
+  - Removed the need to store and immediately retrieve the private key from secure storage
+  - `refreshSession` now accepts a single optional parameter object
+  - `StorageKeys.RefreshEmbeddedKey` is now deprecated and no longer used during session refresh
+
+- Updated dependencies [3f6e415]
+- Updated dependencies [4d1d775]
+  - @turnkey/http@3.2.0
+  - @turnkey/api-key-stamper@0.4.5
+  - @turnkey/crypto@2.3.1
+  - @turnkey/react-native-passkey-stamper@1.0.12
+
 ## 1.2.1
 
 ### Patch Changes

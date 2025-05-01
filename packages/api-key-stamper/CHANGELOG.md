@@ -1,5 +1,11 @@
 # @turnkey/api-key-stamper
 
+## 0.4.5
+
+### Patch Changes
+
+- 4d1d775: Better error message and docstring for API key import
+
 ## 0.4.4
 
 ### Patch Changes
