@@ -72,7 +72,6 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
 To enable secure authentication, the following storage keys are used:
 
 - `@turnkey/embedded-key`: Stores the private key that corresponds to the public key used when initiating the session request to Turnkey.
-- `@turnkey/refresh-embedded-key`: Stores the private key that corresponds to the public key used when refreshing an active session.
 - `@turnkey/session`: Default session storage key, storing the session credentials, including the private key, public key, and expiry time, which are decrypted from the credential bundle after a session is created.
 - `@turnkey/session-keys`: Stores the list of stored session keys.
 - `@turnkey/selected-session`: Stores the currently selected session key.

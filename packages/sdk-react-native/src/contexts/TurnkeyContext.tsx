@@ -75,7 +75,7 @@ export interface TurnkeyContextType {
     expirationSeconds?: number;
     sessionKey?: string;
   }) => Promise<Session>;
-  refreshSession: (params: {
+  refreshSession: (params?: {
     expirationSeconds?: number;
     sessionKey?: string;
   }) => Promise<Session>;
@@ -593,7 +593,7 @@ export const TurnkeyProvider: FC<{
    * This function refreshes an existing session by:
    *  - Retrieving the session using the provided or selected session key.
    *  - Verifying that the session is still valid.
-   *  - Generating a new embedded key (stored under StorageKeys.RefreshEmbeddedKey) for refreshing.
+   *  - Generating a new embedded key for refreshing.
    *  - Creating a new read/write session via the current session client.
    *  - Decrypting the returned credential bundle to derive new keys and expiry.
    *  - Fetching updated user information using the new credentials.
@@ -612,7 +612,7 @@ export const TurnkeyProvider: FC<{
     }: {
       expirationSeconds?: number;
       sessionKey?: string;
-    }): Promise<Session> => {
+    } = {}): Promise<Session> => {
       const keyToRefresh = sessionKey ?? (await getSelectedSessionKey());
       if (!keyToRefresh) {
         throw new TurnkeyReactNativeError(
@@ -627,9 +627,11 @@ export const TurnkeyProvider: FC<{
         );
       }
 
-      const targetPublicKey = await createEmbeddedKey({
-        sessionKey: StorageKeys.RefreshEmbeddedKey,
-      });
+      const {
+        publicKeyUncompressed: targetPublicKey,
+        privateKey: embeddedKey,
+      } = generateP256KeyPair();
+
       const currentClient = createClient(
         sessionToRefresh!.publicKey,
         sessionToRefresh!.privateKey,
@@ -650,16 +652,6 @@ export const TurnkeyProvider: FC<{
       if (!bundle) {
         throw new TurnkeyReactNativeError(
           "Failed to create read/write session when refreshing the session",
-        );
-      }
-
-      const embeddedKey = await getEmbeddedKey(
-        true,
-        StorageKeys.RefreshEmbeddedKey,
-      );
-      if (!embeddedKey) {
-        throw new TurnkeyReactNativeError(
-          "Embedded key not found when refreshing the session",
         );
       }
 
