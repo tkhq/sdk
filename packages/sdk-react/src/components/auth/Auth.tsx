@@ -78,6 +78,7 @@ interface AuthProps {
     facebookEnabled: boolean;
     googleEnabled: boolean;
     walletEnabled: boolean;
+    openOAuthInPage?: boolean;
     sessionLengthSeconds?: number; // Desired expiration time in seconds for the generated API key
     googleClientId?: string; // will default to NEXT_PUBLIC_GOOGLE_CLIENT_ID
     appleClientId?: string; // will default to NEXT_PUBLIC_APPLE_CLIENT_ID
@@ -422,6 +423,7 @@ const Auth: React.FC<AuthProps> = ({
               process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!
             }
             iframePublicKey={authIframeClient!.iframePublicKey!}
+            openInPage={authConfig.openOAuthInPage}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Google")
             }
@@ -435,6 +437,7 @@ const Auth: React.FC<AuthProps> = ({
               process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!
             }
             iframePublicKey={authIframeClient!.iframePublicKey!}
+            openInPage={authConfig.openOAuthInPage}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Apple")
             }
@@ -448,6 +451,7 @@ const Auth: React.FC<AuthProps> = ({
               process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!
             }
             iframePublicKey={authIframeClient!.iframePublicKey!}
+            openInPage={authConfig.openOAuthInPage}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.id_token, "Facebook")
             }
@@ -726,6 +730,7 @@ const Auth: React.FC<AuthProps> = ({
                     contact={step === OtpType.Email ? email : phone}
                     suborgId={suborgId}
                     otpId={otpId!}
+                    alphanumeric={otpConfig?.alphanumeric ?? false}
                     sessionLengthSeconds={authConfig.sessionLengthSeconds}
                     onValidateSuccess={onAuthSuccess}
                     onResendCode={handleResendCode}
