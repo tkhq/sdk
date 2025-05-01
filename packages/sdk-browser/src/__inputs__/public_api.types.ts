@@ -2693,7 +2693,10 @@ export type definitions = {
   };
   v1TestRateLimitsResponse: { [key: string]: unknown };
   /** @enum {string} */
-  v1TransactionType: "TRANSACTION_TYPE_ETHEREUM" | "TRANSACTION_TYPE_SOLANA";
+  v1TransactionType:
+    | "TRANSACTION_TYPE_ETHEREUM"
+    | "TRANSACTION_TYPE_SOLANA"
+    | "TRANSACTION_TYPE_TRON";
   v1UpdateAllowedOriginsIntent: {
     /** @description Additional origins requests are allowed from besides Turnkey origins */
     allowedOrigins: string[];

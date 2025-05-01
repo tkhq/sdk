@@ -8502,7 +8502,11 @@
     },
     "v1TransactionType": {
       "type": "string",
-      "enum": ["TRANSACTION_TYPE_ETHEREUM", "TRANSACTION_TYPE_SOLANA"]
+      "enum": [
+        "TRANSACTION_TYPE_ETHEREUM",
+        "TRANSACTION_TYPE_SOLANA",
+        "TRANSACTION_TYPE_TRON"
+      ]
     },
     "v1UpdateAllowedOriginsIntent": {
       "type": "object",
