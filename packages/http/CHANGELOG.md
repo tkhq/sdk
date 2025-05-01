@@ -5,6 +5,7 @@
 ### Minor Changes
 
 - 3f6e415: Update per mono v2025.4.5
+  - Introduces Tron transaction parsing and policy engine support. For more information, take a look at our [docs](https://docs.turnkey.com/networks/tron)
 
 ### Patch Changes
 
