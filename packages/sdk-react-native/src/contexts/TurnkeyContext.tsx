@@ -75,7 +75,7 @@ export interface TurnkeyContextType {
     expirationSeconds?: number;
     sessionKey?: string;
   }) => Promise<Session>;
-  refreshSession: (params: {
+  refreshSession: (params?: {
     expirationSeconds?: number;
     sessionKey?: string;
   }) => Promise<Session>;
