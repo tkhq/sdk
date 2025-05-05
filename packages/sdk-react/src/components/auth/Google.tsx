@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import { CircularProgress } from "@mui/material";
 
 interface GoogleAuthButtonProps {
-  iframePublicKey: string;
+  publicKey: string;
   clientId: string;
   onSuccess: (response: any) => void;
   layout: "inline" | "stacked";
@@ -22,7 +22,7 @@ declare global {
 }
 
 const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
-  iframePublicKey,
+  publicKey,
   clientId,
   onSuccess,
   layout,
@@ -54,7 +54,7 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
 
   const handleLogin = async () => {
     setLoading(true);
-    const nonce = bytesToHex(sha256(iframePublicKey));
+    const nonce = bytesToHex(sha256(publicKey));
     const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!.replace(
       /\/$/,
       "",
