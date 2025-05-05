@@ -302,6 +302,9 @@ export default function AuthPage() {
           onAuthSuccess={handleAuthSuccess}
           onError={(errorMessage: string) => toast.error(errorMessage)}
           customSmsMessage={"Your Turnkey Demo OTP is {{.OtpCode}}"}
+          otpConfig={{
+            otpLength: 6,
+          }}
         />
       </div>
       <div>

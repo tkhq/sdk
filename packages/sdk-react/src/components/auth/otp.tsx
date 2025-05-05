@@ -9,12 +9,12 @@ interface OtpInputProps {
 }
 
 const OtpInput = forwardRef<unknown, OtpInputProps>(
-  ({ onComplete, hasError, alphanumeric, numBoxes }, ref) => {
-    const [otp, setOtp] = useState<string[]>(Array(numBoxes ?? 9).fill(""));
+  ({ onComplete, hasError, alphanumeric, numBoxes = 6 }, ref) => {
+    const [otp, setOtp] = useState<string[]>(Array(numBoxes).fill(""));
 
     useImperativeHandle(ref, () => ({
       resetOtp() {
-        setOtp(Array(numBoxes ?? 9).fill(""));
+        setOtp(Array(numBoxes).fill(""));
         const firstInput = document.getElementById("otp-input-0");
         if (firstInput) (firstInput as HTMLInputElement).focus();
       },
@@ -33,7 +33,7 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
         }
 
         // Move focus to the next box if current is filled
-        const count = numBoxes ? numBoxes - 1 : 8;
+        const count = numBoxes - 1;
         if (value && index < count) {
           const nextInput = document.getElementById(`otp-input-${index + 1}`);
           if (nextInput) (nextInput as HTMLInputElement).focus();
@@ -52,7 +52,7 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
       const pasteData = event.clipboardData
         .getData("Text")
         .replace(/[^a-zA-Z0-9]/g, "");
-      if (pasteData.length === (numBoxes ?? 9)) {
+      if (pasteData.length === numBoxes) {
         const newOtp = pasteData.split("");
         setOtp(newOtp);
         onComplete(newOtp.join(""));
@@ -110,7 +110,7 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
         ))}
       </Box>
     );
-  },
+  }
 );
 
 export default OtpInput;

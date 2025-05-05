@@ -1094,6 +1094,7 @@ export default function Dashboard() {
               otpId={otpId!}
               onValidateSuccess={handleOtpSuccess}
               onResendCode={emailInput ? handleResendEmail : handleResendSms}
+              numBoxes={6}
             />
           </Box>
         </Modal>

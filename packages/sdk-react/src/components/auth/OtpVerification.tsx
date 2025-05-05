@@ -36,7 +36,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   sessionLengthSeconds,
   onValidateSuccess,
   onResendCode,
-  numBoxes,
+  numBoxes = 6, // default to 6 boxes
 }) => {
   const { authIframeClient } = useTurnkey();
 
