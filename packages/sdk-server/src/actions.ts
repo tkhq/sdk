@@ -1,6 +1,10 @@
 "use server";
 
 import {
+  CreateOauthSessionRequest,
+  CreateOauthSessionResponse,
+  CreateOtpSessionRequest,
+  CreateOtpSessionResponse,
   CreateSuborgRequest,
   CreateSuborgResponse,
   FilterType,
@@ -9,12 +13,10 @@ import {
   GetSuborgsRequest,
   GetSuborgsResponse,
   InitEmailAuthRequest,
-  OauthRequest,
   SendOtpRequest,
   SendOtpResponse,
-  Session,
-  SessionType,
   VerifyOtpRequest,
+  VerifyOtpResponse,
 } from "./__types__/base";
 import { TurnkeyServerSDK } from "./sdk-client";
 import {
@@ -65,10 +67,9 @@ export async function sendOtp(
   request: SendOtpRequest,
 ): Promise<SendOtpResponse | undefined> {
   try {
-    const response = await turnkeyClient.apiClient().initOtpAuth({
+    const response = await turnkeyClient.apiClient().initOtp({
       contact: request.contact,
       otpType: request.otpType,
-      organizationId: request.suborgID,
       ...(request.emailCustomization && {
         emailCustomization: request.emailCustomization,
       }),
@@ -90,7 +91,7 @@ export async function sendOtp(
     if (!response.otpId) {
       throw new Error("Expected a non-null otpId.");
     }
-    return { otpId: response.otpId };
+    return response;
   } catch (error) {
     console.error(error);
     return undefined;
@@ -99,65 +100,58 @@ export async function sendOtp(
 
 export async function verifyOtp(
   request: VerifyOtpRequest,
-): Promise<Session | undefined> {
+): Promise<VerifyOtpResponse | undefined> {
   try {
-    const response = await turnkeyClient.apiClient().otpAuth({
+    const response = await turnkeyClient.apiClient().verifyOtp({
       otpId: request.otpId,
       otpCode: request.otpCode,
-      targetPublicKey: request.targetPublicKey,
-      organizationId: request.suborgID,
       ...(request.sessionLengthSeconds !== undefined && {
         expirationSeconds: request.sessionLengthSeconds.toString(),
       }),
     });
 
-    const { credentialBundle, apiKeyId, userId } = response;
-    if (!credentialBundle || !apiKeyId || !userId) {
+    const { verificationToken } = response;
+    if (!verificationToken) {
       throw new Error(
-        "Expected non-null values for credentialBundle, apiKeyId, and userId.",
+        "Expected a non-null value for verificationToken",
       );
     }
-    const session: Session = {
-      sessionType: SessionType.READ_WRITE,
-      userId: userId,
-      organizationId: request.suborgID,
-      expiry: Date.now() + (request.sessionLengthSeconds ?? 900) * 1000, // 900 is the default expiry time if you don't pass in a sessionLengthSeconds to the request. Request should probably return the expiry time, instead of hardcoding it.
-      token: credentialBundle,
-    };
-    return session;
+    return response;
   } catch (error) {
     console.error(error);
     return undefined;
   }
 }
 
-export async function oauth(
-  request: OauthRequest,
-): Promise<Session | undefined> {
+export async function createOtpSession(  request: CreateOtpSessionRequest): Promise<CreateOtpSessionResponse | undefined> {
   try {
-    const response = await turnkeyClient.apiClient().oauth({
-      oidcToken: request.oidcToken,
-      targetPublicKey: request.targetPublicKey,
-      organizationId: request.suborgID,
-      ...(request.sessionLengthSeconds !== undefined && {
-        expirationSeconds: request.sessionLengthSeconds.toString(),
-      }),
-    });
-
-    const { credentialBundle, apiKeyId, userId } = response;
-    if (!credentialBundle || !apiKeyId || !userId) {
+    console.log("createOtpSession", request);
+    const response = await turnkeyClient.apiClient().createOtpSession({organizationId: request.suborgID, verificationToken: request.verificationToken, publicKey: request.publicKey, ...(request.sessionLengthSeconds !== undefined && { expirationSeconds: request.sessionLengthSeconds.toString(), }),});
+    console.log(response)
+    const { session } = response;
+    if (!session) {
       throw new Error(
-        "Expected non-null values for credentialBundle, apiKeyId, and userId.",
+        "Expected a non-null value for session",
       );
     }
-    const session: Session = {
-      sessionType: SessionType.READ_WRITE,
-      userId: userId,
-      organizationId: request.suborgID,
-      expiry: Date.now() + (request.sessionLengthSeconds ?? 900) * 1000, // 900 is the default expiry time if you don't pass in a sessionLengthSeconds to the request. Request should probably return the expiry time, instead of hardcoding it.
-      token: credentialBundle,
-    };
-    return session;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return undefined;
+  }
+}
+
+export async function createOauthSession( request: CreateOauthSessionRequest): Promise<CreateOauthSessionResponse | undefined> {
+  try {
+    const response = await turnkeyClient.apiClient().createOauthSession({organizationId: request.suborgID, oidcToken: request.oidcToken, publicKey: request.publicKey, ...(request.sessionLengthSeconds !== undefined && { expirationSeconds: request.sessionLengthSeconds.toString(), }),});
+
+    const { session } = response;
+    if (!session) {
+      throw new Error(
+        "Expected a non-null value for session",
+      );
+    }
+    return response;
   } catch (error) {
     console.error(error);
     return undefined;

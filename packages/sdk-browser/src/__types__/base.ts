@@ -28,7 +28,7 @@ export type Session = {
   userId: string;
   organizationId: string;
   expiry: number; // Unix timestamp representing the expiry of the session set by the server
-  token: string; // credentialBundle (read-write) or read token
+  token: string; // publicKey used to verify stamped requests (lives in indexedDb) also can (temporarily) be read bearer tokens
 };
 
 /**
@@ -224,9 +224,8 @@ export interface LoginWithBundleParams {
 
 export interface LoginWithPasskeyParams {
   sessionType: SessionType;
-  iframeClient: TurnkeyIframeClient;
   expirationSeconds?: string | undefined;
-  targetPublicKey?: string;
+  publicKey?: string;
 }
 
 export interface LoginWithWalletParams {

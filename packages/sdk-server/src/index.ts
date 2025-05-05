@@ -37,8 +37,9 @@ import {
   getSuborgs,
   getVerifiedSuborgs,
   sendOtp,
-  oauth,
   verifyOtp,
+  createOauthSession,
+  createOtpSession,
   getOrCreateSuborg,
   sendCredential,
 } from "./actions";
@@ -57,7 +58,8 @@ export {
 export const server = {
   verifyOtp,
   sendOtp,
-  oauth,
+  createOauthSession,
+  createOtpSession,
   getSuborgs,
   getVerifiedSuborgs,
   createSuborg,

@@ -105,15 +105,14 @@ const Auth: React.FC<AuthProps> = ({
   passkeyConfig,
   otpConfig,
 }) => {
-  const { authIframeClient, passkeyClient, walletClient } = useTurnkey();
-
+  const { authIframeClient, passkeyClient, walletClient, indexedDbClient, turnkey} = useTurnkey();
+  const [publicKey, setPublicKey] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
   const [step, setStep] = useState<string>("auth");
   const [loading, setLoading] = useState<string | undefined>();
   const [oauthLoading, setOauthLoading] = useState<string>("");
-  const [suborgId, setSuborgId] = useState<string>("");
   const [passkeySignupScreen, setPasskeySignupScreen] = useState(false);
   const [passkeyCreationScreen, setPasskeyCreationScreen] = useState(false);
   const [passkeySignupError, setPasskeySignupError] = useState("");
@@ -129,16 +128,26 @@ const Auth: React.FC<AuthProps> = ({
   };
 
   useEffect(() => {
-    if (authIframeClient) {
+    if (authIframeClient && indexedDbClient && turnkey) {
       setComponentReady(true);
-
+  
       const updateIframeKey = async () => {
         await authIframeClient.initEmbeddedKey();
+        const session = await turnkey.getSession();
+  
+        if (session) {
+          const publicKey = await indexedDbClient.getPublicKey();
+          setPublicKey(publicKey!);
+        } else {
+          await indexedDbClient.resetKeyPair();
+          const publicKey = await indexedDbClient.getPublicKey();
+          setPublicKey(publicKey!);
+        }
       };
-
+  
       updateIframeKey();
     }
-  }, [authIframeClient]);
+  }, [authIframeClient, indexedDbClient]);
 
   if (!componentReady) {
     return (
@@ -206,11 +215,10 @@ const Auth: React.FC<AuthProps> = ({
         }
       }
 
-      const iframePublicKey = await authIframeClient!.initEmbeddedKey();
+      const pubKey = await indexedDbClient!.getPublicKey();
       await passkeyClient?.loginWithPasskey({
         sessionType: SessionType.READ_WRITE,
-        iframeClient: authIframeClient!,
-        targetPublicKey: iframePublicKey!,
+        publicKey: pubKey!,
         expirationSeconds: authConfig.sessionLengthSeconds?.toString(),
       });
 
@@ -225,11 +233,10 @@ const Auth: React.FC<AuthProps> = ({
     try {
       setLoading("passkey");
 
-      const iframePublicKey = await authIframeClient!.initEmbeddedKey();
+      const pubKey = await indexedDbClient!.getPublicKey();
       await passkeyClient?.loginWithPasskey({
         sessionType: SessionType.READ_WRITE,
-        iframeClient: authIframeClient!,
-        targetPublicKey: iframePublicKey!,
+        publicKey: pubKey!,
         expirationSeconds: authConfig.sessionLengthSeconds?.toString(),
       });
       await onAuthSuccess();
@@ -241,6 +248,7 @@ const Auth: React.FC<AuthProps> = ({
     }
   };
 
+  
   const handleOtpLogin = async (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
@@ -258,22 +266,8 @@ const Auth: React.FC<AuthProps> = ({
       createSuborgData.customAccounts = customAccounts;
     }
 
-    const resp = await server.getOrCreateSuborg({
-      filterType: type,
-      filterValue: value,
-      additionalData: createSuborgData,
-    });
-
-    const suborgIds = resp?.subOrganizationIds;
-    if (!suborgIds || suborgIds.length === 0) {
-      onError(authErrors.otp.sendFailed);
-      return;
-    }
-
-    const suborgId = suborgIds[0];
-    const iframePublicKey = await authIframeClient!.initEmbeddedKey();
+    const publicKey = await indexedDbClient!.getPublicKey();
     const initAuthResponse = await server.sendOtp({
-      suborgID: suborgId!,
       otpType,
       contact: value,
       ...(emailCustomization && { emailCustomization }),
@@ -281,10 +275,9 @@ const Auth: React.FC<AuthProps> = ({
       ...(customSmsMessage && { customSmsMessage }),
       otpLength: otpConfig?.otpLength ?? 6,
       alphanumeric: otpConfig?.alphanumeric ?? false,
-      userIdentifier: iframePublicKey!,
+      userIdentifier: publicKey!,
     });
     if (initAuthResponse && initAuthResponse.otpId) {
-      setSuborgId(suborgId!);
       setOtpId(initAuthResponse?.otpId!);
       setStep(otpType);
     } else {
@@ -315,15 +308,16 @@ const Auth: React.FC<AuthProps> = ({
     }
 
     const suborgId = suborgIds[0];
-    const iframePublicKey = await authIframeClient!.initEmbeddedKey();
-    const oauthSession = await server.oauth({
+    const sessionResponse = await server.createOauthSession({
       suborgID: suborgId!,
       oidcToken: credential,
-      targetPublicKey: iframePublicKey!,
+      publicKey: publicKey!,
       sessionLengthSeconds: authConfig.sessionLengthSeconds,
     });
-    if (oauthSession && oauthSession.token) {
-      await authIframeClient!.loginWithSession(oauthSession);
+    if (sessionResponse && sessionResponse.session) {
+      console.log(sessionResponse)
+      await indexedDbClient!.loginWithSession(sessionResponse.session);
+      console.log("Session created successfully");
       await onAuthSuccess();
     } else {
       onError(authErrors.oauth.loginFailed);
@@ -422,8 +416,8 @@ const Auth: React.FC<AuthProps> = ({
               authConfig.googleClientId ??
               process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!
             }
-            iframePublicKey={authIframeClient!.iframePublicKey!}
             openInPage={authConfig.openOAuthInPage}
+            publicKey={publicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Google")
             }
@@ -728,7 +722,6 @@ const Auth: React.FC<AuthProps> = ({
                   <OtpVerification
                     type={step}
                     contact={step === OtpType.Email ? email : phone}
-                    suborgId={suborgId}
                     otpId={otpId!}
                     alphanumeric={otpConfig?.alphanumeric ?? false}
                     sessionLengthSeconds={authConfig.sessionLengthSeconds}

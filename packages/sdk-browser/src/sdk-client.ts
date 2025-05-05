@@ -30,6 +30,8 @@ import {
 } from "./__clients__/browser-clients";
 import { VERSION } from "./__generated__/version";
 import { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
+import { parse } from "path";
+import { parseSessionFromJWT } from "@utils";
 
 export interface OauthProvider {
   providerName: string;
@@ -194,122 +196,58 @@ export class TurnkeyBrowserSDK {
     return data as TResponseType;
   };
 
-  /**
-   * If there is a valid, current user session, this will return a read-enabled TurnkeyBrowserClient that can make read requests to Turnkey without additional authentication. This is powered by a session header resulting from a prior successful `login` call.
-   *
-   * @returns {Promise<TurnkeyBrowserClient | undefined>}
-   */
-  currentUserSession = async (): Promise<TurnkeyBrowserClient | undefined> => {
-    const currentUser = await this.getCurrentUser();
-    if (!currentUser?.session?.read) {
-      return;
-    }
-
-    if (currentUser?.session?.read?.expiry > Date.now()) {
-      return new TurnkeyBrowserClient({
-        readOnlySession: currentUser?.session?.read?.token!,
-        apiBaseUrl: this.config.apiBaseUrl,
-        organizationId:
-          currentUser?.organization?.organizationId ??
-          this.config.defaultOrganizationId,
-      });
-    } else {
-      await this.logout();
-    }
-
-    return;
-  };
 
   /**
-   * If there is a valid, current read-session, this will return an auth bundle and its expiration. This auth bundle can be used in conjunction with an iframeStamper to create a read + write session.
-   * @deprecated use `getSession` instead
-   * @returns {Promise<ReadWriteSession | undefined>}
-   */
-  getReadWriteSession = async (): Promise<ReadWriteSession | undefined> => {
-    const currentUser: User | undefined = await getStorageValue(
-      StorageKeys.UserSession,
-    );
-    if (currentUser?.session?.write) {
-      if (currentUser.session.write.expiry > Date.now()) {
-        return currentUser.session.write;
-      } else {
-        await removeStorageValue(StorageKeys.ReadWriteSession);
-      }
-    }
-
-    return;
-  };
-
-  /**
-   * If there is a valid, active READ_WRITE session, this will return it
+   * If there is a valid, active session, this will parse it and return it
    *
    * @returns {Promise<Session | undefined>}
    */
   getSession = async (): Promise<Session | undefined> => {
-    const currentSession: Session | undefined = await getStorageValue(
+    const currentSession: Session | string | undefined = await getStorageValue(
       StorageKeys.Session,
     );
-    if (currentSession?.sessionType === SessionType.READ_WRITE) {
-      if (currentSession?.expiry > Date.now()) {
-        return currentSession;
-      } else {
-        await removeStorageValue(StorageKeys.Session);
-      }
+  
+    let session: Session | undefined;
+  
+    if (typeof currentSession === "string") {
+      session = parseSessionFromJWT(currentSession);
+    } else {
+      session = currentSession;
     }
-
-    return;
-  };
-
-  /**
-   * Fetches the current user's organization details.
-   *
-   * @returns {Promise<SubOrganization | undefined>}
-   */
-  getCurrentSubOrganization = async (): Promise<
-    SubOrganization | undefined
-  > => {
-    const currentUser = await this.getCurrentUser();
-    return currentUser?.organization;
-  };
-
-  /**
-   * Fetches the currently active user.
-   *
-   * @returns {Promise<User | undefined>}
-   */
-  getCurrentUser = async (): Promise<User | undefined> => {
-    try {
-      const session = await getStorageValue(StorageKeys.Session);
-      if (session?.userId && session?.organizationId) {
-        return {
-          userId: session.userId,
-          organization: {
-            organizationId: session.organizationId,
-            organizationName: "",
-          },
-          session: {
-            ...(session.sessionType === SessionType.READ_ONLY && {
-              read: {
-                token: session.token,
-                expiry: session.expiry,
-              },
-            }),
-            ...(session.sessionType === SessionType.READ_WRITE && {
-              write: {
-                credentialBundle: session.token,
-                expiry: session.expiry,
-              },
-            }),
-          },
-        } as User;
-      } else {
-        return undefined;
-      }
-    } catch (error) {
-      return;
+  
+    if (session && session.expiry * 1000 > Date.now()) {
+      return session;
     }
+  
+    await removeStorageValue(StorageKeys.Session);
+    return undefined;
   };
+  
 
+
+    /**
+   * If there is a valid, active session, this will return it without parsing it
+   *
+   * @returns {Promise<Session | undefined>}
+   */
+    getRawSession = async (): Promise<string | undefined> => {
+      const currentSession: Session | string | undefined = await getStorageValue(StorageKeys.Session);
+    
+      let session: Session | undefined;
+    
+      if (typeof currentSession === "string") {
+        session = parseSessionFromJWT(currentSession);
+        if (session && session.expiry * 1000 > Date.now()) {
+          return currentSession; // return raw JWT string
+        }
+      } else if (currentSession && currentSession.expiry * 1000 > Date.now()) {
+        return JSON.stringify(currentSession); 
+      }
+    
+      await removeStorageValue(StorageKeys.Session);
+      return undefined;
+    };
+    
   /**
    * Clears out all data pertaining to an end user session.
    *
