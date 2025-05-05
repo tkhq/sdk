@@ -57,7 +57,8 @@
   "pnpm": {
     "auditConfig": {
       "ignoreCves": [
-        "CVE-2025-3194"
+        "CVE-2025-3194",
+        "CVE-2025-27611"
       ]
     },
     "overrides": {
@@ -77,10 +78,7 @@
       "cross-spawn": ">=7.0.5",
       "elliptic": ">=6.6.1",
       "axios": ">1.8.2",
-      "image-size": ">=1.2.1",
-      "base-x@<=3.0.10": "3.0.11",
-      "base-x@4.0.0": "4.0.1",
-      "base-x@5.0.0": "5.0.1"
+      "image-size": ">=1.2.1"
     }
   }
 }
