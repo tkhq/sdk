@@ -95,7 +95,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const readWriteSession = await turnkey?.getSession();
 
         if (readWriteSession) {
-          await authIframeClient?.loginWithSession(readWriteSession);
+          // await authIframeClient?.loginWithSession(readWriteSession); // TODO fix this (MOE)
           currentClient = authIframeClient;
         }
       } catch (error: any) {
