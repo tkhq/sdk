@@ -45,7 +45,7 @@
     "@noble/curves": "1.4.0",
     "@noble/hashes": "1.4.0",
     "bs58check": "3.0.1",
-    "bs58": "^5.0.0"
+    "bs58": "6.0.0"
   },
   "devDependencies": {
     "jest": "29.7.0",
