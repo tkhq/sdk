@@ -72,8 +72,7 @@ async function main() {
     turnkeyAddress,
   );
 
-  console.log("Expecting to fail signing transaction...");
-  console.log();
+  console.log("Expecting to fail signing transaction...\n");
 
   try {
     // attempt to sign the transaction with the new unprivileged user
@@ -84,8 +83,7 @@ async function main() {
     });
   } catch (e: any) {
     // this sign activity will fail because the amount exceeds whats allowed in the policy
-    console.log("Failed to sign transaction:", e.message);
-    console.log();
+    console.log("Failed to sign transaction:", e.message, "\n");
   }
 
   // set an amount that will be accepted by the policy
@@ -98,8 +96,7 @@ async function main() {
     turnkeyAddress,
   );
 
-  console.log("Expecting to succeed signing transaction...");
-  console.log();
+  console.log("Expecting to succeed signing transaction...\n");
 
   try {
     // sign the transaction with the new unprivileged user and an allowed amount

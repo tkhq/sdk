@@ -101,8 +101,7 @@ async function main() {
     });
   } catch (e: any) {
     // this sign transaction activity will fail because the contract address is not the correct usdt contract address specified in the policy
-    console.log("Failed to sign transaction:", e.message);
-    console.log();
+    console.log("Failed to sign transaction:", e.message, "\n");
   }
 
   // create the new transaction with the proper usdt contract address
@@ -115,8 +114,7 @@ async function main() {
       options.from,
     );
 
-  console.log("Expecting to succeed signing transaction...");
-  console.log();
+  console.log("Expecting to succeed signing transaction...\n");
 
   try {
     // sign the transaction with the new unprivileged user and an allowed amount
