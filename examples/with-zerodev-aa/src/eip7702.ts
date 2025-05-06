@@ -1,22 +1,17 @@
 import { resolve } from "path";
 import * as dotenv from "dotenv";
 
-import {
-  createPublicClient,
-  createWalletClient,
-  http,
-  zeroAddress,
-} from "viem";
+import { createPublicClient, http, zeroAddress } from "viem";
 import { sepolia } from "viem/chains";
+import { getEntryPoint, KERNEL_V3_3 } from "@zerodev/sdk/constants";
 import {
-  getEntryPoint,
-  KERNEL_V3_3_BETA,
-  KernelVersionToAddressesMap,
-} from "@zerodev/sdk/constants";
-import { createKernelAccountClient } from "@zerodev/sdk";
-import { createKernelAccount } from "@zerodev/sdk/accounts";
-import { signerToEcdsaValidator } from "@zerodev/ecdsa-validator";
-import { createZeroDevPaymasterClient } from "@zerodev/sdk";
+  create7702KernelAccount,
+  create7702KernelAccountClient,
+} from "@zerodev/ecdsa-validator";
+import {
+  createZeroDevPaymasterClient,
+  getUserOperationGasPrice,
+} from "@zerodev/sdk";
 
 import { createAccount } from "@turnkey/viem";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
@@ -30,7 +25,7 @@ if (!process.env.ZERODEV_RPC) {
 
 const ZERODEV_RPC = process.env.ZERODEV_RPC;
 const entryPoint = getEntryPoint("0.7");
-const kernelVersion = KERNEL_V3_3_BETA;
+const kernelVersion = KERNEL_V3_3;
 
 // We use the Sepolia testnet here, but you can use any network that
 // supports EIP-7702.
@@ -65,35 +60,10 @@ const main = async () => {
     signWith: process.env.SIGN_WITH!,
   });
 
-  const walletClient = createWalletClient({
-    // Use any Viem-compatible EOA account
-    account: turnkeyAccount,
-    chain,
-    transport: http(),
-  });
-
-  const authorization = await walletClient.signAuthorization({
-    contractAddress:
-      KernelVersionToAddressesMap[kernelVersion].accountImplementationAddress,
-    account: turnkeyAccount,
-  });
-
-  const ecdsaValidator = await signerToEcdsaValidator(publicClient, {
+  const account = await create7702KernelAccount(publicClient, {
     signer: turnkeyAccount,
     entryPoint,
     kernelVersion,
-  });
-
-  const account = await createKernelAccount(publicClient, {
-    plugins: {
-      sudo: ecdsaValidator,
-    },
-    entryPoint,
-    kernelVersion,
-    // Set the address of the smart account to the EOA address
-    address: turnkeyAccount.address,
-    // Set the 7702 authorization
-    eip7702Auth: authorization,
   });
 
   const paymasterClient = createZeroDevPaymasterClient({
@@ -101,10 +71,15 @@ const main = async () => {
     transport: http(ZERODEV_RPC),
   });
 
-  const kernelClient = createKernelAccountClient({
+  const kernelClient = create7702KernelAccountClient({
     account,
     chain,
     bundlerTransport: http(ZERODEV_RPC),
+    userOperation: {
+      estimateFeesPerGas: async ({ bundlerClient }) => {
+        return getUserOperationGasPrice(bundlerClient);
+      },
+    },
     paymaster: {
       getPaymasterData: (userOperation) => {
         return paymasterClient.sponsorUserOperation({
@@ -129,6 +104,7 @@ const main = async () => {
       },
     ]),
   });
+
   console.log("UserOp sent:", userOpHash);
   console.log("Waiting for UserOp to be completed...");
 

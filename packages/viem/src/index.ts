@@ -368,6 +368,7 @@ export async function signAuthorization(
       chainId,
       nonce,
       ...(signature as TSignature),
+      yParity: (signature as TSignature).v,
     } as any;
 
   return signature as any;
