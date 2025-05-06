@@ -19,7 +19,7 @@
     "permissionless": "^0.1.45",
     "prompts": "^2.4.2",
     "typescript": "5.1.5",
-    "viem": "^2.28.0"
+    "viem": "^2.24.2"
   },
   "devDependencies": {
     "@types/node": "^22.7.7",

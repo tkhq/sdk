@@ -1668,10 +1668,10 @@ importers:
         version: link:../../packages/viem
       '@zerodev/ecdsa-validator':
         specifier: ^5.4.8
-        version: 5.4.8(@zerodev/sdk@5.4.32)(viem@2.28.0)
+        version: 5.4.8(@zerodev/sdk@5.4.32)(viem@2.26.2)
       '@zerodev/sdk':
         specifier: ^5.4.32
-        version: 5.4.32(viem@2.28.0)
+        version: 5.4.32(viem@2.26.2)
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
@@ -1680,7 +1680,7 @@ importers:
         version: 6.10.0
       permissionless:
         specifier: ^0.1.45
-        version: 0.1.45(viem@2.28.0)
+        version: 0.1.45(viem@2.26.2)
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
@@ -1688,8 +1688,8 @@ importers:
         specifier: 5.1.5
         version: 5.1.5
       viem:
-        specifier: ^2.28.0
-        version: 2.28.0(typescript@5.1.5)
+        specifier: ^2.24.2
+        version: 2.26.2(typescript@5.1.5)
     devDependencies:
       '@types/node':
         specifier: ^22.7.7
@@ -2143,7 +2143,7 @@ importers:
     optionalDependencies:
       viem:
         specifier: ^2.21.35
-        version: 2.28.0(typescript@5.1.5)
+        version: 2.26.2(typescript@5.1.5)
     devDependencies:
       '@solana/web3.js':
         specifier: ^1.95.8
@@ -14239,14 +14239,14 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /@zerodev/ecdsa-validator@5.4.8(@zerodev/sdk@5.4.32)(viem@2.28.0):
+  /@zerodev/ecdsa-validator@5.4.8(@zerodev/sdk@5.4.32)(viem@2.26.2):
     resolution: {integrity: sha512-EqDj304KP9PNupY0pUL/VSmhRn9B29pxHkZW+jn7nndn763CNDO3t0fEwReUr+qahg/gV/8TWWWMI8igc3ZJ9g==}
     peerDependencies:
       '@zerodev/sdk': ^5.4.13
       viem: ^2.28.0
     dependencies:
-      '@zerodev/sdk': 5.4.32(viem@2.28.0)
-      viem: 2.28.0(typescript@5.1.5)
+      '@zerodev/sdk': 5.4.32(viem@2.26.2)
+      viem: 2.26.2(typescript@5.1.5)
     dev: false
 
   /@zerodev/sdk@5.4.28(viem@2.26.2):
@@ -14258,13 +14258,13 @@ packages:
       viem: 2.26.2(typescript@5.1.5)
     dev: false
 
-  /@zerodev/sdk@5.4.32(viem@2.28.0):
+  /@zerodev/sdk@5.4.32(viem@2.26.2):
     resolution: {integrity: sha512-kAmFazTOXwdORTr/SqkZMSxzIhT39pOKbhm2iOfgP5P4v9oBdlI5KnkX9YPnCs252cMtYcgbURwN0o65TGHydw==}
     peerDependencies:
       viem: ^2.28.0
     dependencies:
       semver: 7.5.4
-      viem: 2.28.0(typescript@5.1.5)
+      viem: 2.26.2(typescript@5.1.5)
     dev: false
 
   /JSONStream@1.3.5:
@@ -21772,12 +21772,12 @@ packages:
       safe-buffer: 5.2.1
       sha.js: 2.4.11
 
-  /permissionless@0.1.45(viem@2.28.0):
+  /permissionless@0.1.45(viem@2.26.2):
     resolution: {integrity: sha512-YJJrNFeP3T7mmfXExZsGz0J8SfOPgYzT3fyRIJtImFcUI2UmnyBQLrFt+BaiIXNogzAQuBvOSi6KKtyBePJ2/Q==}
     peerDependencies:
       viem: '>=2.14.1 <2.18.0'
     dependencies:
-      viem: 2.28.0(typescript@5.1.5)
+      viem: 2.26.2(typescript@5.1.5)
     dev: false
 
   /picocolors@1.0.0:
@@ -25555,30 +25555,6 @@ packages:
       isows: 1.0.6(ws@8.17.1)
       ox: 0.6.9(typescript@5.1.3)
       typescript: 5.1.3
-      ws: 8.17.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-    dev: false
-
-  /viem@2.28.0(typescript@5.1.5):
-    resolution: {integrity: sha512-Z4W5O1pe+6pirYTFm451FcZmfGAUxUWt2L/eWC+YfTF28j/8rd7q6MBAi05lMN4KhLJjhN0s5YGIPB+kf1L20g==}
-    requiresBuild: true
-    peerDependencies:
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@noble/curves': 1.8.2
-      '@noble/hashes': 1.7.2
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
-      abitype: 1.0.8(typescript@5.1.5)
-      isows: 1.0.6(ws@8.17.1)
-      ox: 0.6.9(typescript@5.1.5)
-      typescript: 5.1.5
       ws: 8.17.1(bufferutil@4.0.7)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
