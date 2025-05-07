@@ -82,17 +82,19 @@ To enable secure authentication, the following storage keys are used:
 
 ### **Session Management**
 
-- `createEmbeddedKey({ sessionKey?, isCompressed? })`: Generates a new embedded key pair and securely stores the private key.
-  - If `sessionKey` is provided, the embedded key will be stored under that key in secure storage.
+- `createEmbeddedKey({ storageKey?, isCompressed? })`: Generates a new embedded key pair and securely stores the private key.
+  - If `storageKey` is provided, the embedded key will be stored under that key in secure storage.
   - If `isCompressed` is set to `true`, the compressed public key is returned; otherwise, the uncompressed public key is returned.
   - This allows for creating different embedded keys for different sessions, which is useful when initiating multiple authentication flows simultaneously.
-- `createSession({ bundle, expirationSeconds?, sessionKey? })`: Creates a session. [(API Docs)](https://docs.turnkey.com/api#tag/Sessions/operation/CreateReadWriteSession)
+- `createSession({ bundle, expirationSeconds?, sessionKey?, embeddedStorageKey? })`: Creates a session. [(API Docs)](https://docs.turnkey.com/api#tag/Sessions/operation/CreateReadWriteSession)
   - If `sessionKey` is provided, the session will be stored under that key in secure storage.
+  - If `embeddedStorageKey` is provided, the session will use the embedded key stored under that service name instead of the default. This allows creating sessions from different embedded keys.
   - If no session exists, the first session created is **automatically selected**.
   - If a session with the same `sessionKey` already exists in secure storage, an error is thrown.
 - `createSessionFromEmbeddedKey({ subOrganizationId, embeddedKey?, expirationSeconds?, sessionKey? })`: Creates a session directly using the embedded private key. [(API Docs)](https://docs.turnkey.com/api#tag/Sessions/operation/CreateReadWriteSession)
   - If `embeddedKey` is provided, it will be used directly; otherwise, the embedded key will be retrieved from secure storage.
   - If `sessionKey` is provided, the session will be stored under that key in secure storage.
+  - If `embeddedStorageKey` is provided, the session will use the embedded key stored under that service name instead of the default. This allows creating sessions from different embedded keys. This is only used if `embeddedKey` is not provided
   - If no session exists, the first session created is **automatically selected**.
   - If a session with the same `sessionKey` already exists in secure storage, an error is thrown.
 - `refreshSession({ expirationSeconds?, sessionKey? })`: Refreshes and extends the expiration time of an existing session.
