@@ -18,23 +18,23 @@ import { StorageKeys } from "./constants";
  * - Optionally deletes the key from storage after retrieval if `deleteKey` is true.
  *
  * @param deleteKey - Whether to remove the embedded key after retrieval (defaults to false).
- * @param sessionKey - The service key for the embedded key (defaults to StorageKeys.EmbeddedKey).
+ * @param storageKey - The service key for the embedded key.
  * @returns The embedded private key if found, otherwise null.
  * @throws {TurnkeyReactNativeError} If retrieving or deleting the key fails.
  */
 export const getEmbeddedKey = async (
   deleteKey = false,
-  sessionKey: string = StorageKeys.EmbeddedKey,
+  storageKey: string,
 ): Promise<string | null> => {
   try {
     const credentials = await Keychain.getGenericPassword({
-      service: sessionKey,
+      service: storageKey,
     });
 
     if (credentials) {
       if (deleteKey) {
         await Keychain.resetGenericPassword({
-          service: sessionKey,
+          service: storageKey,
         });
       }
       return credentials.password;
@@ -51,17 +51,17 @@ export const getEmbeddedKey = async (
  * - Uses Keychain to store the private key for the given service key.
  *
  * @param key - The private key to store securely.
- * @param sessionKey - The key under which to store the embedded key.
+ * @param storageKey - The service key under which to store the embedded key.
  * @throws {TurnkeyReactNativeError} If saving the key fails.
  */
 export const saveEmbeddedKey = async (
   key: string,
-  sessionKey: string,
+  storageKey: string,
 ): Promise<void> => {
   try {
-    await Keychain.setGenericPassword(sessionKey, key, {
+    await Keychain.setGenericPassword(storageKey, key, {
       accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-      service: sessionKey,
+      service: storageKey,
     });
   } catch (error) {
     throw new TurnkeyReactNativeError(
