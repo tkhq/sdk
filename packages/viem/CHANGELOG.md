@@ -1,5 +1,11 @@
 # @turnkey/viem
 
+## 0.9.2
+
+### Patch Changes
+
+- d440e7b: Update `signAuthorization` implementation to explicitly include `yParity` in the response
+
 ## 0.9.1
 
 ### Patch Changes

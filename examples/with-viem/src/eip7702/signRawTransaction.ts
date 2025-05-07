@@ -8,7 +8,7 @@ import {
   serializeTransaction,
 } from "viem";
 import {
-  KERNEL_V3_3_BETA,
+  KERNEL_V3_3,
   KernelVersionToAddressesMap,
 } from "@zerodev/sdk/constants";
 import { sepolia } from "viem/chains";
@@ -21,7 +21,7 @@ import { print } from "../util";
 // Load environment variables from `.env.local`
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
 
-const kernelVersion = KERNEL_V3_3_BETA;
+const kernelVersion = KERNEL_V3_3;
 
 // We use the Sepolia testnet here, but you can use any network that
 // supports EIP-7702.
