@@ -21,7 +21,6 @@ export interface TurnkeyClientType {
   passkeyClient: TurnkeyPasskeyClient | undefined;
   walletClient: TurnkeyWalletClient | undefined;
   indexedDbClient: TurnkeyIndexedDbClient | undefined;
-  getActiveClient: () => Promise<TurnkeyBrowserClient | undefined>;
 }
 
 export const TurnkeyContext = createContext<TurnkeyClientType>({
@@ -30,10 +29,7 @@ export const TurnkeyContext = createContext<TurnkeyClientType>({
   passkeyClient: undefined,
   authIframeClient: undefined,
   walletClient: undefined,
-  indexedDbClient: undefined,
-  getActiveClient: async () => {
-    return undefined;
-  },
+  indexedDbClient: undefined
 });
 
 type TurnkeyProviderConfig = TurnkeySDKBrowserConfig & {
@@ -72,42 +68,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const TurnkeyAuthIframeContainerId = "turnkey-auth-iframe-container-id";
   const TurnkeyAuthIframeElementId = "turnkey-auth-iframe-element-id";
-
-  const getActiveClient = async () => {
-    // default the currentClient to the passkeyClient
-    let currentClient: TurnkeyBrowserClient | undefined = passkeyClient;
-    const currentUser = await turnkey?.getCurrentUser();
-
-    try {
-      // check if the iframeClient is active
-      await authIframeClient?.getWhoami({
-        organizationId:
-          currentUser?.organization.organizationId ??
-          turnkey?.config.defaultOrganizationId!,
-      });
-      currentClient = authIframeClient;
-    } catch (error: any) {
-      try {
-        /**
-         * if the authIframeClient is not active, check if there's a readWriteSession in localStorage
-         * and try to initialize an authIframeClient with it
-         */
-        const readWriteSession = await turnkey?.getSession();
-
-        if (readWriteSession) {
-          // await authIframeClient?.loginWithSession(readWriteSession); // TODO fix this (MOE)
-          currentClient = authIframeClient;
-        }
-      } catch (error: any) {
-        /**
-         * if the authIframeClient is not active and there's no readWriteSession in localStorage,
-         * or if injecting the readWriteSession into the authIframeClient fails, default to the passkeyClient
-         */
-      }
-    }
-
-    return currentClient;
-  };
 
   useEffect(() => {
     (async () => {
@@ -198,7 +158,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         authIframeClient,
         indexedDbClient,
         walletClient,
-        getActiveClient,
       }}
     >
       {children}

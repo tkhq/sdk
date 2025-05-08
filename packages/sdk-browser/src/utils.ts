@@ -109,7 +109,10 @@ export const bytesToHex = (bytes: Uint8Array): string => {
   return hex;
 };
 
-export function parseSessionFromJWT(token: string): Session {
+export function parseSession(token: string | Session): Session {
+  if (typeof token !== "string") {
+    return token;
+  }
   const [, payload] = token.split(".");
   if (!payload) {
     throw new Error("Invalid JWT: Missing payload");

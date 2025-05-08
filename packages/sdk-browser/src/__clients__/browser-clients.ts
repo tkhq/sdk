@@ -13,7 +13,6 @@ import {
   TurnkeySDKClientConfig,
   SessionType,
   TurnkeyWalletClientConfig,
-  ReadWriteSession,
   LoginWithBundleParams,
   LoginWithPasskeyParams,
   LoginWithWalletParams,
@@ -23,15 +22,12 @@ import {
 import {
   generateRandomBuffer,
   base64UrlEncode,
-  createEmbeddedAPIKey,
-  parseSessionFromJWT,
+  parseSession,
 } from "@utils";
 
 import type { Passkey } from "@models";
 
 import {
-  StorageKeys,
-  getStorageValue,
   saveSession,
   storeSession,
 } from "@storage";
@@ -239,7 +235,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @returns {Promise<void>}
    */
   loginWithSession = async (session: string): Promise<void> => {
-    const parsedSession = parseSessionFromJWT(session)
+    const parsedSession = parseSession(session)
     if (this instanceof TurnkeyIndexedDbClient) {
       await storeSession(parsedSession, AuthClient.IndexedDb);
     } else {
