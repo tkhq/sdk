@@ -12,6 +12,8 @@ import type * as SdkApiTypes from "./sdk_api_types";
 
 import { StorageKeys, getStorageValue } from "../storage";
 
+import { parseSession } from "../utils";
+
 
 export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;
@@ -707,7 +709,8 @@ export class TurnkeySDKClientBase {
 
 	approveActivity = async (input: SdkApiTypes.TApproveActivityBody): Promise<SdkApiTypes.TApproveActivityResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.activityDecision("/public/v1/submit/approve_activity",
       {
         parameters: rest,
@@ -735,7 +738,9 @@ export class TurnkeySDKClientBase {
 
 	createApiKeys = async (input: SdkApiTypes.TCreateApiKeysBody): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_api_keys", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -762,7 +767,9 @@ export class TurnkeySDKClientBase {
 
 	createApiOnlyUsers = async (input: SdkApiTypes.TCreateApiOnlyUsersBody): Promise<SdkApiTypes.TCreateApiOnlyUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_api_only_users", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -789,7 +796,9 @@ export class TurnkeySDKClientBase {
 
 	createAuthenticators = async (input: SdkApiTypes.TCreateAuthenticatorsBody): Promise<SdkApiTypes.TCreateAuthenticatorsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_authenticators", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -816,7 +825,9 @@ export class TurnkeySDKClientBase {
 
 	createInvitations = async (input: SdkApiTypes.TCreateInvitationsBody): Promise<SdkApiTypes.TCreateInvitationsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_invitations", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -843,7 +854,9 @@ export class TurnkeySDKClientBase {
 
 	createOauthProviders = async (input: SdkApiTypes.TCreateOauthProvidersBody): Promise<SdkApiTypes.TCreateOauthProvidersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_oauth_providers", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -870,7 +883,9 @@ export class TurnkeySDKClientBase {
 
 	createOauthSession = async (input: SdkApiTypes.TCreateOauthSessionBody): Promise<SdkApiTypes.TCreateOauthSessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_oauth_session", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -897,7 +912,9 @@ export class TurnkeySDKClientBase {
 
 	createOtpSession = async (input: SdkApiTypes.TCreateOtpSessionBody): Promise<SdkApiTypes.TCreateOtpSessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_otp_session", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -924,7 +941,9 @@ export class TurnkeySDKClientBase {
 
 	createPasskeySession = async (input: SdkApiTypes.TCreatePasskeySessionBody): Promise<SdkApiTypes.TCreatePasskeySessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_passkey_session", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -951,7 +970,9 @@ export class TurnkeySDKClientBase {
 
 	createPolicies = async (input: SdkApiTypes.TCreatePoliciesBody): Promise<SdkApiTypes.TCreatePoliciesResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_policies", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -978,7 +999,9 @@ export class TurnkeySDKClientBase {
 
 	createPolicy = async (input: SdkApiTypes.TCreatePolicyBody): Promise<SdkApiTypes.TCreatePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_policy", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1005,7 +1028,9 @@ export class TurnkeySDKClientBase {
 
 	createPrivateKeyTag = async (input: SdkApiTypes.TCreatePrivateKeyTagBody): Promise<SdkApiTypes.TCreatePrivateKeyTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_private_key_tag", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1032,7 +1057,9 @@ export class TurnkeySDKClientBase {
 
 	createPrivateKeys = async (input: SdkApiTypes.TCreatePrivateKeysBody): Promise<SdkApiTypes.TCreatePrivateKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_private_keys", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1059,7 +1086,9 @@ export class TurnkeySDKClientBase {
 
 	createReadOnlySession = async (input: SdkApiTypes.TCreateReadOnlySessionBody): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_read_only_session", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1086,7 +1115,9 @@ export class TurnkeySDKClientBase {
 
 	createReadWriteSession = async (input: SdkApiTypes.TCreateReadWriteSessionBody): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_read_write_session", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1113,7 +1144,9 @@ export class TurnkeySDKClientBase {
 
 	createSubOrganization = async (input: SdkApiTypes.TCreateSubOrganizationBody): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_sub_organization", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1140,7 +1173,9 @@ export class TurnkeySDKClientBase {
 
 	createUserTag = async (input: SdkApiTypes.TCreateUserTagBody): Promise<SdkApiTypes.TCreateUserTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_user_tag", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1167,7 +1202,9 @@ export class TurnkeySDKClientBase {
 
 	createUsers = async (input: SdkApiTypes.TCreateUsersBody): Promise<SdkApiTypes.TCreateUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_users", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1194,7 +1231,9 @@ export class TurnkeySDKClientBase {
 
 	createWallet = async (input: SdkApiTypes.TCreateWalletBody): Promise<SdkApiTypes.TCreateWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_wallet", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1221,7 +1260,9 @@ export class TurnkeySDKClientBase {
 
 	createWalletAccounts = async (input: SdkApiTypes.TCreateWalletAccountsBody): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/create_wallet_accounts", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1248,7 +1289,9 @@ export class TurnkeySDKClientBase {
 
 	deleteApiKeys = async (input: SdkApiTypes.TDeleteApiKeysBody): Promise<SdkApiTypes.TDeleteApiKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/delete_api_keys", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1275,7 +1318,9 @@ export class TurnkeySDKClientBase {
 
 	deleteAuthenticators = async (input: SdkApiTypes.TDeleteAuthenticatorsBody): Promise<SdkApiTypes.TDeleteAuthenticatorsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/delete_authenticators", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1302,7 +1347,9 @@ export class TurnkeySDKClientBase {
 
 	deleteInvitation = async (input: SdkApiTypes.TDeleteInvitationBody): Promise<SdkApiTypes.TDeleteInvitationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/delete_invitation", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1329,7 +1376,9 @@ export class TurnkeySDKClientBase {
 
 	deleteOauthProviders = async (input: SdkApiTypes.TDeleteOauthProvidersBody): Promise<SdkApiTypes.TDeleteOauthProvidersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/delete_oauth_providers", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1356,7 +1405,9 @@ export class TurnkeySDKClientBase {
 
 	deletePolicy = async (input: SdkApiTypes.TDeletePolicyBody): Promise<SdkApiTypes.TDeletePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/delete_policy", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1383,7 +1434,9 @@ export class TurnkeySDKClientBase {
 
 	deletePrivateKeyTags = async (input: SdkApiTypes.TDeletePrivateKeyTagsBody): Promise<SdkApiTypes.TDeletePrivateKeyTagsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/delete_private_key_tags", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1410,7 +1463,9 @@ export class TurnkeySDKClientBase {
 
 	deletePrivateKeys = async (input: SdkApiTypes.TDeletePrivateKeysBody): Promise<SdkApiTypes.TDeletePrivateKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/delete_private_keys", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1437,7 +1492,9 @@ export class TurnkeySDKClientBase {
 
 	deleteSubOrganization = async (input: SdkApiTypes.TDeleteSubOrganizationBody): Promise<SdkApiTypes.TDeleteSubOrganizationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/delete_sub_organization", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1464,7 +1521,9 @@ export class TurnkeySDKClientBase {
 
 	deleteUserTags = async (input: SdkApiTypes.TDeleteUserTagsBody): Promise<SdkApiTypes.TDeleteUserTagsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/delete_user_tags", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1491,7 +1550,9 @@ export class TurnkeySDKClientBase {
 
 	deleteUsers = async (input: SdkApiTypes.TDeleteUsersBody): Promise<SdkApiTypes.TDeleteUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/delete_users", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1518,7 +1579,9 @@ export class TurnkeySDKClientBase {
 
 	deleteWallets = async (input: SdkApiTypes.TDeleteWalletsBody): Promise<SdkApiTypes.TDeleteWalletsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/delete_wallets", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1545,7 +1608,9 @@ export class TurnkeySDKClientBase {
 
 	emailAuth = async (input: SdkApiTypes.TEmailAuthBody): Promise<SdkApiTypes.TEmailAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/email_auth", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1572,7 +1637,9 @@ export class TurnkeySDKClientBase {
 
 	exportPrivateKey = async (input: SdkApiTypes.TExportPrivateKeyBody): Promise<SdkApiTypes.TExportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/export_private_key", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1599,7 +1666,9 @@ export class TurnkeySDKClientBase {
 
 	exportWallet = async (input: SdkApiTypes.TExportWalletBody): Promise<SdkApiTypes.TExportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/export_wallet", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1626,7 +1695,9 @@ export class TurnkeySDKClientBase {
 
 	exportWalletAccount = async (input: SdkApiTypes.TExportWalletAccountBody): Promise<SdkApiTypes.TExportWalletAccountResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/export_wallet_account", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1653,7 +1724,9 @@ export class TurnkeySDKClientBase {
 
 	importPrivateKey = async (input: SdkApiTypes.TImportPrivateKeyBody): Promise<SdkApiTypes.TImportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/import_private_key", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1680,7 +1753,9 @@ export class TurnkeySDKClientBase {
 
 	importWallet = async (input: SdkApiTypes.TImportWalletBody): Promise<SdkApiTypes.TImportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/import_wallet", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1707,7 +1782,9 @@ export class TurnkeySDKClientBase {
 
 	initImportPrivateKey = async (input: SdkApiTypes.TInitImportPrivateKeyBody): Promise<SdkApiTypes.TInitImportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/init_import_private_key", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1734,7 +1811,9 @@ export class TurnkeySDKClientBase {
 
 	initImportWallet = async (input: SdkApiTypes.TInitImportWalletBody): Promise<SdkApiTypes.TInitImportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/init_import_wallet", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1761,7 +1840,9 @@ export class TurnkeySDKClientBase {
 
 	initOtp = async (input: SdkApiTypes.TInitOtpBody): Promise<SdkApiTypes.TInitOtpResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/init_otp", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1788,7 +1869,9 @@ export class TurnkeySDKClientBase {
 
 	initOtpAuth = async (input: SdkApiTypes.TInitOtpAuthBody): Promise<SdkApiTypes.TInitOtpAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/init_otp_auth", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1815,7 +1898,9 @@ export class TurnkeySDKClientBase {
 
 	initUserEmailRecovery = async (input: SdkApiTypes.TInitUserEmailRecoveryBody): Promise<SdkApiTypes.TInitUserEmailRecoveryResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/init_user_email_recovery", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1842,7 +1927,9 @@ export class TurnkeySDKClientBase {
 
 	oauth = async (input: SdkApiTypes.TOauthBody): Promise<SdkApiTypes.TOauthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/oauth", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1869,7 +1956,9 @@ export class TurnkeySDKClientBase {
 
 	otpAuth = async (input: SdkApiTypes.TOtpAuthBody): Promise<SdkApiTypes.TOtpAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/otp_auth", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1896,7 +1985,9 @@ export class TurnkeySDKClientBase {
 
 	recoverUser = async (input: SdkApiTypes.TRecoverUserBody): Promise<SdkApiTypes.TRecoverUserResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/recover_user", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1923,7 +2014,8 @@ export class TurnkeySDKClientBase {
 
 	rejectActivity = async (input: SdkApiTypes.TRejectActivityBody): Promise<SdkApiTypes.TRejectActivityResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.activityDecision("/public/v1/submit/reject_activity",
       {
         parameters: rest,
@@ -1951,7 +2043,9 @@ export class TurnkeySDKClientBase {
 
 	removeOrganizationFeature = async (input: SdkApiTypes.TRemoveOrganizationFeatureBody): Promise<SdkApiTypes.TRemoveOrganizationFeatureResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/remove_organization_feature", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -1978,7 +2072,9 @@ export class TurnkeySDKClientBase {
 
 	setOrganizationFeature = async (input: SdkApiTypes.TSetOrganizationFeatureBody): Promise<SdkApiTypes.TSetOrganizationFeatureResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/set_organization_feature", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -2005,7 +2101,9 @@ export class TurnkeySDKClientBase {
 
 	signRawPayload = async (input: SdkApiTypes.TSignRawPayloadBody): Promise<SdkApiTypes.TSignRawPayloadResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/sign_raw_payload", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -2032,7 +2130,9 @@ export class TurnkeySDKClientBase {
 
 	signRawPayloads = async (input: SdkApiTypes.TSignRawPayloadsBody): Promise<SdkApiTypes.TSignRawPayloadsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/sign_raw_payloads", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -2059,7 +2159,9 @@ export class TurnkeySDKClientBase {
 
 	signTransaction = async (input: SdkApiTypes.TSignTransactionBody): Promise<SdkApiTypes.TSignTransactionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/sign_transaction", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -2086,7 +2188,9 @@ export class TurnkeySDKClientBase {
 
 	updatePolicy = async (input: SdkApiTypes.TUpdatePolicyBody): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/update_policy", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -2113,7 +2217,9 @@ export class TurnkeySDKClientBase {
 
 	updatePrivateKeyTag = async (input: SdkApiTypes.TUpdatePrivateKeyTagBody): Promise<SdkApiTypes.TUpdatePrivateKeyTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/update_private_key_tag", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -2140,7 +2246,9 @@ export class TurnkeySDKClientBase {
 
 	updateRootQuorum = async (input: SdkApiTypes.TUpdateRootQuorumBody): Promise<SdkApiTypes.TUpdateRootQuorumResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/update_root_quorum", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -2167,7 +2275,9 @@ export class TurnkeySDKClientBase {
 
 	updateUser = async (input: SdkApiTypes.TUpdateUserBody): Promise<SdkApiTypes.TUpdateUserResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/update_user", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -2194,7 +2304,9 @@ export class TurnkeySDKClientBase {
 
 	updateUserTag = async (input: SdkApiTypes.TUpdateUserTagBody): Promise<SdkApiTypes.TUpdateUserTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/update_user_tag", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -2221,7 +2333,9 @@ export class TurnkeySDKClientBase {
 
 	updateWallet = async (input: SdkApiTypes.TUpdateWalletBody): Promise<SdkApiTypes.TUpdateWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/update_wallet", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -2248,7 +2362,9 @@ export class TurnkeySDKClientBase {
 
 	verifyOtp = async (input: SdkApiTypes.TVerifyOtpBody): Promise<SdkApiTypes.TVerifyOtpResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("/public/v1/submit/verify_otp", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),

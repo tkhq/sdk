@@ -7,17 +7,13 @@ import WindowWrapper from "@polyfills/window";
 import {
   type GrpcStatus,
   type TurnkeySDKBrowserConfig,
-  type User,
-  type ReadWriteSession,
   Session,
   TurnkeyRequestError,
   Stamper,
   IframeClientParams,
   PasskeyClientParams,
-  SessionType,
 } from "./__types__/base";
 
-import type { SubOrganization } from "@models";
 
 import { StorageKeys, getStorageValue, removeStorageValue } from "@storage";
 
@@ -30,8 +26,7 @@ import {
 } from "./__clients__/browser-clients";
 import { VERSION } from "./__generated__/version";
 import { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
-import { parse } from "path";
-import { parseSessionFromJWT } from "@utils";
+import { parseSession } from "@utils";
 
 export interface OauthProvider {
   providerName: string;
@@ -210,7 +205,7 @@ export class TurnkeyBrowserSDK {
     let session: Session | undefined;
   
     if (typeof currentSession === "string") {
-      session = parseSessionFromJWT(currentSession);
+      session = parseSession(currentSession);
     } else {
       session = currentSession;
     }
@@ -236,7 +231,7 @@ export class TurnkeyBrowserSDK {
       let session: Session | undefined;
     
       if (typeof currentSession === "string") {
-        session = parseSessionFromJWT(currentSession);
+        session = parseSession(currentSession);
         if (session && session.expiry * 1000 > Date.now()) {
           return currentSession; // return raw JWT string
         }

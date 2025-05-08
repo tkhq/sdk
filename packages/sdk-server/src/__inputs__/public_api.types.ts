@@ -2163,6 +2163,8 @@ export type definitions = {
     sendFromEmailSenderName?: string;
     /** @description Expiration window (in seconds) indicating how long the OTP is valid. If not provided, a default of 5 minutes will be used. */
     expirationSeconds?: string;
+    /** @description Optional custom email address to use as reply-to */
+    replyToEmailAddress?: string;
   };
   v1InitOtpRequest: {
     /** @enum {string} */
