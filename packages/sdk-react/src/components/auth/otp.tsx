@@ -105,6 +105,16 @@ const OtpInput = forwardRef<unknown, OtpInputProps>(
                   border: "1px solid",
                 },
               },
+              // this removes the spin buttons from the number input
+              "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  "-webkit-appearance": "none",
+                  margin: 0,
+                },
+              "& input[type=number]": {
+                // for Firefox
+                "-moz-appearance": "textfield",
+              },
             }}
           />
         ))}
