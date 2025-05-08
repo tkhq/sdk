@@ -1,5 +1,17 @@
 # @turnkey/sdk-server
 
+## 3.3.0
+
+### Minor Changes
+
+- 25ca339: Adding replyToEmailAddress field for specifying reply-to when using a customer sender
+
+### Patch Changes
+
+- Updated dependencies [25ca339]
+  - @turnkey/http@3.3.0
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 3.2.0
 
 ### Minor Changes

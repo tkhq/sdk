@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 3.3.0
+
+### Minor Changes
+
+- 25ca339: Adding replyToEmailAddress field for specifying reply-to when using a customer sender
+
 ## 3.2.0
 
 ### Minor Changes

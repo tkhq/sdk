@@ -1,5 +1,16 @@
 # @turnkey/sdk-react
 
+## 4.2.6
+
+### Patch Changes
+
+- fe0957d: Updated the styling of the OtpInput component in the Auth component to remove spinner buttons from numeric inputs.
+- Updated dependencies [25ca339]
+  - @turnkey/sdk-browser@4.3.0
+  - @turnkey/sdk-server@3.3.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 4.2.5
 
 ### Patch Changes
