@@ -213,15 +213,15 @@ export class TurnkeyBrowserSDK {
    * @deprecated use `getSession` instead
    * @returns {Promise<ReadWriteSession | undefined>}
    */
-  getReadWriteSession = async (): Promise<ReadWriteSession | undefined> => {
-    const currentUser: User | undefined = await getStorageValue(
+  getReadWriteSession = (): ReadWriteSession | undefined => {
+    const currentUser: User | undefined = getStorageValue(
       StorageKeys.UserSession,
     );
     if (currentUser?.session?.write) {
       if (currentUser.session.write.expiry > Date.now()) {
         return currentUser.session.write;
       } else {
-        await removeStorageValue(StorageKeys.ReadWriteSession);
+        removeStorageValue(StorageKeys.ReadWriteSession);
       }
     }
 
@@ -233,15 +233,15 @@ export class TurnkeyBrowserSDK {
    *
    * @returns {Promise<Session | undefined>}
    */
-  getSession = async (): Promise<Session | undefined> => {
-    const currentSession: Session | undefined = await getStorageValue(
+  getSession = (): Session | undefined => {
+    const currentSession: Session | undefined = getStorageValue(
       StorageKeys.Session,
     );
     if (currentSession?.sessionType === SessionType.READ_WRITE) {
       if (currentSession?.expiry > Date.now()) {
         return currentSession;
       } else {
-        await removeStorageValue(StorageKeys.Session);
+        removeStorageValue(StorageKeys.Session);
       }
     }
 
@@ -253,10 +253,8 @@ export class TurnkeyBrowserSDK {
    *
    * @returns {Promise<SubOrganization | undefined>}
    */
-  getCurrentSubOrganization = async (): Promise<
-    SubOrganization | undefined
-  > => {
-    const currentUser = await this.getCurrentUser();
+  getCurrentSubOrganization = (): SubOrganization | undefined => {
+    const currentUser = this.getCurrentUser();
     return currentUser?.organization;
   };
 
@@ -265,9 +263,9 @@ export class TurnkeyBrowserSDK {
    *
    * @returns {Promise<User | undefined>}
    */
-  getCurrentUser = async (): Promise<User | undefined> => {
+  getCurrentUser = (): User | undefined => {
     try {
-      const session = await getStorageValue(StorageKeys.Session);
+      const session = getStorageValue(StorageKeys.Session);
       if (session?.userId && session?.organizationId) {
         return {
           userId: session.userId,
@@ -303,13 +301,13 @@ export class TurnkeyBrowserSDK {
    *
    * @returns {Promise<boolean>}
    */
-  logout = async (): Promise<boolean> => {
-    await removeStorageValue(StorageKeys.AuthBundle); // DEPRECATED
-    await removeStorageValue(StorageKeys.CurrentUser);
-    await removeStorageValue(StorageKeys.UserSession);
-    await removeStorageValue(StorageKeys.ReadWriteSession);
-    await removeStorageValue(StorageKeys.Client);
-    await removeStorageValue(StorageKeys.Session);
+  logout = (): boolean => {
+    removeStorageValue(StorageKeys.AuthBundle); // DEPRECATED
+    removeStorageValue(StorageKeys.CurrentUser);
+    removeStorageValue(StorageKeys.UserSession);
+    removeStorageValue(StorageKeys.ReadWriteSession);
+    removeStorageValue(StorageKeys.Client);
+    removeStorageValue(StorageKeys.Session);
     return true;
   };
 }
