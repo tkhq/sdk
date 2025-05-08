@@ -61,18 +61,20 @@ export interface TurnkeyContextType {
   updateUser: (params: { email?: string; phone?: string }) => Promise<Activity>;
   refreshUser: () => Promise<void>;
   createEmbeddedKey: (params?: {
-    sessionKey?: string;
+    storageKey?: string;
     isCompressed?: boolean;
   }) => Promise<string>;
   createSession: (params: {
     bundle: string;
     expirationSeconds?: number;
+    embeddedStorageKey?: string;
     sessionKey?: string;
   }) => Promise<Session>;
   createSessionFromEmbeddedKey: (params: {
     subOrganizationId: string;
     embeddedKey?: string;
     expirationSeconds?: number;
+    embeddedStorageKey?: string;
     sessionKey?: string;
   }) => Promise<Session>;
   refreshSession: (params?: {
@@ -385,17 +387,17 @@ export const TurnkeyProvider: FC<{
    * - By default, returns the uncompressed public key.
    * - If `isCompressed` is set to `true`, returns the compressed public key instead.
    *
-   * @param sessionKey - (Optional) The key under which to store the private key (defaults to `@turnkey/embedded-key`).
+   * @param storageKey - (Optional) The storage key under which to store the private key (defaults to `@turnkey/embedded-key`).
    * @param isCompressed - (Optional) Whether to return the compressed public key (defaults to `false`).
    * @returns The public key (compressed or uncompressed) corresponding to the generated embedded key pair.
    * @throws {TurnkeyReactNativeError} If saving the private key fails.
    */
   const createEmbeddedKey = useCallback(
     async ({
-      sessionKey = StorageKeys.EmbeddedKey,
+      storageKey = StorageKeys.EmbeddedKey,
       isCompressed = false,
     }: {
-      sessionKey?: string;
+      storageKey?: string;
       isCompressed?: boolean;
     } = {}) => {
       const key = generateP256KeyPair();
@@ -404,7 +406,7 @@ export const TurnkeyProvider: FC<{
       const publicKey = key.publicKey;
       const publicKeyUncompressed = key.publicKeyUncompressed;
 
-      await saveEmbeddedKey(embeddedPrivateKey, sessionKey);
+      await saveEmbeddedKey(embeddedPrivateKey, storageKey);
 
       return isCompressed ? publicKey : publicKeyUncompressed;
     },
@@ -427,6 +429,7 @@ export const TurnkeyProvider: FC<{
    *
    * @param bundle - The encrypted credential bundle.
    * @param expirationSeconds - (Optional) The expiration time in seconds (defaults to `OTP_AUTH_DEFAULT_EXPIRATION_SECONDS`).
+   * @param embeddedStorageKey - (Optional) The service key where the embedded key is stored (defaults to `@turnkey/embedded-key`).
    * @param sessionKey - (Optional) The session identifier (defaults to `TURNKEY_DEFAULT_SESSION_STORAGE`).
    * @returns The created session.
    * @throws {TurnkeyReactNativeError} If the embedded key or user data cannot be retrieved,
@@ -436,10 +439,12 @@ export const TurnkeyProvider: FC<{
     async ({
       bundle,
       expirationSeconds = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
+      embeddedStorageKey = StorageKeys.EmbeddedKey,
       sessionKey = StorageKeys.DefaultSession,
     }: {
       bundle: string;
       expirationSeconds?: number;
+      embeddedStorageKey?: string;
       sessionKey?: string;
     }): Promise<Session> => {
       // we throw an error if a session with this sessionKey already exists
@@ -457,7 +462,7 @@ export const TurnkeyProvider: FC<{
         );
       }
 
-      const embeddedKey = await getEmbeddedKey(true);
+      const embeddedKey = await getEmbeddedKey(true, embeddedStorageKey);
       if (!embeddedKey) {
         throw new TurnkeyReactNativeError("Embedded key not found.");
       }
@@ -514,6 +519,7 @@ export const TurnkeyProvider: FC<{
    *
    * @param subOrganizationId - The sub-organization ID used to fetch user information.
    * @param embeddedKey - (Optional) A private key to use instead of fetching from secure storage.
+   * @param embeddedStorageKey - (Optional) The storage key where the embedded key is stored. Only used if `embeddedKey` is not provided (defaults to `@turnkey/embedded-key`).
    * @param expirationSeconds - (Optional) The expiration time in seconds (defaults to `OTP_AUTH_DEFAULT_EXPIRATION_SECONDS`).
    * @param sessionKey - (Optional) The session identifier (defaults to `TURNKEY_DEFAULT_SESSION_STORAGE`).
    * @returns The created session.
@@ -525,11 +531,13 @@ export const TurnkeyProvider: FC<{
       subOrganizationId,
       embeddedKey,
       expirationSeconds = OTP_AUTH_DEFAULT_EXPIRATION_SECONDS,
+      embeddedStorageKey = StorageKeys.EmbeddedKey,
       sessionKey = StorageKeys.DefaultSession,
     }: {
       subOrganizationId: string;
       embeddedKey?: string;
       expirationSeconds?: number;
+      embeddedStorageKey?: string;
       sessionKey?: string;
     }): Promise<Session> => {
       // we throw an error if a session with this sessionKey already exists
@@ -547,7 +555,8 @@ export const TurnkeyProvider: FC<{
         );
       }
 
-      const privateKey = embeddedKey ?? (await getEmbeddedKey(true));
+      const privateKey =
+        embeddedKey ?? (await getEmbeddedKey(true, embeddedStorageKey));
       if (!privateKey) {
         throw new TurnkeyReactNativeError("Embedded key not found.");
       }
