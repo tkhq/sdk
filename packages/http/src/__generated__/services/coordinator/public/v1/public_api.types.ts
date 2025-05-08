@@ -1525,6 +1525,8 @@ export type definitions = {
     sendFromEmailAddress?: string;
     /** @description Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
     sendFromEmailSenderName?: string;
+    /** @description Optional custom email address to use as reply-to */
+    replyToEmailAddress?: string;
   };
   v1EmailAuthIntentV2: {
     /** @description Email of the authenticating user. */
@@ -1543,6 +1545,8 @@ export type definitions = {
     sendFromEmailAddress?: string;
     /** @description Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
     sendFromEmailSenderName?: string;
+    /** @description Optional custom email address to use as reply-to */
+    replyToEmailAddress?: string;
   };
   v1EmailAuthRequest: {
     /** @enum {string} */
@@ -1995,6 +1999,8 @@ export type definitions = {
     sendFromEmailAddress?: string;
     /** @description Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
     sendFromEmailSenderName?: string;
+    /** @description Optional custom email address to use as reply-to */
+    replyToEmailAddress?: string;
   };
   v1InitOtpAuthIntentV2: {
     /** @description Enum to specifiy whether to send OTP via SMS or email */
@@ -2018,6 +2024,8 @@ export type definitions = {
     alphanumeric?: boolean;
     /** @description Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
     sendFromEmailSenderName?: string;
+    /** @description Optional custom email address to use as reply-to */
+    replyToEmailAddress?: string;
   };
   v1InitOtpAuthRequest: {
     /** @enum {string} */

@@ -5503,6 +5503,10 @@
         "sendFromEmailSenderName": {
           "type": "string",
           "description": "Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'"
+        },
+        "replyToEmailAddress": {
+          "type": "string",
+          "description": "Optional custom email address to use as reply-to"
         }
       },
       "required": ["email", "targetPublicKey"]
@@ -5541,6 +5545,10 @@
         "sendFromEmailSenderName": {
           "type": "string",
           "description": "Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'"
+        },
+        "replyToEmailAddress": {
+          "type": "string",
+          "description": "Optional custom email address to use as reply-to"
         }
       },
       "required": ["email", "targetPublicKey"]
@@ -6649,6 +6657,10 @@
         "sendFromEmailSenderName": {
           "type": "string",
           "description": "Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'"
+        },
+        "replyToEmailAddress": {
+          "type": "string",
+          "description": "Optional custom email address to use as reply-to"
         }
       },
       "required": ["otpType", "contact"]
@@ -6692,6 +6704,10 @@
         "sendFromEmailSenderName": {
           "type": "string",
           "description": "Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'"
+        },
+        "replyToEmailAddress": {
+          "type": "string",
+          "description": "Optional custom email address to use as reply-to"
         }
       },
       "required": ["otpType", "contact"]
