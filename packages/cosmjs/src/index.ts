@@ -165,17 +165,19 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
     const messageHex = toHex(message);
     let result;
 
+    const parameters = {
+      signWith: this.signWith,
+      payload: messageHex,
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL" as const,
+      hashFunction: "HASH_FUNCTION_NO_OP" as const,
+    }
+
     if (this.client instanceof TurnkeyClient) {
       const { activity } = await this.client.signRawPayload({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
         organizationId: this.organizationId,
         timestampMs: String(Date.now()),
-        parameters: {
-          signWith: this.signWith,
-          payload: messageHex,
-          encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-          hashFunction: "HASH_FUNCTION_SHA256",
-        },
+        parameters,
       });
 
       const { id, status, type } = activity;
@@ -191,12 +193,7 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
 
       result = refineNonNull(activity?.result?.signRawPayloadResult);
     } else {
-      result = await this.client.signRawPayload({
-        signWith: this.signWith,
-        payload: messageHex,
-        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-        hashFunction: "HASH_FUNCTION_NO_OP",
-      });
+      result = await this.client.signRawPayload(parameters);
     }
 
     return new ExtendedSecp256k1Signature(
