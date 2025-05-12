@@ -100,9 +100,17 @@ jobs:
 
       - name: Build
         run: pnpm run build-all
-
-      - name: Debug Foundry
-        run: anvil --version || echo "anvil not found"
+      - name: Debug Foundry setup
+        run: |
+          echo "Checking Foundry binaries:"
+          ls -la ~/.foundry/bin || echo "No Foundry binaries found"
+          which anvil || echo "anvil not found"
+          echo "PATH contents:"
+          echo $PATH
+          echo "GITHUB_PATH contents:"
+          cat $GITHUB_PATH || echo "No GITHUB_PATH file"
+          anvil --version || echo "anvil not installed"
+        shell: bash
 
       - name: Test (prod)
         run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
