@@ -133,11 +133,11 @@ jobs:
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
-      - name: Publish @turnkey/sdk-types to npm
+      - name: Publish SDK packages to npm
         uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
         with:
-          version: pnpm --filter @turnkey/sdk-types run changeset version # Updates versions and changelog
-          publish: pnpm --filter @turnkey/sdk-types publish --dry-run # dry run publish to npm
+          version: pnpm changeset version # Updates versions and changelog
+          publish: pnpm publish --dry-run # dry run publish to npm
           createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For changelog links
