@@ -9,7 +9,6 @@
   ],
   "scripts": {
     "build": "rollup -c",
-    "changeset": "changeset",
     "prepublishOnly": "pnpm run clean && pnpm run build",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc -p tsconfig.typecheck.json"
@@ -45,7 +44,6 @@
     "access": "public"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.5",
     "typescript": "5.4.3"
   },
   "engines": {
