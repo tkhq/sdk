@@ -50,7 +50,8 @@ runs:
       with:
         version: stable
         cache: true
-        cache-key: linux-foundry-chain-fork-${{ runner.os }}-foundry-stable
+        cache-key: ${{ runner.os }}-foundry-stable
         cache-restore-keys: |
+          ${{ runner.os }}-foundry-stable-
           linux-foundry-chain-fork-${{ runner.os }}-foundry-stable-
           linux-foundry-chain-fork-
