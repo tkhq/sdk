@@ -10,7 +10,13 @@ module.exports = {
     );
 
     // replace "Thanks [username]!" with "Author [username]"
-    return releaseLine.replace(/Thanks (\[@.*\])!/, "Author $1");
+    console.log("Original release line:", releaseLine);
+    const updatedReleaseLine = releaseLine.replace(
+      /Thanks (\[@.*\])!/,
+      "Author $1",
+    );
+    console.log("Updated release line:", updatedReleaseLine);
+    return updatedReleaseLine;
   },
   async getDependencyReleaseLine(changesets, dependenciesUpdated, options) {
     // reuse the original dependency release line logic

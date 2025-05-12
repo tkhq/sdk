@@ -50,6 +50,6 @@ runs:
       with:
         version: stable
         cache: true
-        cache-key: ${{ runner.os }}-foundry-stable-${{ hashFiles('.github/workflows/release.yml') }}
+        cache-key: ${{ runner.os }}-foundry-stable
         cache-restore-keys: |
           ${{ runner.os }}-foundry-stable-
