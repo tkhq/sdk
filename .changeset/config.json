@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "tkhq/sdk" }],
+  "changelog": ["./changelog-custom.js", { "repo": "tkhq/sdk" }],
   "commit": false,
   "linked": [],
   "access": "public",
