@@ -53,8 +53,6 @@ runs:
         key: ${{ runner.os }}-foundry-stable
         restore-keys: |
           ${{ runner.os }}-foundry-stable-
-      env:
-        ACTIONS_CACHE_DEBUG: true
 
     - name: Install Foundry
       if: steps.cache-foundry.outputs.cache-hit != 'true'
