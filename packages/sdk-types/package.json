@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.5",
-    "typescript": "^5.4.3"
+    "typescript": "5.4.3"
   },
   "engines": {
     "node": ">=18.0.0"

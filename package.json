@@ -51,7 +51,7 @@
     "turbo": "^2.4.4",
     "typedoc": "^0.28.1",
     "typedoc-plugin-markdown": "^4.6.0",
-    "typescript": "^5.1.4"
+    "typescript": "5.4.3"
   },
   "packageManager": "pnpm@8.4.0",
   "pnpm": {
