@@ -52,15 +52,23 @@ runs:
         cache: true
         cache-key: ${{ runner.os }}-foundry-stable
         cache-restore-keys: |
-          linux-foundry-chain-fork-${{ runner.os }}-foundry-stable-
           linux-foundry-chain-fork-${{ runner.os }}-foundry-stable
+          linux-foundry-chain-fork-${{ runner.os }}-foundry-stable-
           linux-foundry-chain-fork-
       env:
-        ACTIONS_CACHE_DEBUG: true # enable cache debug logging
+        ACTIONS_CACHE_DEBUG: true
 
     - name: Debug Foundry cache
       run: |
         echo "Foundry binary location:"
-        ls -la ~/.foundry/bin || echo "No Foundry binary found"
+        ls -la ~/.foundry/bin || echo "No Foundry binary found in ~/.foundry/bin"
+        echo "Checking PATH for Foundry binaries:"
+        which anvil || echo "anvil not found"
+        which forge || echo "forge not found"
+        which cast || echo "cast not found"
+        echo "PATH contents:"
+        echo $PATH
+        echo "All binaries in PATH:"
+        find $(echo $PATH | tr ':' ' ') -maxdepth 1 -type f -executable 2>/dev/null || echo "Error searching PATH"
         anvil --version || echo "anvil not installed"
       shell: bash
