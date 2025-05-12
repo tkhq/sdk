@@ -46,12 +46,21 @@ runs:
       shell: bash
 
     - name: Install Foundry
-      uses: foundry-rs/foundry-toolchain@de808b1eea699e761c404bda44ba8f21aba30b2c # v1.3.1
+      uses: foundry-rs/foundry-toolchain@82dee4ba654bd2146511f85f0d013af94670c4de # v1.4.0
       with:
         version: stable
         cache: true
         cache-key: ${{ runner.os }}-foundry-stable
         cache-restore-keys: |
-          ${{ runner.os }}-foundry-stable-
           linux-foundry-chain-fork-${{ runner.os }}-foundry-stable-
+          linux-foundry-chain-fork-${{ runner.os }}-foundry-stable
           linux-foundry-chain-fork-
+      env:
+        ACTIONS_CACHE_DEBUG: true # enable cache debug logging
+
+    - name: Debug Foundry cache
+      run: |
+        echo "Foundry binary location:"
+        ls -la ~/.foundry/bin || echo "No Foundry binary found"
+        anvil --version || echo "anvil not installed"
+      shell: bash
