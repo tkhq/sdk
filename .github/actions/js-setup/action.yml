@@ -45,18 +45,32 @@ runs:
       run: pnpm install -r --frozen-lockfile
       shell: bash
 
-    - name: Install Foundry
-      uses: foundry-rs/foundry-toolchain@82dee4ba654bd2146511f85f0d013af94670c4de # v1.4.0
+    - name: Cache Foundry binary
+      id: cache-foundry
+      uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
       with:
-        version: stable
-        cache: true
-        cache-key: ${{ runner.os }}-foundry-stable
-        cache-restore-keys: |
-          linux-foundry-chain-fork-${{ runner.os }}-foundry-stable
-          linux-foundry-chain-fork-${{ runner.os }}-foundry-stable-
-          linux-foundry-chain-fork-
+        path: ~/.foundry/bin
+        key: ${{ runner.os }}-foundry-stable
+        restore-keys: |
+          ${{ runner.os }}-foundry-stable-
       env:
         ACTIONS_CACHE_DEBUG: true
+
+    - name: Install Foundry
+      if: steps.cache-foundry.outputs.cache-hit != 'true'
+      run: |
+        # Download and extract Foundry to a temporary directory
+        curl -L https://github.com/foundry-rs/foundry/releases/download/stable/foundry_stable_linux_amd64.tar.gz -o foundry.tar.gz
+        mkdir -p /tmp/foundry
+        tar xz -C /tmp/foundry -f foundry.tar.gz
+        # Create ~/.foundry/bin and move binaries there
+        mkdir -p ~/.foundry/bin
+        mv /tmp/foundry/* ~/.foundry/bin/
+        # Add ~/.foundry/bin to PATH
+        echo "$HOME/.foundry/bin" >> $GITHUB_PATH
+        # Clean up
+        rm -rf /tmp/foundry foundry.tar.gz
+      shell: bash
 
     - name: Debug Foundry cache
       run: |
