@@ -131,7 +131,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    # environment: production # require manual approval for production deployments
+    environment: production # require manual approval for production deployments
     needs: test-prod
     steps:
       # https://github.com/actions/checkout
