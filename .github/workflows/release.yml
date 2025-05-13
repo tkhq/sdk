@@ -1,40 +1,20 @@
-name: Release
+name: release
 
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize, reopened, labeled, unlabeled]
-  workflow_dispatch: # Allows manual invocation
-  # TODO: Uncomment to trigger on tags
-  # push:
-  #   tags:
-  #     - "v*.*.*" # Triggers on tags like v1.0.0
+  workflow_dispatch: # allows manual invocation
+  push:
+    tags:
+      - "test-v*.*.*" # triggers on tags like v1.0.0
 
 permissions:
   contents: write
-  actions: read
+  actions: write
   checks: write
   pull-requests: write
   packages: write
 
 jobs:
-  check-release-label:
-    runs-on: ubuntu-latest
-    outputs:
-      has-release-label: ${{ steps.check-release-label.outputs.has-release-label }}
-    steps:
-      - name: Check for run-ci label
-        id: check-release-label
-        run: |
-          if [[ "${{ contains(github.event.pull_request.labels.*.name, 'run-ci-release') }}" == "true" ]]; then
-            echo "has-release-label=true" >> $GITHUB_OUTPUT
-          else
-            echo "has-release-label=false" >> $GITHUB_OUTPUT
-          fi
-
   build:
-    needs: check-release-label
-    if: needs.check-release-label.outputs.has-release-label == 'true'
     runs-on: ubuntu-latest
     steps:
       # https://github.com/actions/checkout
