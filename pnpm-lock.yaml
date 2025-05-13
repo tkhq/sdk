@@ -2065,9 +2065,6 @@ importers:
 
   packages/sdk-types:
     devDependencies:
-      '@changesets/cli':
-        specifier: ^2.27.5
-        version: 2.27.5
       typescript:
         specifier: 5.4.3
         version: 5.4.3
