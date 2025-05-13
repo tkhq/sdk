@@ -45,83 +45,13 @@ runs:
       run: pnpm install -r --frozen-lockfile
       shell: bash
 
-    - name: Debug cache environment
-      run: |
-        echo "Runner OS: ${{ runner.os }}"
-        echo "Cache key: ${{ runner.os }}-foundry-stable"
-        echo "Restore keys:"
-        echo "${{ runner.os }}-foundry-stable-"
-        echo "Linux-foundry-stable-"
-        echo "Cache storage info:"
-        du -sh ~/.foundry/bin || echo "No cache directory"
-        echo "Current PATH:"
-        echo $PATH
-      shell: bash
-      env:
-        ACTIONS_CACHE_DEBUG: true
-
-    - name: Cache Foundry binary
-      id: cache-foundry
-      uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-      with:
-        path: ~/.foundry/bin
-        key: ${{ runner.os }}-foundry-stable
-        restore-keys: |
-          ${{ runner.os }}-foundry-stable-
-          Linux-foundry-stable-
-      env:
-        ACTIONS_CACHE_DEBUG: true
-
     - name: Install Foundry
-      if: steps.cache-foundry.outputs.cache-hit != 'true'
-      run: |
-        set -euxo pipefail
-        echo "Cache miss, installing Foundry"
-        curl -L https://github.com/foundry-rs/foundry/releases/download/stable/foundry_stable_linux_amd64.tar.gz -o foundry.tar.gz
-        ls -la foundry.tar.gz
-        echo "Inspecting archive contents:"
-        tar -tzf foundry.tar.gz
-        mkdir -p /tmp/foundry
-        tar xz -C /tmp/foundry -f foundry.tar.gz
-        echo "Temporary directory contents:"
-        find /tmp/foundry -ls
-        mkdir -p ~/.foundry/bin
-        # Move binaries, accounting for possible nested structure
-        find /tmp/foundry -type f -executable -exec mv {} ~/.foundry/bin/ \;
-        echo "Foundry bin directory contents:"
-        ls -la ~/.foundry/bin
-        chmod +x ~/.foundry/bin/*
-        echo "$HOME/.foundry/bin" >> $GITHUB_PATH
-        echo "Updated PATH:"
-        cat $GITHUB_PATH
-        echo $PATH
-        rm -rf /tmp/foundry foundry.tar.gz
-        echo "Verifying anvil installation:"
-        ~/.foundry/bin/anvil --version
-      shell: bash
-
-    - name: Verify Foundry cache save
-      if: steps.cache-foundry.outputs.cache-hit != 'true'
-      run: |
-        echo "Verifying cache contents before save"
-        ls -la ~/.foundry/bin || echo "No Foundry binaries found"
-        du -sh ~/.foundry/bin || echo "No cache directory"
-      shell: bash
-
-    - name: Debug Foundry cache
-      run: |
-        echo "Cache hit: ${{ steps.cache-foundry.outputs.cache-hit }}"
-        echo "Foundry binary location:"
-        ls -la ~/.foundry/bin || echo "No Foundry binary found in ~/.foundry/bin"
-        echo "Checking PATH for Foundry binaries:"
-        which anvil || echo "anvil not found"
-        which forge || echo "forge not found"
-        which cast || echo "cast not found"
-        echo "PATH contents:"
-        echo $PATH
-        echo "GITHUB_PATH contents:"
-        cat $GITHUB_PATH || echo "No GITHUB_PATH file"
-        echo "All binaries in PATH:"
-        find $(echo $PATH | tr ':' ' ') -maxdepth 1 -type f -executable 2>/dev/null || echo "Error searching PATH"
-        anvil --version || echo "anvil not installed"
-      shell: bash
+      uses: foundry-rs/foundry-toolchain@82dee4ba654bd2146511f85f0d013af94670c4de # v1.4.0
+      with:
+        cache: true
+        version: "stable"
+        cache-key: ${{ github.job }}-${{ github.sha }}
+        cache-restore-keys: |
+          ${{ github.job }}-${{ github.sha }}
+          ${{ github.job }}-
+          ${{ runner.os }}-foundry-toolchain
