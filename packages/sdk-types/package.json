@@ -1,0 +1,52 @@
+{
+  "name": "@turnkey/sdk-types",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "prepublishOnly": "pnpm run clean && pnpm run build",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc -p tsconfig.typecheck.json"
+  },
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "license": "Apache-2.0",
+  "description": "Turnkey SDK Types",
+  "keywords": [
+    "Turnkey"
+  ],
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.com"
+  },
+  "homepage": "https://github.com/tkhq/sdk/packages/sdk-types#readme",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tkhq/sdk.git",
+    "directory": "packages/sdk-types"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "typescript": "5.4.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -22,6 +22,6 @@
   "devDependencies": {
     "@types/async-retry": "^1.4.8",
     "tsx": "^3.12.7",
-    "typescript": "^5.0.4"
+    "typescript": "5.4.3"
   }
 }
