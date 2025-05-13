@@ -156,6 +156,7 @@ export default function AuthPage() {
     appleEnabled: config.socials.providers.apple,
     googleEnabled: config.socials.providers.google,
     facebookEnabled: config.socials.providers.facebook,
+    socialLinking: true,
   };
 
   const onDragEnd = (result: DropResult) => {

@@ -3,6 +3,7 @@
 import styles from "./Auth.module.css";
 import React, { useEffect, useState } from "react";
 import { MuiPhone } from "./PhoneInput";
+import { jwtDecode } from "jwt-decode";
 import GoogleAuthButton from "./Google";
 import AppleAuthButton from "./Apple";
 import FacebookAuthButton from "./Facebook";
@@ -79,6 +80,7 @@ interface AuthProps {
     googleEnabled: boolean;
     walletEnabled: boolean;
     openOAuthInPage?: boolean;
+    socialLinking?: boolean; // Upon authenticating with Google, automatically add the Google account's email to the suborg's data
     sessionLengthSeconds?: number; // Desired expiration time in seconds for the generated API key
     googleClientId?: string; // will default to NEXT_PUBLIC_GOOGLE_CLIENT_ID
     appleClientId?: string; // will default to NEXT_PUBLIC_APPLE_CLIENT_ID
@@ -244,7 +246,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleOtpLogin = async (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
-    otpType: string,
+    otpType: string
   ) => {
     setLoading(otpType);
     const createSuborgData: Record<string, any> = {};
@@ -278,30 +280,41 @@ const Auth: React.FC<AuthProps> = ({
     setLoading(undefined);
   };
 
-  const handleOAuthLogin = async (credential: string, providerName: string) => {
+  const handleOAuthLogin = async (
+    credential: string,
+    providerName: string,
+    socialLinking = false
+  ) => {
     const pubKey = await indexedDbClient?.getPublicKey();
     if (!pubKey) {
       return;
     }
     setOauthLoading(providerName);
-    const createSuborgData: Record<string, any> = {
-      oauthProviders: [{ providerName, oidcToken: credential }],
+
+    const base = { providerName, oidcToken: credential };
+    const oauthProviders = [
+      socialLinking ? { ...base, linkToUserEmail: true } : base,
+    ];
+    const additionalData: Record<string, any> = {
+      oauthProviders,
+      ...(customAccounts && { customAccounts }),
     };
-    if (customAccounts) {
-      createSuborgData.customAccounts = customAccounts;
-    }
 
-    const resp = await server.getOrCreateSuborg({
-      filterType: FilterType.OidcToken,
-      filterValue: credential,
-      additionalData: createSuborgData,
-    });
-
-    const suborgIds = resp?.subOrganizationIds;
-    if (!suborgIds || suborgIds.length === 0) {
+    const completeLogin = async (suborgID: string) => {
+      const key = await authIframeClient!.initEmbeddedKey();
+      const session = await server.oauth({
+        suborgID,
+        oidcToken: credential,
+        targetPublicKey: key!,
+        sessionLengthSeconds: authConfig.sessionLengthSeconds,
+      });
+      if (session?.token) {
+        await authIframeClient!.loginWithSession(session);
+        return onAuthSuccess();
+      }
       onError(authErrors.oauth.loginFailed);
       return;
-    }
+    };
     const suborgId = suborgIds[0];
     const sessionResponse = await server.oauthLogin({
       suborgID: suborgId!,
@@ -315,6 +328,8 @@ const Auth: React.FC<AuthProps> = ({
     } else {
       onError(authErrors.oauth.loginFailed);
     }
+
+    return orgId ? completeLogin(orgId) : onError(authErrors.oauth.loginFailed);
   };
 
   const handleLoginWithWallet = async () => {
@@ -410,7 +425,11 @@ const Auth: React.FC<AuthProps> = ({
             }
             openInPage={authConfig.openOAuthInPage}
             onSuccess={(response: any) =>
-              handleOAuthLogin(response.idToken, "Google")
+              handleOAuthLogin(
+                response.idToken,
+                "Google",
+                authConfig.socialLinking
+              )
             }
           />
         )}
@@ -422,8 +441,8 @@ const Auth: React.FC<AuthProps> = ({
               process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!
             }
             openInPage={authConfig.openOAuthInPage}
-            onSuccess={(response: any) =>
-              handleOAuthLogin(response.idToken, "Apple")
+            onSuccess={
+              (response: any) => handleOAuthLogin(response.idToken, "Apple") // No need to pass socialLinking for Apple. It's not supported
             }
           />
         )}
@@ -435,8 +454,8 @@ const Auth: React.FC<AuthProps> = ({
               process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!
             }
             openInPage={authConfig.openOAuthInPage}
-            onSuccess={(response: any) =>
-              handleOAuthLogin(response.id_token, "Facebook")
+            onSuccess={
+              (response: any) => handleOAuthLogin(response.id_token, "Facebook") // No need to pass socialLinking for Facebook. It's not supported
             }
           />
         )}

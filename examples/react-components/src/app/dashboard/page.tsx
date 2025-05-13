@@ -232,7 +232,8 @@ export default function Dashboard() {
           {
             providerName: `TurnkeyDemoApp - ${Date.now()}`,
             oidcToken: oidcToken.idToken,
-          },
+            linkToUserEmail: true,
+          } as any,
         ],
       });
       window.location.reload();
