@@ -6,15 +6,14 @@ module.exports = {
     const releaseLine = await githubChangelog.getReleaseLine(
       changeset,
       type,
-      options,
+      options
     );
 
     // replace "Thanks [username]!" with "Author [username]"
     console.log("Original release line:", releaseLine);
-    const updatedReleaseLine = releaseLine.replace(
-      /Thanks (\[@.*\])!/,
-      "Author $1",
-    );
+    const regex = /Thanks (\[@\w+\]\(https:\/\/github\.com\/\w+\))!/;
+    const updatedReleaseLine = releaseLine.replace(regex, "Author $1");
+
     console.log("Updated release line:", updatedReleaseLine);
     return updatedReleaseLine;
   },
@@ -23,7 +22,7 @@ module.exports = {
     return githubChangelog.getDependencyReleaseLine(
       changesets,
       dependenciesUpdated,
-      options,
+      options
     );
   },
 };
