@@ -100,6 +100,7 @@ jobs:
 
       - name: Build
         run: pnpm run build-all
+
       - name: Debug Foundry setup
         run: |
           echo "Checking Foundry binaries:"

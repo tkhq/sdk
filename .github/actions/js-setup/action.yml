@@ -79,12 +79,15 @@ runs:
         echo "Cache miss, installing Foundry"
         curl -L https://github.com/foundry-rs/foundry/releases/download/stable/foundry_stable_linux_amd64.tar.gz -o foundry.tar.gz
         ls -la foundry.tar.gz
+        echo "Inspecting archive contents:"
+        tar -tzf foundry.tar.gz
         mkdir -p /tmp/foundry
         tar xz -C /tmp/foundry -f foundry.tar.gz
         echo "Temporary directory contents:"
-        ls -la /tmp/foundry
+        find /tmp/foundry -ls
         mkdir -p ~/.foundry/bin
-        mv /tmp/foundry/* ~/.foundry/bin/
+        # Move binaries, accounting for possible nested structure
+        find /tmp/foundry -type f -executable -exec mv {} ~/.foundry/bin/ \;
         echo "Foundry bin directory contents:"
         ls -la ~/.foundry/bin
         chmod +x ~/.foundry/bin/*
