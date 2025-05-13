@@ -131,7 +131,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    environment: production # require manual approval for production deployments
+    # environment: production # require manual approval for production deployments
     needs: test-prod
     steps:
       # https://github.com/actions/checkout
@@ -150,7 +150,7 @@ jobs:
           createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For changelog links
-          NPM_TOKEN: ${{ env.NPM_TOKEN }} # for npm publish
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # for npm publish
       # - name: Publish to npm (Push)
       #   uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
       #   with:
