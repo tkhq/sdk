@@ -6,7 +6,7 @@ module.exports = {
     const releaseLine = await githubChangelog.getReleaseLine(
       changeset,
       type,
-      options
+      options,
     );
 
     // replace "Thanks [username]!" with "Author [username]"
@@ -19,7 +19,7 @@ module.exports = {
     return githubChangelog.getDependencyReleaseLine(
       changesets,
       dependenciesUpdated,
-      options
+      options,
     );
   },
 };
