@@ -169,6 +169,15 @@ export type OauthRequest = {
   sessionLengthSeconds?: number | undefined;
 };
 
+export type CreateOauthProvidersRequest = {
+  organizationId: string;
+  userId: string;
+  oauthProviders: Provider[];
+};
+
+export type CreateOauthProvidersResponse =
+  TurnkeyApiTypes["v1CreateOauthProvidersResult"];
+
 export type SendOtpRequest = {
   suborgID: string;
   otpType: string;
@@ -196,6 +205,14 @@ export type InitEmailAuthRequest = {
   invalidateExisting?: boolean | undefined;
   emailCustomization?: EmailCustomization | undefined;
   sendFromEmailAddress?: string | undefined;
+};
+
+export type GetUsersRequest = {
+  organizationId: string;
+};
+
+export type GetUsersResponse = {
+  users: TurnkeyApiTypes["v1User"][];
 };
 
 export type GetSuborgsRequest = {
@@ -270,6 +287,7 @@ export type Passkey = {
 export type Provider = {
   providerName: string;
   oidcToken: string;
+  linkToUserEmail?: boolean | undefined;
 };
 
 export type CreateSuborgResponse = {
