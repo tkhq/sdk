@@ -5,12 +5,17 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened, labeled, unlabeled]
   workflow_dispatch: # Allows manual invocation
+  # TODO: Uncomment to trigger on tags
+  # push:
+  #   tags:
+  #     - "v*.*.*" # Triggers on tags like v1.0.0
 
 permissions:
   contents: write
   actions: read
   checks: write
   pull-requests: write
+  packages: write
 
 jobs:
   check-release-label:
@@ -137,26 +142,35 @@ jobs:
       # https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0 # fetch all history for changelog generation
 
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
-      - name: Publish SDK packages to npm
+      - name: Debug changeset config
+        run: |
+          ls -la .changeset/
+          cat .changeset/config.json || echo "config.json not found"
+          ls -la .changeset/custom-changelog.js || echo "custom-changelog.js not found"
+
+      - name: Debug npm config
+        run: |
+          echo "NPM_TOKEN is set: ${NPM_TOKEN:+set}"
+          cat .npmrc || echo "No .npmrc found"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Version and Publish SDK packages to npm
         uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
         with:
-          version: pnpm changeset version # Updates versions and changelog
-          publish: pnpm publish --dry-run # dry run publish to npm
-          createGithubReleases: false
+          version: pnpm changeset version # updates package versions and changelogs
+          publish: pnpm publish # publish to npm
+          createGithubReleases: true
+          commit: "chore: release packages"
+          title: "Release ${{ github.ref_name }}"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For changelog links
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # for changelog links
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # for npm publish
-      # - name: Publish to npm (Push)
-      #   uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
-      #   with:
-      #     version: pnpm --filter @turnkey/sdk-types run changeset version
-      #     publish: pnpm --filter @turnkey/sdk-types publish
-      #     createGithubReleases: false
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     NPM_TOKEN: ${{ env.NPM_TOKEN }}
+
