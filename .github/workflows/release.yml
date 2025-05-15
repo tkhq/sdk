@@ -148,6 +148,10 @@ jobs:
             echo "No changesets found, exiting"
             exit 0
           fi
+      - name: Configure Git User
+        run: |
+          git config user.name "tkhq-deploy"
+          git config user.email "github@turnkey.engineering"
 
       - name: Version and Publish
         uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
@@ -160,6 +164,7 @@ jobs:
           createGithubReleases: true
           commit: "chore: release packages"
           title: "Release ${{ github.ref_name }}"
+          setupGitUser: false # Disable default Git user setup
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # for changelog links
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # for npm publish
