@@ -881,93 +881,6 @@ export class TurnkeySDKClientBase {
   }
 
 
-	createOauthSession = async (input: SdkApiTypes.TCreateOauthSessionBody): Promise<SdkApiTypes.TCreateOauthSessionResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
-
-    return this.command("/public/v1/submit/create_oauth_session", {
-      parameters: rest,
-      organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_OAUTH_SESSION"
-    }, "createOauthSessionResult");
-  }
-
-
-	stampCreateOauthSession = async (input: SdkApiTypes.TCreateOauthSessionBody): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_oauth_session";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  }
-
-
-	createOtpSession = async (input: SdkApiTypes.TCreateOtpSessionBody): Promise<SdkApiTypes.TCreateOtpSessionResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
-
-    return this.command("/public/v1/submit/create_otp_session", {
-      parameters: rest,
-      organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_OTP_SESSION"
-    }, "createOtpSessionResult");
-  }
-
-
-	stampCreateOtpSession = async (input: SdkApiTypes.TCreateOtpSessionBody): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_otp_session";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  }
-
-
-	createPasskeySession = async (input: SdkApiTypes.TCreatePasskeySessionBody): Promise<SdkApiTypes.TCreatePasskeySessionResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
-
-    return this.command("/public/v1/submit/create_passkey_session", {
-      parameters: rest,
-      organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_PASSKEY_SESSION"
-    }, "createPasskeySessionResult");
-  }
-
-
-	stampCreatePasskeySession = async (input: SdkApiTypes.TCreatePasskeySessionBody): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_passkey_session";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  }
-
-
 	createPolicies = async (input: SdkApiTypes.TCreatePoliciesBody): Promise<SdkApiTypes.TCreatePoliciesResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     let session = await getStorageValue(StorageKeys.Session);
@@ -1954,6 +1867,35 @@ export class TurnkeySDKClientBase {
   }
 
 
+	oauthLogin = async (input: SdkApiTypes.TOauthLoginBody): Promise<SdkApiTypes.TOauthLoginResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
+    return this.command("/public/v1/submit/oauth_login", {
+      parameters: rest,
+      organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_OAUTH_LOGIN"
+    }, "oauthLoginResult");
+  }
+
+
+	stampOauthLogin = async (input: SdkApiTypes.TOauthLoginBody): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth_login";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  }
+
+
 	otpAuth = async (input: SdkApiTypes.TOtpAuthBody): Promise<SdkApiTypes.TOtpAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     let session = await getStorageValue(StorageKeys.Session);
@@ -1973,6 +1915,35 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_auth";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  }
+
+
+	otpLogin = async (input: SdkApiTypes.TOtpLoginBody): Promise<SdkApiTypes.TOtpLoginResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
+    return this.command("/public/v1/submit/otp_login", {
+      parameters: rest,
+      organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_OTP_LOGIN"
+    }, "otpLoginResult");
+  }
+
+
+	stampOtpLogin = async (input: SdkApiTypes.TOtpLoginBody): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_login";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2176,6 +2147,35 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/sign_transaction";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  }
+
+
+	stampLogin = async (input: SdkApiTypes.TStampLoginBody): Promise<SdkApiTypes.TStampLoginResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
+    return this.command("/public/v1/submit/stamp_login", {
+      parameters: rest,
+      organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_STAMP_LOGIN"
+    }, "stampLoginResult");
+  }
+
+
+	stampStampLogin = async (input: SdkApiTypes.TStampLoginBody): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/stamp_login";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

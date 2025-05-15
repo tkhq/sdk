@@ -3,7 +3,6 @@ import { uint8ArrayToHexString, stringToBase64urlString } from "@turnkey/encodin
 const DB_NAME = "TurnkeyStamperDB";
 const DB_STORE = "KeyStore";
 const DB_KEY = "turnkeyKeyPair";
-const DB_EXPIRY_KEY = `${DB_KEY}-expiry`;
 const stampHeaderName = "X-Stamp";
 
 function pointEncode(raw: Uint8Array): Uint8Array {

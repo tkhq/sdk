@@ -190,24 +190,6 @@ export type TCreateOauthProvidersInput = { body: TCreateOauthProvidersBody };
 
 export type TCreateOauthProvidersBody = operations["PublicApiService_CreateOauthProviders"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
-export type TCreateOauthSessionResponse = operations["PublicApiService_CreateOauthSession"]["responses"]["200"]["schema"]["activity"]["result"]["createOauthSessionResult"] & definitions["v1ActivityResponse"];
-
-export type TCreateOauthSessionInput = { body: TCreateOauthSessionBody };
-
-export type TCreateOauthSessionBody = operations["PublicApiService_CreateOauthSession"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
-
-export type TCreateOtpSessionResponse = operations["PublicApiService_CreateOtpSession"]["responses"]["200"]["schema"]["activity"]["result"]["createOtpSessionResult"] & definitions["v1ActivityResponse"];
-
-export type TCreateOtpSessionInput = { body: TCreateOtpSessionBody };
-
-export type TCreateOtpSessionBody = operations["PublicApiService_CreateOtpSession"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
-
-export type TCreatePasskeySessionResponse = operations["PublicApiService_CreatePasskeySession"]["responses"]["200"]["schema"]["activity"]["result"]["createPasskeySessionResult"] & definitions["v1ActivityResponse"];
-
-export type TCreatePasskeySessionInput = { body: TCreatePasskeySessionBody };
-
-export type TCreatePasskeySessionBody = operations["PublicApiService_CreatePasskeySession"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
-
 export type TCreatePoliciesResponse = operations["PublicApiService_CreatePolicies"]["responses"]["200"]["schema"]["activity"]["result"]["createPoliciesResult"] & definitions["v1ActivityResponse"];
 
 export type TCreatePoliciesInput = { body: TCreatePoliciesBody };
@@ -412,11 +394,23 @@ export type TOauthInput = { body: TOauthBody };
 
 export type TOauthBody = operations["PublicApiService_Oauth"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
+export type TOauthLoginResponse = operations["PublicApiService_OauthLogin"]["responses"]["200"]["schema"]["activity"]["result"]["oauthLoginResult"] & definitions["v1ActivityResponse"];
+
+export type TOauthLoginInput = { body: TOauthLoginBody };
+
+export type TOauthLoginBody = operations["PublicApiService_OauthLogin"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
+
 export type TOtpAuthResponse = operations["PublicApiService_OtpAuth"]["responses"]["200"]["schema"]["activity"]["result"]["otpAuthResult"] & definitions["v1ActivityResponse"];
 
 export type TOtpAuthInput = { body: TOtpAuthBody };
 
 export type TOtpAuthBody = operations["PublicApiService_OtpAuth"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
+
+export type TOtpLoginResponse = operations["PublicApiService_OtpLogin"]["responses"]["200"]["schema"]["activity"]["result"]["otpLoginResult"] & definitions["v1ActivityResponse"];
+
+export type TOtpLoginInput = { body: TOtpLoginBody };
+
+export type TOtpLoginBody = operations["PublicApiService_OtpLogin"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
 export type TRecoverUserResponse = operations["PublicApiService_RecoverUser"]["responses"]["200"]["schema"]["activity"]["result"]["recoverUserResult"] & definitions["v1ActivityResponse"];
 
@@ -459,6 +453,12 @@ export type TSignTransactionResponse = operations["PublicApiService_SignTransact
 export type TSignTransactionInput = { body: TSignTransactionBody };
 
 export type TSignTransactionBody = operations["PublicApiService_SignTransaction"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
+
+export type TStampLoginResponse = operations["PublicApiService_StampLogin"]["responses"]["200"]["schema"]["activity"]["result"]["stampLoginResult"] & definitions["v1ActivityResponse"];
+
+export type TStampLoginInput = { body: TStampLoginBody };
+
+export type TStampLoginBody = operations["PublicApiService_StampLogin"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
 export type TUpdatePolicyResponse = operations["PublicApiService_UpdatePolicy"]["responses"]["200"]["schema"]["activity"]["result"]["updatePolicyResultV2"] & definitions["v1ActivityResponse"];
 

@@ -1060,102 +1060,6 @@
         "tags": ["User Auth"]
       }
     },
-    "/public/v1/submit/create_oauth_session": {
-      "post": {
-        "summary": "Create Oauth Session",
-        "description": "Create an Oauth session for a user",
-        "operationId": "PublicApiService_CreateOauthSession",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1CreateOauthSessionRequest"
-            }
-          }
-        ],
-        "tags": ["Sessions"]
-      }
-    },
-    "/public/v1/submit/create_otp_session": {
-      "post": {
-        "summary": "Create OTP Session",
-        "description": "Create an OTP session for a user",
-        "operationId": "PublicApiService_CreateOtpSession",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1CreateOtpSessionRequest"
-            }
-          }
-        ],
-        "tags": ["Sessions"]
-      }
-    },
-    "/public/v1/submit/create_passkey_session": {
-      "post": {
-        "summary": "Create Passkey Session",
-        "description": "Create a Passkey session for a user",
-        "operationId": "PublicApiService_CreatePasskeySession",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1CreatePasskeySessionRequest"
-            }
-          }
-        ],
-        "tags": ["Sessions"]
-      }
-    },
     "/public/v1/submit/create_policies": {
       "post": {
         "summary": "Create Policies",
@@ -2244,6 +2148,38 @@
         "tags": ["User Auth"]
       }
     },
+    "/public/v1/submit/oauth_login": {
+      "post": {
+        "summary": "Login with Oauth",
+        "description": "Create an Oauth session for a user",
+        "operationId": "PublicApiService_OauthLogin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1OauthLoginRequest"
+            }
+          }
+        ],
+        "tags": ["Sessions"]
+      }
+    },
     "/public/v1/submit/otp_auth": {
       "post": {
         "summary": "OTP auth",
@@ -2274,6 +2210,38 @@
           }
         ],
         "tags": ["User Auth"]
+      }
+    },
+    "/public/v1/submit/otp_login": {
+      "post": {
+        "summary": "Login with OTP",
+        "description": "Create an OTP session for a user",
+        "operationId": "PublicApiService_OtpLogin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1OtpLoginRequest"
+            }
+          }
+        ],
+        "tags": ["Sessions"]
       }
     },
     "/public/v1/submit/recover_user": {
@@ -2498,6 +2466,38 @@
           }
         ],
         "tags": ["Signing"]
+      }
+    },
+    "/public/v1/submit/stamp_login": {
+      "post": {
+        "summary": "Login with a Stamp",
+        "description": "Create a session for a user through stamping client side (api key, wallet client, or passkey client)",
+        "operationId": "PublicApiService_StampLogin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1StampLoginRequest"
+            }
+          }
+        ],
+        "tags": ["Sessions"]
       }
     },
     "/public/v1/submit/update_policy": {
@@ -3259,9 +3259,9 @@
         "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
         "ACTIVITY_TYPE_INIT_OTP",
         "ACTIVITY_TYPE_VERIFY_OTP",
-        "ACTIVITY_TYPE_CREATE_OTP_SESSION",
-        "ACTIVITY_TYPE_CREATE_PASSKEY_SESSION",
-        "ACTIVITY_TYPE_CREATE_OAUTH_SESSION"
+        "ACTIVITY_TYPE_OTP_LOGIN",
+        "ACTIVITY_TYPE_STAMP_LOGIN",
+        "ACTIVITY_TYPE_OAUTH_LOGIN"
       ]
     },
     "v1AddressFormat": {
@@ -3891,59 +3891,6 @@
       },
       "required": ["providerIds"]
     },
-    "v1CreateOauthSessionIntent": {
-      "type": "object",
-      "properties": {
-        "oidcToken": {
-          "type": "string",
-          "description": "Base64 encoded OIDC token"
-        },
-        "publicKey": {
-          "type": "string",
-          "description": "Client-side public key generated by the user, which will be conditionally added to org data based on the validity of the oidc token associated with this request"
-        },
-        "expirationSeconds": {
-          "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the Session (api key in org data) is valid. If not provided, a default of 15 minutes will be used."
-        },
-        "invalidateExisting": {
-          "type": "boolean",
-          "description": "Invalidate all other previously generated Passkey Session API keys"
-        }
-      },
-      "required": ["oidcToken", "publicKey"]
-    },
-    "v1CreateOauthSessionRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_OAUTH_SESSION"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1CreateOauthSessionIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1CreateOauthSessionResult": {
-      "type": "object",
-      "properties": {
-        "session": {
-          "type": "string",
-          "description": "Signed JWT containing an expiry, public key, session type, user id, and organization id"
-        }
-      },
-      "required": ["session"]
-    },
     "v1CreateOrganizationIntent": {
       "type": "object",
       "properties": {
@@ -3997,108 +3944,6 @@
         }
       },
       "required": ["organizationId"]
-    },
-    "v1CreateOtpSessionIntent": {
-      "type": "object",
-      "properties": {
-        "verificationToken": {
-          "type": "string",
-          "description": "Signed JWT containing a unique id, expiry, verification type, contact"
-        },
-        "publicKey": {
-          "type": "string",
-          "description": "Client-side public key generated by the user, which will be conditionally added to org data based on the validity of the verification token"
-        },
-        "expirationSeconds": {
-          "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the Session (api key in org data) is valid. If not provided, a default of 15 minutes will be used."
-        },
-        "invalidateExisting": {
-          "type": "boolean",
-          "description": "Invalidate all other previously generated OTP Session API keys"
-        }
-      },
-      "required": ["verificationToken", "publicKey"]
-    },
-    "v1CreateOtpSessionRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_OTP_SESSION"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1CreateOtpSessionIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1CreateOtpSessionResult": {
-      "type": "object",
-      "properties": {
-        "session": {
-          "type": "string",
-          "description": "Signed JWT containing an expiry, public key, session type, user id, and organization id"
-        }
-      },
-      "required": ["session"]
-    },
-    "v1CreatePasskeySessionIntent": {
-      "type": "object",
-      "properties": {
-        "publicKey": {
-          "type": "string",
-          "description": "Client-side public key generated by the user, which will be conditionally added to org data based on the passkey stamp associated with this request"
-        },
-        "expirationSeconds": {
-          "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the Session (api key in org data) is valid. If not provided, a default of 15 minutes will be used."
-        },
-        "invalidateExisting": {
-          "type": "boolean",
-          "description": "Invalidate all other previously generated Passkey Session API keys"
-        }
-      },
-      "required": ["publicKey"]
-    },
-    "v1CreatePasskeySessionRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_PASSKEY_SESSION"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1CreatePasskeySessionIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1CreatePasskeySessionResult": {
-      "type": "object",
-      "properties": {
-        "session": {
-          "type": "string",
-          "description": "Signed JWT containing an expiry, public key, session type, user id, and organization id"
-        }
-      },
-      "required": ["session"]
     },
     "v1CreatePoliciesIntent": {
       "type": "object",
@@ -4464,7 +4309,7 @@
         },
         "expirationSeconds": {
           "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used."
+          "description": "Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used."
         }
       },
       "required": ["targetPublicKey", "email"]
@@ -4486,7 +4331,7 @@
         },
         "expirationSeconds": {
           "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used."
+          "description": "Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used."
         },
         "invalidateExisting": {
           "type": "boolean",
@@ -5207,9 +5052,7 @@
         "CREDENTIAL_TYPE_OTP_AUTH_KEY_P256",
         "CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256",
         "CREDENTIAL_TYPE_OAUTH_KEY_P256",
-        "CREDENTIAL_TYPE_OTP_SESSION",
-        "CREDENTIAL_TYPE_PASSKEY_SESSION",
-        "CREDENTIAL_TYPE_OAUTH_SESSION"
+        "CREDENTIAL_TYPE_LOGIN"
       ]
     },
     "v1Curve": {
@@ -5809,7 +5652,7 @@
         },
         "expirationSeconds": {
           "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used."
+          "description": "Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used."
         },
         "emailCustomization": {
           "$ref": "#/definitions/v1EmailCustomizationParams",
@@ -5851,7 +5694,7 @@
         },
         "expirationSeconds": {
           "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used."
+          "description": "Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used."
         },
         "emailCustomization": {
           "$ref": "#/definitions/v1EmailCustomizationParams",
@@ -7081,7 +6924,7 @@
       "properties": {
         "otpType": {
           "type": "string",
-          "description": "Enum to specifiy whether to send OTP via SMS or email"
+          "description": "Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL"
         },
         "contact": {
           "type": "string",
@@ -7118,7 +6961,7 @@
         },
         "expirationSeconds": {
           "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the OTP is valid. If not provided, a default of 5 minutes will be used."
+          "description": "Expiration window (in seconds) indicating how long the OTP is valid for. If not provided, a default of 5 minutes will be used. Maximum value is 600 seconds (10 minutes)"
         },
         "replyToEmailAddress": {
           "type": "string",
@@ -7171,7 +7014,7 @@
         },
         "expirationSeconds": {
           "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the recovery credential is valid. If not provided, a default of 15 minutes will be used."
+          "description": "Expiration window (in seconds) indicating how long the recovery credential is valid for. If not provided, a default of 15 minutes will be used."
         },
         "emailCustomization": {
           "$ref": "#/definitions/v1EmailCustomizationParams",
@@ -7469,14 +7312,14 @@
         "verifyOtpIntent": {
           "$ref": "#/definitions/v1VerifyOtpIntent"
         },
-        "createOtpSessionIntent": {
-          "$ref": "#/definitions/v1CreateOtpSessionIntent"
+        "otpLoginIntent": {
+          "$ref": "#/definitions/v1OtpLoginIntent"
         },
-        "createPasskeySessionIntent": {
-          "$ref": "#/definitions/v1CreatePasskeySessionIntent"
+        "stampLoginIntent": {
+          "$ref": "#/definitions/v1StampLoginIntent"
         },
-        "createOauthSessionIntent": {
-          "$ref": "#/definitions/v1CreateOauthSessionIntent"
+        "oauthLoginIntent": {
+          "$ref": "#/definitions/v1OauthLoginIntent"
         }
       }
     },
@@ -7664,7 +7507,7 @@
         },
         "expirationSeconds": {
           "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used."
+          "description": "Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used."
         },
         "invalidateExisting": {
           "type": "boolean",
@@ -7672,6 +7515,59 @@
         }
       },
       "required": ["oidcToken", "targetPublicKey"]
+    },
+    "v1OauthLoginIntent": {
+      "type": "object",
+      "properties": {
+        "oidcToken": {
+          "type": "string",
+          "description": "Base64 encoded OIDC token"
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Client-side public key generated by the user, which will be conditionally added to org data based on the validity of the oidc token associated with this request"
+        },
+        "expirationSeconds": {
+          "type": "string",
+          "description": "Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used."
+        },
+        "invalidateExisting": {
+          "type": "boolean",
+          "description": "Invalidate all other previously generated Login API keys"
+        }
+      },
+      "required": ["oidcToken", "publicKey"]
+    },
+    "v1OauthLoginRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_OAUTH_LOGIN"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1OauthLoginIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1OauthLoginResult": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "type": "string",
+          "description": "Signed JWT containing an expiry, public key, session type, user id, and organization id"
+        }
+      },
+      "required": ["session"]
     },
     "v1OauthProvider": {
       "type": "object",
@@ -7866,7 +7762,7 @@
         },
         "expirationSeconds": {
           "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used."
+          "description": "Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used."
         },
         "invalidateExisting": {
           "type": "boolean",
@@ -7913,6 +7809,59 @@
         }
       },
       "required": ["userId"]
+    },
+    "v1OtpLoginIntent": {
+      "type": "object",
+      "properties": {
+        "verificationToken": {
+          "type": "string",
+          "description": "Signed JWT containing a unique id, expiry, verification type, contact"
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Client-side public key generated by the user, which will be conditionally added to org data based on the validity of the verification token"
+        },
+        "expirationSeconds": {
+          "type": "string",
+          "description": "Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used."
+        },
+        "invalidateExisting": {
+          "type": "boolean",
+          "description": "Invalidate all other previously generated Login API keys"
+        }
+      },
+      "required": ["verificationToken", "publicKey"]
+    },
+    "v1OtpLoginRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_OTP_LOGIN"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1OtpLoginIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1OtpLoginResult": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "type": "string",
+          "description": "Signed JWT containing an expiry, public key, session type, user id, and organization id"
+        }
+      },
+      "required": ["session"]
     },
     "v1Pagination": {
       "type": "object",
@@ -8458,14 +8407,14 @@
         "verifyOtpResult": {
           "$ref": "#/definitions/v1VerifyOtpResult"
         },
-        "createOtpSessionResult": {
-          "$ref": "#/definitions/v1CreateOtpSessionResult"
+        "otpLoginResult": {
+          "$ref": "#/definitions/v1OtpLoginResult"
         },
-        "createPasskeySessionResult": {
-          "$ref": "#/definitions/v1CreatePasskeySessionResult"
+        "stampLoginResult": {
+          "$ref": "#/definitions/v1StampLoginResult"
         },
-        "createOauthSessionResult": {
-          "$ref": "#/definitions/v1CreateOauthSessionResult"
+        "oauthLoginResult": {
+          "$ref": "#/definitions/v1OauthLoginResult"
         }
       }
     },
@@ -8924,6 +8873,55 @@
           "description": "Template containing references to .OtpCode i.e Your OTP is {{.OtpCode}}"
         }
       }
+    },
+    "v1StampLoginIntent": {
+      "type": "object",
+      "properties": {
+        "publicKey": {
+          "type": "string",
+          "description": "Client-side public key generated by the user, which will be conditionally added to org data based on the passkey stamp associated with this request"
+        },
+        "expirationSeconds": {
+          "type": "string",
+          "description": "Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used."
+        },
+        "invalidateExisting": {
+          "type": "boolean",
+          "description": "Invalidate all other previously generated Login API keys"
+        }
+      },
+      "required": ["publicKey"]
+    },
+    "v1StampLoginRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_STAMP_LOGIN"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1StampLoginIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1StampLoginResult": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "type": "string",
+          "description": "Signed JWT containing an expiry, public key, session type, user id, and organization id"
+        }
+      },
+      "required": ["session"]
     },
     "v1TagType": {
       "type": "string",
@@ -9561,7 +9559,7 @@
         },
         "expirationSeconds": {
           "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the verification token is valid. If not provided, a default of 5 minutes will be used."
+          "description": "Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours)"
         }
       },
       "required": ["otpId", "otpCode"]

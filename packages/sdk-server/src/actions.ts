@@ -126,7 +126,7 @@ export async function verifyOtp(
 export async function createOtpSession(  request: CreateOtpSessionRequest): Promise<CreateOtpSessionResponse | undefined> {
   try {
     console.log("createOtpSession", request);
-    const response = await turnkeyClient.apiClient().createOtpSession({organizationId: request.suborgID, verificationToken: request.verificationToken, publicKey: request.publicKey, ...(request.sessionLengthSeconds !== undefined && { expirationSeconds: request.sessionLengthSeconds.toString(), }),});
+    const response = await turnkeyClient.apiClient().otpLogin({organizationId: request.suborgID, verificationToken: request.verificationToken, publicKey: request.publicKey, ...(request.sessionLengthSeconds !== undefined && { expirationSeconds: request.sessionLengthSeconds.toString(), }),});
     console.log(response)
     const { session } = response;
     if (!session) {
@@ -143,7 +143,7 @@ export async function createOtpSession(  request: CreateOtpSessionRequest): Prom
 
 export async function createOauthSession( request: CreateOauthSessionRequest): Promise<CreateOauthSessionResponse | undefined> {
   try {
-    const response = await turnkeyClient.apiClient().createOauthSession({organizationId: request.suborgID, oidcToken: request.oidcToken, publicKey: request.publicKey, ...(request.sessionLengthSeconds !== undefined && { expirationSeconds: request.sessionLengthSeconds.toString(), }),});
+    const response = await turnkeyClient.apiClient().oauthLogin({organizationId: request.suborgID, oidcToken: request.oidcToken, publicKey: request.publicKey, ...(request.sessionLengthSeconds !== undefined && { expirationSeconds: request.sessionLengthSeconds.toString(), }),});
 
     const { session } = response;
     if (!session) {

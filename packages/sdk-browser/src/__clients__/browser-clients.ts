@@ -28,7 +28,6 @@ import {
 import type { Passkey } from "@models";
 
 import {
-  saveSession,
   storeSession,
 } from "@storage";
 
@@ -252,8 +251,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    *
    * @param LoginWithPasskeyParams
    *   @param params.sessionType - The type of session to create
-   *   @param params.iframeClient - The iframe client to use to inject the credential bundle
-   *   @param params.targetPublicKey - The public key of the target client
+   *   @param params.publicKey - The public key of indexedDb
    *   @param params.expirationSeconds - Expiration time for the session in seconds. Defaults to 900 seconds or 15 minutes.
    * @returns {Promise<void>}
    */
@@ -284,7 +282,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           );
         }
 
-        const sessionResponse = await this.createPasskeySession({
+        const sessionResponse = await this.stampLogin({
           publicKey,
           expirationSeconds,
         });
@@ -298,141 +296,57 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     }
   };
 
-  /**
-   * Log in with a browser wallet.
-   *
-   * @param LoginWithWalletParams
-   *   @param params.sessionType - The type of session to create
-   *   @param params.iframeClient - The iframe client to use to inject the credential bundle
-   *   @param params.targetPublicKey - The public key of the target iframe
-   *   @param params.expirationSeconds - The expiration time for the session in seconds
-   * @returns {Promise<void>}
-   */
-  loginWithWallet = async (params: LoginWithWalletParams): Promise<void> => {
-    try {
-      const {
-        sessionType = SessionType.READ_WRITE,
-        iframeClient,
-        targetPublicKey,
-        expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-      } = params;
-      // Create a read-only session
-      if (sessionType === SessionType.READ_ONLY) {
-        const readOnlySessionResult = await this.createReadOnlySession({});
+/**
+ * Log in with a browser wallet.
+ *
+ * @param LoginWithWalletParams
+ *   @param params.sessionType - The type of session to create
+ *   @param params.publicKey - The public key of indexedDb
+ *   @param params.expirationSeconds - The expiration time for the session in seconds
+ * @returns {Promise<void>}
+ */
+loginWithWallet = async (params: LoginWithWalletParams): Promise<void> => {
+  try {
+    const {
+      sessionType = SessionType.READ_WRITE,
+      publicKey,
+      expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+    } = params;
 
-        const session: Session = {
-          sessionType: SessionType.READ_ONLY,
-          userId: readOnlySessionResult.userId,
-          organizationId: readOnlySessionResult.organizationId,
-          expiry: Number(readOnlySessionResult.sessionExpiry),
-          token: readOnlySessionResult.session,
-        };
-        await storeSession(session, AuthClient.Wallet);
-        // Create a read-write session
-      } else if (sessionType === SessionType.READ_WRITE) {
-        if (!targetPublicKey) {
-          throw new Error(
-            "You must provide a targetPublicKey to create a read-write session.",
-          );
-        }
+    if (sessionType === SessionType.READ_ONLY) {
+      const readOnlySessionResult = await this.createReadOnlySession({});
 
-        const readWriteSessionResult = await this.createReadWriteSession({
-          targetPublicKey,
-          expirationSeconds,
-        });
+      const session: Session = {
+        sessionType: SessionType.READ_ONLY,
+        userId: readOnlySessionResult.userId,
+        organizationId: readOnlySessionResult.organizationId,
+        expiry: Number(readOnlySessionResult.sessionExpiry),
+        token: readOnlySessionResult.session,
+      };
 
-        const session: Session = {
-          sessionType: SessionType.READ_WRITE,
-          userId: readWriteSessionResult.userId,
-          organizationId: readWriteSessionResult.organizationId,
-          expiry: Date.now() + Number(expirationSeconds) * 1000,
-          token: readWriteSessionResult.credentialBundle,
-        };
-
-        if (!iframeClient) {
-          throw new Error(
-            "You must provide an iframe client to log in with a wallet.",
-          );
-        }
-        await iframeClient.injectCredentialBundle(session.token!);
-
-        await storeSession(session, AuthClient.Iframe);
-      } else {
-        throw new Error(`Invalid session type passed: ${sessionType}`);
+      await storeSession(session, AuthClient.Wallet);
+    } else if (sessionType === SessionType.READ_WRITE) {
+      if (!publicKey) {
+        throw new Error(
+          "You must provide a publicKey to create a read-write session.",
+        );
       }
-    } catch (error) {
-      throw new Error(`Unable to log in with the provided wallet: ${error}`);
-    }
-  };
 
-  /**
-   * Creates a read-write session. This method infers the current user's organization ID and target userId.
-   * To be used in conjunction with an `iframeStamper`: the resulting session's credential bundle can be
-   * injected into an iframeStamper to create a session that enables both read and write requests.
-   *
-   * @param targetEmbeddedKey
-   * @param expirationSeconds
-   * @param userId
-   * @returns {Promise<SdkApiTypes.TCreateReadWriteSessionResponse>}
-   */
-  loginWithReadWriteSession = async (
-    targetEmbeddedKey: string,
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-    userId?: string,
-  ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
-    try {
-      const readWriteSessionResult = await this.createReadWriteSession({
-        targetPublicKey: targetEmbeddedKey,
+      const sessionResponse = await this.stampLogin({
+        publicKey: publicKey,
         expirationSeconds,
-        userId: userId!,
       });
 
-      // Ensure session and sessionExpiry are included in the object
-      const readWriteSessionResultWithSession = {
-        ...readWriteSessionResult,
-        credentialBundle: readWriteSessionResult.credentialBundle,
-        sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
-      };
-
-      // store auth bundle in local storage
-      await saveSession(readWriteSessionResultWithSession, this.authClient);
-
-      return readWriteSessionResultWithSession;
-    } catch (error) {
-      throw new Error(
-        `Unable to log in with the provided read-write session: ${error}`,
-      );
+      await storeSession(sessionResponse.session, AuthClient.IndexedDb);
+    } else {
+      throw new Error(`Invalid session type passed: ${sessionType}`);
     }
-  };
+  } catch (error) {
+    throw new Error(`Unable to log in with the provided wallet: ${error}`);
+  }
+};
 
-  /**
-   * Logs in with an existing auth bundle. this bundle enables both read and write requests.
-   *
-   * @param credentialBundle
-   * @param expirationSeconds
-   * @returns {Promise<boolean>}
-   */
-  loginWithAuthBundle = async (
-    credentialBundle: string,
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-  ): Promise<boolean> => {
-    try {
-      const whoAmIResult = await this.getWhoami();
 
-      const readWriteSessionResultWithSession = {
-        ...whoAmIResult,
-        credentialBundle: credentialBundle,
-        sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
-      };
-
-      await saveSession(readWriteSessionResultWithSession, this.authClient);
-      return true;
-    } catch (error) {
-      throw new Error(
-        `Unable to log in with the provided auth bundle: ${error}`,
-      );
-    }
-  };
 
   /**
    * Removes authentication factors from an end user.

@@ -1516,162 +1516,6 @@ export const signCreateOauthProviders = (
   });
 
 /**
- * `POST /public/v1/submit/create_oauth_session`
- */
-export type TCreateOauthSessionResponse =
-  operations["PublicApiService_CreateOauthSession"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/submit/create_oauth_session`
- */
-export type TCreateOauthSessionInput = { body: TCreateOauthSessionBody };
-
-/**
- * `POST /public/v1/submit/create_oauth_session`
- */
-export type TCreateOauthSessionBody =
-  operations["PublicApiService_CreateOauthSession"]["parameters"]["body"]["body"];
-
-/**
- * Create Oauth Session
- *
- * Create an Oauth session for a user
- *
- * `POST /public/v1/submit/create_oauth_session`
- */
-export const createOauthSession = (input: TCreateOauthSessionInput) =>
-  request<
-    TCreateOauthSessionResponse,
-    TCreateOauthSessionBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/submit/create_oauth_session",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `CreateOauthSession` request, ready to be POSTed to Turnkey.
- *
- * See {@link CreateOauthSession}
- */
-export const signCreateOauthSession = (
-  input: TCreateOauthSessionInput,
-  options?: TurnkeyCredentialRequestOptions
-) =>
-  signedRequest<TCreateOauthSessionBody, never, never>({
-    uri: "/public/v1/submit/create_oauth_session",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/submit/create_otp_session`
- */
-export type TCreateOtpSessionResponse =
-  operations["PublicApiService_CreateOtpSession"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/submit/create_otp_session`
- */
-export type TCreateOtpSessionInput = { body: TCreateOtpSessionBody };
-
-/**
- * `POST /public/v1/submit/create_otp_session`
- */
-export type TCreateOtpSessionBody =
-  operations["PublicApiService_CreateOtpSession"]["parameters"]["body"]["body"];
-
-/**
- * Create OTP Session
- *
- * Create an OTP session for a user
- *
- * `POST /public/v1/submit/create_otp_session`
- */
-export const createOtpSession = (input: TCreateOtpSessionInput) =>
-  request<
-    TCreateOtpSessionResponse,
-    TCreateOtpSessionBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/submit/create_otp_session",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `CreateOtpSession` request, ready to be POSTed to Turnkey.
- *
- * See {@link CreateOtpSession}
- */
-export const signCreateOtpSession = (
-  input: TCreateOtpSessionInput,
-  options?: TurnkeyCredentialRequestOptions
-) =>
-  signedRequest<TCreateOtpSessionBody, never, never>({
-    uri: "/public/v1/submit/create_otp_session",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/submit/create_passkey_session`
- */
-export type TCreatePasskeySessionResponse =
-  operations["PublicApiService_CreatePasskeySession"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/submit/create_passkey_session`
- */
-export type TCreatePasskeySessionInput = { body: TCreatePasskeySessionBody };
-
-/**
- * `POST /public/v1/submit/create_passkey_session`
- */
-export type TCreatePasskeySessionBody =
-  operations["PublicApiService_CreatePasskeySession"]["parameters"]["body"]["body"];
-
-/**
- * Create Passkey Session
- *
- * Create a Passkey session for a user
- *
- * `POST /public/v1/submit/create_passkey_session`
- */
-export const createPasskeySession = (input: TCreatePasskeySessionInput) =>
-  request<
-    TCreatePasskeySessionResponse,
-    TCreatePasskeySessionBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/submit/create_passkey_session",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `CreatePasskeySession` request, ready to be POSTed to Turnkey.
- *
- * See {@link CreatePasskeySession}
- */
-export const signCreatePasskeySession = (
-  input: TCreatePasskeySessionInput,
-  options?: TurnkeyCredentialRequestOptions
-) =>
-  signedRequest<TCreatePasskeySessionBody, never, never>({
-    uri: "/public/v1/submit/create_passkey_session",
-    body: input.body,
-    options,
-  });
-
-/**
  * `POST /public/v1/submit/create_policies`
  */
 export type TCreatePoliciesResponse =
@@ -3346,6 +3190,52 @@ export const signOauth = (
   });
 
 /**
+ * `POST /public/v1/submit/oauth_login`
+ */
+export type TOauthLoginResponse =
+  operations["PublicApiService_OauthLogin"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/oauth_login`
+ */
+export type TOauthLoginInput = { body: TOauthLoginBody };
+
+/**
+ * `POST /public/v1/submit/oauth_login`
+ */
+export type TOauthLoginBody =
+  operations["PublicApiService_OauthLogin"]["parameters"]["body"]["body"];
+
+/**
+ * Login with Oauth
+ *
+ * Create an Oauth session for a user
+ *
+ * `POST /public/v1/submit/oauth_login`
+ */
+export const oauthLogin = (input: TOauthLoginInput) =>
+  request<TOauthLoginResponse, TOauthLoginBody, never, never, never>({
+    uri: "/public/v1/submit/oauth_login",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `OauthLogin` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link OauthLogin}
+ */
+export const signOauthLogin = (
+  input: TOauthLoginInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TOauthLoginBody, never, never>({
+    uri: "/public/v1/submit/oauth_login",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/otp_auth`
  */
 export type TOtpAuthResponse =
@@ -3387,6 +3277,52 @@ export const signOtpAuth = (
 ) =>
   signedRequest<TOtpAuthBody, never, never>({
     uri: "/public/v1/submit/otp_auth",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/otp_login`
+ */
+export type TOtpLoginResponse =
+  operations["PublicApiService_OtpLogin"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/otp_login`
+ */
+export type TOtpLoginInput = { body: TOtpLoginBody };
+
+/**
+ * `POST /public/v1/submit/otp_login`
+ */
+export type TOtpLoginBody =
+  operations["PublicApiService_OtpLogin"]["parameters"]["body"]["body"];
+
+/**
+ * Login with OTP
+ *
+ * Create an OTP session for a user
+ *
+ * `POST /public/v1/submit/otp_login`
+ */
+export const otpLogin = (input: TOtpLoginInput) =>
+  request<TOtpLoginResponse, TOtpLoginBody, never, never, never>({
+    uri: "/public/v1/submit/otp_login",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `OtpLogin` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link OtpLogin}
+ */
+export const signOtpLogin = (
+  input: TOtpLoginInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TOtpLoginBody, never, never>({
+    uri: "/public/v1/submit/otp_login",
     body: input.body,
     options,
   });
@@ -3727,6 +3663,52 @@ export const signSignTransaction = (
 ) =>
   signedRequest<TSignTransactionBody, never, never>({
     uri: "/public/v1/submit/sign_transaction",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/stamp_login`
+ */
+export type TStampLoginResponse =
+  operations["PublicApiService_StampLogin"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/stamp_login`
+ */
+export type TStampLoginInput = { body: TStampLoginBody };
+
+/**
+ * `POST /public/v1/submit/stamp_login`
+ */
+export type TStampLoginBody =
+  operations["PublicApiService_StampLogin"]["parameters"]["body"]["body"];
+
+/**
+ * Login with a Stamp
+ *
+ * Create a session for a user through stamping client side (api key, wallet client, or passkey client)
+ *
+ * `POST /public/v1/submit/stamp_login`
+ */
+export const stampLogin = (input: TStampLoginInput) =>
+  request<TStampLoginResponse, TStampLoginBody, never, never, never>({
+    uri: "/public/v1/submit/stamp_login",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `StampLogin` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link StampLogin}
+ */
+export const signStampLogin = (
+  input: TStampLoginInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TStampLoginBody, never, never>({
+    uri: "/public/v1/submit/stamp_login",
     body: input.body,
     options,
   });
