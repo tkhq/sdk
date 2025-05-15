@@ -217,7 +217,7 @@ export interface PasskeyClientParams {
 export interface RefreshSessionParams {
   sessionType: SessionType;
   expirationSeconds?: string | undefined;
-  targetPublicKey?: string;
+  publicKey?: string;
 }
 
 export interface LoginWithBundleParams {
