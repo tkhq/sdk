@@ -153,17 +153,46 @@ jobs:
           git config user.name "tkhq-deploy"
           git config user.email "github@turnkey.engineering"
 
-      - name: Version and Publish
-        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
+      - name: Version packages
+        uses: changesets/action@e0538e686673de0265c8a3e2904b8c76beaa43fd # v1.5.2
         with:
           version: pnpm changeset version # updates package versions and changelogs
-          publish: |
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
-            pnpm publish --no-git-checks
-            rm .npmrc
-          createGithubReleases: true
           commit: "chore: release packages"
-          setupGitUser: false # Disable default Git user setup
+          setupGitUser: false
+          createGithubReleases: true
+          commitMode: "github-api"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # for changelog links
+
+      - name: Publish packages
+        run: |
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+          pnpm publish --no-git-checks
+          rm .npmrc
+        env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # for npm publish
+
+      - name: Combine changelogs
+        run: |
+          echo -e "# Changelog\n" > RELEASE_NOTES.md
+          find packages -name CHANGELOG.md -exec cat {} \; >> RELEASE_NOTES.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push changes to release branch
+        run: |
+          git checkout -b release/${{ github.ref_name }}
+          git add .
+          git commit -m "chore: release ${{ github.ref_name }}"
+          git push origin release/${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
