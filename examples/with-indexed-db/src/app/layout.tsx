@@ -21,9 +21,9 @@ function RootLayout({ children }: RootLayoutProps) {
         <title>Turnkey Auth Demo</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
-        <body>
-          <TurnkeyProvider config={turnkeyConfig}>{children}</TurnkeyProvider>
-        </body>
+      <body>
+        <TurnkeyProvider config={turnkeyConfig}>{children}</TurnkeyProvider>
+      </body>
     </html>
   );
 }

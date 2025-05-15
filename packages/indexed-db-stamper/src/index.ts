@@ -1,4 +1,7 @@
-import { uint8ArrayToHexString, stringToBase64urlString } from "@turnkey/encoding";
+import {
+  uint8ArrayToHexString,
+  stringToBase64urlString,
+} from "@turnkey/encoding";
 
 const DB_NAME = "TurnkeyStamperDB";
 const DB_STORE = "KeyStore";
@@ -97,8 +100,6 @@ function toUnsignedBigNum(bytes: Uint8Array): Uint8Array {
   return res;
 }
 
-
-
 export class IndexedDbStamper {
   private publicKeyHex: string | null = null;
   private privateKey: CryptoKey | null = null;
@@ -123,7 +124,10 @@ export class IndexedDbStamper {
     });
   }
 
-  private async storeKeyPair(publicKey: string, privateKey: CryptoKey): Promise<void> {
+  private async storeKeyPair(
+    publicKey: string,
+    privateKey: CryptoKey,
+  ): Promise<void> {
     const db = await this.openDb();
     return new Promise((resolve, reject) => {
       const tx = db.transaction(DB_STORE, "readwrite");
@@ -185,10 +189,12 @@ export class IndexedDbStamper {
         namedCurve: "P-256",
       },
       false,
-      ["sign", "verify"]
+      ["sign", "verify"],
     );
 
-    const rawPubKey = new Uint8Array(await crypto.subtle.exportKey("raw", keyPair.publicKey));
+    const rawPubKey = new Uint8Array(
+      await crypto.subtle.exportKey("raw", keyPair.publicKey),
+    );
     const compressedPubKey = pointEncode(rawPubKey);
     const compressedHex = uint8ArrayToHexString(compressedPubKey);
 
@@ -214,10 +220,12 @@ export class IndexedDbStamper {
         hash: { name: "SHA-256" },
       },
       this.privateKey,
-      encodedPayload
+      encodedPayload,
     );
 
-    const signatureDer = convertEcdsaIeee1363ToDer(new Uint8Array(signatureIeee1363));
+    const signatureDer = convertEcdsaIeee1363ToDer(
+      new Uint8Array(signatureIeee1363),
+    );
     return uint8ArrayToHexString(signatureDer);
   }
 

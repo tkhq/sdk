@@ -105,7 +105,8 @@ const Auth: React.FC<AuthProps> = ({
   passkeyConfig,
   otpConfig,
 }) => {
-  const { passkeyClient, walletClient, indexedDbClient, turnkey} = useTurnkey();
+  const { passkeyClient, walletClient, indexedDbClient, turnkey } =
+    useTurnkey();
   const [publicKey, setPublicKey] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
@@ -130,10 +131,10 @@ const Auth: React.FC<AuthProps> = ({
   useEffect(() => {
     if (indexedDbClient && turnkey) {
       setComponentReady(true);
-  
-      const manageClient= async () => {
+
+      const manageClient = async () => {
         const session = await turnkey.getSession();
-  
+
         if (session) {
           const publicKey = await indexedDbClient.getPublicKey();
           setPublicKey(publicKey!);
@@ -143,7 +144,7 @@ const Auth: React.FC<AuthProps> = ({
           setPublicKey(publicKey!);
         }
       };
-  
+
       manageClient();
     }
   }, [indexedDbClient]);
@@ -247,7 +248,6 @@ const Auth: React.FC<AuthProps> = ({
     }
   };
 
-  
   const handleOtpLogin = async (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,

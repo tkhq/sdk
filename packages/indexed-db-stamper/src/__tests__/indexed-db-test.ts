@@ -79,8 +79,8 @@ function setupBrowserEnvironment() {
 
   (global as any).crypto = {
     subtle: {
-      generateKey: jest.fn(() =>
-        Promise.resolve(fakeKeyPair) as Promise<CryptoKeyPair>
+      generateKey: jest.fn(
+        () => Promise.resolve(fakeKeyPair) as Promise<CryptoKeyPair>,
       ),
       exportKey: jest.fn(async (_format: string, _key: CryptoKey) => {
         return fakePublicKeyBytes.buffer;
@@ -131,7 +131,7 @@ test("produces a valid stamp object", async () => {
   expect(result).toHaveProperty("stampHeaderValue");
 
   const decoded = JSON.parse(
-    Buffer.from(result.stampHeaderValue, "base64url").toString("utf8")
+    Buffer.from(result.stampHeaderValue, "base64url").toString("utf8"),
   );
 
   expect(decoded).toHaveProperty("publicKey");

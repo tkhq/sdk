@@ -161,7 +161,6 @@ export type VerifyOtpRequest = {
   sessionLengthSeconds?: number | undefined;
 };
 
-
 export type SendOtpRequest = {
   otpType: string;
   contact: string;

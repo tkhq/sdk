@@ -19,17 +19,11 @@ import {
   RefreshSessionParams,
 } from "@types";
 
-import {
-  generateRandomBuffer,
-  base64UrlEncode,
-  parseSession,
-} from "@utils";
+import { generateRandomBuffer, base64UrlEncode, parseSession } from "@utils";
 
 import type { Passkey } from "@models";
 
-import {
-  storeSession,
-} from "@storage";
+import { storeSession } from "@storage";
 
 import { DEFAULT_SESSION_EXPIRATION_IN_SECONDS } from "@constants";
 
@@ -234,7 +228,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @returns {Promise<void>}
    */
   loginWithSession = async (session: string): Promise<void> => {
-    const parsedSession = parseSession(session)
+    const parsedSession = parseSession(session);
     if (this instanceof TurnkeyIndexedDbClient) {
       await storeSession(parsedSession, AuthClient.IndexedDb);
     } else {
@@ -296,57 +290,55 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     }
   };
 
-/**
- * Log in with a browser wallet.
- *
- * @param LoginWithWalletParams
- *   @param params.sessionType - The type of session to create
- *   @param params.publicKey - The public key of indexedDb
- *   @param params.expirationSeconds - The expiration time for the session in seconds
- * @returns {Promise<void>}
- */
-loginWithWallet = async (params: LoginWithWalletParams): Promise<void> => {
-  try {
-    const {
-      sessionType = SessionType.READ_WRITE,
-      publicKey,
-      expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-    } = params;
+  /**
+   * Log in with a browser wallet.
+   *
+   * @param LoginWithWalletParams
+   *   @param params.sessionType - The type of session to create
+   *   @param params.publicKey - The public key of indexedDb
+   *   @param params.expirationSeconds - The expiration time for the session in seconds
+   * @returns {Promise<void>}
+   */
+  loginWithWallet = async (params: LoginWithWalletParams): Promise<void> => {
+    try {
+      const {
+        sessionType = SessionType.READ_WRITE,
+        publicKey,
+        expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+      } = params;
 
-    if (sessionType === SessionType.READ_ONLY) {
-      const readOnlySessionResult = await this.createReadOnlySession({});
+      if (sessionType === SessionType.READ_ONLY) {
+        const readOnlySessionResult = await this.createReadOnlySession({});
 
-      const session: Session = {
-        sessionType: SessionType.READ_ONLY,
-        userId: readOnlySessionResult.userId,
-        organizationId: readOnlySessionResult.organizationId,
-        expiry: Number(readOnlySessionResult.sessionExpiry),
-        token: readOnlySessionResult.session,
-      };
+        const session: Session = {
+          sessionType: SessionType.READ_ONLY,
+          userId: readOnlySessionResult.userId,
+          organizationId: readOnlySessionResult.organizationId,
+          expiry: Number(readOnlySessionResult.sessionExpiry),
+          token: readOnlySessionResult.session,
+        };
 
-      await storeSession(session, AuthClient.Wallet);
-    } else if (sessionType === SessionType.READ_WRITE) {
-      if (!publicKey) {
-        throw new Error(
-          "You must provide a publicKey to create a read-write session.",
-        );
+        await storeSession(session, AuthClient.Wallet);
+      } else if (sessionType === SessionType.READ_WRITE) {
+        if (!publicKey) {
+          throw new Error(
+            "You must provide a publicKey to create a read-write session.",
+          );
+        }
+
+        const sessionResponse = await this.stampLogin({
+          publicKey: publicKey,
+          expirationSeconds,
+        });
+
+        await storeSession(sessionResponse.session, AuthClient.IndexedDb);
+      } else {
+        throw new Error(`Invalid session type passed: ${sessionType}`);
       }
-
-      const sessionResponse = await this.stampLogin({
-        publicKey: publicKey,
-        expirationSeconds,
-      });
-
-      await storeSession(sessionResponse.session, AuthClient.IndexedDb);
-    } else {
-      throw new Error(`Invalid session type passed: ${sessionType}`);
+    } catch (error) {
+      throw new Error(`Unable to log in with the provided wallet: ${error}`);
     }
-  } catch (error) {
-    throw new Error(`Unable to log in with the provided wallet: ${error}`);
-  }
-};
-
-
+  };
 
   /**
    * Removes authentication factors from an end user.
@@ -768,13 +760,11 @@ export class TurnkeyWalletClient extends TurnkeyBrowserClient {
   }
 }
 
-
 /**
  * TurnkeyIndexedDbClient is a client that uses IndexedDb to interact with the Turnkey API.
  * @extends TurnkeyBrowserClient
  */
 export class TurnkeyIndexedDbClient extends TurnkeyBrowserClient {
-
   constructor(config: TurnkeySDKClientConfig) {
     super(config, AuthClient.IndexedDb);
   }
@@ -795,4 +785,3 @@ export class TurnkeyIndexedDbClient extends TurnkeyBrowserClient {
     return await (this.stamper as IndexedDbStamper).resetKeyPair();
   };
 }
-

@@ -313,18 +313,18 @@ export default function Dashboard() {
 
         const suborgId = session.organizationId;
         setSuborgId(suborgId);
-  
+
         const userResponse = await indexedDbClient.getUser({
           organizationId: suborgId,
           userId: session.userId,
         });
         setUser(userResponse.user);
-  
+
         const walletsResponse = await indexedDbClient.getWallets({
           organizationId: suborgId,
         });
         setWallets(walletsResponse.wallets);
-  
+
         if (userResponse.user.userEmail) {
           const suborgs = await server.getVerifiedSuborgs({
             filterType: "EMAIL",
@@ -334,7 +334,7 @@ export default function Dashboard() {
             setIsVerifiedEmail(true);
           }
         }
-  
+
         if (userResponse.user.userPhoneNumber) {
           const suborgs = await server.getVerifiedSuborgs({
             filterType: "PHONE_NUMBER",
@@ -344,17 +344,17 @@ export default function Dashboard() {
             setIsVerifiedPhone(true);
           }
         }
-  
+
         if (walletsResponse.wallets.length > 0) {
           const defaultWalletId = walletsResponse.wallets[0].walletId;
           setSelectedWallet(defaultWalletId);
-  
+
           const accountsResponse = await indexedDbClient.getWalletAccounts({
             organizationId: suborgId,
             walletId: defaultWalletId,
           });
           setAccounts(accountsResponse.accounts);
-  
+
           if (accountsResponse.accounts.length > 0) {
             setSelectedAccount(accountsResponse.accounts[0].address);
           }
@@ -365,12 +365,11 @@ export default function Dashboard() {
         setLoading(false);
       }
     };
-  
+
     if (indexedDbClient) {
       manageSession();
     }
   }, [indexedDbClient, turnkey]);
-  
 
   const getWallets = async () => {
     const walletsResponse = await indexedDbClient!.getWallets({
@@ -1158,4 +1157,3 @@ export default function Dashboard() {
     </main>
   );
 }
-

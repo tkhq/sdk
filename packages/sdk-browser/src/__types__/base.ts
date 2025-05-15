@@ -185,7 +185,11 @@ export interface TurnkeySDKBrowserConfig {
   dangerouslyOverrideIframeKeyTtl?: number;
 }
 
-export type Stamper = WebauthnStamper | IframeStamper | WalletStamper | IndexedDbStamper;
+export type Stamper =
+  | WebauthnStamper
+  | IframeStamper
+  | WalletStamper
+  | IndexedDbStamper;
 
 export type queryOverrideParams = {
   organizationId?: string;
