@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
 lockfileVersion: '6.0'
 
 overrides:
@@ -476,6 +479,12 @@ importers:
       '@solana/web3.js':
         specifier: ^1.95.8
         version: 1.95.8(encoding@0.1.13)
+<<<<<<< HEAD
+=======
+      '@turnkey/indexed-db-stamper':
+        specifier: workspace:*
+        version: link:../../packages/indexed-db-stamper
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
       '@turnkey/sdk-browser':
         specifier: workspace:*
         version: link:../../packages/sdk-browser
@@ -1121,6 +1130,66 @@ importers:
         specifier: ^6.10.0
         version: 6.10.0
 
+<<<<<<< HEAD
+=======
+  examples/with-indexed-db:
+    dependencies:
+      '@turnkey/sdk-browser':
+        specifier: workspace:*
+        version: link:../../packages/sdk-browser
+      '@turnkey/sdk-react':
+        specifier: workspace:*
+        version: link:../../packages/sdk-react
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      axios:
+        specifier: '>1.8.2'
+        version: 1.8.3
+      encoding:
+        specifier: ^0.1.13
+        version: 0.1.13
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-config-next:
+        specifier: 14.2.25
+        version: 14.2.25(eslint@8.56.0)(typescript@5.1.3)
+      esm:
+        specifier: ^3.2.25
+        version: 3.2.25
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
+      next:
+        specifier: ^14.2.25
+        version: 14.2.25(@babel/core@7.26.9)(react-dom@18.2.0)(react@18.2.0)
+      npm:
+        specifier: ^9.7.2
+        version: 9.7.2
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-hook-form:
+        specifier: ^7.45.1
+        version: 7.45.1(react@18.2.0)
+      typescript:
+        specifier: 5.1.3
+        version: 5.1.3
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   examples/with-movement:
     dependencies:
       '@noble/hashes':
@@ -1881,6 +1950,28 @@ importers:
 
   packages/iframe-stamper: {}
 
+<<<<<<< HEAD
+=======
+  packages/indexed-db-stamper:
+    dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../api-key-stamper
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../encoding
+    devDependencies:
+      '@types/jest':
+        specifier: ^29.5.3
+        version: 29.5.3
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@18.18.2)
+      ts-jest:
+        specifier: ^29.3.1
+        version: 29.3.1(@babel/core@7.26.9)(@jest/types@29.4.3)(jest@29.7.0)(typescript@5.4.3)
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   packages/react-native-passkey-stamper:
     dependencies:
       '@turnkey/encoding':
@@ -1916,6 +2007,12 @@ importers:
       '@turnkey/iframe-stamper':
         specifier: workspace:*
         version: link:../iframe-stamper
+<<<<<<< HEAD
+=======
+      '@turnkey/indexed-db-stamper':
+        specifier: workspace:*
+        version: link:../indexed-db-stamper
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
       '@turnkey/wallet-stamper':
         specifier: workspace:*
         version: link:../wallet-stamper
@@ -2021,10 +2118,17 @@ importers:
         specifier: workspace:*
         version: link:../react-native-passkey-stamper
       '@types/react':
+<<<<<<< HEAD
         specifier: '>=16.8.0 <20'
         version: 18.3.3
       react:
         specifier: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+=======
+        specifier: ^18.2.75
+        version: 18.3.3
+      react:
+        specifier: ^16.8.0 || ^17.0.0 || ^18.0.0
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
         version: 18.3.1
       react-native-inappbrowser-reborn:
         specifier: ^3.7.0
@@ -5129,7 +5233,10 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.1
+<<<<<<< HEAD
     dev: false
+=======
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
 
   /@babel/runtime@7.24.8:
     resolution: {integrity: sha512-5F7SDGs1T72ZczbRwbGO9lQi0NLjQxzl6i4lJxLxfW9U5UluCSyEJeniWvnhl3/euNiqQVbo8zruhsDfid0esA==}
@@ -5359,7 +5466,11 @@ packages:
     resolution: {integrity: sha512-UVppOvzCjjylBenFcwcZNG5IaZ8jsIaEVraV/pbXgukYNb0Oqa0d8UWb0LkYzA1Bf1HmUrOfccFcRLheRuA7pA==}
     hasBin: true
     dependencies:
+<<<<<<< HEAD
       '@babel/runtime': 7.26.10
+=======
+      '@babel/runtime': 7.24.1
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
       '@changesets/apply-release-plan': 7.0.3
       '@changesets/assemble-release-plan': 6.0.2
       '@changesets/changelog-git': 0.2.0
@@ -7289,7 +7400,11 @@ packages:
       '@jest/schemas': 29.4.3
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
+<<<<<<< HEAD
       '@types/node': 22.7.7
+=======
+      '@types/node': 20.3.1
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
       '@types/yargs': 17.0.22
       chalk: 4.1.2
     dev: true
@@ -8084,12 +8199,15 @@ packages:
     dependencies:
       '@noble/hashes': 1.7.1
 
+<<<<<<< HEAD
   /@noble/curves@1.8.2:
     resolution: {integrity: sha512-vnI7V6lFNe0tLAuJMu+2sX+FcL14TaCWy1qiczg1VwRmPrpQCdq5ESXQMqUc2tluRNf6irBXrWbl1mGN8uaU/g==}
     engines: {node: ^14.21.3 || >=16}
     dependencies:
       '@noble/hashes': 1.7.2
 
+=======
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /@noble/ed25519@2.1.0:
     resolution: {integrity: sha512-KM4qTyXPinyCgMzeYJH/UudpdL+paJXtY3CHtHYZQtBkS8MZoPr4rOikZllIutJe0d06QDQKisyn02gxZ8TcQA==}
     dev: false
@@ -8122,10 +8240,13 @@ packages:
     resolution: {integrity: sha512-B8XBPsn4vT/KJAGqDzbwztd+6Yte3P4V7iafm24bxgDe/mlRuK6xmWPuCNrKt2vDafZ8MfJLlchDG/vYafQEjQ==}
     engines: {node: ^14.21.3 || >=16}
 
+<<<<<<< HEAD
   /@noble/hashes@1.7.2:
     resolution: {integrity: sha512-biZ0NUSxyjLLqo6KxEJ1b+C2NAx0wtDoFvCaXHGgUkeHzf3Xc1xKumFKREuT7f7DARNZ/slvYUwFG6B0f2b6hQ==}
     engines: {node: ^14.21.3 || >=16}
 
+=======
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /@noble/secp256k1@1.7.1:
     resolution: {integrity: sha512-hOUk6AyBFmqVrv7k5WAw/LpszxVbj9gGN4JRkIX52fdFAj1UA61KXmZDvqVEm+pOyec3+fIeZB02LYa/pWOArw==}
 
@@ -11207,8 +11328,13 @@ packages:
   /@scure/bip32@1.6.2:
     resolution: {integrity: sha512-t96EPDMbtGgtb7onKKqxRLfE5g05k7uHnHRM2xdE6BP/ZmxaLtPek4J4KfVn/90IQNrU1IOAqMgiDtUdtbe3nw==}
     dependencies:
+<<<<<<< HEAD
       '@noble/curves': 1.8.2
       '@noble/hashes': 1.7.2
+=======
+      '@noble/curves': 1.8.1
+      '@noble/hashes': 1.7.1
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
       '@scure/base': 1.2.4
 
   /@scure/bip39@1.1.1:
@@ -11241,7 +11367,11 @@ packages:
   /@scure/bip39@1.5.4:
     resolution: {integrity: sha512-TFM4ni0vKvCfBpohoh+/lY05i9gRbSwXWngAsF4CABQxoaOHijxuaZ2R6cStDQ5CHtHO9aGJTr4ksVJASRRyMA==}
     dependencies:
+<<<<<<< HEAD
       '@noble/hashes': 1.7.2
+=======
+      '@noble/hashes': 1.7.1
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
       '@scure/base': 1.2.4
 
   /@sentry/core@5.30.0:
@@ -11329,7 +11459,11 @@ packages:
     resolution: {integrity: sha512-53fV1noQJDUN9JNydDohyzsFl4+QYoWNkkkAfRzmIgtv+6DR+Dksb0fKmme2WdtA8MPEw/HsRwN3Lr6YC3iF7A==}
     dependencies:
       '@noble/curves': 1.8.0
+<<<<<<< HEAD
       viem: 2.28.0(typescript@5.4.3)
+=======
+      viem: 2.26.2(typescript@5.4.3)
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
     transitivePeerDependencies:
       - bufferutil
       - typescript
@@ -13202,8 +13336,13 @@ packages:
   /@types/jest@29.5.3:
     resolution: {integrity: sha512-1Nq7YrO/vJE/FYnqYyw0FS8LdrjExSgIiHyKg7xPpn+yi8Q4huZryKnkJatN1ZRH89Kw2v33/8ZMB7DuZeSLlA==}
     dependencies:
+<<<<<<< HEAD
       expect: 29.4.3
       pretty-format: 29.4.3
+=======
+      expect: 29.7.0
+      pretty-format: 29.7.0
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
     dev: true
 
   /@types/jsdom@20.0.1:
@@ -13500,6 +13639,38 @@ packages:
       - supports-color
     dev: true
 
+<<<<<<< HEAD
+=======
+  /@typescript-eslint/eslint-plugin@7.2.0(@typescript-eslint/parser@5.62.0)(eslint@8.56.0)(typescript@5.1.3):
+    resolution: {integrity: sha512-mdekAHOqS9UjlmyF/LSs6AIEvfceV749GFxoBAjwAv0nkevfKHWQFDMcBZWUiIC5ft6ePWivXoS36aKQ0Cy3sw==}
+    engines: {node: ^16.0.0 || >=18.0.0}
+    peerDependencies:
+      '@typescript-eslint/parser': ^7.0.0
+      eslint: ^8.56.0
+      typescript: '*'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@eslint-community/regexpp': 4.12.1
+      '@typescript-eslint/parser': 5.62.0(eslint@8.56.0)(typescript@5.1.3)
+      '@typescript-eslint/scope-manager': 7.2.0
+      '@typescript-eslint/type-utils': 7.2.0(eslint@8.56.0)(typescript@5.1.3)
+      '@typescript-eslint/utils': 7.2.0(eslint@8.56.0)(typescript@5.1.3)
+      '@typescript-eslint/visitor-keys': 7.2.0
+      debug: 4.3.4(supports-color@8.1.1)
+      eslint: 8.56.0
+      graphemer: 1.4.0
+      ignore: 5.2.4
+      natural-compare: 1.4.0
+      semver: 7.5.4
+      ts-api-utils: 1.3.0(typescript@5.1.3)
+      typescript: 5.1.3
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /@typescript-eslint/eslint-plugin@7.2.0(@typescript-eslint/parser@5.62.0)(eslint@8.56.0)(typescript@5.4.3):
     resolution: {integrity: sha512-mdekAHOqS9UjlmyF/LSs6AIEvfceV749GFxoBAjwAv0nkevfKHWQFDMcBZWUiIC5ft6ePWivXoS36aKQ0Cy3sw==}
     engines: {node: ^16.0.0 || >=18.0.0}
@@ -13548,6 +13719,29 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
+<<<<<<< HEAD
+=======
+  /@typescript-eslint/parser@5.62.0(eslint@8.56.0)(typescript@5.1.3):
+    resolution: {integrity: sha512-VlJEV0fOQ7BExOsHYAGrgbEiZoi8D+Bl2+f6V2RrXerRSylnp+ZBHmPvaIa8cz0Ajx7WO7Z5RqfgYg7ED1nRhA==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    peerDependencies:
+      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+      typescript: '*'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@typescript-eslint/scope-manager': 5.62.0
+      '@typescript-eslint/types': 5.62.0
+      '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.1.3)
+      debug: 4.3.4(supports-color@8.1.1)
+      eslint: 8.56.0
+      typescript: 5.1.3
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /@typescript-eslint/parser@5.62.0(eslint@8.56.0)(typescript@5.4.3):
     resolution: {integrity: sha512-VlJEV0fOQ7BExOsHYAGrgbEiZoi8D+Bl2+f6V2RrXerRSylnp+ZBHmPvaIa8cz0Ajx7WO7Z5RqfgYg7ED1nRhA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -13602,6 +13796,29 @@ packages:
       - supports-color
     dev: true
 
+<<<<<<< HEAD
+=======
+  /@typescript-eslint/type-utils@7.2.0(eslint@8.56.0)(typescript@5.1.3):
+    resolution: {integrity: sha512-xHi51adBHo9O9330J8GQYQwrKBqbIPJGZZVQTHHmy200hvkLZFWJIFtAG/7IYTWUyun6DE6w5InDReePJYJlJA==}
+    engines: {node: ^16.0.0 || >=18.0.0}
+    peerDependencies:
+      eslint: ^8.56.0
+      typescript: '*'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@typescript-eslint/typescript-estree': 7.2.0(typescript@5.1.3)
+      '@typescript-eslint/utils': 7.2.0(eslint@8.56.0)(typescript@5.1.3)
+      debug: 4.3.4(supports-color@8.1.1)
+      eslint: 8.56.0
+      ts-api-utils: 1.3.0(typescript@5.1.3)
+      typescript: 5.1.3
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /@typescript-eslint/type-utils@7.2.0(eslint@8.56.0)(typescript@5.4.3):
     resolution: {integrity: sha512-xHi51adBHo9O9330J8GQYQwrKBqbIPJGZZVQTHHmy200hvkLZFWJIFtAG/7IYTWUyun6DE6w5InDReePJYJlJA==}
     engines: {node: ^16.0.0 || >=18.0.0}
@@ -13630,6 +13847,30 @@ packages:
     resolution: {integrity: sha512-XFtUHPI/abFhm4cbCDc5Ykc8npOKBSJePY3a3s+lwumt7XWJuzP5cZcfZ610MIPHjQjNsOLlYK8ASPaNG8UiyA==}
     engines: {node: ^16.0.0 || >=18.0.0}
 
+<<<<<<< HEAD
+=======
+  /@typescript-eslint/typescript-estree@5.62.0(typescript@5.1.3):
+    resolution: {integrity: sha512-CmcQ6uY7b9y694lKdRB8FEel7JbU/40iSAPomu++SjLMntB+2Leay2LO6i8VnJk58MtE9/nQSFIH6jpyRWyYzA==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    peerDependencies:
+      typescript: '*'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@typescript-eslint/types': 5.62.0
+      '@typescript-eslint/visitor-keys': 5.62.0
+      debug: 4.3.4(supports-color@8.1.1)
+      globby: 11.1.0
+      is-glob: 4.0.3
+      semver: 7.5.4
+      tsutils: 3.21.0(typescript@5.1.3)
+      typescript: 5.1.3
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /@typescript-eslint/typescript-estree@5.62.0(typescript@5.4.3):
     resolution: {integrity: sha512-CmcQ6uY7b9y694lKdRB8FEel7JbU/40iSAPomu++SjLMntB+2Leay2LO6i8VnJk58MtE9/nQSFIH6jpyRWyYzA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -13650,6 +13891,31 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
+<<<<<<< HEAD
+=======
+  /@typescript-eslint/typescript-estree@7.2.0(typescript@5.1.3):
+    resolution: {integrity: sha512-cyxS5WQQCoBwSakpMrvMXuMDEbhOo9bNHHrNcEWis6XHx6KF518tkF1wBvKIn/tpq5ZpUYK7Bdklu8qY0MsFIA==}
+    engines: {node: ^16.0.0 || >=18.0.0}
+    peerDependencies:
+      typescript: '*'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@typescript-eslint/types': 7.2.0
+      '@typescript-eslint/visitor-keys': 7.2.0
+      debug: 4.3.4(supports-color@8.1.1)
+      globby: 11.1.0
+      is-glob: 4.0.3
+      minimatch: 9.0.3
+      semver: 7.5.4
+      ts-api-utils: 1.3.0(typescript@5.1.3)
+      typescript: 5.1.3
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /@typescript-eslint/typescript-estree@7.2.0(typescript@5.4.3):
     resolution: {integrity: sha512-cyxS5WQQCoBwSakpMrvMXuMDEbhOo9bNHHrNcEWis6XHx6KF518tkF1wBvKIn/tpq5ZpUYK7Bdklu8qY0MsFIA==}
     engines: {node: ^16.0.0 || >=18.0.0}
@@ -13690,6 +13956,28 @@ packages:
       - typescript
     dev: true
 
+<<<<<<< HEAD
+=======
+  /@typescript-eslint/utils@7.2.0(eslint@8.56.0)(typescript@5.1.3):
+    resolution: {integrity: sha512-YfHpnMAGb1Eekpm3XRK8hcMwGLGsnT6L+7b2XyRv6ouDuJU1tZir1GS2i0+VXRatMwSI1/UfcyPe53ADkU+IuA==}
+    engines: {node: ^16.0.0 || >=18.0.0}
+    peerDependencies:
+      eslint: ^8.56.0
+    dependencies:
+      '@eslint-community/eslint-utils': 4.4.0(eslint@8.56.0)
+      '@types/json-schema': 7.0.15
+      '@types/semver': 7.5.8
+      '@typescript-eslint/scope-manager': 7.2.0
+      '@typescript-eslint/types': 7.2.0
+      '@typescript-eslint/typescript-estree': 7.2.0(typescript@5.1.3)
+      eslint: 8.56.0
+      semver: 7.5.4
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
+    dev: false
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /@typescript-eslint/utils@7.2.0(eslint@8.56.0)(typescript@5.4.3):
     resolution: {integrity: sha512-YfHpnMAGb1Eekpm3XRK8hcMwGLGsnT6L+7b2XyRv6ouDuJU1tZir1GS2i0+VXRatMwSI1/UfcyPe53ADkU+IuA==}
     engines: {node: ^16.0.0 || >=18.0.0}
@@ -14693,6 +14981,13 @@ packages:
       lodash: 4.17.21
     dev: false
 
+<<<<<<< HEAD
+=======
+  /async@3.2.6:
+    resolution: {integrity: sha512-htCUDlxyyCLMgaM3xXg0C0LW2xqfuQ6p05pCEIsXuyQ+a1koYKTuBMzRNwmybfLgvJDMd0r1LTn4+E0Ti6C2AA==}
+    dev: true
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
 
@@ -15010,6 +15305,7 @@ packages:
   /balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
+<<<<<<< HEAD
   /base-x@3.0.11:
     resolution: {integrity: sha512-xz7wQ8xDhdyP7tQxwdteLYeFfS68tSMNCZ/Y37WJ4bhGfKPpqEIlmIyueQHqOyoPhE6xNUqjzRr8ra0eF9VRvA==}
     dependencies:
@@ -15020,6 +15316,18 @@ packages:
 
   /base-x@5.0.1:
     resolution: {integrity: sha512-M7uio8Zt++eg3jPj+rHMfCC+IuygQHHCOU+IYsVtik6FWjuYpVt/+MRKcgsAMHh8mMFAwnB+Bs+mTrFiXjMzKg==}
+=======
+  /base-x@3.0.9:
+    resolution: {integrity: sha512-H7JU6iBHTal1gp56aKoaa//YUxEaAOUiydvrV/pILqIHXTtqxSkATOnDA2u+jZ/61sD+L/412+7kzXRtWukhpQ==}
+    dependencies:
+      safe-buffer: 5.2.1
+
+  /base-x@4.0.0:
+    resolution: {integrity: sha512-FuwxlW4H5kh37X/oW59pwTzzTKRzfrrQwhmyspRM7swOEZcHtDZSCt45U6oKgtuFE+WYPblePMVIPR4RZrh/hw==}
+
+  /base-x@5.0.0:
+    resolution: {integrity: sha512-sMW3VGSX1QWVFA6l8U62MLKz29rRfpTlYdCqLdpLo1/Yd4zZwSbnUaDfciIAowAqvq7YFnWq9hrhdg1KYgc1lQ==}
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
     dev: false
 
   /base64-js@1.5.1:
@@ -15306,20 +15614,42 @@ packages:
       node-releases: 2.0.19
       update-browserslist-db: 1.1.2(browserslist@4.24.4)
 
+<<<<<<< HEAD
   /bs58@4.0.1:
     resolution: {integrity: sha512-Ok3Wdf5vOIlBrgCvTq96gBkJw+JUEzdBgyaza5HLtPm7yTHkjRy8+JzNyHF7BHa0bNWOQIp3m5YF0nnFcOIKLw==}
     dependencies:
       base-x: 3.0.11
+=======
+  /bs-logger@0.2.6:
+    resolution: {integrity: sha512-pd8DCoxmbgc7hyPKOvxtqNcjYoOsABPQdcCUjGp3d42VR2CX1ORhk2A87oqqu5R1kk+76nsxZupkmyd+MVtCog==}
+    engines: {node: '>= 6'}
+    dependencies:
+      fast-json-stable-stringify: 2.1.0
+    dev: true
+
+  /bs58@4.0.1:
+    resolution: {integrity: sha512-Ok3Wdf5vOIlBrgCvTq96gBkJw+JUEzdBgyaza5HLtPm7yTHkjRy8+JzNyHF7BHa0bNWOQIp3m5YF0nnFcOIKLw==}
+    dependencies:
+      base-x: 3.0.9
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
 
   /bs58@5.0.0:
     resolution: {integrity: sha512-r+ihvQJvahgYT50JD05dyJNKlmmSlMoOGwn1lCcEzanPglg7TxYjioQUYehQ9mAR/+hOSd2jRc/Z2y5UxBymvQ==}
     dependencies:
+<<<<<<< HEAD
       base-x: 4.0.1
+=======
+      base-x: 4.0.0
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
 
   /bs58@6.0.0:
     resolution: {integrity: sha512-PD0wEnEYg6ijszw/u8s+iI3H17cTymlrwkKhDhPZq+Sokl3AU4htyBFTjAeNAlCCmg0f53g6ih3jATyCKftTfw==}
     dependencies:
+<<<<<<< HEAD
       base-x: 5.0.1
+=======
+      base-x: 5.0.0
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
     dev: false
 
   /bs58check@2.1.2:
@@ -16627,6 +16957,17 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
+<<<<<<< HEAD
+=======
+  /ejs@3.1.10:
+    resolution: {integrity: sha512-UeJmFfOrAQS8OJWPZ4qtgHyWExa088/MtK5UEyoJGFH67cDEXkZSviOiKRCZ4Xij0zxI3JECgYs3oKx+AizQBA==}
+    engines: {node: '>=0.10.0'}
+    hasBin: true
+    dependencies:
+      jake: 10.9.2
+    dev: true
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /electron-to-chromium@1.4.650:
     resolution: {integrity: sha512-sYSQhJCJa4aGA1wYol5cMQgekDBlbVfTRavlGZVr3WZpDdOPcp6a6xUnFfrt8TqZhsBYYbDxJZCjGfHuGupCRQ==}
     dev: true
@@ -16948,6 +17289,35 @@ packages:
       - supports-color
     dev: true
 
+<<<<<<< HEAD
+=======
+  /eslint-config-next@14.2.25(eslint@8.56.0)(typescript@5.1.3):
+    resolution: {integrity: sha512-BwuRQJeqw4xP/fkul/WWjivwbaLs8AjvuMzQCC+nJI65ZVhnVolWs6tk5VSD92xPHu96gSTahfaSkQjIRtJ3ag==}
+    peerDependencies:
+      eslint: ^7.23.0 || ^8.0.0
+      typescript: '>=3.3.1'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@next/eslint-plugin-next': 14.2.25
+      '@rushstack/eslint-patch': 1.9.0
+      '@typescript-eslint/eslint-plugin': 7.2.0(@typescript-eslint/parser@5.62.0)(eslint@8.56.0)(typescript@5.1.3)
+      '@typescript-eslint/parser': 5.62.0(eslint@8.56.0)(typescript@5.1.3)
+      eslint: 8.56.0
+      eslint-import-resolver-node: 0.3.9
+      eslint-import-resolver-typescript: 3.5.5(@typescript-eslint/parser@5.62.0)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.29.1)(eslint@8.56.0)
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@5.62.0)(eslint-import-resolver-typescript@3.5.5)(eslint@8.43.0)
+      eslint-plugin-jsx-a11y: 6.7.1(eslint@8.56.0)
+      eslint-plugin-react: 7.34.1(eslint@8.56.0)
+      eslint-plugin-react-hooks: 4.6.0(eslint@8.56.0)
+      typescript: 5.1.3
+    transitivePeerDependencies:
+      - eslint-import-resolver-webpack
+      - supports-color
+    dev: false
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /eslint-config-next@14.2.25(eslint@8.56.0)(typescript@5.4.3):
     resolution: {integrity: sha512-BwuRQJeqw4xP/fkul/WWjivwbaLs8AjvuMzQCC+nJI65ZVhnVolWs6tk5VSD92xPHu96gSTahfaSkQjIRtJ3ag==}
     peerDependencies:
@@ -17635,6 +18005,7 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
+<<<<<<< HEAD
   /expect@29.4.3:
     resolution: {integrity: sha512-uC05+Q7eXECFpgDrHdXA4k2rpMyStAYPItEDLyQDo5Ta7fVkJnNA/4zh/OIVkVVNZ1oOK1PipQoyNjuZ6sz6Dg==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -17646,6 +18017,8 @@ packages:
       jest-util: 29.7.0
     dev: true
 
+=======
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /expect@29.7.0:
     resolution: {integrity: sha512-2Zks0hf1VLFYI1kbh0I5jP3KHHyCHpkfyHBzsSXRFgl/Bg9mWYfMW8oD+PdMPlEwy5HNsR9JutYy6pMeOh61nw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -17758,6 +18131,15 @@ packages:
   /file-uri-to-path@1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
 
+<<<<<<< HEAD
+=======
+  /filelist@1.0.4:
+    resolution: {integrity: sha512-w1cEuf3S+DrLCQL7ET6kz+gmlJdbq9J7yXCSjK/OZCPA+qEN1WyF4ZAf0YYJa4/shHJra2t/d/r8SV4Ji+x+8Q==}
+    dependencies:
+      minimatch: 5.0.1
+    dev: true
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
     engines: {node: '>=8'}
@@ -19219,6 +19601,20 @@ packages:
     optionalDependencies:
       '@pkgjs/parseargs': 0.11.0
 
+<<<<<<< HEAD
+=======
+  /jake@10.9.2:
+    resolution: {integrity: sha512-2P4SQ0HrLQ+fw6llpLnOaGAvN2Zu6778SJMrCUwns4fOoG9ayrTiZk3VV8sCPkVZF8ab0zksVpS8FDY5pRCNBA==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dependencies:
+      async: 3.2.6
+      chalk: 4.1.2
+      filelist: 1.0.4
+      minimatch: 3.1.2
+    dev: true
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /jayson@4.1.1:
     resolution: {integrity: sha512-5ZWm4Q/0DHPyeMfAsrwViwUS2DMVsQgWh8bEEIVTkfb3DzHZ2L3G5WUnF+AKmGjjM9r1uAv73SaqC1/U4RL45w==}
     engines: {node: '>=8'}
@@ -19456,7 +19852,11 @@ packages:
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
       '@types/jsdom': 20.0.1
+<<<<<<< HEAD
       '@types/node': 22.7.7
+=======
+      '@types/node': 20.3.1
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
       jest-mock: 29.7.0
       jest-util: 29.7.0
       jsdom: 20.0.3
@@ -21433,7 +21833,11 @@ packages:
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/curves': 1.8.0
+<<<<<<< HEAD
       '@noble/hashes': 1.7.2
+=======
+      '@noble/hashes': 1.7.1
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
       '@scure/bip32': 1.6.2
       '@scure/bip39': 1.5.4
       abitype: 1.0.8(typescript@5.4.3)
@@ -22250,6 +22654,7 @@ packages:
     hasBin: true
     dev: true
 
+<<<<<<< HEAD
   /pretty-format@29.4.3:
     resolution: {integrity: sha512-cvpcHTc42lcsvOOAzd3XuNWTcvk1Jmnzqeu+WsOuiPmxUJTnkbAcFNsRKvEpBEUFVUgy/GTZLulZDcDEi+CIlA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -22259,6 +22664,8 @@ packages:
       react-is: 18.3.1
     dev: true
 
+=======
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /pretty-format@29.7.0:
     resolution: {integrity: sha512-Pdlw/oPxN+aXdmM9R00JVC9WVFoCLTKJvDVLgmJ+qAffBMxsV85l/Lu7sNx4zSzPyoL2euImuEwHhOXdEgNFZQ==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -23172,7 +23579,11 @@ packages:
     resolution: {integrity: sha512-Qa3+9wKVvpL/xYtT6+wANsn0A1QcC5CT6IMZbRJZ/1lGt7gmwIfsrCuz1X0+LCEO7zgb+3UT1I1dc0k/5dwKQQ==}
     engines: {node: '>= 10'}
     dependencies:
+<<<<<<< HEAD
       base-x: 3.0.11
+=======
+      base-x: 3.0.9
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
       create-hash: 1.2.0
     dev: false
 
@@ -24499,6 +24910,18 @@ packages:
       - utf-8-validate
     dev: false
 
+<<<<<<< HEAD
+=======
+  /ts-api-utils@1.3.0(typescript@5.1.3):
+    resolution: {integrity: sha512-UQMIo7pb8WRomKR1/+MFVLTroIvDVtMX3K6OUir8ynLyzB8Jeriont2bTAtmNPa1ekAgN7YPDyf6V+ygrdU+eQ==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      typescript: '>=4.2.0'
+    dependencies:
+      typescript: 5.1.3
+    dev: false
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /ts-api-utils@1.3.0(typescript@5.4.3):
     resolution: {integrity: sha512-UQMIo7pb8WRomKR1/+MFVLTroIvDVtMX3K6OUir8ynLyzB8Jeriont2bTAtmNPa1ekAgN7YPDyf6V+ygrdU+eQ==}
     engines: {node: '>=16'}
@@ -24528,6 +24951,49 @@ packages:
   /ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
+<<<<<<< HEAD
+=======
+  /ts-jest@29.3.1(@babel/core@7.26.9)(@jest/types@29.4.3)(jest@29.7.0)(typescript@5.4.3):
+    resolution: {integrity: sha512-FT2PIRtZABwl6+ZCry8IY7JZ3xMuppsEV9qFVHOVe8jDzggwUZ9TsM4chyJxL9yi6LvkqcZYU3LmapEE454zBQ==}
+    engines: {node: ^14.15.0 || ^16.10.0 || ^18.0.0 || >=20.0.0}
+    hasBin: true
+    peerDependencies:
+      '@babel/core': '>=7.0.0-beta.0 <8'
+      '@jest/transform': ^29.0.0
+      '@jest/types': ^29.0.0
+      babel-jest: ^29.0.0
+      esbuild: '*'
+      jest: ^29.0.0
+      typescript: '>=4.3 <6'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@jest/transform':
+        optional: true
+      '@jest/types':
+        optional: true
+      babel-jest:
+        optional: true
+      esbuild:
+        optional: true
+    dependencies:
+      '@babel/core': 7.26.9
+      '@jest/types': 29.4.3
+      bs-logger: 0.2.6
+      ejs: 3.1.10
+      fast-json-stable-stringify: 2.1.0
+      jest: 29.7.0(@types/node@18.18.2)
+      jest-util: 29.7.0
+      json5: 2.2.3
+      lodash.memoize: 4.1.2
+      make-error: 1.3.6
+      semver: 7.5.4
+      type-fest: 4.40.1
+      typescript: 5.4.3
+      yargs-parser: 21.1.1
+    dev: true
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /ts-mixer@6.0.4:
     resolution: {integrity: sha512-ufKpbmrugz5Aou4wcr5Wc1UUFWOLhq+Fm6qa6P0w0K5Qw2yhaUoiWszhCVuNQyNwrlGiscHOmqYoAox1PtvgjA==}
     dev: false
@@ -24591,6 +25057,19 @@ packages:
   /tsort@0.0.1:
     resolution: {integrity: sha512-Tyrf5mxF8Ofs1tNoxA13lFeZ2Zrbd6cKbuH3V+MQ5sb6DtBj5FjrXVsRWT8YvNAQTqNoz66dz1WsbigI22aEnw==}
 
+<<<<<<< HEAD
+=======
+  /tsutils@3.21.0(typescript@5.1.3):
+    resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
+    engines: {node: '>= 6'}
+    peerDependencies:
+      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
+    dependencies:
+      tslib: 1.14.1
+      typescript: 5.1.3
+    dev: false
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /tsutils@3.21.0(typescript@5.4.3):
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
     engines: {node: '>= 6'}
@@ -24728,6 +25207,14 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+<<<<<<< HEAD
+=======
+  /type-fest@4.40.1:
+    resolution: {integrity: sha512-9YvLNnORDpI+vghLU/Nf+zSv0kL47KbVJ1o3sKgoTefl6i+zebxbiDQWoe/oWWqPhIgQdRZRT1KA9sCPL810SA==}
+    engines: {node: '>=16'}
+    dev: true
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /typechain@8.3.2(typescript@5.4.3):
     resolution: {integrity: sha512-x/sQYr5w9K7yv3es7jo4KTX05CLxOf7TRWwoHlrjRh8H82G64g+k7VuWPJlgMo6qrjfCulOdfBjiaDtmhFYD/Q==}
     hasBin: true
@@ -24823,6 +25310,15 @@ packages:
     hasBin: true
     dev: false
 
+<<<<<<< HEAD
+=======
+  /typescript@5.1.3:
+    resolution: {integrity: sha512-XH627E9vkeqhlZFQuL+UsyAXEnibT0kWR2FWONlr4sTjvxyJYnyefgrkyECLzM5NenmKzRAy2rR/OlYLA1HkZw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+    dev: false
+
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /typescript@5.4.3:
     resolution: {integrity: sha512-KrPd3PKaCLr78MalgiwJnA25Nm8HAmdwN3mYUYZgG/wizIo9EainNVQI9/yDavtVFRN2h3k8uf3GLHuhDMgEHg==}
     engines: {node: '>=14.17'}
@@ -25327,6 +25823,7 @@ packages:
       - utf-8-validate
       - zod
 
+<<<<<<< HEAD
   /viem@2.28.0(typescript@5.4.3):
     resolution: {integrity: sha512-Z4W5O1pe+6pirYTFm451FcZmfGAUxUWt2L/eWC+YfTF28j/8rd7q6MBAi05lMN4KhLJjhN0s5YGIPB+kf1L20g==}
     requiresBuild: true
@@ -25351,6 +25848,8 @@ packages:
       - zod
     dev: false
 
+=======
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)
   /viem@2.7.19(typescript@5.4.3):
     resolution: {integrity: sha512-UOMeqy+8p2709ra2j9HEOL1NfjsXZzlJ8gwR6YO/zXH8KIZvyzW07t4iQARF5+ShVZ/7+/1ec8oPjVi1M//33A==}
     peerDependencies:
@@ -26062,5 +26561,8 @@ packages:
   /zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
     dev: false
+<<<<<<< HEAD
 =======
 >>>>>>> 43e7521f (wip stamper)
+=======
+>>>>>>> acdb08dc (more refactoring in preparation for iframe to indexedDb migration)

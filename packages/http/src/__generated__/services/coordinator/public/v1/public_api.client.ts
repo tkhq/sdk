@@ -116,18 +116,6 @@ import type {
   TCreateOauthProvidersResponse,
 } from "./public_api.fetcher";
 import type {
-  TCreateOauthSessionBody,
-  TCreateOauthSessionResponse,
-} from "./public_api.fetcher";
-import type {
-  TCreateOtpSessionBody,
-  TCreateOtpSessionResponse,
-} from "./public_api.fetcher";
-import type {
-  TCreatePasskeySessionBody,
-  TCreatePasskeySessionResponse,
-} from "./public_api.fetcher";
-import type {
   TCreatePoliciesBody,
   TCreatePoliciesResponse,
 } from "./public_api.fetcher";
@@ -254,7 +242,12 @@ import type {
   TInitUserEmailRecoveryResponse,
 } from "./public_api.fetcher";
 import type { TOauthBody, TOauthResponse } from "./public_api.fetcher";
+import type {
+  TOauthLoginBody,
+  TOauthLoginResponse,
+} from "./public_api.fetcher";
 import type { TOtpAuthBody, TOtpAuthResponse } from "./public_api.fetcher";
+import type { TOtpLoginBody, TOtpLoginResponse } from "./public_api.fetcher";
 import type {
   TRecoverUserBody,
   TRecoverUserResponse,
@@ -282,6 +275,10 @@ import type {
 import type {
   TSignTransactionBody,
   TSignTransactionResponse,
+} from "./public_api.fetcher";
+import type {
+  TStampLoginBody,
+  TStampLoginResponse,
 } from "./public_api.fetcher";
 import type {
   TUpdatePolicyBody,
@@ -1287,102 +1284,6 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_oauth_providers";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Create an Oauth session for a user
-   *
-   * Sign the provided `TCreateOauthSessionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_oauth_session).
-   *
-   * See also {@link stampCreateOauthSession}.
-   */
-  createOauthSession = async (
-    input: TCreateOauthSessionBody
-  ): Promise<TCreateOauthSessionResponse> => {
-    return this.request("/public/v1/submit/create_oauth_session", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TCreateOauthSessionBody` by using the client's `stamp` function.
-   *
-   * See also {@link CreateOauthSession}.
-   */
-  stampCreateOauthSession = async (
-    input: TCreateOauthSessionBody
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/submit/create_oauth_session";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Create an OTP session for a user
-   *
-   * Sign the provided `TCreateOtpSessionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_otp_session).
-   *
-   * See also {@link stampCreateOtpSession}.
-   */
-  createOtpSession = async (
-    input: TCreateOtpSessionBody
-  ): Promise<TCreateOtpSessionResponse> => {
-    return this.request("/public/v1/submit/create_otp_session", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TCreateOtpSessionBody` by using the client's `stamp` function.
-   *
-   * See also {@link CreateOtpSession}.
-   */
-  stampCreateOtpSession = async (
-    input: TCreateOtpSessionBody
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/submit/create_otp_session";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Create a Passkey session for a user
-   *
-   * Sign the provided `TCreatePasskeySessionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_passkey_session).
-   *
-   * See also {@link stampCreatePasskeySession}.
-   */
-  createPasskeySession = async (
-    input: TCreatePasskeySessionBody
-  ): Promise<TCreatePasskeySessionResponse> => {
-    return this.request("/public/v1/submit/create_passkey_session", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TCreatePasskeySessionBody` by using the client's `stamp` function.
-   *
-   * See also {@link CreatePasskeySession}.
-   */
-  stampCreatePasskeySession = async (
-    input: TCreatePasskeySessionBody
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/submit/create_passkey_session";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2452,6 +2353,33 @@ export class TurnkeyClient {
   };
 
   /**
+   * Create an Oauth session for a user
+   *
+   * Sign the provided `TOauthLoginBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/oauth_login).
+   *
+   * See also {@link stampOauthLogin}.
+   */
+  oauthLogin = async (input: TOauthLoginBody): Promise<TOauthLoginResponse> => {
+    return this.request("/public/v1/submit/oauth_login", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TOauthLoginBody` by using the client's `stamp` function.
+   *
+   * See also {@link OauthLogin}.
+   */
+  stampOauthLogin = async (input: TOauthLoginBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/oauth_login";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Authenticate a user with an OTP code sent via email or SMS
    *
    * Sign the provided `TOtpAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/otp_auth).
@@ -2469,6 +2397,33 @@ export class TurnkeyClient {
    */
   stampOtpAuth = async (input: TOtpAuthBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/otp_auth";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Create an OTP session for a user
+   *
+   * Sign the provided `TOtpLoginBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/otp_login).
+   *
+   * See also {@link stampOtpLogin}.
+   */
+  otpLogin = async (input: TOtpLoginBody): Promise<TOtpLoginResponse> => {
+    return this.request("/public/v1/submit/otp_login", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TOtpLoginBody` by using the client's `stamp` function.
+   *
+   * See also {@link OtpLogin}.
+   */
+  stampOtpLogin = async (input: TOtpLoginBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/otp_login";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2688,6 +2643,33 @@ export class TurnkeyClient {
     input: TSignTransactionBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/sign_transaction";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Create a session for a user through stamping client side (api key, wallet client, or passkey client)
+   *
+   * Sign the provided `TStampLoginBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/stamp_login).
+   *
+   * See also {@link stampStampLogin}.
+   */
+  stampLogin = async (input: TStampLoginBody): Promise<TStampLoginResponse> => {
+    return this.request("/public/v1/submit/stamp_login", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TStampLoginBody` by using the client's `stamp` function.
+   *
+   * See also {@link StampLogin}.
+   */
+  stampStampLogin = async (input: TStampLoginBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/stamp_login";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

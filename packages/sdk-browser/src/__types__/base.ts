@@ -3,7 +3,6 @@ import type { WalletInterface, WalletStamper } from "@turnkey/wallet-stamper";
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IframeStamper } from "@turnkey/iframe-stamper";
-import type { TurnkeyIframeClient } from "../sdk-client";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 
 export type GrpcStatus = {
@@ -230,9 +229,8 @@ export interface LoginWithPasskeyParams {
 
 export interface LoginWithWalletParams {
   sessionType: SessionType;
-  iframeClient: TurnkeyIframeClient;
   expirationSeconds?: string | undefined;
-  targetPublicKey?: string;
+  publicKey?: string;
 }
 
 export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {

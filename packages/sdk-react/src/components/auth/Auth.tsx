@@ -315,7 +315,6 @@ const Auth: React.FC<AuthProps> = ({
       sessionLengthSeconds: authConfig.sessionLengthSeconds,
     });
     if (sessionResponse && sessionResponse.session) {
-      console.log(sessionResponse)
       await indexedDbClient!.loginWithSession(sessionResponse.session);
       console.log("Session created successfully");
       await onAuthSuccess();
@@ -355,11 +354,10 @@ const Auth: React.FC<AuthProps> = ({
         return;
       }
 
-      const iframePublicKey = await authIframeClient!.initEmbeddedKey();
+      const pubKey = await indexedDbClient!.getPublicKey();
       await walletClient!.loginWithWallet({
         sessionType: SessionType.READ_WRITE,
-        iframeClient: authIframeClient!,
-        targetPublicKey: iframePublicKey!,
+        publicKey: pubKey!,
         expirationSeconds: authConfig.sessionLengthSeconds?.toString(),
       });
       await onAuthSuccess();
