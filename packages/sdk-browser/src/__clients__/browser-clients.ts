@@ -122,14 +122,14 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    *
    * @param RefreshSessionParams
    *   @param params.sessionType - The type of session that is being refreshed
-   *   @param params.targetPublicKey - The public key of the target client
+   *   @param params.publicKey - The public key of the indexedDb client
    *   @param params.expirationSeconds - Specify how long to extend the session. Defaults to 900 seconds or 15 minutes.
    * @returns {Promise<void>}
    */
   refreshSession = async (params: RefreshSessionParams): Promise<void> => {
     const {
       sessionType = SessionType.READ_WRITE,
-      targetPublicKey,
+      publicKey,
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     } = params;
 
@@ -151,32 +151,17 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
         await storeSession(session, AuthClient.Passkey);
       } else if (sessionType === SessionType.READ_WRITE) {
-        if (!targetPublicKey) {
+        if (!publicKey) {
           throw new Error(
-            "You must provide a targetPublicKey to refresh a read-write session.",
+            "You must provide a publicKey to refresh a read-write session.",
           );
         }
-        const readWriteSessionResult = await this.createReadWriteSession({
-          targetPublicKey,
+
+        const sessionResponse = await this.stampLogin({
+          publicKey: publicKey,
           expirationSeconds,
-          invalidateExisting: true,
         });
-        const session: Session = {
-          sessionType: SessionType.READ_WRITE,
-          userId: readWriteSessionResult.userId,
-          organizationId: readWriteSessionResult.organizationId,
-          expiry: Date.now() + Number(expirationSeconds) * 1000,
-          token: readWriteSessionResult.credentialBundle,
-        };
-        if (this instanceof TurnkeyIframeClient) {
-          await this.injectCredentialBundle(session.token!);
-        } else {
-          // Throw an error if the client is not an iframe client
-          throw new Error(
-            "You must use an iframe client to refresh a read-write session",
-          );
-        }
-        await storeSession(session, AuthClient.Iframe);
+        await storeSession(sessionResponse.session, AuthClient.IndexedDb);
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
