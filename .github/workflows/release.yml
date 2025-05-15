@@ -163,7 +163,6 @@ jobs:
             rm .npmrc
           createGithubReleases: true
           commit: "chore: release packages"
-          title: "Release ${{ github.ref_name }}"
           setupGitUser: false # Disable default Git user setup
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # for changelog links
