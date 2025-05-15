@@ -178,7 +178,7 @@ jobs:
           find packages -name CHANGELOG.md -exec cat {} \; >> RELEASE_NOTES.md
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
