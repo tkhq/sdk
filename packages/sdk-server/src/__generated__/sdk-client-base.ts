@@ -1949,6 +1949,38 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  initOtp = async (
+    input: SdkApiTypes.TInitOtpBody,
+  ): Promise<SdkApiTypes.TInitOtpResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/init_otp",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_INIT_OTP",
+      },
+      "initOtpResult",
+    );
+  };
+
+  stampInitOtp = async (
+    input: SdkApiTypes.TInitOtpBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_otp";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   initOtpAuth = async (
     input: SdkApiTypes.TInitOtpAuthBody,
   ): Promise<SdkApiTypes.TInitOtpAuthResponse> => {
@@ -2046,6 +2078,38 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  oauthLogin = async (
+    input: SdkApiTypes.TOauthLoginBody,
+  ): Promise<SdkApiTypes.TOauthLoginResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/oauth_login",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_OAUTH_LOGIN",
+      },
+      "oauthLoginResult",
+    );
+  };
+
+  stampOauthLogin = async (
+    input: SdkApiTypes.TOauthLoginBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth_login";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   otpAuth = async (
     input: SdkApiTypes.TOtpAuthBody,
   ): Promise<SdkApiTypes.TOtpAuthResponse> => {
@@ -2069,6 +2133,38 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_auth";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  otpLogin = async (
+    input: SdkApiTypes.TOtpLoginBody,
+  ): Promise<SdkApiTypes.TOtpLoginResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/otp_login",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_OTP_LOGIN",
+      },
+      "otpLoginResult",
+    );
+  };
+
+  stampOtpLogin = async (
+    input: SdkApiTypes.TOtpLoginBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_login";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2304,6 +2400,38 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  stampLogin = async (
+    input: SdkApiTypes.TStampLoginBody,
+  ): Promise<SdkApiTypes.TStampLoginResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/stamp_login",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_STAMP_LOGIN",
+      },
+      "stampLoginResult",
+    );
+  };
+
+  stampStampLogin = async (
+    input: SdkApiTypes.TStampLoginBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/stamp_login";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   updatePolicy = async (
     input: SdkApiTypes.TUpdatePolicyBody,
   ): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
@@ -2490,6 +2618,38 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  verifyOtp = async (
+    input: SdkApiTypes.TVerifyOtpBody,
+  ): Promise<SdkApiTypes.TVerifyOtpResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/verify_otp",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_VERIFY_OTP",
+      },
+      "verifyOtpResult",
+    );
+  };
+
+  stampVerifyOtp = async (
+    input: SdkApiTypes.TVerifyOtpBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/verify_otp";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
