@@ -29,7 +29,7 @@ export const TurnkeyContext = createContext<TurnkeyClientType>({
   passkeyClient: undefined,
   authIframeClient: undefined,
   walletClient: undefined,
-  indexedDbClient: undefined
+  indexedDbClient: undefined,
 });
 
 type TurnkeyProviderConfig = TurnkeySDKBrowserConfig & {
@@ -47,8 +47,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 }) => {
   const [turnkey, setTurnkey] = useState<Turnkey | undefined>(undefined);
   const [indexedDbClient, setIndexedDbClient] = useState<
-  TurnkeyIndexedDbClient | undefined
->(undefined);
+    TurnkeyIndexedDbClient | undefined
+  >(undefined);
   const [passkeyClient, setPasskeyClient] = useState<
     TurnkeyPasskeyClient | undefined
   >(undefined);
@@ -103,7 +103,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const indexedDbClient = await turnkeyBrowserSDK.indexedDbClient();
         await indexedDbClient?.init();
         setIndexedDbClient(indexedDbClient);
-
       }
     })();
   }, []);

@@ -267,9 +267,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
 
   imports.push('import { StorageKeys, getStorageValue } from "../storage";');
-  imports.push(
-    'import { parseSession } from "../utils";',
-  );
+  imports.push('import { parseSession } from "../utils";');
 
   codeBuffer.push(`
 export class TurnkeySDKClientBase {

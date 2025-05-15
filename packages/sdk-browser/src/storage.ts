@@ -81,7 +81,10 @@ export const removeStorageValue = async <K extends StorageKeys>(
  * @returns {Promise<void>} A promise that resolves when the session is saved.
  */
 
-export const storeSession = async (session: string | Session, client?: AuthClient) => {
+export const storeSession = async (
+  session: string | Session,
+  client?: AuthClient,
+) => {
   await setStorageValue(StorageKeys.Session, session);
   if (client) {
     await setStorageValue(StorageKeys.Client, client);

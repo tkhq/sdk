@@ -59,19 +59,22 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       });
 
       const resp = await server.getOrCreateSuborg({
-        filterType: type === OtpType.Email ? FilterType.Email : FilterType.PhoneNumber,
+        filterType:
+          type === OtpType.Email ? FilterType.Email : FilterType.PhoneNumber,
         filterValue: contact,
         additionalData: {
-          ...(type === OtpType.Email ? { email: contact } : { phoneNumber: contact }),
+          ...(type === OtpType.Email
+            ? { email: contact }
+            : { phoneNumber: contact }),
         },
       });
-      
+
       const suborgIds = resp?.subOrganizationIds;
       if (!suborgIds || suborgIds.length === 0) {
         setOtpError("Could not find or create your account. Please try again.");
         return;
       }
-      
+
       const suborgID = suborgIds[0];
       if (!suborgID) {
         setOtpError("Suborganization ID not found. Please try again.");

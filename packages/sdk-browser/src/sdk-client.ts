@@ -14,7 +14,6 @@ import {
   PasskeyClientParams,
 } from "./__types__/base";
 
-
 import { StorageKeys, getStorageValue, removeStorageValue } from "@storage";
 
 import {
@@ -191,7 +190,6 @@ export class TurnkeyBrowserSDK {
     return data as TResponseType;
   };
 
-
   /**
    * If there is a valid, active session, this will parse it and return it
    *
@@ -201,48 +199,48 @@ export class TurnkeyBrowserSDK {
     const currentSession: Session | string | undefined = await getStorageValue(
       StorageKeys.Session,
     );
-  
+
     let session: Session | undefined;
-  
+
     if (typeof currentSession === "string") {
       session = parseSession(currentSession);
     } else {
       session = currentSession;
     }
-  
+
     if (session && session.expiry * 1000 > Date.now()) {
       return session;
     }
-  
+
     await removeStorageValue(StorageKeys.Session);
     return undefined;
   };
-  
 
-
-    /**
+  /**
    * If there is a valid, active session, this will return it without parsing it
    *
    * @returns {Promise<Session | undefined>}
    */
-    getRawSession = async (): Promise<string | undefined> => {
-      const currentSession: Session | string | undefined = await getStorageValue(StorageKeys.Session);
-    
-      let session: Session | undefined;
-    
-      if (typeof currentSession === "string") {
-        session = parseSession(currentSession);
-        if (session && session.expiry * 1000 > Date.now()) {
-          return currentSession; // return raw JWT string
-        }
-      } else if (currentSession && currentSession.expiry * 1000 > Date.now()) {
-        return JSON.stringify(currentSession); 
+  getRawSession = async (): Promise<string | undefined> => {
+    const currentSession: Session | string | undefined = await getStorageValue(
+      StorageKeys.Session,
+    );
+
+    let session: Session | undefined;
+
+    if (typeof currentSession === "string") {
+      session = parseSession(currentSession);
+      if (session && session.expiry * 1000 > Date.now()) {
+        return currentSession; // return raw JWT string
       }
-    
-      await removeStorageValue(StorageKeys.Session);
-      return undefined;
-    };
-    
+    } else if (currentSession && currentSession.expiry * 1000 > Date.now()) {
+      return JSON.stringify(currentSession);
+    }
+
+    await removeStorageValue(StorageKeys.Session);
+    return undefined;
+  };
+
   /**
    * Clears out all data pertaining to an end user session.
    *
