@@ -18,7 +18,7 @@ function isMobileBrowser() {
 }
 
 interface AppleAuthButtonProps {
-  iframePublicKey: string;
+  publicKey: string;
   clientId: string;
   onSuccess: (response: { idToken: string }) => void;
   layout: "inline" | "stacked";
@@ -32,7 +32,7 @@ declare global {
 }
 
 const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
-  iframePublicKey,
+  publicKey,
   clientId,
   onSuccess,
   layout,
@@ -80,7 +80,7 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
 
   const handleLogin = () => {
     setLoading(true);
-    const nonce = bytesToHex(sha256(iframePublicKey));
+    const nonce = bytesToHex(sha256(publicKey));
     const appleAuthUrl = new URL(APPLE_AUTH_URL);
     appleAuthUrl.searchParams.set("client_id", clientId);
     appleAuthUrl.searchParams.set("redirect_uri", redirectURI);

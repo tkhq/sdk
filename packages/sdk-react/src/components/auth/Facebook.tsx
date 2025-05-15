@@ -10,7 +10,7 @@ import { FACEBOOK_AUTH_URL, popupHeight, popupWidth } from "./constants";
 import { CircularProgress } from "@mui/material";
 
 interface FacebookAuthButtonProps {
-  iframePublicKey: string;
+  publicKey: string;
   clientId: string;
   onSuccess: (response: any) => void;
   layout: "inline" | "stacked";
@@ -18,7 +18,7 @@ interface FacebookAuthButtonProps {
 }
 
 const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
-  iframePublicKey,
+  publicKey,
   onSuccess,
   clientId,
   layout,
@@ -59,7 +59,7 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
       state: `${verifier}:provider=facebook`,
       code_challenge: codeChallenge,
       code_challenge_method: "S256",
-      nonce: bytesToHex(sha256(iframePublicKey)),
+      nonce: bytesToHex(sha256(publicKey)),
       scope: "openid",
       response_type: "code",
     });

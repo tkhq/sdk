@@ -105,7 +105,7 @@ const Auth: React.FC<AuthProps> = ({
   passkeyConfig,
   otpConfig,
 }) => {
-  const { authIframeClient, passkeyClient, walletClient, indexedDbClient, turnkey} = useTurnkey();
+  const { passkeyClient, walletClient, indexedDbClient, turnkey} = useTurnkey();
   const [publicKey, setPublicKey] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
@@ -128,11 +128,10 @@ const Auth: React.FC<AuthProps> = ({
   };
 
   useEffect(() => {
-    if (authIframeClient && indexedDbClient && turnkey) {
+    if (indexedDbClient && turnkey) {
       setComponentReady(true);
   
-      const updateIframeKey = async () => {
-        await authIframeClient.initEmbeddedKey();
+      const manageClient= async () => {
         const session = await turnkey.getSession();
   
         if (session) {
@@ -145,9 +144,9 @@ const Auth: React.FC<AuthProps> = ({
         }
       };
   
-      updateIframeKey();
+      manageClient();
     }
-  }, [authIframeClient, indexedDbClient]);
+  }, [indexedDbClient]);
 
   if (!componentReady) {
     return (
@@ -316,7 +315,6 @@ const Auth: React.FC<AuthProps> = ({
     });
     if (sessionResponse && sessionResponse.session) {
       await indexedDbClient!.loginWithSession(sessionResponse.session);
-      console.log("Session created successfully");
       await onAuthSuccess();
     } else {
       onError(authErrors.oauth.loginFailed);
@@ -428,7 +426,7 @@ const Auth: React.FC<AuthProps> = ({
               authConfig.appleClientId ??
               process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!
             }
-            iframePublicKey={authIframeClient!.iframePublicKey!}
+            publicKey={publicKey!}
             openInPage={authConfig.openOAuthInPage}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Apple")
@@ -442,7 +440,7 @@ const Auth: React.FC<AuthProps> = ({
               authConfig.facebookClientId ??
               process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!
             }
-            iframePublicKey={authIframeClient!.iframePublicKey!}
+            publicKey={publicKey!}
             openInPage={authConfig.openOAuthInPage}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.id_token, "Facebook")
