@@ -38,6 +38,7 @@ export {
 export {
   TurnkeyBrowserClient,
   TurnkeyIframeClient,
+  TurnkeyIndexedDbClient,
   TurnkeyPasskeyClient,
   TurnkeyWalletClient,
   TurnkeyBrowserSDK as Turnkey,

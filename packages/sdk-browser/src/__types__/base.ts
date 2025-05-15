@@ -3,7 +3,7 @@ import type { WalletInterface, WalletStamper } from "@turnkey/wallet-stamper";
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IframeStamper } from "@turnkey/iframe-stamper";
-import type { TurnkeyIframeClient } from "../sdk-client";
+import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 
 export type GrpcStatus = {
   message: string;
@@ -27,7 +27,7 @@ export type Session = {
   userId: string;
   organizationId: string;
   expiry: number; // Unix timestamp representing the expiry of the session set by the server
-  token: string; // credentialBundle (read-write) or read token
+  token: string; // publicKey used to verify stamped requests (lives in indexedDb) also can (temporarily) be read bearer tokens
 };
 
 /**
@@ -185,7 +185,11 @@ export interface TurnkeySDKBrowserConfig {
   dangerouslyOverrideIframeKeyTtl?: number;
 }
 
-export type Stamper = WebauthnStamper | IframeStamper | WalletStamper;
+export type Stamper =
+  | WebauthnStamper
+  | IframeStamper
+  | WalletStamper
+  | IndexedDbStamper;
 
 export type queryOverrideParams = {
   organizationId?: string;
@@ -213,7 +217,7 @@ export interface PasskeyClientParams {
 export interface RefreshSessionParams {
   sessionType: SessionType;
   expirationSeconds?: string | undefined;
-  targetPublicKey?: string;
+  publicKey?: string;
 }
 
 export interface LoginWithBundleParams {
@@ -223,16 +227,14 @@ export interface LoginWithBundleParams {
 
 export interface LoginWithPasskeyParams {
   sessionType: SessionType;
-  iframeClient: TurnkeyIframeClient;
   expirationSeconds?: string | undefined;
-  targetPublicKey?: string;
+  publicKey?: string;
 }
 
 export interface LoginWithWalletParams {
   sessionType: SessionType;
-  iframeClient: TurnkeyIframeClient;
   expirationSeconds?: string | undefined;
-  targetPublicKey?: string;
+  publicKey?: string;
 }
 
 export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {
@@ -246,6 +248,7 @@ export enum AuthClient {
   Passkey = "passkey",
   Wallet = "wallet",
   Iframe = "iframe",
+  IndexedDb = "indexed-db",
 }
 
 export type TSessionResponse = Omit<

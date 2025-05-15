@@ -4,6 +4,7 @@ import { ReactNode, createContext, useState, useEffect, useRef } from "react";
 import {
   Turnkey,
   TurnkeyIframeClient,
+  TurnkeyIndexedDbClient,
   TurnkeyPasskeyClient,
   TurnkeySDKBrowserConfig,
   TurnkeyBrowserClient,
@@ -19,7 +20,7 @@ export interface TurnkeyClientType {
   authIframeClient: TurnkeyIframeClient | undefined;
   passkeyClient: TurnkeyPasskeyClient | undefined;
   walletClient: TurnkeyWalletClient | undefined;
-  getActiveClient: () => Promise<TurnkeyBrowserClient | undefined>;
+  indexedDbClient: TurnkeyIndexedDbClient | undefined;
 }
 
 export const TurnkeyContext = createContext<TurnkeyClientType>({
@@ -28,9 +29,7 @@ export const TurnkeyContext = createContext<TurnkeyClientType>({
   passkeyClient: undefined,
   authIframeClient: undefined,
   walletClient: undefined,
-  getActiveClient: async () => {
-    return undefined;
-  },
+  indexedDbClient: undefined,
 });
 
 type TurnkeyProviderConfig = TurnkeySDKBrowserConfig & {
@@ -47,6 +46,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   children,
 }) => {
   const [turnkey, setTurnkey] = useState<Turnkey | undefined>(undefined);
+  const [indexedDbClient, setIndexedDbClient] = useState<
+    TurnkeyIndexedDbClient | undefined
+  >(undefined);
   const [passkeyClient, setPasskeyClient] = useState<
     TurnkeyPasskeyClient | undefined
   >(undefined);
@@ -66,42 +68,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const TurnkeyAuthIframeContainerId = "turnkey-auth-iframe-container-id";
   const TurnkeyAuthIframeElementId = "turnkey-auth-iframe-element-id";
-
-  const getActiveClient = async () => {
-    // default the currentClient to the passkeyClient
-    let currentClient: TurnkeyBrowserClient | undefined = passkeyClient;
-    const currentUser = await turnkey?.getCurrentUser();
-
-    try {
-      // check if the iframeClient is active
-      await authIframeClient?.getWhoami({
-        organizationId:
-          currentUser?.organization.organizationId ??
-          turnkey?.config.defaultOrganizationId!,
-      });
-      currentClient = authIframeClient;
-    } catch (error: any) {
-      try {
-        /**
-         * if the authIframeClient is not active, check if there's a readWriteSession in localStorage
-         * and try to initialize an authIframeClient with it
-         */
-        const readWriteSession = await turnkey?.getSession();
-
-        if (readWriteSession) {
-          await authIframeClient?.loginWithSession(readWriteSession);
-          currentClient = authIframeClient;
-        }
-      } catch (error: any) {
-        /**
-         * if the authIframeClient is not active and there's no readWriteSession in localStorage,
-         * or if injecting the readWriteSession into the authIframeClient fails, default to the passkeyClient
-         */
-      }
-    }
-
-    return currentClient;
-  };
 
   useEffect(() => {
     (async () => {
@@ -131,8 +97,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           }),
           iframeElementId: TurnkeyAuthIframeElementId,
         });
-
         setAuthIframeClient(iframeClient);
+
+        // create an instance of TurnkeyIndexedDbClient
+        const indexedDbClient = await turnkeyBrowserSDK.indexedDbClient();
+        await indexedDbClient?.init();
+        setIndexedDbClient(indexedDbClient);
       }
     })();
   }, []);
@@ -169,11 +139,14 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       case AuthClient.Wallet:
         setClient(walletClient);
         break;
+      case AuthClient.IndexedDb:
+        setClient(indexedDbClient);
+        break;
       default:
         // Handle unknown auth client type if needed
         break;
     }
-  }, [session, authIframeClient, passkeyClient, walletClient]);
+  }, [session, authIframeClient, passkeyClient, walletClient, indexedDbClient]);
 
   return (
     <TurnkeyContext.Provider
@@ -182,8 +155,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         turnkey,
         passkeyClient,
         authIframeClient,
+        indexedDbClient,
         walletClient,
-        getActiveClient,
       }}
     >
       {children}

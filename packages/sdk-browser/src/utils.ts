@@ -11,6 +11,7 @@ import { AeadId, CipherSuite, KdfId, KemId } from "hpke-js";
 
 import type { EmbeddedAPIKey } from "./models";
 import { pointDecode } from "@turnkey/api-key-stamper";
+import type { Session } from "@types";
 
 // createEmbeddedAPIKey creates an embedded API key encrypted to a target key (typically embedded within an iframe).
 // This returns a bundle that can be decrypted by that target key, as well as the public key of the newly created API key.
@@ -107,3 +108,34 @@ export const bytesToHex = (bytes: Uint8Array): string => {
   }
   return hex;
 };
+
+export function parseSession(token: string | Session): Session {
+  if (typeof token !== "string") {
+    return token;
+  }
+  const [, payload] = token.split(".");
+  if (!payload) {
+    throw new Error("Invalid JWT: Missing payload");
+  }
+
+  const decoded = JSON.parse(atob(payload));
+  const {
+    exp,
+    public_key: publicKey,
+    session_type: sessionType,
+    user_id: userId,
+    organization_id: organizationId,
+  } = decoded;
+
+  if (!exp || !publicKey || !sessionType || !userId || !organizationId) {
+    throw new Error("JWT payload missing required fields");
+  }
+
+  return {
+    sessionType,
+    userId,
+    organizationId,
+    expiry: exp,
+    token: publicKey,
+  };
+}

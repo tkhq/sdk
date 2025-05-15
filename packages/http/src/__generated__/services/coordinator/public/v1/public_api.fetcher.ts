@@ -3000,6 +3000,52 @@ export const signInitImportWallet = (
   });
 
 /**
+ * `POST /public/v1/submit/init_otp`
+ */
+export type TInitOtpResponse =
+  operations["PublicApiService_InitOtp"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/init_otp`
+ */
+export type TInitOtpInput = { body: TInitOtpBody };
+
+/**
+ * `POST /public/v1/submit/init_otp`
+ */
+export type TInitOtpBody =
+  operations["PublicApiService_InitOtp"]["parameters"]["body"]["body"];
+
+/**
+ * Init Generic OTP
+ *
+ * Initiate a Generic OTP activity
+ *
+ * `POST /public/v1/submit/init_otp`
+ */
+export const initOtp = (input: TInitOtpInput) =>
+  request<TInitOtpResponse, TInitOtpBody, never, never, never>({
+    uri: "/public/v1/submit/init_otp",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `InitOtp` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link InitOtp}
+ */
+export const signInitOtp = (
+  input: TInitOtpInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TInitOtpBody, never, never>({
+    uri: "/public/v1/submit/init_otp",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/init_otp_auth`
  */
 export type TInitOtpAuthResponse =
@@ -3144,6 +3190,52 @@ export const signOauth = (
   });
 
 /**
+ * `POST /public/v1/submit/oauth_login`
+ */
+export type TOauthLoginResponse =
+  operations["PublicApiService_OauthLogin"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/oauth_login`
+ */
+export type TOauthLoginInput = { body: TOauthLoginBody };
+
+/**
+ * `POST /public/v1/submit/oauth_login`
+ */
+export type TOauthLoginBody =
+  operations["PublicApiService_OauthLogin"]["parameters"]["body"]["body"];
+
+/**
+ * Login with Oauth
+ *
+ * Create an Oauth session for a user
+ *
+ * `POST /public/v1/submit/oauth_login`
+ */
+export const oauthLogin = (input: TOauthLoginInput) =>
+  request<TOauthLoginResponse, TOauthLoginBody, never, never, never>({
+    uri: "/public/v1/submit/oauth_login",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `OauthLogin` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link OauthLogin}
+ */
+export const signOauthLogin = (
+  input: TOauthLoginInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TOauthLoginBody, never, never>({
+    uri: "/public/v1/submit/oauth_login",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/otp_auth`
  */
 export type TOtpAuthResponse =
@@ -3185,6 +3277,52 @@ export const signOtpAuth = (
 ) =>
   signedRequest<TOtpAuthBody, never, never>({
     uri: "/public/v1/submit/otp_auth",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/otp_login`
+ */
+export type TOtpLoginResponse =
+  operations["PublicApiService_OtpLogin"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/otp_login`
+ */
+export type TOtpLoginInput = { body: TOtpLoginBody };
+
+/**
+ * `POST /public/v1/submit/otp_login`
+ */
+export type TOtpLoginBody =
+  operations["PublicApiService_OtpLogin"]["parameters"]["body"]["body"];
+
+/**
+ * Login with OTP
+ *
+ * Create an OTP session for a user
+ *
+ * `POST /public/v1/submit/otp_login`
+ */
+export const otpLogin = (input: TOtpLoginInput) =>
+  request<TOtpLoginResponse, TOtpLoginBody, never, never, never>({
+    uri: "/public/v1/submit/otp_login",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `OtpLogin` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link OtpLogin}
+ */
+export const signOtpLogin = (
+  input: TOtpLoginInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TOtpLoginBody, never, never>({
+    uri: "/public/v1/submit/otp_login",
     body: input.body,
     options,
   });
@@ -3530,6 +3668,52 @@ export const signSignTransaction = (
   });
 
 /**
+ * `POST /public/v1/submit/stamp_login`
+ */
+export type TStampLoginResponse =
+  operations["PublicApiService_StampLogin"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/stamp_login`
+ */
+export type TStampLoginInput = { body: TStampLoginBody };
+
+/**
+ * `POST /public/v1/submit/stamp_login`
+ */
+export type TStampLoginBody =
+  operations["PublicApiService_StampLogin"]["parameters"]["body"]["body"];
+
+/**
+ * Login with a Stamp
+ *
+ * Create a session for a user through stamping client side (api key, wallet client, or passkey client)
+ *
+ * `POST /public/v1/submit/stamp_login`
+ */
+export const stampLogin = (input: TStampLoginInput) =>
+  request<TStampLoginResponse, TStampLoginBody, never, never, never>({
+    uri: "/public/v1/submit/stamp_login",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `StampLogin` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link StampLogin}
+ */
+export const signStampLogin = (
+  input: TStampLoginInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TStampLoginBody, never, never>({
+    uri: "/public/v1/submit/stamp_login",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/update_policy`
  */
 export type TUpdatePolicyResponse =
@@ -3813,6 +3997,52 @@ export const signUpdateWallet = (
 ) =>
   signedRequest<TUpdateWalletBody, never, never>({
     uri: "/public/v1/submit/update_wallet",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/verify_otp`
+ */
+export type TVerifyOtpResponse =
+  operations["PublicApiService_VerifyOtp"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/verify_otp`
+ */
+export type TVerifyOtpInput = { body: TVerifyOtpBody };
+
+/**
+ * `POST /public/v1/submit/verify_otp`
+ */
+export type TVerifyOtpBody =
+  operations["PublicApiService_VerifyOtp"]["parameters"]["body"]["body"];
+
+/**
+ * Verify Generic OTP
+ *
+ * Verify a Generic OTP
+ *
+ * `POST /public/v1/submit/verify_otp`
+ */
+export const verifyOtp = (input: TVerifyOtpInput) =>
+  request<TVerifyOtpResponse, TVerifyOtpBody, never, never, never>({
+    uri: "/public/v1/submit/verify_otp",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `VerifyOtp` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link VerifyOtp}
+ */
+export const signVerifyOtp = (
+  input: TVerifyOtpInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TVerifyOtpBody, never, never>({
+    uri: "/public/v1/submit/verify_otp",
     body: input.body,
     options,
   });

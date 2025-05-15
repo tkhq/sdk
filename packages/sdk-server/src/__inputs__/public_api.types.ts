@@ -248,6 +248,10 @@ export type paths = {
     /** Initializes a new wallet import */
     post: operations["PublicApiService_InitImportWallet"];
   };
+  "/public/v1/submit/init_otp": {
+    /** Initiate a Generic OTP activity */
+    post: operations["PublicApiService_InitOtp"];
+  };
   "/public/v1/submit/init_otp_auth": {
     /** Initiate an OTP auth activity */
     post: operations["PublicApiService_InitOtpAuth"];
@@ -260,9 +264,17 @@ export type paths = {
     /** Authenticate a user with an Oidc token (Oauth) - BETA */
     post: operations["PublicApiService_Oauth"];
   };
+  "/public/v1/submit/oauth_login": {
+    /** Create an Oauth session for a user */
+    post: operations["PublicApiService_OauthLogin"];
+  };
   "/public/v1/submit/otp_auth": {
     /** Authenticate a user with an OTP code sent via email or SMS */
     post: operations["PublicApiService_OtpAuth"];
+  };
+  "/public/v1/submit/otp_login": {
+    /** Create an OTP session for a user */
+    post: operations["PublicApiService_OtpLogin"];
   };
   "/public/v1/submit/recover_user": {
     /** Completes the process of recovering a user by adding an authenticator */
@@ -292,6 +304,10 @@ export type paths = {
     /** Sign a transaction */
     post: operations["PublicApiService_SignTransaction"];
   };
+  "/public/v1/submit/stamp_login": {
+    /** Create a session for a user through stamping client side (api key, wallet client, or passkey client) */
+    post: operations["PublicApiService_StampLogin"];
+  };
   "/public/v1/submit/update_policy": {
     /** Update an existing Policy */
     post: operations["PublicApiService_UpdatePolicy"];
@@ -315,6 +331,10 @@ export type paths = {
   "/public/v1/submit/update_wallet": {
     /** Update a wallet for an organization */
     post: operations["PublicApiService_UpdateWallet"];
+  };
+  "/public/v1/submit/verify_otp": {
+    /** Verify a Generic OTP */
+    post: operations["PublicApiService_VerifyOtp"];
   };
   "/tkhq/api/v1/noop-codegen-anchor": {
     post: operations["PublicApiService_NOOPCodegenAnchor"];
@@ -568,7 +588,12 @@ export type definitions = {
     | "ACTIVITY_TYPE_UPDATE_WALLET"
     | "ACTIVITY_TYPE_UPDATE_POLICY_V2"
     | "ACTIVITY_TYPE_CREATE_USERS_V3"
-    | "ACTIVITY_TYPE_INIT_OTP_AUTH_V2";
+    | "ACTIVITY_TYPE_INIT_OTP_AUTH_V2"
+    | "ACTIVITY_TYPE_INIT_OTP"
+    | "ACTIVITY_TYPE_VERIFY_OTP"
+    | "ACTIVITY_TYPE_OTP_LOGIN"
+    | "ACTIVITY_TYPE_STAMP_LOGIN"
+    | "ACTIVITY_TYPE_OAUTH_LOGIN";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -989,7 +1014,7 @@ export type definitions = {
     email: string;
     /** @description Optional human-readable name for an API Key. If none provided, default to Read Write Session - <Timestamp> */
     apiKeyName?: string;
-    /** @description Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used. */
+    /** @description Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used. */
     expirationSeconds?: string;
   };
   v1CreateReadWriteSessionIntentV2: {
@@ -999,7 +1024,7 @@ export type definitions = {
     userId?: string;
     /** @description Optional human-readable name for an API Key. If none provided, default to Read Write Session - <Timestamp> */
     apiKeyName?: string;
-    /** @description Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used. */
+    /** @description Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used. */
     expirationSeconds?: string;
     /** @description Invalidate all other previously generated ReadWriteSession API keys */
     invalidateExisting?: boolean;
@@ -1286,7 +1311,8 @@ export type definitions = {
     | "CREDENTIAL_TYPE_API_KEY_ED25519"
     | "CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"
     | "CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256"
-    | "CREDENTIAL_TYPE_OAUTH_KEY_P256";
+    | "CREDENTIAL_TYPE_OAUTH_KEY_P256"
+    | "CREDENTIAL_TYPE_LOGIN";
   /** @enum {string} */
   v1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
   v1DeleteApiKeysIntent: {
@@ -1515,7 +1541,7 @@ export type definitions = {
     targetPublicKey: string;
     /** @description Optional human-readable name for an API Key. If none provided, default to Email Auth - <Timestamp> */
     apiKeyName?: string;
-    /** @description Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used. */
+    /** @description Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used. */
     expirationSeconds?: string;
     /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
     emailCustomization?: definitions["v1EmailCustomizationParams"];
@@ -1535,7 +1561,7 @@ export type definitions = {
     targetPublicKey: string;
     /** @description Optional human-readable name for an API Key. If none provided, default to Email Auth - <Timestamp> */
     apiKeyName?: string;
-    /** @description Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used. */
+    /** @description Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used. */
     expirationSeconds?: string;
     /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
     emailCustomization?: definitions["v1EmailCustomizationParams"];
@@ -2044,12 +2070,52 @@ export type definitions = {
     /** @description Unique identifier for an OTP authentication */
     otpId: string;
   };
+  v1InitOtpIntent: {
+    /** @description Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL */
+    otpType: string;
+    /** @description Email or phone number to send the OTP code to */
+    contact: string;
+    /**
+     * Format: int32
+     * @description Optional length of the OTP code. Default = 9
+     */
+    otpLength?: number;
+    /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
+    emailCustomization?: definitions["v1EmailCustomizationParams"];
+    /** @description Optional parameters for customizing SMS message. If not provided, the default sms message will be used. */
+    smsCustomization?: definitions["v1SmsCustomizationParams"];
+    /** @description Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address. */
+    userIdentifier?: string;
+    /** @description Optional custom email address from which to send the OTP email */
+    sendFromEmailAddress?: string;
+    /** @description Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). Default = true */
+    alphanumeric?: boolean;
+    /** @description Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+    sendFromEmailSenderName?: string;
+    /** @description Expiration window (in seconds) indicating how long the OTP is valid for. If not provided, a default of 5 minutes will be used. Maximum value is 600 seconds (10 minutes) */
+    expirationSeconds?: string;
+    /** @description Optional custom email address to use as reply-to */
+    replyToEmailAddress?: string;
+  };
+  v1InitOtpRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_INIT_OTP";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1InitOtpIntent"];
+  };
+  v1InitOtpResult: {
+    /** @description Unique identifier for an OTP authentication */
+    otpId: string;
+  };
   v1InitUserEmailRecoveryIntent: {
     /** @description Email of the user starting recovery */
     email: string;
     /** @description Client-side public key generated by the user, to which the recovery bundle will be encrypted. */
     targetPublicKey: string;
-    /** @description Expiration window (in seconds) indicating how long the recovery credential is valid. If not provided, a default of 15 minutes will be used. */
+    /** @description Expiration window (in seconds) indicating how long the recovery credential is valid for. If not provided, a default of 15 minutes will be used. */
     expirationSeconds?: string;
     /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
     emailCustomization?: definitions["v1EmailCustomizationParams"];
@@ -2151,6 +2217,11 @@ export type definitions = {
     updatePolicyIntentV2?: definitions["v1UpdatePolicyIntentV2"];
     createUsersIntentV3?: definitions["v1CreateUsersIntentV3"];
     initOtpAuthIntentV2?: definitions["v1InitOtpAuthIntentV2"];
+    initOtpIntent?: definitions["v1InitOtpIntent"];
+    verifyOtpIntent?: definitions["v1VerifyOtpIntent"];
+    otpLoginIntent?: definitions["v1OtpLoginIntent"];
+    stampLoginIntent?: definitions["v1StampLoginIntent"];
+    oauthLoginIntent?: definitions["v1OauthLoginIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2224,10 +2295,33 @@ export type definitions = {
     targetPublicKey: string;
     /** @description Optional human-readable name for an API Key. If none provided, default to Oauth - <Timestamp> */
     apiKeyName?: string;
-    /** @description Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used. */
+    /** @description Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used. */
     expirationSeconds?: string;
     /** @description Invalidate all other previously generated Oauth API keys */
     invalidateExisting?: boolean;
+  };
+  v1OauthLoginIntent: {
+    /** @description Base64 encoded OIDC token */
+    oidcToken: string;
+    /** @description Client-side public key generated by the user, which will be conditionally added to org data based on the validity of the oidc token associated with this request */
+    publicKey: string;
+    /** @description Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used. */
+    expirationSeconds?: string;
+    /** @description Invalidate all other previously generated Login API keys */
+    invalidateExisting?: boolean;
+  };
+  v1OauthLoginRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_OAUTH_LOGIN";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1OauthLoginIntent"];
+  };
+  v1OauthLoginResult: {
+    /** @description Signed JWT containing an expiry, public key, session type, user id, and organization id */
+    session: string;
   };
   v1OauthProvider: {
     /** @description Unique identifier for an OAuth Provider */
@@ -2300,7 +2394,7 @@ export type definitions = {
     targetPublicKey: string;
     /** @description Optional human-readable name for an API Key. If none provided, default to OTP Auth - <Timestamp> */
     apiKeyName?: string;
-    /** @description Expiration window (in seconds) indicating how long the API key is valid. If not provided, a default of 15 minutes will be used. */
+    /** @description Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used. */
     expirationSeconds?: string;
     /** @description Invalidate all other previously generated OTP Auth API keys */
     invalidateExisting?: boolean;
@@ -2321,6 +2415,29 @@ export type definitions = {
     apiKeyId?: string;
     /** @description HPKE encrypted credential bundle */
     credentialBundle?: string;
+  };
+  v1OtpLoginIntent: {
+    /** @description Signed JWT containing a unique id, expiry, verification type, contact */
+    verificationToken: string;
+    /** @description Client-side public key generated by the user, which will be conditionally added to org data based on the validity of the verification token */
+    publicKey: string;
+    /** @description Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used. */
+    expirationSeconds?: string;
+    /** @description Invalidate all other previously generated Login API keys */
+    invalidateExisting?: boolean;
+  };
+  v1OtpLoginRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_OTP_LOGIN";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1OtpLoginIntent"];
+  };
+  v1OtpLoginResult: {
+    /** @description Signed JWT containing an expiry, public key, session type, user id, and organization id */
+    session: string;
   };
   v1Pagination: {
     /** @description A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
@@ -2514,6 +2631,11 @@ export type definitions = {
     updateWalletResult?: definitions["v1UpdateWalletResult"];
     updatePolicyResultV2?: definitions["v1UpdatePolicyResultV2"];
     initOtpAuthResultV2?: definitions["v1InitOtpAuthResultV2"];
+    initOtpResult?: definitions["v1InitOtpResult"];
+    verifyOtpResult?: definitions["v1VerifyOtpResult"];
+    otpLoginResult?: definitions["v1OtpLoginResult"];
+    stampLoginResult?: definitions["v1StampLoginResult"];
+    oauthLoginResult?: definitions["v1OauthLoginResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -2685,6 +2807,27 @@ export type definitions = {
   v1SmsCustomizationParams: {
     /** @description Template containing references to .OtpCode i.e Your OTP is {{.OtpCode}} */
     template?: string;
+  };
+  v1StampLoginIntent: {
+    /** @description Client-side public key generated by the user, which will be conditionally added to org data based on the passkey stamp associated with this request */
+    publicKey: string;
+    /** @description Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used. */
+    expirationSeconds?: string;
+    /** @description Invalidate all other previously generated Login API keys */
+    invalidateExisting?: boolean;
+  };
+  v1StampLoginRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_STAMP_LOGIN";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1StampLoginIntent"];
+  };
+  v1StampLoginResult: {
+    /** @description Signed JWT containing an expiry, public key, session type, user id, and organization id */
+    session: string;
   };
   /** @enum {string} */
   v1TagType: "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
@@ -2925,6 +3068,27 @@ export type definitions = {
     oauthProviders: definitions["v1OauthProviderParams"][];
     /** @description A list of User Tag IDs. This field, if not needed, should be an empty array in your request body. */
     userTags: string[];
+  };
+  v1VerifyOtpIntent: {
+    /** @description ID representing the result of an init OTP activity. */
+    otpId: string;
+    /** @description OTP sent out to a user's contact (email or SMS) */
+    otpCode: string;
+    /** @description Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours) */
+    expirationSeconds?: string;
+  };
+  v1VerifyOtpRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_VERIFY_OTP";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1VerifyOtpIntent"];
+  };
+  v1VerifyOtpResult: {
+    /** @description Signed JWT containing a unique id, expiry, verification type, contact */
+    verificationToken: string;
   };
   v1Vote: {
     /** @description Unique identifier for a given Vote object. */
@@ -4118,6 +4282,24 @@ export type operations = {
       };
     };
   };
+  /** Initiate a Generic OTP activity */
+  PublicApiService_InitOtp: {
+    parameters: {
+      body: {
+        body: definitions["v1InitOtpRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Initiate an OTP auth activity */
   PublicApiService_InitOtpAuth: {
     parameters: {
@@ -4172,11 +4354,47 @@ export type operations = {
       };
     };
   };
+  /** Create an Oauth session for a user */
+  PublicApiService_OauthLogin: {
+    parameters: {
+      body: {
+        body: definitions["v1OauthLoginRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Authenticate a user with an OTP code sent via email or SMS */
   PublicApiService_OtpAuth: {
     parameters: {
       body: {
         body: definitions["v1OtpAuthRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create an OTP session for a user */
+  PublicApiService_OtpLogin: {
+    parameters: {
+      body: {
+        body: definitions["v1OtpLoginRequest"];
       };
     };
     responses: {
@@ -4316,6 +4534,24 @@ export type operations = {
       };
     };
   };
+  /** Create a session for a user through stamping client side (api key, wallet client, or passkey client) */
+  PublicApiService_StampLogin: {
+    parameters: {
+      body: {
+        body: definitions["v1StampLoginRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Update an existing Policy */
   PublicApiService_UpdatePolicy: {
     parameters: {
@@ -4411,6 +4647,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1UpdateWalletRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Verify a Generic OTP */
+  PublicApiService_VerifyOtp: {
+    parameters: {
+      body: {
+        body: definitions["v1VerifyOtpRequest"];
       };
     };
     responses: {
