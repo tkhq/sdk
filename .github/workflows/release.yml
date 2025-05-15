@@ -142,15 +142,24 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Version and Publish SDK packages to npm
+      - name: Check for changesets
+        run: |
+          if [ -z "$(ls -A .changeset/*.md 2>/dev/null)" ]; then
+            echo "No changesets found, exiting"
+            exit 0
+          fi
+
+      - name: Version and Publish
         uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
         with:
           version: pnpm changeset version # updates package versions and changelogs
-          publish: pnpm publish # publish to npm
+          publish: |
+            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+            pnpm publish --no-git-checks
+            rm .npmrc
           createGithubReleases: true
           commit: "chore: release packages"
           title: "Release ${{ github.ref_name }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # for changelog links
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # for npm publish
-
