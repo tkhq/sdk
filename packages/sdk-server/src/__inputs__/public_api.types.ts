@@ -2342,6 +2342,8 @@ export type definitions = {
     providerName: string;
     /** @description Base64 encoded OIDC token */
     oidcToken: string;
+    /** @description Extracts the email from the OIDC token and sets it as the user's email. This is currently only supported for Google OIDC. */
+    linkToUserEmail?: boolean;
   };
   v1OauthRequest: {
     /** @enum {string} */

@@ -290,7 +290,7 @@ export type Passkey = {
 export type Provider = {
   providerName: string;
   oidcToken: string;
-  linkToUserEmail?: boolean | undefined;
+  linkToUserEmail?: boolean;
 };
 
 export type CreateSuborgResponse = {
