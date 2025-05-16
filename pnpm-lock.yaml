@@ -2020,10 +2020,10 @@ importers:
         specifier: workspace:*
         version: link:../react-native-passkey-stamper
       '@types/react':
-        specifier: ^18.2.75
+        specifier: '>=16.8.0 <20'
         version: 18.3.3
       react:
-        specifier: ^16.8.0 || ^17.0.0 || ^18.0.0
+        specifier: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
         version: 18.3.1
       react-native-inappbrowser-reborn:
         specifier: ^3.7.0
