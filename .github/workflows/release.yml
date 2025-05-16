@@ -192,14 +192,18 @@ jobs:
 
       - name: Extract Changelog for Current Release
         run: |
-          # Escape dots in version for sed (e.g., "1.0.0" -> "1\.0\.0")
-          VERSION=$(echo "${{ github.ref_name }}" | sed 's/\./\\./g')
-          # Extract section starting with "## <version> (date)" until the next "##"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            VERSION=$(cat .changeset/*.md 2>/dev/null | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n 1 || echo "0.0.2")
+          else
+            VERSION=$(echo "${{ github.ref_name }}" | sed 's/^test-v//' | sed 's/\./\\./g')
+          fi
           sed -n "/^## $VERSION /,/^## /p" CHANGELOG.md | head -n -1 > RELEASE_NOTES.md
-          # Verify the extracted file is not empty
           if [ ! -s RELEASE_NOTES.md ]; then
-            echo "Error: RELEASE_NOTES.md is empty. Check if version ${{ github.ref_name }} exists in CHANGELOG.md."
+            echo "Error: RELEASE_NOTES.md is empty. Check if version $VERSION exists in CHANGELOG.md."
             exit 1
+          else
+            echo "Extracted changelog:"
+            cat RELEASE_NOTES.md
           fi
 
       # - name: Publish packages
