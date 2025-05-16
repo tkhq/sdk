@@ -648,6 +648,16 @@ export type TInitImportWalletBody =
   operations["PublicApiService_InitImportWallet"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TInitOtpResponse =
+  operations["PublicApiService_InitOtp"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TInitOtpInput = { body: TInitOtpBody };
+
+export type TInitOtpBody =
+  operations["PublicApiService_InitOtp"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TInitOtpAuthResponse =
   operations["PublicApiService_InitOtpAuth"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpAuthResultV2"] &
     definitions["v1ActivityResponse"];
@@ -678,6 +688,16 @@ export type TOauthBody =
   operations["PublicApiService_Oauth"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TOauthLoginResponse =
+  operations["PublicApiService_OauthLogin"]["responses"]["200"]["schema"]["activity"]["result"]["oauthLoginResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TOauthLoginInput = { body: TOauthLoginBody };
+
+export type TOauthLoginBody =
+  operations["PublicApiService_OauthLogin"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TOtpAuthResponse =
   operations["PublicApiService_OtpAuth"]["responses"]["200"]["schema"]["activity"]["result"]["otpAuthResult"] &
     definitions["v1ActivityResponse"];
@@ -686,6 +706,16 @@ export type TOtpAuthInput = { body: TOtpAuthBody };
 
 export type TOtpAuthBody =
   operations["PublicApiService_OtpAuth"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TOtpLoginResponse =
+  operations["PublicApiService_OtpLogin"]["responses"]["200"]["schema"]["activity"]["result"]["otpLoginResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TOtpLoginInput = { body: TOtpLoginBody };
+
+export type TOtpLoginBody =
+  operations["PublicApiService_OtpLogin"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TRecoverUserResponse =
@@ -762,6 +792,16 @@ export type TSignTransactionBody =
   operations["PublicApiService_SignTransaction"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TStampLoginResponse =
+  operations["PublicApiService_StampLogin"]["responses"]["200"]["schema"]["activity"]["result"]["stampLoginResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TStampLoginInput = { body: TStampLoginBody };
+
+export type TStampLoginBody =
+  operations["PublicApiService_StampLogin"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TUpdatePolicyResponse =
   operations["PublicApiService_UpdatePolicy"]["responses"]["200"]["schema"]["activity"]["result"]["updatePolicyResultV2"] &
     definitions["v1ActivityResponse"];
@@ -820,6 +860,16 @@ export type TUpdateWalletInput = { body: TUpdateWalletBody };
 
 export type TUpdateWalletBody =
   operations["PublicApiService_UpdateWallet"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TVerifyOtpResponse =
+  operations["PublicApiService_VerifyOtp"]["responses"]["200"]["schema"]["activity"]["result"]["verifyOtpResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TVerifyOtpInput = { body: TVerifyOtpBody };
+
+export type TVerifyOtpBody =
+  operations["PublicApiService_VerifyOtp"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TNOOPCodegenAnchorResponse =

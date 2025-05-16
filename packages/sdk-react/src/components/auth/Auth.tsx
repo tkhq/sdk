@@ -3,6 +3,7 @@
 import styles from "./Auth.module.css";
 import React, { useEffect, useState } from "react";
 import { MuiPhone } from "./PhoneInput";
+import { jwtDecode } from "jwt-decode";
 import GoogleAuthButton from "./Google";
 import AppleAuthButton from "./Apple";
 import FacebookAuthButton from "./Facebook";
@@ -79,6 +80,7 @@ interface AuthProps {
     googleEnabled: boolean;
     walletEnabled: boolean;
     openOAuthInPage?: boolean;
+    socialLinking?: boolean; // Upon authenticating with Google, automatically add the Google account's email to the suborg's data
     sessionLengthSeconds?: number; // Desired expiration time in seconds for the generated API key
     googleClientId?: string; // will default to NEXT_PUBLIC_GOOGLE_CLIENT_ID
     appleClientId?: string; // will default to NEXT_PUBLIC_APPLE_CLIENT_ID
@@ -293,41 +295,87 @@ const Auth: React.FC<AuthProps> = ({
     setLoading(undefined);
   };
 
-  const handleOAuthLogin = async (credential: string, providerName: string) => {
+  const handleOAuthLogin = async (
+    credential: string,
+    providerName: string,
+    socialLinking = false,
+  ) => {
     setOauthLoading(providerName);
-    const createSuborgData: Record<string, any> = {
-      oauthProviders: [{ providerName, oidcToken: credential }],
+
+    const base = { providerName, oidcToken: credential };
+    const oauthProviders = [
+      socialLinking ? { ...base, linkToUserEmail: true } : base,
+    ];
+    const additionalData: Record<string, any> = {
+      oauthProviders,
+      ...(customAccounts && { customAccounts }),
     };
-    if (customAccounts) {
-      createSuborgData.customAccounts = customAccounts;
-    }
 
-    const resp = await server.getOrCreateSuborg({
-      filterType: FilterType.OidcToken,
-      filterValue: credential,
-      additionalData: createSuborgData,
-    });
-
-    const suborgIds = resp?.subOrganizationIds;
-    if (!suborgIds || suborgIds.length === 0) {
+    const completeLogin = async (suborgID: string) => {
+      const key = await authIframeClient!.initEmbeddedKey();
+      const session = await server.oauth({
+        suborgID,
+        oidcToken: credential,
+        targetPublicKey: key!,
+        sessionLengthSeconds: authConfig.sessionLengthSeconds,
+      });
+      if (session?.token) {
+        await authIframeClient!.loginWithSession(session);
+        return onAuthSuccess();
+      }
       onError(authErrors.oauth.loginFailed);
-      return;
+    };
+
+    if (!socialLinking) {
+      const ids = (
+        await server.getOrCreateSuborg({
+          filterType: FilterType.OidcToken,
+          filterValue: credential,
+          additionalData,
+        })
+      )?.subOrganizationIds;
+      return ids?.[0]
+        ? completeLogin(ids[0])
+        : onError(authErrors.oauth.loginFailed);
     }
 
-    const suborgId = suborgIds[0];
-    const iframePublicKey = await authIframeClient!.initEmbeddedKey();
-    const oauthSession = await server.oauth({
-      suborgID: suborgId!,
-      oidcToken: credential,
-      targetPublicKey: iframePublicKey!,
-      sessionLengthSeconds: authConfig.sessionLengthSeconds,
-    });
-    if (oauthSession && oauthSession.token) {
-      await authIframeClient!.loginWithSession(oauthSession);
-      await onAuthSuccess();
-    } else {
-      onError(authErrors.oauth.loginFailed);
+    const { email, iss } = jwtDecode<any>(credential) || {};
+    const oidcOrgIds = (
+      await server.getSuborgs({
+        filterType: FilterType.OidcToken,
+        filterValue: credential,
+      })
+    )?.organizationIds;
+
+    let orgId = oidcOrgIds?.[0];
+    if (!orgId) {
+      if (email && iss === "https://accounts.google.com") {
+        const emailOrgIds = (
+          await server.getVerifiedSuborgs({
+            filterType: FilterType.Email,
+            filterValue: email,
+          })
+        )?.organizationIds;
+        if (emailOrgIds?.[0]) {
+          orgId = emailOrgIds[0];
+          const userId = (await server.getUsers({ organizationId: orgId }))
+            ?.users?.[0]?.userId;
+          if (!userId) return onError(authErrors.oauth.loginFailed);
+          await server.createOauthProviders({
+            organizationId: orgId,
+            userId,
+            oauthProviders,
+          });
+        } else {
+          orgId = (await server.createSuborg(additionalData))
+            ?.subOrganizationId;
+        }
+      } else {
+        orgId = (await server.createSuborg(additionalData))?.subOrganizationId;
+      }
     }
+
+    return orgId ? completeLogin(orgId) : onError(authErrors.oauth.loginFailed);
   };
 
   const handleLoginWithWallet = async () => {
@@ -425,7 +473,11 @@ const Auth: React.FC<AuthProps> = ({
             iframePublicKey={authIframeClient!.iframePublicKey!}
             openInPage={authConfig.openOAuthInPage}
             onSuccess={(response: any) =>
-              handleOAuthLogin(response.idToken, "Google")
+              handleOAuthLogin(
+                response.idToken,
+                "Google",
+                authConfig.socialLinking,
+              )
             }
           />
         )}
@@ -438,8 +490,8 @@ const Auth: React.FC<AuthProps> = ({
             }
             iframePublicKey={authIframeClient!.iframePublicKey!}
             openInPage={authConfig.openOAuthInPage}
-            onSuccess={(response: any) =>
-              handleOAuthLogin(response.idToken, "Apple")
+            onSuccess={
+              (response: any) => handleOAuthLogin(response.idToken, "Apple") // No need to pass socialLinking for Apple. It's not supported
             }
           />
         )}
@@ -452,8 +504,8 @@ const Auth: React.FC<AuthProps> = ({
             }
             iframePublicKey={authIframeClient!.iframePublicKey!}
             openInPage={authConfig.openOAuthInPage}
-            onSuccess={(response: any) =>
-              handleOAuthLogin(response.id_token, "Facebook")
+            onSuccess={
+              (response: any) => handleOAuthLogin(response.id_token, "Facebook") // No need to pass socialLinking for Facebook. It's not supported
             }
           />
         )}
