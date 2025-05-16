@@ -128,6 +128,57 @@ jobs:
           SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
           WALLET_ID: ${{ secrets.WALLET_ID }}
 
+      - name: Debug changeset config
+        run: |
+          ls -la .changeset/
+          cat .changeset/config.json || echo "config.json not found"
+          ls -la .changeset/custom-changelog.js || echo "custom-changelog.js not found"
+
+      - name: Check for changesets
+        run: |
+          if [ -z "$(ls -A .changeset/*.md 2>/dev/null)" ]; then
+            echo "No changesets found, exiting"
+            exit 0
+          fi
+
+      - name: Configure Git User
+        run: |
+          git config user.name "tkhq-deploy"
+          git config user.email "github@turnkey.engineering"
+
+      - name: Version packages
+        run: |
+          pnpm changeset version
+          git add .
+          git commit -m "chore: release packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Changelog for Current Release
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            VERSION=$(cat .changeset/*.md 2>/dev/null | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -n 1 || echo "0.0.2")
+          else
+            VERSION=$(echo "${{ github.ref_name }}" | sed 's/^test-v//' | sed 's/\./\\./g')
+          fi
+          > RELEASE_NOTES.md
+          FOUND=false
+          for CHANGELOG_PATH in $(find packages -name CHANGELOG.md); do
+            if sed -n "/^## $VERSION /,/^## /p" "$CHANGELOG_PATH" | head -n -1 >> RELEASE_NOTES.md; then
+              if [ -s RELEASE_NOTES.md ]; then
+                FOUND=true
+                echo "Found changelog for version $VERSION in $CHANGELOG_PATH"
+              fi
+            fi
+          done
+          if [ "$FOUND" = "false" ]; then
+            echo "Error: No changelog found for version $VERSION in any packages/*/CHANGELOG.md."
+            exit 1
+          else
+            echo "Extracted changelog:"
+            cat RELEASE_NOTES.md
+          fi
+
   publish:
     runs-on: ubuntu-latest
     environment: production # require manual approval for production deployments
@@ -197,9 +248,18 @@ jobs:
           else
             VERSION=$(echo "${{ github.ref_name }}" | sed 's/^test-v//' | sed 's/\./\\./g')
           fi
-          sed -n "/^## $VERSION /,/^## /p" CHANGELOG.md | head -n -1 > RELEASE_NOTES.md
-          if [ ! -s RELEASE_NOTES.md ]; then
-            echo "Error: RELEASE_NOTES.md is empty. Check if version $VERSION exists in CHANGELOG.md."
+          > RELEASE_NOTES.md
+          FOUND=false
+          for CHANGELOG_PATH in $(find packages -name CHANGELOG.md); do
+            if sed -n "/^## $VERSION /,/^## /p" "$CHANGELOG_PATH" | head -n -1 >> RELEASE_NOTES.md; then
+              if [ -s RELEASE_NOTES.md ]; then
+                FOUND=true
+                echo "Found changelog for version $VERSION in $CHANGELOG_PATH"
+              fi
+            fi
+          done
+          if [ "$FOUND" = "false" ]; then
+            echo "Error: No changelog found for version $VERSION in any packages/*/CHANGELOG.md."
             exit 1
           else
             echo "Extracted changelog:"
