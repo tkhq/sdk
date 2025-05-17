@@ -8,9 +8,6 @@ on:
 
 permissions:
   contents: write
-  actions: write
-  checks: write
-  pull-requests: write
   packages: write
 
 jobs:
@@ -31,6 +28,14 @@ jobs:
       - name: Build
         run: pnpm run build-all
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: build-artifacts
+          path: |
+            packages/*/dist/**
+          retention-days: 1
+
       - name: Typecheck
         run: pnpm run typecheck-all
 
@@ -49,8 +54,11 @@ jobs:
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
-      - name: Build
-        run: pnpm run build-all
+      - name: Download build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: build-artifacts
+          path: packages/
 
       - name: Debug Foundry
         run: anvil --version || echo "anvil not found"
@@ -83,8 +91,11 @@ jobs:
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
-      - name: Build
-        run: pnpm run build-all
+      - name: Download build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: build-artifacts
+          path: packages/
 
       - name: Debug Foundry setup
         run: |
@@ -129,6 +140,12 @@ jobs:
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
+      - name: Download build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: build-artifacts
+          path: packages/
+
       - name: Debug changeset config
         run: |
           ls -la .changeset/
@@ -148,51 +165,51 @@ jobs:
             echo "No changesets found, exiting"
             exit 0
           fi
+
       - name: Configure Git User
         run: |
           git config user.name "tkhq-deploy"
           git config user.email "github@turnkey.engineering"
 
       - name: Version packages
-        uses: changesets/action@e0538e686673de0265c8a3e2904b8c76beaa43fd # v1.5.2
-        with:
-          version: pnpm changeset version # updates package versions and changelogs
-          commit: "chore: release packages"
-          setupGitUser: false
-          createGithubReleases: true
-          commitMode: "github-api"
+        run: |
+          pnpm changeset version
+          pnpm run version
+          git add .
+          git commit -m "chore: release packages"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # for changelog links
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Dry Run Publish packages
+        run: |
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+          pnpm publish -r --dry-run --no-git-checks
+          rm .npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish packages
         run: |
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
-          pnpm publish --no-git-checks
+          pnpm publish -r --no-git-checks
           rm .npmrc
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # for npm publish
-
-      - name: Combine changelogs
-        run: |
-          echo -e "# Changelog\n" > RELEASE_NOTES.md
-          find packages -name CHANGELOG.md -exec cat {} \; >> RELEASE_NOTES.md
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          body_path: RELEASE_NOTES.md
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Push changes to release branch
         run: |
-          git checkout -b release/${{ github.ref_name }}
-          git add .
-          git commit -m "chore: release ${{ github.ref_name }}"
+          git checkout -b release/${{ github.ref_name }} || git checkout release/${{ github.ref_name }}
           git push origin release/${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          generate_release_notes: true
+          draft: true
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
