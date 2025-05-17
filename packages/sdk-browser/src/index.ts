@@ -123,8 +123,9 @@ export type { WalletAccount } from "./turnkey-helpers";
 export {
   type TurnkeySDKClientConfig,
   type TurnkeySDKBrowserConfig,
-  type Session,
-  SessionType,
+  type User,
+  type ReadOnlySession,
+  type ReadWriteSession,
   AuthClient,
 } from "./__types__/base";
 

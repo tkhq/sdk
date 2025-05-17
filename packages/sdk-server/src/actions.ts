@@ -18,6 +18,8 @@ import {
   VerifyOtpRequest,
   VerifyOtpResponse,
 } from "./__types__/base";
+
+import { Session, SessionType } from "@turnkey/sdk-types";
 import { TurnkeyServerSDK } from "./sdk-client";
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,

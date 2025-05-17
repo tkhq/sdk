@@ -60,6 +60,7 @@
     "@turnkey/crypto": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
     "libphonenumber-js": "^1.11.14",
     "next": "^15.2.3 ",

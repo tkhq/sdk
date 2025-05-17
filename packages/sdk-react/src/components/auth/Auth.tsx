@@ -18,11 +18,7 @@ import { FilterType, OtpType, authErrors } from "./constants";
 import type { TurnkeyApiTypes, WalletAccount } from "@turnkey/sdk-browser";
 import { server } from "@turnkey/sdk-server";
 import parsePhoneNumberFromString from "libphonenumber-js";
-
-export enum SessionType {
-  READ_ONLY = "SESSION_TYPE_READ_ONLY",
-  READ_WRITE = "SESSION_TYPE_READ_WRITE",
-}
+import { SessionType } from "@turnkey/sdk-types";
 export interface PasskeyConfig {
   displayName?: string;
   name?: string;

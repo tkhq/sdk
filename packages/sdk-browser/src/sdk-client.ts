@@ -7,12 +7,17 @@ import WindowWrapper from "@polyfills/window";
 import {
   type GrpcStatus,
   type TurnkeySDKBrowserConfig,
-  Session,
+  type User,
+  type ReadWriteSession,
   TurnkeyRequestError,
   Stamper,
   IframeClientParams,
   PasskeyClientParams,
 } from "./__types__/base";
+
+import { Session, SessionType } from "@turnkey/sdk-types";
+
+import type { SubOrganization } from "@models";
 
 import { StorageKeys, getStorageValue, removeStorageValue } from "@storage";
 
