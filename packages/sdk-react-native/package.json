@@ -27,12 +27,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tkhq/sdk.git",
+    "url": "git+https://github.com/tkhq/sdk.git",
     "directory": "packages/sdk-react-native"
   },
   "files": [
     "dist/",
     "CHANGELOG.md",
+    "README.md",
     "README.md"
   ],
   "publishConfig": {

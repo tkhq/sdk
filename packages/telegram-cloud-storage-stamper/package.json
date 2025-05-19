@@ -30,12 +30,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tkhq/sdk.git",
+    "url": "git+https://github.com/tkhq/sdk.git",
     "directory": "packages/telegram-cloud-storage-stamper"
   },
   "files": [
     "dist/",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "README.md"
   ],
   "publishConfig": {
     "access": "public"
