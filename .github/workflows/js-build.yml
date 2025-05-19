@@ -26,21 +26,34 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck-all
 
-      - name: Test (prod)
-        run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
-        env:
-          API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
-          API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
-          BASE_URL: "https://api.turnkey.com"
-          ORGANIZATION_ID: ${{ secrets.ORGANIZATION_ID }}
-          PRIVATE_KEY_ID: ${{ secrets.PRIVATE_KEY_ID }}
-          EXPECTED_PRIVATE_KEY_ETH_ADDRESS: ${{ secrets.EXPECTED_PRIVATE_KEY_ETH_ADDRESS }}
-          EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2: ${{ secrets.EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2 }}
-          EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: ${{ secrets.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS }}
-          EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2: ${{ secrets.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2 }}
-          BANNED_TO_ADDRESS: "0x6F72eDB2429820c2A0606a9FC3cA364f5E9b2375"
-          SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
-          WALLET_ID: ${{ secrets.WALLET_ID }}
+      - name: Prettier
+        run: pnpm run prettier-all:check
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: build-artifacts
+          path: |
+            packages/*/dist/**
+          retention-days: 1
+
+  test-pre-prod:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      # Install and cache JS toolchain and dependencies (node_modules)
+      - name: Setup JS
+        uses: ./.github/actions/js-setup
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: build-artifacts
+          path: packages/
 
       - name: Test (preprod)
         run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
@@ -57,9 +70,57 @@ jobs:
           BANNED_TO_ADDRESS: ${{ secrets.PREPROD_BANNED_TO_ADDRESS }}
           SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
           WALLET_ID: ${{ secrets.PREPROD_WALLET_ID }}
+  test-prod:
+    runs-on: ubuntu-latest
+    needs: test-pre-prod
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Prettier
-        run: pnpm run prettier-all:check
+      # Install and cache JS toolchain and dependencies (node_modules)
+      - name: Setup JS
+        uses: ./.github/actions/js-setup
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: build-artifacts
+          path: packages/
+
+      - name: Test (prod)
+        run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
+        env:
+          API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
+          API_PRIVATE_KEY: ${{ secrets.API_PRIVATE_KEY }}
+          BASE_URL: "https://api.turnkey.com"
+          ORGANIZATION_ID: ${{ secrets.ORGANIZATION_ID }}
+          PRIVATE_KEY_ID: ${{ secrets.PRIVATE_KEY_ID }}
+          EXPECTED_PRIVATE_KEY_ETH_ADDRESS: ${{ secrets.EXPECTED_PRIVATE_KEY_ETH_ADDRESS }}
+          EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2: ${{ secrets.EXPECTED_PRIVATE_KEY_ETH_ADDRESS_2 }}
+          EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS: ${{ secrets.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS }}
+          EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2: ${{ secrets.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS_2 }}
+          BANNED_TO_ADDRESS: "0x6F72eDB2429820c2A0606a9FC3cA364f5E9b2375"
+          SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
+          WALLET_ID: ${{ secrets.WALLET_ID }}
+
+  validate-version:
+    runs-on: ubuntu-latest
+    needs: test-prod
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      # Install and cache JS toolchain and dependencies (node_modules)
+      - name: Setup JS
+        uses: ./.github/actions/js-setup
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: build-artifacts
+          path: packages/
 
       # This is to catch when someone forgets to run `pnpm run version` after bumping package versions
       # If this happens this script will run and make git dirty
