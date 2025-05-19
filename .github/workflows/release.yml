@@ -28,6 +28,12 @@ jobs:
       - name: Build
         run: pnpm run build-all
 
+      - name: Typecheck
+        run: pnpm run typecheck-all
+
+      - name: Prettier
+        run: pnpm run prettier-all:check
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -35,12 +41,6 @@ jobs:
           path: |
             packages/*/dist/**
           retention-days: 1
-
-      - name: Typecheck
-        run: pnpm run typecheck-all
-
-      - name: Prettier
-        run: pnpm run prettier-all:check
 
   test-pre-prod:
     runs-on: ubuntu-latest
