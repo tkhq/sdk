@@ -131,12 +131,20 @@ export function createAccountWithAddress(input: {
 
   return toAccount({
     address: ethereumAddress as Hex,
+    sign: function ({
+      hash,
+    }: {
+      hash: Hex,
+    }): Promise<Hex> {
+      return signMessage(client, hash, organizationId, signWith);
+    },
     signMessage: function ({
       message,
     }: {
       message: SignableMessage;
     }): Promise<Hex> {
-      return signMessage(client, message, organizationId, signWith);
+      const hashedMessage = hashMessage(message);
+      return signMessage(client, hashedMessage, organizationId, signWith);
     },
     signTransaction: function <
       TTransactionSerializable extends TransactionSerializable,
@@ -287,12 +295,20 @@ export async function createApiKeyAccount(
 
   return toAccount({
     address: ethereumAddress as Hex,
+    sign: function ({
+      hash,
+    }: {
+      hash: Hex,
+    }): Promise<Hex> {
+      return signMessage(client, hash, organizationId, privateKeyId);
+    },
     signMessage: function ({
       message,
     }: {
       message: SignableMessage;
     }): Promise<Hex> {
-      return signMessage(client, message, organizationId, privateKeyId);
+      const hashedMessage = hashMessage(message);
+      return signMessage(client, hashedMessage, organizationId, privateKeyId);
     },
     signTransaction: function <
       TTransactionSerializable extends TransactionSerializable,
@@ -380,10 +396,9 @@ export async function signMessage(
   organizationId: string,
   signWith: string,
 ): Promise<Hex> {
-  const hashedMessage = hashMessage(message);
   const signedMessage = await signMessageWithErrorWrapping(
     client,
-    hashedMessage,
+    message as Hex,
     organizationId,
     signWith,
   );
@@ -569,7 +584,7 @@ async function signMessageWithErrorWrapping(
 
 async function signMessageImpl(
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
-  message: string,
+  message: string, // assumed to be a hashed message
   organizationId: string,
   signWith: string,
   to?: TSignatureFormat,
