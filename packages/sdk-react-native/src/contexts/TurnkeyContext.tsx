@@ -121,6 +121,7 @@ export interface TurnkeyConfig {
   onSessionSelected?: (session: Session) => void;
   onSessionExpired?: (session: Session) => void;
   onSessionCleared?: (session: Session) => void;
+  onSessionEmpty?: () => void;
   onSessionExpiryWarning?: (session: Session) => void;
 }
 
@@ -187,6 +188,8 @@ export const TurnkeyProvider: FC<{
             selectedSession ?? ({ key: selectedSessionKey } as Session),
           );
         }
+      } else {
+        config.onSessionEmpty?.();
       }
     };
 
