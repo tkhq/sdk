@@ -5,6 +5,7 @@ title: "Turnkey SDK"
 # Turnkey SDK
 
 [![js-build](https://github.com/tkhq/sdk/actions/workflows/js-build.yml/badge.svg)](https://github.com/tkhq/sdk/actions/workflows/js-build.yml)
+[![meta](https://github.com/tkhq/sdk/actions/workflows/meta.yml/badge.svg)](https://github.com/tkhq/sdk/actions/workflows/meta.yml)
 
 ## Overview
 
