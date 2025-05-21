@@ -1,8 +1,5 @@
 import WindowWrapper from "@polyfills/window";
-import type {
-  AuthClient,
-  Session,
-} from "./__types__/base";
+import type { AuthClient, Session } from "./__types__/base";
 
 export enum StorageKeys {
   Session = "@turnkey/session/v2",

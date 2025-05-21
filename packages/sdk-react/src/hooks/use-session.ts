@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  AuthClient,
-  Session,
-  StorageKeys,
-} from "@turnkey/sdk-browser";
+import { AuthClient, Session, StorageKeys } from "@turnkey/sdk-browser";
 import { useLocalStorage } from "usehooks-ts";
 
 /**

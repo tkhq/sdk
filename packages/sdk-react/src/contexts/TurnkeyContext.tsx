@@ -62,7 +62,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     undefined,
   );
 
-  const { session, authClient} = useSession();
+  const { session, authClient } = useSession();
 
   const iframeInit = useRef<boolean>(false);
 

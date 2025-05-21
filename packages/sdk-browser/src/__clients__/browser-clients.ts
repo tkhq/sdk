@@ -118,7 +118,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
   /**
    * Attempts to refresh an existing Session. This method infers the current user's organization ID and target userId.
-   * This will use a passkeyStamper for `READ_ONLY` sessions or an `iframeStamper` for `READ_WRITE` sessions.
+   * This will use a passkeyStamper for `READ_ONLY` sessions or an `indexedDbStamper` for `READ_WRITE` sessions.
    *
    * @param RefreshSessionParams
    *   @param params.sessionType - The type of session that is being refreshed
