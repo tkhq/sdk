@@ -247,10 +247,6 @@ export class TurnkeyBrowserSDK {
    * @returns {Promise<boolean>}
    */
   logout = async (): Promise<boolean> => {
-    await removeStorageValue(StorageKeys.AuthBundle); // DEPRECATED
-    await removeStorageValue(StorageKeys.CurrentUser);
-    await removeStorageValue(StorageKeys.UserSession);
-    await removeStorageValue(StorageKeys.ReadWriteSession);
     await removeStorageValue(StorageKeys.Client);
     await removeStorageValue(StorageKeys.Session);
     return true;

@@ -12,7 +12,7 @@ import {
   AuthClient,
 } from "@turnkey/sdk-browser";
 import type { WalletInterface } from "@turnkey/wallet-stamper";
-import { useUserSession } from "../hooks/use-session";
+import { useSession } from "../hooks/use-session";
 
 export interface TurnkeyClientType {
   client: TurnkeyBrowserClient | undefined;
@@ -62,7 +62,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     undefined,
   );
 
-  const { session } = useUserSession();
+  const { session, authClient} = useSession();
 
   const iframeInit = useRef<boolean>(false);
 
@@ -119,12 +119,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
    * updated accordingly.
    */
   useEffect(() => {
-    switch (session?.authClient) {
+    switch (authClient) {
       case AuthClient.Iframe:
-        const expiry = session?.write?.expiry || 0;
-        if (expiry > Date.now() && session?.write?.credentialBundle) {
+        let expiry = session?.expiry || 0;
+        if (expiry > Date.now() && session?.token) {
           authIframeClient
-            ?.injectCredentialBundle(session.write.credentialBundle)
+            ?.injectCredentialBundle(session.token)
             .then(() => {
               setClient(authIframeClient);
             })
@@ -140,7 +140,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         setClient(walletClient);
         break;
       case AuthClient.IndexedDb:
-        setClient(indexedDbClient);
+        expiry = session?.expiry || 0;
+        if (expiry > Date.now() && session?.token) {
+          setClient(indexedDbClient);
+        }
         break;
       default:
         // Handle unknown auth client type if needed
