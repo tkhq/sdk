@@ -1,18 +1,10 @@
 # Example: `email-auth`
 
-This example shows a complete email auth flow. It contains a NextJS app with:
+This example demonstrates creating a sub-organization, authenticating into it using a passkey and saving the session to indexedDB storage.
 
-- a frontend application
-- a backend application
-
-The overall flow for email auth is outlined below:
-![Email auth flow diagram](./email_auth_steps.png)
-
-This example contains an example auth page as well as a stub API endpoint for "your business" (where the email is resolved into an organization ID). The creation of the hidden iframe is abstracted by our `@turnkey/iframe-stamper` package. For more information on email auth, [check out our documentation](https://docs.turnkey.com/features/email-auth).
-
-<p style="text-align:center">
-    <img src="./img/demo.png" width="2000"/>
-</p>
+<div>
+    <img src="./img/demo.png" width="80000"/>
+</div>
 
 ## Getting started
 
@@ -26,7 +18,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/email-auth/
+$ cd examples/with-indexed-db/
 ```
 
 ### 2/ Setting up Turnkey
@@ -46,9 +38,9 @@ Now open `.env.local` and add the missing environment variables:
 
 - `API_PUBLIC_KEY`
 - `API_PRIVATE_KEY`
+- `NEXT_PUBLIC_BASE_URL` (leave as https://api.turnkey.com for most cases)
 - `NEXT_PUBLIC_ORGANIZATION_ID`
-- `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
-- `NEXT_PUBLIC_AUTH_IFRAME_URL`
+- `NEXT_PUBLIC_RPID` (leave as `localhost` for testing)
 
 ### 3/ Running the app
 
@@ -56,4 +48,4 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm run dev
 ```
 
-This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to start an email auth.
+This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can use the example app.

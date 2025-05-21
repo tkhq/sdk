@@ -6,16 +6,17 @@ import { useTurnkey } from "@turnkey/sdk-react";
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { server } from "@turnkey/sdk-server";
-import { SessionType, type Session } from "@turnkey/sdk-browser";
+import { SessionType } from "@turnkey/sdk-browser";
 
 export default function AuthPage() {
   const { indexedDbClient, passkeyClient, turnkey } = useTurnkey();
-  const [session, setSession] = useState<any | null>(null);
   const [whoamI, setWhoAmI] = useState<any | null>(null);
+  const [session, setSession] = useState<any | null>(null);
+
   useEffect(() => {
     const checkSession = async () => {
       const session = await turnkey?.getSession();
-      console.log(session);
+
       if (!session || Date.now() > session.expiry) {
         await handleLogout();
       } else {
@@ -26,6 +27,12 @@ export default function AuthPage() {
   }, [turnkey]);
 
   const getWhoAmi = async () => {
+    const session = await turnkey?.getSession();
+    if (!session) {
+      console.warn("No session, logging out!");
+      await handleLogout();
+      return;
+    }
     const response = await indexedDbClient?.getWhoami({
       organizationId: session.organizationId,
     });
@@ -35,36 +42,20 @@ export default function AuthPage() {
   const handleLogout = async () => {
     turnkey?.logout();
     indexedDbClient?.clear();
-    setSession(false);
+    setSession(null);
   };
+
   const login = async () => {
     await indexedDbClient?.resetKeyPair();
 
-    const publicKey = await indexedDbClient!.getPublicKey();
-    console.log("Public Key: ", publicKey);
+    const pubKey = await indexedDbClient!.getPublicKey();
 
-    const whoamiResponse = await passkeyClient?.getWhoami({});
-    await passkeyClient!.createApiKeys({
-      organizationId: whoamiResponse?.organizationId!,
-      userId: whoamiResponse?.userId!,
-      apiKeys: [
-        {
-          apiKeyName: "Auth API Key",
-          publicKey: publicKey!,
-          curveType: "API_KEY_CURVE_P256",
-          expirationSeconds: "900",
-        },
-      ],
-    });
-
-    const session: Session = {
+    await passkeyClient?.loginWithPasskey({
       sessionType: SessionType.READ_WRITE,
-      expiry: Date.now() + 900 * 1000, // 15 minutes from now
-      userId: whoamiResponse?.userId!,
-      organizationId: whoamiResponse?.organizationId!,
-      token: publicKey!,
-    };
-    await indexedDbClient!.loginWithSessionIndexedDb(session);
+      publicKey: pubKey!,
+      expirationSeconds: (60 * 15).toString(), // 15 minutes from now
+    });
+    const session = await turnkey?.getSession();
     setSession(session);
   };
 
@@ -91,7 +82,6 @@ export default function AuthPage() {
         attestation,
       },
     });
-    console.log(resp);
   };
 
   return (

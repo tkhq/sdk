@@ -13,17 +13,17 @@ const FACEBOOK_AUTH_URL = "https://www.facebook.com/v11.0/dialog/oauth";
 const popupWidth = 500;
 const popupHeight = 600;
 interface OidcTokenParams {
-  iframePublicKey: string;
+  publicKey: string;
   clientId: string;
   redirectURI: string;
 }
 
 export const appleOidcToken = async ({
-  iframePublicKey,
+  publicKey,
   clientId,
   redirectURI,
 }: OidcTokenParams): Promise<any> => {
-  const nonce = bytesToHex(sha256(iframePublicKey));
+  const nonce = bytesToHex(sha256(publicKey));
   const appleAuthUrl = new URL(APPLE_AUTH_URL);
   appleAuthUrl.searchParams.set("client_id", clientId);
   appleAuthUrl.searchParams.set("redirect_uri", redirectURI);
@@ -75,11 +75,11 @@ export const appleOidcToken = async ({
 };
 
 export const googleOidcToken = async ({
-  iframePublicKey,
+  publicKey,
   clientId,
   redirectURI,
 }: OidcTokenParams): Promise<any> => {
-  const nonce = bytesToHex(sha256(iframePublicKey));
+  const nonce = bytesToHex(sha256(publicKey));
   const googleAuthUrl = new URL(GOOGLE_AUTH_URL);
   googleAuthUrl.searchParams.set("client_id", clientId);
   googleAuthUrl.searchParams.set("redirect_uri", redirectURI);
@@ -132,7 +132,7 @@ export const googleOidcToken = async ({
 };
 
 export const facebookOidcToken = async ({
-  iframePublicKey,
+  publicKey,
   clientId,
   redirectURI,
 }: OidcTokenParams): Promise<any> => {
@@ -145,7 +145,7 @@ export const facebookOidcToken = async ({
     state: verifier,
     code_challenge: codeChallenge,
     code_challenge_method: "S256",
-    nonce: bytesToHex(sha256(iframePublicKey)),
+    nonce: bytesToHex(sha256(publicKey)),
     scope: "openid",
     response_type: "code",
   });

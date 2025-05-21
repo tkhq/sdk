@@ -20,7 +20,7 @@ const Export: React.FC<ExportProps> = ({
   onHandleExportSuccess,
   onError,
 }) => {
-  const { authIframeClient, turnkey } = useTurnkey();
+  const { indexedDbClient, turnkey } = useTurnkey();
   const [exportIframeClient, setExportIframeClient] =
     useState<TurnkeyIframeClient | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,7 +60,7 @@ const Export: React.FC<ExportProps> = ({
   };
 
   const handleCloseModal = () => {
-    // Clear the iframe stamper
+    // Clear the exportIframeClient if it exists
     if (exportIframeClient) {
       setExportIframeClient(null);
 
@@ -82,9 +82,9 @@ const Export: React.FC<ExportProps> = ({
 
   const exportWallet = async () => {
     try {
-      const whoami = await authIframeClient!.getWhoami();
+      const whoami = await indexedDbClient!.getWhoami();
 
-      const exportResponse = await authIframeClient?.exportWallet({
+      const exportResponse = await indexedDbClient?.exportWallet({
         organizationId: whoami.organizationId,
         walletId: walletId!,
         targetPublicKey: exportIframeClient!.iframePublicKey!,

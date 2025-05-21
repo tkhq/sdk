@@ -217,7 +217,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     if (this instanceof TurnkeyIndexedDbClient) {
       await storeSession(parsedSession, AuthClient.IndexedDb);
     } else {
-      // Throw an error if the client is not an iframe client
+      // Throw an error if the client is not an indexedDb client
       throw new Error(
         "You must use an indexedDb client to log in with a session.",
       );

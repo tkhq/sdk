@@ -125,7 +125,6 @@ export async function createOtpSession(
   request: CreateOtpSessionRequest,
 ): Promise<CreateOtpSessionResponse | undefined> {
   try {
-    console.log("createOtpSession", request);
     const response = await turnkeyClient.apiClient().otpLogin({
       organizationId: request.suborgID,
       verificationToken: request.verificationToken,
@@ -134,7 +133,6 @@ export async function createOtpSession(
         expirationSeconds: request.sessionLengthSeconds.toString(),
       }),
     });
-    console.log(response);
     const { session } = response;
     if (!session) {
       throw new Error("Expected a non-null value for session");

@@ -1,104 +1,25 @@
-# @turnkey/iframe-stamper
+# @turnkey/indexed-db-stamper
 
-[![npm](https://img.shields.io/npm/v/@turnkey/iframe-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/iframe-stamper)
+[![npm](https://img.shields.io/npm/v/@turnkey/indexed-db-stamper?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/indexed-db-stamper)
 
-This package contains functions to stamp a Turnkey request through credentials contained in an iframe. It is meant to be used with [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http) to build flows. To stamp the request, use the Recovery and Auth flows to request and inject a credential bundle.
+The `@turnkey/indexed-db-stamper` package enables secure request stamping using an unextractable P-256 keypair stored in the browser’s IndexedDB. It serves the same purpose as [`@turnkey/api-key-stamper`](../api-key-stamper/), allowing you to sign and approve requests to Turnkey’s API, but without exposing the private key. This is ideal for long-lived browser sessions in progressive web apps (PWAs), wallet extensions, or any context where the key must remain secure and persistent across reloads.
+
+The IndexedDbStamper generates the private key using SubtleCrypto and stores it in a non-exportable format, ensuring that it cannot be extracted or exfiltrated by application code. The keypair is stored in IndexedDB so that it can be reused in subsequent sessions.
 
 Usage:
 
-Recovery and Auth
+The `IndexedDbStamper` class implements the `TStamper` interface used by the `TurnkeyClient` in the [`@turnkey/http`](../http/) module. It encapsulates the logic necessary to sign activity requests and generates the appropriate HTTP headers for authentication.
 
 ```ts
-import { IframeStamper } from "@turnkey/iframe-stamper";
-import { TurnkeyClient } from "@turnkey/http";
+import { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 
-const TurnkeyIframeContainerId = "turnkey-iframe-container";
-const TurnkeyIframeElementId = "turnkey-iframe";
+// Initialize the stamper and generate or load the keypair
+const stamper = new IndexedDbStamper();
+await stamper.init();
 
-const iframeStamper = new IframeStamper({
-  iframeUrl: process.env.AUTH_IFRAME_URL!,
-  iframeContainer: document.getElementById(TurnkeyIframeContainerId),
-  iframeElementId: TurnkeyIframeElementId,
-});
-
-// This inserts the iframe in the DOM and returns the public key
-const publicKey = await iframeStamper.init();
-
-// Injects a new credential in the iframe
-const injected = await iframeStamper.injectCredentialBundle(credentialBundle);
-
-// New HTTP client able to sign with the credentials inside of the iframe
+// Once initialized, the stamper is ready to be passed into the TurnkeyClient.
 const httpClient = new TurnkeyClient(
   { baseUrl: "https://api.turnkey.com" },
-  iframeStamper,
+  stamper,
 );
-```
-
-Key or Wallet Export
-
-```ts
-import { IframeStamper } from "@turnkey/iframe-stamper";
-import { TurnkeyClient } from "@turnkey/http";
-
-const TurnkeyIframeContainerId = "turnkey-iframe-container";
-const TurnkeyIframeElementId = "turnkey-iframe";
-
-const iframeStamper = new IframeStamper({
-  iframeUrl: process.env.EXPORT_IFRAME_URL!,
-  iframeContainer: document.getElementById(TurnkeyIframeContainerId),
-  iframeElementId: TurnkeyIframeElementId,
-});
-
-// This inserts the iframe in the DOM and returns the public key
-const publicKey = await iframeStamper.init();
-
-// Injects a bundle containing the encrypted wallet seedphrase into the iframe
-// `exportBundle` is the response from requesting ACTIVITY_TYPE_EXPORT_WALLET
-const injected = await iframeStamper.injectWalletExportBundle(exportBundle);
-
-// If the bundle is successfully injected, the iframe is now displaying the
-// wallet seedphrase to the user
-if (injected !== true) {
-  throw new Error("unexpected error while injecting export bundle");
-}
-
-// Display the iframe to the user with their seedphrase.
-setIframeDisplay("block");
-```
-
-Key or Wallet Import
-
-```ts
-import { IframeStamper } from "@turnkey/iframe-stamper";
-import { TurnkeyClient } from "@turnkey/http";
-
-const TurnkeyIframeContainerId = "turnkey-iframe-container";
-const TurnkeyIframeElementId = "turnkey-iframe";
-
-const iframeStamper = new IframeStamper({
-  iframeUrl: process.env.IMPORT_IFRAME_URL!,
-  iframeContainer: document.getElementById(TurnkeyIframeContainerId),
-  iframeElementId: TurnkeyIframeElementId,
-});
-
-// This inserts the iframe in the DOM
-await iframeStamper.init();
-
-// Injects a bundle containing the secure enclave's public key into the iframe's local storage
-// `importBundle` is the response from requesting ACTIVITY_TYPE_INIT_IMPORT_WALLET
-const injected = await iframeStamper.injectImportBundle(importBundle);
-
-if (injected !== true) {
-  throw new Error("unexpected error while injecting import bundle");
-}
-
-// Display the text input that the user can enter their seedphrase into
-setIframeDisplay("block");
-
-// Once the user has entered their seedphrase, trigger this call to the iframe that
-// 1) encrypts their seedphrase using the secure enclave's public key from the previous step
-// 2) sends this ciphertext and a public key generated by the client to your page
-const encryptedBundle = await iframeStamper.extractWalletEncryptedBundle();
-
-// Now you can pass this encryptedBundle as a request to ACTIVITY_TYPE_IMPORT_WALLET.
 ```
