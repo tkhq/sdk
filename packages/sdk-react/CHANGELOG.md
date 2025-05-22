@@ -11,6 +11,7 @@ This release significantly enhances authentication by integrating the new `index
 ### Key Changes:
 
 - **IndexedDB Authentication**:
+
   - Replaced the legacy iframe-based authentication with `indexedDbClient` for all authentication flows in the `Auth` component.
   - Secure, persistent, non-extractable P-256 keys stored in IndexedDB now provide authentication and session management.
 
@@ -19,6 +20,7 @@ This release significantly enhances authentication by integrating the new `index
   - Simplified and secure client-side authentication without iframe complexity or credential injection.
 
 ### Deprecation Notice:
+
 - The `iframeClient` for authentication flows is now deprecated. All new integrations should migrate to the IndexedDB-based authentication provided by `indexedDbClient`.
 
 ### Patch Changes

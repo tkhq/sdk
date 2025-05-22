@@ -10,17 +10,17 @@ This release introduces the new `indexedDbClient`, leveraging the `indexedDbStam
 
 ### Key Changes:
 
-- **IndexedDB Client (`indexedDbClient`)**: 
+- **IndexedDB Client (`indexedDbClient`)**:
+
   - Offers persistent, tamper-resistant authentication using P-256 keys stored securely in IndexedDB.
   - Eliminates the need for credential injection via iframes, significantly improving the DevEx and UX of session management.
   - Provides human-readable sessions through `getSession()`.
 
-- **Deprecation Notice**: 
+- **Deprecation Notice**:
   - Authentication via the `iframeClient` (e.g., `auth.turnkey.com`) is deprecated. Developers should migrate authentication flows to the new IndexedDB-based client.
   - Existing iframe-based wallet flows (Email Recovery, Import, and Export) remain supported.
 
 These enhancements simplify integrations, improve UX, and deliver a more robust client-side experience.
-
 
 ### Patch Changes
 
