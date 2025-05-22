@@ -1,5 +1,37 @@
 # @turnkey/sdk-server
 
+## 4.0.0
+
+### Major Changes
+
+- [#601](https://github.com/tkhq/sdk/pull/601) [`07dfd33`](https://github.com/tkhq/sdk/commit/07dfd3397472687092e1c73b1d68714f421b9ca0) Author [@moe-dev](https://github.com/moe-dev).
+
+This release introduces significant updates and new actions to the SDK server methods, enhancing authentication flows and simplifying usage:
+
+**Updated Actions:**
+
+- `sendOtp`: No longer requires a suborganization ID; OTPs can now be sent directly under a parent organization's context to any email or phone number.
+
+- `verifyOtp`: Now returns a `verificationToken`, which is required for creating sessions via the new `otpLogin` action.
+
+**New Actions:**
+
+- `otpLogin`: Creates a session using a previously obtained `verificationToken`. Returns a session JWT.
+
+- `oauthLogin`: Authenticates using an OIDC token obtained from a third-party provider (e.g., Google, Apple, Facebook). Returns a session JWT.
+
+These changes standardize authentication processes, simplify integration, and streamline session management across the SDK.
+
+### Patch Changes
+
+- [#631](https://github.com/tkhq/sdk/pull/631) [`e8a5f1b`](https://github.com/tkhq/sdk/commit/e8a5f1b431623c4ff1cb85c6039464b328cf0e6a) Author [@andrewkmin](https://github.com/andrewkmin) - Remove unused Next.js dependency
+
+  - while the `"use server"` directive in `actions.ts` is to be used specifically with Next, removing it from this package (`@turnkey/sdk-server`) is fine, though applications _using_ this package will need Next.js
+
+- Updated dependencies [[`07dfd33`](https://github.com/tkhq/sdk/commit/07dfd3397472687092e1c73b1d68714f421b9ca0)]:
+  - @turnkey/http@3.4.0
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 3.3.0
 
 ### Minor Changes

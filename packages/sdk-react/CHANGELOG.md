@@ -1,5 +1,34 @@
 # @turnkey/sdk-react
 
+## 5.0.0
+
+### Major Changes
+
+- [#601](https://github.com/tkhq/sdk/pull/601) [`07dfd33`](https://github.com/tkhq/sdk/commit/07dfd3397472687092e1c73b1d68714f421b9ca0) Author [@moe-dev](https://github.com/moe-dev)
+
+This release significantly enhances authentication by integrating the new `indexedDbClient` within the `useTurnkey` hook and updating the `Auth` component to leverage IndexedDB for secure, persistent client-side authentication.
+
+### Key Changes:
+
+- **IndexedDB Authentication**:
+  - Replaced the legacy iframe-based authentication with `indexedDbClient` for all authentication flows in the `Auth` component.
+  - Secure, persistent, non-extractable P-256 keys stored in IndexedDB now provide authentication and session management.
+
+- **Enhanced Developer Experience**:
+  - The `useTurnkey` hook now includes direct access to the new `indexedDbClient`.
+  - Simplified and secure client-side authentication without iframe complexity or credential injection.
+
+### Deprecation Notice:
+- The `iframeClient` for authentication flows is now deprecated. All new integrations should migrate to the IndexedDB-based authentication provided by `indexedDbClient`.
+
+### Patch Changes
+
+- Updated dependencies [[`07dfd33`](https://github.com/tkhq/sdk/commit/07dfd3397472687092e1c73b1d68714f421b9ca0), [`e8a5f1b`](https://github.com/tkhq/sdk/commit/e8a5f1b431623c4ff1cb85c6039464b328cf0e6a)]:
+  - @turnkey/sdk-browser@5.0.0
+  - @turnkey/sdk-server@4.0.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 4.2.6
 
 ### Patch Changes
