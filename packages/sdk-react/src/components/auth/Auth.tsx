@@ -307,7 +307,7 @@ const Auth: React.FC<AuthProps> = ({
     }
 
     const suborgId = suborgIds[0];
-    const sessionResponse = await server.createOauthSession({
+    const sessionResponse = await server.oauthLogin({
       suborgID: suborgId!,
       oidcToken: credential,
       publicKey: publicKey!,

@@ -1,10 +1,10 @@
 "use server";
 
 import {
-  CreateOauthSessionRequest,
-  CreateOauthSessionResponse,
-  CreateOtpSessionRequest,
-  CreateOtpSessionResponse,
+  OauthLoginRequest,
+  OauthLoginResponse,
+  OtpLoginRequest,
+  OtpLoginResponse,
   CreateSuborgRequest,
   CreateSuborgResponse,
   FilterType,
@@ -121,9 +121,9 @@ export async function verifyOtp(
   }
 }
 
-export async function createOtpSession(
-  request: CreateOtpSessionRequest,
-): Promise<CreateOtpSessionResponse | undefined> {
+export async function otpLogin(
+  request: OtpLoginRequest,
+): Promise<OtpLoginResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().otpLogin({
       organizationId: request.suborgID,
@@ -144,9 +144,9 @@ export async function createOtpSession(
   }
 }
 
-export async function createOauthSession(
-  request: CreateOauthSessionRequest,
-): Promise<CreateOauthSessionResponse | undefined> {
+export async function oauthLogin(
+  request: OauthLoginRequest,
+): Promise<OauthLoginResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().oauthLogin({
       organizationId: request.suborgID,

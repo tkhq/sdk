@@ -80,7 +80,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         setOtpError("Suborganization ID not found. Please try again.");
         return;
       }
-      const sessionResponse = await server.createOtpSession({
+      const sessionResponse = await server.otpLogin({
         suborgID: suborgID,
         verificationToken: verifyResponse!.verificationToken,
         publicKey,

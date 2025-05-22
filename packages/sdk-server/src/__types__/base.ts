@@ -141,14 +141,14 @@ export enum FilterType {
   PublicKey = "PUBLIC_KEY",
 }
 
-export type CreateOtpSessionRequest = {
+export type OtpLoginRequest = {
   suborgID: string;
   verificationToken: string;
   publicKey: string;
   sessionLengthSeconds?: number | undefined;
 };
 
-export type CreateOauthSessionRequest = {
+export type OauthLoginRequest = {
   suborgID: string;
   oidcToken: string;
   publicKey: string;
@@ -181,11 +181,11 @@ export type VerifyOtpResponse = {
   verificationToken: string;
 };
 
-export type CreateOtpSessionResponse = {
+export type OtpLoginResponse = {
   session: string;
 };
 
-export type CreateOauthSessionResponse = {
+export type OauthLoginResponse = {
   session: string;
 };
 
