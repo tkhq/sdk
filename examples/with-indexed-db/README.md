@@ -1,51 +1,104 @@
-# Example: `email-auth`
+# Example: `with-indexed-db`
 
-This example demonstrates creating a sub-organization, authenticating into it using a passkey and saving the session to indexedDB storage.
+This example demonstrates how to create a sub-organization, authenticate with a passkey, and persist the session using **unextractable IndexedDB storage**. This provides a secure, user-friendly authentication flow ideal for modern web apps.
 
 <div>
-    <img src="./img/demo.png" width="80000"/>
+  <img src="./img/demo.png" width="800" />
 </div>
 
-## Getting started
+## 🔧 Features
 
-### 1/ Cloning the example
+- Create and authenticate into a Turnkey sub-organization
+- Store session securely using unextractable P-256 keys in IndexedDB
+- Leverages `@turnkey/sdk-react` and `TurnkeyProvider` for seamless integration
 
-Make sure you have `node` installed locally; we recommend using Node v18+.
+---
 
-```bash
-$ git clone https://github.com/tkhq/sdk
-$ cd sdk/
-$ corepack enable  # Install `pnpm`
-$ pnpm install -r  # Install dependencies
-$ pnpm run build-all  # Compile source code
-$ cd examples/with-indexed-db/
-```
+## 🏁 Getting Started
 
-### 2/ Setting up Turnkey
+### 1. Clone the repo
 
-The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide, you should have:
-
-- A public/private API key pair for Turnkey
-- An organization ID
-
-Once you've gathered these values, add them to a new `.env.local` file. Notice that your API private key should be securely managed and **_never_** be committed to git.
+Make sure you have Node v18+ installed.
 
 ```bash
-$ cp .env.local.example .env.local
+git clone https://github.com/tkhq/sdk
+cd sdk/
+corepack enable     # Install pnpm if needed
+pnpm install -r     # Install dependencies
+pnpm run build-all  # Compile the source
+cd examples/with-indexed-db/
 ```
 
-Now open `.env.local` and add the missing environment variables:
+### 2. Set up Turnkey
 
-- `API_PUBLIC_KEY`
-- `API_PRIVATE_KEY`
-- `NEXT_PUBLIC_BASE_URL` (leave as https://api.turnkey.com for most cases)
-- `NEXT_PUBLIC_ORGANIZATION_ID`
-- `NEXT_PUBLIC_RPID` (leave as `localhost` for testing)
+Before running the app, follow the [Turnkey Quickstart](https://docs.turnkey.com/getting-started/quickstart) to:
 
-### 3/ Running the app
+- Create an organization
+- Generate a P-256 API key pair
+- Note your organization ID
+
+Then:
 
 ```bash
-$ pnpm run dev
+cp .env.local.example .env.local
 ```
 
-This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can use the example app.
+Edit `.env.local` and fill in the following:
+
+```env
+API_PUBLIC_KEY=<your-api-public-key>
+API_PRIVATE_KEY=<your-api-private-key> # DO NOT commit this
+NEXT_PUBLIC_BASE_URL=https://api.turnkey.com
+NEXT_PUBLIC_ORGANIZATION_ID=<your-org-id>
+NEXT_PUBLIC_RPID=localhost
+```
+
+> **Note:** Your private key is used only in development and must be handled securely. Do not expose it in production builds.
+
+---
+
+### 3. Run the example app
+
+```bash
+pnpm run dev
+```
+
+Visit [http://localhost:3000](http://localhost:3000) to see the demo in action.
+
+---
+
+## 📁 Project Structure
+
+- `app/layout.tsx` – Wraps the app in a `TurnkeyProvider` using env-based config.
+- `app/page.tsx` – Implements the IndexedDB-based passkey login and session creation.
+- `components/` – Includes reusable form elements and session status UI.
+
+---
+
+## ✅ Why IndexedDB?
+
+This demo migrates away from iframe-based stamping in favor of IndexedDB for stronger UX and DevEx. Benefits include:
+
+- Persistent, unextractable key storage
+- No need for third-party iframe domains
+- Seamless integration with modern browsers
+
+---
+
+## 🛡️ Security Note
+
+This example is meant for development and demo purposes. In production:
+
+- Never expose private keys to the browser
+- Use a backend proxy to handle sensitive API operations
+- Ensure HTTPS is used in all environments
+
+---
+
+## 📚 Learn More
+
+- [Turnkey Docs](https://docs.turnkey.com/)
+- [Turnkey GitHub](https://github.com/tkhq/sdk)
+- [Web Cryptography API: IndexedDB Storage](https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey#storing_cryptokeys)
+
+---
