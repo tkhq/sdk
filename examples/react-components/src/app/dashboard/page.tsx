@@ -60,7 +60,6 @@ export default function Dashboard() {
     "Signing within Turnkey Demo.",
   );
   const [signature, setSignature] = useState<any>(null);
-  const [suborgId, setSuborgId] = useState<string>("");
   const [isVerifiedEmail, setIsVerifiedEmail] = useState<boolean>(false);
   const [isVerifiedPhone, setIsVerifiedPhone] = useState<boolean>(false);
   const [user, setUser] = useState<any>("");
@@ -228,7 +227,6 @@ export default function Dashboard() {
         return;
       }
       await indexedDbClient?.createOauthProviders({
-        organizationId: suborgId,
         userId: user.userId,
         oauthProviders: [
           {
@@ -259,7 +257,6 @@ export default function Dashboard() {
 
     if (encodedChallenge && attestation) {
       await indexedDbClient?.createAuthenticators({
-        organizationId: suborgId,
         userId: user.userId,
         authenticators: [
           {
@@ -284,7 +281,6 @@ export default function Dashboard() {
 
   const handleDeleteAccount: any = async () => {
     await indexedDbClient?.deleteSubOrganization({
-      organizationId: suborgId,
       deleteWithoutExport: true,
     });
     await handleLogout();
@@ -312,17 +308,13 @@ export default function Dashboard() {
         }
 
         const suborgId = session.organizationId;
-        setSuborgId(suborgId);
 
         const userResponse = await indexedDbClient.getUser({
-          organizationId: suborgId,
           userId: session.userId,
         });
         setUser(userResponse.user);
 
-        const walletsResponse = await indexedDbClient.getWallets({
-          organizationId: suborgId,
-        });
+        const walletsResponse = await indexedDbClient.getWallets({});
         setWallets(walletsResponse.wallets);
 
         if (userResponse.user.userEmail) {
@@ -350,7 +342,6 @@ export default function Dashboard() {
           setSelectedWallet(defaultWalletId);
 
           const accountsResponse = await indexedDbClient.getWalletAccounts({
-            organizationId: suborgId,
             walletId: defaultWalletId,
           });
           setAccounts(accountsResponse.accounts);
@@ -372,9 +363,7 @@ export default function Dashboard() {
   }, [indexedDbClient, turnkey]);
 
   const getWallets = async () => {
-    const walletsResponse = await indexedDbClient!.getWallets({
-      organizationId: suborgId!,
-    });
+    const walletsResponse = await indexedDbClient!.getWallets({});
     setWallets(walletsResponse.wallets);
   };
   const handleAccountSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -401,7 +390,6 @@ export default function Dashboard() {
 
     // Fetch accounts for the selected wallet
     const accountsResponse = await indexedDbClient!.getWalletAccounts({
-      organizationId: suborgId!,
       walletId,
     });
     setAccounts(accountsResponse.accounts);
@@ -421,7 +409,6 @@ export default function Dashboard() {
           : Buffer.from(messageToSign, "utf8").toString("hex"); // Solana doesn't require hashing
 
       const resp = await indexedDbClient?.signRawPayload({
-        organizationId: suborgId!,
         signWith: selectedAccount!,
         payload: hashedMessage,
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",

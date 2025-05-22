@@ -418,9 +418,11 @@ export class TurnkeySDKClientBase {
             ? " = {}"
             : ""
         }): Promise<SdkApiTypes.${responseType}> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("${endpointPath}", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId
+      organizationId: input.organizationId ?? session?.organizationId ?? this.config.organizationId
     });
   }`,
       );

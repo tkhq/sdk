@@ -155,9 +155,14 @@ export class TurnkeySDKClientBase {
   getActivity = async (
     input: SdkApiTypes.TGetActivityBody,
   ): Promise<SdkApiTypes.TGetActivityResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_activity", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -180,9 +185,14 @@ export class TurnkeySDKClientBase {
   getApiKey = async (
     input: SdkApiTypes.TGetApiKeyBody,
   ): Promise<SdkApiTypes.TGetApiKeyResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_api_key", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -205,9 +215,14 @@ export class TurnkeySDKClientBase {
   getApiKeys = async (
     input: SdkApiTypes.TGetApiKeysBody = {},
   ): Promise<SdkApiTypes.TGetApiKeysResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_api_keys", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -230,9 +245,14 @@ export class TurnkeySDKClientBase {
   getAttestationDocument = async (
     input: SdkApiTypes.TGetAttestationDocumentBody,
   ): Promise<SdkApiTypes.TGetAttestationDocumentResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_attestation", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -255,9 +275,14 @@ export class TurnkeySDKClientBase {
   getAuthenticator = async (
     input: SdkApiTypes.TGetAuthenticatorBody,
   ): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_authenticator", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -281,9 +306,14 @@ export class TurnkeySDKClientBase {
   getAuthenticators = async (
     input: SdkApiTypes.TGetAuthenticatorsBody,
   ): Promise<SdkApiTypes.TGetAuthenticatorsResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_authenticators", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -307,9 +337,14 @@ export class TurnkeySDKClientBase {
   getOauthProviders = async (
     input: SdkApiTypes.TGetOauthProvidersBody,
   ): Promise<SdkApiTypes.TGetOauthProvidersResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_oauth_providers", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -333,9 +368,14 @@ export class TurnkeySDKClientBase {
   getOrganization = async (
     input: SdkApiTypes.TGetOrganizationBody = {},
   ): Promise<SdkApiTypes.TGetOrganizationResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_organization", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -359,9 +399,14 @@ export class TurnkeySDKClientBase {
   getOrganizationConfigs = async (
     input: SdkApiTypes.TGetOrganizationConfigsBody,
   ): Promise<SdkApiTypes.TGetOrganizationConfigsResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_organization_configs", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -385,9 +430,14 @@ export class TurnkeySDKClientBase {
   getPolicy = async (
     input: SdkApiTypes.TGetPolicyBody,
   ): Promise<SdkApiTypes.TGetPolicyResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_policy", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -410,9 +460,14 @@ export class TurnkeySDKClientBase {
   getPrivateKey = async (
     input: SdkApiTypes.TGetPrivateKeyBody,
   ): Promise<SdkApiTypes.TGetPrivateKeyResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_private_key", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -435,9 +490,14 @@ export class TurnkeySDKClientBase {
   getUser = async (
     input: SdkApiTypes.TGetUserBody,
   ): Promise<SdkApiTypes.TGetUserResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_user", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -460,9 +520,14 @@ export class TurnkeySDKClientBase {
   getWallet = async (
     input: SdkApiTypes.TGetWalletBody,
   ): Promise<SdkApiTypes.TGetWalletResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_wallet", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -485,9 +550,14 @@ export class TurnkeySDKClientBase {
   getWalletAccount = async (
     input: SdkApiTypes.TGetWalletAccountBody,
   ): Promise<SdkApiTypes.TGetWalletAccountResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/get_wallet_account", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -511,9 +581,14 @@ export class TurnkeySDKClientBase {
   getActivities = async (
     input: SdkApiTypes.TGetActivitiesBody = {},
   ): Promise<SdkApiTypes.TGetActivitiesResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/list_activities", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -536,9 +611,14 @@ export class TurnkeySDKClientBase {
   getPolicies = async (
     input: SdkApiTypes.TGetPoliciesBody = {},
   ): Promise<SdkApiTypes.TGetPoliciesResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/list_policies", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -561,9 +641,14 @@ export class TurnkeySDKClientBase {
   listPrivateKeyTags = async (
     input: SdkApiTypes.TListPrivateKeyTagsBody,
   ): Promise<SdkApiTypes.TListPrivateKeyTagsResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/list_private_key_tags", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -587,9 +672,14 @@ export class TurnkeySDKClientBase {
   getPrivateKeys = async (
     input: SdkApiTypes.TGetPrivateKeysBody = {},
   ): Promise<SdkApiTypes.TGetPrivateKeysResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/list_private_keys", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -613,9 +703,14 @@ export class TurnkeySDKClientBase {
   getSubOrgIds = async (
     input: SdkApiTypes.TGetSubOrgIdsBody = {},
   ): Promise<SdkApiTypes.TGetSubOrgIdsResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/list_suborgs", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -638,9 +733,14 @@ export class TurnkeySDKClientBase {
   listUserTags = async (
     input: SdkApiTypes.TListUserTagsBody = {},
   ): Promise<SdkApiTypes.TListUserTagsResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/list_user_tags", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -663,9 +763,14 @@ export class TurnkeySDKClientBase {
   getUsers = async (
     input: SdkApiTypes.TGetUsersBody = {},
   ): Promise<SdkApiTypes.TGetUsersResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/list_users", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -688,9 +793,14 @@ export class TurnkeySDKClientBase {
   getVerifiedSubOrgIds = async (
     input: SdkApiTypes.TGetVerifiedSubOrgIdsBody,
   ): Promise<SdkApiTypes.TGetVerifiedSubOrgIdsResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/list_verified_suborgs", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -714,9 +824,14 @@ export class TurnkeySDKClientBase {
   getWalletAccounts = async (
     input: SdkApiTypes.TGetWalletAccountsBody,
   ): Promise<SdkApiTypes.TGetWalletAccountsResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/list_wallet_accounts", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -740,9 +855,14 @@ export class TurnkeySDKClientBase {
   getWallets = async (
     input: SdkApiTypes.TGetWalletsBody = {},
   ): Promise<SdkApiTypes.TGetWalletsResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/list_wallets", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -765,9 +885,14 @@ export class TurnkeySDKClientBase {
   getWhoami = async (
     input: SdkApiTypes.TGetWhoamiBody = {},
   ): Promise<SdkApiTypes.TGetWhoamiResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/public/v1/query/whoami", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
@@ -3017,9 +3142,14 @@ export class TurnkeySDKClientBase {
   testRateLimits = async (
     input: SdkApiTypes.TTestRateLimitsBody,
   ): Promise<SdkApiTypes.TTestRateLimitsResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("/tkhq/api/v1/test_rate_limits", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     });
   };
 
