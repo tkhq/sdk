@@ -7,9 +7,9 @@ import googleIcon from "assets/google.svg";
 import { GOOGLE_AUTH_URL, popupHeight, popupWidth } from "./constants";
 import { useState, useEffect } from "react";
 import { CircularProgress } from "@mui/material";
+import { useTurnkey } from "../../hooks/use-turnkey";
 
 interface GoogleAuthButtonProps {
-  publicKey: string;
   clientId: string;
   onSuccess: (response: any) => void;
   layout: "inline" | "stacked";
@@ -22,14 +22,13 @@ declare global {
 }
 
 const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
-  publicKey,
   clientId,
   onSuccess,
   layout,
   openInPage = false,
 }) => {
   const [loading, setLoading] = useState(false);
-
+  const { indexedDbClient } = useTurnkey();
   // Check for hash params on component mount for in-page authentication
   useEffect(() => {
     // If there's a hash in the URL, parse it
@@ -50,11 +49,15 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
         );
       }
     }
-  }, [onSuccess]);
+  }, [onSuccess, indexedDbClient]);
 
   const handleLogin = async () => {
     setLoading(true);
-    const nonce = bytesToHex(sha256(publicKey));
+    const publicKey = await indexedDbClient?.getPublicKey();
+    if (!publicKey) {
+      return;
+    }
+    const nonce = bytesToHex(sha256(publicKey!));
     const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!.replace(
       /\/$/,
       "",

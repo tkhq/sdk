@@ -107,7 +107,6 @@ const Auth: React.FC<AuthProps> = ({
 }) => {
   const { passkeyClient, walletClient, indexedDbClient, turnkey } =
     useTurnkey();
-  const [publicKey, setPublicKey] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
@@ -129,25 +128,25 @@ const Auth: React.FC<AuthProps> = ({
   };
 
   useEffect(() => {
-    if (indexedDbClient && turnkey) {
-      setComponentReady(true);
-
-      const manageClient = async () => {
+    const manageClient = async () => {
+      if (indexedDbClient && turnkey) {
         const session = await turnkey.getSession();
 
-        if (session) {
-          const publicKey = await indexedDbClient.getPublicKey();
-          setPublicKey(publicKey!);
-        } else {
+        if (!session) {
           await indexedDbClient.resetKeyPair();
-          const publicKey = await indexedDbClient.getPublicKey();
-          setPublicKey(publicKey!);
         }
-      };
 
-      manageClient();
-    }
-  }, [indexedDbClient]);
+        const retrievedPublicKey = await indexedDbClient.getPublicKey();
+        if (retrievedPublicKey) {
+          setComponentReady(true);
+        } else {
+          onError("Failed to retrieve public key.");
+        }
+      }
+    };
+
+    manageClient();
+  }, [indexedDbClient, turnkey]);
 
   if (!componentReady) {
     return (
@@ -286,6 +285,11 @@ const Auth: React.FC<AuthProps> = ({
   };
 
   const handleOAuthLogin = async (credential: string, providerName: string) => {
+    const pubKey = await indexedDbClient?.getPublicKey();
+    console.log("Public key: ", pubKey);
+    if (!pubKey) {
+      return;
+    }
     setOauthLoading(providerName);
     const createSuborgData: Record<string, any> = {
       oauthProviders: [{ providerName, oidcToken: credential }],
@@ -305,12 +309,11 @@ const Auth: React.FC<AuthProps> = ({
       onError(authErrors.oauth.loginFailed);
       return;
     }
-
     const suborgId = suborgIds[0];
     const sessionResponse = await server.oauthLogin({
       suborgID: suborgId!,
       oidcToken: credential,
-      publicKey: publicKey!,
+      publicKey: pubKey!,
       sessionLengthSeconds: authConfig.sessionLengthSeconds,
     });
     if (sessionResponse && sessionResponse.session) {
@@ -413,7 +416,6 @@ const Auth: React.FC<AuthProps> = ({
               process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!
             }
             openInPage={authConfig.openOAuthInPage}
-            publicKey={publicKey!}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Google")
             }
@@ -426,7 +428,6 @@ const Auth: React.FC<AuthProps> = ({
               authConfig.appleClientId ??
               process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!
             }
-            publicKey={publicKey!}
             openInPage={authConfig.openOAuthInPage}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.idToken, "Apple")
@@ -440,7 +441,6 @@ const Auth: React.FC<AuthProps> = ({
               authConfig.facebookClientId ??
               process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID!
             }
-            publicKey={publicKey!}
             openInPage={authConfig.openOAuthInPage}
             onSuccess={(response: any) =>
               handleOAuthLogin(response.id_token, "Facebook")

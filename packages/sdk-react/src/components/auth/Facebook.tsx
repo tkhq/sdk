@@ -8,9 +8,9 @@ import { bytesToHex } from "@noble/hashes/utils";
 import facebookIcon from "assets/facebook.svg";
 import { FACEBOOK_AUTH_URL, popupHeight, popupWidth } from "./constants";
 import { CircularProgress } from "@mui/material";
+import { useTurnkey } from "../../hooks/use-turnkey";
 
 interface FacebookAuthButtonProps {
-  publicKey: string;
   clientId: string;
   onSuccess: (response: any) => void;
   layout: "inline" | "stacked";
@@ -18,7 +18,6 @@ interface FacebookAuthButtonProps {
 }
 
 const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
-  publicKey,
   onSuccess,
   clientId,
   layout,
@@ -27,7 +26,7 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
   const [loading, setLoading] = useState(false);
   const [tokenExchanged, setTokenExchanged] = useState<boolean>(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
-
+  const { indexedDbClient } = useTurnkey();
   // Check for code param on component mount for in-page authentication
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -46,20 +45,23 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
       // Handle the code exchange
       handleTokenExchange(authCode);
     }
-  }, []);
+  }, [indexedDbClient]);
 
   const initiateFacebookLogin = async () => {
     setLoading(true);
     const { verifier, codeChallenge } = await generateChallengePair();
     sessionStorage.setItem("facebook_verifier", verifier);
-
+    const publicKey = await indexedDbClient?.getPublicKey();
+    if (!publicKey) {
+      return;
+    }
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectURI,
       state: `${verifier}:provider=facebook`,
       code_challenge: codeChallenge,
       code_challenge_method: "S256",
-      nonce: bytesToHex(sha256(publicKey)),
+      nonce: bytesToHex(sha256(publicKey!)),
       scope: "openid",
       response_type: "code",
     });
