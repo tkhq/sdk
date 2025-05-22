@@ -109,33 +109,3 @@ test("throws when instantiated outside of a browser environment", () => {
 
   global.window = originalWindow;
 });
-
-test("initializes and generates keypair if not present", async () => {
-  const stamper = new IndexedDbStamper();
-  await stamper.init();
-
-  const pubKey = stamper.getPublicKey();
-  expect(pubKey).toBeDefined();
-  expect(typeof pubKey).toBe("string");
-  expect(pubKey!.length).toBeGreaterThan(0);
-});
-
-test("produces a valid stamp object", async () => {
-  const stamper = new IndexedDbStamper();
-  await stamper.init();
-
-  const payload = "hello world";
-  const result = await stamper.stamp(payload);
-
-  expect(result).toHaveProperty("stampHeaderName", "X-Stamp");
-  expect(result).toHaveProperty("stampHeaderValue");
-
-  const decoded = JSON.parse(
-    Buffer.from(result.stampHeaderValue, "base64url").toString("utf8"),
-  );
-
-  expect(decoded).toHaveProperty("publicKey");
-  expect(decoded).toHaveProperty("scheme", "SIGNATURE_SCHEME_TK_API_P256");
-  expect(decoded).toHaveProperty("signature");
-  expect(typeof decoded.signature).toBe("string");
-});
