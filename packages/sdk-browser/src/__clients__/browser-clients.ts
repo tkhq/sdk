@@ -4,7 +4,6 @@ import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
-import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import { TurnkeyBaseClient } from "../__clients__/base-client";
 
 import {
@@ -19,7 +18,7 @@ import {
   RefreshSessionParams,
 } from "@types";
 
-import { generateRandomBuffer, base64UrlEncode, parseSession } from "@utils";
+import { generateRandomBuffer, base64UrlEncode } from "@utils";
 
 import type { Passkey } from "@models";
 
