@@ -15,7 +15,7 @@ type ImportProps = {
 };
 
 const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
-  const { authIframeClient, turnkey } = useTurnkey();
+  const { indexedDbClient, turnkey } = useTurnkey();
   const [importIframeClient, setImportIframeClient] =
     useState<TurnkeyIframeClient | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,12 +68,12 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
 
   const handleImport = async () => {
     try {
-      const whoami = await authIframeClient!.getWhoami();
+      const whoami = await indexedDbClient!.getWhoami();
       if (!importIframeClient) {
         throw new Error("Import iframe client not initialized");
       }
 
-      const initResult = await authIframeClient!.initImportWallet({
+      const initResult = await indexedDbClient!.initImportWallet({
         organizationId: whoami.organizationId,
         userId: whoami.userId,
       });
@@ -95,7 +95,7 @@ const Import: React.FC<ImportProps> = ({ onHandleImportSuccess, onError }) => {
         throw new Error("Encrypted wallet bundle is empty or invalid");
       }
 
-      const response = await authIframeClient?.importWallet({
+      const response = await indexedDbClient?.importWallet({
         organizationId: whoami.organizationId,
         userId: whoami.userId,
         walletName: walletName,

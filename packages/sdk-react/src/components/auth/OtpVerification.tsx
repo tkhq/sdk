@@ -15,7 +15,6 @@ const resendTimerMs = 15000;
 interface OtpVerificationProps {
   type: string;
   contact: string;
-  suborgId: string;
   otpId: string;
   alphanumeric?: boolean | undefined;
   sessionLengthSeconds?: number | undefined;
@@ -30,7 +29,6 @@ interface OtpVerificationProps {
 const OtpVerification: React.FC<OtpVerificationProps> = ({
   type,
   contact,
-  suborgId,
   otpId,
   alphanumeric = false,
   sessionLengthSeconds,
@@ -38,7 +36,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   onResendCode,
   numBoxes,
 }) => {
-  const { authIframeClient } = useTurnkey();
+  const { indexedDbClient } = useTurnkey();
 
   const [otpError, setOtpError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -49,18 +47,48 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     setOtpError(null);
     setIsLoading(true);
     try {
-      const iframePublicKey = await authIframeClient!.initEmbeddedKey();
-
-      const authSession = await server.verifyOtp({
-        suborgID: suborgId,
+      const publicKey = await indexedDbClient!.getPublicKey();
+      if (!publicKey) {
+        setOtpError("Public key not found. Please try again.");
+        return;
+      }
+      const verifyResponse = await server.verifyOtp({
         otpId,
         otpCode: otp,
-        targetPublicKey: iframePublicKey!,
         sessionLengthSeconds,
       });
 
-      if (authSession?.token) {
-        await authIframeClient!.loginWithSession(authSession);
+      const resp = await server.getOrCreateSuborg({
+        filterType:
+          type === OtpType.Email ? FilterType.Email : FilterType.PhoneNumber,
+        filterValue: contact,
+        additionalData: {
+          ...(type === OtpType.Email
+            ? { email: contact }
+            : { phoneNumber: contact }),
+        },
+      });
+
+      const suborgIds = resp?.subOrganizationIds;
+      if (!suborgIds || suborgIds.length === 0) {
+        setOtpError("Could not find or create your account. Please try again.");
+        return;
+      }
+
+      const suborgID = suborgIds[0];
+      if (!suborgID) {
+        setOtpError("Suborganization ID not found. Please try again.");
+        return;
+      }
+      const sessionResponse = await server.otpLogin({
+        suborgID: suborgID,
+        verificationToken: verifyResponse!.verificationToken,
+        publicKey,
+        sessionLengthSeconds,
+      });
+
+      if (sessionResponse && sessionResponse.session) {
+        await indexedDbClient!.loginWithSession(sessionResponse.session);
         await onValidateSuccess();
       } else {
         setOtpError("Invalid code. Please try again.");

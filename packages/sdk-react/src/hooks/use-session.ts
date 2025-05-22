@@ -1,54 +1,30 @@
 "use client";
 
-import {
-  AuthClient,
-  Session,
-  SessionType,
-  StorageKeys,
-  User,
-} from "@turnkey/sdk-browser";
-
+import { AuthClient, Session, StorageKeys } from "@turnkey/sdk-browser";
 import { useLocalStorage } from "usehooks-ts";
 
-interface UserSession {
-  user?: Omit<User, "session"> | undefined;
-  session?: User["session"];
-}
-
 /**
- * Hook for managing the user session stored in local storage.
- * This hook is reactive and updates whenever the value in local storage changes.
+ * React hook to access the current Turnkey session and authentication client.
  *
- * @returns {UserSession | undefined} An object containing user details and session information.
+ * This hook retrieves session and authClient values from local storage and reacts to changes.
+ * It is primarily used to determine the user's authentication state and to sign requests.
+ *
+ * @returns {Object} An object containing:
+ * - `session`: The current Turnkey session, or `undefined` if not set.
+ * - `authClient`: The initialized Turnkey `AuthClient` used for signing requests, or `undefined` if not available.
  *
  * @example
- * const { user, session } = useUserSession()
+ * const { session, authClient } = useSession();
  *
- * if (user) {
- *   // user is defined and thus has previously logged in
- * } else {
- *   // no user found in local storage
- * }
- *
- * if (session?.read) {
- *   // session.read is defined therefore user is authenticated with a read session
- *   if (session.expiry && Date.now() < session.expiry) {
- *     // Session is still valid
- *   }
- * }
- *
- * if (session?.write) {
- *   // session.write is defined therefore user is authenticated with a read/write session
- *   if (session.expiry && Date.now() < session.expiry) {
- *     // Session is still valid
- *   }
- * }
- *
- * if (!session) {
- *   // no session, user is not authenticated
+ * if (session && authClient) {
+ *   // User is authenticated
+ *   // You can use authClient to sign Turnkey requests
  * }
  */
-export function useUserSession(): UserSession {
+export function useSession(): {
+  session: Session | undefined;
+  authClient: AuthClient | undefined;
+} {
   const [session] = useLocalStorage<Session | undefined>(
     StorageKeys.Session,
     undefined,
@@ -58,34 +34,5 @@ export function useUserSession(): UserSession {
     undefined,
   );
 
-  return {
-    user:
-      session?.userId && session?.organizationId
-        ? {
-            userId: session?.userId ?? "",
-            username: "",
-            organization: {
-              organizationId: session?.organizationId ?? "",
-              organizationName: "",
-            },
-          }
-        : undefined,
-    session: session?.sessionType
-      ? {
-          ...(session?.sessionType === SessionType.READ_ONLY && {
-            read: {
-              token: session?.token ?? "",
-              expiry: session?.expiry ?? 0,
-            },
-          }),
-          ...(session?.sessionType === SessionType.READ_WRITE && {
-            write: {
-              credentialBundle: session?.token ?? "",
-              expiry: session?.expiry ?? 0,
-            },
-          }),
-          authClient: authClient!,
-        }
-      : undefined,
-  };
+  return { session, authClient };
 }

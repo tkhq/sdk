@@ -1,6 +1,7 @@
 import type { WalletInterface } from "@turnkey/wallet-stamper";
 import type { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
@@ -12,27 +13,17 @@ import {
   TurnkeySDKClientConfig,
   SessionType,
   TurnkeyWalletClientConfig,
-  ReadWriteSession,
   LoginWithBundleParams,
   LoginWithPasskeyParams,
   LoginWithWalletParams,
   RefreshSessionParams,
 } from "@types";
 
-import {
-  generateRandomBuffer,
-  base64UrlEncode,
-  createEmbeddedAPIKey,
-} from "@utils";
+import { generateRandomBuffer, base64UrlEncode } from "@utils";
 
 import type { Passkey } from "@models";
 
-import {
-  StorageKeys,
-  getStorageValue,
-  saveSession,
-  storeSession,
-} from "@storage";
+import { storeSession } from "@storage";
 
 import { DEFAULT_SESSION_EXPIRATION_IN_SECONDS } from "@constants";
 
@@ -107,6 +98,20 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     super(config, authClient);
   }
 
+  /**
+   * @deprecated
+   * This method is deprecated and only creates a READ_ONLY session using an API key.
+   * Use one of the following methods instead, depending on your context:
+   *
+   * - `loginWithPasskey()` for WebAuthn-based sessions using IndexedDB
+   * - `loginWithWallet()` for EVM or Solana wallet-based sessions
+   * - `loginWithSession()` if the session string is already available (e.g. from server actions)
+   * - `loginWithBundle()` for iframe-based sessions (e.g. for email-auth non otp based login)
+   *
+   * @param config Optional configuration containing an organization ID
+   * @returns A Promise resolving to the created read-only session
+   */
+
   login = async (config?: {
     organizationId?: string;
   }): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
@@ -127,18 +132,18 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
   /**
    * Attempts to refresh an existing Session. This method infers the current user's organization ID and target userId.
-   * This will use a passkeyStamper for `READ_ONLY` sessions or an `iframeStamper` for `READ_WRITE` sessions.
+   * This will use a passkeyStamper for `READ_ONLY` sessions or an `indexedDbStamper` for `READ_WRITE` sessions.
    *
    * @param RefreshSessionParams
    *   @param params.sessionType - The type of session that is being refreshed
-   *   @param params.targetPublicKey - The public key of the target client
+   *   @param params.publicKey - The public key of the indexedDb client
    *   @param params.expirationSeconds - Specify how long to extend the session. Defaults to 900 seconds or 15 minutes.
    * @returns {Promise<void>}
    */
   refreshSession = async (params: RefreshSessionParams): Promise<void> => {
     const {
       sessionType = SessionType.READ_WRITE,
-      targetPublicKey,
+      publicKey,
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     } = params;
 
@@ -160,32 +165,17 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
         await storeSession(session, AuthClient.Passkey);
       } else if (sessionType === SessionType.READ_WRITE) {
-        if (!targetPublicKey) {
+        if (!publicKey) {
           throw new Error(
-            "You must provide a targetPublicKey to refresh a read-write session.",
+            "You must provide a publicKey to refresh a read-write session.",
           );
         }
-        const readWriteSessionResult = await this.createReadWriteSession({
-          targetPublicKey,
+
+        const sessionResponse = await this.stampLogin({
+          publicKey: publicKey,
           expirationSeconds,
-          invalidateExisting: true,
         });
-        const session: Session = {
-          sessionType: SessionType.READ_WRITE,
-          userId: readWriteSessionResult.userId,
-          organizationId: readWriteSessionResult.organizationId,
-          expiry: Date.now() + Number(expirationSeconds) * 1000,
-          token: readWriteSessionResult.credentialBundle,
-        };
-        if (this instanceof TurnkeyIframeClient) {
-          await this.injectCredentialBundle(session.token!);
-        } else {
-          // Throw an error if the client is not an iframe client
-          throw new Error(
-            "You must use an iframe client to refresh a read-write session",
-          );
-        }
-        await storeSession(session, AuthClient.Iframe);
+        await storeSession(sessionResponse.session, AuthClient.IndexedDb);
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
@@ -230,22 +220,21 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   };
 
   /**
-   * Log in with a session object. This method uses a session object from server actions and stores it and the active client in local storage
-   * To be used in conjunction with an `iframeStamper`.
+   * Log in with a session returns from Turnkey. This method uses a session from server actions and stores it and the active client in local storage
+   * To be used in conjunction with an `indexeDbStamper`.
    *
    * @param session
    * @returns {Promise<void>}
    */
-  loginWithSession = async (session: Session): Promise<void> => {
-    if (this instanceof TurnkeyIframeClient) {
-      await this.injectCredentialBundle(session.token!);
+  loginWithSession = async (session: string): Promise<void> => {
+    if (this instanceof TurnkeyIndexedDbClient) {
+      await storeSession(session, AuthClient.IndexedDb);
     } else {
-      // Throw an error if the client is not an iframe client
+      // Throw an error if the client is not an indexedDb client
       throw new Error(
-        "You must use an iframe client to log in with a session.",
-      ); //should we default to a "localStorage" client?
+        "You must use an indexedDb client to log in with a session.",
+      );
     }
-    await storeSession(session, AuthClient.Iframe);
   };
 
   /**
@@ -254,8 +243,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    *
    * @param LoginWithPasskeyParams
    *   @param params.sessionType - The type of session to create
-   *   @param params.iframeClient - The iframe client to use to inject the credential bundle
-   *   @param params.targetPublicKey - The public key of the target client
+   *   @param params.publicKey - The public key of indexedDb
    *   @param params.expirationSeconds - Expiration time for the session in seconds. Defaults to 900 seconds or 15 minutes.
    * @returns {Promise<void>}
    */
@@ -263,8 +251,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     try {
       const {
         sessionType = SessionType.READ_WRITE,
-        iframeClient,
-        targetPublicKey,
+        publicKey,
         expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
       } = params;
       // Create a read-only session
@@ -276,38 +263,23 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           userId: readOnlySessionResult.userId,
           organizationId: readOnlySessionResult.organizationId,
           expiry: Number(readOnlySessionResult.sessionExpiry),
-          token: readOnlySessionResult.session,
+          token: readOnlySessionResult.session, // Once we have api key session scopes this can change
         };
         await storeSession(session, AuthClient.Passkey);
         // Create a read-write session
       } else if (sessionType === SessionType.READ_WRITE) {
-        if (!targetPublicKey) {
+        if (!publicKey) {
           throw new Error(
-            "You must provide a targetPublicKey to create a read-write session.",
+            "You must provide a publicKey to create a passkey read write session.",
           );
         }
 
-        const readWriteSessionResult = await this.createReadWriteSession({
-          targetPublicKey,
+        const sessionResponse = await this.stampLogin({
+          publicKey,
           expirationSeconds,
         });
 
-        const session: Session = {
-          sessionType: SessionType.READ_WRITE,
-          userId: readWriteSessionResult.userId,
-          organizationId: readWriteSessionResult.organizationId,
-          expiry: Date.now() + Number(expirationSeconds) * 1000,
-          token: readWriteSessionResult.credentialBundle,
-        };
-
-        if (!iframeClient) {
-          throw new Error(
-            "You must provide an iframe client to log in with a passkey.",
-          );
-        }
-        await iframeClient.injectCredentialBundle(session.token!);
-
-        await storeSession(session, AuthClient.Iframe);
+        await storeSession(sessionResponse.session, AuthClient.IndexedDb);
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
@@ -321,8 +293,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    *
    * @param LoginWithWalletParams
    *   @param params.sessionType - The type of session to create
-   *   @param params.iframeClient - The iframe client to use to inject the credential bundle
-   *   @param params.targetPublicKey - The public key of the target iframe
+   *   @param params.publicKey - The public key of indexedDb
    *   @param params.expirationSeconds - The expiration time for the session in seconds
    * @returns {Promise<void>}
    */
@@ -330,11 +301,10 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     try {
       const {
         sessionType = SessionType.READ_WRITE,
-        iframeClient,
-        targetPublicKey,
+        publicKey,
         expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
       } = params;
-      // Create a read-only session
+
       if (sessionType === SessionType.READ_ONLY) {
         const readOnlySessionResult = await this.createReadOnlySession({});
 
@@ -345,110 +315,26 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           expiry: Number(readOnlySessionResult.sessionExpiry),
           token: readOnlySessionResult.session,
         };
+
         await storeSession(session, AuthClient.Wallet);
-        // Create a read-write session
       } else if (sessionType === SessionType.READ_WRITE) {
-        if (!targetPublicKey) {
+        if (!publicKey) {
           throw new Error(
-            "You must provide a targetPublicKey to create a read-write session.",
+            "You must provide a publicKey to create a read-write session.",
           );
         }
 
-        const readWriteSessionResult = await this.createReadWriteSession({
-          targetPublicKey,
+        const sessionResponse = await this.stampLogin({
+          publicKey: publicKey,
           expirationSeconds,
         });
 
-        const session: Session = {
-          sessionType: SessionType.READ_WRITE,
-          userId: readWriteSessionResult.userId,
-          organizationId: readWriteSessionResult.organizationId,
-          expiry: Date.now() + Number(expirationSeconds) * 1000,
-          token: readWriteSessionResult.credentialBundle,
-        };
-
-        if (!iframeClient) {
-          throw new Error(
-            "You must provide an iframe client to log in with a wallet.",
-          );
-        }
-        await iframeClient.injectCredentialBundle(session.token!);
-
-        await storeSession(session, AuthClient.Iframe);
+        await storeSession(sessionResponse.session, AuthClient.IndexedDb);
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
     } catch (error) {
       throw new Error(`Unable to log in with the provided wallet: ${error}`);
-    }
-  };
-
-  /**
-   * Creates a read-write session. This method infers the current user's organization ID and target userId.
-   * To be used in conjunction with an `iframeStamper`: the resulting session's credential bundle can be
-   * injected into an iframeStamper to create a session that enables both read and write requests.
-   *
-   * @param targetEmbeddedKey
-   * @param expirationSeconds
-   * @param userId
-   * @returns {Promise<SdkApiTypes.TCreateReadWriteSessionResponse>}
-   */
-  loginWithReadWriteSession = async (
-    targetEmbeddedKey: string,
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-    userId?: string,
-  ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
-    try {
-      const readWriteSessionResult = await this.createReadWriteSession({
-        targetPublicKey: targetEmbeddedKey,
-        expirationSeconds,
-        userId: userId!,
-      });
-
-      // Ensure session and sessionExpiry are included in the object
-      const readWriteSessionResultWithSession = {
-        ...readWriteSessionResult,
-        credentialBundle: readWriteSessionResult.credentialBundle,
-        sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
-      };
-
-      // store auth bundle in local storage
-      await saveSession(readWriteSessionResultWithSession, this.authClient);
-
-      return readWriteSessionResultWithSession;
-    } catch (error) {
-      throw new Error(
-        `Unable to log in with the provided read-write session: ${error}`,
-      );
-    }
-  };
-
-  /**
-   * Logs in with an existing auth bundle. this bundle enables both read and write requests.
-   *
-   * @param credentialBundle
-   * @param expirationSeconds
-   * @returns {Promise<boolean>}
-   */
-  loginWithAuthBundle = async (
-    credentialBundle: string,
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-  ): Promise<boolean> => {
-    try {
-      const whoAmIResult = await this.getWhoami();
-
-      const readWriteSessionResultWithSession = {
-        ...whoAmIResult,
-        credentialBundle: credentialBundle,
-        sessionExpiry: Date.now() + Number(expirationSeconds) * 1000,
-      };
-
-      await saveSession(readWriteSessionResultWithSession, this.authClient);
-      return true;
-    } catch (error) {
-      throw new Error(
-        `Unable to log in with the provided auth bundle: ${error}`,
-      );
     }
   };
 
@@ -776,81 +662,6 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
       attestation,
     };
   };
-
-  /**
-   * Uses passkey authentication to create a read-write session, via an embedded API key,
-   * and stores + returns the resulting auth bundle that contains the encrypted API key.
-   * This auth bundle (also referred to as a credential bundle) can be injected into an `iframeStamper`,
-   * resulting in a touch-free authenticator. Unlike `loginWithReadWriteSession`, this method
-   * assumes the end-user's organization ID (i.e. the sub-organization ID) is already known.
-   *
-   * @param userId
-   * @param targetEmbeddedKey
-   * @param expirationSeconds
-   * @param curveType
-   * @returns {Promise<ReadWriteSession>}
-   */
-  createPasskeySession = async (
-    userId: string,
-    targetEmbeddedKey: string,
-    expirationSeconds: string = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-    organizationId?: string,
-  ): Promise<ReadWriteSession> => {
-    try {
-      const session = await getStorageValue(StorageKeys.Session);
-      organizationId = organizationId ?? session?.organizationId;
-      userId = userId ?? session?.userId;
-
-      if (!organizationId) {
-        throw new Error(
-          "Error creating passkey session: Organization ID is required",
-        );
-      }
-
-      if (!userId) {
-        throw new Error("Error creating passkey session: User ID is required");
-      }
-
-      const { authBundle: credentialBundle, publicKey } =
-        await createEmbeddedAPIKey(targetEmbeddedKey);
-
-      // add API key to Turnkey User
-      await this.createApiKeys({
-        organizationId,
-        userId,
-        apiKeys: [
-          {
-            apiKeyName: `Session Key ${String(Date.now())}`,
-            publicKey,
-            expirationSeconds,
-            curveType: "API_KEY_CURVE_P256",
-          },
-        ],
-      });
-
-      const whoAmI = await this.getWhoami();
-      const expiry = Date.now() + Number(expirationSeconds) * 1000;
-
-      await saveSession(
-        {
-          organizationId,
-          organizationName: whoAmI?.organizationName ?? "",
-          userId,
-          username: whoAmI?.username ?? "",
-          credentialBundle,
-          sessionExpiry: expiry,
-        },
-        this.authClient,
-      );
-
-      return {
-        credentialBundle,
-        expiry,
-      };
-    } catch (error) {
-      throw new Error("Unable to create passkey session.");
-    }
-  };
 }
 
 /**
@@ -945,4 +756,30 @@ export class TurnkeyWalletClient extends TurnkeyBrowserClient {
   getWalletInterface(): WalletInterface {
     return this.wallet;
   }
+}
+
+/**
+ * TurnkeyIndexedDbClient is a client that uses IndexedDb to interact with the Turnkey API.
+ * @extends TurnkeyBrowserClient
+ */
+export class TurnkeyIndexedDbClient extends TurnkeyBrowserClient {
+  constructor(config: TurnkeySDKClientConfig) {
+    super(config, AuthClient.IndexedDb);
+  }
+
+  clear = async (): Promise<void> => {
+    return await (this.stamper as IndexedDbStamper).clear();
+  };
+
+  getPublicKey = async (): Promise<string | null> => {
+    return await (this.stamper as IndexedDbStamper).getPublicKey();
+  };
+
+  init = async (): Promise<void> => {
+    return await (this.stamper as IndexedDbStamper).init();
+  };
+
+  resetKeyPair = async (): Promise<void> => {
+    return await (this.stamper as IndexedDbStamper).resetKeyPair();
+  };
 }

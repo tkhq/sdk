@@ -24,6 +24,7 @@ const getFormatConfig = (format) => {
       entryFileNames: `[name].${format === "esm" ? "mjs" : "js"}`,
       preserveModules: true,
       sourcemap: true,
+      exports: "named",
     },
     plugins: [
       // Resolve alias for assets

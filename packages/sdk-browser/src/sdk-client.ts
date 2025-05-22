@@ -7,17 +7,12 @@ import WindowWrapper from "@polyfills/window";
 import {
   type GrpcStatus,
   type TurnkeySDKBrowserConfig,
-  type User,
-  type ReadWriteSession,
   Session,
   TurnkeyRequestError,
   Stamper,
   IframeClientParams,
   PasskeyClientParams,
-  SessionType,
 } from "./__types__/base";
-
-import type { SubOrganization } from "@models";
 
 import { StorageKeys, getStorageValue, removeStorageValue } from "@storage";
 
@@ -25,9 +20,12 @@ import {
   TurnkeyBrowserClient,
   TurnkeyIframeClient,
   TurnkeyPasskeyClient,
+  TurnkeyIndexedDbClient,
   TurnkeyWalletClient,
 } from "./__clients__/browser-clients";
 import { VERSION } from "./__generated__/version";
+import { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
+import { parseSession } from "@utils";
 
 export interface OauthProvider {
   providerName: string;
@@ -141,6 +139,16 @@ export class TurnkeyBrowserSDK {
     });
   };
 
+  indexedDbClient = async (): Promise<TurnkeyIndexedDbClient> => {
+    this.stamper = new IndexedDbStamper();
+
+    return new TurnkeyIndexedDbClient({
+      stamper: this.stamper,
+      apiBaseUrl: this.config.apiBaseUrl,
+      organizationId: this.config.defaultOrganizationId,
+    });
+  };
+
   serverSign = async <TResponseType>(
     methodName: string,
     params: any[],
@@ -183,119 +191,54 @@ export class TurnkeyBrowserSDK {
   };
 
   /**
-   * If there is a valid, current user session, this will return a read-enabled TurnkeyBrowserClient that can make read requests to Turnkey without additional authentication. This is powered by a session header resulting from a prior successful `login` call.
-   *
-   * @returns {Promise<TurnkeyBrowserClient | undefined>}
-   */
-  currentUserSession = async (): Promise<TurnkeyBrowserClient | undefined> => {
-    const currentUser = await this.getCurrentUser();
-    if (!currentUser?.session?.read) {
-      return;
-    }
-
-    if (currentUser?.session?.read?.expiry > Date.now()) {
-      return new TurnkeyBrowserClient({
-        readOnlySession: currentUser?.session?.read?.token!,
-        apiBaseUrl: this.config.apiBaseUrl,
-        organizationId:
-          currentUser?.organization?.organizationId ??
-          this.config.defaultOrganizationId,
-      });
-    } else {
-      await this.logout();
-    }
-
-    return;
-  };
-
-  /**
-   * If there is a valid, current read-session, this will return an auth bundle and its expiration. This auth bundle can be used in conjunction with an iframeStamper to create a read + write session.
-   * @deprecated use `getSession` instead
-   * @returns {Promise<ReadWriteSession | undefined>}
-   */
-  getReadWriteSession = async (): Promise<ReadWriteSession | undefined> => {
-    const currentUser: User | undefined = await getStorageValue(
-      StorageKeys.UserSession,
-    );
-    if (currentUser?.session?.write) {
-      if (currentUser.session.write.expiry > Date.now()) {
-        return currentUser.session.write;
-      } else {
-        await removeStorageValue(StorageKeys.ReadWriteSession);
-      }
-    }
-
-    return;
-  };
-
-  /**
-   * If there is a valid, active READ_WRITE session, this will return it
+   * If there is a valid, active session, this will parse it and return it
    *
    * @returns {Promise<Session | undefined>}
    */
   getSession = async (): Promise<Session | undefined> => {
-    const currentSession: Session | undefined = await getStorageValue(
+    const currentSession: Session | string | undefined = await getStorageValue(
       StorageKeys.Session,
     );
-    if (currentSession?.sessionType === SessionType.READ_WRITE) {
-      if (currentSession?.expiry > Date.now()) {
-        return currentSession;
-      } else {
-        await removeStorageValue(StorageKeys.Session);
-      }
+
+    let session: Session | undefined;
+
+    if (typeof currentSession === "string") {
+      session = parseSession(currentSession);
+    } else {
+      session = currentSession;
     }
 
-    return;
+    if (session && session.expiry * 1000 > Date.now()) {
+      return session;
+    }
+
+    await removeStorageValue(StorageKeys.Session);
+    return undefined;
   };
 
   /**
-   * Fetches the current user's organization details.
+   * If there is a valid, active session, this will return it without parsing it
    *
-   * @returns {Promise<SubOrganization | undefined>}
+   * @returns {Promise<Session | undefined>}
    */
-  getCurrentSubOrganization = async (): Promise<
-    SubOrganization | undefined
-  > => {
-    const currentUser = await this.getCurrentUser();
-    return currentUser?.organization;
-  };
+  getRawSession = async (): Promise<string | undefined> => {
+    const currentSession: Session | string | undefined = await getStorageValue(
+      StorageKeys.Session,
+    );
 
-  /**
-   * Fetches the currently active user.
-   *
-   * @returns {Promise<User | undefined>}
-   */
-  getCurrentUser = async (): Promise<User | undefined> => {
-    try {
-      const session = await getStorageValue(StorageKeys.Session);
-      if (session?.userId && session?.organizationId) {
-        return {
-          userId: session.userId,
-          organization: {
-            organizationId: session.organizationId,
-            organizationName: "",
-          },
-          session: {
-            ...(session.sessionType === SessionType.READ_ONLY && {
-              read: {
-                token: session.token,
-                expiry: session.expiry,
-              },
-            }),
-            ...(session.sessionType === SessionType.READ_WRITE && {
-              write: {
-                credentialBundle: session.token,
-                expiry: session.expiry,
-              },
-            }),
-          },
-        } as User;
-      } else {
-        return undefined;
+    let session: Session | undefined;
+
+    if (typeof currentSession === "string") {
+      session = parseSession(currentSession);
+      if (session && session.expiry * 1000 > Date.now()) {
+        return currentSession; // return raw JWT string
       }
-    } catch (error) {
-      return;
+    } else if (currentSession && currentSession.expiry * 1000 > Date.now()) {
+      return JSON.stringify(currentSession);
     }
+
+    await removeStorageValue(StorageKeys.Session);
+    return undefined;
   };
 
   /**
@@ -304,10 +247,6 @@ export class TurnkeyBrowserSDK {
    * @returns {Promise<boolean>}
    */
   logout = async (): Promise<boolean> => {
-    await removeStorageValue(StorageKeys.AuthBundle); // DEPRECATED
-    await removeStorageValue(StorageKeys.CurrentUser);
-    await removeStorageValue(StorageKeys.UserSession);
-    await removeStorageValue(StorageKeys.ReadWriteSession);
     await removeStorageValue(StorageKeys.Client);
     await removeStorageValue(StorageKeys.Session);
     return true;
@@ -318,5 +257,6 @@ export {
   TurnkeyBrowserClient,
   TurnkeyIframeClient,
   TurnkeyPasskeyClient,
+  TurnkeyIndexedDbClient,
   TurnkeyWalletClient,
 };

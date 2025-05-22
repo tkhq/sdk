@@ -1,27 +1,13 @@
 import WindowWrapper from "@polyfills/window";
-import type {
-  AuthClient,
-  Session,
-  User,
-  ReadWriteSession,
-  TSessionResponse,
-} from "./__types__/base";
+import type { AuthClient, Session } from "./__types__/base";
 
 export enum StorageKeys {
-  AuthBundle = "@turnkey/auth_bundle", // DEPRECATED
-  CurrentUser = "@turnkey/current_user", // DEPRECATED
-  UserSession = "@turnkey/session/v1", // DEPRECATED
-  ReadWriteSession = "@turnkey/read_write_session", // DEPREACTED
   Session = "@turnkey/session/v2",
   Client = "@turnkey/client",
 }
 
 interface StorageValue {
-  [StorageKeys.AuthBundle]: string; // DEPRECATED
-  [StorageKeys.CurrentUser]: User; // DEPRECATED
-  [StorageKeys.UserSession]: User; // DEPRECATED
-  [StorageKeys.ReadWriteSession]: ReadWriteSession; // DEPRECATED
-  [StorageKeys.Session]: Session;
+  [StorageKeys.Session]: string | Session;
   [StorageKeys.Client]: AuthClient;
 }
 
@@ -32,10 +18,6 @@ enum StorageLocation {
 }
 
 const STORAGE_VALUE_LOCATIONS: Record<StorageKeys, StorageLocation> = {
-  [StorageKeys.AuthBundle]: StorageLocation.Secure,
-  [StorageKeys.CurrentUser]: StorageLocation.Local,
-  [StorageKeys.ReadWriteSession]: StorageLocation.Secure,
-  [StorageKeys.UserSession]: StorageLocation.Session,
   [StorageKeys.Session]: StorageLocation.Session,
   [StorageKeys.Client]: StorageLocation.Session,
 };
@@ -81,64 +63,12 @@ export const removeStorageValue = async <K extends StorageKeys>(
  * @returns {Promise<void>} A promise that resolves when the session is saved.
  */
 
-export const storeSession = async (session: Session, client?: AuthClient) => {
+export const storeSession = async (
+  session: string | Session,
+  client?: AuthClient,
+) => {
   await setStorageValue(StorageKeys.Session, session);
   if (client) {
     await setStorageValue(StorageKeys.Client, client);
   }
-};
-
-/**
- * Saves a user session to storage.
- *
- * @param {TSessionResponse} sessionResponse - The session response containing session details.
- * @param {AuthClient} authClient - The authentication client used for the session.
- * @throws Will throw an error if the authentication client is not set.
- * @returns {Promise<void>} A promise that resolves when the session is saved.
- */
-export const saveSession = async (
-  {
-    organizationId,
-    organizationName,
-    sessionExpiry,
-    credentialBundle,
-    userId,
-    username,
-    ...sessionResponse
-  }: TSessionResponse,
-  authClient?: AuthClient,
-): Promise<void> => {
-  if (!authClient) {
-    throw new Error("Failed to save session: Authentication client not set");
-  }
-
-  const expiry = Number(sessionExpiry);
-  const session = credentialBundle
-    ? {
-        write: {
-          credentialBundle,
-          expiry,
-        },
-      }
-    : {
-        read: {
-          token: sessionResponse.session!,
-          expiry,
-        },
-      };
-
-  const userSession: User = {
-    userId,
-    username,
-    organization: {
-      organizationId,
-      organizationName,
-    },
-    session: {
-      authClient,
-      ...session,
-    },
-  };
-
-  await setStorageValue(StorageKeys.UserSession, userSession);
 };

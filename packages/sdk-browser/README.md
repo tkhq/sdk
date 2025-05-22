@@ -104,3 +104,49 @@ const walletsResponse = await walletClient.getWallets();
 ## Helpers
 
 `@turnkey/sdk-browser` provides `TurnkeySDKBrowserClient`, which offers wrappers around commonly used Turnkey activities, such as creating new wallets and wallet accounts.
+
+### IndexedDB Sessions (Recommended)
+
+Turnkey now supports persistent, **secure, non-extractable authentication** using P-256 passkeys stored in **IndexedDB**. This replaces legacy iframe-based flows for otp, passkey, and OAuth authentication.
+
+The [`TurnkeyIndexedDbClient`](https://github.com/tkhq/sdk/blob/main/packages/sdk-browser/src/__clients__/browser-clients.ts) provides a long-lived session mechanism where the private key never leaves the browser and is scoped per sub-organization. This client handles login, session persistence, and API request signing entirely on the client side — without requiring iframes or sensitive credential injection.
+
+```ts
+import { Turnkey } from "@turnkey/sdk-browser";
+
+const turnkey = new Turnkey({
+  apiBaseUrl: "https://api.turnkey.com",
+  defaultOrganizationId: "<YOUR_PARENT_ORG_ID>",
+  rpId: "<YOUR_WEBAUTHN_RELYING_PARTY_ID>",
+});
+
+const client = turnkey.indexedDbClient();
+const passkeyClient = turnkey.passkeyClient();
+// Create authenticated session
+const pubKey = await indexedDbClient!.getPublicKey();
+await passkeyClient?.loginWithPasskey({
+  sessionType: SessionType.READ_WRITE,
+  publicKey: pubKey!,
+  expirationSeconds: "3600",
+});
+
+// Now the client is authenticated and ready to interact with Turnkey API
+const wallets = await client.getWallets();
+```
+
+> 💡 **Why IndexedDB?**  
+> Keys are stored using the [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey), marked as `nonExtractable`, and survive page reloads — offering persistent, tamper-resistant authentication without ever exposing the raw key material.
+
+---
+
+### ⚠️ Deprecated: iframeClient for Auth
+
+Authentication via `iframeClient()` and injected credentials (e.g., from `https://auth.turnkey.com`) is now considered **deprecated** for new integrations. These flows required sensitive credential bundles to be delivered via email or OAuth and injected into a sandboxed iframe — a pattern with limited persistence and higher complexity.
+
+Developers are encouraged to migrate to `indexedDbClient()` for:
+
+- Seamless passkey authentication
+- Improved security model (no credential injection)
+- Long-lived, resumable sessions
+
+Existing iframe use cases like **Email Recovery**, **Wallet Import**, and **Wallet Export** are still supported but should be isolated from authentication logic.

@@ -267,6 +267,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
 
   imports.push('import { StorageKeys, getStorageValue } from "../storage";');
+  imports.push('import { parseSession } from "../utils";');
 
   codeBuffer.push(`
 export class TurnkeySDKClientBase {
@@ -417,9 +418,11 @@ export class TurnkeySDKClientBase {
             ? " = {}"
             : ""
         }): Promise<SdkApiTypes.${responseType}> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.request("${endpointPath}", {
       ...input,
-      organizationId: input.organizationId ?? this.config.organizationId
+      organizationId: input.organizationId ?? session?.organizationId ?? this.config.organizationId
     });
   }`,
       );
@@ -436,7 +439,9 @@ export class TurnkeySDKClientBase {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
     return this.command("${endpointPath}", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -449,7 +454,8 @@ export class TurnkeySDKClientBase {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
     const { organizationId, timestampMs, ...rest } = input;
-    const session = await getStorageValue(StorageKeys.Session);
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
     return this.activityDecision("${endpointPath}",
       {
         parameters: rest,

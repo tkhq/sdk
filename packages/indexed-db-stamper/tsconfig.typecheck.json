@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "./.cache/.typecheck.tsbuildinfo",
+    "lib": ["ES2021", "DOM"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
+}

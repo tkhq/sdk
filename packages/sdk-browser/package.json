@@ -53,7 +53,8 @@
     "@turnkey/iframe-stamper": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
     "@turnkey/webauthn-stamper": "workspace:*",
-    "bs58check": "^3.0.1",
+    "@turnkey/indexed-db-stamper": "workspace:*",
+    "bs58check": "3.0.1",
     "buffer": "^6.0.3",
     "cross-fetch": "^3.1.5",
     "hpke-js": "^1.2.7"

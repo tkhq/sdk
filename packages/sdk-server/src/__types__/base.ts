@@ -141,36 +141,27 @@ export enum FilterType {
   PublicKey = "PUBLIC_KEY",
 }
 
-export enum SessionType {
-  READ_ONLY = "SESSION_TYPE_READ_ONLY",
-  READ_WRITE = "SESSION_TYPE_READ_WRITE",
-}
-
-export type Session = {
-  sessionType: SessionType;
-  userId: string;
-  organizationId: string;
-  expiry: number;
-  token: string;
-};
-
-export type VerifyOtpRequest = {
+export type OtpLoginRequest = {
   suborgID: string;
-  otpId: string;
-  otpCode: string;
-  targetPublicKey: string;
+  verificationToken: string;
+  publicKey: string;
   sessionLengthSeconds?: number | undefined;
 };
 
-export type OauthRequest = {
+export type OauthLoginRequest = {
   suborgID: string;
   oidcToken: string;
-  targetPublicKey: string;
+  publicKey: string;
+  sessionLengthSeconds?: number | undefined;
+};
+
+export type VerifyOtpRequest = {
+  otpId: string;
+  otpCode: string;
   sessionLengthSeconds?: number | undefined;
 };
 
 export type SendOtpRequest = {
-  suborgID: string;
   otpType: string;
   contact: string;
   emailCustomization?: EmailCustomization | undefined;
@@ -184,6 +175,18 @@ export type SendOtpRequest = {
 
 export type SendOtpResponse = {
   otpId: string;
+};
+
+export type VerifyOtpResponse = {
+  verificationToken: string;
+};
+
+export type OtpLoginResponse = {
+  session: string;
+};
+
+export type OauthLoginResponse = {
+  session: string;
 };
 
 export type InitEmailAuthRequest = {

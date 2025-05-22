@@ -232,6 +232,7 @@ import type {
   TInitImportWalletBody,
   TInitImportWalletResponse,
 } from "./public_api.fetcher";
+import type { TInitOtpBody, TInitOtpResponse } from "./public_api.fetcher";
 import type {
   TInitOtpAuthBody,
   TInitOtpAuthResponse,
@@ -241,7 +242,12 @@ import type {
   TInitUserEmailRecoveryResponse,
 } from "./public_api.fetcher";
 import type { TOauthBody, TOauthResponse } from "./public_api.fetcher";
+import type {
+  TOauthLoginBody,
+  TOauthLoginResponse,
+} from "./public_api.fetcher";
 import type { TOtpAuthBody, TOtpAuthResponse } from "./public_api.fetcher";
+import type { TOtpLoginBody, TOtpLoginResponse } from "./public_api.fetcher";
 import type {
   TRecoverUserBody,
   TRecoverUserResponse,
@@ -271,6 +277,10 @@ import type {
   TSignTransactionResponse,
 } from "./public_api.fetcher";
 import type {
+  TStampLoginBody,
+  TStampLoginResponse,
+} from "./public_api.fetcher";
+import type {
   TUpdatePolicyBody,
   TUpdatePolicyResponse,
 } from "./public_api.fetcher";
@@ -294,6 +304,7 @@ import type {
   TUpdateWalletBody,
   TUpdateWalletResponse,
 } from "./public_api.fetcher";
+import type { TVerifyOtpBody, TVerifyOtpResponse } from "./public_api.fetcher";
 import type {
   TTestRateLimitsBody,
   TTestRateLimitsResponse,
@@ -2225,6 +2236,33 @@ export class TurnkeyClient {
   };
 
   /**
+   * Initiate a Generic OTP activity
+   *
+   * Sign the provided `TInitOtpBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_otp).
+   *
+   * See also {@link stampInitOtp}.
+   */
+  initOtp = async (input: TInitOtpBody): Promise<TInitOtpResponse> => {
+    return this.request("/public/v1/submit/init_otp", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TInitOtpBody` by using the client's `stamp` function.
+   *
+   * See also {@link InitOtp}.
+   */
+  stampInitOtp = async (input: TInitOtpBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/init_otp";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Initiate an OTP auth activity
    *
    * Sign the provided `TInitOtpAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_otp_auth).
@@ -2315,6 +2353,33 @@ export class TurnkeyClient {
   };
 
   /**
+   * Create an Oauth session for a user
+   *
+   * Sign the provided `TOauthLoginBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/oauth_login).
+   *
+   * See also {@link stampOauthLogin}.
+   */
+  oauthLogin = async (input: TOauthLoginBody): Promise<TOauthLoginResponse> => {
+    return this.request("/public/v1/submit/oauth_login", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TOauthLoginBody` by using the client's `stamp` function.
+   *
+   * See also {@link OauthLogin}.
+   */
+  stampOauthLogin = async (input: TOauthLoginBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/oauth_login";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Authenticate a user with an OTP code sent via email or SMS
    *
    * Sign the provided `TOtpAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/otp_auth).
@@ -2332,6 +2397,33 @@ export class TurnkeyClient {
    */
   stampOtpAuth = async (input: TOtpAuthBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/otp_auth";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Create an OTP session for a user
+   *
+   * Sign the provided `TOtpLoginBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/otp_login).
+   *
+   * See also {@link stampOtpLogin}.
+   */
+  otpLogin = async (input: TOtpLoginBody): Promise<TOtpLoginResponse> => {
+    return this.request("/public/v1/submit/otp_login", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TOtpLoginBody` by using the client's `stamp` function.
+   *
+   * See also {@link OtpLogin}.
+   */
+  stampOtpLogin = async (input: TOtpLoginBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/otp_login";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2561,6 +2653,33 @@ export class TurnkeyClient {
   };
 
   /**
+   * Create a session for a user through stamping client side (api key, wallet client, or passkey client)
+   *
+   * Sign the provided `TStampLoginBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/stamp_login).
+   *
+   * See also {@link stampStampLogin}.
+   */
+  stampLogin = async (input: TStampLoginBody): Promise<TStampLoginResponse> => {
+    return this.request("/public/v1/submit/stamp_login", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TStampLoginBody` by using the client's `stamp` function.
+   *
+   * See also {@link StampLogin}.
+   */
+  stampStampLogin = async (input: TStampLoginBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/stamp_login";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Update an existing Policy
    *
    * Sign the provided `TUpdatePolicyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_policy).
@@ -2735,6 +2854,33 @@ export class TurnkeyClient {
     input: TUpdateWalletBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/update_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Verify a Generic OTP
+   *
+   * Sign the provided `TVerifyOtpBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/verify_otp).
+   *
+   * See also {@link stampVerifyOtp}.
+   */
+  verifyOtp = async (input: TVerifyOtpBody): Promise<TVerifyOtpResponse> => {
+    return this.request("/public/v1/submit/verify_otp", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TVerifyOtpBody` by using the client's `stamp` function.
+   *
+   * See also {@link VerifyOtp}.
+   */
+  stampVerifyOtp = async (input: TVerifyOtpBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/verify_otp";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
