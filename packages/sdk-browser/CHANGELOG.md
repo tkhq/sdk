@@ -1,5 +1,35 @@
 # @turnkey/sdk-browser
 
+## 5.0.0
+
+### Major Changes
+
+- [#601](https://github.com/tkhq/sdk/pull/601) [`07dfd33`](https://github.com/tkhq/sdk/commit/07dfd3397472687092e1c73b1d68714f421b9ca0) Author [@moe-dev](https://github.com/moe-dev)
+
+This release introduces the new `indexedDbClient`, leveraging the `indexedDbStamper` to securely store cryptographic keys directly in IndexedDB. It provides persistent, secure, non-extractable authentication, replacing legacy iframe-based flows for OTP, passkey, external wallet, and OAuth authentications.
+
+### Key Changes:
+
+- **IndexedDB Client (`indexedDbClient`)**:
+
+  - Offers persistent, tamper-resistant authentication using P-256 keys stored securely in IndexedDB.
+  - Eliminates the need for credential injection via iframes, significantly improving the DevEx and UX of session management.
+  - Provides human-readable sessions through `getSession()`.
+
+- **Deprecation Notice**:
+  - Authentication via the `iframeClient` (e.g., `auth.turnkey.com`) is deprecated. Developers should migrate authentication flows to the new IndexedDB-based client.
+  - Existing iframe-based wallet flows (Email Recovery, Import, and Export) remain supported.
+
+These enhancements simplify integrations, improve UX, and deliver a more robust client-side experience.
+
+### Patch Changes
+
+- Updated dependencies [[`07dfd33`](https://github.com/tkhq/sdk/commit/07dfd3397472687092e1c73b1d68714f421b9ca0)]:
+  - @turnkey/indexed-db-stamper@1.0.0
+  - @turnkey/http@3.4.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/wallet-stamper@1.0.3
+
 ## 4.3.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @turnkey/http
 
+## 3.4.0
+
+### Minor Changes
+
+- Added new authentication activities:
+  - STAMP_LOGIN: Handles authentication flows for passkeys, wallet logins, and session refresh. Initiated by sub-organizations; returns a session JWT.
+  - INIT_OTP: Initiates sending a 6–9 digit or bech32 alphanumeric OTP to an email or phone. Initiated by the parent organization.
+  - VERIFY_OTP: Verifies the OTP and returns a verification token. Initiated by the parent organization.
+  - OTP_LOGIN: Completes OTP-based authentication by verifying a tokenized OTP challenge and establishing a session. Initiated by the parent organization; returns a session JWT.
+  - OAUTH_LOGIN: Finalizes OAuth-based logins from third-party OIDC providers. Initiated by the parent organization; returns a session JWT.
+
 ## 3.3.0
 
 ### Minor Changes

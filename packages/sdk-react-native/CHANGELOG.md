@@ -1,5 +1,24 @@
 # @turnkey/sdk-react-native
 
+## 1.3.0
+
+### Minor Changes
+
+- [#622](https://github.com/tkhq/sdk/pull/622) [`59f8941`](https://github.com/tkhq/sdk/commit/59f8941f77e548e248b2fdafcad36f5f0c2a5d29) Author [@moeodeh3](https://github.com/moeodeh3) - Added support for React 19
+
+  Renamed `sessionKey` parameter to `storageKey` in `createEmbeddedKey` `saveEmbeddedKey` and `getEmbeddedKey`.
+
+  Added optional `embeddedStorageKey` parameter to `createSession`. This allows for retrieval of the embedded key from a custom location in secure storage.
+
+### Patch Changes
+
+- [#641](https://github.com/tkhq/sdk/pull/641) [`77611c8`](https://github.com/tkhq/sdk/commit/77611c8f15aa16b316d81ee6addab62d86f2f3bc) Author [@amircheikh](https://github.com/amircheikh) - Added `onSessionEmpty`. A callback function that runs when there is no active session on app launch.
+
+- Updated dependencies [[`07dfd33`](https://github.com/tkhq/sdk/commit/07dfd3397472687092e1c73b1d68714f421b9ca0)]:
+  - @turnkey/http@3.4.0
+  - @turnkey/crypto@2.3.1
+  - @turnkey/react-native-passkey-stamper@1.0.14
+
 ## 1.2.3
 
 ### Patch Changes
