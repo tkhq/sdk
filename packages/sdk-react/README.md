@@ -58,7 +58,7 @@ function ExampleComponent() {
 
   const loginWithPasskey = async () => {
     // Creates a read only session with passkey
-    await passkeyClient?.login();
+    await passkeyClient?.loginWithPasskey();
   };
 
   const initEmailAuth = async () => {

@@ -4,6 +4,7 @@ import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
 
+import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import { TurnkeyBaseClient } from "../__clients__/base-client";
 
 import {
@@ -96,6 +97,38 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   constructor(config: TurnkeySDKClientConfig, authClient?: AuthClient) {
     super(config, authClient);
   }
+
+  /**
+   * @deprecated
+   * This method is deprecated and only creates a READ_ONLY session using an API key.
+   * Use one of the following methods instead, depending on your context:
+   *
+   * - `loginWithPasskey()` for WebAuthn-based sessions using IndexedDB
+   * - `loginWithWallet()` for EVM or Solana wallet-based sessions
+   * - `loginWithSession()` if the session string is already available (e.g. from server actions)
+   * - `loginWithBundle()` for iframe-based sessions (e.g. for email-auth non otp based login)
+   *
+   * @param config Optional configuration containing an organization ID
+   * @returns A Promise resolving to the created read-only session
+   */
+
+  login = async (config?: {
+    organizationId?: string;
+  }): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
+    const readOnlySessionResult = await this.createReadOnlySession(
+      config || {},
+    );
+    const session: Session = {
+      sessionType: SessionType.READ_ONLY,
+      userId: readOnlySessionResult.userId,
+      organizationId: readOnlySessionResult.organizationId,
+      expiry: Number(readOnlySessionResult.sessionExpiry),
+      token: readOnlySessionResult.session,
+    };
+    await storeSession(session, this.authClient);
+
+    return readOnlySessionResult;
+  };
 
   /**
    * Attempts to refresh an existing Session. This method infers the current user's organization ID and target userId.

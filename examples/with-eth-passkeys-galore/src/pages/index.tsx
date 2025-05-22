@@ -248,22 +248,21 @@ export default function Home() {
         return;
       }
 
-      const currentUserSession = await turnkey?.currentUserSession();
+      const currentUserSession = await turnkey?.getSession();
       if (!currentUserSession) {
         return;
       }
 
-      const walletsResponse = await currentUserSession?.getWallets();
+      const walletsResponse = await passkeyClient?.getWallets();
       if (!walletsResponse?.wallets[0].walletId) {
         return;
       }
 
       const walletId = walletsResponse?.wallets[0].walletId;
-      const walletAccountsResponse =
-        await currentUserSession?.getWalletAccounts({
-          organizationId: loginResponse?.organizationId,
-          walletId,
-        });
+      const walletAccountsResponse = await passkeyClient?.getWalletAccounts({
+        organizationId: loginResponse?.organizationId,
+        walletId,
+      });
       if (!walletAccountsResponse?.accounts[0].address) {
         return;
       }
