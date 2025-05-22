@@ -835,6 +835,8 @@ export type definitions = {
   v1CreateOauthProvidersIntent: {
     /** @description The ID of the User to add an Oauth provider to */
     userId: string;
+    /** @description The email address to be verified and added to the user. To be verified, the email must be part of an OIDC token passed in the OauthProviderParams field. The OIDC token must also be considered `trusted` by us (currently, only Google is trusted). */
+    linkUserEmail?: string;
     /** @description A list of Oauth providers. */
     oauthProviders: definitions["v1OauthProviderParams"][];
   };
@@ -2342,8 +2344,6 @@ export type definitions = {
     providerName: string;
     /** @description Base64 encoded OIDC token */
     oidcToken: string;
-    /** @description Extracts the email from the OIDC token and sets it as the user's email. This is currently only supported for Google OIDC. */
-    linkToUserEmail?: boolean;
   };
   v1OauthRequest: {
     /** @enum {string} */

@@ -290,12 +290,12 @@ const Auth: React.FC<AuthProps> = ({
       return;
     }
     setOauthLoading(providerName);
+    const { email, iss } = jwtDecode<any>(credential) || {};
 
-    const base = { providerName, oidcToken: credential };
-    const oauthProviders = [
-      socialLinking ? { ...base, linkToUserEmail: true } : base,
-    ];
-    const additionalData: Record<string, any> = {
+    const oauthProviders = [{ providerName, oidcToken: credential }];
+
+    const createSuborgData: Record<string, any> = {
+      email: socialLinking ? email : undefined,
       oauthProviders,
       ...(customAccounts && { customAccounts }),
     };

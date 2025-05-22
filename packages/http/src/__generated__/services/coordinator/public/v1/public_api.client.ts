@@ -324,7 +324,7 @@ export class TurnkeyClient {
   }
   async request<TBodyType, TResponseType>(
     url: string,
-    body: TBodyType,
+    body: TBodyType
   ): Promise<TResponseType> {
     const fullUrl = this.config.baseUrl + url;
     const stringifiedBody = JSON.stringify(body);
@@ -363,7 +363,7 @@ export class TurnkeyClient {
    * See also {@link stampGetActivity}.
    */
   getActivity = async (
-    input: TGetActivityBody,
+    input: TGetActivityBody
   ): Promise<TGetActivityResponse> => {
     return this.request("/public/v1/query/get_activity", input);
   };
@@ -374,7 +374,7 @@ export class TurnkeyClient {
    * See also {@link GetActivity}.
    */
   stampGetActivity = async (
-    input: TGetActivityBody,
+    input: TGetActivityBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_activity";
     const body = JSON.stringify(input);
@@ -448,7 +448,7 @@ export class TurnkeyClient {
    * See also {@link stampGetAttestationDocument}.
    */
   getAttestationDocument = async (
-    input: TGetAttestationDocumentBody,
+    input: TGetAttestationDocumentBody
   ): Promise<TGetAttestationDocumentResponse> => {
     return this.request("/public/v1/query/get_attestation", input);
   };
@@ -459,7 +459,7 @@ export class TurnkeyClient {
    * See also {@link GetAttestationDocument}.
    */
   stampGetAttestationDocument = async (
-    input: TGetAttestationDocumentBody,
+    input: TGetAttestationDocumentBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_attestation";
     const body = JSON.stringify(input);
@@ -479,7 +479,7 @@ export class TurnkeyClient {
    * See also {@link stampGetAuthenticator}.
    */
   getAuthenticator = async (
-    input: TGetAuthenticatorBody,
+    input: TGetAuthenticatorBody
   ): Promise<TGetAuthenticatorResponse> => {
     return this.request("/public/v1/query/get_authenticator", input);
   };
@@ -490,7 +490,7 @@ export class TurnkeyClient {
    * See also {@link GetAuthenticator}.
    */
   stampGetAuthenticator = async (
-    input: TGetAuthenticatorBody,
+    input: TGetAuthenticatorBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_authenticator";
     const body = JSON.stringify(input);
@@ -510,7 +510,7 @@ export class TurnkeyClient {
    * See also {@link stampGetAuthenticators}.
    */
   getAuthenticators = async (
-    input: TGetAuthenticatorsBody,
+    input: TGetAuthenticatorsBody
   ): Promise<TGetAuthenticatorsResponse> => {
     return this.request("/public/v1/query/get_authenticators", input);
   };
@@ -521,7 +521,7 @@ export class TurnkeyClient {
    * See also {@link GetAuthenticators}.
    */
   stampGetAuthenticators = async (
-    input: TGetAuthenticatorsBody,
+    input: TGetAuthenticatorsBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_authenticators";
     const body = JSON.stringify(input);
@@ -541,7 +541,7 @@ export class TurnkeyClient {
    * See also {@link stampGetOauthProviders}.
    */
   getOauthProviders = async (
-    input: TGetOauthProvidersBody,
+    input: TGetOauthProvidersBody
   ): Promise<TGetOauthProvidersResponse> => {
     return this.request("/public/v1/query/get_oauth_providers", input);
   };
@@ -552,7 +552,7 @@ export class TurnkeyClient {
    * See also {@link GetOauthProviders}.
    */
   stampGetOauthProviders = async (
-    input: TGetOauthProvidersBody,
+    input: TGetOauthProvidersBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/get_oauth_providers";
@@ -573,7 +573,7 @@ export class TurnkeyClient {
    * See also {@link stampGetOrganization}.
    */
   getOrganization = async (
-    input: TGetOrganizationBody,
+    input: TGetOrganizationBody
   ): Promise<TGetOrganizationResponse> => {
     return this.request("/public/v1/query/get_organization", input);
   };
@@ -584,7 +584,7 @@ export class TurnkeyClient {
    * See also {@link GetOrganization}.
    */
   stampGetOrganization = async (
-    input: TGetOrganizationBody,
+    input: TGetOrganizationBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_organization";
     const body = JSON.stringify(input);
@@ -604,7 +604,7 @@ export class TurnkeyClient {
    * See also {@link stampGetOrganizationConfigs}.
    */
   getOrganizationConfigs = async (
-    input: TGetOrganizationConfigsBody,
+    input: TGetOrganizationConfigsBody
   ): Promise<TGetOrganizationConfigsResponse> => {
     return this.request("/public/v1/query/get_organization_configs", input);
   };
@@ -615,7 +615,7 @@ export class TurnkeyClient {
    * See also {@link GetOrganizationConfigs}.
    */
   stampGetOrganizationConfigs = async (
-    input: TGetOrganizationConfigsBody,
+    input: TGetOrganizationConfigsBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/get_organization_configs";
@@ -663,7 +663,7 @@ export class TurnkeyClient {
    * See also {@link stampGetPrivateKey}.
    */
   getPrivateKey = async (
-    input: TGetPrivateKeyBody,
+    input: TGetPrivateKeyBody
   ): Promise<TGetPrivateKeyResponse> => {
     return this.request("/public/v1/query/get_private_key", input);
   };
@@ -674,7 +674,7 @@ export class TurnkeyClient {
    * See also {@link GetPrivateKey}.
    */
   stampGetPrivateKey = async (
-    input: TGetPrivateKeyBody,
+    input: TGetPrivateKeyBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_private_key";
     const body = JSON.stringify(input);
@@ -748,7 +748,7 @@ export class TurnkeyClient {
    * See also {@link stampGetWalletAccount}.
    */
   getWalletAccount = async (
-    input: TGetWalletAccountBody,
+    input: TGetWalletAccountBody
   ): Promise<TGetWalletAccountResponse> => {
     return this.request("/public/v1/query/get_wallet_account", input);
   };
@@ -759,7 +759,7 @@ export class TurnkeyClient {
    * See also {@link GetWalletAccount}.
    */
   stampGetWalletAccount = async (
-    input: TGetWalletAccountBody,
+    input: TGetWalletAccountBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_wallet_account";
     const body = JSON.stringify(input);
@@ -779,7 +779,7 @@ export class TurnkeyClient {
    * See also {@link stampGetActivities}.
    */
   getActivities = async (
-    input: TGetActivitiesBody,
+    input: TGetActivitiesBody
   ): Promise<TGetActivitiesResponse> => {
     return this.request("/public/v1/query/list_activities", input);
   };
@@ -790,7 +790,7 @@ export class TurnkeyClient {
    * See also {@link GetActivities}.
    */
   stampGetActivities = async (
-    input: TGetActivitiesBody,
+    input: TGetActivitiesBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_activities";
     const body = JSON.stringify(input);
@@ -810,7 +810,7 @@ export class TurnkeyClient {
    * See also {@link stampGetPolicies}.
    */
   getPolicies = async (
-    input: TGetPoliciesBody,
+    input: TGetPoliciesBody
   ): Promise<TGetPoliciesResponse> => {
     return this.request("/public/v1/query/list_policies", input);
   };
@@ -821,7 +821,7 @@ export class TurnkeyClient {
    * See also {@link GetPolicies}.
    */
   stampGetPolicies = async (
-    input: TGetPoliciesBody,
+    input: TGetPoliciesBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_policies";
     const body = JSON.stringify(input);
@@ -841,7 +841,7 @@ export class TurnkeyClient {
    * See also {@link stampListPrivateKeyTags}.
    */
   listPrivateKeyTags = async (
-    input: TListPrivateKeyTagsBody,
+    input: TListPrivateKeyTagsBody
   ): Promise<TListPrivateKeyTagsResponse> => {
     return this.request("/public/v1/query/list_private_key_tags", input);
   };
@@ -852,7 +852,7 @@ export class TurnkeyClient {
    * See also {@link ListPrivateKeyTags}.
    */
   stampListPrivateKeyTags = async (
-    input: TListPrivateKeyTagsBody,
+    input: TListPrivateKeyTagsBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/list_private_key_tags";
@@ -873,7 +873,7 @@ export class TurnkeyClient {
    * See also {@link stampGetPrivateKeys}.
    */
   getPrivateKeys = async (
-    input: TGetPrivateKeysBody,
+    input: TGetPrivateKeysBody
   ): Promise<TGetPrivateKeysResponse> => {
     return this.request("/public/v1/query/list_private_keys", input);
   };
@@ -884,7 +884,7 @@ export class TurnkeyClient {
    * See also {@link GetPrivateKeys}.
    */
   stampGetPrivateKeys = async (
-    input: TGetPrivateKeysBody,
+    input: TGetPrivateKeysBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_private_keys";
     const body = JSON.stringify(input);
@@ -904,7 +904,7 @@ export class TurnkeyClient {
    * See also {@link stampGetSubOrgIds}.
    */
   getSubOrgIds = async (
-    input: TGetSubOrgIdsBody,
+    input: TGetSubOrgIdsBody
   ): Promise<TGetSubOrgIdsResponse> => {
     return this.request("/public/v1/query/list_suborgs", input);
   };
@@ -915,7 +915,7 @@ export class TurnkeyClient {
    * See also {@link GetSubOrgIds}.
    */
   stampGetSubOrgIds = async (
-    input: TGetSubOrgIdsBody,
+    input: TGetSubOrgIdsBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_suborgs";
     const body = JSON.stringify(input);
@@ -935,7 +935,7 @@ export class TurnkeyClient {
    * See also {@link stampListUserTags}.
    */
   listUserTags = async (
-    input: TListUserTagsBody,
+    input: TListUserTagsBody
   ): Promise<TListUserTagsResponse> => {
     return this.request("/public/v1/query/list_user_tags", input);
   };
@@ -946,7 +946,7 @@ export class TurnkeyClient {
    * See also {@link ListUserTags}.
    */
   stampListUserTags = async (
-    input: TListUserTagsBody,
+    input: TListUserTagsBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_user_tags";
     const body = JSON.stringify(input);
@@ -993,7 +993,7 @@ export class TurnkeyClient {
    * See also {@link stampGetVerifiedSubOrgIds}.
    */
   getVerifiedSubOrgIds = async (
-    input: TGetVerifiedSubOrgIdsBody,
+    input: TGetVerifiedSubOrgIdsBody
   ): Promise<TGetVerifiedSubOrgIdsResponse> => {
     return this.request("/public/v1/query/list_verified_suborgs", input);
   };
@@ -1004,7 +1004,7 @@ export class TurnkeyClient {
    * See also {@link GetVerifiedSubOrgIds}.
    */
   stampGetVerifiedSubOrgIds = async (
-    input: TGetVerifiedSubOrgIdsBody,
+    input: TGetVerifiedSubOrgIdsBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/list_verified_suborgs";
@@ -1025,7 +1025,7 @@ export class TurnkeyClient {
    * See also {@link stampGetWalletAccounts}.
    */
   getWalletAccounts = async (
-    input: TGetWalletAccountsBody,
+    input: TGetWalletAccountsBody
   ): Promise<TGetWalletAccountsResponse> => {
     return this.request("/public/v1/query/list_wallet_accounts", input);
   };
@@ -1036,7 +1036,7 @@ export class TurnkeyClient {
    * See also {@link GetWalletAccounts}.
    */
   stampGetWalletAccounts = async (
-    input: TGetWalletAccountsBody,
+    input: TGetWalletAccountsBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/list_wallet_accounts";
@@ -1111,7 +1111,7 @@ export class TurnkeyClient {
    * See also {@link stampApproveActivity}.
    */
   approveActivity = async (
-    input: TApproveActivityBody,
+    input: TApproveActivityBody
   ): Promise<TApproveActivityResponse> => {
     return this.request("/public/v1/submit/approve_activity", input);
   };
@@ -1122,7 +1122,7 @@ export class TurnkeyClient {
    * See also {@link ApproveActivity}.
    */
   stampApproveActivity = async (
-    input: TApproveActivityBody,
+    input: TApproveActivityBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/approve_activity";
     const body = JSON.stringify(input);
@@ -1142,7 +1142,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateApiKeys}.
    */
   createApiKeys = async (
-    input: TCreateApiKeysBody,
+    input: TCreateApiKeysBody
   ): Promise<TCreateApiKeysResponse> => {
     return this.request("/public/v1/submit/create_api_keys", input);
   };
@@ -1153,7 +1153,7 @@ export class TurnkeyClient {
    * See also {@link CreateApiKeys}.
    */
   stampCreateApiKeys = async (
-    input: TCreateApiKeysBody,
+    input: TCreateApiKeysBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/create_api_keys";
     const body = JSON.stringify(input);
@@ -1173,7 +1173,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateApiOnlyUsers}.
    */
   createApiOnlyUsers = async (
-    input: TCreateApiOnlyUsersBody,
+    input: TCreateApiOnlyUsersBody
   ): Promise<TCreateApiOnlyUsersResponse> => {
     return this.request("/public/v1/submit/create_api_only_users", input);
   };
@@ -1184,7 +1184,7 @@ export class TurnkeyClient {
    * See also {@link CreateApiOnlyUsers}.
    */
   stampCreateApiOnlyUsers = async (
-    input: TCreateApiOnlyUsersBody,
+    input: TCreateApiOnlyUsersBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_api_only_users";
@@ -1205,7 +1205,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateAuthenticators}.
    */
   createAuthenticators = async (
-    input: TCreateAuthenticatorsBody,
+    input: TCreateAuthenticatorsBody
   ): Promise<TCreateAuthenticatorsResponse> => {
     return this.request("/public/v1/submit/create_authenticators", input);
   };
@@ -1216,7 +1216,7 @@ export class TurnkeyClient {
    * See also {@link CreateAuthenticators}.
    */
   stampCreateAuthenticators = async (
-    input: TCreateAuthenticatorsBody,
+    input: TCreateAuthenticatorsBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_authenticators";
@@ -1237,7 +1237,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateInvitations}.
    */
   createInvitations = async (
-    input: TCreateInvitationsBody,
+    input: TCreateInvitationsBody
   ): Promise<TCreateInvitationsResponse> => {
     return this.request("/public/v1/submit/create_invitations", input);
   };
@@ -1248,7 +1248,7 @@ export class TurnkeyClient {
    * See also {@link CreateInvitations}.
    */
   stampCreateInvitations = async (
-    input: TCreateInvitationsBody,
+    input: TCreateInvitationsBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_invitations";
@@ -1269,7 +1269,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateOauthProviders}.
    */
   createOauthProviders = async (
-    input: TCreateOauthProvidersBody,
+    input: TCreateOauthProvidersBody
   ): Promise<TCreateOauthProvidersResponse> => {
     return this.request("/public/v1/submit/create_oauth_providers", input);
   };
@@ -1280,7 +1280,7 @@ export class TurnkeyClient {
    * See also {@link CreateOauthProviders}.
    */
   stampCreateOauthProviders = async (
-    input: TCreateOauthProvidersBody,
+    input: TCreateOauthProvidersBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_oauth_providers";
@@ -1301,7 +1301,7 @@ export class TurnkeyClient {
    * See also {@link stampCreatePolicies}.
    */
   createPolicies = async (
-    input: TCreatePoliciesBody,
+    input: TCreatePoliciesBody
   ): Promise<TCreatePoliciesResponse> => {
     return this.request("/public/v1/submit/create_policies", input);
   };
@@ -1312,7 +1312,7 @@ export class TurnkeyClient {
    * See also {@link CreatePolicies}.
    */
   stampCreatePolicies = async (
-    input: TCreatePoliciesBody,
+    input: TCreatePoliciesBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/create_policies";
     const body = JSON.stringify(input);
@@ -1332,7 +1332,7 @@ export class TurnkeyClient {
    * See also {@link stampCreatePolicy}.
    */
   createPolicy = async (
-    input: TCreatePolicyBody,
+    input: TCreatePolicyBody
   ): Promise<TCreatePolicyResponse> => {
     return this.request("/public/v1/submit/create_policy", input);
   };
@@ -1343,7 +1343,7 @@ export class TurnkeyClient {
    * See also {@link CreatePolicy}.
    */
   stampCreatePolicy = async (
-    input: TCreatePolicyBody,
+    input: TCreatePolicyBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/create_policy";
     const body = JSON.stringify(input);
@@ -1363,7 +1363,7 @@ export class TurnkeyClient {
    * See also {@link stampCreatePrivateKeyTag}.
    */
   createPrivateKeyTag = async (
-    input: TCreatePrivateKeyTagBody,
+    input: TCreatePrivateKeyTagBody
   ): Promise<TCreatePrivateKeyTagResponse> => {
     return this.request("/public/v1/submit/create_private_key_tag", input);
   };
@@ -1374,7 +1374,7 @@ export class TurnkeyClient {
    * See also {@link CreatePrivateKeyTag}.
    */
   stampCreatePrivateKeyTag = async (
-    input: TCreatePrivateKeyTagBody,
+    input: TCreatePrivateKeyTagBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_private_key_tag";
@@ -1395,7 +1395,7 @@ export class TurnkeyClient {
    * See also {@link stampCreatePrivateKeys}.
    */
   createPrivateKeys = async (
-    input: TCreatePrivateKeysBody,
+    input: TCreatePrivateKeysBody
   ): Promise<TCreatePrivateKeysResponse> => {
     return this.request("/public/v1/submit/create_private_keys", input);
   };
@@ -1406,7 +1406,7 @@ export class TurnkeyClient {
    * See also {@link CreatePrivateKeys}.
    */
   stampCreatePrivateKeys = async (
-    input: TCreatePrivateKeysBody,
+    input: TCreatePrivateKeysBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_private_keys";
@@ -1427,7 +1427,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateReadOnlySession}.
    */
   createReadOnlySession = async (
-    input: TCreateReadOnlySessionBody,
+    input: TCreateReadOnlySessionBody
   ): Promise<TCreateReadOnlySessionResponse> => {
     return this.request("/public/v1/submit/create_read_only_session", input);
   };
@@ -1438,7 +1438,7 @@ export class TurnkeyClient {
    * See also {@link CreateReadOnlySession}.
    */
   stampCreateReadOnlySession = async (
-    input: TCreateReadOnlySessionBody,
+    input: TCreateReadOnlySessionBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_read_only_session";
@@ -1459,7 +1459,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateReadWriteSession}.
    */
   createReadWriteSession = async (
-    input: TCreateReadWriteSessionBody,
+    input: TCreateReadWriteSessionBody
   ): Promise<TCreateReadWriteSessionResponse> => {
     return this.request("/public/v1/submit/create_read_write_session", input);
   };
@@ -1470,7 +1470,7 @@ export class TurnkeyClient {
    * See also {@link CreateReadWriteSession}.
    */
   stampCreateReadWriteSession = async (
-    input: TCreateReadWriteSessionBody,
+    input: TCreateReadWriteSessionBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_read_write_session";
@@ -1491,7 +1491,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateSubOrganization}.
    */
   createSubOrganization = async (
-    input: TCreateSubOrganizationBody,
+    input: TCreateSubOrganizationBody
   ): Promise<TCreateSubOrganizationResponse> => {
     return this.request("/public/v1/submit/create_sub_organization", input);
   };
@@ -1502,7 +1502,7 @@ export class TurnkeyClient {
    * See also {@link CreateSubOrganization}.
    */
   stampCreateSubOrganization = async (
-    input: TCreateSubOrganizationBody,
+    input: TCreateSubOrganizationBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_sub_organization";
@@ -1523,7 +1523,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateUserTag}.
    */
   createUserTag = async (
-    input: TCreateUserTagBody,
+    input: TCreateUserTagBody
   ): Promise<TCreateUserTagResponse> => {
     return this.request("/public/v1/submit/create_user_tag", input);
   };
@@ -1534,7 +1534,7 @@ export class TurnkeyClient {
    * See also {@link CreateUserTag}.
    */
   stampCreateUserTag = async (
-    input: TCreateUserTagBody,
+    input: TCreateUserTagBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/create_user_tag";
     const body = JSON.stringify(input);
@@ -1554,7 +1554,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateUsers}.
    */
   createUsers = async (
-    input: TCreateUsersBody,
+    input: TCreateUsersBody
   ): Promise<TCreateUsersResponse> => {
     return this.request("/public/v1/submit/create_users", input);
   };
@@ -1565,7 +1565,7 @@ export class TurnkeyClient {
    * See also {@link CreateUsers}.
    */
   stampCreateUsers = async (
-    input: TCreateUsersBody,
+    input: TCreateUsersBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/create_users";
     const body = JSON.stringify(input);
@@ -1585,7 +1585,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateWallet}.
    */
   createWallet = async (
-    input: TCreateWalletBody,
+    input: TCreateWalletBody
   ): Promise<TCreateWalletResponse> => {
     return this.request("/public/v1/submit/create_wallet", input);
   };
@@ -1596,7 +1596,7 @@ export class TurnkeyClient {
    * See also {@link CreateWallet}.
    */
   stampCreateWallet = async (
-    input: TCreateWalletBody,
+    input: TCreateWalletBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/create_wallet";
     const body = JSON.stringify(input);
@@ -1616,7 +1616,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateWalletAccounts}.
    */
   createWalletAccounts = async (
-    input: TCreateWalletAccountsBody,
+    input: TCreateWalletAccountsBody
   ): Promise<TCreateWalletAccountsResponse> => {
     return this.request("/public/v1/submit/create_wallet_accounts", input);
   };
@@ -1627,7 +1627,7 @@ export class TurnkeyClient {
    * See also {@link CreateWalletAccounts}.
    */
   stampCreateWalletAccounts = async (
-    input: TCreateWalletAccountsBody,
+    input: TCreateWalletAccountsBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_wallet_accounts";
@@ -1648,7 +1648,7 @@ export class TurnkeyClient {
    * See also {@link stampDeleteApiKeys}.
    */
   deleteApiKeys = async (
-    input: TDeleteApiKeysBody,
+    input: TDeleteApiKeysBody
   ): Promise<TDeleteApiKeysResponse> => {
     return this.request("/public/v1/submit/delete_api_keys", input);
   };
@@ -1659,7 +1659,7 @@ export class TurnkeyClient {
    * See also {@link DeleteApiKeys}.
    */
   stampDeleteApiKeys = async (
-    input: TDeleteApiKeysBody,
+    input: TDeleteApiKeysBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_api_keys";
     const body = JSON.stringify(input);
@@ -1679,7 +1679,7 @@ export class TurnkeyClient {
    * See also {@link stampDeleteAuthenticators}.
    */
   deleteAuthenticators = async (
-    input: TDeleteAuthenticatorsBody,
+    input: TDeleteAuthenticatorsBody
   ): Promise<TDeleteAuthenticatorsResponse> => {
     return this.request("/public/v1/submit/delete_authenticators", input);
   };
@@ -1690,7 +1690,7 @@ export class TurnkeyClient {
    * See also {@link DeleteAuthenticators}.
    */
   stampDeleteAuthenticators = async (
-    input: TDeleteAuthenticatorsBody,
+    input: TDeleteAuthenticatorsBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/delete_authenticators";
@@ -1711,7 +1711,7 @@ export class TurnkeyClient {
    * See also {@link stampDeleteInvitation}.
    */
   deleteInvitation = async (
-    input: TDeleteInvitationBody,
+    input: TDeleteInvitationBody
   ): Promise<TDeleteInvitationResponse> => {
     return this.request("/public/v1/submit/delete_invitation", input);
   };
@@ -1722,7 +1722,7 @@ export class TurnkeyClient {
    * See also {@link DeleteInvitation}.
    */
   stampDeleteInvitation = async (
-    input: TDeleteInvitationBody,
+    input: TDeleteInvitationBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_invitation";
     const body = JSON.stringify(input);
@@ -1742,7 +1742,7 @@ export class TurnkeyClient {
    * See also {@link stampDeleteOauthProviders}.
    */
   deleteOauthProviders = async (
-    input: TDeleteOauthProvidersBody,
+    input: TDeleteOauthProvidersBody
   ): Promise<TDeleteOauthProvidersResponse> => {
     return this.request("/public/v1/submit/delete_oauth_providers", input);
   };
@@ -1753,7 +1753,7 @@ export class TurnkeyClient {
    * See also {@link DeleteOauthProviders}.
    */
   stampDeleteOauthProviders = async (
-    input: TDeleteOauthProvidersBody,
+    input: TDeleteOauthProvidersBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/delete_oauth_providers";
@@ -1774,7 +1774,7 @@ export class TurnkeyClient {
    * See also {@link stampDeletePolicy}.
    */
   deletePolicy = async (
-    input: TDeletePolicyBody,
+    input: TDeletePolicyBody
   ): Promise<TDeletePolicyResponse> => {
     return this.request("/public/v1/submit/delete_policy", input);
   };
@@ -1785,7 +1785,7 @@ export class TurnkeyClient {
    * See also {@link DeletePolicy}.
    */
   stampDeletePolicy = async (
-    input: TDeletePolicyBody,
+    input: TDeletePolicyBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_policy";
     const body = JSON.stringify(input);
@@ -1805,7 +1805,7 @@ export class TurnkeyClient {
    * See also {@link stampDeletePrivateKeyTags}.
    */
   deletePrivateKeyTags = async (
-    input: TDeletePrivateKeyTagsBody,
+    input: TDeletePrivateKeyTagsBody
   ): Promise<TDeletePrivateKeyTagsResponse> => {
     return this.request("/public/v1/submit/delete_private_key_tags", input);
   };
@@ -1816,7 +1816,7 @@ export class TurnkeyClient {
    * See also {@link DeletePrivateKeyTags}.
    */
   stampDeletePrivateKeyTags = async (
-    input: TDeletePrivateKeyTagsBody,
+    input: TDeletePrivateKeyTagsBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/delete_private_key_tags";
@@ -1837,7 +1837,7 @@ export class TurnkeyClient {
    * See also {@link stampDeletePrivateKeys}.
    */
   deletePrivateKeys = async (
-    input: TDeletePrivateKeysBody,
+    input: TDeletePrivateKeysBody
   ): Promise<TDeletePrivateKeysResponse> => {
     return this.request("/public/v1/submit/delete_private_keys", input);
   };
@@ -1848,7 +1848,7 @@ export class TurnkeyClient {
    * See also {@link DeletePrivateKeys}.
    */
   stampDeletePrivateKeys = async (
-    input: TDeletePrivateKeysBody,
+    input: TDeletePrivateKeysBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/delete_private_keys";
@@ -1869,7 +1869,7 @@ export class TurnkeyClient {
    * See also {@link stampDeleteSubOrganization}.
    */
   deleteSubOrganization = async (
-    input: TDeleteSubOrganizationBody,
+    input: TDeleteSubOrganizationBody
   ): Promise<TDeleteSubOrganizationResponse> => {
     return this.request("/public/v1/submit/delete_sub_organization", input);
   };
@@ -1880,7 +1880,7 @@ export class TurnkeyClient {
    * See also {@link DeleteSubOrganization}.
    */
   stampDeleteSubOrganization = async (
-    input: TDeleteSubOrganizationBody,
+    input: TDeleteSubOrganizationBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/delete_sub_organization";
@@ -1901,7 +1901,7 @@ export class TurnkeyClient {
    * See also {@link stampDeleteUserTags}.
    */
   deleteUserTags = async (
-    input: TDeleteUserTagsBody,
+    input: TDeleteUserTagsBody
   ): Promise<TDeleteUserTagsResponse> => {
     return this.request("/public/v1/submit/delete_user_tags", input);
   };
@@ -1912,7 +1912,7 @@ export class TurnkeyClient {
    * See also {@link DeleteUserTags}.
    */
   stampDeleteUserTags = async (
-    input: TDeleteUserTagsBody,
+    input: TDeleteUserTagsBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_user_tags";
     const body = JSON.stringify(input);
@@ -1932,7 +1932,7 @@ export class TurnkeyClient {
    * See also {@link stampDeleteUsers}.
    */
   deleteUsers = async (
-    input: TDeleteUsersBody,
+    input: TDeleteUsersBody
   ): Promise<TDeleteUsersResponse> => {
     return this.request("/public/v1/submit/delete_users", input);
   };
@@ -1943,7 +1943,7 @@ export class TurnkeyClient {
    * See also {@link DeleteUsers}.
    */
   stampDeleteUsers = async (
-    input: TDeleteUsersBody,
+    input: TDeleteUsersBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_users";
     const body = JSON.stringify(input);
@@ -1963,7 +1963,7 @@ export class TurnkeyClient {
    * See also {@link stampDeleteWallets}.
    */
   deleteWallets = async (
-    input: TDeleteWalletsBody,
+    input: TDeleteWalletsBody
   ): Promise<TDeleteWalletsResponse> => {
     return this.request("/public/v1/submit/delete_wallets", input);
   };
@@ -1974,7 +1974,7 @@ export class TurnkeyClient {
    * See also {@link DeleteWallets}.
    */
   stampDeleteWallets = async (
-    input: TDeleteWalletsBody,
+    input: TDeleteWalletsBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_wallets";
     const body = JSON.stringify(input);
@@ -2021,7 +2021,7 @@ export class TurnkeyClient {
    * See also {@link stampExportPrivateKey}.
    */
   exportPrivateKey = async (
-    input: TExportPrivateKeyBody,
+    input: TExportPrivateKeyBody
   ): Promise<TExportPrivateKeyResponse> => {
     return this.request("/public/v1/submit/export_private_key", input);
   };
@@ -2032,7 +2032,7 @@ export class TurnkeyClient {
    * See also {@link ExportPrivateKey}.
    */
   stampExportPrivateKey = async (
-    input: TExportPrivateKeyBody,
+    input: TExportPrivateKeyBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/export_private_key";
@@ -2053,7 +2053,7 @@ export class TurnkeyClient {
    * See also {@link stampExportWallet}.
    */
   exportWallet = async (
-    input: TExportWalletBody,
+    input: TExportWalletBody
   ): Promise<TExportWalletResponse> => {
     return this.request("/public/v1/submit/export_wallet", input);
   };
@@ -2064,7 +2064,7 @@ export class TurnkeyClient {
    * See also {@link ExportWallet}.
    */
   stampExportWallet = async (
-    input: TExportWalletBody,
+    input: TExportWalletBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/export_wallet";
     const body = JSON.stringify(input);
@@ -2084,7 +2084,7 @@ export class TurnkeyClient {
    * See also {@link stampExportWalletAccount}.
    */
   exportWalletAccount = async (
-    input: TExportWalletAccountBody,
+    input: TExportWalletAccountBody
   ): Promise<TExportWalletAccountResponse> => {
     return this.request("/public/v1/submit/export_wallet_account", input);
   };
@@ -2095,7 +2095,7 @@ export class TurnkeyClient {
    * See also {@link ExportWalletAccount}.
    */
   stampExportWalletAccount = async (
-    input: TExportWalletAccountBody,
+    input: TExportWalletAccountBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/export_wallet_account";
@@ -2116,7 +2116,7 @@ export class TurnkeyClient {
    * See also {@link stampImportPrivateKey}.
    */
   importPrivateKey = async (
-    input: TImportPrivateKeyBody,
+    input: TImportPrivateKeyBody
   ): Promise<TImportPrivateKeyResponse> => {
     return this.request("/public/v1/submit/import_private_key", input);
   };
@@ -2127,7 +2127,7 @@ export class TurnkeyClient {
    * See also {@link ImportPrivateKey}.
    */
   stampImportPrivateKey = async (
-    input: TImportPrivateKeyBody,
+    input: TImportPrivateKeyBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/import_private_key";
@@ -2148,7 +2148,7 @@ export class TurnkeyClient {
    * See also {@link stampImportWallet}.
    */
   importWallet = async (
-    input: TImportWalletBody,
+    input: TImportWalletBody
   ): Promise<TImportWalletResponse> => {
     return this.request("/public/v1/submit/import_wallet", input);
   };
@@ -2159,7 +2159,7 @@ export class TurnkeyClient {
    * See also {@link ImportWallet}.
    */
   stampImportWallet = async (
-    input: TImportWalletBody,
+    input: TImportWalletBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/import_wallet";
     const body = JSON.stringify(input);
@@ -2179,7 +2179,7 @@ export class TurnkeyClient {
    * See also {@link stampInitImportPrivateKey}.
    */
   initImportPrivateKey = async (
-    input: TInitImportPrivateKeyBody,
+    input: TInitImportPrivateKeyBody
   ): Promise<TInitImportPrivateKeyResponse> => {
     return this.request("/public/v1/submit/init_import_private_key", input);
   };
@@ -2190,7 +2190,7 @@ export class TurnkeyClient {
    * See also {@link InitImportPrivateKey}.
    */
   stampInitImportPrivateKey = async (
-    input: TInitImportPrivateKeyBody,
+    input: TInitImportPrivateKeyBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/init_import_private_key";
@@ -2211,7 +2211,7 @@ export class TurnkeyClient {
    * See also {@link stampInitImportWallet}.
    */
   initImportWallet = async (
-    input: TInitImportWalletBody,
+    input: TInitImportWalletBody
   ): Promise<TInitImportWalletResponse> => {
     return this.request("/public/v1/submit/init_import_wallet", input);
   };
@@ -2222,7 +2222,7 @@ export class TurnkeyClient {
    * See also {@link InitImportWallet}.
    */
   stampInitImportWallet = async (
-    input: TInitImportWalletBody,
+    input: TInitImportWalletBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/init_import_wallet";
@@ -2270,7 +2270,7 @@ export class TurnkeyClient {
    * See also {@link stampInitOtpAuth}.
    */
   initOtpAuth = async (
-    input: TInitOtpAuthBody,
+    input: TInitOtpAuthBody
   ): Promise<TInitOtpAuthResponse> => {
     return this.request("/public/v1/submit/init_otp_auth", input);
   };
@@ -2281,7 +2281,7 @@ export class TurnkeyClient {
    * See also {@link InitOtpAuth}.
    */
   stampInitOtpAuth = async (
-    input: TInitOtpAuthBody,
+    input: TInitOtpAuthBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/init_otp_auth";
     const body = JSON.stringify(input);
@@ -2301,7 +2301,7 @@ export class TurnkeyClient {
    * See also {@link stampInitUserEmailRecovery}.
    */
   initUserEmailRecovery = async (
-    input: TInitUserEmailRecoveryBody,
+    input: TInitUserEmailRecoveryBody
   ): Promise<TInitUserEmailRecoveryResponse> => {
     return this.request("/public/v1/submit/init_user_email_recovery", input);
   };
@@ -2312,7 +2312,7 @@ export class TurnkeyClient {
    * See also {@link InitUserEmailRecovery}.
    */
   stampInitUserEmailRecovery = async (
-    input: TInitUserEmailRecoveryBody,
+    input: TInitUserEmailRecoveryBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/init_user_email_recovery";
@@ -2441,7 +2441,7 @@ export class TurnkeyClient {
    * See also {@link stampRecoverUser}.
    */
   recoverUser = async (
-    input: TRecoverUserBody,
+    input: TRecoverUserBody
   ): Promise<TRecoverUserResponse> => {
     return this.request("/public/v1/submit/recover_user", input);
   };
@@ -2452,7 +2452,7 @@ export class TurnkeyClient {
    * See also {@link RecoverUser}.
    */
   stampRecoverUser = async (
-    input: TRecoverUserBody,
+    input: TRecoverUserBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/recover_user";
     const body = JSON.stringify(input);
@@ -2472,7 +2472,7 @@ export class TurnkeyClient {
    * See also {@link stampRejectActivity}.
    */
   rejectActivity = async (
-    input: TRejectActivityBody,
+    input: TRejectActivityBody
   ): Promise<TRejectActivityResponse> => {
     return this.request("/public/v1/submit/reject_activity", input);
   };
@@ -2483,7 +2483,7 @@ export class TurnkeyClient {
    * See also {@link RejectActivity}.
    */
   stampRejectActivity = async (
-    input: TRejectActivityBody,
+    input: TRejectActivityBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/reject_activity";
     const body = JSON.stringify(input);
@@ -2503,7 +2503,7 @@ export class TurnkeyClient {
    * See also {@link stampRemoveOrganizationFeature}.
    */
   removeOrganizationFeature = async (
-    input: TRemoveOrganizationFeatureBody,
+    input: TRemoveOrganizationFeatureBody
   ): Promise<TRemoveOrganizationFeatureResponse> => {
     return this.request("/public/v1/submit/remove_organization_feature", input);
   };
@@ -2514,7 +2514,7 @@ export class TurnkeyClient {
    * See also {@link RemoveOrganizationFeature}.
    */
   stampRemoveOrganizationFeature = async (
-    input: TRemoveOrganizationFeatureBody,
+    input: TRemoveOrganizationFeatureBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/remove_organization_feature";
@@ -2535,7 +2535,7 @@ export class TurnkeyClient {
    * See also {@link stampSetOrganizationFeature}.
    */
   setOrganizationFeature = async (
-    input: TSetOrganizationFeatureBody,
+    input: TSetOrganizationFeatureBody
   ): Promise<TSetOrganizationFeatureResponse> => {
     return this.request("/public/v1/submit/set_organization_feature", input);
   };
@@ -2546,7 +2546,7 @@ export class TurnkeyClient {
    * See also {@link SetOrganizationFeature}.
    */
   stampSetOrganizationFeature = async (
-    input: TSetOrganizationFeatureBody,
+    input: TSetOrganizationFeatureBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/set_organization_feature";
@@ -2567,7 +2567,7 @@ export class TurnkeyClient {
    * See also {@link stampSignRawPayload}.
    */
   signRawPayload = async (
-    input: TSignRawPayloadBody,
+    input: TSignRawPayloadBody
   ): Promise<TSignRawPayloadResponse> => {
     return this.request("/public/v1/submit/sign_raw_payload", input);
   };
@@ -2578,7 +2578,7 @@ export class TurnkeyClient {
    * See also {@link SignRawPayload}.
    */
   stampSignRawPayload = async (
-    input: TSignRawPayloadBody,
+    input: TSignRawPayloadBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/sign_raw_payload";
     const body = JSON.stringify(input);
@@ -2598,7 +2598,7 @@ export class TurnkeyClient {
    * See also {@link stampSignRawPayloads}.
    */
   signRawPayloads = async (
-    input: TSignRawPayloadsBody,
+    input: TSignRawPayloadsBody
   ): Promise<TSignRawPayloadsResponse> => {
     return this.request("/public/v1/submit/sign_raw_payloads", input);
   };
@@ -2609,7 +2609,7 @@ export class TurnkeyClient {
    * See also {@link SignRawPayloads}.
    */
   stampSignRawPayloads = async (
-    input: TSignRawPayloadsBody,
+    input: TSignRawPayloadsBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/sign_raw_payloads";
     const body = JSON.stringify(input);
@@ -2629,7 +2629,7 @@ export class TurnkeyClient {
    * See also {@link stampSignTransaction}.
    */
   signTransaction = async (
-    input: TSignTransactionBody,
+    input: TSignTransactionBody
   ): Promise<TSignTransactionResponse> => {
     return this.request("/public/v1/submit/sign_transaction", input);
   };
@@ -2640,7 +2640,7 @@ export class TurnkeyClient {
    * See also {@link SignTransaction}.
    */
   stampSignTransaction = async (
-    input: TSignTransactionBody,
+    input: TSignTransactionBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/sign_transaction";
     const body = JSON.stringify(input);
@@ -2687,7 +2687,7 @@ export class TurnkeyClient {
    * See also {@link stampUpdatePolicy}.
    */
   updatePolicy = async (
-    input: TUpdatePolicyBody,
+    input: TUpdatePolicyBody
   ): Promise<TUpdatePolicyResponse> => {
     return this.request("/public/v1/submit/update_policy", input);
   };
@@ -2698,7 +2698,7 @@ export class TurnkeyClient {
    * See also {@link UpdatePolicy}.
    */
   stampUpdatePolicy = async (
-    input: TUpdatePolicyBody,
+    input: TUpdatePolicyBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/update_policy";
     const body = JSON.stringify(input);
@@ -2718,7 +2718,7 @@ export class TurnkeyClient {
    * See also {@link stampUpdatePrivateKeyTag}.
    */
   updatePrivateKeyTag = async (
-    input: TUpdatePrivateKeyTagBody,
+    input: TUpdatePrivateKeyTagBody
   ): Promise<TUpdatePrivateKeyTagResponse> => {
     return this.request("/public/v1/submit/update_private_key_tag", input);
   };
@@ -2729,7 +2729,7 @@ export class TurnkeyClient {
    * See also {@link UpdatePrivateKeyTag}.
    */
   stampUpdatePrivateKeyTag = async (
-    input: TUpdatePrivateKeyTagBody,
+    input: TUpdatePrivateKeyTagBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/update_private_key_tag";
@@ -2750,7 +2750,7 @@ export class TurnkeyClient {
    * See also {@link stampUpdateRootQuorum}.
    */
   updateRootQuorum = async (
-    input: TUpdateRootQuorumBody,
+    input: TUpdateRootQuorumBody
   ): Promise<TUpdateRootQuorumResponse> => {
     return this.request("/public/v1/submit/update_root_quorum", input);
   };
@@ -2761,7 +2761,7 @@ export class TurnkeyClient {
    * See also {@link UpdateRootQuorum}.
    */
   stampUpdateRootQuorum = async (
-    input: TUpdateRootQuorumBody,
+    input: TUpdateRootQuorumBody
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/update_root_quorum";
@@ -2809,7 +2809,7 @@ export class TurnkeyClient {
    * See also {@link stampUpdateUserTag}.
    */
   updateUserTag = async (
-    input: TUpdateUserTagBody,
+    input: TUpdateUserTagBody
   ): Promise<TUpdateUserTagResponse> => {
     return this.request("/public/v1/submit/update_user_tag", input);
   };
@@ -2820,7 +2820,7 @@ export class TurnkeyClient {
    * See also {@link UpdateUserTag}.
    */
   stampUpdateUserTag = async (
-    input: TUpdateUserTagBody,
+    input: TUpdateUserTagBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/update_user_tag";
     const body = JSON.stringify(input);
@@ -2840,7 +2840,7 @@ export class TurnkeyClient {
    * See also {@link stampUpdateWallet}.
    */
   updateWallet = async (
-    input: TUpdateWalletBody,
+    input: TUpdateWalletBody
   ): Promise<TUpdateWalletResponse> => {
     return this.request("/public/v1/submit/update_wallet", input);
   };
@@ -2851,7 +2851,7 @@ export class TurnkeyClient {
    * See also {@link UpdateWallet}.
    */
   stampUpdateWallet = async (
-    input: TUpdateWalletBody,
+    input: TUpdateWalletBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/update_wallet";
     const body = JSON.stringify(input);
@@ -2898,7 +2898,7 @@ export class TurnkeyClient {
    * See also {@link stampTestRateLimits}.
    */
   testRateLimits = async (
-    input: TTestRateLimitsBody,
+    input: TTestRateLimitsBody
   ): Promise<TTestRateLimitsResponse> => {
     return this.request("/tkhq/api/v1/test_rate_limits", input);
   };
@@ -2909,7 +2909,7 @@ export class TurnkeyClient {
    * See also {@link TestRateLimits}.
    */
   stampTestRateLimits = async (
-    input: TTestRateLimitsBody,
+    input: TTestRateLimitsBody
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/tkhq/api/v1/test_rate_limits";
     const body = JSON.stringify(input);
