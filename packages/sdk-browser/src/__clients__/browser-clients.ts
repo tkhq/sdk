@@ -98,24 +98,6 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     super(config, authClient);
   }
 
-  login = async (config?: {
-    organizationId?: string;
-  }): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
-    const readOnlySessionResult = await this.createReadOnlySession(
-      config || {},
-    );
-    const session: Session = {
-      sessionType: SessionType.READ_ONLY,
-      userId: readOnlySessionResult.userId,
-      organizationId: readOnlySessionResult.organizationId,
-      expiry: Number(readOnlySessionResult.sessionExpiry),
-      token: readOnlySessionResult.session,
-    };
-    await storeSession(session, this.authClient);
-
-    return readOnlySessionResult;
-  };
-
   /**
    * Attempts to refresh an existing Session. This method infers the current user's organization ID and target userId.
    * This will use a passkeyStamper for `READ_ONLY` sessions or an `indexedDbStamper` for `READ_WRITE` sessions.
@@ -213,9 +195,8 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @returns {Promise<void>}
    */
   loginWithSession = async (session: string): Promise<void> => {
-    const parsedSession = parseSession(session);
     if (this instanceof TurnkeyIndexedDbClient) {
-      await storeSession(parsedSession, AuthClient.IndexedDb);
+      await storeSession(session, AuthClient.IndexedDb);
     } else {
       // Throw an error if the client is not an indexedDb client
       throw new Error(
