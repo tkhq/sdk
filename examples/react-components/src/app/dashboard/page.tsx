@@ -43,6 +43,7 @@ import { MuiPhone } from "../components/PhoneInput";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Navbar from "../components/Navbar";
 import { Toaster, toast } from "sonner";
+import { jwtDecode } from "jwt-decode";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -56,7 +57,7 @@ export default function Dashboard() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isPasskeyModalOpen, setIsPasskeyModalOpen] = useState(false);
   const [messageToSign, setMessageToSign] = useState(
-    "Signing within Turnkey Demo.",
+    "Signing within Turnkey Demo."
   );
   const [signature, setSignature] = useState<any>(null);
   const [suborgId, setSuborgId] = useState<string>("");
@@ -230,14 +231,17 @@ export default function Dashboard() {
         toast.error("Social login is already connected to another account");
         return;
       }
+
+      const { email: oidcEmail } = jwtDecode<any>(oidcToken.idToken) || {}; // Parse the oidc token so we can get the email. Pass it in to linkUserEmail to automatically link the email to the account. This will be verified by Turnkey.
+
       await authIframeClient?.createOauthProviders({
         organizationId: suborgId,
         userId: user.userId,
+        linkUserEmail: oidcEmail,
         oauthProviders: [
           {
             providerName: `TurnkeyDemoApp - ${Date.now()}`,
             oidcToken: oidcToken.idToken,
-            linkToUserEmail: true,
           },
         ],
       });
@@ -454,19 +458,19 @@ export default function Dashboard() {
             signature.r,
             signature.s,
             signature.v,
-            selectedAccount!,
+            selectedAccount!
           )
         : verifySolSignatureWithAddress(
             messageToSign,
             signature.r,
             signature.s,
-            selectedAccount!,
+            selectedAccount!
           );
 
     setMessageSigningResult(
       verificationPassed
         ? "Verified! The address used to sign the message matches your wallet address."
-        : "Verification failed.",
+        : "Verification failed."
     );
   };
   if (loading) {
@@ -550,13 +554,13 @@ export default function Dashboard() {
               {user &&
                 user.oauthProviders &&
                 user.oauthProviders.some((provider: { issuer: string }) =>
-                  provider.issuer.toLowerCase().includes("google"),
+                  provider.issuer.toLowerCase().includes("google")
                 ) && <span className="loginMethodDetails">{}</span>}
             </div>
             {user &&
             user.oauthProviders &&
             user.oauthProviders.some((provider: { issuer: string }) =>
-              provider.issuer.toLowerCase().includes("google"),
+              provider.issuer.toLowerCase().includes("google")
             ) ? (
               <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
@@ -573,7 +577,7 @@ export default function Dashboard() {
             {user &&
             user.oauthProviders &&
             user.oauthProviders.some((provider: { issuer: string }) =>
-              provider.issuer.toLowerCase().includes("apple"),
+              provider.issuer.toLowerCase().includes("apple")
             ) ? (
               <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
@@ -590,7 +594,7 @@ export default function Dashboard() {
             {user &&
             user.oauthProviders &&
             user.oauthProviders.some((provider: { issuer: string }) =>
-              provider.issuer.toLowerCase().includes("facebook"),
+              provider.issuer.toLowerCase().includes("facebook")
             ) ? (
               <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
@@ -666,7 +670,7 @@ export default function Dashboard() {
                         account.addressFormat === "ADDRESS_FORMAT_ETHEREUM"
                           ? `https://etherscan.io/address/${account.address}`
                           : `https://solscan.io/account/${account.address}`,
-                        "_blank",
+                        "_blank"
                       )
                     }
                     style={{
@@ -683,7 +687,7 @@ export default function Dashboard() {
                     )}
                     <span className="accountAddress">{`${account.address.slice(
                       0,
-                      5,
+                      5
                     )}...${account.address.slice(-5)}`}</span>
                     <LaunchIcon className="launchIcon" />
                   </div>

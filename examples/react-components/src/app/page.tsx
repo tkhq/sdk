@@ -93,7 +93,7 @@ export default function AuthPage() {
   };
 
   const toggleSocials = (
-    key: keyof SocialConfig | keyof SocialConfig["providers"],
+    key: keyof SocialConfig | keyof SocialConfig["providers"]
   ) => {
     setConfig((prev) => {
       if (key === "enabled") {
@@ -239,12 +239,12 @@ export default function AuthPage() {
                                   checked={enabled}
                                   onChange={() =>
                                     toggleSocials(
-                                      provider as keyof SocialConfig["providers"],
+                                      provider as keyof SocialConfig["providers"]
                                     )
                                   }
                                 />
                               </div>
-                            ),
+                            )
                           )}
                         </div>
                       )}
@@ -279,7 +279,7 @@ export default function AuthPage() {
                         </div>
                       )}
                     </Draggable>
-                  ),
+                  )
                 )}
                 {provided.placeholder}
               </div>

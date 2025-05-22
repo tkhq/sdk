@@ -246,7 +246,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleOtpLogin = async (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
-    otpType: string,
+    otpType: string
   ) => {
     setLoading(otpType);
     const createSuborgData: Record<string, any> = {};
@@ -298,15 +298,15 @@ const Auth: React.FC<AuthProps> = ({
   const handleOAuthLogin = async (
     credential: string,
     providerName: string,
-    socialLinking = false,
+    socialLinking = false
   ) => {
     setOauthLoading(providerName);
+    const { email, iss } = jwtDecode<any>(credential) || {};
 
-    const base = { providerName, oidcToken: credential };
-    const oauthProviders = [
-      socialLinking ? { ...base, linkToUserEmail: true } : base,
-    ];
-    const additionalData: Record<string, any> = {
+    const oauthProviders = [{ providerName, oidcToken: credential }];
+
+    const createSuborgData: Record<string, any> = {
+      email: socialLinking ? email : undefined,
       oauthProviders,
       ...(customAccounts && { customAccounts }),
     };
@@ -331,7 +331,7 @@ const Auth: React.FC<AuthProps> = ({
         await server.getOrCreateSuborg({
           filterType: FilterType.OidcToken,
           filterValue: credential,
-          additionalData,
+          additionalData: createSuborgData,
         })
       )?.subOrganizationIds;
       return ids?.[0]
@@ -339,7 +339,6 @@ const Auth: React.FC<AuthProps> = ({
         : onError(authErrors.oauth.loginFailed);
     }
 
-    const { email, iss } = jwtDecode<any>(credential) || {};
     const oidcOrgIds = (
       await server.getSuborgs({
         filterType: FilterType.OidcToken,
@@ -367,11 +366,12 @@ const Auth: React.FC<AuthProps> = ({
             oauthProviders,
           });
         } else {
-          orgId = (await server.createSuborg(additionalData))
+          orgId = (await server.createSuborg(createSuborgData))
             ?.subOrganizationId;
         }
       } else {
-        orgId = (await server.createSuborg(additionalData))?.subOrganizationId;
+        orgId = (await server.createSuborg(createSuborgData))
+          ?.subOrganizationId;
       }
     }
 
@@ -476,7 +476,7 @@ const Auth: React.FC<AuthProps> = ({
               handleOAuthLogin(
                 response.idToken,
                 "Google",
-                authConfig.socialLinking,
+                authConfig.socialLinking
               )
             }
           />
