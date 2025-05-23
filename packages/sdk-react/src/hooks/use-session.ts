@@ -1,8 +1,8 @@
 "use client";
 
-import { AuthClient, StorageKeys, User } from "@turnkey/sdk-browser";
+import { AuthClient, StorageKeys } from "@turnkey/sdk-browser";
 
-import { Session, SessionType } from "@turnkey/sdk-types";
+import type { Session } from "@turnkey/sdk-types";
 
 import { useLocalStorage } from "usehooks-ts";
 
@@ -30,11 +30,11 @@ export function useSession(): {
 } {
   const [session] = useLocalStorage<Session | undefined>(
     StorageKeys.Session,
-    undefined,
+    undefined
   );
   const [authClient] = useLocalStorage<AuthClient | undefined>(
     StorageKeys.Client,
-    undefined,
+    undefined
   );
 
   return { session, authClient };
