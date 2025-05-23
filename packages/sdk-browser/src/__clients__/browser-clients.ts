@@ -17,13 +17,9 @@ import {
   RefreshSessionParams,
 } from "@types";
 
-
 import { Session, SessionType } from "@turnkey/sdk-types";
 
-import {
-  generateRandomBuffer,
-  base64UrlEncode,
-} from "@utils";
+import { generateRandomBuffer, base64UrlEncode } from "@utils";
 
 import type { Passkey } from "@models";
 

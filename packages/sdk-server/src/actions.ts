@@ -34,7 +34,7 @@ const turnkeyClient = new TurnkeyServerSDK({
 });
 
 export async function sendCredential(
-  request: InitEmailAuthRequest
+  request: InitEmailAuthRequest,
 ): Promise<void> {
   try {
     const response = await turnkeyClient.apiClient().emailAuth({
@@ -65,7 +65,7 @@ export async function sendCredential(
 }
 
 export async function sendOtp(
-  request: SendOtpRequest
+  request: SendOtpRequest,
 ): Promise<SendOtpResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().initOtp({
@@ -100,7 +100,7 @@ export async function sendOtp(
 }
 
 export async function verifyOtp(
-  request: VerifyOtpRequest
+  request: VerifyOtpRequest,
 ): Promise<VerifyOtpResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().verifyOtp({
@@ -123,7 +123,7 @@ export async function verifyOtp(
 }
 
 export async function otpLogin(
-  request: OtpLoginRequest
+  request: OtpLoginRequest,
 ): Promise<OtpLoginResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().otpLogin({
@@ -146,7 +146,7 @@ export async function otpLogin(
 }
 
 export async function oauthLogin(
-  request: OauthLoginRequest
+  request: OauthLoginRequest,
 ): Promise<OauthLoginResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().oauthLogin({
@@ -170,7 +170,7 @@ export async function oauthLogin(
 }
 
 export async function getSuborgs(
-  request: GetSuborgsRequest
+  request: GetSuborgsRequest,
 ): Promise<GetSuborgsResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().getSubOrgIds({
@@ -190,7 +190,7 @@ export async function getSuborgs(
 }
 
 export async function getVerifiedSuborgs(
-  request: GetSuborgsRequest
+  request: GetSuborgsRequest,
 ): Promise<GetSuborgsResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().getVerifiedSubOrgIds({
@@ -210,7 +210,7 @@ export async function getVerifiedSuborgs(
 }
 
 export async function createSuborg(
-  request: CreateSuborgRequest
+  request: CreateSuborgRequest,
 ): Promise<CreateSuborgResponse | undefined> {
   try {
     const response = await turnkeyClient.apiClient().createSubOrganization({
@@ -259,7 +259,7 @@ export async function createSuborg(
 }
 
 export async function getOrCreateSuborg(
-  request: GetOrCreateSuborgRequest
+  request: GetOrCreateSuborgRequest,
 ): Promise<GetOrCreateSuborgResponse | undefined> {
   try {
     // First try to get existing suborgs

@@ -16,7 +16,7 @@ import type { Session } from "@turnkey/sdk-types";
 // createEmbeddedAPIKey creates an embedded API key encrypted to a target key (typically embedded within an iframe).
 // This returns a bundle that can be decrypted by that target key, as well as the public key of the newly created API key.
 export const createEmbeddedAPIKey = async (
-  targetPublicKey: string
+  targetPublicKey: string,
 ): Promise<EmbeddedAPIKey> => {
   const TURNKEY_HPKE_INFO = new TextEncoder().encode("turnkey_hpke");
 
@@ -39,7 +39,7 @@ export const createEmbeddedAPIKey = async (
   } catch (e) {
     // provide more context about the error that is being thrown
     throw new Error(
-      `target public key is not a valid compressed public key: ${targetPublicKey}`
+      `target public key is not a valid compressed public key: ${targetPublicKey}`,
     );
   }
 
@@ -51,7 +51,7 @@ export const createEmbeddedAPIKey = async (
       namedCurve: "P-256",
     },
     true,
-    []
+    [],
   );
 
   // 4: sender encrypts a message to the target key
@@ -61,7 +61,7 @@ export const createEmbeddedAPIKey = async (
   });
   const ciphertext = await sender.seal(
     uint8ArrayFromHexString(p256key.privateKey),
-    buildAdditionalAssociatedData(new Uint8Array(sender.enc), targetKeyBytes)
+    buildAdditionalAssociatedData(new Uint8Array(sender.enc), targetKeyBytes),
   );
   const ciphertextUint8Array = new Uint8Array(ciphertext);
 
@@ -69,7 +69,7 @@ export const createEmbeddedAPIKey = async (
   const encappedKey = new Uint8Array(sender.enc);
   const compressedEncappedKey = compressRawPublicKey(encappedKey);
   const result = new Uint8Array(
-    compressedEncappedKey.length + ciphertextUint8Array.length
+    compressedEncappedKey.length + ciphertextUint8Array.length,
   );
   result.set(compressedEncappedKey);
   result.set(ciphertextUint8Array, compressedEncappedKey.length);
@@ -97,7 +97,7 @@ export const base64UrlEncode = (challenge: ArrayBuffer): string => {
 };
 
 const hexByByte = Array.from({ length: 256 }, (_, i) =>
-  i.toString(16).padStart(2, "0")
+  i.toString(16).padStart(2, "0"),
 );
 
 export const bytesToHex = (bytes: Uint8Array): string => {
