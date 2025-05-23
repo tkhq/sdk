@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
@@ -38,12 +40,11 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
   openInPage = false,
 }) => {
   const [loading, setLoading] = useState(false);
-
   const [appleSDKLoaded, setAppleSDKLoaded] = useState(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
   const { indexedDbClient } = useTurnkey();
+
   useEffect(() => {
-    // 1. Load Apple's JS if not already present
     if (!window.AppleID) {
       const script = document.createElement("script");
       script.src = APPLE_AUTH_SCRIPT_URL;
@@ -55,9 +56,7 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
     }
   }, []);
 
-  // 2. Check on mount if we just came back from Apple with #id_token
   useEffect(() => {
-    // If there's a hash in the URL, parse it
     if (window.location.hash) {
       const hashParams = new URLSearchParams(window.location.hash.slice(1));
       const idToken = hashParams.get("id_token");
@@ -65,9 +64,7 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
       const provider = state?.split("=")[1];
 
       if (idToken && provider === "apple") {
-        // We have the token from Apple. Let the parent know.
         onSuccess({ idToken });
-        // Clear the hash so it doesn’t re-trigger on page refresh
         window.history.replaceState(
           {},
           document.title,
@@ -77,33 +74,37 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
     }
   }, [onSuccess, indexedDbClient]);
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     setLoading(true);
-    const publicKey = await indexedDbClient?.getPublicKey();
-    if (!publicKey) {
-      return;
-    }
-    const nonce = bytesToHex(sha256(publicKey));
-    const appleAuthUrl = new URL(APPLE_AUTH_URL);
-    appleAuthUrl.searchParams.set("client_id", clientId);
-    appleAuthUrl.searchParams.set("redirect_uri", redirectURI);
-    appleAuthUrl.searchParams.set("response_type", "code id_token");
-    appleAuthUrl.searchParams.set("response_mode", "fragment");
-    appleAuthUrl.searchParams.set("nonce", nonce);
-    appleAuthUrl.searchParams.set("state", "provider=apple");
 
-    if (isMobileBrowser() || openInPage) {
-      // Redirect the entire window
-      window.location.href = appleAuthUrl.toString();
+    const isMobile = isMobileBrowser() || openInPage;
+
+    if (isMobile) {
+      (async () => {
+        await indexedDbClient?.resetKeyPair();
+        const publicKey = await indexedDbClient?.getPublicKey();
+        if (!publicKey) return;
+
+        const nonce = bytesToHex(sha256(publicKey));
+        const appleAuthUrl = new URL(APPLE_AUTH_URL);
+        appleAuthUrl.searchParams.set("client_id", clientId);
+        appleAuthUrl.searchParams.set("redirect_uri", redirectURI);
+        appleAuthUrl.searchParams.set("response_type", "code id_token");
+        appleAuthUrl.searchParams.set("response_mode", "fragment");
+        appleAuthUrl.searchParams.set("nonce", nonce);
+        appleAuthUrl.searchParams.set("state", "provider=apple");
+
+        window.location.href = appleAuthUrl.toString();
+      })();
     } else {
-      // Desktop: open a popup
+      // Open popup synchronously
       const width = popupWidth;
       const height = popupHeight;
       const left = window.screenX + (window.innerWidth - width) / 2;
       const top = window.screenY + (window.innerHeight - height) / 2;
 
       const authWindow = window.open(
-        appleAuthUrl.toString(),
+        "about:blank",
         "_blank",
         `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
       );
@@ -113,36 +114,50 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
         return;
       }
 
-      // Poll for the redirect
-      const interval = setInterval(() => {
-        try {
-          if (authWindow.closed) {
-            setLoading(false);
-            clearInterval(interval);
-            return;
-          }
-          const url = authWindow.location.href;
-          if (url.startsWith(window.location.origin)) {
-            const hashParams = new URLSearchParams(url.split("#")[1]);
-            const idToken = hashParams.get("id_token");
-            if (idToken) {
-              authWindow.close();
+      // Do async logic after opening
+      (async () => {
+        await indexedDbClient?.resetKeyPair();
+        const publicKey = await indexedDbClient?.getPublicKey();
+        if (!publicKey) return;
+
+        const nonce = bytesToHex(sha256(publicKey));
+        const appleAuthUrl = new URL(APPLE_AUTH_URL);
+        appleAuthUrl.searchParams.set("client_id", clientId);
+        appleAuthUrl.searchParams.set("redirect_uri", redirectURI);
+        appleAuthUrl.searchParams.set("response_type", "code id_token");
+        appleAuthUrl.searchParams.set("response_mode", "fragment");
+        appleAuthUrl.searchParams.set("nonce", nonce);
+        appleAuthUrl.searchParams.set("state", "provider=apple");
+
+        authWindow.location.href = appleAuthUrl.toString();
+
+        const interval = setInterval(() => {
+          try {
+            if (authWindow.closed) {
               setLoading(false);
               clearInterval(interval);
-              onSuccess({ idToken });
+              return;
+            }
+
+            const url = authWindow.location.href;
+            if (url.startsWith(window.location.origin)) {
+              const hashParams = new URLSearchParams(url.split("#")[1]);
+              const idToken = hashParams.get("id_token");
+              if (idToken) {
+                authWindow.close();
+                setLoading(false);
+                clearInterval(interval);
+                onSuccess({ idToken });
+              }
+            }
+          } catch {
+            if (authWindow?.closed) {
+              setLoading(false);
+              clearInterval(interval);
             }
           }
-        } catch (error) {
-          // Ignore cross-origin errors until the popup redirects to the same origin.
-          // These errors occur because the script attempts to access the URL of the popup window while it's on a different domain.
-          // Due to browser security policies (Same-Origin Policy), accessing properties like location.href on a window that is on a different domain will throw an exception.
-          // Once the popup redirects to the same origin as the parent window, these errors will no longer occur, and the script can safely access the popup's location to extract parameters.
-          if (authWindow?.closed) {
-            setLoading(false);
-            clearInterval(interval);
-          }
-        }
-      }, 500);
+        }, 500);
+      })();
     }
   };
 
