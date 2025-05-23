@@ -130,12 +130,6 @@ const Auth: React.FC<AuthProps> = ({
   useEffect(() => {
     const manageClient = async () => {
       if (indexedDbClient && turnkey) {
-        const session = await turnkey.getSession();
-
-        if (!session) {
-          await indexedDbClient.resetKeyPair();
-        }
-
         const retrievedPublicKey = await indexedDbClient.getPublicKey();
         if (retrievedPublicKey) {
           setComponentReady(true);
@@ -213,7 +207,7 @@ const Auth: React.FC<AuthProps> = ({
           authErrors.passkey.createFailed;
         }
       }
-
+      await indexedDbClient!.resetKeyPair();
       const pubKey = await indexedDbClient!.getPublicKey();
       await passkeyClient?.loginWithPasskey({
         sessionType: SessionType.READ_WRITE,
@@ -231,7 +225,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleLoginWithPasskey = async () => {
     try {
       setLoading("passkey");
-
+      await indexedDbClient?.resetKeyPair();
       const pubKey = await indexedDbClient!.getPublicKey();
       await passkeyClient?.loginWithPasskey({
         sessionType: SessionType.READ_WRITE,
@@ -353,7 +347,7 @@ const Auth: React.FC<AuthProps> = ({
         onError(authErrors.wallet.loginFailed);
         return;
       }
-
+      await indexedDbClient!.resetKeyPair();
       const pubKey = await indexedDbClient!.getPublicKey();
       await walletClient!.loginWithWallet({
         sessionType: SessionType.READ_WRITE,

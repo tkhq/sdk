@@ -64,8 +64,8 @@ export default function AuthPage() {
       enabled: true,
       providers: {
         google: true,
-        apple: false,
-        facebook: false,
+        apple: true,
+        facebook: true,
       },
     },
   });

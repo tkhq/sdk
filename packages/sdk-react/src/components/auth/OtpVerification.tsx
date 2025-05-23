@@ -47,6 +47,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     setOtpError(null);
     setIsLoading(true);
     try {
+      await indexedDbClient!.resetKeyPair();
       const publicKey = await indexedDbClient!.getPublicKey();
       if (!publicKey) {
         setOtpError("Public key not found. Please try again.");

@@ -17,6 +17,12 @@ interface FacebookAuthButtonProps {
   openInPage?: boolean | undefined;
 }
 
+function isMobileBrowser() {
+  return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
+    navigator.userAgent,
+  );
+}
+
 const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
   onSuccess,
   clientId,
@@ -24,102 +30,133 @@ const FacebookAuthButton: React.FC<FacebookAuthButtonProps> = ({
   openInPage = false,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [tokenExchanged, setTokenExchanged] = useState<boolean>(false);
+  const [tokenExchanged, setTokenExchanged] = useState(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
   const { indexedDbClient } = useTurnkey();
-  // Check for code param on component mount for in-page authentication
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const authCode = urlParams.get("code");
     const state = urlParams.get("state");
-    const provider = state?.split("=")[1];
 
-    if (authCode && state && provider === "facebook") {
-      // Clear the URL params so they don't get processed again on refresh
+    const stateParams = new URLSearchParams(state || "");
+    const provider = stateParams.get("provider");
+    const flow = stateParams.get("flow");
+
+    if (authCode && provider === "facebook" && flow === "redirect") {
       window.history.replaceState(
         null,
         document.title,
         window.location.pathname,
       );
-
-      // Handle the code exchange
       handleTokenExchange(authCode);
     }
   }, [indexedDbClient]);
 
-  const initiateFacebookLogin = async () => {
-    setLoading(true);
-    const { verifier, codeChallenge } = await generateChallengePair();
-    sessionStorage.setItem("facebook_verifier", verifier);
-    const publicKey = await indexedDbClient?.getPublicKey();
-    if (!publicKey) {
-      return;
-    }
-    const params = new URLSearchParams({
-      client_id: clientId,
-      redirect_uri: redirectURI,
-      state: `${verifier}:provider=facebook`,
-      code_challenge: codeChallenge,
-      code_challenge_method: "S256",
-      nonce: bytesToHex(sha256(publicKey!)),
-      scope: "openid",
-      response_type: "code",
-    });
+  const initiateFacebookLogin = () => {
+    const flow = openInPage || isMobileBrowser() ? "redirect" : "popup";
 
-    const facebookOAuthURL = `${FACEBOOK_AUTH_URL}?${params.toString()}`;
+    if (flow === "redirect") {
+      setLoading(true);
+      (async () => {
+        const { verifier, codeChallenge } = await generateChallengePair();
+        sessionStorage.setItem("facebook_verifier", verifier);
+        await indexedDbClient?.resetKeyPair();
+        const publicKey = await indexedDbClient?.getPublicKey();
+        if (!publicKey) return;
 
-    if (openInPage) {
-      // Open in the current page
-      window.location.href = facebookOAuthURL;
+        const params = new URLSearchParams({
+          client_id: clientId,
+          redirect_uri: redirectURI,
+          response_type: "code",
+          code_challenge: codeChallenge,
+          code_challenge_method: "S256",
+          nonce: bytesToHex(sha256(publicKey)),
+          scope: "openid",
+          state: `provider=facebook&flow=${flow}`,
+        });
+
+        const facebookOAuthURL = `${FACEBOOK_AUTH_URL}?${params.toString()}`;
+        window.location.href = facebookOAuthURL;
+      })();
     } else {
       const width = popupWidth;
       const height = popupHeight;
       const left = window.screenX + (window.innerWidth - width) / 2;
       const top = window.screenY + (window.innerHeight - height) / 2;
 
-      // Open the login flow in a new window
-      const popup = window.open(
-        facebookOAuthURL,
+      const authWindow = window.open(
+        "about:blank",
         "_blank",
         `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
       );
 
-      if (popup) {
-        const interval = setInterval(async () => {
+      if (!authWindow) {
+        console.error("Failed to open Facebook login popup.");
+        return;
+      }
+
+      setLoading(true);
+
+      (async () => {
+        const { verifier, codeChallenge } = await generateChallengePair();
+        sessionStorage.setItem("facebook_verifier", verifier);
+        await indexedDbClient?.resetKeyPair();
+        const publicKey = await indexedDbClient?.getPublicKey();
+        if (!publicKey) return;
+
+        const params = new URLSearchParams({
+          client_id: clientId,
+          redirect_uri: redirectURI,
+          response_type: "code",
+          code_challenge: codeChallenge,
+          code_challenge_method: "S256",
+          nonce: bytesToHex(sha256(publicKey)),
+          scope: "openid",
+          state: `provider=facebook&flow=${flow}`,
+        });
+
+        const facebookOAuthURL = `${FACEBOOK_AUTH_URL}?${params.toString()}`;
+        authWindow.location.href = facebookOAuthURL;
+
+        const interval = setInterval(() => {
           try {
-            if (popup.closed) {
+            if (authWindow.closed) {
               setLoading(false);
               clearInterval(interval);
               return;
             }
 
-            const popupUrl = new URL(popup.location.href);
+            const popupUrl = new URL(authWindow.location.href);
             const authCode = popupUrl.searchParams.get("code");
 
-            if (authCode) {
+            const stateParams = new URLSearchParams(
+              popupUrl.searchParams.get("state") || "",
+            );
+            const provider = stateParams.get("provider");
+            const flow = stateParams.get("flow");
+
+            if (authCode && provider === "facebook" && flow === "popup") {
+              authWindow.close();
               setLoading(false);
-              popup.close();
               clearInterval(interval);
               handleTokenExchange(authCode);
             }
-          } catch (error) {
-            // Ignore cross-origin errors until the popup redirects to the same origin.
-            // These errors occur because the script attempts to access the URL of the popup window while it's on a different domain.
-            // Due to browser security policies (Same-Origin Policy), accessing properties like location.href on a window that is on a different domain will throw an exception.
-            // Once the popup redirects to the same origin as the parent window, these errors will no longer occur, and the script can safely access the popup's location to extract parameters.
+          } catch {
+            if (authWindow?.closed) {
+              setLoading(false);
+              clearInterval(interval);
+            }
           }
         }, 250);
-      }
+      })();
     }
   };
 
   const handleTokenExchange = async (authCode: string) => {
-    const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
     const verifier = sessionStorage.getItem("facebook_verifier");
     if (!verifier || tokenExchanged) {
-      console.error(
-        "No verifier found in sessionStorage or token exchange already completed",
-      );
+      console.error("Missing verifier or token already exchanged");
       return;
     }
 
