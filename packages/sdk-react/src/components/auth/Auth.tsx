@@ -286,7 +286,6 @@ const Auth: React.FC<AuthProps> = ({
 
   const handleOAuthLogin = async (credential: string, providerName: string) => {
     const pubKey = await indexedDbClient?.getPublicKey();
-    console.log("Public key: ", pubKey);
     if (!pubKey) {
       return;
     }
