@@ -1,5 +1,11 @@
 # @turnkey/sdk-react
 
+## 5.0.1
+
+### Patch Changes
+
+- [#646](https://github.com/tkhq/sdk/pull/646) [`c6754f2`](https://github.com/tkhq/sdk/commit/c6754f29cce16f0d4451e380742f581a2bf55e77) Thanks [@moe-dev](https://github.com/moe-dev)! - Patch releases fixes Google Oauth edge case in the Auth Component where logins fail due to indexedDbPublic key not being available yet
+
 ## 5.0.0
 
 ### Major Changes
