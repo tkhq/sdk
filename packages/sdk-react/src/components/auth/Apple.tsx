@@ -10,6 +10,7 @@ import {
   popupWidth,
 } from "./constants";
 import { CircularProgress } from "@mui/material";
+import { useTurnkey } from "../../hooks/use-turnkey";
 
 function isMobileBrowser() {
   return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
@@ -18,7 +19,6 @@ function isMobileBrowser() {
 }
 
 interface AppleAuthButtonProps {
-  publicKey: string;
   clientId: string;
   onSuccess: (response: { idToken: string }) => void;
   layout: "inline" | "stacked";
@@ -32,7 +32,6 @@ declare global {
 }
 
 const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
-  publicKey,
   clientId,
   onSuccess,
   layout,
@@ -42,7 +41,7 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
 
   const [appleSDKLoaded, setAppleSDKLoaded] = useState(false);
   const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!;
-
+  const { indexedDbClient } = useTurnkey();
   useEffect(() => {
     // 1. Load Apple's JS if not already present
     if (!window.AppleID) {
@@ -76,10 +75,14 @@ const AppleAuthButton: React.FC<AppleAuthButtonProps> = ({
         );
       }
     }
-  }, [onSuccess]);
+  }, [onSuccess, indexedDbClient]);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setLoading(true);
+    const publicKey = await indexedDbClient?.getPublicKey();
+    if (!publicKey) {
+      return;
+    }
     const nonce = bytesToHex(sha256(publicKey));
     const appleAuthUrl = new URL(APPLE_AUTH_URL);
     appleAuthUrl.searchParams.set("client_id", clientId);

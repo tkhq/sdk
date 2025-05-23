@@ -26,7 +26,7 @@ export const authErrors = {
 
   // OAuth-related errors
   oauth: {
-    loginFailed: "Failed to login with OIDC provider",
+    loginFailed: "Failed to login with OAuth provider",
   },
 
   // Wallet-related errors
