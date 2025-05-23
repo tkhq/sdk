@@ -1,5 +1,11 @@
 # @turnkey/sdk-react
 
+## 5.0.2
+
+### Patch Changes
+
+- [#648](https://github.com/tkhq/sdk/pull/648) [`fd2eb18`](https://github.com/tkhq/sdk/commit/fd2eb18afd7a1338f584eda65962f9880eea7092) Thanks [@moe-dev](https://github.com/moe-dev)! - Patch fix for inpage oauth on EWK sometimes failing with Google
+
 ## 5.0.1
 
 ### Patch Changes
