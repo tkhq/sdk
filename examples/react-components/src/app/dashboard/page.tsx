@@ -219,27 +219,38 @@ export default function Dashboard() {
         console.error(`Unknown OAuth type: ${oauthType}`);
     }
     if (oidcToken) {
-      const suborgs = await server.getSuborgs({
-        filterType: "OIDC_TOKEN",
-        filterValue: oidcToken.idToken,
-      });
-      if (suborgs!.organizationIds.length > 0) {
-        toast.error("Social login is already connected to another account");
-        return;
+      try {
+        const suborgs = await server.getSuborgs({
+          filterType: "OIDC_TOKEN",
+          filterValue: oidcToken.idToken,
+        });
+        if (suborgs!.organizationIds.length > 0) {
+          toast.error("Social login is already connected to another account");
+          return;
+        }
+        if (!user.userEmail && !isVerifiedEmail) {
+          const { email: oidcEmail } = jwtDecode<any>(oidcToken.idToken) || {}; // Parse the oidc token so we can get the email. Pass it in to updateUser then call createOauthProviders. This will be verified by Turnkey.
+          await authIframeClient?.updateUser({
+            userId: user.userId,
+            userEmail: oidcEmail,
+            userTagIds: [],
+          });
+        }
+
+        await indexedDbClient?.createOauthProviders({
+          userId: user.userId,
+          oauthProviders: [
+            {
+              providerName: `TurnkeyDemoApp - ${Date.now()}`,
+              oidcToken: oidcToken.idToken,
+            },
+          ],
+        });
+      } catch (error) {
+        console.error("Error adding OAuth provider:", error);
+        toast.error("Failed to add OAuth provider");
       }
 
-      const { email: oidcEmail } = jwtDecode<any>(oidcToken.idToken) || {}; // Parse the oidc token so we can get the email. Pass it in to linkUserEmail to automatically link the email to the account. This will be verified by Turnkey.
-
-      await indexedDbClient?.createOauthProviders({
-        userId: user.userId,
-        linkUserEmail: oidcEmail,
-        oauthProviders: [
-          {
-            providerName: `TurnkeyDemoApp - ${Date.now()}`,
-            oidcToken: oidcToken.idToken,
-          },
-        ],
-      });
       window.location.reload();
     }
   };

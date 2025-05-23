@@ -110,7 +110,7 @@ export interface NextApiResponse<T = any> {
 
 export type NextApiHandler = (
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse
 ) => void | Promise<void>;
 
 export interface ApiCredentials {
@@ -290,7 +290,6 @@ export type Passkey = {
 export type Provider = {
   providerName: string;
   oidcToken: string;
-  linkToUserEmail?: boolean;
 };
 
 export type CreateSuborgResponse = {
