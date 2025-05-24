@@ -11,7 +11,7 @@ import { AeadId, CipherSuite, KdfId, KemId } from "hpke-js";
 
 import type { EmbeddedAPIKey } from "./models";
 import { pointDecode } from "@turnkey/api-key-stamper";
-import type { Session } from "@types";
+import type { Session } from "@turnkey/sdk-types";
 
 // createEmbeddedAPIKey creates an embedded API key encrypted to a target key (typically embedded within an iframe).
 // This returns a bundle that can be decrypted by that target key, as well as the public key of the newly created API key.

@@ -8,16 +8,16 @@ import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import { TurnkeyBaseClient } from "../__clients__/base-client";
 
 import {
-  Session,
   AuthClient,
   TurnkeySDKClientConfig,
-  SessionType,
   TurnkeyWalletClientConfig,
   LoginWithBundleParams,
   LoginWithPasskeyParams,
   LoginWithWalletParams,
   RefreshSessionParams,
 } from "@types";
+
+import { Session, SessionType } from "@turnkey/sdk-types";
 
 import { generateRandomBuffer, base64UrlEncode } from "@utils";
 

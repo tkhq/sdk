@@ -18,6 +18,7 @@ import {
   VerifyOtpRequest,
   VerifyOtpResponse,
 } from "./__types__/base";
+
 import { TurnkeyServerSDK } from "./sdk-client";
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,

@@ -1,6 +1,6 @@
 # @turnkey/sdk-browser
 
-[![npm](https://img.shields.io/npm/v/@turnkey/http?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-browser)
+[![npm](https://img.shields.io/npm/v/@turnkey/sdk-browser?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-browser)
 
 A SDK client with browser-specific abstractions for interacting with [Turnkey](https://turnkey.com) API. Also includes [@turnkey/http](https://www.npmjs.com/package/@turnkey/http), a lower-level, fully typed HTTP client.
 

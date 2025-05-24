@@ -6,7 +6,7 @@ import { useTurnkey } from "@turnkey/sdk-react";
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { server } from "@turnkey/sdk-server";
-import { SessionType } from "@turnkey/sdk-browser";
+import { SessionType } from "@turnkey/sdk-types";
 
 export default function AuthPage() {
   const { indexedDbClient, passkeyClient, turnkey } = useTurnkey();
