@@ -59,6 +59,7 @@
     "@react-oauth/google": "^0.12.1",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
     "libphonenumber-js": "^1.11.14",

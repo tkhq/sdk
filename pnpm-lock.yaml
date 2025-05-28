@@ -1125,15 +1125,15 @@ importers:
 
   examples/with-indexed-db:
     dependencies:
-      '@turnkey/sdk-browser':
-        specifier: workspace:*
-        version: link:../../packages/sdk-browser
       '@turnkey/sdk-react':
         specifier: workspace:*
         version: link:../../packages/sdk-react
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../packages/sdk-types
       '@types/node':
         specifier: 20.3.1
         version: 20.3.1
@@ -1997,6 +1997,9 @@ importers:
       '@turnkey/indexed-db-stamper':
         specifier: workspace:*
         version: link:../indexed-db-stamper
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../sdk-types
       '@turnkey/wallet-stamper':
         specifier: workspace:*
         version: link:../wallet-stamper
@@ -2055,6 +2058,9 @@ importers:
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../sdk-server
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../sdk-types
       '@turnkey/wallet-stamper':
         specifier: workspace:*
         version: link:../wallet-stamper

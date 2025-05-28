@@ -3,15 +3,14 @@ import type { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
+import { Session, SessionType } from "@turnkey/sdk-types";
 
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import { TurnkeyBaseClient } from "../__clients__/base-client";
 
 import {
-  Session,
   AuthClient,
   TurnkeySDKClientConfig,
-  SessionType,
   TurnkeyWalletClientConfig,
   LoginWithBundleParams,
   LoginWithPasskeyParams,
@@ -116,7 +115,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     organizationId?: string;
   }): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
     const readOnlySessionResult = await this.createReadOnlySession(
-      config || {},
+      config || {}
     );
     const session: Session = {
       sessionType: SessionType.READ_ONLY,
@@ -151,7 +150,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       if (sessionType === SessionType.READ_ONLY) {
         if (this! instanceof TurnkeyPasskeyClient) {
           throw new Error(
-            "You must use a passkey client to refresh a read session",
+            "You must use a passkey client to refresh a read session"
           ); // TODO: support wallet client
         }
         const readOnlySessionResult = await this.createReadOnlySession({});
@@ -167,7 +166,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       } else if (sessionType === SessionType.READ_WRITE) {
         if (!publicKey) {
           throw new Error(
-            "You must provide a publicKey to refresh a read-write session.",
+            "You must provide a publicKey to refresh a read-write session."
           );
         }
 
@@ -203,7 +202,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     } else {
       // Throw an error if the client is not an iframe client
       throw new Error(
-        "You must use an iframe client to log in with a session.",
+        "You must use an iframe client to log in with a session."
       ); //should we default to a "localStorage" client?
     }
     const whoAmI = await this.getWhoami();
@@ -232,7 +231,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
     } else {
       // Throw an error if the client is not an indexedDb client
       throw new Error(
-        "You must use an indexedDb client to log in with a session.",
+        "You must use an indexedDb client to log in with a session."
       );
     }
   };
@@ -270,7 +269,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       } else if (sessionType === SessionType.READ_WRITE) {
         if (!publicKey) {
           throw new Error(
-            "You must provide a publicKey to create a passkey read write session.",
+            "You must provide a publicKey to create a passkey read write session."
           );
         }
 
@@ -320,7 +319,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       } else if (sessionType === SessionType.READ_WRITE) {
         if (!publicKey) {
           throw new Error(
-            "You must provide a publicKey to create a read-write session.",
+            "You must provide a publicKey to create a read-write session."
           );
         }
 
@@ -374,12 +373,12 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
       if (phoneNumber) {
         promises.push(
-          this.updateUser({ userId, userPhoneNumber: "", userTagIds: [] }),
+          this.updateUser({ userId, userPhoneNumber: "", userTagIds: [] })
         );
       }
       if (email) {
         promises.push(
-          this.updateUser({ userId, userEmail: "", userTagIds: [] }),
+          this.updateUser({ userId, userEmail: "", userTagIds: [] })
         );
       }
       if (authenticatorIds && authenticatorIds.length > 0) {
@@ -387,7 +386,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       }
       if (oauthProviderIds && oauthProviderIds.length > 0) {
         promises.push(
-          this.deleteOauthProviders({ userId, providerIds: oauthProviderIds }),
+          this.deleteOauthProviders({ userId, providerIds: oauthProviderIds })
         );
       }
       if (apiKeyIds && apiKeyIds.length > 0) {
@@ -442,12 +441,12 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
             userId,
             userPhoneNumber: phoneNumber,
             userTagIds: [],
-          }),
+          })
         );
       }
       if (email) {
         promises.push(
-          this.updateUser({ userId, userEmail: email, userTagIds: [] }),
+          this.updateUser({ userId, userEmail: email, userTagIds: [] })
         );
       }
       if (authenticators && authenticators.length > 0) {
@@ -512,7 +511,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
       }
       if (Object.keys(userUpdates).length > 0) {
         promises.push(
-          this.updateUser({ userId, ...userUpdates, userTagIds: [] }),
+          this.updateUser({ userId, ...userUpdates, userTagIds: [] })
         );
       }
 
@@ -523,7 +522,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
             this.createAuthenticators({
               userId,
               authenticators: authenticators.add,
-            }),
+            })
           );
         }
         if (authenticators.deleteIds?.length) {
@@ -531,7 +530,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
             this.deleteAuthenticators({
               userId,
               authenticatorIds: authenticators.deleteIds,
-            }),
+            })
           );
         }
       }
@@ -543,7 +542,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
             this.createOauthProviders({
               userId,
               oauthProviders: oauthProviders.add,
-            }),
+            })
           );
         }
         if (oauthProviders.deleteIds?.length) {
@@ -551,7 +550,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
             this.deleteOauthProviders({
               userId,
               providerIds: oauthProviders.deleteIds,
-            }),
+            })
           );
         }
       }
@@ -563,7 +562,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
             this.createApiKeys({
               userId,
               apiKeys: apiKeys.add,
-            }),
+            })
           );
         }
         if (apiKeys.deleteIds?.length) {
@@ -571,7 +570,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
             this.deleteApiKeys({
               userId,
               apiKeyIds: apiKeys.deleteIds,
-            }),
+            })
           );
         }
       }
@@ -600,7 +599,7 @@ export class TurnkeyPasskeyClient extends TurnkeyBrowserClient {
    * @returns {Promise<Passkey>}
    */
   createUserPasskey = async (
-    config: Record<any, any> = {},
+    config: Record<any, any> = {}
   ): Promise<Passkey> => {
     const challenge = generateRandomBuffer();
     const encodedChallenge = base64UrlEncode(challenge);
@@ -679,44 +678,44 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
   }
 
   injectCredentialBundle = async (
-    credentialBundle: string,
+    credentialBundle: string
   ): Promise<boolean> => {
     return await (this.stamper as IframeStamper).injectCredentialBundle(
-      credentialBundle,
+      credentialBundle
     );
   };
 
   injectWalletExportBundle = async (
     credentialBundle: string,
-    organizationId: string,
+    organizationId: string
   ): Promise<boolean> => {
     return await (this.stamper as IframeStamper).injectWalletExportBundle(
       credentialBundle,
-      organizationId,
+      organizationId
     );
   };
 
   injectKeyExportBundle = async (
     credentialBundle: string,
     organizationId: string,
-    keyFormat?: KeyFormat | undefined,
+    keyFormat?: KeyFormat | undefined
   ): Promise<boolean> => {
     return await (this.stamper as IframeStamper).injectKeyExportBundle(
       credentialBundle,
       organizationId,
-      keyFormat,
+      keyFormat
     );
   };
 
   injectImportBundle = async (
     bundle: string,
     organizationId: string,
-    userId: string,
+    userId: string
   ): Promise<boolean> => {
     return await (this.stamper as IframeStamper).injectImportBundle(
       bundle,
       organizationId,
-      userId,
+      userId
     );
   };
 

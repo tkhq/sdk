@@ -1,13 +1,13 @@
 import { WalletStamper, type WalletInterface } from "@turnkey/wallet-stamper";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import type { Session } from "@turnkey/sdk-types";
 
 import WindowWrapper from "@polyfills/window";
 
 import {
   type GrpcStatus,
   type TurnkeySDKBrowserConfig,
-  Session,
   TurnkeyRequestError,
   Stamper,
   IframeClientParams,
@@ -79,7 +79,7 @@ export class TurnkeyBrowserSDK {
 
     if (!targetRpId) {
       throw new Error(
-        "Tried to initialize a passkey client with no rpId defined",
+        "Tried to initialize a passkey client with no rpId defined"
       );
     }
 
@@ -102,11 +102,11 @@ export class TurnkeyBrowserSDK {
   };
 
   iframeClient = async (
-    params: IframeClientParams,
+    params: IframeClientParams
   ): Promise<TurnkeyIframeClient> => {
     if (!params.iframeUrl) {
       throw new Error(
-        "Tried to initialize iframeClient with no iframeUrl defined",
+        "Tried to initialize iframeClient with no iframeUrl defined"
       );
     }
 
@@ -120,7 +120,7 @@ export class TurnkeyBrowserSDK {
     });
 
     await this.stamper.init(
-      params.dangerouslyOverrideIframeKeyTtl ?? undefined,
+      params.dangerouslyOverrideIframeKeyTtl ?? undefined
     );
 
     return new TurnkeyIframeClient({
@@ -152,7 +152,7 @@ export class TurnkeyBrowserSDK {
   serverSign = async <TResponseType>(
     methodName: string,
     params: any[],
-    serverSignUrl?: string,
+    serverSignUrl?: string
   ): Promise<TResponseType> => {
     const targetServerSignUrl = serverSignUrl ?? this.config.serverSignUrl;
 
@@ -197,7 +197,7 @@ export class TurnkeyBrowserSDK {
    */
   getSession = async (): Promise<Session | undefined> => {
     const currentSession: Session | string | undefined = await getStorageValue(
-      StorageKeys.Session,
+      StorageKeys.Session
     );
 
     let session: Session | undefined;
@@ -223,7 +223,7 @@ export class TurnkeyBrowserSDK {
    */
   getRawSession = async (): Promise<string | undefined> => {
     const currentSession: Session | string | undefined = await getStorageValue(
-      StorageKeys.Session,
+      StorageKeys.Session
     );
 
     let session: Session | undefined;

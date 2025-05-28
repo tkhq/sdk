@@ -123,10 +123,10 @@ export type { WalletAccount } from "./turnkey-helpers";
 export {
   type TurnkeySDKClientConfig,
   type TurnkeySDKBrowserConfig,
-  type Session,
-  SessionType,
   AuthClient,
 } from "./__types__/base";
+
+export { type Session, SessionType } from "@turnkey/sdk-types";
 
 // marked as internal to prevent inclusion in the sdk-browser docs
 /** @internal */
