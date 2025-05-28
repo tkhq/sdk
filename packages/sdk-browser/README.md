@@ -58,7 +58,7 @@ const iframeClient = await turnkey.iframeClient({
 });
 
 const injectedResponse = await iframeClient.injectCredentialBundle(
-  "<Credential from Email>"
+  "<Credential from Email>",
 );
 if (injectedResponse) {
   await iframeClient.getWallets();
