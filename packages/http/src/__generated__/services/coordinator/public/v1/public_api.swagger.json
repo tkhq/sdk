@@ -3846,10 +3846,6 @@
           "type": "string",
           "description": "The ID of the User to add an Oauth provider to"
         },
-        "linkUserEmail": {
-          "type": "string",
-          "description": "The email address to be verified and added to the user. To be verified, the email must be part of an OIDC token passed in the OauthProviderParams field. The OIDC token must also be considered `trusted` by us (currently, only Google is trusted)."
-        },
         "oauthProviders": {
           "type": "array",
           "items": {

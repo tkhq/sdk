@@ -246,7 +246,7 @@ const Auth: React.FC<AuthProps> = ({
   const handleOtpLogin = async (
     type: FilterType.Email | FilterType.PhoneNumber,
     value: string,
-    otpType: string
+    otpType: string,
   ) => {
     setLoading(otpType);
     const createSuborgData: Record<string, any> = {};
@@ -283,50 +283,101 @@ const Auth: React.FC<AuthProps> = ({
   const handleOAuthLogin = async (
     credential: string,
     providerName: string,
-    socialLinking = false
+    socialLinking = false,
   ) => {
     const pubKey = await indexedDbClient?.getPublicKey();
     if (!pubKey) {
       return;
     }
+
     setOauthLoading(providerName);
-    const { email, iss } = jwtDecode<any>(credential) || {};
+
+    const { email, iss } =
+      jwtDecode<{ email?: string; iss?: string }>(credential) || {};
 
     const oauthProviders = [{ providerName, oidcToken: credential }];
-
     const createSuborgData: Record<string, any> = {
-      email: socialLinking ? email : undefined,
+      ...(socialLinking && email && { email }),
       oauthProviders,
       ...(customAccounts && { customAccounts }),
     };
 
     const completeLogin = async (suborgID: string) => {
-      const key = await authIframeClient!.initEmbeddedKey();
-      const session = await server.oauth({
+      const sessionResponse = await server.oauthLogin({
         suborgID,
         oidcToken: credential,
-        targetPublicKey: key!,
+        publicKey: pubKey!,
         sessionLengthSeconds: authConfig.sessionLengthSeconds,
       });
-      if (session?.token) {
-        await authIframeClient!.loginWithSession(session);
+
+      if (sessionResponse?.session) {
+        await indexedDbClient!.loginWithSession(sessionResponse.session);
         return onAuthSuccess();
       }
+
       onError(authErrors.oauth.loginFailed);
-      return;
     };
-    const suborgId = suborgIds[0];
-    const sessionResponse = await server.oauthLogin({
-      suborgID: suborgId!,
-      oidcToken: credential,
-      publicKey: pubKey!,
-      sessionLengthSeconds: authConfig.sessionLengthSeconds,
-    });
-    if (sessionResponse && sessionResponse.session) {
-      await indexedDbClient!.loginWithSession(sessionResponse.session);
-      await onAuthSuccess();
-    } else {
-      onError(authErrors.oauth.loginFailed);
+
+    // Non-social-linking path: getOrCreateSuborg then login
+    if (!socialLinking) {
+      const resp = await server.getOrCreateSuborg({
+        filterType: FilterType.OidcToken,
+        filterValue: credential,
+        additionalData: createSuborgData,
+      });
+
+      const suborgIds = resp?.subOrganizationIds;
+      if (!suborgIds?.length) {
+        return onError(authErrors.oauth.loginFailed);
+      }
+      return completeLogin(suborgIds[0]!);
+    }
+
+    // Social-linking path
+    // See if there's already a suborg tied to this token
+    const oidcOrgIds = (
+      await server.getSuborgs({
+        filterType: FilterType.OidcToken,
+        filterValue: credential,
+      })
+    )?.organizationIds;
+    let orgId = oidcOrgIds?.[0];
+
+    // If not, try to link by verified email (Google only)
+    if (!orgId) {
+      if (email && iss === "https://accounts.google.com") {
+        const emailOrgIds = (
+          await server.getVerifiedSuborgs({
+            filterType: FilterType.Email,
+            filterValue: email,
+          })
+        )?.organizationIds;
+
+        if (emailOrgIds?.[0]) {
+          orgId = emailOrgIds[0];
+
+          // attach this new OIDC provider to the existing user
+          const userId = (await server.getUsers({ organizationId: orgId }))
+            ?.users?.[0]?.userId;
+          if (!userId) {
+            return onError(authErrors.oauth.loginFailed);
+          }
+
+          await server.createOauthProviders({
+            organizationId: orgId,
+            userId,
+            oauthProviders,
+          });
+        } else {
+          // No orgs with the email. Create brand new suborg
+          orgId = (await server.createSuborg(createSuborgData))
+            ?.subOrganizationId;
+        }
+      } else {
+        // Non-Google or no email in OIDC. Create new suborg
+        orgId = (await server.createSuborg(createSuborgData))
+          ?.subOrganizationId;
+      }
     }
 
     return orgId ? completeLogin(orgId) : onError(authErrors.oauth.loginFailed);
@@ -428,7 +479,7 @@ const Auth: React.FC<AuthProps> = ({
               handleOAuthLogin(
                 response.idToken,
                 "Google",
-                authConfig.socialLinking
+                authConfig.socialLinking,
               )
             }
           />
