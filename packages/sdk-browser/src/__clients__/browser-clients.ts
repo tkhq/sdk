@@ -170,7 +170,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           );
         }
 
-        // 1️⃣ Generate new key pair (non-extractable)
+        // Generate new key pair (non-extractable)
         const newKeyPair = await crypto.subtle.generateKey(
           {
             name: "ECDSA",
@@ -180,23 +180,23 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           ["sign", "verify"],
         );
 
-        // 2️⃣ Compress public key
+        // Compress public key
         const rawPubKey = new Uint8Array(
           await crypto.subtle.exportKey("raw", newKeyPair.publicKey),
         );
         const compressedPubKey = pointEncode(rawPubKey);
         const compressedHex = uint8ArrayToHexString(compressedPubKey);
 
-        // 3️⃣ Stamp login with new public key
+        // Stamp login with new public key
         const sessionResponse = await this.stampLogin({
           publicKey: compressedHex,
           expirationSeconds,
         });
 
-        // 4️⃣ Adopt new key into IndexedDb stamper
+        // Adopt new key into IndexedDb stamper
         await this.resetKeyPair(newKeyPair);
 
-        // 5️⃣ Store session
+        // Store session
         await storeSession(sessionResponse.session, AuthClient.IndexedDb);
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
