@@ -280,10 +280,11 @@ export default function Dashboard() {
   };
 
   const handleDeleteAccount: any = async () => {
-    await indexedDbClient?.deleteSubOrganization({
-      deleteWithoutExport: true,
-    });
-    await handleLogout();
+    await indexedDbClient?.refreshSession({});
+    // await indexedDbClient?.deleteSubOrganization({
+    //   deleteWithoutExport: true,
+    // });
+    // await handleLogout();
   };
 
   const handleLogout: any = async () => {
