@@ -45,6 +45,7 @@ import Navbar from "../components/Navbar";
 import { Toaster, toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
 import { useSessionExpiry } from "../providers/SessionExpiryProvider";
+import { MoonPayBuyWidget } from "@moonpay/moonpay-react";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -60,7 +61,7 @@ export default function Dashboard() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isPasskeyModalOpen, setIsPasskeyModalOpen] = useState(false);
   const [messageToSign, setMessageToSign] = useState(
-    "Signing within Turnkey Demo.",
+    "Signing within Turnkey Demo."
   );
   const [signature, setSignature] = useState<any>(null);
   const [isVerifiedEmail, setIsVerifiedEmail] = useState<boolean>(false);
@@ -77,6 +78,7 @@ export default function Dashboard() {
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   const [phoneInput, setPhoneInput] = useState("");
+  const [isMoonPayVisible, setIsMoonPayVisible] = useState(false);
 
   const handleExportSuccess = async () => {
     toast.success("Wallet successfully exported");
@@ -456,19 +458,19 @@ export default function Dashboard() {
             signature.r,
             signature.s,
             signature.v,
-            selectedAccount!,
+            selectedAccount!
           )
         : verifySolSignatureWithAddress(
             messageToSign,
             signature.r,
             signature.s,
-            selectedAccount!,
+            selectedAccount!
           );
 
     setMessageSigningResult(
       verificationPassed
         ? "Verified! The address used to sign the message matches your wallet address."
-        : "Verification failed.",
+        : "Verification failed."
     );
   };
   if (loading) {
@@ -552,13 +554,13 @@ export default function Dashboard() {
               {user &&
                 user.oauthProviders &&
                 user.oauthProviders.some((provider: { issuer: string }) =>
-                  provider.issuer.toLowerCase().includes("google"),
+                  provider.issuer.toLowerCase().includes("google")
                 ) && <span className="loginMethodDetails">{}</span>}
             </div>
             {user &&
             user.oauthProviders &&
             user.oauthProviders.some((provider: { issuer: string }) =>
-              provider.issuer.toLowerCase().includes("google"),
+              provider.issuer.toLowerCase().includes("google")
             ) ? (
               <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
@@ -575,7 +577,7 @@ export default function Dashboard() {
             {user &&
             user.oauthProviders &&
             user.oauthProviders.some((provider: { issuer: string }) =>
-              provider.issuer.toLowerCase().includes("apple"),
+              provider.issuer.toLowerCase().includes("apple")
             ) ? (
               <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
@@ -592,7 +594,7 @@ export default function Dashboard() {
             {user &&
             user.oauthProviders &&
             user.oauthProviders.some((provider: { issuer: string }) =>
-              provider.issuer.toLowerCase().includes("facebook"),
+              provider.issuer.toLowerCase().includes("facebook")
             ) ? (
               <CheckCircleIcon sx={{ color: "#4c48ff" }} />
             ) : (
@@ -668,7 +670,7 @@ export default function Dashboard() {
                         account.addressFormat === "ADDRESS_FORMAT_ETHEREUM"
                           ? `https://etherscan.io/address/${account.address}`
                           : `https://solscan.io/account/${account.address}`,
-                        "_blank",
+                        "_blank"
                       )
                     }
                     style={{
@@ -685,7 +687,7 @@ export default function Dashboard() {
                     )}
                     <span className="accountAddress">{`${account.address.slice(
                       0,
-                      5,
+                      5
                     )}...${account.address.slice(-5)}`}</span>
                     <LaunchIcon className="launchIcon" />
                   </div>
@@ -709,6 +711,16 @@ export default function Dashboard() {
               ))}
               <button className="signMessage" onClick={handleSignMessageClick}>
                 Sign a message
+              </button>
+              <MoonPayBuyWidget
+                variant="overlay"
+                baseCurrencyCode="usd"
+                baseCurrencyAmount="100"
+                defaultCurrencyCode="eth"
+                visible={isMoonPayVisible}
+              />
+              <button onClick={() => setIsMoonPayVisible(!isMoonPayVisible)}>
+                Go to the moon
               </button>
             </div>
           </RadioGroup>
