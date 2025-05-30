@@ -4,7 +4,7 @@ on:
   workflow_dispatch: # allows manual invocation
   push:
     tags:
-      - 'v[0-9]{4}\.(0?[1-9]|1[0-2])\..*' # triggers on tags like vYYYY.M.# or vYYYY.MM.# (e.g. v2025.10.1, v2025.3.231, v2025.03.10, v2025.03.hotfix-1)
+      - 'v[0-9]{4}\.(0[1-9]|1[0-2]|[1-9])\.*' # triggers on tags like vYYYY.M.# or vYYYY.MM.# (e.g. v2025.10.1, v2025.3.231, v2025.03.10, v2025.03.hotfix-1)
 
 permissions:
   contents: write
