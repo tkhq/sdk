@@ -1956,6 +1956,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/submit/init_fiat_on_ramp": {
+      "post": {
+        "summary": "Init Fiat On Ramp",
+        "description": "Initializes a new fiat on ramp flow",
+        "operationId": "PublicApiService_InitFiatOnRamp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1InitFiatOnRampRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
+      }
+    },
     "/public/v1/submit/init_import_private_key": {
       "post": {
         "summary": "Init Import Private Key",
@@ -3261,7 +3293,8 @@
         "ACTIVITY_TYPE_VERIFY_OTP",
         "ACTIVITY_TYPE_OTP_LOGIN",
         "ACTIVITY_TYPE_STAMP_LOGIN",
-        "ACTIVITY_TYPE_OAUTH_LOGIN"
+        "ACTIVITY_TYPE_OAUTH_LOGIN",
+        "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
       ]
     },
     "v1AddressFormat": {
@@ -3301,6 +3334,7 @@
         "ADDRESS_FORMAT_DOGE_TESTNET",
         "ADDRESS_FORMAT_TON_V3R2",
         "ADDRESS_FORMAT_TON_V4R2",
+        "ADDRESS_FORMAT_TON_V5R1",
         "ADDRESS_FORMAT_XRP"
       ]
     },
@@ -6711,6 +6745,55 @@
       },
       "required": ["walletId", "addresses"]
     },
+    "v1InitFiatOnRampIntent": {
+      "type": "object",
+      "properties": {
+        "onrampProvider": {
+          "type": "string",
+          "description": "Enum to specifiy which Onramp provider to use"
+        },
+        "transactionType": {
+          "type": "string",
+          "description": "Enum to specifiy whether to buy or sell crypto"
+        }
+      },
+      "required": ["onrampProvider", "transactionType"]
+    },
+    "v1InitFiatOnRampRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1InitFiatOnRampIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1InitFiatOnRampResult": {
+      "type": "object",
+      "properties": {
+        "onRampUrl": {
+          "type": "string",
+          "description": "Unique URL for a given Fiat On Ramp Flow."
+        },
+        "onRampTransactionId": {
+          "type": "string",
+          "description": "Unique identifier used to retrieve transaction statuses for a given Fiat On Ramp Flow."
+        }
+      },
+      "required": ["onRampUrl", "onRampTransactionId"]
+    },
     "v1InitImportPrivateKeyIntent": {
       "type": "object",
       "properties": {
@@ -7320,6 +7403,9 @@
         },
         "oauthLoginIntent": {
           "$ref": "#/definitions/v1OauthLoginIntent"
+        },
+        "initFiatOnRampIntent": {
+          "$ref": "#/definitions/v1InitFiatOnRampIntent"
         }
       }
     },
@@ -8415,6 +8501,9 @@
         },
         "oauthLoginResult": {
           "$ref": "#/definitions/v1OauthLoginResult"
+        },
+        "initFiatOnRampResult": {
+          "$ref": "#/definitions/v1InitFiatOnRampResult"
         }
       }
     },
@@ -9590,7 +9679,7 @@
       "properties": {
         "verificationToken": {
           "type": "string",
-          "description": "Signed JWT containing a unique id, expiry, verification type, contact"
+          "description": "Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests)"
         }
       },
       "required": ["verificationToken"]
