@@ -43,6 +43,7 @@ import { MuiPhone } from "../components/PhoneInput";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Navbar from "../components/Navbar";
 import { Toaster, toast } from "sonner";
+import { MoonPayBuyWidget } from "@moonpay/moonpay-react";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -74,6 +75,7 @@ export default function Dashboard() {
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   const [phoneInput, setPhoneInput] = useState("");
+  const [isMoonPayVisible, setIsMoonPayVisible] = useState(false);
 
   const handleExportSuccess = async () => {
     toast.success("Wallet successfully exported");
@@ -687,6 +689,16 @@ export default function Dashboard() {
               ))}
               <button className="signMessage" onClick={handleSignMessageClick}>
                 Sign a message
+              </button>
+              <MoonPayBuyWidget
+                variant="overlay"
+                baseCurrencyCode="usd"
+                baseCurrencyAmount="100"
+                defaultCurrencyCode="eth"
+                visible={isMoonPayVisible}
+              />
+              <button onClick={() => setIsMoonPayVisible(!isMoonPayVisible)}>
+                Go to the moon
               </button>
             </div>
           </RadioGroup>

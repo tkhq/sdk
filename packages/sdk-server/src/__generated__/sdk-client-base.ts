@@ -1883,6 +1883,39 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  initFiatOnRamp = async (
+    input: SdkApiTypes.TInitFiatOnRampBody,
+  ): Promise<SdkApiTypes.TInitFiatOnRampResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/init_fiat_on_ramp",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
+      },
+      "initFiatOnRampResult",
+    );
+  };
+
+  stampInitFiatOnRamp = async (
+    input: SdkApiTypes.TInitFiatOnRampBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/init_fiat_on_ramp";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   initImportPrivateKey = async (
     input: SdkApiTypes.TInitImportPrivateKeyBody,
   ): Promise<SdkApiTypes.TInitImportPrivateKeyResponse> => {

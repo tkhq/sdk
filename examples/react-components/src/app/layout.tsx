@@ -3,6 +3,8 @@
 import "@turnkey/sdk-react/styles";
 import { TurnkeyProvider, TurnkeyThemeProvider } from "@turnkey/sdk-react";
 import { EthereumWallet } from "@turnkey/wallet-stamper";
+import CoinbaseCryptoProvider from "./components/CoinbaseCryptoProvider";
+import MoonPayCryptoProvider from "./components/MoonPayCryptoProvider";
 const wallet = new EthereumWallet();
 const turnkeyConfig = {
   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
@@ -24,7 +26,11 @@ function RootLayout({ children }: RootLayoutProps) {
       </head>
       <TurnkeyThemeProvider>
         <body>
-          <TurnkeyProvider config={turnkeyConfig}>{children}</TurnkeyProvider>
+          <TurnkeyProvider config={turnkeyConfig}>
+            <CoinbaseCryptoProvider>
+              <MoonPayCryptoProvider>{children}</MoonPayCryptoProvider>
+            </CoinbaseCryptoProvider>
+          </TurnkeyProvider>
         </body>
       </TurnkeyThemeProvider>
     </html>

@@ -2896,6 +2896,52 @@ export const signImportWallet = (
   });
 
 /**
+ * `POST /public/v1/submit/init_fiat_on_ramp`
+ */
+export type TInitFiatOnRampResponse =
+  operations["PublicApiService_InitFiatOnRamp"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/init_fiat_on_ramp`
+ */
+export type TInitFiatOnRampInput = { body: TInitFiatOnRampBody };
+
+/**
+ * `POST /public/v1/submit/init_fiat_on_ramp`
+ */
+export type TInitFiatOnRampBody =
+  operations["PublicApiService_InitFiatOnRamp"]["parameters"]["body"]["body"];
+
+/**
+ * Init Fiat On Ramp
+ *
+ * Initializes a new fiat on ramp flow
+ *
+ * `POST /public/v1/submit/init_fiat_on_ramp`
+ */
+export const initFiatOnRamp = (input: TInitFiatOnRampInput) =>
+  request<TInitFiatOnRampResponse, TInitFiatOnRampBody, never, never, never>({
+    uri: "/public/v1/submit/init_fiat_on_ramp",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `InitFiatOnRamp` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link InitFiatOnRamp}
+ */
+export const signInitFiatOnRamp = (
+  input: TInitFiatOnRampInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TInitFiatOnRampBody, never, never>({
+    uri: "/public/v1/submit/init_fiat_on_ramp",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/init_import_private_key`
  */
 export type TInitImportPrivateKeyResponse =
