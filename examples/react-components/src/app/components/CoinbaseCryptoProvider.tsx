@@ -11,7 +11,7 @@ interface CoinbaseCryptoProviderProps {
 const CoinbaseCryptoProvider = ({ children }: CoinbaseCryptoProviderProps) => {
   return (
     <OnchainKitProvider
-      apiKey={process.env.NEXT_PUBLIC_MOONPAY_API_KEY!}
+      apiKey={process.env.NEXT_PUBLIC_COINBASE_API_KEY!}
       chain={base}
     >
       {children}
