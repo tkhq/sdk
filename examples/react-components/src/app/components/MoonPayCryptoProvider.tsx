@@ -12,7 +12,10 @@ interface MoonPayCryptoProviderProps {
 
 const MoonPayCryptoProvider = ({ children }: MoonPayCryptoProviderProps) => {
   return (
-    <MoonPayProvider apiKey={process.env.NEXT_PUBLIC_MOONPAY_API_KEY!}>
+    <MoonPayProvider
+      apiKey={process.env.NEXT_PUBLIC_MOONPAY_API_KEY!}
+      debug={true}
+    >
       {children}
     </MoonPayProvider>
   );
