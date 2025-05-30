@@ -42,6 +42,8 @@ import {
   otpLogin,
   getOrCreateSuborg,
   sendCredential,
+  getUsers,
+  createOauthProviders,
 } from "./actions";
 
 // Classes
@@ -60,10 +62,12 @@ export const server = {
   sendOtp,
   oauthLogin,
   otpLogin,
+  getUsers,
   getSuborgs,
   getVerifiedSuborgs,
   createSuborg,
   getOrCreateSuborg,
+  createOauthProviders,
   sendCredential,
 };
 
