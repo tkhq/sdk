@@ -1,13 +1,13 @@
 import { WalletStamper, type WalletInterface } from "@turnkey/wallet-stamper";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
+import type { Session } from "@turnkey/sdk-types";
 
 import WindowWrapper from "@polyfills/window";
 
 import {
   type GrpcStatus,
   type TurnkeySDKBrowserConfig,
-  Session,
   TurnkeyRequestError,
   Stamper,
   IframeClientParams,

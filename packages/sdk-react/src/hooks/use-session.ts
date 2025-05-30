@@ -1,8 +1,8 @@
 "use client";
 
-import { AuthClient, Session, StorageKeys } from "@turnkey/sdk-browser";
+import { AuthClient, StorageKeys } from "@turnkey/sdk-browser";
 import { useLocalStorage } from "usehooks-ts";
-
+import type { Session } from "@turnkey/sdk-types";
 /**
  * React hook to access the current Turnkey session and authentication client.
  *

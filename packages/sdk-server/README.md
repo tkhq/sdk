@@ -1,6 +1,6 @@
 # @turnkey/sdk-server
 
-[![npm](https://img.shields.io/npm/v/@turnkey/http?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-server)
+[![npm](https://img.shields.io/npm/v/@turnkey/sdk-server?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-server)
 
 A SDK client with server-specific abstractions for interacting with [Turnkey](https://turnkey.com) API. Also includes [@turnkey/http](https://www.npmjs.com/package/@turnkey/http), a lower-level, fully typed HTTP client.
 

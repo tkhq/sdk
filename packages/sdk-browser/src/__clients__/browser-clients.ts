@@ -3,15 +3,14 @@ import type { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
+import { Session, SessionType } from "@turnkey/sdk-types";
 
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import { TurnkeyBaseClient } from "../__clients__/base-client";
 
 import {
-  Session,
   AuthClient,
   TurnkeySDKClientConfig,
-  SessionType,
   TurnkeyWalletClientConfig,
   LoginWithBundleParams,
   LoginWithPasskeyParams,

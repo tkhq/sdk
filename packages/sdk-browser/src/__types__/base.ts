@@ -3,6 +3,7 @@ import type { WalletInterface, WalletStamper } from "@turnkey/wallet-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IframeStamper } from "@turnkey/iframe-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
+import type { SessionType } from "@turnkey/sdk-types";
 
 export type GrpcStatus = {
   message: string;
@@ -15,19 +16,6 @@ export enum MethodType {
   List,
   Command,
 }
-
-export enum SessionType {
-  READ_ONLY = "SESSION_TYPE_READ_ONLY",
-  READ_WRITE = "SESSION_TYPE_READ_WRITE",
-}
-
-export type Session = {
-  sessionType: SessionType;
-  userId: string;
-  organizationId: string;
-  expiry: number; // Unix timestamp representing the expiry of the session set by the server
-  token: string; // publicKey used to verify stamped requests (lives in indexedDb) also can (temporarily) be read bearer tokens
-};
 
 export type TStamp = {
   stampHeaderName: string;
