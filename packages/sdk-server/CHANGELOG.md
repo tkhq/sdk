@@ -1,5 +1,13 @@
 # @turnkey/sdk-server
 
+## 4.0.1
+
+### Patch Changes
+
+- Update @turnkey/sdk-types readme and install dependency in packages with common types
+
+- [#650](https://github.com/tkhq/sdk/pull/650) [`27fe590`](https://github.com/tkhq/sdk/commit/27fe590cdc3eb6a8cde093eeefda2ee1cdc79412) Author [@turnekybc](https://github.com/turnekybc) - Update @turnkey/sdk-types readme and install dependency in packages with common types
+
 ## 4.0.0
 
 ### Major Changes
