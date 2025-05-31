@@ -5,12 +5,12 @@ runs:
   using: "composite"
 
   steps:
-    # - name: Debug NODE_AUTH_TOKEN
-    #   run: |
-    #     echo "NODE_AUTH_TOKEN is set: ${NODE_AUTH_TOKEN:+set}"
-    #   shell: bash
-    #   env:
-    #     NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+    - name: Debug NODE_AUTH_TOKEN
+      run: |
+        echo "NODE_AUTH_TOKEN is set: ${NODE_AUTH_TOKEN:+set}"
+      shell: bash
+      env:
+        NODE_AUTH_TOKEN: ${{ env.NODE_AUTH_TOKEN }}
 
     # https://github.com/actions/setup-node
     - name: Install Node.js
