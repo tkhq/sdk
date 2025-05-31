@@ -120,11 +120,11 @@ export {
 /** @internal */
 export type { WalletAccount } from "./turnkey-helpers";
 
-export {
-  type TurnkeySDKClientConfig,
-  type TurnkeySDKBrowserConfig,
-  AuthClient,
-} from "./__types__/base";
+// Export all types and values from __types__/base
+export * from "./__types__/base";
+
+// Export all models from models
+export * from "@models";
 
 export { type Session, SessionType } from "@turnkey/sdk-types";
 
