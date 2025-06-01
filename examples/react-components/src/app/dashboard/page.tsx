@@ -117,10 +117,9 @@ export default function Dashboard() {
           organizationId: session?.organizationId!,
           onrampProvider: "COINBASE",
           transactionType: "BUY",
-        })
+        });
 
         console.log("initFiatOnRampResponse:", initFiatOnRampResponse);
-
       } catch (error) {
         console.error("Failed to init fiat on ramp:", error);
       }
