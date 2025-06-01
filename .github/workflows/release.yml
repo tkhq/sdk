@@ -2,6 +2,7 @@ name: release
 
 on:
   workflow_dispatch: # allows manual invocation
+  pull_request: # TODO - remove once this workflow is stable
   push:
     tags:
       - "v*.*.*" # triggers on tags like v1.0.0
@@ -35,8 +36,8 @@ jobs:
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       - name: Debug Foundry
         run: anvil --version || echo "anvil not found"
@@ -54,7 +55,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: build-artifacts-${{ github.ref_name }}
+          name: build-artifacts-${{ github.sha }}
           path: |
             packages/*/dist/**
             packages/*/package.json
@@ -74,13 +75,13 @@ jobs:
 
       - name: Setup JS
         uses: ./.github/actions/js-setup
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: build-artifacts-${{ github.ref_name }}
+          name: build-artifacts-${{ github.sha }}
           path: .
 
       # Process changesets, update versions, and rebuild packages to include latest versions
@@ -98,7 +99,7 @@ jobs:
       - name: Upload updated release artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: release-artifacts-${{ github.ref_name }}
+          name: release-artifacts-${{ github.sha }}
           path: |
             packages/*/dist/**
             packages/*/package.json
@@ -120,13 +121,13 @@ jobs:
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-${{ github.ref_name }}
+          name: release-artifacts-${{ github.sha }}
           path: .
 
       - name: Install latest dependencies
@@ -161,12 +162,13 @@ jobs:
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-${{ github.ref_name }}
+          name: release-artifacts-${{ github.sha }}
           path: .
 
       - name: Install latest dependencies
@@ -199,13 +201,13 @@ jobs:
 
       - name: Setup JS
         uses: ./.github/actions/js-setup
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       - name: Download versioned artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-${{ github.ref_name }}
+          name: release-artifacts-${{ github.sha }}
           path: .
 
       - name: Install latest dependencies
@@ -219,8 +221,8 @@ jobs:
       - name: Create and switch to release branch
         run: |
           git fetch origin
-          git checkout -B release/${{ github.ref_name }} origin/release/${{ github.ref_name }} || \
-          git checkout -B release/${{ github.ref_name }}
+          git checkout -B release/${{ github.sha }} origin/release/${{ github.sha }} || \
+          git checkout -B release/${{ github.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -237,13 +239,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          generate_release_notes: true
-          draft: true
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Create GitHub Release
+      #   uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
+      #   with:
+      #     tag_name: ${{ github.sha }}
+      #     name: Release ${{ github.sha }}
+      #     generate_release_notes: true
+      #     draft: true
+      #     prerelease: false
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
