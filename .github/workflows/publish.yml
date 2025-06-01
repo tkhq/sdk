@@ -58,8 +58,18 @@ jobs:
 
       - name: Confirm environment variables
         run: |
-          echo "NODE_AUTH_TOKEN is set: ${NODE_AUTH_TOKEN:+set}"
-          echo "GITHUB_TOKEN is set: ${GITHUB_TOKEN:+set}"
+          if [ -n "${{ secrets.NODE_AUTH_TOKEN }}" ]; then
+            echo "NODE_AUTH_TOKEN is set"
+          else
+            echo "NODE_AUTH_TOKEN is not set"
+            exit 1
+          fi
+          if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
+            echo "GITHUB_TOKEN is set"
+          else
+            echo "GITHUB_TOKEN is not set"
+            exit 1
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
