@@ -24,7 +24,7 @@ import type {
 import { signMessage, signTransaction, turnkeyIsDisconnected } from "./turnkey";
 
 import { ChainIdMismatchError, UnrecognizedChainError } from "./errors";
-import { VERSION } from "../dist/version";
+import { VERSION } from "./version";
 
 export { TurnkeyEIP1193Provider };
 

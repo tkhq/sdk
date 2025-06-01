@@ -84,6 +84,7 @@ jobs:
           name: build-artifacts-${{ github.sha }}
           path: |
             packages/*/dist/**
+            packages/*/src/**
             packages/*/package.json
             pnpm-lock.yaml
             pnpm-workspace.yaml
