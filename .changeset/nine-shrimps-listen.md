@@ -1,5 +1,5 @@
 ---
-"@turnkey/sdk-browser": patch
+"@turnkey/sdk-browser": minor
 "@turnkey/wallet-stamper": patch
 "@turnkey/webauthn-stamper": patch
 ---
