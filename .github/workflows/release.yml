@@ -58,7 +58,7 @@ jobs:
             fi
             exit 1
           }
-          if pnpm changeset status | grep -q "packages to be bumped:"; then
+          if pnpm changeset status | grep -qi "packages to be bumped"; then
             echo "Changesets found, continuing"
           else
             echo "No unreleased changesets found, exiting"
