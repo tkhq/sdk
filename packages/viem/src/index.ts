@@ -144,8 +144,8 @@ export function createAccountWithAddress(input: {
       transaction: TTransactionSerializable,
       options?: {
         serializer?:
-          | SerializeTransactionFn<TTransactionSerializable>
-          | undefined;
+        | SerializeTransactionFn<TTransactionSerializable>
+        | undefined;
       },
     ): Promise<Hex> {
       const serializer: SerializeTransactionFn<TTransactionSerializable> =
@@ -300,8 +300,8 @@ export async function createApiKeyAccount(
       transaction: TTransactionSerializable,
       options?: {
         serializer?:
-          | SerializeTransactionFn<TTransactionSerializable>
-          | undefined;
+        | SerializeTransactionFn<TTransactionSerializable>
+        | undefined;
       },
     ): Promise<Hex> {
       const serializer: SerializeTransactionFn<TTransactionSerializable> =
@@ -338,6 +338,7 @@ export async function signAuthorization(
   parameters: TSignAuthorizationParameters,
   organizationId: string,
   signWith: string,
+  timestampMs?: number,
 ): Promise<SignAuthorizationReturnType> {
   const { chainId, nonce, to = "object" } = parameters;
   const address = parameters.contractAddress ?? parameters.address;
@@ -360,6 +361,7 @@ export async function signAuthorization(
     organizationId,
     signWith,
     to,
+    timestampMs,
   );
 
   if (to === "object")
@@ -379,6 +381,7 @@ export async function signMessage(
   message: SignableMessage,
   organizationId: string,
   signWith: string,
+  timestampMs?: number,
 ): Promise<Hex> {
   const hashedMessage = hashMessage(message);
   const signedMessage = await signMessageWithErrorWrapping(
@@ -386,6 +389,8 @@ export async function signMessage(
     hashedMessage,
     organizationId,
     signWith,
+    undefined,
+    timestampMs,
   );
   return `${signedMessage}` as Hex;
 }
@@ -435,6 +440,7 @@ export async function signTypedData(
   data: TypedData | { [key: string]: unknown },
   organizationId: string,
   signWith: string,
+  timestampMs?: number,
 ): Promise<Hex> {
   const hashToSign = hashTypedData(data as HashTypedDataParameters);
 
@@ -444,6 +450,7 @@ export async function signTypedData(
     organizationId,
     signWith,
     "hex",
+    timestampMs,
   )) as Hex;
 }
 
@@ -452,6 +459,7 @@ async function signTransactionWithErrorWrapping(
   unsignedTransaction: string,
   organizationId: string,
   signWith: string,
+  timestampMs?: number
 ): Promise<Hex> {
   let signedTx: string;
   try {
@@ -460,6 +468,7 @@ async function signTransactionWithErrorWrapping(
       unsignedTransaction,
       organizationId,
       signWith,
+      timestampMs,
     );
   } catch (error: any) {
     // Wrap Turnkey error in Viem-specific error
@@ -492,6 +501,7 @@ async function signTransactionImpl(
   unsignedTransaction: string,
   organizationId: string,
   signWith: string,
+  timestampMs?: number
 ): Promise<string> {
   if (client instanceof TurnkeyClient) {
     const { activity } = await client.signTransaction({
@@ -502,7 +512,7 @@ async function signTransactionImpl(
         type: "TRANSACTION_TYPE_ETHEREUM",
         unsignedTransaction: unsignedTransaction,
       },
-      timestampMs: String(Date.now()), // millisecond timestamp
+      timestampMs: timestampMs ? String(timestampMs) : String(Date.now()), // millisecond timestamp
     });
 
     assertActivityCompleted(activity);
@@ -530,6 +540,7 @@ async function signMessageWithErrorWrapping(
   organizationId: string,
   signWith: string,
   to?: TSignatureFormat,
+  timestampMs?: number,
 ): Promise<TSignMessageResult> {
   let signedMessage: TSignMessageResult;
 
@@ -540,6 +551,7 @@ async function signMessageWithErrorWrapping(
       organizationId,
       signWith,
       to,
+      timestampMs,
     );
   } catch (error: any) {
     // Wrap Turnkey error in Viem-specific error
@@ -573,6 +585,7 @@ async function signMessageImpl(
   organizationId: string,
   signWith: string,
   to?: TSignatureFormat,
+  timestampMs?: number,
 ): Promise<TSignMessageResult> {
   let result: TSignature;
 
@@ -586,7 +599,7 @@ async function signMessageImpl(
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NO_OP",
       },
-      timestampMs: String(Date.now()), // millisecond timestamp
+      timestampMs: timestampMs ? String(timestampMs) : String(Date.now()), // millisecond timestamp
     });
 
     assertActivityCompleted(activity);
