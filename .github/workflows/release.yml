@@ -2,9 +2,12 @@ name: release
 
 on:
   workflow_dispatch: # allows manual invocation
+  pull_request: # TODO - remove once this workflow is stable
+    branches:
+      - main
   push:
     tags:
-      - "v*.*.*"
+      - "v*.*.*" # triggers on tags like v1.0.0
 
 permissions:
   contents: write
@@ -17,10 +20,50 @@ jobs:
       # https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0 # required for git tags and history
+          ref: ${{ github.event.pull_request.head.ref || github.ref }} # TODO - remove once this workflow is stable
+
+      - name: Fetch default branch
+        run: |
+          git fetch origin main:main || echo "Default branch not found, continuing"
 
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
+      # Check if there are any pending changesets
+      # - name: Check for pending releases
+      #   run: |
+      #     echo "Checking for pending changesets..."
+      #     pnpm changeset status --verbose
+      #     if pnpm changeset status | grep -q "packages to be bumped:"; then
+      #       echo "Changesets found, continuing"
+      #     else
+      #       echo "No unreleased changesets found, exiting"
+      #       exit 0
+      #     fi
+
+      # TODO - remove this once the workflow is stable
+      - name: Check for pending releases
+        run: |
+          echo "Checking for pending changesets..."
+          pnpm changeset status --verbose || {
+            echo "Changeset status failed, checking if default branch exists"
+            if ! git rev-parse --verify main >/dev/null 2>&1; then
+              echo "Default branch (main) does not exist, please configure .changeset/config.json with the correct baseBranch"
+              exit 1
+            fi
+            exit 1
+          }
+          if pnpm changeset status | grep -qi "packages to be bumped"; then
+            echo "Changesets found, continuing"
+          else
+            echo "No unreleased changesets found, exiting"
+            exit 0
+          fi
 
       - name: Debug Foundry
         run: anvil --version || echo "anvil not found"
@@ -34,31 +77,89 @@ jobs:
       - name: Prettier
         run: pnpm run prettier-all:check
 
+      # Upload the build artifacts with what is currently in main
       - name: Upload build artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: build-artifacts-${{ github.sha }}
           path: |
             packages/*/dist/**
+            packages/*/src/**
+            packages/*/package.json
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
+            .changeset/**
           retention-days: 1
 
-  test-pre-prod:
+  version-and-rebuild:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      # https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
 
-      # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: build-artifacts-${{ github.sha }}
-          path: packages/
+          path: .
+
+      # Process changesets, update versions, and rebuild packages to include latest versions
+      - name: Version and rebuild packages
+        run: |
+          pnpm changeset version
+          pnpm run version
+          pnpm install -r
+          pnpm run build-all
+          pnpm run typecheck-all
+          pnpm run prettier-all:check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload updated release artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-artifacts-${{ github.sha }}
+          path: |
+            packages/*/dist/**
+            packages/*/src/**
+            packages/*/package.json
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
+            .changeset/**
+          retention-days: 1
+
+  test-pre-prod:
+    runs-on: ubuntu-latest
+    needs: version-and-rebuild
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0 # required for git tags and history
+
+      # Install and cache JS toolchain and dependencies (node_modules)
+      - name: Setup JS
+        uses: ./.github/actions/js-setup
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-artifacts-${{ github.sha }}
+          path: .
+
+      - name: Install latest dependencies
+        run: pnpm install -r --frozen-lockfile
 
       - name: Test (preprod)
         run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
@@ -83,16 +184,23 @@ jobs:
       # https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0 # required for git tags and history
 
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
-      - name: Download build artifacts
+      - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: build-artifacts-${{ github.sha }}
-          path: packages/
+          name: release-artifacts-${{ github.sha }}
+          path: .
+
+      - name: Install latest dependencies
+        run: pnpm install -r --frozen-lockfile
 
       - name: Test (prod)
         run: anvil & pnpm run test-all && lsof -t -i tcp:8545 | xargs kill
@@ -110,99 +218,62 @@ jobs:
           SOLANA_TEST_ORG_API_PRIVATE_KEY: ${{ secrets.SOLANA_TEST_ORG_API_PRIVATE_KEY }}
           WALLET_ID: ${{ secrets.WALLET_ID }}
 
-  publish:
+  prepare-release:
     runs-on: ubuntu-latest
-    environment: production # require manual approval for production deployments
     needs: test-prod
     steps:
-      # https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          fetch-depth: 0 # fetch all history for changelog generation
+          fetch-depth: 0
 
-      # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
-      - name: Download build artifacts
+      - name: Download versioned artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: build-artifacts-${{ github.sha }}
-          path: packages/
+          name: release-artifacts-${{ github.sha }}
+          path: .
 
-      - name: Debug npm config
-        run: |
-          echo "NPM_TOKEN is set: ${NPM_TOKEN:+set}"
-          cat .npmrc || echo "No .npmrc found"
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Check for changesets
-        run: |
-          if [ -z "$(ls -A .changeset/*.md 2>/dev/null)" ]; then
-            echo "No changesets found, exiting"
-            exit 0
-          fi
+      - name: Install latest dependencies
+        run: pnpm install -r --frozen-lockfile
 
       - name: Configure Git User
         run: |
           git config user.name "tkhq-deploy"
           git config user.email "github@turnkey.engineering"
 
-      - name: Version packages
+      - name: Create and switch to release branch
         run: |
-          pnpm changeset version
-          pnpm run version
+          git fetch origin
+          git checkout -B release/${{ github.sha }} origin/release/${{ github.sha }} || \
+          git checkout -B release/${{ github.sha }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit versioned changes
+        run: |
           git add .
-          git commit -m "chore: release packages"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish packages to NPM and GitHub (dry run)
-        run: |
-          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
-          echo "//npm.pkg.github.com/:_authToken=$GITHUB_TOKEN" >> .npmrc
-          pnpm publish -r --dry-run --no-git-checks
-          rm .npmrc
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish packages to NPM
-        run: |
-          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
-          pnpm publish -r --no-git-checks --report-summary
-          mv publish-summary.json publish-npm.txt
-          cat publish-npm.txt
-          rm .npmrc
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish packages to GitHub Packages
-        run: |
-          echo "//npm.pkg.github.com/:_authToken=$GITHUB_TOKEN" > .npmrc
-          pnpm publish -r --no-git-checks --report-summary
-          mv publish-summary.json publish-github.txt
-          cat publish-github.txt
-          rm .npmrc
+          git commit -m "chore: release packages" || echo "No changes to commit"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push changes to release branch
         run: |
-          git checkout -b release/${{ github.ref_name }} || git checkout release/${{ github.ref_name }}
-          git push origin release/${{ github.ref_name }}
+          git push origin HEAD
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          generate_release_notes: true
-          draft: true
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Create GitHub Release
+      #   uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
+      #   with:
+      #     tag_name: ${{ github.sha }}
+      #     name: Release ${{ github.sha }}
+      #     generate_release_notes: true
+      #     draft: true
+      #     prerelease: false
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
