@@ -451,6 +451,14 @@ export type definitions = {
     format?: definitions["v1AddressFormat"];
     address?: string;
   };
+  /** @enum {string} */
+  immutablecommonv1FiatOnRampProvider:
+    | "FIAT_ON_RAMP_PROVIDER_COINBASE"
+    | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
+  /** @enum {string} */
+  immutablecommonv1FiatOnRampTransactionType:
+    | "FIAT_ON_RAMP_TRANSACTION_TYPE_BUY"
+    | "FIAT_ON_RAMP_TRANSACTION_TYPE_SELL";
   protobufAny: {
     "@type"?: string;
   } & { [key: string]: unknown };

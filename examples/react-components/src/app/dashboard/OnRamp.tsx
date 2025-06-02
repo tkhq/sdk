@@ -42,8 +42,8 @@ export const OnRamp = () => {
 
         const initFiatOnRampResponse = await indexedDbClient?.initFiatOnRamp({
           organizationId: session?.organizationId!,
-          onrampProvider: "COINBASE",
-          transactionType: "BUY",
+          onrampProvider: "FIAT_ON_RAMP_PROVIDER_COINBASE",
+          transactionType: "FIAT_ON_RAMP_TRANSACTION_TYPE_BUY",
         });
 
         console.log("initFiatOnRampResponse:", initFiatOnRampResponse);
@@ -86,8 +86,8 @@ export const OnRamp = () => {
         const initMoonPayFiatOnRampResponse =
           await indexedDbClient?.initFiatOnRamp({
             organizationId: session?.organizationId!,
-            onrampProvider: "MOONPAY",
-            transactionType: "BUY",
+            onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
+            transactionType: "FIAT_ON_RAMP_TRANSACTION_TYPE_BUY",
           });
 
         console.log(
