@@ -225,6 +225,10 @@ import type {
   TImportWalletResponse,
 } from "./public_api.fetcher";
 import type {
+  TInitFiatOnRampBody,
+  TInitFiatOnRampResponse,
+} from "./public_api.fetcher";
+import type {
   TInitImportPrivateKeyBody,
   TInitImportPrivateKeyResponse,
 } from "./public_api.fetcher";
@@ -2162,6 +2166,37 @@ export class TurnkeyClient {
     input: TImportWalletBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/import_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Initializes a new fiat on ramp flow
+   *
+   * Sign the provided `TInitFiatOnRampBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_fiat_on_ramp).
+   *
+   * See also {@link stampInitFiatOnRamp}.
+   */
+  initFiatOnRamp = async (
+    input: TInitFiatOnRampBody,
+  ): Promise<TInitFiatOnRampResponse> => {
+    return this.request("/public/v1/submit/init_fiat_on_ramp", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TInitFiatOnRampBody` by using the client's `stamp` function.
+   *
+   * See also {@link InitFiatOnRamp}.
+   */
+  stampInitFiatOnRamp = async (
+    input: TInitFiatOnRampBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/init_fiat_on_ramp";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

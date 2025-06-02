@@ -628,6 +628,16 @@ export type TImportWalletBody =
   operations["PublicApiService_ImportWallet"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TInitFiatOnRampResponse =
+  operations["PublicApiService_InitFiatOnRamp"]["responses"]["200"]["schema"]["activity"]["result"]["initFiatOnRampResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TInitFiatOnRampInput = { body: TInitFiatOnRampBody };
+
+export type TInitFiatOnRampBody =
+  operations["PublicApiService_InitFiatOnRamp"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TInitImportPrivateKeyResponse =
   operations["PublicApiService_InitImportPrivateKey"]["responses"]["200"]["schema"]["activity"]["result"]["initImportPrivateKeyResult"] &
     definitions["v1ActivityResponse"];

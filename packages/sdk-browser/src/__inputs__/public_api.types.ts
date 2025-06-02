@@ -240,6 +240,10 @@ export type paths = {
     /** Imports a wallet */
     post: operations["PublicApiService_ImportWallet"];
   };
+  "/public/v1/submit/init_fiat_on_ramp": {
+    /** Initializes a new fiat on ramp flow */
+    post: operations["PublicApiService_InitFiatOnRamp"];
+  };
   "/public/v1/submit/init_import_private_key": {
     /** Initializes a new private key import */
     post: operations["PublicApiService_InitImportPrivateKey"];
@@ -593,7 +597,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_VERIFY_OTP"
     | "ACTIVITY_TYPE_OTP_LOGIN"
     | "ACTIVITY_TYPE_STAMP_LOGIN"
-    | "ACTIVITY_TYPE_OAUTH_LOGIN";
+    | "ACTIVITY_TYPE_OAUTH_LOGIN"
+    | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -630,6 +635,7 @@ export type definitions = {
     | "ADDRESS_FORMAT_DOGE_TESTNET"
     | "ADDRESS_FORMAT_TON_V3R2"
     | "ADDRESS_FORMAT_TON_V4R2"
+    | "ADDRESS_FORMAT_TON_V5R1"
     | "ADDRESS_FORMAT_XRP";
   v1ApiKey: {
     /** @description A User credential that can be used to authenticate to Turnkey. */
@@ -1976,6 +1982,27 @@ export type definitions = {
     /** @description A list of account addresses. */
     addresses: string[];
   };
+  v1InitFiatOnRampIntent: {
+    /** @description Enum to specifiy which Onramp provider to use */
+    onrampProvider: string;
+    /** @description Enum to specifiy whether to buy or sell crypto */
+    transactionType: string;
+  };
+  v1InitFiatOnRampRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1InitFiatOnRampIntent"];
+  };
+  v1InitFiatOnRampResult: {
+    /** @description Unique URL for a given Fiat On Ramp Flow. */
+    onRampUrl: string;
+    /** @description Unique identifier used to retrieve transaction statuses for a given Fiat On Ramp Flow. */
+    onRampTransactionId: string;
+  };
   v1InitImportPrivateKeyIntent: {
     /** @description The ID of the User importing a Private Key. */
     userId: string;
@@ -2222,6 +2249,7 @@ export type definitions = {
     otpLoginIntent?: definitions["v1OtpLoginIntent"];
     stampLoginIntent?: definitions["v1StampLoginIntent"];
     oauthLoginIntent?: definitions["v1OauthLoginIntent"];
+    initFiatOnRampIntent?: definitions["v1InitFiatOnRampIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2636,6 +2664,7 @@ export type definitions = {
     otpLoginResult?: definitions["v1OtpLoginResult"];
     stampLoginResult?: definitions["v1StampLoginResult"];
     oauthLoginResult?: definitions["v1OauthLoginResult"];
+    initFiatOnRampResult?: definitions["v1InitFiatOnRampResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -3087,7 +3116,7 @@ export type definitions = {
     parameters: definitions["v1VerifyOtpIntent"];
   };
   v1VerifyOtpResult: {
-    /** @description Signed JWT containing a unique id, expiry, verification type, contact */
+    /** @description Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
     verificationToken: string;
   };
   v1Vote: {
@@ -4233,6 +4262,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1ImportWalletRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Initializes a new fiat on ramp flow */
+  PublicApiService_InitFiatOnRamp: {
+    parameters: {
+      body: {
+        body: definitions["v1InitFiatOnRampRequest"];
       };
     };
     responses: {
