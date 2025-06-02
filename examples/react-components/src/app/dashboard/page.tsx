@@ -9,7 +9,7 @@ import {
 } from "@turnkey/sdk-react";
 
 import { server } from "@turnkey/sdk-server";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./dashboard.css";
 import {
   Typography,
@@ -49,7 +49,7 @@ import { MoonPayBuyWidget } from "@moonpay/moonpay-react";
 import { loadMoonPay } from "@moonpay/moonpay-js";
 import crypto from "crypto";
 
-const secretKey = "sk_test_QVIzIpqMuAtqUKRFaMcF6jwwgL96vwD";
+import { OnRamp } from "./OnRamp";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -82,61 +82,6 @@ export default function Dashboard() {
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   const [phoneInput, setPhoneInput] = useState("");
-  const [isMoonPayVisible, setIsMoonPayVisible] = useState(false);
-  const [moonPaySDK, setMoonPaySDK] = useState<any>();
-
-  // useEffect(() => {
-  //   const loadMoonPaySdk = async () => {
-  //     try {
-  //       const moonPay = await loadMoonPay();
-  //       const moonPaySdk = moonPay!({
-  //         flow: 'buy',
-  //         environment: 'sandbox',
-  //         variant: 'overlay',
-  //         params: {
-  //           apiKey: process.env.NEXT_PUBLIC_MOONPAY_API_KEY!,
-  //         },
-  //         debug: true
-  //       });
-  //       setMoonPaySDK(moonPaySdk);
-  //     } catch (error) {
-  //       console.error("Failed to load MoonPay SDK:", error);
-  //     }
-  //   };
-  //   loadMoonPaySdk();
-  // }, []);
-
-  useEffect(() => {
-    const initOnRampProvider = async () => {
-      try {
-        // get session
-        const session = await turnkey?.getSession();
-        console.log("session response:", session);
-
-        const initFiatOnRampResponse = await indexedDbClient?.initFiatOnRamp({
-          organizationId: session?.organizationId!,
-          onrampProvider: "COINBASE",
-          transactionType: "BUY",
-        });
-
-        console.log("initFiatOnRampResponse:", initFiatOnRampResponse);
-      } catch (error) {
-        console.error("Failed to init fiat on ramp:", error);
-      }
-    };
-    initOnRampProvider();
-  }, []);
-
-  const handleGetSignature = async (url: string): Promise<string> => {
-    console.log("Generating signature for URL:", url);
-    const signature = crypto
-      .createHmac("sha256", secretKey)
-      .update(new URL(url).search) // Use the query string part of the URL
-      .digest("base64"); // Convert the result to a base64 string
-
-    console.log(signature); // Print the signature
-    return signature; // Return the signature
-  };
 
   const handleExportSuccess = async () => {
     toast.success("Wallet successfully exported");
@@ -506,12 +451,6 @@ export default function Dashboard() {
     }
   };
 
-  // const handleGetSignature = async (url: string): Promise<string> => {
-  //   const signature = await fetch(`https://http://localhost:3001//sign-url?url=${url}`)
-  //   console.log("Signature received:", signature);
-  //   return signature as unknown as string;
-  // }
-
   const handleVerify = () => {
     if (!signature) return;
     const addressType = selectedAccount?.startsWith("0x") ? "ETH" : "SOL";
@@ -776,25 +715,7 @@ export default function Dashboard() {
               <button className="signMessage" onClick={handleSignMessageClick}>
                 Sign a message
               </button>
-              <MoonPayBuyWidget
-                variant="newWindow"
-                walletAddress="0xc7c10b3f98Be080DC2d6052BFd6d70F32B6b9e53"
-                baseCurrencyAmount="20"
-                currencyCode="eth"
-                onUrlSignatureRequested={handleGetSignature}
-                visible={isMoonPayVisible}
-              />
-              <button
-                onClick={() => setIsMoonPayVisible(true)}
-                className="moonPayButton"
-              >
-                Go to the moon
-              </button>
-              {/* <button onClick={() => {
-                console.log("MoonPay SDK:", moonPaySDK);
-                moonPaySDK?.show()}} className="moonPayButton">
-                Go to the moon
-              </button> */}
+              <OnRamp />
             </div>
           </RadioGroup>
 
