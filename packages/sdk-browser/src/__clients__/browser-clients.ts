@@ -25,7 +25,6 @@ import type { Passkey } from "@models";
 import { storeSession } from "@storage";
 
 import { DEFAULT_SESSION_EXPIRATION_IN_SECONDS } from "@constants";
-import { uint8ArrayToHexString, pointEncode } from "@turnkey/encoding";
 
 export interface OauthProvider {
   providerName: string;
@@ -136,23 +135,24 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    *
    * @param RefreshSessionParams
    *   @param params.sessionType - The type of session that is being refreshed
+   *   @param params.publicKey - The public key of the indexedDb client
    *   @param params.expirationSeconds - Specify how long to extend the session. Defaults to 900 seconds or 15 minutes.
    * @returns {Promise<void>}
    */
   refreshSession = async (params: RefreshSessionParams): Promise<void> => {
     const {
       sessionType = SessionType.READ_WRITE,
+      publicKey,
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     } = params;
 
     try {
       if (sessionType === SessionType.READ_ONLY) {
-        if (!(this instanceof TurnkeyPasskeyClient)) {
+        if (this! instanceof TurnkeyPasskeyClient) {
           throw new Error(
-            "You must use a passkey client to refresh a read-only session.",
+            "You must use a passkey client to refresh a read session",
           ); // TODO: support wallet client
         }
-
         const readOnlySessionResult = await this.createReadOnlySession({});
         const session: Session = {
           sessionType: SessionType.READ_ONLY,
@@ -164,39 +164,16 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
         await storeSession(session, AuthClient.Passkey);
       } else if (sessionType === SessionType.READ_WRITE) {
-        if (!(this instanceof TurnkeyIndexedDbClient)) {
+        if (!publicKey) {
           throw new Error(
-            "You must use an IndexedDb client to refresh a read-write session.",
+            "You must provide a publicKey to refresh a read-write session.",
           );
         }
 
-        // Generate new key pair (non-extractable)
-        const newKeyPair = await crypto.subtle.generateKey(
-          {
-            name: "ECDSA",
-            namedCurve: "P-256",
-          },
-          false, // non-extractable
-          ["sign", "verify"],
-        );
-
-        // Compress public key
-        const rawPubKey = new Uint8Array(
-          await crypto.subtle.exportKey("raw", newKeyPair.publicKey),
-        );
-        const compressedPubKey = pointEncode(rawPubKey);
-        const compressedHex = uint8ArrayToHexString(compressedPubKey);
-
-        // Stamp login with new public key
         const sessionResponse = await this.stampLogin({
-          publicKey: compressedHex,
+          publicKey: publicKey,
           expirationSeconds,
         });
-
-        // Adopt new key into IndexedDb stamper
-        await this.resetKeyPair(newKeyPair);
-
-        // Store session
         await storeSession(sessionResponse.session, AuthClient.IndexedDb);
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
@@ -801,9 +778,7 @@ export class TurnkeyIndexedDbClient extends TurnkeyBrowserClient {
     return await (this.stamper as IndexedDbStamper).init();
   };
 
-  resetKeyPair = async (externalKeyPair?: CryptoKeyPair): Promise<void> => {
-    return await (this.stamper as IndexedDbStamper).resetKeyPair(
-      externalKeyPair,
-    );
+  resetKeyPair = async (): Promise<void> => {
+    return await (this.stamper as IndexedDbStamper).resetKeyPair();
   };
 }

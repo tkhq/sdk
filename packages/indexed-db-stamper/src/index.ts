@@ -1,13 +1,32 @@
 import {
   uint8ArrayToHexString,
   stringToBase64urlString,
-  pointEncode,
 } from "@turnkey/encoding";
 
 const DB_NAME = "TurnkeyStamperDB";
 const DB_STORE = "KeyStore";
 const DB_KEY = "turnkeyKeyPair";
 const stampHeaderName = "X-Stamp";
+
+function pointEncode(raw: Uint8Array): Uint8Array {
+  if (raw.length !== 65 || raw[0] !== 0x04) {
+    throw new Error("Invalid uncompressed P-256 key");
+  }
+
+  const x = raw.slice(1, 33);
+  const y = raw.slice(33, 65);
+
+  if (x.length !== 32 || y.length !== 32) {
+    throw new Error("Invalid x or y length");
+  }
+
+  const prefix = (y[31]! & 1) === 0 ? 0x02 : 0x03;
+
+  const compressed = new Uint8Array(33);
+  compressed[0] = prefix;
+  compressed.set(x, 1);
+  return compressed;
+}
 
 /**
  * `SubtleCrypto.sign(...)` outputs signature in IEEE P1363 format:
@@ -163,42 +182,26 @@ export class IndexedDbStamper {
     }
   }
 
-  async resetKeyPair(externalKeyPair?: CryptoKeyPair): Promise<void> {
-    let privateKey: CryptoKey;
-    let publicKey: CryptoKey;
-
-    if (externalKeyPair) {
-      // Sanity check — ensure privateKey is non-extractable
-      const extractable = (externalKeyPair.privateKey as any).extractable;
-      if (extractable !== false) {
-        throw new Error("Provided privateKey must be non-extractable.");
-      }
-      privateKey = externalKeyPair.privateKey;
-      publicKey = externalKeyPair.publicKey;
-    } else {
-      const keyPair = await crypto.subtle.generateKey(
-        {
-          name: "ECDSA",
-          namedCurve: "P-256",
-        },
-        false,
-        ["sign", "verify"],
-      );
-
-      privateKey = keyPair.privateKey;
-      publicKey = keyPair.publicKey;
-    }
+  async resetKeyPair(): Promise<void> {
+    const keyPair = await crypto.subtle.generateKey(
+      {
+        name: "ECDSA",
+        namedCurve: "P-256",
+      },
+      false,
+      ["sign", "verify"],
+    );
 
     const rawPubKey = new Uint8Array(
-      await crypto.subtle.exportKey("raw", publicKey),
+      await crypto.subtle.exportKey("raw", keyPair.publicKey),
     );
     const compressedPubKey = pointEncode(rawPubKey);
     const compressedHex = uint8ArrayToHexString(compressedPubKey);
 
-    await this.storeKeyPair(compressedHex, privateKey);
+    await this.storeKeyPair(compressedHex, keyPair.privateKey);
 
     this.publicKeyHex = compressedHex;
-    this.privateKey = privateKey;
+    this.privateKey = keyPair.privateKey;
   }
 
   getPublicKey(): string | null {
