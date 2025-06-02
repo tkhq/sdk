@@ -2,14 +2,16 @@
 // Turnkey-specific cryptographic utilities
 import bs58check from "bs58check";
 import bs58 from "bs58";
-
 import {
   uint8ArrayToHexString,
   uint8ArrayFromHexString,
   hexToAscii,
 } from "@turnkey/encoding";
 
-import { PRODUCTION_SIGNER_PUBLIC_KEY } from "./constants";
+import {
+  PRODUCTION_NOTARIZER_PUBLIC_KEY,
+  PRODUCTION_SIGNER_PUBLIC_KEY,
+} from "./constants";
 import {
   formatHpkeBuf,
   fromDerSignature,
@@ -402,4 +404,63 @@ export const encryptWalletToBundle = async ({
   const targetKeyBuf = uint8ArrayFromHexString(signedData.targetPublic);
   const privateKeyBundle = hpkeEncrypt({ plainTextBuf, targetKeyBuf });
   return formatHpkeBuf(privateKeyBundle);
+};
+
+/**
+ * Verifies that a **session JWT** was signed by Turnkey’s
+ * notarizer key (P-256 / ES256, compact 64-byte r‖s signature).
+ *
+ * How it works
+ * ------------
+ * 1.  Split the JWT into `header.payload.signature`.
+ * 2.  **Double-hash** the string `"header.payload"`:
+ *        `h1 = sha256(header.payload)`
+ *        `msg = sha256(h1)`
+ *     (The Rust signer feeds `h1` into `SigningKey::sign`, which hashes once
+ *     more internally, yielding `msg`.)
+ * 3.  Base64-URL-decode the signature (`r||s`, 64 bytes).
+ * 4.  Import the notarizer public key (hex `04‖X‖Y` → `Uint8Array`).
+ * 5.  Call `p256.verify(signature, msg, publicKey)`; noble treats the 32-byte
+ *     `msg` as a pre-hashed digest and performs ECDSA verification.
+ *
+ * @param jwt   The session JWT to validate.
+ * @param dangerouslyOverrideNotarizerPublicKey *(optional)* Hex-encoded
+ *              uncompressed P-256 public key to verify against (use only in
+ *              tests).  Defaults to the production notarizer key.
+ * @returns `true` if the signature is valid for the given key, else `false`.
+ * @throws  If the JWT is malformed.
+ */
+export const verifySessionJwtSignature = async (
+  jwt: string,
+  dangerouslyOverrideNotarizerPublicKey?: string,
+): Promise<boolean> => {
+  const notarizerKeyHex =
+    dangerouslyOverrideNotarizerPublicKey ?? PRODUCTION_NOTARIZER_PUBLIC_KEY;
+
+  /* 1. split JWT -------------------------------------------------------- */
+  const [headerB64, payloadB64, signatureB64] = jwt.split(".");
+  if (!signatureB64) throw new Error("invalid JWT: need 3 parts");
+  const signingInput = `${headerB64}.${payloadB64}`;
+
+  /* 2. sha256(sha256(header.payload)) ----------------------------------- */
+  const h1 = sha256(new TextEncoder().encode(signingInput));
+  const msgDigest = sha256(h1); // 32-byte Uint8Array
+
+  /* 3. base64-url decode signature -------------------------------------- */
+  const toB64 = (u: string) =>
+    (u = u.replace(/-/g, "+").replace(/_/g, "/")).padEnd(
+      u.length + ((4 - (u.length % 4)) % 4),
+      "=",
+    );
+  const signature = Uint8Array.from(
+    atob(toB64(signatureB64))
+      .split("")
+      .map((c) => c.charCodeAt(0)),
+  ); // 64 bytes
+
+  /* 4. load public key -------------------------------------------------- */
+  const publicKey = uint8ArrayFromHexString(notarizerKeyHex);
+
+  /* 5. verify ----------------------------------------------------------- */
+  return p256.verify(signature, msgDigest, publicKey);
 };
