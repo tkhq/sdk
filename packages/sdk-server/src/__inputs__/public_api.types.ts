@@ -630,6 +630,7 @@ export type definitions = {
     | "ADDRESS_FORMAT_DOGE_TESTNET"
     | "ADDRESS_FORMAT_TON_V3R2"
     | "ADDRESS_FORMAT_TON_V4R2"
+    | "ADDRESS_FORMAT_TON_V5R1"
     | "ADDRESS_FORMAT_XRP";
   v1ApiKey: {
     /** @description A User credential that can be used to authenticate to Turnkey. */
@@ -3087,7 +3088,7 @@ export type definitions = {
     parameters: definitions["v1VerifyOtpIntent"];
   };
   v1VerifyOtpResult: {
-    /** @description Signed JWT containing a unique id, expiry, verification type, contact */
+    /** @description Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
     verificationToken: string;
   };
   v1Vote: {
