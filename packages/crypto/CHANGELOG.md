@@ -1,5 +1,11 @@
 # @turnkey/crypto
 
+## 2.4.0
+
+### Minor Changes
+
+- [#662](https://github.com/tkhq/sdk/pull/662) [`10ee5c5`](https://github.com/tkhq/sdk/commit/10ee5c524b477ce998e4fc635152cd101ae5a9cc) Thanks [@moe-dev](https://github.com/moe-dev)! - Add function `verifySessionJwtSignature` to verify session tokens return from Turnkey and signed by the notarizer
+
 ## 2.3.1
 
 ### Patch Changes

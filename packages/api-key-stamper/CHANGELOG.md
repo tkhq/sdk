@@ -1,5 +1,12 @@
 # @turnkey/api-key-stamper
 
+## 0.4.6
+
+### Patch Changes
+
+- Updated dependencies [[`40c4035`](https://github.com/tkhq/sdk/commit/40c40359ec7096d0bca39ffc93e89361b3b11a1a)]:
+  - @turnkey/encoding@0.5.0
+
 ## 0.4.5
 
 ### Patch Changes

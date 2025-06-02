@@ -1,5 +1,11 @@
 # @turnkey/webauthn-stamper
 
+## 0.5.1
+
+### Patch Changes
+
+- [#659](https://github.com/tkhq/sdk/pull/659) [`5afbe51`](https://github.com/tkhq/sdk/commit/5afbe51949bdd1997fad083a4c1e4272ff7409dc) Author [@turnekybc](https://github.com/turnekybc) - export types and models from @turnkey/sdk-browser
+
 ## 0.5.0
 
 ### Minor Changes

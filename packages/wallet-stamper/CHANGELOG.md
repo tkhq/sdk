@@ -1,5 +1,15 @@
 # @turnkey/wallet-stamper
 
+## 1.0.4
+
+### Patch Changes
+
+- [#659](https://github.com/tkhq/sdk/pull/659) [`5afbe51`](https://github.com/tkhq/sdk/commit/5afbe51949bdd1997fad083a4c1e4272ff7409dc) Author [@turnekybc](https://github.com/turnekybc) - export types and models from @turnkey/sdk-browser
+
+- Updated dependencies [[`40c4035`](https://github.com/tkhq/sdk/commit/40c40359ec7096d0bca39ffc93e89361b3b11a1a), [`10ee5c5`](https://github.com/tkhq/sdk/commit/10ee5c524b477ce998e4fc635152cd101ae5a9cc)]:
+  - @turnkey/encoding@0.5.0
+  - @turnkey/crypto@2.4.0
+
 ## 1.0.3
 
 ### Patch Changes
