@@ -4,8 +4,6 @@ import { FundButton } from "@coinbase/onchainkit/fund";
 import { useEffect, useState } from "react";
 import { useTurnkey } from "@turnkey/sdk-react";
 
-const secretKey = "sk_test_QVIzIpqMuAtqUKRFaMcF6jwwgL96vwD";
-
 export const OnRamp = () => {
   const { turnkey, indexedDbClient } = useTurnkey();
   const [isMoonPayVisible, setIsMoonPayVisible] = useState(false);
@@ -74,6 +72,7 @@ export const OnRamp = () => {
         // get session
         const session = await turnkey?.getSession();
         console.log("session response:", session);
+        const secretKey = "sk_test_QVIzIpqMuAtqUKRFaMcF6jwwgL96vwD";
         const originalUrl =
           "https://buy-sandbox.moonpay.com?apiKey=pk_test_zEGwLvmLma8crfMBnJwzom7jzKeu6Jsk&currencyCode=eth&walletAddress=0xc7c10b3f98Be080DC2d6052BFd6d70F32B6b9e53";
         const signature = crypto
@@ -84,21 +83,24 @@ export const OnRamp = () => {
         const urlWithSignature = `${originalUrl}&signature=${encodeURIComponent(signature)}`; // Add the signature to the URL
 
         console.log("urlWithSignature", urlWithSignature);
-        // const initMoonPayFiatOnRampResponse =
-        //   await indexedDbClient?.initFiatOnRamp({
-        //     organizationId: session?.organizationId!,
-        //     onrampProvider: "MOONPAY",
-        //     transactionType: "BUY",
-        //   });
+        const initMoonPayFiatOnRampResponse =
+          await indexedDbClient?.initFiatOnRamp({
+            organizationId: session?.organizationId!,
+            onrampProvider: "MOONPAY",
+            transactionType: "BUY",
+          });
 
+        console.log(
+          "initMoonPayFiatOnRampResponse:",
+          initMoonPayFiatOnRampResponse
+        );
         // console.log(
-        //   "initMoonPayFiatOnRampResponse:",
-        //   initMoonPayFiatOnRampResponse
+        //   "https://buy-sandbox.moonpay.com?apiKey=pk_test_zEGwLvmLma8crfMBnJwzom7jzKeu6Jsk&currencyCode=ETH&walletAddress=0xf2C35a22F398a00097E7621638D3931173850811&signature=wecT6rA1h8Fo5xL3wtjMH2nvUdAwGbHHTu8NRI85Xeo%3D"
         // );
-        // if (initMoonPayFiatOnRampResponse?.onRampUrl) {
-        //   setMoonPayOnRampBuyUrl(initMoonPayFiatOnRampResponse?.onRampUrl);
-        // }
-        setMoonPayOnRampBuyUrl(urlWithSignature);
+        if (initMoonPayFiatOnRampResponse?.onRampUrl) {
+          setMoonPayOnRampBuyUrl(initMoonPayFiatOnRampResponse?.onRampUrl);
+        }
+        // setMoonPayOnRampBuyUrl(urlWithSignature);
       } catch (error) {
         console.error("Failed to init fiat on ramp:", error);
       }
