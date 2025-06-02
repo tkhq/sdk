@@ -121,6 +121,7 @@ function AuthPage() {
     googleEnabled: true,
     appleEnabled: false,
     facebookEnabled: false,
+    socialLinking: true, // Enable social linking
     sessionLengthSeconds: 3600, //1 hour r/w session
   };
 

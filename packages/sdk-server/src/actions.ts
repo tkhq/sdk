@@ -1,6 +1,8 @@
 "use server";
 
 import {
+  CreateOauthProvidersRequest,
+  CreateOauthProvidersResponse,
   OauthLoginRequest,
   OauthLoginResponse,
   OtpLoginRequest,
@@ -12,6 +14,8 @@ import {
   GetOrCreateSuborgResponse,
   GetSuborgsRequest,
   GetSuborgsResponse,
+  GetUsersRequest,
+  GetUsersResponse,
   InitEmailAuthRequest,
   SendOtpRequest,
   SendOtpResponse,
@@ -162,6 +166,48 @@ export async function oauthLogin(
       throw new Error("Expected a non-null value for session");
     }
     return response;
+  } catch (error) {
+    console.error(error);
+    return undefined;
+  }
+}
+
+export async function createOauthProviders(
+  request: CreateOauthProvidersRequest,
+): Promise<CreateOauthProvidersResponse | undefined> {
+  // Create Oauth Providers can be called by the parent targeting the suborg only when the following cases are true:
+  // 1. the oAuth issuer is Google,
+  // 2. the oAuth issuer has verified the email in the token
+  // 3. the email in the token matches the email that the user has already has logged in with
+  try {
+    const response = await turnkeyClient.apiClient().createOauthProviders({
+      organizationId: request.organizationId,
+      userId: request.userId,
+      oauthProviders: request.oauthProviders,
+    });
+
+    if (!response) {
+      throw new Error("Expected a non-null response.");
+    }
+    return response;
+  } catch (error) {
+    console.error(error);
+    return undefined;
+  }
+}
+
+export async function getUsers(
+  request: GetUsersRequest,
+): Promise<GetUsersResponse | undefined> {
+  try {
+    const response = await turnkeyClient.apiClient().getUsers({
+      organizationId: request.organizationId,
+    });
+
+    if (!response || !response.users) {
+      throw new Error("Expected a non-null response with userIds.");
+    }
+    return { users: response.users };
   } catch (error) {
     console.error(error);
     return undefined;

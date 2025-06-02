@@ -43,6 +43,7 @@ import { MuiPhone } from "../components/PhoneInput";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Navbar from "../components/Navbar";
 import { Toaster, toast } from "sonner";
+import { jwtDecode } from "jwt-decode";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -218,23 +219,38 @@ export default function Dashboard() {
         console.error(`Unknown OAuth type: ${oauthType}`);
     }
     if (oidcToken) {
-      const suborgs = await server.getSuborgs({
-        filterType: "OIDC_TOKEN",
-        filterValue: oidcToken.idToken,
-      });
-      if (suborgs!.organizationIds.length > 0) {
-        toast.error("Social login is already connected to another account");
-        return;
+      try {
+        const suborgs = await server.getSuborgs({
+          filterType: "OIDC_TOKEN",
+          filterValue: oidcToken.idToken,
+        });
+        if (suborgs!.organizationIds.length > 0) {
+          toast.error("Social login is already connected to another account");
+          return;
+        }
+        if (!user.userEmail && !isVerifiedEmail) {
+          const { email: oidcEmail } = jwtDecode<any>(oidcToken.idToken) || {}; // Parse the oidc token so we can get the email. Pass it in to updateUser then call createOauthProviders. This will be verified by Turnkey.
+          await indexedDbClient?.updateUser({
+            userId: user.userId,
+            userEmail: oidcEmail,
+            userTagIds: [],
+          });
+        }
+
+        await indexedDbClient?.createOauthProviders({
+          userId: user.userId,
+          oauthProviders: [
+            {
+              providerName: `TurnkeyDemoApp - ${Date.now()}`,
+              oidcToken: oidcToken.idToken,
+            },
+          ],
+        });
+      } catch (error) {
+        console.error("Error adding OAuth provider:", error);
+        toast.error("Failed to add OAuth provider");
       }
-      await indexedDbClient?.createOauthProviders({
-        userId: user.userId,
-        oauthProviders: [
-          {
-            providerName: `TurnkeyDemoApp - ${Date.now()}`,
-            oidcToken: oidcToken.idToken,
-          },
-        ],
-      });
+
       window.location.reload();
     }
   };
