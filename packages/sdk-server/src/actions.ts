@@ -175,7 +175,10 @@ export async function oauthLogin(
 export async function createOauthProviders(
   request: CreateOauthProvidersRequest,
 ): Promise<CreateOauthProvidersResponse | undefined> {
-  // Create Oauth Providers can be called by the parent targeting the suborg only when the following cases are true: 1. the oAuth issuer is Google, 2. the oAuth issuer has verified the email in the token, and 3. the email in the token matches the email that the user has already has logged in with
+  // Create Oauth Providers can be called by the parent targeting the suborg only when the following cases are true:
+  // 1. the oAuth issuer is Google,
+  // 2. the oAuth issuer has verified the email in the token
+  // 3. the email in the token matches the email that the user has already has logged in with
   try {
     const response = await turnkeyClient.apiClient().createOauthProviders({
       organizationId: request.organizationId,

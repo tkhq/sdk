@@ -292,12 +292,8 @@ const Auth: React.FC<AuthProps> = ({
 
     setOauthLoading(providerName);
 
-    const { email, iss } =
-      jwtDecode<{ email?: string; iss?: string }>(credential) || {};
-
     const oauthProviders = [{ providerName, oidcToken: credential }];
-    const createSuborgData: Record<string, any> = {
-      ...(socialLinking && email && { email }),
+    let createSuborgData: Record<string, any> = {
       oauthProviders,
       ...(customAccounts && { customAccounts }),
     };
@@ -345,11 +341,20 @@ const Auth: React.FC<AuthProps> = ({
 
     // If not, try to link by verified email (Google only)
     if (!orgId) {
-      if (email && iss === "https://accounts.google.com") {
+      const { email: oidcEmail, iss } =
+        jwtDecode<{ email?: string; iss?: string }>(credential) || {};
+
+      createSuborgData = {
+        email: oidcEmail,
+        oauthProviders,
+        ...(customAccounts && { customAccounts }),
+      };
+
+      if (oidcEmail && iss === "https://accounts.google.com") {
         const emailOrgIds = (
           await server.getVerifiedSuborgs({
             filterType: FilterType.Email,
-            filterValue: email,
+            filterValue: oidcEmail,
           })
         )?.organizationIds;
 
