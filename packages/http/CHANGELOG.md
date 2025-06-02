@@ -1,5 +1,16 @@
 # @turnkey/http
 
+## 3.4.1
+
+### Patch Changes
+
+- [#663](https://github.com/tkhq/sdk/pull/663) [`593de2d`](https://github.com/tkhq/sdk/commit/593de2d9404ec8cf53426f9cf832c13eefa3fbf2) Thanks [@moe-dev](https://github.com/moe-dev)! - Update to endpoints as per mono v2025.5.7. Add V5 TON address format generation. Non breaking
+
+- Updated dependencies [[`5afbe51`](https://github.com/tkhq/sdk/commit/5afbe51949bdd1997fad083a4c1e4272ff7409dc), [`40c4035`](https://github.com/tkhq/sdk/commit/40c40359ec7096d0bca39ffc93e89361b3b11a1a)]:
+  - @turnkey/webauthn-stamper@0.5.1
+  - @turnkey/encoding@0.5.0
+  - @turnkey/api-key-stamper@0.4.6
+
 ## 3.4.0
 
 ### Minor Changes

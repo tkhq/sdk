@@ -1,5 +1,20 @@
 # @turnkey/sdk-server
 
+## 4.1.0
+
+### Minor Changes
+
+- [#632](https://github.com/tkhq/sdk/pull/632) [`a38a6e3`](https://github.com/tkhq/sdk/commit/a38a6e36dc2bf9abdea64bc817d1cad95b8a289a) Author [@amircheikh](https://github.com/amircheikh) - Exposed `createOauthProviders` and `getUsers` as server actions. These are used for social linking within `@turnkey/sdk-react`.
+
+### Patch Changes
+
+- [#663](https://github.com/tkhq/sdk/pull/663) [`593de2d`](https://github.com/tkhq/sdk/commit/593de2d9404ec8cf53426f9cf832c13eefa3fbf2) Thanks [@moe-dev](https://github.com/moe-dev)! - Update to endpoints as per mono v2025.5.7. Add V5 TON address format generation. Non breaking
+
+- Updated dependencies [[`5afbe51`](https://github.com/tkhq/sdk/commit/5afbe51949bdd1997fad083a4c1e4272ff7409dc), [`593de2d`](https://github.com/tkhq/sdk/commit/593de2d9404ec8cf53426f9cf832c13eefa3fbf2)]:
+  - @turnkey/wallet-stamper@1.0.4
+  - @turnkey/http@3.4.1
+  - @turnkey/api-key-stamper@0.4.6
+
 ## 4.0.1
 
 ### Patch Changes

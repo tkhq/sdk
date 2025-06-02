@@ -1,5 +1,16 @@
 # @turnkey/sdk-react-native
 
+## 1.3.1
+
+### Patch Changes
+
+- Updated dependencies [[`40c4035`](https://github.com/tkhq/sdk/commit/40c40359ec7096d0bca39ffc93e89361b3b11a1a), [`10ee5c5`](https://github.com/tkhq/sdk/commit/10ee5c524b477ce998e4fc635152cd101ae5a9cc), [`593de2d`](https://github.com/tkhq/sdk/commit/593de2d9404ec8cf53426f9cf832c13eefa3fbf2)]:
+  - @turnkey/encoding@0.5.0
+  - @turnkey/crypto@2.4.0
+  - @turnkey/http@3.4.1
+  - @turnkey/api-key-stamper@0.4.6
+  - @turnkey/react-native-passkey-stamper@1.0.15
+
 ## 1.3.0
 
 ### Minor Changes
