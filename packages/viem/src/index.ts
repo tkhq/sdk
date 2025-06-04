@@ -102,6 +102,11 @@ export class TurnkeyActivityError extends BaseError {
   }
 }
 
+// Check if the client is an instance of TurnkeyClient. We check the constructor name here since the 'instanceof' operator does not work across if the http client isn't EXACTLY the same (mismatching versions).
+function isHttpClient(client: any): client is TurnkeyClient {
+  return client?.constructor?.name === "TurnkeyClient";
+}
+
 export function createAccountWithAddress(input: {
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
   organizationId: string;
@@ -493,7 +498,7 @@ async function signTransactionImpl(
   organizationId: string,
   signWith: string,
 ): Promise<string> {
-  if (client instanceof TurnkeyClient) {
+  if (isHttpClient(client)) {
     const { activity } = await client.signTransaction({
       type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       organizationId: organizationId,
@@ -576,7 +581,7 @@ async function signMessageImpl(
 ): Promise<TSignMessageResult> {
   let result: TSignature;
 
-  if (client instanceof TurnkeyClient) {
+  if (isHttpClient(client)) {
     const { activity } = await client.signRawPayload({
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
       organizationId: organizationId,
