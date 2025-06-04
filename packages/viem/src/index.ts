@@ -28,6 +28,7 @@ import { secp256k1 } from "@noble/curves/secp256k1";
 import {
   assertNonNull,
   assertActivityCompleted,
+  isHttpClient,
   TActivityStatus,
   TActivityId,
   TSignature,
@@ -100,11 +101,6 @@ export class TurnkeyActivityError extends BaseError {
     this.activityId = activityId;
     this.activityStatus = activityStatus;
   }
-}
-
-// Check if the client is an instance of TurnkeyClient. We check the constructor name here since the 'instanceof' operator does not work across if the http client isn't EXACTLY the same (mismatching versions).
-function isHttpClient(client: any): client is TurnkeyClient {
-  return client?.constructor?.name === "TurnkeyClient";
 }
 
 export function createAccountWithAddress(input: {

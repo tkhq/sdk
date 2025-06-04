@@ -14,6 +14,7 @@ import {
   TurnkeyClient,
   TurnkeyActivityError,
   TurnkeyRequestError,
+  isHttpClient,
 } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient } from "@turnkey/sdk-server";
@@ -165,7 +166,7 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
     const messageHex = toHex(message);
     let result;
 
-    if (this.client instanceof TurnkeyClient) {
+    if (isHttpClient(this.client)) {
       const { activity } = await this.client.signRawPayload({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
         organizationId: this.organizationId,

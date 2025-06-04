@@ -6,6 +6,7 @@ import {
   getWebAuthnAssertion,
   TurnkeyCredentialRequestOptions,
 } from "./webauthn";
+import type { TurnkeyClient } from ".";
 
 export type { TurnkeyCredentialRequestOptions };
 export { fetch };
@@ -252,6 +253,11 @@ export async function sealAndStampRequestBody(input: {
     sealedBody,
     xStamp,
   };
+}
+
+// Check if the client is an instance of TurnkeyClient. We check the constructor name here since the 'instanceof' operator does not work across if the http client isn't EXACTLY the same (mismatching versions).
+export function isHttpClient(client: any): client is TurnkeyClient {
+  return client?.constructor?.name === "TurnkeyClient";
 }
 
 export type THttpConfig = {

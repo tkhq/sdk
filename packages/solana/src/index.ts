@@ -4,6 +4,7 @@ import {
   assertActivityCompleted,
   TurnkeyClient,
   type TSignature,
+  isHttpClient,
 } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
@@ -136,7 +137,7 @@ export class TurnkeySigner {
     signWith: string,
     organizationId?: string,
   ) {
-    if (this.client instanceof TurnkeyClient) {
+    if (isHttpClient(this.client)) {
       const response = await this.client.signTransaction({
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
         organizationId: organizationId ?? this.organizationId,
@@ -176,7 +177,7 @@ export class TurnkeySigner {
     signWith: string,
     organizationId?: string,
   ) {
-    if (this.client instanceof TurnkeyClient) {
+    if (isHttpClient(this.client)) {
       const response = await this.client.signRawPayload({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
         organizationId: organizationId ?? this.organizationId,
@@ -222,7 +223,7 @@ export class TurnkeySigner {
     signWith: string,
     organizationId?: string,
   ) {
-    if (this.client instanceof TurnkeyClient) {
+    if (isHttpClient(this.client)) {
       const response = await this.client.signRawPayloads({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
         organizationId: organizationId ?? this.organizationId,
