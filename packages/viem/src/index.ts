@@ -28,6 +28,7 @@ import { secp256k1 } from "@noble/curves/secp256k1";
 import {
   assertNonNull,
   assertActivityCompleted,
+  isHttpClient,
   TActivityStatus,
   TActivityId,
   TSignature,
@@ -493,7 +494,7 @@ async function signTransactionImpl(
   organizationId: string,
   signWith: string,
 ): Promise<string> {
-  if (client instanceof TurnkeyClient) {
+  if (isHttpClient(client)) {
     const { activity } = await client.signTransaction({
       type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       organizationId: organizationId,
@@ -576,7 +577,7 @@ async function signMessageImpl(
 ): Promise<TSignMessageResult> {
   let result: TSignature;
 
-  if (client instanceof TurnkeyClient) {
+  if (isHttpClient(client)) {
     const { activity } = await client.signRawPayload({
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
       organizationId: organizationId,

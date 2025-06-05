@@ -1,4 +1,4 @@
-import { TurnkeyClient } from "@turnkey/http";
+import { TurnkeyClient, isHttpClient } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type {
   TSignRawPayloadResponse,
@@ -49,7 +49,7 @@ export async function signMessage({
 }): Promise<string> {
   let activityResponse;
 
-  if (client instanceof TurnkeyClient) {
+  if (isHttpClient(client)) {
     activityResponse = await client.signRawPayload({
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
       organizationId,
@@ -100,7 +100,7 @@ export async function signTransaction({
 }): Promise<string> {
   let activityResponse;
 
-  if (client instanceof TurnkeyClient) {
+  if (isHttpClient(client)) {
     activityResponse = await client.signTransaction({
       type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       organizationId: organizationId,

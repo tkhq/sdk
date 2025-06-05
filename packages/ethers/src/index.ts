@@ -24,6 +24,7 @@ import {
   assertActivityCompleted,
   assertNonNull,
   type TSignature,
+  isHttpClient,
 } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient } from "@turnkey/sdk-server";
@@ -108,7 +109,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   private async _signTransactionImpl(
     unsignedTransaction: string,
   ): Promise<string> {
-    if (this.client instanceof TurnkeyClient) {
+    if (isHttpClient(this.client)) {
       const { activity } = await this.client.signTransaction({
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
         organizationId: this.organizationId,
@@ -234,7 +235,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   async _signMessageImpl(message: string): Promise<string> {
     let result;
 
-    if (this.client instanceof TurnkeyClient) {
+    if (isHttpClient(this.client)) {
       const { activity } = await this.client.signRawPayload({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
         organizationId: this.organizationId,
