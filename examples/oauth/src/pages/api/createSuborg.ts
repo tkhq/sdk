@@ -38,8 +38,6 @@ export default async function createSuborg(
         rootUsers: [
           {
             userName: `example-user-${String(Date.now())}`,
-            userEmail: "",
-            userPhoneNumber: "",
             apiKeys: [],
             authenticators: [],
             oauthProviders: request.oauthProviders,
