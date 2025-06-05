@@ -4,13 +4,11 @@ import { Turnkey as TurnkeySDKClient } from "@turnkey/sdk-server";
 type AuthRequest = {
   suborgID: string;
   oidcToken: string;
-  targetPublicKey: string;
+  publicKey: string;
 };
 
 type AuthResponse = {
-  userId: string;
-  apiKeyId: string;
-  credentialBundle: string;
+  session: string;
 };
 type ErrorMessage = {
   message: string;
@@ -29,21 +27,19 @@ export default async function auth(
       defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
-    const oauthResponse = await turnkeyClient.apiClient().oauth({
+    const oauthResponse = await turnkeyClient.apiClient().oauthLogin({
       oidcToken: request.oidcToken,
-      targetPublicKey: request.targetPublicKey,
+      publicKey: request.publicKey,
       organizationId: request.suborgID,
     });
 
-    const { credentialBundle, apiKeyId, userId } = oauthResponse;
+    const { session } = oauthResponse;
 
-    if (!credentialBundle || !apiKeyId || !userId) {
-      throw new Error(
-        "Expected non-null values for credentialBundle, apiKeyId, and userId.",
-      );
+    if (!session) {
+      throw new Error("session not available");
     }
 
-    res.status(200).json({ credentialBundle, apiKeyId, userId });
+    res.status(200).json({ session });
   } catch (e) {
     console.error(e);
     res.status(500).json({ message: "Something went wrong." });
