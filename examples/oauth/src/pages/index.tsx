@@ -13,7 +13,7 @@ import { bytesToHex } from "@noble/hashes/utils";
  * Type definition for the server response coming back from /api/auth
  */
 type AuthResponse = {
-  session: any
+  session: any;
 };
 
 /**
@@ -27,14 +27,12 @@ export default function AuthPage() {
   const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
   const { indexedDbClient } = useTurnkey();
 
-  const {
-    register: walletFormRegister,
-    handleSubmit: walletFormSubmit,
-  } = useForm<walletFormData>();
+  const { register: walletFormRegister, handleSubmit: walletFormSubmit } =
+    useForm<walletFormData>();
 
   const [pubKey, setPubKey] = useState<string | null>(null);
   const [nonce, setNonce] = useState<string | undefined>(undefined);
-  
+
   useEffect(() => {
     const getKey = async () => {
       if (indexedDbClient) {
@@ -51,7 +49,7 @@ export default function AuthPage() {
     let targetSubOrgId: string;
 
     if (!pubKey) throw new Error("Public key not available");
-   
+
     const getSuborgsResponse = await axios.post("api/getSuborgs", {
       filterType: "OIDC_TOKEN",
       filterValue: response.credential,
@@ -72,12 +70,12 @@ export default function AuthPage() {
   const auth = async (
     oidcCredential: string,
     suborgID: string,
-    pubKey: string
+    pubKey: string,
   ) => {
     const response = await axios.post("/api/auth", {
       suborgID,
       publicKey: pubKey!,
-      oidcToken: oidcCredential
+      oidcToken: oidcCredential,
     });
 
     const session = response.data.session;
@@ -117,7 +115,6 @@ export default function AuthPage() {
     console.log(address);
 
     alert(`SUCCESS! Wallet and new address created: ${address} `);
-  
   };
 
   return (
@@ -139,44 +136,38 @@ export default function AuthPage() {
 
       {!indexedDbClient && <p>Loading...</p>}
 
-      {indexedDbClient && pubKey &&
-        authResponse === null && (
-          <form className={styles.form}>
-           <GoogleOAuthProvider
-              clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
-            >
-              <GoogleLogin
-                nonce={nonce}
-                onSuccess={handleGoogleLogin}
-                useOneTap
-              />
-            </GoogleOAuthProvider>
-          </form>
-        )}
-
-      {indexedDbClient && pubKey &&
-        authResponse !== null && (
-          <form
-            className={styles.form}
-            onSubmit={walletFormSubmit(wallet)}
+      {indexedDbClient && pubKey && authResponse === null && (
+        <form className={styles.form}>
+          <GoogleOAuthProvider
+            clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
           >
-            <label className={styles.label}>
-              New wallet name
-              <input
-                className={styles.input}
-                {...walletFormRegister("walletName")}
-                placeholder="Wallet name"
-              />
-            </label>
-
-            <input
-              className={styles.button}
-              type="submit"
-              value="Create Wallet"
+            <GoogleLogin
+              nonce={nonce}
+              onSuccess={handleGoogleLogin}
+              useOneTap
             />
-          </form>
-        )}
+          </GoogleOAuthProvider>
+        </form>
+      )}
 
+      {indexedDbClient && pubKey && authResponse !== null && (
+        <form className={styles.form} onSubmit={walletFormSubmit(wallet)}>
+          <label className={styles.label}>
+            New wallet name
+            <input
+              className={styles.input}
+              {...walletFormRegister("walletName")}
+              placeholder="Wallet name"
+            />
+          </label>
+
+          <input
+            className={styles.button}
+            type="submit"
+            value="Create Wallet"
+          />
+        </form>
+      )}
     </main>
   );
 }
