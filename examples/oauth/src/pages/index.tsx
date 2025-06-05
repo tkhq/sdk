@@ -5,41 +5,51 @@ import { useTurnkey } from "@turnkey/sdk-react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 
 /**
- * Type definition for the server response coming back from `/api/auth`
+ * Type definition for the server response coming back from /api/auth
  */
 type AuthResponse = {
-  userId: string;
-  apiKeyId: string;
-  credentialBundle: string;
+  session: any;
 };
 
 /**
  * Type definitions for the form data (client-side forms)
  */
-type InjectCredentialsFormData = {
+type walletFormData = {
   walletName: string;
-};
-type AuthFormData = {
-  invalidateExisting: boolean;
 };
 
 export default function AuthPage() {
   const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
-  const { authIframeClient } = useTurnkey();
-  const { register: authFormRegister, handleSubmit: authFormSubmit } =
-    useForm<AuthFormData>();
-  const {
-    register: injectCredentialsFormRegister,
-    handleSubmit: injectCredentialsFormSubmit,
-  } = useForm<InjectCredentialsFormData>();
+  const { indexedDbClient } = useTurnkey();
+
+  const { register: walletFormRegister, handleSubmit: walletFormSubmit } =
+    useForm<walletFormData>();
+
+  const [pubKey, setPubKey] = useState<string | null>(null);
+  const [nonce, setNonce] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const getKey = async () => {
+      if (indexedDbClient) {
+        await indexedDbClient.resetKeyPair();
+        const key = await indexedDbClient.getPublicKey();
+        setPubKey(key);
+        setNonce(bytesToHex(sha256(key!)));
+      }
+    };
+    getKey();
+  }, [indexedDbClient]);
 
   const handleGoogleLogin = async (response: any) => {
     let targetSubOrgId: string;
+
+    if (!pubKey) throw new Error("Public key not available");
+
     const getSuborgsResponse = await axios.post("api/getSuborgs", {
       filterType: "OIDC_TOKEN",
       filterValue: response.credential,
@@ -54,54 +64,41 @@ export default function AuthPage() {
       });
       targetSubOrgId = createSuborgResponse.data.subOrganizationId;
     }
-    authFormSubmit((data) => auth(data, response.credential, targetSubOrgId))();
+    await auth(response.credential, targetSubOrgId, pubKey);
   };
 
   const auth = async (
-    data: AuthFormData,
     oidcCredential: string,
     suborgID: string,
+    pubKey: string,
   ) => {
-    if (authIframeClient === null) {
-      throw new Error("cannot initialize auth without an iframe");
-    }
     const response = await axios.post("/api/auth", {
       suborgID,
-      targetPublicKey: authIframeClient!.iframePublicKey!,
+      publicKey: pubKey!,
       oidcToken: oidcCredential,
-      invalidateExisting: data.invalidateExisting,
     });
 
-    setAuthResponse(response.data);
+    const session = response.data.session;
+
+    setAuthResponse(session);
   };
 
-  const injectCredentials = async (data: InjectCredentialsFormData) => {
-    if (authIframeClient === null) {
-      throw new Error("iframe client is null");
+  const wallet = async (data: walletFormData) => {
+    if (indexedDbClient === null) {
+      throw new Error("indexedDbClient client is null");
     }
     if (authResponse === null) {
       throw new Error("authResponse is null");
     }
 
-    try {
-      await authIframeClient!.injectCredentialBundle(
-        authResponse.credentialBundle,
-      );
-    } catch (e) {
-      const msg = `error while injecting bundle: ${e}`;
-      console.error(msg);
-      alert(msg);
-      return;
-    }
-
     // get whoami for suborg
-    const whoamiResponse = await authIframeClient!.getWhoami({
+    const whoamiResponse = await indexedDbClient!.getWhoami({
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
     const orgID = whoamiResponse.organizationId;
 
-    const createWalletResponse = await authIframeClient!.createWallet({
+    const createWalletResponse = await indexedDbClient!.createWallet({
       organizationId: orgID,
       walletName: data.walletName,
       accounts: [
@@ -115,6 +112,7 @@ export default function AuthPage() {
     });
 
     const address = refineNonNull(createWalletResponse.addresses[0]);
+    console.log(address);
 
     alert(`SUCCESS! Wallet and new address created: ${address} `);
   };
@@ -136,63 +134,40 @@ export default function AuthPage() {
         />
       </a>
 
-      {!authIframeClient && <p>Loading...</p>}
+      {!indexedDbClient && <p>Loading...</p>}
 
-      {authIframeClient &&
-        authIframeClient.iframePublicKey &&
-        authResponse === null && (
-          <form className={styles.form}>
-            <label className={styles.label}>
-              Invalidate previously issued oauth authentication token(s)?
-              <input
-                className={styles.input_checkbox}
-                {...authFormRegister("invalidateExisting")}
-                type="checkbox"
-              />
-            </label>
-            <label className={styles.label}>
-              Encryption Target from iframe:
-              <br />
-              <code title={authIframeClient.iframePublicKey!}>
-                {authIframeClient.iframePublicKey!.substring(0, 30)}...
-              </code>
-            </label>
-
-            <GoogleOAuthProvider
-              clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
-            >
-              <GoogleLogin
-                nonce={bytesToHex(sha256(authIframeClient.iframePublicKey!))}
-                onSuccess={handleGoogleLogin}
-                useOneTap
-              />
-            </GoogleOAuthProvider>
-          </form>
-        )}
-
-      {authIframeClient &&
-        authIframeClient.iframePublicKey &&
-        authResponse !== null && (
-          <form
-            className={styles.form}
-            onSubmit={injectCredentialsFormSubmit(injectCredentials)}
+      {indexedDbClient && pubKey && authResponse === null && (
+        <form className={styles.form}>
+          <GoogleOAuthProvider
+            clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
           >
-            <label className={styles.label}>
-              New wallet name
-              <input
-                className={styles.input}
-                {...injectCredentialsFormRegister("walletName")}
-                placeholder="Wallet name"
-              />
-            </label>
-
-            <input
-              className={styles.button}
-              type="submit"
-              value="Create Wallet"
+            <GoogleLogin
+              nonce={nonce}
+              onSuccess={handleGoogleLogin}
+              useOneTap
             />
-          </form>
-        )}
+          </GoogleOAuthProvider>
+        </form>
+      )}
+
+      {indexedDbClient && pubKey && authResponse !== null && (
+        <form className={styles.form} onSubmit={walletFormSubmit(wallet)}>
+          <label className={styles.label}>
+            New wallet name
+            <input
+              className={styles.input}
+              {...walletFormRegister("walletName")}
+              placeholder="Wallet name"
+            />
+          </label>
+
+          <input
+            className={styles.button}
+            type="submit"
+            value="Create Wallet"
+          />
+        </form>
+      )}
     </main>
   );
 }
