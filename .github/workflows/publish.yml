@@ -58,7 +58,7 @@ jobs:
 
       - name: Confirm environment variables
         run: |
-          if [ -n "${{ secrets.NODE_AUTH_TOKEN }}" ]; then
+          if [ -n "${{ secrets.NPM_TOKEN }}" ]; then
             echo "NODE_AUTH_TOKEN is set"
           else
             echo "NODE_AUTH_TOKEN is not set"
@@ -71,14 +71,14 @@ jobs:
             exit 1
           fi
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up NPM .npmrc config for NPM registry
         run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NODE_AUTH_TOKEN }}" > .npmrc
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Debug npm config
         run: |
@@ -90,7 +90,7 @@ jobs:
           mv publish-summary.json publish-npm-dry-run.txt
           cat publish-npm-dry-run.txt
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish packages to NPM
         run: |
@@ -101,7 +101,7 @@ jobs:
           cat publish-npm.txt || echo "No summary generated"
           rm .npmrc
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         continue-on-error: true
 
       - name: Set up NPM config for GitHub Packages
