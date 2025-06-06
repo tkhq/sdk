@@ -62,6 +62,7 @@ export class TurnkeySigner {
     tx: Transaction | VersionedTransaction,
     fromAddress: string,
     organizationId?: string,
+    timestampMs?: number,
   ) {
     const fromKey = new PublicKey(fromAddress);
     const messageToSign: Buffer = this.getMessageToSign(tx);
@@ -69,6 +70,7 @@ export class TurnkeySigner {
       messageToSign.toString("hex"),
       fromAddress,
       organizationId ?? this.organizationId,
+      timestampMs,
     );
     const signature = `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`;
 
@@ -85,11 +87,13 @@ export class TurnkeySigner {
     message: Uint8Array,
     fromAddress: string,
     organizationId?: string,
+    timestampMs?: number,
   ): Promise<Uint8Array> {
     const signRawPayloadResult = await this.signRawPayload(
       Buffer.from(message).toString("hex"),
       fromAddress,
       organizationId,
+      timestampMs,
     );
     return Buffer.from(
       `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`,
@@ -108,6 +112,7 @@ export class TurnkeySigner {
     tx: Transaction | VersionedTransaction,
     fromAddress: string,
     organizationId?: string,
+    timestampMs?: number,
   ): Promise<Transaction | VersionedTransaction> {
     const payloadToSign = Buffer.from(
       tx.serialize({
@@ -120,6 +125,7 @@ export class TurnkeySigner {
       payloadToSign,
       fromAddress,
       organizationId,
+      timestampMs,
     );
 
     const decodedTransaction = Buffer.from(signedTransaction, "hex");
@@ -136,12 +142,13 @@ export class TurnkeySigner {
     unsignedTransaction: string,
     signWith: string,
     organizationId?: string,
+    timestampMs?: number
   ) {
     if (isHttpClient(this.client)) {
       const response = await this.client.signTransaction({
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
         organizationId: organizationId ?? this.organizationId,
-        timestampMs: String(Date.now()),
+        timestampMs: timestampMs ? String(timestampMs) : String(Date.now()),
         parameters: {
           signWith,
           unsignedTransaction,
@@ -176,12 +183,13 @@ export class TurnkeySigner {
     payload: string,
     signWith: string,
     organizationId?: string,
+    timestampMs?: number,
   ) {
     if (isHttpClient(this.client)) {
       const response = await this.client.signRawPayload({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
         organizationId: organizationId ?? this.organizationId,
-        timestampMs: String(Date.now()),
+        timestampMs: timestampMs ? String(timestampMs) : String(Date.now()),
         parameters: {
           signWith,
           payload,
@@ -222,12 +230,13 @@ export class TurnkeySigner {
     payloads: string[],
     signWith: string,
     organizationId?: string,
+    timestampMs?: number,
   ) {
     if (isHttpClient(this.client)) {
       const response = await this.client.signRawPayloads({
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
         organizationId: organizationId ?? this.organizationId,
-        timestampMs: String(Date.now()),
+        timestampMs: timestampMs ? String(timestampMs) : String(Date.now()),
         parameters: {
           signWith,
           payloads,
