@@ -226,12 +226,10 @@ jobs:
         run: |
           git add .
           git commit -m "chore: release packages" || echo "No changes to commit"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push changes to release branch
         run: |
-          git push origin HEAD
+          git push -u origin release/${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
