@@ -2,9 +2,6 @@ name: release
 
 on:
   workflow_dispatch: # allows manual invocation
-  pull_request: # TODO - remove once this workflow is stable
-    branches:
-      - main
   push:
     tags:
       - "v*.*.*" # triggers on tags like v1.0.0
@@ -22,40 +19,17 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # required for git tags and history
-          ref: ${{ github.event.pull_request.head.ref || github.ref }} # TODO - remove once this workflow is stable
-
-      - name: Fetch default branch
-        run: |
-          git fetch origin main:main || echo "Default branch not found, continuing"
+          ref: ${{ github.ref }}
 
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
-      # Check if there are any pending changesets
-      # - name: Check for pending releases
-      #   run: |
-      #     echo "Checking for pending changesets..."
-      #     pnpm changeset status --verbose
-      #     if pnpm changeset status | grep -q "packages to be bumped:"; then
-      #       echo "Changesets found, continuing"
-      #     else
-      #       echo "No unreleased changesets found, exiting"
-      #       exit 0
-      #     fi
-
-      # TODO - remove this once the workflow is stable
+      # Check if there are pending changesets
       - name: Check for pending releases
         run: |
           echo "Checking for pending changesets..."
-          pnpm changeset status --verbose || {
-            echo "Changeset status failed, checking if default branch exists"
-            if ! git rev-parse --verify main >/dev/null 2>&1; then
-              echo "Default branch (main) does not exist, please configure .changeset/config.json with the correct baseBranch"
-              exit 1
-            fi
-            exit 1
-          }
+          pnpm changeset status --verbose
           if pnpm changeset status | grep -qi "packages to be bumped"; then
             echo "Changesets found, continuing"
           else
@@ -79,7 +53,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: build-artifacts-${{ github.sha }}
+          name: build-artifacts-${{ github.ref_name }}
           path: |
             packages/*/dist/**
             packages/*/src/**
@@ -87,7 +61,7 @@ jobs:
             pnpm-lock.yaml
             pnpm-workspace.yaml
             .changeset/**
-          retention-days: 1
+          retention-days: 7
 
   version-and-rebuild:
     runs-on: ubuntu-latest
@@ -96,7 +70,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # required for git tags and history
+          ref: ${{ github.ref }}
 
       - name: Setup JS
         uses: ./.github/actions/js-setup
@@ -104,7 +79,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: build-artifacts-${{ github.sha }}
+          name: build-artifacts-${{ github.ref_name }}
           path: .
 
       # Process changesets, update versions, and rebuild packages to include latest versions
@@ -122,7 +97,7 @@ jobs:
       - name: Upload updated release artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: release-artifacts-${{ github.sha }}
+          name: release-artifacts-${{ github.ref_name }}
           path: |
             packages/*/dist/**
             packages/*/src/**
@@ -130,7 +105,7 @@ jobs:
             pnpm-lock.yaml
             pnpm-workspace.yaml
             .changeset/**
-          retention-days: 1
+          retention-days: 7
 
   test-pre-prod:
     runs-on: ubuntu-latest
@@ -141,6 +116,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # required for git tags and history
+          ref: ${{ github.ref }}
 
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
@@ -149,7 +125,7 @@ jobs:
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-${{ github.sha }}
+          name: release-artifacts-${{ github.ref_name }}
           path: .
 
       - name: Install latest dependencies
@@ -180,6 +156,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # required for git tags and history
+          ref: ${{ github.ref }}
 
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
@@ -188,7 +165,7 @@ jobs:
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-${{ github.sha }}
+          name: release-artifacts-${{ github.ref_name }}
           path: .
 
       - name: Install latest dependencies
@@ -217,7 +194,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # required for git tags and history
+          ref: ${{ github.ref }}
 
       - name: Setup JS
         uses: ./.github/actions/js-setup
@@ -225,7 +203,7 @@ jobs:
       - name: Download versioned artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-${{ github.sha }}
+          name: release-artifacts-${{ github.ref_name }}
           path: .
 
       - name: Install latest dependencies
@@ -239,8 +217,8 @@ jobs:
       - name: Create and switch to release branch
         run: |
           git fetch origin
-          git checkout -B release/${{ github.sha }} origin/release/${{ github.sha }} || \
-          git checkout -B release/${{ github.sha }}
+          git checkout -B release/${{ github.ref_name }} origin/release/${{ github.ref_name }} || \
+          git checkout -B release/${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -257,13 +235,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Create GitHub Release
-      #   uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
-      #   with:
-      #     tag_name: ${{ github.sha }}
-      #     name: Release ${{ github.sha }}
-      #     generate_release_notes: true
-      #     draft: true
-      #     prerelease: false
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          generate_release_notes: true
+          draft: true
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
