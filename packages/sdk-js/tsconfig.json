@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    "lib": ["dom"],
+    "paths": {
+      "@polyfills/*": ["./src/__polyfills__/*"],
+      "@constants": ["./src/constants"],
+      "@models": ["./src/models"],
+      "@storage": ["./src/storage"],
+      "@types": ["./src/__types__/base"],
+      "@utils": ["./src/utils"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
+  "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
+  "references": [
+    { "path": "../api-key-stamper" },
+    { "path": "../http" },
+    { "path": "../iframe-stamper" },
+    { "path": "../webauthn-stamper" }
+  ]
+}
