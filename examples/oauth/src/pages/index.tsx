@@ -36,27 +36,30 @@ export default function AuthPage() {
   const [pubKey, setPubKey] = useState<string | null>(null);
   const [nonce, setNonce] = useState<string | undefined>(undefined);
 
+  const refreshKey = async () => {
+    if (!indexedDbClient) return;
+
+    await indexedDbClient.resetKeyPair(); // always reset before login
+    const newKey = await indexedDbClient.getPublicKey();
+    if (newKey) {
+      setPubKey(newKey);
+      setNonce(bytesToHex(sha256(newKey)));
+    }
+  };
+
   useEffect(() => {
-    const getKey = async () => {
-      if (indexedDbClient) {
-        await indexedDbClient.resetKeyPair();
-        const key = await indexedDbClient.getPublicKey();
-        setPubKey(key);
-        setNonce(bytesToHex(sha256(key!)));
-      }
-    };
-    getKey();
+    refreshKey();
   }, [indexedDbClient]);
 
   const handleLogout = async () => {
     if (indexedDbClient) {
       await indexedDbClient.resetKeyPair();
-      const newKey = await indexedDbClient.getPublicKey();
-      setPubKey(newKey);
-      setNonce(bytesToHex(sha256(newKey!)));
     }
+    setPubKey(null);
+    setNonce(undefined);
     setAuthResponse(null);
     resetwalletForm();
+    await refreshKey();
   };
 
   const handleGoogleLogin = async (response: any) => {
