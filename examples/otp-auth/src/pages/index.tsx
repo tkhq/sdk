@@ -36,11 +36,15 @@ export default function AuthPage() {
   const [initAuthResponse, setInitAuthResponse] =
     useState<InitAuthResponse | null>(null);
   const { indexedDbClient } = useTurnkey();
-  const { register: authFormRegister, handleSubmit: authFormSubmit } =
-    useForm<AuthFormData>();
+  const {
+    register: authFormRegister,
+    handleSubmit: authFormSubmit,
+    reset: resetAuthForm,
+  } = useForm<AuthFormData>();
   const {
     register: createWalletFormRegister,
     handleSubmit: createWalletFormSubmit,
+    reset: resetWalletForm,
   } = useForm<CreateWalletFormData>();
 
   const [pubKey, setPubKey] = useState<string | null>(null);
@@ -48,13 +52,24 @@ export default function AuthPage() {
   useEffect(() => {
     const getKey = async () => {
       if (indexedDbClient) {
-        await indexedDbClient.resetKeyPair();
         const key = await indexedDbClient.getPublicKey();
         setPubKey(key);
       }
     };
     getKey();
   }, [indexedDbClient]);
+
+  const handleLogout = async () => {
+    if (indexedDbClient) {
+      await indexedDbClient.resetKeyPair();
+      const newKey = await indexedDbClient.getPublicKey();
+      setPubKey(newKey);
+    }
+    setAuthResponse(null);
+    setInitAuthResponse(null);
+    resetAuthForm();
+    resetWalletForm();
+  };
 
   const auth = async (data: AuthFormData) => {
     if (indexedDbClient === null) {
@@ -118,7 +133,7 @@ export default function AuthPage() {
   };
 
   return (
-    <main className={styles.main}>
+    <main className={`${styles.main} ${styles.relative}`}>
       <a
         href="https://www.turnkey.com"
         target="_blank"
@@ -135,6 +150,12 @@ export default function AuthPage() {
       </a>
 
       {!indexedDbClient && <p>Loading...</p>}
+
+      {indexedDbClient && pubKey && initAuthResponse !== null && (
+        <button className={styles.logoutButton} onClick={handleLogout}>
+          Logout
+        </button>
+      )}
 
       {indexedDbClient && pubKey && initAuthResponse === null && (
         <form className={styles.form} onSubmit={authFormSubmit(initAuth)}>

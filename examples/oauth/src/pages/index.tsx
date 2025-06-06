@@ -27,8 +27,11 @@ export default function AuthPage() {
   const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
   const { indexedDbClient } = useTurnkey();
 
-  const { register: walletFormRegister, handleSubmit: walletFormSubmit } =
-    useForm<walletFormData>();
+  const {
+    register: walletFormRegister,
+    handleSubmit: walletFormSubmit,
+    reset: resetwalletForm,
+  } = useForm<walletFormData>();
 
   const [pubKey, setPubKey] = useState<string | null>(null);
   const [nonce, setNonce] = useState<string | undefined>(undefined);
@@ -44,6 +47,17 @@ export default function AuthPage() {
     };
     getKey();
   }, [indexedDbClient]);
+
+  const handleLogout = async () => {
+    if (indexedDbClient) {
+      await indexedDbClient.resetKeyPair();
+      const newKey = await indexedDbClient.getPublicKey();
+      setPubKey(newKey);
+      setNonce(bytesToHex(sha256(newKey!)));
+    }
+    setAuthResponse(null);
+    resetwalletForm();
+  };
 
   const handleGoogleLogin = async (response: any) => {
     let targetSubOrgId: string;
@@ -118,7 +132,7 @@ export default function AuthPage() {
   };
 
   return (
-    <main className={styles.main}>
+    <main className={`${styles.main} ${styles.relative}`}>
       <a
         href="https://www.turnkey.com"
         target="_blank"
@@ -136,7 +150,13 @@ export default function AuthPage() {
 
       {!indexedDbClient && <p>Loading...</p>}
 
-      {indexedDbClient && pubKey && authResponse === null && (
+      {indexedDbClient && pubKey && authResponse !== null && (
+        <button className={styles.logoutButton} onClick={handleLogout}>
+          Logout
+        </button>
+      )}
+
+      {indexedDbClient && pubKey && authResponse === null && nonce && (
         <form className={styles.form}>
           <GoogleOAuthProvider
             clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}

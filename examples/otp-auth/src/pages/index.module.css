@@ -84,3 +84,25 @@
   gap: 20px;
   min-width: 400px;
 }
+
+.relative {
+  position: relative;
+}
+
+.logoutButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: #e53e3e;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  z-index: 1000;
+}
+
+.logoutButton:hover {
+  background-color: #c53030;
+}
