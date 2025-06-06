@@ -5,13 +5,11 @@ type AuthRequest = {
   suborgID: string;
   otpId: string;
   otpCode: string;
-  targetPublicKey: string;
+  publicKey: string;
 };
 
 type AuthResponse = {
-  userId: string;
-  apiKeyId: string;
-  credentialBundle: string;
+  session: string;
 };
 
 type ErrorMessage = {
@@ -31,25 +29,29 @@ export default async function auth(
       defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
-    const otpAuthResponse = await turnkeyClient.apiClient().otpAuth({
+    // Returns a `verificationToken`, which is required for creating sessions via the `otpLogin` action.
+    const otpAuthResponse = await turnkeyClient.apiClient().verifyOtp({
       otpId: request.otpId,
       otpCode: request.otpCode,
-      targetPublicKey: request.targetPublicKey,
-      // This is simple in the case of a single organization.
-      // If you use sub-organizations for each user, this needs to be replaced by the user's specific sub-organization.
-      organizationId:
-        request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
-    const { credentialBundle, apiKeyId, userId } = otpAuthResponse;
+    const verificationToken = otpAuthResponse.verificationToken;
 
-    if (!credentialBundle || !apiKeyId || !userId) {
-      throw new Error(
-        "Expected non-null values for credentialBundle, apiKeyId, and userId.",
-      );
+    if (!verificationToken) {
+      throw new Error("verificationToken not available.");
     }
 
-    res.status(200).json({ credentialBundle, apiKeyId, userId });
+    // Creates a session using a previously obtained `verificationToken`.
+    // Returns a session JWT.
+    const otpLoginResponse = await turnkeyClient.apiClient().otpLogin({
+      organizationId: request.suborgID,
+      verificationToken: verificationToken,
+      publicKey: request.publicKey,
+    });
+
+    const { session } = otpLoginResponse;
+
+    res.status(200).json({ session });
   } catch (e) {
     console.error(e);
     res.status(500).json({ message: "Something went wrong." });

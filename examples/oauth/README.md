@@ -5,7 +5,7 @@ This example shows a complete Oauth flow with google. It contains a NextJS app w
 - a frontend application
 - a backend application
 
-This example contains an example auth page as well as a stub API endpoint for "your business" (where the contact is resolved into an organization ID). The creation of the hidden iframe is abstracted by our `@turnkey/iframe-stamper` package. For more information on oauth, [check out our documentation](https://docs.turnkey.com/features/oauth).
+This example contains an example auth page as well as a stub API endpoint for "your business" (where the contact is resolved into an organization ID). It relies on the `indexedDbClient` to stamp the requests. For more information on oauth, [check out our documentation](https://docs.turnkey.com/features/oauth).
 
 ## Getting started
 
@@ -42,7 +42,6 @@ Now open `.env.local` and add the missing environment variables:
 - `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_GOOGLE_CLIENT_ID`(Google OIDC credentials client id: https://developers.google.com/identity/openid-connect/openid-connect)
-- `NEXT_PUBLIC_AUTH_IFRAME_URL`
 
 ### 3/ Running the app
 

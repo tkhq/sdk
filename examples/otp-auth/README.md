@@ -5,7 +5,7 @@ This example shows a complete OTP auth flow. It contains a NextJS app with:
 - a frontend application
 - a backend application
 
-This example contains an example auth page as well as a stub API endpoint for "your business" (where the contact is resolved into an organization ID). The creation of the hidden iframe is abstracted by our `@turnkey/iframe-stamper` package. For more information on OTP auth, [check out our documentation](https://docs.turnkey.com/features/otp-auth).
+This example contains an example auth page as well as a stub API endpoint for "your business" (where the contact is resolved into an organization ID). It relies on the `indexedDbClient` to stamp the requests. For more information on OTP auth, [check out our documentation](https://docs.turnkey.com/features/otp-auth).
 
 ## Getting started
 
@@ -41,7 +41,6 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
-- `NEXT_PUBLIC_AUTH_IFRAME_URL`
 
 ### 3/ Running the app
 
