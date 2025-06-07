@@ -5,6 +5,8 @@ type InitAuthRequest = {
   suborgID: string;
   otpType: string;
   contact: string;
+  publicKey: string;
+  userIdentifier: string;
 };
 
 type InitAuthResponse = {
@@ -28,13 +30,12 @@ export default async function init_auth(
       defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
-    const initOtpAuthResponse = await turnkeyClient.apiClient().initOtpAuth({
+    // No longer requires a suborganization ID
+    // OTPs can now be sent directly under a parent organization's context to any email or phone number
+    const initOtpAuthResponse = await turnkeyClient.apiClient().initOtp({
       contact: request.contact,
       otpType: request.otpType,
-      // This is simple in the case of a single organization.
-      // If you use sub-organizations for each user, this needs to be replaced by the user's specific sub-organization.
-      organizationId:
-        request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+      userIdentifier: request.publicKey,
     });
 
     const { otpId } = initOtpAuthResponse;

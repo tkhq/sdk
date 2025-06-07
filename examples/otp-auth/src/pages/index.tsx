@@ -4,7 +4,7 @@ import { useTurnkey } from "@turnkey/sdk-react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Type definition for the server response coming back from `/api/init_auth`
@@ -17,9 +17,7 @@ type InitAuthResponse = {
  * Type definition for the server response coming back from `/api/auth`
  */
 type AuthResponse = {
-  userId: string;
-  apiKeyId: string;
-  credentialBundle: string;
+  session: string;
 };
 /**
  * Type definitions for the form data (client-side forms)
@@ -31,29 +29,55 @@ type AuthFormData = {
   email: string;
   suborgID: string;
   otpCode: string;
-  invalidateExisting: boolean;
 };
 
 export default function AuthPage() {
   const [authResponse, setAuthResponse] = useState<AuthResponse | null>(null);
   const [initAuthResponse, setInitAuthResponse] =
     useState<InitAuthResponse | null>(null);
-  const { authIframeClient } = useTurnkey();
-  const { register: authFormRegister, handleSubmit: authFormSubmit } =
-    useForm<AuthFormData>();
+  const { indexedDbClient } = useTurnkey();
+  const {
+    register: authFormRegister,
+    handleSubmit: authFormSubmit,
+    reset: resetAuthForm,
+  } = useForm<AuthFormData>();
   const {
     register: createWalletFormRegister,
     handleSubmit: createWalletFormSubmit,
+    reset: resetWalletForm,
   } = useForm<CreateWalletFormData>();
 
+  const [pubKey, setPubKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getKey = async () => {
+      if (indexedDbClient) {
+        const key = await indexedDbClient.getPublicKey();
+        setPubKey(key);
+      }
+    };
+    getKey();
+  }, [indexedDbClient]);
+
+  const handleLogout = async () => {
+    if (indexedDbClient) {
+      await indexedDbClient.resetKeyPair();
+      const newKey = await indexedDbClient.getPublicKey();
+      setPubKey(newKey);
+    }
+    setAuthResponse(null);
+    setInitAuthResponse(null);
+    resetAuthForm();
+    resetWalletForm();
+  };
+
   const auth = async (data: AuthFormData) => {
-    if (authIframeClient === null) {
-      throw new Error("cannot initialize auth without an iframe");
+    if (indexedDbClient === null) {
+      throw new Error("indexedDbClient not available");
     }
     const response = await axios.post("/api/auth", {
       suborgID: data.suborgID,
-      targetPublicKey: authIframeClient!.iframePublicKey,
-      invalidateExisting: data.invalidateExisting,
+      publicKey: pubKey!,
       otpId: initAuthResponse?.otpId,
       otpCode: data.otpCode,
     });
@@ -61,8 +85,8 @@ export default function AuthPage() {
   };
 
   const initAuth = async (data: AuthFormData) => {
-    if (authIframeClient === null) {
-      throw new Error("cannot initialize auth without an iframe");
+    if (indexedDbClient === null) {
+      throw new Error("indexedDbClient not available");
     }
 
     const response = await axios.post("/api/init_auth", {
@@ -74,31 +98,24 @@ export default function AuthPage() {
   };
 
   const createWallet = async (data: CreateWalletFormData) => {
-    if (authIframeClient === null) {
-      throw new Error("iframeStamper is null");
+    if (indexedDbClient === null) {
+      throw new Error("indexedDbClient is null");
     }
     if (authResponse === null) {
       throw new Error("authResponse is null");
     }
-    try {
-      await authIframeClient!.injectCredentialBundle(
-        authResponse?.credentialBundle,
-      );
-    } catch (e) {
-      const msg = `error while injecting bundle: ${e}`;
-      console.error(msg);
-      alert(msg);
-      return;
-    }
+
+    // use the JWT returned by otpLogin
+    await indexedDbClient!.loginWithSession(authResponse.session);
 
     // get whoami for suborg
-    const whoamiResponse = await authIframeClient!.getWhoami({
+    const whoamiResponse = await indexedDbClient!.getWhoami({
       organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
     const orgID = whoamiResponse.organizationId;
 
-    const createWalletResponse = await authIframeClient!.createWallet({
+    const createWalletResponse = await indexedDbClient!.createWallet({
       organizationId: orgID,
       walletName: data.walletName,
       accounts: [
@@ -116,7 +133,7 @@ export default function AuthPage() {
   };
 
   return (
-    <main className={styles.main}>
+    <main className={`${styles.main} ${styles.relative}`}>
       <a
         href="https://www.turnkey.com"
         target="_blank"
@@ -132,43 +149,40 @@ export default function AuthPage() {
         />
       </a>
 
-      {!authIframeClient && <p>Loading...</p>}
+      {!indexedDbClient && <p>Loading...</p>}
 
-      {authIframeClient &&
-        authIframeClient.iframePublicKey &&
-        initAuthResponse === null && (
-          <form className={styles.form} onSubmit={authFormSubmit(initAuth)}>
-            <label className={styles.label}>
-              Email
-              <input
-                className={styles.input}
-                {...authFormRegister("email")}
-                placeholder="Email"
-              />
-            </label>
-            <label className={styles.label}>
-              Suborg ID (Optional — if not provided, attempt for standalone
-              parent org)
-              <input
-                className={styles.input}
-                {...authFormRegister("suborgID")}
-                placeholder="Suborg ID"
-              />
-            </label>
-            <label className={styles.label}>
-              Encryption Target from iframe:
-              <br />
-              <code title={authIframeClient.iframePublicKey!}>
-                {authIframeClient.iframePublicKey!.substring(0, 30)}...
-              </code>
-            </label>
+      {indexedDbClient && pubKey && initAuthResponse !== null && (
+        <button className={styles.logoutButton} onClick={handleLogout}>
+          Logout
+        </button>
+      )}
 
-            <input className={styles.button} type="submit" value="Send OTP" />
-          </form>
-        )}
+      {indexedDbClient && pubKey && initAuthResponse === null && (
+        <form className={styles.form} onSubmit={authFormSubmit(initAuth)}>
+          <label className={styles.label}>
+            Email
+            <input
+              className={styles.input}
+              {...authFormRegister("email")}
+              placeholder="Email"
+            />
+          </label>
+          <label className={styles.label}>
+            Suborg ID (Optional — if not provided, attempt for standalone parent
+            org)
+            <input
+              className={styles.input}
+              {...authFormRegister("suborgID")}
+              placeholder="Suborg ID"
+            />
+          </label>
 
-      {authIframeClient &&
-        authIframeClient.iframePublicKey &&
+          <input className={styles.button} type="submit" value="Send OTP" />
+        </form>
+      )}
+
+      {indexedDbClient &&
+        pubKey &&
         initAuthResponse !== null &&
         authResponse == null && (
           <form className={styles.form} onSubmit={authFormSubmit(auth)}>
@@ -180,51 +194,31 @@ export default function AuthPage() {
                 placeholder="Paste your otp code here"
               />
             </label>
-
-            <label className={styles.label}>
-              Invalidate previously issued OTP authentication token(s)?
-              <input
-                className={styles.input_checkbox}
-                {...authFormRegister("invalidateExisting")}
-                type="checkbox"
-              />
-            </label>
-
-            <label className={styles.label}>
-              Encryption Target from iframe:
-              <br />
-              <code title={authIframeClient.iframePublicKey!}>
-                {authIframeClient.iframePublicKey!.substring(0, 30)}...
-              </code>
-            </label>
-
             <input className={styles.button} type="submit" value="Verify OTP" />
           </form>
         )}
 
-      {authIframeClient &&
-        authIframeClient.iframePublicKey &&
-        authResponse !== null && (
-          <form
-            className={styles.form}
-            onSubmit={createWalletFormSubmit(createWallet)}
-          >
-            <label className={styles.label}>
-              New wallet name
-              <input
-                className={styles.input}
-                {...createWalletFormRegister("walletName")}
-                placeholder="Wallet name"
-              />
-            </label>
-
+      {indexedDbClient && pubKey && authResponse !== null && (
+        <form
+          className={styles.form}
+          onSubmit={createWalletFormSubmit(createWallet)}
+        >
+          <label className={styles.label}>
+            New wallet name
             <input
-              className={styles.button}
-              type="submit"
-              value="Create Wallet"
+              className={styles.input}
+              {...createWalletFormRegister("walletName")}
+              placeholder="Wallet name"
             />
-          </form>
-        )}
+          </label>
+
+          <input
+            className={styles.button}
+            type="submit"
+            value="Create Wallet"
+          />
+        </form>
+      )}
     </main>
   );
 }
