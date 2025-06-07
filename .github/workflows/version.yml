@@ -1,4 +1,4 @@
-name: release
+name: Version Packages and Prepare Release
 
 on:
   workflow_dispatch: # allows manual invocation

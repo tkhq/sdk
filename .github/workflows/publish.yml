@@ -82,13 +82,17 @@ jobs:
 
       - name: Debug npm config
         run: |
-          cat .npmrc || echo ".npmrc not found"
+          if [ -s .npmrc ]; then
+            echo ".npmrc exists and is not empty"
+          else
+            echo ".npmrc not found or empty"
+          fi
 
       - name: Publish to NPM (dry run)
         run: |
           pnpm publish -r --dry-run --no-git-checks --report-summary
-          mv publish-summary.json publish-npm-dry-run.txt
-          cat publish-npm-dry-run.txt
+          echo "npm publish dry run summary:"
+          cat publish-summary.json || echo "No NPM dry run summary generated"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -96,9 +100,8 @@ jobs:
         run: |
           echo "Publishing packages to NPM..."
           pnpm publish -r --no-git-checks --report-summary || echo "Publish failed, checking logs..."
-          mv publish-summary.json publish-npm.txt || true
           echo "npm publish summary:"
-          cat publish-npm.txt || echo "No summary generated"
+          cat publish-summary.json || echo "No NPM publish summary generated"
           rm .npmrc
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -113,8 +116,8 @@ jobs:
       - name: Publish to GitHub Packages (dry run)
         run: |
           pnpm publish -r --dry-run --no-git-checks --report-summary
-          mv publish-summary.json publish-github-dry-run.txt
-          cat publish-github-dry-run.txt
+          echo "GitHub publish dry run summary:"
+          cat publish-summary.json || echo "No GitHub publish dry run summary generated"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -122,9 +125,8 @@ jobs:
         run: |
           echo "Publishing packages to GitHub Packages..."
           pnpm publish -r --no-git-checks --report-summary || echo "GitHub Packages publish failed"
-          mv publish-summary.json publish-github.txt || true
-          echo "GitHub Packages publish summary:"
-          cat publish-github.txt || echo "No summary generated"
+          echo "GitHub publish summary:"
+          cat publish-summary.json || echo "No GitHub publish summary generated"
           rm .npmrc
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
