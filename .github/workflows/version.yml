@@ -35,7 +35,8 @@ jobs:
           if echo "$CHANGES_STATUS" | grep -qi "packages to be bumped"; then
             echo "Changesets found, continuing"
           else
-            echo "No unreleased changesets found, continuing anyway"
+            echo "No unreleased changesets found, exiting"
+            exit 1
           fi
 
       - name: Debug Foundry
