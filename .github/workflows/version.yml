@@ -29,7 +29,7 @@ jobs:
       - name: Check for pending releases
         run: |
           echo "Checking for pending changesets..."
-          pnpm changeset status --verbose
+          pnpm changeset status --verbose --since=origin/main
           if pnpm changeset status | grep -qi "packages to be bumped"; then
             echo "Changesets found, continuing"
           else
