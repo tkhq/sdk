@@ -30,7 +30,7 @@ jobs:
         run: |
           echo "Checking for pending changesets..."
           pnpm changeset status --verbose --since=origin/main
-          if pnpm changeset status | grep -qi "packages to be bumped"; then
+          if pnpm changeset status --since=origin/main | grep -qi "packages to be bumped"; then
             echo "Changesets found, continuing"
           else
             echo "No unreleased changesets found, exiting"
