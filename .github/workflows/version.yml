@@ -29,13 +29,14 @@ jobs:
       - name: Check for pending releases
         run: |
           echo "Checking for pending changesets..."
-          CHANGES_STATUS=$(pnpm changeset status --verbose --since=origin/main)
+          git fetch origin main
+          CHANGES_STATUS=$(pnpm changeset status --verbose)
           echo "$CHANGES_STATUS"
           if echo "$CHANGES_STATUS" | grep -qi "packages to be bumped"; then
             echo "Changesets found, continuing"
           else
             echo "No unreleased changesets found, exiting"
-            exit 0
+            exit 1
           fi
 
       - name: Debug Foundry
