@@ -55,20 +55,22 @@ export const OnRamp = () => {
         const session = await turnkey?.getSession();
         console.log("session response:", session);
 
-        const onrampConfig = await fetchOnrampConfig();
-        console.log("onrampConfig:", onrampConfig);
+        // const onrampConfig = await fetchOnrampConfig();
+        // console.log("onrampConfig:", onrampConfig);
 
-        const onrampOptions = await fetchOnrampOptions({
-          country: "US",
-          subdivision: "ME",
-        });
-        console.log("onrampOptions:", onrampOptions);
+        // const onrampOptions = await fetchOnrampOptions({
+        //   country: "US",
+        //   subdivision: "ME",
+        // });
+        // console.log("onrampOptions:", onrampOptions);
         const initFiatOnRampResponse = await indexedDbClient?.initFiatOnRamp({
           organizationId: session?.organizationId!,
           onrampProvider: "FIAT_ON_RAMP_PROVIDER_COINBASE",
           transactionType: "FIAT_ON_RAMP_TRANSACTION_TYPE_BUY",
           walletAddress: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
           fiatCurrencyCode: "USD",
+          countryCode: "US",
+          countrySubdivisionCode: "ME",
         });
 
         const onrampBuyUrl = getOnrampBuyUrl({
