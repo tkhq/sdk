@@ -55,14 +55,6 @@ export const OnRamp = () => {
         const session = await turnkey?.getSession();
         console.log("session response:", session);
 
-        const initFiatOnRampResponse = await indexedDbClient?.initFiatOnRamp({
-          organizationId: session?.organizationId!,
-          onrampProvider: "FIAT_ON_RAMP_PROVIDER_COINBASE",
-          transactionType: "FIAT_ON_RAMP_TRANSACTION_TYPE_BUY",
-          walletAddress: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
-          fiatCurrencyCode: "USD",
-        });
-
         const onrampConfig = await fetchOnrampConfig();
         console.log("onrampConfig:", onrampConfig);
 
@@ -71,6 +63,13 @@ export const OnRamp = () => {
           subdivision: "ME",
         });
         console.log("onrampOptions:", onrampOptions);
+        const initFiatOnRampResponse = await indexedDbClient?.initFiatOnRamp({
+          organizationId: session?.organizationId!,
+          onrampProvider: "FIAT_ON_RAMP_PROVIDER_COINBASE",
+          transactionType: "FIAT_ON_RAMP_TRANSACTION_TYPE_BUY",
+          walletAddress: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
+          fiatCurrencyCode: "USD",
+        });
 
         const onrampBuyUrl = getOnrampBuyUrl({
           projectId: "aefedf19-488c-426c-b7be-133fab72807c",
@@ -148,11 +147,12 @@ export const OnRamp = () => {
             transactionType: "FIAT_ON_RAMP_TRANSACTION_TYPE_BUY",
             walletAddress: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
             fiatCurrencyCode: "USD",
+            cryptoCurrencyCode: "eth",
           });
 
         console.log(
           "initMoonPayFiatOnRampResponse:",
-          initMoonPayFiatOnRampResponse,
+          initMoonPayFiatOnRampResponse
         );
         // console.log(
         //   "https://buy-sandbox.moonpay.com?apiKey=pk_test_zEGwLvmLma8crfMBnJwzom7jzKeu6Jsk&currencyCode=ETH&walletAddress=0xf2C35a22F398a00097E7621638D3931173850811&signature=wecT6rA1h8Fo5xL3wtjMH2nvUdAwGbHHTu8NRI85Xeo%3D"
