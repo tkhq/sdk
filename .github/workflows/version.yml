@@ -29,8 +29,9 @@ jobs:
       - name: Check for pending releases
         run: |
           echo "Checking for pending changesets..."
-          pnpm changeset status --verbose
-          if pnpm changeset status | grep -qi "packages to be bumped"; then
+          CHANGES_STATUS=$(pnpm changeset status --verbose --since=origin/main)
+          echo "$CHANGES_STATUS"
+          if echo "$CHANGES_STATUS" | grep -qi "packages to be bumped"; then
             echo "Changesets found, continuing"
           else
             echo "No unreleased changesets found, exiting"
