@@ -266,12 +266,14 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
 
   imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
 
-  imports.push('import { StorageKeys, getStorageValue } from "../storage";');
+  imports.push(
+    'import { StorageBase, StorageKey } from "../__storage__/base";',
+  );
   imports.push('import { parseSession } from "../utils";');
 
   imports.push('import { StamperType } from "../__types__/base";');
 
-    codeBuffer.push(`
+  codeBuffer.push(`
     export class TurnkeySDKClientBase {
     config: TurnkeySDKClientConfig;
 
@@ -281,9 +283,13 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     // Store stampers
     private indexedDBStamper?: TStamper | undefined;
     private passkeyStamper?: TStamper | undefined;
+    
+    // Storage manager
+    private storageManager?: StorageBase | undefined;
 
     constructor(config: TurnkeySDKClientConfig) {
         this.config = config;
+        
         if (config.stamper) {
         this.stamper = config.stamper;
         // Store as default IndexedDB stamper
@@ -291,6 +297,9 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
         }
         if (config.passkeyStamper) {
         this.passkeyStamper = config.passkeyStamper;
+        }
+        if (config.storageManager) {
+        this.storageManager = config.storageManager;
         }
     }
 
@@ -445,37 +454,37 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
 
-// For query methods
-if (methodType === "query") {
-    codeBuffer.push(
-      `\n\t${methodName} = async (input: SdkApiTypes.${inputType}${
-        METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)
-          ? " = {}"
-          : ""
-      }, stampWith?: StamperType): Promise<SdkApiTypes.${responseType}> => {
-      let session = await getStorageValue(StorageKeys.Session);
-      session = parseSession(session!);
+    // For query methods
+    if (methodType === "query") {
+      codeBuffer.push(
+        `\n\t${methodName} = async (input: SdkApiTypes.${inputType}${
+          METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)
+            ? " = {}"
+            : ""
+        }, stampWith?: StamperType): Promise<SdkApiTypes.${responseType}> => {
+      let session = await this.storageManager?.getStorageValue(StorageKey.Session);
+      session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
       return this.request("${endpointPath}", {
         ...input,
         organizationId: input.organizationId ?? session?.organizationId ?? this.config.organizationId
       }, stampWith);
     }`,
-    );
-  } else if (methodType === "command") {
-    // For command methods
-    const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
-      .replace(/([a-z])([A-Z])/g, "$1_$2")
-      .toUpperCase()}`;
-    const versionedActivityType =
-      VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
-  
-    const resultKey = operationNameWithoutNamespace + "Result";
-    const versionedMethodName = latestVersions[resultKey].formattedKeyName;
-    
-    codeBuffer.push(
-      `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, stampWith?: StamperType): Promise<SdkApiTypes.${responseType}> => {
+      );
+    } else if (methodType === "command") {
+      // For command methods
+      const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
+        .replace(/([a-z])([A-Z])/g, "$1_$2")
+        .toUpperCase()}`;
+      const versionedActivityType =
+        VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
+
+      const resultKey = operationNameWithoutNamespace + "Result";
+      const versionedMethodName = latestVersions[resultKey].formattedKeyName;
+
+      codeBuffer.push(
+        `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, stampWith?: StamperType): Promise<SdkApiTypes.${responseType}> => {
       const { organizationId, timestampMs, ...rest } = input;
-      let session = await getStorageValue(StorageKeys.Session);
+      let session = await this.storageManager?.getStorageValue(StorageKey.Session);
       session = parseSession(session!);
   
       return this.command("${endpointPath}", {
@@ -485,13 +494,13 @@ if (methodType === "query") {
         type: "${versionedActivityType ?? unversionedActivityType}"
       }, "${versionedMethodName}", stampWith);
     }`,
-    );
-  } else if (methodType === "activityDecision") {
-    // For activityDecision methods
-    codeBuffer.push(
-      `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, stampWith?: StamperType): Promise<SdkApiTypes.${responseType}> => {
+      );
+    } else if (methodType === "activityDecision") {
+      // For activityDecision methods
+      codeBuffer.push(
+        `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, stampWith?: StamperType): Promise<SdkApiTypes.${responseType}> => {
       const { organizationId, timestampMs, ...rest } = input;
-      let session = await getStorageValue(StorageKeys.Session);
+      let session = await this.storageManager?.getStorageValue(StorageKey.Session);
       session = parseSession(session!);
       return this.activityDecision("${endpointPath}",
         {
@@ -503,8 +512,8 @@ if (methodType === "query") {
             .toUpperCase()}"
         }, stampWith);
     }`,
-    );
-  }
+      );
+    }
     // generate a stamping method for each method
     codeBuffer.push(
       `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkApiTypes.${inputType}): Promise<TSignedRequest | undefined> => {

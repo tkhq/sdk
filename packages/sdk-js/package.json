@@ -31,12 +31,19 @@
     "@turnkey/sdk-types": "workspace:*",
     "bs58check": "3.0.1",
     "buffer": "^6.0.3",
-    "cross-fetch": "^3.1.5",
-    "hpke-js": "^1.2.7"
+    "cross-fetch": "^3.1.5"
   },
   "devDependencies": {
     "glob": "^8.0.3",
     "typescript": "5.4.3"
+  },
+  "peerDependencies": {
+    "react-native-keychain": "^8.1.0 || ^9.2.2 || ^10.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react-native-keychain": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=18.0.0"

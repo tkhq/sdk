@@ -3,6 +3,11 @@ import type { WalletInterface, WalletStamper } from "@turnkey/wallet-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import type { SessionType } from "@turnkey/sdk-types";
+import { StorageBase } from "../__storage__/base";
+
+// TODO (Amir): Get all this outta here and move to sdk-types. Or not, we could just have everything in this package
+
+export const DEFAULT_SESSION_EXPIRATION_IN_SECONDS = "900"; // 15 minutes
 
 export type GrpcStatus = {
   message: string;
@@ -68,27 +73,43 @@ export type TActivityPollerConfig = {
   numRetries: number;
 };
 
-interface BaseSDKClientConfig {
+export interface SubOrganization {
+  organizationId: string;
+  organizationName: string;
+}
+
+export type EmbeddedAPIKey = {
+  authBundle: string;
+  publicKey: string;
+};
+
+export type Passkey = {
+  encodedChallenge: string;
+  attestation: {
+    credentialId: string;
+    clientDataJson: string;
+    attestationObject: string;
+    transports: (
+      | "AUTHENTICATOR_TRANSPORT_BLE"
+      | "AUTHENTICATOR_TRANSPORT_INTERNAL"
+      | "AUTHENTICATOR_TRANSPORT_NFC"
+      | "AUTHENTICATOR_TRANSPORT_USB"
+      | "AUTHENTICATOR_TRANSPORT_HYBRID"
+    )[];
+  };
+};
+
+export interface TurnkeySDKClientConfig {
   apiBaseUrl: string;
   organizationId: string;
+
+  // TODO (Amir): Remove this in a user-facing config and add passkey and wallet configs
   activityPoller?: TActivityPollerConfig | undefined;
-}
-
-interface SDKClientConfigWithStamper extends BaseSDKClientConfig {
-  stamper: TStamper;
-  passkeyStamper?: TStamper;
-  readOnlySession?: never;
-}
-
-interface SDKClientConfigWithReadOnlySession extends BaseSDKClientConfig {
   stamper?: never;
   passkeyStamper?: TStamper;
-  readOnlySession: string;
+  storageManager?: StorageBase;
+  readOnlySession?: string;
 }
-
-export type TurnkeySDKClientConfig =
-  | SDKClientConfigWithStamper
-  | SDKClientConfigWithReadOnlySession;
 
 export interface TurnkeySDKBrowserConfig {
   apiBaseUrl: string;
@@ -136,7 +157,7 @@ export interface LoginWithBundleParams {
 }
 
 export interface LoginWithPasskeyParams {
-  sessionType: SessionType;
+  sessionType?: SessionType;
   expirationSeconds?: string | undefined;
   publicKey?: string;
 }
@@ -147,9 +168,9 @@ export interface LoginWithWalletParams {
   publicKey?: string;
 }
 
-export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {
-  wallet: WalletInterface;
-}
+// export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {
+//   wallet: WalletInterface;
+// }
 
 /**
  * The Client used to authenticate the user.
@@ -157,7 +178,6 @@ export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {
 export enum AuthClient {
   Passkey = "passkey",
   Wallet = "wallet",
-  Iframe = "iframe",
   IndexedDb = "indexed-db",
 }
 
