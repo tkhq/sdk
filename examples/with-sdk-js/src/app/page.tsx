@@ -23,7 +23,7 @@ export default function AuthPage() {
         },
       });
 
-      await turnkeyClient.indexedDBStamper?.init();
+      await turnkeyClient.init();
       setClient(turnkeyClient);
     };
 
@@ -31,10 +31,9 @@ export default function AuthPage() {
   }, []);
 
   const passkey = async () => {
-    const resp = await client?.httpClient.getWhoami({}, StamperType.Passkey);
-    console.log("Response from getWhoami:", resp);
+    await client?.loginWithPasskey({});
+    //const resp = await client?.httpClient.getWhoami({}, StamperType.Passkey);
   };
-
   const indexedDB = async () => {
     const resp = await client?.httpClient.getWhoami({});
     console.log("Response from getWhoami:", resp);
