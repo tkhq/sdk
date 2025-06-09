@@ -9,7 +9,12 @@ import {
   Passkey,
   StamperType,
 } from "@types"; // AHHHH, SDK-TYPES
-import { base64UrlEncode, generateRandomBuffer } from "@utils";
+import {
+  base64UrlEncode,
+  generateRandomBuffer,
+  isReactNative,
+  isWeb,
+} from "@utils";
 import { getWebAuthnAttestation } from "@turnkey/http";
 import { createStorageManager, StorageBase } from "../__storage__/base";
 
@@ -17,44 +22,95 @@ export class TurnkeyClient {
   config: any; // Type TBD
   httpClient!: TurnkeySDKClientBase;
 
-  // TODO (Amir): Make these private
-  indexedDBStamper: IndexedDbStamper | undefined;
-  passkeyStamper: WebauthnStamper | undefined;
+  // Platform-agnostic stampers
+  private indexedDBStamper?: IndexedDbStamper | undefined;
+  private passkeyStamper?: WebauthnStamper | undefined;
+
+  // Mobile-specific stampers
+  private secureStorageStamper?: any | undefined; // TODO (Amir): Implement proper type
+  private mobilePasskeyStamper?: any | undefined; // TODO (Amir): Implement proper type
+
+  // The active default stamper for the current platform
+  private activeStamper?: any; // TODO (Amir): This should be a type that encompasses the default "api key" stamper. indexedDB for web, secure storage for mobile.
 
   storageManager!: StorageBase;
 
   constructor(
     config: any,
+
+    // Users can pass in their own stampers, or we will create them. Should we remove this?
     indexedDBStamper?: IndexedDbStamper,
     passkeyStamper?: WebauthnStamper,
+    secureStorageStamper?: any, // TODO: Add proper type
+    mobilePasskeyStamper?: any, // TODO: Add proper type
   ) {
     this.config = config;
-    this.indexedDBStamper = indexedDBStamper || new IndexedDbStamper();
-    this.passkeyStamper =
-      passkeyStamper ||
-      new WebauthnStamper({
-        rpId: config?.passkeyConfig?.rpId ?? WindowWrapper.location.hostname,
-        ...(config?.passkeyConfig?.timeout !== undefined && {
-          timeout: config?.passkeyConfig?.timeout,
-        }),
-        ...(config?.passkeyConfig?.userVerification !== undefined && {
-          userVerification: config?.passkeyConfig?.userVerification,
-        }),
-        ...(config?.passkeyConfig?.allowCredentials !== undefined && {
-          allowCredentials: config?.passkeyConfig?.allowCredentials,
-        }),
-      });
 
-    // storageManager will be initialized asynchronously
+    // Just store any explicitly provided stampers
+    this.indexedDBStamper = indexedDBStamper;
+    this.passkeyStamper = passkeyStamper;
+    this.secureStorageStamper = secureStorageStamper;
+    this.mobilePasskeyStamper = mobilePasskeyStamper;
+
+    // Actual initialization will happen in init()
   }
 
   async init() {
-    await this.indexedDBStamper?.init();
+    // Initialize platform-specific stampers
+    if (isWeb()) {
+      // Web environment - use IndexedDB and WebAuthn if not provided
+      if (!this.indexedDBStamper) {
+        this.indexedDBStamper = new IndexedDbStamper();
+      }
+
+      if (!this.passkeyStamper) {
+        this.passkeyStamper = new WebauthnStamper({
+          rpId:
+            this.config?.passkeyConfig?.rpId ?? WindowWrapper.location.hostname,
+          ...(this.config?.passkeyConfig?.timeout !== undefined && {
+            timeout: this.config?.passkeyConfig?.timeout,
+          }),
+          ...(this.config?.passkeyConfig?.userVerification !== undefined && {
+            userVerification: this.config?.passkeyConfig?.userVerification,
+          }),
+          ...(this.config?.passkeyConfig?.allowCredentials !== undefined && {
+            allowCredentials: this.config?.passkeyConfig?.allowCredentials,
+          }),
+        });
+      }
+
+      // Initialize the IndexedDB stamper (don't put this in the if statement above, indexedDBStamper can be passed in but not initted yet!)
+      await this.indexedDBStamper.init();
+
+      // Set default active stamper for web
+      this.activeStamper = this.indexedDBStamper;
+    } else if (isReactNative()) {
+      // React Native environment - use mobile-specific stampers
+
+      if (!this.secureStorageStamper) {
+        // TODO: Initialize secureStorageStamper
+        // this.secureStorageStamper = new SecureStorageStamper();
+      }
+
+      if (!this.mobilePasskeyStamper) {
+        // TODO: Initialize mobilePasskeyStamper
+        // this.mobilePasskeyStamper = new MobilePasskeyStamper();
+      }
+
+      // Initialize the secure storage stamper if needed
+      // await this.secureStorageStamper.init();
+
+      // Set default active stamper for mobile
+      this.activeStamper = this.secureStorageStamper;
+    }
+
+    // Initialize storage manager
     this.storageManager = await createStorageManager();
 
+    // Initialize the HTTP client with the appropriate stampers
     this.httpClient = new TurnkeySDKClientBase({
-      stamper: this.indexedDBStamper, // Maybe we should rename this
-      passkeyStamper: this.passkeyStamper,
+      stamper: this.activeStamper,
+      passkeyStamper: isWeb() ? this.passkeyStamper : this.mobilePasskeyStamper,
       storageManager: this.storageManager,
       ...this.config,
     });
@@ -68,6 +124,7 @@ export class TurnkeyClient {
   createUserPasskey = async (
     config: Record<any, any> = {},
   ): Promise<Passkey> => {
+    // TODO (Amir): Make this work for mobile as well
     const challenge = generateRandomBuffer();
     const encodedChallenge = base64UrlEncode(challenge);
     const authenticatorUserId = generateRandomBuffer();
@@ -142,10 +199,10 @@ export class TurnkeyClient {
    */
   loginWithPasskey = async (params: LoginWithPasskeyParams): Promise<void> => {
     try {
-      await this.indexedDBStamper?.resetKeyPair();
+      await this.indexedDBStamper?.resetKeyPair(); // TODO (Amir): Once implemented, this should be activeStamper.resetKeyPair();
       const {
         sessionType = SessionType.READ_WRITE,
-        publicKey = this.indexedDBStamper?.getPublicKey(),
+        publicKey = this.indexedDBStamper?.getPublicKey(), // TODO (Amir): Once implemented, this should be activeStamper.getPublicKey();
         expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
       } = params;
       // Create a read-only session
@@ -180,7 +237,7 @@ export class TurnkeyClient {
         const whoamiResponse = await this.httpClient.getWhoami({});
 
         const session: Session = {
-          // Let's keep consistent with storing the actual session object rather than just the token
+          // Note (Amir): Let's keep consistent with storing the actual session object rather than just the token
           sessionType: SessionType.READ_ONLY,
           userId: whoamiResponse.userId,
           organizationId: whoamiResponse.organizationId,
