@@ -1,0 +1,20 @@
+{
+  "name": "@turnkey/verify-enclave-response",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@noble/ciphers": "0.5.3",
+    "@noble/curves": "1.4.0",
+    "@noble/hashes": "1.4.0",
+    "bs58": "^5.0.0",
+    "bs58check": "3.0.1",
+    "borsh": "^2.0.0",
+    "@turnkey/encoding": "workspace:*"
+  }
+}
