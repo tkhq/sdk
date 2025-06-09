@@ -2,6 +2,16 @@ import { Buffer } from "buffer";
 
 import type { Session } from "@turnkey/sdk-types";
 
+export const isReactNative = (): boolean => {
+  return (
+    typeof navigator !== "undefined" && navigator.product === "ReactNative"
+  );
+};
+
+export const isWeb = (): boolean => {
+  return typeof window !== "undefined" && typeof document !== "undefined";
+};
+
 export const generateRandomBuffer = (): ArrayBuffer => {
   const arr = new Uint8Array(32);
   crypto.getRandomValues(arr);
@@ -17,7 +27,7 @@ export const base64UrlEncode = (challenge: ArrayBuffer): string => {
 };
 
 const hexByByte = Array.from({ length: 256 }, (_, i) =>
-  i.toString(16).padStart(2, "0")
+  i.toString(16).padStart(2, "0"),
 );
 
 export const bytesToHex = (bytes: Uint8Array): string => {
