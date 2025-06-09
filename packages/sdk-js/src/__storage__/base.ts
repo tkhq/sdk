@@ -1,6 +1,7 @@
 import { Session } from "@turnkey/sdk-types";
 import { AuthClient } from "..";
 import { WebStorageManager } from "./web/storage";
+import { isReactNative, isWeb } from "@utils";
 
 export enum StorageKey {
   Session = "@turnkey/session/v2",
@@ -22,16 +23,6 @@ export interface StorageBase {
   removeStorageValue<K extends StorageKey>(storageKey: K): Promise<void>;
   storeSession(session: Session): Promise<any>;
 }
-
-export const isReactNative = (): boolean => {
-  return (
-    typeof navigator !== "undefined" && navigator.product === "ReactNative"
-  );
-};
-
-export const isWeb = (): boolean => {
-  return typeof window !== "undefined" && typeof document !== "undefined";
-};
 
 export async function createStorageManager(): Promise<StorageBase> {
   if (isReactNative()) {
