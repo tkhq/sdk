@@ -224,14 +224,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Debug Git Status
+        run: |
+          echo "Git status before commit:"
+          git status --short
+          echo "Listing .changeset directory:"
+          ls -la .changeset || echo ".changeset directory not found"
+
       - name: Commit versioned changes
         run: |
-          git add .
-          git commit -m "chore: release packages" || echo "No changes to commit"
+          git add -A
+          git commit -m "chore: release packages [ci skip]" || echo "No changes to commit"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push changes to release branch
         run: |
-          git push -u origin release/${{ github.ref_name }}
+          git push -u origin release/${{ github.ref_name }} --force
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
