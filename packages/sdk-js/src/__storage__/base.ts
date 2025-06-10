@@ -1,40 +1,45 @@
 import { Session } from "@turnkey/sdk-types";
-import { AuthClient } from "..";
 import { WebStorageManager } from "./web/storage";
 import { isReactNative, isWeb } from "@utils";
 
-export enum StorageKey {
-  Session = "@turnkey/session/v2",
-  Client = "@turnkey/client",
-}
-export interface StorageValue {
-  [StorageKey.Session]: Session;
-  [StorageKey.Client]: AuthClient; // TODO (Amir): I don't think we need this
+export enum SessionKey {
+  DefaultSessionkey = "@turnkey/session/v3",
 }
 
 export interface StorageBase {
-  getStorageValue<K extends StorageKey>(
-    key: K,
-  ): Promise<StorageValue[K] | undefined>;
-  setStorageValue<K extends StorageKey>(
-    storageKey: K,
-    storageValue: StorageValue[K],
-  ): Promise<any>;
-  removeStorageValue<K extends StorageKey>(storageKey: K): Promise<void>;
-  storeSession(session: Session): Promise<any>;
+  getStorageValue(sessionKey: string): Promise<any>;
+
+  setStorageValue(sessionKey: string, storageValue: any): Promise<void>;
+
+  removeStorageValue(sessionKey: string): Promise<void>;
+
+  storeSession(session: Session, sessionKey?: string): Promise<void>;
+
+  getSession(sessionKey?: string): Promise<Session | undefined>;
+
+  getActiveSessionKey(): Promise<string | undefined>;
+
+  getActiveSession(): Promise<Session | undefined>;
+
+  listSessionKeys(): Promise<string[]>;
+
+  clearSession(sessionKey: string): Promise<void>;
+
+  clearAllSessions(): Promise<void>;
 }
 
 export async function createStorageManager(): Promise<StorageBase> {
   if (isReactNative()) {
-    try {
-      // Dynamic import to prevent bundling the native module in web environments
-      const { MobileStorageManager } = await import("./mobile/storage");
-      return new MobileStorageManager();
-    } catch (error) {
-      throw new Error(
-        `Failed to load native secure storage, falling back to memory storage: ${error}`,
-      );
-    }
+    throw new Error("Not implemented for React Native yet.");
+    // try {
+    //   // Dynamic import to prevent bundling the native module in web environments
+    //   const { MobileStorageManager } = await import("./mobile/storage");
+    //   return new MobileStorageManager();
+    // } catch (error) {
+    //   throw new Error(
+    //     `Failed to load native secure storage, falling back to memory storage: ${error}`
+    //   );
+    // }
   } else if (isWeb()) {
     return new WebStorageManager();
   } else {
