@@ -138,7 +138,7 @@ export const SessionExpiryProvider = ({
     }
 
     try {
-      await indexedDbClient.refreshSession({ expirationSeconds: "600" });
+      await indexedDbClient.refreshSession({});
       const cur = await turnkey?.getSession();
       if (cur?.expiry) {
         const now = Date.now() / 1000;
@@ -186,7 +186,7 @@ export const SessionExpiryProvider = ({
                 <p className="modalMessage">
                   Your session will expire in{" "}
                   <span className="sessionExpiryTime">{mmss(left)}</span>. Click{" "}
-                  <strong>Continue</strong> to extend your session by 10
+                  <strong>Continue</strong> to extend your session by 15
                   minutes, or logout now.
                 </p>
               </div>
