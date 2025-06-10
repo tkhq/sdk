@@ -1,5 +1,5 @@
 import type { TActivityId, TActivityStatus } from "@turnkey/http";
-import type { WalletInterface, WalletStamper } from "@turnkey/wallet-stamper";
+import type { WalletStamper } from "@turnkey/wallet-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import type { SessionType } from "@turnkey/sdk-types";
@@ -160,6 +160,7 @@ export interface LoginWithPasskeyParams {
   sessionType?: SessionType;
   expirationSeconds?: string | undefined;
   publicKey?: string;
+  sessionKey?: string | undefined;
 }
 
 export interface LoginWithWalletParams {
