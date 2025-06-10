@@ -55,14 +55,14 @@ export const OnRamp = () => {
         const session = await turnkey?.getSession();
         console.log("session response:", session);
 
-        // const onrampConfig = await fetchOnrampConfig();
-        // console.log("onrampConfig:", onrampConfig);
+        const onrampConfig = await fetchOnrampConfig();
+        console.log("onrampConfig:", onrampConfig);
 
-        // const onrampOptions = await fetchOnrampOptions({
-        //   country: "US",
-        //   subdivision: "ME",
-        // });
-        // console.log("onrampOptions:", onrampOptions);
+        const onrampOptions = await fetchOnrampOptions({
+          country: "US",
+          subdivision: "ME",
+        });
+        console.log("onrampOptions:", onrampOptions);
         const initFiatOnRampResponse = await indexedDbClient?.initFiatOnRamp({
           organizationId: session?.organizationId!,
           onrampProvider: "FIAT_ON_RAMP_PROVIDER_COINBASE",
