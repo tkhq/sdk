@@ -1,0 +1,3508 @@
+[
+  {
+    "name": "Bitcoin",
+    "symbol": "BTC",
+    "networks": [
+      {
+        "name": "arbitrum",
+        "displayName": "Arbitrum",
+        "chainId": "42161"
+      },
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      },
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "bitcoin",
+        "displayName": "Bitcoin",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Bitcoin Cash",
+    "symbol": "BCH",
+    "networks": [
+      {
+        "name": "bitcoincash",
+        "displayName": "Bitcoin Cash",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Ethereum",
+    "symbol": "ETH",
+    "networks": [
+      {
+        "name": "unichain",
+        "displayName": "Unichain",
+        "chainId": "130"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      },
+      {
+        "name": "arbitrum",
+        "displayName": "Arbitrum",
+        "chainId": "42161"
+      },
+      {
+        "name": "avacchain",
+        "displayName": "Avalanche C-Chain",
+        "chainId": "43114"
+      },
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "optimism",
+        "displayName": "Optimism",
+        "chainId": "10"
+      },
+      {
+        "name": "polygon",
+        "displayName": "Polygon",
+        "chainId": "137"
+      }
+    ]
+  },
+  {
+    "name": "Ethereum Classic",
+    "symbol": "ETC",
+    "networks": [
+      {
+        "name": "ethereumclassic",
+        "displayName": "Ethereum Classic",
+        "chainId": "61"
+      }
+    ]
+  },
+  {
+    "name": "Litecoin",
+    "symbol": "LTC",
+    "networks": [
+      {
+        "name": "litecoin",
+        "displayName": "Litecoin",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "0x Protocol",
+    "symbol": "ZRX",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "USDC",
+    "symbol": "USDC",
+    "networks": [
+      {
+        "name": "unichain",
+        "displayName": "Unichain",
+        "chainId": "130"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      },
+      {
+        "name": "arbitrum",
+        "displayName": "Arbitrum",
+        "chainId": "42161"
+      },
+      {
+        "name": "avacchain",
+        "displayName": "Avalanche C-Chain",
+        "chainId": "43114"
+      },
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "noble",
+        "displayName": "Noble",
+        "chainId": "0"
+      },
+      {
+        "name": "optimism",
+        "displayName": "Optimism",
+        "chainId": "10"
+      },
+      {
+        "name": "polygon",
+        "displayName": "Polygon",
+        "chainId": "137"
+      },
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      },
+      {
+        "name": "stellar",
+        "displayName": "Stellar",
+        "chainId": "0"
+      },
+      {
+        "name": "sui",
+        "displayName": "Sui",
+        "chainId": "0"
+      },
+      {
+        "name": "aptos",
+        "displayName": "Aptos",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Basic Attention Token",
+    "symbol": "BAT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Decentraland",
+    "symbol": "MANA",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Kyber Network",
+    "symbol": "KNC",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Chainlink",
+    "symbol": "LINK",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "district0x",
+    "symbol": "DNT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Maker",
+    "symbol": "MKR",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Civic",
+    "symbol": "CVC",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Dai",
+    "symbol": "DAI",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      },
+      {
+        "name": "avacchain",
+        "displayName": "Avalanche C-Chain",
+        "chainId": "43114"
+      },
+      {
+        "name": "optimism",
+        "displayName": "Optimism",
+        "chainId": "10"
+      },
+      {
+        "name": "arbitrum",
+        "displayName": "Arbitrum",
+        "chainId": "42161"
+      }
+    ]
+  },
+  {
+    "name": "Zcash",
+    "symbol": "ZEC",
+    "networks": [
+      {
+        "name": "zcash",
+        "displayName": "Zcash",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "XRP",
+    "symbol": "XRP",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ripple",
+        "displayName": "XRPL",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Stellar Lumens",
+    "symbol": "XLM",
+    "networks": [
+      {
+        "name": "stellar",
+        "displayName": "Stellar",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "EOS",
+    "symbol": "EOS",
+    "networks": [
+      {
+        "name": "eosio",
+        "displayName": "EOS",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Tezos",
+    "symbol": "XTZ",
+    "networks": [
+      {
+        "name": "tezos",
+        "displayName": "Tezos",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Algorand",
+    "symbol": "ALGO",
+    "networks": [
+      {
+        "name": "algorand",
+        "displayName": "Algorand",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Dash",
+    "symbol": "DASH",
+    "networks": [
+      {
+        "name": "dash",
+        "displayName": "Dash",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Cosmos",
+    "symbol": "ATOM",
+    "networks": [
+      {
+        "name": "cosmos",
+        "displayName": "Cosmos",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Orchid",
+    "symbol": "OXT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Compound",
+    "symbol": "COMP",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Band Protocol",
+    "symbol": "BAND",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Numeraire",
+    "symbol": "NMR",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Celo",
+    "symbol": "CGLD",
+    "networks": [
+      {
+        "name": "celo",
+        "displayName": "Celo Gold",
+        "chainId": "42220"
+      }
+    ]
+  },
+  {
+    "name": "UMA",
+    "symbol": "UMA",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Loopring",
+    "symbol": "LRC",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "yearn.finance",
+    "symbol": "YFI",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Uniswap",
+    "symbol": "UNI",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Balancer",
+    "symbol": "BAL",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Filecoin",
+    "symbol": "FIL",
+    "networks": [
+      {
+        "name": "filecoin",
+        "displayName": "Filecoin",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Aave",
+    "symbol": "AAVE",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Bancor Network Token",
+    "symbol": "BNT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "The Graph",
+    "symbol": "GRT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Synthetix Network Token",
+    "symbol": "SNX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Storj",
+    "symbol": "STORJ",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "SushiSwap",
+    "symbol": "SUSHI",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Polygon",
+    "symbol": "MATIC",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "SKALE",
+    "symbol": "SKL",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Cardano",
+    "symbol": "ADA",
+    "networks": [
+      {
+        "name": "cardano",
+        "displayName": "ADA",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Ankr",
+    "symbol": "ANKR",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Curve DAO Token",
+    "symbol": "CRV",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Internet Computer",
+    "symbol": "ICP",
+    "networks": [
+      {
+        "name": "dfinity",
+        "displayName": "Internet Computer Protocol",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "NKN",
+    "symbol": "NKN",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Origin Token",
+    "symbol": "OGN",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "1inch",
+    "symbol": "1INCH",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Tether",
+    "symbol": "USDT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Ampleforth Governance Token",
+    "symbol": "FORTH",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Cartesi",
+    "symbol": "CTSI",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Tellor",
+    "symbol": "TRB",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "PAX Gold",
+    "symbol": "PAXG",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "iExec RLC",
+    "symbol": "RLC",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Polkadot",
+    "symbol": "DOT",
+    "networks": [
+      {
+        "name": "polkadot",
+        "displayName": "Polkadot",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Solana",
+    "symbol": "SOL",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Dogecoin",
+    "symbol": "DOGE",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "dogecoin",
+        "displayName": "Dogecoin",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Enzyme",
+    "symbol": "MLN",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Gitcoin",
+    "symbol": "GTC",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Amp",
+    "symbol": "AMP",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "SHIBA INU",
+    "symbol": "SHIB",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Chiliz",
+    "symbol": "CHZ",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Livepeer",
+    "symbol": "LPT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Quant",
+    "symbol": "QNT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Clover Finance",
+    "symbol": "CLV",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Harvest Finance",
+    "symbol": "FARM",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Mask Network",
+    "symbol": "MASK",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Artificial Superintelligence Alliance",
+    "symbol": "FET",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Paxos Standard",
+    "symbol": "PAX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Alchemy Pay",
+    "symbol": "ACH",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Assemble AI",
+    "symbol": "ASM",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "IoTeX",
+    "symbol": "IOTX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Axie Infinity",
+    "symbol": "AXS",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Request",
+    "symbol": "REQ",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "TrueFi",
+    "symbol": "TRU",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Radworks",
+    "symbol": "RAD",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "COTI",
+    "symbol": "COTI",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "SUKU",
+    "symbol": "SUKU",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "XYO",
+    "symbol": "XYO",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Horizen",
+    "symbol": "ZEN",
+    "networks": [
+      {
+        "name": "horizen",
+        "displayName": "Horizen",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "AirSwap",
+    "symbol": "AST",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Bounce Token",
+    "symbol": "AUCTION",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Jasmy",
+    "symbol": "JASMY",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Wrapped Centrifuge",
+    "symbol": "WCFG",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Braintrust",
+    "symbol": "BTRST",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Adventure Gold",
+    "symbol": "AGLD",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Avalanche",
+    "symbol": "AVAX",
+    "networks": [
+      {
+        "name": "avacchain",
+        "displayName": "Avalanche C-Chain",
+        "chainId": "43114"
+      }
+    ]
+  },
+  {
+    "name": "Function X",
+    "symbol": "FX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "OriginTrail",
+    "symbol": "TRAC",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "LCX",
+    "symbol": "LCX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "ARPA Chain",
+    "symbol": "ARPA",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Badger DAO",
+    "symbol": "BADGER",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Kryll",
+    "symbol": "KRL",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Perpetual Protocol",
+    "symbol": "PERP",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Rarible",
+    "symbol": "RARI",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Api3",
+    "symbol": "API3",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "PolySwarm",
+    "symbol": "NCT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "SHPING",
+    "symbol": "SHPING",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Cronos",
+    "symbol": "CRO",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Arcblock",
+    "symbol": "ABT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Convex Finance",
+    "symbol": "CVX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Aventus",
+    "symbol": "AVT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Measurable Data Token",
+    "symbol": "MDT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Alchemix",
+    "symbol": "ALCX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Shapeshift FOX Token",
+    "symbol": "FOX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Celer Network",
+    "symbol": "CELR",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Powerledger",
+    "symbol": "POWR",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "MyNeighborAlice",
+    "symbol": "ALICE",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Inverse Finance",
+    "symbol": "INV",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Liquity",
+    "symbol": "LQTY",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Propy",
+    "symbol": "PRO",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Spell Token",
+    "symbol": "SPELL",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Ethereum Name Service",
+    "symbol": "ENS",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "DIA",
+    "symbol": "DIA",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Reserve Rights",
+    "symbol": "RSR",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "Bluzelle",
+    "symbol": "BLZ",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Cryptex Finance",
+    "symbol": "CTX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Ethernity Chain",
+    "symbol": "ERN",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "IDEX",
+    "symbol": "IDEX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Polkastarter",
+    "symbol": "POLS",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Stacks",
+    "symbol": "STX",
+    "networks": [
+      {
+        "name": "stacks",
+        "displayName": "Stacks",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Kusama",
+    "symbol": "KSM",
+    "networks": [
+      {
+        "name": "kusama",
+        "displayName": "Kusama",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Gods Unchained",
+    "symbol": "GODS",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Immutable",
+    "symbol": "IMX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Ribbon Finance",
+    "symbol": "RBN",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "BICONOMY (BICO)",
+    "symbol": "BICO",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Goldfinch Protocol",
+    "symbol": "GFI",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Golem",
+    "symbol": "GLM",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Pluton",
+    "symbol": "PLU",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "SwftCoin",
+    "symbol": "SWFTC",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "The Sandbox",
+    "symbol": "SAND",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Ocean Protocol",
+    "symbol": "OCEAN",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Gnosis",
+    "symbol": "GNO",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Bonfida",
+    "symbol": "FIDA",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Orca",
+    "symbol": "ORCA",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Render (ERC-20)",
+    "symbol": "RNDR",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "HOPR",
+    "symbol": "HOPR",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "MATH",
+    "symbol": "MATH",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Synapse",
+    "symbol": "SYN",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "AIOZ Network",
+    "symbol": "AIOZ",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Aergo",
+    "symbol": "AERGO",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Index Cooperative",
+    "symbol": "INDEX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Highstreet",
+    "symbol": "HIGH",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Flow",
+    "symbol": "FLOW",
+    "networks": [
+      {
+        "name": "flow",
+        "displayName": "Flow",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Oasis Network",
+    "symbol": "ROSE",
+    "networks": [
+      {
+        "name": "oasis",
+        "displayName": "Oasis",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "ApeCoin",
+    "symbol": "APE",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Mina",
+    "symbol": "MINA",
+    "networks": [
+      {
+        "name": "mina",
+        "displayName": "Mina",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Green Satoshi Token",
+    "symbol": "GST",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "STEPN",
+    "symbol": "GMT",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Optimism",
+    "symbol": "OP",
+    "networks": [
+      {
+        "name": "optimism",
+        "displayName": "Optimism",
+        "chainId": "10"
+      }
+    ]
+  },
+  {
+    "name": "Coin98",
+    "symbol": "C98",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Marlin",
+    "symbol": "POND",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "StaFi",
+    "symbol": "FIS",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Forta",
+    "symbol": "FORT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Aleph Cloud",
+    "symbol": "ALEPH",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Elastos",
+    "symbol": "ELA",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Chrono.tech",
+    "symbol": "TIME",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Muse",
+    "symbol": "MUSE",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "DEXTools",
+    "symbol": "DEXT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Coinbase Wrapped Staked ETH",
+    "symbol": "CBETH",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      },
+      {
+        "name": "arbitrum",
+        "displayName": "Arbitrum",
+        "chainId": "42161"
+      },
+      {
+        "name": "optimism",
+        "displayName": "Optimism",
+        "chainId": "10"
+      },
+      {
+        "name": "polygon",
+        "displayName": "Polygon",
+        "chainId": "137"
+      },
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "Metis",
+    "symbol": "METIS",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Onyxcoin",
+    "symbol": "XCN",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Boba Network",
+    "symbol": "BOBA",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "SuperRare",
+    "symbol": "RARE",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Lido DAO Token",
+    "symbol": "LDO",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Pangolin",
+    "symbol": "PNG",
+    "networks": [
+      {
+        "name": "avacchain",
+        "displayName": "Avalanche C-Chain",
+        "chainId": "43114"
+      }
+    ]
+  },
+  {
+    "name": "League of Kingdoms Arena",
+    "symbol": "LOKA",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Injective",
+    "symbol": "INJ",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Illuvium",
+    "symbol": "ILV",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Audius",
+    "symbol": "AUDIO",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Rocket Pool",
+    "symbol": "RPL",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Stargate Finance",
+    "symbol": "STG",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Aurora",
+    "symbol": "AURORA",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "SuperVerse",
+    "symbol": "SUPER",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "NEAR Protocol",
+    "symbol": "NEAR",
+    "networks": [
+      {
+        "name": "near",
+        "displayName": "Near",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Hedera",
+    "symbol": "HBAR",
+    "networks": [
+      {
+        "name": "hedera",
+        "displayName": "Hedera",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Pundi X (New)",
+    "symbol": "PUNDIX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Vulcan Forged PYR",
+    "symbol": "PYR",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "00 Token",
+    "symbol": "00",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Wrapped Axelar",
+    "symbol": "WAXL",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Aptos",
+    "symbol": "APT",
+    "networks": [
+      {
+        "name": "aptos",
+        "displayName": "Aptos",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Marinade Staked SOL",
+    "symbol": "MSOL",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Marinade",
+    "symbol": "MNDE",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Voxies",
+    "symbol": "VOXEL",
+    "networks": [
+      {
+        "name": "polygon",
+        "displayName": "Polygon",
+        "chainId": "137"
+      }
+    ]
+  },
+  {
+    "name": "Hashflow",
+    "symbol": "HFT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "MultiversX",
+    "symbol": "EGLD",
+    "networks": [
+      {
+        "name": "elrond",
+        "displayName": "MultiversX",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Kava",
+    "symbol": "KAVA",
+    "networks": [
+      {
+        "name": "kava",
+        "displayName": "Kava",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "BENQI",
+    "symbol": "QI",
+    "networks": [
+      {
+        "name": "avacchain",
+        "displayName": "Avalanche C-Chain",
+        "chainId": "43114"
+      }
+    ]
+  },
+  {
+    "name": "Aavegotchi",
+    "symbol": "GHST",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "MAGIC",
+    "symbol": "MAGIC",
+    "networks": [
+      {
+        "name": "arbitrum",
+        "displayName": "Arbitrum",
+        "chainId": "42161"
+      }
+    ]
+  },
+  {
+    "name": "Axelar",
+    "symbol": "AXL",
+    "networks": [
+      {
+        "name": "axelar",
+        "displayName": "Axelar",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Ondo Finance",
+    "symbol": "ONDO",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Threshold",
+    "symbol": "T",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "DIMO",
+    "symbol": "DIMO",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Pendle",
+    "symbol": "PENDLE",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Liquid Staked ETH",
+    "symbol": "LSETH",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Access",
+    "symbol": "ACS",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Blur",
+    "symbol": "BLUR",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Flare",
+    "symbol": "FLR",
+    "networks": [
+      {
+        "name": "flare",
+        "displayName": "Flare",
+        "chainId": "14"
+      }
+    ]
+  },
+  {
+    "name": "Echelon Prime",
+    "symbol": "PRIME",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Arbitrum",
+    "symbol": "ARB",
+    "networks": [
+      {
+        "name": "arbitrum",
+        "displayName": "Arbitrum",
+        "chainId": "42161"
+      }
+    ]
+  },
+  {
+    "name": "SUI",
+    "symbol": "SUI",
+    "networks": [
+      {
+        "name": "sui",
+        "displayName": "Sui",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Sperax",
+    "symbol": "SPA",
+    "networks": [
+      {
+        "name": "arbitrum",
+        "displayName": "Arbitrum",
+        "chainId": "42161"
+      }
+    ]
+  },
+  {
+    "name": "Osmosis",
+    "symbol": "OSMO",
+    "networks": [
+      {
+        "name": "osmosis",
+        "displayName": "Osmosis",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Helium",
+    "symbol": "HNT",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Arkham",
+    "symbol": "ARKM",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "vechain",
+    "symbol": "VET",
+    "networks": [
+      {
+        "name": "vechain",
+        "displayName": "VeChain",
+        "chainId": "100009"
+      }
+    ]
+  },
+  {
+    "name": "VeThor Token",
+    "symbol": "VTHO",
+    "networks": [
+      {
+        "name": "vechain",
+        "displayName": "VeChain",
+        "chainId": "100009"
+      }
+    ]
+  },
+  {
+    "name": "Sei",
+    "symbol": "SEI",
+    "networks": [
+      {
+        "name": "sei",
+        "displayName": "Sei",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Vara",
+    "symbol": "VARA",
+    "networks": [
+      {
+        "name": "vara",
+        "displayName": "Vara",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "PayPal USD",
+    "symbol": "PYUSD",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Big Time",
+    "symbol": "BIGTIME",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Celestia",
+    "symbol": "TIA",
+    "networks": [
+      {
+        "name": "celestia",
+        "displayName": "Celestia",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Jito",
+    "symbol": "JTO",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Seamless",
+    "symbol": "SEAM",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "Bonk",
+    "symbol": "BONK",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Aerodrome Finance",
+    "symbol": "AERO",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "Hivemapper",
+    "symbol": "HONEY",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Aleo",
+    "symbol": "ALEO",
+    "networks": [
+      {
+        "name": "aleo",
+        "displayName": "Aleo",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Velodrome Finance",
+    "symbol": "VELO",
+    "networks": [
+      {
+        "name": "optimism",
+        "displayName": "Optimism",
+        "chainId": "10"
+      }
+    ]
+  },
+  {
+    "name": "Zetachain",
+    "symbol": "ZETA",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Render",
+    "symbol": "RENDER",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Helium Mobile",
+    "symbol": "MOBILE",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Starknet Token",
+    "symbol": "STRK",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Akash Network",
+    "symbol": "AKT",
+    "networks": [
+      {
+        "name": "akash",
+        "displayName": "Akash",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Ronin",
+    "symbol": "RONIN",
+    "networks": [
+      {
+        "name": "ronin",
+        "displayName": "Ronin",
+        "chainId": "2020"
+      }
+    ]
+  },
+  {
+    "name": "Safe",
+    "symbol": "SAFE",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Tensor",
+    "symbol": "TNSR",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Neon EVM",
+    "symbol": "NEON",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Shadow Token",
+    "symbol": "SHDW",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Karrat",
+    "symbol": "KARRAT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Omni Network",
+    "symbol": "OMNI",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "EURC",
+    "symbol": "EURC",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Pirate Nation Token",
+    "symbol": "PIRATE",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Worldcoin",
+    "symbol": "WLD",
+    "networks": [
+      {
+        "name": "optimism",
+        "displayName": "Optimism",
+        "chainId": "10"
+      }
+    ]
+  },
+  {
+    "name": "dogwifhat",
+    "symbol": "WIF",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Drift Protocol",
+    "symbol": "DRIFT",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Core",
+    "symbol": "CORECHAIN",
+    "networks": [
+      {
+        "name": "coredao",
+        "displayName": "Coredao",
+        "chainId": "1116"
+      }
+    ]
+  },
+  {
+    "name": "Blast",
+    "symbol": "BLAST",
+    "networks": [
+      {
+        "name": "blast",
+        "displayName": "Blast",
+        "chainId": "81457"
+      }
+    ]
+  },
+  {
+    "name": "LayerZero",
+    "symbol": "ZRO",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Ancient8",
+    "symbol": "A8",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Stader",
+    "symbol": "SD",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Gravity",
+    "symbol": "G",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Blocklords",
+    "symbol": "LRDS",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Polygon Ecosystem Token",
+    "symbol": "POL",
+    "networks": [
+      {
+        "name": "polygon",
+        "displayName": "Polygon",
+        "chainId": "137"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "FLOKI",
+    "symbol": "FLOKI",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Morpho",
+    "symbol": "MORPHO",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Across Protocol",
+    "symbol": "ACX",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Pepe",
+    "symbol": "PEPE",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      },
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Altlayer",
+    "symbol": "ALT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "EigenLayer",
+    "symbol": "EIGEN",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "ether.fi",
+    "symbol": "ETHFI",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Ethena",
+    "symbol": "ENA",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Parcl",
+    "symbol": "PRCL",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Zetachain",
+    "symbol": "ZETACHAIN",
+    "networks": [
+      {
+        "name": "zetachain",
+        "displayName": "Zetachain",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "ZKsync",
+    "symbol": "ZK",
+    "networks": [
+      {
+        "name": "zksync",
+        "displayName": "ZKsync",
+        "chainId": "324"
+      }
+    ]
+  },
+  {
+    "name": "Pyth Network",
+    "symbol": "PYTH",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Moonwell",
+    "symbol": "WELL",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "CoW Protocol",
+    "symbol": "COW",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Degen",
+    "symbol": "DEGEN",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "io.net",
+    "symbol": "IO",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Berachain",
+    "symbol": "BERA",
+    "networks": [
+      {
+        "name": "berachain",
+        "displayName": "Berachain",
+        "chainId": "80094"
+      }
+    ]
+  },
+  {
+    "name": "SWELL",
+    "symbol": "SWELL",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Story",
+    "symbol": "IP",
+    "networks": [
+      {
+        "name": "story",
+        "displayName": "Story",
+        "chainId": "1514"
+      }
+    ]
+  },
+  {
+    "name": "Popcat (SOL)",
+    "symbol": "POPCAT",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Maple Finance",
+    "symbol": "SYRUP",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Bittensor",
+    "symbol": "TAO",
+    "networks": [
+      {
+        "name": "bittensor",
+        "displayName": "Bittensor",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Peanut the Squirrel",
+    "symbol": "PNUT",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Moo Deng",
+    "symbol": "MOODENG",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Mog Coin",
+    "symbol": "MOG",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "Turbo",
+    "symbol": "TURBO",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Gigachad",
+    "symbol": "GIGA",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Magic Eden",
+    "symbol": "ME",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Toshi",
+    "symbol": "TOSHI",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "OFFICIAL TRUMP",
+    "symbol": "TRUMP",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "Venice Token",
+    "symbol": "VVV",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "Freysa",
+    "symbol": "FAI",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "B3 (Base)",
+    "symbol": "B3",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "Pudgy Penguins",
+    "symbol": "PENGU",
+    "networks": [
+      {
+        "name": "solana",
+        "displayName": "Solana",
+        "chainId": "0"
+      }
+    ]
+  },
+  {
+    "name": "tokenbot",
+    "symbol": "CLANKER",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "Redstone",
+    "symbol": "RED",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Kaito",
+    "symbol": "KAITO",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "KernelDAO",
+    "symbol": "KERNEL",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Renzo",
+    "symbol": "REZ",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Cookie DAO",
+    "symbol": "COOKIE",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "Zora",
+    "symbol": "ZORA",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "doginme",
+    "symbol": "DOGINME",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "Keyboard Cat",
+    "symbol": "KEYCAT",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "Aethir",
+    "symbol": "ATH",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Layer3",
+    "symbol": "L3",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Definitive",
+    "symbol": "EDGE",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "Wayfinder",
+    "symbol": "PROMPT",
+    "networks": [
+      {
+        "name": "base",
+        "displayName": "Base",
+        "chainId": "8453"
+      }
+    ]
+  },
+  {
+    "name": "Lagrange",
+    "symbol": "LA",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Mantle",
+    "symbol": "MANTLE",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  },
+  {
+    "name": "Space and Time",
+    "symbol": "SXT",
+    "networks": [
+      {
+        "name": "ethereum",
+        "displayName": "Ethereum",
+        "chainId": "1"
+      }
+    ]
+  }
+]
