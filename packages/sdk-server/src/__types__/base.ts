@@ -81,6 +81,10 @@ export type TActivityPollerConfig = {
 export interface TurnkeySDKClientConfig {
   stamper: TStamper;
   apiBaseUrl: string;
+  /**
+   * Override timestamp in milliseconds for all requests.
+   */
+  timestampOverride?: number;
   organizationId: string;
   activityPoller?: TActivityPollerConfig | undefined;
 }
