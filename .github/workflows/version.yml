@@ -5,7 +5,6 @@ on:
   push:
     tags:
       - "v*.*.*" # triggers on tags like v1.0.0
-  pull_request:
 
 permissions:
   contents: write
@@ -52,20 +51,6 @@ jobs:
       - name: Prettier
         run: pnpm run prettier-all:check
 
-      # # Upload the build artifacts with what is currently in main
-      # - name: Upload build artifacts
-      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-      #   with:
-      #     name: build-artifacts-${{ github.ref_name }}
-      #     path: |
-      #       packages/*/dist/**
-      #       packages/*/src/**
-      #       packages/*/package.json
-      #       pnpm-lock.yaml
-      #       pnpm-workspace.yaml
-      #       .changeset/**
-      #     retention-days: 7
-
   version-and-rebuild:
     runs-on: ubuntu-latest
     needs: build
@@ -84,30 +69,13 @@ jobs:
           git config user.name "tkhq-deploy"
           git config user.email "github@turnkey.engineering"
 
-      # TODO DELETE THIS BLOCK AFTER TESTING
       - name: Create and switch to release branch
         run: |
           git fetch origin
-          git checkout -B release/v2025.6.13 origin/release/v2025.6.13 || \
-          git checkout -B release/v2025.6.13
+          git checkout -B release/${{ github.ref_name }} origin/release/${{ github.ref_name }} || \
+          git checkout -B release/${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
-      # - name: Create and switch to release branch
-      #   run: |
-      #     git fetch origin
-      #     git checkout -B release/${{ github.ref_name }} origin/release/${{ github.ref_name }} || \
-      #     git checkout -B release/${{ github.ref_name }}
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # TODO: DELETE THIS BLOCK AFTER TESTING
-      # - name: Download build artifacts
-      #   uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-      #   with:
-      #     name: build-artifacts-${{ github.ref_name }}
-      #     path: .
 
       # Process changesets, update versions, and rebuild packages to include latest versions
       - name: Version and rebuild packages
@@ -135,85 +103,46 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # TODO DELETE THIS BLOCK AFTER TESTING
       - name: Push changes to release branch
         run: |
-          git push -u origin release/v2025.6.13
+          git push -u origin release/${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
-      # - name: Push changes to release branch
-      #   run: |
-      #     git push -u origin release/${{ github.ref_name }}
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # TODO DELETE THIS BLOCK AFTER TESTING
       - name: Upload updated release artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: release-artifacts-v2025.6.13
+          name: release-artifacts-${{ github.ref_name }}
           path: |
             examples/**
+            !examples/*/node_modules
             packages/**
+            !packages/*/node_modules
             pnpm-lock.yaml
             pnpm-workspace.yaml
             .changeset/**
           retention-days: 7
 
-      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
-      # - name: Upload updated release artifacts
-      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-      #   with:
-      #     name: release-artifacts-${{ github.ref_name }}
-      #     path: |
-      #       examples/**
-      #       !examples/*/node_modules
-      #       packages/**
-      #       !packages/*/node_modules
-      #       pnpm-lock.yaml
-      #       pnpm-workspace.yaml
-      #       .changeset/**
-      #     retention-days: 7
-
   test-pre-prod:
     runs-on: ubuntu-latest
     needs: version-and-rebuild
     steps:
-      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
-      # # https://github.com/actions/checkout
-      # - name: Checkout
-      #   uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      #   with:
-      #     fetch-depth: 0 # required for git tags and history
-      #     ref: release/${{ github.ref_name }}
-
-      # TODO DELETE THIS BLOCK AFTER TESTING
       # https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # required for git tags and history
-          ref: release/v2025.6.13
+          ref: release/${{ github.ref_name }}
 
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
-      # TODO DELETE THIS BLOCK AFTER TESTING
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-v2025.6.13
+          name: release-artifacts-${{ github.ref_name }}
           path: .
-
-      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
-      # - name: Download release artifacts
-      #   uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-      #   with:
-      #     name: release-artifacts-${{ github.ref_name }}
-      #     path: .
 
       - name: Install latest dependencies
         run: pnpm install -r --frozen-lockfile
@@ -238,39 +167,22 @@ jobs:
     runs-on: ubuntu-latest
     needs: test-pre-prod
     steps:
-      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
-      # # https://github.com/actions/checkout
-      # - name: Checkout
-      #   uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      #   with:
-      #     fetch-depth: 0 # required for git tags and history
-      #     ref: release/${{ github.ref_name }}
-
-      # TODO DELETE THIS BLOCK AFTER TESTING
       # https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # required for git tags and history
-          ref: release/v2025.6.13
+          ref: release/${{ github.ref_name }}
 
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
-      # TODO DELETE THIS BLOCK AFTER TESTING
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-v2025.6.13
+          name: release-artifacts-${{ github.ref_name }}
           path: .
-
-      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
-      # - name: Download release artifacts
-      #   uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-      #   with:
-      #     name: release-artifacts-${{ github.ref_name }}
-      #     path: .
 
       - name: Install latest dependencies
         run: pnpm install -r --frozen-lockfile
@@ -295,88 +207,32 @@ jobs:
     runs-on: ubuntu-latest
     needs: test-prod
     steps:
-      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
-      # # https://github.com/actions/checkout
-      # - name: Checkout
-      #   uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      #   with:
-      #     fetch-depth: 0 # required for git tags and history
-      #     ref: release/${{ github.ref_name }}
-
-      # TODO DELETE THIS BLOCK AFTER TESTING
       # https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # required for git tags and history
-          ref: release/v2025.6.13
+          ref: release/${{ github.ref_name }}
 
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
-      # TODO DELETE THIS BLOCK AFTER TESTING
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-v2025.6.13
+          name: release-artifacts-${{ github.ref_name }}
           path: .
-
-      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
-      # - name: Download release artifacts
-      #   uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-      #   with:
-      #     name: release-artifacts-${{ github.ref_name }}
-      #     path: .
 
       - name: Install latest dependencies
         run: pnpm install -r --frozen-lockfile
 
-      # TODO DELETE THIS BLOCK AFTER TESTING
       - name: Create GitHub Release
         uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
         with:
-          tag_name: v2025.6.13
-          name: Release v2025.6.13
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
           generate_release_notes: true
           draft: true
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
-      # - name: Create GitHub Release
-      #   uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
-      #   with:
-      #     tag_name: ${{ github.ref_name }}
-      #     name: Release ${{ github.ref_name }}
-      #     generate_release_notes: true
-      #     draft: true
-      #     prerelease: false
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
-      - name: Delete release branch on failure
-        if: failure()
-        run: |
-          git fetch origin
-          if git rev-parse --verify origin/release/v2025.6.13 >/dev/null 2>&1; then
-            git push origin --delete release/v2025.6.13
-          else
-            echo "Branch release/v2025.6.13 does not exist, skipping deletion"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
-      # - name: Delete release branch on failure
-      #   if: failure()
-      #   run: |
-      #     git fetch origin
-      #     if git rev-parse --verify origin/release/${{ github.ref_name }} >/dev/null 2>&1; then
-      #       git push origin --delete release/${{ github.ref_name }}
-      #     else
-      #       echo "Branch release/${{ github.ref_name }} does not exist, skipping deletion"
-      #     fi
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
