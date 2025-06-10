@@ -2087,6 +2087,28 @@ importers:
         specifier: 5.3.0
         version: 5.3.0(@babel/core@7.26.9)(@types/babel__core@7.20.5)(rollup@4.41.1)
 
+  packages/react-native-secure-storage-stamper:
+    dependencies:
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../api-key-stamper
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../encoding
+      react-native-keychain:
+        specifier: ^8.1.0 || ^9.2.2 || ^10.0.0
+        version: 8.1.0
+    devDependencies:
+      '@types/jest':
+        specifier: ^29.5.3
+        version: 29.5.3
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@18.18.2)
+      ts-jest:
+        specifier: ^29.3.1
+        version: 29.3.1(@babel/core@7.26.9)(@jest/types@29.4.3)(jest@29.7.0)(typescript@5.4.3)
+
   packages/sdk-browser:
     dependencies:
       '@turnkey/api-key-stamper':
@@ -2171,6 +2193,9 @@ importers:
       cross-fetch:
         specifier: ^3.1.5
         version: 3.1.5
+      jwt-decode:
+        specifier: 4.0.0
+        version: 4.0.0
       react-native-keychain:
         specifier: ^8.1.0 || ^9.2.2 || ^10.0.0
         version: 8.1.0
