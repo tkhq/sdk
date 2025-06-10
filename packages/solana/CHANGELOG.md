@@ -1,5 +1,16 @@
 # @turnkey/solana
 
+## 1.0.28
+
+### Patch Changes
+
+- [#665](https://github.com/tkhq/sdk/pull/665) [`be0a621`](https://github.com/tkhq/sdk/commit/be0a621fb962bd51d2df1a1e79f5260d7c696772) Author [@amircheikh](https://github.com/amircheikh) - Fix for `no runner registered` error when using mismatched versions of turnkey/http
+
+- Updated dependencies [[`be0a621`](https://github.com/tkhq/sdk/commit/be0a621fb962bd51d2df1a1e79f5260d7c696772)]:
+  - @turnkey/http@3.4.2
+  - @turnkey/sdk-browser@5.2.1
+  - @turnkey/sdk-server@4.1.1
+
 ## 1.0.27
 
 ### Patch Changes

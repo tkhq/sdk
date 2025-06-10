@@ -1,5 +1,14 @@
 # @turnkey/sdk-browser
 
+## 5.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`be0a621`](https://github.com/tkhq/sdk/commit/be0a621fb962bd51d2df1a1e79f5260d7c696772)]:
+  - @turnkey/http@3.4.2
+  - @turnkey/crypto@2.4.0
+  - @turnkey/wallet-stamper@1.0.4
+
 ## 5.2.0
 
 ### Minor Changes
