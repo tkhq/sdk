@@ -68,6 +68,8 @@ export const OnRamp = () => {
           onrampProvider: "FIAT_ON_RAMP_PROVIDER_COINBASE",
           transactionType: "FIAT_ON_RAMP_TRANSACTION_TYPE_BUY",
           walletAddress: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
+          cryptoCurrencyCode: "ETH",
+          network: "ethereum",
           fiatCurrencyCode: "USD",
           countryCode: "US",
           countrySubdivisionCode: "ME",
