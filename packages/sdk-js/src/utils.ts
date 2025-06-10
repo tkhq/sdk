@@ -1,6 +1,7 @@
 import { Buffer } from "buffer";
 
 import type { Session } from "@turnkey/sdk-types";
+import { jwtDecode } from "jwt-decode";
 
 export const isReactNative = (): boolean => {
   return (
@@ -27,7 +28,7 @@ export const base64UrlEncode = (challenge: ArrayBuffer): string => {
 };
 
 const hexByByte = Array.from({ length: 256 }, (_, i) =>
-  i.toString(16).padStart(2, "0"),
+  i.toString(16).padStart(2, "0")
 );
 
 export const bytesToHex = (bytes: Uint8Array): string => {
@@ -68,4 +69,9 @@ export function parseSession(token: string | Session): Session {
     expiry: exp,
     token: publicKey,
   };
+}
+
+export function getPubKeyFromToken(token: string): string {
+  const { public_key } = jwtDecode(token) as any;
+  return public_key;
 }
