@@ -3,7 +3,7 @@
 import "@turnkey/sdk-react/styles";
 import { TurnkeyProvider, TurnkeyThemeProvider } from "@turnkey/sdk-react";
 import { EthereumWallet } from "@turnkey/wallet-stamper";
-import { SessionExpiryProvider } from "./context/SessionExpiryContext";
+import { SessionExpiryProvider } from "./providers/SessionExpiryProvider";
 const wallet = new EthereumWallet();
 const turnkeyConfig = {
   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,

@@ -44,7 +44,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Navbar from "../components/Navbar";
 import { Toaster, toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
-import { useSessionExpiry } from "../context/SessionExpiryContext";
+import { useSessionExpiry } from "../providers/SessionExpiryProvider";
 
 export default function Dashboard() {
   const router = useRouter();

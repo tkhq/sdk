@@ -13,7 +13,7 @@ import { createPortal } from "react-dom";
 import { useTurnkey } from "@turnkey/sdk-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import "./session-expiry.css";
+import "./SessionExpiryProvider.css";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Typography } from "@mui/material";
 
