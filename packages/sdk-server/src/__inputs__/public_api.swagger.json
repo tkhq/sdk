@@ -3132,10 +3132,6 @@
         "FIAT_ON_RAMP_PROVIDER_MOONPAY"
       ]
     },
-    "immutablecommonv1FiatOnRampTransactionType": {
-      "type": "string",
-      "enum": ["FIAT_ON_RAMP_TRANSACTION_TYPE_BUY"]
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
