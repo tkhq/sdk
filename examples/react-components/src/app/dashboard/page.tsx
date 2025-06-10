@@ -44,10 +44,12 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Navbar from "../components/Navbar";
 import { Toaster, toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
+import { useSessionExpiry } from "../context/SessionExpiryContext";
 
 export default function Dashboard() {
   const router = useRouter();
   const { turnkey, indexedDbClient, passkeyClient } = useTurnkey();
+  const { scheduleExpiry } = useSessionExpiry();
   const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<any>([]);
   const [wallets, setWallets] = useState<any[]>([]);
@@ -321,6 +323,10 @@ export default function Dashboard() {
         if (!session || session!.token !== pubKey) {
           await handleLogout();
           return;
+        }
+
+        if (session?.expiry) {
+          scheduleExpiry(session.expiry);
         }
 
         const suborgId = session.organizationId;
