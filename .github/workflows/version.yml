@@ -88,8 +88,8 @@ jobs:
       - name: Create and switch to release branch
         run: |
           git fetch origin
-          git checkout -B release/v2025.6.11 origin/release/v2025.6.11 || \
-          git checkout -B release/v2025.6.11
+          git checkout -B release/v2025.6.13 origin/release/v2025.6.13 || \
+          git checkout -B release/v2025.6.13
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -138,7 +138,7 @@ jobs:
       # TODO DELETE THIS BLOCK AFTER TESTING
       - name: Push changes to release branch
         run: |
-          git push -u origin release/v2025.6.11
+          git push -u origin release/v2025.6.13
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -153,12 +153,10 @@ jobs:
       - name: Upload updated release artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: release-artifacts-v2025.6.11
+          name: release-artifacts-v2025.6.13
           path: |
             examples/**
-            !examples/*/node_modules
             packages/**
-            !packages/*/node_modules
             pnpm-lock.yaml
             pnpm-workspace.yaml
             .changeset/**
@@ -197,7 +195,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # required for git tags and history
-          ref: release/v2025.6.11
+          ref: release/v2025.6.13
 
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
@@ -207,7 +205,7 @@ jobs:
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-v2025.6.11
+          name: release-artifacts-v2025.6.13
           path: .
 
       # TODO UNCOMMENT THIS BLOCK AFTER TESTING
@@ -254,7 +252,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # required for git tags and history
-          ref: release/v2025.6.11
+          ref: release/v2025.6.13
 
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
@@ -264,7 +262,7 @@ jobs:
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-v2025.6.11
+          name: release-artifacts-v2025.6.13
           path: .
 
       # TODO UNCOMMENT THIS BLOCK AFTER TESTING
@@ -311,7 +309,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # required for git tags and history
-          ref: release/v2025.6.11
+          ref: release/v2025.6.13
 
       - name: Setup JS
         uses: ./.github/actions/js-setup
@@ -320,7 +318,7 @@ jobs:
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-v2025.6.11
+          name: release-artifacts-v2025.6.13
           path: .
 
       # TODO UNCOMMENT THIS BLOCK AFTER TESTING
@@ -337,8 +335,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
         with:
-          tag_name: v2025.6.11
-          name: Release v2025.6.11
+          tag_name: v2025.6.13
+          name: Release v2025.6.13
           generate_release_notes: true
           draft: true
           prerelease: false
@@ -354,5 +352,31 @@ jobs:
       #     generate_release_notes: true
       #     draft: true
       #     prerelease: false
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
+      - name: Delete release branch on failure
+        if: failure()
+        run: |
+          git fetch origin
+          if git rev-parse --verify origin/release/v2025.6.13 >/dev/null 2>&1; then
+            git push origin --delete release/v2025.6.13
+          else
+            echo "Branch release/v2025.6.13 does not exist, skipping deletion"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # TODO UNCOMMENT THIS BLOCK AFTER TESTING
+      # - name: Delete release branch on failure
+      #   if: failure()
+      #   run: |
+      #     git fetch origin
+      #     if git rev-parse --verify origin/release/${{ github.ref_name }} >/dev/null 2>&1; then
+      #       git push origin --delete release/${{ github.ref_name }}
+      #     else
+      #       echo "Branch release/${{ github.ref_name }} does not exist, skipping deletion"
+      #     fi
       #   env:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
