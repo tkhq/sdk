@@ -2103,28 +2103,6 @@ importers:
         specifier: 5.3.0
         version: 5.3.0(@babel/core@7.26.9)(@types/babel__core@7.20.5)(rollup@4.41.1)
 
-  packages/react-native-secure-storage-stamper:
-    dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../api-key-stamper
-      '@turnkey/encoding':
-        specifier: workspace:*
-        version: link:../encoding
-      react-native-keychain:
-        specifier: ^8.1.0 || ^9.2.2 || ^10.0.0
-        version: 8.1.0
-    devDependencies:
-      '@types/jest':
-        specifier: ^29.5.3
-        version: 29.5.3
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0(@types/node@18.18.2)
-      ts-jest:
-        specifier: ^29.3.1
-        version: 29.3.1(@babel/core@7.26.9)(@jest/types@29.4.3)(jest@29.7.0)(typescript@5.4.3)
-
   packages/sdk-browser:
     dependencies:
       '@turnkey/api-key-stamper':
@@ -2176,6 +2154,9 @@ importers:
 
   packages/sdk-js:
     dependencies:
+      '@react-native-async-storage/async-storage':
+        specifier: ^2.2.0
+        version: 2.2.0(react-native@0.76.5)
       '@turnkey/api-key-stamper':
         specifier: workspace:*
         version: link:../api-key-stamper
@@ -5182,7 +5163,20 @@ packages:
     peerDependencies:
       react-native: ^0.0.0-0 || >=0.60 <1.0
 
+<<<<<<< HEAD
   '@react-native/assets-registry@0.76.5':
+=======
+  /@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5):
+    resolution: {integrity: sha512-gvRvjR5JAaUZF8tv2Kcq/Gbt3JHwbKFYfmb445rhOj6NUMx3qPLixmDx5pZAyb9at1bYvJ4/eTUipU5aki45xw==}
+    peerDependencies:
+      react-native: ^0.0.0-0 || >=0.65 <1.0
+    dependencies:
+      merge-options: 3.0.4
+      react-native: 0.76.5(@babel/core@7.26.9)(@babel/preset-env@7.20.2)(@types/react@18.3.3)(react@18.3.1)
+    dev: false
+
+  /@react-native/assets-registry@0.76.5:
+>>>>>>> a1897f5f (Modified session storage. Added mobile storage manager)
     resolution: {integrity: sha512-MN5dasWo37MirVcKWuysRkRr4BjNc81SXwUtJYstwbn8oEkfnwR9DaqdDTo/hHOnTdhafffLIa2xOOHcjDIGEw==}
     engines: {node: '>=18'}
 
@@ -10029,6 +10023,13 @@ packages:
   merge-options@3.0.4:
     resolution: {integrity: sha512-2Sug1+knBjkaMsMgf1ctR1Ujx+Ayku4EdJN4Z+C2+JzoeF7A3OZ9KM2GY0CpQS51NR61LTurMJrRKPhSs3ZRTQ==}
     engines: {node: '>=10'}
+<<<<<<< HEAD
+=======
+    requiresBuild: true
+    dependencies:
+      is-plain-obj: 2.1.0
+    dev: false
+>>>>>>> a1897f5f (Modified session storage. Added mobile storage manager)
 
   merge-stream@2.0.0:
     resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}

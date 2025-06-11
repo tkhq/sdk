@@ -1,12 +1,13 @@
-import type { Session } from "@turnkey/sdk-types";
 import WindowWrapper from "@polyfills/window";
 import { StorageBase, SessionKey } from "../base";
+import { parseSession } from "@utils";
+import { Session } from "@turnkey/sdk-types";
 
 const browserStorage = WindowWrapper.localStorage;
 
 export class WebStorageManager implements StorageBase {
-  private static SESSION_KEYS_KEY = "sessionKeys";
-  private static ACTIVE_SESSION_KEY = "activeSessionKey";
+  private static ALL_SESSION_KEYS = "@turnkey/all-session-keys";
+  private static ACTIVE_SESSION_KEY = "@turnkey/active-session-key";
 
   getStorageValue = async (sessionKey: string): Promise<any> => {
     const item = browserStorage.getItem(sessionKey);
@@ -15,7 +16,7 @@ export class WebStorageManager implements StorageBase {
 
   setStorageValue = async (
     sessionKey: string,
-    storageValue: any
+    storageValue: any,
   ): Promise<void> => {
     browserStorage.setItem(sessionKey, JSON.stringify(storageValue));
   };
@@ -25,28 +26,30 @@ export class WebStorageManager implements StorageBase {
   };
 
   storeSession = async (
-    session: Session,
-    sessionKey: string = SessionKey.DefaultSessionkey
+    session: string,
+    sessionKey: string = SessionKey.DefaultSessionkey,
   ): Promise<void> => {
-    await this.setStorageValue(sessionKey, session);
+    const sessionWithMetadata = parseSession(session);
+
+    await this.setStorageValue(sessionKey, sessionWithMetadata);
 
     // Ensure the session key is stored in the session keys list
     const keys: string[] =
-      (await this.getStorageValue(WebStorageManager.SESSION_KEYS_KEY)) ?? [];
+      (await this.getStorageValue(WebStorageManager.ALL_SESSION_KEYS)) ?? [];
     if (!keys.includes(sessionKey)) {
       keys.push(sessionKey);
-      await this.setStorageValue(WebStorageManager.SESSION_KEYS_KEY, keys);
+      await this.setStorageValue(WebStorageManager.ALL_SESSION_KEYS, keys);
     }
 
     // Set the active session key
     await this.setStorageValue(
       WebStorageManager.ACTIVE_SESSION_KEY,
-      sessionKey
+      sessionKey,
     );
   };
 
   getSession = async (
-    sessionKey: string = SessionKey.DefaultSessionkey
+    sessionKey: string = SessionKey.DefaultSessionkey,
   ): Promise<Session | undefined> => {
     return this.getStorageValue(sessionKey);
   };
@@ -62,7 +65,7 @@ export class WebStorageManager implements StorageBase {
 
   listSessionKeys = async (): Promise<string[]> => {
     return (
-      (await this.getStorageValue(WebStorageManager.SESSION_KEYS_KEY)) ?? []
+      (await this.getStorageValue(WebStorageManager.ALL_SESSION_KEYS)) ?? []
     );
   };
 
@@ -70,7 +73,7 @@ export class WebStorageManager implements StorageBase {
     await this.removeStorageValue(sessionKey);
     const keys = await this.listSessionKeys();
     const updated = keys.filter((k) => k !== sessionKey);
-    await this.setStorageValue(WebStorageManager.SESSION_KEYS_KEY, updated);
+    await this.setStorageValue(WebStorageManager.ALL_SESSION_KEYS, updated);
     const active = await this.getActiveSessionKey();
     if (active === sessionKey) {
       await this.removeStorageValue(WebStorageManager.ACTIVE_SESSION_KEY);
@@ -80,7 +83,7 @@ export class WebStorageManager implements StorageBase {
   clearAllSessions = async (): Promise<void> => {
     const keys = await this.listSessionKeys();
     await Promise.all(keys.map((k) => this.removeStorageValue(k)));
-    await this.removeStorageValue(WebStorageManager.SESSION_KEYS_KEY);
+    await this.removeStorageValue(WebStorageManager.ALL_SESSION_KEYS);
     await this.removeStorageValue(WebStorageManager.ACTIVE_SESSION_KEY);
   };
 }
