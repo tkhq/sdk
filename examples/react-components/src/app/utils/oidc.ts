@@ -5,7 +5,7 @@ import { bytesToHex } from "@noble/hashes/utils";
 import { exchangeCodeForToken, generateChallengePair } from "./facebookUtils";
 
 // OAuth URLs
-const APPLE_AUTH_URL = "https://appleid.apple.com/auth/authorize";
+const APPLE_AUTH_URL = "https://account.apple.com/auth/authorize";
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const FACEBOOK_AUTH_URL = "https://www.facebook.com/v11.0/dialog/oauth";
 
