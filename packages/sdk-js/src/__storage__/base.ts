@@ -28,7 +28,7 @@ export interface StorageBase {
 
   clearAllSessions(): Promise<void>;
 }
-
+// TODO (Amir): Turn this into a class that extends StorageBase and make an init function. See stamper
 export async function createStorageManager(): Promise<StorageBase> {
   if (isReactNative()) {
     try {
