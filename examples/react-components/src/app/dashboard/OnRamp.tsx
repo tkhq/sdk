@@ -66,10 +66,8 @@ export const OnRamp = () => {
         const initFiatOnRampResponse = await indexedDbClient?.initFiatOnRamp({
           organizationId: session?.organizationId!,
           onrampProvider: "FIAT_ON_RAMP_PROVIDER_COINBASE",
-          transactionType: "FIAT_ON_RAMP_TRANSACTION_TYPE_BUY",
           walletAddress: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
           cryptoCurrencyCode: "ETH",
-          network: "ethereum",
           fiatCurrencyCode: "USD",
           countryCode: "US",
           countrySubdivisionCode: "ME",
@@ -148,7 +146,6 @@ export const OnRamp = () => {
           await indexedDbClient?.initFiatOnRamp({
             organizationId: session?.organizationId!,
             onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
-            transactionType: "FIAT_ON_RAMP_TRANSACTION_TYPE_BUY",
             walletAddress: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
             fiatCurrencyCode: "USD",
             cryptoCurrencyCode: "eth",
