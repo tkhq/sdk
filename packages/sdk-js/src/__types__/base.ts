@@ -105,7 +105,7 @@ export interface TurnkeySDKClientConfig {
 
   // TODO (Amir): Remove this in a user-facing config and add passkey and wallet configs
   activityPoller?: TActivityPollerConfig | undefined;
-  stamper?: never;
+  apiKeyStamper?: TStamper;
   passkeyStamper?: TStamper;
   storageManager?: StorageBase;
   readOnlySession?: string;
@@ -183,6 +183,6 @@ export enum AuthClient {
 }
 
 export enum StamperType {
-  IndexedDB = "indexed-db",
+  apiKey = "api-key",
   Passkey = "passkey",
 }
