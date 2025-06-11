@@ -26,11 +26,11 @@ export class TurnkeyClient {
   config: any; // Type TBD
   httpClient!: TurnkeySDKClientBase;
 
-  // public session?: Session | undefined;  // TODO (Amir): Define session type
+  // public session?: Session | undefined;  // TODO (Amir): Define session type. Or not maybe???
   // public user?: any; // TODO (Amir): Define user type
   // public wallets?: any; // TODO (Amir): Define wallets type
 
-  private apiKeyStamper?: CrossPlatformApiKeyStamper | undefined;
+  apiKeyStamper?: CrossPlatformApiKeyStamper | undefined; // TODO (Amir): TEMPORARILY PUBLIC, MAKE PRIVATE LATER
   private passkeyStamper?: WebauthnStamper | undefined;
   private mobilePasskeyStamper?: any | undefined; // TODO (Amir): Implement proper type
 
@@ -80,9 +80,12 @@ export class TurnkeyClient {
     }
 
     // Initialize storage manager
+    // TODO (Amir): StorageManager should be a class that extends StorageBase and has an init method
     this.storageManager = await createStorageManager();
 
+    // Initialize the API key stamper
     this.apiKeyStamper = new CrossPlatformApiKeyStamper(this.storageManager);
+    await this.apiKeyStamper.init();
 
     // Initialize the HTTP client with the appropriate stampers
     this.httpClient = new TurnkeySDKClientBase({
