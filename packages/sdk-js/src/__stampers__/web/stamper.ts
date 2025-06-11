@@ -172,7 +172,7 @@ export class IndexedDbStamper implements StamperBase {
     });
   }
 
-  async clear(): Promise<void> {
+  async clearKeyPairs(): Promise<void> {
     const db = await this.openDb();
     return new Promise((resolve, reject) => {
       const tx = db.transaction(DB_STORE, "readwrite");
@@ -186,7 +186,7 @@ export class IndexedDbStamper implements StamperBase {
     });
   }
 
-  async sign(payload: string, publicKeyHex: string): Promise<string> {
+  private async sign(payload: string, publicKeyHex: string): Promise<string> {
     const privateKey = await this.getPrivateKey(publicKeyHex);
     if (!privateKey) {
       throw new Error("Key not found for publicKey: " + publicKeyHex);
