@@ -266,9 +266,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
 
   imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
 
-  imports.push(
-    'import { StorageBase, StorageKey } from "../__storage__/base";',
-  );
+  imports.push('import { StorageBase } from "../__storage__/base";');
   imports.push('import { parseSession } from "../utils";');
 
   imports.push('import { StamperType } from "../__types__/base";');
@@ -277,11 +275,8 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     export class TurnkeySDKClientBase {
     config: TurnkeySDKClientConfig;
 
-    // Current active stamper
-    stamper?: TStamper | undefined;
-    
     // Store stampers
-    private indexedDBStamper?: TStamper | undefined;
+    private apiKeyStamper?: TStamper | undefined;
     private passkeyStamper?: TStamper | undefined;
     
     // Storage manager
@@ -290,10 +285,8 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     constructor(config: TurnkeySDKClientConfig) {
         this.config = config;
         
-        if (config.stamper) {
-        this.stamper = config.stamper;
-        // Store as default IndexedDB stamper
-        this.indexedDBStamper = config.stamper;
+        if (config.apiKeyStamper) {
+        this.apiKeyStamper = config.apiKeyStamper;
         }
         if (config.passkeyStamper) {
         this.passkeyStamper = config.passkeyStamper;
@@ -304,15 +297,15 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     }
 
     private getStamper(stampWith?: StamperType): TStamper | undefined {
-        if (!stampWith) return this.stamper;
+        if (!stampWith) return this.apiKeyStamper || this.passkeyStamper;
         
         switch (stampWith) {
-        case StamperType.IndexedDB:
-            return this.indexedDBStamper;
+        case StamperType.apiKey:
+            return this.apiKeyStamper;
         case StamperType.Passkey:
             return this.passkeyStamper;
         default:
-            return this.stamper;
+            return this.apiKeyStamper;
         }
     }
 
@@ -462,7 +455,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
             ? " = {}"
             : ""
         }, stampWith?: StamperType): Promise<SdkApiTypes.${responseType}> => {
-      let session = await this.storageManager?.getStorageValue(StorageKey.Session);
+      let session = await this.storageManager?.getActiveSession();
       session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
       return this.request("${endpointPath}", {
         ...input,
@@ -484,8 +477,8 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, stampWith?: StamperType): Promise<SdkApiTypes.${responseType}> => {
       const { organizationId, timestampMs, ...rest } = input;
-      let session = await this.storageManager?.getStorageValue(StorageKey.Session);
-      session = parseSession(session!);
+      let session = await this.storageManager?.getActiveSession();
+      session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
   
       return this.command("${endpointPath}", {
         parameters: rest,
@@ -500,8 +493,8 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, stampWith?: StamperType): Promise<SdkApiTypes.${responseType}> => {
       const { organizationId, timestampMs, ...rest } = input;
-      let session = await this.storageManager?.getStorageValue(StorageKey.Session);
-      session = parseSession(session!);
+      let session = await this.storageManager?.getActiveSession();
+      session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
       return this.activityDecision("${endpointPath}",
         {
           parameters: rest,
@@ -516,13 +509,15 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     }
     // generate a stamping method for each method
     codeBuffer.push(
-      `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkApiTypes.${inputType}): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+      `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkApiTypes.${inputType}, stampWith?: StamperType): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,

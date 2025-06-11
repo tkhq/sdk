@@ -1,7 +1,7 @@
 import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import WindowWrapper from "@polyfills/window";
-import { SessionType, Session } from "@turnkey/sdk-types";
+import { SessionType } from "@turnkey/sdk-types";
 import {
   LoginWithPasskeyParams,
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -11,7 +11,6 @@ import {
 import {
   base64UrlEncode,
   generateRandomBuffer,
-  getPubKeyFromToken,
   isReactNative,
   isWeb,
 } from "@utils";
@@ -43,7 +42,7 @@ export class TurnkeyClient {
     // Users can pass in their own stampers, or we will create them. Should we remove this?
     apiKeyStamper?: CrossPlatformApiKeyStamper,
     passkeyStamper?: WebauthnStamper,
-    mobilePasskeyStamper?: any // TODO: Add proper type
+    mobilePasskeyStamper?: any, // TODO: Add proper type
   ) {
     this.config = config;
 
@@ -87,7 +86,7 @@ export class TurnkeyClient {
 
     // Initialize the HTTP client with the appropriate stampers
     this.httpClient = new TurnkeySDKClientBase({
-      stamper: this.apiKeyStamper,
+      apiKeyStamper: this.apiKeyStamper,
       passkeyStamper: isWeb() ? this.passkeyStamper : this.mobilePasskeyStamper,
       storageManager: this.storageManager,
       ...this.config,
@@ -100,7 +99,7 @@ export class TurnkeyClient {
    * @returns {Promise<Passkey>}
    */
   createUserPasskey = async (
-    config: Record<any, any> = {}
+    config: Record<any, any> = {},
   ): Promise<Passkey> => {
     // TODO (Amir): Make this work for mobile as well
     const challenge = generateRandomBuffer();
@@ -166,32 +165,33 @@ export class TurnkeyClient {
   };
 
   loginWithPasskey = async (params: LoginWithPasskeyParams): Promise<void> => {
+    let generatedKeyPair = null;
     try {
-      const generatedPublicKey = await this.apiKeyStamper?.createKeyPair();
+      generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
       const {
         sessionType = SessionType.READ_WRITE,
-        publicKey = generatedPublicKey,
+        publicKey = generatedKeyPair,
         expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
         sessionKey = SessionKey.DefaultSessionkey,
       } = params;
+
       // Create a read-only session
       if (sessionType === SessionType.READ_ONLY) {
         const readOnlySessionResult =
           await this.httpClient.createReadOnlySession({}, StamperType.Passkey);
 
-        const session: Session = {
-          sessionType: SessionType.READ_ONLY,
-          userId: readOnlySessionResult.userId,
-          organizationId: readOnlySessionResult.organizationId,
-          expiry: Number(readOnlySessionResult.sessionExpiry),
-          token: readOnlySessionResult.session, // Once we have api key session scopes this can change
-        };
-        await this.storageManager.storeSession(session, sessionKey);
+        await this.storageManager.storeSession(
+          readOnlySessionResult.session,
+          sessionKey,
+        );
+        // Key pair was successfully used, set to null to prevent cleanup
+        generatedKeyPair = null;
+
         // Create a read-write session
       } else if (sessionType === SessionType.READ_WRITE) {
         if (!publicKey) {
           throw new Error(
-            "You must provide a publicKey to create a passkey read write session."
+            "You must provide a publicKey to create a passkey read write session.",
           );
         }
         const sessionResponse = await this.httpClient.stampLogin(
@@ -199,44 +199,38 @@ export class TurnkeyClient {
             publicKey,
             expirationSeconds,
           },
-          StamperType.Passkey
+          StamperType.Passkey,
         );
 
         // TODO (Amir): This should be done in a helper or something. It's very strange that we have to delete the key pair here
         const sessionToReplace =
           await this.storageManager.getSession(sessionKey);
         if (sessionToReplace) {
-          const pubkey = getPubKeyFromToken(sessionToReplace.token);
-          await this.apiKeyStamper?.deleteKeyPair(pubkey);
+          await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.token);
         }
 
         await this.storageManager.storeSession(
-          {
-            /// THIS IS SO DUMB!
-            sessionType: SessionType.READ_WRITE,
-            expiry: Number(expirationSeconds),
-            token: sessionResponse.session,
-          } as any,
-          sessionKey
+          sessionResponse.session,
+          sessionKey,
         );
-
-        const whoamiResponse = await this.httpClient.getWhoami({});
-
-        const session: Session = {
-          // Note (Amir): Let's keep consistent with storing the actual session object rather than just the token
-          sessionType: SessionType.READ_ONLY,
-          userId: whoamiResponse.userId,
-          organizationId: whoamiResponse.organizationId,
-          expiry: Number(expirationSeconds),
-          token: sessionResponse.session,
-        };
-
-        await this.storageManager.storeSession(session, sessionKey);
+        // Key pair was successfully used, set to null to prevent cleanup
+        generatedKeyPair = null;
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
     } catch (error) {
       throw new Error(`Unable to log in with the provided passkey: ${error}`);
+    } finally {
+      // Clean up the generated key pair if it wasn't successfully used
+      if (generatedKeyPair) {
+        try {
+          await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
+        } catch (cleanupError) {
+          throw new Error(
+            `Failed to clean up generated key pair: ${cleanupError}`,
+          );
+        }
+      }
     }
   };
 }
