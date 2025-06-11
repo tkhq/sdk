@@ -1,4 +1,4 @@
-import { getPubKeyFromToken, isReactNative, isWeb } from "@utils";
+import { isReactNative, isWeb } from "@utils";
 import { IndexedDbStamper } from "./web/stamper";
 import { StorageBase } from "../__storage__/base";
 
@@ -9,7 +9,7 @@ export interface StamperBase {
   sign(payload: string, publicKeyHex: string): Promise<string>;
   stamp(
     payload: string,
-    publicKeyHex: string
+    publicKeyHex: string,
   ): Promise<{ stampHeaderName: string; stampHeaderValue: string }>;
 }
 
@@ -41,24 +41,21 @@ export class CrossPlatformApiKeyStamper {
   async sign(payload: string): Promise<string> {
     const session = await this.storageManager.getActiveSession();
     console.log("Active session:", session);
-    console.log("Session token:", session?.token);
-    if (!session?.token) {
+    if (!session) {
       throw new Error("No active session or token available.");
     }
-    const publicKey = getPubKeyFromToken(session.token);
-    return this.stamper.sign(payload, publicKey);
+    return this.stamper.sign(payload, session.token);
   }
 
   async stamp(
-    payload: string
+    payload: string,
   ): Promise<{ stampHeaderName: string; stampHeaderValue: string }> {
     const session = await this.storageManager.getActiveSession();
     console.log("Active session:", session);
     console.log("Session token:", session?.token);
-    if (!session?.token) {
+    if (!session) {
       throw new Error("No active session or token available.");
     }
-    const publicKey = getPubKeyFromToken(session.token);
-    return this.stamper.stamp(payload, publicKey);
+    return this.stamper.stamp(payload, session.token);
   }
 }
