@@ -36,13 +36,6 @@ jobs:
           git config user.name "tkhq-deploy"
           git config user.email "github@turnkey.engineering"
 
-      - name: Check for release commit
-        run: |
-          if ! git log -1 --pretty=%B | grep -q "chore: release packages"; then
-            echo "No release commit found. Skipping publish."
-            exit 1
-          fi
-
       - name: Setup Node, pnpm, and deps
         uses: ./.github/actions/js-setup
 
