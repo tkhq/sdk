@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 3.4.2
+
+### Patch Changes
+
+- [#665](https://github.com/tkhq/sdk/pull/665) [`be0a621`](https://github.com/tkhq/sdk/commit/be0a621fb962bd51d2df1a1e79f5260d7c696772) Author [@amircheikh](https://github.com/amircheikh) - Exposed `isHttpClient` function for determining if a passed in client is from turnkey/http
+
 ## 3.4.1
 
 ### Patch Changes
