@@ -20,7 +20,7 @@ import { VERSION } from "../__generated__/version";
 
 import type * as SdkApiTypes from "./sdk_api_types";
 
-import { StorageBase, SessionKey } from "../__storage__/base";
+import { StorageBase } from "../__storage__/base";
 
 import { parseSession } from "../utils";
 
@@ -29,11 +29,8 @@ import { StamperType } from "../__types__/base";
 export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;
 
-  // Current active stamper
-  stamper?: TStamper | undefined;
-
   // Store stampers
-  private indexedDBStamper?: TStamper | undefined;
+  private apiKeyStamper?: TStamper | undefined;
   private passkeyStamper?: TStamper | undefined;
 
   // Storage manager
@@ -42,10 +39,8 @@ export class TurnkeySDKClientBase {
   constructor(config: TurnkeySDKClientConfig) {
     this.config = config;
 
-    if (config.stamper) {
-      this.stamper = config.stamper;
-      // Store as default IndexedDB stamper
-      this.indexedDBStamper = config.stamper;
+    if (config.apiKeyStamper) {
+      this.apiKeyStamper = config.apiKeyStamper;
     }
     if (config.passkeyStamper) {
       this.passkeyStamper = config.passkeyStamper;
@@ -56,22 +51,22 @@ export class TurnkeySDKClientBase {
   }
 
   private getStamper(stampWith?: StamperType): TStamper | undefined {
-    if (!stampWith) return this.stamper;
+    if (!stampWith) return this.apiKeyStamper || this.passkeyStamper;
 
     switch (stampWith) {
-      case StamperType.IndexedDB:
-        return this.indexedDBStamper;
+      case StamperType.apiKey:
+        return this.apiKeyStamper;
       case StamperType.Passkey:
         return this.passkeyStamper;
       default:
-        return this.stamper;
+        return this.apiKeyStamper;
     }
   }
 
   async request<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TResponseType> {
     const fullUrl = this.config.apiBaseUrl + url;
     const stringifiedBody = JSON.stringify(body);
@@ -117,7 +112,7 @@ export class TurnkeySDKClientBase {
     url: string,
     body: TBodyType,
     resultKey: string,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TResponseType> {
     const pollingDuration = this.config.activityPoller?.intervalMs ?? 1000;
     const maxRetries = this.config.activityPoller?.numRetries ?? 3;
@@ -145,7 +140,7 @@ export class TurnkeySDKClientBase {
       // Pass the stampWith parameter to getActivity
       const pollData = (await this.getActivity(
         pollBody,
-        stampWith
+        stampWith,
       )) as TActivityResponse;
 
       if (attempts > maxRetries) {
@@ -156,7 +151,7 @@ export class TurnkeySDKClientBase {
 
       if (
         !TERMINAL_ACTIVITY_STATUSES.includes(
-          pollData.activity.status as TActivityStatus
+          pollData.activity.status as TActivityStatus,
         )
       ) {
         await sleep(pollingDuration);
@@ -170,12 +165,12 @@ export class TurnkeySDKClientBase {
     const responseData = (await this.request<TBodyType, TResponseType>(
       url,
       body,
-      stampWith
+      stampWith,
     )) as TActivityResponse;
 
     if (
       !TERMINAL_ACTIVITY_STATUSES.includes(
-        responseData.activity.status as TActivityStatus
+        responseData.activity.status as TActivityStatus,
       )
     ) {
       return pollStatus(responseData.activity.id);
@@ -187,13 +182,13 @@ export class TurnkeySDKClientBase {
   async activityDecision<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TResponseType> {
     // Use the specified stamper for this request
     const activityData = (await this.request(
       url,
       body,
-      stampWith
+      stampWith,
     )) as TActivityResponse;
 
     return {
@@ -204,11 +199,9 @@ export class TurnkeySDKClientBase {
 
   getActivity = async (
     input: SdkApiTypes.TGetActivityBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetActivityResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_activity",
@@ -219,19 +212,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetActivity = async (
-    input: SdkApiTypes.TGetActivityBody
+    input: SdkApiTypes.TGetActivityBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_activity";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -241,11 +237,9 @@ export class TurnkeySDKClientBase {
 
   getApiKey = async (
     input: SdkApiTypes.TGetApiKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetApiKeyResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_api_key",
@@ -256,19 +250,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetApiKey = async (
-    input: SdkApiTypes.TGetApiKeyBody
+    input: SdkApiTypes.TGetApiKeyBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_api_key";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -278,11 +275,9 @@ export class TurnkeySDKClientBase {
 
   getApiKeys = async (
     input: SdkApiTypes.TGetApiKeysBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetApiKeysResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_api_keys",
@@ -293,19 +288,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetApiKeys = async (
-    input: SdkApiTypes.TGetApiKeysBody
+    input: SdkApiTypes.TGetApiKeysBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_api_keys";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -315,11 +313,9 @@ export class TurnkeySDKClientBase {
 
   getAttestationDocument = async (
     input: SdkApiTypes.TGetAttestationDocumentBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetAttestationDocumentResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_attestation",
@@ -330,19 +326,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetAttestationDocument = async (
-    input: SdkApiTypes.TGetAttestationDocumentBody
+    input: SdkApiTypes.TGetAttestationDocumentBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_attestation";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -352,11 +351,9 @@ export class TurnkeySDKClientBase {
 
   getAuthenticator = async (
     input: SdkApiTypes.TGetAuthenticatorBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_authenticator",
@@ -367,20 +364,23 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetAuthenticator = async (
-    input: SdkApiTypes.TGetAuthenticatorBody
+    input: SdkApiTypes.TGetAuthenticatorBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_authenticator";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -390,11 +390,9 @@ export class TurnkeySDKClientBase {
 
   getAuthenticators = async (
     input: SdkApiTypes.TGetAuthenticatorsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetAuthenticatorsResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_authenticators",
@@ -405,20 +403,23 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetAuthenticators = async (
-    input: SdkApiTypes.TGetAuthenticatorsBody
+    input: SdkApiTypes.TGetAuthenticatorsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_authenticators";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -428,11 +429,9 @@ export class TurnkeySDKClientBase {
 
   getOauthProviders = async (
     input: SdkApiTypes.TGetOauthProvidersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetOauthProvidersResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_oauth_providers",
@@ -443,20 +442,23 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetOauthProviders = async (
-    input: SdkApiTypes.TGetOauthProvidersBody
+    input: SdkApiTypes.TGetOauthProvidersBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_oauth_providers";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -466,11 +468,9 @@ export class TurnkeySDKClientBase {
 
   getOrganization = async (
     input: SdkApiTypes.TGetOrganizationBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetOrganizationResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_organization",
@@ -481,20 +481,23 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetOrganization = async (
-    input: SdkApiTypes.TGetOrganizationBody
+    input: SdkApiTypes.TGetOrganizationBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_organization";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -504,11 +507,9 @@ export class TurnkeySDKClientBase {
 
   getOrganizationConfigs = async (
     input: SdkApiTypes.TGetOrganizationConfigsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetOrganizationConfigsResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_organization_configs",
@@ -519,20 +520,23 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetOrganizationConfigs = async (
-    input: SdkApiTypes.TGetOrganizationConfigsBody
+    input: SdkApiTypes.TGetOrganizationConfigsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_organization_configs";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -542,11 +546,9 @@ export class TurnkeySDKClientBase {
 
   getPolicy = async (
     input: SdkApiTypes.TGetPolicyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetPolicyResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_policy",
@@ -557,19 +559,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetPolicy = async (
-    input: SdkApiTypes.TGetPolicyBody
+    input: SdkApiTypes.TGetPolicyBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_policy";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -579,11 +584,9 @@ export class TurnkeySDKClientBase {
 
   getPrivateKey = async (
     input: SdkApiTypes.TGetPrivateKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetPrivateKeyResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_private_key",
@@ -594,19 +597,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetPrivateKey = async (
-    input: SdkApiTypes.TGetPrivateKeyBody
+    input: SdkApiTypes.TGetPrivateKeyBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_private_key";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -616,11 +622,9 @@ export class TurnkeySDKClientBase {
 
   getUser = async (
     input: SdkApiTypes.TGetUserBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetUserResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_user",
@@ -631,19 +635,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetUser = async (
-    input: SdkApiTypes.TGetUserBody
+    input: SdkApiTypes.TGetUserBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_user";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -653,11 +660,9 @@ export class TurnkeySDKClientBase {
 
   getWallet = async (
     input: SdkApiTypes.TGetWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetWalletResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_wallet",
@@ -668,19 +673,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetWallet = async (
-    input: SdkApiTypes.TGetWalletBody
+    input: SdkApiTypes.TGetWalletBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_wallet";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -690,11 +698,9 @@ export class TurnkeySDKClientBase {
 
   getWalletAccount = async (
     input: SdkApiTypes.TGetWalletAccountBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetWalletAccountResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/get_wallet_account",
@@ -705,20 +711,23 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetWalletAccount = async (
-    input: SdkApiTypes.TGetWalletAccountBody
+    input: SdkApiTypes.TGetWalletAccountBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_wallet_account";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -728,11 +737,9 @@ export class TurnkeySDKClientBase {
 
   getActivities = async (
     input: SdkApiTypes.TGetActivitiesBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetActivitiesResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/list_activities",
@@ -743,19 +750,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetActivities = async (
-    input: SdkApiTypes.TGetActivitiesBody
+    input: SdkApiTypes.TGetActivitiesBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_activities";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -765,11 +775,9 @@ export class TurnkeySDKClientBase {
 
   getPolicies = async (
     input: SdkApiTypes.TGetPoliciesBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetPoliciesResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/list_policies",
@@ -780,19 +788,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetPolicies = async (
-    input: SdkApiTypes.TGetPoliciesBody
+    input: SdkApiTypes.TGetPoliciesBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_policies";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -802,11 +813,9 @@ export class TurnkeySDKClientBase {
 
   listPrivateKeyTags = async (
     input: SdkApiTypes.TListPrivateKeyTagsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TListPrivateKeyTagsResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/list_private_key_tags",
@@ -817,20 +826,23 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampListPrivateKeyTags = async (
-    input: SdkApiTypes.TListPrivateKeyTagsBody
+    input: SdkApiTypes.TListPrivateKeyTagsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_private_key_tags";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -840,11 +852,9 @@ export class TurnkeySDKClientBase {
 
   getPrivateKeys = async (
     input: SdkApiTypes.TGetPrivateKeysBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetPrivateKeysResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/list_private_keys",
@@ -855,20 +865,23 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetPrivateKeys = async (
-    input: SdkApiTypes.TGetPrivateKeysBody
+    input: SdkApiTypes.TGetPrivateKeysBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_private_keys";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -878,11 +891,9 @@ export class TurnkeySDKClientBase {
 
   getSubOrgIds = async (
     input: SdkApiTypes.TGetSubOrgIdsBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetSubOrgIdsResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/list_suborgs",
@@ -893,19 +904,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetSubOrgIds = async (
-    input: SdkApiTypes.TGetSubOrgIdsBody
+    input: SdkApiTypes.TGetSubOrgIdsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_suborgs";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -915,11 +929,9 @@ export class TurnkeySDKClientBase {
 
   listUserTags = async (
     input: SdkApiTypes.TListUserTagsBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TListUserTagsResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/list_user_tags",
@@ -930,19 +942,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampListUserTags = async (
-    input: SdkApiTypes.TListUserTagsBody
+    input: SdkApiTypes.TListUserTagsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_user_tags";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -952,11 +967,9 @@ export class TurnkeySDKClientBase {
 
   getUsers = async (
     input: SdkApiTypes.TGetUsersBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetUsersResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/list_users",
@@ -967,19 +980,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetUsers = async (
-    input: SdkApiTypes.TGetUsersBody
+    input: SdkApiTypes.TGetUsersBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_users";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -989,11 +1005,9 @@ export class TurnkeySDKClientBase {
 
   getVerifiedSubOrgIds = async (
     input: SdkApiTypes.TGetVerifiedSubOrgIdsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetVerifiedSubOrgIdsResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/list_verified_suborgs",
@@ -1004,20 +1018,23 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetVerifiedSubOrgIds = async (
-    input: SdkApiTypes.TGetVerifiedSubOrgIdsBody
+    input: SdkApiTypes.TGetVerifiedSubOrgIdsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_verified_suborgs";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1027,11 +1044,9 @@ export class TurnkeySDKClientBase {
 
   getWalletAccounts = async (
     input: SdkApiTypes.TGetWalletAccountsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetWalletAccountsResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/list_wallet_accounts",
@@ -1042,20 +1057,23 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetWalletAccounts = async (
-    input: SdkApiTypes.TGetWalletAccountsBody
+    input: SdkApiTypes.TGetWalletAccountsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_wallet_accounts";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1065,11 +1083,9 @@ export class TurnkeySDKClientBase {
 
   getWallets = async (
     input: SdkApiTypes.TGetWalletsBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetWalletsResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/list_wallets",
@@ -1080,19 +1096,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetWallets = async (
-    input: SdkApiTypes.TGetWalletsBody
+    input: SdkApiTypes.TGetWalletsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_wallets";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1102,11 +1121,9 @@ export class TurnkeySDKClientBase {
 
   getWhoami = async (
     input: SdkApiTypes.TGetWhoamiBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TGetWhoamiResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/public/v1/query/whoami",
@@ -1117,19 +1134,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetWhoami = async (
-    input: SdkApiTypes.TGetWhoamiBody
+    input: SdkApiTypes.TGetWhoamiBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/whoami";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1139,13 +1159,11 @@ export class TurnkeySDKClientBase {
 
   approveActivity = async (
     input: SdkApiTypes.TApproveActivityBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TApproveActivityResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.activityDecision(
       "/public/v1/submit/approve_activity",
       {
@@ -1157,20 +1175,23 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_APPROVE_ACTIVITY",
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampApproveActivity = async (
-    input: SdkApiTypes.TApproveActivityBody
+    input: SdkApiTypes.TApproveActivityBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/approve_activity";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1180,13 +1201,11 @@ export class TurnkeySDKClientBase {
 
   createApiKeys = async (
     input: SdkApiTypes.TCreateApiKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_api_keys",
@@ -1200,20 +1219,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
       },
       "createApiKeysResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateApiKeys = async (
-    input: SdkApiTypes.TCreateApiKeysBody
+    input: SdkApiTypes.TCreateApiKeysBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_api_keys";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1223,13 +1245,11 @@ export class TurnkeySDKClientBase {
 
   createApiOnlyUsers = async (
     input: SdkApiTypes.TCreateApiOnlyUsersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreateApiOnlyUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_api_only_users",
@@ -1243,20 +1263,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
       },
       "createApiOnlyUsersResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateApiOnlyUsers = async (
-    input: SdkApiTypes.TCreateApiOnlyUsersBody
+    input: SdkApiTypes.TCreateApiOnlyUsersBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_api_only_users";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1266,13 +1289,11 @@ export class TurnkeySDKClientBase {
 
   createAuthenticators = async (
     input: SdkApiTypes.TCreateAuthenticatorsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreateAuthenticatorsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_authenticators",
@@ -1286,20 +1307,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
       },
       "createAuthenticatorsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateAuthenticators = async (
-    input: SdkApiTypes.TCreateAuthenticatorsBody
+    input: SdkApiTypes.TCreateAuthenticatorsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_authenticators";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1309,13 +1333,11 @@ export class TurnkeySDKClientBase {
 
   createInvitations = async (
     input: SdkApiTypes.TCreateInvitationsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreateInvitationsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_invitations",
@@ -1329,20 +1351,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_INVITATIONS",
       },
       "createInvitationsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateInvitations = async (
-    input: SdkApiTypes.TCreateInvitationsBody
+    input: SdkApiTypes.TCreateInvitationsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_invitations";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1352,13 +1377,11 @@ export class TurnkeySDKClientBase {
 
   createOauthProviders = async (
     input: SdkApiTypes.TCreateOauthProvidersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreateOauthProvidersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_oauth_providers",
@@ -1372,20 +1395,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
       },
       "createOauthProvidersResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateOauthProviders = async (
-    input: SdkApiTypes.TCreateOauthProvidersBody
+    input: SdkApiTypes.TCreateOauthProvidersBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_oauth_providers";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1395,13 +1421,11 @@ export class TurnkeySDKClientBase {
 
   createPolicies = async (
     input: SdkApiTypes.TCreatePoliciesBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreatePoliciesResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_policies",
@@ -1415,20 +1439,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_POLICIES",
       },
       "createPoliciesResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreatePolicies = async (
-    input: SdkApiTypes.TCreatePoliciesBody
+    input: SdkApiTypes.TCreatePoliciesBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_policies";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1438,13 +1465,11 @@ export class TurnkeySDKClientBase {
 
   createPolicy = async (
     input: SdkApiTypes.TCreatePolicyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreatePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_policy",
@@ -1458,19 +1483,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
       },
       "createPolicyResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreatePolicy = async (
-    input: SdkApiTypes.TCreatePolicyBody
+    input: SdkApiTypes.TCreatePolicyBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_policy";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1480,13 +1508,11 @@ export class TurnkeySDKClientBase {
 
   createPrivateKeyTag = async (
     input: SdkApiTypes.TCreatePrivateKeyTagBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreatePrivateKeyTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_private_key_tag",
@@ -1500,20 +1526,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
       },
       "createPrivateKeyTagResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreatePrivateKeyTag = async (
-    input: SdkApiTypes.TCreatePrivateKeyTagBody
+    input: SdkApiTypes.TCreatePrivateKeyTagBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_private_key_tag";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1523,13 +1552,11 @@ export class TurnkeySDKClientBase {
 
   createPrivateKeys = async (
     input: SdkApiTypes.TCreatePrivateKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreatePrivateKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_private_keys",
@@ -1543,20 +1570,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
       },
       "createPrivateKeysResultV2",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreatePrivateKeys = async (
-    input: SdkApiTypes.TCreatePrivateKeysBody
+    input: SdkApiTypes.TCreatePrivateKeysBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_private_keys";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1566,13 +1596,11 @@ export class TurnkeySDKClientBase {
 
   createReadOnlySession = async (
     input: SdkApiTypes.TCreateReadOnlySessionBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_read_only_session",
@@ -1586,20 +1614,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION",
       },
       "createReadOnlySessionResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateReadOnlySession = async (
-    input: SdkApiTypes.TCreateReadOnlySessionBody
+    input: SdkApiTypes.TCreateReadOnlySessionBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_read_only_session";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1609,13 +1640,11 @@ export class TurnkeySDKClientBase {
 
   createReadWriteSession = async (
     input: SdkApiTypes.TCreateReadWriteSessionBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_read_write_session",
@@ -1629,20 +1658,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
       },
       "createReadWriteSessionResultV2",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateReadWriteSession = async (
-    input: SdkApiTypes.TCreateReadWriteSessionBody
+    input: SdkApiTypes.TCreateReadWriteSessionBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_read_write_session";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1652,13 +1684,11 @@ export class TurnkeySDKClientBase {
 
   createSubOrganization = async (
     input: SdkApiTypes.TCreateSubOrganizationBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_sub_organization",
@@ -1672,20 +1702,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
       },
       "createSubOrganizationResultV7",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateSubOrganization = async (
-    input: SdkApiTypes.TCreateSubOrganizationBody
+    input: SdkApiTypes.TCreateSubOrganizationBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_sub_organization";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1695,13 +1728,11 @@ export class TurnkeySDKClientBase {
 
   createUserTag = async (
     input: SdkApiTypes.TCreateUserTagBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreateUserTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_user_tag",
@@ -1715,20 +1746,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_USER_TAG",
       },
       "createUserTagResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateUserTag = async (
-    input: SdkApiTypes.TCreateUserTagBody
+    input: SdkApiTypes.TCreateUserTagBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_user_tag";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1738,13 +1772,11 @@ export class TurnkeySDKClientBase {
 
   createUsers = async (
     input: SdkApiTypes.TCreateUsersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreateUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_users",
@@ -1758,19 +1790,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_USERS_V3",
       },
       "createUsersResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateUsers = async (
-    input: SdkApiTypes.TCreateUsersBody
+    input: SdkApiTypes.TCreateUsersBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_users";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1780,13 +1815,11 @@ export class TurnkeySDKClientBase {
 
   createWallet = async (
     input: SdkApiTypes.TCreateWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreateWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_wallet",
@@ -1800,19 +1833,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_WALLET",
       },
       "createWalletResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateWallet = async (
-    input: SdkApiTypes.TCreateWalletBody
+    input: SdkApiTypes.TCreateWalletBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_wallet";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1822,13 +1858,11 @@ export class TurnkeySDKClientBase {
 
   createWalletAccounts = async (
     input: SdkApiTypes.TCreateWalletAccountsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/create_wallet_accounts",
@@ -1842,20 +1876,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
       },
       "createWalletAccountsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateWalletAccounts = async (
-    input: SdkApiTypes.TCreateWalletAccountsBody
+    input: SdkApiTypes.TCreateWalletAccountsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_wallet_accounts";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1865,13 +1902,11 @@ export class TurnkeySDKClientBase {
 
   deleteApiKeys = async (
     input: SdkApiTypes.TDeleteApiKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TDeleteApiKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/delete_api_keys",
@@ -1885,20 +1920,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_API_KEYS",
       },
       "deleteApiKeysResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteApiKeys = async (
-    input: SdkApiTypes.TDeleteApiKeysBody
+    input: SdkApiTypes.TDeleteApiKeysBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_api_keys";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1908,13 +1946,11 @@ export class TurnkeySDKClientBase {
 
   deleteAuthenticators = async (
     input: SdkApiTypes.TDeleteAuthenticatorsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TDeleteAuthenticatorsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/delete_authenticators",
@@ -1928,20 +1964,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS",
       },
       "deleteAuthenticatorsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteAuthenticators = async (
-    input: SdkApiTypes.TDeleteAuthenticatorsBody
+    input: SdkApiTypes.TDeleteAuthenticatorsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_authenticators";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1951,13 +1990,11 @@ export class TurnkeySDKClientBase {
 
   deleteInvitation = async (
     input: SdkApiTypes.TDeleteInvitationBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TDeleteInvitationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/delete_invitation",
@@ -1971,20 +2008,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_INVITATION",
       },
       "deleteInvitationResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteInvitation = async (
-    input: SdkApiTypes.TDeleteInvitationBody
+    input: SdkApiTypes.TDeleteInvitationBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_invitation";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -1994,13 +2034,11 @@ export class TurnkeySDKClientBase {
 
   deleteOauthProviders = async (
     input: SdkApiTypes.TDeleteOauthProvidersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TDeleteOauthProvidersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/delete_oauth_providers",
@@ -2014,20 +2052,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS",
       },
       "deleteOauthProvidersResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteOauthProviders = async (
-    input: SdkApiTypes.TDeleteOauthProvidersBody
+    input: SdkApiTypes.TDeleteOauthProvidersBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_oauth_providers";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2037,13 +2078,11 @@ export class TurnkeySDKClientBase {
 
   deletePolicy = async (
     input: SdkApiTypes.TDeletePolicyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TDeletePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/delete_policy",
@@ -2057,19 +2096,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_POLICY",
       },
       "deletePolicyResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeletePolicy = async (
-    input: SdkApiTypes.TDeletePolicyBody
+    input: SdkApiTypes.TDeletePolicyBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_policy";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2079,13 +2121,11 @@ export class TurnkeySDKClientBase {
 
   deletePrivateKeyTags = async (
     input: SdkApiTypes.TDeletePrivateKeyTagsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TDeletePrivateKeyTagsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/delete_private_key_tags",
@@ -2099,20 +2139,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS",
       },
       "deletePrivateKeyTagsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeletePrivateKeyTags = async (
-    input: SdkApiTypes.TDeletePrivateKeyTagsBody
+    input: SdkApiTypes.TDeletePrivateKeyTagsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_private_key_tags";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2122,13 +2165,11 @@ export class TurnkeySDKClientBase {
 
   deletePrivateKeys = async (
     input: SdkApiTypes.TDeletePrivateKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TDeletePrivateKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/delete_private_keys",
@@ -2142,20 +2183,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS",
       },
       "deletePrivateKeysResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeletePrivateKeys = async (
-    input: SdkApiTypes.TDeletePrivateKeysBody
+    input: SdkApiTypes.TDeletePrivateKeysBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_private_keys";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2165,13 +2209,11 @@ export class TurnkeySDKClientBase {
 
   deleteSubOrganization = async (
     input: SdkApiTypes.TDeleteSubOrganizationBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TDeleteSubOrganizationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/delete_sub_organization",
@@ -2185,20 +2227,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
       },
       "deleteSubOrganizationResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteSubOrganization = async (
-    input: SdkApiTypes.TDeleteSubOrganizationBody
+    input: SdkApiTypes.TDeleteSubOrganizationBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_sub_organization";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2208,13 +2253,11 @@ export class TurnkeySDKClientBase {
 
   deleteUserTags = async (
     input: SdkApiTypes.TDeleteUserTagsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TDeleteUserTagsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/delete_user_tags",
@@ -2228,20 +2271,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_USER_TAGS",
       },
       "deleteUserTagsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteUserTags = async (
-    input: SdkApiTypes.TDeleteUserTagsBody
+    input: SdkApiTypes.TDeleteUserTagsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_user_tags";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2251,13 +2297,11 @@ export class TurnkeySDKClientBase {
 
   deleteUsers = async (
     input: SdkApiTypes.TDeleteUsersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TDeleteUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/delete_users",
@@ -2271,19 +2315,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_USERS",
       },
       "deleteUsersResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteUsers = async (
-    input: SdkApiTypes.TDeleteUsersBody
+    input: SdkApiTypes.TDeleteUsersBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_users";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2293,13 +2340,11 @@ export class TurnkeySDKClientBase {
 
   deleteWallets = async (
     input: SdkApiTypes.TDeleteWalletsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TDeleteWalletsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/delete_wallets",
@@ -2313,19 +2358,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_WALLETS",
       },
       "deleteWalletsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteWallets = async (
-    input: SdkApiTypes.TDeleteWalletsBody
+    input: SdkApiTypes.TDeleteWalletsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_wallets";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2335,13 +2383,11 @@ export class TurnkeySDKClientBase {
 
   emailAuth = async (
     input: SdkApiTypes.TEmailAuthBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TEmailAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/email_auth",
@@ -2355,19 +2401,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_EMAIL_AUTH_V2",
       },
       "emailAuthResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampEmailAuth = async (
-    input: SdkApiTypes.TEmailAuthBody
+    input: SdkApiTypes.TEmailAuthBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/email_auth";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2377,13 +2426,11 @@ export class TurnkeySDKClientBase {
 
   exportPrivateKey = async (
     input: SdkApiTypes.TExportPrivateKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TExportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/export_private_key",
@@ -2397,20 +2444,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY",
       },
       "exportPrivateKeyResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampExportPrivateKey = async (
-    input: SdkApiTypes.TExportPrivateKeyBody
+    input: SdkApiTypes.TExportPrivateKeyBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/export_private_key";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2420,13 +2470,11 @@ export class TurnkeySDKClientBase {
 
   exportWallet = async (
     input: SdkApiTypes.TExportWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TExportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/export_wallet",
@@ -2440,19 +2488,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_EXPORT_WALLET",
       },
       "exportWalletResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampExportWallet = async (
-    input: SdkApiTypes.TExportWalletBody
+    input: SdkApiTypes.TExportWalletBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/export_wallet";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2462,13 +2513,11 @@ export class TurnkeySDKClientBase {
 
   exportWalletAccount = async (
     input: SdkApiTypes.TExportWalletAccountBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TExportWalletAccountResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/export_wallet_account",
@@ -2482,20 +2531,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT",
       },
       "exportWalletAccountResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampExportWalletAccount = async (
-    input: SdkApiTypes.TExportWalletAccountBody
+    input: SdkApiTypes.TExportWalletAccountBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/export_wallet_account";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2505,13 +2557,11 @@ export class TurnkeySDKClientBase {
 
   importPrivateKey = async (
     input: SdkApiTypes.TImportPrivateKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TImportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/import_private_key",
@@ -2525,20 +2575,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
       },
       "importPrivateKeyResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampImportPrivateKey = async (
-    input: SdkApiTypes.TImportPrivateKeyBody
+    input: SdkApiTypes.TImportPrivateKeyBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/import_private_key";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2548,13 +2601,11 @@ export class TurnkeySDKClientBase {
 
   importWallet = async (
     input: SdkApiTypes.TImportWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TImportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/import_wallet",
@@ -2568,19 +2619,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_IMPORT_WALLET",
       },
       "importWalletResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampImportWallet = async (
-    input: SdkApiTypes.TImportWalletBody
+    input: SdkApiTypes.TImportWalletBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/import_wallet";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2590,13 +2644,11 @@ export class TurnkeySDKClientBase {
 
   initImportPrivateKey = async (
     input: SdkApiTypes.TInitImportPrivateKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TInitImportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/init_import_private_key",
@@ -2610,20 +2662,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY",
       },
       "initImportPrivateKeyResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampInitImportPrivateKey = async (
-    input: SdkApiTypes.TInitImportPrivateKeyBody
+    input: SdkApiTypes.TInitImportPrivateKeyBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_import_private_key";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2633,13 +2688,11 @@ export class TurnkeySDKClientBase {
 
   initImportWallet = async (
     input: SdkApiTypes.TInitImportWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TInitImportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/init_import_wallet",
@@ -2653,20 +2706,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
       },
       "initImportWalletResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampInitImportWallet = async (
-    input: SdkApiTypes.TInitImportWalletBody
+    input: SdkApiTypes.TInitImportWalletBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_import_wallet";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2676,13 +2732,11 @@ export class TurnkeySDKClientBase {
 
   initOtp = async (
     input: SdkApiTypes.TInitOtpBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TInitOtpResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/init_otp",
@@ -2696,19 +2750,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_INIT_OTP",
       },
       "initOtpResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampInitOtp = async (
-    input: SdkApiTypes.TInitOtpBody
+    input: SdkApiTypes.TInitOtpBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_otp";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2718,13 +2775,11 @@ export class TurnkeySDKClientBase {
 
   initOtpAuth = async (
     input: SdkApiTypes.TInitOtpAuthBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TInitOtpAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/init_otp_auth",
@@ -2738,19 +2793,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
       },
       "initOtpAuthResultV2",
-      stampWith
+      stampWith,
     );
   };
 
   stampInitOtpAuth = async (
-    input: SdkApiTypes.TInitOtpAuthBody
+    input: SdkApiTypes.TInitOtpAuthBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_otp_auth";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2760,13 +2818,11 @@ export class TurnkeySDKClientBase {
 
   initUserEmailRecovery = async (
     input: SdkApiTypes.TInitUserEmailRecoveryBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TInitUserEmailRecoveryResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/init_user_email_recovery",
@@ -2780,20 +2836,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
       },
       "initUserEmailRecoveryResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampInitUserEmailRecovery = async (
-    input: SdkApiTypes.TInitUserEmailRecoveryBody
+    input: SdkApiTypes.TInitUserEmailRecoveryBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_user_email_recovery";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2803,13 +2862,11 @@ export class TurnkeySDKClientBase {
 
   oauth = async (
     input: SdkApiTypes.TOauthBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TOauthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/oauth",
@@ -2823,19 +2880,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_OAUTH",
       },
       "oauthResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampOauth = async (
-    input: SdkApiTypes.TOauthBody
+    input: SdkApiTypes.TOauthBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2845,13 +2905,11 @@ export class TurnkeySDKClientBase {
 
   oauthLogin = async (
     input: SdkApiTypes.TOauthLoginBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TOauthLoginResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/oauth_login",
@@ -2865,19 +2923,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_OAUTH_LOGIN",
       },
       "oauthLoginResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampOauthLogin = async (
-    input: SdkApiTypes.TOauthLoginBody
+    input: SdkApiTypes.TOauthLoginBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth_login";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2887,13 +2948,11 @@ export class TurnkeySDKClientBase {
 
   otpAuth = async (
     input: SdkApiTypes.TOtpAuthBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TOtpAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/otp_auth",
@@ -2907,19 +2966,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_OTP_AUTH",
       },
       "otpAuthResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampOtpAuth = async (
-    input: SdkApiTypes.TOtpAuthBody
+    input: SdkApiTypes.TOtpAuthBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_auth";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2929,13 +2991,11 @@ export class TurnkeySDKClientBase {
 
   otpLogin = async (
     input: SdkApiTypes.TOtpLoginBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TOtpLoginResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/otp_login",
@@ -2949,19 +3009,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_OTP_LOGIN",
       },
       "otpLoginResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampOtpLogin = async (
-    input: SdkApiTypes.TOtpLoginBody
+    input: SdkApiTypes.TOtpLoginBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_login";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -2971,13 +3034,11 @@ export class TurnkeySDKClientBase {
 
   recoverUser = async (
     input: SdkApiTypes.TRecoverUserBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TRecoverUserResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/recover_user",
@@ -2991,19 +3052,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_RECOVER_USER",
       },
       "recoverUserResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampRecoverUser = async (
-    input: SdkApiTypes.TRecoverUserBody
+    input: SdkApiTypes.TRecoverUserBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/recover_user";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3013,13 +3077,11 @@ export class TurnkeySDKClientBase {
 
   rejectActivity = async (
     input: SdkApiTypes.TRejectActivityBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TRejectActivityResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.activityDecision(
       "/public/v1/submit/reject_activity",
       {
@@ -3031,20 +3093,23 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_REJECT_ACTIVITY",
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampRejectActivity = async (
-    input: SdkApiTypes.TRejectActivityBody
+    input: SdkApiTypes.TRejectActivityBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/reject_activity";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3054,13 +3119,11 @@ export class TurnkeySDKClientBase {
 
   removeOrganizationFeature = async (
     input: SdkApiTypes.TRemoveOrganizationFeatureBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TRemoveOrganizationFeatureResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/remove_organization_feature",
@@ -3074,20 +3137,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE",
       },
       "removeOrganizationFeatureResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampRemoveOrganizationFeature = async (
-    input: SdkApiTypes.TRemoveOrganizationFeatureBody
+    input: SdkApiTypes.TRemoveOrganizationFeatureBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/remove_organization_feature";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3097,13 +3163,11 @@ export class TurnkeySDKClientBase {
 
   setOrganizationFeature = async (
     input: SdkApiTypes.TSetOrganizationFeatureBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TSetOrganizationFeatureResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/set_organization_feature",
@@ -3117,20 +3181,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE",
       },
       "setOrganizationFeatureResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampSetOrganizationFeature = async (
-    input: SdkApiTypes.TSetOrganizationFeatureBody
+    input: SdkApiTypes.TSetOrganizationFeatureBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/set_organization_feature";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3140,13 +3207,11 @@ export class TurnkeySDKClientBase {
 
   signRawPayload = async (
     input: SdkApiTypes.TSignRawPayloadBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TSignRawPayloadResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/sign_raw_payload",
@@ -3160,20 +3225,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
       },
       "signRawPayloadResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampSignRawPayload = async (
-    input: SdkApiTypes.TSignRawPayloadBody
+    input: SdkApiTypes.TSignRawPayloadBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payload";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3183,13 +3251,11 @@ export class TurnkeySDKClientBase {
 
   signRawPayloads = async (
     input: SdkApiTypes.TSignRawPayloadsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TSignRawPayloadsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/sign_raw_payloads",
@@ -3203,20 +3269,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
       },
       "signRawPayloadsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampSignRawPayloads = async (
-    input: SdkApiTypes.TSignRawPayloadsBody
+    input: SdkApiTypes.TSignRawPayloadsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payloads";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3226,13 +3295,11 @@ export class TurnkeySDKClientBase {
 
   signTransaction = async (
     input: SdkApiTypes.TSignTransactionBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TSignTransactionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/sign_transaction",
@@ -3246,20 +3313,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       },
       "signTransactionResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampSignTransaction = async (
-    input: SdkApiTypes.TSignTransactionBody
+    input: SdkApiTypes.TSignTransactionBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_transaction";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3269,13 +3339,11 @@ export class TurnkeySDKClientBase {
 
   stampLogin = async (
     input: SdkApiTypes.TStampLoginBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TStampLoginResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/stamp_login",
@@ -3289,19 +3357,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_STAMP_LOGIN",
       },
       "stampLoginResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampStampLogin = async (
-    input: SdkApiTypes.TStampLoginBody
+    input: SdkApiTypes.TStampLoginBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/stamp_login";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3311,13 +3382,11 @@ export class TurnkeySDKClientBase {
 
   updatePolicy = async (
     input: SdkApiTypes.TUpdatePolicyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/update_policy",
@@ -3331,19 +3400,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
       },
       "updatePolicyResultV2",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdatePolicy = async (
-    input: SdkApiTypes.TUpdatePolicyBody
+    input: SdkApiTypes.TUpdatePolicyBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_policy";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3353,13 +3425,11 @@ export class TurnkeySDKClientBase {
 
   updatePrivateKeyTag = async (
     input: SdkApiTypes.TUpdatePrivateKeyTagBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TUpdatePrivateKeyTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/update_private_key_tag",
@@ -3373,20 +3443,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG",
       },
       "updatePrivateKeyTagResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdatePrivateKeyTag = async (
-    input: SdkApiTypes.TUpdatePrivateKeyTagBody
+    input: SdkApiTypes.TUpdatePrivateKeyTagBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_private_key_tag";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3396,13 +3469,11 @@ export class TurnkeySDKClientBase {
 
   updateRootQuorum = async (
     input: SdkApiTypes.TUpdateRootQuorumBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TUpdateRootQuorumResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/update_root_quorum",
@@ -3416,20 +3487,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM",
       },
       "updateRootQuorumResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdateRootQuorum = async (
-    input: SdkApiTypes.TUpdateRootQuorumBody
+    input: SdkApiTypes.TUpdateRootQuorumBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_root_quorum";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3439,13 +3513,11 @@ export class TurnkeySDKClientBase {
 
   updateUser = async (
     input: SdkApiTypes.TUpdateUserBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TUpdateUserResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/update_user",
@@ -3459,19 +3531,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_USER",
       },
       "updateUserResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdateUser = async (
-    input: SdkApiTypes.TUpdateUserBody
+    input: SdkApiTypes.TUpdateUserBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_user";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3481,13 +3556,11 @@ export class TurnkeySDKClientBase {
 
   updateUserTag = async (
     input: SdkApiTypes.TUpdateUserTagBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TUpdateUserTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/update_user_tag",
@@ -3501,20 +3574,23 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_USER_TAG",
       },
       "updateUserTagResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdateUserTag = async (
-    input: SdkApiTypes.TUpdateUserTagBody
+    input: SdkApiTypes.TUpdateUserTagBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_tag";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3524,13 +3600,11 @@ export class TurnkeySDKClientBase {
 
   updateWallet = async (
     input: SdkApiTypes.TUpdateWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TUpdateWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/update_wallet",
@@ -3544,19 +3618,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_WALLET",
       },
       "updateWalletResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdateWallet = async (
-    input: SdkApiTypes.TUpdateWalletBody
+    input: SdkApiTypes.TUpdateWalletBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_wallet";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3566,13 +3643,11 @@ export class TurnkeySDKClientBase {
 
   verifyOtp = async (
     input: SdkApiTypes.TVerifyOtpBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TVerifyOtpResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
-    session = parseSession(session!);
+    let session = await this.storageManager?.getActiveSession();
+    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
 
     return this.command(
       "/public/v1/submit/verify_otp",
@@ -3586,19 +3661,22 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_VERIFY_OTP",
       },
       "verifyOtpResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampVerifyOtp = async (
-    input: SdkApiTypes.TVerifyOtpBody
+    input: SdkApiTypes.TVerifyOtpBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/verify_otp";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,
@@ -3608,11 +3686,9 @@ export class TurnkeySDKClientBase {
 
   testRateLimits = async (
     input: SdkApiTypes.TTestRateLimitsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkApiTypes.TTestRateLimitsResponse> => {
-    let session = await this.storageManager?.getStorageValue(
-      SessionKey.DefaultSessionkey
-    );
+    let session = await this.storageManager?.getActiveSession();
     session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
     return this.request(
       "/tkhq/api/v1/test_rate_limits",
@@ -3623,19 +3699,22 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampTestRateLimits = async (
-    input: SdkApiTypes.TTestRateLimitsBody
+    input: SdkApiTypes.TTestRateLimitsBody,
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "/tkhq/api/v1/test_rate_limits";
     const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const stamp = await activeStamper.stamp(body);
     return {
       body: body,
       stamp: stamp,

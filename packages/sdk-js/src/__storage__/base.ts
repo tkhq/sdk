@@ -7,13 +7,14 @@ export enum SessionKey {
 }
 
 export interface StorageBase {
+  // These functions take in strings for sessions. This is just the JWT that is returned from Turnkey.
   getStorageValue(sessionKey: string): Promise<any>;
 
   setStorageValue(sessionKey: string, storageValue: any): Promise<void>;
 
   removeStorageValue(sessionKey: string): Promise<void>;
 
-  storeSession(session: Session, sessionKey?: string): Promise<void>;
+  storeSession(session: string, sessionKey?: string): Promise<void>;
 
   getSession(sessionKey?: string): Promise<Session | undefined>;
 
@@ -30,16 +31,15 @@ export interface StorageBase {
 
 export async function createStorageManager(): Promise<StorageBase> {
   if (isReactNative()) {
-    throw new Error("Not implemented for React Native yet.");
-    // try {
-    //   // Dynamic import to prevent bundling the native module in web environments
-    //   const { MobileStorageManager } = await import("./mobile/storage");
-    //   return new MobileStorageManager();
-    // } catch (error) {
-    //   throw new Error(
-    //     `Failed to load native secure storage, falling back to memory storage: ${error}`
-    //   );
-    // }
+    try {
+      // Dynamic import to prevent bundling the native module in web environments
+      const { MobileStorageManager } = await import("./mobile/storage");
+      return new MobileStorageManager();
+    } catch (error) {
+      throw new Error(
+        `Failed to load storage manager for react-native: ${error}`,
+      );
+    }
   } else if (isWeb()) {
     return new WebStorageManager();
   } else {
