@@ -33,3 +33,5 @@ export enum FiatOnRampCryptoCurrency {
   SOLANA = "FIAT_ON_RAMP_CRYPTO_CURRENCY_SOL",
   USDC = "FIAT_ON_RAMP_CRYPTO_CURRENCY_USDC",
 }
+
+export * from "./__generated__/types";
