@@ -1,6 +1,7 @@
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { generateP256KeyPair } from "@turnkey/crypto";
-import { StamperBase } from "../base";
+import { ApiKeyStamperBase } from "../base";
+import { TStamp } from "@types";
 
 let Keychain: typeof import("react-native-keychain");
 
@@ -12,7 +13,7 @@ try {
   );
 }
 
-export class ReactNativeKeychainStamper implements StamperBase {
+export class ReactNativeKeychainStamper implements ApiKeyStamperBase {
   async listKeyPairs(): Promise<string[]> {
     return await Keychain.getAllGenericPasswordServices();
   }
@@ -62,10 +63,7 @@ export class ReactNativeKeychainStamper implements StamperBase {
     return creds.password;
   }
 
-  async stamp(
-    payload: string,
-    publicKeyHex: string,
-  ): Promise<{ stampHeaderName: string; stampHeaderValue: string }> {
+  async stamp(payload: string, publicKeyHex: string): Promise<TStamp> {
     const privateKey = await this.getPrivateKey(publicKeyHex);
     if (!privateKey) {
       throw new Error(`No private key found for public key: ${publicKeyHex}`);
