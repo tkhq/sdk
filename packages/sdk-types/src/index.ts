@@ -21,3 +21,5 @@ export type SessionResponse = {
     organizationName: string;
   };
 };
+
+export * from "./__generated__/types";
