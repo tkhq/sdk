@@ -1,12 +1,11 @@
 import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
-import { WebauthnStamper } from "@turnkey/webauthn-stamper";
-import WindowWrapper from "@polyfills/window";
 import { SessionType } from "@turnkey/sdk-types";
 import {
   LoginWithPasskeyParams,
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   Passkey,
   StamperType,
+  CreatePasskeyParams,
 } from "@types"; // AHHHH, SDK-TYPES
 import {
   base64UrlEncode,
@@ -20,7 +19,8 @@ import {
   StorageBase,
   SessionKey,
 } from "../__storage__/base";
-import { CrossPlatformApiKeyStamper } from "../__stampers__/base";
+import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
+import { CrossPlatformPasskeyStamper } from "../__stampers__/passkey/base";
 
 export class TurnkeyClient {
   config: any; // Type TBD
@@ -31,9 +31,7 @@ export class TurnkeyClient {
   // public wallets?: any; // TODO (Amir): Define wallets type
 
   apiKeyStamper?: CrossPlatformApiKeyStamper | undefined; // TODO (Amir): TEMPORARILY PUBLIC, MAKE PRIVATE LATER
-  private passkeyStamper?: WebauthnStamper | undefined;
-  private mobilePasskeyStamper?: any | undefined; // TODO (Amir): Implement proper type
-
+  private passkeyStamper?: CrossPlatformPasskeyStamper | undefined;
   storageManager!: StorageBase;
 
   constructor(
@@ -41,44 +39,18 @@ export class TurnkeyClient {
 
     // Users can pass in their own stampers, or we will create them. Should we remove this?
     apiKeyStamper?: CrossPlatformApiKeyStamper,
-    passkeyStamper?: WebauthnStamper,
-    mobilePasskeyStamper?: any, // TODO: Add proper type
+    passkeyStamper?: CrossPlatformPasskeyStamper,
   ) {
     this.config = config;
 
     // Just store any explicitly provided stampers
     this.apiKeyStamper = apiKeyStamper;
     this.passkeyStamper = passkeyStamper;
-    this.mobilePasskeyStamper = mobilePasskeyStamper;
 
     // Actual initialization will happen in init()
   }
 
   async init() {
-    // Initialize platform-specific stampers
-    if (isWeb()) {
-      if (!this.passkeyStamper) {
-        this.passkeyStamper = new WebauthnStamper({
-          rpId:
-            this.config?.passkeyConfig?.rpId ?? WindowWrapper.location.hostname,
-          ...(this.config?.passkeyConfig?.timeout !== undefined && {
-            timeout: this.config?.passkeyConfig?.timeout,
-          }),
-          ...(this.config?.passkeyConfig?.userVerification !== undefined && {
-            userVerification: this.config?.passkeyConfig?.userVerification,
-          }),
-          ...(this.config?.passkeyConfig?.allowCredentials !== undefined && {
-            allowCredentials: this.config?.passkeyConfig?.allowCredentials,
-          }),
-        });
-      }
-    } else if (isReactNative()) {
-      if (!this.mobilePasskeyStamper) {
-        // TODO: Initialize mobilePasskeyStamper
-        // this.mobilePasskeyStamper = new MobilePasskeyStamper();
-      }
-    }
-
     // Initialize storage manager
     // TODO (Amir): StorageManager should be a class that extends StorageBase and has an init method
     this.storageManager = await createStorageManager();
@@ -87,84 +59,41 @@ export class TurnkeyClient {
     this.apiKeyStamper = new CrossPlatformApiKeyStamper(this.storageManager);
     await this.apiKeyStamper.init();
 
+    this.passkeyStamper = new CrossPlatformPasskeyStamper(
+      this.config.passkeyConfig,
+    );
+    await this.passkeyStamper.init();
+
     // Initialize the HTTP client with the appropriate stampers
     this.httpClient = new TurnkeySDKClientBase({
       apiKeyStamper: this.apiKeyStamper,
-      passkeyStamper: isWeb() ? this.passkeyStamper : this.mobilePasskeyStamper,
+      passkeyStamper: this.passkeyStamper,
       storageManager: this.storageManager,
       ...this.config,
     });
   }
 
-  /**
-   * Create a passkey for an end-user, taking care of various lower-level details.
-   *
-   * @returns {Promise<Passkey>}
-   */
-  createUserPasskey = async (
-    config: Record<any, any> = {},
-  ): Promise<Passkey> => {
-    // TODO (Amir): Make this work for mobile as well
-    const challenge = generateRandomBuffer();
-    const encodedChallenge = base64UrlEncode(challenge);
-    const authenticatorUserId = generateRandomBuffer();
-
-    // WebAuthn credential options options can be found here:
-    // https://www.w3.org/TR/webauthn-2/#sctn-sample-registration
-    //
-    // All pubkey algorithms can be found here: https://www.iana.org/assignments/cose/cose.xhtml#algorithms
-    // Turnkey only supports ES256 (-7) and RS256 (-257)
-    //
-    // The pubkey type only supports one value, "public-key"
-    // See https://www.w3.org/TR/webauthn-2/#enumdef-publickeycredentialtype for more details
-    // TODO: consider un-nesting these config params
-    const webauthnConfig: CredentialCreationOptions = {
-      publicKey: {
-        rp: {
-          id: config.publicKey?.rp?.id ?? this.passkeyStamper?.rpId,
-          name: config.publicKey?.rp?.name ?? "",
-        },
-        challenge: config.publicKey?.challenge ?? challenge,
-        pubKeyCredParams: config.publicKey?.pubKeyCredParams ?? [
-          {
-            type: "public-key",
-            alg: -7,
+  createPasskey = async (params: CreatePasskeyParams): Promise<void> => {
+    try {
+      const { name = "A Passkey", displayName = "A Passkey" } = params;
+      if (isWeb()) {
+        this.passkeyStamper?.createWebPasskey({
+          publicKey: {
+            user: {
+              name,
+              displayName,
+            },
           },
-          {
-            type: "public-key",
-            alg: -257,
-          },
-        ],
-        user: {
-          id: config.publicKey?.user?.id ?? authenticatorUserId,
-          name: config.publicKey?.user?.name ?? "Default User",
-          displayName: config.publicKey?.user?.displayName ?? "Default User",
-        },
-        authenticatorSelection: {
-          authenticatorAttachment:
-            config.publicKey?.authenticatorSelection?.authenticatorAttachment ??
-            undefined, // default to empty
-          requireResidentKey:
-            config.publicKey?.authenticatorSelection?.requireResidentKey ??
-            true,
-          residentKey:
-            config.publicKey?.authenticatorSelection?.residentKey ?? "required",
-          userVerification:
-            config.publicKey?.authenticatorSelection?.userVerification ??
-            this.passkeyStamper?.userVerification ??
-            "preferred",
-        },
-      },
-    };
-
-    const attestation = await getWebAuthnAttestation(webauthnConfig);
-
-    return {
-      encodedChallenge: config.publicKey?.challenge
-        ? base64UrlEncode(config.publicKey?.challenge)
-        : encodedChallenge,
-      attestation,
-    };
+        });
+      } else if (isReactNative()) {
+        this.passkeyStamper?.createReactNativePasskey({
+          name,
+          displayName,
+        });
+      }
+    } catch (error) {
+      throw new Error(`Failed to create passkey: ${error}`);
+    }
   };
 
   loginWithPasskey = async (params: LoginWithPasskeyParams): Promise<void> => {

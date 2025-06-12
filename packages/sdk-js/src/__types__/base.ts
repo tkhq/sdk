@@ -145,6 +145,11 @@ export interface PasskeyClientParams {
   allowCredentials?: PublicKeyCredentialDescriptor[];
 }
 
+export interface CreatePasskeyParams {
+  name?: string;
+  displayName?: string;
+}
+
 export interface RefreshSessionParams {
   sessionType: SessionType;
   expirationSeconds?: string | undefined;
