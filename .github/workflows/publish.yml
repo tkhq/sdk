@@ -1,6 +1,7 @@
 name: Publish Packages
 
 on:
+  workflow_dispatch: # allows manual invocation
   pull_request:
     types: [closed]
     branches:
