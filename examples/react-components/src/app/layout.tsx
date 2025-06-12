@@ -3,6 +3,7 @@
 import "@turnkey/sdk-react/styles";
 import { TurnkeyProvider, TurnkeyThemeProvider } from "@turnkey/sdk-react";
 import { EthereumWallet } from "@turnkey/wallet-stamper";
+import { SessionExpiryProvider } from "./providers/SessionExpiryProvider";
 const wallet = new EthereumWallet();
 const turnkeyConfig = {
   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
@@ -24,7 +25,11 @@ function RootLayout({ children }: RootLayoutProps) {
       </head>
       <TurnkeyThemeProvider>
         <body>
-          <TurnkeyProvider config={turnkeyConfig}>{children}</TurnkeyProvider>
+          <TurnkeyProvider config={turnkeyConfig}>
+            <SessionExpiryProvider warningBeforeSec={30}>
+              {children}
+            </SessionExpiryProvider>
+          </TurnkeyProvider>
         </body>
       </TurnkeyThemeProvider>
     </html>
