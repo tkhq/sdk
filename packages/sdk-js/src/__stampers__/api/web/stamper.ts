@@ -3,7 +3,8 @@ import {
   stringToBase64urlString,
   pointEncode,
 } from "@turnkey/encoding";
-import { StamperBase } from "../base";
+import { ApiKeyStamperBase } from "../base";
+import { TStamp } from "@types";
 
 const DB_NAME = "TurnkeyStamperDB";
 const DB_STORE = "KeyStore";
@@ -57,7 +58,7 @@ function toUnsignedBigNum(bytes: Uint8Array): Uint8Array {
   return res;
 }
 
-export class IndexedDbStamper implements StamperBase {
+export class IndexedDbStamper implements ApiKeyStamperBase {
   constructor() {
     if (typeof window === "undefined") {
       throw new Error("IndexedDB is only available in the browser");
@@ -203,10 +204,7 @@ export class IndexedDbStamper implements StamperBase {
     return uint8ArrayToHexString(signatureDer);
   }
 
-  async stamp(
-    payload: string,
-    publicKeyHex: string,
-  ): Promise<{ stampHeaderName: string; stampHeaderValue: string }> {
+  async stamp(payload: string, publicKeyHex: string): Promise<TStamp> {
     const signature = await this.sign(payload, publicKeyHex);
     const stamp = {
       publicKey: publicKeyHex,
