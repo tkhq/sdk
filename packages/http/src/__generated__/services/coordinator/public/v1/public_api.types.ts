@@ -451,10 +451,6 @@ export type definitions = {
     format?: definitions["v1AddressFormat"];
     address?: string;
   };
-  /** @enum {string} */
-  immutablecommonv1FiatOnRampProvider:
-    | "FIAT_ON_RAMP_PROVIDER_COINBASE"
-    | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
   protobufAny: {
     "@type"?: string;
   } & { [key: string]: unknown };
@@ -2491,21 +2487,6 @@ export type definitions = {
     /** @description HPKE encrypted credential bundle */
     credentialBundle: string;
   };
-  /** @enum {string} */
-  v1OnrampPaymentMethod:
-    | "ONRAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD"
-    | "ONRAMP_PAYMENT_METHOD_APPLE_PAY"
-    | "ONRAMP_PAYMENT_METHOD_GBP_BANK_TRANSFER"
-    | "ONRAMP_PAYMENT_METHOD_GBP_OPEN_BANKING_PAYMENT"
-    | "ONRAMP_PAYMENT_METHOD_GOOGLE_PAY"
-    | "ONRAMP_PAYMENT_METHOD_SEPA_BANK_TRANSFER"
-    | "ONRAMP_PAYMENT_METHOD_PIX_INSTANT_PAYMENT"
-    | "ONRAMP_PAYMENT_METHOD_PAYPAL"
-    | "ONRAMP_PAYMENT_METHOD_VENMO"
-    | "ONRAMP_PAYMENT_METHOD_MOONPAY_BALANCE"
-    | "ONRAMP_PAYMENT_METHOD_CRYPTO_ACCOUNT"
-    | "ONRAMP_PAYMENT_METHOD_FIAT_WALLET"
-    | "ONRAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT";
   /** @enum {string} */
   v1Operator:
     | "OPERATOR_EQUAL"
