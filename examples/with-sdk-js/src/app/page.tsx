@@ -30,9 +30,12 @@ export default function AuthPage() {
     initializeClient();
   }, []);
 
-  const passkey = async () => {
+  const createPasskey = async () => {
+    await client?.createPasskey({});
+  };
+
+  const logInWithPasskey = async () => {
     await client?.loginWithPasskey({});
-    //const resp = await client?.httpClient.getWhoami({}, StamperType.Passkey);
   };
   const indexedDB = async () => {
     const resp = await client?.httpClient.getWhoami({});
@@ -65,11 +68,22 @@ export default function AuthPage() {
           color: "white",
         }}
       >
-        IndexedDB
+        GetWhoami with IndexedDB
       </button>
 
       <button
-        onClick={passkey}
+        onClick={createPasskey}
+        style={{
+          backgroundColor: "orange",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Create Passkey
+      </button>
+      <button
+        onClick={logInWithPasskey}
         style={{
           backgroundColor: "blue",
           borderRadius: "8px",
@@ -77,7 +91,7 @@ export default function AuthPage() {
           color: "white",
         }}
       >
-        Passkey
+        Log in With Passkey
       </button>
     </main>
   );
