@@ -2156,6 +2156,9 @@ importers:
       '@turnkey/indexed-db-stamper':
         specifier: workspace:*
         version: link:../indexed-db-stamper
+      '@turnkey/react-native-passkey-stamper':
+        specifier: workspace:*
+        version: link:../react-native-passkey-stamper
       '@turnkey/sdk-types':
         specifier: workspace:*
         version: link:../sdk-types
@@ -2180,6 +2183,9 @@ importers:
       react-native-keychain:
         specifier: ^8.1.0 || ^9.2.2 || ^10.0.0
         version: 8.1.0
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
     devDependencies:
       glob:
         specifier: ^8.0.3
@@ -12498,7 +12504,16 @@ packages:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
 
+<<<<<<< HEAD
   uuid@8.3.2:
+=======
+  /uuid@11.1.0:
+    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
+    dev: false
+
+  /uuid@8.3.2:
+>>>>>>> 9c374d1c (Cross platform passkey stamper)
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
 
