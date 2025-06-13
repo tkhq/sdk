@@ -55,43 +55,44 @@ export const OnRamp = () => {
         const session = await turnkey?.getSession();
         console.log("session response:", session);
 
-        const onrampConfig = await fetchOnrampConfig();
-        console.log("onrampConfig:", onrampConfig);
+        // const onrampConfig = await fetchOnrampConfig();
+        // console.log("onrampConfig:", onrampConfig);
 
-        const onrampOptions = await fetchOnrampOptions({
-          country: "US",
-          subdivision: "ME",
-        });
-        console.log("onrampOptions:", onrampOptions);
+        // const onrampOptions = await fetchOnrampOptions({
+        //   country: "US",
+        //   subdivision: "ME",
+        // });
+        // console.log("onrampOptions:", onrampOptions);
         const initFiatOnRampResponse = await indexedDbClient?.initFiatOnRamp({
           organizationId: session?.organizationId!,
           onrampProvider: "FIAT_ON_RAMP_PROVIDER_COINBASE",
           walletAddress: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
-          network: "ethereum",
-          cryptoCurrencyCode: "ETH",
+          network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
+          cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
           fiatCurrencyCode: "USD",
           countryCode: "US",
           countrySubdivisionCode: "ME",
         });
 
-        const onrampBuyUrl = getOnrampBuyUrl({
-          projectId: "aefedf19-488c-426c-b7be-133fab72807c",
-          addresses: {
-            ["0x652bd17D489F283A03bb52DAFa138764Be04Bc66"]: ["base"],
-          },
-          assets: ["ETH"],
-          presetFiatAmount: 20,
-          fiatCurrency: "USD",
-        });
+        // const onrampBuyUrl = getOnrampBuyUrl({
+        //   projectId: "aefedf19-488c-426c-b7be-133fab72807c",
+        //   addresses: {
+        //     ["0x652bd17D489F283A03bb52DAFa138764Be04Bc66"]: ["base"],
+        //   },
+        //   assets: ["ETH"],
+        //   presetFiatAmount: 20,
+        //   fiatCurrency: "USD",
+        // });
 
         // <FundButton fundingUrl={onrampBuyUrl} />;
 
-        console.log("Coinbase onrampBuyUrl:", onrampBuyUrl);
-        setCoinbaseOnRampBuyUrl(onrampBuyUrl);
+        // console.log("Coinbase onrampBuyUrl:", onrampBuyUrl);
+        // setCoinbaseOnRampBuyUrl(onrampBuyUrl);
         console.log("initFiatOnRampResponse:", initFiatOnRampResponse);
-        // if (initFiatOnRampResponse?.onRampUrl) {
-        //   setCoinbaseOnRampBuyUrl(initFiatOnRampResponse?.onRampUrl);
-        // }
+        if (initFiatOnRampResponse?.onRampUrl) {
+          window.open(initFiatOnRampResponse?.onRampUrl, "_blank");
+          // setCoinbaseOnRampBuyUrl(initFiatOnRampResponse?.onRampUrl);
+        }
       } catch (error) {
         console.error("Failed to init fiat on ramp:", error);
       }
@@ -131,26 +132,26 @@ export const OnRamp = () => {
       try {
         // get session
         const session = await turnkey?.getSession();
-        console.log("session response:", session);
-        const secretKey = "sk_test_QVIzIpqMuAtqUKRFaMcF6jwwgL96vwD";
-        const originalUrl =
-          "https://buy-sandbox.moonpay.com?apiKey=pk_test_zEGwLvmLma8crfMBnJwzom7jzKeu6Jsk&currencyCode=eth&walletAddress=0xc7c10b3f98Be080DC2d6052BFd6d70F32B6b9e53";
-        const signature = crypto
-          .createHmac("sha256", secretKey) // Use your secret key
-          .update(new URL(originalUrl).search) // Use the query string part of the URL
-          .digest("base64"); // Convert the result to a base64 string
+        // console.log("session response:", session);
+        // const secretKey = "sk_test_QVIzIpqMuAtqUKRFaMcF6jwwgL96vwD";
+        // const originalUrl =
+        //   "https://buy-sandbox.moonpay.com?apiKey=pk_test_zEGwLvmLma8crfMBnJwzom7jzKeu6Jsk&currencyCode=eth&walletAddress=0xc7c10b3f98Be080DC2d6052BFd6d70F32B6b9e53";
+        // const signature = crypto
+        //   .createHmac("sha256", secretKey) // Use your secret key
+        //   .update(new URL(originalUrl).search) // Use the query string part of the URL
+        //   .digest("base64"); // Convert the result to a base64 string
 
-        const urlWithSignature = `${originalUrl}&signature=${encodeURIComponent(signature)}`; // Add the signature to the URL
+        // const urlWithSignature = `${originalUrl}&signature=${encodeURIComponent(signature)}`; // Add the signature to the URL
 
-        console.log("urlWithSignature", urlWithSignature);
+        // console.log("urlWithSignature", urlWithSignature);
         const initMoonPayFiatOnRampResponse =
           await indexedDbClient?.initFiatOnRamp({
             organizationId: session?.organizationId!,
             onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
             walletAddress: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
-            network: "ethereum",
+            network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
+            cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
             fiatCurrencyCode: "USD",
-            cryptoCurrencyCode: "eth",
           });
 
         console.log(
@@ -161,7 +162,8 @@ export const OnRamp = () => {
         //   "https://buy-sandbox.moonpay.com?apiKey=pk_test_zEGwLvmLma8crfMBnJwzom7jzKeu6Jsk&currencyCode=ETH&walletAddress=0xf2C35a22F398a00097E7621638D3931173850811&signature=wecT6rA1h8Fo5xL3wtjMH2nvUdAwGbHHTu8NRI85Xeo%3D"
         // );
         if (initMoonPayFiatOnRampResponse?.onRampUrl) {
-          setMoonPayOnRampBuyUrl(initMoonPayFiatOnRampResponse?.onRampUrl);
+          window.open(initMoonPayFiatOnRampResponse?.onRampUrl, "_blank");
+          // setMoonPayOnRampBuyUrl(initMoonPayFiatOnRampResponse?.onRampUrl);
         }
         // setMoonPayOnRampBuyUrl(urlWithSignature);
       } catch (error) {
@@ -231,49 +233,6 @@ export const OnRamp = () => {
           onChange={() => setIsMoonPayToggled(!isMoonPayToggled)}
         />
       </label>
-      {isCoinbaseToggled ? (
-        <>
-          {coinbaseOnRampBuyUrl && (
-            <>
-              <FundButton text="Coinbase" fundingUrl={coinbaseOnRampBuyUrl} />
-              <Buy toToken={ethToken} />
-            </>
-          )}
-        </>
-      ) : (
-        <></>
-      )}
-      {/* <MoonPayBuyWidget
-                      variant="newWindow"
-                      walletAddress="0xc7c10b3f98Be080DC2d6052BFd6d70F32B6b9e53"
-                      baseCurrencyAmount="20"
-                      currencyCode="eth"
-                      onUrlSignatureRequested={handleGetMoonPayUrlSignature}
-                      visible={isMoonPayVisible}
-                    /> */}
-      {moonPayOnRampBuyUrl && (
-        <>
-          <button
-            onClick={() => {
-              openMoonPay();
-            }}
-          >
-            Buy with MoonPay
-          </button>
-        </>
-      )}
-      {/* <button
-                      onClick={() => setIsMoonPayVisible(true)}
-                      className="moonPayButton"
-                    >
-                      Go to the moon
-                    </button> */}
-
-      {/* <button onClick={() => {
-                      console.log("MoonPay SDK:", moonPaySDK);
-                      moonPaySDK?.show()}} className="moonPayButton">
-                      Go to the moon
-                    </button> */}
     </div>
   );
 };
