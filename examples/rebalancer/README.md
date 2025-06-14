@@ -107,7 +107,7 @@ Lastly, use the "recycle" command to move the funds stored in the "Long Term Sto
 pnpm cli recycle --key=bob
 ```
 
-We're using "Bob", who is tagged as a "manager", to execucute this transaction. The policy associated with the "Long Term Storage" address ensures that a "manager" can initiate a transaction from "Long Term Storage" but it must be approved by another "manager" or "admin" in order to actually be signed by Turnkey.
+We're using "Bob", who is tagged as a "manager", to execute this transaction. The policy associated with the "Long Term Storage" address ensures that a "manager" can initiate a transaction from "Long Term Storage" but it must be approved by another "manager" or "admin" in order to actually be signed by Turnkey.
 
 If successful, you'll receive a message like:
 
