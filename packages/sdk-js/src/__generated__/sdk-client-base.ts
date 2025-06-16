@@ -54,7 +54,7 @@ export class TurnkeySDKClientBase {
     if (!stampWith) return this.apiKeyStamper || this.passkeyStamper;
 
     switch (stampWith) {
-      case StamperType.apiKey:
+      case StamperType.ApiKey:
         return this.apiKeyStamper;
       case StamperType.Passkey:
         return this.passkeyStamper;

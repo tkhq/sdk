@@ -60,11 +60,9 @@ export default function AuthPage() {
     } else {
       console.error("Failed to fetch wallets");
     }
-  }
+  };
 
-  useEffect(() => {
-    
-  })
+  useEffect(() => {});
 
   return (
     <main className={styles.main}>
@@ -128,19 +126,20 @@ export default function AuthPage() {
       >
         Log in With Passkey Session 2
       </button>
-      
-      {client?.storageManager?.getActiveSession() ? (<button
-        onClick={getWallets}
-        style={{
-          backgroundColor: "blue",
-          borderRadius: "8px",
-          padding: "8px 16px",
-          color: "white",
-        }}
-      >
-        Get Wallets
-      </button>) : null}
-      
+
+      {client?.storageManager?.getActiveSession() ? (
+        <button
+          onClick={getWallets}
+          style={{
+            backgroundColor: "blue",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Get Wallets
+        </button>
+      ) : null}
     </main>
   );
 }
