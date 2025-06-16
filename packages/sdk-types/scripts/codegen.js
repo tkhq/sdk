@@ -4,11 +4,11 @@ const path = require("path");
 // Paths
 const swaggerPath = path.resolve(
   __dirname,
-  "../src/__inputs__/public_api.swagger.json"
+  "../src/__inputs__/public_api.swagger.json",
 );
 const typesPath = path.resolve(
   __dirname,
-  "../src/__inputs__/public_api.types.ts"
+  "../src/__inputs__/public_api.types.ts",
 );
 const outputPath = path.resolve(__dirname, "../src/__generated__/types.ts");
 
@@ -134,7 +134,7 @@ function buildLatestVersionMap(definitions) {
     // Remove REQUEST/RESPONSE/RESULT/INTENT suffix for activityTypeKey
     const activityBase = baseName.replace(
       /(Request|Response|Result|Intent)$/,
-      ""
+      "",
     );
     const activityTypeKey = `ACTIVITY_TYPE_${activityBase.replace(/([a-z])([A-Z])/g, "$1_$2").toUpperCase()}`;
     const mappedVersion = VERSIONED_ACTIVITY_TYPES[activityTypeKey];
@@ -264,20 +264,23 @@ function main() {
 
   // Check all Request types for organizationId, if present modify their respective Intent types and add optional organizationId
   for (const [baseName, latestVersionName] of Object.entries(
-    latestVersionMap
+    latestVersionMap,
   )) {
     const def = swagger.definitions[latestVersionName];
     if (def && def.type === "object" && def.properties) {
       // If the baseName ends with "Request", check for organizationId
 
-      console.log(`Checking ${baseName} for organizationId...`); 
+      console.log(`Checking ${baseName} for organizationId...`);
       if (baseName.endsWith("Request") && def.properties.organizationId) {
         // Modify the corresponding Intent type to make organizationId optional
         const intentTypeName = latestVersionName.replace(/Request$/, "Intent");
         console.log(
-          `Modifying Intent type ${intentTypeName} to make organizationId optional`
+          `Modifying Intent type ${intentTypeName} to make organizationId optional`,
         );
-        if (swagger.definitions[intentTypeName] && swagger.definitions[intentTypeName].properties) {
+        if (
+          swagger.definitions[intentTypeName] &&
+          swagger.definitions[intentTypeName].properties
+        ) {
           if (swagger.definitions[intentTypeName]?.organizationId) {
             swagger.definitions[intentTypeName].organizationId = {
               ...swagger.definitions[intentTypeName]?.properties.organizationId,
@@ -304,12 +307,12 @@ function main() {
   // Then generate the abstracted types that reference the correct versioned types
   output += "\n// --- Latest Version Type Aliases ---\n";
   for (const [baseName, latestVersionName] of Object.entries(
-    latestVersionMap
+    latestVersionMap,
   )) {
     const def = swagger.definitions[latestVersionName];
 
     if (/(.+)Request$/.test(baseName)) {
-        continue;
+      continue;
     }
 
     // If baseName ends with "Intent" and has characters before "Intent", also emit a corresponding Request type
