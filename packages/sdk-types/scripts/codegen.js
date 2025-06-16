@@ -74,37 +74,6 @@ function refToTs(ref) {
   return ref.replace(/^#\/definitions\//, "");
 }
 
-// /**
-//  * @param {string} ref
-//  * @returns {string}
-//  */
-// function refToTsWithVersionPrefixAndSuffixStrip(ref) {
-//   return stripVersionPrefixAndSuffix(ref.replace(/^#\/definitions\//, ""));
-// }
-
-/**
- * @param {string} methodName
- * @returns {string}
- */
-function methodTypeFromMethodName(methodName) {
-  if (["approveActivity", "rejectActivity"].includes(methodName)) {
-    return "activityDecision";
-  }
-  if (methodName.startsWith("nOOP")) {
-    return "noop";
-  }
-  // TODO: filter out unnecessary client methods, whether here or from the source
-  if (
-    methodName.startsWith("get") ||
-    methodName.startsWith("list") ||
-    methodName.startsWith("test")
-  ) {
-    return "query";
-  }
-  // Rename to submit?
-  return "command";
-}
-
 /**
  * Maps activity types to their most recent versions in VERSIONED_ACTIVITY_TYPES.
  * If a type has multiple versions, it will return the latest one based on the versioning scheme.
@@ -263,7 +232,7 @@ function main() {
   const latestVersionMap = buildLatestVersionMap(swagger.definitions);
 
   // Check all Request types for organizationId, if present modify their respective Intent types and add optional organizationId
-  //    Also check Result types and add Response type for them
+  // Also check Result types and add Response type for them
   for (const [baseName, latestVersionName] of Object.entries(
     latestVersionMap,
   )) {
@@ -303,29 +272,32 @@ function main() {
         // If baseName ends with "Result" and not just vXResult, create a corresponding Response type
         if (swagger.definitions[latestVersionName]) {
           const responseTypeName = stripVersionPrefixAndSuffix(
-            latestVersionName.replace(/(.+)Result$/, (m, p1) => `${p1}Response`)
+            latestVersionName.replace(
+              /(.+)Result$/,
+              (m, p1) => `${p1}Response`,
+            ),
           );
-          
+
           swagger.definitions[responseTypeName] = {
             type: "object",
             properties: {
-                activity: {
-                    $ref: `#/definitions/v1Activity`,
-                    description: "The activity that was processed.",
-                },
-                ...swagger.definitions[latestVersionName].properties,
+              activity: {
+                $ref: `#/definitions/v1Activity`,
+                description: "The activity that was processed.",
+              },
+              ...swagger.definitions[latestVersionName].properties,
             },
             required: [
               "activity",
               ...(Array.isArray(swagger.definitions[latestVersionName].required)
                 ? swagger.definitions[latestVersionName].required
-                : [])
+                : []),
             ],
           };
 
           console.log(swagger.definitions[responseTypeName]);
 
-        //   Add the new Response type to latestVersionMap
+          //   Add the new Response type to latestVersionMap
           latestVersionMap[responseTypeName] = responseTypeName;
         }
       }
@@ -339,7 +311,6 @@ function main() {
   )) {
     const def = swagger.definitions[latestVersionName];
 
-    // If baseName ends with "Intent" and has characters before "Intent", also emit a corresponding Request type
     if (
       /(.+)Intent$/.test(baseName) &&
       def &&
@@ -355,17 +326,13 @@ function main() {
     }
 
     if (def && def.type === "object" && def.properties) {
-      // Redefine the type with all properties, making organizationId optional if present
       output += generateTsType(baseName, def) + "\n";
     } else {
       output += `export type ${baseName} = ${latestVersionName};\n`;
     }
   }
 
-  // 5. Write output
   fs.writeFileSync(outputPath, output);
-
-  console.log(`Nice types generated at ${outputPath}`);
 }
 
 main();
