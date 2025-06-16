@@ -21,3 +21,8 @@ export type SessionResponse = {
     organizationName: string;
   };
 };
+
+export enum FiatOnRampProvider {
+  COINBASE = "FIAT_ON_RAMP_PROVIDER_COINBASE",
+  MOONPAY = "FIAT_ON_RAMP_PROVIDER_MOONPAY",
+}
