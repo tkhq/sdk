@@ -5247,4 +5247,3 @@ export type WalletResponse = {
   /** A list of account addresses. */
   addresses: string[];
 };
-
