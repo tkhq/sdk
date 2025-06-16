@@ -53,7 +53,7 @@ export default function AuthPage() {
   };
 
   const getWallets = async () => {
-    const res = await client?.getWallets({});
+    const res = await client?.fetchWallets({});
     if (res) {
       setWallets(res);
       console.log("Wallets:", res);

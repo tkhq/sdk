@@ -4,9 +4,9 @@ import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import type {
   SessionType,
-  User,
-  Wallet,
-  WalletAccount,
+  v1User,
+  v1Wallet,
+  v1WalletAccount,
 } from "@turnkey/sdk-types";
 import { StorageBase } from "../__storage__/base";
 import { TPasskeyStamperConfig } from "../__stampers__/passkey/base";
@@ -165,10 +165,10 @@ export interface LoginWithWalletParams {
   publicKey?: string;
 }
 
-export type TUser = User; // TODO (Amir): I dunno if we need this. We may want to add more stuff to the user type in the future, so let's keep it for now since
+export type TUser = v1User; // TODO (Amir): I dunno if we need this. We may want to add more stuff to the user type in the future, so let's keep it for now since
 
-export type TWallet = Wallet & {
-  accounts?: WalletAccount[] | undefined;
+export type TWallet = v1Wallet & {
+  accounts?: v1WalletAccount[] | undefined;
 };
 
 /**
