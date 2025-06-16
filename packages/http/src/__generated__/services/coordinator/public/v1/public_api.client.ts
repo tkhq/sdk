@@ -225,6 +225,10 @@ import type {
   TImportWalletResponse,
 } from "./public_api.fetcher";
 import type {
+  TInitFiatOnRampBody,
+  TInitFiatOnRampResponse,
+} from "./public_api.fetcher";
+import type {
   TInitImportPrivateKeyBody,
   TInitImportPrivateKeyResponse,
 } from "./public_api.fetcher";
@@ -295,6 +299,18 @@ import type {
 import type {
   TUpdateUserBody,
   TUpdateUserResponse,
+} from "./public_api.fetcher";
+import type {
+  TUpdateUserEmailBody,
+  TUpdateUserEmailResponse,
+} from "./public_api.fetcher";
+import type {
+  TUpdateUserNameBody,
+  TUpdateUserNameResponse,
+} from "./public_api.fetcher";
+import type {
+  TUpdateUserPhoneNumberBody,
+  TUpdateUserPhoneNumberResponse,
 } from "./public_api.fetcher";
 import type {
   TUpdateUserTagBody,
@@ -2172,6 +2188,37 @@ export class TurnkeyClient {
   };
 
   /**
+   * Initiate a fiat on ramp flow
+   *
+   * Sign the provided `TInitFiatOnRampBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_fiat_on_ramp).
+   *
+   * See also {@link stampInitFiatOnRamp}.
+   */
+  initFiatOnRamp = async (
+    input: TInitFiatOnRampBody,
+  ): Promise<TInitFiatOnRampResponse> => {
+    return this.request("/public/v1/submit/init_fiat_on_ramp", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TInitFiatOnRampBody` by using the client's `stamp` function.
+   *
+   * See also {@link InitFiatOnRamp}.
+   */
+  stampInitFiatOnRamp = async (
+    input: TInitFiatOnRampBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/init_fiat_on_ramp";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Initializes a new private key import
    *
    * Sign the provided `TInitImportPrivateKeyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/init_import_private_key).
@@ -2792,6 +2839,100 @@ export class TurnkeyClient {
    */
   stampUpdateUser = async (input: TUpdateUserBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/update_user";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Update a User's email in an existing Organization
+   *
+   * Sign the provided `TUpdateUserEmailBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_user_email).
+   *
+   * See also {@link stampUpdateUserEmail}.
+   */
+  updateUserEmail = async (
+    input: TUpdateUserEmailBody,
+  ): Promise<TUpdateUserEmailResponse> => {
+    return this.request("/public/v1/submit/update_user_email", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateUserEmailBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateUserEmail}.
+   */
+  stampUpdateUserEmail = async (
+    input: TUpdateUserEmailBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/update_user_email";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Update a User's name in an existing Organization
+   *
+   * Sign the provided `TUpdateUserNameBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_user_name).
+   *
+   * See also {@link stampUpdateUserName}.
+   */
+  updateUserName = async (
+    input: TUpdateUserNameBody,
+  ): Promise<TUpdateUserNameResponse> => {
+    return this.request("/public/v1/submit/update_user_name", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateUserNameBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateUserName}.
+   */
+  stampUpdateUserName = async (
+    input: TUpdateUserNameBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/update_user_name";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Update a User's phone number in an existing Organization
+   *
+   * Sign the provided `TUpdateUserPhoneNumberBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_user_phone_number).
+   *
+   * See also {@link stampUpdateUserPhoneNumber}.
+   */
+  updateUserPhoneNumber = async (
+    input: TUpdateUserPhoneNumberBody,
+  ): Promise<TUpdateUserPhoneNumberResponse> => {
+    return this.request("/public/v1/submit/update_user_phone_number", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateUserPhoneNumberBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateUserPhoneNumber}.
+   */
+  stampUpdateUserPhoneNumber = async (
+    input: TUpdateUserPhoneNumberBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/update_user_phone_number";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

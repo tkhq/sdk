@@ -1883,6 +1883,39 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  initFiatOnRamp = async (
+    input: SdkApiTypes.TInitFiatOnRampBody,
+  ): Promise<SdkApiTypes.TInitFiatOnRampResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/init_fiat_on_ramp",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
+      },
+      "initFiatOnRampResult",
+    );
+  };
+
+  stampInitFiatOnRamp = async (
+    input: SdkApiTypes.TInitFiatOnRampBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/init_fiat_on_ramp";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   initImportPrivateKey = async (
     input: SdkApiTypes.TInitImportPrivateKeyBody,
   ): Promise<SdkApiTypes.TInitImportPrivateKeyResponse> => {
@@ -2553,6 +2586,105 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_user";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  updateUserEmail = async (
+    input: SdkApiTypes.TUpdateUserEmailBody,
+  ): Promise<SdkApiTypes.TUpdateUserEmailResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/update_user_email",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_USER_EMAIL",
+      },
+      "updateUserEmailResult",
+    );
+  };
+
+  stampUpdateUserEmail = async (
+    input: SdkApiTypes.TUpdateUserEmailBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/update_user_email";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  updateUserName = async (
+    input: SdkApiTypes.TUpdateUserNameBody,
+  ): Promise<SdkApiTypes.TUpdateUserNameResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/update_user_name",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_USER_NAME",
+      },
+      "updateUserNameResult",
+    );
+  };
+
+  stampUpdateUserName = async (
+    input: SdkApiTypes.TUpdateUserNameBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/update_user_name";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  updateUserPhoneNumber = async (
+    input: SdkApiTypes.TUpdateUserPhoneNumberBody,
+  ): Promise<SdkApiTypes.TUpdateUserPhoneNumberResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/update_user_phone_number",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER",
+      },
+      "updateUserPhoneNumberResult",
+    );
+  };
+
+  stampUpdateUserPhoneNumber = async (
+    input: SdkApiTypes.TUpdateUserPhoneNumberBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/update_user_phone_number";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
