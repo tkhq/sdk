@@ -2,7 +2,7 @@ import type { TActivityId, TActivityStatus } from "@turnkey/http";
 import type { WalletStamper } from "@turnkey/wallet-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
-import type { SessionType } from "@turnkey/sdk-types";
+import type { SessionType, Wallet, WalletAccount } from "@turnkey/sdk-types";
 import { StorageBase } from "../__storage__/base";
 
 // TODO (Amir): Get all this outta here and move to sdk-types. Or not, we could just have everything in this package
@@ -172,6 +172,10 @@ export interface LoginWithWalletParams {
   sessionType: SessionType;
   expirationSeconds?: string | undefined;
   publicKey?: string;
+}
+
+export type TWallet = Wallet & {
+  accounts?: WalletAccount[] | undefined;
 }
 
 // export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {
