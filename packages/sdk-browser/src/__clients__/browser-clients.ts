@@ -145,13 +145,11 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    *   @param params.publicKey - Optional public key to use for session creation. Required for `IframeClient`, optional for `IndexedDbClient`.
    * @returns {Promise<void>}
    */
-  refreshSession = async (params?: RefreshSessionParams): Promise<void> => {
-    const {
-      sessionType = SessionType.READ_WRITE,
-      expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-      publicKey,
-    } = params ? params : {};
-
+  refreshSession = async ({
+    sessionType = SessionType.READ_WRITE,
+    expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+    publicKey,
+  }: RefreshSessionParams = {}): Promise<void> => {
     try {
       switch (sessionType) {
         case SessionType.READ_ONLY: {
