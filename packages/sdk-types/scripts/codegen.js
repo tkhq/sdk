@@ -31,6 +31,20 @@ const VERSIONED_ACTIVITY_TYPES = {
   ACTIVITY_TYPE_INIT_OTP_AUTH: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
 };
 
+const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
+  "getActivities",
+  "getApiKeys",
+  "getOrganization",
+  "getPolicies",
+  "getPrivateKeys",
+  "getSubOrgIds",
+  "getUsers",
+  "getWallets",
+  "getWhoami",
+  "listPrivateKeys",
+  "listUserTags",
+];
+
 // Helper: Convert Swagger type to TS type
 /**
  * @param {string} type
@@ -74,75 +88,41 @@ function refToTs(ref) {
   return ref.replace(/^#\/definitions\//, "");
 }
 
-/**
- * Maps activity types to their most recent versions in VERSIONED_ACTIVITY_TYPES.
- * If a type has multiple versions, it will return the latest one based on the versioning scheme.
- * @param {object} definitions - Swagger definitions object
- * @returns {object} - Map of base type to most recent versioned type
- */
-function buildLatestVersionMap(definitions) {
-  const versionMap = {};
+// Helper that takes in swagger definitions and returns a map containing the latest version of a field.
+// The intent is to consolidate a field with multiple versions (e.g. v1CreateSubOrganizationResult, v1CreateSubOrganizationResultV2...)
+// in order to get just the latest (v1CreateSubOrganizationResultV4).
+function extractLatestVersions(definitions) {
+  const latestVersions = {};
 
-  // Group definitions by their base name (without version)
-  const groupedDefs = {};
-  for (const defName of Object.keys(definitions)) {
-    if (!defName.match(/^v\d+/)) {
-      continue;
-    }
+  // Regex to separate the version prefix, base activity details, and (optional) activity version
+  const keyVersionRegex = /^(v\d+)([A-Z][a-z]+(?:[A-Z][a-z]+)*)(V\d+)?$/;
 
-    const baseName = stripVersionPrefixAndSuffix(defName);
+  Object.keys(definitions).forEach((key) => {
+    const match = key.match(keyVersionRegex);
+    if (match) {
+      const fullName = match[0];
+      const baseName = match[2]; // Field without any version-related prefixes or suffixes
+      const versionSuffix = match[3]; // Version (optional)
+      const formattedKeyName =
+        baseName.charAt(0).toLowerCase() +
+        baseName.slice(1) +
+        (versionSuffix || ""); // Reconstruct the original key with version
 
-    if (!groupedDefs[baseName]) {
-      groupedDefs[baseName] = [];
-    }
-    groupedDefs[baseName].push(defName);
-  }
-
-  // For each group, find the latest versioned type
-  for (const [baseName, defNames] of Object.entries(groupedDefs)) {
-    // Remove REQUEST/RESPONSE/RESULT/INTENT suffix for activityTypeKey
-    const activityBase = baseName.replace(
-      /(Request|Response|Result|Intent)$/,
-      "",
-    );
-    const activityTypeKey = `ACTIVITY_TYPE_${activityBase.replace(/([a-z])([A-Z])/g, "$1_$2").toUpperCase()}`;
-    const mappedVersion = VERSIONED_ACTIVITY_TYPES[activityTypeKey];
-    if (mappedVersion) {
-      const versionSuffixMatch = mappedVersion.match(/(V\d+)$/);
-      const versionSuffix = versionSuffixMatch ? versionSuffixMatch[1] : "";
-      // Try to find a defName that ends with the version suffix (e.g., V2)
-      const matchedDef = defNames.find((name) => name.endsWith(versionSuffix));
-      if (matchedDef) {
-        versionMap[baseName] = matchedDef;
-        continue;
+      // Determine if this version is newer or if no version was previously stored
+      if (
+        !latestVersions[baseName] ||
+        versionSuffix > (latestVersions[baseName].versionSuffix || "")
+      ) {
+        latestVersions[baseName] = {
+          fullName,
+          formattedKeyName,
+          versionSuffix,
+        };
       }
     }
-    let latest = defNames[0];
-    let latestVersion = 1;
-    for (const name of defNames) {
-      const match = name.match(/V(\d+)$/);
-      const version = match ? parseInt(match[1], 10) : 1;
-      if (version > latestVersion) {
-        latest = name;
-        latestVersion = version;
-      }
-    }
-    versionMap[baseName] = latest;
-  }
+  });
 
-  return versionMap;
-}
-
-/**
- * Strip both prefix and suffix version numbers
- * @param {string} name - Type name with version info
- * @returns {string} - Clean base name
- */
-function stripVersionPrefixAndSuffix(name) {
-  let baseName = stripVersionPrefix(name);
-  baseName = baseName.replace(/V\d+$/, "");
-
-  return baseName;
+  return latestVersions;
 }
 
 /**
@@ -151,6 +131,29 @@ function stripVersionPrefixAndSuffix(name) {
  */
 function isValidIdentifier(name) {
   return /^[$A-Z_][0-9A-Z_$]*$/i.test(name);
+}
+
+/**
+ * @param {string} methodName
+ * @returns {string}
+ */
+function methodTypeFromMethodName(methodName) {
+  if (["approveActivity", "rejectActivity"].includes(methodName)) {
+    return "activityDecision";
+  }
+  if (methodName.startsWith("nOOP")) {
+    return "noop";
+  }
+  // TODO: filter out unnecessary client methods, whether here or from the source
+  if (
+    methodName.startsWith("get") ||
+    methodName.startsWith("list") ||
+    methodName.startsWith("test")
+  ) {
+    return "query";
+  }
+  // Rename to submit?
+  return "command";
 }
 
 /**
@@ -191,7 +194,229 @@ function generateTsType(name, def) {
   if (def.type === "string" && def.enum) {
     return `export type ${name} =\n  ${def.enum.map((e) => `"${e}"`).join(" |\n  ")};\n`;
   }
-  return `export type ${name} = any;\n`;
+  return `export type ${name} = {};\n`;
+}
+
+function generateInlineProperties(def, isAllOptional = false) {
+  let out = "";
+  if (def && def.properties) {
+    const requiredProps = Array.isArray(def.required) ? def.required : [];
+    for (const [prop, schema] of Object.entries(def.properties)) {
+      let type = "any";
+      if (schema.$ref) {
+        type = refToTs(schema.$ref);
+      } else if (schema.type) {
+        type = swaggerTypeToTs(schema.type, schema);
+      }
+      const desc = schema.description ? `  /** ${schema.description} */\n` : "";
+      const propName = isValidIdentifier(prop) ? prop : `"${prop}"`;
+      const required = isAllOptional
+        ? "?"
+        : requiredProps.includes(prop)
+          ? ""
+          : "?";
+      out += `${desc}  ${propName}${required}: ${type};\n`;
+    }
+  }
+  return out;
+}
+
+function generateApiTypes(swagger) {
+  const namespace = swagger.tags?.find((item) => item.name != null)?.name;
+  let output = "";
+  const latestVersions = extractLatestVersions(swagger.definitions);
+  const definitions = swagger.definitions;
+
+  for (const [path, methods] of Object.entries(swagger.paths)) {
+    const methodMap = swagger.paths[path];
+    const operation = methodMap.post;
+    const operationId = operation && operation.operationId;
+
+    const operationNameWithoutNamespace = operationId.replace(
+      new RegExp(`${namespace}_`),
+      "",
+    );
+    const methodName =
+      operationNameWithoutNamespace.charAt(0).toLowerCase() +
+      operationNameWithoutNamespace.slice(1);
+    const methodType = methodTypeFromMethodName(methodName);
+
+    // Get response schema $ref
+    const responseSchema =
+      operation.responses &&
+      operation.responses["200"] &&
+      operation.responses["200"].schema &&
+      operation.responses["200"].schema.$ref;
+    const responseTypeName = responseSchema ? refToTs(responseSchema) : null;
+
+    // Compose API Response type name
+    const apiTypeName =
+      operationNameWithoutNamespace.replace(/^./, (c) => c.toUpperCase()) +
+      "Response";
+    const apiRequestTypeName =
+      operationNameWithoutNamespace.replace(/^./, (c) => c.toUpperCase()) +
+      "Request";
+
+    // --- RESPONSE TYPE GENERATION ---
+    if (methodType === "command") {
+      // Try to find the corresponding Result type from the response schema or activity type
+      let resultTypeName = null;
+      let activityTypeKey = null;
+      let versionSuffix = null;
+
+      const parameters = operation.parameters || [];
+      for (const param of parameters) {
+        if (
+          param.in === "body" &&
+          param.schema &&
+          param.schema.$ref &&
+          definitions[refToTs(param.schema.$ref)]
+        ) {
+          const reqDef = definitions[refToTs(param.schema.$ref)];
+          if (
+            reqDef.properties &&
+            reqDef.properties.type &&
+            reqDef.properties.type.enum &&
+            reqDef.properties.type.enum.length > 0
+          ) {
+            // Compose the activity type key from the request type
+            // Example: v1CreatePoliciesRequest -> ACTIVITY_TYPE_CREATE_POLICIES
+            const reqTypeName = refToTs(param.schema.$ref);
+            const baseActivity = reqTypeName
+              .replace(/^v\d+/, "")
+              .replace(/Request(V\d+)?$/, "");
+            activityTypeKey = reqDef.properties.type.enum[0];
+            const mapped = VERSIONED_ACTIVITY_TYPES[activityTypeKey];
+            if (mapped) {
+              // Extract version suffix from mapped value
+              const mappedVersionSuffixMatch = mapped.match(/(V\d+)$/);
+              versionSuffix = mappedVersionSuffixMatch
+                ? mappedVersionSuffixMatch[1]
+                : "";
+            }
+            // Now, find the latest version of the Result type using latestVersions
+            const resultBase = baseActivity + "Result";
+            let resultKey = null;
+            if (latestVersions[resultBase]) {
+              // If versionSuffix is present, use it to pick the correct version
+              if (versionSuffix) {
+                const candidate = Object.keys(definitions).find(
+                  (k) =>
+                    k.startsWith("v1" + baseActivity + "Result") &&
+                    k.endsWith(versionSuffix),
+                );
+                if (candidate) {
+                  resultKey = candidate;
+                }
+              }
+              // Fallback to latest version if not found
+              if (!resultKey) {
+                resultKey = latestVersions[resultBase].fullName;
+              }
+            }
+            if (resultKey) {
+              resultTypeName = resultKey;
+            }
+          }
+        }
+      }
+
+      // Compose the type
+      output += `export type ${apiTypeName} = {\n  activity: v1Activity;\n`;
+      if (resultTypeName && definitions[resultTypeName]) {
+        output += generateInlineProperties(definitions[resultTypeName]);
+      }
+      output += "}\n\n";
+    } else if (methodType === "query" || methodType === "noop") {
+      const respDef = definitions[responseTypeName];
+      if (respDef) {
+        if (respDef.properties) {
+          output += `export type ${apiTypeName} = {\n`;
+          output += generateInlineProperties(respDef);
+          output += "}\n\n";
+        } else {
+          output += `export type ${apiTypeName} = {};\n\n`;
+        }
+      }
+    } else if (methodType === "activityDecision") {
+      const activityType = definitions[responseTypeName];
+      if (activityType && activityType.properties) {
+        output += `export type ${apiTypeName} = {\n`;
+        output += generateInlineProperties(activityType);
+        output += "}\n\n";
+      }
+    }
+
+    // --- REQUEST TYPE GENERATION ---
+    // Find the request type definition
+    let requestTypeDef = null;
+    let requestTypeName = null;
+    const parameters = operation.parameters || [];
+    for (const param of parameters) {
+      if (
+        param.in === "body" &&
+        param.schema &&
+        param.schema.$ref &&
+        definitions[refToTs(param.schema.$ref)]
+      ) {
+        requestTypeName = refToTs(param.schema.$ref);
+        requestTypeDef = definitions[requestTypeName];
+      }
+    }
+
+    if (!requestTypeDef) continue;
+
+    output += `export type ${apiRequestTypeName} = {\n`;
+
+    if (methodType === "command" || methodType === "activityDecision") {
+      output += `  timestampMs?: string;\n  organizationId?: string;\n`;
+      if (
+        requestTypeDef.properties &&
+        requestTypeDef.properties.parameters &&
+        requestTypeDef.properties.parameters.$ref
+      ) {
+        const isAllOptional =
+          METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName);
+        const intentTypeName = refToTs(
+          requestTypeDef.properties.parameters.$ref,
+        );
+        const intentDef = definitions[intentTypeName];
+        output += generateInlineProperties(intentDef, isAllOptional);
+      }
+    } else if (methodType === "query" || methodType === "noop") {
+      output += `  organizationId?: string;\n`;
+      if (requestTypeDef.properties) {
+        const isAllOptional =
+          METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName);
+        const requiredProps = Array.isArray(requestTypeDef.required)
+          ? requestTypeDef.required
+          : [];
+        for (const [prop, schema] of Object.entries(
+          requestTypeDef.properties,
+        )) {
+          if (prop === "organizationId") continue;
+          let type = "any";
+          if (schema.$ref) {
+            type = refToTs(schema.$ref);
+          } else if (schema.type) {
+            type = swaggerTypeToTs(schema.type, schema);
+          }
+          const desc = schema.description
+            ? `  /** ${schema.description} */\n`
+            : "";
+          const propName = isValidIdentifier(prop) ? prop : `"${prop}"`;
+          const required = isAllOptional
+            ? "?"
+            : requiredProps.includes(prop)
+              ? ""
+              : "?";
+          output += `${desc}  ${propName}${required}: ${type};\n`;
+        }
+      }
+    }
+    output += "}\n\n";
+  }
+  return output;
 }
 
 function main() {
@@ -215,122 +440,21 @@ function main() {
   // --- Base Types ---
   output += `// --- Base Types from Swagger Definitions ---\n`;
 
-  // First generate all versioned types
   for (const [defName, def] of Object.entries(swagger.definitions)) {
-    // Only parse object and enum types
     if (
       (def.type === "object" && def.properties) ||
       (def.type === "string" && def.enum)
     ) {
       output += generateTsType(defName, def) + "\n";
     } else {
-      output += `export type ${defName} = any;\n`;
+      output += `export type ${defName} = {};\n`;
     }
   }
 
-  // Build a map of base types to their latest versioned counterparts
-  const latestVersionMap = buildLatestVersionMap(swagger.definitions);
+  // -- Api Types --
+  output += "\n// --- API Types from Swagger Paths ---\n";
 
-  // Check all Request types for organizationId, if present modify their respective Intent types and add optional organizationId
-  // Also check Result types and add Response type for them
-  for (const [baseName, latestVersionName] of Object.entries(
-    latestVersionMap,
-  )) {
-    const def = swagger.definitions[latestVersionName];
-    if (def && def.type === "object" && def.properties) {
-      // If the baseName ends with "Request", check for organizationId
-
-      if (baseName.endsWith("Request") && def.properties.organizationId) {
-        // Modify the corresponding Intent type to make organizationId optional
-        const intentTypeName = latestVersionName.replace(/Request$/, "Intent");
-        if (
-          swagger.definitions[intentTypeName] &&
-          swagger.definitions[intentTypeName].properties
-        ) {
-          if (swagger.definitions[intentTypeName]?.organizationId) {
-            swagger.definitions[intentTypeName].organizationId = {
-              ...swagger.definitions[intentTypeName]?.properties.organizationId,
-              required: false,
-            };
-          }
-          // Add organizationId if it doesn't exist
-          if (!swagger.definitions[intentTypeName]?.organizationId) {
-            swagger.definitions[intentTypeName].properties.organizationId = {
-              type: "string",
-              description: "Unique identifier for a given Organization.",
-            };
-          }
-          // Always make it optional
-          swagger.definitions[intentTypeName].required = (
-            swagger.definitions[intentTypeName].required || []
-          ).filter((r) => r !== "organizationId");
-        }
-      } else if (
-        baseName.endsWith("Result") &&
-        !/^v\d+Result$/.test(latestVersionName)
-      ) {
-        // If baseName ends with "Result" and not just vXResult, create a corresponding Response type
-        if (swagger.definitions[latestVersionName]) {
-          const responseTypeName = stripVersionPrefixAndSuffix(
-            latestVersionName.replace(
-              /(.+)Result$/,
-              (m, p1) => `${p1}Response`,
-            ),
-          );
-
-          swagger.definitions[responseTypeName] = {
-            type: "object",
-            properties: {
-              activity: {
-                $ref: `#/definitions/v1Activity`,
-                description: "The activity that was processed.",
-              },
-              ...swagger.definitions[latestVersionName].properties,
-            },
-            required: [
-              "activity",
-              ...(Array.isArray(swagger.definitions[latestVersionName].required)
-                ? swagger.definitions[latestVersionName].required
-                : []),
-            ],
-          };
-
-          console.log(swagger.definitions[responseTypeName]);
-
-          //   Add the new Response type to latestVersionMap
-          latestVersionMap[responseTypeName] = responseTypeName;
-        }
-      }
-    }
-  }
-
-  // Then generate the abstracted types that reference the correct versioned types
-  output += "\n// --- Latest Version Type Aliases ---\n";
-  for (const [baseName, latestVersionName] of Object.entries(
-    latestVersionMap,
-  )) {
-    const def = swagger.definitions[latestVersionName];
-
-    if (
-      /(.+)Intent$/.test(baseName) &&
-      def &&
-      def.type === "object" &&
-      def.properties
-    ) {
-      const requestTypeName = baseName.replace(/Intent$/, "Request");
-      output += generateTsType(requestTypeName, def) + "\n";
-    }
-
-    if (/(.+)Intent$/.test(baseName) || /(.+)Request$/.test(baseName)) {
-      continue;
-    }
-
-    if (def && def.type === "object" && def.properties) {
-      output += generateTsType(baseName, def) + "\n";
-    } else {
-      output += `export type ${baseName} = ${latestVersionName};\n`;
-    }
-  }
+  output += generateApiTypes(swagger);
 
   fs.writeFileSync(outputPath, output);
 }
