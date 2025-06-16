@@ -1,33 +1,19 @@
 import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
 import {
   GetWalletAccountsResponse,
-  GetWalletsResponse,
   SessionType,
-  SignRawPayloadIntent,
-  SignRawPayloadIntentV2,
-  SignRawPayloadRequest,
   SignRawPayloadResult,
-  Wallet,
+  User,
   WalletAccount,
 } from "@turnkey/sdk-types";
 import {
-  LoginWithPasskeyParams,
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-  Passkey,
   StamperType,
-  CreatePasskeyParams,
-  ActivityResponse,
+  TUser,
   TWallet,
   TurnkeySDKClientConfig,
 } from "@types"; // AHHHH, SDK-TYPES
-import {
-  base64UrlEncode,
-  generateRandomBuffer,
-  getMessageHashAndEncodingType,
-  isReactNative,
-  isWeb,
-} from "@utils";
-import { getWebAuthnAttestation } from "@turnkey/http";
+import { getMessageHashAndEncodingType, isReactNative, isWeb } from "@utils";
 import {
   createStorageManager,
   StorageBase,
@@ -35,15 +21,14 @@ import {
 } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
 import { CrossPlatformPasskeyStamper } from "../__stampers__/passkey/base";
-import { get } from "http";
 
 export class TurnkeyClient {
   config: TurnkeySDKClientConfig; // Type TBD
   httpClient!: TurnkeySDKClientBase;
 
   // public session?: Session | undefined;  // TODO (Amir): Define session type. Or not maybe???
-  // public user?: any; // TODO (Amir): Define user type
-  // public wallets?: any; // TODO (Amir): Define wallets type
+  public user?: TUser; // TO IMPLEMENT: fetchUser
+  public wallets?: TWallet[];
 
   apiKeyStamper?: CrossPlatformApiKeyStamper | undefined; // TODO (Amir): TEMPORARILY PUBLIC, MAKE PRIVATE LATER
   private passkeyStamper?: CrossPlatformPasskeyStamper | undefined;
@@ -54,7 +39,7 @@ export class TurnkeyClient {
 
     // Users can pass in their own stampers, or we will create them. Should we remove this?
     apiKeyStamper?: CrossPlatformApiKeyStamper,
-    passkeyStamper?: CrossPlatformPasskeyStamper
+    passkeyStamper?: CrossPlatformPasskeyStamper,
   ) {
     this.config = config;
 
@@ -76,7 +61,7 @@ export class TurnkeyClient {
 
     if (this.config.passkeyConfig) {
       this.passkeyStamper = new CrossPlatformPasskeyStamper(
-        this.config.passkeyConfig
+        this.config.passkeyConfig,
       );
       await this.passkeyStamper.init();
     }
@@ -90,7 +75,10 @@ export class TurnkeyClient {
     });
   }
 
-  createPasskey = async (params: CreatePasskeyParams): Promise<void> => {
+  createPasskey = async (params: {
+    name?: string;
+    displayName?: string;
+  }): Promise<void> => {
     try {
       const { name = "A Passkey", displayName = "A Passkey" } = params;
       if (isWeb()) {
@@ -113,7 +101,12 @@ export class TurnkeyClient {
     }
   };
 
-  loginWithPasskey = async (params: LoginWithPasskeyParams): Promise<void> => {
+  loginWithPasskey = async (params: {
+    sessionType?: SessionType;
+    expirationSeconds?: string | undefined;
+    publicKey?: string;
+    sessionKey?: string | undefined;
+  }): Promise<void> => {
     let generatedKeyPair = null;
     try {
       generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
@@ -131,7 +124,7 @@ export class TurnkeyClient {
 
         await this.storageManager.storeSession(
           readOnlySessionResult.session,
-          sessionKey
+          sessionKey,
         );
         // Key pair was successfully used, set to null to prevent cleanup
         generatedKeyPair = null;
@@ -140,7 +133,7 @@ export class TurnkeyClient {
       } else if (sessionType === SessionType.READ_WRITE) {
         if (!publicKey) {
           throw new Error(
-            "You must provide a publicKey to create a passkey read write session."
+            "You must provide a publicKey to create a passkey read write session.",
           );
         }
         const sessionResponse = await this.httpClient.stampLogin(
@@ -149,7 +142,7 @@ export class TurnkeyClient {
             expirationSeconds,
             organizationId: this.config.organizationId,
           },
-          StamperType.Passkey
+          StamperType.Passkey,
         );
 
         // TODO (Amir): This should be done in a helper or something. It's very strange that we have to delete the key pair here
@@ -161,7 +154,7 @@ export class TurnkeyClient {
 
         await this.storageManager.storeSession(
           sessionResponse.session,
-          sessionKey
+          sessionKey,
         );
         // Key pair was successfully used, set to null to prevent cleanup
         generatedKeyPair = null;
@@ -177,18 +170,18 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
         } catch (cleanupError) {
           throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`
+            `Failed to clean up generated key pair: ${cleanupError}`,
           );
         }
       }
     }
   };
 
-  getWallets = async ({
-    stamperType,
-  }: {
+  fetchWallets = async (params: {
     stamperType?: StamperType;
+    saveInClient?: boolean;
   }): Promise<TWallet[]> => {
+    const { stamperType, saveInClient = true } = params;
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new Error("No active session found. Please log in first.");
@@ -196,7 +189,7 @@ export class TurnkeyClient {
     try {
       const res = await this.httpClient.getWallets(
         { organizationId: session.organizationId },
-        stamperType
+        stamperType,
       );
 
       if (!res || !res.wallets) {
@@ -206,7 +199,7 @@ export class TurnkeyClient {
       const wallets: TWallet[] = res.wallets;
       let i = 0;
       for (const wallet of wallets) {
-        const walletAccounts = await this.getWalletAccounts({
+        const walletAccounts = await this.fetchWalletAccounts({
           walletId: wallet.walletId,
         });
 
@@ -217,19 +210,20 @@ export class TurnkeyClient {
         i++;
       }
 
+      if (saveInClient) {
+        this.wallets = wallets;
+      }
       return wallets;
     } catch (error) {
       throw new Error(`Failed to fetch wallets: ${error}`);
     }
   };
 
-  getWalletAccounts = async ({
-    walletId,
-    stamperType,
-  }: {
+  fetchWalletAccounts = async (params: {
     walletId: string;
     stamperType?: StamperType;
   }): Promise<GetWalletAccountsResponse> => {
+    const { walletId, stamperType } = params;
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new Error("No active session found. Please log in first.");
@@ -242,22 +236,19 @@ export class TurnkeyClient {
     try {
       return await this.httpClient.getWalletAccounts(
         { walletId, organizationId: session.organizationId },
-        stamperType
+        stamperType,
       );
     } catch (error) {
       throw new Error(`Failed to fetch wallet accounts: ${error}`);
     }
   };
 
-  signMessage = async ({
-    message,
-    wallet,
-    stampWith,
-  }: {
+  signMessage = async (params: {
     message: string;
     wallet?: WalletAccount;
     stampWith?: StamperType;
   }): Promise<SignRawPayloadResult> => {
+    const { message, wallet, stampWith } = params;
     if (!wallet) {
       throw new Error("A wallet account must be provided for signing");
     }
@@ -268,7 +259,7 @@ export class TurnkeyClient {
 
     // Get the proper encoding and hash function for the address format
     const { hashFunction, payloadEncoding } = getMessageHashAndEncodingType(
-      wallet.addressFormat
+      wallet.addressFormat,
     );
 
     const response = await this.httpClient.signRawPayload(
@@ -278,7 +269,7 @@ export class TurnkeyClient {
         encoding: payloadEncoding,
         hashFunction,
       },
-      stampWith
+      stampWith,
     );
 
     if (!response.activity.failure) {
@@ -289,3 +280,5 @@ export class TurnkeyClient {
       .signRawPayloadResult as SignRawPayloadResult;
   };
 }
+
+// TO IMPLEMENT: fetchUser
