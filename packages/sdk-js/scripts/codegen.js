@@ -266,6 +266,8 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
 
   imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
 
+  imports.push('import type * as SdkTypes from "@turnkey/sdk-types";');
+
   imports.push('import { StorageBase } from "../__storage__/base";');
   imports.push('import { parseSession } from "../utils";');
 
@@ -300,7 +302,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
         if (!stampWith) return this.apiKeyStamper || this.passkeyStamper;
         
         switch (stampWith) {
-        case StamperType.apiKey:
+        case StamperType.ApiKey:
             return this.apiKeyStamper;
         case StamperType.Passkey:
             return this.passkeyStamper;
@@ -444,17 +446,17 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     }`;
 
     const methodType = methodTypeFromMethodName(methodName);
-    const inputType = `T${operationNameWithoutNamespace}Body`;
-    const responseType = `T${operationNameWithoutNamespace}Response`;
+    const inputType = `${operationNameWithoutNamespace}Request`;
+    const responseType = `${operationNameWithoutNamespace}Response`;
 
     // For query methods
     if (methodType === "query") {
       codeBuffer.push(
-        `\n\t${methodName} = async (input: SdkApiTypes.${inputType}${
+        `\n\t${methodName} = async (input: SdkTypes.${inputType}${
           METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)
             ? " = {}"
             : ""
-        }, stampWith?: StamperType): Promise<SdkApiTypes.${responseType}> => {
+        }, stampWith?: StamperType): Promise<SdkTypes.${responseType}> => {
       let session = await this.storageManager?.getActiveSession();
       session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
       return this.request("${endpointPath}", {
@@ -475,7 +477,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
       const versionedMethodName = latestVersions[resultKey].formattedKeyName;
 
       codeBuffer.push(
-        `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, stampWith?: StamperType): Promise<SdkApiTypes.${responseType}> => {
+        `\n\t${methodName} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<SdkTypes.${responseType}> => {
       const { organizationId, timestampMs, ...rest } = input;
       let session = await this.storageManager?.getActiveSession();
       session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
@@ -491,7 +493,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     } else if (methodType === "activityDecision") {
       // For activityDecision methods
       codeBuffer.push(
-        `\n\t${methodName} = async (input: SdkApiTypes.${inputType}, stampWith?: StamperType): Promise<SdkApiTypes.${responseType}> => {
+        `\n\t${methodName} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<SdkTypes.${responseType}> => {
       const { organizationId, timestampMs, ...rest } = input;
       let session = await this.storageManager?.getActiveSession();
       session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
@@ -509,7 +511,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     }
     // generate a stamping method for each method
     codeBuffer.push(
-      `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkApiTypes.${inputType}, stampWith?: StamperType): Promise<TSignedRequest | undefined> => {
+      `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
       return undefined;

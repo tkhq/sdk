@@ -1956,6 +1956,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/submit/init_fiat_on_ramp": {
+      "post": {
+        "summary": "Init Fiat On Ramp",
+        "description": "Initiate a fiat on ramp flow",
+        "operationId": "PublicApiService_InitFiatOnRamp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1InitFiatOnRampRequest"
+            }
+          }
+        ],
+        "tags": ["On Ramp"]
+      }
+    },
     "/public/v1/submit/init_import_private_key": {
       "post": {
         "summary": "Init Import Private Key",
@@ -2628,6 +2660,102 @@
         "tags": ["Users"]
       }
     },
+    "/public/v1/submit/update_user_email": {
+      "post": {
+        "summary": "Update User's Email",
+        "description": "Update a User's email in an existing Organization",
+        "operationId": "PublicApiService_UpdateUserEmail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateUserEmailRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
+    "/public/v1/submit/update_user_name": {
+      "post": {
+        "summary": "Update User's Name",
+        "description": "Update a User's name in an existing Organization",
+        "operationId": "PublicApiService_UpdateUserName",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateUserNameRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
+    "/public/v1/submit/update_user_phone_number": {
+      "post": {
+        "summary": "Update User's Phone Number",
+        "description": "Update a User's phone number in an existing Organization",
+        "operationId": "PublicApiService_UpdateUserPhoneNumber",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateUserPhoneNumberRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
+      }
+    },
     "/public/v1/submit/update_user_tag": {
       "post": {
         "summary": "Update User Tag",
@@ -3261,7 +3389,11 @@
         "ACTIVITY_TYPE_VERIFY_OTP",
         "ACTIVITY_TYPE_OTP_LOGIN",
         "ACTIVITY_TYPE_STAMP_LOGIN",
-        "ACTIVITY_TYPE_OAUTH_LOGIN"
+        "ACTIVITY_TYPE_OAUTH_LOGIN",
+        "ACTIVITY_TYPE_UPDATE_USER_NAME",
+        "ACTIVITY_TYPE_UPDATE_USER_EMAIL",
+        "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER",
+        "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
       ]
     },
     "v1AddressFormat": {
@@ -5954,6 +6086,88 @@
         "FEATURE_NAME_OTP_EMAIL_AUTH"
       ]
     },
+    "v1FiatOnRampBlockchainNetwork": {
+      "type": "string",
+      "enum": [
+        "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN",
+        "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
+        "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_SOLANA",
+        "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BASE"
+      ]
+    },
+    "v1FiatOnRampCryptoCurrency": {
+      "type": "string",
+      "enum": [
+        "FIAT_ON_RAMP_CRYPTO_CURRENCY_BTC",
+        "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
+        "FIAT_ON_RAMP_CRYPTO_CURRENCY_SOL",
+        "FIAT_ON_RAMP_CRYPTO_CURRENCY_USDC"
+      ]
+    },
+    "v1FiatOnRampCurrency": {
+      "type": "string",
+      "enum": [
+        "FIAT_ON_RAMP_CURRENCY_AUD",
+        "FIAT_ON_RAMP_CURRENCY_BGN",
+        "FIAT_ON_RAMP_CURRENCY_BRL",
+        "FIAT_ON_RAMP_CURRENCY_CAD",
+        "FIAT_ON_RAMP_CURRENCY_CHF",
+        "FIAT_ON_RAMP_CURRENCY_COP",
+        "FIAT_ON_RAMP_CURRENCY_CZK",
+        "FIAT_ON_RAMP_CURRENCY_DKK",
+        "FIAT_ON_RAMP_CURRENCY_DOP",
+        "FIAT_ON_RAMP_CURRENCY_EGP",
+        "FIAT_ON_RAMP_CURRENCY_EUR",
+        "FIAT_ON_RAMP_CURRENCY_GBP",
+        "FIAT_ON_RAMP_CURRENCY_HKD",
+        "FIAT_ON_RAMP_CURRENCY_IDR",
+        "FIAT_ON_RAMP_CURRENCY_ILS",
+        "FIAT_ON_RAMP_CURRENCY_JOD",
+        "FIAT_ON_RAMP_CURRENCY_KES",
+        "FIAT_ON_RAMP_CURRENCY_KWD",
+        "FIAT_ON_RAMP_CURRENCY_LKR",
+        "FIAT_ON_RAMP_CURRENCY_MXN",
+        "FIAT_ON_RAMP_CURRENCY_NGN",
+        "FIAT_ON_RAMP_CURRENCY_NOK",
+        "FIAT_ON_RAMP_CURRENCY_NZD",
+        "FIAT_ON_RAMP_CURRENCY_OMR",
+        "FIAT_ON_RAMP_CURRENCY_PEN",
+        "FIAT_ON_RAMP_CURRENCY_PLN",
+        "FIAT_ON_RAMP_CURRENCY_RON",
+        "FIAT_ON_RAMP_CURRENCY_SEK",
+        "FIAT_ON_RAMP_CURRENCY_THB",
+        "FIAT_ON_RAMP_CURRENCY_TRY",
+        "FIAT_ON_RAMP_CURRENCY_TWD",
+        "FIAT_ON_RAMP_CURRENCY_USD",
+        "FIAT_ON_RAMP_CURRENCY_VND",
+        "FIAT_ON_RAMP_CURRENCY_ZAR"
+      ]
+    },
+    "v1FiatOnRampPaymentMethod": {
+      "type": "string",
+      "enum": [
+        "FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD",
+        "FIAT_ON_RAMP_PAYMENT_METHOD_APPLE_PAY",
+        "FIAT_ON_RAMP_PAYMENT_METHOD_GBP_BANK_TRANSFER",
+        "FIAT_ON_RAMP_PAYMENT_METHOD_GBP_OPEN_BANKING_PAYMENT",
+        "FIAT_ON_RAMP_PAYMENT_METHOD_GOOGLE_PAY",
+        "FIAT_ON_RAMP_PAYMENT_METHOD_SEPA_BANK_TRANSFER",
+        "FIAT_ON_RAMP_PAYMENT_METHOD_PIX_INSTANT_PAYMENT",
+        "FIAT_ON_RAMP_PAYMENT_METHOD_PAYPAL",
+        "FIAT_ON_RAMP_PAYMENT_METHOD_VENMO",
+        "FIAT_ON_RAMP_PAYMENT_METHOD_MOONPAY_BALANCE",
+        "FIAT_ON_RAMP_PAYMENT_METHOD_CRYPTO_ACCOUNT",
+        "FIAT_ON_RAMP_PAYMENT_METHOD_FIAT_WALLET",
+        "FIAT_ON_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT"
+      ]
+    },
+    "v1FiatOnRampProvider": {
+      "type": "string",
+      "enum": [
+        "FIAT_ON_RAMP_PROVIDER_COINBASE",
+        "FIAT_ON_RAMP_PROVIDER_MOONPAY"
+      ]
+    },
     "v1GetActivitiesRequest": {
       "type": "object",
       "properties": {
@@ -6712,6 +6926,88 @@
       },
       "required": ["walletId", "addresses"]
     },
+    "v1InitFiatOnRampIntent": {
+      "type": "object",
+      "properties": {
+        "onrampProvider": {
+          "$ref": "#/definitions/v1FiatOnRampProvider",
+          "description": "Enum to specifiy which on-ramp provider to use"
+        },
+        "walletAddress": {
+          "type": "string",
+          "description": "Destination wallet address for the buy transaction."
+        },
+        "network": {
+          "$ref": "#/definitions/v1FiatOnRampBlockchainNetwork",
+          "description": "Blockchain network to be used for the transaction, e.g., bitcoin, ethereum. Maps to MoonPay's network or Coinbase's defaultNetwork."
+        },
+        "cryptoCurrencyCode": {
+          "$ref": "#/definitions/v1FiatOnRampCryptoCurrency",
+          "description": "Code for the cryptocurrency to be purchased, e.g., btc, eth. Maps to MoonPay's currencyCode or Coinbase's defaultAsset."
+        },
+        "fiatCurrencyCode": {
+          "$ref": "#/definitions/v1FiatOnRampCurrency",
+          "description": "Code for the fiat currency to be used in the transaction, e.g., USD, EUR."
+        },
+        "fiatCurrencyAmount": {
+          "type": "string",
+          "description": "Specifies a preset fiat amount for the transaction, e.g., '100'. Must be greater than '20'. If not provided, the user will be prompted to enter an amount."
+        },
+        "paymentMethod": {
+          "$ref": "#/definitions/v1FiatOnRampPaymentMethod",
+          "description": "Pre-selected payment method, e.g., CREDIT_DEBIT_CARD, APPLE_PAY. Validated against the chosen provider."
+        },
+        "countryCode": {
+          "type": "string",
+          "description": "ISO 3166-1 two-digit country code for Coinbase representing the purchasing user’s country of residence, e.g., US, GB."
+        },
+        "countrySubdivisionCode": {
+          "type": "string",
+          "description": "ISO 3166-2 two-digit country subdivision code for Coinbase representing the purchasing user’s subdivision of residence within their country, e.g. NY. Required if country_code=US."
+        }
+      },
+      "required": [
+        "onrampProvider",
+        "walletAddress",
+        "network",
+        "cryptoCurrencyCode"
+      ]
+    },
+    "v1InitFiatOnRampRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1InitFiatOnRampIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1InitFiatOnRampResult": {
+      "type": "object",
+      "properties": {
+        "onRampUrl": {
+          "type": "string",
+          "description": "Unique URL for a given fiat on-ramp flow."
+        },
+        "onRampTransactionId": {
+          "type": "string",
+          "description": "Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow."
+        }
+      },
+      "required": ["onRampUrl", "onRampTransactionId"]
+    },
     "v1InitImportPrivateKeyIntent": {
       "type": "object",
       "properties": {
@@ -7321,6 +7617,18 @@
         },
         "oauthLoginIntent": {
           "$ref": "#/definitions/v1OauthLoginIntent"
+        },
+        "updateUserNameIntent": {
+          "$ref": "#/definitions/v1UpdateUserNameIntent"
+        },
+        "updateUserEmailIntent": {
+          "$ref": "#/definitions/v1UpdateUserEmailIntent"
+        },
+        "updateUserPhoneNumberIntent": {
+          "$ref": "#/definitions/v1UpdateUserPhoneNumberIntent"
+        },
+        "initFiatOnRampIntent": {
+          "$ref": "#/definitions/v1InitFiatOnRampIntent"
         }
       }
     },
@@ -8416,6 +8724,18 @@
         },
         "oauthLoginResult": {
           "$ref": "#/definitions/v1OauthLoginResult"
+        },
+        "updateUserNameResult": {
+          "$ref": "#/definitions/v1UpdateUserNameResult"
+        },
+        "updateUserEmailResult": {
+          "$ref": "#/definitions/v1UpdateUserEmailResult"
+        },
+        "updateUserPhoneNumberResult": {
+          "$ref": "#/definitions/v1UpdateUserPhoneNumberResult"
+        },
+        "initFiatOnRampResult": {
+          "$ref": "#/definitions/v1InitFiatOnRampResult"
         }
       }
     },
@@ -9176,6 +9496,55 @@
     "v1UpdateRootQuorumResult": {
       "type": "object"
     },
+    "v1UpdateUserEmailIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User."
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "The user's email address. Setting this to an empty string will remove the user's email."
+        },
+        "verificationToken": {
+          "type": "string",
+          "description": "Signed JWT containing a unique id, expiry, verification type, contact"
+        }
+      },
+      "required": ["userId", "userEmail"]
+    },
+    "v1UpdateUserEmailRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_USER_EMAIL"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateUserEmailIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateUserEmailResult": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier of the User whose email was updated."
+        }
+      },
+      "required": ["userId"]
+    },
     "v1UpdateUserIntent": {
       "type": "object",
       "properties": {
@@ -9201,6 +9570,100 @@
         "userPhoneNumber": {
           "type": "string",
           "description": "The user's phone number in E.164 format e.g. +13214567890"
+        }
+      },
+      "required": ["userId"]
+    },
+    "v1UpdateUserNameIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User."
+        },
+        "userName": {
+          "type": "string",
+          "description": "Human-readable name for a User."
+        }
+      },
+      "required": ["userId", "userName"]
+    },
+    "v1UpdateUserNameRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_USER_NAME"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateUserNameIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateUserNameResult": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier of the User whose name was updated."
+        }
+      },
+      "required": ["userId"]
+    },
+    "v1UpdateUserPhoneNumberIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User."
+        },
+        "userPhoneNumber": {
+          "type": "string",
+          "description": "The user's phone number in E.164 format e.g. +13214567890. Setting this to an empty string will remove the user's phone number."
+        },
+        "verificationToken": {
+          "type": "string",
+          "description": "Signed JWT containing a unique id, expiry, verification type, contact"
+        }
+      },
+      "required": ["userId", "userPhoneNumber"]
+    },
+    "v1UpdateUserPhoneNumberRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateUserPhoneNumberIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateUserPhoneNumberResult": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier of the User whose phone number was updated."
         }
       },
       "required": ["userId"]

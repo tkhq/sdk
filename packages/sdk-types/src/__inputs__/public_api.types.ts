@@ -240,6 +240,10 @@ export type paths = {
     /** Imports a wallet */
     post: operations["PublicApiService_ImportWallet"];
   };
+  "/public/v1/submit/init_fiat_on_ramp": {
+    /** Initiate a fiat on ramp flow */
+    post: operations["PublicApiService_InitFiatOnRamp"];
+  };
   "/public/v1/submit/init_import_private_key": {
     /** Initializes a new private key import */
     post: operations["PublicApiService_InitImportPrivateKey"];
@@ -323,6 +327,18 @@ export type paths = {
   "/public/v1/submit/update_user": {
     /** Update a User in an existing Organization */
     post: operations["PublicApiService_UpdateUser"];
+  };
+  "/public/v1/submit/update_user_email": {
+    /** Update a User's email in an existing Organization */
+    post: operations["PublicApiService_UpdateUserEmail"];
+  };
+  "/public/v1/submit/update_user_name": {
+    /** Update a User's name in an existing Organization */
+    post: operations["PublicApiService_UpdateUserName"];
+  };
+  "/public/v1/submit/update_user_phone_number": {
+    /** Update a User's phone number in an existing Organization */
+    post: operations["PublicApiService_UpdateUserPhoneNumber"];
   };
   "/public/v1/submit/update_user_tag": {
     /** Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
@@ -593,7 +609,11 @@ export type definitions = {
     | "ACTIVITY_TYPE_VERIFY_OTP"
     | "ACTIVITY_TYPE_OTP_LOGIN"
     | "ACTIVITY_TYPE_STAMP_LOGIN"
-    | "ACTIVITY_TYPE_OAUTH_LOGIN";
+    | "ACTIVITY_TYPE_OAUTH_LOGIN"
+    | "ACTIVITY_TYPE_UPDATE_USER_NAME"
+    | "ACTIVITY_TYPE_UPDATE_USER_EMAIL"
+    | "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"
+    | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1680,6 +1700,73 @@ export type definitions = {
     | "FEATURE_NAME_WEBHOOK"
     | "FEATURE_NAME_SMS_AUTH"
     | "FEATURE_NAME_OTP_EMAIL_AUTH";
+  /** @enum {string} */
+  v1FiatOnRampBlockchainNetwork:
+    | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN"
+    | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM"
+    | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_SOLANA"
+    | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BASE";
+  /** @enum {string} */
+  v1FiatOnRampCryptoCurrency:
+    | "FIAT_ON_RAMP_CRYPTO_CURRENCY_BTC"
+    | "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH"
+    | "FIAT_ON_RAMP_CRYPTO_CURRENCY_SOL"
+    | "FIAT_ON_RAMP_CRYPTO_CURRENCY_USDC";
+  /** @enum {string} */
+  v1FiatOnRampCurrency:
+    | "FIAT_ON_RAMP_CURRENCY_AUD"
+    | "FIAT_ON_RAMP_CURRENCY_BGN"
+    | "FIAT_ON_RAMP_CURRENCY_BRL"
+    | "FIAT_ON_RAMP_CURRENCY_CAD"
+    | "FIAT_ON_RAMP_CURRENCY_CHF"
+    | "FIAT_ON_RAMP_CURRENCY_COP"
+    | "FIAT_ON_RAMP_CURRENCY_CZK"
+    | "FIAT_ON_RAMP_CURRENCY_DKK"
+    | "FIAT_ON_RAMP_CURRENCY_DOP"
+    | "FIAT_ON_RAMP_CURRENCY_EGP"
+    | "FIAT_ON_RAMP_CURRENCY_EUR"
+    | "FIAT_ON_RAMP_CURRENCY_GBP"
+    | "FIAT_ON_RAMP_CURRENCY_HKD"
+    | "FIAT_ON_RAMP_CURRENCY_IDR"
+    | "FIAT_ON_RAMP_CURRENCY_ILS"
+    | "FIAT_ON_RAMP_CURRENCY_JOD"
+    | "FIAT_ON_RAMP_CURRENCY_KES"
+    | "FIAT_ON_RAMP_CURRENCY_KWD"
+    | "FIAT_ON_RAMP_CURRENCY_LKR"
+    | "FIAT_ON_RAMP_CURRENCY_MXN"
+    | "FIAT_ON_RAMP_CURRENCY_NGN"
+    | "FIAT_ON_RAMP_CURRENCY_NOK"
+    | "FIAT_ON_RAMP_CURRENCY_NZD"
+    | "FIAT_ON_RAMP_CURRENCY_OMR"
+    | "FIAT_ON_RAMP_CURRENCY_PEN"
+    | "FIAT_ON_RAMP_CURRENCY_PLN"
+    | "FIAT_ON_RAMP_CURRENCY_RON"
+    | "FIAT_ON_RAMP_CURRENCY_SEK"
+    | "FIAT_ON_RAMP_CURRENCY_THB"
+    | "FIAT_ON_RAMP_CURRENCY_TRY"
+    | "FIAT_ON_RAMP_CURRENCY_TWD"
+    | "FIAT_ON_RAMP_CURRENCY_USD"
+    | "FIAT_ON_RAMP_CURRENCY_VND"
+    | "FIAT_ON_RAMP_CURRENCY_ZAR";
+  /** @enum {string} */
+  v1FiatOnRampPaymentMethod:
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_APPLE_PAY"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_GBP_BANK_TRANSFER"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_GBP_OPEN_BANKING_PAYMENT"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_GOOGLE_PAY"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_SEPA_BANK_TRANSFER"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_PIX_INSTANT_PAYMENT"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_PAYPAL"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_VENMO"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_MOONPAY_BALANCE"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_CRYPTO_ACCOUNT"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_FIAT_WALLET"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT";
+  /** @enum {string} */
+  v1FiatOnRampProvider:
+    | "FIAT_ON_RAMP_PROVIDER_COINBASE"
+    | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
   v1GetActivitiesRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -1977,6 +2064,41 @@ export type definitions = {
     /** @description A list of account addresses. */
     addresses: string[];
   };
+  v1InitFiatOnRampIntent: {
+    /** @description Enum to specifiy which on-ramp provider to use */
+    onrampProvider: definitions["v1FiatOnRampProvider"];
+    /** @description Destination wallet address for the buy transaction. */
+    walletAddress: string;
+    /** @description Blockchain network to be used for the transaction, e.g., bitcoin, ethereum. Maps to MoonPay's network or Coinbase's defaultNetwork. */
+    network: definitions["v1FiatOnRampBlockchainNetwork"];
+    /** @description Code for the cryptocurrency to be purchased, e.g., btc, eth. Maps to MoonPay's currencyCode or Coinbase's defaultAsset. */
+    cryptoCurrencyCode: definitions["v1FiatOnRampCryptoCurrency"];
+    /** @description Code for the fiat currency to be used in the transaction, e.g., USD, EUR. */
+    fiatCurrencyCode?: definitions["v1FiatOnRampCurrency"];
+    /** @description Specifies a preset fiat amount for the transaction, e.g., '100'. Must be greater than '20'. If not provided, the user will be prompted to enter an amount. */
+    fiatCurrencyAmount?: string;
+    /** @description Pre-selected payment method, e.g., CREDIT_DEBIT_CARD, APPLE_PAY. Validated against the chosen provider. */
+    paymentMethod?: definitions["v1FiatOnRampPaymentMethod"];
+    /** @description ISO 3166-1 two-digit country code for Coinbase representing the purchasing user’s country of residence, e.g., US, GB. */
+    countryCode?: string;
+    /** @description ISO 3166-2 two-digit country subdivision code for Coinbase representing the purchasing user’s subdivision of residence within their country, e.g. NY. Required if country_code=US. */
+    countrySubdivisionCode?: string;
+  };
+  v1InitFiatOnRampRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1InitFiatOnRampIntent"];
+  };
+  v1InitFiatOnRampResult: {
+    /** @description Unique URL for a given fiat on-ramp flow. */
+    onRampUrl: string;
+    /** @description Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
+    onRampTransactionId: string;
+  };
   v1InitImportPrivateKeyIntent: {
     /** @description The ID of the User importing a Private Key. */
     userId: string;
@@ -2223,6 +2345,10 @@ export type definitions = {
     otpLoginIntent?: definitions["v1OtpLoginIntent"];
     stampLoginIntent?: definitions["v1StampLoginIntent"];
     oauthLoginIntent?: definitions["v1OauthLoginIntent"];
+    updateUserNameIntent?: definitions["v1UpdateUserNameIntent"];
+    updateUserEmailIntent?: definitions["v1UpdateUserEmailIntent"];
+    updateUserPhoneNumberIntent?: definitions["v1UpdateUserPhoneNumberIntent"];
+    initFiatOnRampIntent?: definitions["v1InitFiatOnRampIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2637,6 +2763,10 @@ export type definitions = {
     otpLoginResult?: definitions["v1OtpLoginResult"];
     stampLoginResult?: definitions["v1StampLoginResult"];
     oauthLoginResult?: definitions["v1OauthLoginResult"];
+    updateUserNameResult?: definitions["v1UpdateUserNameResult"];
+    updateUserEmailResult?: definitions["v1UpdateUserEmailResult"];
+    updateUserPhoneNumberResult?: definitions["v1UpdateUserPhoneNumberResult"];
+    initFiatOnRampResult?: definitions["v1InitFiatOnRampResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -2941,6 +3071,27 @@ export type definitions = {
     parameters: definitions["v1UpdateRootQuorumIntent"];
   };
   v1UpdateRootQuorumResult: { [key: string]: unknown };
+  v1UpdateUserEmailIntent: {
+    /** @description Unique identifier for a given User. */
+    userId: string;
+    /** @description The user's email address. Setting this to an empty string will remove the user's email. */
+    userEmail: string;
+    /** @description Signed JWT containing a unique id, expiry, verification type, contact */
+    verificationToken?: string;
+  };
+  v1UpdateUserEmailRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_USER_EMAIL";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateUserEmailIntent"];
+  };
+  v1UpdateUserEmailResult: {
+    /** @description Unique identifier of the User whose email was updated. */
+    userId: string;
+  };
   v1UpdateUserIntent: {
     /** @description Unique identifier for a given User. */
     userId: string;
@@ -2952,6 +3103,46 @@ export type definitions = {
     userTagIds?: string[];
     /** @description The user's phone number in E.164 format e.g. +13214567890 */
     userPhoneNumber?: string;
+  };
+  v1UpdateUserNameIntent: {
+    /** @description Unique identifier for a given User. */
+    userId: string;
+    /** @description Human-readable name for a User. */
+    userName: string;
+  };
+  v1UpdateUserNameRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_USER_NAME";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateUserNameIntent"];
+  };
+  v1UpdateUserNameResult: {
+    /** @description Unique identifier of the User whose name was updated. */
+    userId: string;
+  };
+  v1UpdateUserPhoneNumberIntent: {
+    /** @description Unique identifier for a given User. */
+    userId: string;
+    /** @description The user's phone number in E.164 format e.g. +13214567890. Setting this to an empty string will remove the user's phone number. */
+    userPhoneNumber: string;
+    /** @description Signed JWT containing a unique id, expiry, verification type, contact */
+    verificationToken?: string;
+  };
+  v1UpdateUserPhoneNumberRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateUserPhoneNumberIntent"];
+  };
+  v1UpdateUserPhoneNumberResult: {
+    /** @description Unique identifier of the User whose phone number was updated. */
+    userId: string;
   };
   v1UpdateUserRequest: {
     /** @enum {string} */
@@ -4247,6 +4438,24 @@ export type operations = {
       };
     };
   };
+  /** Initiate a fiat on ramp flow */
+  PublicApiService_InitFiatOnRamp: {
+    parameters: {
+      body: {
+        body: definitions["v1InitFiatOnRampRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Initializes a new private key import */
   PublicApiService_InitImportPrivateKey: {
     parameters: {
@@ -4612,6 +4821,60 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1UpdateUserRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Update a User's email in an existing Organization */
+  PublicApiService_UpdateUserEmail: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateUserEmailRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Update a User's name in an existing Organization */
+  PublicApiService_UpdateUserName: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateUserNameRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Update a User's phone number in an existing Organization */
+  PublicApiService_UpdateUserPhoneNumber: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateUserPhoneNumberRequest"];
       };
     };
     responses: {
