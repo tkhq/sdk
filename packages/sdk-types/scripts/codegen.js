@@ -263,6 +263,7 @@ function main() {
   const latestVersionMap = buildLatestVersionMap(swagger.definitions);
 
   // Check all Request types for organizationId, if present modify their respective Intent types and add optional organizationId
+  //    Also check Result types and add Response type for them
   for (const [baseName, latestVersionName] of Object.entries(
     latestVersionMap,
   )) {
@@ -270,13 +271,9 @@ function main() {
     if (def && def.type === "object" && def.properties) {
       // If the baseName ends with "Request", check for organizationId
 
-      console.log(`Checking ${baseName} for organizationId...`);
       if (baseName.endsWith("Request") && def.properties.organizationId) {
         // Modify the corresponding Intent type to make organizationId optional
         const intentTypeName = latestVersionName.replace(/Request$/, "Intent");
-        console.log(
-          `Modifying Intent type ${intentTypeName} to make organizationId optional`,
-        );
         if (
           swagger.definitions[intentTypeName] &&
           swagger.definitions[intentTypeName].properties
@@ -298,7 +295,38 @@ function main() {
           swagger.definitions[intentTypeName].required = (
             swagger.definitions[intentTypeName].required || []
           ).filter((r) => r !== "organizationId");
-          console.log(swagger.definitions[intentTypeName]);
+        }
+      } else if (
+        baseName.endsWith("Result") &&
+        !/^v\d+Result$/.test(latestVersionName)
+      ) {
+        // If baseName ends with "Result" and not just vXResult, create a corresponding Response type
+        if (swagger.definitions[latestVersionName]) {
+          const responseTypeName = stripVersionPrefixAndSuffix(
+            latestVersionName.replace(/(.+)Result$/, (m, p1) => `${p1}Response`)
+          );
+          
+          swagger.definitions[responseTypeName] = {
+            type: "object",
+            properties: {
+                activity: {
+                    $ref: `#/definitions/v1Activity`,
+                    description: "The activity that was processed.",
+                },
+                ...swagger.definitions[latestVersionName].properties,
+            },
+            required: [
+              "activity",
+              ...(Array.isArray(swagger.definitions[latestVersionName].required)
+                ? swagger.definitions[latestVersionName].required
+                : [])
+            ],
+          };
+
+          console.log(swagger.definitions[responseTypeName]);
+
+        //   Add the new Response type to latestVersionMap
+          latestVersionMap[responseTypeName] = responseTypeName;
         }
       }
     }
@@ -311,10 +339,6 @@ function main() {
   )) {
     const def = swagger.definitions[latestVersionName];
 
-    if (/(.+)Request$/.test(baseName)) {
-      continue;
-    }
-
     // If baseName ends with "Intent" and has characters before "Intent", also emit a corresponding Request type
     if (
       /(.+)Intent$/.test(baseName) &&
@@ -326,7 +350,7 @@ function main() {
       output += generateTsType(requestTypeName, def) + "\n";
     }
 
-    if (/(.+)Intent$/.test(baseName)) {
+    if (/(.+)Intent$/.test(baseName) || /(.+)Request$/.test(baseName)) {
       continue;
     }
 
