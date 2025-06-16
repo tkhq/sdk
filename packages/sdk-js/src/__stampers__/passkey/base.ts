@@ -169,7 +169,7 @@ export class CrossPlatformPasskeyStamper implements TStamper {
     config: Record<any, any> = {},
   ): Promise<TurnkeyAuthenticatorParams> => {
     const { name, displayName } = config;
-    const { createPasskey } = PasskeyStamperModule;
+    const { createPasskey } = PasskeyStamperModule; // We do a 'selective' import when initializing the stamper. This is safe to do here.
 
     if (!createPasskey) {
       throw new Error(

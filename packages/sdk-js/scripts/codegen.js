@@ -259,7 +259,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   );
 
   imports.push(
-    'import { GrpcStatus, TStamper, TurnkeyRequestError, TurnkeySDKClientConfig } from "../__types__/base";',
+    'import { GrpcStatus, TStamper, TurnkeyRequestError, TurnkeyHttpClientConfig } from "../__types__/base";',
   );
 
   imports.push('import { VERSION } from "../__generated__/version";');
@@ -273,7 +273,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
 
   codeBuffer.push(`
     export class TurnkeySDKClientBase {
-    config: TurnkeySDKClientConfig;
+    config: TurnkeyHttpClientConfig;
 
     // Store stampers
     private apiKeyStamper?: TStamper | undefined;
@@ -282,7 +282,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     // Storage manager
     private storageManager?: StorageBase | undefined;
 
-    constructor(config: TurnkeySDKClientConfig) {
+    constructor(config: TurnkeyHttpClientConfig) {
         this.config = config;
         
         if (config.apiKeyStamper) {
