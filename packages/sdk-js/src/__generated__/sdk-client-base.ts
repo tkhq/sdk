@@ -13,7 +13,7 @@ import {
   GrpcStatus,
   TStamper,
   TurnkeyRequestError,
-  TurnkeySDKClientConfig,
+  TurnkeyHttpClientConfig,
 } from "../__types__/base";
 
 import { VERSION } from "../__generated__/version";
@@ -27,7 +27,7 @@ import { parseSession } from "../utils";
 import { StamperType } from "../__types__/base";
 
 export class TurnkeySDKClientBase {
-  config: TurnkeySDKClientConfig;
+  config: TurnkeyHttpClientConfig;
 
   // Store stampers
   private apiKeyStamper?: TStamper | undefined;
@@ -36,7 +36,7 @@ export class TurnkeySDKClientBase {
   // Storage manager
   private storageManager?: StorageBase | undefined;
 
-  constructor(config: TurnkeySDKClientConfig) {
+  constructor(config: TurnkeyHttpClientConfig) {
     this.config = config;
 
     if (config.apiKeyStamper) {
@@ -54,7 +54,7 @@ export class TurnkeySDKClientBase {
     if (!stampWith) return this.apiKeyStamper || this.passkeyStamper;
 
     switch (stampWith) {
-      case StamperType.apiKey:
+      case StamperType.ApiKey:
         return this.apiKeyStamper;
       case StamperType.Passkey:
         return this.passkeyStamper;

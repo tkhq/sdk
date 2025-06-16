@@ -39,9 +39,14 @@ export default function AuthPage() {
     await client?.createPasskey({});
   };
 
-  const logInWithPasskey = async () => {
-    await client?.loginWithPasskey({});
+  const logInWithPasskey1 = async () => {
+    await client?.loginWithPasskey({ sessionKey: "session-1" });
   };
+
+  const logInWithPasskey2 = async () => {
+    await client?.loginWithPasskey({ sessionKey: "session-2" });
+  };
+
   const indexedDB = async () => {
     const resp = await client?.httpClient.getWhoami({});
     console.log("Response from getWhoami:", resp);
@@ -55,11 +60,9 @@ export default function AuthPage() {
     } else {
       console.error("Failed to fetch wallets");
     }
-  }
+  };
 
-  useEffect(() => {
-    
-  })
+  useEffect(() => {});
 
   return (
     <main className={styles.main}>
@@ -102,7 +105,7 @@ export default function AuthPage() {
         Create Passkey
       </button>
       <button
-        onClick={logInWithPasskey}
+        onClick={logInWithPasskey1}
         style={{
           backgroundColor: "blue",
           borderRadius: "8px",
@@ -110,21 +113,33 @@ export default function AuthPage() {
           color: "white",
         }}
       >
-        Log in With Passkey
+        Log in With Passkey Session 1
       </button>
-      
-      {client?.storageManager?.getActiveSession() ? (<button
-        onClick={getWallets}
+      <button
+        onClick={logInWithPasskey2}
         style={{
-          backgroundColor: "blue",
+          backgroundColor: "lightblue",
           borderRadius: "8px",
           padding: "8px 16px",
           color: "white",
         }}
       >
-        Get Wallets
-      </button>) : null}
-      
+        Log in With Passkey Session 2
+      </button>
+
+      {client?.storageManager?.getActiveSession() ? (
+        <button
+          onClick={getWallets}
+          style={{
+            backgroundColor: "blue",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Get Wallets
+        </button>
+      ) : null}
     </main>
   );
 }
