@@ -19,9 +19,7 @@ function RootLayout({ children }: RootLayoutProps) {
         <title>A monumental leap</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
-      <body>
-        <TurnkeyProvider config={turnkeyConfig}>{children}</TurnkeyProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
