@@ -136,7 +136,8 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * - For `READ_ONLY` sessions: Requires the client to be a `TurnkeyPasskeyClient`.
    * - For `READ_WRITE` sessions:
    *   - If the client is a `TurnkeyIndexedDbClient`, a new keypair will be generated unless a `publicKey` is provided.
-   *   - If the client is a `TurnkeyIframeClient`, a `publicKey` must be provided explicitly.
+   *   - If the client is a `TurnkeyIframeClient`, the `publicKey` will be used if provided. Otherwise, it will fall back to `getEmbeddedPublicKey()`.
+   *     If no key is available from either source, an error will be thrown.
    *
    * @param RefreshSessionParams
    *   @param params.sessionType - The type of session being refreshed. Defaults to `READ_WRITE`.
@@ -203,17 +204,18 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
           // function was called with an IframeClient
           if (this instanceof TurnkeyIframeClient) {
-            const targetPublicKey = publicKey;
+            const targetPublicKey =
+              publicKey ?? (await this.getEmbeddedPublicKey?.());
+
             if (!targetPublicKey) {
               throw new Error(
-                "You must provide a targetPublicKey to refresh a read-write session with an iframe client.",
+                "Unable to refresh session: missing target public key.",
               );
             }
 
             const result = await this.createReadWriteSession({
               targetPublicKey,
               expirationSeconds,
-              invalidateExisting: true,
             });
 
             const session: Session = {
