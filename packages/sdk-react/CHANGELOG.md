@@ -1,5 +1,13 @@
 # @turnkey/sdk-react
 
+## 5.2.2
+
+### Patch Changes
+
+- Updated dependencies [[`0dd3fc3`](https://github.com/tkhq/sdk/commit/0dd3fc31956992c5b449da5868f6eef8b0bb194c)]:
+  - @turnkey/sdk-types@0.2.0
+  - @turnkey/sdk-browser@5.2.2
+
 ## 5.2.1
 
 ### Patch Changes

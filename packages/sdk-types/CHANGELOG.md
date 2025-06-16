@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 0.2.0
+
+### Minor Changes
+
+- [#686](https://github.com/tkhq/sdk/pull/686) [`0dd3fc3`](https://github.com/tkhq/sdk/commit/0dd3fc31956992c5b449da5868f6eef8b0bb194c) Author [@turnekybc](https://github.com/turnekybc) - Add FiatOnRampProvider Type
+
 ## 0.1.0
 
 ### Minor Changes
