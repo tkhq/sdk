@@ -2,13 +2,18 @@
 
 import Image from "next/image";
 import styles from "./index.module.css";
-import { StamperType, TurnkeyClient } from "@turnkey/sdk-js";
+import { StamperType, TurnkeyClient, TWallet } from "@turnkey/sdk-js";
 
 import { server } from "@turnkey/sdk-server";
 import { useEffect, useState } from "react";
+import { Session } from "@turnkey/sdk-types";
+import { get } from "http";
+import { set } from "react-hook-form";
 
 export default function AuthPage() {
   const [client, setClient] = useState<TurnkeyClient | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [wallets, setWallets] = useState<TWallet[]>([]);
 
   useEffect(() => {
     const initializeClient = async () => {
@@ -41,6 +46,20 @@ export default function AuthPage() {
     const resp = await client?.httpClient.getWhoami({});
     console.log("Response from getWhoami:", resp);
   };
+
+  const getWallets = async () => {
+    const res = await client?.getWallets({});
+    if (res) {
+      setWallets(res);
+      console.log("Wallets:", res);
+    } else {
+      console.error("Failed to fetch wallets");
+    }
+  }
+
+  useEffect(() => {
+    
+  })
 
   return (
     <main className={styles.main}>
@@ -93,6 +112,19 @@ export default function AuthPage() {
       >
         Log in With Passkey
       </button>
+      
+      {client?.storageManager?.getActiveSession() ? (<button
+        onClick={getWallets}
+        style={{
+          backgroundColor: "blue",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Get Wallets
+      </button>) : null}
+      
     </main>
   );
 }
