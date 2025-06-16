@@ -142,12 +142,14 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * @param RefreshSessionParams
    *   @param params.sessionType - The type of session being refreshed. Defaults to `READ_WRITE`.
    *   @param params.expirationSeconds - How long to extend the session for, in seconds. Defaults to 900 (15 minutes).
+   *   @param params.invalidateExisting - Whether to invalidate existing sessions. Defaults to `false`.
    *   @param params.publicKey - Optional public key to use for session creation. Required for `IframeClient`, optional for `IndexedDbClient`.
    * @returns {Promise<void>}
    */
   refreshSession = async ({
     sessionType = SessionType.READ_WRITE,
     expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+    invalidateExisting = false,
     publicKey,
   }: RefreshSessionParams = {}): Promise<void> => {
     try {
@@ -193,6 +195,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
             const result = await this.stampLogin({
               publicKey: compressedHex!,
               expirationSeconds,
+              invalidateExisting,
             });
 
             await this.resetKeyPair(keyPair);
@@ -203,7 +206,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
           // function was called with an IframeClient
           if (this instanceof TurnkeyIframeClient) {
             const targetPublicKey =
-              publicKey ?? (await this.getEmbeddedPublicKey?.());
+              publicKey ?? (await this.getEmbeddedPublicKey());
 
             if (!targetPublicKey) {
               throw new Error(
@@ -214,6 +217,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
             const result = await this.createReadWriteSession({
               targetPublicKey,
               expirationSeconds,
+              invalidateExisting,
             });
 
             const session: Session = {

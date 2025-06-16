@@ -130,6 +130,7 @@ export interface PasskeyClientParams {
 export interface RefreshSessionParams {
   sessionType?: SessionType;
   expirationSeconds?: string;
+  invalidateExisting?: boolean;
   publicKey?: string;
 }
 
