@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- Updated dependencies []:
+- Updated dependencies:
   - @turnkey/sdk-browser@5.2.2
 
 ## 0.7.12
