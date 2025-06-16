@@ -268,7 +268,11 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_VERIFY_OTP"
   | "ACTIVITY_TYPE_OTP_LOGIN"
   | "ACTIVITY_TYPE_STAMP_LOGIN"
-  | "ACTIVITY_TYPE_OAUTH_LOGIN";
+  | "ACTIVITY_TYPE_OAUTH_LOGIN"
+  | "ACTIVITY_TYPE_UPDATE_USER_NAME"
+  | "ACTIVITY_TYPE_UPDATE_USER_EMAIL"
+  | "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"
+  | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP";
 
 export type v1AddressFormat =
   | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -690,7 +694,7 @@ export type v1CreatePrivateKeysResultV2 = {
   privateKeys: v1PrivateKeyResult[];
 };
 
-export type v1CreateReadOnlySessionIntent = any;
+export type v1CreateReadOnlySessionIntent = {};
 export type v1CreateReadOnlySessionRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
@@ -1431,6 +1435,73 @@ export type v1FeatureName =
   | "FEATURE_NAME_SMS_AUTH"
   | "FEATURE_NAME_OTP_EMAIL_AUTH";
 
+export type v1FiatOnRampBlockchainNetwork =
+  | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN"
+  | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM"
+  | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_SOLANA"
+  | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BASE";
+
+export type v1FiatOnRampCryptoCurrency =
+  | "FIAT_ON_RAMP_CRYPTO_CURRENCY_BTC"
+  | "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH"
+  | "FIAT_ON_RAMP_CRYPTO_CURRENCY_SOL"
+  | "FIAT_ON_RAMP_CRYPTO_CURRENCY_USDC";
+
+export type v1FiatOnRampCurrency =
+  | "FIAT_ON_RAMP_CURRENCY_AUD"
+  | "FIAT_ON_RAMP_CURRENCY_BGN"
+  | "FIAT_ON_RAMP_CURRENCY_BRL"
+  | "FIAT_ON_RAMP_CURRENCY_CAD"
+  | "FIAT_ON_RAMP_CURRENCY_CHF"
+  | "FIAT_ON_RAMP_CURRENCY_COP"
+  | "FIAT_ON_RAMP_CURRENCY_CZK"
+  | "FIAT_ON_RAMP_CURRENCY_DKK"
+  | "FIAT_ON_RAMP_CURRENCY_DOP"
+  | "FIAT_ON_RAMP_CURRENCY_EGP"
+  | "FIAT_ON_RAMP_CURRENCY_EUR"
+  | "FIAT_ON_RAMP_CURRENCY_GBP"
+  | "FIAT_ON_RAMP_CURRENCY_HKD"
+  | "FIAT_ON_RAMP_CURRENCY_IDR"
+  | "FIAT_ON_RAMP_CURRENCY_ILS"
+  | "FIAT_ON_RAMP_CURRENCY_JOD"
+  | "FIAT_ON_RAMP_CURRENCY_KES"
+  | "FIAT_ON_RAMP_CURRENCY_KWD"
+  | "FIAT_ON_RAMP_CURRENCY_LKR"
+  | "FIAT_ON_RAMP_CURRENCY_MXN"
+  | "FIAT_ON_RAMP_CURRENCY_NGN"
+  | "FIAT_ON_RAMP_CURRENCY_NOK"
+  | "FIAT_ON_RAMP_CURRENCY_NZD"
+  | "FIAT_ON_RAMP_CURRENCY_OMR"
+  | "FIAT_ON_RAMP_CURRENCY_PEN"
+  | "FIAT_ON_RAMP_CURRENCY_PLN"
+  | "FIAT_ON_RAMP_CURRENCY_RON"
+  | "FIAT_ON_RAMP_CURRENCY_SEK"
+  | "FIAT_ON_RAMP_CURRENCY_THB"
+  | "FIAT_ON_RAMP_CURRENCY_TRY"
+  | "FIAT_ON_RAMP_CURRENCY_TWD"
+  | "FIAT_ON_RAMP_CURRENCY_USD"
+  | "FIAT_ON_RAMP_CURRENCY_VND"
+  | "FIAT_ON_RAMP_CURRENCY_ZAR";
+
+export type v1FiatOnRampPaymentMethod =
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_APPLE_PAY"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_GBP_BANK_TRANSFER"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_GBP_OPEN_BANKING_PAYMENT"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_GOOGLE_PAY"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_SEPA_BANK_TRANSFER"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_PIX_INSTANT_PAYMENT"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_PAYPAL"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_VENMO"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_MOONPAY_BALANCE"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_CRYPTO_ACCOUNT"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_FIAT_WALLET"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT";
+
+export type v1FiatOnRampProvider =
+  | "FIAT_ON_RAMP_PROVIDER_COINBASE"
+  | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
+
 export type v1GetActivitiesRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
@@ -1774,6 +1845,43 @@ export type v1ImportWalletResult = {
   addresses: string[];
 };
 
+export type v1InitFiatOnRampIntent = {
+  /** Enum to specifiy which on-ramp provider to use */
+  onrampProvider: v1FiatOnRampProvider;
+  /** Destination wallet address for the buy transaction. */
+  walletAddress: string;
+  /** Blockchain network to be used for the transaction, e.g., bitcoin, ethereum. Maps to MoonPay's network or Coinbase's defaultNetwork. */
+  network: v1FiatOnRampBlockchainNetwork;
+  /** Code for the cryptocurrency to be purchased, e.g., btc, eth. Maps to MoonPay's currencyCode or Coinbase's defaultAsset. */
+  cryptoCurrencyCode: v1FiatOnRampCryptoCurrency;
+  /** Code for the fiat currency to be used in the transaction, e.g., USD, EUR. */
+  fiatCurrencyCode?: v1FiatOnRampCurrency;
+  /** Specifies a preset fiat amount for the transaction, e.g., '100'. Must be greater than '20'. If not provided, the user will be prompted to enter an amount. */
+  fiatCurrencyAmount?: string;
+  /** Pre-selected payment method, e.g., CREDIT_DEBIT_CARD, APPLE_PAY. Validated against the chosen provider. */
+  paymentMethod?: v1FiatOnRampPaymentMethod;
+  /** ISO 3166-1 two-digit country code for Coinbase representing the purchasing user’s country of residence, e.g., US, GB. */
+  countryCode?: string;
+  /** ISO 3166-2 two-digit country subdivision code for Coinbase representing the purchasing user’s subdivision of residence within their country, e.g. NY. Required if country_code=US. */
+  countrySubdivisionCode?: string;
+};
+
+export type v1InitFiatOnRampRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1InitFiatOnRampIntent;
+};
+
+export type v1InitFiatOnRampResult = {
+  /** Unique URL for a given fiat on-ramp flow. */
+  onRampUrl: string;
+  /** Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
+  onRampTransactionId: string;
+};
+
 export type v1InitImportPrivateKeyIntent = {
   /** The ID of the User importing a Private Key. */
   userId: string;
@@ -2026,6 +2134,10 @@ export type v1Intent = {
   otpLoginIntent?: v1OtpLoginIntent;
   stampLoginIntent?: v1StampLoginIntent;
   oauthLoginIntent?: v1OauthLoginIntent;
+  updateUserNameIntent?: v1UpdateUserNameIntent;
+  updateUserEmailIntent?: v1UpdateUserEmailIntent;
+  updateUserPhoneNumberIntent?: v1UpdateUserPhoneNumberIntent;
+  initFiatOnRampIntent?: v1InitFiatOnRampIntent;
 };
 
 export type v1Invitation = {
@@ -2468,6 +2580,10 @@ export type v1Result = {
   otpLoginResult?: v1OtpLoginResult;
   stampLoginResult?: v1StampLoginResult;
   oauthLoginResult?: v1OauthLoginResult;
+  updateUserNameResult?: v1UpdateUserNameResult;
+  updateUserEmailResult?: v1UpdateUserEmailResult;
+  updateUserPhoneNumberResult?: v1UpdateUserPhoneNumberResult;
+  initFiatOnRampResult?: v1InitFiatOnRampResult;
 };
 
 export type v1RootUserParams = {
@@ -2693,7 +2809,7 @@ export type v1TestRateLimitsRequest = {
   limit: number;
 };
 
-export type v1TestRateLimitsResponse = any;
+export type v1TestRateLimitsResponse = {};
 export type v1TransactionType =
   | "TRANSACTION_TYPE_ETHEREUM"
   | "TRANSACTION_TYPE_SOLANA"
@@ -2704,7 +2820,7 @@ export type v1UpdateAllowedOriginsIntent = {
   allowedOrigins: string[];
 };
 
-export type v1UpdateAllowedOriginsResult = any;
+export type v1UpdateAllowedOriginsResult = {};
 export type v1UpdatePolicyIntent = {
   /** Unique identifier for a given Policy. */
   policyId: string;
@@ -2795,7 +2911,30 @@ export type v1UpdateRootQuorumRequest = {
   parameters: v1UpdateRootQuorumIntent;
 };
 
-export type v1UpdateRootQuorumResult = any;
+export type v1UpdateRootQuorumResult = {};
+export type v1UpdateUserEmailIntent = {
+  /** Unique identifier for a given User. */
+  userId: string;
+  /** The user's email address. Setting this to an empty string will remove the user's email. */
+  userEmail: string;
+  /** Signed JWT containing a unique id, expiry, verification type, contact */
+  verificationToken?: string;
+};
+
+export type v1UpdateUserEmailRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1UpdateUserEmailIntent;
+};
+
+export type v1UpdateUserEmailResult = {
+  /** Unique identifier of the User whose email was updated. */
+  userId: string;
+};
+
 export type v1UpdateUserIntent = {
   /** Unique identifier for a given User. */
   userId: string;
@@ -2807,6 +2946,50 @@ export type v1UpdateUserIntent = {
   userTagIds?: string[];
   /** The user's phone number in E.164 format e.g. +13214567890 */
   userPhoneNumber?: string;
+};
+
+export type v1UpdateUserNameIntent = {
+  /** Unique identifier for a given User. */
+  userId: string;
+  /** Human-readable name for a User. */
+  userName: string;
+};
+
+export type v1UpdateUserNameRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1UpdateUserNameIntent;
+};
+
+export type v1UpdateUserNameResult = {
+  /** Unique identifier of the User whose name was updated. */
+  userId: string;
+};
+
+export type v1UpdateUserPhoneNumberIntent = {
+  /** Unique identifier for a given User. */
+  userId: string;
+  /** The user's phone number in E.164 format e.g. +13214567890. Setting this to an empty string will remove the user's phone number. */
+  userPhoneNumber: string;
+  /** Signed JWT containing a unique id, expiry, verification type, contact */
+  verificationToken?: string;
+};
+
+export type v1UpdateUserPhoneNumberRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1UpdateUserPhoneNumberIntent;
+};
+
+export type v1UpdateUserPhoneNumberResult = {
+  /** Unique identifier of the User whose phone number was updated. */
+  userId: string;
 };
 
 export type v1UpdateUserRequest = {
@@ -3052,244 +3235,393 @@ export type v1WebAuthnStamp = {
   signature: string;
 };
 
-// --- Latest Version Type Aliases ---
-export type AcceptInvitationRequest = {
-  /** Unique identifier for a given Invitation object. */
-  invitationId: string;
-  /** Unique identifier for a given User. */
-  userId: string;
-  /** WebAuthN hardware devices that can be used to log in to the Turnkey web app. */
-  authenticator: v1AuthenticatorParamsV2;
-};
-
-export type AcceptInvitationResult = {
-  /** Unique identifier for a given Invitation. */
-  invitationId: string;
-  /** Unique identifier for a given User. */
-  userId: string;
-};
-
-export type AccessType = v1AccessType;
-export type Activity = {
-  /** Unique identifier for a given Activity object. */
-  id: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  /** The current processing status of a specified Activity. */
-  status: v1ActivityStatus;
-  /** Type of Activity, such as Add User, or Sign Transaction. */
-  type: v1ActivityType;
-  /** Intent object crafted by Turnkey based on the user request, used to assess the permissibility of an action. */
-  intent: v1Intent;
-  /** Result of the intended action. */
-  result: v1Result;
-  /** A list of objects representing a particular User's approval or rejection of a Consensus request, including all relevant metadata. */
-  votes: v1Vote[];
-  /** An artifact verifying a User's action. */
-  fingerprint: string;
-  canApprove: boolean;
-  canReject: boolean;
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
-  /** Failure reason of the intended action. */
-  failure?: rpcStatus;
-};
-
-export type ActivityResponse = {
+// --- API Types from Swagger Paths ---
+export type GetActivityResponse = {
   /** An action that can that can be taken within the Turnkey infrastructure. */
   activity: v1Activity;
 };
 
-export type ActivityStatus = v1ActivityStatus;
-export type ActivityType = v1ActivityType;
-export type AddressFormat = v1AddressFormat;
-export type ApiKey = {
-  /** A User credential that can be used to authenticate to Turnkey. */
-  credential: externaldatav1Credential;
-  /** Unique identifier for a given API Key. */
+export type GetActivityRequest = {
+  organizationId?: string;
+  /** Unique identifier for a given Activity object. */
+  activityId: string;
+};
+
+export type GetApiKeyResponse = {
+  /** An API key. */
+  apiKey: v1ApiKey;
+};
+
+export type GetApiKeyRequest = {
+  organizationId?: string;
+  /** Unique identifier for a given API key. */
   apiKeyId: string;
-  /** Human-readable name for an API Key. */
-  apiKeyName: string;
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
-  /** Optional window (in seconds) indicating how long the API Key should last. */
-  expirationSeconds?: string;
 };
 
-export type ApiKeyCurve = v1ApiKeyCurve;
-export type ApiKeyParams = {
-  /** Human-readable name for an API Key. */
-  apiKeyName: string;
-  /** The public component of a cryptographic key pair used to sign messages and transactions. */
-  publicKey: string;
-  /** The curve type to be used for processing API key signatures. */
-  curveType: v1ApiKeyCurve;
-  /** Optional window (in seconds) indicating how long the API Key should last. */
-  expirationSeconds?: string;
+export type GetApiKeysResponse = {
+  /** A list of API keys. */
+  apiKeys: v1ApiKey[];
 };
 
-export type ApiOnlyUserParams = {
-  /** The name of the new API-only User. */
-  userName: string;
-  /** The email address for this API-only User (optional). */
-  userEmail?: string;
-  /** A list of tags assigned to the new API-only User. This field, if not needed, should be an empty array in your request body. */
-  userTags: string[];
-  /** A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
-  apiKeys: apiApiKeyParams[];
+export type GetApiKeysRequest = {
+  organizationId?: string;
+  /** Unique identifier for a given User. */
+  userId?: string;
 };
 
-export type ApproveActivityRequest = {
-  /** An artifact verifying a User's action. */
-  fingerprint: string;
-  /** Unique identifier for a given Organization. */
+export type GetAttestationDocumentResponse = {
+  /** Raw (CBOR-encoded) attestation document */
+  attestationDocument: string;
+};
+
+export type GetAttestationDocumentRequest = {
+  organizationId?: string;
+  /** The enclave type, one of: ump, notarizer, signer, evm-parser */
+  enclaveType: string;
+};
+
+export type GetAuthenticatorResponse = {
+  /** An authenticator. */
+  authenticator: v1Authenticator;
+};
+
+export type GetAuthenticatorRequest = {
+  organizationId?: string;
+  /** Unique identifier for a given Authenticator. */
+  authenticatorId: string;
+};
+
+export type GetAuthenticatorsResponse = {
+  /** A list of authenticators. */
+  authenticators: v1Authenticator[];
+};
+
+export type GetAuthenticatorsRequest = {
+  organizationId?: string;
+  /** Unique identifier for a given User. */
+  userId: string;
+};
+
+export type GetOauthProvidersResponse = {
+  /** A list of Oauth Providers */
+  oauthProviders: v1OauthProvider[];
+};
+
+export type GetOauthProvidersRequest = {
+  organizationId?: string;
+  /** Unique identifier for a given User. */
+  userId?: string;
+};
+
+export type GetOrganizationResponse = {
+  /** Object representing the full current and deleted / disabled collection of Users, Policies, Private Keys, and Invitations attributable to a particular Organization. */
+  organizationData: v1OrganizationData;
+};
+
+export type GetOrganizationRequest = {
   organizationId?: string;
 };
 
-export type Attestation = {
-  /** The cbor encoded then base64 url encoded id of the credential. */
-  credentialId: string;
-  /** A base64 url encoded payload containing metadata about the signing context and the challenge. */
-  clientDataJson: string;
-  /** A base64 url encoded payload containing authenticator data and any attestation the webauthn provider chooses. */
-  attestationObject: string;
-  /** The type of authenticator transports. */
-  transports: v1AuthenticatorTransport[];
+export type GetOrganizationConfigsResponse = {
+  /** Organization configs including quorum settings and organization features */
+  configs: v1Config;
 };
 
-export type Authenticator = {
-  /** Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
-  transports: v1AuthenticatorTransport[];
-  attestationType: string;
-  /** Identifier indicating the type of the Security Key. */
-  aaguid: string;
-  /** Unique identifier for a WebAuthn credential. */
-  credentialId: string;
-  /** The type of Authenticator device. */
-  model: string;
-  /** A User credential that can be used to authenticate to Turnkey. */
-  credential: externaldatav1Credential;
-  /** Unique identifier for a given Authenticator. */
-  authenticatorId: string;
-  /** Human-readable name for an Authenticator. */
-  authenticatorName: string;
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
+export type GetOrganizationConfigsRequest = {
+  organizationId?: string;
 };
 
-export type AuthenticatorAttestationResponse = {
-  clientDataJson: string;
-  attestationObject: string;
-  transports?: v1AuthenticatorTransport[];
-  authenticatorAttachment?: string;
+export type GetPolicyResponse = {
+  /** Object that codifies rules defining the actions that are permissible within an Organization. */
+  policy: v1Policy;
 };
 
-export type AuthenticatorParams = {
-  /** Human-readable name for an Authenticator. */
-  authenticatorName: string;
-  /** Challenge presented for authentication purposes. */
-  challenge: string;
-  /** The attestation that proves custody of the authenticator and provides metadata about it. */
-  attestation: v1Attestation;
+export type GetPolicyRequest = {
+  organizationId?: string;
+  /** Unique identifier for a given Policy. */
+  policyId: string;
 };
 
-export type AuthenticatorTransport = v1AuthenticatorTransport;
-export type Config = {
-  features?: v1Feature[];
-  quorum?: externaldatav1Quorum;
+export type GetPrivateKeyResponse = {
+  /** Cryptographic public/private key pair that can be used for cryptocurrency needs or more generalized encryption. */
+  privateKey: v1PrivateKey;
+};
+
+export type GetPrivateKeyRequest = {
+  organizationId?: string;
+  /** Unique identifier for a given Private Key. */
+  privateKeyId: string;
+};
+
+export type GetUserResponse = {
+  /** Web and/or API user within your Organization. */
+  user: v1User;
+};
+
+export type GetUserRequest = {
+  organizationId?: string;
+  /** Unique identifier for a given User. */
+  userId: string;
+};
+
+export type GetWalletResponse = {
+  /** A collection of deterministically generated cryptographic public / private key pairs that share a common seed */
+  wallet: v1Wallet;
+};
+
+export type GetWalletRequest = {
+  organizationId?: string;
+  /** Unique identifier for a given Wallet. */
+  walletId: string;
+};
+
+export type GetWalletAccountResponse = {
+  /** The resulting Wallet Account. */
+  account: v1WalletAccount;
+};
+
+export type GetWalletAccountRequest = {
+  organizationId?: string;
+  /** Unique identifier for a given Wallet. */
+  walletId: string;
+  /** Address corresponding to a Wallet Account. */
+  address?: string;
+  /** Path corresponding to a Wallet Account. */
+  path?: string;
+};
+
+export type GetActivitiesResponse = {
+  /** A list of Activities. */
+  activities: v1Activity[];
+};
+
+export type GetActivitiesRequest = {
+  organizationId?: string;
+  /** Array of Activity Statuses filtering which Activities will be listed in the response. */
+  filterByStatus?: v1ActivityStatus[];
+  /** Parameters used for cursor-based pagination. */
+  paginationOptions?: v1Pagination;
+  /** Array of Activity Types filtering which Activities will be listed in the response. */
+  filterByType?: v1ActivityType[];
+};
+
+export type GetPoliciesResponse = {
+  /** A list of Policies. */
+  policies: v1Policy[];
+};
+
+export type GetPoliciesRequest = {
+  organizationId?: string;
+};
+
+export type ListPrivateKeyTagsResponse = {
+  /** A list of Private Key Tags */
+  privateKeyTags: datav1Tag[];
+};
+
+export type ListPrivateKeyTagsRequest = {
+  organizationId?: string;
+};
+
+export type GetPrivateKeysResponse = {
+  /** A list of Private Keys. */
+  privateKeys: v1PrivateKey[];
+};
+
+export type GetPrivateKeysRequest = {
+  organizationId?: string;
+};
+
+export type GetSubOrgIdsResponse = {
+  /** List of unique identifiers for the matching sub-organizations. */
+  organizationIds: string[];
+};
+
+export type GetSubOrgIdsRequest = {
+  organizationId?: string;
+  /** Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN' or 'PUBLIC_KEY' */
+  filterType?: string;
+  /** The value of the filter to apply for the specified type. For example, a specific email or name string. */
+  filterValue?: string;
+  /** Parameters used for cursor-based pagination. */
+  paginationOptions?: v1Pagination;
+};
+
+export type ListUserTagsResponse = {
+  /** A list of User Tags */
+  userTags: datav1Tag[];
+};
+
+export type ListUserTagsRequest = {
+  organizationId?: string;
+};
+
+export type GetUsersResponse = {
+  /** A list of Users. */
+  users: v1User[];
+};
+
+export type GetUsersRequest = {
+  organizationId?: string;
+};
+
+export type GetVerifiedSubOrgIdsResponse = {
+  /** List of unique identifiers for the matching sub-organizations. */
+  organizationIds: string[];
+};
+
+export type GetVerifiedSubOrgIdsRequest = {
+  organizationId?: string;
+  /** Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER' */
+  filterType?: string;
+  /** The value of the filter to apply for the specified type. For example, a specific email or phone number string. */
+  filterValue?: string;
+  /** Parameters used for cursor-based pagination. */
+  paginationOptions?: v1Pagination;
+};
+
+export type GetWalletAccountsResponse = {
+  /** A list of Accounts generated from a Wallet that share a common seed. */
+  accounts: v1WalletAccount[];
+};
+
+export type GetWalletAccountsRequest = {
+  organizationId?: string;
+  /** Unique identifier for a given Wallet. */
+  walletId: string;
+  /** Parameters used for cursor-based pagination. */
+  paginationOptions?: v1Pagination;
+};
+
+export type GetWalletsResponse = {
+  /** A list of Wallets. */
+  wallets: v1Wallet[];
+};
+
+export type GetWalletsRequest = {
+  organizationId?: string;
+};
+
+export type GetWhoamiResponse = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** Human-readable name for an Organization. */
+  organizationName: string;
+  /** Unique identifier for a given User. */
+  userId: string;
+  /** Human-readable name for a User. */
+  username: string;
+};
+
+export type GetWhoamiRequest = {
+  organizationId?: string;
+};
+
+export type ApproveActivityResponse = {
+  /** An action that can that can be taken within the Turnkey infrastructure. */
+  activity: v1Activity;
+};
+
+export type ApproveActivityRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** An artifact verifying a User's action. */
+  fingerprint: string;
+};
+
+export type CreateApiKeysResponse = {
+  activity: v1Activity;
+  /** A list of API Key IDs. */
+  apiKeyIds: string[];
 };
 
 export type CreateApiKeysRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** A list of API Keys. */
   apiKeys: v1ApiKeyParamsV2[];
   /** Unique identifier for a given User. */
   userId: string;
 };
 
-export type CreateApiKeysResult = {
-  /** A list of API Key IDs. */
-  apiKeyIds: string[];
-};
-
-export type CreateApiOnlyUsersRequest = {
-  /** A list of API-only Users to create. */
-  apiOnlyUsers: v1ApiOnlyUserParams[];
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
-};
-
-export type CreateApiOnlyUsersResult = {
+export type CreateApiOnlyUsersResponse = {
+  activity: v1Activity;
   /** A list of API-only User IDs. */
   userIds: string[];
 };
 
+export type CreateApiOnlyUsersRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** A list of API-only Users to create. */
+  apiOnlyUsers: v1ApiOnlyUserParams[];
+};
+
+export type CreateAuthenticatorsResponse = {
+  activity: v1Activity;
+  /** A list of Authenticator IDs. */
+  authenticatorIds: string[];
+};
+
 export type CreateAuthenticatorsRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** A list of Authenticators. */
   authenticators: v1AuthenticatorParamsV2[];
   /** Unique identifier for a given User. */
   userId: string;
 };
 
-export type CreateAuthenticatorsResult = {
-  /** A list of Authenticator IDs. */
-  authenticatorIds: string[];
-};
-
-export type CreateInvitationsRequest = {
-  /** A list of Invitations. */
-  invitations: v1InvitationParams[];
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
-};
-
-export type CreateInvitationsResult = {
+export type CreateInvitationsResponse = {
+  activity: v1Activity;
   /** A list of Invitation IDs */
   invitationIds: string[];
 };
 
-export type CreateOauthProvidersRequest = {
-  /** The ID of the User to add an Oauth provider to */
-  userId: string;
-  /** A list of Oauth providers. */
-  oauthProviders: v1OauthProviderParams[];
-  /** Unique identifier for a given Organization. */
+export type CreateInvitationsRequest = {
+  timestampMs?: string;
   organizationId?: string;
+  /** A list of Invitations. */
+  invitations: v1InvitationParams[];
 };
 
-export type CreateOauthProvidersResult = {
+export type CreateOauthProvidersResponse = {
+  activity: v1Activity;
   /** A list of unique identifiers for Oauth Providers */
   providerIds: string[];
 };
 
-export type CreateOrganizationRequest = {
-  /** Human-readable name for an Organization. */
-  organizationName: string;
-  /** The root user's email address. */
-  rootEmail: string;
-  /** The root user's Authenticator. */
-  rootAuthenticator: v1AuthenticatorParamsV2;
-  /** Unique identifier for the root user object. */
-  rootUserId?: string;
-};
-
-export type CreateOrganizationResult = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-};
-
-export type CreatePoliciesRequest = {
-  /** An array of policy intents to be created. */
-  policies: v1CreatePolicyIntentV3[];
-  /** Unique identifier for a given Organization. */
+export type CreateOauthProvidersRequest = {
+  timestampMs?: string;
   organizationId?: string;
+  /** The ID of the User to add an Oauth provider to */
+  userId: string;
+  /** A list of Oauth providers. */
+  oauthProviders: v1OauthProviderParams[];
 };
 
-export type CreatePoliciesResult = {
+export type CreatePoliciesResponse = {
+  activity: v1Activity;
   /** A list of unique identifiers for the created policies. */
   policyIds: string[];
 };
 
+export type CreatePoliciesRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** An array of policy intents to be created. */
+  policies: v1CreatePolicyIntentV3[];
+};
+
+export type CreatePolicyResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a given Policy. */
+  policyId: string;
+};
+
 export type CreatePolicyRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Human-readable name for a Policy. */
   policyName: string;
   /** The instruction to DENY or ALLOW an activity. */
@@ -3301,40 +3633,38 @@ export type CreatePolicyRequest = {
   notes?: string;
 };
 
-export type CreatePolicyResult = {
-  /** Unique identifier for a given Policy. */
-  policyId: string;
-};
-
-export type CreatePrivateKeyTagRequest = {
-  /** Human-readable name for a Private Key Tag. */
-  privateKeyTagName: string;
-  /** A list of Private Key IDs. */
-  privateKeyIds: string[];
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
-};
-
-export type CreatePrivateKeyTagResult = {
+export type CreatePrivateKeyTagResponse = {
+  activity: v1Activity;
   /** Unique identifier for a given Private Key Tag. */
   privateKeyTagId: string;
   /** A list of Private Key IDs. */
   privateKeyIds: string[];
 };
 
-export type CreatePrivateKeysRequest = {
-  /** A list of Private Keys. */
-  privateKeys: v1PrivateKeyParams[];
+export type CreatePrivateKeyTagRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Human-readable name for a Private Key Tag. */
+  privateKeyTagName: string;
+  /** A list of Private Key IDs. */
+  privateKeyIds: string[];
 };
 
-export type CreatePrivateKeysResult = {
-  /** The activity that was processed. */
+export type CreatePrivateKeysResponse = {
   activity: v1Activity;
   /** A list of Private Key IDs and addresses. */
   privateKeys: v1PrivateKeyResult[];
 };
 
-export type CreateReadOnlySessionResult = {
+export type CreatePrivateKeysRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** A list of Private Keys. */
+  privateKeys: v1PrivateKeyParams[];
+};
+
+export type CreateReadOnlySessionResponse = {
+  activity: v1Activity;
   /** Unique identifier for a given Organization. If the request is being made by a user and their Sub-Organization ID is unknown, this can be the Parent Organization ID. However, using the Sub-Organization ID is preferred due to performance reasons. */
   organizationId: string;
   /** Human-readable name for an Organization. */
@@ -3349,21 +3679,12 @@ export type CreateReadOnlySessionResult = {
   sessionExpiry: string;
 };
 
-export type CreateReadWriteSessionRequest = {
-  /** Client-side public key generated by the user, to which the read write session bundle (credentials) will be encrypted. */
-  targetPublicKey: string;
-  /** Unique identifier for a given User. */
-  userId?: string;
-  /** Optional human-readable name for an API Key. If none provided, default to Read Write Session - <Timestamp> */
-  apiKeyName?: string;
-  /** Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used. */
-  expirationSeconds?: string;
-  /** Invalidate all other previously generated ReadWriteSession API keys */
-  invalidateExisting?: boolean;
+export type CreateReadOnlySessionRequest = {
+  timestampMs?: string;
+  organizationId?: string;
 };
 
-export type CreateReadWriteSessionResult = {
-  /** The activity that was processed. */
+export type CreateReadWriteSessionResponse = {
   activity: v1Activity;
   /** Unique identifier for a given Organization. If the request is being made by a user and their Sub-Organization ID is unknown, this can be the Parent Organization ID. However, using the Sub-Organization ID is preferred due to performance reasons. */
   organizationId: string;
@@ -3379,7 +3700,31 @@ export type CreateReadWriteSessionResult = {
   credentialBundle: string;
 };
 
+export type CreateReadWriteSessionRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Client-side public key generated by the user, to which the read write session bundle (credentials) will be encrypted. */
+  targetPublicKey: string;
+  /** Unique identifier for a given User. */
+  userId?: string;
+  /** Optional human-readable name for an API Key. If none provided, default to Read Write Session - <Timestamp> */
+  apiKeyName?: string;
+  /** Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used. */
+  expirationSeconds?: string;
+  /** Invalidate all other previously generated ReadWriteSession API keys */
+  invalidateExisting?: boolean;
+};
+
+export type CreateSubOrganizationResponse = {
+  activity: v1Activity;
+  subOrganizationId: string;
+  wallet?: v1WalletResult;
+  rootUserIds?: string[];
+};
+
 export type CreateSubOrganizationRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Name for this sub-organization */
   subOrganizationName: string;
   /** Root users to create within this sub-organization */
@@ -3398,246 +3743,238 @@ export type CreateSubOrganizationRequest = {
   disableOtpEmailAuth?: boolean;
 };
 
-export type CreateSubOrganizationResult = {
-  /** The activity that was processed. */
+export type CreateUserTagResponse = {
   activity: v1Activity;
-  subOrganizationId: string;
-  wallet?: v1WalletResult;
-  rootUserIds?: string[];
-};
-
-export type CreateUserTagRequest = {
-  /** Human-readable name for a User Tag. */
-  userTagName: string;
-  /** A list of User IDs. */
-  userIds: string[];
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
-};
-
-export type CreateUserTagResult = {
   /** Unique identifier for a given User Tag. */
   userTagId: string;
   /** A list of User IDs. */
   userIds: string[];
 };
 
-export type CreateUsersRequest = {
-  /** A list of Users. */
-  users: v1UserParamsV3[];
-};
-
-export type CreateUsersResult = {
+export type CreateUserTagRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Human-readable name for a User Tag. */
+  userTagName: string;
   /** A list of User IDs. */
   userIds: string[];
 };
 
-export type CreateWalletAccountsRequest = {
-  /** Unique identifier for a given Wallet. */
-  walletId: string;
-  /** A list of wallet Accounts. */
-  accounts: v1WalletAccountParams[];
-  /** Unique identifier for a given Organization. */
+export type CreateUsersResponse = {
+  activity: v1Activity;
+  /** A list of User IDs. */
+  userIds: string[];
+};
+
+export type CreateUsersRequest = {
+  timestampMs?: string;
   organizationId?: string;
+  /** A list of Users. */
+  users: v1UserParamsV3[];
 };
 
-export type CreateWalletAccountsResult = {
-  /** A list of derived addresses. */
-  addresses: string[];
-};
-
-export type CreateWalletRequest = {
-  /** Human-readable name for a Wallet. */
-  walletName: string;
-  /** A list of wallet Accounts. This field, if not needed, should be an empty array in your request body. */
-  accounts: v1WalletAccountParams[];
-  /** Length of mnemonic to generate the Wallet seed. Defaults to 12. Accepted values: 12, 15, 18, 21, 24. */
-  mnemonicLength?: number;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
-};
-
-export type CreateWalletResult = {
+export type CreateWalletResponse = {
+  activity: v1Activity;
   /** Unique identifier for a Wallet. */
   walletId: string;
   /** A list of account addresses. */
   addresses: string[];
 };
 
-export type CredPropsAuthenticationExtensionsClientOutputs = {
-  rk: boolean;
+export type CreateWalletRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Human-readable name for a Wallet. */
+  walletName: string;
+  /** A list of wallet Accounts. This field, if not needed, should be an empty array in your request body. */
+  accounts: v1WalletAccountParams[];
+  /** Length of mnemonic to generate the Wallet seed. Defaults to 12. Accepted values: 12, 15, 18, 21, 24. */
+  mnemonicLength?: number;
 };
 
-export type CredentialType = v1CredentialType;
-export type Curve = v1Curve;
+export type CreateWalletAccountsResponse = {
+  activity: v1Activity;
+  /** A list of derived addresses. */
+  addresses: string[];
+};
+
+export type CreateWalletAccountsRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Unique identifier for a given Wallet. */
+  walletId: string;
+  /** A list of wallet Accounts. */
+  accounts: v1WalletAccountParams[];
+};
+
+export type DeleteApiKeysResponse = {
+  activity: v1Activity;
+  /** A list of API Key IDs. */
+  apiKeyIds: string[];
+};
+
 export type DeleteApiKeysRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Unique identifier for a given User. */
   userId: string;
   /** A list of API Key IDs. */
   apiKeyIds: string[];
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type DeleteApiKeysResult = {
-  /** A list of API Key IDs. */
-  apiKeyIds: string[];
-};
-
-export type DeleteAuthenticatorsRequest = {
-  /** Unique identifier for a given User. */
-  userId: string;
-  /** A list of Authenticator IDs. */
-  authenticatorIds: string[];
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
-};
-
-export type DeleteAuthenticatorsResult = {
+export type DeleteAuthenticatorsResponse = {
+  activity: v1Activity;
   /** Unique identifier for a given Authenticator. */
   authenticatorIds: string[];
 };
 
-export type DeleteInvitationRequest = {
-  /** Unique identifier for a given Invitation object. */
-  invitationId: string;
-  /** Unique identifier for a given Organization. */
+export type DeleteAuthenticatorsRequest = {
+  timestampMs?: string;
   organizationId?: string;
+  /** Unique identifier for a given User. */
+  userId: string;
+  /** A list of Authenticator IDs. */
+  authenticatorIds: string[];
 };
 
-export type DeleteInvitationResult = {
+export type DeleteInvitationResponse = {
+  activity: v1Activity;
   /** Unique identifier for a given Invitation. */
   invitationId: string;
 };
 
-export type DeleteOauthProvidersRequest = {
-  /** The ID of the User to remove an Oauth provider from */
-  userId: string;
-  /** Unique identifier for a given Provider. */
-  providerIds: string[];
-  /** Unique identifier for a given Organization. */
+export type DeleteInvitationRequest = {
+  timestampMs?: string;
   organizationId?: string;
+  /** Unique identifier for a given Invitation object. */
+  invitationId: string;
 };
 
-export type DeleteOauthProvidersResult = {
+export type DeleteOauthProvidersResponse = {
+  activity: v1Activity;
   /** A list of unique identifiers for Oauth Providers */
   providerIds: string[];
 };
 
-export type DeleteOrganizationRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
+export type DeleteOauthProvidersRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The ID of the User to remove an Oauth provider from */
+  userId: string;
+  /** Unique identifier for a given Provider. */
+  providerIds: string[];
 };
 
-export type DeleteOrganizationResult = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
+export type DeletePolicyResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a given Policy. */
+  policyId: string;
 };
 
 export type DeletePolicyRequest = {
-  /** Unique identifier for a given Policy. */
-  policyId: string;
-  /** Unique identifier for a given Organization. */
+  timestampMs?: string;
   organizationId?: string;
-};
-
-export type DeletePolicyResult = {
   /** Unique identifier for a given Policy. */
   policyId: string;
 };
 
-export type DeletePrivateKeyTagsRequest = {
-  /** A list of Private Key Tag IDs. */
-  privateKeyTagIds: string[];
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
-};
-
-export type DeletePrivateKeyTagsResult = {
+export type DeletePrivateKeyTagsResponse = {
+  activity: v1Activity;
   /** A list of Private Key Tag IDs. */
   privateKeyTagIds: string[];
   /** A list of Private Key IDs. */
   privateKeyIds: string[];
 };
 
-export type DeletePrivateKeysRequest = {
-  /** List of unique identifiers for private keys within an organization */
-  privateKeyIds: string[];
-  /** Optional parameter for deleting the private keys, even if any have not been previously exported. If they have been exported, this field is ignored. */
-  deleteWithoutExport?: boolean;
-  /** Unique identifier for a given Organization. */
+export type DeletePrivateKeyTagsRequest = {
+  timestampMs?: string;
   organizationId?: string;
+  /** A list of Private Key Tag IDs. */
+  privateKeyTagIds: string[];
 };
 
-export type DeletePrivateKeysResult = {
+export type DeletePrivateKeysResponse = {
+  activity: v1Activity;
   /** A list of private key unique identifiers that were removed */
   privateKeyIds: string[];
 };
 
-export type DeleteSubOrganizationRequest = {
-  /** Sub-organization deletion, by default, requires associated wallets and private keys to be exported for security reasons. Set this boolean to true to force sub-organization deletion even if some wallets or private keys within it have not been exported yet. Default: false. */
-  deleteWithoutExport?: boolean;
-  /** Unique identifier for a given Organization. */
+export type DeletePrivateKeysRequest = {
+  timestampMs?: string;
   organizationId?: string;
+  /** List of unique identifiers for private keys within an organization */
+  privateKeyIds: string[];
+  /** Optional parameter for deleting the private keys, even if any have not been previously exported. If they have been exported, this field is ignored. */
+  deleteWithoutExport?: boolean;
 };
 
-export type DeleteSubOrganizationResult = {
+export type DeleteSubOrganizationResponse = {
+  activity: v1Activity;
   /** Unique identifier of the sub organization that was removed */
   subOrganizationUuid: string;
 };
 
-export type DeleteUserTagsRequest = {
-  /** A list of User Tag IDs. */
-  userTagIds: string[];
-  /** Unique identifier for a given Organization. */
+export type DeleteSubOrganizationRequest = {
+  timestampMs?: string;
   organizationId?: string;
+  /** Sub-organization deletion, by default, requires associated wallets and private keys to be exported for security reasons. Set this boolean to true to force sub-organization deletion even if some wallets or private keys within it have not been exported yet. Default: false. */
+  deleteWithoutExport?: boolean;
 };
 
-export type DeleteUserTagsResult = {
+export type DeleteUserTagsResponse = {
+  activity: v1Activity;
   /** A list of User Tag IDs. */
   userTagIds: string[];
+  /** A list of User IDs. */
+  userIds: string[];
+};
+
+export type DeleteUserTagsRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** A list of User Tag IDs. */
+  userTagIds: string[];
+};
+
+export type DeleteUsersResponse = {
+  activity: v1Activity;
   /** A list of User IDs. */
   userIds: string[];
 };
 
 export type DeleteUsersRequest = {
-  /** A list of User IDs. */
-  userIds: string[];
-  /** Unique identifier for a given Organization. */
+  timestampMs?: string;
   organizationId?: string;
-};
-
-export type DeleteUsersResult = {
   /** A list of User IDs. */
   userIds: string[];
 };
 
-export type DeleteWalletsRequest = {
-  /** List of unique identifiers for wallets within an organization */
-  walletIds: string[];
-  /** Optional parameter for deleting the wallets, even if any have not been previously exported. If they have been exported, this field is ignored. */
-  deleteWithoutExport?: boolean;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
-};
-
-export type DeleteWalletsResult = {
+export type DeleteWalletsResponse = {
+  activity: v1Activity;
   /** A list of wallet unique identifiers that were removed */
   walletIds: string[];
 };
 
-export type DisablePrivateKeyRequest = {
-  /** Unique identifier for a given Private Key. */
-  privateKeyId: string;
+export type DeleteWalletsRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** List of unique identifiers for wallets within an organization */
+  walletIds: string[];
+  /** Optional parameter for deleting the wallets, even if any have not been previously exported. If they have been exported, this field is ignored. */
+  deleteWithoutExport?: boolean;
 };
 
-export type DisablePrivateKeyResult = {
-  /** Unique identifier for a given Private Key. */
-  privateKeyId: string;
+export type EmailAuthResponse = {
+  activity: v1Activity;
+  /** Unique identifier for the authenticating User. */
+  userId: string;
+  /** Unique identifier for the created API key. */
+  apiKeyId: string;
 };
 
-export type Effect = v1Effect;
 export type EmailAuthRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Email of the authenticating user. */
   email: string;
   /** Client-side public key generated by the user, to which the email auth bundle (credentials) will be encrypted. */
@@ -3658,200 +3995,70 @@ export type EmailAuthRequest = {
   replyToEmailAddress?: string;
 };
 
-export type EmailAuthResult = {
-  /** Unique identifier for the authenticating User. */
-  userId: string;
-  /** Unique identifier for the created API key. */
-  apiKeyId: string;
-};
-
-export type EmailCustomizationParams = {
-  /** The name of the application. */
-  appName?: string;
-  /** A URL pointing to a logo in PNG format. Note this logo will be resized to fit into 340px x 124px. */
-  logoUrl?: string;
-  /** A template for the URL to be used in a magic link button, e.g. `https://dapp.xyz/%s`. The auth bundle will be interpolated into the `%s`. */
-  magicLinkTemplate?: string;
-  /** JSON object containing key/value pairs to be used with custom templates. */
-  templateVariables?: string;
-  /** Unique identifier for a given Email Template. If not specified, the default is the most recent Email Template. */
-  templateId?: string;
-};
-
-export type ExportPrivateKeyRequest = {
-  /** Unique identifier for a given Private Key. */
-  privateKeyId: string;
-  /** Client-side public key generated by the user, to which the export bundle will be encrypted. */
-  targetPublicKey: string;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
-};
-
-export type ExportPrivateKeyResult = {
+export type ExportPrivateKeyResponse = {
+  activity: v1Activity;
   /** Unique identifier for a given Private Key. */
   privateKeyId: string;
   /** Export bundle containing a private key encrypted to the client's target public key. */
   exportBundle: string;
 };
 
-export type ExportWalletAccountRequest = {
-  /** Address to identify Wallet Account. */
-  address: string;
+export type ExportPrivateKeyRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Unique identifier for a given Private Key. */
+  privateKeyId: string;
   /** Client-side public key generated by the user, to which the export bundle will be encrypted. */
   targetPublicKey: string;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type ExportWalletAccountResult = {
-  /** Address to identify Wallet Account. */
-  address: string;
-  /** Export bundle containing a private key encrypted by the client's target public key. */
-  exportBundle: string;
-};
-
-export type ExportWalletRequest = {
-  /** Unique identifier for a given Wallet. */
-  walletId: string;
-  /** Client-side public key generated by the user, to which the export bundle will be encrypted. */
-  targetPublicKey: string;
-  /** The language of the mnemonic to export. Defaults to English. */
-  language?: v1MnemonicLanguage;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
-};
-
-export type ExportWalletResult = {
+export type ExportWalletResponse = {
+  activity: v1Activity;
   /** Unique identifier for a given Wallet. */
   walletId: string;
   /** Export bundle containing a wallet mnemonic + optional newline passphrase encrypted by the client's target public key. */
   exportBundle: string;
 };
 
-export type Feature = {
-  name?: v1FeatureName;
-  value?: string;
+export type ExportWalletRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Unique identifier for a given Wallet. */
+  walletId: string;
+  /** Client-side public key generated by the user, to which the export bundle will be encrypted. */
+  targetPublicKey: string;
+  /** The language of the mnemonic to export. Defaults to English. */
+  language?: v1MnemonicLanguage;
 };
 
-export type FeatureName = v1FeatureName;
-export type GetActivitiesResponse = {
-  /** A list of Activities. */
-  activities: v1Activity[];
+export type ExportWalletAccountResponse = {
+  activity: v1Activity;
+  /** Address to identify Wallet Account. */
+  address: string;
+  /** Export bundle containing a private key encrypted by the client's target public key. */
+  exportBundle: string;
 };
 
-export type GetApiKeyResponse = {
-  /** An API key. */
-  apiKey: v1ApiKey;
+export type ExportWalletAccountRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Address to identify Wallet Account. */
+  address: string;
+  /** Client-side public key generated by the user, to which the export bundle will be encrypted. */
+  targetPublicKey: string;
 };
 
-export type GetApiKeysResponse = {
-  /** A list of API keys. */
-  apiKeys: v1ApiKey[];
+export type ImportPrivateKeyResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a Private Key. */
+  privateKeyId: string;
+  /** A list of addresses. */
+  addresses: immutableactivityv1Address[];
 };
 
-export type GetAttestationDocumentResponse = {
-  /** Raw (CBOR-encoded) attestation document */
-  attestationDocument: string;
-};
-
-export type GetAuthenticatorResponse = {
-  /** An authenticator. */
-  authenticator: v1Authenticator;
-};
-
-export type GetAuthenticatorsResponse = {
-  /** A list of authenticators. */
-  authenticators: v1Authenticator[];
-};
-
-export type GetOauthProvidersResponse = {
-  /** A list of Oauth Providers */
-  oauthProviders: v1OauthProvider[];
-};
-
-export type GetOrganizationConfigsResponse = {
-  /** Organization configs including quorum settings and organization features */
-  configs: v1Config;
-};
-
-export type GetOrganizationResponse = {
-  /** Object representing the full current and deleted / disabled collection of Users, Policies, Private Keys, and Invitations attributable to a particular Organization. */
-  organizationData: v1OrganizationData;
-};
-
-export type GetPoliciesResponse = {
-  /** A list of Policies. */
-  policies: v1Policy[];
-};
-
-export type GetPolicyResponse = {
-  /** Object that codifies rules defining the actions that are permissible within an Organization. */
-  policy: v1Policy;
-};
-
-export type GetPrivateKeyResponse = {
-  /** Cryptographic public/private key pair that can be used for cryptocurrency needs or more generalized encryption. */
-  privateKey: v1PrivateKey;
-};
-
-export type GetPrivateKeysResponse = {
-  /** A list of Private Keys. */
-  privateKeys: v1PrivateKey[];
-};
-
-export type GetSubOrgIdsResponse = {
-  /** List of unique identifiers for the matching sub-organizations. */
-  organizationIds: string[];
-};
-
-export type GetUserResponse = {
-  /** Web and/or API user within your Organization. */
-  user: v1User;
-};
-
-export type GetUsersResponse = {
-  /** A list of Users. */
-  users: v1User[];
-};
-
-export type GetVerifiedSubOrgIdsResponse = {
-  /** List of unique identifiers for the matching sub-organizations. */
-  organizationIds: string[];
-};
-
-export type GetWalletAccountResponse = {
-  /** The resulting Wallet Account. */
-  account: v1WalletAccount;
-};
-
-export type GetWalletAccountsResponse = {
-  /** A list of Accounts generated from a Wallet that share a common seed. */
-  accounts: v1WalletAccount[];
-};
-
-export type GetWalletResponse = {
-  /** A collection of deterministically generated cryptographic public / private key pairs that share a common seed */
-  wallet: v1Wallet;
-};
-
-export type GetWalletsResponse = {
-  /** A list of Wallets. */
-  wallets: v1Wallet[];
-};
-
-export type GetWhoamiResponse = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  /** Human-readable name for an Organization. */
-  organizationName: string;
-  /** Unique identifier for a given User. */
-  userId: string;
-  /** Human-readable name for a User. */
-  username: string;
-};
-
-export type HashFunction = v1HashFunction;
 export type ImportPrivateKeyRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** The ID of the User importing a Private Key. */
   userId: string;
   /** Human-readable name for a Private Key. */
@@ -3862,18 +4069,19 @@ export type ImportPrivateKeyRequest = {
   curve: v1Curve;
   /** Cryptocurrency-specific formats for a derived address (e.g., Ethereum). */
   addressFormats: v1AddressFormat[];
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type ImportPrivateKeyResult = {
-  /** Unique identifier for a Private Key. */
-  privateKeyId: string;
-  /** A list of addresses. */
-  addresses: immutableactivityv1Address[];
+export type ImportWalletResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a Wallet. */
+  walletId: string;
+  /** A list of account addresses. */
+  addresses: string[];
 };
 
 export type ImportWalletRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** The ID of the User importing a Wallet. */
   userId: string;
   /** Human-readable name for a Wallet. */
@@ -3882,72 +4090,74 @@ export type ImportWalletRequest = {
   encryptedBundle: string;
   /** A list of wallet Accounts. */
   accounts: v1WalletAccountParams[];
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type ImportWalletResult = {
-  /** Unique identifier for a Wallet. */
-  walletId: string;
-  /** A list of account addresses. */
-  addresses: string[];
+export type InitFiatOnRampResponse = {
+  activity: v1Activity;
+  /** Unique URL for a given fiat on-ramp flow. */
+  onRampUrl: string;
+  /** Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
+  onRampTransactionId: string;
+};
+
+export type InitFiatOnRampRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Enum to specifiy which on-ramp provider to use */
+  onrampProvider: v1FiatOnRampProvider;
+  /** Destination wallet address for the buy transaction. */
+  walletAddress: string;
+  /** Blockchain network to be used for the transaction, e.g., bitcoin, ethereum. Maps to MoonPay's network or Coinbase's defaultNetwork. */
+  network: v1FiatOnRampBlockchainNetwork;
+  /** Code for the cryptocurrency to be purchased, e.g., btc, eth. Maps to MoonPay's currencyCode or Coinbase's defaultAsset. */
+  cryptoCurrencyCode: v1FiatOnRampCryptoCurrency;
+  /** Code for the fiat currency to be used in the transaction, e.g., USD, EUR. */
+  fiatCurrencyCode?: v1FiatOnRampCurrency;
+  /** Specifies a preset fiat amount for the transaction, e.g., '100'. Must be greater than '20'. If not provided, the user will be prompted to enter an amount. */
+  fiatCurrencyAmount?: string;
+  /** Pre-selected payment method, e.g., CREDIT_DEBIT_CARD, APPLE_PAY. Validated against the chosen provider. */
+  paymentMethod?: v1FiatOnRampPaymentMethod;
+  /** ISO 3166-1 two-digit country code for Coinbase representing the purchasing user’s country of residence, e.g., US, GB. */
+  countryCode?: string;
+  /** ISO 3166-2 two-digit country subdivision code for Coinbase representing the purchasing user’s subdivision of residence within their country, e.g. NY. Required if country_code=US. */
+  countrySubdivisionCode?: string;
+};
+
+export type InitImportPrivateKeyResponse = {
+  activity: v1Activity;
+  /** Import bundle containing a public key and signature to use for importing client data. */
+  importBundle: string;
 };
 
 export type InitImportPrivateKeyRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** The ID of the User importing a Private Key. */
   userId: string;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type InitImportPrivateKeyResult = {
+export type InitImportWalletResponse = {
+  activity: v1Activity;
   /** Import bundle containing a public key and signature to use for importing client data. */
   importBundle: string;
 };
 
 export type InitImportWalletRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** The ID of the User importing a Wallet. */
   userId: string;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type InitImportWalletResult = {
-  /** Import bundle containing a public key and signature to use for importing client data. */
-  importBundle: string;
-};
-
-export type InitOtpAuthRequest = {
-  /** Enum to specifiy whether to send OTP via SMS or email */
-  otpType: string;
-  /** Email or phone number to send the OTP code to */
-  contact: string;
-  /** Optional length of the OTP code. Default = 9 */
-  otpLength?: number;
-  /** Optional parameters for customizing emails. If not provided, the default email will be used. */
-  emailCustomization?: v1EmailCustomizationParams;
-  /** Optional parameters for customizing SMS message. If not provided, the default sms message will be used. */
-  smsCustomization?: v1SmsCustomizationParams;
-  /** Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address. */
-  userIdentifier?: string;
-  /** Optional custom email address from which to send the OTP email */
-  sendFromEmailAddress?: string;
-  /** Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). Default = true */
-  alphanumeric?: boolean;
-  /** Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
-  sendFromEmailSenderName?: string;
-  /** Optional custom email address to use as reply-to */
-  replyToEmailAddress?: string;
-};
-
-export type InitOtpAuthResult = {
-  /** The activity that was processed. */
+export type InitOtpResponse = {
   activity: v1Activity;
   /** Unique identifier for an OTP authentication */
   otpId: string;
 };
 
 export type InitOtpRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL */
   otpType: string;
   /** Email or phone number to send the OTP code to */
@@ -3970,16 +4180,48 @@ export type InitOtpRequest = {
   expirationSeconds?: string;
   /** Optional custom email address to use as reply-to */
   replyToEmailAddress?: string;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type InitOtpResult = {
+export type InitOtpAuthResponse = {
+  activity: v1Activity;
   /** Unique identifier for an OTP authentication */
   otpId: string;
 };
 
+export type InitOtpAuthRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Enum to specifiy whether to send OTP via SMS or email */
+  otpType: string;
+  /** Email or phone number to send the OTP code to */
+  contact: string;
+  /** Optional length of the OTP code. Default = 9 */
+  otpLength?: number;
+  /** Optional parameters for customizing emails. If not provided, the default email will be used. */
+  emailCustomization?: v1EmailCustomizationParams;
+  /** Optional parameters for customizing SMS message. If not provided, the default sms message will be used. */
+  smsCustomization?: v1SmsCustomizationParams;
+  /** Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address. */
+  userIdentifier?: string;
+  /** Optional custom email address from which to send the OTP email */
+  sendFromEmailAddress?: string;
+  /** Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). Default = true */
+  alphanumeric?: boolean;
+  /** Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+  sendFromEmailSenderName?: string;
+  /** Optional custom email address to use as reply-to */
+  replyToEmailAddress?: string;
+};
+
+export type InitUserEmailRecoveryResponse = {
+  activity: v1Activity;
+  /** Unique identifier for the user being recovered. */
+  userId: string;
+};
+
 export type InitUserEmailRecoveryRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Email of the user starting recovery */
   email: string;
   /** Client-side public key generated by the user, to which the recovery bundle will be encrypted. */
@@ -3988,155 +4230,21 @@ export type InitUserEmailRecoveryRequest = {
   expirationSeconds?: string;
   /** Optional parameters for customizing emails. If not provided, the default email will be used. */
   emailCustomization?: v1EmailCustomizationParams;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type InitUserEmailRecoveryResult = {
-  /** Unique identifier for the user being recovered. */
+export type OauthResponse = {
+  activity: v1Activity;
+  /** Unique identifier for the authenticating User. */
   userId: string;
-};
-
-export type Intent = {
-  createOrganizationIntent?: v1CreateOrganizationIntent;
-  createAuthenticatorsIntent?: v1CreateAuthenticatorsIntent;
-  createUsersIntent?: v1CreateUsersIntent;
-  createPrivateKeysIntent?: v1CreatePrivateKeysIntent;
-  signRawPayloadIntent?: v1SignRawPayloadIntent;
-  createInvitationsIntent?: v1CreateInvitationsIntent;
-  acceptInvitationIntent?: v1AcceptInvitationIntent;
-  createPolicyIntent?: v1CreatePolicyIntent;
-  disablePrivateKeyIntent?: v1DisablePrivateKeyIntent;
-  deleteUsersIntent?: v1DeleteUsersIntent;
-  deleteAuthenticatorsIntent?: v1DeleteAuthenticatorsIntent;
-  deleteInvitationIntent?: v1DeleteInvitationIntent;
-  deleteOrganizationIntent?: v1DeleteOrganizationIntent;
-  deletePolicyIntent?: v1DeletePolicyIntent;
-  createUserTagIntent?: v1CreateUserTagIntent;
-  deleteUserTagsIntent?: v1DeleteUserTagsIntent;
-  signTransactionIntent?: v1SignTransactionIntent;
-  createApiKeysIntent?: v1CreateApiKeysIntent;
-  deleteApiKeysIntent?: v1DeleteApiKeysIntent;
-  approveActivityIntent?: v1ApproveActivityIntent;
-  rejectActivityIntent?: v1RejectActivityIntent;
-  createPrivateKeyTagIntent?: v1CreatePrivateKeyTagIntent;
-  deletePrivateKeyTagsIntent?: v1DeletePrivateKeyTagsIntent;
-  createPolicyIntentV2?: v1CreatePolicyIntentV2;
-  setPaymentMethodIntent?: billingSetPaymentMethodIntent;
-  activateBillingTierIntent?: billingActivateBillingTierIntent;
-  deletePaymentMethodIntent?: billingDeletePaymentMethodIntent;
-  createPolicyIntentV3?: v1CreatePolicyIntentV3;
-  createApiOnlyUsersIntent?: v1CreateApiOnlyUsersIntent;
-  updateRootQuorumIntent?: v1UpdateRootQuorumIntent;
-  updateUserTagIntent?: v1UpdateUserTagIntent;
-  updatePrivateKeyTagIntent?: v1UpdatePrivateKeyTagIntent;
-  createAuthenticatorsIntentV2?: v1CreateAuthenticatorsIntentV2;
-  acceptInvitationIntentV2?: v1AcceptInvitationIntentV2;
-  createOrganizationIntentV2?: v1CreateOrganizationIntentV2;
-  createUsersIntentV2?: v1CreateUsersIntentV2;
-  createSubOrganizationIntent?: v1CreateSubOrganizationIntent;
-  createSubOrganizationIntentV2?: v1CreateSubOrganizationIntentV2;
-  updateAllowedOriginsIntent?: v1UpdateAllowedOriginsIntent;
-  createPrivateKeysIntentV2?: v1CreatePrivateKeysIntentV2;
-  updateUserIntent?: v1UpdateUserIntent;
-  updatePolicyIntent?: v1UpdatePolicyIntent;
-  setPaymentMethodIntentV2?: billingSetPaymentMethodIntentV2;
-  createSubOrganizationIntentV3?: v1CreateSubOrganizationIntentV3;
-  createWalletIntent?: v1CreateWalletIntent;
-  createWalletAccountsIntent?: v1CreateWalletAccountsIntent;
-  initUserEmailRecoveryIntent?: v1InitUserEmailRecoveryIntent;
-  recoverUserIntent?: v1RecoverUserIntent;
-  setOrganizationFeatureIntent?: v1SetOrganizationFeatureIntent;
-  removeOrganizationFeatureIntent?: v1RemoveOrganizationFeatureIntent;
-  signRawPayloadIntentV2?: v1SignRawPayloadIntentV2;
-  signTransactionIntentV2?: v1SignTransactionIntentV2;
-  exportPrivateKeyIntent?: v1ExportPrivateKeyIntent;
-  exportWalletIntent?: v1ExportWalletIntent;
-  createSubOrganizationIntentV4?: v1CreateSubOrganizationIntentV4;
-  emailAuthIntent?: v1EmailAuthIntent;
-  exportWalletAccountIntent?: v1ExportWalletAccountIntent;
-  initImportWalletIntent?: v1InitImportWalletIntent;
-  importWalletIntent?: v1ImportWalletIntent;
-  initImportPrivateKeyIntent?: v1InitImportPrivateKeyIntent;
-  importPrivateKeyIntent?: v1ImportPrivateKeyIntent;
-  createPoliciesIntent?: v1CreatePoliciesIntent;
-  signRawPayloadsIntent?: v1SignRawPayloadsIntent;
-  createReadOnlySessionIntent?: v1CreateReadOnlySessionIntent;
-  createOauthProvidersIntent?: v1CreateOauthProvidersIntent;
-  deleteOauthProvidersIntent?: v1DeleteOauthProvidersIntent;
-  createSubOrganizationIntentV5?: v1CreateSubOrganizationIntentV5;
-  oauthIntent?: v1OauthIntent;
-  createApiKeysIntentV2?: v1CreateApiKeysIntentV2;
-  createReadWriteSessionIntent?: v1CreateReadWriteSessionIntent;
-  emailAuthIntentV2?: v1EmailAuthIntentV2;
-  createSubOrganizationIntentV6?: v1CreateSubOrganizationIntentV6;
-  deletePrivateKeysIntent?: v1DeletePrivateKeysIntent;
-  deleteWalletsIntent?: v1DeleteWalletsIntent;
-  createReadWriteSessionIntentV2?: v1CreateReadWriteSessionIntentV2;
-  deleteSubOrganizationIntent?: v1DeleteSubOrganizationIntent;
-  initOtpAuthIntent?: v1InitOtpAuthIntent;
-  otpAuthIntent?: v1OtpAuthIntent;
-  createSubOrganizationIntentV7?: v1CreateSubOrganizationIntentV7;
-  updateWalletIntent?: v1UpdateWalletIntent;
-  updatePolicyIntentV2?: v1UpdatePolicyIntentV2;
-  createUsersIntentV3?: v1CreateUsersIntentV3;
-  initOtpAuthIntentV2?: v1InitOtpAuthIntentV2;
-  initOtpIntent?: v1InitOtpIntent;
-  verifyOtpIntent?: v1VerifyOtpIntent;
-  otpLoginIntent?: v1OtpLoginIntent;
-  stampLoginIntent?: v1StampLoginIntent;
-  oauthLoginIntent?: v1OauthLoginIntent;
-};
-
-export type Invitation = {
-  /** Unique identifier for a given Invitation object. */
-  invitationId: string;
-  /** The name of the intended Invitation recipient. */
-  receiverUserName: string;
-  /** The email address of the intended Invitation recipient. */
-  receiverEmail: string;
-  /** A list of tags assigned to the Invitation recipient. */
-  receiverUserTags: string[];
-  /** The User's permissible access method(s). */
-  accessType: v1AccessType;
-  /** The current processing status of a specified Invitation. */
-  status: v1InvitationStatus;
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
-  /** Unique identifier for the Sender of an Invitation. */
-  senderUserId: string;
-};
-
-export type InvitationParams = {
-  /** The name of the intended Invitation recipient. */
-  receiverUserName: string;
-  /** The email address of the intended Invitation recipient. */
-  receiverUserEmail: string;
-  /** A list of tags assigned to the Invitation recipient. This field, if not needed, should be an empty array in your request body. */
-  receiverUserTags: string[];
-  /** The User's permissible access method(s). */
-  accessType: v1AccessType;
-  /** Unique identifier for the Sender of an Invitation. */
-  senderUserId: string;
-};
-
-export type InvitationStatus = v1InvitationStatus;
-export type ListPrivateKeyTagsResponse = {
-  /** A list of Private Key Tags */
-  privateKeyTags: datav1Tag[];
-};
-
-export type ListUserTagsResponse = {
-  /** A list of User Tags */
-  userTags: datav1Tag[];
-};
-
-export type MnemonicLanguage = v1MnemonicLanguage;
-export type NOOPCodegenAnchorResponse = {
-  stamp: v1WebAuthnStamp;
+  /** Unique identifier for the created API key. */
+  apiKeyId: string;
+  /** HPKE encrypted credential bundle */
+  credentialBundle: string;
 };
 
 export type OauthRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Base64 encoded OIDC token */
   oidcToken: string;
   /** Client-side public key generated by the user, to which the oauth bundle (credentials) will be encrypted. */
@@ -4147,11 +4255,17 @@ export type OauthRequest = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Oauth API keys */
   invalidateExisting?: boolean;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
+};
+
+export type OauthLoginResponse = {
+  activity: v1Activity;
+  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
+  session: string;
 };
 
 export type OauthLoginRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Base64 encoded OIDC token */
   oidcToken: string;
   /** Client-side public key generated by the user, which will be conditionally added to org data based on the validity of the oidc token associated with this request */
@@ -4160,61 +4274,21 @@ export type OauthLoginRequest = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type OauthLoginResult = {
-  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
-  session: string;
-};
-
-export type OauthProvider = {
-  /** Unique identifier for an OAuth Provider */
-  providerId: string;
-  /** Human-readable name to identify a Provider. */
-  providerName: string;
-  /** The issuer of the token, typically a URL indicating the authentication server, e.g https://accounts.google.com */
-  issuer: string;
-  /** Expected audience ('aud' attribute of the signed token) which represents the app ID */
-  audience: string;
-  /** Expected subject ('sub' attribute of the signed token) which represents the user ID */
-  subject: string;
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
-};
-
-export type OauthProviderParams = {
-  /** Human-readable name to identify a Provider. */
-  providerName: string;
-  /** Base64 encoded OIDC token */
-  oidcToken: string;
-};
-
-export type OauthResult = {
+export type OtpAuthResponse = {
+  activity: v1Activity;
   /** Unique identifier for the authenticating User. */
   userId: string;
   /** Unique identifier for the created API key. */
-  apiKeyId: string;
+  apiKeyId?: string;
   /** HPKE encrypted credential bundle */
-  credentialBundle: string;
-};
-
-export type Operator = v1Operator;
-export type OrganizationData = {
-  organizationId?: string;
-  name?: string;
-  users?: v1User[];
-  policies?: v1Policy[];
-  privateKeys?: v1PrivateKey[];
-  invitations?: v1Invitation[];
-  tags?: datav1Tag[];
-  rootQuorum?: externaldatav1Quorum;
-  features?: v1Feature[];
-  wallets?: v1Wallet[];
+  credentialBundle?: string;
 };
 
 export type OtpAuthRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** ID representing the result of an init OTP activity. */
   otpId: string;
   /** OTP sent out to a user's contact (email or SMS) */
@@ -4227,20 +4301,17 @@ export type OtpAuthRequest = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated OTP Auth API keys */
   invalidateExisting?: boolean;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type OtpAuthResult = {
-  /** Unique identifier for the authenticating User. */
-  userId: string;
-  /** Unique identifier for the created API key. */
-  apiKeyId?: string;
-  /** HPKE encrypted credential bundle */
-  credentialBundle?: string;
+export type OtpLoginResponse = {
+  activity: v1Activity;
+  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
+  session: string;
 };
 
 export type OtpLoginRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Signed JWT containing a unique id, expiry, verification type, contact */
   verificationToken: string;
   /** Client-side public key generated by the user, which will be conditionally added to org data based on the validity of the verification token */
@@ -4249,234 +4320,76 @@ export type OtpLoginRequest = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type OtpLoginResult = {
-  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
-  session: string;
-};
-
-export type Pagination = {
-  /** A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
-  limit?: string;
-  /** A pagination cursor. This is an object ID that enables you to fetch all objects before this ID. */
-  before?: string;
-  /** A pagination cursor. This is an object ID that enables you to fetch all objects after this ID. */
-  after?: string;
-};
-
-export type PathFormat = v1PathFormat;
-export type PayloadEncoding = v1PayloadEncoding;
-export type Policy = {
-  /** Unique identifier for a given Policy. */
-  policyId: string;
-  /** Human-readable name for a Policy. */
-  policyName: string;
-  /** The instruction to DENY or ALLOW a particular activity following policy selector(s). */
-  effect: v1Effect;
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
-  /** Human-readable notes added by a User to describe a particular policy. */
-  notes: string;
-  /** A consensus expression that evalutes to true or false. */
-  consensus: string;
-  /** A condition expression that evalutes to true or false. */
-  condition: string;
-};
-
-export type PrivateKey = {
-  /** Unique identifier for a given Private Key. */
-  privateKeyId: string;
-  /** The public component of a cryptographic key pair used to sign messages and transactions. */
-  publicKey: string;
-  /** Human-readable name for a Private Key. */
-  privateKeyName: string;
-  /** Cryptographic Curve used to generate a given Private Key. */
-  curve: v1Curve;
-  /** Derived cryptocurrency addresses for a given Private Key. */
-  addresses: externaldatav1Address[];
-  /** A list of Private Key Tag IDs. */
-  privateKeyTags: string[];
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
-  /** True when a given Private Key is exported, false otherwise. */
-  exported: boolean;
-  /** True when a given Private Key is imported, false otherwise. */
-  imported: boolean;
-};
-
-export type PrivateKeyParams = {
-  /** Human-readable name for a Private Key. */
-  privateKeyName: string;
-  /** Cryptographic Curve used to generate a given Private Key. */
-  curve: v1Curve;
-  /** A list of Private Key Tag IDs. This field, if not needed, should be an empty array in your request body. */
-  privateKeyTags: string[];
-  /** Cryptocurrency-specific formats for a derived address (e.g., Ethereum). */
-  addressFormats: v1AddressFormat[];
-};
-
-export type PrivateKeyResult = {
-  privateKeyId?: string;
-  addresses?: immutableactivityv1Address[];
-};
-
-export type PublicKeyCredentialWithAttestation = {
-  id: string;
-  type: string;
-  rawId: string;
-  authenticatorAttachment?: string;
-  response: v1AuthenticatorAttestationResponse;
-  clientExtensionResults: v1SimpleClientExtensionResults;
-};
-
-export type RecoverUserRequest = {
-  /** The new authenticator to register. */
-  authenticator: v1AuthenticatorParamsV2;
-  /** Unique identifier for the user performing recovery. */
-  userId: string;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
-};
-
-export type RecoverUserResult = {
+export type RecoverUserResponse = {
+  activity: v1Activity;
   /** ID of the authenticator created. */
   authenticatorId: string[];
 };
 
+export type RecoverUserRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The new authenticator to register. */
+  authenticator: v1AuthenticatorParamsV2;
+  /** Unique identifier for the user performing recovery. */
+  userId: string;
+};
+
+export type RejectActivityResponse = {
+  /** An action that can that can be taken within the Turnkey infrastructure. */
+  activity: v1Activity;
+};
+
 export type RejectActivityRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** An artifact verifying a User's action. */
   fingerprint: string;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type RemoveOrganizationFeatureRequest = {
-  /** Name of the feature to remove */
-  name: v1FeatureName;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
-};
-
-export type RemoveOrganizationFeatureResult = {
+export type RemoveOrganizationFeatureResponse = {
+  activity: v1Activity;
   /** Resulting list of organization features. */
   features: v1Feature[];
 };
 
-export type Result = {
-  createOrganizationResult?: v1CreateOrganizationResult;
-  createAuthenticatorsResult?: v1CreateAuthenticatorsResult;
-  createUsersResult?: v1CreateUsersResult;
-  createPrivateKeysResult?: v1CreatePrivateKeysResult;
-  createInvitationsResult?: v1CreateInvitationsResult;
-  acceptInvitationResult?: v1AcceptInvitationResult;
-  signRawPayloadResult?: v1SignRawPayloadResult;
-  createPolicyResult?: v1CreatePolicyResult;
-  disablePrivateKeyResult?: v1DisablePrivateKeyResult;
-  deleteUsersResult?: v1DeleteUsersResult;
-  deleteAuthenticatorsResult?: v1DeleteAuthenticatorsResult;
-  deleteInvitationResult?: v1DeleteInvitationResult;
-  deleteOrganizationResult?: v1DeleteOrganizationResult;
-  deletePolicyResult?: v1DeletePolicyResult;
-  createUserTagResult?: v1CreateUserTagResult;
-  deleteUserTagsResult?: v1DeleteUserTagsResult;
-  signTransactionResult?: v1SignTransactionResult;
-  deleteApiKeysResult?: v1DeleteApiKeysResult;
-  createApiKeysResult?: v1CreateApiKeysResult;
-  createPrivateKeyTagResult?: v1CreatePrivateKeyTagResult;
-  deletePrivateKeyTagsResult?: v1DeletePrivateKeyTagsResult;
-  setPaymentMethodResult?: billingSetPaymentMethodResult;
-  activateBillingTierResult?: billingActivateBillingTierResult;
-  deletePaymentMethodResult?: billingDeletePaymentMethodResult;
-  createApiOnlyUsersResult?: v1CreateApiOnlyUsersResult;
-  updateRootQuorumResult?: v1UpdateRootQuorumResult;
-  updateUserTagResult?: v1UpdateUserTagResult;
-  updatePrivateKeyTagResult?: v1UpdatePrivateKeyTagResult;
-  createSubOrganizationResult?: v1CreateSubOrganizationResult;
-  updateAllowedOriginsResult?: v1UpdateAllowedOriginsResult;
-  createPrivateKeysResultV2?: v1CreatePrivateKeysResultV2;
-  updateUserResult?: v1UpdateUserResult;
-  updatePolicyResult?: v1UpdatePolicyResult;
-  createSubOrganizationResultV3?: v1CreateSubOrganizationResultV3;
-  createWalletResult?: v1CreateWalletResult;
-  createWalletAccountsResult?: v1CreateWalletAccountsResult;
-  initUserEmailRecoveryResult?: v1InitUserEmailRecoveryResult;
-  recoverUserResult?: v1RecoverUserResult;
-  setOrganizationFeatureResult?: v1SetOrganizationFeatureResult;
-  removeOrganizationFeatureResult?: v1RemoveOrganizationFeatureResult;
-  exportPrivateKeyResult?: v1ExportPrivateKeyResult;
-  exportWalletResult?: v1ExportWalletResult;
-  createSubOrganizationResultV4?: v1CreateSubOrganizationResultV4;
-  emailAuthResult?: v1EmailAuthResult;
-  exportWalletAccountResult?: v1ExportWalletAccountResult;
-  initImportWalletResult?: v1InitImportWalletResult;
-  importWalletResult?: v1ImportWalletResult;
-  initImportPrivateKeyResult?: v1InitImportPrivateKeyResult;
-  importPrivateKeyResult?: v1ImportPrivateKeyResult;
-  createPoliciesResult?: v1CreatePoliciesResult;
-  signRawPayloadsResult?: v1SignRawPayloadsResult;
-  createReadOnlySessionResult?: v1CreateReadOnlySessionResult;
-  createOauthProvidersResult?: v1CreateOauthProvidersResult;
-  deleteOauthProvidersResult?: v1DeleteOauthProvidersResult;
-  createSubOrganizationResultV5?: v1CreateSubOrganizationResultV5;
-  oauthResult?: v1OauthResult;
-  createReadWriteSessionResult?: v1CreateReadWriteSessionResult;
-  createSubOrganizationResultV6?: v1CreateSubOrganizationResultV6;
-  deletePrivateKeysResult?: v1DeletePrivateKeysResult;
-  deleteWalletsResult?: v1DeleteWalletsResult;
-  createReadWriteSessionResultV2?: v1CreateReadWriteSessionResultV2;
-  deleteSubOrganizationResult?: v1DeleteSubOrganizationResult;
-  initOtpAuthResult?: v1InitOtpAuthResult;
-  otpAuthResult?: v1OtpAuthResult;
-  createSubOrganizationResultV7?: v1CreateSubOrganizationResultV7;
-  updateWalletResult?: v1UpdateWalletResult;
-  updatePolicyResultV2?: v1UpdatePolicyResultV2;
-  initOtpAuthResultV2?: v1InitOtpAuthResultV2;
-  initOtpResult?: v1InitOtpResult;
-  verifyOtpResult?: v1VerifyOtpResult;
-  otpLoginResult?: v1OtpLoginResult;
-  stampLoginResult?: v1StampLoginResult;
-  oauthLoginResult?: v1OauthLoginResult;
+export type RemoveOrganizationFeatureRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Name of the feature to remove */
+  name: v1FeatureName;
 };
 
-export type RootUserParams = {
-  /** Human-readable name for a User. */
-  userName: string;
-  /** The user's email address. */
-  userEmail?: string;
-  /** The user's phone number in E.164 format e.g. +13214567890 */
-  userPhoneNumber?: string;
-  /** A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
-  apiKeys: v1ApiKeyParamsV2[];
-  /** A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
-  authenticators: v1AuthenticatorParamsV2[];
-  /** A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
-  oauthProviders: v1OauthProviderParams[];
-};
-
-export type Selector = {
-  subject?: string;
-  operator?: v1Operator;
-  targets?: string[];
+export type SetOrganizationFeatureResponse = {
+  activity: v1Activity;
+  /** Resulting list of organization features. */
+  features: v1Feature[];
 };
 
 export type SetOrganizationFeatureRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Name of the feature to set */
   name: v1FeatureName;
   /** Optional value for the feature. Will override existing values if feature is already set. */
   value: string;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type SetOrganizationFeatureResult = {
-  /** Resulting list of organization features. */
-  features: v1Feature[];
+export type SignRawPayloadResponse = {
+  activity: v1Activity;
+  /** Component of an ECSDA signature. */
+  r: string;
+  /** Component of an ECSDA signature. */
+  s: string;
+  /** Component of an ECSDA signature. */
+  v: string;
 };
 
 export type SignRawPayloadRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** A Wallet account address, Private Key address, or Private Key identifier. */
   signWith: string;
   /** Raw unsigned payload to be signed. */
@@ -4487,16 +4400,14 @@ export type SignRawPayloadRequest = {
   hashFunction: v1HashFunction;
 };
 
-export type SignRawPayloadResult = {
-  /** Component of an ECSDA signature. */
-  r: string;
-  /** Component of an ECSDA signature. */
-  s: string;
-  /** Component of an ECSDA signature. */
-  v: string;
+export type SignRawPayloadsResponse = {
+  activity: v1Activity;
+  signatures?: v1SignRawPayloadResult[];
 };
 
 export type SignRawPayloadsRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** A Wallet account address, Private Key address, or Private Key identifier. */
   signWith: string;
   /** An array of raw unsigned payloads to be signed. */
@@ -4505,15 +4416,16 @@ export type SignRawPayloadsRequest = {
   encoding: v1PayloadEncoding;
   /** Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032. */
   hashFunction: v1HashFunction;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type SignRawPayloadsResult = {
-  signatures?: v1SignRawPayloadResult[];
+export type SignTransactionResponse = {
+  activity: v1Activity;
+  signedTransaction: string;
 };
 
 export type SignTransactionRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** A Wallet account address, Private Key address, or Private Key identifier. */
   signWith: string;
   /** Raw unsigned transaction to be signed */
@@ -4521,47 +4433,32 @@ export type SignTransactionRequest = {
   type: v1TransactionType;
 };
 
-export type SignTransactionResult = {
-  signedTransaction: string;
-};
-
-export type SimpleClientExtensionResults = {
-  appid?: boolean;
-  appidExclude?: boolean;
-  credProps?: v1CredPropsAuthenticationExtensionsClientOutputs;
-};
-
-export type SmsCustomizationParams = {
-  /** Template containing references to .OtpCode i.e Your OTP is {{.OtpCode}} */
-  template?: string;
+export type StampLoginResponse = {
+  activity: v1Activity;
+  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
+  session: string;
 };
 
 export type StampLoginRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Client-side public key generated by the user, which will be conditionally added to org data based on the passkey stamp associated with this request */
   publicKey: string;
   /** Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used. */
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type StampLoginResult = {
-  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
-  session: string;
+export type UpdatePolicyResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a given Policy. */
+  policyId: string;
 };
 
-export type TagType = v1TagType;
-export type TestRateLimitsResponse = v1TestRateLimitsResponse;
-export type TransactionType = v1TransactionType;
-export type UpdateAllowedOriginsRequest = {
-  /** Additional origins requests are allowed from besides Turnkey origins */
-  allowedOrigins: string[];
-};
-
-export type UpdateAllowedOriginsResult = v1UpdateAllowedOriginsResult;
 export type UpdatePolicyRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Unique identifier for a given Policy. */
   policyId: string;
   /** Human-readable name for a Policy. */
@@ -4576,14 +4473,15 @@ export type UpdatePolicyRequest = {
   policyNotes?: string;
 };
 
-export type UpdatePolicyResult = {
-  /** The activity that was processed. */
+export type UpdatePrivateKeyTagResponse = {
   activity: v1Activity;
-  /** Unique identifier for a given Policy. */
-  policyId: string;
+  /** Unique identifier for a given Private Key Tag. */
+  privateKeyTagId: string;
 };
 
 export type UpdatePrivateKeyTagRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Unique identifier for a given Private Key Tag. */
   privateKeyTagId: string;
   /** The new, human-readable name for the tag with the given ID. */
@@ -4592,26 +4490,30 @@ export type UpdatePrivateKeyTagRequest = {
   addPrivateKeyIds: string[];
   /** A list of Private Key IDs to remove this tag from. */
   removePrivateKeyIds: string[];
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type UpdatePrivateKeyTagResult = {
-  /** Unique identifier for a given Private Key Tag. */
-  privateKeyTagId: string;
+export type UpdateRootQuorumResponse = {
+  activity: v1Activity;
 };
 
 export type UpdateRootQuorumRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** The threshold of unique approvals to reach quorum. */
   threshold: number;
   /** The unique identifiers of users who comprise the quorum set. */
   userIds: string[];
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type UpdateRootQuorumResult = v1UpdateRootQuorumResult;
+export type UpdateUserResponse = {
+  activity: v1Activity;
+  /** A User ID. */
+  userId: string;
+};
+
 export type UpdateUserRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Unique identifier for a given User. */
   userId: string;
   /** Human-readable name for a User. */
@@ -4622,16 +4524,66 @@ export type UpdateUserRequest = {
   userTagIds?: string[];
   /** The user's phone number in E.164 format e.g. +13214567890 */
   userPhoneNumber?: string;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type UpdateUserResult = {
-  /** A User ID. */
+export type UpdateUserEmailResponse = {
+  activity: v1Activity;
+  /** Unique identifier of the User whose email was updated. */
   userId: string;
 };
 
+export type UpdateUserEmailRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Unique identifier for a given User. */
+  userId: string;
+  /** The user's email address. Setting this to an empty string will remove the user's email. */
+  userEmail: string;
+  /** Signed JWT containing a unique id, expiry, verification type, contact */
+  verificationToken?: string;
+};
+
+export type UpdateUserNameResponse = {
+  activity: v1Activity;
+  /** Unique identifier of the User whose name was updated. */
+  userId: string;
+};
+
+export type UpdateUserNameRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Unique identifier for a given User. */
+  userId: string;
+  /** Human-readable name for a User. */
+  userName: string;
+};
+
+export type UpdateUserPhoneNumberResponse = {
+  activity: v1Activity;
+  /** Unique identifier of the User whose phone number was updated. */
+  userId: string;
+};
+
+export type UpdateUserPhoneNumberRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Unique identifier for a given User. */
+  userId: string;
+  /** The user's phone number in E.164 format e.g. +13214567890. Setting this to an empty string will remove the user's phone number. */
+  userPhoneNumber: string;
+  /** Signed JWT containing a unique id, expiry, verification type, contact */
+  verificationToken?: string;
+};
+
+export type UpdateUserTagResponse = {
+  activity: v1Activity;
+  /** Unique identifier for a given User Tag. */
+  userTagId: string;
+};
+
 export type UpdateUserTagRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** Unique identifier for a given User Tag. */
   userTagId: string;
   /** The new, human-readable name for the tag with the given ID. */
@@ -4640,610 +4592,50 @@ export type UpdateUserTagRequest = {
   addUserIds: string[];
   /** A list of User IDs to remove this tag from. */
   removeUserIds: string[];
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
 };
 
-export type UpdateUserTagResult = {
-  /** Unique identifier for a given User Tag. */
-  userTagId: string;
-};
-
-export type UpdateWalletRequest = {
-  /** Unique identifier for a given Wallet. */
-  walletId: string;
-  /** Human-readable name for a Wallet. */
-  walletName?: string;
-  /** Unique identifier for a given Organization. */
-  organizationId?: string;
-};
-
-export type UpdateWalletResult = {
+export type UpdateWalletResponse = {
+  activity: v1Activity;
   /** A Wallet ID. */
   walletId: string;
 };
 
-export type User = {
-  /** Unique identifier for a given User. */
-  userId: string;
-  /** Human-readable name for a User. */
-  userName: string;
-  /** The user's email address. */
-  userEmail?: string;
-  /** The user's phone number in E.164 format e.g. +13214567890 */
-  userPhoneNumber?: string;
-  /** A list of Authenticator parameters. */
-  authenticators: v1Authenticator[];
-  /** A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
-  apiKeys: v1ApiKey[];
-  /** A list of User Tag IDs. */
-  userTags: string[];
-  /** A list of Oauth Providers. */
-  oauthProviders: v1OauthProvider[];
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
+export type UpdateWalletRequest = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Unique identifier for a given Wallet. */
+  walletId: string;
+  /** Human-readable name for a Wallet. */
+  walletName?: string;
 };
 
-export type UserParams = {
-  /** Human-readable name for a User. */
-  userName: string;
-  /** The user's email address. */
-  userEmail?: string;
-  /** The user's phone number in E.164 format e.g. +13214567890 */
-  userPhoneNumber?: string;
-  /** A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
-  apiKeys: v1ApiKeyParamsV2[];
-  /** A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
-  authenticators: v1AuthenticatorParamsV2[];
-  /** A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
-  oauthProviders: v1OauthProviderParams[];
-  /** A list of User Tag IDs. This field, if not needed, should be an empty array in your request body. */
-  userTags: string[];
+export type VerifyOtpResponse = {
+  activity: v1Activity;
+  /** Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
+  verificationToken: string;
 };
 
 export type VerifyOtpRequest = {
+  timestampMs?: string;
+  organizationId?: string;
   /** ID representing the result of an init OTP activity. */
   otpId: string;
   /** OTP sent out to a user's contact (email or SMS) */
   otpCode: string;
   /** Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours) */
   expirationSeconds?: string;
-  /** Unique identifier for a given Organization. */
+};
+
+export type NOOPCodegenAnchorResponse = {
+  stamp: v1WebAuthnStamp;
+};
+
+export type TestRateLimitsResponse = {};
+
+export type TestRateLimitsRequest = {
   organizationId?: string;
-};
-
-export type VerifyOtpResult = {
-  /** Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
-  verificationToken: string;
-};
-
-export type Vote = {
-  /** Unique identifier for a given Vote object. */
-  id: string;
-  /** Unique identifier for a given User. */
-  userId: string;
-  /** Web and/or API user within your Organization. */
-  user: v1User;
-  /** Unique identifier for a given Activity object. */
-  activityId: string;
-  selection: string;
-  /** The raw message being signed within a Vote. */
-  message: string;
-  /** The public component of a cryptographic key pair used to sign messages and transactions. */
-  publicKey: string;
-  /** The signature applied to a particular vote. */
-  signature: string;
-  /** Method used to produce a signature. */
-  scheme: string;
-  createdAt: externaldatav1Timestamp;
-};
-
-export type Wallet = {
-  /** Unique identifier for a given Wallet. */
-  walletId: string;
-  /** Human-readable name for a Wallet. */
-  walletName: string;
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
-  /** True when a given Wallet is exported, false otherwise. */
-  exported: boolean;
-  /** True when a given Wallet is imported, false otherwise. */
-  imported: boolean;
-};
-
-export type WalletAccount = {
-  /** Unique identifier for a given Wallet Account. */
-  walletAccountId: string;
-  /** The Organization the Account belongs to. */
-  organizationId: string;
-  /** The Wallet the Account was derived from. */
-  walletId: string;
-  /** Cryptographic curve used to generate the Account. */
-  curve: v1Curve;
-  /** Path format used to generate the Account. */
-  pathFormat: v1PathFormat;
-  /** Path used to generate the Account. */
-  path: string;
-  /** Address format used to generate the Account. */
-  addressFormat: v1AddressFormat;
-  /** Address generated using the Wallet seed and Account parameters. */
-  address: string;
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
-  /** The public component of this wallet account's underlying cryptographic key pair. */
-  publicKey?: string;
-};
-
-export type WalletAccountParams = {
-  /** Cryptographic curve used to generate a wallet Account. */
-  curve: v1Curve;
-  /** Path format used to generate a wallet Account. */
-  pathFormat: v1PathFormat;
-  /** Path used to generate a wallet Account. */
-  path: string;
-  /** Address format used to generate a wallet Acccount. */
-  addressFormat: v1AddressFormat;
-};
-
-export type WalletParams = {
-  /** Human-readable name for a Wallet. */
-  walletName: string;
-  /** A list of wallet Accounts. This field, if not needed, should be an empty array in your request body. */
-  accounts: v1WalletAccountParams[];
-  /** Length of mnemonic to generate the Wallet seed. Defaults to 12. Accepted values: 12, 15, 18, 21, 24. */
-  mnemonicLength?: number;
-};
-
-export type WalletResult = {
-  walletId: string;
-  /** A list of account addresses. */
-  addresses: string[];
-};
-
-export type WebAuthnStamp = {
-  /** A base64 url encoded Unique identifier for a given credential. */
-  credentialId: string;
-  /** A base64 encoded payload containing metadata about the signing context and the challenge. */
-  clientDataJson: string;
-  /** A base64 encoded payload containing metadata about the authenticator. */
-  authenticatorData: string;
-  /** The base64 url encoded signature bytes contained within the WebAuthn assertion response. */
-  signature: string;
-};
-
-export type AcceptInvitationResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given Invitation. */
-  invitationId: string;
-  /** Unique identifier for a given User. */
-  userId: string;
-};
-
-export type CreateApiKeysResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of API Key IDs. */
-  apiKeyIds: string[];
-};
-
-export type CreateApiOnlyUsersResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of API-only User IDs. */
-  userIds: string[];
-};
-
-export type CreateAuthenticatorsResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of Authenticator IDs. */
-  authenticatorIds: string[];
-};
-
-export type CreateInvitationsResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of Invitation IDs */
-  invitationIds: string[];
-};
-
-export type CreateOauthProvidersResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of unique identifiers for Oauth Providers */
-  providerIds: string[];
-};
-
-export type CreateOrganizationResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-};
-
-export type CreatePoliciesResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of unique identifiers for the created policies. */
-  policyIds: string[];
-};
-
-export type CreatePolicyResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given Policy. */
-  policyId: string;
-};
-
-export type CreatePrivateKeyTagResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given Private Key Tag. */
-  privateKeyTagId: string;
-  /** A list of Private Key IDs. */
-  privateKeyIds: string[];
-};
-
-export type CreateReadOnlySessionResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given Organization. If the request is being made by a user and their Sub-Organization ID is unknown, this can be the Parent Organization ID. However, using the Sub-Organization ID is preferred due to performance reasons. */
-  organizationId: string;
-  /** Human-readable name for an Organization. */
-  organizationName: string;
-  /** Unique identifier for a given User. */
-  userId: string;
-  /** Human-readable name for a User. */
-  username: string;
-  /** String representing a read only session */
-  session: string;
-  /** UTC timestamp in seconds representing the expiry time for the read only session. */
-  sessionExpiry: string;
-};
-
-export type CreateUserTagResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given User Tag. */
-  userTagId: string;
-  /** A list of User IDs. */
-  userIds: string[];
-};
-
-export type CreateUsersResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of User IDs. */
-  userIds: string[];
-};
-
-export type CreateWalletAccountsResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of derived addresses. */
-  addresses: string[];
-};
-
-export type CreateWalletResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a Wallet. */
-  walletId: string;
-  /** A list of account addresses. */
-  addresses: string[];
-};
-
-export type DeleteApiKeysResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of API Key IDs. */
-  apiKeyIds: string[];
-};
-
-export type DeleteAuthenticatorsResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given Authenticator. */
-  authenticatorIds: string[];
-};
-
-export type DeleteInvitationResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given Invitation. */
-  invitationId: string;
-};
-
-export type DeleteOauthProvidersResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of unique identifiers for Oauth Providers */
-  providerIds: string[];
-};
-
-export type DeleteOrganizationResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-};
-
-export type DeletePolicyResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given Policy. */
-  policyId: string;
-};
-
-export type DeletePrivateKeyTagsResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of Private Key Tag IDs. */
-  privateKeyTagIds: string[];
-  /** A list of Private Key IDs. */
-  privateKeyIds: string[];
-};
-
-export type DeletePrivateKeysResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of private key unique identifiers that were removed */
-  privateKeyIds: string[];
-};
-
-export type DeleteSubOrganizationResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier of the sub organization that was removed */
-  subOrganizationUuid: string;
-};
-
-export type DeleteUserTagsResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of User Tag IDs. */
-  userTagIds: string[];
-  /** A list of User IDs. */
-  userIds: string[];
-};
-
-export type DeleteUsersResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of User IDs. */
-  userIds: string[];
-};
-
-export type DeleteWalletsResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A list of wallet unique identifiers that were removed */
-  walletIds: string[];
-};
-
-export type DisablePrivateKeyResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given Private Key. */
-  privateKeyId: string;
-};
-
-export type EmailAuthResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for the authenticating User. */
-  userId: string;
-  /** Unique identifier for the created API key. */
-  apiKeyId: string;
-};
-
-export type ExportPrivateKeyResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given Private Key. */
-  privateKeyId: string;
-  /** Export bundle containing a private key encrypted to the client's target public key. */
-  exportBundle: string;
-};
-
-export type ExportWalletAccountResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Address to identify Wallet Account. */
-  address: string;
-  /** Export bundle containing a private key encrypted by the client's target public key. */
-  exportBundle: string;
-};
-
-export type ExportWalletResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given Wallet. */
-  walletId: string;
-  /** Export bundle containing a wallet mnemonic + optional newline passphrase encrypted by the client's target public key. */
-  exportBundle: string;
-};
-
-export type ImportPrivateKeyResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a Private Key. */
-  privateKeyId: string;
-  /** A list of addresses. */
-  addresses: immutableactivityv1Address[];
-};
-
-export type ImportWalletResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a Wallet. */
-  walletId: string;
-  /** A list of account addresses. */
-  addresses: string[];
-};
-
-export type InitImportPrivateKeyResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Import bundle containing a public key and signature to use for importing client data. */
-  importBundle: string;
-};
-
-export type InitImportWalletResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Import bundle containing a public key and signature to use for importing client data. */
-  importBundle: string;
-};
-
-export type InitOtpResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for an OTP authentication */
-  otpId: string;
-};
-
-export type InitUserEmailRecoveryResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for the user being recovered. */
-  userId: string;
-};
-
-export type OauthLoginResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
-  session: string;
-};
-
-export type OauthResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for the authenticating User. */
-  userId: string;
-  /** Unique identifier for the created API key. */
-  apiKeyId: string;
-  /** HPKE encrypted credential bundle */
-  credentialBundle: string;
-};
-
-export type OtpAuthResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for the authenticating User. */
-  userId: string;
-  /** Unique identifier for the created API key. */
-  apiKeyId?: string;
-  /** HPKE encrypted credential bundle */
-  credentialBundle?: string;
-};
-
-export type OtpLoginResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
-  session: string;
-};
-
-export type PrivateKeyResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  privateKeyId?: string;
-  addresses?: immutableactivityv1Address[];
-};
-
-export type RecoverUserResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** ID of the authenticator created. */
-  authenticatorId: string[];
-};
-
-export type RemoveOrganizationFeatureResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Resulting list of organization features. */
-  features: v1Feature[];
-};
-
-export type SetOrganizationFeatureResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Resulting list of organization features. */
-  features: v1Feature[];
-};
-
-export type SignRawPayloadResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Component of an ECSDA signature. */
-  r: string;
-  /** Component of an ECSDA signature. */
-  s: string;
-  /** Component of an ECSDA signature. */
-  v: string;
-};
-
-export type SignRawPayloadsResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  signatures?: v1SignRawPayloadResult[];
-};
-
-export type SignTransactionResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  signedTransaction: string;
-};
-
-export type StampLoginResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
-  session: string;
-};
-
-export type UpdatePrivateKeyTagResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given Private Key Tag. */
-  privateKeyTagId: string;
-};
-
-export type UpdateUserResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A User ID. */
-  userId: string;
-};
-
-export type UpdateUserTagResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Unique identifier for a given User Tag. */
-  userTagId: string;
-};
-
-export type UpdateWalletResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** A Wallet ID. */
-  walletId: string;
-};
-
-export type VerifyOtpResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  /** Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
-  verificationToken: string;
-};
-
-export type WalletResponse = {
-  /** The activity that was processed. */
-  activity: v1Activity;
-  walletId: string;
-  /** A list of account addresses. */
-  addresses: string[];
+  /** Whether or not to set a limit on this request. */
+  isSetLimit: boolean;
+  /** Rate limit to set for org, if is_set_limit is set to true */
+  limit: number;
 };
