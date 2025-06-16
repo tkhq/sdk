@@ -2,9 +2,8 @@ import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
 import {
   GetWalletAccountsResponse,
   SessionType,
-  SignRawPayloadResult,
-  User,
-  WalletAccount,
+  v1SignRawPayloadResult,
+  v1WalletAccount,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -245,9 +244,9 @@ export class TurnkeyClient {
 
   signMessage = async (params: {
     message: string;
-    wallet?: WalletAccount;
+    wallet?: v1WalletAccount;
     stampWith?: StamperType;
-  }): Promise<SignRawPayloadResult> => {
+  }): Promise<v1SignRawPayloadResult> => {
     const { message, wallet, stampWith } = params;
     if (!wallet) {
       throw new Error("A wallet account must be provided for signing");
@@ -277,7 +276,7 @@ export class TurnkeyClient {
     }
 
     return response.activity.result
-      .signRawPayloadResult as SignRawPayloadResult;
+      .signRawPayloadResult as v1SignRawPayloadResult;
   };
 }
 
