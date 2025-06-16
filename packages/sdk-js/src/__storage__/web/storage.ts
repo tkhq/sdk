@@ -2,6 +2,7 @@ import WindowWrapper from "@polyfills/window";
 import { StorageBase, SessionKey } from "../base";
 import { parseSession } from "@utils";
 import { Session } from "@turnkey/sdk-types";
+import { TWallet } from "@types";
 
 const browserStorage = WindowWrapper.localStorage;
 
@@ -86,4 +87,10 @@ export class WebStorageManager implements StorageBase {
     await this.removeStorageValue(WebStorageManager.ALL_SESSION_KEYS);
     await this.removeStorageValue(WebStorageManager.ACTIVE_SESSION_KEY);
   };
+
+  storeWallets = async (wallets: TWallet[]): Promise<void> => {
+    for (const wallet of wallets) {
+      browserStorage.setItem(wallet.walletId, JSON.stringify(wallet));
+    }
+  }
 }
