@@ -3328,6 +3328,8 @@ export type CreatePrivateKeysRequest = {
 };
 
 export type CreatePrivateKeysResult = {
+  /** The activity that was processed. */
+  activity: v1Activity;
   /** A list of Private Key IDs and addresses. */
   privateKeys: v1PrivateKeyResult[];
 };
@@ -3361,6 +3363,8 @@ export type CreateReadWriteSessionRequest = {
 };
 
 export type CreateReadWriteSessionResult = {
+  /** The activity that was processed. */
+  activity: v1Activity;
   /** Unique identifier for a given Organization. If the request is being made by a user and their Sub-Organization ID is unknown, this can be the Parent Organization ID. However, using the Sub-Organization ID is preferred due to performance reasons. */
   organizationId: string;
   /** Human-readable name for an Organization. */
@@ -3395,6 +3399,8 @@ export type CreateSubOrganizationRequest = {
 };
 
 export type CreateSubOrganizationResult = {
+  /** The activity that was processed. */
+  activity: v1Activity;
   subOrganizationId: string;
   wallet?: v1WalletResult;
   rootUserIds?: string[];
@@ -3935,6 +3941,8 @@ export type InitOtpAuthRequest = {
 };
 
 export type InitOtpAuthResult = {
+  /** The activity that was processed. */
+  activity: v1Activity;
   /** Unique identifier for an OTP authentication */
   otpId: string;
 };
@@ -4569,6 +4577,8 @@ export type UpdatePolicyRequest = {
 };
 
 export type UpdatePolicyResult = {
+  /** The activity that was processed. */
+  activity: v1Activity;
   /** Unique identifier for a given Policy. */
   policyId: string;
 };
@@ -4800,3 +4810,441 @@ export type WebAuthnStamp = {
   /** The base64 url encoded signature bytes contained within the WebAuthn assertion response. */
   signature: string;
 };
+
+export type AcceptInvitationResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given Invitation. */
+  invitationId: string;
+  /** Unique identifier for a given User. */
+  userId: string;
+};
+
+export type CreateApiKeysResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of API Key IDs. */
+  apiKeyIds: string[];
+};
+
+export type CreateApiOnlyUsersResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of API-only User IDs. */
+  userIds: string[];
+};
+
+export type CreateAuthenticatorsResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of Authenticator IDs. */
+  authenticatorIds: string[];
+};
+
+export type CreateInvitationsResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of Invitation IDs */
+  invitationIds: string[];
+};
+
+export type CreateOauthProvidersResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of unique identifiers for Oauth Providers */
+  providerIds: string[];
+};
+
+export type CreateOrganizationResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+};
+
+export type CreatePoliciesResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of unique identifiers for the created policies. */
+  policyIds: string[];
+};
+
+export type CreatePolicyResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given Policy. */
+  policyId: string;
+};
+
+export type CreatePrivateKeyTagResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given Private Key Tag. */
+  privateKeyTagId: string;
+  /** A list of Private Key IDs. */
+  privateKeyIds: string[];
+};
+
+export type CreateReadOnlySessionResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given Organization. If the request is being made by a user and their Sub-Organization ID is unknown, this can be the Parent Organization ID. However, using the Sub-Organization ID is preferred due to performance reasons. */
+  organizationId: string;
+  /** Human-readable name for an Organization. */
+  organizationName: string;
+  /** Unique identifier for a given User. */
+  userId: string;
+  /** Human-readable name for a User. */
+  username: string;
+  /** String representing a read only session */
+  session: string;
+  /** UTC timestamp in seconds representing the expiry time for the read only session. */
+  sessionExpiry: string;
+};
+
+export type CreateUserTagResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given User Tag. */
+  userTagId: string;
+  /** A list of User IDs. */
+  userIds: string[];
+};
+
+export type CreateUsersResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of User IDs. */
+  userIds: string[];
+};
+
+export type CreateWalletAccountsResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of derived addresses. */
+  addresses: string[];
+};
+
+export type CreateWalletResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a Wallet. */
+  walletId: string;
+  /** A list of account addresses. */
+  addresses: string[];
+};
+
+export type DeleteApiKeysResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of API Key IDs. */
+  apiKeyIds: string[];
+};
+
+export type DeleteAuthenticatorsResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given Authenticator. */
+  authenticatorIds: string[];
+};
+
+export type DeleteInvitationResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given Invitation. */
+  invitationId: string;
+};
+
+export type DeleteOauthProvidersResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of unique identifiers for Oauth Providers */
+  providerIds: string[];
+};
+
+export type DeleteOrganizationResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+};
+
+export type DeletePolicyResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given Policy. */
+  policyId: string;
+};
+
+export type DeletePrivateKeyTagsResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of Private Key Tag IDs. */
+  privateKeyTagIds: string[];
+  /** A list of Private Key IDs. */
+  privateKeyIds: string[];
+};
+
+export type DeletePrivateKeysResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of private key unique identifiers that were removed */
+  privateKeyIds: string[];
+};
+
+export type DeleteSubOrganizationResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier of the sub organization that was removed */
+  subOrganizationUuid: string;
+};
+
+export type DeleteUserTagsResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of User Tag IDs. */
+  userTagIds: string[];
+  /** A list of User IDs. */
+  userIds: string[];
+};
+
+export type DeleteUsersResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of User IDs. */
+  userIds: string[];
+};
+
+export type DeleteWalletsResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A list of wallet unique identifiers that were removed */
+  walletIds: string[];
+};
+
+export type DisablePrivateKeyResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given Private Key. */
+  privateKeyId: string;
+};
+
+export type EmailAuthResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for the authenticating User. */
+  userId: string;
+  /** Unique identifier for the created API key. */
+  apiKeyId: string;
+};
+
+export type ExportPrivateKeyResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given Private Key. */
+  privateKeyId: string;
+  /** Export bundle containing a private key encrypted to the client's target public key. */
+  exportBundle: string;
+};
+
+export type ExportWalletAccountResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Address to identify Wallet Account. */
+  address: string;
+  /** Export bundle containing a private key encrypted by the client's target public key. */
+  exportBundle: string;
+};
+
+export type ExportWalletResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given Wallet. */
+  walletId: string;
+  /** Export bundle containing a wallet mnemonic + optional newline passphrase encrypted by the client's target public key. */
+  exportBundle: string;
+};
+
+export type ImportPrivateKeyResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a Private Key. */
+  privateKeyId: string;
+  /** A list of addresses. */
+  addresses: immutableactivityv1Address[];
+};
+
+export type ImportWalletResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a Wallet. */
+  walletId: string;
+  /** A list of account addresses. */
+  addresses: string[];
+};
+
+export type InitImportPrivateKeyResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Import bundle containing a public key and signature to use for importing client data. */
+  importBundle: string;
+};
+
+export type InitImportWalletResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Import bundle containing a public key and signature to use for importing client data. */
+  importBundle: string;
+};
+
+export type InitOtpResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for an OTP authentication */
+  otpId: string;
+};
+
+export type InitUserEmailRecoveryResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for the user being recovered. */
+  userId: string;
+};
+
+export type OauthLoginResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
+  session: string;
+};
+
+export type OauthResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for the authenticating User. */
+  userId: string;
+  /** Unique identifier for the created API key. */
+  apiKeyId: string;
+  /** HPKE encrypted credential bundle */
+  credentialBundle: string;
+};
+
+export type OtpAuthResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for the authenticating User. */
+  userId: string;
+  /** Unique identifier for the created API key. */
+  apiKeyId?: string;
+  /** HPKE encrypted credential bundle */
+  credentialBundle?: string;
+};
+
+export type OtpLoginResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
+  session: string;
+};
+
+export type PrivateKeyResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  privateKeyId?: string;
+  addresses?: immutableactivityv1Address[];
+};
+
+export type RecoverUserResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** ID of the authenticator created. */
+  authenticatorId: string[];
+};
+
+export type RemoveOrganizationFeatureResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Resulting list of organization features. */
+  features: v1Feature[];
+};
+
+export type SetOrganizationFeatureResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Resulting list of organization features. */
+  features: v1Feature[];
+};
+
+export type SignRawPayloadResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Component of an ECSDA signature. */
+  r: string;
+  /** Component of an ECSDA signature. */
+  s: string;
+  /** Component of an ECSDA signature. */
+  v: string;
+};
+
+export type SignRawPayloadsResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  signatures?: v1SignRawPayloadResult[];
+};
+
+export type SignTransactionResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  signedTransaction: string;
+};
+
+export type StampLoginResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
+  session: string;
+};
+
+export type UpdatePrivateKeyTagResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given Private Key Tag. */
+  privateKeyTagId: string;
+};
+
+export type UpdateUserResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A User ID. */
+  userId: string;
+};
+
+export type UpdateUserTagResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Unique identifier for a given User Tag. */
+  userTagId: string;
+};
+
+export type UpdateWalletResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** A Wallet ID. */
+  walletId: string;
+};
+
+export type VerifyOtpResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  /** Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
+  verificationToken: string;
+};
+
+export type WalletResponse = {
+  /** The activity that was processed. */
+  activity: v1Activity;
+  walletId: string;
+  /** A list of account addresses. */
+  addresses: string[];
+};
+
