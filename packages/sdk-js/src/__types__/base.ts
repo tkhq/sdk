@@ -2,7 +2,12 @@ import type { TActivityId, TActivityStatus } from "@turnkey/http";
 import type { WalletStamper } from "@turnkey/wallet-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
-import type { SessionType, Wallet, WalletAccount } from "@turnkey/sdk-types";
+import type {
+  SessionType,
+  User,
+  Wallet,
+  WalletAccount,
+} from "@turnkey/sdk-types";
 import { StorageBase } from "../__storage__/base";
 import { TPasskeyStamperConfig } from "../__stampers__/passkey/base";
 
@@ -143,12 +148,6 @@ export interface PasskeyClientParams {
   userVerification?: UserVerificationRequirement;
   allowCredentials?: PublicKeyCredentialDescriptor[];
 }
-
-export interface CreatePasskeyParams {
-  name?: string;
-  displayName?: string;
-}
-
 export interface RefreshSessionParams {
   sessionType: SessionType;
   expirationSeconds?: string | undefined;
@@ -160,26 +159,17 @@ export interface LoginWithBundleParams {
   expirationSeconds?: string;
 }
 
-export interface LoginWithPasskeyParams {
-  sessionType?: SessionType;
-  expirationSeconds?: string | undefined;
-  publicKey?: string;
-  sessionKey?: string | undefined;
-}
-
 export interface LoginWithWalletParams {
   sessionType: SessionType;
   expirationSeconds?: string | undefined;
   publicKey?: string;
 }
 
+export type TUser = User; // TODO (Amir): I dunno if we need this. We may want to add more stuff to the user type in the future, so let's keep it for now since
+
 export type TWallet = Wallet & {
   accounts?: WalletAccount[] | undefined;
-}
-
-// export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {
-//   wallet: WalletInterface;
-// }
+};
 
 /**
  * The Client used to authenticate the user.
@@ -191,6 +181,6 @@ export enum AuthClient {
 }
 
 export enum StamperType {
-  apiKey = "api-key",
+  ApiKey = "api-key",
   Passkey = "passkey",
 }
