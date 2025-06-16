@@ -132,17 +132,23 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
   /**
    * Attempts to refresh an existing Session. This method infers the current user's organization ID and target userId.
-   * This will use a passkeyStamper for `READ_ONLY` sessions or an `indexedDbStamper` or `iframeStamper` for `READ_WRITE` sessions.
+   *
+   * - For `READ_ONLY` sessions: Requires the client to be a `TurnkeyPasskeyClient`.
+   * - For `READ_WRITE` sessions:
+   *   - If the client is a `TurnkeyIndexedDbClient`, a new keypair will be generated unless a `publicKey` is provided.
+   *   - If the client is a `TurnkeyIframeClient`, a `publicKey` must be provided explicitly.
    *
    * @param RefreshSessionParams
-   *   @param params.sessionType - The type of session that is being refreshed
-   *   @param params.expirationSeconds - Specify how long to extend the session. Defaults to 900 seconds or 15 minutes.
+   *   @param params.sessionType - The type of session being refreshed. Defaults to `READ_WRITE`.
+   *   @param params.expirationSeconds - How long to extend the session for, in seconds. Defaults to 900 (15 minutes).
+   *   @param params.publicKey - Optional public key to use for session creation. Required for `IframeClient`, optional for `IndexedDbClient`.
    * @returns {Promise<void>}
    */
   refreshSession = async (params?: RefreshSessionParams): Promise<void> => {
     const {
       sessionType = SessionType.READ_WRITE,
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+      publicKey,
     } = params ? params : {};
 
     try {
@@ -168,32 +174,40 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         }
 
         case SessionType.READ_WRITE: {
+          // function was called with an IndexedDbClient
           if (this instanceof TurnkeyIndexedDbClient) {
-            const newKeyPair = await crypto.subtle.generateKey(
-              { name: "ECDSA", namedCurve: "P-256" },
-              false,
-              ["sign", "verify"],
-            );
+            let keyPair = undefined;
+            let compressedHex = publicKey;
 
-            const rawPubKey = new Uint8Array(
-              await crypto.subtle.exportKey("raw", newKeyPair.publicKey),
-            );
-            const compressedHex = uint8ArrayToHexString(pointEncode(rawPubKey));
+            if (!publicKey) {
+              keyPair = await crypto.subtle.generateKey(
+                { name: "ECDSA", namedCurve: "P-256" },
+                false,
+                ["sign", "verify"],
+              );
+              const rawPubKey = new Uint8Array(
+                await crypto.subtle.exportKey("raw", keyPair.publicKey),
+              );
+              compressedHex = uint8ArrayToHexString(pointEncode(rawPubKey));
+            }
 
             const result = await this.stampLogin({
-              publicKey: compressedHex,
+              publicKey: compressedHex!,
               expirationSeconds,
             });
 
-            await this.resetKeyPair(newKeyPair);
+            await this.resetKeyPair(keyPair);
             await storeSession(result.session, AuthClient.IndexedDb);
             return;
           }
 
+          // function was called with an IframeClient
           if (this instanceof TurnkeyIframeClient) {
-            const targetPublicKey = await this.getEmbeddedPublicKey?.();
+            const targetPublicKey = publicKey;
             if (!targetPublicKey) {
-              throw new Error("Missing targetPublicKey for iframe client.");
+              throw new Error(
+                "You must provide a targetPublicKey to refresh a read-write session with an iframe client.",
+              );
             }
 
             const result = await this.createReadWriteSession({

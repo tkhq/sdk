@@ -138,7 +138,7 @@ export const SessionExpiryProvider = ({
     }
 
     try {
-      await indexedDbClient.refreshSession({});
+      await indexedDbClient.refreshSession();
       const cur = await turnkey?.getSession();
       if (cur?.expiry) {
         const now = Date.now() / 1000;
