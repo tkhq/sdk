@@ -92,5 +92,5 @@ export class WebStorageManager implements StorageBase {
     for (const wallet of wallets) {
       browserStorage.setItem(wallet.walletId, JSON.stringify(wallet));
     }
-  }
+  };
 }
