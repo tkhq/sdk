@@ -4,6 +4,7 @@ import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import type { SessionType, Wallet, WalletAccount } from "@turnkey/sdk-types";
 import { StorageBase } from "../__storage__/base";
+import { TPasskeyStamperConfig } from "../__stampers__/passkey/base";
 
 // TODO (Amir): Get all this outta here and move to sdk-types. Or not, we could just have everything in this package
 
@@ -99,25 +100,23 @@ export type Passkey = {
   };
 };
 
-export interface TurnkeySDKClientConfig {
+export interface TurnkeyHttpClientConfig {
   apiBaseUrl: string;
   organizationId: string;
 
   // TODO (Amir): Remove this in a user-facing config and add passkey and wallet configs
   activityPoller?: TActivityPollerConfig | undefined;
-  apiKeyStamper?: TStamper;
-  passkeyStamper?: TStamper;
-  storageManager?: StorageBase;
-  readOnlySession?: string;
+  apiKeyStamper?: TStamper | undefined;
+  passkeyStamper?: TStamper | undefined;
+  storageManager?: StorageBase | undefined;
+  readOnlySession?: string | undefined; // TODO (Amir): Shouldn't this be getten from the storage manager?
 }
 
-export interface TurnkeySDKBrowserConfig {
+export interface TurnkeySDKClientConfig {
   apiBaseUrl: string;
-  defaultOrganizationId: string;
-  rpId?: string;
-  serverSignUrl?: string;
-  iframeUrl?: string;
-  dangerouslyOverrideIframeKeyTtl?: number;
+  organizationId: string;
+
+  passkeyConfig?: TPasskeyStamperConfig;
 }
 
 export type Stamper = WebauthnStamper | WalletStamper | IndexedDbStamper;

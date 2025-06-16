@@ -18,6 +18,7 @@ import {
   CreatePasskeyParams,
   ActivityResponse,
   TWallet,
+  TurnkeySDKClientConfig,
 } from "@types"; // AHHHH, SDK-TYPES
 import {
   base64UrlEncode,
@@ -37,7 +38,7 @@ import { CrossPlatformPasskeyStamper } from "../__stampers__/passkey/base";
 import { get } from "http";
 
 export class TurnkeyClient {
-  config: any; // Type TBD
+  config: TurnkeySDKClientConfig; // Type TBD
   httpClient!: TurnkeySDKClientBase;
 
   // public session?: Session | undefined;  // TODO (Amir): Define session type. Or not maybe???
@@ -73,15 +74,17 @@ export class TurnkeyClient {
     this.apiKeyStamper = new CrossPlatformApiKeyStamper(this.storageManager);
     await this.apiKeyStamper.init();
 
-    this.passkeyStamper = new CrossPlatformPasskeyStamper(
-      this.config.passkeyConfig
-    );
-    await this.passkeyStamper.init();
+    if (this.config.passkeyConfig) {
+      this.passkeyStamper = new CrossPlatformPasskeyStamper(
+        this.config.passkeyConfig
+      );
+      await this.passkeyStamper.init();
+    }
 
     // Initialize the HTTP client with the appropriate stampers
     this.httpClient = new TurnkeySDKClientBase({
       apiKeyStamper: this.apiKeyStamper,
-      passkeyStamper: this.passkeyStamper,
+      passkeyStamper: this.passkeyStamper!,
       storageManager: this.storageManager,
       ...this.config,
     });
@@ -144,6 +147,7 @@ export class TurnkeyClient {
           {
             publicKey,
             expirationSeconds,
+            organizationId: this.config.organizationId,
           },
           StamperType.Passkey
         );
@@ -180,7 +184,11 @@ export class TurnkeyClient {
     }
   };
 
-  getWallets = async ({ stamperType }: { stamperType?: StamperType }): Promise<TWallet[]> => {
+  getWallets = async ({
+    stamperType,
+  }: {
+    stamperType?: StamperType;
+  }): Promise<TWallet[]> => {
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new Error("No active session found. Please log in first.");
@@ -196,12 +204,13 @@ export class TurnkeyClient {
       }
 
       const wallets: TWallet[] = res.wallets;
-      let i = 0
+      let i = 0;
       for (const wallet of wallets) {
         const walletAccounts = await this.getWalletAccounts({
-          walletId: wallet.walletId})
+          walletId: wallet.walletId,
+        });
 
-        if (walletAccounts.accounts.length > 0 ) {
+        if (walletAccounts.accounts.length > 0) {
           wallets[i]!.accounts = walletAccounts.accounts;
         }
 
@@ -209,7 +218,6 @@ export class TurnkeyClient {
       }
 
       return wallets;
-
     } catch (error) {
       throw new Error(`Failed to fetch wallets: ${error}`);
     }
@@ -239,7 +247,7 @@ export class TurnkeyClient {
     } catch (error) {
       throw new Error(`Failed to fetch wallet accounts: ${error}`);
     }
-  }
+  };
 
   signMessage = async ({
     message,
