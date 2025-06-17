@@ -46,6 +46,7 @@ jobs:
         with:
           name: release-artifacts-${{ steps.extract_tag.outputs.tag }}
           path: .
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install latest dependencies
         run: pnpm install -r --frozen-lockfile
