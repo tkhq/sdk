@@ -3,6 +3,7 @@ import {
   GetWalletAccountsResponse,
   SessionType,
   v1SignRawPayloadResult,
+  v1User,
   v1WalletAccount,
 } from "@turnkey/sdk-types";
 import {
@@ -277,6 +278,38 @@ export class TurnkeyClient {
 
     return response.activity.result
       .signRawPayloadResult as v1SignRawPayloadResult;
+  };
+
+  fetchUser = async (params: {
+    organizationId?: string;
+    userId?: string;
+  }): Promise<v1User> => {
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new Error("No active session found. Please log in first.");
+    }
+
+    const userId = params.userId || session.userId;
+    if (!userId) {
+      throw new Error("User ID must be provided to fetch user");
+    }
+
+    const organizationId = params.organizationId || session.organizationId;
+
+    try {
+      const userResponse = await this.httpClient.getUser(
+        { organizationId, userId },
+        StamperType.ApiKey,
+      );
+
+      if (!userResponse || !userResponse.user) {
+        throw new Error("No user found in the response");
+      }
+
+      return userResponse.user as v1User;
+    } catch (error) {
+      throw new Error(`Failed to fetch user: ${error}`);
+    }
   };
 }
 
