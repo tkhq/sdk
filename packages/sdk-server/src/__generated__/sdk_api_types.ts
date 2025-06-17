@@ -628,6 +628,16 @@ export type TImportWalletBody =
   operations["PublicApiService_ImportWallet"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TInitFiatOnRampResponse =
+  operations["PublicApiService_InitFiatOnRamp"]["responses"]["200"]["schema"]["activity"]["result"]["initFiatOnRampResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TInitFiatOnRampInput = { body: TInitFiatOnRampBody };
+
+export type TInitFiatOnRampBody =
+  operations["PublicApiService_InitFiatOnRamp"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TInitImportPrivateKeyResponse =
   operations["PublicApiService_InitImportPrivateKey"]["responses"]["200"]["schema"]["activity"]["result"]["initImportPrivateKeyResult"] &
     definitions["v1ActivityResponse"];
@@ -840,6 +850,36 @@ export type TUpdateUserInput = { body: TUpdateUserBody };
 
 export type TUpdateUserBody =
   operations["PublicApiService_UpdateUser"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpdateUserEmailResponse =
+  operations["PublicApiService_UpdateUserEmail"]["responses"]["200"]["schema"]["activity"]["result"]["updateUserEmailResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateUserEmailInput = { body: TUpdateUserEmailBody };
+
+export type TUpdateUserEmailBody =
+  operations["PublicApiService_UpdateUserEmail"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpdateUserNameResponse =
+  operations["PublicApiService_UpdateUserName"]["responses"]["200"]["schema"]["activity"]["result"]["updateUserNameResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateUserNameInput = { body: TUpdateUserNameBody };
+
+export type TUpdateUserNameBody =
+  operations["PublicApiService_UpdateUserName"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpdateUserPhoneNumberResponse =
+  operations["PublicApiService_UpdateUserPhoneNumber"]["responses"]["200"]["schema"]["activity"]["result"]["updateUserPhoneNumberResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateUserPhoneNumberInput = { body: TUpdateUserPhoneNumberBody };
+
+export type TUpdateUserPhoneNumberBody =
+  operations["PublicApiService_UpdateUserPhoneNumber"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TUpdateUserTagResponse =

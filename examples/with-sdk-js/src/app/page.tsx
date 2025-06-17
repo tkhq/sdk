@@ -53,12 +53,21 @@ export default function AuthPage() {
   };
 
   const getWallets = async () => {
-    const res = await client?.getWallets({});
+    const res = await client?.fetchWallets({});
     if (res) {
       setWallets(res);
       console.log("Wallets:", res);
     } else {
       console.error("Failed to fetch wallets");
+    }
+  };
+
+  const getUser = async () => {
+    const res = await client?.fetchUser({});
+    if (res) {
+      console.log("Users:", res);
+    } else {
+      console.error("Failed to fetch users");
     }
   };
 
@@ -138,6 +147,20 @@ export default function AuthPage() {
           }}
         >
           Get Wallets
+        </button>
+      ) : null}
+
+      {client?.storageManager?.getActiveSession() ? (
+        <button
+          onClick={getUser}
+          style={{
+            backgroundColor: "blue",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Get Users
         </button>
       ) : null}
     </main>

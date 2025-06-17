@@ -2,9 +2,9 @@ import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
 import {
   GetWalletAccountsResponse,
   SessionType,
-  SignRawPayloadResult,
-  User,
-  WalletAccount,
+  v1SignRawPayloadResult,
+  v1User,
+  v1WalletAccount,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -245,9 +245,9 @@ export class TurnkeyClient {
 
   signMessage = async (params: {
     message: string;
-    wallet?: WalletAccount;
+    wallet?: v1WalletAccount;
     stampWith?: StamperType;
-  }): Promise<SignRawPayloadResult> => {
+  }): Promise<v1SignRawPayloadResult> => {
     const { message, wallet, stampWith } = params;
     if (!wallet) {
       throw new Error("A wallet account must be provided for signing");
@@ -277,7 +277,39 @@ export class TurnkeyClient {
     }
 
     return response.activity.result
-      .signRawPayloadResult as SignRawPayloadResult;
+      .signRawPayloadResult as v1SignRawPayloadResult;
+  };
+
+  fetchUser = async (params: {
+    organizationId?: string;
+    userId?: string;
+  }): Promise<v1User> => {
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new Error("No active session found. Please log in first.");
+    }
+
+    const userId = params.userId || session.userId;
+    if (!userId) {
+      throw new Error("User ID must be provided to fetch user");
+    }
+
+    const organizationId = params.organizationId || session.organizationId;
+
+    try {
+      const userResponse = await this.httpClient.getUser(
+        { organizationId, userId },
+        StamperType.ApiKey,
+      );
+
+      if (!userResponse || !userResponse.user) {
+        throw new Error("No user found in the response");
+      }
+
+      return userResponse.user as v1User;
+    } catch (error) {
+      throw new Error(`Failed to fetch user: ${error}`);
+    }
   };
 }
 
