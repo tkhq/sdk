@@ -136,14 +136,14 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
    * - For `READ_ONLY` sessions: Requires the client to be a `TurnkeyPasskeyClient`.
    * - For `READ_WRITE` sessions:
    *   - If the client is a `TurnkeyIndexedDbClient`, a new keypair will be generated unless a `publicKey` is provided.
-   *   - If the client is a `TurnkeyIframeClient`, the `publicKey` will be used if provided. Otherwise, it will fall back to `getEmbeddedPublicKey()`.
+   *   - If the client is a `TurnkeyIframeClient`, it will use the provided `publicKey` if available, or fall back to `getEmbeddedPublicKey()`.
    *     If no key is available from either source, an error will be thrown.
    *
    * @param RefreshSessionParams
    *   @param params.sessionType - The type of session being refreshed. Defaults to `READ_WRITE`.
    *   @param params.expirationSeconds - How long to extend the session for, in seconds. Defaults to 900 (15 minutes).
    *   @param params.invalidateExisting - Whether to invalidate existing sessions. Defaults to `false`.
-   *   @param params.publicKey - Optional public key to use for session creation. Required for `IframeClient`, optional for `IndexedDbClient`.
+   *   @param params.publicKey - Optional public key to use for session creation. If not provided, each client type has fallback behavior.
    * @returns {Promise<void>}
    */
   refreshSession = async ({
