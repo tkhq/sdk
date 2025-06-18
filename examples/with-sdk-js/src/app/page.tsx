@@ -2,18 +2,16 @@
 
 import Image from "next/image";
 import styles from "./index.module.css";
-import { StamperType, TurnkeyClient, TWallet } from "@turnkey/sdk-js";
+import { StamperType, TurnkeyClient, Wallet } from "@turnkey/sdk-js";
 
 import { server } from "@turnkey/sdk-server";
 import { useEffect, useState } from "react";
-import { Session } from "@turnkey/sdk-types";
-import { get } from "http";
-import { set } from "react-hook-form";
+import { Session, v1AddressFormat } from "@turnkey/sdk-types";
 
 export default function AuthPage() {
   const [client, setClient] = useState<TurnkeyClient | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [wallets, setWallets] = useState<TWallet[]>([]);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
 
   useEffect(() => {
     const initializeClient = async () => {
@@ -71,7 +69,94 @@ export default function AuthPage() {
     }
   };
 
-  useEffect(() => {});
+  const signMessage = async () => {
+    if (
+      (wallets.length === 0 && !wallets[0]) ||
+      !wallets[0].accounts ||
+      wallets[0].accounts.length < 2
+    ) {
+      console.error("No wallets available to sign message");
+      return;
+    }
+
+    for (const walletAccount of wallets[0].accounts) {
+      const res = await client?.signMessage({
+        message: "Hello, Turnkey!",
+        wallet: walletAccount,
+      });
+
+      console.log("Signed message response:", res);
+    }
+  };
+
+  const createWallet = async (walletName: string) => {
+    // List of all v1AddressFormat values
+    const allAddressFormats = [
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_ETHEREUM",
+    ];
+
+    const res = await client?.createWallet({
+      walletName,
+      accounts: allAddressFormats,
+    });
+
+    console.log("Created wallet response:", res);
+  };
 
   return (
     <main className={styles.main}>
@@ -152,9 +237,23 @@ export default function AuthPage() {
 
       {client?.storageManager?.getActiveSession() ? (
         <button
+          onClick={() => createWallet(`EVERYTHING ${wallets.length + 1}`)}
+          style={{
+            backgroundColor: "gray",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Create Wallet
+        </button>
+      ) : null}
+
+      {client?.storageManager?.getActiveSession() ? (
+        <button
           onClick={getUser}
           style={{
-            backgroundColor: "blue",
+            backgroundColor: "red",
             borderRadius: "8px",
             padding: "8px 16px",
             color: "white",
@@ -163,6 +262,20 @@ export default function AuthPage() {
           Get Users
         </button>
       ) : null}
+
+      {wallets.length > 0 && (
+        <button
+          onClick={signMessage}
+          style={{
+            backgroundColor: "pink",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Sign Message
+        </button>
+      )}
     </main>
   );
 }
