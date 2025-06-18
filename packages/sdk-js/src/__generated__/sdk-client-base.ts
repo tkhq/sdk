@@ -18,8 +18,6 @@ import {
 
 import { VERSION } from "../__generated__/version";
 
-import type * as SdkApiTypes from "./sdk_api_types";
-
 import type * as SdkTypes from "@turnkey/sdk-types";
 
 import { StorageBase } from "../__storage__/base";
