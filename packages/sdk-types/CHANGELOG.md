@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 0.2.1
+
+### Patch Changes
+
+- [#693](https://github.com/tkhq/sdk/pull/693) [`039602a`](https://github.com/tkhq/sdk/commit/039602a015d20783952b992d1d339f5fc003f658) Author [@turnekybc](https://github.com/turnekybc) - Add FiatOnRampCryptoCurrency Enum
+
 ## 0.2.0
 
 ### Minor Changes
