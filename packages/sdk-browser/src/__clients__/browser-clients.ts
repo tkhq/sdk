@@ -132,74 +132,114 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
 
   /**
    * Attempts to refresh an existing Session. This method infers the current user's organization ID and target userId.
-   * This will use a passkeyStamper for `READ_ONLY` sessions or an `indexedDbStamper` for `READ_WRITE` sessions.
+   *
+   * - For `READ_ONLY` sessions: Requires the client to be a `TurnkeyPasskeyClient`.
+   * - For `READ_WRITE` sessions:
+   *   - If the client is a `TurnkeyIndexedDbClient`, a new keypair will be generated unless a `publicKey` is provided.
+   *   - If the client is a `TurnkeyIframeClient`, it will use the provided `publicKey` if available, or fall back to `getEmbeddedPublicKey()`.
+   *     If no key is available from either source, an error will be thrown.
    *
    * @param RefreshSessionParams
-   *   @param params.sessionType - The type of session that is being refreshed
-   *   @param params.expirationSeconds - Specify how long to extend the session. Defaults to 900 seconds or 15 minutes.
+   *   @param params.sessionType - The type of session being refreshed. Defaults to `READ_WRITE`.
+   *   @param params.expirationSeconds - How long to extend the session for, in seconds. Defaults to 900 (15 minutes).
+   *   @param params.invalidateExisting - Whether to invalidate existing sessions. Defaults to `false`.
+   *   @param params.publicKey - Optional public key to use for session creation. If not provided, each client type has fallback behavior.
    * @returns {Promise<void>}
    */
-  refreshSession = async (params: RefreshSessionParams): Promise<void> => {
-    const {
-      sessionType = SessionType.READ_WRITE,
-      expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-    } = params;
-
+  refreshSession = async ({
+    sessionType = SessionType.READ_WRITE,
+    expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+    invalidateExisting = false,
+    publicKey,
+  }: RefreshSessionParams = {}): Promise<void> => {
     try {
-      if (sessionType === SessionType.READ_ONLY) {
-        if (!(this instanceof TurnkeyPasskeyClient)) {
-          throw new Error(
-            "You must use a passkey client to refresh a read-only session.",
-          ); // TODO: support wallet client
+      switch (sessionType) {
+        case SessionType.READ_ONLY: {
+          if (!(this instanceof TurnkeyPasskeyClient)) {
+            throw new Error(
+              "You must use a passkey client to refresh a read-only session.",
+            );
+          }
+
+          const result = await this.createReadOnlySession({});
+          const session: Session = {
+            sessionType: SessionType.READ_ONLY,
+            userId: result.userId,
+            organizationId: result.organizationId,
+            expiry: Number(result.sessionExpiry),
+            token: result.session,
+          };
+
+          await storeSession(session, AuthClient.Passkey);
+          return;
         }
 
-        const readOnlySessionResult = await this.createReadOnlySession({});
-        const session: Session = {
-          sessionType: SessionType.READ_ONLY,
-          userId: readOnlySessionResult.userId,
-          organizationId: readOnlySessionResult.organizationId,
-          expiry: Number(readOnlySessionResult.sessionExpiry),
-          token: readOnlySessionResult.session,
-        };
+        case SessionType.READ_WRITE: {
+          // function was called with an IndexedDbClient
+          if (this instanceof TurnkeyIndexedDbClient) {
+            let keyPair = undefined;
+            let compressedHex = publicKey;
 
-        await storeSession(session, AuthClient.Passkey);
-      } else if (sessionType === SessionType.READ_WRITE) {
-        if (!(this instanceof TurnkeyIndexedDbClient)) {
+            if (!publicKey) {
+              keyPair = await crypto.subtle.generateKey(
+                { name: "ECDSA", namedCurve: "P-256" },
+                false,
+                ["sign", "verify"],
+              );
+              const rawPubKey = new Uint8Array(
+                await crypto.subtle.exportKey("raw", keyPair.publicKey),
+              );
+              compressedHex = uint8ArrayToHexString(pointEncode(rawPubKey));
+            }
+
+            const result = await this.stampLogin({
+              publicKey: compressedHex!,
+              expirationSeconds,
+              invalidateExisting,
+            });
+
+            await this.resetKeyPair(keyPair);
+            await storeSession(result.session, AuthClient.IndexedDb);
+            return;
+          }
+
+          // function was called with an IframeClient
+          if (this instanceof TurnkeyIframeClient) {
+            const targetPublicKey =
+              publicKey ?? (await this.getEmbeddedPublicKey());
+
+            if (!targetPublicKey) {
+              throw new Error(
+                "Unable to refresh session: missing target public key.",
+              );
+            }
+
+            const result = await this.createReadWriteSession({
+              targetPublicKey,
+              expirationSeconds,
+              invalidateExisting,
+            });
+
+            const session: Session = {
+              sessionType: SessionType.READ_WRITE,
+              userId: result.userId,
+              organizationId: result.organizationId,
+              expiry: Date.now() + Number(expirationSeconds) * 1000,
+              token: result.credentialBundle,
+            };
+
+            await this.injectCredentialBundle(session.token);
+            await storeSession(session, AuthClient.Iframe);
+            return;
+          }
+
           throw new Error(
-            "You must use an IndexedDb client to refresh a read-write session.",
+            "Unsupported client type for read-write session refresh.",
           );
         }
 
-        // Generate new key pair (non-extractable)
-        const newKeyPair = await crypto.subtle.generateKey(
-          {
-            name: "ECDSA",
-            namedCurve: "P-256",
-          },
-          false, // non-extractable
-          ["sign", "verify"],
-        );
-
-        // Compress public key
-        const rawPubKey = new Uint8Array(
-          await crypto.subtle.exportKey("raw", newKeyPair.publicKey),
-        );
-        const compressedPubKey = pointEncode(rawPubKey);
-        const compressedHex = uint8ArrayToHexString(compressedPubKey);
-
-        // Stamp login with new public key
-        const sessionResponse = await this.stampLogin({
-          publicKey: compressedHex,
-          expirationSeconds,
-        });
-
-        // Adopt new key into IndexedDb stamper
-        await this.resetKeyPair(newKeyPair);
-
-        // Store session
-        await storeSession(sessionResponse.session, AuthClient.IndexedDb);
-      } else {
-        throw new Error(`Invalid session type passed: ${sessionType}`);
+        default:
+          throw new Error(`Invalid session type passed: ${sessionType}`);
       }
     } catch (error) {
       throw new Error(`Unable to refresh session: ${error}`);
