@@ -640,7 +640,7 @@ const httpClient = new TurnkeyClient(
   new ApiKeyStamper({
     apiPublicKey: "...",
     apiPrivateKey: "...",
-  })
+  }),
 );
 
 // Create the Viem custom account
