@@ -264,7 +264,7 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
 
   imports.push('import { VERSION } from "../__generated__/version";');
 
-  imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
+  // imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
 
   imports.push('import type * as SdkTypes from "@turnkey/sdk-types";');
 
