@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- Updated dependencies []:
+- Updated dependencies:
   - @turnkey/sdk-browser@5.2.3
 
 ## 0.9.8
@@ -640,7 +640,7 @@ const httpClient = new TurnkeyClient(
   new ApiKeyStamper({
     apiPublicKey: "...",
     apiPrivateKey: "...",
-  }),
+  })
 );
 
 // Create the Viem custom account

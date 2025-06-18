@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- Updated dependencies []:
+- Updated dependencies:
   - @turnkey/sdk-browser@5.2.3
 
 ## 1.1.30
@@ -659,7 +659,7 @@ const turnkeyClient = new TurnkeyClient(
   new ApiKeyStamper({
     apiPublicKey: "...",
     apiPrivateKey: "...",
-  }),
+  })
 );
 
 // Initialize a Turnkey Signer
