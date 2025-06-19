@@ -43,17 +43,20 @@ export const signWithApiKey = async (input: {
   privateKey: string;
 }): Promise<string> => {
   if (isCryptoEnabledBrowser) {
+    console.log("Using WebCrypto for signing with API key");
     const fn = await import("./webcrypto").then((m) => m.signWithApiKey);
     return fn(input);
   }
 
   if (detectIsNode()) {
+    console.log("Using NodeJS crypto for signing with API key");
     const fn = await import("./nodecrypto").then((m) => m.signWithApiKey);
     return fn(input);
   }
 
   // If we don't have NodeJS or web crypto at our disposal, default to pure JS implementation
   // This is the case for old browsers and react native environments
+  console.log("Using PureJS for signing with API key");
   const fn = await import("./purejs").then((m) => m.signWithApiKey);
   return fn(input);
 };
