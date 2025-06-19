@@ -7,6 +7,7 @@ const stampHeaderName = "X-Stamp";
 export type TApiKeyStamperConfig = {
   apiPublicKey: string;
   apiPrivateKey: string;
+  forceBrowserCrypto?: boolean;
 };
 
 // `window.document` ensures that we're in a browser context
@@ -41,8 +42,9 @@ export const signWithApiKey = async (input: {
   content: string;
   publicKey: string;
   privateKey: string;
+  forceBrowserCrypto?: boolean;
 }): Promise<string> => {
-  if (isCryptoEnabledBrowser) {
+  if (isCryptoEnabledBrowser || input.forceBrowserCrypto) {
     console.log("Using WebCrypto for signing with API key");
     const fn = await import("./webcrypto").then((m) => m.signWithApiKey);
     return fn(input);
@@ -67,16 +69,19 @@ export const signWithApiKey = async (input: {
 export class ApiKeyStamper {
   apiPublicKey: string;
   apiPrivateKey: string;
+  forceBrowserCrypto: boolean;
 
   constructor(config: TApiKeyStamperConfig) {
     this.apiPublicKey = config.apiPublicKey;
     this.apiPrivateKey = config.apiPrivateKey;
+    this.forceBrowserCrypto = config.forceBrowserCrypto ?? false;
   }
 
   async stamp(payload: string) {
     const signature = await signWithApiKey({
       publicKey: this.apiPublicKey,
       privateKey: this.apiPrivateKey,
+      forceBrowserCrypto: this.forceBrowserCrypto,
       content: payload,
     });
 
