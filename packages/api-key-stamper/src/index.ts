@@ -18,12 +18,21 @@ const isCryptoEnabledBrowser: boolean =
   typeof crypto !== "undefined" &&
   typeof crypto.subtle !== "undefined";
 
-// We check `process.versions.node`
-// Taken from https://github.com/flexdinesh/browser-or-node/blob/master/src/index.ts
-const isNode: boolean =
-  typeof process !== "undefined" &&
-  process.versions != null &&
-  process.versions.node != null;
+// Detects a real Node.js environment.
+// Based on https://github.com/flexdinesh/browser-or-node
+// Includes a check for `createSign` to avoid false positives in environments like Cloudflare Workers.
+function detectIsNode(): boolean {
+  try {
+    const nodeCrypto = require("crypto");
+    return (
+      typeof process !== "undefined" &&
+      process.versions?.node != null &&
+      typeof nodeCrypto.createSign === "function"
+    );
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Signature function abstracting the differences between NodeJS and web environments for signing with API keys.
@@ -36,15 +45,17 @@ export const signWithApiKey = async (input: {
   if (isCryptoEnabledBrowser) {
     const fn = await import("./webcrypto").then((m) => m.signWithApiKey);
     return fn(input);
-  } else if (isNode) {
+  }
+
+  if (detectIsNode()) {
     const fn = await import("./nodecrypto").then((m) => m.signWithApiKey);
     return fn(input);
-  } else {
-    // If we don't have NodeJS or web crypto at our disposal, default to pure JS implementation
-    // This is the case for old browsers and react native environments
-    const fn = await import("./purejs").then((m) => m.signWithApiKey);
-    return fn(input);
   }
+
+  // If we don't have NodeJS or web crypto at our disposal, default to pure JS implementation
+  // This is the case for old browsers and react native environments
+  const fn = await import("./purejs").then((m) => m.signWithApiKey);
+  return fn(input);
 };
 
 /**
@@ -69,11 +80,11 @@ export class ApiKeyStamper {
     const stamp = {
       publicKey: this.apiPublicKey,
       scheme: "SIGNATURE_SCHEME_TK_API_P256",
-      signature: signature,
+      signature,
     };
 
     return {
-      stampHeaderName: stampHeaderName,
+      stampHeaderName,
       stampHeaderValue: stringToBase64urlString(JSON.stringify(stamp)),
     };
   }
