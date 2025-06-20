@@ -6,7 +6,7 @@ import { TStamp, TStamper } from "@types";
 export interface ApiKeyStamperBase {
   listKeyPairs(): Promise<string[]>;
   createKeyPair(
-    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string },
+    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string }
   ): Promise<string>;
   deleteKeyPair(publicKeyHex: string): Promise<void>;
   clearKeyPairs(): Promise<void>;
@@ -15,7 +15,7 @@ export interface ApiKeyStamperBase {
 
 export class CrossPlatformApiKeyStamper implements TStamper {
   private stamper!: ApiKeyStamperBase;
-
+  private publicKeyOverride?: string | undefined;
   constructor(private storageManager: StorageBase) {
     // Use init method to set up the stamper based on the platform. It's async, so can't be done in the constructor.
   }
@@ -30,7 +30,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
         this.stamper = new ReactNativeKeychainStamper();
       } catch (error) {
         throw new Error(
-          `Failed to load keychain stamper for react-native: ${error}`,
+          `Failed to load keychain stamper for react-native: ${error}`
         );
       }
     } else {
@@ -44,7 +44,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
   }
 
   createKeyPair(
-    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string },
+    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string }
   ): Promise<string> {
     return this.stamper.createKeyPair(externalKeyPair);
   }
@@ -57,13 +57,25 @@ export class CrossPlatformApiKeyStamper implements TStamper {
     return this.stamper.clearKeyPairs();
   }
 
+  // TODO (Amir): This function needs to be explained well
+  setPublicKeyOverride(publicKeyHex: string | undefined): void {
+    this.publicKeyOverride = publicKeyHex;
+  }
+
+  clearOverridePublicKey(): void {
+    this.publicKeyOverride = undefined;
+  }
+
   async stamp(payload: string): Promise<TStamp> {
-    const session = await this.storageManager.getActiveSession();
-    console.log("Active session:", session);
-    console.log("Session token:", session?.token);
-    if (!session) {
-      throw new Error("No active session or token available.");
+    let publicKeyHex = this.publicKeyOverride;
+    if (!publicKeyHex) {
+      const session = await this.storageManager.getActiveSession();
+      if (!session) {
+        throw new Error("No active session or token available.");
+      }
+      publicKeyHex = session.token;
     }
-    return this.stamper.stamp(payload, session.token);
+
+    return this.stamper.stamp(payload, publicKeyHex);
   }
 }
