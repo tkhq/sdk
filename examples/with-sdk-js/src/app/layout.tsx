@@ -4,6 +4,8 @@ import { TurnkeyProvider } from "@turnkey/sdk-react";
 
 const turnkeyConfig = {
   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+  authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_URL!,
+  authProxyId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
   defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
   rpId: process.env.NEXT_PUBLIC_RPID!,
 };
