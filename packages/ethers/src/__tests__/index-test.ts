@@ -541,7 +541,7 @@ describe("TurnkeySigner", () => {
                     : undefined,
                 stack: error instanceof Error ? error.stack : undefined,
               },
-              (key, value) => {
+              (_, value) => {
                 if (typeof value === "bigint") return value.toString();
                 return value;
               },
