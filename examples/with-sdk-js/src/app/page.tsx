@@ -17,6 +17,8 @@ export default function AuthPage() {
     const initializeClient = async () => {
       const turnkeyClient = new TurnkeyClient({
         apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+        authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_URL!,
+        authProxyId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
         organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
         passkeyConfig: {
           rpId: process.env.NEXT_PUBLIC_RPID!,
@@ -89,6 +91,15 @@ export default function AuthPage() {
     }
   };
 
+  const signUpWithPasskey = async () => {
+    const res = await client?.signUpWithPasskey({
+      passkeyDisplayName: `local-shmocal-passkey_${Date.now()}`,
+      passkeyName: `local-shmocal-passkey_${Date.now()}`,
+    })
+
+    console.log(res);
+  }
+
   const createWallet = async (walletName: string) => {
     // List of all v1AddressFormat values
     const allAddressFormats = [
@@ -158,6 +169,11 @@ export default function AuthPage() {
     console.log("Created wallet response:", res);
   };
 
+  const logout = async () => {
+    client?.logout({sessionKey: "session-1"});
+    window.location.reload();
+  };
+
   return (
     <main className={styles.main}>
       <a
@@ -174,6 +190,30 @@ export default function AuthPage() {
           priority
         />
       </a>
+
+      <button
+        onClick={signUpWithPasskey}
+        style={{
+          backgroundColor: "rebeccapurple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Sign Up with Passkey
+      </button>
+
+      <button
+        onClick={logout}
+        style={{
+          backgroundColor: "rosybrown",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Logout
+      </button>
 
       <button
         onClick={indexedDB}
