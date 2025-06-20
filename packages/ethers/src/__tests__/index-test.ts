@@ -34,35 +34,35 @@ describe("TurnkeySigner", () => {
 
   const apiPublicKey = assertNonEmptyString(
     process.env.API_PUBLIC_KEY,
-    `process.env.API_PUBLIC_KEY`
+    `process.env.API_PUBLIC_KEY`,
   );
   const apiPrivateKey = assertNonEmptyString(
     process.env.API_PRIVATE_KEY,
-    `process.env.API_PRIVATE_KEY`
+    `process.env.API_PRIVATE_KEY`,
   );
   const baseUrl = assertNonEmptyString(
     process.env.BASE_URL,
-    `process.env.BASE_URL`
+    `process.env.BASE_URL`,
   );
   const organizationId = assertNonEmptyString(
     process.env.ORGANIZATION_ID,
-    `process.env.ORGANIZATION_ID`
+    `process.env.ORGANIZATION_ID`,
   );
   const privateKeyId = assertNonEmptyString(
     process.env.PRIVATE_KEY_ID,
-    `process.env.PRIVATE_KEY_ID`
+    `process.env.PRIVATE_KEY_ID`,
   );
   const expectedPrivateKeyEthAddress = assertNonEmptyString(
     process.env.EXPECTED_PRIVATE_KEY_ETH_ADDRESS,
-    `process.env.EXPECTED_PRIVATE_KEY_ETH_ADDRESS`
+    `process.env.EXPECTED_PRIVATE_KEY_ETH_ADDRESS`,
   );
   const expectedWalletAccountEthAddress = assertNonEmptyString(
     process.env.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS,
-    `process.env.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS`
+    `process.env.EXPECTED_WALLET_ACCOUNT_ETH_ADDRESS`,
   );
   const bannedToAddress = assertNonEmptyString(
     process.env.BANNED_TO_ADDRESS,
-    `process.env.BANNED_TO_ADDRESS`
+    `process.env.BANNED_TO_ADDRESS`,
   );
 
   [
@@ -95,7 +95,7 @@ describe("TurnkeySigner", () => {
           new ApiKeyStamper({
             apiPublicKey,
             apiPrivateKey,
-          })
+          }),
         );
 
         connectedSigner = new TurnkeySigner({
@@ -110,7 +110,7 @@ describe("TurnkeySigner", () => {
             organizationId,
             signWith: signingConfig.signWith,
           },
-          provider
+          provider,
         );
 
         chainId = (await connectedSigner.provider!.getNetwork()).chainId;
@@ -123,14 +123,14 @@ describe("TurnkeySigner", () => {
       testCase("basics for connected signer", async () => {
         expect(connectedSigner.signMessage).toBeTruthy();
         expect(await connectedSigner.getAddress()).toBe(
-          signingConfig.expectedEthAddress
+          signingConfig.expectedEthAddress,
         );
       });
 
       testCase("basics for connected signer via constructor", async () => {
         expect(connectedSigner.signMessage).toBeTruthy();
         expect(await signerWithProvider.getAddress()).toBe(
-          signingConfig.expectedEthAddress
+          signingConfig.expectedEthAddress,
         );
       });
 
@@ -182,7 +182,7 @@ describe("TurnkeySigner", () => {
           expect("this-should-never-be").toBe("reached");
         } catch (error) {
           expect((error as any as Error).message).toBe(
-            `Transaction \`tx.from\` address mismatch. Self address: ${signingConfig.expectedEthAddress}; \`tx.from\` address: ${badFromAddress}`
+            `Transaction \`tx.from\` address mismatch. Self address: ${signingConfig.expectedEthAddress}; \`tx.from\` address: ${badFromAddress}`,
           );
         }
       });
@@ -239,7 +239,7 @@ describe("TurnkeySigner", () => {
             }
           `);
           }
-        }
+        },
       );
 
       testCase("it signs messages, `eth_sign` style", async () => {
@@ -249,7 +249,7 @@ describe("TurnkeySigner", () => {
 
         expect(signMessageSignature).toMatch(/^0x/);
         expect(verifyMessage(message, signMessageSignature)).toEqual(
-          signingConfig.expectedEthAddress
+          signingConfig.expectedEthAddress,
         );
       });
 
@@ -277,7 +277,7 @@ describe("TurnkeySigner", () => {
         const signTypedDataSignature = await connectedSigner.signTypedData(
           typedData.domain,
           typedData.types,
-          typedData.message
+          typedData.message,
         );
 
         expect(signTypedDataSignature).toMatch(/^0x/);
@@ -286,8 +286,8 @@ describe("TurnkeySigner", () => {
             typedData.domain,
             typedData.types,
             typedData.message,
-            signTypedDataSignature
-          )
+            signTypedDataSignature,
+          ),
         ).toEqual(signingConfig.expectedEthAddress);
       });
 
@@ -330,12 +330,12 @@ describe("TurnkeySigner", () => {
 
         expect(deploymentAddress).toMatch(/^0x/);
         expect(deploymentTransaction?.from).toEqual(
-          signingConfig.expectedEthAddress
+          signingConfig.expectedEthAddress,
         );
 
         // Mint
         const mintTx = await contract.safeMint(
-          signingConfig.expectedEthAddress
+          signingConfig.expectedEthAddress,
         );
 
         expect(mintTx.hash).toMatch(/^0x/);
@@ -345,7 +345,7 @@ describe("TurnkeySigner", () => {
         // Approve
         const approveTx = await contract.approve(
           "0x2Ad9eA1E677949a536A270CEC812D6e868C88108",
-          0 // `tokenId` is `0` because we've only minted once
+          0, // `tokenId` is `0` because we've only minted once
         );
         await approveTx.wait();
 
@@ -490,7 +490,7 @@ describe("TurnkeySigner", () => {
 
           // Get serialized signature
           const signatureToVerify = ethers.Signature.from(
-            signatureAuthorization.signature
+            signatureAuthorization.signature,
           ).serialized;
           expect(signatureToVerify).toMatch(/^0x/);
 
@@ -517,14 +517,14 @@ describe("TurnkeySigner", () => {
             domain,
             types,
             message,
-            signatureToVerify
+            signatureToVerify,
           );
 
           expect(recoveredAddress).toEqual(signingConfig.expectedEthAddress);
 
           // Verify the authorization object
           expect(signatureAuthorization.address).toEqual(
-            signingConfig.expectedEthAddress
+            signingConfig.expectedEthAddress,
           );
           expect(signatureAuthorization.chainId).toEqual(chainId);
           expect(signatureAuthorization.nonce).toEqual(BigInt(0));
@@ -545,8 +545,8 @@ describe("TurnkeySigner", () => {
                 if (typeof value === "bigint") return value.toString();
                 return value;
               },
-              2
-            )
+              2,
+            ),
           );
           throw error;
         }
