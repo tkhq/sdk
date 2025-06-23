@@ -218,7 +218,7 @@ export default function AuthPage() {
         testnet: true,
       },
       transport: http(
-        `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`,
+        `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`
       ),
     });
 
@@ -282,6 +282,34 @@ export default function AuthPage() {
       subTitle: "Edit your user name",
     });
     console.log("User name updated successfully: ", res);
+  };
+
+  const showModal = () => {
+    pushPage({
+      key: "example-modal",
+      content: (
+        <div>
+          <h2>Example Modal</h2>
+          <p>This is an example modal content.</p>
+          <button
+            onClick={() =>
+              pushPage({
+                key: "nested-modal",
+                content: <p>Nested Modal Content</p>,
+              })
+            }
+            style={{
+              backgroundColor: "lightcoral",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Open Nested Modal
+          </button>
+        </div>
+      ),
+    });
   };
 
   return (
@@ -643,7 +671,7 @@ export default function AuthPage() {
 
           console.log(
             "Switching Ethereum chain to mainnet for account:",
-            wallets[0].accounts[0],
+            wallets[0].accounts[0]
           );
           await switchWalletAccountChain({
             walletAccount: wallets[0].accounts[0],
@@ -666,7 +694,7 @@ export default function AuthPage() {
 
           console.log(
             "Switching Ethereum chain to Polygon for account:",
-            wallets[0].accounts[0],
+            wallets[0].accounts[0]
           );
           await switchWalletAccountChain({
             walletAccount: wallets[0].accounts[0],
@@ -693,7 +721,7 @@ export default function AuthPage() {
               fromPubkey: from,
               toPubkey: from,
               lamports: 1_000,
-            }),
+            })
           );
 
           tx.recentBlockhash = "11111111111111111111111111111111";

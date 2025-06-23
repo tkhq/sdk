@@ -134,7 +134,7 @@ export function ModalRoot(props: ModalRootProps) {
               "tk-modal fixed inset-0 flex justify-center transition-colors",
               { dark: config?.ui?.darkMode },
               { "items-end": isMobile },
-              { "items-center": !isMobile },
+              { "items-center": !isMobile }
             )}
             onMouseDown={(e) => {
               if (e.target === e.currentTarget) {
@@ -211,7 +211,7 @@ export function ModalRoot(props: ModalRootProps) {
                     className={clsx(
                       "flex flex-col z-10 transition-all duration-50 self-start",
                       // This allows the content to take the static `maxMobileScreenWidth` width on mobile
-                      isMobile && "w-full items-center",
+                      isMobile && "w-full items-center"
                     )}
                     style={{ filter: `blur(${contentBlur}px)` }}
                     ref={containerRef}
