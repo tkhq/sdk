@@ -21,6 +21,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@turnkey/react-wallet-kit": "workspace:*",
     "@noble/hashes": "1.4.0",
     "@react-oauth/google": "^0.12.1",
     "@turnkey/sdk-js": "workspace:*",

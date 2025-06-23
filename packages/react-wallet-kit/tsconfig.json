@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    "lib": ["dom"],
+    "jsx": "react-jsx",
+    "paths": {
+      "@polyfills/*": ["./src/__polyfills__/*"],
+      "@constants": ["./src/constants"],
+      "@models": ["./src/models"],
+      "@storage": ["./src/storage"],
+      "@types": ["./src/__types__/base"],
+      "@utils": ["./src/utils"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "src/**/*.json"
+  ],
+  "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
+}

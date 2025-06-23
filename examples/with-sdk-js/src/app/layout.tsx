@@ -1,6 +1,8 @@
 "use client";
 
-import { TurnkeyProvider } from "@turnkey/sdk-react";
+import { ModalProvider } from "@turnkey/react-wallet-kit";
+import "@turnkey/react-wallet-kit/dist/styles.css";
+import "./global.css";
 
 const turnkeyConfig = {
   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
@@ -21,7 +23,9 @@ function RootLayout({ children }: RootLayoutProps) {
         <title>A monumental leap</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
-      <body>{children}</body>
+      <body>
+        <ModalProvider>{children}</ModalProvider>
+      </body>
     </html>
   );
 }
