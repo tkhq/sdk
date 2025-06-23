@@ -4,9 +4,12 @@ import { stringToBase64urlString } from "@turnkey/encoding";
 // Header name for an API key stamp
 const stampHeaderName = "X-Stamp";
 
+export type Runtime = "browser" | "node" | "purejs";
+
 export type TApiKeyStamperConfig = {
   apiPublicKey: string;
   apiPrivateKey: string;
+  runtimeOverride?: Runtime | undefined;
 };
 
 // `window.document` ensures that we're in a browser context
@@ -25,25 +28,42 @@ const isNode: boolean =
   process.versions != null &&
   process.versions.node != null;
 
+const detectRuntime = (): Runtime => {
+  if (isCryptoEnabledBrowser) {
+    return "browser";
+  }
+
+  if (isNode) {
+    return "node";
+  }
+
+  // If we don't have NodeJS or web crypto at our disposal, default to pure JS implementation
+  // This is the case for old browsers and react native environments
+  return "purejs";
+};
+
 /**
  * Signature function abstracting the differences between NodeJS and web environments for signing with API keys.
  */
-export const signWithApiKey = async (input: {
-  content: string;
-  publicKey: string;
-  privateKey: string;
-}): Promise<string> => {
-  if (isCryptoEnabledBrowser) {
-    const fn = await import("./webcrypto").then((m) => m.signWithApiKey);
-    return fn(input);
-  } else if (isNode) {
-    const fn = await import("./nodecrypto").then((m) => m.signWithApiKey);
-    return fn(input);
-  } else {
-    // If we don't have NodeJS or web crypto at our disposal, default to pure JS implementation
-    // This is the case for old browsers and react native environments
-    const fn = await import("./purejs").then((m) => m.signWithApiKey);
-    return fn(input);
+export const signWithApiKey = async (
+  input: {
+    content: string;
+    publicKey: string;
+    privateKey: string;
+  },
+  runtimeOverride?: Runtime | undefined,
+): Promise<string> => {
+  const runtime = runtimeOverride ?? detectRuntime();
+
+  switch (runtime) {
+    case "browser":
+      return (await import("./webcrypto")).signWithApiKey(input);
+    case "node":
+      return (await import("./nodecrypto")).signWithApiKey(input);
+    case "purejs":
+      return (await import("./purejs")).signWithApiKey(input);
+    default:
+      throw new Error(`Unsupported runtime: ${runtime}`);
   }
 };
 
@@ -53,27 +73,32 @@ export const signWithApiKey = async (input: {
 export class ApiKeyStamper {
   apiPublicKey: string;
   apiPrivateKey: string;
+  runtimeOverride?: Runtime | undefined;
 
   constructor(config: TApiKeyStamperConfig) {
     this.apiPublicKey = config.apiPublicKey;
     this.apiPrivateKey = config.apiPrivateKey;
+    this.runtimeOverride = config.runtimeOverride;
   }
 
   async stamp(payload: string) {
-    const signature = await signWithApiKey({
-      publicKey: this.apiPublicKey,
-      privateKey: this.apiPrivateKey,
-      content: payload,
-    });
+    const signature = await signWithApiKey(
+      {
+        publicKey: this.apiPublicKey,
+        privateKey: this.apiPrivateKey,
+        content: payload,
+      },
+      this.runtimeOverride,
+    );
 
     const stamp = {
       publicKey: this.apiPublicKey,
       scheme: "SIGNATURE_SCHEME_TK_API_P256",
-      signature: signature,
+      signature,
     };
 
     return {
-      stampHeaderName: stampHeaderName,
+      stampHeaderName,
       stampHeaderValue: stringToBase64urlString(JSON.stringify(stamp)),
     };
   }

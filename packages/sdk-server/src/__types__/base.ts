@@ -1,3 +1,4 @@
+import { Runtime } from "@turnkey/api-key-stamper";
 import type {
   TActivityId,
   TActivityStatus,
@@ -91,6 +92,7 @@ export interface TurnkeySDKServerConfig {
   apiPublicKey: string;
   defaultOrganizationId: string;
   activityPoller?: TActivityPollerConfig | undefined;
+  runtimeOverride?: Runtime | undefined;
 }
 
 export interface TurnkeyProxyHandlerConfig {
