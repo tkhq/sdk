@@ -536,8 +536,31 @@ const bigIntToHex = (num: bigint, length: number): string => {
 export const fromDerSignature = (derSignature: string): Uint8Array => {
   const derSignatureBuf = uint8ArrayFromHexString(derSignature);
 
-  // Check and skip the sequence tag (0x30)
-  let index = 2;
+  // Check minimum length
+  if (derSignatureBuf.length < 2) {
+    throw new Error(
+      "failed to convert DER-encoded signature: insufficient length",
+    );
+  }
+
+  // Check SEQUENCE tag (0x30 at first byte)
+  if (derSignatureBuf[0] !== 0x30) {
+    throw new Error(
+      "failed to convert DER-encoded signature: invalid format (missing SEQUENCE tag)",
+    );
+  }
+
+  // Check second byte
+  let index = 1;
+  const lengthByte = derSignatureBuf[index]!;
+  if (lengthByte <= 0x7f) {
+    // Short form: single byte length
+    index += 1;
+  } else if (lengthByte >= 0xff) {
+    // Long form: skip the additional length bytes
+    const lengthOfLength = lengthByte & 0x7f;
+    index += 1 + lengthOfLength;
+  }
 
   // Parse 'r' and check for integer tag (0x02)
   if (derSignatureBuf[index] !== 0x02) {
