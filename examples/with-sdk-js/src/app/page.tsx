@@ -7,11 +7,16 @@ import { StamperType, TurnkeyClient, Wallet } from "@turnkey/sdk-js";
 import { server } from "@turnkey/sdk-server";
 import { useEffect, useState } from "react";
 import { Session, v1AddressFormat } from "@turnkey/sdk-types";
+import { init } from "next/dist/compiled/webpack/webpack";
+import { OtpType } from "@turnkey/sdk-js";
 
 export default function AuthPage() {
   const [client, setClient] = useState<TurnkeyClient | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [email, setEmail] = useState<string>("");
+  const [otpCode, setOtpCode] = useState<string>("");
+  const [otpId, setOtpId] = useState<string>("");
 
   useEffect(() => {
     const initializeClient = async () => {
@@ -62,6 +67,43 @@ export default function AuthPage() {
     }
   };
 
+  const initOtp = async () => {
+    const res = await client?.initOtp({
+      otpType: "OTP_TYPE_EMAIL",
+      contact: email,
+    });
+
+    console.log("OTP initialized:", res);
+    if (!res) {
+      console.error("Failed to initialize OTP");
+      return;
+    }
+    setOtpId(res);
+  };
+
+  const verifyOtp = async () => {
+    const res = await client?.verifyOtp({
+      otpId,
+      otpCode,
+      contact: email,
+      otpType: OtpType.Email,
+    });
+
+    console.log("OTP verification response:", res);
+
+    if (!res || !res.verificationToken) {
+      console.error("Failed to verify OTP");
+      return;
+    }
+    const signupRes = await client?.signUpWithOtp({
+      verificationToken: res.verificationToken,
+      contact: email,
+      otpType: OtpType.Email,
+    })
+
+    console.log("OTP verified and user signed up:", signupRes);
+  }
+
   const getUser = async () => {
     const res = await client?.fetchUser({});
     if (res) {
@@ -94,72 +136,17 @@ export default function AuthPage() {
   const signUpWithPasskey = async () => {
     const res = await client?.signUpWithPasskey({
       passkeyDisplayName: `local-shmocal-passkey_${Date.now()}`,
-      passkeyName: `local-shmocal-passkey_${Date.now()}`,
-    })
+      createSubOrgParams: {
+        passkeyName: `local-shmocal-passkey_${Date.now()}`,
+      }
+    });
 
     console.log(res);
-  }
+  };
 
   const createWallet = async (walletName: string) => {
     // List of all v1AddressFormat values
-    const allAddressFormats = [
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-    ];
+    const allAddressFormats = ["ADDRESS_FORMAT_ETHEREUM"];
 
     const res = await client?.createWallet({
       walletName,
@@ -170,8 +157,12 @@ export default function AuthPage() {
   };
 
   const logout = async () => {
-    client?.logout({sessionKey: "session-1"});
-    window.location.reload();
+    client?.logout({});
+    // window.location.reload();
+  };
+
+  const switchSession = async (sessionKey: string) => {
+    await client?.setActiveSession({ sessionKey });
   };
 
   return (
@@ -201,6 +192,59 @@ export default function AuthPage() {
         }}
       >
         Sign Up with Passkey
+      </button>
+
+        <input 
+        type="text"
+        placeholder="Enter your email"
+        style={{
+          margin: "12px 0",
+          padding: "8px",
+          borderRadius: "4px",
+          border: "1px solid #ccc",
+          width: "300px",
+        }}
+        onChange={(e) => {
+          setEmail(e.target.value);
+        }}
+        />
+      <button
+        onClick={initOtp}
+        style={{
+          backgroundColor: "rebeccapurple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Init OTP
+      </button>
+
+      <input 
+        type="text"
+        placeholder="Enter OTP code"
+        style={{
+          margin: "12px 0",
+          padding: "8px",
+          borderRadius: "4px",
+          border: "1px solid #ccc",
+          width: "300px",
+        }}
+        onChange={(e) => {
+          setOtpCode(e.target.value);
+        }}
+        />
+
+      <button
+        onClick={() => verifyOtp()}
+        style={{
+          backgroundColor: "rebeccapurple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Verify OTP
       </button>
 
       <button
@@ -286,6 +330,34 @@ export default function AuthPage() {
           }}
         >
           Create Wallet
+        </button>
+      ) : null}
+
+      {client?.storageManager?.getActiveSession() ? (
+        <button
+          onClick={() => switchSession("session-1")}
+          style={{
+            backgroundColor: "lightblue",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Switch to Session 1
+        </button>
+      ) : null}
+
+      {client?.storageManager?.getActiveSession() ? (
+        <button
+          onClick={() => switchSession("session-2")}
+          style={{
+            backgroundColor: "lightblue",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Switch to Session 2
         </button>
       ) : null}
 
