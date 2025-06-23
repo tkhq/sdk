@@ -16,6 +16,7 @@ import {
   formatHpkeBuf,
   verifyStampSignature,
   verifySessionJwtSignature,
+  fromDerSignature,
 } from "../";
 
 // Mock data for testing
@@ -31,7 +32,7 @@ describe("HPKE Encryption and Decryption", () => {
     const senderKeyPair = generateP256KeyPair();
     const receiverKeyPair = generateP256KeyPair();
     const receiverPublicKeyUncompressed = uncompressRawPublicKey(
-      uint8ArrayFromHexString(receiverKeyPair.publicKey),
+      uint8ArrayFromHexString(receiverKeyPair.publicKey)
     );
 
     const textEncoder = new TextEncoder();
@@ -67,7 +68,7 @@ describe("HPKE Standard Encryption and Decryption", () => {
     // Generate a receiver key pair
     const receiverKeyPair = generateP256KeyPair();
     const receiverPublicKeyUncompressed = uncompressRawPublicKey(
-      uint8ArrayFromHexString(receiverKeyPair.publicKey),
+      uint8ArrayFromHexString(receiverKeyPair.publicKey)
     );
 
     // Prepare the plaintext
@@ -154,7 +155,7 @@ describe("Turnkey Crypto Primitives", () => {
     const keyPair = generateP256KeyPair();
     const publicKey = getPublicKey(
       uint8ArrayFromHexString(keyPair.privateKey),
-      true,
+      true
     );
     expect(publicKey).toHaveLength(33);
   });
@@ -171,14 +172,14 @@ describe("Turnkey Crypto Primitives", () => {
   test("compressRawPublicKey - returns a valid value", () => {
     const { publicKey, publicKeyUncompressed } = generateP256KeyPair();
     expect(
-      compressRawPublicKey(uint8ArrayFromHexString(publicKeyUncompressed)),
+      compressRawPublicKey(uint8ArrayFromHexString(publicKeyUncompressed))
     ).toEqual(uint8ArrayFromHexString(publicKey));
   });
 
   test("decryptCredentialBundle - successfully decrypts a credential bundle", () => {
     const decryptedData = decryptCredentialBundle(
       mockCredentialBundle,
-      mockPrivateKey,
+      mockPrivateKey
     );
     expect(decryptedData).toBe(mockSenderPrivateKey);
   });
@@ -190,8 +191,8 @@ describe("Turnkey Crypto Primitives", () => {
       "01d95d256f744b2a855fe2036ec1074c726445f1382f53580a17ce3296cc2dec";
     expect(
       extractPrivateKeyFromPKCS8Bytes(
-        uint8ArrayFromHexString(pkcs8PrivateKeyHex),
-      ),
+        uint8ArrayFromHexString(pkcs8PrivateKeyHex)
+      )
     ).toEqual(uint8ArrayFromHexString(expectedRawPrivateKeyHex));
   });
 
@@ -207,7 +208,7 @@ describe("Turnkey Crypto Primitives", () => {
       {
         baseUrl: "https://api.turnkey.com",
       },
-      apiKeyStamper,
+      apiKeyStamper
     );
 
     const stampedRequest = await turnkeyClient.stampGetWhoami({
@@ -222,7 +223,7 @@ describe("Turnkey Crypto Primitives", () => {
     const verified = await verifyStampSignature(
       apiPublicKey,
       signature,
-      stampedRequest.body,
+      stampedRequest.body
     );
 
     expect(verified).toEqual(true);
@@ -232,18 +233,18 @@ describe("Turnkey Crypto Primitives", () => {
     test("happy path", async () => {
       const keypair = generateP256KeyPair();
       const uncompressedPublicKey = uncompressRawPublicKey(
-        uint8ArrayFromHexString(keypair.publicKey),
+        uint8ArrayFromHexString(keypair.publicKey)
       );
       expect(uncompressedPublicKey.length).toEqual(65);
     });
 
     test("invalid prefix", async () => {
       const invalidPrefix = uint8ArrayFromHexString(
-        "77c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "77c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"
       );
 
       expect(() => uncompressRawPublicKey(invalidPrefix)).toThrow(
-        "failed to uncompress raw public key: invalid prefix",
+        "failed to uncompress raw public key: invalid prefix"
       );
     });
 
@@ -252,9 +253,137 @@ describe("Turnkey Crypto Primitives", () => {
 
       expect(() =>
         uncompressRawPublicKey(
-          uint8ArrayFromHexString(keypair.publicKey + keypair.publicKey),
-        ),
+          uint8ArrayFromHexString(keypair.publicKey + keypair.publicKey)
+        )
       ).toThrow("failed to uncompress raw public key: invalid length");
+    });
+  });
+
+  describe("Valid DER signatures", () => {
+    test("should parse a simple DER signature with short-form length", () => {
+      // Create a signature with 32-byte r and s values
+      const rValue = new Array(32).fill(0x01);
+      const sValue = new Array(32).fill(0x02);
+      const totalLength = 2 + 32 + 2 + 32; // 2 bytes for each INTEGER header + values
+
+      const derHex = createDerSignature([totalLength], rValue, sValue);
+
+      expect(() => fromDerSignature(derHex)).not.toThrow();
+    });
+
+    test("should parse a DER signature with 33-byte integers (with leading zero)", () => {
+      // ECDSA signatures sometimes have leading zeros to ensure positive integers
+      const rValue = [0x00, ...new Array(32).fill(0x80)]; // Leading zero + high bit set
+      const sValue = [0x00, ...new Array(32).fill(0x90)];
+      const totalLength = 2 + 33 + 2 + 33;
+
+      const derHex = createDerSignature([totalLength], rValue, sValue);
+
+      expect(() => fromDerSignature(derHex)).not.toThrow();
+    });
+  });
+
+  describe("Invalid signatures - missing SEQUENCE tag", () => {
+    test("should reject signatures without SEQUENCE tag (0x30)", () => {
+      const invalidHex = bytesToHex([
+        0x31, // Wrong tag (should be 0x30)
+        0x44, // Length
+        0x02,
+        0x20,
+        ...new Array(32).fill(0x01), // r
+        0x02,
+        0x20,
+        ...new Array(32).fill(0x02), // s
+      ]);
+
+      expect(() => fromDerSignature(invalidHex)).toThrow(
+        "failed to convert DER-encoded signature: invalid format (missing SEQUENCE tag)"
+      );
+    });
+
+    test("should reject empty signatures", () => {
+      expect(() => fromDerSignature("")).toThrow(
+        "cannot create uint8array from invalid hex string"
+      );
+    });
+
+    test("should reject signatures that are too short", () => {
+      const shortHex = bytesToHex([0x30]); // Only SEQUENCE tag, no length
+      expect(() => fromDerSignature(shortHex)).toThrow(
+        "failed to convert DER-encoded signature: insufficient length"
+      );
+    });
+  });
+
+  describe("Invalid signatures - length field issues", () => {
+    // TODO: validate this assumption
+    test("should reject signatures with unsupported length encoding (0x80-0xFE range)", () => {
+      const unsupportedLengthHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x81, // Unsupported length encoding (per feedback specification)
+        0x44, // Length value
+        // ... rest of signature would follow
+      ]);
+
+      expect(() => fromDerSignature(unsupportedLengthHex)).toThrow(
+        /unsupported length encoding/
+      );
+    });
+
+    test("should handle edge case of maximum short-form length (0x7F)", () => {
+      // This would be a very large signature, but valid short-form
+      const rValue = new Array(32).fill(0x01);
+      const sValue = new Array(32).fill(0x02);
+
+      const derHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x7f, // Maximum short-form length
+        0x02,
+        0x20,
+        ...rValue, // r (34 bytes total)
+        0x02,
+        0x20,
+        ...sValue, // s (34 bytes total)
+        ...new Array(0x7f - 68).fill(0x00), // Padding to reach 0x7F total length
+      ]);
+
+      expect(() => fromDerSignature(derHex)).not.toThrow();
+    });
+  });
+
+  describe("Invalid signatures - INTEGER parsing", () => {
+    test("should reject signatures with invalid r INTEGER tag", () => {
+      const invalidRTagHex = bytesToHex([
+        0x30,
+        0x44, // SEQUENCE
+        0x03,
+        0x20,
+        ...new Array(32).fill(0x01), // Wrong tag for r (0x03 instead of 0x02)
+        0x02,
+        0x20,
+        ...new Array(32).fill(0x02), // s
+      ]);
+
+      expect(() => fromDerSignature(invalidRTagHex)).toThrow(
+        /invalid tag for r/
+      );
+    });
+
+    test("should reject signatures with invalid s INTEGER tag", () => {
+      const invalidSTagHex = bytesToHex([
+        0x30,
+        0x44, // SEQUENCE
+        0x02,
+        0x20,
+        ...new Array(32).fill(0x01), // r
+        0x03,
+        0x20,
+        ...new Array(32).fill(0x02), // Wrong tag for s (0x03 instead of 0x02)
+      ]);
+
+      expect(() => fromDerSignature(invalidSTagHex)).toThrow(
+        /invalid tag for s/
+      );
     });
   });
 });
@@ -270,3 +399,29 @@ describe("Session JWT signature", () => {
     expect(ok).toBe(true);
   });
 });
+
+// Helper function to create hex strings from byte arrays
+const bytesToHex = (bytes: number[]): string => {
+  return bytes.map((b) => b.toString(16).padStart(2, "0")).join("");
+};
+
+// Helper function to create a basic DER signature structure
+const createDerSignature = (
+  sequenceLength: number[],
+  rValue: number[],
+  sValue: number[]
+): string => {
+  const rLength = rValue.length;
+  const sLength = sValue.length;
+
+  return bytesToHex([
+    0x30, // SEQUENCE tag
+    ...sequenceLength, // Sequence length (can be multiple bytes)
+    0x02, // INTEGER tag for r
+    rLength, // r length (assuming single byte for simplicity)
+    ...rValue,
+    0x02, // INTEGER tag for s
+    sLength, // s length (assuming single byte for simplicity)
+    ...sValue,
+  ]);
+};
