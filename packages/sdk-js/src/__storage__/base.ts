@@ -12,6 +12,8 @@ export interface StorageBase {
 
   setStorageValue(sessionKey: string, storageValue: any): Promise<void>;
 
+  setActiveSessionKey(sessionKey: string): Promise<void>;
+
   removeStorageValue(sessionKey: string): Promise<void>;
 
   storeSession(session: string, sessionKey?: string): Promise<void>;
