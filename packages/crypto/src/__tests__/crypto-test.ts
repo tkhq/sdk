@@ -227,6 +227,36 @@ describe("Turnkey Crypto Primitives", () => {
 
     expect(verified).toEqual(true);
   });
+
+  describe("uncompressRawPublicKey", () => {
+    test("happy path", async () => {
+      const keypair = generateP256KeyPair();
+      const uncompressedPublicKey = uncompressRawPublicKey(
+        uint8ArrayFromHexString(keypair.publicKey),
+      );
+      expect(uncompressedPublicKey.length).toEqual(65);
+    });
+
+    test("invalid prefix", async () => {
+      const invalidPrefix = uint8ArrayFromHexString(
+        "77c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+      );
+
+      expect(() => uncompressRawPublicKey(invalidPrefix)).toThrow(
+        "failed to uncompress raw public key: invalid prefix",
+      );
+    });
+
+    test("invalid length", async () => {
+      const keypair = generateP256KeyPair();
+
+      expect(() =>
+        uncompressRawPublicKey(
+          uint8ArrayFromHexString(keypair.publicKey + keypair.publicKey),
+        ),
+      ).toThrow("failed to uncompress raw public key: invalid length");
+    });
+  });
 });
 
 describe("Session JWT signature", () => {

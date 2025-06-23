@@ -342,6 +342,14 @@ export const compressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
 export const uncompressRawPublicKey = (
   rawPublicKey: Uint8Array,
 ): Uint8Array => {
+  if (rawPublicKey.length !== 33) {
+    throw new Error("failed to uncompress raw public key: invalid length");
+  }
+
+  if (!(rawPublicKey[0] === 2 || rawPublicKey[0] === 3)) {
+    throw new Error("failed to uncompress raw public key: invalid prefix");
+  }
+
   // point[0] must be 2 (false) or 3 (true).
   // this maps to the initial "02" or "03" prefix
   const lsb = rawPublicKey[0] === 3;
