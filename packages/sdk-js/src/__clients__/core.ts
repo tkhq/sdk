@@ -8,10 +8,13 @@ import {
   v1AddressFormat,
   v1Attestation,
   v1AuthenticatorParamsV2,
+  v1InitOtpResult,
+  v1OtpLoginResult,
   v1Pagination,
   v1SignRawPayloadResult,
   v1TransactionType,
   v1User,
+  v1VerifyOtpResult,
   v1WalletAccount,
 } from "@turnkey/sdk-types";
 import {
@@ -23,6 +26,9 @@ import {
   WalletAccount,
   Provider,
   Wallet,
+  OtpType,
+  OtpTypeToFilterTypeMap,
+  CreateSubOrgParams,
 } from "@types"; // AHHHH, SDK-TYPES
 import {
   generateWalletAccountsFromAddressFormat,
@@ -30,6 +36,7 @@ import {
   isReactNative,
   isWalletAccountArray,
   isWeb,
+  // otpTypeToFilterMap,
 } from "@utils";
 import {
   createStorageManager,
@@ -144,14 +151,18 @@ export class TurnkeyClient {
 
   logout = async (params?: { sessionKey?: string }): Promise<void> => {
     if (params?.sessionKey) {
-      const session = await this.storageManager.getSession(params.sessionKey)
+      const session = await this.storageManager.getSession(params.sessionKey);
       this.storageManager.clearSession(params.sessionKey);
       this.apiKeyStamper?.deleteKeyPair(session?.token!);
     } else {
-      if (this.apiKeyStamper?.clearKeyPairs) {
-        await this.apiKeyStamper.clearKeyPairs();
+      const sessionKey = await this.storageManager.getActiveSessionKey();
+      const session = await this.storageManager.getActiveSession();
+      if (sessionKey) {
+        this.storageManager.clearSession(sessionKey);
+        this.apiKeyStamper?.deleteKeyPair(session?.token!);
+      } else {
+        throw new Error("No active session found to log out from.");
       }
-      this.storageManager.clearAllSessions();
     }
   };
 
@@ -231,29 +242,219 @@ export class TurnkeyClient {
     }
   };
 
-  signUpWithPasskey = async (params: {
-    subOrgName?: string | undefined;
-    userName?: string | undefined;
-    userEmail?: string;
-    userTag?: string;
-    userPhoneNumber?: string;
+  initOtp = async (params: {
+    otpType: OtpType;
+    contact: string;
+  }): Promise<string> => {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (this.config.authProxyId) {
+      headers["X-Proxy-ID"] = this.config.authProxyId;
+    }
+    try {
+      const otpRes = await fetch(`${this.config.authProxyUrl}/v1/otp_init`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(params),
+      });
+
+      if (!otpRes.ok) {
+        const error = await otpRes.text();
+        throw new Error(`OTP initialization failed: ${otpRes.status} ${error}`);
+      }
+      const initOtpRes: { initOtpResult: v1InitOtpResult } =
+        await otpRes.json();
+
+      return initOtpRes.initOtpResult.otpId;
+    } catch (error) {
+      throw new Error(`Failed to initialize OTP: ${error}`);
+    }
+  };
+
+  verifyOtp = async (params: {
+    otpId: string;
+    otpCode: string;
+    contact: string;
+    otpType: OtpType;
+  }): Promise<{ subOrgs: string[]; verificationToken: string }> => {
+    const { otpId, otpCode, contact, otpType } = params;
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (this.config.authProxyId) {
+      headers["X-Proxy-ID"] = this.config.authProxyId;
+    }
+    try {
+      const url = new URL(`${this.config.authProxyUrl}/v1/account`);
+      url.searchParams.append("filterType", OtpTypeToFilterTypeMap[otpType]);
+      url.searchParams.append("filterValue", contact);
+
+      const accountRes = await fetch(url.toString(), {
+        method: "GET",
+        headers,
+      });
+
+      if (!accountRes.ok && accountRes.status !== 404) {
+        const error = await accountRes.text();
+        throw new Error(`Account fetch failed: ${accountRes.status} ${error}`);
+      }
+
+      const verifyRes = await fetch(
+        `${this.config.authProxyUrl}/v1/otp_verify`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            otpId: otpId,
+            otpCode: otpCode,
+          }),
+        }
+      );
+      if (!verifyRes.ok) {
+        const error = await verifyRes.text();
+        throw new Error(
+          `OTP verification failed: ${verifyRes.status} ${error}`
+        );
+      }
+      const verifyOtpRes: { verifyOtpResult: v1VerifyOtpResult } =
+        await verifyRes.json();
+      const accountData = await accountRes.text();
+
+      console.log("Account data:", accountData);
+
+      return {
+        subOrgs: [],
+        verificationToken: verifyOtpRes.verifyOtpResult.verificationToken,
+      };
+    } catch (error) {
+      throw new Error(`Failed to verify OTP: ${error}`);
+    }
+  };
+
+  loginWithOtp = async (params: {
+    verificationToken: string;
+    publicKey?: string;
+    invalidateExisting?: boolean;
+    sessionKey?: string | undefined;
+  }): Promise<string> => {
+    const {
+      verificationToken,
+      invalidateExisting = false,
+      publicKey = await this.apiKeyStamper?.createKeyPair(),
+      sessionKey = SessionKey.DefaultSessionkey
+    } = params;
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (this.config.authProxyId) {
+      headers["X-Proxy-ID"] = this.config.authProxyId;
+    }
+
+    try {
+      const res = await fetch(`${this.config.authProxyUrl}/v1/otp_login`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          verificationToken,
+          publicKey,
+          invalidateExisting,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`OTP login failed: ${res.status} ${errorText}`);
+      }
+
+      const loginRes: {otpLoginResult: v1OtpLoginResult} = await res.json();
+      if (!loginRes.otpLoginResult.session) {
+        throw new Error("No session returned from OTP login");
+      }
+
+      // // Store the session in the storage manager
+      await this.storageManager.storeSession(
+        loginRes.otpLoginResult.session,
+        sessionKey
+      );
+
+      return loginRes.otpLoginResult.session;
+    } catch (error) {
+      throw new Error(`Failed to log in with OTP: ${error}`);
+    }
+  };
+
+  signUpWithOtp = async (params: {
+    verificationToken: string;
+    contact: string;
+    otpType: OtpType;
+    createSubOrgParams?: CreateSubOrgParams;
     sessionType?: SessionType;
     sessionExpirationSeconds?: string | undefined;
     sessionKey?: string | undefined;
-    passkeyName?: string;
+  }): Promise<void> => {
+    const { verificationToken, createSubOrgParams, contact, otpType } = params;
+
+    const signUpBody = {
+      userName:
+        createSubOrgParams?.userName ||
+        createSubOrgParams?.userEmail ||
+        `user-${Date.now()}`,
+      ...(otpType === OtpType.Email
+        ? { userEmail: contact }
+        : { userPhoneNumber: contact }),
+      userTag: createSubOrgParams?.userTag,
+      subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
+      verificationToken,
+      oauthProviders: createSubOrgParams?.oauthProviders,
+      wallets: {
+        walletName: createSubOrgParams?.customWalletName || `Wallet 1`,
+        accounts: createSubOrgParams?.customWalletAccounts || [
+          ...DEFAULT_ETHEREUM_ACCOUNTS,
+          ...DEFAULT_SOLANA_ACCOUNTS,
+        ],
+      },
+    };
+
+    // Set up headers, including X-Proxy-ID if needed
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (this.config.authProxyId) {
+      headers["X-Proxy-ID"] = this.config.authProxyId;
+    }
+
+    const res = await fetch(`${this.config.authProxyUrl}/v1/signup`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(signUpBody),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Sign up failed: ${res.status} ${errorText}`);
+    }
+
+    const generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+    await this.loginWithOtp({
+      verificationToken,
+      publicKey: generatedKeyPair!,
+    });
+  };
+
+  signUpWithPasskey = async (params: {
+    createSubOrgParams?: CreateSubOrgParams;
+    sessionType?: SessionType;
+    sessionExpirationSeconds?: string | undefined;
+    sessionKey?: string | undefined;
     passkeyDisplayName?: string;
-    oauthProviders?: Provider[];
   }): Promise<void> => {
     const {
-      subOrgName,
-      userName,
-      userEmail,
-      userPhoneNumber,
-      userTag,
-      passkeyName,
+      createSubOrgParams,
       passkeyDisplayName,
       sessionExpirationSeconds,
-      oauthProviders,
       sessionKey,
     } = params;
 
@@ -261,7 +462,9 @@ export class TurnkeyClient {
     try {
       generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
       const passkey = await this.createPasskey({
-        ...(passkeyName && { name: passkeyName }),
+        ...(createSubOrgParams?.passkeyName && {
+          name: createSubOrgParams?.passkeyName,
+        }),
         ...(passkeyDisplayName && { displayName: passkeyDisplayName }),
       });
 
@@ -273,18 +476,22 @@ export class TurnkeyClient {
 
       // Build the request body for OTP init
       const signUpBody = {
-        userName: userName || userEmail || `user-${Date.now()}`,
-        userEmail,
+        userName:
+          createSubOrgParams?.userName ||
+          createSubOrgParams?.userEmail ||
+          `user-${Date.now()}`,
+        userEmail: createSubOrgParams?.userEmail,
         authenticators: [
           {
-            authenticatorName: passkeyName || "Default Passkey",
+            authenticatorName:
+              createSubOrgParams?.passkeyName || "Default Passkey",
             challenge: passkey.encodedChallenge,
             attestation: passkey.attestation,
           },
         ],
-        userPhoneNumber,
-        userTag,
-        subOrgName: subOrgName || `sub-org-${Date.now()}`,
+        userPhoneNumber: createSubOrgParams?.userPhoneNumber,
+        userTag: createSubOrgParams?.userTag,
+        subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
         apiKeys: [
           {
             apiKeyName: `passkey-auth:${generatedKeyPair}`,
@@ -293,7 +500,14 @@ export class TurnkeyClient {
             expirationSeconds: "60",
           },
         ],
-        oauthProviders: oauthProviders || undefined,
+        oauthProviders: createSubOrgParams?.oauthProviders,
+        wallets: {
+          walletName: createSubOrgParams?.customWalletName || `Wallet 1`,
+          accounts: createSubOrgParams?.customWalletAccounts || [
+            ...DEFAULT_ETHEREUM_ACCOUNTS,
+            ...DEFAULT_SOLANA_ACCOUNTS,
+          ],
+        },
       };
 
       // Set up headers, including X-Proxy-ID if needed
@@ -757,6 +971,11 @@ export class TurnkeyClient {
     } catch (error) {
       throw new Error(`Failed to create sub-organization: ${error}`);
     }
+  };
+
+  setActiveSession = async (params: { sessionKey: string }): Promise<void> => {
+    const { sessionKey } = params;
+    await this.storageManager.setActiveSessionKey(sessionKey);
   };
 }
 

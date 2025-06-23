@@ -4,9 +4,6 @@ import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import type {
   SessionType,
-  v1AddressFormat,
-  v1Curve,
-  v1PathFormat,
   v1User,
   v1Wallet,
   v1WalletAccount,
@@ -190,6 +187,18 @@ export type CreateSuborgResponse = {
   subOrganizationId: string;
 };
 
+export type CreateSubOrgParams = {
+  userName?: string | undefined;
+  subOrgName?: string | undefined;
+  userEmail?: string | undefined;
+  userTag?: string | undefined;
+  passkeyName?: string | undefined;
+  userPhoneNumber?: string | undefined;
+  customWalletName?: string | undefined;
+  customWalletAccounts?: WalletAccount[] | undefined;
+  oauthProviders?: Provider[] | undefined;
+}
+
 /**
  * The Client used to authenticate the user.
  */
@@ -203,3 +212,18 @@ export enum StamperType {
   ApiKey = "api-key",
   Passkey = "passkey",
 }
+
+export enum OtpType {
+  Email = "OTP_TYPE_EMAIL",
+  Sms = "OTP_TYPE_SMS",
+}
+
+export enum FilterType {
+  Email = "EMAIL",
+  Sms = "SMS"
+}
+
+export const OtpTypeToFilterTypeMap = {
+  [OtpType.Email]: FilterType.Email,
+  [OtpType.Sms]: FilterType.Sms,
+};
