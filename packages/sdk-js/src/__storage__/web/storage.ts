@@ -2,7 +2,7 @@ import WindowWrapper from "@polyfills/window";
 import { StorageBase, SessionKey } from "../base";
 import { parseSession } from "@utils";
 import { Session } from "@turnkey/sdk-types";
-import { TWallet } from "@types";
+import { Wallet } from "@types";
 
 const browserStorage = WindowWrapper.localStorage;
 
@@ -17,9 +17,16 @@ export class WebStorageManager implements StorageBase {
 
   setStorageValue = async (
     sessionKey: string,
-    storageValue: any,
+    storageValue: any
   ): Promise<void> => {
     browserStorage.setItem(sessionKey, JSON.stringify(storageValue));
+  };
+
+  setActiveSessionKey = async (sessionKey: string): Promise<void> => {
+    await this.setStorageValue(
+      WebStorageManager.ACTIVE_SESSION_KEY,
+      sessionKey
+    );
   };
 
   removeStorageValue = async (sessionKey: string): Promise<void> => {
@@ -28,7 +35,7 @@ export class WebStorageManager implements StorageBase {
 
   storeSession = async (
     session: string,
-    sessionKey: string = SessionKey.DefaultSessionkey,
+    sessionKey: string = SessionKey.DefaultSessionkey
   ): Promise<void> => {
     const sessionWithMetadata = parseSession(session);
 
@@ -45,12 +52,12 @@ export class WebStorageManager implements StorageBase {
     // Set the active session key
     await this.setStorageValue(
       WebStorageManager.ACTIVE_SESSION_KEY,
-      sessionKey,
+      sessionKey
     );
   };
 
   getSession = async (
-    sessionKey: string = SessionKey.DefaultSessionkey,
+    sessionKey: string = SessionKey.DefaultSessionkey
   ): Promise<Session | undefined> => {
     return this.getStorageValue(sessionKey);
   };
@@ -88,7 +95,7 @@ export class WebStorageManager implements StorageBase {
     await this.removeStorageValue(WebStorageManager.ACTIVE_SESSION_KEY);
   };
 
-  storeWallets = async (wallets: TWallet[]): Promise<void> => {
+  storeWallets = async (wallets: Wallet[]): Promise<void> => {
     for (const wallet of wallets) {
       browserStorage.setItem(wallet.walletId, JSON.stringify(wallet));
     }
