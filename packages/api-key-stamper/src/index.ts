@@ -57,10 +57,13 @@ export const signWithApiKey = async (
 
   switch (runtime) {
     case "browser":
+      console.log(`Using browser runtime for signing with API key`);
       return (await import("./webcrypto")).signWithApiKey(input);
     case "node":
+      console.log(`Using NodeJS runtime for signing with API key`);
       return (await import("./nodecrypto")).signWithApiKey(input);
     case "purejs":
+      console.log(`Using pure JS runtime for signing with API key`);
       return (await import("./purejs")).signWithApiKey(input);
     default:
       throw new Error(`Unsupported runtime: ${runtime}`);

@@ -1,4 +1,4 @@
-import { Runtime } from "@turnkey/api-key-stamper";
+import type { Runtime } from "@turnkey/api-key-stamper";
 import type {
   TActivityId,
   TActivityStatus,
