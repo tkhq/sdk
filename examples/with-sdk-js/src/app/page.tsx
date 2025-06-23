@@ -2,11 +2,12 @@
 
 import Image from "next/image";
 import styles from "./index.module.css";
-import { StamperType, TurnkeyClient, Wallet } from "@turnkey/sdk-js";
 
+import { StamperType, TurnkeyClient, Wallet } from "@turnkey/sdk-js";
 import { useEffect, useState } from "react";
 import { Session, v1AddressFormat } from "@turnkey/sdk-types";
 import { OtpType } from "@turnkey/sdk-js";
+import { ModalProvider, useModal } from "@turnkey/react-wallet-kit";
 import GoogleAuthButton from "@/components/Google";
 
 export default function AuthPage() {
@@ -16,6 +17,8 @@ export default function AuthPage() {
   const [email, setEmail] = useState<string>("");
   const [otpCode, setOtpCode] = useState<string>("");
   const [otpId, setOtpId] = useState<string>("");
+
+  const { pushPage } = useModal();
   const [oauthPublicKey, setOauthPublicKey] = useState<string>("");
 
   useEffect(() => {
@@ -153,7 +156,7 @@ export default function AuthPage() {
 
   const handleGoogleLogin = async (
     credentialResponse: string,
-    publicKey: string,
+    publicKey: string
   ) => {
     if (!publicKey) {
       console.error("Public key is not set. Please create a passkey first.");
@@ -239,6 +242,34 @@ export default function AuthPage() {
 
   const switchSession = async (sessionKey: string) => {
     await client?.setActiveSession({ sessionKey });
+  };
+
+  const showModal = () => {
+    pushPage({
+      key: "example-modal",
+      content: (
+        <div>
+          <h2>Example Modal</h2>
+          <p>This is an example modal content.</p>
+          <button
+            onClick={() =>
+              pushPage({
+                key: "nested-modal",
+                content: <p>Nested Modal Content</p>,
+              })
+            }
+            style={{
+              backgroundColor: "lightcoral",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Open Nested Modal
+          </button>
+        </div>
+      ),
+    });
   };
 
   return (
@@ -390,6 +421,17 @@ export default function AuthPage() {
         Log in With Passkey Session 2
       </button>
 
+      <button
+        onClick={showModal}
+        style={{
+          backgroundColor: "purple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Show Modal
+      </button>
       {client?.storageManager?.getActiveSession() ? (
         <button
           onClick={getWallets}
