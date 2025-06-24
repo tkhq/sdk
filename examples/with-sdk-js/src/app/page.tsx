@@ -96,22 +96,22 @@ export default function AuthPage() {
       return;
     }
 
-    if (!res.subOrganizationId) {
-    const signupRes = await client?.signUpWithOtp({
-      verificationToken: res.verificationToken,
-      contact: email,
-      otpType: OtpType.Email,
-    })
-    console.log("OTP verified and user signed up:", signupRes);
-    return signupRes;
-   } else {
-    const loginRes = await client?.loginWithOtp({
-      verificationToken: res.verificationToken,
-    });
-    console.log("OTP verified and user logged in:", loginRes);
-    return loginRes;
-   }
-  }
+    if (!res?.subOrganizationId) {
+      const signupRes = await client?.signUpWithOtp({
+        verificationToken: res.verificationToken,
+        contact: email,
+        otpType: OtpType.Email,
+      });
+      console.log("OTP verified and user signed up:", signupRes);
+      return signupRes;
+    } else {
+      const loginRes = await client?.loginWithOtp({
+        verificationToken: res.verificationToken,
+      });
+      console.log("OTP verified and user logged in:", loginRes);
+      return loginRes;
+    }
+  };
 
   const getUser = async () => {
     const res = await client?.fetchUser({});
@@ -147,7 +147,7 @@ export default function AuthPage() {
       passkeyDisplayName: `local-shmocal-passkey_${Date.now()}`,
       createSubOrgParams: {
         passkeyName: `local-shmocal-passkey_${Date.now()}`,
-      }
+      },
     });
 
     console.log(res);
@@ -203,7 +203,7 @@ export default function AuthPage() {
         Sign Up with Passkey
       </button>
 
-        <input 
+      <input
         type="text"
         placeholder="Enter your email"
         style={{
@@ -216,7 +216,7 @@ export default function AuthPage() {
         onChange={(e) => {
           setEmail(e.target.value);
         }}
-        />
+      />
       <button
         onClick={initOtp}
         style={{
@@ -229,7 +229,7 @@ export default function AuthPage() {
         Init OTP
       </button>
 
-      <input 
+      <input
         type="text"
         placeholder="Enter OTP code"
         style={{
@@ -242,7 +242,7 @@ export default function AuthPage() {
         onChange={(e) => {
           setOtpCode(e.target.value);
         }}
-        />
+      />
 
       <button
         onClick={() => verifyOtp()}
