@@ -263,8 +263,7 @@ export class TurnkeyClient {
         const error = await otpRes.text();
         throw new Error(`OTP initialization failed: ${otpRes.status} ${error}`);
       }
-      const initOtpRes: v1InitOtpResult  =
-        await otpRes.json();
+      const initOtpRes: v1InitOtpResult = await otpRes.json();
 
       return initOtpRes.otpId;
     } catch (error) {
@@ -318,19 +317,18 @@ export class TurnkeyClient {
           `OTP verification failed: ${verifyRes.status} ${error}`
         );
       }
-      const verifyOtpRes: { verifyOtpResult: v1VerifyOtpResult } =
-        await verifyRes.json();
+      const verifyOtpRes: v1VerifyOtpResult = await verifyRes.json();
 
       let subOrganizationId: string | undefined = undefined;
-      const accountText = await accountRes.text();
-      if (accountText !== "No account exists for given filter") {
+      const accountText = (await accountRes.text()).trim();
+      if (accountText != "account not found") {
         const res = await JSON.parse(accountText);
         subOrganizationId = res.organizationId;
       }
 
       return {
         subOrganizationId: subOrganizationId || "",
-        verificationToken: verifyOtpRes.verifyOtpResult.verificationToken,
+        verificationToken: verifyOtpRes.verificationToken,
       };
     } catch (error) {
       throw new Error(`Failed to verify OTP: ${error}`);
@@ -347,7 +345,7 @@ export class TurnkeyClient {
       verificationToken,
       invalidateExisting = false,
       publicKey = await this.apiKeyStamper?.createKeyPair(),
-      sessionKey = SessionKey.DefaultSessionkey
+      sessionKey = SessionKey.DefaultSessionkey,
     } = params;
 
     const headers: Record<string, string> = {
@@ -373,18 +371,15 @@ export class TurnkeyClient {
         throw new Error(`OTP login failed: ${res.status} ${errorText}`);
       }
 
-      const loginRes: {otpLoginResult: v1OtpLoginResult} = await res.json();
-      if (!loginRes.otpLoginResult.session) {
+      const loginRes: v1OtpLoginResult = await res.json();
+      if (!loginRes.session) {
         throw new Error("No session returned from OTP login");
       }
 
       // // Store the session in the storage manager
-      await this.storageManager.storeSession(
-        loginRes.otpLoginResult.session,
-        sessionKey
-      );
+      await this.storageManager.storeSession(loginRes.session, sessionKey);
 
-      return loginRes.otpLoginResult.session;
+      return loginRes.session;
     } catch (error) {
       throw new Error(`Failed to log in with OTP: ${error}`);
     }
@@ -498,13 +493,12 @@ export class TurnkeyClient {
           },
         ],
         oauthProviders: createSubOrgParams?.oauthProviders,
-        wallet: {
-          walletName: createSubOrgParams?.customWalletName || `Wallet 1`,
-          accounts: createSubOrgParams?.customWalletAccounts || [
-            ...DEFAULT_ETHEREUM_ACCOUNTS,
-            ...DEFAULT_SOLANA_ACCOUNTS,
-          ],
-        },
+        ...(createSubOrgParams?.customWallet && {
+          wallet: {
+            walletName: createSubOrgParams?.customWallet.walletName,
+            accounts: createSubOrgParams?.customWallet.walletAccounts,
+          },
+        }),
       };
 
       // Set up headers, including X-Proxy-ID if needed
