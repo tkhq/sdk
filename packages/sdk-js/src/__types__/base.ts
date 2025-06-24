@@ -194,10 +194,14 @@ export type CreateSubOrgParams = {
   userTag?: string | undefined;
   passkeyName?: string | undefined;
   userPhoneNumber?: string | undefined;
-  customWalletName?: string | undefined;
-  customWalletAccounts?: WalletAccount[] | undefined;
+  customWallet?:
+    | {
+        walletName: string;
+        walletAccounts: WalletAccount[];
+      }
+    | undefined;
   oauthProviders?: Provider[] | undefined;
-}
+};
 
 /**
  * The Client used to authenticate the user.
@@ -220,7 +224,7 @@ export enum OtpType {
 
 export enum FilterType {
   Email = "EMAIL",
-  Sms = "SMS"
+  Sms = "SMS",
 }
 
 export const OtpTypeToFilterTypeMap = {
