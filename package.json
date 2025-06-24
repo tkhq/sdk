@@ -77,7 +77,8 @@
       "cross-spawn": ">=7.0.5",
       "elliptic": ">=6.6.1",
       "axios": ">1.8.2",
-      "image-size": ">=1.2.1"
+      "image-size": ">=1.2.1",
+      "pbkdf2": ">=3.1.3"
     }
   }
 }
