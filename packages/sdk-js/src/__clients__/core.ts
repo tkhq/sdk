@@ -263,10 +263,10 @@ export class TurnkeyClient {
         const error = await otpRes.text();
         throw new Error(`OTP initialization failed: ${otpRes.status} ${error}`);
       }
-      const initOtpRes: { initOtpResult: v1InitOtpResult } =
+      const initOtpRes: v1InitOtpResult  =
         await otpRes.json();
 
-      return initOtpRes.initOtpResult.otpId;
+      return initOtpRes.otpId;
     } catch (error) {
       throw new Error(`Failed to initialize OTP: ${error}`);
     }
@@ -494,14 +494,14 @@ export class TurnkeyClient {
         subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
         apiKeys: [
           {
-            apiKeyName: `passkey-auth:${generatedKeyPair}`,
+            apiKeyName: `passkey-auth-${generatedKeyPair}`,
             publicKey: generatedKeyPair,
             curveType: "API_KEY_CURVE_P256",
             expirationSeconds: "60",
           },
         ],
         oauthProviders: createSubOrgParams?.oauthProviders,
-        wallets: {
+        wallet: {
           walletName: createSubOrgParams?.customWalletName || `Wallet 1`,
           accounts: createSubOrgParams?.customWalletAccounts || [
             ...DEFAULT_ETHEREUM_ACCOUNTS,
