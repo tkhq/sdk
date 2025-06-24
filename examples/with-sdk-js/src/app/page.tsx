@@ -95,13 +95,22 @@ export default function AuthPage() {
       console.error("Failed to verify OTP");
       return;
     }
+
+    if (!res.subOrganizationId) {
     const signupRes = await client?.signUpWithOtp({
       verificationToken: res.verificationToken,
       contact: email,
       otpType: OtpType.Email,
     })
-
     console.log("OTP verified and user signed up:", signupRes);
+    return signupRes;
+   } else {
+    const loginRes = await client?.loginWithOtp({
+      verificationToken: res.verificationToken,
+    });
+    console.log("OTP verified and user logged in:", loginRes);
+    return loginRes;
+   }
   }
 
   const getUser = async () => {
