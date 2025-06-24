@@ -21,12 +21,13 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@headlessui/react": "^2.2.4",
     "@turnkey/sdk-js": "workspace:*",
     "@turnkey/sdk-types": "workspace:*"
   },
   "devDependencies": {
-    "autoprefixer": "^10.0.1",
     "@tailwindcss/postcss": "^4.1.10",
+    "autoprefixer": "^10.0.1",
     "glob": "^8.0.3",
     "postcss": "^8.4.38",
     "react": "^18.2.0",
