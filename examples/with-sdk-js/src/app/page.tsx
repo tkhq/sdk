@@ -248,14 +248,38 @@ export default function AuthPage() {
     pushPage({
       key: "example-modal",
       content: (
-        <div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "400px",
+            height: "600px",
+            padding: "20px",
+          }}
+        >
           <h2>Example Modal</h2>
           <p>This is an example modal content.</p>
           <button
             onClick={() =>
               pushPage({
                 key: "nested-modal",
-                content: <p>Nested Modal Content</p>,
+                content: (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "400px",
+                      height: "200px",
+                      padding: "20px",
+                    }}
+                  >
+                    <h2>Good mronign</h2>
+                  </div>
+                ),
               })
             }
             style={{
