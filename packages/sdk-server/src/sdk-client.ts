@@ -37,6 +37,7 @@ export class TurnkeyServerSDK {
     this.stamper = new ApiKeyStamper({
       apiPublicKey: apiCredentials?.apiPublicKey ?? this.config.apiPublicKey,
       apiPrivateKey: apiCredentials?.apiPrivateKey ?? this.config.apiPrivateKey,
+      runtimeOverride: this.config.runtimeOverride,
     });
 
     return new TurnkeyApiClient({
