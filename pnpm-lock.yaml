@@ -1297,6 +1297,9 @@ importers:
 
   examples/with-sdk-js:
     dependencies:
+      '@react-oauth/google':
+        specifier: ^0.12.1
+        version: 0.12.1(react-dom@18.2.0)(react@18.2.0)
       '@turnkey/sdk-js':
         specifier: workspace:*
         version: link:../../packages/sdk-js
