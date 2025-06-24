@@ -603,7 +603,6 @@ export class TurnkeyClient {
           createSubOrgParams: {
             userName: `user-${Date.now()}`,
             subOrgName: `sub-org-${Date.now()}`,
-            oauthProviders: [{ providerName: "google", oidcToken }],
           },
         });
       }
@@ -685,7 +684,6 @@ export class TurnkeyClient {
           providerName: providerName,
           oidcToken,
         },
-        ...(createSubOrgParams?.oauthProviders || [])
       ],
     };
 
