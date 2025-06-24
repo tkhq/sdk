@@ -277,7 +277,7 @@ export class TurnkeyClient {
     otpCode: string;
     contact: string;
     otpType: OtpType;
-  }): Promise<{ subOrgs: string[]; verificationToken: string }> => {
+  }): Promise<{ subOrganizationId: string; verificationToken: string }> => {
     const { otpId, otpCode, contact, otpType } = params;
 
     const headers: Record<string, string> = {
@@ -320,12 +320,16 @@ export class TurnkeyClient {
       }
       const verifyOtpRes: { verifyOtpResult: v1VerifyOtpResult } =
         await verifyRes.json();
-      const accountData = await accountRes.text();
 
-      console.log("Account data:", accountData);
+      let subOrganizationId: string | undefined = undefined;
+      const accountText = await accountRes.text();
+      if (accountText !== "No account exists for given filter") {
+        const res = await JSON.parse(accountText);
+        subOrganizationId = res.organizationId;
+      }
 
       return {
-        subOrgs: [],
+        subOrganizationId: subOrganizationId || "",
         verificationToken: verifyOtpRes.verifyOtpResult.verificationToken,
       };
     } catch (error) {
@@ -409,13 +413,6 @@ export class TurnkeyClient {
       subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
       verificationToken,
       oauthProviders: createSubOrgParams?.oauthProviders,
-      wallets: {
-        walletName: createSubOrgParams?.customWalletName || `Wallet 1`,
-        accounts: createSubOrgParams?.customWalletAccounts || [
-          ...DEFAULT_ETHEREUM_ACCOUNTS,
-          ...DEFAULT_SOLANA_ACCOUNTS,
-        ],
-      },
     };
 
     // Set up headers, including X-Proxy-ID if needed
