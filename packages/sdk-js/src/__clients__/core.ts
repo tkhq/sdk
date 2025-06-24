@@ -9,6 +9,7 @@ import {
   v1Attestation,
   v1AuthenticatorParamsV2,
   v1InitOtpResult,
+  v1OauthLoginResult,
   v1OtpLoginResult,
   v1Pagination,
   v1SignRawPayloadResult,
@@ -242,6 +243,126 @@ export class TurnkeyClient {
     }
   };
 
+  signUpWithPasskey = async (params: {
+    createSubOrgParams?: CreateSubOrgParams;
+    sessionType?: SessionType;
+    sessionExpirationSeconds?: string | undefined;
+    sessionKey?: string | undefined;
+    passkeyDisplayName?: string;
+  }): Promise<void> => {
+    const {
+      createSubOrgParams,
+      passkeyDisplayName,
+      sessionExpirationSeconds,
+      sessionKey,
+    } = params;
+
+    let generatedKeyPair = null;
+    try {
+      generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+      const passkey = await this.createPasskey({
+        ...(createSubOrgParams?.passkeyName && {
+          name: createSubOrgParams?.passkeyName,
+        }),
+        ...(passkeyDisplayName && { displayName: passkeyDisplayName }),
+      });
+
+      if (!passkey) {
+        throw new Error(
+          "Failed to create passkey: encoded challenge or attestation is missing"
+        );
+      }
+
+      // Build the request body for OTP init
+      const signUpBody = {
+        userName:
+          createSubOrgParams?.userName ||
+          createSubOrgParams?.userEmail ||
+          `user-${Date.now()}`,
+        userEmail: createSubOrgParams?.userEmail,
+        authenticators: [
+          {
+            authenticatorName:
+              createSubOrgParams?.passkeyName || "Default Passkey",
+            challenge: passkey.encodedChallenge,
+            attestation: passkey.attestation,
+          },
+        ],
+        userPhoneNumber: createSubOrgParams?.userPhoneNumber,
+        userTag: createSubOrgParams?.userTag,
+        subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
+        apiKeys: [
+          {
+            apiKeyName: `passkey-auth-${generatedKeyPair}`,
+            publicKey: generatedKeyPair,
+            curveType: "API_KEY_CURVE_P256",
+            expirationSeconds: "60",
+          },
+        ],
+        oauthProviders: createSubOrgParams?.oauthProviders,
+        ...(createSubOrgParams?.customWallet && {
+          wallet: {
+            walletName: createSubOrgParams?.customWallet.walletName,
+            accounts: createSubOrgParams?.customWallet.walletAccounts,
+          },
+        }),
+      };
+
+      // Set up headers, including X-Proxy-ID if needed
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (this.config.authProxyId) {
+        headers["X-Proxy-ID"] = this.config.authProxyId;
+      }
+
+      const res = await fetch(`${this.config.authProxyUrl}/v1/signup`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(signUpBody),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Sign up failed: ${res.status} ${errorText}`);
+      }
+
+      const newGeneratedKeyPair = await this.apiKeyStamper?.createKeyPair();
+      this.apiKeyStamper?.setPublicKeyOverride(generatedKeyPair!);
+
+      const sessionResponse = await this.httpClient.stampLogin({
+        publicKey: newGeneratedKeyPair!,
+        ...(sessionExpirationSeconds && {
+          expirationSeconds: sessionExpirationSeconds,
+        }),
+        organizationId: this.config.organizationId,
+      });
+
+      await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair!);
+
+      await this.storageManager.storeSession(
+        sessionResponse.session,
+        sessionKey
+      );
+
+      generatedKeyPair = null; // Key pair was successfully used, set to null to prevent cleanup
+    } catch (error) {
+      throw new Error(`Failed to sign up with passkey: ${error}`);
+    } finally {
+      // Clean up the generated key pair if it wasn't successfully used
+      this.apiKeyStamper?.clearOverridePublicKey();
+      if (generatedKeyPair) {
+        try {
+          await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
+        } catch (cleanupError) {
+          throw new Error(
+            `Failed to clean up generated key pair: ${cleanupError}`
+          );
+        }
+      }
+    }
+  };
+
   initOtp = async (params: {
     otpType: OtpType;
     contact: string;
@@ -436,124 +557,162 @@ export class TurnkeyClient {
     });
   };
 
-  signUpWithPasskey = async (params: {
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionType?: SessionType;
-    sessionExpirationSeconds?: string | undefined;
-    sessionKey?: string | undefined;
-    passkeyDisplayName?: string;
-  }): Promise<void> => {
-    const {
-      createSubOrgParams,
-      passkeyDisplayName,
-      sessionExpirationSeconds,
-      sessionKey,
-    } = params;
+  handleGoogleOauthLogin = async (params: {
+    oidcToken: string;
+  }): Promise<string> => {
+    const { oidcToken } = params;
 
-    let generatedKeyPair = null;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (this.config.authProxyId) {
+      headers["X-Proxy-ID"] = this.config.authProxyId;
+    }
     try {
-      generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
-      const passkey = await this.createPasskey({
-        ...(createSubOrgParams?.passkeyName && {
-          name: createSubOrgParams?.passkeyName,
-        }),
-        ...(passkeyDisplayName && { displayName: passkeyDisplayName }),
+      const url = new URL(`${this.config.authProxyUrl}/v1/account`);
+      url.searchParams.append("filterType", "OIDC_TOKEN");
+      url.searchParams.append("filterValue", oidcToken);
+
+      const accountRes = await fetch(url.toString(), {
+        method: "GET",
+        headers,
       });
 
-      if (!passkey) {
-        throw new Error(
-          "Failed to create passkey: encoded challenge or attestation is missing"
-        );
+      if (!accountRes.ok && accountRes.status !== 404) {
+        const error = await accountRes.text();
+        throw new Error(`Account fetch failed: ${accountRes.status} ${error}`);
       }
 
-      // Build the request body for OTP init
-      const signUpBody = {
-        userName:
-          createSubOrgParams?.userName ||
-          createSubOrgParams?.userEmail ||
-          `user-${Date.now()}`,
-        userEmail: createSubOrgParams?.userEmail,
-        authenticators: [
-          {
-            authenticatorName:
-              createSubOrgParams?.passkeyName || "Default Passkey",
-            challenge: passkey.encodedChallenge,
-            attestation: passkey.attestation,
-          },
-        ],
-        userPhoneNumber: createSubOrgParams?.userPhoneNumber,
-        userTag: createSubOrgParams?.userTag,
-        subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
-        apiKeys: [
-          {
-            apiKeyName: `passkey-auth-${generatedKeyPair}`,
-            publicKey: generatedKeyPair,
-            curveType: "API_KEY_CURVE_P256",
-            expirationSeconds: "60",
-          },
-        ],
-        oauthProviders: createSubOrgParams?.oauthProviders,
-        ...(createSubOrgParams?.customWallet && {
-          wallet: {
-            walletName: createSubOrgParams?.customWallet.walletName,
-            accounts: createSubOrgParams?.customWallet.walletAccounts,
-          },
-        }),
-      };
-
-      // Set up headers, including X-Proxy-ID if needed
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (this.config.authProxyId) {
-        headers["X-Proxy-ID"] = this.config.authProxyId;
+      let subOrganizationId: string | undefined = undefined;
+      const accountText = (await accountRes.text()).trim();
+      if (accountText != "account not found") {
+        const res = await JSON.parse(accountText);
+        subOrganizationId = res.organizationId;
       }
 
-      const res = await fetch(`${this.config.authProxyUrl}/v1/signup`, {
+      if (subOrganizationId) {
+        return this.loginWithOauth({
+          oidcToken,
+          invalidateExisting: true,
+          sessionKey: SessionKey.DefaultSessionkey,
+        });
+      } else {
+        return this.signUpWithOauth({
+          oidcToken,
+          providerName: "google",
+          createSubOrgParams: {
+            userName: `user-${Date.now()}`,
+            subOrgName: `sub-org-${Date.now()}`,
+            oauthProviders: [{ providerName: "google", oidcToken }],
+          },
+        });
+      }
+
+    } catch (error) {
+      throw new Error(`Failed to handle Google OAuth login: ${error}`);
+    }
+  }
+
+  loginWithOauth = async (params: {
+    oidcToken: string;
+    publicKey?: string;
+    invalidateExisting?: boolean;
+    sessionKey?: string | undefined;
+  }): Promise<string> => {
+    const {
+      oidcToken,
+      invalidateExisting = false,
+      publicKey = await this.apiKeyStamper?.createKeyPair(),
+      sessionKey = SessionKey.DefaultSessionkey,
+    } = params;
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (this.config.authProxyId) {
+      headers["X-Proxy-ID"] = this.config.authProxyId;
+    }
+
+    try {
+      const res = await fetch(`${this.config.authProxyUrl}/v1/oauth_login`, {
         method: "POST",
         headers,
-        body: JSON.stringify(signUpBody),
+        body: JSON.stringify({
+          oidcToken,
+          publicKey,
+          invalidateExisting,
+        }),
       });
 
       if (!res.ok) {
         const errorText = await res.text();
-        throw new Error(`Sign up failed: ${res.status} ${errorText}`);
+        throw new Error(`oauth login failed: ${res.status} ${errorText}`);
       }
 
-      const newGeneratedKeyPair = await this.apiKeyStamper?.createKeyPair();
-      this.apiKeyStamper?.setPublicKeyOverride(generatedKeyPair!);
+      const loginRes: v1OauthLoginResult = await res.json();
+      if (!loginRes.session) {
+        throw new Error("No session returned from oauth login");
+      }
 
-      const sessionResponse = await this.httpClient.stampLogin({
-        publicKey: newGeneratedKeyPair!,
-        ...(sessionExpirationSeconds && {
-          expirationSeconds: sessionExpirationSeconds,
-        }),
-        organizationId: this.config.organizationId,
-      });
+      // // Store the session in the storage manager
+      await this.storageManager.storeSession(loginRes.session, sessionKey);
 
-      await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair!);
-
-      await this.storageManager.storeSession(
-        sessionResponse.session,
-        sessionKey
-      );
-
-      generatedKeyPair = null; // Key pair was successfully used, set to null to prevent cleanup
+      return loginRes.session;
     } catch (error) {
-      throw new Error(`Failed to sign up with passkey: ${error}`);
-    } finally {
-      // Clean up the generated key pair if it wasn't successfully used
-      this.apiKeyStamper?.clearOverridePublicKey();
-      if (generatedKeyPair) {
-        try {
-          await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
-        } catch (cleanupError) {
-          throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`
-          );
-        }
-      }
+      throw new Error(`Failed to log in with oauth: ${error}`);
     }
+  };
+
+  signUpWithOauth = async (params: {
+    oidcToken: string;
+    providerName: string;
+    createSubOrgParams?: CreateSubOrgParams;
+    sessionType?: SessionType;
+    sessionExpirationSeconds?: string | undefined;
+    sessionKey?: string | undefined;
+  }): Promise<string> => {
+    const { oidcToken, providerName, createSubOrgParams } = params;
+
+    const signUpBody = {
+      userName:
+        createSubOrgParams?.userName ||
+        createSubOrgParams?.userEmail ||
+        `user-${Date.now()}`,
+      userTag: createSubOrgParams?.userTag,
+      subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
+      oauthProviders: [
+        {
+          providerName: providerName,
+          oidcToken,
+        },
+        ...(createSubOrgParams?.oauthProviders || [])
+      ],
+    };
+
+    // Set up headers, including X-Proxy-ID if needed
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (this.config.authProxyId) {
+      headers["X-Proxy-ID"] = this.config.authProxyId;
+    }
+
+    const res = await fetch(`${this.config.authProxyUrl}/v1/signup`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(signUpBody),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Sign up failed: ${res.status} ${errorText}`);
+    }
+
+    const generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+    return await this.loginWithOauth({
+      oidcToken,
+      publicKey: generatedKeyPair!,
+    });
   };
 
   fetchWallets = async (params: {
