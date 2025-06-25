@@ -1,3 +1,9 @@
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities);
+
+
+@theme {
+    --color-modal-background-light: oklch(1 0 344);
+    --color-modal-background-dark: oklch(0.2084 0 344);
+}
