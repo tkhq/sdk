@@ -156,7 +156,7 @@ export default function AuthPage() {
 
   const handleGoogleLogin = async (
     credentialResponse: string,
-    publicKey: string
+    publicKey: string,
   ) => {
     if (!publicKey) {
       console.error("Public key is not set. Please create a passkey first.");
