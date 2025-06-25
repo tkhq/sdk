@@ -255,9 +255,9 @@ export async function sealAndStampRequestBody(input: {
   };
 }
 
-// Check if the client is an instance of TurnkeyClient. We check the constructor name here since the 'instanceof' operator does not work across if the http client isn't EXACTLY the same (mismatching versions).
+// Check if the client is an instance of TurnkeyClient. We check the name field here since the 'instanceof' operator does not work across if the http client isn't EXACTLY the same (mismatching versions).
 export function isHttpClient(client: any): client is TurnkeyClient {
-  return client?.constructor?.name === "TurnkeyClient";
+  return client?.name === "TurnkeyClient";
 }
 
 export type THttpConfig = {
