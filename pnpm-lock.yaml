@@ -1262,15 +1262,15 @@ importers:
 
   examples/with-sdk-js:
     dependencies:
-      '@turnkey/react-wallet-kit':
-        specifier: workspace:*
-        version: link:../../packages/react-wallet-kit
       '@noble/hashes':
         specifier: 1.4.0
         version: 1.4.0
       '@react-oauth/google':
         specifier: ^0.12.1
         version: 0.12.1(react-dom@18.2.0)(react@18.2.0)
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../packages/react-wallet-kit
       '@turnkey/sdk-js':
         specifier: workspace:*
         version: link:../../packages/sdk-js
