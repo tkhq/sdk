@@ -215,6 +215,7 @@ export class TurnkeyClient {
         const sessionToReplace =
           await this.storageManager.getSession(sessionKey);
         if (sessionToReplace) {
+          console.log(sessionToReplace.token);
           await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.token);
         }
 
@@ -340,6 +341,11 @@ export class TurnkeyClient {
 
       await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair!);
 
+      const sessionToReplace = await this.storageManager.getSession(sessionKey);
+      if (sessionToReplace) {
+        await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.token);
+      }
+
       await this.storageManager.storeSession(
         sessionResponse.session,
         sessionKey,
@@ -350,6 +356,7 @@ export class TurnkeyClient {
       throw new Error(`Failed to sign up with passkey: ${error}`);
     } finally {
       // Clean up the generated key pair if it wasn't successfully used
+      console.log("Cleaning up generated key pair if any");
       this.apiKeyStamper?.clearOverridePublicKey();
       if (generatedKeyPair) {
         try {
@@ -497,11 +504,26 @@ export class TurnkeyClient {
         throw new Error("No session returned from OTP login");
       }
 
+      const sessionToReplace = await this.storageManager.getSession(sessionKey);
+      if (sessionToReplace) {
+        await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.token);
+      }
       // // Store the session in the storage manager
       await this.storageManager.storeSession(loginRes.session, sessionKey);
 
       return loginRes.session;
     } catch (error) {
+      // Clean up the generated key pair if it wasn't successfully used
+      console.log("Cleaning up generated key pair if any");
+      if (publicKey) {
+        try {
+          await this.apiKeyStamper?.deleteKeyPair(publicKey);
+        } catch (cleanupError) {
+          throw new Error(
+            `Failed to clean up generated key pair: ${cleanupError}`,
+          );
+        }
+      }
       throw new Error(`Failed to log in with OTP: ${error}`);
     }
   };
@@ -538,23 +560,37 @@ export class TurnkeyClient {
     if (this.config.authProxyId) {
       headers["X-Proxy-ID"] = this.config.authProxyId;
     }
-
-    const res = await fetch(`${this.config.authProxyUrl}/v1/signup`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(signUpBody),
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error(`Sign up failed: ${res.status} ${errorText}`);
-    }
-
     const generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
-    await this.loginWithOtp({
-      verificationToken,
-      publicKey: generatedKeyPair!,
-    });
+    try {
+      const res = await fetch(`${this.config.authProxyUrl}/v1/signup`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(signUpBody),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Sign up failed: ${res.status} ${errorText}`);
+      }
+
+      await this.loginWithOtp({
+        verificationToken,
+        publicKey: generatedKeyPair!,
+      });
+    } catch (error) {
+      throw new Error(`Failed to sign up with OTP: ${error}`);
+    } finally {
+      // Clean up the generated key pair if it wasn't successfully used
+      if (generatedKeyPair) {
+        try {
+          await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
+        } catch (cleanupError) {
+          throw new Error(
+            `Failed to clean up generated key pair: ${cleanupError}`,
+          );
+        }
+      }
+    }
   };
 
   handleOauthLogin = async (params: {
@@ -661,11 +697,26 @@ export class TurnkeyClient {
         throw new Error("No session returned from oauth login");
       }
 
+      const sessionToReplace = await this.storageManager.getSession(sessionKey);
+      if (sessionToReplace) {
+        await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.token);
+      }
       // // Store the session in the storage manager
       await this.storageManager.storeSession(loginRes.session, sessionKey);
 
       return loginRes.session;
     } catch (error) {
+      // Clean up the generated key pair if it wasn't successfully used
+      console.log("Cleaning up generated key pair if any");
+      if (publicKey) {
+        try {
+          await this.apiKeyStamper?.deleteKeyPair(publicKey);
+        } catch (cleanupError) {
+          throw new Error(
+            `Failed to clean up generated key pair: ${cleanupError}`,
+          );
+        }
+      }
       throw new Error(`Failed to log in with oauth: ${error}`);
     }
   };
