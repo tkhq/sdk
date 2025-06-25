@@ -7,6 +7,7 @@ import {
 } from "@headlessui/react";
 import { useModal } from "./Provider";
 import { IconButton } from "../../components/Buttons";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
 export function ModalRoot() {
   const { modalStack, popPage, closeModal } = useModal();
@@ -56,8 +57,9 @@ export function ModalRoot() {
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
         </TransitionChild>
 
-        {/* Modal Panel */}
-        <div className="fixed inset-0 flex items-center justify-center">
+        {/* Modal Panel */
+        /* NOTE (Amir): dark is applied manually here. This should be controlled in a variable. Idk why but, tailwind's default dark mode auto selecting causes so many bugs. If we have UI anywhere else, we need to add this modifer also! */}
+        <div className="fixed inset-0 flex items-center justify-center dark">
           <DialogPanel>
             {/* White background container */}
             <TransitionChild
@@ -82,12 +84,7 @@ export function ModalRoot() {
                   style={{ width }}
                 >
                   {hasBack ? (
-                    <IconButton
-                      onClick={popPage}
-                      className="text-gray-600 h-7 w-7"
-                    >
-                      -
-                    </IconButton>
+                    <IconButton icon={faArrowLeft} onClick={popPage} />
                   ) : (
                     <div />
                   )}
