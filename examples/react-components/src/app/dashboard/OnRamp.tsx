@@ -69,7 +69,7 @@ export const OnRamp = () => {
           walletAddress: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
           network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
           cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
-          fiatCurrencyCode: "USD",
+          fiatCurrencyCode: "FIAT_ON_RAMP_CURRENCY_USD",
           countryCode: "US",
           countrySubdivisionCode: "ME",
         });
@@ -151,12 +151,12 @@ export const OnRamp = () => {
             walletAddress: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
             network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
             cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
-            fiatCurrencyCode: "USD",
+            fiatCurrencyCode: "FIAT_ON_RAMP_CURRENCY_USD",
           });
 
         console.log(
           "initMoonPayFiatOnRampResponse:",
-          initMoonPayFiatOnRampResponse,
+          initMoonPayFiatOnRampResponse
         );
         // console.log(
         //   "https://buy-sandbox.moonpay.com?apiKey=pk_test_zEGwLvmLma8crfMBnJwzom7jzKeu6Jsk&currencyCode=ETH&walletAddress=0xf2C35a22F398a00097E7621638D3931173850811&signature=wecT6rA1h8Fo5xL3wtjMH2nvUdAwGbHHTu8NRI85Xeo%3D"
