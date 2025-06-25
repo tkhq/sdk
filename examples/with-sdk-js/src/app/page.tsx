@@ -256,7 +256,6 @@ export default function AuthPage() {
             alignItems: "center",
             width: "400px",
             height: "600px",
-            padding: "20px",
           }}
         >
           <h2>Example Modal</h2>
@@ -272,9 +271,8 @@ export default function AuthPage() {
                       flexDirection: "column",
                       justifyContent: "center",
                       alignItems: "center",
-                      width: "400px",
+                      width: "600px",
                       height: "200px",
-                      padding: "20px",
                     }}
                   >
                     <h2>Good mronign</h2>
