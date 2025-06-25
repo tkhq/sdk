@@ -22,5 +22,5 @@
     "src/**/*.jsx",
     "src/**/*.json"
   ],
-  "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
+  "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"]
 }
