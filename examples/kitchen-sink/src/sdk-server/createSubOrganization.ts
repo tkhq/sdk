@@ -1,0 +1,63 @@
+import * as path from "path";
+import * as dotenv from "dotenv";
+
+// Load environment variables from `.env.local`
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+
+import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
+
+import { refineNonNull } from "../utils";
+
+async function main() {
+  const turnkeyClient = new TurnkeySDKServer({
+    apiBaseUrl: "https://api.turnkey.com",
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    defaultOrganizationId: process.env.ORGANIZATION_ID!,
+  });
+
+  const apiKeyName = "<API key name>";
+  const publicKey = "<API public key>";
+  const curveType = "API_KEY_CURVE_P256";
+
+  const subOrg = await turnkeyClient.apiClient().createSubOrganization({
+    organizationId: process.env.TURNKEY_ORGANIZATION_ID!,
+    subOrganizationName: `Test Sub-Organization`,
+    rootUsers: [
+      {
+        userName: "API Key User",
+        apiKeys: [
+          {
+            apiKeyName,
+            publicKey,
+            curveType,
+          },
+        ],
+        authenticators: [],
+        oauthProviders: [],
+      },
+    ],
+    rootQuorumThreshold: 1,
+    wallet: {
+      walletName: "Default ETH Wallet",
+      accounts: [
+        {
+          curve: "CURVE_SECP256K1",
+          pathFormat: "PATH_FORMAT_BIP32",
+          path: "m/44'/60'/0'/0/0",
+          addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+        },
+      ],
+    },
+  });
+
+  const subOrgId = refineNonNull(subOrg.subOrganizationId);
+
+  // Success!
+  console.log("Sub-organization id:", subOrgId);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
