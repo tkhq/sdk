@@ -6,7 +6,7 @@ import { TStamp, TStamper } from "@types";
 export interface ApiKeyStamperBase {
   listKeyPairs(): Promise<string[]>;
   createKeyPair(
-    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string }
+    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string },
   ): Promise<string>;
   deleteKeyPair(publicKeyHex: string): Promise<void>;
   clearKeyPairs(): Promise<void>;
@@ -30,7 +30,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
         this.stamper = new ReactNativeKeychainStamper();
       } catch (error) {
         throw new Error(
-          `Failed to load keychain stamper for react-native: ${error}`
+          `Failed to load keychain stamper for react-native: ${error}`,
         );
       }
     } else {
@@ -44,7 +44,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
   }
 
   createKeyPair(
-    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string }
+    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string },
   ): Promise<string> {
     return this.stamper.createKeyPair(externalKeyPair);
   }
@@ -60,6 +60,10 @@ export class CrossPlatformApiKeyStamper implements TStamper {
   // TODO (Amir): This function needs to be explained well
   setPublicKeyOverride(publicKeyHex: string | undefined): void {
     this.publicKeyOverride = publicKeyHex;
+  }
+
+  getPublicKeyOverride(): string | undefined {
+    return this.publicKeyOverride;
   }
 
   clearOverridePublicKey(): void {
