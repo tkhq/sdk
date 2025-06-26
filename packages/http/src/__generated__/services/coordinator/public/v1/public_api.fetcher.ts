@@ -2896,6 +2896,52 @@ export const signImportWallet = (
   });
 
 /**
+ * `POST /public/v1/submit/init_fiat_on_ramp`
+ */
+export type TInitFiatOnRampResponse =
+  operations["PublicApiService_InitFiatOnRamp"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/init_fiat_on_ramp`
+ */
+export type TInitFiatOnRampInput = { body: TInitFiatOnRampBody };
+
+/**
+ * `POST /public/v1/submit/init_fiat_on_ramp`
+ */
+export type TInitFiatOnRampBody =
+  operations["PublicApiService_InitFiatOnRamp"]["parameters"]["body"]["body"];
+
+/**
+ * Init Fiat On Ramp
+ *
+ * Initiate a fiat on ramp flow
+ *
+ * `POST /public/v1/submit/init_fiat_on_ramp`
+ */
+export const initFiatOnRamp = (input: TInitFiatOnRampInput) =>
+  request<TInitFiatOnRampResponse, TInitFiatOnRampBody, never, never, never>({
+    uri: "/public/v1/submit/init_fiat_on_ramp",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `InitFiatOnRamp` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link InitFiatOnRamp}
+ */
+export const signInitFiatOnRamp = (
+  input: TInitFiatOnRampInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TInitFiatOnRampBody, never, never>({
+    uri: "/public/v1/submit/init_fiat_on_ramp",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/init_import_private_key`
  */
 export type TInitImportPrivateKeyResponse =
@@ -3905,6 +3951,150 @@ export const signUpdateUser = (
 ) =>
   signedRequest<TUpdateUserBody, never, never>({
     uri: "/public/v1/submit/update_user",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/update_user_email`
+ */
+export type TUpdateUserEmailResponse =
+  operations["PublicApiService_UpdateUserEmail"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_user_email`
+ */
+export type TUpdateUserEmailInput = { body: TUpdateUserEmailBody };
+
+/**
+ * `POST /public/v1/submit/update_user_email`
+ */
+export type TUpdateUserEmailBody =
+  operations["PublicApiService_UpdateUserEmail"]["parameters"]["body"]["body"];
+
+/**
+ * Update User's Email
+ *
+ * Update a User's email in an existing Organization
+ *
+ * `POST /public/v1/submit/update_user_email`
+ */
+export const updateUserEmail = (input: TUpdateUserEmailInput) =>
+  request<TUpdateUserEmailResponse, TUpdateUserEmailBody, never, never, never>({
+    uri: "/public/v1/submit/update_user_email",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateUserEmail` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateUserEmail}
+ */
+export const signUpdateUserEmail = (
+  input: TUpdateUserEmailInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpdateUserEmailBody, never, never>({
+    uri: "/public/v1/submit/update_user_email",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/update_user_name`
+ */
+export type TUpdateUserNameResponse =
+  operations["PublicApiService_UpdateUserName"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_user_name`
+ */
+export type TUpdateUserNameInput = { body: TUpdateUserNameBody };
+
+/**
+ * `POST /public/v1/submit/update_user_name`
+ */
+export type TUpdateUserNameBody =
+  operations["PublicApiService_UpdateUserName"]["parameters"]["body"]["body"];
+
+/**
+ * Update User's Name
+ *
+ * Update a User's name in an existing Organization
+ *
+ * `POST /public/v1/submit/update_user_name`
+ */
+export const updateUserName = (input: TUpdateUserNameInput) =>
+  request<TUpdateUserNameResponse, TUpdateUserNameBody, never, never, never>({
+    uri: "/public/v1/submit/update_user_name",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateUserName` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateUserName}
+ */
+export const signUpdateUserName = (
+  input: TUpdateUserNameInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpdateUserNameBody, never, never>({
+    uri: "/public/v1/submit/update_user_name",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/update_user_phone_number`
+ */
+export type TUpdateUserPhoneNumberResponse =
+  operations["PublicApiService_UpdateUserPhoneNumber"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_user_phone_number`
+ */
+export type TUpdateUserPhoneNumberInput = { body: TUpdateUserPhoneNumberBody };
+
+/**
+ * `POST /public/v1/submit/update_user_phone_number`
+ */
+export type TUpdateUserPhoneNumberBody =
+  operations["PublicApiService_UpdateUserPhoneNumber"]["parameters"]["body"]["body"];
+
+/**
+ * Update User's Phone Number
+ *
+ * Update a User's phone number in an existing Organization
+ *
+ * `POST /public/v1/submit/update_user_phone_number`
+ */
+export const updateUserPhoneNumber = (input: TUpdateUserPhoneNumberInput) =>
+  request<
+    TUpdateUserPhoneNumberResponse,
+    TUpdateUserPhoneNumberBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/update_user_phone_number",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateUserPhoneNumber` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateUserPhoneNumber}
+ */
+export const signUpdateUserPhoneNumber = (
+  input: TUpdateUserPhoneNumberInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpdateUserPhoneNumberBody, never, never>({
+    uri: "/public/v1/submit/update_user_phone_number",
     body: input.body,
     options,
   });
