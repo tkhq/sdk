@@ -1,6 +1,6 @@
 "use client";
 
-import { ModalProvider } from "@turnkey/react-wallet-kit";
+import { TurnkeyProvider } from "@turnkey/react-wallet-kit";
 import "@turnkey/react-wallet-kit/dist/styles.css";
 import "./global.css";
 
@@ -24,7 +24,22 @@ function RootLayout({ children }: RootLayoutProps) {
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body>
-        <ModalProvider>{children}</ModalProvider>
+        <TurnkeyProvider
+          config={{
+            apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+            authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_URL!,
+            authProxyId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
+            organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+            passkeyConfig: {
+              rpId: process.env.NEXT_PUBLIC_RPID!,
+              timeout: 60000, // 60 seconds
+              userVerification: "preferred",
+              allowCredentials: [],
+            },
+          }}
+        >
+          {children}
+        </TurnkeyProvider>
       </body>
     </html>
   );
