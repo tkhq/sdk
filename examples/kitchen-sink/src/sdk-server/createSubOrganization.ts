@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
+import { Turnkey as TurnkeySDKServer, DEFAULT_ETHEREUM_ACCOUNTS } from "@turnkey/sdk-server";
 
 import { refineNonNull } from "../utils";
 
@@ -21,7 +21,6 @@ async function main() {
   const curveType = "API_KEY_CURVE_P256";
 
   const subOrg = await turnkeyClient.apiClient().createSubOrganization({
-    organizationId: process.env.TURNKEY_ORGANIZATION_ID!,
     subOrganizationName: `Test Sub-Organization`,
     rootUsers: [
       {
@@ -40,14 +39,7 @@ async function main() {
     rootQuorumThreshold: 1,
     wallet: {
       walletName: "Default ETH Wallet",
-      accounts: [
-        {
-          curve: "CURVE_SECP256K1",
-          pathFormat: "PATH_FORMAT_BIP32",
-          path: "m/44'/60'/0'/0/0",
-          addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-        },
-      ],
+      accounts: DEFAULT_ETHEREUM_ACCOUNTS
     },
   });
 
