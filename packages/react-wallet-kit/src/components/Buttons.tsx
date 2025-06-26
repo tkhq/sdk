@@ -10,7 +10,7 @@ interface IconButtonProps {
 }
 
 export function BaseButton(
-  props: React.ButtonHTMLAttributes<HTMLButtonElement>,
+  props: React.ButtonHTMLAttributes<HTMLButtonElement>
 ) {
   const { children, className, disabled, ...buttonProps } = props;
 
@@ -26,10 +26,9 @@ export function BaseButton(
 }
 export function IconButton(props: IconButtonProps) {
   const { icon, onClick, disabled, className } = props;
-  // TODO (Amir): Use standardized colors. Define these and make one for light and dark mode
   return (
     <BaseButton
-      className={`flex items-center justify-center p-2 rounded-full bg-gray-200 dark:bg-[#333336] ${className}`}
+      className={`flex items-center justify-center p-2 rounded-full text-icon-text-light dark:text-icon-text-dark bg-icon-background-light dark:bg-icon-background-dark active:outline-2 active:outline-primary-light active:dark:outline-primary-dark ${className}`}
       onClick={onClick}
       disabled={!!disabled}
     >
