@@ -1,7 +1,7 @@
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import { GOOGLE_AUTH_URL, popupHeight, popupWidth } from "../../utils";
-import { TurnkeyClient, TurnkeySDKClientConfig } from "@turnkey/sdk-js";
+import { CreateSubOrgParams, TurnkeyClient } from "@turnkey/sdk-js";
 import {
   createContext,
   ReactNode,
@@ -11,21 +11,28 @@ import {
 } from "react";
 import { TurnkeySDKClientBase } from "@turnkey/sdk-js/dist/__generated__/sdk-client-base";
 import { Session } from "@turnkey/sdk-types";
-import { ModalProvider, useModal } from "../modal/Provider";
-import { TurnkeyProviderConfig } from "../TurnkeyProvider";
+import { useModal } from "../modal/Provider";
+import { TurnkeyCallbacks, TurnkeyProviderConfig } from "../TurnkeyProvider";
+import { AuthComponent } from "../../components/auth";
 
 interface ClientProviderProps {
   children: ReactNode;
   config: TurnkeyProviderConfig;
+  callbacks?: TurnkeyCallbacks | undefined;
 }
 
 export interface ClientContextType {
   client: TurnkeyClient | undefined;
   httpClient: TurnkeySDKClientBase | undefined;
   session: Session | undefined;
+  login: () => Promise<void>;
+  handleOauthLoginOrSignup: (params: {
+    oidcToken: string;
+    publicKey: string;
+    createSubOrgParams?: CreateSubOrgParams | undefined;
+  }) => Promise<string>;
   handleGoogleOauth: (params: {
-    clientId: string;
-    onSuccess?: (response: { idToken: string; publicKey: string }) => void;
+    clientId?: string;
     setLoading?: (loading: boolean) => void;
     openInPage?: boolean;
   }) => Promise<void>;
@@ -35,9 +42,9 @@ export const ClientContext = createContext<ClientContextType | undefined>({
   client: undefined,
   httpClient: undefined,
   session: undefined,
-  handleGoogleOauth: async () => {
-    throw new Error("handleGoogleOauth is not implemented");
-  },
+  login: async () => {},
+  handleOauthLoginOrSignup: async () => "",
+  handleGoogleOauth: async () => {},
 });
 
 export const useTurnkey = (): ClientContextType => {
@@ -50,9 +57,11 @@ export const useTurnkey = (): ClientContextType => {
 export const ClientProvider: React.FC<ClientProviderProps> = ({
   config,
   children,
+  callbacks,
 }) => {
   const [client, setClient] = useState<TurnkeyClient | undefined>(undefined);
   const [session, setSession] = useState<Session | undefined>(undefined);
+  const { pushPage } = useModal();
 
   useEffect(() => {
     const initializeClient = async () => {
@@ -77,21 +86,38 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     initializeClient();
   }, []);
 
+  async function handleOauthLoginOrSignup(params: {
+    oidcToken: string;
+    publicKey: string;
+    createSubOrgParams?: CreateSubOrgParams | undefined;
+  }) {
+    if (!client) {
+      throw new Error("Client is not initialized.");
+    }
+    return client.handleOauthLoginOrSignup(params);
+  }
+
   async function handleGoogleOauth(params: {
-    clientId: string;
-    onSuccess?: (response: { idToken: string; publicKey: string }) => void;
+    clientId?: string;
     openInPage?: boolean;
+    additionalParameters?: Record<string, string>; // TODO (Amir): Describe what this does in comment header
   }): Promise<void> {
     const {
-      clientId,
-      onSuccess = (response) => {
-        client?.handleOauthLoginOrSignup({
-          oidcToken: response.idToken,
-          publicKey: response.publicKey,
-        });
-      },
+      clientId = config.auth?.googleClientId,
       openInPage,
+      additionalParameters,
     } = params;
+    console.log("handleGoogleOauth", {
+      clientId,
+      openInPage,
+      additionalParameters,
+    });
+    if (!clientId) {
+      throw new Error("Google Client ID is not configured.");
+    }
+    if (!config.auth?.oAuthRedirectUri) {
+      throw new Error("OAuth redirect URI is not configured.");
+    }
 
     const width = popupWidth;
     const height = popupHeight;
@@ -103,7 +129,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     const authWindow = window.open(
       "about:blank",
       "_blank",
-      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
+      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
     );
 
     if (!authWindow) {
@@ -116,10 +142,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     await client?.apiKeyStamper?.setPublicKeyOverride(publicKey);
 
     const nonce = bytesToHex(sha256(publicKey));
-    const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!.replace(
-      /\/$/,
-      "",
-    );
+    const redirectURI = config.auth?.oAuthRedirectUri.replace(/\/$/, "");
 
     const googleAuthUrl = new URL(GOOGLE_AUTH_URL);
     googleAuthUrl.searchParams.set("client_id", clientId);
@@ -128,7 +151,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     googleAuthUrl.searchParams.set("scope", "openid email profile");
     googleAuthUrl.searchParams.set("nonce", nonce);
     googleAuthUrl.searchParams.set("prompt", "select_account");
-    googleAuthUrl.searchParams.set("state", `provider=google&flow=${flow}`);
+    let state = `provider=google&flow=${flow}`;
+    if (additionalParameters) {
+      const additionalState = Object.entries(additionalParameters)
+        .map(
+          ([key, value]) =>
+            `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+        )
+        .join("&");
+      if (additionalState) {
+        state += `&${additionalState}`;
+      }
+    }
+    googleAuthUrl.searchParams.set("state", state);
 
     authWindow.location.href = googleAuthUrl.toString();
 
@@ -141,7 +176,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           if (idToken) {
             authWindow.close();
             clearInterval(interval);
-            onSuccess({ idToken, publicKey });
+
+            if (callbacks?.onOauthRedirect) {
+              callbacks.onOauthRedirect({ idToken, publicKey });
+            } else {
+              handleOauthLoginOrSignup({
+                oidcToken: idToken,
+                publicKey,
+                // TODO (Amir): Shall we pass createSubOrgParams here?
+              });
+            }
           }
         }
       } catch {
@@ -154,57 +198,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }, 500);
   }
 
-  const { pushPage } = useModal();
-
-  useEffect(() => {
+  const login = async () => {
     pushPage({
-      key: "example-modal",
-      content: (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "400px",
-            height: "600px",
-          }}
-        >
-          <h2>Example Modal</h2>
-          <p>This is an example modal content.</p>
-          <button
-            onClick={() =>
-              pushPage({
-                key: "nested-modal",
-                content: (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      width: "600px",
-                      height: "200px",
-                    }}
-                  >
-                    <h2>Good mronign</h2>
-                  </div>
-                ),
-              })
-            }
-            style={{
-              backgroundColor: "lightcoral",
-              borderRadius: "8px",
-              padding: "8px 16px",
-              color: "white",
-            }}
-          >
-            Open Nested Modal
-          </button>
-        </div>
-      ),
+      key: "Log in or sign up",
+      content: <AuthComponent />,
     });
-  }, []);
+  };
 
   return (
     <ClientContext.Provider
@@ -212,6 +211,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         client,
         session,
         httpClient: client?.httpClient,
+        login,
+        handleOauthLoginOrSignup,
         handleGoogleOauth,
       }}
     >
