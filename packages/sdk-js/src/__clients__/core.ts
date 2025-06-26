@@ -5,6 +5,7 @@ import {
   GetWalletAccountsResponse,
   SessionType,
   SignTransactionResponse,
+  StampLoginResponse,
   v1AddressFormat,
   v1Attestation,
   v1AuthenticatorParamsV2,
@@ -169,7 +170,6 @@ export class TurnkeyClient {
 
   loginWithPasskey = async (params: {
     sessionType?: SessionType;
-    expirationSeconds?: string | undefined;
     publicKey?: string;
     sessionKey?: string | undefined;
   }): Promise<void> => {
@@ -179,7 +179,6 @@ export class TurnkeyClient {
       const {
         sessionType = SessionType.READ_WRITE,
         publicKey = generatedKeyPair,
-        expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
         sessionKey = SessionKey.DefaultSessionkey,
       } = params;
 
@@ -188,10 +187,10 @@ export class TurnkeyClient {
         const readOnlySessionResult =
           await this.httpClient.createReadOnlySession({}, StamperType.Passkey);
 
-        await this.storageManager.storeSession(
-          readOnlySessionResult.session,
+        await this.storeSession({
+          sessionToken: readOnlySessionResult.session,
           sessionKey,
-        );
+        });
         // Key pair was successfully used, set to null to prevent cleanup
         generatedKeyPair = null;
 
@@ -205,24 +204,15 @@ export class TurnkeyClient {
         const sessionResponse = await this.httpClient.stampLogin(
           {
             publicKey,
-            expirationSeconds,
             organizationId: this.config.organizationId,
           },
           StamperType.Passkey,
         );
 
-        // TODO (Amir): This should be done in a helper or something. It's very strange that we have to delete the key pair here
-        const sessionToReplace =
-          await this.storageManager.getSession(sessionKey);
-        if (sessionToReplace) {
-          console.log(sessionToReplace.token);
-          await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.token);
-        }
-
-        await this.storageManager.storeSession(
-          sessionResponse.session,
+        await this.storeSession({
+          sessionToken: sessionResponse.session,
           sessionKey,
-        );
+        });
         // Key pair was successfully used, set to null to prevent cleanup
         generatedKeyPair = null;
       } else {
@@ -247,14 +237,13 @@ export class TurnkeyClient {
   signUpWithPasskey = async (params: {
     createSubOrgParams?: CreateSubOrgParams;
     sessionType?: SessionType;
-    sessionExpirationSeconds?: string | undefined;
     sessionKey?: string | undefined;
     passkeyDisplayName?: string;
   }): Promise<void> => {
     const {
       createSubOrgParams,
       passkeyDisplayName,
-      sessionExpirationSeconds,
+      sessionType = SessionType.READ_WRITE,
       sessionKey,
     } = params;
 
@@ -333,23 +322,15 @@ export class TurnkeyClient {
 
       const sessionResponse = await this.httpClient.stampLogin({
         publicKey: newGeneratedKeyPair!,
-        ...(sessionExpirationSeconds && {
-          expirationSeconds: sessionExpirationSeconds,
-        }),
         organizationId: this.config.organizationId,
       });
 
       await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair!);
 
-      const sessionToReplace = await this.storageManager.getSession(sessionKey);
-      if (sessionToReplace) {
-        await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.token);
-      }
-
-      await this.storageManager.storeSession(
-        sessionResponse.session,
+      await this.storeSession({
+        sessionToken: sessionResponse.session,
         sessionKey,
-      );
+      });
 
       generatedKeyPair = null; // Key pair was successfully used, set to null to prevent cleanup
     } catch (error) {
@@ -467,6 +448,7 @@ export class TurnkeyClient {
     verificationToken: string;
     publicKey?: string;
     invalidateExisting?: boolean;
+    sessionType?: SessionType;
     sessionKey?: string | undefined;
   }): Promise<string> => {
     const {
@@ -474,6 +456,7 @@ export class TurnkeyClient {
       invalidateExisting = false,
       publicKey = await this.apiKeyStamper?.createKeyPair(),
       sessionKey = SessionKey.DefaultSessionkey,
+      sessionType = SessionType.READ_WRITE,
     } = params;
 
     const headers: Record<string, string> = {
@@ -504,12 +487,10 @@ export class TurnkeyClient {
         throw new Error("No session returned from OTP login");
       }
 
-      const sessionToReplace = await this.storageManager.getSession(sessionKey);
-      if (sessionToReplace) {
-        await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.token);
-      }
-      // // Store the session in the storage manager
-      await this.storageManager.storeSession(loginRes.session, sessionKey);
+      await this.storeSession({
+        sessionToken: loginRes.session,
+        sessionKey,
+      });
 
       return loginRes.session;
     } catch (error) {
@@ -534,10 +515,16 @@ export class TurnkeyClient {
     otpType: OtpType;
     createSubOrgParams?: CreateSubOrgParams;
     sessionType?: SessionType;
-    sessionExpirationSeconds?: string | undefined;
     sessionKey?: string | undefined;
   }): Promise<void> => {
-    const { verificationToken, createSubOrgParams, contact, otpType } = params;
+    const {
+      verificationToken,
+      contact,
+      otpType,
+      createSubOrgParams,
+      sessionType = SessionType.READ_WRITE,
+      sessionKey = SessionKey.DefaultSessionkey,
+    } = params;
 
     const signUpBody = {
       userName:
@@ -576,6 +563,8 @@ export class TurnkeyClient {
       await this.loginWithOtp({
         verificationToken,
         publicKey: generatedKeyPair!,
+        sessionKey,
+        sessionType,
       });
     } catch (error) {
       throw new Error(`Failed to sign up with OTP: ${error}`);
@@ -593,12 +582,13 @@ export class TurnkeyClient {
     }
   };
 
-  handleOauthLogin = async (params: {
+  handleOauthLoginOrSignup = async (params: {
     oidcToken: string;
     publicKey: string;
     createSubOrgParams?: CreateSubOrgParams | undefined;
   }): Promise<string> => {
     const { oidcToken, publicKey, createSubOrgParams } = params;
+    console.log("Handling Google OAuth login or signup...");
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -697,12 +687,10 @@ export class TurnkeyClient {
         throw new Error("No session returned from oauth login");
       }
 
-      const sessionToReplace = await this.storageManager.getSession(sessionKey);
-      if (sessionToReplace) {
-        await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.token);
-      }
-      // // Store the session in the storage manager
-      await this.storageManager.storeSession(loginRes.session, sessionKey);
+      await this.storeSession({
+        sessionToken: loginRes.session,
+        sessionKey,
+      });
 
       return loginRes.session;
     } catch (error) {
@@ -727,7 +715,6 @@ export class TurnkeyClient {
     providerName: string;
     createSubOrgParams?: CreateSubOrgParams;
     sessionType?: SessionType;
-    sessionExpirationSeconds?: string | undefined;
     sessionKey?: string | undefined;
   }): Promise<string> => {
     const { oidcToken, publicKey, providerName, createSubOrgParams } = params;
@@ -1178,6 +1165,111 @@ export class TurnkeyClient {
       return response as CreateSubOrganizationResponse;
     } catch (error) {
       throw new Error(`Failed to create sub-organization: ${error}`);
+    }
+  };
+
+  storeSession = async (params: {
+    sessionToken: string;
+    sessionKey?: string | undefined;
+  }): Promise<void> => {
+    const { sessionToken, sessionKey = SessionKey.DefaultSessionkey } = params;
+    if (!sessionToken) {
+      throw new Error("Session token must be provided to create a session");
+    }
+
+    try {
+      // TODO (Amir): This should be done in a helper or something. It's very strange that we have to delete the key pair here
+      const sessionToReplace = await this.storageManager.getSession(sessionKey);
+      if (sessionToReplace) {
+        console.log(sessionToReplace.token);
+        await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.token);
+      }
+
+      await this.storageManager.storeSession(sessionToken, sessionKey);
+    } catch (error) {
+      throw new Error(`Failed to create session: ${error}`);
+    }
+  };
+
+  clearSession = async (params: {
+    sessionKey?: string | undefined;
+  }): Promise<void> => {
+    const { sessionKey = SessionKey.DefaultSessionkey } = params;
+    try {
+      const session = await this.storageManager.getSession(sessionKey);
+      if (session) {
+        await this.apiKeyStamper?.deleteKeyPair(session.token);
+        await this.storageManager.clearSession(sessionKey);
+      } else {
+        throw new Error(`No session found with key: ${sessionKey}`);
+      }
+    } catch (error) {
+      throw new Error(`Failed to delete session: ${error}`);
+    }
+  };
+
+  clearAllSessions = async (): Promise<void> => {
+    const sessionKeys = await this.storageManager.listSessionKeys();
+    if (sessionKeys.length === 0) {
+      throw new Error("No sessions found to clear.");
+    }
+    for (const sessionKey of sessionKeys) {
+      this.clearSession({ sessionKey });
+    }
+  };
+
+  refreshSession = async (params: {
+    sessionType?: SessionType;
+    expirationSeconds?: string | undefined;
+    publicKey?: string;
+    sessionKey?: string | undefined;
+    invalidateExisitng?: boolean;
+  }): Promise<StampLoginResponse | undefined> => {
+    const {
+      sessionKey = await this.storageManager.getActiveSessionKey(),
+      expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+      publicKey,
+      sessionType = SessionType.READ_WRITE,
+      invalidateExisitng = false,
+    } = params;
+
+    try {
+      switch (sessionType) {
+        case SessionType.READ_ONLY: {
+          // IMPLEMENT
+        }
+        case SessionType.READ_WRITE: {
+          let keyPair = publicKey;
+
+          if (!publicKey) {
+            keyPair = await this.apiKeyStamper?.createKeyPair();
+          }
+
+          if (!keyPair) {
+            throw new Error("Failed to create new key pair.");
+          }
+
+          const res = await this.httpClient.stampLogin({
+            publicKey: keyPair!,
+            expirationSeconds,
+            invalidateExisting: invalidateExisitng,
+          });
+
+          await this.storeSession({
+            sessionToken: res.session,
+            sessionKey,
+          });
+
+          return res;
+        }
+        default: {
+          throw new Error(
+            "Invalid session type passed. Use SessionType.READ_WRITE or SessionType.READ_ONLY.",
+          );
+        }
+      }
+    } catch (error) {
+      throw new Error(`Failed to refresh session: ${error}`);
     }
   };
 
