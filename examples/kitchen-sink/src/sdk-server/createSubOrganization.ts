@@ -4,7 +4,10 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { Turnkey as TurnkeySDKServer, DEFAULT_ETHEREUM_ACCOUNTS } from "@turnkey/sdk-server";
+import {
+  Turnkey as TurnkeySDKServer,
+  DEFAULT_ETHEREUM_ACCOUNTS,
+} from "@turnkey/sdk-server";
 
 import { refineNonNull } from "../utils";
 
@@ -39,7 +42,7 @@ async function main() {
     rootQuorumThreshold: 1,
     wallet: {
       walletName: "Default ETH Wallet",
-      accounts: DEFAULT_ETHEREUM_ACCOUNTS
+      accounts: DEFAULT_ETHEREUM_ACCOUNTS,
     },
   });
 
