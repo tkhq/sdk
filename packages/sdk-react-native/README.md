@@ -26,6 +26,58 @@ The `@turnkey/sdk-react-native` package simplifies the integration of the Turnke
 
 ---
 
+---
+
+## **⚠️ Android InAppBrowser Bug (Fix Required)**
+
+If you're using `react-native-inappbrowser-reborn` on Android, you may encounter the following **build error**:
+
+```
+Dependency 'androidx.browser:browser:1.9.0-alpha05' requires libraries and applications that
+depend on it to compile against version 36 or later of the Android APIs.
+```
+
+This is a known issue: [GitHub Issue #475](https://github.com/proyecto26/react-native-inappbrowser/issues/475)
+
+### ✅ Fix
+
+#### For plain React Native:
+
+In your `android/build.gradle`, add the following:
+
+```groovy
+buildscript {
+    ext {
+        androidXBrowser = "1.8.0"
+    }
+}
+```
+
+#### For Expo:
+
+Run:
+
+```bash
+npx expo install expo-gradle-ext-vars
+```
+
+Then update your `app.json` (or `app.config.js`) to include:
+
+```json
+{
+  "plugins": [
+    [
+      "expo-gradle-ext-vars",
+      {
+        "androidXBrowser": "1.8.0"
+      }
+    ]
+  ]
+}
+```
+
+---
+
 ## **Usage**
 
 ### **Wrapping Your App with the Provider**
