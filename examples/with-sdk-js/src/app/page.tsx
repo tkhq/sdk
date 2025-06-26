@@ -4,14 +4,12 @@ import Image from "next/image";
 import styles from "./index.module.css";
 
 import { StamperType, TurnkeyClient, Wallet } from "@turnkey/sdk-js";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Session, v1AddressFormat } from "@turnkey/sdk-types";
 import { OtpType } from "@turnkey/sdk-js";
-import { ModalProvider, useModal } from "@turnkey/react-wallet-kit";
-import GoogleAuthButton from "@/components/Google";
+import { useModal, useTurnkey } from "@turnkey/react-wallet-kit";
 
 export default function AuthPage() {
-  const [client, setClient] = useState<TurnkeyClient | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [email, setEmail] = useState<string>("");
@@ -20,28 +18,7 @@ export default function AuthPage() {
 
   const { pushPage } = useModal();
   const [oauthPublicKey, setOauthPublicKey] = useState<string>("");
-
-  useEffect(() => {
-    const initializeClient = async () => {
-      const turnkeyClient = new TurnkeyClient({
-        apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-        authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_URL!,
-        authProxyId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
-        organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-        passkeyConfig: {
-          rpId: process.env.NEXT_PUBLIC_RPID!,
-          timeout: 60000, // 60 seconds
-          userVerification: "preferred",
-          allowCredentials: [],
-        },
-      });
-
-      await turnkeyClient.init();
-      setClient(turnkeyClient);
-    };
-
-    initializeClient();
-  }, []);
+  const { client, handleGoogleOauth } = useTurnkey();
 
   const createPasskey = async () => {
     await client?.createPasskey({});
@@ -154,77 +131,20 @@ export default function AuthPage() {
     });
   };
 
-  const handleGoogleLogin = async (
-    credentialResponse: string,
-    publicKey: string,
-  ) => {
-    if (!publicKey) {
-      console.error("Public key is not set. Please create a passkey first.");
-      return;
-    }
-
-    const res = await client?.handleOauthLogin({
-      oidcToken: credentialResponse,
-      publicKey,
-    });
-
-    console.log("Google login response:", res);
+  const handleRefreshSession = async () => {
+    return await client?.refreshSession({});
   };
 
   const createWallet = async (walletName: string) => {
     // List of all v1AddressFormat values
-    const allAddressFormats = [
+    const allAddressFormats: v1AddressFormat[] = [
       "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_SOLANA",
+      "ADDRESS_FORMAT_APTOS",
+      "ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH",
+      "ADDRESS_FORMAT_XLM",
+      "ADDRESS_FORMAT_XRP",
+      "ADDRESS_FORMAT_TRON",
     ];
 
     const res = await client?.createWallet({
@@ -311,14 +231,15 @@ export default function AuthPage() {
         />
       </a>
 
-      <GoogleAuthButton
-        clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
-        onSuccess={(response) =>
-          handleGoogleLogin(response.idToken, response.publicKey)
-        }
-        layout="stacked"
-        client={client}
-      />
+      <button
+        onClick={() => {
+          handleGoogleOauth({
+            clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+          });
+        }}
+      >
+        GOOOGEL
+      </button>
 
       <button
         onClick={signUpWithPasskey}
@@ -408,6 +329,20 @@ export default function AuthPage() {
       >
         GetWhoami with IndexedDB
       </button>
+
+      {client?.storageManager?.getActiveSession() ? (
+        <button
+          onClick={handleRefreshSession}
+          style={{
+            backgroundColor: "red",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Refresh Session
+        </button>
+      ) : null}
 
       <button
         onClick={createPasskey}
