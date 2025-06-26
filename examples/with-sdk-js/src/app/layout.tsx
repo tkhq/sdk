@@ -4,14 +4,6 @@ import { TurnkeyProvider } from "@turnkey/react-wallet-kit";
 import "@turnkey/react-wallet-kit/dist/styles.css";
 import "./global.css";
 
-const turnkeyConfig = {
-  apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-  authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_URL!,
-  authProxyId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
-  defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-  rpId: process.env.NEXT_PUBLIC_RPID!,
-};
-
 interface RootLayoutProps {
   children: React.ReactNode;
 }
@@ -30,6 +22,10 @@ function RootLayout({ children }: RootLayoutProps) {
             authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_URL!,
             authProxyId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
             organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+            auth: {
+              googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+              oAuthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
+            },
             passkeyConfig: {
               rpId: process.env.NEXT_PUBLIC_RPID!,
               timeout: 60000, // 60 seconds
