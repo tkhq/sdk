@@ -86,7 +86,7 @@ The API Public Key associated with the configured API Private Key above
 </ParamField>
 ## Creating Clients
 
-Calls to Turnkey's API must be signed with a valid credential (often referred to in the docs as [stamping](https://docs-git-omkar-sdk-docs-turnkey.vercel.app/api-overview/stamps)) from the user initiating the API call. When using the Server SDK, the user initiating the API call is normally your root organization, and the API call is authenticated with the API keypair you create on the Turnkey dashboard.
+Calls to Turnkey's API must be signed with a valid credential (often referred to in the docs as [stamping](https://docs.turnkey.com/developer-reference/api-overview/stamps)) from the user initiating the API call. When using the Server SDK, the user initiating the API call is normally your root organization, and the API call is authenticated with the API keypair you create on the Turnkey dashboard.
 
 #### `apiClient()`
 
