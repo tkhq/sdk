@@ -2,6 +2,7 @@ import { Fragment, useRef, useEffect, useState } from "react";
 import {
   Dialog,
   DialogPanel,
+  DialogTitle,
   Transition,
   TransitionChild,
 } from "@headlessui/react";
@@ -80,8 +81,8 @@ export function ModalRoot() {
                 className="bg-modal-background-light dark:bg-modal-background-dark text-modal-text-light dark:text-modal-text-dark flex rounded-2xl shadow-xl transition-all"
               >
                 <div
-                  className="absolute z-30 flex items-center justify-between transition-all"
-                  style={{ width, paddingTop: innerPadding / 2 }}
+                  className="h-6.5 absolute z-30 flex items-center justify-between transition-all"
+                  style={{ width }}
                 >
                   {hasBack ? (
                     <IconButton
@@ -90,8 +91,15 @@ export function ModalRoot() {
                       onClick={popPage}
                     />
                   ) : (
-                    <div />
+                    <div className="w-6.5 h-6.5" />
                   )}
+                  <DialogTitle className="text-base font-medium">
+                    {current?.showTitle === undefined
+                      ? current?.key
+                      : current.showTitle
+                        ? current?.key
+                        : null}
+                  </DialogTitle>
                   <IconButton
                     className="w-6.5 h-6.5"
                     icon={faClose}

@@ -2214,6 +2214,9 @@ importers:
       '@fortawesome/fontawesome-svg-core':
         specifier: ^6.7.2
         version: 6.7.2
+      '@fortawesome/free-brands-svg-icons':
+        specifier: ^6.7.2
+        version: 6.7.2
       '@fortawesome/free-solid-svg-icons':
         specifier: ^6.7.2
         version: 6.7.2
@@ -2235,6 +2238,9 @@ importers:
       '@types/react':
         specifier: ^18.2.75
         version: 18.3.3
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4.1.10
@@ -3983,6 +3989,7 @@ packages:
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
 
   '@fractalwagmi/popup-connection@1.1.1':
+>>>>>>> a8975010 (Auth component started. Google oAuth)
     resolution: {integrity: sha512-hYL+45iYwNbwjvP2DxP3YzVsrAGtj/RV9LOgMpJyCxsfNoyyOoi2+YrnywKkiANingiG2kJ1nKsizbu1Bd4zZw==}
     peerDependencies:
       react: ^17.0.2 || ^18
