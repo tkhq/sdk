@@ -25,6 +25,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@headlessui/react": "^2.2.4",
+    "@noble/hashes": "^1.8.0",
     "@turnkey/sdk-js": "workspace:*",
     "@turnkey/sdk-types": "workspace:*"
   },
