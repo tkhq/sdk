@@ -7,7 +7,7 @@ import {
 } from "@headlessui/react";
 import { useModal } from "./Provider";
 import { IconButton } from "../../components/Buttons";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faClose } from "@fortawesome/free-solid-svg-icons";
 
 export function ModalRoot() {
   const { modalStack, popPage, closeModal } = useModal();
@@ -77,23 +77,26 @@ export function ModalRoot() {
                   width,
                   padding: innerPadding,
                 }}
-                className="bg-modal-background-light dark:bg-modal-background-dark flex rounded-2xl shadow-xl transition-all"
+                className="bg-modal-background-light dark:bg-modal-background-dark text-modal-text-light dark:text-modal-text-dark flex rounded-2xl shadow-xl transition-all"
               >
                 <div
-                  className="absolute z-30 flex items-center justify-between transition-all py-3"
-                  style={{ width }}
+                  className="absolute z-30 flex items-center justify-between transition-all"
+                  style={{ width, paddingTop: innerPadding / 2 }}
                 >
                   {hasBack ? (
-                    <IconButton icon={faArrowLeft} onClick={popPage} />
+                    <IconButton
+                      className="w-6.5 h-6.5"
+                      icon={faArrowLeft}
+                      onClick={popPage}
+                    />
                   ) : (
                     <div />
                   )}
-                  <button
+                  <IconButton
+                    className="w-6.5 h-6.5"
+                    icon={faClose}
                     onClick={closeModal}
-                    className="text-sm text-gray-600 h-7 w-7"
-                  >
-                    ✕
-                  </button>
+                  />
                 </div>
 
                 <div
