@@ -7,7 +7,9 @@
 @theme {
     --color-primary-light: oklch(0.547 0.2389 266.82);
     --color-primary-dark: oklch(0.547 0.2389 266.82);
-    --color-modal-background-light: oklch(1 0 344);
+    --color-button-light: rgb(255, 255, 255);
+    --color-button-dark: oklch(0 0.1 41);
+    --color-modal-background-light: oklch(0.9758 0.0057 264.53);
     --color-modal-background-dark: oklch(0.2532 0.0056 285.99);
     --color-modal-text-light: oklch(0 0.1 41);
     --color-modal-text-dark: rgb(255, 255, 255);

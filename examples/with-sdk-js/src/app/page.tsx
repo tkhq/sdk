@@ -18,7 +18,7 @@ export default function AuthPage() {
 
   const { pushPage } = useModal();
   const [oauthPublicKey, setOauthPublicKey] = useState<string>("");
-  const { client, handleGoogleOauth } = useTurnkey();
+  const { client, login, handleGoogleOauth } = useTurnkey();
 
   const createPasskey = async () => {
     await client?.createPasskey({});
@@ -165,53 +165,7 @@ export default function AuthPage() {
   };
 
   const showModal = () => {
-    pushPage({
-      key: "example-modal",
-      content: (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "400px",
-            height: "600px",
-          }}
-        >
-          <h2>Example Modal</h2>
-          <p>This is an example modal content.</p>
-          <button
-            onClick={() =>
-              pushPage({
-                key: "nested-modal",
-                content: (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      width: "600px",
-                      height: "200px",
-                    }}
-                  >
-                    <h2>Good mronign</h2>
-                  </div>
-                ),
-              })
-            }
-            style={{
-              backgroundColor: "lightcoral",
-              borderRadius: "8px",
-              padding: "8px 16px",
-              color: "white",
-            }}
-          >
-            Open Nested Modal
-          </button>
-        </div>
-      ),
-    });
+    login();
   };
 
   return (
