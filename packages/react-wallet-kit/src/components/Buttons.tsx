@@ -1,6 +1,7 @@
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { _internal_ComponentButton } from "@headlessui/react";
+import clsx from "clsx";
 
 interface IconButtonProps {
   icon: IconDefinition;
@@ -16,7 +17,7 @@ export function BaseButton(
 
   return (
     <button
-      className={`cursor-pointer border-none ${className || ""}`}
+      className={clsx("cursor-pointer bg-transparent border-none", className)}
       disabled={!!disabled}
       {...buttonProps}
     >
