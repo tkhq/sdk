@@ -5,6 +5,15 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-modal-background-light: oklch(1 0 344);
-  --color-modal-background-dark: oklch(0.2532 0.0056 285.99);
+    --color-primary-light: oklch(0.547 0.2389 266.82);
+    --color-primary-dark: oklch(0.547 0.2389 266.82);
+    --color-modal-background-light: oklch(1 0 344);
+    --color-modal-background-dark: oklch(0.2532 0.0056 285.99);
+    --color-modal-text-light: oklch(0 0.1 41);
+    --color-modal-text-dark: rgb(255, 255, 255);
+    --color-icon-background-light: oklch(0.928 0.006 264.531);
+    --color-icon-background-dark: oklch(0.3222 0.0053 286.1);
+    --color-icon-text-light: oklch(0.6066 0 0);
+    --color-icon-text-dark: oklch(0.7174 0.0029 286.32);
+
 }
