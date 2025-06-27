@@ -35,6 +35,9 @@ import {
 import { useModal } from "../modal/Provider";
 import { TurnkeyCallbacks, TurnkeyProviderConfig } from "../TurnkeyProvider";
 import { AuthComponent } from "../../components/auth";
+import { OAuthLoading } from "../../components/auth/OAuth";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { WalletType } from "@turnkey/wallet-stamper";
 
 interface ClientProviderProps {
@@ -50,13 +53,13 @@ export interface ClientContextType extends TurnkeyClientMethods {
   login: () => Promise<void>;
   handleGoogleOauth: (params: {
     clientId?: string;
-    setLoading?: (loading: boolean) => void;
+    additionalState?: Record<string, string>;
     openInPage?: boolean;
   }) => Promise<void>;
 }
 
 export const ClientContext = createContext<ClientContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export const useTurnkey = (): ClientContextType => {
@@ -100,6 +103,66 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
     initializeClient();
   }, []);
+
+  // Handle redirect-based auth
+  useEffect(() => {
+    if (window.location.hash) {
+      if (!client) return; // Client is not ready yet. Don't error just return.
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const idToken = hashParams.get("id_token");
+      const state = hashParams.get("state");
+
+      const stateParams = new URLSearchParams(state || "");
+      const provider = stateParams.get("provider");
+      const flow = stateParams.get("flow");
+      const openModal = stateParams.get("openModal");
+
+      const publicKey = stateParams.get("publicKey");
+
+      if (!publicKey) {
+        throw new Error(
+          "Public key is missing in the state parameters. You must encode the public key in the state parameter when initiating the OAuth flow."
+        );
+      }
+
+      if (idToken && flow === "redirect") {
+        if (openModal === "true") {
+          // This state is set when the OAuth flow comes from the AuthComponent. We handle it differently because the callback is ran inside the loading component.
+          pushPage({
+            key: "Log in or sign up",
+            content: (
+              <OAuthLoading
+                name={provider ?? "OAuth Provider"}
+                action={async () => {
+                  await completeOauth({
+                    oidcToken: idToken,
+                    publicKey,
+                    // TODO (Amir): Shall we pass createSubOrgParams here?
+                  });
+
+                  // TODO (Amir): Shall we also allow the oAuthcallbacks to run here?
+                }}
+                icon={<FontAwesomeIcon size="3x" icon={faGoogle} />}
+              />
+            ),
+          });
+        } else if (callbacks?.onOauthRedirect) {
+          callbacks.onOauthRedirect({ idToken, publicKey });
+        } else {
+          completeOauth({
+            oidcToken: idToken,
+            publicKey,
+            // TODO (Amir): Shall we pass createSubOrgParams here?. Edit: Yes totally. We need to find a way to pass it in the page replace flow.
+          });
+        }
+        window.history.replaceState(
+          null,
+          document.title,
+          window.location.pathname + window.location.search
+        );
+      }
+    }
+  }, [client]);
 
   useEffect(() => {
     const fetchSessions = async () => {
@@ -543,104 +606,136 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   async function handleGoogleOauth(params: {
     clientId?: string;
     openInPage?: boolean;
-    additionalParameters?: Record<string, string>; // TODO (Amir): Describe what this does in comment header
+    additionalState?: Record<string, string>;
   }): Promise<void> {
     const {
       clientId = config.auth?.googleClientId,
-      openInPage,
-      additionalParameters,
+      openInPage = config.auth?.openOAuthInPage,
+      additionalState: additionalParameters,
     } = params;
-    console.log("handleGoogleOauth", {
-      clientId,
-      openInPage,
-      additionalParameters,
-    });
-    if (!clientId) {
-      throw new Error("Google Client ID is not configured.");
-    }
-    if (!config.auth?.oAuthRedirectUri) {
-      throw new Error("OAuth redirect URI is not configured.");
-    }
 
-    const width = popupWidth;
-    const height = popupHeight;
-    const left = window.screenX + (window.innerWidth - width) / 2;
-    const top = window.screenY + (window.innerHeight - height) / 2;
-
-    const flow = openInPage ? "redirect" : "popup";
-
-    const authWindow = window.open(
-      "about:blank",
-      "_blank",
-      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-    );
-
-    if (!authWindow) {
-      console.error("Failed to open Google login window.");
-      return;
-    }
-
-    const publicKey = await createApiKeyPair();
-
-    if (!publicKey) {
-      throw new Error("Failed to create API key pair.");
-    }
-
-    const nonce = bytesToHex(sha256(publicKey));
-    const redirectURI = config.auth?.oAuthRedirectUri.replace(/\/$/, "");
-
-    const googleAuthUrl = new URL(GOOGLE_AUTH_URL);
-    googleAuthUrl.searchParams.set("client_id", clientId);
-    googleAuthUrl.searchParams.set("redirect_uri", redirectURI);
-    googleAuthUrl.searchParams.set("response_type", "id_token");
-    googleAuthUrl.searchParams.set("scope", "openid email profile");
-    googleAuthUrl.searchParams.set("nonce", nonce);
-    googleAuthUrl.searchParams.set("prompt", "select_account");
-    let state = `provider=google&flow=${flow}`;
-    if (additionalParameters) {
-      const additionalState = Object.entries(additionalParameters)
-        .map(
-          ([key, value]) =>
-            `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-        )
-        .join("&");
-      if (additionalState) {
-        state += `&${additionalState}`;
+    try {
+      if (!clientId) {
+        throw new Error("Google Client ID is not configured.");
       }
-    }
-    googleAuthUrl.searchParams.set("state", state);
+      if (!config.auth?.oAuthRedirectUri) {
+        throw new Error("OAuth redirect URI is not configured.");
+      }
 
-    authWindow.location.href = googleAuthUrl.toString();
+      const flow = openInPage ? "redirect" : "popup";
+      const redirectURI = config.auth?.oAuthRedirectUri.replace(/\/$/, "");
 
-    const interval = setInterval(() => {
-      try {
-        const url = authWindow.location.href || "";
-        if (url.startsWith(window.location.origin)) {
-          const hashParams = new URLSearchParams(url.split("#")[1]);
-          const idToken = hashParams.get("id_token");
-          if (idToken) {
-            authWindow.close();
-            clearInterval(interval);
+      // Create key pair and generate nonce
+      const publicKey = await createApiKeyPair();
+      if (!publicKey) {
+        throw new Error("Failed to create public key for OAuth.");
+      }
+      const nonce = bytesToHex(sha256(publicKey));
 
-            if (callbacks?.onOauthRedirect) {
-              callbacks.onOauthRedirect({ idToken, publicKey });
-            } else {
-              completeOauth({
-                oidcToken: idToken,
-                publicKey,
-                // TODO (Amir): Shall we pass createSubOrgParams here?
-              });
-            }
-          }
+      // Construct Google Auth URL
+      const googleAuthUrl = new URL(GOOGLE_AUTH_URL);
+      googleAuthUrl.searchParams.set("client_id", clientId);
+      googleAuthUrl.searchParams.set("redirect_uri", redirectURI);
+      googleAuthUrl.searchParams.set("response_type", "id_token");
+      googleAuthUrl.searchParams.set("scope", "openid email profile");
+      googleAuthUrl.searchParams.set("nonce", nonce);
+      googleAuthUrl.searchParams.set("prompt", "select_account");
+
+      // Create state parameter
+      let state = `provider=google&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
+      if (additionalParameters) {
+        const additionalState = Object.entries(additionalParameters)
+          .map(
+            ([key, value]) =>
+              `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+          )
+          .join("&");
+        if (additionalState) {
+          state += `&${additionalState}`;
         }
-      } catch {
-        // Ignore cross-origin errors
       }
+      googleAuthUrl.searchParams.set("state", state);
 
-      if (authWindow.closed) {
-        clearInterval(interval);
+      if (openInPage) {
+        // Redirect current page to Google Auth
+        window.location.href = googleAuthUrl.toString();
+        return new Promise((_, reject) => {
+          // By here, the page should have already redirected. We wait here since the function is async.
+          // We want any function that runs this to simply wait until the page redirects.
+          // A 5 min timeout is set just in case, idk
+          const timeout = setTimeout(() => {
+            reject(new Error("Authentication timed out."));
+          }, 300000); // 5 minutes
+
+          // If the page is unloaded (user navigates away), clear the timeout
+          window.addEventListener("beforeunload", () => clearTimeout(timeout));
+        });
+      } else {
+        // Open popup window
+        const width = popupWidth;
+        const height = popupHeight;
+        const left = window.screenX + (window.innerWidth - width) / 2;
+        const top = window.screenY + (window.innerHeight - height) / 2;
+
+        const authWindow = window.open(
+          "about:blank",
+          "_blank",
+          `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
+        );
+
+        if (!authWindow) {
+          throw new Error("Failed to open Google login window.");
+        }
+
+        authWindow.location.href = googleAuthUrl.toString();
+
+        // Return a promise that resolves when the OAuth flow completes
+        // This following code will only run for the popup flow
+        return new Promise<void>((resolve, reject) => {
+          const interval = setInterval(() => {
+            try {
+              // Check if window was closed without completing auth
+              if (authWindow.closed) {
+                clearInterval(interval);
+                reject(new Error("Authentication window was closed."));
+                return;
+              }
+
+              const url = authWindow.location.href || "";
+              if (url.startsWith(window.location.origin)) {
+                const hashParams = new URLSearchParams(url.split("#")[1]);
+                const idToken = hashParams.get("id_token");
+                if (idToken) {
+                  authWindow.close();
+                  clearInterval(interval);
+
+                  if (callbacks?.onOauthRedirect) {
+                    callbacks.onOauthRedirect({ idToken, publicKey });
+                  } else {
+                    completeOauth({
+                      oidcToken: idToken,
+                      publicKey,
+                    })
+                      .then(() => resolve())
+                      .catch(reject);
+                    return;
+                  }
+                  resolve();
+                }
+              }
+            } catch (error) {
+              // Ignore cross-origin errors
+            }
+          }, 500);
+
+          if (authWindow.closed) {
+            clearInterval(interval);
+          }
+        });
       }
-    }, 500);
+    } catch (error) {
+      throw error;
+    }
   }
 
   return (
