@@ -1,9 +1,9 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import { ModalRoot } from "./Root";
 
 type ModalPage = {
   key: string;
   content: ReactNode;
+  showTitle?: boolean;
 };
 
 type ModalContextType = {
@@ -36,7 +36,6 @@ export function ModalProvider({ children }: { children: ReactNode }) {
       value={{ openModal, pushPage, popPage, closeModal, modalStack }}
     >
       {children}
-      <ModalRoot />
     </ModalContext.Provider>
   );
 }
