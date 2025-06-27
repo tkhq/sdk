@@ -1,5 +1,11 @@
 # @turnkey/api-key-stamper
 
+## 0.4.7
+
+### Patch Changes
+
+- [#698](https://github.com/tkhq/sdk/pull/698) [`7625df0`](https://github.com/tkhq/sdk/commit/7625df0538002c3455bd5862211210e38472e164) Author [@moeodeh3](https://github.com/moeodeh3) - Introduces an optional `runtimeOverride` parameter that allows the ability to explicitly specify the crypto environment: `"browser"`, `"node"`, or `"purejs"`.
+
 ## 0.4.6
 
 ### Patch Changes

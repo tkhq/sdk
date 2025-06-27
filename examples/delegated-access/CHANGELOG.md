@@ -1,5 +1,12 @@
 # @turnkey/delegated-access
 
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies [[`5f3dd98`](https://github.com/tkhq/sdk/commit/5f3dd9814650308b3bf3198168c453e7b1a98efd), [`7625df0`](https://github.com/tkhq/sdk/commit/7625df0538002c3455bd5862211210e38472e164)]:
+  - @turnkey/sdk-server@4.2.0
+
 ## 0.0.6
 
 ### Patch Changes

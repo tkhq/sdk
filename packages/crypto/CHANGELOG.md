@@ -1,5 +1,11 @@
 # @turnkey/crypto
 
+## 2.4.1
+
+### Patch Changes
+
+- [#700](https://github.com/tkhq/sdk/pull/700) [`878e039`](https://github.com/tkhq/sdk/commit/878e03973856cfec83e6e3fda5b76d1b64943628) Author [@andrewkmin](https://github.com/andrewkmin) - Add validations to uncompressRawPublicKey method
+
 ## 2.4.0
 
 ### Minor Changes

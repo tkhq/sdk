@@ -1,5 +1,26 @@
 # @turnkey/sdk-browser
 
+## 5.3.0
+
+### Minor Changes
+
+- [#704](https://github.com/tkhq/sdk/pull/704) [`5f3dd98`](https://github.com/tkhq/sdk/commit/5f3dd9814650308b3bf3198168c453e7b1a98efd) Author [@amircheikh](https://github.com/amircheikh) - Synced with mono 2025.6.10 to include the following endpoints:
+
+  `update_user_email`: Update a User's email in an existing Organization
+
+  `update_user_name`: Update a User's name in an existing Organization
+
+  `update_user_phone_number`: Update a User's phone number in an existing Organization
+
+### Patch Changes
+
+- Updated dependencies [[`5f3dd98`](https://github.com/tkhq/sdk/commit/5f3dd9814650308b3bf3198168c453e7b1a98efd), [`7625df0`](https://github.com/tkhq/sdk/commit/7625df0538002c3455bd5862211210e38472e164), [`878e039`](https://github.com/tkhq/sdk/commit/878e03973856cfec83e6e3fda5b76d1b64943628)]:
+  - @turnkey/http@3.5.0
+  - @turnkey/api-key-stamper@0.4.7
+  - @turnkey/crypto@2.4.1
+  - @turnkey/wallet-stamper@1.0.5
+  - @turnkey/indexed-db-stamper@1.1.1
+
 ## 5.2.3
 
 ### Patch Changes
