@@ -11,12 +11,21 @@ export function AuthComponent() {
       <div className="w-full h-11 flex flex-row justify-center items-center gap-2 mt-12">
         <OAuthButton
           name={"Google"}
-          icon={<FontAwesomeIcon className="text-" icon={faGoogle} />}
+          icon={<FontAwesomeIcon icon={faGoogle} />}
           onClick={async () => {
-            await handleGoogleOauth({});
             pushPage({
               key: "Google OAuth",
-              content: <OAuthLoading name="Google" icon={<></>} />,
+              content: (
+                <OAuthLoading
+                  name="Google"
+                  action={() =>
+                    handleGoogleOauth({
+                      additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+                    })
+                  }
+                  icon={<FontAwesomeIcon size="3x" icon={faGoogle} />}
+                />
+              ),
               showTitle: false,
             });
           }}
