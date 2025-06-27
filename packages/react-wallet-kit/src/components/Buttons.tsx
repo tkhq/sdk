@@ -11,7 +11,7 @@ interface IconButtonProps {
 }
 
 export function BaseButton(
-  props: React.ButtonHTMLAttributes<HTMLButtonElement>
+  props: React.ButtonHTMLAttributes<HTMLButtonElement>,
 ) {
   const { children, className, disabled, ...buttonProps } = props;
 
