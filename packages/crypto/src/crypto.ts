@@ -555,11 +555,29 @@ export const fromDerSignature = (derSignature: string): Uint8Array => {
   const lengthByte = derSignatureBuf[index]!;
   if (lengthByte <= 0x7f) {
     // Short form: single byte length
+
+    // directly take the consumed value as length and check it
+    // buffer length: initial header bytes + claimed remaining length
+    if (derSignatureBuf.length < 1 + 1 + lengthByte) {
+      throw new Error(
+        "failed to convert DER-encoded signature: insufficient length",
+      );
+    }
+
+    // continue parsing
     index += 1;
-  } else if (lengthByte >= 0xff) {
-    // Long form: skip the additional length bytes
-    const lengthOfLength = lengthByte & 0x7f;
-    index += 1 + lengthOfLength;
+  } else {
+    // Multi-byte DER length header
+    // Invalid DER values: lengthByte 0x80 and 0xff
+    // Valid DER values: lengthByte > 0x80, < 0xff
+    //
+    // We do not expect signature data in the Long form notation
+    // -> reject all such inputs
+    //
+    // More complex parsing for longer signature sequences can be implemented once needed in the future
+    throw new Error(
+      "failed to convert DER-encoded signature: unexpectedly large or invalid signature length",
+    );
   }
 
   // Parse 'r' and check for integer tag (0x02)

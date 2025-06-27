@@ -32,7 +32,7 @@ describe("HPKE Encryption and Decryption", () => {
     const senderKeyPair = generateP256KeyPair();
     const receiverKeyPair = generateP256KeyPair();
     const receiverPublicKeyUncompressed = uncompressRawPublicKey(
-      uint8ArrayFromHexString(receiverKeyPair.publicKey)
+      uint8ArrayFromHexString(receiverKeyPair.publicKey),
     );
 
     const textEncoder = new TextEncoder();
@@ -68,7 +68,7 @@ describe("HPKE Standard Encryption and Decryption", () => {
     // Generate a receiver key pair
     const receiverKeyPair = generateP256KeyPair();
     const receiverPublicKeyUncompressed = uncompressRawPublicKey(
-      uint8ArrayFromHexString(receiverKeyPair.publicKey)
+      uint8ArrayFromHexString(receiverKeyPair.publicKey),
     );
 
     // Prepare the plaintext
@@ -155,7 +155,7 @@ describe("Turnkey Crypto Primitives", () => {
     const keyPair = generateP256KeyPair();
     const publicKey = getPublicKey(
       uint8ArrayFromHexString(keyPair.privateKey),
-      true
+      true,
     );
     expect(publicKey).toHaveLength(33);
   });
@@ -172,14 +172,14 @@ describe("Turnkey Crypto Primitives", () => {
   test("compressRawPublicKey - returns a valid value", () => {
     const { publicKey, publicKeyUncompressed } = generateP256KeyPair();
     expect(
-      compressRawPublicKey(uint8ArrayFromHexString(publicKeyUncompressed))
+      compressRawPublicKey(uint8ArrayFromHexString(publicKeyUncompressed)),
     ).toEqual(uint8ArrayFromHexString(publicKey));
   });
 
   test("decryptCredentialBundle - successfully decrypts a credential bundle", () => {
     const decryptedData = decryptCredentialBundle(
       mockCredentialBundle,
-      mockPrivateKey
+      mockPrivateKey,
     );
     expect(decryptedData).toBe(mockSenderPrivateKey);
   });
@@ -191,8 +191,8 @@ describe("Turnkey Crypto Primitives", () => {
       "01d95d256f744b2a855fe2036ec1074c726445f1382f53580a17ce3296cc2dec";
     expect(
       extractPrivateKeyFromPKCS8Bytes(
-        uint8ArrayFromHexString(pkcs8PrivateKeyHex)
-      )
+        uint8ArrayFromHexString(pkcs8PrivateKeyHex),
+      ),
     ).toEqual(uint8ArrayFromHexString(expectedRawPrivateKeyHex));
   });
 
@@ -208,7 +208,7 @@ describe("Turnkey Crypto Primitives", () => {
       {
         baseUrl: "https://api.turnkey.com",
       },
-      apiKeyStamper
+      apiKeyStamper,
     );
 
     const stampedRequest = await turnkeyClient.stampGetWhoami({
@@ -223,7 +223,7 @@ describe("Turnkey Crypto Primitives", () => {
     const verified = await verifyStampSignature(
       apiPublicKey,
       signature,
-      stampedRequest.body
+      stampedRequest.body,
     );
 
     expect(verified).toEqual(true);
@@ -233,18 +233,18 @@ describe("Turnkey Crypto Primitives", () => {
     test("happy path", async () => {
       const keypair = generateP256KeyPair();
       const uncompressedPublicKey = uncompressRawPublicKey(
-        uint8ArrayFromHexString(keypair.publicKey)
+        uint8ArrayFromHexString(keypair.publicKey),
       );
       expect(uncompressedPublicKey.length).toEqual(65);
     });
 
     test("invalid prefix", async () => {
       const invalidPrefix = uint8ArrayFromHexString(
-        "77c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"
+        "77c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
       );
 
       expect(() => uncompressRawPublicKey(invalidPrefix)).toThrow(
-        "failed to uncompress raw public key: invalid prefix"
+        "failed to uncompress raw public key: invalid prefix",
       );
     });
 
@@ -253,8 +253,8 @@ describe("Turnkey Crypto Primitives", () => {
 
       expect(() =>
         uncompressRawPublicKey(
-          uint8ArrayFromHexString(keypair.publicKey + keypair.publicKey)
-        )
+          uint8ArrayFromHexString(keypair.publicKey + keypair.publicKey),
+        ),
       ).toThrow("failed to uncompress raw public key: invalid length");
     });
   });
@@ -297,20 +297,20 @@ describe("Turnkey Crypto Primitives", () => {
       ]);
 
       expect(() => fromDerSignature(invalidHex)).toThrow(
-        "failed to convert DER-encoded signature: invalid format (missing SEQUENCE tag)"
+        "failed to convert DER-encoded signature: invalid format (missing SEQUENCE tag)",
       );
     });
 
     test("should reject empty signatures", () => {
       expect(() => fromDerSignature("")).toThrow(
-        "cannot create uint8array from invalid hex string"
+        "cannot create uint8array from invalid hex string",
       );
     });
 
     test("should reject signatures that are too short", () => {
       const shortHex = bytesToHex([0x30]); // Only SEQUENCE tag, no length
       expect(() => fromDerSignature(shortHex)).toThrow(
-        "failed to convert DER-encoded signature: insufficient length"
+        "failed to convert DER-encoded signature: insufficient length",
       );
     });
   });
@@ -326,7 +326,7 @@ describe("Turnkey Crypto Primitives", () => {
       ]);
 
       expect(() => fromDerSignature(unsupportedLengthHex)).toThrow(
-        /unsupported length encoding/
+        /unsupported length encoding/,
       );
     });
 
@@ -365,7 +365,7 @@ describe("Turnkey Crypto Primitives", () => {
       ]);
 
       expect(() => fromDerSignature(invalidRTagHex)).toThrow(
-        /invalid tag for r/
+        /invalid tag for r/,
       );
     });
 
@@ -382,7 +382,7 @@ describe("Turnkey Crypto Primitives", () => {
       ]);
 
       expect(() => fromDerSignature(invalidSTagHex)).toThrow(
-        /invalid tag for s/
+        /invalid tag for s/,
       );
     });
   });
@@ -409,7 +409,7 @@ const bytesToHex = (bytes: number[]): string => {
 const createDerSignature = (
   sequenceLength: number[],
   rValue: number[],
-  sValue: number[]
+  sValue: number[],
 ): string => {
   const rLength = rValue.length;
   const sLength = sValue.length;
