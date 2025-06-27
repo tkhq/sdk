@@ -238,7 +238,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
-    runs-on: ubuntu-latest
+    runs-on: package-deploy
     environment: production # require manual approval for production deployments
 
     steps:
