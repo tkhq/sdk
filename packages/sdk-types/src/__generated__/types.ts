@@ -138,9 +138,9 @@ export type v1AcceptInvitationResult = {
 };
 
 export type v1AccessType =
-  "ACCESS_TYPE_WEB" |
-  "ACCESS_TYPE_API" |
-  "ACCESS_TYPE_ALL";
+  | "ACCESS_TYPE_WEB"
+  | "ACCESS_TYPE_API"
+  | "ACCESS_TYPE_ALL";
 
 export type v1Activity = {
   /** Unique identifier for a given Activity object. */
@@ -173,144 +173,144 @@ export type v1ActivityResponse = {
 };
 
 export type v1ActivityStatus =
-  "ACTIVITY_STATUS_CREATED" |
-  "ACTIVITY_STATUS_PENDING" |
-  "ACTIVITY_STATUS_COMPLETED" |
-  "ACTIVITY_STATUS_FAILED" |
-  "ACTIVITY_STATUS_CONSENSUS_NEEDED" |
-  "ACTIVITY_STATUS_REJECTED";
+  | "ACTIVITY_STATUS_CREATED"
+  | "ACTIVITY_STATUS_PENDING"
+  | "ACTIVITY_STATUS_COMPLETED"
+  | "ACTIVITY_STATUS_FAILED"
+  | "ACTIVITY_STATUS_CONSENSUS_NEEDED"
+  | "ACTIVITY_STATUS_REJECTED";
 
 export type v1ActivityType =
-  "ACTIVITY_TYPE_CREATE_API_KEYS" |
-  "ACTIVITY_TYPE_CREATE_USERS" |
-  "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS" |
-  "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD" |
-  "ACTIVITY_TYPE_CREATE_INVITATIONS" |
-  "ACTIVITY_TYPE_ACCEPT_INVITATION" |
-  "ACTIVITY_TYPE_CREATE_POLICY" |
-  "ACTIVITY_TYPE_DISABLE_PRIVATE_KEY" |
-  "ACTIVITY_TYPE_DELETE_USERS" |
-  "ACTIVITY_TYPE_DELETE_API_KEYS" |
-  "ACTIVITY_TYPE_DELETE_INVITATION" |
-  "ACTIVITY_TYPE_DELETE_ORGANIZATION" |
-  "ACTIVITY_TYPE_DELETE_POLICY" |
-  "ACTIVITY_TYPE_CREATE_USER_TAG" |
-  "ACTIVITY_TYPE_DELETE_USER_TAGS" |
-  "ACTIVITY_TYPE_CREATE_ORGANIZATION" |
-  "ACTIVITY_TYPE_SIGN_TRANSACTION" |
-  "ACTIVITY_TYPE_APPROVE_ACTIVITY" |
-  "ACTIVITY_TYPE_REJECT_ACTIVITY" |
-  "ACTIVITY_TYPE_DELETE_AUTHENTICATORS" |
-  "ACTIVITY_TYPE_CREATE_AUTHENTICATORS" |
-  "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG" |
-  "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS" |
-  "ACTIVITY_TYPE_SET_PAYMENT_METHOD" |
-  "ACTIVITY_TYPE_ACTIVATE_BILLING_TIER" |
-  "ACTIVITY_TYPE_DELETE_PAYMENT_METHOD" |
-  "ACTIVITY_TYPE_CREATE_POLICY_V2" |
-  "ACTIVITY_TYPE_CREATE_POLICY_V3" |
-  "ACTIVITY_TYPE_CREATE_API_ONLY_USERS" |
-  "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM" |
-  "ACTIVITY_TYPE_UPDATE_USER_TAG" |
-  "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG" |
-  "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2" |
-  "ACTIVITY_TYPE_CREATE_ORGANIZATION_V2" |
-  "ACTIVITY_TYPE_CREATE_USERS_V2" |
-  "ACTIVITY_TYPE_ACCEPT_INVITATION_V2" |
-  "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION" |
-  "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2" |
-  "ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS" |
-  "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2" |
-  "ACTIVITY_TYPE_UPDATE_USER" |
-  "ACTIVITY_TYPE_UPDATE_POLICY" |
-  "ACTIVITY_TYPE_SET_PAYMENT_METHOD_V2" |
-  "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3" |
-  "ACTIVITY_TYPE_CREATE_WALLET" |
-  "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS" |
-  "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY" |
-  "ACTIVITY_TYPE_RECOVER_USER" |
-  "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE" |
-  "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE" |
-  "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2" |
-  "ACTIVITY_TYPE_SIGN_TRANSACTION_V2" |
-  "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY" |
-  "ACTIVITY_TYPE_EXPORT_WALLET" |
-  "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4" |
-  "ACTIVITY_TYPE_EMAIL_AUTH" |
-  "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT" |
-  "ACTIVITY_TYPE_INIT_IMPORT_WALLET" |
-  "ACTIVITY_TYPE_IMPORT_WALLET" |
-  "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY" |
-  "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY" |
-  "ACTIVITY_TYPE_CREATE_POLICIES" |
-  "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS" |
-  "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION" |
-  "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS" |
-  "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS" |
-  "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5" |
-  "ACTIVITY_TYPE_OAUTH" |
-  "ACTIVITY_TYPE_CREATE_API_KEYS_V2" |
-  "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION" |
-  "ACTIVITY_TYPE_EMAIL_AUTH_V2" |
-  "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6" |
-  "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS" |
-  "ACTIVITY_TYPE_DELETE_WALLETS" |
-  "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2" |
-  "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION" |
-  "ACTIVITY_TYPE_INIT_OTP_AUTH" |
-  "ACTIVITY_TYPE_OTP_AUTH" |
-  "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7" |
-  "ACTIVITY_TYPE_UPDATE_WALLET" |
-  "ACTIVITY_TYPE_UPDATE_POLICY_V2" |
-  "ACTIVITY_TYPE_CREATE_USERS_V3" |
-  "ACTIVITY_TYPE_INIT_OTP_AUTH_V2" |
-  "ACTIVITY_TYPE_INIT_OTP" |
-  "ACTIVITY_TYPE_VERIFY_OTP" |
-  "ACTIVITY_TYPE_OTP_LOGIN" |
-  "ACTIVITY_TYPE_STAMP_LOGIN" |
-  "ACTIVITY_TYPE_OAUTH_LOGIN" |
-  "ACTIVITY_TYPE_UPDATE_USER_NAME" |
-  "ACTIVITY_TYPE_UPDATE_USER_EMAIL" |
-  "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER" |
-  "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP";
+  | "ACTIVITY_TYPE_CREATE_API_KEYS"
+  | "ACTIVITY_TYPE_CREATE_USERS"
+  | "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS"
+  | "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"
+  | "ACTIVITY_TYPE_CREATE_INVITATIONS"
+  | "ACTIVITY_TYPE_ACCEPT_INVITATION"
+  | "ACTIVITY_TYPE_CREATE_POLICY"
+  | "ACTIVITY_TYPE_DISABLE_PRIVATE_KEY"
+  | "ACTIVITY_TYPE_DELETE_USERS"
+  | "ACTIVITY_TYPE_DELETE_API_KEYS"
+  | "ACTIVITY_TYPE_DELETE_INVITATION"
+  | "ACTIVITY_TYPE_DELETE_ORGANIZATION"
+  | "ACTIVITY_TYPE_DELETE_POLICY"
+  | "ACTIVITY_TYPE_CREATE_USER_TAG"
+  | "ACTIVITY_TYPE_DELETE_USER_TAGS"
+  | "ACTIVITY_TYPE_CREATE_ORGANIZATION"
+  | "ACTIVITY_TYPE_SIGN_TRANSACTION"
+  | "ACTIVITY_TYPE_APPROVE_ACTIVITY"
+  | "ACTIVITY_TYPE_REJECT_ACTIVITY"
+  | "ACTIVITY_TYPE_DELETE_AUTHENTICATORS"
+  | "ACTIVITY_TYPE_CREATE_AUTHENTICATORS"
+  | "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG"
+  | "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS"
+  | "ACTIVITY_TYPE_SET_PAYMENT_METHOD"
+  | "ACTIVITY_TYPE_ACTIVATE_BILLING_TIER"
+  | "ACTIVITY_TYPE_DELETE_PAYMENT_METHOD"
+  | "ACTIVITY_TYPE_CREATE_POLICY_V2"
+  | "ACTIVITY_TYPE_CREATE_POLICY_V3"
+  | "ACTIVITY_TYPE_CREATE_API_ONLY_USERS"
+  | "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM"
+  | "ACTIVITY_TYPE_UPDATE_USER_TAG"
+  | "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG"
+  | "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2"
+  | "ACTIVITY_TYPE_CREATE_ORGANIZATION_V2"
+  | "ACTIVITY_TYPE_CREATE_USERS_V2"
+  | "ACTIVITY_TYPE_ACCEPT_INVITATION_V2"
+  | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION"
+  | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V2"
+  | "ACTIVITY_TYPE_UPDATE_ALLOWED_ORIGINS"
+  | "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2"
+  | "ACTIVITY_TYPE_UPDATE_USER"
+  | "ACTIVITY_TYPE_UPDATE_POLICY"
+  | "ACTIVITY_TYPE_SET_PAYMENT_METHOD_V2"
+  | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V3"
+  | "ACTIVITY_TYPE_CREATE_WALLET"
+  | "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS"
+  | "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY"
+  | "ACTIVITY_TYPE_RECOVER_USER"
+  | "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE"
+  | "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE"
+  | "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2"
+  | "ACTIVITY_TYPE_SIGN_TRANSACTION_V2"
+  | "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY"
+  | "ACTIVITY_TYPE_EXPORT_WALLET"
+  | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4"
+  | "ACTIVITY_TYPE_EMAIL_AUTH"
+  | "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT"
+  | "ACTIVITY_TYPE_INIT_IMPORT_WALLET"
+  | "ACTIVITY_TYPE_IMPORT_WALLET"
+  | "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY"
+  | "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY"
+  | "ACTIVITY_TYPE_CREATE_POLICIES"
+  | "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS"
+  | "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION"
+  | "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS"
+  | "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS"
+  | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5"
+  | "ACTIVITY_TYPE_OAUTH"
+  | "ACTIVITY_TYPE_CREATE_API_KEYS_V2"
+  | "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION"
+  | "ACTIVITY_TYPE_EMAIL_AUTH_V2"
+  | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V6"
+  | "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS"
+  | "ACTIVITY_TYPE_DELETE_WALLETS"
+  | "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2"
+  | "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION"
+  | "ACTIVITY_TYPE_INIT_OTP_AUTH"
+  | "ACTIVITY_TYPE_OTP_AUTH"
+  | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7"
+  | "ACTIVITY_TYPE_UPDATE_WALLET"
+  | "ACTIVITY_TYPE_UPDATE_POLICY_V2"
+  | "ACTIVITY_TYPE_CREATE_USERS_V3"
+  | "ACTIVITY_TYPE_INIT_OTP_AUTH_V2"
+  | "ACTIVITY_TYPE_INIT_OTP"
+  | "ACTIVITY_TYPE_VERIFY_OTP"
+  | "ACTIVITY_TYPE_OTP_LOGIN"
+  | "ACTIVITY_TYPE_STAMP_LOGIN"
+  | "ACTIVITY_TYPE_OAUTH_LOGIN"
+  | "ACTIVITY_TYPE_UPDATE_USER_NAME"
+  | "ACTIVITY_TYPE_UPDATE_USER_EMAIL"
+  | "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"
+  | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP";
 
 export type v1AddressFormat =
-  "ADDRESS_FORMAT_UNCOMPRESSED" |
-  "ADDRESS_FORMAT_COMPRESSED" |
-  "ADDRESS_FORMAT_ETHEREUM" |
-  "ADDRESS_FORMAT_SOLANA" |
-  "ADDRESS_FORMAT_COSMOS" |
-  "ADDRESS_FORMAT_TRON" |
-  "ADDRESS_FORMAT_SUI" |
-  "ADDRESS_FORMAT_APTOS" |
-  "ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH" |
-  "ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH" |
-  "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH" |
-  "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH" |
-  "ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR" |
-  "ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH" |
-  "ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH" |
-  "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH" |
-  "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH" |
-  "ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR" |
-  "ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH" |
-  "ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH" |
-  "ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH" |
-  "ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH" |
-  "ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR" |
-  "ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH" |
-  "ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH" |
-  "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH" |
-  "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH" |
-  "ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR" |
-  "ADDRESS_FORMAT_SEI" |
-  "ADDRESS_FORMAT_XLM" |
-  "ADDRESS_FORMAT_DOGE_MAINNET" |
-  "ADDRESS_FORMAT_DOGE_TESTNET" |
-  "ADDRESS_FORMAT_TON_V3R2" |
-  "ADDRESS_FORMAT_TON_V4R2" |
-  "ADDRESS_FORMAT_TON_V5R1" |
-  "ADDRESS_FORMAT_XRP";
+  | "ADDRESS_FORMAT_UNCOMPRESSED"
+  | "ADDRESS_FORMAT_COMPRESSED"
+  | "ADDRESS_FORMAT_ETHEREUM"
+  | "ADDRESS_FORMAT_SOLANA"
+  | "ADDRESS_FORMAT_COSMOS"
+  | "ADDRESS_FORMAT_TRON"
+  | "ADDRESS_FORMAT_SUI"
+  | "ADDRESS_FORMAT_APTOS"
+  | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH"
+  | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH"
+  | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"
+  | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH"
+  | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR"
+  | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH"
+  | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH"
+  | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"
+  | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH"
+  | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR"
+  | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH"
+  | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH"
+  | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH"
+  | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH"
+  | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR"
+  | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH"
+  | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"
+  | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"
+  | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"
+  | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"
+  | "ADDRESS_FORMAT_SEI"
+  | "ADDRESS_FORMAT_XLM"
+  | "ADDRESS_FORMAT_DOGE_MAINNET"
+  | "ADDRESS_FORMAT_DOGE_TESTNET"
+  | "ADDRESS_FORMAT_TON_V3R2"
+  | "ADDRESS_FORMAT_TON_V4R2"
+  | "ADDRESS_FORMAT_TON_V5R1"
+  | "ADDRESS_FORMAT_XRP";
 
 export type v1ApiKey = {
   /** A User credential that can be used to authenticate to Turnkey. */
@@ -326,9 +326,9 @@ export type v1ApiKey = {
 };
 
 export type v1ApiKeyCurve =
-  "API_KEY_CURVE_P256" |
-  "API_KEY_CURVE_SECP256K1" |
-  "API_KEY_CURVE_ED25519";
+  | "API_KEY_CURVE_P256"
+  | "API_KEY_CURVE_SECP256K1"
+  | "API_KEY_CURVE_ED25519";
 
 export type v1ApiKeyParamsV2 = {
   /** Human-readable name for an API Key. */
@@ -424,11 +424,11 @@ export type v1AuthenticatorParamsV2 = {
 };
 
 export type v1AuthenticatorTransport =
-  "AUTHENTICATOR_TRANSPORT_BLE" |
-  "AUTHENTICATOR_TRANSPORT_INTERNAL" |
-  "AUTHENTICATOR_TRANSPORT_NFC" |
-  "AUTHENTICATOR_TRANSPORT_USB" |
-  "AUTHENTICATOR_TRANSPORT_HYBRID";
+  | "AUTHENTICATOR_TRANSPORT_BLE"
+  | "AUTHENTICATOR_TRANSPORT_INTERNAL"
+  | "AUTHENTICATOR_TRANSPORT_NFC"
+  | "AUTHENTICATOR_TRANSPORT_USB"
+  | "AUTHENTICATOR_TRANSPORT_HYBRID";
 
 export type v1Config = {
   features?: v1Feature[];
@@ -1021,20 +1021,18 @@ export type v1CredPropsAuthenticationExtensionsClientOutputs = {
 };
 
 export type v1CredentialType =
-  "CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR" |
-  "CREDENTIAL_TYPE_API_KEY_P256" |
-  "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256" |
-  "CREDENTIAL_TYPE_API_KEY_SECP256K1" |
-  "CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256" |
-  "CREDENTIAL_TYPE_API_KEY_ED25519" |
-  "CREDENTIAL_TYPE_OTP_AUTH_KEY_P256" |
-  "CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256" |
-  "CREDENTIAL_TYPE_OAUTH_KEY_P256" |
-  "CREDENTIAL_TYPE_LOGIN";
+  | "CREDENTIAL_TYPE_WEBAUTHN_AUTHENTICATOR"
+  | "CREDENTIAL_TYPE_API_KEY_P256"
+  | "CREDENTIAL_TYPE_RECOVER_USER_KEY_P256"
+  | "CREDENTIAL_TYPE_API_KEY_SECP256K1"
+  | "CREDENTIAL_TYPE_EMAIL_AUTH_KEY_P256"
+  | "CREDENTIAL_TYPE_API_KEY_ED25519"
+  | "CREDENTIAL_TYPE_OTP_AUTH_KEY_P256"
+  | "CREDENTIAL_TYPE_READ_WRITE_SESSION_KEY_P256"
+  | "CREDENTIAL_TYPE_OAUTH_KEY_P256"
+  | "CREDENTIAL_TYPE_LOGIN";
 
-export type v1Curve =
-  "CURVE_SECP256K1" |
-  "CURVE_ED25519";
+export type v1Curve = "CURVE_SECP256K1" | "CURVE_ED25519";
 
 export type v1DeleteApiKeysIntent = {
   /** Unique identifier for a given User. */
@@ -1279,9 +1277,7 @@ export type v1DisablePrivateKeyResult = {
   privateKeyId: string;
 };
 
-export type v1Effect =
-  "EFFECT_ALLOW" |
-  "EFFECT_DENY";
+export type v1Effect = "EFFECT_ALLOW" | "EFFECT_DENY";
 
 export type v1EmailAuthIntent = {
   /** Email of the authenticating user. */
@@ -1431,80 +1427,80 @@ export type v1Feature = {
 };
 
 export type v1FeatureName =
-  "FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY" |
-  "FEATURE_NAME_WEBAUTHN_ORIGINS" |
-  "FEATURE_NAME_EMAIL_AUTH" |
-  "FEATURE_NAME_EMAIL_RECOVERY" |
-  "FEATURE_NAME_WEBHOOK" |
-  "FEATURE_NAME_SMS_AUTH" |
-  "FEATURE_NAME_OTP_EMAIL_AUTH";
+  | "FEATURE_NAME_ROOT_USER_EMAIL_RECOVERY"
+  | "FEATURE_NAME_WEBAUTHN_ORIGINS"
+  | "FEATURE_NAME_EMAIL_AUTH"
+  | "FEATURE_NAME_EMAIL_RECOVERY"
+  | "FEATURE_NAME_WEBHOOK"
+  | "FEATURE_NAME_SMS_AUTH"
+  | "FEATURE_NAME_OTP_EMAIL_AUTH";
 
 export type v1FiatOnRampBlockchainNetwork =
-  "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN" |
-  "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM" |
-  "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_SOLANA" |
-  "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BASE";
+  | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN"
+  | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM"
+  | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_SOLANA"
+  | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BASE";
 
 export type v1FiatOnRampCryptoCurrency =
-  "FIAT_ON_RAMP_CRYPTO_CURRENCY_BTC" |
-  "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH" |
-  "FIAT_ON_RAMP_CRYPTO_CURRENCY_SOL" |
-  "FIAT_ON_RAMP_CRYPTO_CURRENCY_USDC";
+  | "FIAT_ON_RAMP_CRYPTO_CURRENCY_BTC"
+  | "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH"
+  | "FIAT_ON_RAMP_CRYPTO_CURRENCY_SOL"
+  | "FIAT_ON_RAMP_CRYPTO_CURRENCY_USDC";
 
 export type v1FiatOnRampCurrency =
-  "FIAT_ON_RAMP_CURRENCY_AUD" |
-  "FIAT_ON_RAMP_CURRENCY_BGN" |
-  "FIAT_ON_RAMP_CURRENCY_BRL" |
-  "FIAT_ON_RAMP_CURRENCY_CAD" |
-  "FIAT_ON_RAMP_CURRENCY_CHF" |
-  "FIAT_ON_RAMP_CURRENCY_COP" |
-  "FIAT_ON_RAMP_CURRENCY_CZK" |
-  "FIAT_ON_RAMP_CURRENCY_DKK" |
-  "FIAT_ON_RAMP_CURRENCY_DOP" |
-  "FIAT_ON_RAMP_CURRENCY_EGP" |
-  "FIAT_ON_RAMP_CURRENCY_EUR" |
-  "FIAT_ON_RAMP_CURRENCY_GBP" |
-  "FIAT_ON_RAMP_CURRENCY_HKD" |
-  "FIAT_ON_RAMP_CURRENCY_IDR" |
-  "FIAT_ON_RAMP_CURRENCY_ILS" |
-  "FIAT_ON_RAMP_CURRENCY_JOD" |
-  "FIAT_ON_RAMP_CURRENCY_KES" |
-  "FIAT_ON_RAMP_CURRENCY_KWD" |
-  "FIAT_ON_RAMP_CURRENCY_LKR" |
-  "FIAT_ON_RAMP_CURRENCY_MXN" |
-  "FIAT_ON_RAMP_CURRENCY_NGN" |
-  "FIAT_ON_RAMP_CURRENCY_NOK" |
-  "FIAT_ON_RAMP_CURRENCY_NZD" |
-  "FIAT_ON_RAMP_CURRENCY_OMR" |
-  "FIAT_ON_RAMP_CURRENCY_PEN" |
-  "FIAT_ON_RAMP_CURRENCY_PLN" |
-  "FIAT_ON_RAMP_CURRENCY_RON" |
-  "FIAT_ON_RAMP_CURRENCY_SEK" |
-  "FIAT_ON_RAMP_CURRENCY_THB" |
-  "FIAT_ON_RAMP_CURRENCY_TRY" |
-  "FIAT_ON_RAMP_CURRENCY_TWD" |
-  "FIAT_ON_RAMP_CURRENCY_USD" |
-  "FIAT_ON_RAMP_CURRENCY_VND" |
-  "FIAT_ON_RAMP_CURRENCY_ZAR";
+  | "FIAT_ON_RAMP_CURRENCY_AUD"
+  | "FIAT_ON_RAMP_CURRENCY_BGN"
+  | "FIAT_ON_RAMP_CURRENCY_BRL"
+  | "FIAT_ON_RAMP_CURRENCY_CAD"
+  | "FIAT_ON_RAMP_CURRENCY_CHF"
+  | "FIAT_ON_RAMP_CURRENCY_COP"
+  | "FIAT_ON_RAMP_CURRENCY_CZK"
+  | "FIAT_ON_RAMP_CURRENCY_DKK"
+  | "FIAT_ON_RAMP_CURRENCY_DOP"
+  | "FIAT_ON_RAMP_CURRENCY_EGP"
+  | "FIAT_ON_RAMP_CURRENCY_EUR"
+  | "FIAT_ON_RAMP_CURRENCY_GBP"
+  | "FIAT_ON_RAMP_CURRENCY_HKD"
+  | "FIAT_ON_RAMP_CURRENCY_IDR"
+  | "FIAT_ON_RAMP_CURRENCY_ILS"
+  | "FIAT_ON_RAMP_CURRENCY_JOD"
+  | "FIAT_ON_RAMP_CURRENCY_KES"
+  | "FIAT_ON_RAMP_CURRENCY_KWD"
+  | "FIAT_ON_RAMP_CURRENCY_LKR"
+  | "FIAT_ON_RAMP_CURRENCY_MXN"
+  | "FIAT_ON_RAMP_CURRENCY_NGN"
+  | "FIAT_ON_RAMP_CURRENCY_NOK"
+  | "FIAT_ON_RAMP_CURRENCY_NZD"
+  | "FIAT_ON_RAMP_CURRENCY_OMR"
+  | "FIAT_ON_RAMP_CURRENCY_PEN"
+  | "FIAT_ON_RAMP_CURRENCY_PLN"
+  | "FIAT_ON_RAMP_CURRENCY_RON"
+  | "FIAT_ON_RAMP_CURRENCY_SEK"
+  | "FIAT_ON_RAMP_CURRENCY_THB"
+  | "FIAT_ON_RAMP_CURRENCY_TRY"
+  | "FIAT_ON_RAMP_CURRENCY_TWD"
+  | "FIAT_ON_RAMP_CURRENCY_USD"
+  | "FIAT_ON_RAMP_CURRENCY_VND"
+  | "FIAT_ON_RAMP_CURRENCY_ZAR";
 
 export type v1FiatOnRampPaymentMethod =
-  "FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD" |
-  "FIAT_ON_RAMP_PAYMENT_METHOD_APPLE_PAY" |
-  "FIAT_ON_RAMP_PAYMENT_METHOD_GBP_BANK_TRANSFER" |
-  "FIAT_ON_RAMP_PAYMENT_METHOD_GBP_OPEN_BANKING_PAYMENT" |
-  "FIAT_ON_RAMP_PAYMENT_METHOD_GOOGLE_PAY" |
-  "FIAT_ON_RAMP_PAYMENT_METHOD_SEPA_BANK_TRANSFER" |
-  "FIAT_ON_RAMP_PAYMENT_METHOD_PIX_INSTANT_PAYMENT" |
-  "FIAT_ON_RAMP_PAYMENT_METHOD_PAYPAL" |
-  "FIAT_ON_RAMP_PAYMENT_METHOD_VENMO" |
-  "FIAT_ON_RAMP_PAYMENT_METHOD_MOONPAY_BALANCE" |
-  "FIAT_ON_RAMP_PAYMENT_METHOD_CRYPTO_ACCOUNT" |
-  "FIAT_ON_RAMP_PAYMENT_METHOD_FIAT_WALLET" |
-  "FIAT_ON_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT";
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_APPLE_PAY"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_GBP_BANK_TRANSFER"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_GBP_OPEN_BANKING_PAYMENT"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_GOOGLE_PAY"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_SEPA_BANK_TRANSFER"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_PIX_INSTANT_PAYMENT"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_PAYPAL"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_VENMO"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_MOONPAY_BALANCE"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_CRYPTO_ACCOUNT"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_FIAT_WALLET"
+  | "FIAT_ON_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT";
 
 export type v1FiatOnRampProvider =
-  "FIAT_ON_RAMP_PROVIDER_COINBASE" |
-  "FIAT_ON_RAMP_PROVIDER_MOONPAY";
+  | "FIAT_ON_RAMP_PROVIDER_COINBASE"
+  | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
 
 export type v1GetActivitiesRequest = {
   /** Unique identifier for a given Organization. */
@@ -1788,10 +1784,10 @@ export type v1GetWhoamiResponse = {
 };
 
 export type v1HashFunction =
-  "HASH_FUNCTION_NO_OP" |
-  "HASH_FUNCTION_SHA256" |
-  "HASH_FUNCTION_KECCAK256" |
-  "HASH_FUNCTION_NOT_APPLICABLE";
+  | "HASH_FUNCTION_NO_OP"
+  | "HASH_FUNCTION_SHA256"
+  | "HASH_FUNCTION_KECCAK256"
+  | "HASH_FUNCTION_NOT_APPLICABLE";
 
 export type v1ImportPrivateKeyIntent = {
   /** The ID of the User importing a Private Key. */
@@ -2177,9 +2173,9 @@ export type v1InvitationParams = {
 };
 
 export type v1InvitationStatus =
-  "INVITATION_STATUS_CREATED" |
-  "INVITATION_STATUS_ACCEPTED" |
-  "INVITATION_STATUS_REVOKED";
+  | "INVITATION_STATUS_CREATED"
+  | "INVITATION_STATUS_ACCEPTED"
+  | "INVITATION_STATUS_REVOKED";
 
 export type v1ListPrivateKeyTagsRequest = {
   /** Unique identifier for a given Organization. */
@@ -2202,15 +2198,15 @@ export type v1ListUserTagsResponse = {
 };
 
 export type v1MnemonicLanguage =
-  "MNEMONIC_LANGUAGE_ENGLISH" |
-  "MNEMONIC_LANGUAGE_SIMPLIFIED_CHINESE" |
-  "MNEMONIC_LANGUAGE_TRADITIONAL_CHINESE" |
-  "MNEMONIC_LANGUAGE_CZECH" |
-  "MNEMONIC_LANGUAGE_FRENCH" |
-  "MNEMONIC_LANGUAGE_ITALIAN" |
-  "MNEMONIC_LANGUAGE_JAPANESE" |
-  "MNEMONIC_LANGUAGE_KOREAN" |
-  "MNEMONIC_LANGUAGE_SPANISH";
+  | "MNEMONIC_LANGUAGE_ENGLISH"
+  | "MNEMONIC_LANGUAGE_SIMPLIFIED_CHINESE"
+  | "MNEMONIC_LANGUAGE_TRADITIONAL_CHINESE"
+  | "MNEMONIC_LANGUAGE_CZECH"
+  | "MNEMONIC_LANGUAGE_FRENCH"
+  | "MNEMONIC_LANGUAGE_ITALIAN"
+  | "MNEMONIC_LANGUAGE_JAPANESE"
+  | "MNEMONIC_LANGUAGE_KOREAN"
+  | "MNEMONIC_LANGUAGE_SPANISH";
 
 export type v1NOOPCodegenAnchorResponse = {
   stamp: v1WebAuthnStamp;
@@ -2295,17 +2291,17 @@ export type v1OauthResult = {
 };
 
 export type v1Operator =
-  "OPERATOR_EQUAL" |
-  "OPERATOR_MORE_THAN" |
-  "OPERATOR_MORE_THAN_OR_EQUAL" |
-  "OPERATOR_LESS_THAN" |
-  "OPERATOR_LESS_THAN_OR_EQUAL" |
-  "OPERATOR_CONTAINS" |
-  "OPERATOR_NOT_EQUAL" |
-  "OPERATOR_IN" |
-  "OPERATOR_NOT_IN" |
-  "OPERATOR_CONTAINS_ONE" |
-  "OPERATOR_CONTAINS_ALL";
+  | "OPERATOR_EQUAL"
+  | "OPERATOR_MORE_THAN"
+  | "OPERATOR_MORE_THAN_OR_EQUAL"
+  | "OPERATOR_LESS_THAN"
+  | "OPERATOR_LESS_THAN_OR_EQUAL"
+  | "OPERATOR_CONTAINS"
+  | "OPERATOR_NOT_EQUAL"
+  | "OPERATOR_IN"
+  | "OPERATOR_NOT_IN"
+  | "OPERATOR_CONTAINS_ONE"
+  | "OPERATOR_CONTAINS_ALL";
 
 export type v1OrganizationData = {
   organizationId?: string;
@@ -2387,12 +2383,11 @@ export type v1Pagination = {
   after?: string;
 };
 
-export type v1PathFormat =
-  "PATH_FORMAT_BIP32";
+export type v1PathFormat = "PATH_FORMAT_BIP32";
 
 export type v1PayloadEncoding =
-  "PAYLOAD_ENCODING_HEXADECIMAL" |
-  "PAYLOAD_ENCODING_TEXT_UTF8";
+  | "PAYLOAD_ENCODING_HEXADECIMAL"
+  | "PAYLOAD_ENCODING_TEXT_UTF8";
 
 export type v1Policy = {
   /** Unique identifier for a given Policy. */
@@ -2803,9 +2798,7 @@ export type v1StampLoginResult = {
   session: string;
 };
 
-export type v1TagType =
-  "TAG_TYPE_USER" |
-  "TAG_TYPE_PRIVATE_KEY";
+export type v1TagType = "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
 
 export type v1TestRateLimitsRequest = {
   /** Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons. */
@@ -2818,9 +2811,9 @@ export type v1TestRateLimitsRequest = {
 
 export type v1TestRateLimitsResponse = {};
 export type v1TransactionType =
-  "TRANSACTION_TYPE_ETHEREUM" |
-  "TRANSACTION_TYPE_SOLANA" |
-  "TRANSACTION_TYPE_TRON";
+  | "TRANSACTION_TYPE_ETHEREUM"
+  | "TRANSACTION_TYPE_SOLANA"
+  | "TRANSACTION_TYPE_TRON";
 
 export type v1UpdateAllowedOriginsIntent = {
   /** Additional origins requests are allowed from besides Turnkey origins */
@@ -3242,177 +3235,180 @@ export type v1WebAuthnStamp = {
   signature: string;
 };
 
-
 // --- API Types from Swagger Paths ---
 export type TGetActivityResponse = {
   /** An action that can that can be taken within the Turnkey infrastructure. */
   activity: v1Activity;
-}
+};
 
 export type TGetActivityBody = {
   organizationId?: string;
   /** Unique identifier for a given Activity object. */
   activityId: string;
-}
+};
 
 export type TGetActivityInput = { body: TGetActivityBody };
 
 export type TGetApiKeyResponse = {
   /** An API key. */
   apiKey: v1ApiKey;
-}
+};
 
 export type TGetApiKeyBody = {
   organizationId?: string;
   /** Unique identifier for a given API key. */
   apiKeyId: string;
-}
+};
 
 export type TGetApiKeyInput = { body: TGetApiKeyBody };
 
 export type TGetApiKeysResponse = {
   /** A list of API keys. */
   apiKeys: v1ApiKey[];
-}
+};
 
 export type TGetApiKeysBody = {
   organizationId?: string;
   /** Unique identifier for a given User. */
   userId?: string;
-}
+};
 
 export type TGetApiKeysInput = { body: TGetApiKeysBody };
 
 export type TGetAttestationDocumentResponse = {
   /** Raw (CBOR-encoded) attestation document */
   attestationDocument: string;
-}
+};
 
 export type TGetAttestationDocumentBody = {
   organizationId?: string;
   /** The enclave type, one of: ump, notarizer, signer, evm-parser */
   enclaveType: string;
-}
+};
 
-export type TGetAttestationDocumentInput = { body: TGetAttestationDocumentBody };
+export type TGetAttestationDocumentInput = {
+  body: TGetAttestationDocumentBody;
+};
 
 export type TGetAuthenticatorResponse = {
   /** An authenticator. */
   authenticator: v1Authenticator;
-}
+};
 
 export type TGetAuthenticatorBody = {
   organizationId?: string;
   /** Unique identifier for a given Authenticator. */
   authenticatorId: string;
-}
+};
 
 export type TGetAuthenticatorInput = { body: TGetAuthenticatorBody };
 
 export type TGetAuthenticatorsResponse = {
   /** A list of authenticators. */
   authenticators: v1Authenticator[];
-}
+};
 
 export type TGetAuthenticatorsBody = {
   organizationId?: string;
   /** Unique identifier for a given User. */
   userId: string;
-}
+};
 
 export type TGetAuthenticatorsInput = { body: TGetAuthenticatorsBody };
 
 export type TGetOauthProvidersResponse = {
   /** A list of Oauth Providers */
   oauthProviders: v1OauthProvider[];
-}
+};
 
 export type TGetOauthProvidersBody = {
   organizationId?: string;
   /** Unique identifier for a given User. */
   userId?: string;
-}
+};
 
 export type TGetOauthProvidersInput = { body: TGetOauthProvidersBody };
 
 export type TGetOrganizationResponse = {
   /** Object representing the full current and deleted / disabled collection of Users, Policies, Private Keys, and Invitations attributable to a particular Organization. */
   organizationData: v1OrganizationData;
-}
+};
 
 export type TGetOrganizationBody = {
   organizationId?: string;
-}
+};
 
 export type TGetOrganizationInput = { body: TGetOrganizationBody };
 
 export type TGetOrganizationConfigsResponse = {
   /** Organization configs including quorum settings and organization features */
   configs: v1Config;
-}
+};
 
 export type TGetOrganizationConfigsBody = {
   organizationId?: string;
-}
+};
 
-export type TGetOrganizationConfigsInput = { body: TGetOrganizationConfigsBody };
+export type TGetOrganizationConfigsInput = {
+  body: TGetOrganizationConfigsBody;
+};
 
 export type TGetPolicyResponse = {
   /** Object that codifies rules defining the actions that are permissible within an Organization. */
   policy: v1Policy;
-}
+};
 
 export type TGetPolicyBody = {
   organizationId?: string;
   /** Unique identifier for a given Policy. */
   policyId: string;
-}
+};
 
 export type TGetPolicyInput = { body: TGetPolicyBody };
 
 export type TGetPrivateKeyResponse = {
   /** Cryptographic public/private key pair that can be used for cryptocurrency needs or more generalized encryption. */
   privateKey: v1PrivateKey;
-}
+};
 
 export type TGetPrivateKeyBody = {
   organizationId?: string;
   /** Unique identifier for a given Private Key. */
   privateKeyId: string;
-}
+};
 
 export type TGetPrivateKeyInput = { body: TGetPrivateKeyBody };
 
 export type TGetUserResponse = {
   /** Web and/or API user within your Organization. */
   user: v1User;
-}
+};
 
 export type TGetUserBody = {
   organizationId?: string;
   /** Unique identifier for a given User. */
   userId: string;
-}
+};
 
 export type TGetUserInput = { body: TGetUserBody };
 
 export type TGetWalletResponse = {
   /** A collection of deterministically generated cryptographic public / private key pairs that share a common seed */
   wallet: v1Wallet;
-}
+};
 
 export type TGetWalletBody = {
   organizationId?: string;
   /** Unique identifier for a given Wallet. */
   walletId: string;
-}
+};
 
 export type TGetWalletInput = { body: TGetWalletBody };
 
 export type TGetWalletAccountResponse = {
   /** The resulting Wallet Account. */
   account: v1WalletAccount;
-}
+};
 
 export type TGetWalletAccountBody = {
   organizationId?: string;
@@ -3422,14 +3418,14 @@ export type TGetWalletAccountBody = {
   address?: string;
   /** Path corresponding to a Wallet Account. */
   path?: string;
-}
+};
 
 export type TGetWalletAccountInput = { body: TGetWalletAccountBody };
 
 export type TGetActivitiesResponse = {
   /** A list of Activities. */
   activities: v1Activity[];
-}
+};
 
 export type TGetActivitiesBody = {
   organizationId?: string;
@@ -3439,47 +3435,47 @@ export type TGetActivitiesBody = {
   paginationOptions?: v1Pagination;
   /** Array of Activity Types filtering which Activities will be listed in the response. */
   filterByType?: v1ActivityType[];
-}
+};
 
 export type TGetActivitiesInput = { body: TGetActivitiesBody };
 
 export type TGetPoliciesResponse = {
   /** A list of Policies. */
   policies: v1Policy[];
-}
+};
 
 export type TGetPoliciesBody = {
   organizationId?: string;
-}
+};
 
 export type TGetPoliciesInput = { body: TGetPoliciesBody };
 
 export type TListPrivateKeyTagsResponse = {
   /** A list of Private Key Tags */
   privateKeyTags: datav1Tag[];
-}
+};
 
 export type TListPrivateKeyTagsBody = {
   organizationId?: string;
-}
+};
 
 export type TListPrivateKeyTagsInput = { body: TListPrivateKeyTagsBody };
 
 export type TGetPrivateKeysResponse = {
   /** A list of Private Keys. */
   privateKeys: v1PrivateKey[];
-}
+};
 
 export type TGetPrivateKeysBody = {
   organizationId?: string;
-}
+};
 
 export type TGetPrivateKeysInput = { body: TGetPrivateKeysBody };
 
 export type TGetSubOrgIdsResponse = {
   /** List of unique identifiers for the matching sub-organizations. */
   organizationIds: string[];
-}
+};
 
 export type TGetSubOrgIdsBody = {
   organizationId?: string;
@@ -3489,36 +3485,36 @@ export type TGetSubOrgIdsBody = {
   filterValue?: string;
   /** Parameters used for cursor-based pagination. */
   paginationOptions?: v1Pagination;
-}
+};
 
 export type TGetSubOrgIdsInput = { body: TGetSubOrgIdsBody };
 
 export type TListUserTagsResponse = {
   /** A list of User Tags */
   userTags: datav1Tag[];
-}
+};
 
 export type TListUserTagsBody = {
   organizationId?: string;
-}
+};
 
 export type TListUserTagsInput = { body: TListUserTagsBody };
 
 export type TGetUsersResponse = {
   /** A list of Users. */
   users: v1User[];
-}
+};
 
 export type TGetUsersBody = {
   organizationId?: string;
-}
+};
 
 export type TGetUsersInput = { body: TGetUsersBody };
 
 export type TGetVerifiedSubOrgIdsResponse = {
   /** List of unique identifiers for the matching sub-organizations. */
   organizationIds: string[];
-}
+};
 
 export type TGetVerifiedSubOrgIdsBody = {
   organizationId?: string;
@@ -3528,14 +3524,14 @@ export type TGetVerifiedSubOrgIdsBody = {
   filterValue?: string;
   /** Parameters used for cursor-based pagination. */
   paginationOptions?: v1Pagination;
-}
+};
 
 export type TGetVerifiedSubOrgIdsInput = { body: TGetVerifiedSubOrgIdsBody };
 
 export type TGetWalletAccountsResponse = {
   /** A list of Accounts generated from a Wallet that share a common seed. */
   accounts: v1WalletAccount[];
-}
+};
 
 export type TGetWalletAccountsBody = {
   organizationId?: string;
@@ -3543,18 +3539,18 @@ export type TGetWalletAccountsBody = {
   walletId: string;
   /** Parameters used for cursor-based pagination. */
   paginationOptions?: v1Pagination;
-}
+};
 
 export type TGetWalletAccountsInput = { body: TGetWalletAccountsBody };
 
 export type TGetWalletsResponse = {
   /** A list of Wallets. */
   wallets: v1Wallet[];
-}
+};
 
 export type TGetWalletsBody = {
   organizationId?: string;
-}
+};
 
 export type TGetWalletsInput = { body: TGetWalletsBody };
 
@@ -3567,24 +3563,24 @@ export type TGetWhoamiResponse = {
   userId: string;
   /** Human-readable name for a User. */
   username: string;
-}
+};
 
 export type TGetWhoamiBody = {
   organizationId?: string;
-}
+};
 
 export type TGetWhoamiInput = { body: TGetWhoamiBody };
 
 export type TApproveActivityResponse = {
   activity: v1Activity;
-}
+};
 
 export type TApproveActivityBody = {
   timestampMs?: string;
   organizationId?: string;
   /** An artifact verifying a User's action. */
   fingerprint: string;
-}
+};
 
 export type TApproveActivityInput = { body: TApproveActivityBody };
 
@@ -3592,7 +3588,7 @@ export type TCreateApiKeysResponse = {
   activity: v1Activity;
   /** A list of API Key IDs. */
   apiKeyIds: string[];
-}
+};
 
 export type TCreateApiKeysBody = {
   timestampMs?: string;
@@ -3601,7 +3597,7 @@ export type TCreateApiKeysBody = {
   apiKeys: v1ApiKeyParamsV2[];
   /** Unique identifier for a given User. */
   userId: string;
-}
+};
 
 export type TCreateApiKeysInput = { body: TCreateApiKeysBody };
 
@@ -3609,14 +3605,14 @@ export type TCreateApiOnlyUsersResponse = {
   activity: v1Activity;
   /** A list of API-only User IDs. */
   userIds: string[];
-}
+};
 
 export type TCreateApiOnlyUsersBody = {
   timestampMs?: string;
   organizationId?: string;
   /** A list of API-only Users to create. */
   apiOnlyUsers: v1ApiOnlyUserParams[];
-}
+};
 
 export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
 
@@ -3624,7 +3620,7 @@ export type TCreateAuthenticatorsResponse = {
   activity: v1Activity;
   /** A list of Authenticator IDs. */
   authenticatorIds: string[];
-}
+};
 
 export type TCreateAuthenticatorsBody = {
   timestampMs?: string;
@@ -3633,7 +3629,7 @@ export type TCreateAuthenticatorsBody = {
   authenticators: v1AuthenticatorParamsV2[];
   /** Unique identifier for a given User. */
   userId: string;
-}
+};
 
 export type TCreateAuthenticatorsInput = { body: TCreateAuthenticatorsBody };
 
@@ -3641,14 +3637,14 @@ export type TCreateInvitationsResponse = {
   activity: v1Activity;
   /** A list of Invitation IDs */
   invitationIds: string[];
-}
+};
 
 export type TCreateInvitationsBody = {
   timestampMs?: string;
   organizationId?: string;
   /** A list of Invitations. */
   invitations: v1InvitationParams[];
-}
+};
 
 export type TCreateInvitationsInput = { body: TCreateInvitationsBody };
 
@@ -3656,7 +3652,7 @@ export type TCreateOauthProvidersResponse = {
   activity: v1Activity;
   /** A list of unique identifiers for Oauth Providers */
   providerIds: string[];
-}
+};
 
 export type TCreateOauthProvidersBody = {
   timestampMs?: string;
@@ -3665,7 +3661,7 @@ export type TCreateOauthProvidersBody = {
   userId: string;
   /** A list of Oauth providers. */
   oauthProviders: v1OauthProviderParams[];
-}
+};
 
 export type TCreateOauthProvidersInput = { body: TCreateOauthProvidersBody };
 
@@ -3673,14 +3669,14 @@ export type TCreatePoliciesResponse = {
   activity: v1Activity;
   /** A list of unique identifiers for the created policies. */
   policyIds: string[];
-}
+};
 
 export type TCreatePoliciesBody = {
   timestampMs?: string;
   organizationId?: string;
   /** An array of policy intents to be created. */
   policies: v1CreatePolicyIntentV3[];
-}
+};
 
 export type TCreatePoliciesInput = { body: TCreatePoliciesBody };
 
@@ -3688,7 +3684,7 @@ export type TCreatePolicyResponse = {
   activity: v1Activity;
   /** Unique identifier for a given Policy. */
   policyId: string;
-}
+};
 
 export type TCreatePolicyBody = {
   timestampMs?: string;
@@ -3702,7 +3698,7 @@ export type TCreatePolicyBody = {
   /** The consensus expression that triggers the Effect */
   consensus?: string;
   notes?: string;
-}
+};
 
 export type TCreatePolicyInput = { body: TCreatePolicyBody };
 
@@ -3712,7 +3708,7 @@ export type TCreatePrivateKeyTagResponse = {
   privateKeyTagId: string;
   /** A list of Private Key IDs. */
   privateKeyIds: string[];
-}
+};
 
 export type TCreatePrivateKeyTagBody = {
   timestampMs?: string;
@@ -3721,7 +3717,7 @@ export type TCreatePrivateKeyTagBody = {
   privateKeyTagName: string;
   /** A list of Private Key IDs. */
   privateKeyIds: string[];
-}
+};
 
 export type TCreatePrivateKeyTagInput = { body: TCreatePrivateKeyTagBody };
 
@@ -3729,14 +3725,14 @@ export type TCreatePrivateKeysResponse = {
   activity: v1Activity;
   /** A list of Private Key IDs and addresses. */
   privateKeys: v1PrivateKeyResult[];
-}
+};
 
 export type TCreatePrivateKeysBody = {
   timestampMs?: string;
   organizationId?: string;
   /** A list of Private Keys. */
   privateKeys: v1PrivateKeyParams[];
-}
+};
 
 export type TCreatePrivateKeysInput = { body: TCreatePrivateKeysBody };
 
@@ -3754,12 +3750,12 @@ export type TCreateReadOnlySessionResponse = {
   session: string;
   /** UTC timestamp in seconds representing the expiry time for the read only session. */
   sessionExpiry: string;
-}
+};
 
 export type TCreateReadOnlySessionBody = {
   timestampMs?: string;
   organizationId?: string;
-}
+};
 
 export type TCreateReadOnlySessionInput = { body: TCreateReadOnlySessionBody };
 
@@ -3777,7 +3773,7 @@ export type TCreateReadWriteSessionResponse = {
   apiKeyId: string;
   /** HPKE encrypted credential bundle */
   credentialBundle: string;
-}
+};
 
 export type TCreateReadWriteSessionBody = {
   timestampMs?: string;
@@ -3792,16 +3788,18 @@ export type TCreateReadWriteSessionBody = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated ReadWriteSession API keys */
   invalidateExisting?: boolean;
-}
+};
 
-export type TCreateReadWriteSessionInput = { body: TCreateReadWriteSessionBody };
+export type TCreateReadWriteSessionInput = {
+  body: TCreateReadWriteSessionBody;
+};
 
 export type TCreateSubOrganizationResponse = {
   activity: v1Activity;
   subOrganizationId: string;
   wallet?: v1WalletResult;
   rootUserIds?: string[];
-}
+};
 
 export type TCreateSubOrganizationBody = {
   timestampMs?: string;
@@ -3822,7 +3820,7 @@ export type TCreateSubOrganizationBody = {
   disableSmsAuth?: boolean;
   /** Disable OTP email auth for the sub-organization */
   disableOtpEmailAuth?: boolean;
-}
+};
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
 
@@ -3832,7 +3830,7 @@ export type TCreateUserTagResponse = {
   userTagId: string;
   /** A list of User IDs. */
   userIds: string[];
-}
+};
 
 export type TCreateUserTagBody = {
   timestampMs?: string;
@@ -3841,7 +3839,7 @@ export type TCreateUserTagBody = {
   userTagName: string;
   /** A list of User IDs. */
   userIds: string[];
-}
+};
 
 export type TCreateUserTagInput = { body: TCreateUserTagBody };
 
@@ -3849,14 +3847,14 @@ export type TCreateUsersResponse = {
   activity: v1Activity;
   /** A list of User IDs. */
   userIds: string[];
-}
+};
 
 export type TCreateUsersBody = {
   timestampMs?: string;
   organizationId?: string;
   /** A list of Users. */
   users: v1UserParamsV3[];
-}
+};
 
 export type TCreateUsersInput = { body: TCreateUsersBody };
 
@@ -3866,7 +3864,7 @@ export type TCreateWalletResponse = {
   walletId: string;
   /** A list of account addresses. */
   addresses: string[];
-}
+};
 
 export type TCreateWalletBody = {
   timestampMs?: string;
@@ -3877,7 +3875,7 @@ export type TCreateWalletBody = {
   accounts: v1WalletAccountParams[];
   /** Length of mnemonic to generate the Wallet seed. Defaults to 12. Accepted values: 12, 15, 18, 21, 24. */
   mnemonicLength?: number;
-}
+};
 
 export type TCreateWalletInput = { body: TCreateWalletBody };
 
@@ -3885,7 +3883,7 @@ export type TCreateWalletAccountsResponse = {
   activity: v1Activity;
   /** A list of derived addresses. */
   addresses: string[];
-}
+};
 
 export type TCreateWalletAccountsBody = {
   timestampMs?: string;
@@ -3894,7 +3892,7 @@ export type TCreateWalletAccountsBody = {
   walletId: string;
   /** A list of wallet Accounts. */
   accounts: v1WalletAccountParams[];
-}
+};
 
 export type TCreateWalletAccountsInput = { body: TCreateWalletAccountsBody };
 
@@ -3902,7 +3900,7 @@ export type TDeleteApiKeysResponse = {
   activity: v1Activity;
   /** A list of API Key IDs. */
   apiKeyIds: string[];
-}
+};
 
 export type TDeleteApiKeysBody = {
   timestampMs?: string;
@@ -3911,7 +3909,7 @@ export type TDeleteApiKeysBody = {
   userId: string;
   /** A list of API Key IDs. */
   apiKeyIds: string[];
-}
+};
 
 export type TDeleteApiKeysInput = { body: TDeleteApiKeysBody };
 
@@ -3919,7 +3917,7 @@ export type TDeleteAuthenticatorsResponse = {
   activity: v1Activity;
   /** Unique identifier for a given Authenticator. */
   authenticatorIds: string[];
-}
+};
 
 export type TDeleteAuthenticatorsBody = {
   timestampMs?: string;
@@ -3928,7 +3926,7 @@ export type TDeleteAuthenticatorsBody = {
   userId: string;
   /** A list of Authenticator IDs. */
   authenticatorIds: string[];
-}
+};
 
 export type TDeleteAuthenticatorsInput = { body: TDeleteAuthenticatorsBody };
 
@@ -3936,14 +3934,14 @@ export type TDeleteInvitationResponse = {
   activity: v1Activity;
   /** Unique identifier for a given Invitation. */
   invitationId: string;
-}
+};
 
 export type TDeleteInvitationBody = {
   timestampMs?: string;
   organizationId?: string;
   /** Unique identifier for a given Invitation object. */
   invitationId: string;
-}
+};
 
 export type TDeleteInvitationInput = { body: TDeleteInvitationBody };
 
@@ -3951,7 +3949,7 @@ export type TDeleteOauthProvidersResponse = {
   activity: v1Activity;
   /** A list of unique identifiers for Oauth Providers */
   providerIds: string[];
-}
+};
 
 export type TDeleteOauthProvidersBody = {
   timestampMs?: string;
@@ -3960,7 +3958,7 @@ export type TDeleteOauthProvidersBody = {
   userId: string;
   /** Unique identifier for a given Provider. */
   providerIds: string[];
-}
+};
 
 export type TDeleteOauthProvidersInput = { body: TDeleteOauthProvidersBody };
 
@@ -3968,14 +3966,14 @@ export type TDeletePolicyResponse = {
   activity: v1Activity;
   /** Unique identifier for a given Policy. */
   policyId: string;
-}
+};
 
 export type TDeletePolicyBody = {
   timestampMs?: string;
   organizationId?: string;
   /** Unique identifier for a given Policy. */
   policyId: string;
-}
+};
 
 export type TDeletePolicyInput = { body: TDeletePolicyBody };
 
@@ -3985,14 +3983,14 @@ export type TDeletePrivateKeyTagsResponse = {
   privateKeyTagIds: string[];
   /** A list of Private Key IDs. */
   privateKeyIds: string[];
-}
+};
 
 export type TDeletePrivateKeyTagsBody = {
   timestampMs?: string;
   organizationId?: string;
   /** A list of Private Key Tag IDs. */
   privateKeyTagIds: string[];
-}
+};
 
 export type TDeletePrivateKeyTagsInput = { body: TDeletePrivateKeyTagsBody };
 
@@ -4000,7 +3998,7 @@ export type TDeletePrivateKeysResponse = {
   activity: v1Activity;
   /** A list of private key unique identifiers that were removed */
   privateKeyIds: string[];
-}
+};
 
 export type TDeletePrivateKeysBody = {
   timestampMs?: string;
@@ -4009,7 +4007,7 @@ export type TDeletePrivateKeysBody = {
   privateKeyIds: string[];
   /** Optional parameter for deleting the private keys, even if any have not been previously exported. If they have been exported, this field is ignored. */
   deleteWithoutExport?: boolean;
-}
+};
 
 export type TDeletePrivateKeysInput = { body: TDeletePrivateKeysBody };
 
@@ -4017,14 +4015,14 @@ export type TDeleteSubOrganizationResponse = {
   activity: v1Activity;
   /** Unique identifier of the sub organization that was removed */
   subOrganizationUuid: string;
-}
+};
 
 export type TDeleteSubOrganizationBody = {
   timestampMs?: string;
   organizationId?: string;
   /** Sub-organization deletion, by default, requires associated wallets and private keys to be exported for security reasons. Set this boolean to true to force sub-organization deletion even if some wallets or private keys within it have not been exported yet. Default: false. */
   deleteWithoutExport?: boolean;
-}
+};
 
 export type TDeleteSubOrganizationInput = { body: TDeleteSubOrganizationBody };
 
@@ -4034,14 +4032,14 @@ export type TDeleteUserTagsResponse = {
   userTagIds: string[];
   /** A list of User IDs. */
   userIds: string[];
-}
+};
 
 export type TDeleteUserTagsBody = {
   timestampMs?: string;
   organizationId?: string;
   /** A list of User Tag IDs. */
   userTagIds: string[];
-}
+};
 
 export type TDeleteUserTagsInput = { body: TDeleteUserTagsBody };
 
@@ -4049,14 +4047,14 @@ export type TDeleteUsersResponse = {
   activity: v1Activity;
   /** A list of User IDs. */
   userIds: string[];
-}
+};
 
 export type TDeleteUsersBody = {
   timestampMs?: string;
   organizationId?: string;
   /** A list of User IDs. */
   userIds: string[];
-}
+};
 
 export type TDeleteUsersInput = { body: TDeleteUsersBody };
 
@@ -4064,7 +4062,7 @@ export type TDeleteWalletsResponse = {
   activity: v1Activity;
   /** A list of wallet unique identifiers that were removed */
   walletIds: string[];
-}
+};
 
 export type TDeleteWalletsBody = {
   timestampMs?: string;
@@ -4073,7 +4071,7 @@ export type TDeleteWalletsBody = {
   walletIds: string[];
   /** Optional parameter for deleting the wallets, even if any have not been previously exported. If they have been exported, this field is ignored. */
   deleteWithoutExport?: boolean;
-}
+};
 
 export type TDeleteWalletsInput = { body: TDeleteWalletsBody };
 
@@ -4083,7 +4081,7 @@ export type TEmailAuthResponse = {
   userId: string;
   /** Unique identifier for the created API key. */
   apiKeyId: string;
-}
+};
 
 export type TEmailAuthBody = {
   timestampMs?: string;
@@ -4106,7 +4104,7 @@ export type TEmailAuthBody = {
   sendFromEmailSenderName?: string;
   /** Optional custom email address to use as reply-to */
   replyToEmailAddress?: string;
-}
+};
 
 export type TEmailAuthInput = { body: TEmailAuthBody };
 
@@ -4116,7 +4114,7 @@ export type TExportPrivateKeyResponse = {
   privateKeyId: string;
   /** Export bundle containing a private key encrypted to the client's target public key. */
   exportBundle: string;
-}
+};
 
 export type TExportPrivateKeyBody = {
   timestampMs?: string;
@@ -4125,7 +4123,7 @@ export type TExportPrivateKeyBody = {
   privateKeyId: string;
   /** Client-side public key generated by the user, to which the export bundle will be encrypted. */
   targetPublicKey: string;
-}
+};
 
 export type TExportPrivateKeyInput = { body: TExportPrivateKeyBody };
 
@@ -4135,7 +4133,7 @@ export type TExportWalletResponse = {
   walletId: string;
   /** Export bundle containing a wallet mnemonic + optional newline passphrase encrypted by the client's target public key. */
   exportBundle: string;
-}
+};
 
 export type TExportWalletBody = {
   timestampMs?: string;
@@ -4146,7 +4144,7 @@ export type TExportWalletBody = {
   targetPublicKey: string;
   /** The language of the mnemonic to export. Defaults to English. */
   language?: v1MnemonicLanguage;
-}
+};
 
 export type TExportWalletInput = { body: TExportWalletBody };
 
@@ -4156,7 +4154,7 @@ export type TExportWalletAccountResponse = {
   address: string;
   /** Export bundle containing a private key encrypted by the client's target public key. */
   exportBundle: string;
-}
+};
 
 export type TExportWalletAccountBody = {
   timestampMs?: string;
@@ -4165,7 +4163,7 @@ export type TExportWalletAccountBody = {
   address: string;
   /** Client-side public key generated by the user, to which the export bundle will be encrypted. */
   targetPublicKey: string;
-}
+};
 
 export type TExportWalletAccountInput = { body: TExportWalletAccountBody };
 
@@ -4175,7 +4173,7 @@ export type TImportPrivateKeyResponse = {
   privateKeyId: string;
   /** A list of addresses. */
   addresses: immutableactivityv1Address[];
-}
+};
 
 export type TImportPrivateKeyBody = {
   timestampMs?: string;
@@ -4190,7 +4188,7 @@ export type TImportPrivateKeyBody = {
   curve: v1Curve;
   /** Cryptocurrency-specific formats for a derived address (e.g., Ethereum). */
   addressFormats: v1AddressFormat[];
-}
+};
 
 export type TImportPrivateKeyInput = { body: TImportPrivateKeyBody };
 
@@ -4200,7 +4198,7 @@ export type TImportWalletResponse = {
   walletId: string;
   /** A list of account addresses. */
   addresses: string[];
-}
+};
 
 export type TImportWalletBody = {
   timestampMs?: string;
@@ -4213,7 +4211,7 @@ export type TImportWalletBody = {
   encryptedBundle: string;
   /** A list of wallet Accounts. */
   accounts: v1WalletAccountParams[];
-}
+};
 
 export type TImportWalletInput = { body: TImportWalletBody };
 
@@ -4223,7 +4221,7 @@ export type TInitFiatOnRampResponse = {
   onRampUrl: string;
   /** Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
   onRampTransactionId: string;
-}
+};
 
 export type TInitFiatOnRampBody = {
   timestampMs?: string;
@@ -4246,7 +4244,7 @@ export type TInitFiatOnRampBody = {
   countryCode?: string;
   /** ISO 3166-2 two-digit country subdivision code for Coinbase representing the purchasing user’s subdivision of residence within their country, e.g. NY. Required if country_code=US. */
   countrySubdivisionCode?: string;
-}
+};
 
 export type TInitFiatOnRampInput = { body: TInitFiatOnRampBody };
 
@@ -4254,14 +4252,14 @@ export type TInitImportPrivateKeyResponse = {
   activity: v1Activity;
   /** Import bundle containing a public key and signature to use for importing client data. */
   importBundle: string;
-}
+};
 
 export type TInitImportPrivateKeyBody = {
   timestampMs?: string;
   organizationId?: string;
   /** The ID of the User importing a Private Key. */
   userId: string;
-}
+};
 
 export type TInitImportPrivateKeyInput = { body: TInitImportPrivateKeyBody };
 
@@ -4269,14 +4267,14 @@ export type TInitImportWalletResponse = {
   activity: v1Activity;
   /** Import bundle containing a public key and signature to use for importing client data. */
   importBundle: string;
-}
+};
 
 export type TInitImportWalletBody = {
   timestampMs?: string;
   organizationId?: string;
   /** The ID of the User importing a Wallet. */
   userId: string;
-}
+};
 
 export type TInitImportWalletInput = { body: TInitImportWalletBody };
 
@@ -4284,7 +4282,7 @@ export type TInitOtpResponse = {
   activity: v1Activity;
   /** Unique identifier for an OTP authentication */
   otpId: string;
-}
+};
 
 export type TInitOtpBody = {
   timestampMs?: string;
@@ -4311,7 +4309,7 @@ export type TInitOtpBody = {
   expirationSeconds?: string;
   /** Optional custom email address to use as reply-to */
   replyToEmailAddress?: string;
-}
+};
 
 export type TInitOtpInput = { body: TInitOtpBody };
 
@@ -4319,7 +4317,7 @@ export type TInitOtpAuthResponse = {
   activity: v1Activity;
   /** Unique identifier for an OTP authentication */
   otpId: string;
-}
+};
 
 export type TInitOtpAuthBody = {
   timestampMs?: string;
@@ -4344,7 +4342,7 @@ export type TInitOtpAuthBody = {
   sendFromEmailSenderName?: string;
   /** Optional custom email address to use as reply-to */
   replyToEmailAddress?: string;
-}
+};
 
 export type TInitOtpAuthInput = { body: TInitOtpAuthBody };
 
@@ -4352,7 +4350,7 @@ export type TInitUserEmailRecoveryResponse = {
   activity: v1Activity;
   /** Unique identifier for the user being recovered. */
   userId: string;
-}
+};
 
 export type TInitUserEmailRecoveryBody = {
   timestampMs?: string;
@@ -4365,7 +4363,7 @@ export type TInitUserEmailRecoveryBody = {
   expirationSeconds?: string;
   /** Optional parameters for customizing emails. If not provided, the default email will be used. */
   emailCustomization?: v1EmailCustomizationParams;
-}
+};
 
 export type TInitUserEmailRecoveryInput = { body: TInitUserEmailRecoveryBody };
 
@@ -4377,7 +4375,7 @@ export type TOauthResponse = {
   apiKeyId: string;
   /** HPKE encrypted credential bundle */
   credentialBundle: string;
-}
+};
 
 export type TOauthBody = {
   timestampMs?: string;
@@ -4392,7 +4390,7 @@ export type TOauthBody = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Oauth API keys */
   invalidateExisting?: boolean;
-}
+};
 
 export type TOauthInput = { body: TOauthBody };
 
@@ -4400,7 +4398,7 @@ export type TOauthLoginResponse = {
   activity: v1Activity;
   /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
   session: string;
-}
+};
 
 export type TOauthLoginBody = {
   timestampMs?: string;
@@ -4413,7 +4411,7 @@ export type TOauthLoginBody = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
-}
+};
 
 export type TOauthLoginInput = { body: TOauthLoginBody };
 
@@ -4425,7 +4423,7 @@ export type TOtpAuthResponse = {
   apiKeyId?: string;
   /** HPKE encrypted credential bundle */
   credentialBundle?: string;
-}
+};
 
 export type TOtpAuthBody = {
   timestampMs?: string;
@@ -4442,7 +4440,7 @@ export type TOtpAuthBody = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated OTP Auth API keys */
   invalidateExisting?: boolean;
-}
+};
 
 export type TOtpAuthInput = { body: TOtpAuthBody };
 
@@ -4450,7 +4448,7 @@ export type TOtpLoginResponse = {
   activity: v1Activity;
   /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
   session: string;
-}
+};
 
 export type TOtpLoginBody = {
   timestampMs?: string;
@@ -4463,7 +4461,7 @@ export type TOtpLoginBody = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
-}
+};
 
 export type TOtpLoginInput = { body: TOtpLoginBody };
 
@@ -4471,7 +4469,7 @@ export type TRecoverUserResponse = {
   activity: v1Activity;
   /** ID of the authenticator created. */
   authenticatorId: string[];
-}
+};
 
 export type TRecoverUserBody = {
   timestampMs?: string;
@@ -4480,20 +4478,20 @@ export type TRecoverUserBody = {
   authenticator: v1AuthenticatorParamsV2;
   /** Unique identifier for the user performing recovery. */
   userId: string;
-}
+};
 
 export type TRecoverUserInput = { body: TRecoverUserBody };
 
 export type TRejectActivityResponse = {
   activity: v1Activity;
-}
+};
 
 export type TRejectActivityBody = {
   timestampMs?: string;
   organizationId?: string;
   /** An artifact verifying a User's action. */
   fingerprint: string;
-}
+};
 
 export type TRejectActivityInput = { body: TRejectActivityBody };
 
@@ -4501,22 +4499,24 @@ export type TRemoveOrganizationFeatureResponse = {
   activity: v1Activity;
   /** Resulting list of organization features. */
   features: v1Feature[];
-}
+};
 
 export type TRemoveOrganizationFeatureBody = {
   timestampMs?: string;
   organizationId?: string;
   /** Name of the feature to remove */
   name: v1FeatureName;
-}
+};
 
-export type TRemoveOrganizationFeatureInput = { body: TRemoveOrganizationFeatureBody };
+export type TRemoveOrganizationFeatureInput = {
+  body: TRemoveOrganizationFeatureBody;
+};
 
 export type TSetOrganizationFeatureResponse = {
   activity: v1Activity;
   /** Resulting list of organization features. */
   features: v1Feature[];
-}
+};
 
 export type TSetOrganizationFeatureBody = {
   timestampMs?: string;
@@ -4525,9 +4525,11 @@ export type TSetOrganizationFeatureBody = {
   name: v1FeatureName;
   /** Optional value for the feature. Will override existing values if feature is already set. */
   value: string;
-}
+};
 
-export type TSetOrganizationFeatureInput = { body: TSetOrganizationFeatureBody };
+export type TSetOrganizationFeatureInput = {
+  body: TSetOrganizationFeatureBody;
+};
 
 export type TSignRawPayloadResponse = {
   activity: v1Activity;
@@ -4537,7 +4539,7 @@ export type TSignRawPayloadResponse = {
   s: string;
   /** Component of an ECSDA signature. */
   v: string;
-}
+};
 
 export type TSignRawPayloadBody = {
   timestampMs?: string;
@@ -4550,14 +4552,14 @@ export type TSignRawPayloadBody = {
   encoding: v1PayloadEncoding;
   /** Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032. */
   hashFunction: v1HashFunction;
-}
+};
 
 export type TSignRawPayloadInput = { body: TSignRawPayloadBody };
 
 export type TSignRawPayloadsResponse = {
   activity: v1Activity;
   signatures?: v1SignRawPayloadResult[];
-}
+};
 
 export type TSignRawPayloadsBody = {
   timestampMs?: string;
@@ -4570,14 +4572,14 @@ export type TSignRawPayloadsBody = {
   encoding: v1PayloadEncoding;
   /** Hash function to apply to payload bytes before signing. This field must be set to HASH_FUNCTION_NOT_APPLICABLE for EdDSA/ed25519 signature requests; configurable payload hashing is not supported by RFC 8032. */
   hashFunction: v1HashFunction;
-}
+};
 
 export type TSignRawPayloadsInput = { body: TSignRawPayloadsBody };
 
 export type TSignTransactionResponse = {
   activity: v1Activity;
   signedTransaction: string;
-}
+};
 
 export type TSignTransactionBody = {
   timestampMs?: string;
@@ -4587,7 +4589,7 @@ export type TSignTransactionBody = {
   /** Raw unsigned transaction to be signed */
   unsignedTransaction: string;
   type: v1TransactionType;
-}
+};
 
 export type TSignTransactionInput = { body: TSignTransactionBody };
 
@@ -4595,7 +4597,7 @@ export type TStampLoginResponse = {
   activity: v1Activity;
   /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
   session: string;
-}
+};
 
 export type TStampLoginBody = {
   timestampMs?: string;
@@ -4606,7 +4608,7 @@ export type TStampLoginBody = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
-}
+};
 
 export type TStampLoginInput = { body: TStampLoginBody };
 
@@ -4614,7 +4616,7 @@ export type TUpdatePolicyResponse = {
   activity: v1Activity;
   /** Unique identifier for a given Policy. */
   policyId: string;
-}
+};
 
 export type TUpdatePolicyBody = {
   timestampMs?: string;
@@ -4631,7 +4633,7 @@ export type TUpdatePolicyBody = {
   policyConsensus?: string;
   /** Accompanying notes for a Policy (optional). */
   policyNotes?: string;
-}
+};
 
 export type TUpdatePolicyInput = { body: TUpdatePolicyBody };
 
@@ -4639,7 +4641,7 @@ export type TUpdatePrivateKeyTagResponse = {
   activity: v1Activity;
   /** Unique identifier for a given Private Key Tag. */
   privateKeyTagId: string;
-}
+};
 
 export type TUpdatePrivateKeyTagBody = {
   timestampMs?: string;
@@ -4652,13 +4654,13 @@ export type TUpdatePrivateKeyTagBody = {
   addPrivateKeyIds: string[];
   /** A list of Private Key IDs to remove this tag from. */
   removePrivateKeyIds: string[];
-}
+};
 
 export type TUpdatePrivateKeyTagInput = { body: TUpdatePrivateKeyTagBody };
 
 export type TUpdateRootQuorumResponse = {
   activity: v1Activity;
-}
+};
 
 export type TUpdateRootQuorumBody = {
   timestampMs?: string;
@@ -4667,7 +4669,7 @@ export type TUpdateRootQuorumBody = {
   threshold: number;
   /** The unique identifiers of users who comprise the quorum set. */
   userIds: string[];
-}
+};
 
 export type TUpdateRootQuorumInput = { body: TUpdateRootQuorumBody };
 
@@ -4675,7 +4677,7 @@ export type TUpdateUserResponse = {
   activity: v1Activity;
   /** A User ID. */
   userId: string;
-}
+};
 
 export type TUpdateUserBody = {
   timestampMs?: string;
@@ -4690,7 +4692,7 @@ export type TUpdateUserBody = {
   userTagIds?: string[];
   /** The user's phone number in E.164 format e.g. +13214567890 */
   userPhoneNumber?: string;
-}
+};
 
 export type TUpdateUserInput = { body: TUpdateUserBody };
 
@@ -4698,7 +4700,7 @@ export type TUpdateUserEmailResponse = {
   activity: v1Activity;
   /** Unique identifier of the User whose email was updated. */
   userId: string;
-}
+};
 
 export type TUpdateUserEmailBody = {
   timestampMs?: string;
@@ -4709,7 +4711,7 @@ export type TUpdateUserEmailBody = {
   userEmail: string;
   /** Signed JWT containing a unique id, expiry, verification type, contact */
   verificationToken?: string;
-}
+};
 
 export type TUpdateUserEmailInput = { body: TUpdateUserEmailBody };
 
@@ -4717,7 +4719,7 @@ export type TUpdateUserNameResponse = {
   activity: v1Activity;
   /** Unique identifier of the User whose name was updated. */
   userId: string;
-}
+};
 
 export type TUpdateUserNameBody = {
   timestampMs?: string;
@@ -4726,7 +4728,7 @@ export type TUpdateUserNameBody = {
   userId: string;
   /** Human-readable name for a User. */
   userName: string;
-}
+};
 
 export type TUpdateUserNameInput = { body: TUpdateUserNameBody };
 
@@ -4734,7 +4736,7 @@ export type TUpdateUserPhoneNumberResponse = {
   activity: v1Activity;
   /** Unique identifier of the User whose phone number was updated. */
   userId: string;
-}
+};
 
 export type TUpdateUserPhoneNumberBody = {
   timestampMs?: string;
@@ -4745,7 +4747,7 @@ export type TUpdateUserPhoneNumberBody = {
   userPhoneNumber: string;
   /** Signed JWT containing a unique id, expiry, verification type, contact */
   verificationToken?: string;
-}
+};
 
 export type TUpdateUserPhoneNumberInput = { body: TUpdateUserPhoneNumberBody };
 
@@ -4753,7 +4755,7 @@ export type TUpdateUserTagResponse = {
   activity: v1Activity;
   /** Unique identifier for a given User Tag. */
   userTagId: string;
-}
+};
 
 export type TUpdateUserTagBody = {
   timestampMs?: string;
@@ -4766,7 +4768,7 @@ export type TUpdateUserTagBody = {
   addUserIds: string[];
   /** A list of User IDs to remove this tag from. */
   removeUserIds: string[];
-}
+};
 
 export type TUpdateUserTagInput = { body: TUpdateUserTagBody };
 
@@ -4774,7 +4776,7 @@ export type TUpdateWalletResponse = {
   activity: v1Activity;
   /** A Wallet ID. */
   walletId: string;
-}
+};
 
 export type TUpdateWalletBody = {
   timestampMs?: string;
@@ -4783,7 +4785,7 @@ export type TUpdateWalletBody = {
   walletId: string;
   /** Human-readable name for a Wallet. */
   walletName?: string;
-}
+};
 
 export type TUpdateWalletInput = { body: TUpdateWalletBody };
 
@@ -4791,7 +4793,7 @@ export type TVerifyOtpResponse = {
   activity: v1Activity;
   /** Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
   verificationToken: string;
-}
+};
 
 export type TVerifyOtpBody = {
   timestampMs?: string;
@@ -4802,13 +4804,13 @@ export type TVerifyOtpBody = {
   otpCode: string;
   /** Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours) */
   expirationSeconds?: string;
-}
+};
 
 export type TVerifyOtpInput = { body: TVerifyOtpBody };
 
 export type TNOOPCodegenAnchorResponse = {
   activity: v1Activity;
-}
+};
 
 export type TTestRateLimitsResponse = {};
 
@@ -4818,7 +4820,6 @@ export type TTestRateLimitsBody = {
   isSetLimit: boolean;
   /** Rate limit to set for org, if is_set_limit is set to true */
   limit: number;
-}
+};
 
 export type TTestRateLimitsInput = { body: TTestRateLimitsBody };
-

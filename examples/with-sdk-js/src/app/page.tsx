@@ -5,64 +5,68 @@ import styles from "./index.module.css";
 
 import { StamperType, TurnkeyClient, Wallet } from "@turnkey/sdk-js";
 import { useContext, useEffect, useState } from "react";
-import { Session, v1AddressFormat } from "@turnkey/sdk-types";
+import { Session, v1AddressFormat, v1Attestation } from "@turnkey/sdk-types";
 import { OtpType } from "@turnkey/sdk-js";
 import { useModal, useTurnkey } from "@turnkey/react-wallet-kit";
 
 export default function AuthPage() {
-  const [session, setSession] = useState<Session | null>(null);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [email, setEmail] = useState<string>("");
   const [otpCode, setOtpCode] = useState<string>("");
   const [otpId, setOtpId] = useState<string>("");
 
-  const { pushPage } = useModal();
-  const [oauthPublicKey, setOauthPublicKey] = useState<string>("");
-  const { client, login, handleGoogleOauth } = useTurnkey();
+  const {
+    httpClient,
+    session,
+    allSessions,
+    login,
+    handleGoogleOauth,
+    loginWithPasskey,
+    createPasskey,
+    signUpWithPasskey,
+    fetchUser,
+    fetchWallets,
+    initOtp,
+    completeOtp,
+    signMessage,
+    refreshSession,
+    createWallet,
+    logout,
+    setActiveSession,
+  } = useTurnkey();
 
-  const createPasskey = async () => {
-    await client?.createPasskey({});
-  };
+  useEffect(() => {
+    console.log("All Sessions:", allSessions);
+  }, [allSessions]);
 
   const logInWithPasskey1 = async () => {
-    await client?.loginWithPasskey({ sessionKey: "session-1" });
+    await loginWithPasskey({ sessionKey: "session-1" });
   };
 
   const logInWithPasskey2 = async () => {
-    await client?.loginWithPasskey({ sessionKey: "session-2" });
+    await loginWithPasskey({ sessionKey: "session-2" });
   };
 
   const indexedDB = async () => {
-    const resp = await client?.httpClient.getWhoami({});
+    const resp = await httpClient?.getWhoami({});
     console.log("Response from getWhoami:", resp);
   };
 
+  const handleCreatePasskey = async () => {
+    const res = await createPasskey();
+    console.log("Created passkey:", res);
+  };
+
   const getWallets = async () => {
-    const res = await client?.fetchWallets({});
+    const res = await fetchWallets();
     if (res) {
       setWallets(res);
       console.log("Wallets:", res);
-    } else {
-      console.error("Failed to fetch wallets");
     }
   };
 
-  const initOtp = async () => {
-    const res = await client?.initOtp({
-      otpType: "OTP_TYPE_EMAIL",
-      contact: email,
-    });
-
-    console.log("OTP initialized:", res);
-    if (!res) {
-      console.error("Failed to initialize OTP");
-      return;
-    }
-    setOtpId(res);
-  };
-
-  const verifyOtp = async () => {
-    const res = await client?.verifyOtp({
+  const handleVerifyOtp = async () => {
+    const res = await completeOtp({
       otpId,
       otpCode,
       contact: email,
@@ -70,31 +74,10 @@ export default function AuthPage() {
     });
 
     console.log("OTP verification response:", res);
-
-    if (!res || !res.verificationToken) {
-      console.error("Failed to verify OTP");
-      return;
-    }
-
-    if (!res?.subOrganizationId) {
-      const signupRes = await client?.signUpWithOtp({
-        verificationToken: res.verificationToken,
-        contact: email,
-        otpType: OtpType.Email,
-      });
-      console.log("OTP verified and user signed up:", signupRes);
-      return signupRes;
-    } else {
-      const loginRes = await client?.loginWithOtp({
-        verificationToken: res.verificationToken,
-      });
-      console.log("OTP verified and user logged in:", loginRes);
-      return loginRes;
-    }
   };
 
   const getUser = async () => {
-    const res = await client?.fetchUser({});
+    const res = await fetchUser();
     if (res) {
       console.log("Users:", res);
     } else {
@@ -102,7 +85,7 @@ export default function AuthPage() {
     }
   };
 
-  const signMessage = async () => {
+  const handleSignMessage = async () => {
     if (
       (wallets.length === 0 && !wallets[0]) ||
       !wallets[0].accounts ||
@@ -113,7 +96,7 @@ export default function AuthPage() {
     }
 
     for (const walletAccount of wallets[0].accounts) {
-      const res = await client?.signMessage({
+      const res = await signMessage({
         message: "Hello, Turnkey!",
         wallet: walletAccount,
       });
@@ -122,32 +105,21 @@ export default function AuthPage() {
     }
   };
 
-  const signUpWithPasskey = async () => {
-    const res = await client?.signUpWithPasskey({
-      passkeyDisplayName: `local-shmocal-passkey_${Date.now()}`,
-      createSubOrgParams: {
-        passkeyName: `local-shmocal-passkey_${Date.now()}`,
-      },
-    });
-  };
-
   const handleRefreshSession = async () => {
-    return await client?.refreshSession({});
+    return await refreshSession({});
   };
 
-  const createWallet = async (walletName: string) => {
+  const handleCreateWallet = async (walletName: string) => {
     // List of all v1AddressFormat values
     const allAddressFormats: v1AddressFormat[] = [
+      "ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH",
+      "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH",
+      "ADDRESS_FORMAT_APTOS",
       "ADDRESS_FORMAT_ETHEREUM",
       "ADDRESS_FORMAT_SOLANA",
-      "ADDRESS_FORMAT_APTOS",
-      "ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH",
-      "ADDRESS_FORMAT_XLM",
-      "ADDRESS_FORMAT_XRP",
-      "ADDRESS_FORMAT_TRON",
     ];
 
-    const res = await client?.createWallet({
+    const res = await createWallet({
       walletName,
       accounts: allAddressFormats,
     });
@@ -155,13 +127,8 @@ export default function AuthPage() {
     console.log("Created wallet response:", res);
   };
 
-  const logout = async () => {
-    client?.logout({});
-    // window.location.reload();
-  };
-
   const switchSession = async (sessionKey: string) => {
-    await client?.setActiveSession({ sessionKey });
+    await setActiveSession({ sessionKey });
   };
 
   const showModal = () => {
@@ -196,7 +163,14 @@ export default function AuthPage() {
       </button>
 
       <button
-        onClick={signUpWithPasskey}
+        onClick={async () => {
+          await signUpWithPasskey({
+            passkeyDisplayName: `local-shmocal-passkey_${Date.now()}`,
+            createSubOrgParams: {
+              passkeyName: `local-shmocal-passkey_${Date.now()}`,
+            },
+          });
+        }}
         style={{
           backgroundColor: "rebeccapurple",
           borderRadius: "8px",
@@ -222,7 +196,18 @@ export default function AuthPage() {
         }}
       />
       <button
-        onClick={initOtp}
+        onClick={async () => {
+          const res = await initOtp({
+            otpType: "OTP_TYPE_EMAIL",
+            contact: email,
+          });
+
+          if (!res) {
+            console.error("Failed to initialize OTP");
+            return;
+          }
+          setOtpId(res);
+        }}
         style={{
           backgroundColor: "rebeccapurple",
           borderRadius: "8px",
@@ -249,7 +234,7 @@ export default function AuthPage() {
       />
 
       <button
-        onClick={() => verifyOtp()}
+        onClick={() => handleVerifyOtp()}
         style={{
           backgroundColor: "rebeccapurple",
           borderRadius: "8px",
@@ -261,7 +246,7 @@ export default function AuthPage() {
       </button>
 
       <button
-        onClick={logout}
+        onClick={() => logout()}
         style={{
           backgroundColor: "rosybrown",
           borderRadius: "8px",
@@ -284,7 +269,7 @@ export default function AuthPage() {
         GetWhoami with IndexedDB
       </button>
 
-      {client?.storageManager?.getActiveSession() ? (
+      {session ? (
         <button
           onClick={handleRefreshSession}
           style={{
@@ -299,7 +284,7 @@ export default function AuthPage() {
       ) : null}
 
       <button
-        onClick={createPasskey}
+        onClick={() => handleCreatePasskey()}
         style={{
           backgroundColor: "orange",
           borderRadius: "8px",
@@ -343,7 +328,7 @@ export default function AuthPage() {
       >
         Show Modal
       </button>
-      {client?.storageManager?.getActiveSession() ? (
+      {session ? (
         <button
           onClick={getWallets}
           style={{
@@ -357,9 +342,9 @@ export default function AuthPage() {
         </button>
       ) : null}
 
-      {client?.storageManager?.getActiveSession() ? (
+      {session ? (
         <button
-          onClick={() => createWallet(`EVERYTHING ${wallets.length + 1}`)}
+          onClick={() => handleCreateWallet(`EVERYTHING ${wallets.length + 1}`)}
           style={{
             backgroundColor: "gray",
             borderRadius: "8px",
@@ -371,7 +356,7 @@ export default function AuthPage() {
         </button>
       ) : null}
 
-      {client?.storageManager?.getActiveSession() ? (
+      {session ? (
         <button
           onClick={() => switchSession("session-1")}
           style={{
@@ -385,7 +370,7 @@ export default function AuthPage() {
         </button>
       ) : null}
 
-      {client?.storageManager?.getActiveSession() ? (
+      {session ? (
         <button
           onClick={() => switchSession("session-2")}
           style={{
@@ -399,7 +384,7 @@ export default function AuthPage() {
         </button>
       ) : null}
 
-      {client?.storageManager?.getActiveSession() ? (
+      {session ? (
         <button
           onClick={getUser}
           style={{
@@ -415,7 +400,7 @@ export default function AuthPage() {
 
       {wallets.length > 0 && (
         <button
-          onClick={signMessage}
+          onClick={handleSignMessage}
           style={{
             backgroundColor: "pink",
             borderRadius: "8px",

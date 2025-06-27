@@ -14,7 +14,8 @@ export {
   WebauthnStamper,
 } from "@turnkey/webauthn-stamper";
 
-export { TurnkeyClient } from "./__clients__/core";
+export { TurnkeyClient, type TurnkeyClientMethods } from "./__clients__/core";
+export { type TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 
 // export { getStorageValue, setStorageValue, StorageKeys } from "@storage";
 
