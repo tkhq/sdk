@@ -7,7 +7,7 @@ import {
   TransitionChild,
 } from "@headlessui/react";
 import { useModal } from "./Provider";
-import { IconButton } from "../../components/Buttons";
+import { IconButton } from "../../components/design/Buttons";
 import { faArrowLeft, faClose } from "@fortawesome/free-solid-svg-icons";
 
 export function ModalRoot() {
