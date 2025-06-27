@@ -25,6 +25,7 @@ function RootLayout({ children }: RootLayoutProps) {
             auth: {
               googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
               oAuthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
+              openOAuthInPage: true,
             },
             passkeyConfig: {
               rpId: process.env.NEXT_PUBLIC_RPID!,
