@@ -550,13 +550,13 @@ export const fromDerSignature = (derSignature: string): Uint8Array => {
     );
   }
 
-  // Check second byte
+  // Check second byte, start of length field
   let index = 1;
   const lengthByte = derSignatureBuf[index]!;
   if (lengthByte <= 0x7f) {
     // Short form: single byte length
 
-    // directly take the consumed value as length and check it
+    // directly take the consumed value as length and check against buffer
     // buffer length: initial header bytes + claimed remaining length
     if (derSignatureBuf.length < 1 + 1 + lengthByte) {
       throw new Error(
@@ -574,7 +574,7 @@ export const fromDerSignature = (derSignature: string): Uint8Array => {
     // We do not expect signature data in the Long form notation
     // -> reject all such inputs
     //
-    // More complex parsing for longer signature sequences can be implemented once needed in the future
+    // More complex parsing for longer signature sequences can be implemented once needed
     throw new Error(
       "failed to convert DER-encoded signature: unexpectedly large or invalid signature length",
     );
@@ -588,6 +588,11 @@ export const fromDerSignature = (derSignature: string): Uint8Array => {
   }
   index++; // Move past the INTEGER tag
   const rLength = derSignatureBuf[index];
+  if (rLength > 32) {
+    throw new Error(
+      "failed to convert DER-encoded signature: unexpected length for r",
+    );
+  }
   index++; // Move past the length byte
   const r = derSignatureBuf.slice(index, index + rLength!);
   index += rLength!; // Move to the start of s
@@ -600,6 +605,11 @@ export const fromDerSignature = (derSignature: string): Uint8Array => {
   }
   index++; // Move past the INTEGER tag
   const sLength = derSignatureBuf[index];
+  if (sLength > 32) {
+    throw new Error(
+      "failed to convert DER-encoded signature: unexpected length for s",
+    );
+  }
   index++; // Move past the length byte
   const s = derSignatureBuf.slice(index, index + sLength!);
 
