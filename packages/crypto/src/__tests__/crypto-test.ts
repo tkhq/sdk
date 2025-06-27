@@ -287,7 +287,7 @@ describe("Turnkey Crypto Primitives", () => {
     test("should reject signatures without SEQUENCE tag (0x30)", () => {
       const invalidHex = bytesToHex([
         0x31, // Wrong tag (should be 0x30)
-        0x44, // Length
+        0x44, // Length of SEQUENCE
         0x02,
         0x20,
         ...new Array(32).fill(0x01), // r
@@ -320,30 +320,30 @@ describe("Turnkey Crypto Primitives", () => {
     test("should reject signatures with unsupported length encoding (0x80-0xFE range)", () => {
       const unsupportedLengthHex = bytesToHex([
         0x30, // SEQUENCE tag
-        0x81, // Unsupported length encoding (per feedback specification)
+        0x81, // Length encoding value that we do not want to support
         0x44, // Length value
         // ... rest of signature would follow
       ]);
 
       expect(() => fromDerSignature(unsupportedLengthHex)).toThrow(
-        /unsupported length encoding/,
+        /large or invalid signature length/,
       );
     });
 
     test("should handle edge case of maximum short-form length (0x7F)", () => {
-      // This would be a very large signature, but valid short-form
+      // This would be a very large signature chunk with trailing data, but valid short-form
       const rValue = new Array(32).fill(0x01);
       const sValue = new Array(32).fill(0x02);
 
       const derHex = bytesToHex([
         0x30, // SEQUENCE tag
-        0x7f, // Maximum short-form length
-        0x02,
-        0x20,
-        ...rValue, // r (34 bytes total)
-        0x02,
-        0x20,
-        ...sValue, // s (34 bytes total)
+        0x7f, // Maximum short-form length of SEQUENCE
+        0x02, // INTEGER tag
+        0x20, // length of INTEGER
+        ...rValue, // r (34 bytes total for INTEGER including header)
+        0x02, // INTEGER tag
+        0x20, // length of INTEGER
+        ...sValue, // s (34 bytes total for INTEGER including header)
         ...new Array(0x7f - 68).fill(0x00), // Padding to reach 0x7F total length
       ]);
 
@@ -354,13 +354,13 @@ describe("Turnkey Crypto Primitives", () => {
   describe("Invalid signatures - INTEGER parsing", () => {
     test("should reject signatures with invalid r INTEGER tag", () => {
       const invalidRTagHex = bytesToHex([
-        0x30,
-        0x44, // SEQUENCE
-        0x03,
-        0x20,
-        ...new Array(32).fill(0x01), // Wrong tag for r (0x03 instead of 0x02)
-        0x02,
-        0x20,
+        0x30, // SEQUENCE tag
+        0x44, // length of SEQUENCE
+        0x03, // WRONG tag for r (0x03 instead of 0x02)
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x01), // r
+        0x02, // Correct tag for s
+        0x20, // length of INTEGER
         ...new Array(32).fill(0x02), // s
       ]);
 
@@ -371,14 +371,14 @@ describe("Turnkey Crypto Primitives", () => {
 
     test("should reject signatures with invalid s INTEGER tag", () => {
       const invalidSTagHex = bytesToHex([
-        0x30,
-        0x44, // SEQUENCE
-        0x02,
-        0x20,
+        0x30, // SEQUENCE tag
+        0x44, // length of SEQUENCE
+        0x02, // Correct tag for r
+        0x20, // length of INTEGER
         ...new Array(32).fill(0x01), // r
-        0x03,
-        0x20,
-        ...new Array(32).fill(0x02), // Wrong tag for s (0x03 instead of 0x02)
+        0x03, // WRONG tag for s (0x03 instead of 0x02)
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x02), // s
       ]);
 
       expect(() => fromDerSignature(invalidSTagHex)).toThrow(
