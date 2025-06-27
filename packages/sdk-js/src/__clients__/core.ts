@@ -54,6 +54,22 @@ import {
 } from "../turnkey-helpers";
 import { WalletType } from "@turnkey/wallet-stamper";
 
+type PublicMethods<T> = {
+  [K in keyof T as K extends string | number | symbol
+    ? K extends
+        | "init"
+        | "constructor"
+        | "config"
+        | "httpClient"
+        | "user"
+        | "wallets"
+      ? never
+      : K
+    : never]: T[K] extends Function ? T[K] : never;
+};
+
+export type TurnkeyClientMethods = PublicMethods<TurnkeyClient>;
+
 export class TurnkeyClient {
   config: TurnkeySDKClientConfig; // Type TBD
   httpClient!: TurnkeySDKClientBase;
@@ -62,16 +78,16 @@ export class TurnkeyClient {
   public user?: User; // TO IMPLEMENT: fetchUser
   public wallets?: Wallet[];
 
-  apiKeyStamper?: CrossPlatformApiKeyStamper | undefined; // TODO (Amir): TEMPORARILY PUBLIC, MAKE PRIVATE LATER
+  private apiKeyStamper?: CrossPlatformApiKeyStamper | undefined; // TODO (Amir): TEMPORARILY PUBLIC, MAKE PRIVATE LATER
   private passkeyStamper?: CrossPlatformPasskeyStamper | undefined;
-  storageManager!: StorageBase;
+  private storageManager!: StorageBase;
 
   constructor(
     config: any,
 
     // Users can pass in their own stampers, or we will create them. Should we remove this?
     apiKeyStamper?: CrossPlatformApiKeyStamper,
-    passkeyStamper?: CrossPlatformPasskeyStamper,
+    passkeyStamper?: CrossPlatformPasskeyStamper
   ) {
     this.config = config;
 
@@ -93,7 +109,7 @@ export class TurnkeyClient {
 
     if (this.config.passkeyConfig) {
       this.passkeyStamper = new CrossPlatformPasskeyStamper(
-        this.config.passkeyConfig,
+        this.config.passkeyConfig
       );
       await this.passkeyStamper.init();
     }
@@ -107,12 +123,13 @@ export class TurnkeyClient {
     });
   }
 
-  createPasskey = async (params: {
+  createPasskey = async (params?: {
     name?: string;
     displayName?: string;
   }): Promise<{ attestation: v1Attestation; encodedChallenge: string }> => {
     try {
-      const { name = "A Passkey", displayName = "A Passkey" } = params;
+      const name = params?.name || "A Passkey";
+      const displayName = params?.displayName || "A Passkey";
       let passkey: { encodedChallenge: string; attestation: v1Attestation };
       if (isWeb()) {
         const res = await this.passkeyStamper?.createWebPasskey({
@@ -169,19 +186,17 @@ export class TurnkeyClient {
     }
   };
 
-  loginWithPasskey = async (params: {
+  loginWithPasskey = async (params?: {
     sessionType?: SessionType;
     publicKey?: string;
     sessionKey?: string | undefined;
-  }): Promise<void> => {
+  }): Promise<string> => {
     let generatedKeyPair = null;
     try {
-      generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
-      const {
-        sessionType = SessionType.READ_WRITE,
-        publicKey = generatedKeyPair,
-        sessionKey = SessionKey.DefaultSessionkey,
-      } = params;
+      const sessionType = params?.sessionType || SessionType.READ_WRITE;
+      const publicKey =
+        params?.publicKey || (await this.apiKeyStamper?.createKeyPair());
+      const sessionKey = params?.sessionKey || SessionKey.DefaultSessionkey;
 
       // Create a read-only session
       if (sessionType === SessionType.READ_ONLY) {
@@ -196,10 +211,11 @@ export class TurnkeyClient {
         generatedKeyPair = null;
 
         // Create a read-write session
+        return readOnlySessionResult.session;
       } else if (sessionType === SessionType.READ_WRITE) {
         if (!publicKey) {
           throw new Error(
-            "You must provide a publicKey to create a passkey read write session.",
+            "You must provide a publicKey to create a passkey read write session."
           );
         }
         const sessionResponse = await this.httpClient.stampLogin(
@@ -207,7 +223,7 @@ export class TurnkeyClient {
             publicKey,
             organizationId: this.config.organizationId,
           },
-          StamperType.Passkey,
+          StamperType.Passkey
         );
 
         await this.storeSession({
@@ -216,6 +232,8 @@ export class TurnkeyClient {
         });
         // Key pair was successfully used, set to null to prevent cleanup
         generatedKeyPair = null;
+
+        return sessionResponse.session;
       } else {
         throw new Error(`Invalid session type passed: ${sessionType}`);
       }
@@ -228,25 +246,25 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
         } catch (cleanupError) {
           throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`,
+            `Failed to clean up generated key pair: ${cleanupError}`
           );
         }
       }
     }
   };
 
-  signUpWithPasskey = async (params: {
+  signUpWithPasskey = async (params?: {
     createSubOrgParams?: CreateSubOrgParams;
     sessionType?: SessionType;
     sessionKey?: string | undefined;
     passkeyDisplayName?: string;
-  }): Promise<void> => {
+  }): Promise<string> => {
     const {
       createSubOrgParams,
       passkeyDisplayName,
       sessionType = SessionType.READ_WRITE,
-      sessionKey,
-    } = params;
+      sessionKey = SessionKey.DefaultSessionkey,
+    } = params || {};
 
     let generatedKeyPair = null;
     try {
@@ -260,7 +278,7 @@ export class TurnkeyClient {
 
       if (!passkey) {
         throw new Error(
-          "Failed to create passkey: encoded challenge or attestation is missing",
+          "Failed to create passkey: encoded challenge or attestation is missing"
         );
       }
 
@@ -334,6 +352,8 @@ export class TurnkeyClient {
       });
 
       generatedKeyPair = null; // Key pair was successfully used, set to null to prevent cleanup
+
+      return sessionResponse.session;
     } catch (error) {
       throw new Error(`Failed to sign up with passkey: ${error}`);
     } finally {
@@ -345,7 +365,7 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
         } catch (cleanupError) {
           throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`,
+            `Failed to clean up generated key pair: ${cleanupError}`
           );
         }
       }
@@ -419,12 +439,12 @@ export class TurnkeyClient {
             otpId: otpId,
             otpCode: otpCode,
           }),
-        },
+        }
       );
       if (!verifyRes.ok) {
         const error = await verifyRes.text();
         throw new Error(
-          `OTP verification failed: ${verifyRes.status} ${error}`,
+          `OTP verification failed: ${verifyRes.status} ${error}`
         );
       }
       const verifyOtpRes: v1VerifyOtpResult = await verifyRes.json();
@@ -502,7 +522,7 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(publicKey);
         } catch (cleanupError) {
           throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`,
+            `Failed to clean up generated key pair: ${cleanupError}`
           );
         }
       }
@@ -515,16 +535,18 @@ export class TurnkeyClient {
     contact: string;
     otpType: OtpType;
     createSubOrgParams?: CreateSubOrgParams;
+    invalidateExisting?: boolean;
     sessionType?: SessionType;
     sessionKey?: string | undefined;
-  }): Promise<void> => {
+  }): Promise<string> => {
     const {
       verificationToken,
       contact,
       otpType,
       createSubOrgParams,
-      sessionType = SessionType.READ_WRITE,
-      sessionKey = SessionKey.DefaultSessionkey,
+      invalidateExisting,
+      sessionType,
+      sessionKey,
     } = params;
 
     const signUpBody = {
@@ -561,29 +583,77 @@ export class TurnkeyClient {
         throw new Error(`Sign up failed: ${res.status} ${errorText}`);
       }
 
-      await this.loginWithOtp({
+      return await this.loginWithOtp({
         verificationToken,
         publicKey: generatedKeyPair!,
-        sessionKey,
-        sessionType,
+        ...(invalidateExisting && { invalidateExisting }),
+        ...(sessionType && { sessionType }),
+        ...(sessionKey && { sessionKey }),
       });
+
     } catch (error) {
       throw new Error(`Failed to sign up with OTP: ${error}`);
-    } finally {
-      // Clean up the generated key pair if it wasn't successfully used
-      if (generatedKeyPair) {
-        try {
-          await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
-        } catch (cleanupError) {
-          throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`,
-          );
-        }
-      }
     }
   };
 
-  handleOauthLoginOrSignup = async (params: {
+  completeOtp = async (params: {
+    otpId: string;
+    otpCode: string;
+    contact: string;
+    otpType: OtpType;
+    publicKey?: string;
+    invalidateExisting?: boolean;
+    sessionType?: SessionType;
+    sessionKey?: string | undefined;
+    createSubOrgParams?: CreateSubOrgParams;
+  }): Promise<string> => {
+    const {
+      otpId,
+      otpCode,
+      contact,
+      otpType,
+      publicKey,
+      invalidateExisting = false,
+      sessionType,
+      sessionKey,
+      createSubOrgParams,
+    } = params;
+
+    const { subOrganizationId, verificationToken } = await this.verifyOtp({
+      otpId: otpId,
+      otpCode: otpCode,
+      contact: contact,
+      otpType: otpType,
+    });
+
+    if (!verificationToken) {
+      throw new Error("No verification token returned from OTP verification");
+    }
+
+    if (!subOrganizationId) {
+      return await this.signUpWithOtp({
+        verificationToken,
+        contact: contact,
+        otpType: otpType,
+        ...(createSubOrgParams && {
+          createSubOrgParams,
+        }),
+        ...(invalidateExisting && { invalidateExisting }),
+        ...(sessionType && { sessionType }),
+        ...(sessionKey && { sessionKey }),
+      });
+    } else {
+      return await this.loginWithOtp({
+        verificationToken,
+        ...(publicKey && { publicKey }),
+        ...(invalidateExisting && { invalidateExisting }),
+        ...(sessionType && { sessionType }),
+        ...(sessionKey && { sessionKey }),
+      });
+    }
+  };
+
+  completeOauth = async (params: {
     oidcToken: string;
     publicKey: string;
     sessionKey?: string | undefined;
@@ -670,7 +740,7 @@ export class TurnkeyClient {
 
     if (!publicKey) {
       throw new Error(
-        "Public key must be provided to log in with OAuth. Please create a key pair first.",
+        "Public key must be provided to log in with OAuth. Please create a key pair first."
       );
     }
 
@@ -708,7 +778,7 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(publicKey);
         } catch (cleanupError) {
           throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`,
+            `Failed to clean up generated key pair: ${cleanupError}`
           );
         }
       }
@@ -767,11 +837,11 @@ export class TurnkeyClient {
     });
   };
 
-  fetchWallets = async (params: {
+  fetchWallets = async (params?: {
     stamperType?: StamperType;
     saveInClient?: boolean;
   }): Promise<Wallet[]> => {
-    const { stamperType, saveInClient = true } = params;
+    const { stamperType, saveInClient = true } = params || {};
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new Error("No active session found. Please log in first.");
@@ -779,7 +849,7 @@ export class TurnkeyClient {
     try {
       const res = await this.httpClient.getWallets(
         { organizationId: session.organizationId },
-        stamperType,
+        stamperType
       );
 
       if (!res || !res.wallets) {
@@ -831,7 +901,7 @@ export class TurnkeyClient {
           organizationId: session.organizationId,
           paginationOptions: paginationOptions || { limit: "100" },
         },
-        stamperType,
+        stamperType
       );
     } catch (error) {
       throw new Error(`Failed to fetch wallet accounts: ${error}`);
@@ -863,7 +933,7 @@ export class TurnkeyClient {
         encoding: payloadEncoding,
         hashFunction,
       },
-      stampWith,
+      stampWith
     );
 
     if (response.activity.failure) {
@@ -897,14 +967,14 @@ export class TurnkeyClient {
           unsignedTransaction,
           type,
         },
-        stampWith,
+        stampWith
       );
     } catch (error) {
       throw new Error(`Failed to sign transaction: ${error}`);
     }
   };
 
-  fetchUser = async (params: {
+  fetchUser = async (params?: {
     organizationId?: string;
     userId?: string;
   }): Promise<v1User> => {
@@ -913,17 +983,17 @@ export class TurnkeyClient {
       throw new Error("No active session found. Please log in first.");
     }
 
-    const userId = params.userId || session.userId;
+    const userId = params?.userId || session.userId;
     if (!userId) {
       throw new Error("User ID must be provided to fetch user");
     }
 
-    const organizationId = params.organizationId || session.organizationId;
+    const organizationId = params?.organizationId || session.organizationId;
 
     try {
       const userResponse = await this.httpClient.getUser(
         { organizationId, userId },
-        StamperType.ApiKey,
+        StamperType.ApiKey
       );
 
       if (!userResponse || !userResponse.user) {
@@ -968,7 +1038,7 @@ export class TurnkeyClient {
           accounts: walletAccounts,
           mnemonicLength: mnemonicLength || 12,
         },
-        stampWith,
+        stampWith
       );
 
       if (!res || !res.walletId) {
@@ -1003,12 +1073,12 @@ export class TurnkeyClient {
           walletId,
           accounts: accounts,
         },
-        stampWith,
+        stampWith
       );
 
       if (!res || !res.addresses) {
         throw new Error(
-          "No account found in the create wallet account response",
+          "No account found in the create wallet account response"
         );
       }
       return res.addresses;
@@ -1040,7 +1110,7 @@ export class TurnkeyClient {
           targetPublicKey,
           organizationId: organizationId || session.organizationId,
         },
-        stamperType,
+        stamperType
       );
 
       if (!res.exportBundle) {
@@ -1086,11 +1156,11 @@ export class TurnkeyClient {
     }
   };
 
-  deleteSubOrganization = async (params: {
+  deleteSubOrganization = async (params?: {
     deleteWithoutExport?: boolean;
     stamperWith?: StamperType;
   }): Promise<TDeleteSubOrganizationResponse> => {
-    const { deleteWithoutExport = false, stamperWith } = params;
+    const { deleteWithoutExport = false, stamperWith } = params || {};
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new Error("No active session found. Please log in first.");
@@ -1099,14 +1169,14 @@ export class TurnkeyClient {
     try {
       return await this.httpClient.deleteSubOrganization(
         { deleteWithoutExport },
-        stamperWith,
+        stamperWith
       );
     } catch (error) {
       throw new Error(`Failed to delete sub-organization: ${error}`);
     }
   };
 
-  createSubOrganization = async (params: {
+  createSubOrganization = async (params?: {
     oauthProviders?: Provider[] | undefined;
     userEmail?: string | undefined;
     userPhoneNumber?: string | undefined;
@@ -1130,7 +1200,7 @@ export class TurnkeyClient {
       userName,
       userEmail,
       userPhoneNumber,
-    } = params;
+    } = params || {};
 
     try {
       const response = await this.httpClient.createSubOrganization({
@@ -1200,10 +1270,10 @@ export class TurnkeyClient {
     }
   };
 
-  clearSession = async (params: {
+  clearSession = async (params?: {
     sessionKey?: string | undefined;
   }): Promise<void> => {
-    const { sessionKey = SessionKey.DefaultSessionkey } = params;
+    const { sessionKey = SessionKey.DefaultSessionkey } = params || {};
     try {
       const session = await this.storageManager.getSession(sessionKey);
       if (session) {
@@ -1227,7 +1297,7 @@ export class TurnkeyClient {
     }
   };
 
-  refreshSession = async (params: {
+  refreshSession = async (params?: {
     sessionType?: SessionType;
     expirationSeconds?: string | undefined;
     publicKey?: string;
@@ -1240,7 +1310,7 @@ export class TurnkeyClient {
       publicKey,
       sessionType = SessionType.READ_WRITE,
       invalidateExisitng = false,
-    } = params;
+    } = params || {};
 
     try {
       switch (sessionType) {
@@ -1273,7 +1343,7 @@ export class TurnkeyClient {
         }
         default: {
           throw new Error(
-            "Invalid session type passed. Use SessionType.READ_WRITE or SessionType.READ_ONLY.",
+            "Invalid session type passed. Use SessionType.READ_WRITE or SessionType.READ_ONLY."
           );
         }
       }
@@ -1282,13 +1352,28 @@ export class TurnkeyClient {
     }
   };
 
-  getSession = async (params: {
+  getSession = async (params?: {
     sessionKey?: string | undefined;
   }): Promise<Session | undefined> => {
     const { sessionKey = await this.storageManager.getActiveSessionKey() } =
-      params;
+      params || {};
     return this.storageManager.getSession(sessionKey);
   };
+
+  getAllSessions = async (): Promise<Record<string, Session> | undefined> => {
+    const sessionKeys = await this.storageManager.listSessionKeys();
+    if (!sessionKeys || sessionKeys.length === 0) {
+      return undefined;
+    }
+    const sessions: Record<string, Session> = {};
+    for (const sessionKey of sessionKeys) {
+      const session = await this.storageManager.getSession(sessionKey);
+      if (session) {
+        sessions[sessionKey] = session;
+      }
+    }
+    return sessions;
+  }
 
   setActiveSession = async (params: { sessionKey: string }): Promise<void> => {
     const { sessionKey } = params;
@@ -1309,16 +1394,39 @@ export class TurnkeyClient {
         sessionTokensMap[session.token] = sessionKey;
       }
     }
+
+    console.log(sessionTokensMap, publicKeys);
     for (const publicKey of publicKeys) {
       if (!sessionTokensMap[publicKey]) {
         try {
           await this.apiKeyStamper?.deleteKeyPair(publicKey);
         } catch (error) {
           console.error(
-            `Failed to delete unused key pair ${publicKey}: ${error}`,
+            `Failed to delete unused key pair ${publicKey}: ${error}`
           );
         }
       }
     }
+  };
+
+  createApiKeyPair = async (params?: {
+    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string };
+    storeOverride?: boolean;
+  }): Promise<string> => {
+    if (!this.apiKeyStamper) {
+      throw new Error("API Key Stamper is not initialized.");
+    }
+    const externalKeyPair = params?.externalKeyPair;
+    const storeOverride = params?.storeOverride ?? false;
+
+    const publicKey = await this.apiKeyStamper.createKeyPair(
+      externalKeyPair ? externalKeyPair : undefined
+    );
+
+    if (storeOverride && publicKey) {
+      await this.apiKeyStamper.setPublicKeyOverride(publicKey);
+    }
+
+    return publicKey;
   };
 }
