@@ -446,8 +446,8 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     }`;
 
     const methodType = methodTypeFromMethodName(methodName);
-    const inputType = `${operationNameWithoutNamespace}Request`;
-    const responseType = `${operationNameWithoutNamespace}Response`;
+    const inputType = `T${operationNameWithoutNamespace}Body`;
+    const responseType = `T${operationNameWithoutNamespace}Response`;
 
     // For query methods
     if (methodType === "query") {

@@ -138,6 +138,7 @@ function isValidIdentifier(name) {
  * @returns {string}
  */
 function methodTypeFromMethodName(methodName) {
+  methodName = methodName.toLowerCase();
   if (["approveActivity", "rejectActivity"].includes(methodName)) {
     return "activityDecision";
   }
@@ -146,9 +147,9 @@ function methodTypeFromMethodName(methodName) {
   }
   // TODO: filter out unnecessary client methods, whether here or from the source
   if (
-    methodName.startsWith("get") ||
-    methodName.startsWith("list") ||
-    methodName.startsWith("test")
+    methodName.startsWith("tget") ||
+    methodName.startsWith("tlist") ||
+    methodName.startsWith("ttest")
   ) {
     return "query";
   }
@@ -234,7 +235,7 @@ function generateApiTypes(swagger) {
 
     const operationNameWithoutNamespace = operationId.replace(
       new RegExp(`${namespace}_`),
-      "",
+      "T",
     );
     const methodName =
       operationNameWithoutNamespace.charAt(0).toLowerCase() +
@@ -253,9 +254,13 @@ function generateApiTypes(swagger) {
     const apiTypeName =
       operationNameWithoutNamespace.replace(/^./, (c) => c.toUpperCase()) +
       "Response";
-    const apiRequestTypeName =
+    const apiBodyTypeName =
       operationNameWithoutNamespace.replace(/^./, (c) => c.toUpperCase()) +
-      "Request";
+      "Body";
+
+    const apiInputTypeName =
+      operationNameWithoutNamespace.replace(/^./, (c) => c.toUpperCase()) +
+      "Input";
 
     // --- RESPONSE TYPE GENERATION ---
     if (methodType === "command") {
@@ -366,7 +371,7 @@ function generateApiTypes(swagger) {
 
     if (!requestTypeDef) continue;
 
-    output += `export type ${apiRequestTypeName} = {\n`;
+    output += `export type ${apiBodyTypeName} = {\n`;
 
     if (methodType === "command" || methodType === "activityDecision") {
       output += `  timestampMs?: string;\n  organizationId?: string;\n`;
@@ -415,6 +420,8 @@ function generateApiTypes(swagger) {
       }
     }
     output += "}\n\n";
+
+    output += `export type ${apiInputTypeName} = { body: ${apiBodyTypeName} };\n\n`;
   }
   return output;
 }
