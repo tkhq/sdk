@@ -7,6 +7,7 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   auth?: {
     googleClientId?: string;
     oAuthRedirectUri?: string;
+    openOAuthInPage?: boolean;
   };
 }
 

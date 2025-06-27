@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { BaseButton } from "../Buttons";
+import { BaseButton } from "../design/Buttons";
+import { useModal } from "../../providers";
+import { Spinner } from "../design/Spinners";
 
 interface OAuthButtonProps {
   name: string;
@@ -53,22 +55,55 @@ interface OAuthLoadingProps {
 
 export function OAuthLoading(props: OAuthLoadingProps) {
   const { name, icon, action } = props;
+  const { popPage, closeModal } = useModal();
+  const hasRun = useRef(false);
+  const iconRef = useRef<HTMLDivElement>(null);
+  const [spinnerSize, setSpinnerSize] = useState<number>(40);
+
+  const displayName = name.charAt(0).toUpperCase() + name.slice(1);
 
   useEffect(() => {
+    if (iconRef.current) {
+      const rect = iconRef.current.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      setSpinnerSize(size + 50);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
     const runAction = async () => {
       if (action) {
-        console.log(`Starting OAuth action for ${name}`);
-        await action();
+        try {
+          await action();
+        } catch (error) {
+          popPage();
+          throw new Error(`Error during OAuth action: ${error}`);
+        }
+        closeModal();
       }
     };
     runAction();
   }, []);
 
   return (
-    <div className="flex items-center justify-center w-full h-full">
-      <div className="flex items-center gap-2">
-        {icon}
-        <span className="text-lg font-semibold">{`Authenticating with ${name}...`}</span>
+    <div className="flex items-center justify-center w-96 h-64">
+      <div className="flex flex-col items-center justify-center gap-7">
+        <div className="relative flex items-center justify-center">
+          <div ref={iconRef} className="flex items-center justify-center">
+            {icon}
+          </div>
+          <Spinner
+            className="absolute"
+            style={{
+              width: spinnerSize,
+              height: spinnerSize,
+            }}
+            strokeWidth={1}
+          />
+        </div>
+        <span className="text-lg font-semibold">{`Authenticating with ${displayName}...`}</span>
       </div>
     </div>
   );
