@@ -536,8 +536,49 @@ const bigIntToHex = (num: bigint, length: number): string => {
 export const fromDerSignature = (derSignature: string): Uint8Array => {
   const derSignatureBuf = uint8ArrayFromHexString(derSignature);
 
-  // Check and skip the sequence tag (0x30)
-  let index = 2;
+  // Check minimum length
+  if (derSignatureBuf.length < 2) {
+    throw new Error(
+      "failed to convert DER-encoded signature: insufficient length",
+    );
+  }
+
+  // Check SEQUENCE tag (0x30 at first byte)
+  if (derSignatureBuf[0] !== 0x30) {
+    throw new Error(
+      "failed to convert DER-encoded signature: invalid format (missing SEQUENCE tag)",
+    );
+  }
+
+  // Check second byte, start of length field
+  let index = 1;
+  const lengthByte = derSignatureBuf[index]!;
+  if (lengthByte <= 0x7f) {
+    // Short form: single byte length
+
+    // directly take the consumed value as length and check against buffer
+    // buffer length: initial header bytes + claimed remaining length
+    if (derSignatureBuf.length < 1 + 1 + lengthByte) {
+      throw new Error(
+        "failed to convert DER-encoded signature: inconsistent message length header",
+      );
+    }
+
+    // continue parsing
+    index += 1;
+  } else {
+    // Multi-byte DER length header
+    // Invalid DER values: lengthByte 0x80 and 0xff
+    // Valid DER values: lengthByte > 0x80, < 0xff
+    //
+    // We do not expect signature data in the Long form notation
+    // -> reject all such inputs
+    //
+    // More complex parsing for longer signature sequences can be implemented once needed
+    throw new Error(
+      "failed to convert DER-encoded signature: unexpectedly large or invalid signature length",
+    );
+  }
 
   // Parse 'r' and check for integer tag (0x02)
   if (derSignatureBuf[index] !== 0x02) {
@@ -545,11 +586,20 @@ export const fromDerSignature = (derSignature: string): Uint8Array => {
       "failed to convert DER-encoded signature: invalid tag for r",
     );
   }
+
   index++; // Move past the INTEGER tag
-  const rLength = derSignatureBuf[index];
+  const rLength = derSignatureBuf[index]!;
+
+  // Allow up to 32 data bytes + 1 byte 0-padding prefix
+  if (rLength > 33) {
+    throw new Error(
+      "failed to convert DER-encoded signature: unexpected length for r",
+    );
+  }
+
   index++; // Move past the length byte
-  const r = derSignatureBuf.slice(index, index + rLength!);
-  index += rLength!; // Move to the start of s
+  const r = derSignatureBuf.slice(index, index + rLength);
+  index += rLength; // Move to the start of s
 
   // Parse 's' and check for integer tag (0x02)
   if (derSignatureBuf[index] !== 0x02) {
@@ -557,10 +607,19 @@ export const fromDerSignature = (derSignature: string): Uint8Array => {
       "failed to convert DER-encoded signature: invalid tag for s",
     );
   }
+
   index++; // Move past the INTEGER tag
-  const sLength = derSignatureBuf[index];
+  const sLength = derSignatureBuf[index]!;
+
+  // Allow up to 32 data bytes + 1 byte 0-padding prefix
+  if (sLength > 33) {
+    throw new Error(
+      "failed to convert DER-encoded signature: unexpected length for s",
+    );
+  }
+
   index++; // Move past the length byte
-  const s = derSignatureBuf.slice(index, index + sLength!);
+  const s = derSignatureBuf.slice(index, index + sLength);
 
   // Normalize 'r' and 's' to 32 bytes each
   const rPadded = normalizePadding(r, 32);

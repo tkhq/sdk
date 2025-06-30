@@ -16,6 +16,7 @@ import {
   formatHpkeBuf,
   verifyStampSignature,
   verifySessionJwtSignature,
+  fromDerSignature,
 } from "../";
 
 // Mock data for testing
@@ -257,6 +258,201 @@ describe("Turnkey Crypto Primitives", () => {
       ).toThrow("failed to uncompress raw public key: invalid length");
     });
   });
+
+  describe("Valid DER signatures", () => {
+    test("should parse a simple DER signature with short-form length", () => {
+      // Create a signature with 32-byte r and s values
+      const rValue = new Array(32).fill(0x01);
+      const sValue = new Array(32).fill(0x02);
+      const totalLength = 2 + 32 + 2 + 32; // 2 bytes for each INTEGER header + values
+
+      const derHex = createDerSignature([totalLength], rValue, sValue);
+
+      expect(() => fromDerSignature(derHex)).not.toThrow();
+    });
+
+    test("should parse a DER signature with 33-byte integers (with leading zero)", () => {
+      // ECDSA signatures sometimes have leading zeros to ensure positive integers
+      const rValue = [0x00, ...new Array(32).fill(0x80)]; // Leading zero + high bit set
+      const sValue = [0x00, ...new Array(32).fill(0x90)];
+      const totalLength = 2 + 33 + 2 + 33;
+
+      const derHex = createDerSignature([totalLength], rValue, sValue);
+
+      expect(() => fromDerSignature(derHex)).not.toThrow();
+    });
+  });
+
+  describe("Invalid signatures - missing SEQUENCE tag", () => {
+    test("should reject signatures without SEQUENCE tag (0x30)", () => {
+      const invalidHex = bytesToHex([
+        0x31, // Wrong tag (should be 0x30)
+        0x44, // Length of SEQUENCE
+        0x02,
+        0x20,
+        ...new Array(32).fill(0x01), // r
+        0x02,
+        0x20,
+        ...new Array(32).fill(0x02), // s
+      ]);
+
+      expect(() => fromDerSignature(invalidHex)).toThrow(
+        "failed to convert DER-encoded signature: invalid format (missing SEQUENCE tag)",
+      );
+    });
+
+    test("should reject empty signatures", () => {
+      expect(() => fromDerSignature("")).toThrow(
+        "cannot create uint8array from invalid hex string",
+      );
+    });
+
+    test("should reject signatures that are too short", () => {
+      const shortHex = bytesToHex([0x30]); // Only SEQUENCE tag, no length
+      expect(() => fromDerSignature(shortHex)).toThrow(
+        "failed to convert DER-encoded signature: insufficient length",
+      );
+    });
+  });
+
+  describe("Invalid signatures - length field issues", () => {
+    test("should reject signatures with unsupported length encoding (0x80-0xFE range)", () => {
+      const unsupportedLengthHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x81, // Length encoding value that we do not want to support
+        0x44, // Length value
+        // ... rest of signature would follow
+      ]);
+
+      expect(() => fromDerSignature(unsupportedLengthHex)).toThrow(
+        /large or invalid signature length/,
+      );
+    });
+
+    test("should handle edge case of maximum short-form length (0x7F)", () => {
+      // This would be a very large signature chunk with trailing data, but valid short-form
+      const rValue = new Array(32).fill(0x01);
+      const sValue = new Array(32).fill(0x02);
+
+      const derHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x7f, // Maximum short-form length of SEQUENCE
+        0x02, // INTEGER tag
+        0x20, // length of INTEGER
+        ...rValue, // r (34 bytes total for INTEGER including header)
+        0x02, // INTEGER tag
+        0x20, // length of INTEGER
+        ...sValue, // s (34 bytes total for INTEGER including header)
+        ...new Array(0x7f - 68).fill(0x00), // Padding to reach 0x7F total length
+      ]);
+
+      expect(() => fromDerSignature(derHex)).not.toThrow();
+    });
+
+    test("should reject signatures with invalid r length", () => {
+      const invalidRTagHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x44, // length of SEQUENCE
+        0x02, // Correct tag for r
+        0x22, // length of INTEGER // invalid -- should be 32 or 33
+        ...new Array(34).fill(0x01), // r
+        0x02, // Correct tag for s
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x02), // s
+      ]);
+
+      expect(() => fromDerSignature(invalidRTagHex)).toThrow(
+        /unexpected length for r/,
+      );
+    });
+
+    test("should reject signatures with invalid s length", () => {
+      const invalidRTagHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x44, // length of SEQUENCE
+        0x02, // Correct tag for r
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x01), // r
+        0x02, // Correct tag for s
+        0x22, // length of INTEGER // invalid -- should be 32 or 33
+        ...new Array(34).fill(0x02), // s
+      ]);
+
+      expect(() => fromDerSignature(invalidRTagHex)).toThrow(
+        /unexpected length for s/,
+      );
+    });
+
+    test("should reject signatures with invalid, non-padding r bytes", () => {
+      const invalidRTagHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x44, // length of SEQUENCE
+        0x02, // Correct tag for r
+        0x21, // length of INTEGER // 33 -- this is valid
+        ...new Array(33).fill(0x01), // r -- this is invalid, as the first byte in a 33 byte sequence is a non-padding byte
+        0x02, // Correct tag for s
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x02), // s
+      ]);
+
+      expect(() => fromDerSignature(invalidRTagHex)).toThrow(
+        /invalid number of starting zeroes/,
+      );
+    });
+
+    test("should reject signatures with invalid, non-padding s bytes", () => {
+      const invalidRTagHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x44, // length of SEQUENCE
+        0x02, // Correct tag for r
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x01), // r
+        0x02, // Correct tag for s
+        0x21, // length of INTEGER // 33 -- this is valid
+        ...new Array(33).fill(0x02), // s -- this is invalid, as the first byte in a 33 byte sequence is a non-padding byte
+      ]);
+
+      expect(() => fromDerSignature(invalidRTagHex)).toThrow(
+        /invalid number of starting zeroes/,
+      );
+    });
+  });
+
+  describe("Invalid signatures - INTEGER parsing", () => {
+    test("should reject signatures with invalid r INTEGER tag", () => {
+      const invalidRTagHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x44, // length of SEQUENCE
+        0x03, // WRONG tag for r (0x03 instead of 0x02)
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x01), // r
+        0x02, // Correct tag for s
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x02), // s
+      ]);
+
+      expect(() => fromDerSignature(invalidRTagHex)).toThrow(
+        /invalid tag for r/,
+      );
+    });
+
+    test("should reject signatures with invalid s INTEGER tag", () => {
+      const invalidSTagHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x44, // length of SEQUENCE
+        0x02, // Correct tag for r
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x01), // r
+        0x03, // WRONG tag for s (0x03 instead of 0x02)
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x02), // s
+      ]);
+
+      expect(() => fromDerSignature(invalidSTagHex)).toThrow(
+        /invalid tag for s/,
+      );
+    });
+  });
 });
 
 describe("Session JWT signature", () => {
@@ -270,3 +466,29 @@ describe("Session JWT signature", () => {
     expect(ok).toBe(true);
   });
 });
+
+// Helper function to create hex strings from byte arrays
+const bytesToHex = (bytes: number[]): string => {
+  return bytes.map((b) => b.toString(16).padStart(2, "0")).join("");
+};
+
+// Helper function to create a basic DER signature structure
+const createDerSignature = (
+  sequenceLength: number[],
+  rValue: number[],
+  sValue: number[],
+): string => {
+  const rLength = rValue.length;
+  const sLength = sValue.length;
+
+  return bytesToHex([
+    0x30, // SEQUENCE tag
+    ...sequenceLength, // Sequence length (can be multiple bytes)
+    0x02, // INTEGER tag for r
+    rLength, // r length (assuming single byte for simplicity)
+    ...rValue,
+    0x02, // INTEGER tag for s
+    sLength, // s length (assuming single byte for simplicity)
+    ...sValue,
+  ]);
+};
