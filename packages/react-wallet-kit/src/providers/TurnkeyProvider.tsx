@@ -2,6 +2,7 @@ import { TurnkeySDKClientConfig } from "@turnkey/sdk-js";
 import { ClientProvider } from "./client/Provider";
 import { ModalProvider } from "./modal/Provider";
 import { ModalRoot } from "./modal/Root";
+import { Session } from "@turnkey/sdk-types";
 
 export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   auth?: {
@@ -9,11 +10,14 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     oAuthRedirectUri?: string;
     openOAuthInPage?: boolean;
   };
+  autoRefreshSession?: boolean;
 }
 
 export interface TurnkeyCallbacks {
   onOauthRedirect?: (response: { idToken: string; publicKey: string }) => void;
-  beforeSessionExpiry?: (session: { sessionKey: string }) => void;
+  beforeSessionExpiry?: (params: { sessionKey: string }) => void;
+  onSessionExpired?: (params: { sessionKey: string }) => void;
+  onAuthenticationSuccess?: (params: {session: Session | undefined}) => void;
 }
 
 export function TurnkeyProvider({

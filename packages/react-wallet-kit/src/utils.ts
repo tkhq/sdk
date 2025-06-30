@@ -1,3 +1,5 @@
+import { Session } from "@turnkey/sdk-types";
+
 export const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 export const APPLE_AUTH_URL = "https://appleid.apple.com/auth/authorize";
 export const APPLE_AUTH_SCRIPT_URL =
@@ -7,6 +9,8 @@ export const FACEBOOK_GRAPH_URL =
   "https://graph.facebook.com/v11.0/oauth/access_token";
 export const popupWidth = 500;
 export const popupHeight = 600;
+
+export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
 
 export const authErrors = {
   // Passkey-related errors
@@ -53,3 +57,7 @@ export enum FilterType {
   OidcToken = "OIDC_TOKEN",
   PublicKey = "PUBLIC_KEY",
 }
+
+export const isValidSession = (session?: Session | undefined): boolean => {
+  return session?.expiry !== undefined && session.expiry * 1000 > Date.now();
+};
