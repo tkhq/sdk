@@ -122,6 +122,7 @@ export interface TurnkeyConfig {
   onSessionExpired?: (session: Session) => void;
   onSessionCleared?: (session: Session) => void;
   onSessionEmpty?: () => void;
+  onInitialized?: () => void;
   onSessionExpiryWarning?: (session: Session) => void;
 }
 
@@ -194,7 +195,7 @@ export const TurnkeyProvider: FC<{
     };
 
     initializeSessions();
-
+    config.onInitialized?.();
     return () => {
       clearTimeouts();
     };
