@@ -2,4 +2,4 @@
 "@turnkey/sdk-react-native": patch
 ---
 
-Added callback function for notifying connected apps, that context initialization has finished.
+Added `onInitialized`. A callback function that runs when context initialization is complete, useful for notifying connected apps.

@@ -93,6 +93,12 @@ export const AppProviders = ({ children }: { children: React.ReactNode }) => {
   const turnkeyConfig = {
     apiBaseUrl: "https://api.turnkey.com",
     organizationId: "<your organization id>",
+    onInitialized: () => {
+      console.log("Context initialized");
+    },
+    onSessionEmpty: () => {
+      console.log("No active session on app launch");
+    },
     onSessionCreated: (session) => {
       console.log("Session Created", session);
     },
@@ -196,6 +202,8 @@ This SDK supports **multiple sessions**, allowing you to create and switch betwe
 - **Switching Sessions**: Use `setSelectedSession({ sessionKey })` to switch between stored sessions. The client, user, and session information will automatically update.
 - **Session Expiry Management**: Each session has an expiry time, and expired sessions will be automatically cleared.
 - **Callbacks for Session Events**:
+  - `onInitialized`: Called once context initialization is complete.
+  - `onSessionEmpty`: Called when there is no active session on app launch.
   - `onSessionCreated`: Called when a session is created.
   - `onSessionSelected`: Called when a session is selected.
   - `onSessionExpired`: Called when a session expires.
