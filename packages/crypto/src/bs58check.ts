@@ -16,7 +16,7 @@
 import * as raw from "bs58check";
 
 type Bs58Check = {
-  encode(buf: Uint8Array): string;
+  encode(payload: Uint8Array | number[]): string;
   decode(str: string): Uint8Array;
   decodeUnsafe(str: string): Uint8Array | undefined;
 };
