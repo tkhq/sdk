@@ -1846,9 +1846,6 @@ importers:
       bs58:
         specifier: 6.0.0
         version: 6.0.0
-      bs58check:
-        specifier: 4.0.0
-        version: 4.0.0
     devDependencies:
       '@turnkey/api-key-stamper':
         specifier: workspace:*

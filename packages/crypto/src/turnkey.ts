@@ -1,6 +1,5 @@
 /// <reference lib="dom" />
 // Turnkey-specific cryptographic utilities
-import bs58check from "bs58check";
 import bs58 from "bs58";
 import {
   uint8ArrayToHexString,
@@ -23,7 +22,7 @@ import {
 import { p256 } from "@noble/curves/p256";
 import { ed25519 } from "@noble/curves/ed25519";
 import type { ProjPointType } from "@noble/curves/abstract/weierstrass";
-import { sha256 } from "@noble/hashes/sha256";
+import { sha256 } from "@noble/hashes/sha2";
 
 interface DecryptExportBundleParams {
   exportBundle: string;
@@ -63,16 +62,45 @@ export const decryptCredentialBundle = (
   embeddedKey: string,
 ): string => {
   try {
-    const bundleBytes = bs58check.decode(credentialBundle);
-    if (bundleBytes.byteLength <= 33) {
+    // we avoid using the bs58check package because its latest version uses ESM/CJS conditional exports,
+    // which are not compatible with React Native's Metro bundler. Instead, we manually decode with
+    // bs58 and verify the checksum using noble's sha256, following the logic from:
+    // https://github.com/bitcoinjs/bs58check
+
+    const buffer = bs58.decode(credentialBundle);
+    if (buffer.length < 4) {
+      throw new Error("Invalid base58check input: too short");
+    }
+
+    const payload = buffer.slice(0, -4);
+    const checksum = buffer.slice(-4);
+    const computedChecksum = sha256(sha256(payload));
+
+    if (checksum.length < 4 || computedChecksum.length < 4) {
+      throw new Error("Checksum too short");
+    }
+
+    // use constant-time comparison to avoid timing attacks
+    // this prevents leaking how many leading bytes matched
+    if (
+      (checksum[0]! ^ computedChecksum[0]!) |
+      (checksum[1]! ^ computedChecksum[1]!) |
+      (checksum[2]! ^ computedChecksum[2]!) |
+      (checksum[3]! ^ computedChecksum[3]!)
+    ) {
+      throw new Error("Invalid base58check checksum");
+    }
+
+    if (payload.byteLength <= 33) {
       throw new Error(
-        `Bundle size ${bundleBytes.byteLength} is too low. Expecting a compressed public key (33 bytes) and an encrypted credential.`,
+        `Bundle size ${payload.byteLength} is too low. Expecting a compressed public key (33 bytes) and an encrypted credential.`,
       );
     }
 
-    const compressedEncappedKeyBuf = bundleBytes.slice(0, 33);
-    const ciphertextBuf = bundleBytes.slice(33);
+    const compressedEncappedKeyBuf = payload.slice(0, 33);
+    const ciphertextBuf = payload.slice(33);
     const encappedKeyBuf = uncompressRawPublicKey(compressedEncappedKeyBuf);
+
     const decryptedData = hpkeDecrypt({
       ciphertextBuf,
       encappedKeyBuf,
@@ -81,7 +109,7 @@ export const decryptCredentialBundle = (
 
     return uint8ArrayToHexString(decryptedData);
   } catch (error) {
-    throw new Error(`"Error decrypting bundle:", ${error}`);
+    throw new Error(`Error decrypting bundle: ${error}`);
   }
 };
 
