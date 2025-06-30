@@ -238,6 +238,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
+    needs: prepare-release
     runs-on:
       group: package-deploy
     environment: production # require manual approval for production deployments
