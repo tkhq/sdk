@@ -2,6 +2,7 @@ import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { _internal_ComponentButton } from "@headlessui/react";
 import clsx from "clsx";
+import { Spinner } from "./Spinners";
 
 interface IconButtonProps {
   icon: IconDefinition;
@@ -11,13 +12,13 @@ interface IconButtonProps {
 }
 
 export function BaseButton(
-  props: React.ButtonHTMLAttributes<HTMLButtonElement>,
+  props: React.ButtonHTMLAttributes<HTMLButtonElement>
 ) {
   const { children, className, disabled, ...buttonProps } = props;
 
   return (
     <button
-      className={clsx("cursor-pointer bg-transparent border-none", className)}
+      className={clsx("cursor-pointer border-none", className)}
       disabled={!!disabled}
       {...buttonProps}
     >
@@ -34,6 +35,40 @@ export function IconButton(props: IconButtonProps) {
       disabled={!!disabled}
     >
       <FontAwesomeIcon icon={icon} />
+    </BaseButton>
+  );
+}
+
+interface TextButtonProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  className?: string;
+}
+
+export function TextButton({
+  children,
+  onClick,
+  disabled,
+  loading,
+  className = "",
+}: TextButtonProps) {
+  return (
+    <BaseButton
+      onClick={onClick}
+      disabled={disabled || loading}
+      className={`w-full px-4 py-3 rounded-md focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 transition-all duration-300 ${
+        disabled || loading ? "opacity-50 cursor-not-allowed" : ""
+      } ${className}`}
+    >
+      {loading ? (
+        <div className="flex justify-center items-center">
+          <Spinner className="w-4 h-4" />
+        </div>
+      ) : (
+        <span className="text-sm">{children}</span>
+      )}
     </BaseButton>
   );
 }
