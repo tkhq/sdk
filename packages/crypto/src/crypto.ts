@@ -586,16 +586,20 @@ export const fromDerSignature = (derSignature: string): Uint8Array => {
       "failed to convert DER-encoded signature: invalid tag for r",
     );
   }
+
   index++; // Move past the INTEGER tag
   const rLength = derSignatureBuf[index]!;
-  if (rLength > 32) {
+
+  // Allow length of 32 or 33 (padding)
+  if (rLength !== 32 && rLength !== 33) {
     throw new Error(
       "failed to convert DER-encoded signature: unexpected length for r",
     );
   }
+
   index++; // Move past the length byte
   const r = derSignatureBuf.slice(index, index + rLength);
-  index += rLength!; // Move to the start of s
+  index += rLength; // Move to the start of s
 
   // Parse 's' and check for integer tag (0x02)
   if (derSignatureBuf[index] !== 0x02) {
@@ -603,13 +607,17 @@ export const fromDerSignature = (derSignature: string): Uint8Array => {
       "failed to convert DER-encoded signature: invalid tag for s",
     );
   }
+
   index++; // Move past the INTEGER tag
   const sLength = derSignatureBuf[index]!;
-  if (sLength > 32) {
+
+  // Allow length of 32 or 33 (padding)
+  if (sLength !== 32 && sLength !== 33) {
     throw new Error(
       "failed to convert DER-encoded signature: unexpected length for s",
     );
   }
+
   index++; // Move past the length byte
   const s = derSignatureBuf.slice(index, index + sLength);
 

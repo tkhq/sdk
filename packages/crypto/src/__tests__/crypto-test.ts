@@ -316,7 +316,6 @@ describe("Turnkey Crypto Primitives", () => {
   });
 
   describe("Invalid signatures - length field issues", () => {
-    // TODO: validate this assumption
     test("should reject signatures with unsupported length encoding (0x80-0xFE range)", () => {
       const unsupportedLengthHex = bytesToHex([
         0x30, // SEQUENCE tag
@@ -348,6 +347,74 @@ describe("Turnkey Crypto Primitives", () => {
       ]);
 
       expect(() => fromDerSignature(derHex)).not.toThrow();
+    });
+
+    test("should reject signatures with invalid r length", () => {
+      const invalidRTagHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x44, // length of SEQUENCE
+        0x02, // Correct tag for r
+        0x22, // length of INTEGER // invalid -- should be 32 or 33
+        ...new Array(34).fill(0x01), // r
+        0x02, // Correct tag for s
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x02), // s
+      ]);
+
+      expect(() => fromDerSignature(invalidRTagHex)).toThrow(
+        /unexpected length for r/,
+      );
+    });
+
+    test("should reject signatures with invalid s length", () => {
+      const invalidRTagHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x44, // length of SEQUENCE
+        0x02, // Correct tag for r
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x01), // r
+        0x02, // Correct tag for s
+        0x22, // length of INTEGER // invalid -- should be 32 or 33
+        ...new Array(34).fill(0x02), // s
+      ]);
+
+      expect(() => fromDerSignature(invalidRTagHex)).toThrow(
+        /unexpected length for s/,
+      );
+    });
+
+    test("should reject signatures with invalid, non-padding r bytes", () => {
+      const invalidRTagHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x44, // length of SEQUENCE
+        0x02, // Correct tag for r
+        0x21, // length of INTEGER // 33 -- this is valid
+        ...new Array(33).fill(0x01), // r -- this is invalid, as the first byte in a 33 byte sequence is a non-padding byte
+        0x02, // Correct tag for s
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x02), // s
+      ]);
+
+      expect(() => fromDerSignature(invalidRTagHex)).toThrow(
+        /invalid number of starting zeroes/,
+      );
+    });
+
+    test("should reject signatures with invalid, non-padding s bytes", () => {
+      const invalidRTagHex = bytesToHex([
+        0x30, // SEQUENCE tag
+        0x44, // length of SEQUENCE
+        0x02, // Correct tag for r
+        0x20, // length of INTEGER
+        ...new Array(32).fill(0x01), // r
+        0x02, // Correct tag for s
+        0x21, // length of INTEGER // 33 -- this is valid
+        ...new Array(33).fill(0x02), // s -- this is invalid, as the first byte in a 33 byte sequence is a non-padding byte
+      ]);
+
+      expect(() => fromDerSignature(invalidRTagHex)).toThrow(
+        /invalid number of starting zeroes/,
+      );
     });
   });
 
