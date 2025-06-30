@@ -23,7 +23,11 @@ type Bs58Check = {
 
 function unwrap(obj: any): any {
   let cur = obj;
-  while (cur && !cur.decode && cur.default) {
+  while (
+    cur &&
+    !(cur.encode && cur.decode && cur.decodeUnsafe) &&
+    cur.default
+  ) {
     cur = cur.default;
   }
   return cur;
