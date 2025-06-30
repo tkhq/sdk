@@ -56,7 +56,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
 }
 
 export const ClientContext = createContext<ClientContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const useTurnkey = (): ClientContextType => {
@@ -116,6 +116,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     };
     fetchSessions();
   }, [client]);
+
+  useEffect(() => {
+    if (client) {
+      const interval = setInterval(async () => {
+        if (allSessions) {
+          for (const sessionKey in allSessions) {
+            const session = allSessions[sessionKey];
+            if (!session) continue;
+            if (session.expiry - Date.now() < 2 * 60 * 1000) {
+              callbacks?.beforeSessionExpiry?.({ sessionKey: sessionKey });
+            }
+          }
+        }
+      }, 60 * 1000);
+      return () => clearInterval(interval);
+    }
+  }, [client, callbacks]);
 
   async function createPasskey(params?: {
     name?: string;
@@ -345,7 +362,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     });
   };
 
-  // Add the rest of the core client methods as wrappers
   async function signMessage(params: {
     message: string;
     wallet?: v1WalletAccount;
@@ -556,7 +572,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     const authWindow = window.open(
       "about:blank",
       "_blank",
-      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
+      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
     );
 
     if (!authWindow) {
@@ -585,7 +601,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const additionalState = Object.entries(additionalParameters)
         .map(
           ([key, value]) =>
-            `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+            `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
         )
         .join("&");
       if (additionalState) {

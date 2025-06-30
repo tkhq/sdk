@@ -87,7 +87,7 @@ export class TurnkeyClient {
 
     // Users can pass in their own stampers, or we will create them. Should we remove this?
     apiKeyStamper?: CrossPlatformApiKeyStamper,
-    passkeyStamper?: CrossPlatformPasskeyStamper
+    passkeyStamper?: CrossPlatformPasskeyStamper,
   ) {
     this.config = config;
 
@@ -109,7 +109,7 @@ export class TurnkeyClient {
 
     if (this.config.passkeyConfig) {
       this.passkeyStamper = new CrossPlatformPasskeyStamper(
-        this.config.passkeyConfig
+        this.config.passkeyConfig,
       );
       await this.passkeyStamper.init();
     }
@@ -215,7 +215,7 @@ export class TurnkeyClient {
       } else if (sessionType === SessionType.READ_WRITE) {
         if (!publicKey) {
           throw new Error(
-            "You must provide a publicKey to create a passkey read write session."
+            "You must provide a publicKey to create a passkey read write session.",
           );
         }
         const sessionResponse = await this.httpClient.stampLogin(
@@ -223,7 +223,7 @@ export class TurnkeyClient {
             publicKey,
             organizationId: this.config.organizationId,
           },
-          StamperType.Passkey
+          StamperType.Passkey,
         );
 
         await this.storeSession({
@@ -246,7 +246,7 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
         } catch (cleanupError) {
           throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`
+            `Failed to clean up generated key pair: ${cleanupError}`,
           );
         }
       }
@@ -278,7 +278,7 @@ export class TurnkeyClient {
 
       if (!passkey) {
         throw new Error(
-          "Failed to create passkey: encoded challenge or attestation is missing"
+          "Failed to create passkey: encoded challenge or attestation is missing",
         );
       }
 
@@ -365,7 +365,7 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
         } catch (cleanupError) {
           throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`
+            `Failed to clean up generated key pair: ${cleanupError}`,
           );
         }
       }
@@ -439,12 +439,12 @@ export class TurnkeyClient {
             otpId: otpId,
             otpCode: otpCode,
           }),
-        }
+        },
       );
       if (!verifyRes.ok) {
         const error = await verifyRes.text();
         throw new Error(
-          `OTP verification failed: ${verifyRes.status} ${error}`
+          `OTP verification failed: ${verifyRes.status} ${error}`,
         );
       }
       const verifyOtpRes: v1VerifyOtpResult = await verifyRes.json();
@@ -522,7 +522,7 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(publicKey);
         } catch (cleanupError) {
           throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`
+            `Failed to clean up generated key pair: ${cleanupError}`,
           );
         }
       }
@@ -590,7 +590,6 @@ export class TurnkeyClient {
         ...(sessionType && { sessionType }),
         ...(sessionKey && { sessionKey }),
       });
-
     } catch (error) {
       throw new Error(`Failed to sign up with OTP: ${error}`);
     }
@@ -740,7 +739,7 @@ export class TurnkeyClient {
 
     if (!publicKey) {
       throw new Error(
-        "Public key must be provided to log in with OAuth. Please create a key pair first."
+        "Public key must be provided to log in with OAuth. Please create a key pair first.",
       );
     }
 
@@ -778,7 +777,7 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(publicKey);
         } catch (cleanupError) {
           throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`
+            `Failed to clean up generated key pair: ${cleanupError}`,
           );
         }
       }
@@ -849,7 +848,7 @@ export class TurnkeyClient {
     try {
       const res = await this.httpClient.getWallets(
         { organizationId: session.organizationId },
-        stamperType
+        stamperType,
       );
 
       if (!res || !res.wallets) {
@@ -901,7 +900,7 @@ export class TurnkeyClient {
           organizationId: session.organizationId,
           paginationOptions: paginationOptions || { limit: "100" },
         },
-        stamperType
+        stamperType,
       );
     } catch (error) {
       throw new Error(`Failed to fetch wallet accounts: ${error}`);
@@ -933,7 +932,7 @@ export class TurnkeyClient {
         encoding: payloadEncoding,
         hashFunction,
       },
-      stampWith
+      stampWith,
     );
 
     if (response.activity.failure) {
@@ -967,7 +966,7 @@ export class TurnkeyClient {
           unsignedTransaction,
           type,
         },
-        stampWith
+        stampWith,
       );
     } catch (error) {
       throw new Error(`Failed to sign transaction: ${error}`);
@@ -993,7 +992,7 @@ export class TurnkeyClient {
     try {
       const userResponse = await this.httpClient.getUser(
         { organizationId, userId },
-        StamperType.ApiKey
+        StamperType.ApiKey,
       );
 
       if (!userResponse || !userResponse.user) {
@@ -1038,7 +1037,7 @@ export class TurnkeyClient {
           accounts: walletAccounts,
           mnemonicLength: mnemonicLength || 12,
         },
-        stampWith
+        stampWith,
       );
 
       if (!res || !res.walletId) {
@@ -1073,12 +1072,12 @@ export class TurnkeyClient {
           walletId,
           accounts: accounts,
         },
-        stampWith
+        stampWith,
       );
 
       if (!res || !res.addresses) {
         throw new Error(
-          "No account found in the create wallet account response"
+          "No account found in the create wallet account response",
         );
       }
       return res.addresses;
@@ -1110,7 +1109,7 @@ export class TurnkeyClient {
           targetPublicKey,
           organizationId: organizationId || session.organizationId,
         },
-        stamperType
+        stamperType,
       );
 
       if (!res.exportBundle) {
@@ -1169,7 +1168,7 @@ export class TurnkeyClient {
     try {
       return await this.httpClient.deleteSubOrganization(
         { deleteWithoutExport },
-        stamperWith
+        stamperWith,
       );
     } catch (error) {
       throw new Error(`Failed to delete sub-organization: ${error}`);
@@ -1343,7 +1342,7 @@ export class TurnkeyClient {
         }
         default: {
           throw new Error(
-            "Invalid session type passed. Use SessionType.READ_WRITE or SessionType.READ_ONLY."
+            "Invalid session type passed. Use SessionType.READ_WRITE or SessionType.READ_ONLY.",
           );
         }
       }
@@ -1373,7 +1372,7 @@ export class TurnkeyClient {
       }
     }
     return sessions;
-  }
+  };
 
   setActiveSession = async (params: { sessionKey: string }): Promise<void> => {
     const { sessionKey } = params;
@@ -1402,7 +1401,7 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(publicKey);
         } catch (error) {
           console.error(
-            `Failed to delete unused key pair ${publicKey}: ${error}`
+            `Failed to delete unused key pair ${publicKey}: ${error}`,
           );
         }
       }
@@ -1420,7 +1419,7 @@ export class TurnkeyClient {
     const storeOverride = params?.storeOverride ?? false;
 
     const publicKey = await this.apiKeyStamper.createKeyPair(
-      externalKeyPair ? externalKeyPair : undefined
+      externalKeyPair ? externalKeyPair : undefined,
     );
 
     if (storeOverride && publicKey) {
