@@ -8,6 +8,7 @@ import { useContext, useEffect, useState } from "react";
 import { Session, v1AddressFormat, v1Attestation } from "@turnkey/sdk-types";
 import { OtpType } from "@turnkey/sdk-js";
 import { useModal, useTurnkey } from "@turnkey/react-wallet-kit";
+import { SessionKey } from "@turnkey/sdk-js/dist/__storage__/base";
 
 export default function AuthPage() {
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -19,6 +20,7 @@ export default function AuthPage() {
     httpClient,
     session,
     allSessions,
+    authState,
     login,
     handleGoogleOauth,
     loginWithPasskey,
@@ -38,6 +40,10 @@ export default function AuthPage() {
   useEffect(() => {
     console.log("All Sessions:", allSessions);
   }, [allSessions]);
+
+  useEffect(() => {
+    console.log("Auth state", authState)
+  }, [authState]);
 
   const logInWithPasskey1 = async () => {
     await loginWithPasskey({ sessionKey: "session-1" });
@@ -356,7 +362,18 @@ export default function AuthPage() {
         </button>
       ) : null}
 
-      {session ? (
+      <button
+          onClick={() => switchSession(SessionKey.DefaultSessionkey)}
+          style={{
+            backgroundColor: "lightblue",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Switch to Default Session
+        </button>
+
         <button
           onClick={() => switchSession("session-1")}
           style={{
@@ -368,9 +385,7 @@ export default function AuthPage() {
         >
           Switch to Session 1
         </button>
-      ) : null}
 
-      {session ? (
         <button
           onClick={() => switchSession("session-2")}
           style={{
@@ -382,7 +397,6 @@ export default function AuthPage() {
         >
           Switch to Session 2
         </button>
-      ) : null}
 
       {session ? (
         <button
