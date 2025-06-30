@@ -12,6 +12,7 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
 
 export interface TurnkeyCallbacks {
   onOauthRedirect?: (response: { idToken: string; publicKey: string }) => void;
+  beforeSessionExpiry?: (session: { sessionKey: string }) => void;
 }
 
 export function TurnkeyProvider({
