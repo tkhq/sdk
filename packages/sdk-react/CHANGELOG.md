@@ -40,7 +40,7 @@
 
 ### Minor Changes
 
-- [#632](https://github.com/tkhq/sdk/pull/632) [`a38a6e3`](https://github.com/tkhq/sdk/commit/a38a6e36dc2bf9abdea64bc817d1cad95b8a289a) Author [@amircheikh](https://github.com/amircheikh) - Added optional `socialLinking` boolean to the `authConfig`. If true, this will enable social linking for new Google <-> Gmail users. For more information on social linking, visit [our docs](https://docs.turnkey.com/authentication/social-logins#social-linking).
+- [#632](https://github.com/tkhq/sdk/pull/632) [`a38a6e3`](https://github.com/tkhq/sdk/commit/a38a6e36dc2bf9abdea64bc817d1cad95b8a289a) Author [@amircheikh](https://github.com/amircheikh) - Added optional `socialLinking` boolean to the `authConfig`. If true, this will enable social linking for new Google &lt;-&gt; Gmail users. For more information on social linking, visit [our docs](https://docs.turnkey.com/authentication/social-logins#social-linking).
 
 ### Patch Changes
 
