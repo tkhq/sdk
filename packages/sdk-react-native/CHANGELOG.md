@@ -1,5 +1,14 @@
 # @turnkey/sdk-react-native
 
+## 1.3.4
+
+### Patch Changes
+
+- [#711](https://github.com/tkhq/sdk/pull/711) [`22dc1aa`](https://github.com/tkhq/sdk/commit/22dc1aa3f289ddc5818fb7328235eaa873f8f367) Author [@moeodeh3](https://github.com/moeodeh3) - Added `onInitialized`. A callback function that runs when context initialization is complete, useful for notifying connected apps.
+
+- Updated dependencies [[`c5cdf82`](https://github.com/tkhq/sdk/commit/c5cdf8229da5da1bd6d52db06b2fe42826e96d57), [`fa46701`](https://github.com/tkhq/sdk/commit/fa467019eef34b5199372248edff1e7a64934e79)]:
+  - @turnkey/crypto@2.4.2
+
 ## 1.3.3
 
 ### Patch Changes

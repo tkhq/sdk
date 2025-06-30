@@ -1,5 +1,13 @@
 # @turnkey/crypto
 
+## 2.4.2
+
+### Patch Changes
+
+- [#699](https://github.com/tkhq/sdk/pull/699) [`c5cdf82`](https://github.com/tkhq/sdk/commit/c5cdf8229da5da1bd6d52db06b2fe42826e96d57) Author [@andrewkmin](https://github.com/andrewkmin) - Add validations to `fromDerSignature` for parsing DER signatures in the Turnkey context
+
+- [#716](https://github.com/tkhq/sdk/pull/716) [`fa46701`](https://github.com/tkhq/sdk/commit/fa467019eef34b5199372248edff1e7a64934e79) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `decryptCredentialBundle` not working in React Native by adding a shim to handle `bs58check`'s ESM-only export.
+
 ## 2.4.1
 
 ### Patch Changes
