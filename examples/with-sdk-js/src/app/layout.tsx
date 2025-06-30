@@ -33,6 +33,7 @@ function RootLayout({ children }: RootLayoutProps) {
               userVerification: "preferred",
               allowCredentials: [],
             },
+            autoRefreshSession: true,
           }}
         >
           {children}
