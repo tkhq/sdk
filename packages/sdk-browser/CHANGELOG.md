@@ -1,5 +1,17 @@
 # @turnkey/sdk-browser
 
+## 5.3.1
+
+### Patch Changes
+
+- [#716](https://github.com/tkhq/sdk/pull/716) [`fa46701`](https://github.com/tkhq/sdk/commit/fa467019eef34b5199372248edff1e7a64934e79) Author [@moeodeh3](https://github.com/moeodeh3) - Updated dependencies
+
+  - bs58check@4.0.0
+
+- Updated dependencies [[`c5cdf82`](https://github.com/tkhq/sdk/commit/c5cdf8229da5da1bd6d52db06b2fe42826e96d57), [`fa46701`](https://github.com/tkhq/sdk/commit/fa467019eef34b5199372248edff1e7a64934e79)]:
+  - @turnkey/crypto@2.4.2
+  - @turnkey/wallet-stamper@1.0.6
+
 ## 5.3.0
 
 ### Minor Changes
