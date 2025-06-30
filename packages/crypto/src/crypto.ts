@@ -560,7 +560,7 @@ export const fromDerSignature = (derSignature: string): Uint8Array => {
     // buffer length: initial header bytes + claimed remaining length
     if (derSignatureBuf.length < 1 + 1 + lengthByte) {
       throw new Error(
-        "failed to convert DER-encoded signature: insufficient length",
+        "failed to convert DER-encoded signature: inconsistent message length header",
       );
     }
 
@@ -590,8 +590,8 @@ export const fromDerSignature = (derSignature: string): Uint8Array => {
   index++; // Move past the INTEGER tag
   const rLength = derSignatureBuf[index]!;
 
-  // Allow length of 32 or 33 (padding)
-  if (rLength !== 32 && rLength !== 33) {
+  // Allow up to 32 data bytes + 1 byte 0-padding prefix
+  if (rLength > 33) {
     throw new Error(
       "failed to convert DER-encoded signature: unexpected length for r",
     );
@@ -611,8 +611,8 @@ export const fromDerSignature = (derSignature: string): Uint8Array => {
   index++; // Move past the INTEGER tag
   const sLength = derSignatureBuf[index]!;
 
-  // Allow length of 32 or 33 (padding)
-  if (sLength !== 32 && sLength !== 33) {
+  // Allow up to 32 data bytes + 1 byte 0-padding prefix
+  if (sLength > 33) {
     throw new Error(
       "failed to convert DER-encoded signature: unexpected length for s",
     );
