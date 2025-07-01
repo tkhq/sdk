@@ -17,7 +17,7 @@ export interface TurnkeyCallbacks {
   onOauthRedirect?: (response: { idToken: string; publicKey: string }) => void;
   beforeSessionExpiry?: (params: { sessionKey: string }) => void;
   onSessionExpired?: (params: { sessionKey: string }) => void;
-  onAuthenticationSuccess?: (params: {session: Session | undefined}) => void;
+  onAuthenticationSuccess?: (params: { session: Session | undefined }) => void;
 }
 
 export function TurnkeyProvider({
