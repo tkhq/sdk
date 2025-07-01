@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-react",
-  "version": "5.2.5",
+  "version": "5.2.6",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {

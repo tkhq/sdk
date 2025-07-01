@@ -1,5 +1,12 @@
 # @turnkey/sdk-react-native
 
+## 1.3.5
+
+### Patch Changes
+
+- Updated dependencies [[`6cbff7a`](https://github.com/tkhq/sdk/commit/6cbff7a0c0b3a9a05586399e5cef476154d3bdca)]:
+  - @turnkey/crypto@2.4.3
+
 ## 1.3.4
 
 ### Patch Changes
