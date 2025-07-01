@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Input } from "@headlessui/react";
-import { TextButton } from "../design/Buttons";
+import { ActionButton } from "../design/Buttons";
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -36,9 +36,8 @@ export function EmailInput(props: EmailInputProps) {
   };
 
   const buttonDisabled = !emailIsValid;
-  const buttonBgClass = isFocused
-    ? "bg-primary-light dark:bg-primary-dark hover:bg-primary-light/90 dark:hover:bg-primary-dark/90 text-modal-text-dark"
-    : "bg-button-light dark:bg-button-dark text-inherit";
+  const buttonBgClass =
+    "bg-primary-light dark:bg-primary-dark hover:bg-primary-light/90 dark:hover:bg-primary-dark/90 text-modal-text-dark";
 
   return (
     <div className="flex flex-col w-full items-center justify-center space-y-3">
@@ -55,14 +54,14 @@ export function EmailInput(props: EmailInputProps) {
         />
       </div>
 
-      <TextButton
+      <ActionButton
         onClick={handleContinue}
         disabled={buttonDisabled}
         loading={loading}
         className={buttonBgClass}
       >
         Continue
-      </TextButton>
+      </ActionButton>
     </div>
   );
 }

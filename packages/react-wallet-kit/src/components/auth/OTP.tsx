@@ -13,9 +13,16 @@ interface OtpVerificationProps {
   otpType: OtpType;
   otpLength?: number;
   alphanumeric?: boolean;
+  formattedContact?: string; // Optional formatted contact for display purposes
 }
 export function OtpVerification(props: OtpVerificationProps) {
-  const { contact, otpType, otpLength = 6, alphanumeric = true } = props;
+  const {
+    contact,
+    otpType,
+    otpLength = 6,
+    alphanumeric = true,
+    formattedContact,
+  } = props;
   const { initOtp, completeOtp } = useTurnkey();
   const { closeModal } = useModal();
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -23,17 +30,11 @@ export function OtpVerification(props: OtpVerificationProps) {
   const [resent, setResent] = useState<boolean>(false);
   const [otpId, setOtpId] = useState<string>(props.otpId);
   const [error, setError] = useState<string | null>(null);
-  const [inputTranslation, setInputTranslation] = useState<number>(0);
+  const [shaking, setShaking] = useState(false);
 
   const shakeInput = () => {
-    // TODO (Amir): Should maybe use keyframes?
-    setInputTranslation(5);
-    setTimeout(() => {
-      setInputTranslation(-5);
-    }, 100);
-    setTimeout(() => {
-      setInputTranslation(0);
-    }, 200);
+    setShaking(true);
+    setTimeout(() => setShaking(false), 250);
   };
 
   const handleContinue = async (otpCode: string) => {
@@ -91,13 +92,12 @@ export function OtpVerification(props: OtpVerificationProps) {
 
         <div className="flex flex-col text-center">
           <span className="text-lg font-medium">{`Enter the ${otpLength}-digit code we sent to:`}</span>
-          <span className="text-base font-semibold">{contact}</span>
+          <span className="text-base font-semibold">
+            {formattedContact ?? contact}
+          </span>
         </div>
 
-        <div
-          style={{ transform: `translateX(${inputTranslation}px)` }}
-          className="transition-all"
-        >
+        <div className={`transition-all ${shaking ? "animate-shake" : ""}`}>
           <OtpInput
             otpLength={otpLength}
             onContinue={handleContinue}
@@ -111,7 +111,7 @@ export function OtpVerification(props: OtpVerificationProps) {
         <BaseButton
           onClick={handleResend}
           disabled={resending || resent}
-          className={`text-xs text-inherit font-semibold bg-transparent ${resent && "opacity-30"}`}
+          className={`text-xs text-inherit font-semibold bg-transparent border-none ${resent && "opacity-30"}`}
         >
           {resending ? (
             <span className="flex items-center gap-2.5">
@@ -164,7 +164,7 @@ export function OtpInput(props: OtpInputProps) {
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     if (e.key === "Backspace" && !values[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
@@ -219,6 +219,7 @@ export function OtpInput(props: OtpInputProps) {
           inputMode={alphanumeric ? "text" : "numeric"}
           maxLength={1}
           value={values[i]}
+          autoComplete="off"
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(e, i)}
           onPaste={handlePaste}
