@@ -15,7 +15,7 @@
     "@zerodev/ecdsa-validator": "^5.4.8",
     "@zerodev/sdk": "^5.4.32",
     "dotenv": "^16.0.3",
-    "ethers": "^6.10.0",
+    "ethers": "^6.14.4",
     "permissionless": "^0.1.45",
     "prompts": "^2.4.2",
     "typescript": "5.4.3",

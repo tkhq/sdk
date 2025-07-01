@@ -1,5 +1,5 @@
 import { setBalance } from "@nomicfoundation/hardhat-network-helpers";
-import { parseEther, verifyMessage, verifyTypedData } from "ethers";
+import { ethers, parseEther, verifyMessage, verifyTypedData } from "ethers";
 import hre from "hardhat";
 import { test, expect, beforeEach, describe } from "@jest/globals";
 import { TurnkeySigner, TurnkeyActivityError } from "../";
@@ -17,6 +17,14 @@ const testCase: typeof test = (...argList) => {
 
   return test(...argList);
 };
+
+// Custom type for EIP-7702 compliance
+export interface EIP7702AuthorizationRequest {
+  address: string;
+  chainId: number | bigint | string;
+  nonce: number | bigint | string;
+  code?: string; // EIP-7702 requires code field
+}
 
 describe("TurnkeySigner", () => {
   let connectedSigner: TurnkeySigner;
@@ -344,6 +352,204 @@ describe("TurnkeySigner", () => {
         expect(approveTx.hash).toMatch(/^0x/);
         expect(approveTx.from).toEqual(signingConfig.expectedEthAddress);
         expect(approveTx.to).toEqual(deploymentAddress);
+      });
+      // testCase("it signs authorization (EIP-712 permit style)", async () => {
+      //   // Define the EIP-712 domain for EIP-7702
+      //   const domain = {
+      //     name: "EIP7702Authorization",
+      //     version: "1",
+      //     chainId: chainId,
+      //     verifyingContract: "0x0000000000000000000000000000000000000000",
+      //   };
+
+      //   // Define the EIP-7702 AuthorizationRequest
+      //   const authRequest: ethers.AuthorizationRequest = {
+      //     address: signingConfig.expectedEthAddress,
+      //     chainId: chainId,
+      //     nonce: 0,
+      //   };
+
+      //   try {
+      //     // Sign the authorization
+      //     const signatureAuthorization =
+      //       await connectedSigner.signAuthorization(authRequest);
+
+      //     // Log for debugging
+      //     console.log(
+      //       "Signature Authorization:",
+      //       JSON.stringify(
+      //         signatureAuthorization,
+      //         (key, value) => {
+      //           if (typeof value === "bigint") return value.toString();
+      //           return value;
+      //         },
+      //         2
+      //       )
+      //     );
+      //     console.log(
+      //       "Expected Signer Address:",
+      //       signingConfig.expectedEthAddress
+      //     );
+
+      //     // Extract signature components
+      //     const { r, s, v } = signatureAuthorization.signature;
+      //     expect(r).toMatch(/^0x/);
+      //     expect(s).toMatch(/^0x/);
+      //     expect(v).toBeGreaterThanOrEqual(27);
+      //     expect(v).toBeLessThanOrEqual(28);
+
+      //     // Get serialized signature
+      //     const signatureToVerify = ethers.Signature.from(
+      //       signatureAuthorization.signature
+      //     ).serialized;
+      //     expect(signatureToVerify).toMatch(/^0x/);
+
+      //     // Define EIP-712 types
+      //     const types = {
+      //       Authorization: [
+      //         { name: "contract", type: "address" },
+      //         { name: "chainId", type: "uint256" },
+      //         { name: "nonce", type: "uint256" },
+      //       ],
+      //     };
+
+      //     // Define EIP-712 message
+      //     const message = {
+      //       contract: authRequest.address,
+      //       chainId: authRequest.chainId,
+      //       nonce: authRequest.nonce,
+      //     };
+
+      //     // Verify the signature
+      //     const recoveredAddress = verifyTypedData(
+      //       domain,
+      //       types,
+      //       message,
+      //       signatureToVerify
+      //     );
+      //     console.log("Recovered Address (Test):", recoveredAddress);
+      //     expect(recoveredAddress).toEqual(signingConfig.expectedEthAddress);
+
+      //     // Verify the authorization object
+      //     expect(signatureAuthorization.address).toEqual(
+      //       signingConfig.expectedEthAddress
+      //     );
+      //     expect(signatureAuthorization.chainId).toEqual(chainId);
+      //     expect(signatureAuthorization.nonce).toEqual(BigInt(0));
+      //   } catch (error) {
+      //     console.error(
+      //       "Error:",
+      //       JSON.stringify(
+      //         {
+      //           name: error instanceof Error ? error.name : "Unknown",
+      //           message: error instanceof Error ? error.message : String(error),
+      //           cause:
+      //             error instanceof TurnkeyActivityError
+      //               ? error.cause
+      //               : undefined,
+      //           stack: error instanceof Error ? error.stack : undefined,
+      //         },
+      //         (key, value) => {
+      //           if (typeof value === "bigint") return value.toString();
+      //           return value;
+      //         },
+      //         2
+      //       )
+      //     );
+      //     throw error; // Re-throw to inspect
+      //   }
+      // });
+      testCase("it signs EIP-7702 authorization", async () => {
+        // Define the EIP-712 domain for EIP-7702
+        const domain = {
+          name: "EIP7702Authorization",
+          version: "1",
+          chainId: chainId,
+          verifyingContract: "0x0000000000000000000000000000000000000000",
+        };
+
+        // Define the EIP-7702 AuthorizationRequest
+        const authRequest: EIP7702AuthorizationRequest = {
+          address: signingConfig.expectedEthAddress,
+          chainId: chainId,
+          nonce: 0,
+          code: "0x1234", // Example bytecode
+        };
+
+        try {
+          // Sign the authorization
+          const signatureAuthorization =
+            await connectedSigner.signAuthorization(authRequest);
+
+          // Extract signature components
+          const { r, s, v } = signatureAuthorization.signature;
+          expect(r).toMatch(/^0x/);
+          expect(s).toMatch(/^0x/);
+          expect(v).toBeGreaterThanOrEqual(27);
+          expect(v).toBeLessThanOrEqual(28);
+
+          // Get serialized signature
+          const signatureToVerify = ethers.Signature.from(
+            signatureAuthorization.signature,
+          ).serialized;
+          expect(signatureToVerify).toMatch(/^0x/);
+
+          // Define EIP-712 types
+          const types = {
+            Authorization: [
+              { name: "contract", type: "address" },
+              { name: "chainId", type: "uint256" },
+              { name: "nonce", type: "uint256" },
+              { name: "code", type: "bytes" },
+            ],
+          };
+
+          // Define EIP-712 message
+          const message = {
+            contract: authRequest.address,
+            chainId: authRequest.chainId,
+            nonce: authRequest.nonce,
+            code: authRequest.code || "0x",
+          };
+
+          // Verify the signature
+          const recoveredAddress = verifyTypedData(
+            domain,
+            types,
+            message,
+            signatureToVerify,
+          );
+
+          expect(recoveredAddress).toEqual(signingConfig.expectedEthAddress);
+
+          // Verify the authorization object
+          expect(signatureAuthorization.address).toEqual(
+            signingConfig.expectedEthAddress,
+          );
+          expect(signatureAuthorization.chainId).toEqual(chainId);
+          expect(signatureAuthorization.nonce).toEqual(BigInt(0));
+        } catch (error) {
+          console.error(
+            "Error:",
+            JSON.stringify(
+              {
+                name: error instanceof Error ? error.name : "Unknown",
+                message: error instanceof Error ? error.message : String(error),
+                cause:
+                  error instanceof TurnkeyActivityError
+                    ? String(error.cause)
+                    : undefined,
+                stack: error instanceof Error ? error.stack : undefined,
+              },
+              (_, value) => {
+                if (typeof value === "bigint") return value.toString();
+                return value;
+              },
+              2,
+            ),
+          );
+          throw error;
+        }
       });
     });
   });
