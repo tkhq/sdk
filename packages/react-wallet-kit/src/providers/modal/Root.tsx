@@ -136,7 +136,7 @@ export function ModalRoot() {
                   />
                 </div>
                 <TransitionChild
-                  as={Fragment}
+                  as={"div"}
                   enter="ease-in duration-200"
                   enterFrom="opacity-0"
                   enterTo="opacity-100"
