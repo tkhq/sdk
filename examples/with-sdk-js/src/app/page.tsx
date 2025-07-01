@@ -11,7 +11,6 @@ import { useModal, useTurnkey } from "@turnkey/react-wallet-kit";
 import { SessionKey } from "@turnkey/sdk-js/dist/__storage__/base";
 
 export default function AuthPage() {
-  const [wallets, setWallets] = useState<Wallet[]>([]);
   const [email, setEmail] = useState<string>("");
   const [otpCode, setOtpCode] = useState<string>("");
   const [otpId, setOtpId] = useState<string>("");
@@ -21,6 +20,9 @@ export default function AuthPage() {
     session,
     allSessions,
     authState,
+    wallets,
+    user,
+    proxyAuthConfig,
     login,
     handleGoogleOauth,
     loginWithPasskey,
@@ -38,11 +40,19 @@ export default function AuthPage() {
   } = useTurnkey();
 
   useEffect(() => {
+    console.log("wallets:", wallets);
+  }, [wallets]);
+
+  useEffect(() => {
+    console.log("User:", user);
+  }, [user]);
+
+  useEffect(() => {
     console.log("All Sessions:", allSessions);
   }, [allSessions]);
 
   useEffect(() => {
-    console.log("Auth state", authState)
+    console.log("Auth state", authState);
   }, [authState]);
 
   const logInWithPasskey1 = async () => {
@@ -66,7 +76,6 @@ export default function AuthPage() {
   const getWallets = async () => {
     const res = await fetchWallets();
     if (res) {
-      setWallets(res);
       console.log("Wallets:", res);
     }
   };
@@ -363,40 +372,40 @@ export default function AuthPage() {
       ) : null}
 
       <button
-          onClick={() => switchSession(SessionKey.DefaultSessionkey)}
-          style={{
-            backgroundColor: "lightblue",
-            borderRadius: "8px",
-            padding: "8px 16px",
-            color: "white",
-          }}
-        >
-          Switch to Default Session
-        </button>
+        onClick={() => switchSession(SessionKey.DefaultSessionkey)}
+        style={{
+          backgroundColor: "lightblue",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Switch to Default Session
+      </button>
 
-        <button
-          onClick={() => switchSession("session-1")}
-          style={{
-            backgroundColor: "lightblue",
-            borderRadius: "8px",
-            padding: "8px 16px",
-            color: "white",
-          }}
-        >
-          Switch to Session 1
-        </button>
+      <button
+        onClick={() => switchSession("session-1")}
+        style={{
+          backgroundColor: "lightblue",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Switch to Session 1
+      </button>
 
-        <button
-          onClick={() => switchSession("session-2")}
-          style={{
-            backgroundColor: "lightblue",
-            borderRadius: "8px",
-            padding: "8px 16px",
-            color: "white",
-          }}
-        >
-          Switch to Session 2
-        </button>
+      <button
+        onClick={() => switchSession("session-2")}
+        style={{
+          backgroundColor: "lightblue",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Switch to Session 2
+      </button>
 
       {session ? (
         <button

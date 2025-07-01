@@ -58,6 +58,13 @@ export enum FilterType {
   PublicKey = "PUBLIC_KEY",
 }
 
+export enum AuthState {
+  Unauthenticated = "unauthenticated",
+  Loading = "loading",
+  Authenticated = "authenticated",
+  Ready = "ready",
+}
+
 export const isValidSession = (session?: Session | undefined): boolean => {
   return session?.expiry !== undefined && session.expiry * 1000 > Date.now();
 };
