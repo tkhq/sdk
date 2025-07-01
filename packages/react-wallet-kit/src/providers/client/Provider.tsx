@@ -48,10 +48,10 @@ import {
 import { useModal } from "../modal/Provider";
 import { TurnkeyCallbacks, TurnkeyProviderConfig } from "../TurnkeyProvider";
 import { AuthComponent } from "../../components/auth";
-import { OAuthLoading } from "../../components/auth/OAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { WalletType } from "@turnkey/wallet-stamper";
+import { ActionPage } from "../../components/auth/Action";
 
 interface ClientProviderProps {
   children: ReactNode;
@@ -135,12 +135,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       if (idToken && flow === "redirect") {
         if (openModal === "true") {
+          const providerName = provider
+            ? provider?.charAt(0).toUpperCase() + provider?.slice(1)
+            : "Provider";
           // This state is set when the OAuth flow comes from the AuthComponent. We handle it differently because the callback is ran inside the loading component.
           pushPage({
-            key: "Log in or sign up",
+            key: "Google OAuth",
             content: (
-              <OAuthLoading
-                name={provider ?? "OAuth Provider"}
+              <ActionPage
+                title={`Authenticating with ${providerName}...`}
                 action={async () => {
                   await completeOauth({
                     oidcToken: idToken,
@@ -153,6 +156,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 icon={<FontAwesomeIcon size="3x" icon={faGoogle} />}
               />
             ),
+            showTitle: false,
           });
         } else if (callbacks?.onOauthRedirect) {
           callbacks.onOauthRedirect({ idToken, publicKey });
