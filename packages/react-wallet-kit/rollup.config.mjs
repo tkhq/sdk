@@ -5,7 +5,6 @@ import path from "node:path";
 import alias from "@rollup/plugin-alias";
 import url from "@rollup/plugin-url";
 
-
 const getFormatConfig = (format) => {
   const pkgPath = path.join(process.cwd(), "package.json");
   const __dirname = path.dirname(new URL(import.meta.url).pathname);

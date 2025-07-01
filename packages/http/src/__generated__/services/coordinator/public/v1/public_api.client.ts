@@ -47,6 +47,10 @@ import type {
   TGetPrivateKeyBody,
   TGetPrivateKeyResponse,
 } from "./public_api.fetcher";
+import type {
+  TGetProxyAuthConfigBody,
+  TGetProxyAuthConfigResponse,
+} from "./public_api.fetcher";
 import type { TGetUserBody, TGetUserResponse } from "./public_api.fetcher";
 import type { TGetWalletBody, TGetWalletResponse } from "./public_api.fetcher";
 import type {
@@ -203,7 +207,15 @@ import type {
   TDeleteWalletsBody,
   TDeleteWalletsResponse,
 } from "./public_api.fetcher";
+import type {
+  TDisableUserInitiatedAuthBody,
+  TDisableUserInitiatedAuthResponse,
+} from "./public_api.fetcher";
 import type { TEmailAuthBody, TEmailAuthResponse } from "./public_api.fetcher";
+import type {
+  TEnableUserInitiatedAuthBody,
+  TEnableUserInitiatedAuthResponse,
+} from "./public_api.fetcher";
 import type {
   TExportPrivateKeyBody,
   TExportPrivateKeyResponse,
@@ -293,6 +305,10 @@ import type {
   TUpdatePrivateKeyTagResponse,
 } from "./public_api.fetcher";
 import type {
+  TUpdateProxyAuthConfigBody,
+  TUpdateProxyAuthConfigResponse,
+} from "./public_api.fetcher";
+import type {
   TUpdateRootQuorumBody,
   TUpdateRootQuorumResponse,
 } from "./public_api.fetcher";
@@ -329,6 +345,7 @@ import type {
 export class TurnkeyClient {
   config: THttpConfig;
   stamper: TStamper;
+  name = "TurnkeyClient";
 
   constructor(config: THttpConfig, stamper: TStamper) {
     if (!config.baseUrl) {
@@ -693,6 +710,38 @@ export class TurnkeyClient {
     input: TGetPrivateKeyBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_private_key";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get the proxy-auth configuration (allowed origins, etc.) for an Organization
+   *
+   * Sign the provided `TGetProxyAuthConfigBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_proxy_auth_config).
+   *
+   * See also {@link stampGetProxyAuthConfig}.
+   */
+  getProxyAuthConfig = async (
+    input: TGetProxyAuthConfigBody,
+  ): Promise<TGetProxyAuthConfigResponse> => {
+    return this.request("/public/v1/query/get_proxy_auth_config", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetProxyAuthConfigBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetProxyAuthConfig}.
+   */
+  stampGetProxyAuthConfig = async (
+    input: TGetProxyAuthConfigBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_proxy_auth_config";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2003,6 +2052,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Disable User Initiated Auth
+   *
+   * Sign the provided `TDisableUserInitiatedAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/disable_user_initiated_auth).
+   *
+   * See also {@link stampDisableUserInitiatedAuth}.
+   */
+  disableUserInitiatedAuth = async (
+    input: TDisableUserInitiatedAuthBody,
+  ): Promise<TDisableUserInitiatedAuthResponse> => {
+    return this.request("/public/v1/submit/disable_user_initiated_auth", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDisableUserInitiatedAuthBody` by using the client's `stamp` function.
+   *
+   * See also {@link DisableUserInitiatedAuth}.
+   */
+  stampDisableUserInitiatedAuth = async (
+    input: TDisableUserInitiatedAuthBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/disable_user_initiated_auth";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Authenticate a user via Email
    *
    * Sign the provided `TEmailAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/email_auth).
@@ -2020,6 +2101,38 @@ export class TurnkeyClient {
    */
   stampEmailAuth = async (input: TEmailAuthBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/email_auth";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Enable User Initiated Auth
+   *
+   * Sign the provided `TEnableUserInitiatedAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/enable_user_initiated_auth).
+   *
+   * See also {@link stampEnableUserInitiatedAuth}.
+   */
+  enableUserInitiatedAuth = async (
+    input: TEnableUserInitiatedAuthBody,
+  ): Promise<TEnableUserInitiatedAuthResponse> => {
+    return this.request("/public/v1/submit/enable_user_initiated_auth", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TEnableUserInitiatedAuthBody` by using the client's `stamp` function.
+   *
+   * See also {@link EnableUserInitiatedAuth}.
+   */
+  stampEnableUserInitiatedAuth = async (
+    input: TEnableUserInitiatedAuthBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/enable_user_initiated_auth";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2780,6 +2893,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/update_private_key_tag";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Update the proxy-auth configuration (allowed origins, etc.) for an Organization
+   *
+   * Sign the provided `TUpdateProxyAuthConfigBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_proxy_auth_config).
+   *
+   * See also {@link stampUpdateProxyAuthConfig}.
+   */
+  updateProxyAuthConfig = async (
+    input: TUpdateProxyAuthConfigBody,
+  ): Promise<TUpdateProxyAuthConfigResponse> => {
+    return this.request("/public/v1/submit/update_proxy_auth_config", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateProxyAuthConfigBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateProxyAuthConfig}.
+   */
+  stampUpdateProxyAuthConfig = async (
+    input: TUpdateProxyAuthConfigBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/update_proxy_auth_config";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

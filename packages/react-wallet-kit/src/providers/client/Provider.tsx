@@ -1,6 +1,7 @@
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import {
+  AuthState,
   GOOGLE_AUTH_URL,
   isValidSession,
   popupHeight,
@@ -38,6 +39,7 @@ import {
   v1Attestation,
   v1AuthenticatorParamsV2,
   v1Pagination,
+  v1ProxyAuthConfig,
   v1SignRawPayloadResult,
   v1TransactionType,
   v1User,
@@ -61,7 +63,10 @@ export interface ClientContextType extends TurnkeyClientMethods {
   httpClient: TurnkeySDKClientBase | undefined;
   session: Session | undefined;
   allSessions?: Record<string, Session> | undefined;
-  authState: "unauthenticated" | "loading" | "authenticated" | "ready";
+  authState: AuthState;
+  proxyAuthConfig?: v1ProxyAuthConfig | undefined;
+  user: v1User | undefined;
+  wallets: Wallet[];
   login: () => Promise<void>;
   handleGoogleOauth: (params: {
     clientId?: string;
@@ -71,7 +76,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
 }
 
 export const ClientContext = createContext<ClientContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const useTurnkey = (): ClientContextType => {
@@ -89,9 +94,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const [client, setClient] = useState<TurnkeyClient | undefined>(undefined);
   const [session, setSession] = useState<Session | undefined>(undefined);
   const [autoRefreshSession, setAutoRefreshSession] = useState<boolean>(false);
-  const [authState, setAuthState] = useState<
-    "unauthenticated" | "loading" | "authenticated" | "ready"
-  >("unauthenticated");
+  const [proxyAuthConfig, setProxyAuthConfig] = useState<
+    v1ProxyAuthConfig | undefined
+  >(undefined);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [user, setUser] = useState<v1User | undefined>(undefined);
+  const [authState, setAuthState] = useState<AuthState>(
+    AuthState.Unauthenticated,
+  );
   const expiryTimeoutsRef = useRef<Record<string, NodeJS.Timeout>>({});
   const [allSessions, setAllSessions] = useState<
     Record<string, Session> | undefined
@@ -99,27 +109,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const { pushPage } = useModal();
 
   useEffect(() => {
-    const initializeClient = async () => {
-      const turnkeyClient = new TurnkeyClient({
-        apiBaseUrl: config.apiBaseUrl,
-        authProxyUrl: config.authProxyUrl,
-        authProxyId: config.authProxyId,
-        organizationId: config.organizationId,
-        passkeyConfig: {
-          rpId: config.passkeyConfig?.rpId,
-          timeout: config.passkeyConfig?.timeout || 60000, // 60 seconds
-          userVerification:
-            config.passkeyConfig?.userVerification || "preferred",
-          allowCredentials: config.passkeyConfig?.allowCredentials || [],
-        },
-      });
-
-      setAutoRefreshSession(config?.autoRefreshSession ?? false);
-
-      await turnkeyClient.init();
-      setClient(turnkeyClient);
-    };
-
     initializeClient();
   }, []);
 
@@ -140,7 +129,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       if (!publicKey) {
         throw new Error(
-          "Public key is missing in the state parameters. You must encode the public key in the state parameter when initiating the OAuth flow."
+          "Public key is missing in the state parameters. You must encode the public key in the state parameter when initiating the OAuth flow.",
         );
       }
 
@@ -177,7 +166,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         window.history.replaceState(
           null,
           document.title,
-          window.location.pathname + window.location.search
+          window.location.pathname + window.location.search,
         );
       }
     }
@@ -185,45 +174,83 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   useEffect(() => {
     if (!client) return;
-    const initializeSessions = async () => {
-      setAuthState("loading");
-      const allSessions = await getAllSessions();
-      if (!allSessions) {
-        setAuthState("unauthenticated");
-        return;
-      }
-
-      await Promise.all(
-        Object.keys(allSessions).map(async (sessionKey) => {
-          const session = allSessions?.[sessionKey];
-          if (!isValidSession(session)) {
-            await clearSession({ sessionKey });
-            return;
-          }
-
-          scheduleSessionExpiration({
-            sessionKey,
-            expiry: session!.expiry,
-          });
-        })
-      );
-
-      setAllSessions(allSessions);
-      const activeSessionKey = await client.getActiveSessionKey();
-      if (activeSessionKey) {
-        setSession(allSessions?.[activeSessionKey]);
-        setAuthState("authenticated");
-        return;
-      }
-      setAuthState("unauthenticated");
-    };
-
     initializeSessions();
 
     return () => {
       clearSessionTimeouts();
     };
   }, [client]);
+
+  useEffect(() => {
+    if (!client) return;
+    const fetchProxyAuthConfig = async () => {
+      const proxyAuthConfig = await client.getProxyAuthConfig();
+      if (proxyAuthConfig) {
+        setProxyAuthConfig(proxyAuthConfig);
+      } else {
+        console.warn("No proxy auth config found.");
+      }
+      return;
+    };
+
+    fetchProxyAuthConfig();
+  }, [client]);
+
+  const initializeClient = async () => {
+    const turnkeyClient = new TurnkeyClient({
+      apiBaseUrl: config.apiBaseUrl,
+      authProxyUrl: config.authProxyUrl,
+      authProxyId: config.authProxyId,
+      organizationId: config.organizationId,
+      passkeyConfig: {
+        rpId: config.passkeyConfig?.rpId,
+        timeout: config.passkeyConfig?.timeout || 60000, // 60 seconds
+        userVerification: config.passkeyConfig?.userVerification || "preferred",
+        allowCredentials: config.passkeyConfig?.allowCredentials || [],
+      },
+    });
+
+    setAutoRefreshSession(config?.autoRefreshSession ?? false);
+
+    await turnkeyClient.init();
+    setClient(turnkeyClient);
+  };
+
+  const initializeSessions = async () => {
+    setAuthState(AuthState.Loading);
+    const allSessions = await getAllSessions();
+    if (!allSessions) {
+      setAuthState(AuthState.Unauthenticated);
+      return;
+    }
+
+    await Promise.all(
+      Object.keys(allSessions).map(async (sessionKey) => {
+        const session = allSessions?.[sessionKey];
+        if (!isValidSession(session)) {
+          await clearSession({ sessionKey });
+          return;
+        }
+
+        scheduleSessionExpiration({
+          sessionKey,
+          expiry: session!.expiry,
+        });
+      }),
+    );
+
+    setAllSessions(allSessions);
+    const activeSessionKey = await client?.getActiveSessionKey();
+    if (activeSessionKey) {
+      setSession(allSessions?.[activeSessionKey]);
+      await refreshUser();
+      await refreshWallets();
+
+      setAuthState(AuthState.Authenticated);
+      return;
+    }
+    setAuthState(AuthState.Unauthenticated);
+  };
 
   async function scheduleSessionExpiration(params: {
     sessionKey: string;
@@ -248,7 +275,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       if (!activeSession && expiryTimeoutsRef.current[sessionKey]) {
         expiryTimeoutsRef.current[`${sessionKey}-warning`] = setTimeout(
           beforeExpiry,
-          10000
+          10000,
         );
         return;
       }
@@ -283,13 +310,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     } else {
       expiryTimeoutsRef.current[`${sessionKey}-warning`] = setTimeout(
         beforeExpiry,
-        timeUntilExpiry - SESSION_WARNING_THRESHOLD_MS
+        timeUntilExpiry - SESSION_WARNING_THRESHOLD_MS,
       );
     }
 
     expiryTimeoutsRef.current[sessionKey] = setTimeout(
       expireSession,
-      timeUntilExpiry
+      timeUntilExpiry,
     );
   }
 
@@ -302,14 +329,28 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   const handlePostAuth = async () => {
     const sessionKey = await client!.getActiveSessionKey();
-    const session = await client!.getSession({ sessionKey });
+    const session = await client!.getSession({
+      ...(sessionKey && { sessionKey }),
+    });
 
     if (session && sessionKey)
       await scheduleSessionExpiration({ sessionKey, expiry: session.expiry });
 
     const allSessions = await client!.getAllSessions();
+
+    await refreshWallets();
+    await refreshUser();
+
     setSession(session);
     setAllSessions(allSessions);
+  };
+
+  const handlePostLogout = () => {
+    clearSessionTimeouts();
+    setSession(undefined);
+    setAllSessions(undefined);
+    setUser(undefined);
+    setWallets([]);
   };
 
   async function createPasskey(params?: {
@@ -326,28 +367,28 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     if (!client) {
       throw new Error("Client is not initialized.");
     }
-    setAuthState("loading");
+    setAuthState(AuthState.Loading);
     await client.logout(params);
-    await handlePostAuth();
-    setAuthState("unauthenticated");
+    handlePostLogout();
+    setAuthState(AuthState.Unauthenticated);
     return;
   }
 
   async function loginWithPasskey(params?: {
     sessionType?: SessionType;
     publicKey?: string;
-    sessionKey?: string | undefined;
+    sessionKey?: string;
   }): Promise<string> {
     if (!client) {
       throw new Error("Client is not initialized.");
     }
-    setAuthState("loading");
+    setAuthState(AuthState.Loading);
     const res = await client.loginWithPasskey(params);
     if (res) {
       await handlePostAuth();
-      setAuthState("authenticated");
+      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState("unauthenticated");
+      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -355,19 +396,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   async function signUpWithPasskey(params?: {
     createSubOrgParams?: CreateSubOrgParams;
     sessionType?: SessionType;
-    sessionKey?: string | undefined;
+    sessionKey?: string;
     passkeyDisplayName?: string;
   }): Promise<string> {
     if (!client) {
       throw new Error("Client is not initialized.");
     }
-    setAuthState("loading");
+    setAuthState(AuthState.Loading);
     const res = await client.signUpWithPasskey(params);
     if (res) {
       await handlePostAuth();
-      setAuthState("authenticated");
+      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState("unauthenticated");
+      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -399,18 +440,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     publicKey?: string;
     invalidateExisting?: boolean;
     sessionType?: SessionType;
-    sessionKey?: string | undefined;
+    sessionKey?: string;
   }): Promise<string> {
     if (!client) {
       throw new Error("Client is not initialized.");
     }
-    setAuthState("loading");
+    setAuthState(AuthState.Loading);
     const res = await client.loginWithOtp(params);
     if (res) {
       await handlePostAuth();
-      setAuthState("authenticated");
+      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState("unauthenticated");
+      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -421,18 +462,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     otpType: OtpType;
     createSubOrgParams?: CreateSubOrgParams;
     sessionType?: SessionType;
-    sessionKey?: string | undefined;
+    sessionKey?: string;
   }): Promise<string> {
     if (!client) {
       throw new Error("Client is not initialized.");
     }
-    setAuthState("loading");
+    setAuthState(AuthState.Loading);
     const res = await client.signUpWithOtp(params);
     if (res) {
       await handlePostAuth();
-      setAuthState("authenticated");
+      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState("unauthenticated");
+      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -444,19 +485,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     otpType: OtpType;
     publicKey?: string;
     invalidateExisting?: boolean;
-    sessionKey?: string | undefined;
+    sessionKey?: string;
     createSubOrgParams?: CreateSubOrgParams;
   }): Promise<string> {
     if (!client) {
       throw new Error("Client is not initialized.");
     }
-    setAuthState("loading");
+    setAuthState(AuthState.Loading);
     const res = await client.completeOtp(params);
     if (res) {
       await handlePostAuth();
-      setAuthState("authenticated");
+      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState("unauthenticated");
+      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -464,20 +505,20 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   async function completeOauth(params: {
     oidcToken: string;
     publicKey: string;
-    sessionKey?: string | undefined;
+    sessionKey?: string;
     invalidateExisting?: boolean;
-    createSubOrgParams?: CreateSubOrgParams | undefined;
+    createSubOrgParams?: CreateSubOrgParams;
   }): Promise<string> {
     if (!client) {
       throw new Error("Client is not initialized.");
     }
-    setAuthState("loading");
+    setAuthState(AuthState.Loading);
     const res = await client.completeOauth(params);
     if (res) {
       await handlePostAuth();
-      setAuthState("authenticated");
+      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState("unauthenticated");
+      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -486,18 +527,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     oidcToken: string;
     publicKey: string;
     invalidateExisting?: boolean;
-    sessionKey?: string | undefined;
+    sessionKey?: string;
   }): Promise<string> {
     if (!client) {
       throw new Error("Client is not initialized.");
     }
-    setAuthState("loading");
+    setAuthState(AuthState.Loading);
     const res = await client.loginWithOauth(params);
     if (res) {
       await handlePostAuth();
-      setAuthState("authenticated");
+      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState("unauthenticated");
+      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -508,18 +549,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     providerName: string;
     createSubOrgParams?: CreateSubOrgParams;
     sessionType?: SessionType;
-    sessionKey?: string | undefined;
+    sessionKey?: string;
   }): Promise<string> {
     if (!client) {
       throw new Error("Client is not initialized.");
     }
-    setAuthState("loading");
+    setAuthState(AuthState.Loading);
     const res = await client.signUpWithOauth(params);
     if (res) {
       await handlePostAuth();
-      setAuthState("authenticated");
+      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState("unauthenticated");
+      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -587,7 +628,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     stampWith?: StamperType;
   }): Promise<string> {
     if (!client) throw new Error("Client is not initialized.");
-    return client.createWallet(params);
+    const res = await client.createWallet(params);
+    if (res) await refreshWallets();
+    return res;
   }
 
   async function createWalletAccounts(params: {
@@ -597,7 +640,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     stampWith?: StamperType;
   }): Promise<string[]> {
     if (!client) throw new Error("Client is not initialized.");
-    return client.createWalletAccounts(params);
+    const res = await client.createWalletAccounts(params);
+    if (res) await refreshWallets();
+    return res;
   }
 
   async function exportWallet(params: {
@@ -607,7 +652,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     stamperType?: StamperType;
   }): Promise<ExportBundle> {
     if (!client) throw new Error("Client is not initialized.");
-    return client.exportWallet(params);
+    const res = await client.exportWallet(params);
+    if (res) await refreshWallets();
+    return res;
   }
 
   async function importWallet(params: {
@@ -617,7 +664,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     userId?: string;
   }): Promise<string> {
     if (!client) throw new Error("Client is not initialized.");
-    return client.importWallet(params);
+    const res = await client.importWallet(params);
+    if (res) await refreshWallets();
+    return res;
   }
 
   async function deleteSubOrganization(params?: {
@@ -629,19 +678,17 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }
 
   async function createSubOrganization(params?: {
-    oauthProviders?: Provider[] | undefined;
-    userEmail?: string | undefined;
-    userPhoneNumber?: string | undefined;
-    userName?: string | undefined;
-    subOrgName?: string | undefined;
-    passkey?: v1AuthenticatorParamsV2 | undefined;
-    customAccounts?: WalletAccount[] | undefined;
-    wallet?:
-      | {
-          publicKey: string;
-          type: WalletType;
-        }
-      | undefined;
+    oauthProviders?: Provider[];
+    userEmail?: string;
+    userPhoneNumber?: string;
+    userName?: string;
+    subOrgName?: string;
+    passkey?: v1AuthenticatorParamsV2;
+    customAccounts?: WalletAccount[];
+    wallet?: {
+      publicKey: string;
+      type: WalletType;
+    };
   }): Promise<TCreateSubOrganizationResponse> {
     if (!client) throw new Error("Client is not initialized.");
     return client.createSubOrganization(params);
@@ -649,12 +696,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   async function storeSession(params: {
     sessionToken: string;
-    sessionKey?: string | undefined;
+    sessionKey?: string;
   }): Promise<void> {
     if (!client) throw new Error("Client is not initialized.");
     await client.storeSession(params);
     const sessionKey = await client.getActiveSessionKey();
-    const session = await client.getSession({ sessionKey });
+    const session = await client.getSession({
+      ...(sessionKey && { sessionKey }),
+    });
 
     if (session && sessionKey)
       await scheduleSessionExpiration({ sessionKey, expiry: session.expiry });
@@ -665,9 +714,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     return;
   }
 
-  async function clearSession(params?: {
-    sessionKey?: string | undefined;
-  }): Promise<void> {
+  async function clearSession(params?: { sessionKey?: string }): Promise<void> {
     if (!client) throw new Error("Client is not initialized.");
     await client.clearSession(params);
     const session = await client.getSession();
@@ -686,9 +733,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   async function refreshSession(params?: {
     sessionType?: SessionType;
-    expirationSeconds?: string | undefined;
+    expirationSeconds?: string;
     publicKey?: string;
-    sessionKey?: string | undefined;
+    sessionKey?: string;
     invalidateExisitng?: boolean;
   }): Promise<TStampLoginResponse | undefined> {
     if (!client) throw new Error("Client is not initialized.");
@@ -714,7 +761,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }
 
   async function getSession(params?: {
-    sessionKey?: string | undefined;
+    sessionKey?: string;
   }): Promise<Session | undefined> {
     if (!client) throw new Error("Client is not initialized.");
     return client.getSession(params);
@@ -756,6 +803,27 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }): Promise<string> {
     if (!client) throw new Error("Client is not initialized.");
     return client.createApiKeyPair(params);
+  }
+
+  async function getProxyAuthConfig(): Promise<v1ProxyAuthConfig> {
+    if (!client) throw new Error("Client is not initialized.");
+    return client.getProxyAuthConfig();
+  }
+
+  async function refreshUser(): Promise<void> {
+    if (!client) throw new Error("Client is not initialized.");
+    const user = await client.fetchUser();
+    if (user) {
+      setUser(user);
+    }
+  }
+
+  async function refreshWallets(): Promise<void> {
+    if (!client) throw new Error("Client is not initialized.");
+    const wallets = await fetchWallets();
+    if (wallets) {
+      setWallets(wallets);
+    }
   }
 
   async function handleGoogleOauth(params: {
@@ -802,7 +870,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         const additionalState = Object.entries(additionalParameters)
           .map(
             ([key, value]) =>
-              `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+              `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
           )
           .join("&");
         if (additionalState) {
@@ -835,7 +903,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         const authWindow = window.open(
           "about:blank",
           "_blank",
-          `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
+          `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
         );
 
         if (!authWindow) {
@@ -899,6 +967,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         session,
         allSessions,
         authState,
+        user,
+        wallets,
+        proxyAuthConfig,
         httpClient: client?.httpClient,
         login,
         createPasskey,
@@ -935,6 +1006,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         getActiveSessionKey,
         createApiKeyPair,
         handleGoogleOauth,
+        getProxyAuthConfig,
       }}
     >
       {children}

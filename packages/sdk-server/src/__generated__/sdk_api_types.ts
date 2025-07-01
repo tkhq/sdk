@@ -132,6 +132,17 @@ export type TGetPrivateKeyBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetProxyAuthConfigResponse =
+  operations["PublicApiService_GetProxyAuthConfig"]["responses"]["200"]["schema"];
+
+export type TGetProxyAuthConfigInput = { body: TGetProxyAuthConfigBody };
+
+export type TGetProxyAuthConfigBody = Omit<
+  operations["PublicApiService_GetProxyAuthConfig"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetUserResponse =
   operations["PublicApiService_GetUser"]["responses"]["200"]["schema"];
 
@@ -568,6 +579,18 @@ export type TDeleteWalletsBody =
   operations["PublicApiService_DeleteWallets"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TDisableUserInitiatedAuthResponse =
+  operations["PublicApiService_DisableUserInitiatedAuth"]["responses"]["200"]["schema"]["activity"]["result"]["disableUserInitiatedAuthResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDisableUserInitiatedAuthInput = {
+  body: TDisableUserInitiatedAuthBody;
+};
+
+export type TDisableUserInitiatedAuthBody =
+  operations["PublicApiService_DisableUserInitiatedAuth"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TEmailAuthResponse =
   operations["PublicApiService_EmailAuth"]["responses"]["200"]["schema"]["activity"]["result"]["emailAuthResult"] &
     definitions["v1ActivityResponse"];
@@ -576,6 +599,18 @@ export type TEmailAuthInput = { body: TEmailAuthBody };
 
 export type TEmailAuthBody =
   operations["PublicApiService_EmailAuth"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TEnableUserInitiatedAuthResponse =
+  operations["PublicApiService_EnableUserInitiatedAuth"]["responses"]["200"]["schema"]["activity"]["result"]["enableUserInitiatedAuthResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEnableUserInitiatedAuthInput = {
+  body: TEnableUserInitiatedAuthBody;
+};
+
+export type TEnableUserInitiatedAuthBody =
+  operations["PublicApiService_EnableUserInitiatedAuth"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TExportPrivateKeyResponse =
@@ -830,6 +865,16 @@ export type TUpdatePrivateKeyTagInput = { body: TUpdatePrivateKeyTagBody };
 
 export type TUpdatePrivateKeyTagBody =
   operations["PublicApiService_UpdatePrivateKeyTag"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpdateProxyAuthConfigResponse =
+  operations["PublicApiService_UpdateProxyAuthConfig"]["responses"]["200"]["schema"]["activity"]["result"]["updateProxyAuthConfigResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateProxyAuthConfigInput = { body: TUpdateProxyAuthConfigBody };
+
+export type TUpdateProxyAuthConfigBody =
+  operations["PublicApiService_UpdateProxyAuthConfig"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TUpdateRootQuorumResponse =
