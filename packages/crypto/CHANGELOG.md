@@ -1,5 +1,11 @@
 # @turnkey/crypto
 
+## 2.4.3
+
+### Patch Changes
+
+- [#720](https://github.com/tkhq/sdk/pull/720) [`6cbff7a`](https://github.com/tkhq/sdk/commit/6cbff7a0c0b3a9a05586399e5cef476154d3bdca) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `decryptExportBundle` not working in some environments by adding a shim to handle `bs58`'s ESM-only export.
+
 ## 2.4.2
 
 ### Patch Changes
