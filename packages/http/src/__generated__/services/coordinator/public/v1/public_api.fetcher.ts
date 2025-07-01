@@ -600,6 +600,7 @@ export const signGetPrivateKey = (
   });
 
 /**
+<<<<<<< HEAD
  * `POST /public/v1/query/get_smart_contract_interface`
  */
 export type TGetSmartContractInterfaceResponse =
@@ -631,16 +632,50 @@ export const getSmartContractInterface = (
   request<
     TGetSmartContractInterfaceResponse,
     TGetSmartContractInterfaceBody,
+=======
+ * `POST /public/v1/query/get_proxy_auth_config`
+ */
+export type TGetProxyAuthConfigResponse =
+  operations["PublicApiService_GetProxyAuthConfig"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_proxy_auth_config`
+ */
+export type TGetProxyAuthConfigInput = { body: TGetProxyAuthConfigBody };
+
+/**
+ * `POST /public/v1/query/get_proxy_auth_config`
+ */
+export type TGetProxyAuthConfigBody =
+  operations["PublicApiService_GetProxyAuthConfig"]["parameters"]["body"]["body"];
+
+/**
+ * Get Proxy Auth Config
+ *
+ * Get the proxy-auth configuration (allowed origins, etc.) for an Organization
+ *
+ * `POST /public/v1/query/get_proxy_auth_config`
+ */
+export const getProxyAuthConfig = (input: TGetProxyAuthConfigInput) =>
+  request<
+    TGetProxyAuthConfigResponse,
+    TGetProxyAuthConfigBody,
+>>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
     never,
     never,
     never
   >({
+<<<<<<< HEAD
     uri: "/public/v1/query/get_smart_contract_interface",
+=======
+    uri: "/public/v1/query/get_proxy_auth_config",
+>>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
     method: "POST",
     body: input.body,
   });
 
 /**
+<<<<<<< HEAD
  * Request a WebAuthn assertion and return a signed `GetSmartContractInterface` request, ready to be POSTed to Turnkey.
  *
  * See {@link GetSmartContractInterface}
@@ -651,6 +686,18 @@ export const signGetSmartContractInterface = (
 ) =>
   signedRequest<TGetSmartContractInterfaceBody, never, never>({
     uri: "/public/v1/query/get_smart_contract_interface",
+=======
+ * Request a WebAuthn assertion and return a signed `GetProxyAuthConfig` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetProxyAuthConfig}
+ */
+export const signGetProxyAuthConfig = (
+  input: TGetProxyAuthConfigInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetProxyAuthConfigBody, never, never>({
+    uri: "/public/v1/query/get_proxy_auth_config",
+>>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
     body: input.body,
     options,
   });
@@ -2878,6 +2925,62 @@ export const signDeleteWallets = (
   });
 
 /**
+ * `POST /public/v1/submit/disable_user_initiated_auth`
+ */
+export type TDisableUserInitiatedAuthResponse =
+  operations["PublicApiService_DisableUserInitiatedAuth"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/disable_user_initiated_auth`
+ */
+export type TDisableUserInitiatedAuthInput = {
+  body: TDisableUserInitiatedAuthBody;
+};
+
+/**
+ * `POST /public/v1/submit/disable_user_initiated_auth`
+ */
+export type TDisableUserInitiatedAuthBody =
+  operations["PublicApiService_DisableUserInitiatedAuth"]["parameters"]["body"]["body"];
+
+/**
+ * Disable User Initiated Auth
+ *
+ * Disable User Initiated Auth
+ *
+ * `POST /public/v1/submit/disable_user_initiated_auth`
+ */
+export const disableUserInitiatedAuth = (
+  input: TDisableUserInitiatedAuthInput,
+) =>
+  request<
+    TDisableUserInitiatedAuthResponse,
+    TDisableUserInitiatedAuthBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/disable_user_initiated_auth",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DisableUserInitiatedAuth` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DisableUserInitiatedAuth}
+ */
+export const signDisableUserInitiatedAuth = (
+  input: TDisableUserInitiatedAuthInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDisableUserInitiatedAuthBody, never, never>({
+    uri: "/public/v1/submit/disable_user_initiated_auth",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/email_auth`
  */
 export type TEmailAuthResponse =
@@ -2919,6 +3022,60 @@ export const signEmailAuth = (
 ) =>
   signedRequest<TEmailAuthBody, never, never>({
     uri: "/public/v1/submit/email_auth",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/enable_user_initiated_auth`
+ */
+export type TEnableUserInitiatedAuthResponse =
+  operations["PublicApiService_EnableUserInitiatedAuth"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/enable_user_initiated_auth`
+ */
+export type TEnableUserInitiatedAuthInput = {
+  body: TEnableUserInitiatedAuthBody;
+};
+
+/**
+ * `POST /public/v1/submit/enable_user_initiated_auth`
+ */
+export type TEnableUserInitiatedAuthBody =
+  operations["PublicApiService_EnableUserInitiatedAuth"]["parameters"]["body"]["body"];
+
+/**
+ * Enable User Initiated Auth
+ *
+ * Enable User Initiated Auth
+ *
+ * `POST /public/v1/submit/enable_user_initiated_auth`
+ */
+export const enableUserInitiatedAuth = (input: TEnableUserInitiatedAuthInput) =>
+  request<
+    TEnableUserInitiatedAuthResponse,
+    TEnableUserInitiatedAuthBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/enable_user_initiated_auth",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `EnableUserInitiatedAuth` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link EnableUserInitiatedAuth}
+ */
+export const signEnableUserInitiatedAuth = (
+  input: TEnableUserInitiatedAuthInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TEnableUserInitiatedAuthBody, never, never>({
+    uri: "/public/v1/submit/enable_user_initiated_auth",
     body: input.body,
     options,
   });
@@ -4129,6 +4286,58 @@ export const signUpdatePrivateKeyTag = (
 ) =>
   signedRequest<TUpdatePrivateKeyTagBody, never, never>({
     uri: "/public/v1/submit/update_private_key_tag",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/update_proxy_auth_config`
+ */
+export type TUpdateProxyAuthConfigResponse =
+  operations["PublicApiService_UpdateProxyAuthConfig"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_proxy_auth_config`
+ */
+export type TUpdateProxyAuthConfigInput = { body: TUpdateProxyAuthConfigBody };
+
+/**
+ * `POST /public/v1/submit/update_proxy_auth_config`
+ */
+export type TUpdateProxyAuthConfigBody =
+  operations["PublicApiService_UpdateProxyAuthConfig"]["parameters"]["body"]["body"];
+
+/**
+ * Update Proxy Auth Config
+ *
+ * Update the proxy-auth configuration (allowed origins, etc.) for an Organization
+ *
+ * `POST /public/v1/submit/update_proxy_auth_config`
+ */
+export const updateProxyAuthConfig = (input: TUpdateProxyAuthConfigInput) =>
+  request<
+    TUpdateProxyAuthConfigResponse,
+    TUpdateProxyAuthConfigBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/update_proxy_auth_config",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateProxyAuthConfig` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateProxyAuthConfig}
+ */
+export const signUpdateProxyAuthConfig = (
+  input: TUpdateProxyAuthConfigInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpdateProxyAuthConfigBody, never, never>({
+    uri: "/public/v1/submit/update_proxy_auth_config",
     body: input.body,
     options,
   });
