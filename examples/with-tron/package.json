@@ -14,7 +14,7 @@
     "@turnkey/crypto": "workspace:^",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
-    "bs58": "^5.0.0",
+    "bs58": "^6.0.0",
     "dotenv": "^16.0.3",
     "tronweb": "^6.0.3"
   },
