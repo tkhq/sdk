@@ -271,10 +271,10 @@ export class TurnkeyClient {
     try {
       generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
       const passkey = await this.createPasskey({
-        ...(createSubOrgParams?.passkeyName && {
-          name: createSubOrgParams?.passkeyName,
+        ...(passkeyDisplayName && {
+          name: passkeyDisplayName,
+          displayName: passkeyDisplayName,
         }),
-        ...(passkeyDisplayName && { displayName: passkeyDisplayName }),
       });
 
       if (!passkey) {
