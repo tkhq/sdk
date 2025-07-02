@@ -9,6 +9,7 @@ export type Session = {
   organizationId: string;
   expiry: number;
   token: string;
+  publicKey: string;
 };
 
 export type SessionResponse = {
@@ -70,6 +71,7 @@ export enum TurnkeyErrorCodes {
   HANDLE_POST_AUTH_ERROR = "HANDLE_POST_AUTH_ERROR",
   HANDLE_POST_LOGOUT_ERROR = "HANDLE_POST_LOGOUT_ERROR",
   CLEAR_SESSION_TIMEOUTS_ERROR = "CLEAR_SESSION_TIMEOUTS_ERROR",
+  UPDATE_USER_ERROR = "UPDATE_USER_ERROR",
 
   BAD_RESPONSE = "BAD_RESPONSE",
   MISSING_PARAMS = "MISSING_PARAMS",

@@ -77,7 +77,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
       if (!session) {
         throw new Error("No active session or token available.");
       }
-      publicKeyHex = session.token;
+      publicKeyHex = session.publicKey;
     }
 
     return this.stamper.stamp(payload, publicKeyHex);

@@ -11,6 +11,7 @@ import {
 } from "../../utils";
 import {
   CreateSubOrgParams,
+  DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   ExportBundle,
   OtpType,
   Provider,
@@ -237,6 +238,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             config.auth?.oAuthConfig?.openOAuthInPage ??
             proxyAuthConfig.openOAuthInPage,
         },
+        sessionExpirationSeconds: {
+          passkey: proxyAuthConfig?.passkeySessionExpirationSeconds,
+          wallet: proxyAuthConfig?.walletSessionExpirationSeconds,
+        }
       },
     } as TurnkeyProviderConfig;
   };
@@ -543,8 +548,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
     setAuthState(AuthState.Loading);
+
+    const expirationSeconds = masterConfig?.auth?.sessionExpirationSeconds?.passkey ?? DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
     const res = await withTurnkeyErrorHandling(
-      () => client.loginWithPasskey(params),
+      () => client.loginWithPasskey({...params, expirationSeconds }),
       callbacks,
       "Failed to login with passkey",
     );
@@ -570,8 +577,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
     setAuthState(AuthState.Loading);
+
+    const expirationSeconds = masterConfig?.auth?.sessionExpirationSeconds?.passkey ?? DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
     const res = await withTurnkeyErrorHandling(
-      () => client.signUpWithPasskey(params),
+      () => client.signUpWithPasskey({ ...params, expirationSeconds }),
       callbacks,
       "Failed to sign up with passkey",
     );
@@ -878,6 +887,29 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
+  async function updateUser(params: {
+    userId?: string;
+    organizationId?: string;
+    name?: string;
+    email?: string;
+    phoneNumber?: string;
+  }): Promise<v1User> {
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    const res = await withTurnkeyErrorHandling(
+      () => client.updateUser(params),
+      callbacks,
+      "Failed to update user",
+    );
+    if (res) {
+      setUser(res);
+    }
+    return res;
+  }
+
   async function createWallet(params: {
     walletName: string;
     accounts?: WalletAccount[] | v1AddressFormat[];
@@ -1076,7 +1108,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
     const activeSessionKey = await client.getActiveSessionKey();
     if (!activeSessionKey) {
-      throw new Error("No active session found.");
+      throw new TurnkeyError("No active session found.", TurnkeyErrorCodes.NO_SESSION_FOUND);
     }
 
     let sessionKey = params?.sessionKey ?? activeSessionKey;
@@ -1424,6 +1456,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         signMessage,
         signTransaction,
         fetchUser,
+        updateUser,
         createWallet,
         createWalletAccounts,
         exportWallet,
