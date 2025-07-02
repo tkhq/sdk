@@ -273,6 +273,8 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_UPDATE_USER_EMAIL"
   | "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"
   | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
+  | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
+  | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
   | "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH"
   | "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH"
   | "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG";
@@ -3471,6 +3473,48 @@ export type v1WebAuthnStamp = {
   authenticatorData: string;
   /** The base64 url encoded signature bytes contained within the WebAuthn assertion response. */
   signature: string;
+};
+
+export type v1GetAccountResponse = {
+  organizationId: string;
+};
+
+export type v1GetWalletKitConfigResponse = {
+  facebookEnabled: boolean;
+  googleEnabled: boolean;
+  appleEnabled: boolean;
+  emailEnabled: boolean;
+  smsEnabled: boolean;
+  passkeyEnabled: boolean;
+  walletEnabled: boolean;
+  openOAuthInPage: boolean;
+  passkeySessionExpirationSeconds: string;
+  walletSessionExpirationSeconds: string;
+  organizationId: string;
+};
+
+export type v1InitOtpResponse = {
+  /** Unique identifier for an OTP authentication */
+  otpId: string;
+};
+
+export type v1OAuthLoginResponse = {
+  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
+  session: string;
+};
+
+export type v1OtpLoginResponse = {
+  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
+  session: string;
+};
+
+export type v1SignupResponse = {
+  organizationId: string;
+};
+
+export type v1VerifyOtpResponse = {
+  /** Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
+  verificationToken: string;
 };
 
 // --- API Types from Swagger Paths ---
