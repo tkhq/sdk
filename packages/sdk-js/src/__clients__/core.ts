@@ -19,7 +19,6 @@ import {
   v1User,
   v1VerifyOtpResult,
   v1WalletAccount,
-  v1ProxyAuthConfig,
   TurnkeyError,
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
@@ -198,13 +197,13 @@ export class TurnkeyClient {
       if (params?.sessionKey) {
         const session = await this.storageManager.getSession(params.sessionKey);
         this.storageManager.clearSession(params.sessionKey);
-        this.apiKeyStamper?.deleteKeyPair(session?.token!);
+        this.apiKeyStamper?.deleteKeyPair(session?.publicKey!);
       } else {
         const sessionKey = await this.storageManager.getActiveSessionKey();
         const session = await this.storageManager.getActiveSession();
         if (sessionKey) {
           this.storageManager.clearSession(sessionKey);
-          this.apiKeyStamper?.deleteKeyPair(session?.token!);
+          this.apiKeyStamper?.deleteKeyPair(session?.publicKey!);
         } else {
           throw new TurnkeyError(
             "No active session found to log out from.",
@@ -225,6 +224,7 @@ export class TurnkeyClient {
     sessionType?: SessionType;
     publicKey?: string;
     sessionKey?: string;
+    expirationSeconds?: string;
   }): Promise<string> => {
     let generatedKeyPair = null;
     try {
@@ -232,6 +232,8 @@ export class TurnkeyClient {
       const publicKey =
         params?.publicKey || (await this.apiKeyStamper?.createKeyPair());
       const sessionKey = params?.sessionKey || SessionKey.DefaultSessionkey;
+
+      const expirationSeconds = params?.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
       // Create a read-only session
       if (sessionType === SessionType.READ_ONLY) {
@@ -258,6 +260,7 @@ export class TurnkeyClient {
           {
             publicKey,
             organizationId: this.config.organizationId,
+            expirationSeconds
           },
           StamperType.Passkey,
         );
@@ -309,12 +312,14 @@ export class TurnkeyClient {
     sessionType?: SessionType;
     sessionKey?: string;
     passkeyDisplayName?: string;
+    expirationSeconds?: string;
   }): Promise<string> => {
     const {
       createSubOrgParams,
       passkeyDisplayName,
       sessionType = SessionType.READ_WRITE,
       sessionKey = SessionKey.DefaultSessionkey,
+      expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     } = params || {};
 
     let generatedKeyPair = null;
@@ -399,6 +404,7 @@ export class TurnkeyClient {
       const sessionResponse = await this.httpClient.stampLogin({
         publicKey: newGeneratedKeyPair!,
         organizationId: this.config.organizationId,
+        expirationSeconds,
       });
 
       await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair!);
@@ -1211,6 +1217,51 @@ export class TurnkeyClient {
     }
   };
 
+  updateUser = async (params: {
+    userId?: string;
+    userName?: string;
+    userEmail?: string;
+    userTagIds?: string[];
+    userPhoneNumber?: string;
+  }): Promise<v1User> => {
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+
+    const { userId = session.userId, ...updateFields } = params;
+    const organizationId = session.organizationId;
+
+    try {
+      const updatedUser = await this.httpClient.updateUser(
+        {
+          organizationId: organizationId || session.organizationId,
+          userId,
+          ...updateFields,
+        },
+      );
+
+      if (!updatedUser || !updatedUser.userId) {
+        throw new TurnkeyError(
+          "No updated user found in the response",
+          TurnkeyErrorCodes.BAD_RESPONSE,
+        );
+      }
+
+      const user = await this.fetchUser();
+      return user;
+    } catch (error) {
+      throw new TurnkeyError(
+        `Failed to update user`,
+        TurnkeyErrorCodes.UPDATE_USER_ERROR,
+        error,
+      );
+    }
+  };
+
   createWallet = async (params: {
     walletName: string;
     accounts?: WalletAccount[] | v1AddressFormat[];
@@ -1501,8 +1552,7 @@ export class TurnkeyClient {
       // TODO (Amir): This should be done in a helper or something. It's very strange that we have to delete the key pair here
       const sessionToReplace = await this.storageManager.getSession(sessionKey);
       if (sessionToReplace) {
-        console.log(sessionToReplace.token);
-        await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.token);
+        await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.publicKey);
       }
 
       await this.storageManager.storeSession(sessionToken, sessionKey);
@@ -1522,7 +1572,7 @@ export class TurnkeyClient {
     try {
       const session = await this.storageManager.getSession(sessionKey);
       if (session) {
-        await this.apiKeyStamper?.deleteKeyPair(session.token);
+        await this.apiKeyStamper?.deleteKeyPair(session.publicKey);
         await this.storageManager.clearSession(sessionKey);
       } else {
         throw new TurnkeyError(
@@ -1714,7 +1764,7 @@ export class TurnkeyClient {
       for (const sessionKey of sessionKeys) {
         const session = await this.storageManager.getSession(sessionKey);
         if (session) {
-          sessionTokensMap[session.token] = sessionKey;
+          sessionTokensMap[session.publicKey] = sessionKey;
         }
       }
 
