@@ -233,7 +233,8 @@ export class TurnkeyClient {
         params?.publicKey || (await this.apiKeyStamper?.createKeyPair());
       const sessionKey = params?.sessionKey || SessionKey.DefaultSessionkey;
 
-      const expirationSeconds = params?.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+      const expirationSeconds =
+        params?.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
       // Create a read-only session
       if (sessionType === SessionType.READ_ONLY) {
@@ -260,7 +261,7 @@ export class TurnkeyClient {
           {
             publicKey,
             organizationId: this.config.organizationId,
-            expirationSeconds
+            expirationSeconds,
           },
           StamperType.Passkey,
         );
@@ -1236,13 +1237,11 @@ export class TurnkeyClient {
     const organizationId = session.organizationId;
 
     try {
-      const updatedUser = await this.httpClient.updateUser(
-        {
-          organizationId: organizationId || session.organizationId,
-          userId,
-          ...updateFields,
-        },
-      );
+      const updatedUser = await this.httpClient.updateUser({
+        organizationId: organizationId || session.organizationId,
+        userId,
+        ...updateFields,
+      });
 
       if (!updatedUser || !updatedUser.userId) {
         throw new TurnkeyError(
