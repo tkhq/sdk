@@ -28,6 +28,8 @@ function RootLayout({ children }: RootLayoutProps) {
                 oAuthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
               },
               autoRefreshSession: true,
+              methodOrder: ["socials", "email", "sms", "passkey"],
+              oauthOrder: ["google"],
             },
             passkeyConfig: {
               rpId: process.env.NEXT_PUBLIC_RPID!,
