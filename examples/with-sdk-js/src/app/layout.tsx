@@ -35,6 +35,11 @@ function RootLayout({ children }: RootLayoutProps) {
             },
             autoRefreshSession: true,
           }}
+          callbacks={{
+            onError: (error) => {
+              console.log("Turnkey error:", error.code);
+            },
+          }}
         >
           {children}
         </TurnkeyProvider>
