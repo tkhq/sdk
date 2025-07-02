@@ -76,10 +76,8 @@ export async function withTurnkeyErrorHandling<T>(
   fallbackCode = TurnkeyErrorCodes.UNKNOWN,
 ): Promise<T> {
   try {
-    console.log("Executing withTurnkeyErrorHandling");
     return await fn();
   } catch (error) {
-    console.log("Error in withTurnkeyErrorHandling:", error);
     if (error instanceof TurnkeyError) {
       callbacks?.onError?.(error);
       throw error;
