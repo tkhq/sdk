@@ -703,6 +703,62 @@ export const signGetProxyAuthConfig = (
   });
 
 /**
+ * `POST /public/v1/query/get_smart_contract_interface`
+ */
+export type TGetSmartContractInterfaceResponse =
+  operations["PublicApiService_GetSmartContractInterface"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_smart_contract_interface`
+ */
+export type TGetSmartContractInterfaceInput = {
+  body: TGetSmartContractInterfaceBody;
+};
+
+/**
+ * `POST /public/v1/query/get_smart_contract_interface`
+ */
+export type TGetSmartContractInterfaceBody =
+  operations["PublicApiService_GetSmartContractInterface"]["parameters"]["body"]["body"];
+
+/**
+ * Get Smart Contract Interface
+ *
+ * Get details about a Smart Contract Interface
+ *
+ * `POST /public/v1/query/get_smart_contract_interface`
+ */
+export const getSmartContractInterface = (
+  input: TGetSmartContractInterfaceInput,
+) =>
+  request<
+    TGetSmartContractInterfaceResponse,
+    TGetSmartContractInterfaceBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_smart_contract_interface",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetSmartContractInterface` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetSmartContractInterface}
+ */
+export const signGetSmartContractInterface = (
+  input: TGetSmartContractInterfaceInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetSmartContractInterfaceBody, never, never>({
+    uri: "/public/v1/query/get_smart_contract_interface",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_user`
  */
 export type TGetUserResponse =
@@ -1056,9 +1112,15 @@ export type TGetSmartContractInterfacesBody =
   operations["PublicApiService_GetSmartContractInterfaces"]["parameters"]["body"]["body"];
 
 /**
+<<<<<<< HEAD
  * List smart contract interfaces
  *
  * List all smart contract interfaces within an organization.
+=======
+ * List Smart Contract Interfaces
+ *
+ * List all Smart Contract Interfaces within an Organization
+>>>>>>> 57ef158e (updated auth proxy type generation)
  *
  * `POST /public/v1/query/list_smart_contract_interfaces`
  */
@@ -2048,9 +2110,15 @@ export type TCreateSmartContractInterfaceBody =
   operations["PublicApiService_CreateSmartContractInterface"]["parameters"]["body"]["body"];
 
 /**
+<<<<<<< HEAD
  * Create smart contract interface
  *
  * Create an ABI/IDL in JSON.
+=======
+ * Create Smart Contract Interface
+ *
+ * Create an ABI/IDL in JSON
+>>>>>>> 57ef158e (updated auth proxy type generation)
  *
  * `POST /public/v1/submit/create_smart_contract_interface`
  */
@@ -2698,9 +2766,15 @@ export type TDeleteSmartContractInterfaceBody =
   operations["PublicApiService_DeleteSmartContractInterface"]["parameters"]["body"]["body"];
 
 /**
+<<<<<<< HEAD
  * Delete smart contract interface
  *
  * Delete a smart contract interface.
+=======
+ * Create Smart Contract Interface
+ *
+ * Delete a Smart Contract Interface
+>>>>>>> 57ef158e (updated auth proxy type generation)
  *
  * `POST /public/v1/submit/delete_smart_contract_interface`
  */
