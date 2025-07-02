@@ -513,6 +513,32 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getSmartContractInterface = async (
+    input: SdkApiTypes.TGetSmartContractInterfaceBody,
+  ): Promise<SdkApiTypes.TGetSmartContractInterfaceResponse> => {
+    return this.request("/public/v1/query/get_smart_contract_interface", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetSmartContractInterface = async (
+    input: SdkApiTypes.TGetSmartContractInterfaceBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getUser = async (
     input: SdkApiTypes.TGetUserBody,
   ): Promise<SdkApiTypes.TGetUserResponse> => {

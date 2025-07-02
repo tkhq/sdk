@@ -64,6 +64,10 @@ import type {
   TGetProxyAuthConfigResponse,
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
 } from "./public_api.fetcher";
+import type {
+  TGetSmartContractInterfaceBody,
+  TGetSmartContractInterfaceResponse,
+} from "./public_api.fetcher";
 import type { TGetUserBody, TGetUserResponse } from "./public_api.fetcher";
 import type { TGetWalletBody, TGetWalletResponse } from "./public_api.fetcher";
 import type {
@@ -887,8 +891,43 @@ export class TurnkeyClient {
 
   /**
 <<<<<<< HEAD
+<<<<<<< HEAD
    * Get details about a user.
 =======
+=======
+   * Get details about a Smart Contract Interface
+   *
+   * Sign the provided `TGetSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_smart_contract_interface).
+   *
+   * See also {@link stampGetSmartContractInterface}.
+   */
+  getSmartContractInterface = async (
+    input: TGetSmartContractInterfaceBody,
+  ): Promise<TGetSmartContractInterfaceResponse> => {
+    return this.request("/public/v1/query/get_smart_contract_interface", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetSmartContractInterfaceBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetSmartContractInterface}.
+   */
+  stampGetSmartContractInterface = async (
+    input: TGetSmartContractInterfaceBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_smart_contract_interface";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+>>>>>>> 57ef158e (updated auth proxy type generation)
    * Get details about a User
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
    *
@@ -1132,7 +1171,11 @@ export class TurnkeyClient {
   };
 
   /**
+<<<<<<< HEAD
    * List all smart contract interfaces within an organization.
+=======
+   * List all Smart Contract Interfaces within an Organization
+>>>>>>> 57ef158e (updated auth proxy type generation)
    *
    * Sign the provided `TGetSmartContractInterfacesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_smart_contract_interfaces).
    *
@@ -1786,7 +1829,11 @@ export class TurnkeyClient {
   };
 
   /**
+<<<<<<< HEAD
    * Create an ABI/IDL in JSON.
+=======
+   * Create an ABI/IDL in JSON
+>>>>>>> 57ef158e (updated auth proxy type generation)
    *
    * Sign the provided `TCreateSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_smart_contract_interface).
    *
@@ -1821,7 +1868,11 @@ export class TurnkeyClient {
   };
 
   /**
+<<<<<<< HEAD
    * Create a new sub-organization.
+=======
+   * Create a new Sub-Organization
+>>>>>>> 57ef158e (updated auth proxy type generation)
    *
    * Sign the provided `TCreateSubOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_sub_organization).
    *
@@ -2231,7 +2282,11 @@ export class TurnkeyClient {
   };
 
   /**
+<<<<<<< HEAD
    * Delete a smart contract interface.
+=======
+   * Delete a Smart Contract Interface
+>>>>>>> 57ef158e (updated auth proxy type generation)
    *
    * Sign the provided `TDeleteSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_smart_contract_interface).
    *
@@ -2266,7 +2321,11 @@ export class TurnkeyClient {
   };
 
   /**
+<<<<<<< HEAD
    * Delete a sub-organization.
+=======
+   * Deletes a sub organization
+>>>>>>> 57ef158e (updated auth proxy type generation)
    *
    * Sign the provided `TDeleteSubOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_sub_organization).
    *

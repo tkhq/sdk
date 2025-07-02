@@ -60,6 +60,10 @@ export type paths = {
     /** Get details about a smart contract interface. */
     post: operations["PublicApiService_GetSmartContractInterface"];
   };
+  "/public/v1/query/get_smart_contract_interface": {
+    /** Get details about a Smart Contract Interface */
+    post: operations["PublicApiService_GetSmartContractInterface"];
+  };
   "/public/v1/query/get_user": {
     /** Get details about a user. */
     post: operations["PublicApiService_GetUser"];
@@ -93,7 +97,11 @@ export type paths = {
     post: operations["PublicApiService_GetPrivateKeys"];
   };
   "/public/v1/query/list_smart_contract_interfaces": {
+<<<<<<< HEAD
     /** List all smart contract interfaces within an organization. */
+=======
+    /** List all Smart Contract Interfaces within an Organization */
+>>>>>>> 57ef158e (updated auth proxy type generation)
     post: operations["PublicApiService_GetSmartContractInterfaces"];
   };
   "/public/v1/query/list_suborgs": {
@@ -177,7 +185,11 @@ export type paths = {
     post: operations["PublicApiService_CreateReadWriteSession"];
   };
   "/public/v1/submit/create_smart_contract_interface": {
+<<<<<<< HEAD
     /** Create an ABI/IDL in JSON. */
+=======
+    /** Create an ABI/IDL in JSON */
+>>>>>>> 57ef158e (updated auth proxy type generation)
     post: operations["PublicApiService_CreateSmartContractInterface"];
   };
   "/public/v1/submit/create_sub_organization": {
@@ -233,7 +245,11 @@ export type paths = {
     post: operations["PublicApiService_DeletePrivateKeys"];
   };
   "/public/v1/submit/delete_smart_contract_interface": {
+<<<<<<< HEAD
     /** Delete a smart contract interface. */
+=======
+    /** Delete a Smart Contract Interface */
+>>>>>>> 57ef158e (updated auth proxy type generation)
     post: operations["PublicApiService_DeleteSmartContractInterface"];
   };
   "/public/v1/submit/delete_sub_organization": {
@@ -706,6 +722,7 @@ export type definitions = {
     | "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"
     | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
 <<<<<<< HEAD
+<<<<<<< HEAD
     | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
 <<<<<<< HEAD
     | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
@@ -722,6 +739,10 @@ export type definitions = {
 =======
     | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE";
 =======
+=======
+    | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
+    | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
+>>>>>>> 57ef158e (updated auth proxy type generation)
     | "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH"
     | "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH"
     | "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG";
@@ -1229,7 +1250,11 @@ export type definitions = {
     smartContractInterface: string;
     type: definitions["v1SmartContractInterfaceType"];
     /** @description Human-readable name for a Smart Contract Interface. */
+<<<<<<< HEAD
     label: string;
+=======
+    label?: string;
+>>>>>>> 57ef158e (updated auth proxy type generation)
     /** @description Notes for a Smart Contract Interface. */
     notes?: string;
   };
@@ -2179,6 +2204,24 @@ export type definitions = {
     /** @description Proxy authentication configuration (e.g., allowed origins). */
     proxyAuthConfig: definitions["v1ProxyAuthConfig"];
   };
+  v1GetSmartContractInterfaceRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given Smart Contract Interface. */
+    smartContractInterfaceId: string;
+  };
+  v1GetSmartContractInterfaceResponse: {
+    /** @description Object to be used in conjunction with Policies to guard transaction signing. */
+    smartContractInterface: definitions["v1SmartContractInterface"];
+  };
+  v1GetSmartContractInterfacesRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+  };
+  v1GetSmartContractInterfacesResponse: {
+    /** @description A list of Smart Contract Interfaces. */
+    smartContractInterfaces: definitions["v1SmartContractInterface"][];
+  };
   v1GetSubOrgIdsRequest: {
     /** @description Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
@@ -2650,6 +2693,7 @@ export type definitions = {
     updateUserPhoneNumberIntent?: definitions["v1UpdateUserPhoneNumberIntent"];
     initFiatOnRampIntent?: definitions["v1InitFiatOnRampIntent"];
 <<<<<<< HEAD
+<<<<<<< HEAD
     createSmartContractInterfaceIntent?: definitions["v1CreateSmartContractInterfaceIntent"];
     deleteSmartContractInterfaceIntent?: definitions["v1DeleteSmartContractInterfaceIntent"];
 <<<<<<< HEAD
@@ -2664,6 +2708,10 @@ export type definitions = {
 =======
 =======
 =======
+=======
+    createSmartContractInterfaceIntent?: definitions["v1CreateSmartContractInterfaceIntent"];
+    deleteSmartContractInterfaceIntent?: definitions["v1DeleteSmartContractInterfaceIntent"];
+>>>>>>> 57ef158e (updated auth proxy type generation)
     enableUserInitiatedAuthIntent?: definitions["v1EnableUserInitiatedAuthIntent"];
     disableUserInitiatedAuthIntent?: definitions["v1DisableUserInitiatedAuthIntent"];
     updateProxyAuthConfigIntent?: definitions["v1UpdateProxyAuthConfigIntent"];
@@ -3184,6 +3232,7 @@ export type definitions = {
     updateUserPhoneNumberResult?: definitions["v1UpdateUserPhoneNumberResult"];
     initFiatOnRampResult?: definitions["v1InitFiatOnRampResult"];
 <<<<<<< HEAD
+<<<<<<< HEAD
     createSmartContractInterfaceResult?: definitions["v1CreateSmartContractInterfaceResult"];
     deleteSmartContractInterfaceResult?: definitions["v1DeleteSmartContractInterfaceResult"];
 <<<<<<< HEAD
@@ -3198,6 +3247,10 @@ export type definitions = {
 =======
 =======
 =======
+=======
+    createSmartContractInterfaceResult?: definitions["v1CreateSmartContractInterfaceResult"];
+    deleteSmartContractInterfaceResult?: definitions["v1DeleteSmartContractInterfaceResult"];
+>>>>>>> 57ef158e (updated auth proxy type generation)
     enableUserInitiatedAuthResult?: definitions["v1EnableUserInitiatedAuthResult"];
     disableUserInitiatedAuthResult?: definitions["v1DisableUserInitiatedAuthResult"];
     updateProxyAuthConfigResult?: definitions["v1UpdateProxyAuthConfigResult"];
@@ -3372,10 +3425,30 @@ export type definitions = {
     appidExclude?: boolean;
     credProps?: definitions["v1CredPropsAuthenticationExtensionsClientOutputs"];
   };
+<<<<<<< HEAD
   v1SmartContractInterfaceReference: {
     smartContractInterfaceId?: string;
     smartContractAddress?: string;
     digest?: string;
+=======
+  v1SmartContractInterface: {
+    /** @description The Organization the Smart Contract Interface belongs to. */
+    organizationId: string;
+    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
+    smartContractInterfaceId: string;
+    /** @description The address corresponding to the Smart Contract or Program. */
+    contractAddress: string;
+    /** @description The JSON corresponding to the Smart Contract Interface. */
+    interface: string;
+    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    type: string;
+    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    label: string;
+    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    notes: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+>>>>>>> 57ef158e (updated auth proxy type generation)
   };
   /** @enum {string} */
   v1SmartContractInterfaceType:
@@ -4236,8 +4309,29 @@ export type operations = {
     };
   };
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** Get details about a user. */
 =======
+=======
+  /** Get details about a Smart Contract Interface */
+  PublicApiService_GetSmartContractInterface: {
+    parameters: {
+      body: {
+        body: definitions["v1GetSmartContractInterfaceRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetSmartContractInterfaceResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+>>>>>>> 57ef158e (updated auth proxy type generation)
   /** Get details about a User */
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
   PublicApiService_GetUser: {
@@ -4383,7 +4477,11 @@ export type operations = {
       };
     };
   };
+<<<<<<< HEAD
   /** List all smart contract interfaces within an organization. */
+=======
+  /** List all Smart Contract Interfaces within an Organization */
+>>>>>>> 57ef158e (updated auth proxy type generation)
   PublicApiService_GetSmartContractInterfaces: {
     parameters: {
       body: {
@@ -4761,7 +4859,11 @@ export type operations = {
       };
     };
   };
+<<<<<<< HEAD
   /** Create an ABI/IDL in JSON. */
+=======
+  /** Create an ABI/IDL in JSON */
+>>>>>>> 57ef158e (updated auth proxy type generation)
   PublicApiService_CreateSmartContractInterface: {
     parameters: {
       body: {
@@ -4779,7 +4881,11 @@ export type operations = {
       };
     };
   };
+<<<<<<< HEAD
   /** Create a new sub-organization. */
+=======
+  /** Create a new Sub-Organization */
+>>>>>>> 57ef158e (updated auth proxy type generation)
   PublicApiService_CreateSubOrganization: {
     parameters: {
       body: {
@@ -5013,7 +5119,11 @@ export type operations = {
       };
     };
   };
+<<<<<<< HEAD
   /** Delete a smart contract interface. */
+=======
+  /** Delete a Smart Contract Interface */
+>>>>>>> 57ef158e (updated auth proxy type generation)
   PublicApiService_DeleteSmartContractInterface: {
     parameters: {
       body: {
@@ -5031,7 +5141,11 @@ export type operations = {
       };
     };
   };
+<<<<<<< HEAD
   /** Delete a sub-organization. */
+=======
+  /** Deletes a sub organization */
+>>>>>>> 57ef158e (updated auth proxy type generation)
   PublicApiService_DeleteSubOrganization: {
     parameters: {
       body: {

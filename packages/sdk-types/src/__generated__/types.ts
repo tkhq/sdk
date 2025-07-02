@@ -273,6 +273,8 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_UPDATE_USER_EMAIL"
   | "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"
   | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
+  | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
+  | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
   | "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH"
   | "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH"
   | "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG";
@@ -785,6 +787,32 @@ export type v1CreateReadWriteSessionResultV2 = {
   credentialBundle: string;
 };
 
+export type v1CreateSmartContractInterfaceIntent = {
+  /** Corresponding contract address or program ID */
+  smartContractAddress: string;
+  /** ABI/IDL as a JSON string */
+  smartContractInterface: string;
+  type: v1SmartContractInterfaceType;
+  /** Human-readable name for a Smart Contract Interface. */
+  label?: string;
+  /** Notes for a Smart Contract Interface. */
+  notes?: string;
+};
+
+export type v1CreateSmartContractInterfaceRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateSmartContractInterfaceIntent;
+};
+
+export type v1CreateSmartContractInterfaceResult = {
+  /** The ID of the created Smart Contract Interface. */
+  smartContractInterfaceId: string;
+};
+
 export type v1CreateSubOrganizationIntent = {
   /** Name for this sub-organization */
   name: string;
@@ -1190,6 +1218,25 @@ export type v1DeletePrivateKeysRequest = {
 export type v1DeletePrivateKeysResult = {
   /** A list of private key unique identifiers that were removed */
   privateKeyIds: string[];
+};
+
+export type v1DeleteSmartContractInterfaceIntent = {
+  /** The ID of a Smart Contract Interface intended for deletion. */
+  smartContractInterfaceId: string;
+};
+
+export type v1DeleteSmartContractInterfaceRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1DeleteSmartContractInterfaceIntent;
+};
+
+export type v1DeleteSmartContractInterfaceResult = {
+  /** The ID of the deleted Smart Contract Interface. */
+  smartContractInterfaceId: string;
 };
 
 export type v1DeleteSubOrganizationIntent = {
@@ -1721,6 +1768,28 @@ export type v1GetProxyAuthConfigResponse = {
   proxyAuthConfig: v1ProxyAuthConfig;
 };
 
+export type v1GetSmartContractInterfaceRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** Unique identifier for a given Smart Contract Interface. */
+  smartContractInterfaceId: string;
+};
+
+export type v1GetSmartContractInterfaceResponse = {
+  /** Object to be used in conjunction with Policies to guard transaction signing. */
+  smartContractInterface: v1SmartContractInterface;
+};
+
+export type v1GetSmartContractInterfacesRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+};
+
+export type v1GetSmartContractInterfacesResponse = {
+  /** A list of Smart Contract Interfaces. */
+  smartContractInterfaces: v1SmartContractInterface[];
+};
+
 export type v1GetSubOrgIdsRequest = {
   /** Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
   organizationId: string;
@@ -2198,6 +2267,8 @@ export type v1Intent = {
   updateUserEmailIntent?: v1UpdateUserEmailIntent;
   updateUserPhoneNumberIntent?: v1UpdateUserPhoneNumberIntent;
   initFiatOnRampIntent?: v1InitFiatOnRampIntent;
+  createSmartContractInterfaceIntent?: v1CreateSmartContractInterfaceIntent;
+  deleteSmartContractInterfaceIntent?: v1DeleteSmartContractInterfaceIntent;
   enableUserInitiatedAuthIntent?: v1EnableUserInitiatedAuthIntent;
   disableUserInitiatedAuthIntent?: v1DisableUserInitiatedAuthIntent;
   updateProxyAuthConfigIntent?: v1UpdateProxyAuthConfigIntent;
@@ -2676,6 +2747,8 @@ export type v1Result = {
   updateUserEmailResult?: v1UpdateUserEmailResult;
   updateUserPhoneNumberResult?: v1UpdateUserPhoneNumberResult;
   initFiatOnRampResult?: v1InitFiatOnRampResult;
+  createSmartContractInterfaceResult?: v1CreateSmartContractInterfaceResult;
+  deleteSmartContractInterfaceResult?: v1DeleteSmartContractInterfaceResult;
   enableUserInitiatedAuthResult?: v1EnableUserInitiatedAuthResult;
   disableUserInitiatedAuthResult?: v1DisableUserInitiatedAuthResult;
   updateProxyAuthConfigResult?: v1UpdateProxyAuthConfigResult;
@@ -2864,6 +2937,29 @@ export type v1SimpleClientExtensionResults = {
   appidExclude?: boolean;
   credProps?: v1CredPropsAuthenticationExtensionsClientOutputs;
 };
+
+export type v1SmartContractInterface = {
+  /** The Organization the Smart Contract Interface belongs to. */
+  organizationId: string;
+  /** Unique identifier for a given Smart Contract Interface (ABI or IDL). */
+  smartContractInterfaceId: string;
+  /** The address corresponding to the Smart Contract or Program. */
+  contractAddress: string;
+  /** The JSON corresponding to the Smart Contract Interface. */
+  interface: string;
+  /** The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+  type: string;
+  /** The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+  label: string;
+  /** The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+  notes: string;
+  createdAt: externaldatav1Timestamp;
+  updatedAt: externaldatav1Timestamp;
+};
+
+export type v1SmartContractInterfaceType =
+  | "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM"
+  | "SMART_CONTRACT_INTERFACE_TYPE_SOLANA";
 
 export type v1SmsCustomizationParams = {
   /** Template containing references to .OtpCode i.e Your OTP is {{.OtpCode}} */
@@ -3379,6 +3475,48 @@ export type v1WebAuthnStamp = {
   signature: string;
 };
 
+export type v1GetAccountResponse = {
+  organizationId: string;
+};
+
+export type v1GetWalletKitConfigResponse = {
+  facebookEnabled: boolean;
+  googleEnabled: boolean;
+  appleEnabled: boolean;
+  emailEnabled: boolean;
+  smsEnabled: boolean;
+  passkeyEnabled: boolean;
+  walletEnabled: boolean;
+  openOAuthInPage: boolean;
+  passkeySessionExpirationSeconds: string;
+  walletSessionExpirationSeconds: string;
+  organizationId: string;
+};
+
+export type v1InitOtpResponse = {
+  /** Unique identifier for an OTP authentication */
+  otpId: string;
+};
+
+export type v1OAuthLoginResponse = {
+  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
+  session: string;
+};
+
+export type v1OtpLoginResponse = {
+  /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
+  session: string;
+};
+
+export type v1SignupResponse = {
+  organizationId: string;
+};
+
+export type v1VerifyOtpResponse = {
+  /** Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
+  verificationToken: string;
+};
+
 // --- API Types from Swagger Paths ---
 export type TGetActivityResponse = {
   /** An action that can that can be taken within the Turnkey infrastructure. */
@@ -3534,6 +3672,21 @@ export type TGetProxyAuthConfigBody = {
 
 export type TGetProxyAuthConfigInput = { body: TGetProxyAuthConfigBody };
 
+export type TGetSmartContractInterfaceResponse = {
+  /** Object to be used in conjunction with Policies to guard transaction signing. */
+  smartContractInterface: v1SmartContractInterface;
+};
+
+export type TGetSmartContractInterfaceBody = {
+  organizationId?: string;
+  /** Unique identifier for a given Smart Contract Interface. */
+  smartContractInterfaceId: string;
+};
+
+export type TGetSmartContractInterfaceInput = {
+  body: TGetSmartContractInterfaceBody;
+};
+
 export type TGetUserResponse = {
   /** Web and/or API user within your Organization. */
   user: v1User;
@@ -3626,6 +3779,19 @@ export type TGetPrivateKeysBody = {
 };
 
 export type TGetPrivateKeysInput = { body: TGetPrivateKeysBody };
+
+export type TGetSmartContractInterfacesResponse = {
+  /** A list of Smart Contract Interfaces. */
+  smartContractInterfaces: v1SmartContractInterface[];
+};
+
+export type TGetSmartContractInterfacesBody = {
+  organizationId?: string;
+};
+
+export type TGetSmartContractInterfacesInput = {
+  body: TGetSmartContractInterfacesBody;
+};
 
 export type TGetSubOrgIdsResponse = {
   /** List of unique identifiers for the matching sub-organizations. */
@@ -3949,6 +4115,30 @@ export type TCreateReadWriteSessionInput = {
   body: TCreateReadWriteSessionBody;
 };
 
+export type TCreateSmartContractInterfaceResponse = {
+  activity: v1Activity;
+  /** The ID of the created Smart Contract Interface. */
+  smartContractInterfaceId: string;
+};
+
+export type TCreateSmartContractInterfaceBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Corresponding contract address or program ID */
+  smartContractAddress: string;
+  /** ABI/IDL as a JSON string */
+  smartContractInterface: string;
+  type: v1SmartContractInterfaceType;
+  /** Human-readable name for a Smart Contract Interface. */
+  label?: string;
+  /** Notes for a Smart Contract Interface. */
+  notes?: string;
+};
+
+export type TCreateSmartContractInterfaceInput = {
+  body: TCreateSmartContractInterfaceBody;
+};
+
 export type TCreateSubOrganizationResponse = {
   activity: v1Activity;
   subOrganizationId: string;
@@ -4167,6 +4357,23 @@ export type TDeletePrivateKeysBody = {
 };
 
 export type TDeletePrivateKeysInput = { body: TDeletePrivateKeysBody };
+
+export type TDeleteSmartContractInterfaceResponse = {
+  activity: v1Activity;
+  /** The ID of the deleted Smart Contract Interface. */
+  smartContractInterfaceId: string;
+};
+
+export type TDeleteSmartContractInterfaceBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The ID of a Smart Contract Interface intended for deletion. */
+  smartContractInterfaceId: string;
+};
+
+export type TDeleteSmartContractInterfaceInput = {
+  body: TDeleteSmartContractInterfaceBody;
+};
 
 export type TDeleteSubOrganizationResponse = {
   activity: v1Activity;
