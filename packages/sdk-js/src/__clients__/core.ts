@@ -23,6 +23,7 @@ import {
   TurnkeyError,
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
+  v1GetWalletKitConfigResponse,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -1771,7 +1772,7 @@ export class TurnkeyClient {
     }
   };
 
-  getProxyAuthConfig = async (): Promise<v1ProxyAuthConfig> => {
+  getProxyAuthConfig = async (): Promise<v1GetWalletKitConfigResponse> => {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
@@ -1796,7 +1797,7 @@ export class TurnkeyClient {
         );
       }
 
-      return (await res.json()) as v1ProxyAuthConfig;
+      return (await res.json()) as v1GetWalletKitConfigResponse;
     } catch (error) {
       throw new TurnkeyError(
         `Failed to get auth proxy config`,
