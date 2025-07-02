@@ -23,9 +23,11 @@ function RootLayout({ children }: RootLayoutProps) {
             authProxyId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
             organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
             auth: {
-              googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-              oAuthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
-              openOAuthInPage: true,
+              oAuthConfig: {
+                googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+                oAuthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
+              },
+              autoRefreshSession: true,
             },
             passkeyConfig: {
               rpId: process.env.NEXT_PUBLIC_RPID!,
@@ -33,7 +35,6 @@ function RootLayout({ children }: RootLayoutProps) {
               userVerification: "preferred",
               allowCredentials: [],
             },
-            autoRefreshSession: true,
           }}
           callbacks={{
             onError: (error) => {
