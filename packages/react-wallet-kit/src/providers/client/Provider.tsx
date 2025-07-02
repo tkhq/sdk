@@ -107,6 +107,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     AuthState.Unauthenticated,
   );
   const expiryTimeoutsRef = useRef<Record<string, NodeJS.Timeout>>({});
+  const proxyAuthConfigRef = useRef<v1GetWalletKitConfigResponse | null>(null);
+
   const [allSessions, setAllSessions] = useState<
     Record<string, Session> | undefined
   >(undefined);
@@ -190,17 +192,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }, [client]);
 
   useEffect(() => {
-    if (!client) return;
+    if (!client || proxyAuthConfigRef.current) return;
+
+    // Only fetch the proxy auth config once. Use that to build the master config.
     const fetchProxyAuthConfig = async () => {
       const proxyAuthConfig = await client.getProxyAuthConfig();
-      const masterConfig = buildConfig(proxyAuthConfig);
-      setMasterConfig(masterConfig);
-
-      return;
+      proxyAuthConfigRef.current = proxyAuthConfig;
+      setMasterConfig(buildConfig(proxyAuthConfig));
     };
 
     fetchProxyAuthConfig();
   }, [client]);
+
+  useEffect(() => {
+    // If the proxyAuthConfigRef is already set, we don't need to fetch it again. Rebuild the master config with the updated config and stored proxyAuthConfig
+    if (!proxyAuthConfigRef.current) return;
+    setMasterConfig(buildConfig(proxyAuthConfigRef.current));
+  }, [config]);
 
   const buildConfig = (proxyAuthConfig: v1GetWalletKitConfigResponse) => {
     return {

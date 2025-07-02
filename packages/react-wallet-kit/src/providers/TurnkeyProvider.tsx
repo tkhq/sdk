@@ -15,6 +15,8 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       appleOAuthEnabled?: boolean;
       facebookOAuthEnabled?: boolean;
     };
+    methodOrder?: Array<"socials" | "email" | "sms" | "passkey" | "wallet">;
+    oauthOrder?: Array<"google" | "apple" | "facebook">;
     oAuthConfig?: {
       oAuthRedirectUri?: string;
       googleClientId?: string;
