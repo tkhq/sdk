@@ -1,4 +1,4 @@
-import { Session } from "@turnkey/sdk-types";
+import { Session, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 
 export const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 export const APPLE_AUTH_URL = "https://appleid.apple.com/auth/authorize";
@@ -68,3 +68,24 @@ export enum AuthState {
 export const isValidSession = (session?: Session | undefined): boolean => {
   return session?.expiry !== undefined && session.expiry * 1000 > Date.now();
 };
+
+export async function withTurnkeyErrorHandling<T>(
+  fn: () => Promise<T>,
+  callbacks?: { onError?: (error: TurnkeyError) => void },
+  fallbackMessage = "An unknown error occurred",
+  fallbackCode = TurnkeyErrorCodes.UNKNOWN,
+): Promise<T> {
+  try {
+    console.log("Executing withTurnkeyErrorHandling");
+    return await fn();
+  } catch (error) {
+    console.log("Error in withTurnkeyErrorHandling:", error);
+    if (error instanceof TurnkeyError) {
+      callbacks?.onError?.(error);
+      throw error;
+    }
+    const tkError = new TurnkeyError(fallbackMessage, fallbackCode, error);
+    callbacks?.onError?.(tkError);
+    throw tkError;
+  }
+}

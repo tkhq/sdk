@@ -2,7 +2,7 @@ import { TurnkeySDKClientConfig } from "@turnkey/sdk-js";
 import { ClientProvider } from "./client/Provider";
 import { ModalProvider } from "./modal/Provider";
 import { ModalRoot } from "./modal/Root";
-import { Session } from "@turnkey/sdk-types";
+import { Session, TurnkeyError, TurnkeyNetworkError } from "@turnkey/sdk-types";
 
 export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   auth?: {
@@ -18,6 +18,7 @@ export interface TurnkeyCallbacks {
   beforeSessionExpiry?: (params: { sessionKey: string }) => void;
   onSessionExpired?: (params: { sessionKey: string }) => void;
   onAuthenticationSuccess?: (params: { session: Session | undefined }) => void;
+  onError?: (error: TurnkeyError | TurnkeyNetworkError) => void;
 }
 
 export function TurnkeyProvider({
