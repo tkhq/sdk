@@ -2085,6 +2085,12 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      libphonenumber-js:
+        specifier: ^1.11.14
+        version: 1.11.14
+      react-international-phone:
+        specifier: ^4.3.0
+        version: 4.3.0(react@18.3.1)
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4.1.10
@@ -23650,6 +23656,14 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 18.2.0
+    dev: false
+
+  /react-international-phone@4.3.0(react@18.3.1):
+    resolution: {integrity: sha512-lIntIkwq2j0m3j4RsRiGJl/buHMLBd+mQ9S9RfiX3KbiUCUtbawoPCV2r8BvyeRMZI0cDtovoukBCuZ+70QzJA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.3.1
     dev: false
 
   /react-is@16.13.1:
