@@ -51,6 +51,10 @@ import type {
   TGetProxyAuthConfigBody,
   TGetProxyAuthConfigResponse,
 } from "./public_api.fetcher";
+import type {
+  TGetSmartContractInterfaceBody,
+  TGetSmartContractInterfaceResponse,
+} from "./public_api.fetcher";
 import type { TGetUserBody, TGetUserResponse } from "./public_api.fetcher";
 import type { TGetWalletBody, TGetWalletResponse } from "./public_api.fetcher";
 import type {
@@ -72,6 +76,10 @@ import type {
 import type {
   TGetPrivateKeysBody,
   TGetPrivateKeysResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetSmartContractInterfacesBody,
+  TGetSmartContractInterfacesResponse,
 } from "./public_api.fetcher";
 import type {
   TGetSubOrgIdsBody,
@@ -144,6 +152,10 @@ import type {
   TCreateReadWriteSessionResponse,
 } from "./public_api.fetcher";
 import type {
+  TCreateSmartContractInterfaceBody,
+  TCreateSmartContractInterfaceResponse,
+} from "./public_api.fetcher";
+import type {
   TCreateSubOrganizationBody,
   TCreateSubOrganizationResponse,
 } from "./public_api.fetcher";
@@ -190,6 +202,10 @@ import type {
 import type {
   TDeletePrivateKeysBody,
   TDeletePrivateKeysResponse,
+} from "./public_api.fetcher";
+import type {
+  TDeleteSmartContractInterfaceBody,
+  TDeleteSmartContractInterfaceResponse,
 } from "./public_api.fetcher";
 import type {
   TDeleteSubOrganizationBody,
@@ -752,6 +768,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Get details about a Smart Contract Interface
+   *
+   * Sign the provided `TGetSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_smart_contract_interface).
+   *
+   * See also {@link stampGetSmartContractInterface}.
+   */
+  getSmartContractInterface = async (
+    input: TGetSmartContractInterfaceBody,
+  ): Promise<TGetSmartContractInterfaceResponse> => {
+    return this.request("/public/v1/query/get_smart_contract_interface", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetSmartContractInterfaceBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetSmartContractInterface}.
+   */
+  stampGetSmartContractInterface = async (
+    input: TGetSmartContractInterfaceBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_smart_contract_interface";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Get details about a User
    *
    * Sign the provided `TGetUserBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_user).
@@ -952,6 +1000,41 @@ export class TurnkeyClient {
     input: TGetPrivateKeysBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_private_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List all Smart Contract Interfaces within an Organization
+   *
+   * Sign the provided `TGetSmartContractInterfacesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_smart_contract_interfaces).
+   *
+   * See also {@link stampGetSmartContractInterfaces}.
+   */
+  getSmartContractInterfaces = async (
+    input: TGetSmartContractInterfacesBody,
+  ): Promise<TGetSmartContractInterfacesResponse> => {
+    return this.request(
+      "/public/v1/query/list_smart_contract_interfaces",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetSmartContractInterfacesBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetSmartContractInterfaces}.
+   */
+  stampGetSmartContractInterfaces = async (
+    input: TGetSmartContractInterfacesBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_smart_contract_interfaces";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1549,6 +1632,41 @@ export class TurnkeyClient {
   };
 
   /**
+   * Create an ABI/IDL in JSON
+   *
+   * Sign the provided `TCreateSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_smart_contract_interface).
+   *
+   * See also {@link stampCreateSmartContractInterface}.
+   */
+  createSmartContractInterface = async (
+    input: TCreateSmartContractInterfaceBody,
+  ): Promise<TCreateSmartContractInterfaceResponse> => {
+    return this.request(
+      "/public/v1/submit/create_smart_contract_interface",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateSmartContractInterfaceBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateSmartContractInterface}.
+   */
+  stampCreateSmartContractInterface = async (
+    input: TCreateSmartContractInterfaceBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_smart_contract_interface";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Create a new Sub-Organization
    *
    * Sign the provided `TCreateSubOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_sub_organization).
@@ -1917,6 +2035,41 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/delete_private_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Delete a Smart Contract Interface
+   *
+   * Sign the provided `TDeleteSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_smart_contract_interface).
+   *
+   * See also {@link stampDeleteSmartContractInterface}.
+   */
+  deleteSmartContractInterface = async (
+    input: TDeleteSmartContractInterfaceBody,
+  ): Promise<TDeleteSmartContractInterfaceResponse> => {
+    return this.request(
+      "/public/v1/submit/delete_smart_contract_interface",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteSmartContractInterfaceBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteSmartContractInterface}.
+   */
+  stampDeleteSmartContractInterface = async (
+    input: TDeleteSmartContractInterfaceBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_smart_contract_interface";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

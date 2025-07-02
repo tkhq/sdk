@@ -452,6 +452,38 @@
         "tags": ["Organizations"]
       }
     },
+    "/public/v1/query/get_smart_contract_interface": {
+      "post": {
+        "summary": "Get Smart Contract Interface",
+        "description": "Get details about a Smart Contract Interface",
+        "operationId": "PublicApiService_GetSmartContractInterface",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSmartContractInterfaceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetSmartContractInterfaceRequest"
+            }
+          }
+        ],
+        "tags": ["Policies"]
+      }
+    },
     "/public/v1/query/get_user": {
       "post": {
         "summary": "Get User",
@@ -674,6 +706,38 @@
           }
         ],
         "tags": ["Private Keys"]
+      }
+    },
+    "/public/v1/query/list_smart_contract_interfaces": {
+      "post": {
+        "summary": "List Smart Contract Interfaces",
+        "description": "List all Smart Contract Interfaces within an Organization",
+        "operationId": "PublicApiService_GetSmartContractInterfaces",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSmartContractInterfacesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetSmartContractInterfacesRequest"
+            }
+          }
+        ],
+        "tags": ["Policies"]
       }
     },
     "/public/v1/query/list_suborgs": {
@@ -1284,6 +1348,38 @@
         "tags": ["Sessions"]
       }
     },
+    "/public/v1/submit/create_smart_contract_interface": {
+      "post": {
+        "summary": "Create Smart Contract Interface",
+        "description": "Create an ABI/IDL in JSON",
+        "operationId": "PublicApiService_CreateSmartContractInterface",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateSmartContractInterfaceRequest"
+            }
+          }
+        ],
+        "tags": ["Policies"]
+      }
+    },
     "/public/v1/submit/create_sub_organization": {
       "post": {
         "summary": "Create Sub-Organization",
@@ -1666,6 +1762,38 @@
           }
         ],
         "tags": ["Private Keys"]
+      }
+    },
+    "/public/v1/submit/delete_smart_contract_interface": {
+      "post": {
+        "summary": "Create Smart Contract Interface",
+        "description": "Delete a Smart Contract Interface",
+        "operationId": "PublicApiService_DeleteSmartContractInterface",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteSmartContractInterfaceRequest"
+            }
+          }
+        ],
+        "tags": ["Policies"]
       }
     },
     "/public/v1/submit/delete_sub_organization": {
@@ -3522,6 +3650,8 @@
         "ACTIVITY_TYPE_UPDATE_USER_EMAIL",
         "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER",
         "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
+        "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
+        "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
         "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH",
         "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH",
         "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG"
@@ -4699,6 +4829,62 @@
         "credentialBundle"
       ]
     },
+    "v1CreateSmartContractInterfaceIntent": {
+      "type": "object",
+      "properties": {
+        "smartContractAddress": {
+          "type": "string",
+          "description": "Corresponding contract address or program ID"
+        },
+        "smartContractInterface": {
+          "type": "string",
+          "description": "ABI/IDL as a JSON string"
+        },
+        "type": {
+          "$ref": "#/definitions/v1SmartContractInterfaceType"
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable name for a Smart Contract Interface."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Notes for a Smart Contract Interface."
+        }
+      },
+      "required": ["smartContractAddress", "smartContractInterface", "type"]
+    },
+    "v1CreateSmartContractInterfaceRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateSmartContractInterfaceIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateSmartContractInterfaceResult": {
+      "type": "object",
+      "properties": {
+        "smartContractInterfaceId": {
+          "type": "string",
+          "description": "The ID of the created Smart Contract Interface."
+        }
+      },
+      "required": ["smartContractInterfaceId"]
+    },
     "v1CreateSubOrganizationIntent": {
       "type": "object",
       "properties": {
@@ -5686,6 +5872,47 @@
         }
       },
       "required": ["privateKeyIds"]
+    },
+    "v1DeleteSmartContractInterfaceIntent": {
+      "type": "object",
+      "properties": {
+        "smartContractInterfaceId": {
+          "type": "string",
+          "description": "The ID of a Smart Contract Interface intended for deletion."
+        }
+      },
+      "required": ["smartContractInterfaceId"]
+    },
+    "v1DeleteSmartContractInterfaceRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteSmartContractInterfaceIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteSmartContractInterfaceResult": {
+      "type": "object",
+      "properties": {
+        "smartContractInterfaceId": {
+          "type": "string",
+          "description": "The ID of the deleted Smart Contract Interface."
+        }
+      },
+      "required": ["smartContractInterfaceId"]
     },
     "v1DeleteSubOrganizationIntent": {
       "type": "object",
@@ -6767,6 +6994,54 @@
         }
       },
       "required": ["proxyAuthConfig"]
+    },
+    "v1GetSmartContractInterfaceRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "smartContractInterfaceId": {
+          "type": "string",
+          "description": "Unique identifier for a given Smart Contract Interface."
+        }
+      },
+      "required": ["organizationId", "smartContractInterfaceId"]
+    },
+    "v1GetSmartContractInterfaceResponse": {
+      "type": "object",
+      "properties": {
+        "smartContractInterface": {
+          "$ref": "#/definitions/v1SmartContractInterface",
+          "description": "Object to be used in conjunction with Policies to guard transaction signing."
+        }
+      },
+      "required": ["smartContractInterface"]
+    },
+    "v1GetSmartContractInterfacesRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetSmartContractInterfacesResponse": {
+      "type": "object",
+      "properties": {
+        "smartContractInterfaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SmartContractInterface"
+          },
+          "description": "A list of Smart Contract Interfaces."
+        }
+      },
+      "required": ["smartContractInterfaces"]
     },
     "v1GetSubOrgIdsRequest": {
       "type": "object",
@@ -7880,6 +8155,12 @@
         },
         "initFiatOnRampIntent": {
           "$ref": "#/definitions/v1InitFiatOnRampIntent"
+        },
+        "createSmartContractInterfaceIntent": {
+          "$ref": "#/definitions/v1CreateSmartContractInterfaceIntent"
+        },
+        "deleteSmartContractInterfaceIntent": {
+          "$ref": "#/definitions/v1DeleteSmartContractInterfaceIntent"
         },
         "enableUserInitiatedAuthIntent": {
           "$ref": "#/definitions/v1EnableUserInitiatedAuthIntent"
@@ -9096,6 +9377,12 @@
         "initFiatOnRampResult": {
           "$ref": "#/definitions/v1InitFiatOnRampResult"
         },
+        "createSmartContractInterfaceResult": {
+          "$ref": "#/definitions/v1CreateSmartContractInterfaceResult"
+        },
+        "deleteSmartContractInterfaceResult": {
+          "$ref": "#/definitions/v1DeleteSmartContractInterfaceResult"
+        },
         "enableUserInitiatedAuthResult": {
           "$ref": "#/definitions/v1EnableUserInitiatedAuthResult"
         },
@@ -9553,6 +9840,63 @@
           "$ref": "#/definitions/v1CredPropsAuthenticationExtensionsClientOutputs"
         }
       }
+    },
+    "v1SmartContractInterface": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "The Organization the Smart Contract Interface belongs to."
+        },
+        "smartContractInterfaceId": {
+          "type": "string",
+          "description": "Unique identifier for a given Smart Contract Interface (ABI or IDL)."
+        },
+        "contractAddress": {
+          "type": "string",
+          "description": "The address corresponding to the Smart Contract or Program."
+        },
+        "interface": {
+          "type": "string",
+          "description": "The JSON corresponding to the Smart Contract Interface."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "label": {
+          "type": "string",
+          "description": "The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "organizationId",
+        "smartContractInterfaceId",
+        "contractAddress",
+        "interface",
+        "type",
+        "label",
+        "notes",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "v1SmartContractInterfaceType": {
+      "type": "string",
+      "enum": [
+        "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM",
+        "SMART_CONTRACT_INTERFACE_TYPE_SOLANA"
+      ]
     },
     "v1SmsCustomizationParams": {
       "type": "object",
