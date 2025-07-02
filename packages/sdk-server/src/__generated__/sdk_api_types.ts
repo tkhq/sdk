@@ -166,6 +166,19 @@ export type TGetProxyAuthConfigBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetSmartContractInterfaceResponse =
+  operations["PublicApiService_GetSmartContractInterface"]["responses"]["200"]["schema"];
+
+export type TGetSmartContractInterfaceInput = {
+  body: TGetSmartContractInterfaceBody;
+};
+
+export type TGetSmartContractInterfaceBody = Omit<
+  operations["PublicApiService_GetSmartContractInterface"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetUserResponse =
   operations["PublicApiService_GetUser"]["responses"]["200"]["schema"];
 
