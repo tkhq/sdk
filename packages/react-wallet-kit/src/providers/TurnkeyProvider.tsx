@@ -22,6 +22,10 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       facebookClientId?: string;
       openOAuthInPage?: boolean;
     };
+    sessionExpirationSeconds?: {
+      passkey?: string;
+      wallet?: string;
+    };
     autoRefreshSession?: boolean;
   };
   ui?: {

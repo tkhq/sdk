@@ -295,7 +295,8 @@ export function parseSession(token: string | Session): Session {
     userId,
     organizationId,
     expiry: exp,
-    token: publicKey, // TODO (Amir): Should token be the JWT then add another field for publicKey?
+    publicKey,
+    token,
   };
 }
 
