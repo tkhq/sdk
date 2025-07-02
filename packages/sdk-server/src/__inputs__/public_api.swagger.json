@@ -504,6 +504,38 @@
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
       }
     },
+    "/public/v1/query/get_smart_contract_interface": {
+      "post": {
+        "summary": "Get Smart Contract Interface",
+        "description": "Get details about a Smart Contract Interface",
+        "operationId": "PublicApiService_GetSmartContractInterface",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSmartContractInterfaceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetSmartContractInterfaceRequest"
+            }
+          }
+        ],
+        "tags": ["Policies"]
+      }
+    },
     "/public/v1/query/get_user": {
       "post": {
         "summary": "Get user",
@@ -730,8 +762,13 @@
     },
     "/public/v1/query/list_smart_contract_interfaces": {
       "post": {
+<<<<<<< HEAD
         "summary": "List smart contract interfaces",
         "description": "List all smart contract interfaces within an organization.",
+=======
+        "summary": "List Smart Contract Interfaces",
+        "description": "List all Smart Contract Interfaces within an Organization",
+>>>>>>> 57ef158e (updated auth proxy type generation)
         "operationId": "PublicApiService_GetSmartContractInterfaces",
         "responses": {
           "200": {
@@ -1370,8 +1407,13 @@
     },
     "/public/v1/submit/create_smart_contract_interface": {
       "post": {
+<<<<<<< HEAD
         "summary": "Create smart contract interface",
         "description": "Create an ABI/IDL in JSON.",
+=======
+        "summary": "Create Smart Contract Interface",
+        "description": "Create an ABI/IDL in JSON",
+>>>>>>> 57ef158e (updated auth proxy type generation)
         "operationId": "PublicApiService_CreateSmartContractInterface",
         "responses": {
           "200": {
@@ -1786,8 +1828,13 @@
     },
     "/public/v1/submit/delete_smart_contract_interface": {
       "post": {
+<<<<<<< HEAD
         "summary": "Delete smart contract interface",
         "description": "Delete a smart contract interface.",
+=======
+        "summary": "Create Smart Contract Interface",
+        "description": "Delete a Smart Contract Interface",
+>>>>>>> 57ef158e (updated auth proxy type generation)
         "operationId": "PublicApiService_DeleteSmartContractInterface",
         "responses": {
           "200": {
@@ -3772,6 +3819,7 @@
         "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER",
         "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
 <<<<<<< HEAD
+<<<<<<< HEAD
         "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
 <<<<<<< HEAD
         "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
@@ -3781,6 +3829,10 @@
 =======
         "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
 =======
+=======
+        "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
+        "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
+>>>>>>> 57ef158e (updated auth proxy type generation)
         "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH",
         "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH",
         "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG"
@@ -4983,12 +5035,16 @@
           "description": "Notes for a Smart Contract Interface."
         }
       },
+<<<<<<< HEAD
       "required": [
         "smartContractAddress",
         "smartContractInterface",
         "type",
         "label"
       ]
+=======
+      "required": ["smartContractAddress", "smartContractInterface", "type"]
+>>>>>>> 57ef158e (updated auth proxy type generation)
     },
     "v1CreateSmartContractInterfaceRequest": {
       "type": "object",
@@ -7227,6 +7283,54 @@
       "required": ["proxyAuthConfig"]
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
     },
+    "v1GetSmartContractInterfaceRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "smartContractInterfaceId": {
+          "type": "string",
+          "description": "Unique identifier for a given Smart Contract Interface."
+        }
+      },
+      "required": ["organizationId", "smartContractInterfaceId"]
+    },
+    "v1GetSmartContractInterfaceResponse": {
+      "type": "object",
+      "properties": {
+        "smartContractInterface": {
+          "$ref": "#/definitions/v1SmartContractInterface",
+          "description": "Object to be used in conjunction with Policies to guard transaction signing."
+        }
+      },
+      "required": ["smartContractInterface"]
+    },
+    "v1GetSmartContractInterfacesRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetSmartContractInterfacesResponse": {
+      "type": "object",
+      "properties": {
+        "smartContractInterfaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SmartContractInterface"
+          },
+          "description": "A list of Smart Contract Interfaces."
+        }
+      },
+      "required": ["smartContractInterfaces"]
+    },
     "v1GetSubOrgIdsRequest": {
       "type": "object",
       "properties": {
@@ -8345,11 +8449,15 @@
           "$ref": "#/definitions/v1InitFiatOnRampIntent"
         },
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 57ef158e (updated auth proxy type generation)
         "createSmartContractInterfaceIntent": {
           "$ref": "#/definitions/v1CreateSmartContractInterfaceIntent"
         },
         "deleteSmartContractInterfaceIntent": {
           "$ref": "#/definitions/v1DeleteSmartContractInterfaceIntent"
+<<<<<<< HEAD
 <<<<<<< HEAD
         },
         "enableAuthProxyIntent": {
@@ -8362,6 +8470,11 @@
           "$ref": "#/definitions/v1UpdateAuthProxyConfigIntent"
 =======
 =======
+>>>>>>> 2cffcb69 (updated auth proxy type generation)
+=======
+=======
+        },
+>>>>>>> 57ef158e (updated auth proxy type generation)
         "enableUserInitiatedAuthIntent": {
           "$ref": "#/definitions/v1EnableUserInitiatedAuthIntent"
         },
@@ -9598,11 +9711,15 @@
           "$ref": "#/definitions/v1InitFiatOnRampResult"
         },
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 57ef158e (updated auth proxy type generation)
         "createSmartContractInterfaceResult": {
           "$ref": "#/definitions/v1CreateSmartContractInterfaceResult"
         },
         "deleteSmartContractInterfaceResult": {
           "$ref": "#/definitions/v1DeleteSmartContractInterfaceResult"
+<<<<<<< HEAD
 <<<<<<< HEAD
         },
         "enableAuthProxyResult": {
@@ -9615,6 +9732,11 @@
           "$ref": "#/definitions/v1UpdateAuthProxyConfigResult"
 =======
 =======
+>>>>>>> 2cffcb69 (updated auth proxy type generation)
+=======
+=======
+        },
+>>>>>>> 57ef158e (updated auth proxy type generation)
         "enableUserInitiatedAuthResult": {
           "$ref": "#/definitions/v1EnableUserInitiatedAuthResult"
         },
@@ -10075,6 +10197,7 @@
         }
       }
     },
+<<<<<<< HEAD
     "v1SmartContractInterfaceReference": {
       "type": "object",
       "properties": {
@@ -10088,6 +10211,57 @@
           "type": "string"
         }
       }
+=======
+    "v1SmartContractInterface": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "The Organization the Smart Contract Interface belongs to."
+        },
+        "smartContractInterfaceId": {
+          "type": "string",
+          "description": "Unique identifier for a given Smart Contract Interface (ABI or IDL)."
+        },
+        "contractAddress": {
+          "type": "string",
+          "description": "The address corresponding to the Smart Contract or Program."
+        },
+        "interface": {
+          "type": "string",
+          "description": "The JSON corresponding to the Smart Contract Interface."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "label": {
+          "type": "string",
+          "description": "The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "organizationId",
+        "smartContractInterfaceId",
+        "contractAddress",
+        "interface",
+        "type",
+        "label",
+        "notes",
+        "createdAt",
+        "updatedAt"
+      ]
+>>>>>>> 57ef158e (updated auth proxy type generation)
     },
     "v1SmartContractInterfaceType": {
       "type": "string",
