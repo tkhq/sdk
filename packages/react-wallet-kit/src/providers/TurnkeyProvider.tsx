@@ -6,11 +6,30 @@ import { Session, TurnkeyError, TurnkeyNetworkError } from "@turnkey/sdk-types";
 
 export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   auth?: {
-    googleClientId?: string;
-    oAuthRedirectUri?: string;
-    openOAuthInPage?: boolean;
+    methods?: {
+      emailOtpAuthEnabled?: boolean;
+      smsOtpAuthEnabled?: boolean;
+      passkeyAuthEnabled?: boolean;
+      walletAuthEnabled?: boolean;
+      googleOAuthEnabled?: boolean;
+      appleOAuthEnabled?: boolean;
+      facebookOAuthEnabled?: boolean;
+    };
+    oAuthConfig?: {
+      oAuthRedirectUri?: string;
+      googleClientId?: string;
+      appleClientId?: string;
+      facebookClientId?: string;
+      openOAuthInPage?: boolean;
+    };
+    autoRefreshSession?: boolean;
   };
-  autoRefreshSession?: boolean;
+  ui?: {
+    // Good mornig!
+  };
+  language?: {
+    // Ohayō!
+  };
 }
 
 export interface TurnkeyCallbacks {
