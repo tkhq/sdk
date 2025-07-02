@@ -143,6 +143,19 @@ export type TGetProxyAuthConfigBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetSmartContractInterfaceResponse =
+  operations["PublicApiService_GetSmartContractInterface"]["responses"]["200"]["schema"];
+
+export type TGetSmartContractInterfaceInput = {
+  body: TGetSmartContractInterfaceBody;
+};
+
+export type TGetSmartContractInterfaceBody = Omit<
+  operations["PublicApiService_GetSmartContractInterface"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetUserResponse =
   operations["PublicApiService_GetUser"]["responses"]["200"]["schema"];
 
@@ -216,6 +229,19 @@ export type TGetPrivateKeysInput = { body: TGetPrivateKeysBody };
 
 export type TGetPrivateKeysBody = Omit<
   operations["PublicApiService_GetPrivateKeys"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetSmartContractInterfacesResponse =
+  operations["PublicApiService_GetSmartContractInterfaces"]["responses"]["200"]["schema"];
+
+export type TGetSmartContractInterfacesInput = {
+  body: TGetSmartContractInterfacesBody;
+};
+
+export type TGetSmartContractInterfacesBody = Omit<
+  operations["PublicApiService_GetSmartContractInterfaces"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -419,6 +445,18 @@ export type TCreateReadWriteSessionBody =
   operations["PublicApiService_CreateReadWriteSession"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateSmartContractInterfaceResponse =
+  operations["PublicApiService_CreateSmartContractInterface"]["responses"]["200"]["schema"]["activity"]["result"]["createSmartContractInterfaceResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateSmartContractInterfaceInput = {
+  body: TCreateSmartContractInterfaceBody;
+};
+
+export type TCreateSmartContractInterfaceBody =
+  operations["PublicApiService_CreateSmartContractInterface"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateSubOrganizationResponse =
   operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV7"] &
     definitions["v1ActivityResponse"];
@@ -537,6 +575,18 @@ export type TDeletePrivateKeysInput = { body: TDeletePrivateKeysBody };
 
 export type TDeletePrivateKeysBody =
   operations["PublicApiService_DeletePrivateKeys"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TDeleteSmartContractInterfaceResponse =
+  operations["PublicApiService_DeleteSmartContractInterface"]["responses"]["200"]["schema"]["activity"]["result"]["deleteSmartContractInterfaceResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteSmartContractInterfaceInput = {
+  body: TDeleteSmartContractInterfaceBody;
+};
+
+export type TDeleteSmartContractInterfaceBody =
+  operations["PublicApiService_DeleteSmartContractInterface"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TDeleteSubOrganizationResponse =
