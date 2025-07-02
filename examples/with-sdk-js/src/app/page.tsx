@@ -22,7 +22,6 @@ export default function AuthPage() {
     authState,
     wallets,
     user,
-    proxyAuthConfig,
     login,
     handleGoogleOauth,
     loginWithPasskey,

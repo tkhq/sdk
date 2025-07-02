@@ -73,6 +73,7 @@ export enum TurnkeyErrorCodes {
 
   BAD_RESPONSE = "BAD_RESPONSE",
   MISSING_PARAMS = "MISSING_PARAMS",
+  INVALID_CONFIGURATION = "INVALID_CONFIGURATION",
   INVALID_REQUEST = "INVALID_REQUEST",
   VALIDATION_ERROR = "VALIDATION_ERROR",
   SESSION_EXPIRED = "SESSION_EXPIRED",
@@ -92,7 +93,7 @@ export enum TurnkeyErrorCodes {
 export class TurnkeyError extends Error {
   constructor(
     message: string,
-    public code?: string,
+    public code?: TurnkeyErrorCodes,
     public cause?: unknown,
   ) {
     super(message);
@@ -104,7 +105,7 @@ export class TurnkeyNetworkError extends TurnkeyError {
   constructor(
     message: string,
     public statusCode?: number,
-    code?: string,
+    code?: TurnkeyErrorCodes,
     cause?: unknown,
   ) {
     super(message, code, cause);

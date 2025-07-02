@@ -10,10 +10,17 @@ import { PhoneNumberInput } from "./Phone";
 import { ActionPage } from "./Action";
 import { PasskeyButtons } from "./Passkey";
 import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
+import { Spinner } from "../design/Spinners";
+import { useEffect } from "react";
 
 export function AuthComponent() {
-  const { handleGoogleOauth, initOtp, loginWithPasskey, signUpWithPasskey } =
-    useTurnkey();
+  const {
+    config,
+    handleGoogleOauth,
+    initOtp,
+    loginWithPasskey,
+    signUpWithPasskey,
+  } = useTurnkey();
   const { pushPage } = useModal();
 
   const handleEmailSubmit = async (email: string) => {
@@ -97,40 +104,53 @@ export function AuthComponent() {
     });
   };
 
+  const handleGoogle = async () => {
+    pushPage({
+      key: "Google OAuth",
+      content: (
+        <ActionPage
+          title="Authenticating with Google..."
+          action={() =>
+            handleGoogleOauth({
+              additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+            })
+          }
+          icon={<FontAwesomeIcon size="3x" icon={faGoogle} />}
+        />
+      ),
+      showTitle: false,
+    });
+  };
+  useEffect(() => {
+    console.log(config);
+  }, [config]);
   return (
     <div className="flex flex-col items-center w-96">
-      <div className="w-full h-11 flex flex-row justify-center items-center gap-2 mt-12">
-        <OAuthButton
-          name={"Google"}
-          icon={<FontAwesomeIcon icon={faGoogle} />}
-          onClick={async () => {
-            pushPage({
-              key: "Google OAuth",
-              content: (
-                <ActionPage
-                  title="Authenticating with Google..."
-                  action={() =>
-                    handleGoogleOauth({
-                      additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
-                    })
-                  }
-                  icon={<FontAwesomeIcon size="3x" icon={faGoogle} />}
-                />
-              ),
-              showTitle: false,
-            });
-          }}
-        />
-      </div>
-      <OrSeparator />
-      <EmailInput onContinue={handleEmailSubmit} />
-      <OrSeparator />
-      <PhoneNumberInput onContinue={handlePhoneSubmit} />
-      <OrSeparator />
-      <PasskeyButtons
-        onLogin={handlePasskeyLogin}
-        onSignUp={handlePasskeySignUp}
-      />
+      {config ? (
+        <>
+          <div className="w-full h-11 flex flex-row justify-center items-center gap-2 mt-12">
+            <OAuthButton
+              name={"Google"}
+              icon={<FontAwesomeIcon icon={faGoogle} />}
+              onClick={handleGoogle}
+            />
+          </div>
+          <OrSeparator />
+          <EmailInput onContinue={handleEmailSubmit} />
+          <OrSeparator />
+          {config.auth?.methods?.smsOtpAuthEnabled && (
+            <PhoneNumberInput onContinue={handlePhoneSubmit} />
+          )}
+
+          <OrSeparator />
+          <PasskeyButtons
+            onLogin={handlePasskeyLogin}
+            onSignUp={handlePasskeySignUp}
+          />
+        </>
+      ) : (
+        <Spinner className="w-48 h-48" />
+      )}
     </div>
   );
 }

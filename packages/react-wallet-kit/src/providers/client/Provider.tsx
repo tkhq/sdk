@@ -42,8 +42,8 @@ import {
   v1AddressFormat,
   v1Attestation,
   v1AuthenticatorParamsV2,
+  v1GetWalletKitConfigResponse,
   v1Pagination,
-  v1ProxyAuthConfig,
   v1SignRawPayloadResult,
   v1TransactionType,
   v1User,
@@ -68,7 +68,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
   session: Session | undefined;
   allSessions?: Record<string, Session> | undefined;
   authState: AuthState;
-  proxyAuthConfig?: v1ProxyAuthConfig | undefined;
+  config?: TurnkeyProviderConfig | undefined;
   user: v1User | undefined;
   wallets: Wallet[];
   login: () => Promise<void>;
@@ -98,8 +98,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const [client, setClient] = useState<TurnkeyClient | undefined>(undefined);
   const [session, setSession] = useState<Session | undefined>(undefined);
   const [autoRefreshSession, setAutoRefreshSession] = useState<boolean>(false);
-  const [proxyAuthConfig, setProxyAuthConfig] = useState<
-    v1ProxyAuthConfig | undefined
+  const [masterConfig, setMasterConfig] = useState<
+    TurnkeyProviderConfig | undefined
   >(undefined);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [user, setUser] = useState<v1User | undefined>(undefined);
@@ -193,16 +193,53 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     if (!client) return;
     const fetchProxyAuthConfig = async () => {
       const proxyAuthConfig = await client.getProxyAuthConfig();
-      if (proxyAuthConfig) {
-        setProxyAuthConfig(proxyAuthConfig);
-      } else {
-        console.warn("No proxy auth config found.");
-      }
+      const masterConfig = buildConfig(proxyAuthConfig);
+      setMasterConfig(masterConfig);
+
       return;
     };
 
     fetchProxyAuthConfig();
   }, [client]);
+
+  const buildConfig = (proxyAuthConfig: v1GetWalletKitConfigResponse) => {
+    return {
+      ...config,
+      auth: {
+        ...config.auth,
+        methods: {
+          ...config.auth?.methods,
+          emailOtpAuthEnabled:
+            config.auth?.methods?.emailOtpAuthEnabled ??
+            proxyAuthConfig.emailEnabled,
+          smsOtpAuthEnabled:
+            config.auth?.methods?.smsOtpAuthEnabled ??
+            proxyAuthConfig.smsEnabled,
+          passkeyAuthEnabled:
+            config.auth?.methods?.passkeyAuthEnabled ??
+            proxyAuthConfig.passkeyEnabled,
+          walletAuthEnabled:
+            config.auth?.methods?.walletAuthEnabled ??
+            proxyAuthConfig.walletEnabled,
+          googleOAuthEnabled:
+            config.auth?.methods?.googleOAuthEnabled ??
+            proxyAuthConfig.googleEnabled,
+          appleOAuthEnabled:
+            config.auth?.methods?.appleOAuthEnabled ??
+            proxyAuthConfig.appleEnabled,
+          facebookOAuthEnabled:
+            config.auth?.methods?.facebookOAuthEnabled ??
+            proxyAuthConfig.facebookEnabled,
+        },
+        oAuthConfig: {
+          ...config.auth?.oAuthConfig,
+          openOAuthInPage:
+            config.auth?.oAuthConfig?.openOAuthInPage ??
+            proxyAuthConfig.openOAuthInPage,
+        },
+      },
+    } as TurnkeyProviderConfig;
+  };
 
   const initializeClient = async () => {
     try {
@@ -220,7 +257,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         },
       });
 
-      setAutoRefreshSession(config?.autoRefreshSession ?? false);
+      setAutoRefreshSession(config?.auth?.autoRefreshSession ?? false);
 
       await turnkeyClient.init();
       setClient(turnkeyClient);
@@ -1026,7 +1063,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   async function refreshSession(params?: {
     sessionType?: SessionType;
-    expirationSeconds?: string;
+    expirationSeconds?: string; // TODO: Need to pull from proxyAuthConfig
     publicKey?: string;
     sessionKey?: string;
     invalidateExisitng?: boolean;
@@ -1158,7 +1195,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
-  async function getProxyAuthConfig(): Promise<v1ProxyAuthConfig> {
+  async function getProxyAuthConfig(): Promise<v1GetWalletKitConfigResponse> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1209,21 +1246,34 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     additionalState?: Record<string, string>;
   }): Promise<void> {
     const {
-      clientId = config.auth?.googleClientId,
-      openInPage = config.auth?.openOAuthInPage,
+      clientId = masterConfig?.auth?.oAuthConfig?.googleClientId,
+      openInPage = masterConfig?.auth?.oAuthConfig?.openOAuthInPage ?? false,
       additionalState: additionalParameters,
     } = params;
-
     try {
-      if (!clientId) {
-        throw new Error("Google Client ID is not configured.");
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
       }
-      if (!config.auth?.oAuthRedirectUri) {
-        throw new Error("OAuth redirect URI is not configured.");
+      if (!clientId) {
+        throw new TurnkeyError(
+          "Google Client ID is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      if (!masterConfig.auth?.oAuthConfig?.oAuthRedirectUri) {
+        throw new TurnkeyError(
+          "OAuth Redirect URI is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
       }
 
+      console.log(typeof openInPage);
       const flow = openInPage ? "redirect" : "popup";
-      const redirectURI = config.auth?.oAuthRedirectUri.replace(/\/$/, "");
+      const redirectURI =
+        masterConfig.auth?.oAuthConfig.oAuthRedirectUri.replace(/\/$/, "");
 
       // Create key pair and generate nonce
       const publicKey = await createApiKeyPair();
@@ -1255,8 +1305,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }
       }
       googleAuthUrl.searchParams.set("state", state);
-
+      console.log("openingopage", openInPage);
       if (openInPage) {
+        console.log("WHHYYY");
         // Redirect current page to Google Auth
         window.location.href = googleAuthUrl.toString();
         return new Promise((_, reject) => {
@@ -1353,7 +1404,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         authState,
         user,
         wallets,
-        proxyAuthConfig,
+        config: masterConfig,
         httpClient: client?.httpClient,
         login,
         createPasskey,
