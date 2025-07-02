@@ -11,7 +11,6 @@ import { ActionPage } from "./Action";
 import { PasskeyButtons } from "./Passkey";
 import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
 import { Spinner } from "../design/Spinners";
-import { useEffect } from "react";
 
 export function AuthComponent() {
   const {
@@ -22,6 +21,10 @@ export function AuthComponent() {
     signUpWithPasskey,
   } = useTurnkey();
   const { pushPage } = useModal();
+
+  if (!config) return <Spinner className="w-48 h-48" />;
+
+  const { methods = {}, methodOrder = [], oauthOrder = [] } = config.auth || {}; // TODO (Amir): This should have default values!
 
   const handleEmailSubmit = async (email: string) => {
     try {
@@ -121,36 +124,65 @@ export function AuthComponent() {
       showTitle: false,
     });
   };
-  useEffect(() => {
-    console.log(config);
-  }, [config]);
+
+  const oauthButtonMap: Record<string, JSX.Element | null> = {
+    google: methods.googleOAuthEnabled ? (
+      <OAuthButton
+        key="google"
+        name="Google"
+        icon={<FontAwesomeIcon icon={faGoogle} />}
+        onClick={handleGoogle}
+      />
+    ) : null,
+    // apple: ...
+    // facebook: ...
+  };
+
+  const oauthButtons = oauthOrder
+    .map((provider) => oauthButtonMap[provider])
+    .filter(Boolean);
+
+  const oauthBlock =
+    oauthButtons.length > 0 ? (
+      <div
+        key="socials"
+        className="w-full h-11 flex flex-row justify-center items-center gap-2"
+      >
+        {oauthButtons}
+      </div>
+    ) : null;
+
+  // -- Individual Auth Method Components --
+  const methodComponents: Record<string, JSX.Element | null> = {
+    socials: oauthBlock,
+    email: methods.emailOtpAuthEnabled ? (
+      <EmailInput onContinue={handleEmailSubmit} />
+    ) : null,
+    sms: methods.smsOtpAuthEnabled ? (
+      <PhoneNumberInput onContinue={handlePhoneSubmit} />
+    ) : null,
+    passkey: methods.passkeyAuthEnabled ? (
+      <PasskeyButtons
+        onLogin={handlePasskeyLogin}
+        onSignUp={handlePasskeySignUp}
+      />
+    ) : null,
+  };
+
+  // -- Final Rendering Order --
+  const rendered = methodOrder
+    .map((key) => methodComponents[key])
+    .filter(Boolean);
+
   return (
     <div className="flex flex-col items-center w-96">
-      {config ? (
-        <>
-          <div className="w-full h-11 flex flex-row justify-center items-center gap-2 mt-12">
-            <OAuthButton
-              name={"Google"}
-              icon={<FontAwesomeIcon icon={faGoogle} />}
-              onClick={handleGoogle}
-            />
-          </div>
-          <OrSeparator />
-          <EmailInput onContinue={handleEmailSubmit} />
-          <OrSeparator />
-          {config.auth?.methods?.smsOtpAuthEnabled && (
-            <PhoneNumberInput onContinue={handlePhoneSubmit} />
-          )}
-
-          <OrSeparator />
-          <PasskeyButtons
-            onLogin={handlePasskeyLogin}
-            onSignUp={handlePasskeySignUp}
-          />
-        </>
-      ) : (
-        <Spinner className="w-48 h-48" />
-      )}
+      <div className="mt-12" />
+      {rendered.map((component, index) => (
+        <div key={index} className="w-full">
+          {index > 0 && <OrSeparator />}
+          {component}
+        </div>
+      ))}
     </div>
   );
 }
