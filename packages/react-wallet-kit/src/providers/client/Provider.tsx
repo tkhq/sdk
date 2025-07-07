@@ -1,9 +1,15 @@
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import {
+  APPLE_AUTH_URL,
   AuthState,
+  exchangeCodeForToken,
+  FACEBOOK_AUTH_URL,
+  generateChallengePair,
   GOOGLE_AUTH_URL,
+  handleFacebookPKCEFlow,
   isValidSession,
+  parseOAuthRedirect,
   popupHeight,
   popupWidth,
   SESSION_WARNING_THRESHOLD_MS,
@@ -54,7 +60,11 @@ import { useModal } from "../modal/Provider";
 import { TurnkeyCallbacks, TurnkeyProviderConfig } from "../TurnkeyProvider";
 import { AuthComponent } from "../../components/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import {
+  faApple,
+  faFacebook,
+  faGoogle,
+} from "@fortawesome/free-brands-svg-icons";
 import { WalletType } from "@turnkey/wallet-stamper";
 import { ActionPage } from "../../components/auth/Action";
 
@@ -74,6 +84,16 @@ export interface ClientContextType extends TurnkeyClientMethods {
   wallets: Wallet[];
   login: () => Promise<void>;
   handleGoogleOauth: (params: {
+    clientId?: string;
+    additionalState?: Record<string, string>;
+    openInPage?: boolean;
+  }) => Promise<void>;
+  handleAppleOauth: (params: {
+    clientId?: string;
+    additionalState?: Record<string, string>;
+    openInPage?: boolean;
+  }) => Promise<void>;
+  handleFacebookOauth: (params: {
     clientId?: string;
     additionalState?: Record<string, string>;
     openInPage?: boolean;
@@ -121,67 +141,141 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   // Handle redirect-based auth
   useEffect(() => {
-    if (window.location.hash) {
-      if (!client) return; // Client is not ready yet. Don't error just return.
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const idToken = hashParams.get("id_token");
-      const state = hashParams.get("state");
-
-      const stateParams = new URLSearchParams(state || "");
-      const provider = stateParams.get("provider");
-      const flow = stateParams.get("flow");
-      const openModal = stateParams.get("openModal");
-
-      const publicKey = stateParams.get("publicKey");
-
-      if (!publicKey) {
-        throw new Error(
-          "Public key is missing in the state parameters. You must encode the public key in the state parameter when initiating the OAuth flow.",
+    // Check for either hash or search parameters that could indicate an OAuth redirect
+    if ((window.location.hash || window.location.search) && client) {
+      // Handle Facebook redirect (uses search params with code)
+      if (
+        window.location.search &&
+        window.location.search.includes("code=") &&
+        window.location.search.includes("state=")
+      ) {
+        const searchParams = new URLSearchParams(
+          window.location.search.substring(1),
         );
-      }
+        const code = searchParams.get("code");
+        const state = searchParams.get("state");
 
-      if (idToken && flow === "redirect") {
-        if (openModal === "true") {
-          const providerName = provider
-            ? provider?.charAt(0).toUpperCase() + provider?.slice(1)
-            : "Provider";
-          // This state is set when the OAuth flow comes from the AuthComponent. We handle it differently because the callback is ran inside the loading component.
-          pushPage({
-            key: "Google OAuth",
-            content: (
-              <ActionPage
-                title={`Authenticating with ${providerName}...`}
-                action={async () => {
-                  await completeOauth({
-                    oidcToken: idToken,
-                    publicKey,
-                    // TODO (Amir): Shall we pass createSubOrgParams here?
+        // Parse state parameter
+        if (state && code) {
+          const stateParams = new URLSearchParams(state);
+          const provider = stateParams.get("provider");
+          const flow = stateParams.get("flow");
+          const publicKey = stateParams.get("publicKey");
+          const openModal = stateParams.get("openModal");
+
+          if (provider === "facebook" && flow === "redirect" && publicKey) {
+            // We have all the required parameters for a Facebook PKCE flow
+            const clientId = masterConfig?.auth?.oAuthConfig?.facebookClientId;
+            const redirectURI =
+              masterConfig?.auth?.oAuthConfig?.oAuthRedirectUri;
+
+            if (clientId && redirectURI) {
+              handleFacebookPKCEFlow({
+                code,
+                publicKey,
+                openModal,
+                clientId,
+                redirectURI,
+                callbacks,
+                completeOauth,
+                onPushPage: (oidcToken) => {
+                  pushPage({
+                    key: `Facebook OAuth`,
+                    content: (
+                      <ActionPage
+                        title={`Authenticating with Facebook...`}
+                        action={async () => {
+                          await completeOauth({
+                            oidcToken,
+                            publicKey,
+                            providerName: "facebook",
+                          });
+                        }}
+                        icon={<FontAwesomeIcon size="3x" icon={faFacebook} />}
+                      />
+                    ),
+                    showTitle: false,
                   });
-
-                  // TODO (Amir): Shall we also allow the oAuthcallbacks to run here?
-                }}
-                icon={<FontAwesomeIcon size="3x" icon={faGoogle} />}
-              />
-            ),
-            showTitle: false,
-          });
-        } else if (callbacks?.onOauthRedirect) {
-          callbacks.onOauthRedirect({ idToken, publicKey });
-        } else {
-          completeOauth({
-            oidcToken: idToken,
-            publicKey,
-            // TODO (Amir): Shall we pass createSubOrgParams here?. Edit: Yes totally. We need to find a way to pass it in the page replace flow.
-          });
+                },
+              }).catch((error) => {
+                // Handle errors
+                if (callbacks?.onError) {
+                  callbacks.onError(
+                    error instanceof TurnkeyError
+                      ? error
+                      : new TurnkeyError(
+                          "Facebook authentication failed",
+                          TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+                          error,
+                        ),
+                  );
+                }
+              });
+            }
+          }
         }
-        window.history.replaceState(
-          null,
-          document.title,
-          window.location.pathname + window.location.search,
-        );
+      }
+      // Handle Google/Apple redirects (uses hash with id_token)
+      else if (window.location.hash) {
+        const hash = window.location.hash.substring(1);
+
+        // Parse the hash using our helper functions
+        const { idToken, provider, flow, publicKey, openModal } =
+          parseOAuthRedirect(hash);
+
+        if (idToken && flow === "redirect" && publicKey) {
+          if (openModal === "true") {
+            const providerName = provider
+              ? provider.charAt(0).toUpperCase() + provider.slice(1)
+              : "Provider";
+
+            // Determine which icon to show based on the provider
+            let icon;
+            if (provider === "apple") {
+              icon = <FontAwesomeIcon size="3x" icon={faApple} />;
+            } else {
+              // Default to Google icon
+              icon = <FontAwesomeIcon size="3x" icon={faGoogle} />;
+            }
+
+            // This state is set when the OAuth flow comes from the AuthComponent
+            pushPage({
+              key: `${providerName} OAuth`,
+              content: (
+                <ActionPage
+                  title={`Authenticating with ${providerName}...`}
+                  action={async () => {
+                    await completeOauth({
+                      oidcToken: idToken,
+                      publicKey,
+                      providerName: provider ?? "oauth-provider", // Keep lowercase provider name
+                    });
+                  }}
+                  icon={icon}
+                />
+              ),
+              showTitle: false,
+            });
+          } else if (callbacks?.onOauthRedirect) {
+            callbacks.onOauthRedirect({ idToken, publicKey });
+          } else {
+            completeOauth({
+              oidcToken: idToken,
+              publicKey,
+              providerName: provider ?? "oauth-provider", // Keep lowercase provider name
+            });
+          }
+
+          // Clean up the URL after processing
+          window.history.replaceState(
+            null,
+            document.title,
+            window.location.pathname + window.location.search,
+          );
+        }
       }
     }
-  }, [client]);
+  }, [client, masterConfig, callbacks, pushPage]);
 
   useEffect(() => {
     if (!client) return;
@@ -212,34 +306,54 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }, [config]);
 
   const buildConfig = (proxyAuthConfig: v1GetWalletKitConfigResponse) => {
+    // Juggle the local overrides with the values set in the dashboard (proxyAuthConfig).
+    const resolvedMethods = {
+      emailOtpAuthEnabled:
+        config.auth?.methods?.emailOtpAuthEnabled ??
+        proxyAuthConfig.emailEnabled,
+      smsOtpAuthEnabled:
+        config.auth?.methods?.smsOtpAuthEnabled ?? proxyAuthConfig.smsEnabled,
+      passkeyAuthEnabled:
+        config.auth?.methods?.passkeyAuthEnabled ??
+        proxyAuthConfig.passkeyEnabled,
+      walletAuthEnabled:
+        config.auth?.methods?.walletAuthEnabled ??
+        proxyAuthConfig.walletEnabled,
+      googleOAuthEnabled:
+        config.auth?.methods?.googleOAuthEnabled ??
+        proxyAuthConfig.googleEnabled,
+      appleOAuthEnabled:
+        config.auth?.methods?.appleOAuthEnabled ?? proxyAuthConfig.appleEnabled,
+      facebookOAuthEnabled:
+        config.auth?.methods?.facebookOAuthEnabled ??
+        proxyAuthConfig.facebookEnabled,
+    };
+
+    // Set a default ordering for the oAuth methods
+    const oauthOrder =
+      config.auth?.oauthOrder ??
+      (["google", "apple", "facebook"] as const).filter(
+        (provider) => resolvedMethods[`${provider}OAuthEnabled` as const],
+      );
+
+    // Set a default ordering for the overall auth methods
+    const methodOrder =
+      config.auth?.methodOrder ??
+      ([
+        oauthOrder.length > 0 ? "socials" : null,
+        resolvedMethods.emailOtpAuthEnabled ? "email" : null,
+        resolvedMethods.smsOtpAuthEnabled ? "sms" : null,
+        resolvedMethods.passkeyAuthEnabled ? "passkey" : null,
+        resolvedMethods.walletAuthEnabled ? "wallet" : null,
+      ].filter(Boolean) as Array<
+        "socials" | "email" | "sms" | "passkey" | "wallet"
+      >);
+
     return {
       ...config,
       auth: {
         ...config.auth,
-        methods: {
-          ...config.auth?.methods,
-          emailOtpAuthEnabled:
-            config.auth?.methods?.emailOtpAuthEnabled ??
-            proxyAuthConfig.emailEnabled,
-          smsOtpAuthEnabled:
-            config.auth?.methods?.smsOtpAuthEnabled ??
-            proxyAuthConfig.smsEnabled,
-          passkeyAuthEnabled:
-            config.auth?.methods?.passkeyAuthEnabled ??
-            proxyAuthConfig.passkeyEnabled,
-          walletAuthEnabled:
-            config.auth?.methods?.walletAuthEnabled ??
-            proxyAuthConfig.walletEnabled,
-          googleOAuthEnabled:
-            config.auth?.methods?.googleOAuthEnabled ??
-            proxyAuthConfig.googleEnabled,
-          appleOAuthEnabled:
-            config.auth?.methods?.appleOAuthEnabled ??
-            proxyAuthConfig.appleEnabled,
-          facebookOAuthEnabled:
-            config.auth?.methods?.facebookOAuthEnabled ??
-            proxyAuthConfig.facebookEnabled,
-        },
+        methods: resolvedMethods,
         oAuthConfig: {
           ...config.auth?.oAuthConfig,
           openOAuthInPage:
@@ -250,6 +364,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           passkey: proxyAuthConfig?.passkeySessionExpirationSeconds,
           wallet: proxyAuthConfig?.walletSessionExpirationSeconds,
         },
+        methodOrder,
+        oauthOrder,
       },
     } as TurnkeyProviderConfig;
   };
@@ -732,6 +848,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   async function completeOauth(params: {
     oidcToken: string;
     publicKey: string;
+    providerName?: string;
     sessionKey?: string;
     invalidateExisting?: boolean;
     createSubOrgParams?: CreateSubOrgParams;
@@ -1317,7 +1434,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
-      console.log(typeof openInPage);
       const flow = openInPage ? "redirect" : "popup";
       const redirectURI =
         masterConfig.auth?.oAuthConfig.oAuthRedirectUri.replace(/\/$/, "");
@@ -1352,9 +1468,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }
       }
       googleAuthUrl.searchParams.set("state", state);
-      console.log("openingopage", openInPage);
       if (openInPage) {
-        console.log("WHHYYY");
         // Redirect current page to Google Auth
         window.location.href = googleAuthUrl.toString();
         return new Promise((_, reject) => {
@@ -1413,12 +1527,333 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     completeOauth({
                       oidcToken: idToken,
                       publicKey,
+                      providerName: "google",
                     })
                       .then(() => resolve())
                       .catch(reject);
                     return;
                   }
                   resolve();
+                }
+              }
+            } catch (error) {
+              // Ignore cross-origin errors
+            }
+          }, 500);
+
+          if (authWindow.closed) {
+            clearInterval(interval);
+          }
+        });
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function handleAppleOauth(params: {
+    clientId?: string;
+    openInPage?: boolean;
+    additionalState?: Record<string, string>;
+  }): Promise<void> {
+    const {
+      clientId = masterConfig?.auth?.oAuthConfig?.appleClientId,
+      openInPage = masterConfig?.auth?.oAuthConfig?.openOAuthInPage ?? false,
+      additionalState: additionalParameters,
+    } = params;
+    try {
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      if (!clientId) {
+        throw new TurnkeyError(
+          "Apple Client ID is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      if (!masterConfig.auth?.oAuthConfig?.oAuthRedirectUri) {
+        throw new TurnkeyError(
+          "OAuth Redirect URI is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+
+      const flow = openInPage ? "redirect" : "popup";
+      const redirectURI = masterConfig.auth?.oAuthConfig.oAuthRedirectUri; // TODO (Amir): Apple needs the '/' at the end. Maybe we should add it if not there?
+
+      // Create key pair and generate nonce
+      const publicKey = await createApiKeyPair();
+      if (!publicKey) {
+        throw new Error("Failed to create public key for OAuth.");
+      }
+      const nonce = bytesToHex(sha256(publicKey));
+
+      // Construct Apple Auth URL
+      const appleAuthUrl = new URL(APPLE_AUTH_URL);
+      appleAuthUrl.searchParams.set("client_id", clientId);
+      appleAuthUrl.searchParams.set("redirect_uri", redirectURI);
+      appleAuthUrl.searchParams.set("response_type", "code id_token");
+      appleAuthUrl.searchParams.set("response_mode", "fragment");
+      appleAuthUrl.searchParams.set("nonce", nonce);
+
+      // Create state parameter
+      let state = `provider=apple&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
+      if (additionalParameters) {
+        const additionalState = Object.entries(additionalParameters)
+          .map(
+            ([key, value]) =>
+              `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+          )
+          .join("&");
+        if (additionalState) {
+          state += `&${additionalState}`;
+        }
+      }
+      appleAuthUrl.searchParams.set("state", state);
+
+      if (openInPage) {
+        // Redirect current page to Apple Auth
+        window.location.href = appleAuthUrl.toString();
+        return new Promise((_, reject) => {
+          // Set a timeout just in case the redirect doesn't happen
+          const timeout = setTimeout(() => {
+            reject(new Error("Authentication timed out."));
+          }, 300000); // 5 minutes
+
+          // If the page is unloaded (user navigates away), clear the timeout
+          window.addEventListener("beforeunload", () => clearTimeout(timeout));
+        });
+      } else {
+        // Open popup window
+        const width = popupWidth;
+        const height = popupHeight;
+        const left = window.screenX + (window.innerWidth - width) / 2;
+        const top = window.screenY + (window.innerHeight - height) / 2;
+
+        const authWindow = window.open(
+          "about:blank",
+          "_blank",
+          `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
+        );
+
+        if (!authWindow) {
+          throw new Error("Failed to open Apple login window.");
+        }
+
+        authWindow.location.href = appleAuthUrl.toString();
+
+        // Return a promise that resolves when the OAuth flow completes
+        return new Promise<void>((resolve, reject) => {
+          const interval = setInterval(() => {
+            try {
+              // Check if window was closed without completing auth
+              if (authWindow.closed) {
+                clearInterval(interval);
+                reject(new Error("Authentication window was closed."));
+                return;
+              }
+
+              const url = authWindow.location.href || "";
+              if (url.startsWith(window.location.origin)) {
+                const hashParams = new URLSearchParams(url.split("#")[1]);
+                const idToken = hashParams.get("id_token");
+                if (idToken) {
+                  authWindow.close();
+                  clearInterval(interval);
+
+                  if (callbacks?.onOauthRedirect) {
+                    callbacks.onOauthRedirect({ idToken, publicKey });
+                  } else {
+                    completeOauth({
+                      oidcToken: idToken,
+                      publicKey,
+                      providerName: "apple",
+                    })
+                      .then(() => resolve())
+                      .catch(reject);
+                    return;
+                  }
+                  resolve();
+                }
+              }
+            } catch (error) {
+              // Ignore cross-origin errors
+            }
+          }, 500);
+
+          if (authWindow.closed) {
+            clearInterval(interval);
+          }
+        });
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function handleFacebookOauth(params: {
+    clientId?: string;
+    openInPage?: boolean;
+    additionalState?: Record<string, string>;
+  }): Promise<void> {
+    const {
+      clientId = masterConfig?.auth?.oAuthConfig?.facebookClientId,
+      openInPage = masterConfig?.auth?.oAuthConfig?.openOAuthInPage ?? false,
+      additionalState: additionalParameters,
+    } = params;
+    try {
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      if (!clientId) {
+        throw new TurnkeyError(
+          "Facebook Client ID is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      if (!masterConfig.auth?.oAuthConfig?.oAuthRedirectUri) {
+        throw new TurnkeyError(
+          "OAuth Redirect URI is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+
+      const flow = openInPage ? "redirect" : "popup";
+      const redirectURI = masterConfig.auth?.oAuthConfig.oAuthRedirectUri;
+
+      // Create key pair and generate nonce
+      const publicKey = await createApiKeyPair();
+      if (!publicKey) {
+        throw new Error("Failed to create public key for OAuth.");
+      }
+      const nonce = bytesToHex(sha256(publicKey));
+
+      // Generate PKCE challenge pair
+      const { verifier, codeChallenge } = await generateChallengePair();
+      // Store verifier for later token exchange
+      sessionStorage.setItem("facebook_verifier", verifier);
+
+      // Construct Facebook Auth URL
+      const facebookAuthUrl = new URL(FACEBOOK_AUTH_URL);
+      facebookAuthUrl.searchParams.set("client_id", clientId);
+      facebookAuthUrl.searchParams.set("redirect_uri", redirectURI);
+      facebookAuthUrl.searchParams.set("response_type", "code");
+      facebookAuthUrl.searchParams.set("code_challenge", codeChallenge);
+      facebookAuthUrl.searchParams.set("code_challenge_method", "S256");
+      facebookAuthUrl.searchParams.set("nonce", nonce);
+      facebookAuthUrl.searchParams.set("scope", "openid");
+
+      // Create state parameter
+      let state = `provider=facebook&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
+      if (additionalParameters) {
+        const additionalState = Object.entries(additionalParameters)
+          .map(
+            ([key, value]) =>
+              `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+          )
+          .join("&");
+        if (additionalState) {
+          state += `&${additionalState}`;
+        }
+      }
+      facebookAuthUrl.searchParams.set("state", state);
+
+      if (openInPage) {
+        // Redirect current page to Facebook Auth
+        window.location.href = facebookAuthUrl.toString();
+        return new Promise((_, reject) => {
+          // Set a timeout just in case the redirect doesn't happen
+          const timeout = setTimeout(() => {
+            reject(new Error("Authentication timed out."));
+          }, 300000); // 5 minutes
+
+          // If the page is unloaded (user navigates away), clear the timeout
+          window.addEventListener("beforeunload", () => clearTimeout(timeout));
+        });
+      } else {
+        // Open popup window
+        const width = popupWidth;
+        const height = popupHeight;
+        const left = window.screenX + (window.innerWidth - width) / 2;
+        const top = window.screenY + (window.innerHeight - height) / 2;
+
+        const authWindow = window.open(
+          "about:blank",
+          "_blank",
+          `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
+        );
+
+        if (!authWindow) {
+          throw new Error("Failed to open Facebook login window.");
+        }
+
+        authWindow.location.href = facebookAuthUrl.toString();
+
+        // Return a promise that resolves when the OAuth flow completes
+        return new Promise<void>((resolve, reject) => {
+          const interval = setInterval(() => {
+            try {
+              // Check if window was closed without completing auth
+              if (authWindow.closed) {
+                clearInterval(interval);
+                reject(new Error("Authentication window was closed."));
+                return;
+              }
+
+              const url = authWindow.location.href || "";
+              if (url.startsWith(window.location.origin)) {
+                const urlParams = new URLSearchParams(new URL(url).search);
+                const authCode = urlParams.get("code");
+                const stateParam = urlParams.get("state");
+
+                if (
+                  authCode &&
+                  stateParam &&
+                  stateParam.includes("provider=facebook")
+                ) {
+                  authWindow.close();
+                  clearInterval(interval);
+
+                  // Exchange code for token
+                  const verifier = sessionStorage.getItem("facebook_verifier");
+                  if (!verifier) {
+                    reject(new Error("Missing PKCE verifier"));
+                    return;
+                  }
+
+                  exchangeCodeForToken(
+                    clientId,
+                    redirectURI,
+                    authCode,
+                    verifier,
+                  )
+                    .then((tokenData) => {
+                      sessionStorage.removeItem("facebook_verifier");
+
+                      if (callbacks?.onOauthRedirect) {
+                        callbacks.onOauthRedirect({
+                          idToken: tokenData.id_token,
+                          publicKey,
+                        });
+                      } else {
+                        completeOauth({
+                          oidcToken: tokenData.id_token,
+                          publicKey,
+                          providerName: "facebook",
+                        })
+                          .then(() => resolve())
+                          .catch(reject);
+                        return;
+                      }
+                      resolve();
+                    })
+                    .catch(reject);
                 }
               }
             } catch (error) {
@@ -1489,6 +1924,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         getActiveSessionKey,
         createApiKeyPair,
         handleGoogleOauth,
+        handleAppleOauth,
+        handleFacebookOauth,
         getProxyAuthConfig,
       }}
     >

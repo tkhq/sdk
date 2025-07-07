@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 
-type ModalPage = {
+export type ModalPage = {
   key: string;
   content: ReactNode;
   showTitle?: boolean;
