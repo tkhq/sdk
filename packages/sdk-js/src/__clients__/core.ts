@@ -789,6 +789,7 @@ export class TurnkeyClient {
   completeOauth = async (params: {
     oidcToken: string;
     publicKey: string;
+    providerName?: string;
     sessionKey?: string;
     invalidateExisting?: boolean;
     createSubOrgParams?: CreateSubOrgParams;
@@ -797,6 +798,7 @@ export class TurnkeyClient {
       oidcToken,
       publicKey,
       createSubOrgParams,
+      providerName = "OpenID Connect Provider" + Date.now(),
       sessionKey = SessionKey.DefaultSessionkey,
       invalidateExisting = false,
     } = params;
@@ -840,7 +842,7 @@ export class TurnkeyClient {
         return this.signUpWithOauth({
           oidcToken,
           publicKey,
-          providerName: "google",
+          providerName,
           ...(createSubOrgParams && {
             createSubOrgParams,
           }),
