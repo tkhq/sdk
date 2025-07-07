@@ -178,12 +178,15 @@ export class TurnkeyClient {
 
       return passkey;
     } catch (error: any) {
-      if (error?.message?.includes("timed out or was not allowed"))
+      if (error?.message?.includes("timed out or was not allowed")) {
         throw new TurnkeyError(
           "Passkey creation was cancelled by the user.",
           TurnkeyErrorCodes.SELECT_PASSKEY_CANCELLED,
           error,
         );
+      } else if (error instanceof TurnkeyError) {
+        throw error;
+      }
       throw new TurnkeyError(
         `Failed to create passkey`,
         TurnkeyErrorCodes.CREATE_PASSKEY_ERROR,
@@ -212,6 +215,7 @@ export class TurnkeyClient {
         }
       }
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to log out`,
         TurnkeyErrorCodes.LOGOUT_ERROR,
@@ -287,6 +291,7 @@ export class TurnkeyClient {
           TurnkeyErrorCodes.SELECT_PASSKEY_CANCELLED,
           error,
         );
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Unable to log in with the provided passkey`,
         TurnkeyErrorCodes.PASSKEY_LOGIN_AUTH_ERROR,
@@ -419,12 +424,7 @@ export class TurnkeyClient {
 
       return sessionResponse.session;
     } catch (error: unknown) {
-      if (
-        error instanceof TurnkeyError &&
-        error.code === TurnkeyErrorCodes.SELECT_PASSKEY_CANCELLED
-      ) {
-        throw error; // Re-throw the specific cancellation error
-      }
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to sign up with passkey`,
         TurnkeyErrorCodes.PASSKEY_SIGNUP_AUTH_ERROR,
@@ -465,17 +465,27 @@ export class TurnkeyClient {
       });
 
       if (!otpRes.ok) {
+        const errorText = await otpRes.text();
+        if (errorText.includes("Max number of OTPs have been initiated")) {
+          throw new TurnkeyNetworkError(
+            "Max number of OTPs have been initiated",
+            otpRes.status,
+            TurnkeyErrorCodes.MAX_OTP_INITIATED_ERROR,
+            errorText,
+          );
+        }
         throw new TurnkeyNetworkError(
           `OTP initialization failed`,
           otpRes.status,
           TurnkeyErrorCodes.INIT_OTP_ERROR,
-          await otpRes.text(),
+          errorText,
         );
       }
       const initOtpRes: v1InitOtpResult = await otpRes.json();
 
       return initOtpRes.otpId;
     } catch (error) {
+     if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to initialize OTP`,
         TurnkeyErrorCodes.INIT_OTP_ERROR,
@@ -530,7 +540,8 @@ export class TurnkeyClient {
       );
       if (!verifyRes.ok) {
         const error = await verifyRes.text();
-        if (error.includes("invalid OTP")) {
+        console.log(error);
+        if (error.includes("Invalid OTP code")) {
           throw new TurnkeyNetworkError(
             "Invalid OTP code provided",
             verifyRes.status,
@@ -560,6 +571,7 @@ export class TurnkeyClient {
         verificationToken: verifyOtpRes.verificationToken,
       };
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to verify OTP`,
         TurnkeyErrorCodes.VERIFY_OTP_ERROR,
@@ -625,6 +637,7 @@ export class TurnkeyClient {
 
       return loginRes.session;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       // Clean up the generated key pair if it wasn't successfully used
       if (publicKey) {
         try {
@@ -710,6 +723,7 @@ export class TurnkeyClient {
         ...(sessionKey && { sessionKey }),
       });
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to sign up with OTP`,
         TurnkeyErrorCodes.OTP_SIGNUP_ERROR,
@@ -778,6 +792,7 @@ export class TurnkeyClient {
         });
       }
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to complete OTP process`,
         TurnkeyErrorCodes.OTP_COMPLETION_ERROR,
@@ -849,6 +864,7 @@ export class TurnkeyClient {
         });
       }
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to handle Google OAuth login`,
         TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
@@ -920,6 +936,7 @@ export class TurnkeyClient {
 
       return loginRes.session;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       // Clean up the generated key pair if it wasn't successfully used
       if (publicKey) {
         try {
@@ -995,6 +1012,7 @@ export class TurnkeyClient {
         publicKey: publicKey!,
       });
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to sign up with OAuth`,
         TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
@@ -1047,6 +1065,7 @@ export class TurnkeyClient {
       }
       return wallets;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to fetch wallets`,
         TurnkeyErrorCodes.FETCH_WALLETS_ERROR,
@@ -1088,6 +1107,7 @@ export class TurnkeyClient {
 
       return walletAccountRes as TGetWalletAccountsResponse;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to fetch wallet accounts`,
         TurnkeyErrorCodes.FETCH_WALLET_ACCOUNTS_ERROR,
@@ -1141,6 +1161,7 @@ export class TurnkeyClient {
       return response.activity.result
         .signRawPayloadResult as v1SignRawPayloadResult;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to sign message: ${error}`,
         TurnkeyErrorCodes.SIGN_MESSAGE_ERROR,
@@ -1167,6 +1188,7 @@ export class TurnkeyClient {
         stampWith,
       );
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to sign transaction`,
         TurnkeyErrorCodes.SIGN_TRANSACTION_ERROR,
@@ -1212,6 +1234,7 @@ export class TurnkeyClient {
 
       return userResponse.user as User;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to fetch user`,
         TurnkeyErrorCodes.FETCH_USER_ERROR,
@@ -1255,6 +1278,7 @@ export class TurnkeyClient {
       const user = await this.fetchUser();
       return user;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to update user`,
         TurnkeyErrorCodes.UPDATE_USER_ERROR,
@@ -1309,6 +1333,7 @@ export class TurnkeyClient {
       }
       return res.walletId;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to create wallet`,
         TurnkeyErrorCodes.CREATE_WALLET_ERROR,
@@ -1350,6 +1375,7 @@ export class TurnkeyClient {
       }
       return res.addresses;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to create wallet account`,
         TurnkeyErrorCodes.CREATE_WALLET_ACCOUNT_ERROR,
@@ -1391,6 +1417,7 @@ export class TurnkeyClient {
       }
       return res.exportBundle as ExportBundle;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to export wallet`,
         TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
@@ -1435,6 +1462,7 @@ export class TurnkeyClient {
       }
       return res.walletId;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to import wallet`,
         TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
@@ -1462,6 +1490,7 @@ export class TurnkeyClient {
         stamperWith,
       );
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to delete sub-organization`,
         TurnkeyErrorCodes.DELETE_SUB_ORGANIZATION_ERROR,
@@ -1536,6 +1565,7 @@ export class TurnkeyClient {
       }
       return response as TCreateSubOrganizationResponse;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to create sub-organization`,
         TurnkeyErrorCodes.CREATE_SUB_ORGANIZATION_ERROR,
@@ -1558,6 +1588,7 @@ export class TurnkeyClient {
 
       await this.storageManager.storeSession(sessionToken, sessionKey);
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to store session`,
         TurnkeyErrorCodes.STORE_SESSION_ERROR,
@@ -1582,6 +1613,7 @@ export class TurnkeyClient {
         );
       }
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to delete session`,
         TurnkeyErrorCodes.CLEAR_SESSION_ERROR,
@@ -1603,6 +1635,7 @@ export class TurnkeyClient {
         this.clearSession({ sessionKey });
       }
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to clear all sessions`,
         TurnkeyErrorCodes.CLEAR_ALL_SESSIONS_ERROR,
@@ -1681,6 +1714,7 @@ export class TurnkeyClient {
         }
       }
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to refresh session`,
         TurnkeyErrorCodes.REFRESH_SESSION_ERROR,
@@ -1697,6 +1731,7 @@ export class TurnkeyClient {
         params || {};
       return this.storageManager.getSession(sessionKey);
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to get session with key`,
         TurnkeyErrorCodes.GET_SESSION_ERROR,
@@ -1720,6 +1755,7 @@ export class TurnkeyClient {
       }
       return sessions;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to get all sessions`,
         TurnkeyErrorCodes.GET_ALL_SESSIONS_ERROR,
@@ -1733,6 +1769,7 @@ export class TurnkeyClient {
     try {
       await this.storageManager.setActiveSessionKey(sessionKey);
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to set active session`,
         TurnkeyErrorCodes.SET_ACTIVE_SESSION_ERROR,
@@ -1745,6 +1782,7 @@ export class TurnkeyClient {
     try {
       return await this.storageManager.getActiveSessionKey();
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to get active session key`,
         TurnkeyErrorCodes.GET_ACTIVE_SESSION_KEY_ERROR,
@@ -1783,6 +1821,7 @@ export class TurnkeyClient {
         }
       }
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to clear unused key pairs`,
         TurnkeyErrorCodes.CLEAR_UNUSED_KEY_PAIRS_ERROR,
@@ -1815,6 +1854,7 @@ export class TurnkeyClient {
 
       return publicKey;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to create API key pair`,
         TurnkeyErrorCodes.CREATE_API_KEY_PAIR_ERROR,
@@ -1850,6 +1890,7 @@ export class TurnkeyClient {
 
       return (await res.json()) as v1GetWalletKitConfigResponse;
     } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to get auth proxy config`,
         TurnkeyErrorCodes.GET_PROXY_AUTH_CONFIG_ERROR,
