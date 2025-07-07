@@ -5,7 +5,6 @@
   "scripts": {
     "build": "pnpm -w run build-all",
     "start": "tsx src/index.ts",
-    "validate": "tsx src/validate.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
