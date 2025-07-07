@@ -4,7 +4,7 @@ import {
   createMessageSignature,
   createStacksPublicKey,
   leftPadHex,
-  makeUnsignedContractCall,
+  makeUnsignedSTXTokenTransfer,
   PubKeyEncoding,
   publicKeyIsCompressed,
   sigHashPreSign,
@@ -28,17 +28,19 @@ const client = new TurnkeyServerSDK({
   defaultOrganizationId: process.env.TURNKEY_ORGANIZATION_ID!,
 });
 
+// Build a simple Stacks tx to STACKS_RECIPIENT_ADDRESS
 const constructStacksTx = async (pubKey: string) => {
-  let transaction = await makeUnsignedContractCall({
-    contractAddress: "SP3TJMRQ13QR6V5HGT6AKEK7PP699F4148JZTB9G3",
-    contractName: "counter",
-    functionName: "increment",
-    functionArgs: [],
-    numSignatures: 1,
+  const recipient = process.env.STACKS_RECIPIENT_ADDRESS!;
+  const nonce = 0n;
+  const fee = 180n;
+
+  let transaction = await makeUnsignedSTXTokenTransfer({
+    recipient,
+    amount: 1_000_000n,
     publicKey: pubKey,
-    postConditions: [],
-    postConditionMode: "deny",
-    network: "mainnet",
+    nonce,
+    fee,
+    network: "testnet",
   });
 
   // The `signer` contains the `sigHash` property needed for the `preSignSigHash`
@@ -90,8 +92,7 @@ const generatePostSignSigHash = (
 
 const signStacksTx = async () => {
   try {
-    const stacksPublicKey =
-      "04d41c09b9fed50a3810f95245cb23fc32ae9d096ad44ab0f4bea7691877c0a33885a5bc71e89ed6571aef6daf838b3f685027df9a3121b4d7127f5ecdfb05dbb0";
+    const stacksPublicKey = process.env.TURNKEY_SIGNER_PUBLIC_KEY!;
 
     let { stacksTransaction, stacksTxSigner } = await constructStacksTx(
       stacksPublicKey!,
@@ -110,9 +111,7 @@ const signStacksTx = async () => {
       hashFunction: "HASH_FUNCTION_NO_OP",
     });
 
-    // r and s values returned are in hex format
-    // may need to padStart r and s values
-    // v should be "00" for Stacks but the returned "01" also works
+    // r and s values returned are in hex format, padStart r and s values
     const nextSig = `${signature!.v}${signature!.r.padStart(
       64,
       "0",
@@ -144,7 +143,7 @@ const handleBroadcastTx = async () => {
 
   let result = await broadcastTransaction({
     transaction: tx!,
-    network: "mainnet",
+    network: "testnet",
   });
 
   console.log("Broadcast Result:");

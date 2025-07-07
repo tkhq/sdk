@@ -52,6 +52,8 @@ Now open `.env.local` and add the missing environment variables:
 - `TURNKEY_API_PRIVATE_KEY`
 - `TURNKEY_BASE_URL`
 - `TURNKEY_ORGANIZATION_ID`
+- `TURNKEY_SIGNER_PUBLIC_KEY`
+- `STACKS_RECIPIENT_ADDRESS`
 
 Make sure to use either a `SECP256K1` compressed or uncompressed wallet account / private key for Stacks.
 
