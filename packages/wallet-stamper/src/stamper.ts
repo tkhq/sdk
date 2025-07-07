@@ -5,6 +5,7 @@ import {
   type WalletInterface,
   type TStamp,
   WalletType,
+  WalletRpcProvider,
 } from "./types";
 import {
   SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191,
@@ -22,10 +23,10 @@ export class WalletStamper implements TStamper {
     this.wallet = wallet;
   }
 
-  async stamp(payload: string): Promise<TStamp> {
+  async stamp(payload: string, provider?: WalletRpcProvider): Promise<TStamp> {
     let signature: string;
     try {
-      signature = await this.wallet.signMessage(payload);
+      signature = await this.wallet.signMessage(payload, provider);
     } catch (error) {
       throw new WalletStamperError("Failed to sign the message", error);
     }
@@ -61,7 +62,7 @@ export class WalletStamper implements TStamper {
         signature = toDerSignature(signature.replace("0x", ""));
       } else {
         // For Solana, we can directly use the public key.
-        publicKey = await this.wallet.getPublicKey();
+        publicKey = await this.wallet.getPublicKey(provider);
       }
     } catch (error) {
       throw new WalletStamperError("Failed to recover public key", error);

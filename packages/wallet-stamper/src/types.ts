@@ -1,3 +1,6 @@
+import { EIP1193Provider } from "viem";
+import type { Wallet as SWSWallet } from "@wallet-standard/base";
+
 /**
  * @typedef {Object} TStamp
  * @property {'X-Stamp'} stampHeaderName - The name of the stamp header.
@@ -24,8 +27,12 @@ export interface TStamper {
  */
 export interface BaseWalletInterface {
   type: WalletType.Ethereum | WalletType.Solana;
-  signMessage: (message: string) => Promise<string>;
-  getPublicKey: () => Promise<string>;
+  signMessage: (
+    message: string,
+    provider?: WalletRpcProvider,
+  ) => Promise<string>;
+  getPublicKey: (provider?: WalletRpcProvider) => Promise<string>;
+  getProviders: () => WalletProvider[];
 }
 
 /**
@@ -54,6 +61,10 @@ export interface EthereumWalletInterface extends BaseWalletInterface {
   type: WalletType.Ethereum;
 }
 
+export interface SolanaWalletInterface extends BaseWalletInterface {
+  type: WalletType.Solana;
+}
+
 /**
  * Union type for wallet interfaces, supporting both Solana and Ethereum wallets.
  * @typedef {SolanaWalletInterface | EthereumWalletInterface} WalletInterface
@@ -66,4 +77,18 @@ export type WalletInterface = SolanaWalletInterface | EthereumWalletInterface;
 export enum WalletType {
   Ethereum = "ethereum",
   Solana = "solana",
+}
+export type WalletRpcProvider = EIP1193Provider | SWSWallet;
+
+export interface WalletProviderInfo {
+  uuid?: string;
+  name: string;
+  icon: string;
+  rdns?: string;
+}
+
+export interface WalletProvider {
+  type: WalletType;
+  info: WalletProviderInfo;
+  provider: WalletRpcProvider;
 }

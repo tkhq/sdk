@@ -24,8 +24,11 @@ export default function AuthPage() {
     login,
     handleGoogleOauth,
     loginWithPasskey,
-    createPasskey,
     signUpWithPasskey,
+    getWalletProviders,
+    loginWithWallet,
+    signUpWithWallet,
+    createPasskey,
     fetchUser,
     fetchWallets,
     initOtp,
@@ -42,7 +45,7 @@ export default function AuthPage() {
   }, [allSessions]);
 
   useEffect(() => {
-    console.log("Auth state", authState)
+    console.log("Auth state", authState);
   }, [authState]);
 
   const logInWithPasskey1 = async () => {
@@ -51,6 +54,11 @@ export default function AuthPage() {
 
   const logInWithPasskey2 = async () => {
     await loginWithPasskey({ sessionKey: "session-2" });
+  };
+
+  const getWalletProvider1 = async () => {
+    const providers = await getWalletProviders();
+    console.log("Wallet Providers:", providers);
   };
 
   const indexedDB = async () => {
@@ -185,6 +193,48 @@ export default function AuthPage() {
         }}
       >
         Sign Up with Passkey
+      </button>
+
+      <button
+        onClick={async () => {
+          await getWalletProvider1();
+        }}
+        style={{
+          backgroundColor: "rebeccapurple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Get Wallet Providers
+      </button>
+
+      <button
+        onClick={async () => {
+          await signUpWithWallet();
+        }}
+        style={{
+          backgroundColor: "rebeccapurple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Sign Up with Wallet
+      </button>
+
+      <button
+        onClick={async () => {
+          await loginWithWallet();
+        }}
+        style={{
+          backgroundColor: "rebeccapurple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Login with Wallet
       </button>
 
       <input
@@ -363,40 +413,40 @@ export default function AuthPage() {
       ) : null}
 
       <button
-          onClick={() => switchSession(SessionKey.DefaultSessionkey)}
-          style={{
-            backgroundColor: "lightblue",
-            borderRadius: "8px",
-            padding: "8px 16px",
-            color: "white",
-          }}
-        >
-          Switch to Default Session
-        </button>
+        onClick={() => switchSession(SessionKey.DefaultSessionkey)}
+        style={{
+          backgroundColor: "lightblue",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Switch to Default Session
+      </button>
 
-        <button
-          onClick={() => switchSession("session-1")}
-          style={{
-            backgroundColor: "lightblue",
-            borderRadius: "8px",
-            padding: "8px 16px",
-            color: "white",
-          }}
-        >
-          Switch to Session 1
-        </button>
+      <button
+        onClick={() => switchSession("session-1")}
+        style={{
+          backgroundColor: "lightblue",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Switch to Session 1
+      </button>
 
-        <button
-          onClick={() => switchSession("session-2")}
-          style={{
-            backgroundColor: "lightblue",
-            borderRadius: "8px",
-            padding: "8px 16px",
-            color: "white",
-          }}
-        >
-          Switch to Session 2
-        </button>
+      <button
+        onClick={() => switchSession("session-2")}
+        style={{
+          backgroundColor: "lightblue",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Switch to Session 2
+      </button>
 
       {session ? (
         <button

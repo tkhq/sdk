@@ -52,7 +52,8 @@ import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   DEFAULT_SOLANA_ACCOUNTS,
 } from "../turnkey-helpers";
-import { WalletType } from "@turnkey/wallet-stamper";
+import { Chain, CrossPlatformWalletStamper } from "../__stampers__/wallet/base";
+import { WalletProvider, WalletType } from "@turnkey/wallet-stamper";
 
 type PublicMethods<T> = {
   [K in keyof T as K extends string | number | symbol
@@ -80,6 +81,7 @@ export class TurnkeyClient {
 
   private apiKeyStamper?: CrossPlatformApiKeyStamper | undefined; // TODO (Amir): TEMPORARILY PUBLIC, MAKE PRIVATE LATER
   private passkeyStamper?: CrossPlatformPasskeyStamper | undefined;
+  private walletStamper?: CrossPlatformWalletStamper | undefined;
   private storageManager!: StorageBase;
 
   constructor(
@@ -87,13 +89,15 @@ export class TurnkeyClient {
 
     // Users can pass in their own stampers, or we will create them. Should we remove this?
     apiKeyStamper?: CrossPlatformApiKeyStamper,
-    passkeyStamper?: CrossPlatformPasskeyStamper
+    passkeyStamper?: CrossPlatformPasskeyStamper,
+    walletStamper?: CrossPlatformWalletStamper,
   ) {
     this.config = config;
 
     // Just store any explicitly provided stampers
     this.apiKeyStamper = apiKeyStamper;
     this.passkeyStamper = passkeyStamper;
+    this.walletStamper = walletStamper;
 
     // Actual initialization will happen in init()
   }
@@ -109,15 +113,26 @@ export class TurnkeyClient {
 
     if (this.config.passkeyConfig) {
       this.passkeyStamper = new CrossPlatformPasskeyStamper(
-        this.config.passkeyConfig
+        this.config.passkeyConfig,
       );
       await this.passkeyStamper.init();
+    }
+
+    if (
+      this.config.walletConfig?.ethereum ||
+      this.config.walletConfig?.solana
+    ) {
+      this.walletStamper = new CrossPlatformWalletStamper(
+        this.config.walletConfig,
+      );
+      await this.walletStamper.init();
     }
 
     // Initialize the HTTP client with the appropriate stampers
     this.httpClient = new TurnkeySDKClientBase({
       apiKeyStamper: this.apiKeyStamper,
       passkeyStamper: this.passkeyStamper!,
+      walletStamper: this.walletStamper!,
       storageManager: this.storageManager,
       ...this.config,
     });
@@ -215,7 +230,7 @@ export class TurnkeyClient {
       } else if (sessionType === SessionType.READ_WRITE) {
         if (!publicKey) {
           throw new Error(
-            "You must provide a publicKey to create a passkey read write session."
+            "You must provide a publicKey to create a passkey read write session.",
           );
         }
         const sessionResponse = await this.httpClient.stampLogin(
@@ -223,7 +238,7 @@ export class TurnkeyClient {
             publicKey,
             organizationId: this.config.organizationId,
           },
-          StamperType.Passkey
+          StamperType.Passkey,
         );
 
         await this.storeSession({
@@ -246,7 +261,7 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
         } catch (cleanupError) {
           throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`
+            `Failed to clean up generated key pair: ${cleanupError}`,
           );
         }
       }
@@ -278,7 +293,7 @@ export class TurnkeyClient {
 
       if (!passkey) {
         throw new Error(
-          "Failed to create passkey: encoded challenge or attestation is missing"
+          "Failed to create passkey: encoded challenge or attestation is missing",
         );
       }
 
@@ -365,7 +380,203 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
         } catch (cleanupError) {
           throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`
+            `Failed to clean up generated key pair: ${cleanupError}`,
+          );
+        }
+      }
+    }
+  };
+
+  getWalletProviders = async (chain?: Chain): Promise<WalletProvider[]> => {
+    try {
+      if (!this.walletStamper) {
+        throw new Error("Wallet stamper is not initialized");
+      }
+
+      return this.walletStamper.getProviders(chain);
+    } catch (error) {
+      throw new Error(`Unable to get wallet providers: ${error}`);
+    }
+  };
+
+  loginWithWallet = async (params?: {
+    sessionType?: SessionType;
+    publicKey?: string;
+    sessionKey?: string | undefined;
+    walletProvider?: WalletProvider;
+  }): Promise<string> => {
+    if (!this.walletStamper) {
+      throw new Error("Wallet stamper is not initialized");
+    }
+
+    try {
+      const sessionType = params?.sessionType || SessionType.READ_WRITE;
+      const publicKey =
+        params?.publicKey || (await this.apiKeyStamper?.createKeyPair());
+      const sessionKey = params?.sessionKey || SessionKey.DefaultSessionkey;
+      const walletProvider = params?.walletProvider;
+
+      if (sessionType === SessionType.READ_WRITE) {
+        if (!publicKey) {
+          throw new Error(
+            "You must provide a publicKey to create a wallet read write session.",
+          );
+        }
+
+        if (walletProvider) {
+          this.walletStamper?.setProvider(
+            walletProvider.type,
+            walletProvider.provider,
+          );
+        }
+
+        const sessionResponse = await this.httpClient.stampLogin(
+          {
+            publicKey,
+            organizationId: this.config.organizationId,
+          },
+          StamperType.Wallet,
+        );
+
+        await this.storeSession({
+          sessionToken: sessionResponse.session,
+          sessionKey,
+        });
+
+        return sessionResponse.session;
+      } else {
+        throw new Error(`Invalid session type passed: ${sessionType}`);
+      }
+    } catch (error) {
+      throw new Error(`Unable to log in with the provided wallet: ${error}`);
+    }
+  };
+
+  signUpWithWallet = async (params?: {
+    createSubOrgParams?: CreateSubOrgParams;
+    sessionType?: SessionType;
+    sessionKey?: string | undefined;
+    walletProvider?: WalletProvider;
+  }): Promise<string> => {
+    const {
+      createSubOrgParams,
+      walletProvider,
+      sessionType = SessionType.READ_WRITE,
+      sessionKey = SessionKey.DefaultSessionkey,
+    } = params || {};
+
+    console.log("Signing up with wallet...");
+
+    if (!this.walletStamper) {
+      throw new Error("Wallet stamper is not initialized");
+    }
+
+    let generatedKeyPair = null;
+    try {
+      generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+
+      if (walletProvider) {
+        this.walletStamper?.setProvider(
+          walletProvider.type,
+          walletProvider.provider,
+        );
+      }
+
+      console.log("Getting public key from wallet stamper...");
+      const publicKey = await this.walletStamper?.getPublicKey();
+      console.log("Public key:", publicKey);
+
+      if (!publicKey) {
+        throw new Error("Failed to get publicKey from wallet");
+      }
+
+      const { type } = this.walletStamper!.getWalletInterface();
+
+      // Build the request body for OTP init
+      const signUpBody = {
+        userName:
+          createSubOrgParams?.userName ||
+          createSubOrgParams?.userEmail ||
+          `user-${Date.now()}`,
+        userEmail: createSubOrgParams?.userEmail,
+        userPhoneNumber: createSubOrgParams?.userPhoneNumber,
+        userTag: createSubOrgParams?.userTag,
+        subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
+        apiKeys: [
+          {
+            apiKeyName: `wallet-auth:${publicKey}`,
+            publicKey: publicKey,
+            curveType:
+              type === WalletType.Ethereum
+                ? ("API_KEY_CURVE_SECP256K1" as const)
+                : ("API_KEY_CURVE_ED25519" as const),
+          },
+          {
+            apiKeyName: `wallet-auth-${generatedKeyPair}`,
+            publicKey: generatedKeyPair,
+            curveType: "API_KEY_CURVE_P256",
+            expirationSeconds: "60",
+          },
+        ],
+        oauthProviders: createSubOrgParams?.oauthProviders,
+        ...(createSubOrgParams?.customWallet && {
+          wallet: {
+            walletName: createSubOrgParams?.customWallet.walletName,
+            accounts: createSubOrgParams?.customWallet.walletAccounts,
+          },
+        }),
+      };
+
+      // Set up headers, including X-Proxy-ID if needed
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (this.config.authProxyId) {
+        headers["X-Proxy-ID"] = this.config.authProxyId;
+      }
+
+      const res = await fetch(`${this.config.authProxyUrl}/v1/signup`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(signUpBody),
+      });
+
+      if (!res.ok) {
+        console.log("Sign up failed with response:", res);
+        const errorText = await res.text();
+        throw new Error(`Sign up failed: ${res.status} ${errorText}`);
+      }
+
+      const newGeneratedKeyPair = await this.apiKeyStamper?.createKeyPair();
+      this.apiKeyStamper?.setPublicKeyOverride(generatedKeyPair!);
+
+      const sessionResponse = await this.httpClient.stampLogin({
+        publicKey: newGeneratedKeyPair!,
+        organizationId: this.config.organizationId,
+      });
+
+      await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair!);
+
+      await this.storeSession({
+        sessionToken: sessionResponse.session,
+        sessionKey,
+      });
+
+      generatedKeyPair = null; // Key pair was successfully used, set to null to prevent cleanup
+
+      return sessionResponse.session;
+    } catch (error) {
+      throw new Error(`Failed to sign up with wallet: ${error}`);
+    } finally {
+      // Clean up the generated key pair if it wasn't successfully used
+      console.log("Cleaning up generated key pair if any");
+      this.apiKeyStamper?.clearOverridePublicKey();
+      if (generatedKeyPair) {
+        try {
+          await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
+        } catch (cleanupError) {
+          throw new Error(
+            `Failed to clean up generated key pair: ${cleanupError}`,
           );
         }
       }
@@ -439,12 +650,12 @@ export class TurnkeyClient {
             otpId: otpId,
             otpCode: otpCode,
           }),
-        }
+        },
       );
       if (!verifyRes.ok) {
         const error = await verifyRes.text();
         throw new Error(
-          `OTP verification failed: ${verifyRes.status} ${error}`
+          `OTP verification failed: ${verifyRes.status} ${error}`,
         );
       }
       const verifyOtpRes: v1VerifyOtpResult = await verifyRes.json();
@@ -522,7 +733,7 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(publicKey);
         } catch (cleanupError) {
           throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`
+            `Failed to clean up generated key pair: ${cleanupError}`,
           );
         }
       }
@@ -739,7 +950,7 @@ export class TurnkeyClient {
 
     if (!publicKey) {
       throw new Error(
-        "Public key must be provided to log in with OAuth. Please create a key pair first."
+        "Public key must be provided to log in with OAuth. Please create a key pair first.",
       );
     }
 
@@ -777,7 +988,7 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(publicKey);
         } catch (cleanupError) {
           throw new Error(
-            `Failed to clean up generated key pair: ${cleanupError}`
+            `Failed to clean up generated key pair: ${cleanupError}`,
           );
         }
       }
@@ -848,7 +1059,7 @@ export class TurnkeyClient {
     try {
       const res = await this.httpClient.getWallets(
         { organizationId: session.organizationId },
-        stamperType
+        stamperType,
       );
 
       if (!res || !res.wallets) {
@@ -900,7 +1111,7 @@ export class TurnkeyClient {
           organizationId: session.organizationId,
           paginationOptions: paginationOptions || { limit: "100" },
         },
-        stamperType
+        stamperType,
       );
     } catch (error) {
       throw new Error(`Failed to fetch wallet accounts: ${error}`);
@@ -932,7 +1143,7 @@ export class TurnkeyClient {
         encoding: payloadEncoding,
         hashFunction,
       },
-      stampWith
+      stampWith,
     );
 
     if (response.activity.failure) {
@@ -966,7 +1177,7 @@ export class TurnkeyClient {
           unsignedTransaction,
           type,
         },
-        stampWith
+        stampWith,
       );
     } catch (error) {
       throw new Error(`Failed to sign transaction: ${error}`);
@@ -992,7 +1203,7 @@ export class TurnkeyClient {
     try {
       const userResponse = await this.httpClient.getUser(
         { organizationId, userId },
-        StamperType.ApiKey
+        StamperType.ApiKey,
       );
 
       if (!userResponse || !userResponse.user) {
@@ -1037,7 +1248,7 @@ export class TurnkeyClient {
           accounts: walletAccounts,
           mnemonicLength: mnemonicLength || 12,
         },
-        stampWith
+        stampWith,
       );
 
       if (!res || !res.walletId) {
@@ -1072,12 +1283,12 @@ export class TurnkeyClient {
           walletId,
           accounts: accounts,
         },
-        stampWith
+        stampWith,
       );
 
       if (!res || !res.addresses) {
         throw new Error(
-          "No account found in the create wallet account response"
+          "No account found in the create wallet account response",
         );
       }
       return res.addresses;
@@ -1109,7 +1320,7 @@ export class TurnkeyClient {
           targetPublicKey,
           organizationId: organizationId || session.organizationId,
         },
-        stamperType
+        stamperType,
       );
 
       if (!res.exportBundle) {
@@ -1168,7 +1379,7 @@ export class TurnkeyClient {
     try {
       return await this.httpClient.deleteSubOrganization(
         { deleteWithoutExport },
-        stamperWith
+        stamperWith,
       );
     } catch (error) {
       throw new Error(`Failed to delete sub-organization: ${error}`);
@@ -1311,7 +1522,7 @@ export class TurnkeyClient {
       invalidateExisitng = false,
     } = params || {};
 
-    const activeSessionKey = await this.storageManager.getActiveSessionKey()
+    const activeSessionKey = await this.storageManager.getActiveSessionKey();
     const session = await this.getSession({ sessionKey: activeSessionKey });
     if (!session) {
       throw new Error(`No active session found: ${sessionKey}`);
@@ -1348,7 +1559,7 @@ export class TurnkeyClient {
         }
         default: {
           throw new Error(
-            "Invalid session type passed. Use SessionType.READ_WRITE or SessionType.READ_ONLY."
+            "Invalid session type passed. Use SessionType.READ_WRITE or SessionType.READ_ONLY.",
           );
         }
       }
@@ -1412,7 +1623,7 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(publicKey);
         } catch (error) {
           console.error(
-            `Failed to delete unused key pair ${publicKey}: ${error}`
+            `Failed to delete unused key pair ${publicKey}: ${error}`,
           );
         }
       }
@@ -1430,7 +1641,7 @@ export class TurnkeyClient {
     const storeOverride = params?.storeOverride ?? false;
 
     const publicKey = await this.apiKeyStamper.createKeyPair(
-      externalKeyPair ? externalKeyPair : undefined
+      externalKeyPair ? externalKeyPair : undefined,
     );
 
     if (storeOverride && publicKey) {

@@ -49,7 +49,8 @@ import { AuthComponent } from "../../components/auth";
 import { OAuthLoading } from "../../components/auth/OAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
-import { WalletType } from "@turnkey/wallet-stamper";
+import { WalletProvider, WalletType } from "@turnkey/wallet-stamper";
+import { Chain } from "@turnkey/sdk-js/dist/__stampers__/wallet/base";
 
 interface ClientProviderProps {
   children: ReactNode;
@@ -71,7 +72,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
 }
 
 export const ClientContext = createContext<ClientContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const useTurnkey = (): ClientContextType => {
@@ -112,6 +113,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             config.passkeyConfig?.userVerification || "preferred",
           allowCredentials: config.passkeyConfig?.allowCredentials || [],
         },
+        walletConfig: config.walletConfig,
       });
 
       setAutoRefreshSession(config?.autoRefreshSession ?? false);
@@ -140,7 +142,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       if (!publicKey) {
         throw new Error(
-          "Public key is missing in the state parameters. You must encode the public key in the state parameter when initiating the OAuth flow."
+          "Public key is missing in the state parameters. You must encode the public key in the state parameter when initiating the OAuth flow.",
         );
       }
 
@@ -177,7 +179,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         window.history.replaceState(
           null,
           document.title,
-          window.location.pathname + window.location.search
+          window.location.pathname + window.location.search,
         );
       }
     }
@@ -205,7 +207,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             sessionKey,
             expiry: session!.expiry,
           });
-        })
+        }),
       );
 
       setAllSessions(allSessions);
@@ -248,7 +250,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       if (!activeSession && expiryTimeoutsRef.current[sessionKey]) {
         expiryTimeoutsRef.current[`${sessionKey}-warning`] = setTimeout(
           beforeExpiry,
-          10000
+          10000,
         );
         return;
       }
@@ -283,13 +285,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     } else {
       expiryTimeoutsRef.current[`${sessionKey}-warning`] = setTimeout(
         beforeExpiry,
-        timeUntilExpiry - SESSION_WARNING_THRESHOLD_MS
+        timeUntilExpiry - SESSION_WARNING_THRESHOLD_MS,
       );
     }
 
     expiryTimeoutsRef.current[sessionKey] = setTimeout(
       expireSession,
-      timeUntilExpiry
+      timeUntilExpiry,
     );
   }
 
@@ -363,6 +365,51 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
     setAuthState("loading");
     const res = await client.signUpWithPasskey(params);
+    if (res) {
+      await handlePostAuth();
+      setAuthState("authenticated");
+    } else {
+      setAuthState("unauthenticated");
+    }
+    return res;
+  }
+
+  function getWalletProviders(chain?: Chain): Promise<WalletProvider[]> {
+    if (!client) throw new Error("Client is not initialized.");
+    return client.getWalletProviders(chain);
+  }
+
+  async function loginWithWallet(params?: {
+    sessionType?: SessionType;
+    publicKey?: string;
+    sessionKey?: string | undefined;
+    walletProvider?: WalletProvider;
+  }): Promise<string> {
+    if (!client) {
+      throw new Error("Client is not initialized.");
+    }
+    setAuthState("loading");
+    const res = await client.loginWithWallet(params);
+    if (res) {
+      await handlePostAuth();
+      setAuthState("authenticated");
+    } else {
+      setAuthState("unauthenticated");
+    }
+    return res;
+  }
+
+  async function signUpWithWallet(params?: {
+    createSubOrgParams?: CreateSubOrgParams;
+    sessionType?: SessionType;
+    sessionKey?: string | undefined;
+    walletProvider?: WalletProvider;
+  }): Promise<string> {
+    if (!client) {
+      throw new Error("Client is not initialized.");
+    }
+    setAuthState("loading");
+    const res = await client.signUpWithWallet(params);
     if (res) {
       await handlePostAuth();
       setAuthState("authenticated");
@@ -802,7 +849,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         const additionalState = Object.entries(additionalParameters)
           .map(
             ([key, value]) =>
-              `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+              `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
           )
           .join("&");
         if (additionalState) {
@@ -835,7 +882,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         const authWindow = window.open(
           "about:blank",
           "_blank",
-          `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
+          `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
         );
 
         if (!authWindow) {
@@ -905,6 +952,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         logout,
         loginWithPasskey,
         signUpWithPasskey,
+        getWalletProviders,
+        loginWithWallet,
+        signUpWithWallet,
         initOtp,
         verifyOtp,
         loginWithOtp,
