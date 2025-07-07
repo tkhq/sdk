@@ -25,11 +25,17 @@ function RootLayout({ children }: RootLayoutProps) {
             auth: {
               oAuthConfig: {
                 googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+                appleClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
+                facebookClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID,
                 oAuthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
               },
+              methods: {
+                smsOtpAuthEnabled: true,
+              },
               autoRefreshSession: true,
-              methodOrder: ["socials", "email", "sms", "passkey"],
-              oauthOrder: ["google"],
+            },
+            ui: {
+              darkMode: false,
             },
             passkeyConfig: {
               rpId: process.env.NEXT_PUBLIC_RPID!,
